@@ -164,10 +164,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
     switch (type) {
       case WalletType.nano:
-        dynamic WalletService = nano!.getNanoWalletService();
-        return await WalletService.compareDerivationMethods(
+        dynamic nanoWalletService = await nano!.getNanoWalletService();
+        return nanoWalletService.compareDerivationMethods(
           mnemonic: mnemonic,
-          seedKey: seedKey,
+          privateKey: seedKey,
           node: node,
         ) as Future<List<DerivationType>>;
       default:

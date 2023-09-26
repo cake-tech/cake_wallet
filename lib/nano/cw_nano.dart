@@ -186,11 +186,12 @@ class CWNano extends Nano {
 
   @override
   dynamic getNanoUtil() {
-    return NanoUtil;
+    return NanoUtil();
   }
 
   @override
-  dynamic getNanoWalletService() {
-    return NanoWalletService;
+  dynamic getNanoWalletService() async {
+    Box<WalletInfo> _walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+    return NanoWalletService(_walletInfoSource);
   }
 }

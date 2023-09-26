@@ -307,7 +307,7 @@ class WalletRestorePage extends BasePage {
     switch (walletType) {
       case WalletType.nano:
         dynamic NanoUtil = nano!.getNanoUtil();
-        dynamic WalletService = nano!.getNanoWalletService();
+        dynamic WalletService = await nano!.getNanoWalletService();
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['private_key'] as String?;
         dynamic bip39Info = await WalletService.getInfoFromSeedOrMnemonic(DerivationType.bip39,
@@ -322,8 +322,8 @@ class WalletRestorePage extends BasePage {
         if (standardInfo["balance"] != null) {
           list.add(DerivationInfo(
             derivationType: DerivationType.nano,
-            balance: NanoUtil.getRawAsUsableString(
-                standardInfo["balance"] as String, NanoUtil.rawPerNano) as String,
+            balance: NanoUtil.getRawAsUsableStringInstance(
+                standardInfo["balance"] as String, NanoUtil.rawPerNanoInstance) as String,
             address: standardInfo["address"] as String,
             height: int.tryParse(
                   standardInfo["confirmation_height"] as String,
@@ -336,7 +336,7 @@ class WalletRestorePage extends BasePage {
           list.add(DerivationInfo(
             derivationType: DerivationType.bip39,
             balance:
-                NanoUtil.getRawAsUsableString(bip39Info["balance"] as String, NanoUtil.rawPerNano)
+                NanoUtil.getRawAsUsableStringInstance(bip39Info["balance"] as String, NanoUtil.rawPerNanoInstance)
                     as String,
             address: bip39Info["address"] as String,
             height: int.tryParse(

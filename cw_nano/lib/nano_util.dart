@@ -190,4 +190,92 @@ class NanoUtil {
     final Decimal rawDecimal = Decimal.parse(rawPerCur.toString());
     return (asDecimal * rawDecimal).toString();
   }
+
+  // non-static versions of the above since we can't use the static versions under a specific (non-nano) context:
+  int maxDecimalDigitsInstance = NanoUtil.maxDecimalDigits;
+  BigInt rawPerNanoInstance = NanoUtil.rawPerNano;
+  BigInt rawPerNyanoInstance = NanoUtil.rawPerNyano;
+  BigInt rawPerBananoInstance = NanoUtil.rawPerBanano;
+  BigInt rawPerXMRInstance = NanoUtil.rawPerXMR;
+  BigInt convertXMRtoNanoInstance = NanoUtil.convertXMRtoNano;
+
+  String seedToPrivateInstance(String seed, int index) {
+    return NanoUtil.seedToPrivate(seed, index);
+  }
+
+  String seedToAddressInstance(String seed, int index) {
+    return NanoUtil.seedToAddress(seed, index);
+  }
+
+  String seedToMnemonicInstance(String seed) {
+    return NanoUtil.seedToMnemonic(seed);
+  }
+
+  Future<String> mnemonicToSeedInstance(String mnemonic) async {
+    return NanoUtil.mnemonicToSeed(mnemonic);
+  }
+
+  String privateKeyToPublicInstance(String privateKey) {
+    return NanoUtil.privateKeyToPublic(privateKey);
+  }
+
+  String addressToPublicKeyInstance(String publicAddress) {
+    return NanoUtil.addressToPublicKey(publicAddress);
+  }
+
+  String privateKeyToAddressInstance(String privateKey) {
+    return NanoUtil.privateKeyToAddress(privateKey);
+  }
+
+  String publicKeyToAddressInstance(String publicKey) {
+    return NanoUtil.publicKeyToAddress(publicKey);
+  }
+
+  bool isValidSeedInstance(String seed) {
+    return NanoUtil.isValidSeed(seed);
+  }
+
+  Future<String> hdMnemonicListToSeedInstance(List<String> words) async {
+    return NanoUtil.hdMnemonicListToSeed(words);
+  }
+
+  Future<String> hdSeedToPrivateInstance(String seed, int index) async {
+    return NanoUtil.hdSeedToPrivate(seed, index);
+  }
+
+  Future<String> hdSeedToAddressInstance(String seed, int index) async {
+    return NanoUtil.hdSeedToAddress(seed, index);
+  }
+
+  Future<String> uniSeedToAddressInstance(String seed, int index, String type) {
+    return NanoUtil.uniSeedToAddress(seed, index, type);
+  }
+
+  Future<String> uniSeedToPrivateInstance(String seed, int index, String type) {
+    return NanoUtil.uniSeedToPrivate(seed, index, type);
+  }
+
+  bool isValidBip39SeedInstance(String seed) {
+    return NanoUtil.isValidBip39Seed(seed);
+  }
+
+  Decimal getRawAsDecimalInstance(String? raw, BigInt? rawPerCur) {
+    return NanoUtil.getRawAsDecimal(raw, rawPerCur);
+  }
+
+  String truncateDecimalInstance(Decimal input, {int digits = maxDecimalDigits}) {
+    return NanoUtil.truncateDecimal(input, digits: digits);
+  }
+
+  String getRawAsUsableStringInstance(String? raw, BigInt rawPerCur) {
+    return NanoUtil.getRawAsUsableString(raw, rawPerCur);
+  }
+
+  String getRawAccuracyInstance(String? raw, BigInt rawPerCur) {
+    return NanoUtil.getRawAccuracy(raw, rawPerCur);
+  }
+
+  String getAmountAsRawInstance(String amount, BigInt rawPerCur) {
+    return NanoUtil.getAmountAsRaw(amount, rawPerCur);
+  }
 }

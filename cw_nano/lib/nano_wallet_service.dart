@@ -85,7 +85,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
   }
 
-  static Future<dynamic> getInfoFromSeedOrMnemonic(
+  Future<dynamic> getInfoFromSeedOrMnemonic(
     DerivationType derivationType, {
     String? seedKey,
     String? mnemonic,
@@ -121,9 +121,11 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     accountInfo["address"] = publicAddress;
     return accountInfo;
   }
-
-  static Future<List<DerivationType>> compareDerivationMethods(
-      {String? mnemonic, String? seedKey, required Node node}) async {
+  
+  Future<List<DerivationType>> compareDerivationMethods(
+      {String? mnemonic, String? privateKey, required Node node}) async {
+    String? seedKey = privateKey;
+    
     if (mnemonic?.split(' ').length == 12) {
       return [DerivationType.bip39];
     }

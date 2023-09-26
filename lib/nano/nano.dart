@@ -1,3 +1,4 @@
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/account.dart';
 import 'package:cw_core/wallet_credentials.dart';

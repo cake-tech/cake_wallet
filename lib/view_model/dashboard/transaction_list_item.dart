@@ -95,7 +95,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         dynamic NanoUtil = nano!.getNanoUtil();
         amount = calculateFiatAmountRaw(
             cryptoAmount:
-                NanoUtil.getRawAsDecimal(nanoTransaction.amountRaw.toString(), NanoUtil.rawPerNano)
+                NanoUtil.getRawAsDecimalInstance(nanoTransaction.amountRaw.toString(), NanoUtil.rawPerNanoInstance)
                     .toDouble() as double,
             price: price);
         break;

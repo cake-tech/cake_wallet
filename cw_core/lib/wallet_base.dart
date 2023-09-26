@@ -13,9 +13,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 
-abstract class WalletBase<
-    BalanceType extends Balance,
-    HistoryType extends TransactionHistoryBase,
+abstract class WalletBase<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
     TransactionType extends TransactionInfo> {
   WalletBase(this.walletInfo);
 
