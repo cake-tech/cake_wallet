@@ -20,34 +20,37 @@ void startAuthenticationStateChange(
       final state = authenticationStore.state;
 
       if (state == AuthenticationState.installed) {
-        try {
-          await loadCurrentWallet();
-        } catch (error, stack) {
-          loginError = error;
-          ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
-        }
+        await _loadCurrentWallet();
         return;
       }
 
       if (state == AuthenticationState.allowed) {
-        final typeRaw =
-            getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0;
-
-        final type = deserializeFromInt(typeRaw);
-
-        if (type == WalletType.haven) {
-          await navigatorKey.currentState!
-              .pushNamedAndRemoveUntil(Routes.preSeed, (route) => false, arguments: type);
-          await navigatorKey.currentState!.pushNamed(Routes.seed, arguments: true);
-          await navigatorKey.currentState!
-              .pushNamedAndRemoveUntil(Routes.welcome, (route) => false);
-          return;
-        } else {
-          await navigatorKey.currentState!
-              .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-          return;
-        }
+        await _navigateBasedOnWalletType(navigatorKey);
       }
     },
   );
+}
+
+Future<void> _loadCurrentWallet() async {
+  try {
+    await loadCurrentWallet();
+  } catch (error, stack) {
+    loginError = error;
+    ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+  }
+}
+
+Future<void> _navigateBasedOnWalletType(GlobalKey<NavigatorState> navigatorKey) async {
+  final typeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0;
+  final type = deserializeFromInt(typeRaw);
+
+  if (type == WalletType.haven) {
+    await navigatorKey.currentState!
+        .pushNamedAndRemoveUntil(Routes.preSeed, (route) => false, arguments: type);
+    await navigatorKey.currentState!.pushNamed(Routes.seed, arguments: true);
+    await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.welcome, (route) => false);
+    return;
+  } else {
+    await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+  }
 }
