@@ -727,26 +727,24 @@ Future<void> setup({
 
   getIt.registerFactory(() => NanoChangeRepPage());
 
-  getIt.registerFactoryParam<NodeCreateOrEditViewModel, WalletType?, void>((WalletType? type, _) =>
-      NodeCreateOrEditViewModel(
-          _nodeSource, type ?? getIt.get<AppStore>().wallet!.type, getIt.get<SettingsStore>()));
-
-  getIt.registerFactoryParam<PowNodeCreateOrEditViewModel, WalletType?, void>(
-      (WalletType? type, _) => PowNodeCreateOrEditViewModel(
-          _powNodeSource, type ?? getIt.get<AppStore>().wallet!.type, getIt.get<SettingsStore>()));
+  getIt.registerFactoryParam<NodeCreateOrEditViewModel, WalletType?, bool?>(
+      (WalletType? type, bool? isPow) => NodeCreateOrEditViewModel(
+          (isPow ?? false) ? _powNodeSource : _nodeSource,
+          type ?? getIt.get<AppStore>().wallet!.type,
+          getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<NodeCreateOrEditPage, Node?, bool?>(
       (Node? editingNode, bool? isSelected) => NodeCreateOrEditPage(
-          nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(),
+          nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(param2: false),
           editingNode: editingNode,
           isSelected: isSelected));
 
   getIt.registerFactoryParam<PowNodeCreateOrEditPage, Node?, bool?>(
       (Node? editingNode, bool? isSelected) => PowNodeCreateOrEditPage(
-          nodeCreateOrEditViewModel: getIt.get<PowNodeCreateOrEditViewModel>(),
+          nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(param2: true),
           editingNode: editingNode,
           isSelected: isSelected));
-          
+
   getIt.registerFactory<RobinhoodBuyProvider>(
       () => RobinhoodBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 
@@ -829,14 +827,12 @@ Future<void> setup({
       (type, _) => WalletRestorePage(getIt.get<WalletRestoreViewModel>(param1: type)));
 
   getIt.registerFactoryParam<WalletRestoreChooseDerivationViewModel, List<DerivationInfo>, void>(
-      (derivations, _) =>
-          WalletRestoreChooseDerivationViewModel(derivationInfos: derivations));
+      (derivations, _) => WalletRestoreChooseDerivationViewModel(derivationInfos: derivations));
 
-  getIt.registerFactoryParam<WalletRestoreChooseDerivationPage, dynamic, void>(
-      (credentials, _) =>
-          WalletRestoreChooseDerivationPage(getIt.get<WalletRestoreChooseDerivationViewModel>(
-            param1: credentials,
-          )));
+  getIt.registerFactoryParam<WalletRestoreChooseDerivationPage, dynamic, void>((credentials, _) =>
+      WalletRestoreChooseDerivationPage(getIt.get<WalletRestoreChooseDerivationViewModel>(
+        param1: credentials,
+      )));
 
   getIt.registerFactoryParam<TransactionDetailsViewModel, TransactionInfo, void>(
       (TransactionInfo transactionInfo, _) {
@@ -921,9 +917,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
 
-  getIt.registerFactory(() =>
-      SupportChatPage(
-          getIt.get<SupportViewModel>(), secureStorage: getIt.get<FlutterSecureStorage>()));
+  getIt.registerFactory(() => SupportChatPage(getIt.get<SupportViewModel>(),
+      secureStorage: getIt.get<FlutterSecureStorage>()));
 
   getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 

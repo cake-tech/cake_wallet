@@ -81,7 +81,7 @@ class PowNodeCreateOrEditPage extends BasePage {
         ),
       );
       
-  final PowNodeCreateOrEditViewModel nodeCreateOrEditViewModel;
+  final NodeCreateOrEditViewModel nodeCreateOrEditViewModel;
   final Node? editingNode;
   final bool? isSelected;
 
@@ -124,7 +124,7 @@ class PowNodeCreateOrEditPage extends BasePage {
         padding: EdgeInsets.only(left: 24, right: 24),
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(bottom: 24.0),
-          content: PowNodeForm(
+          content: NodeForm(
             formKey: _formKey,
             nodeViewModel: nodeCreateOrEditViewModel,
             editingNode: editingNode,
