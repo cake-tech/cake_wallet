@@ -1,7 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/nodes/widgets/pow_node_list_row.dart';
+import 'package:cake_wallet/src/screens/nodes/widgets/node_list_row.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -25,7 +25,7 @@ class ManagePowNodesPage extends BasePage {
         children: [
           Semantics(
             button: true,
-            child: PowNodeHeaderListRow(
+            child: NodeHeaderListRow(
               title: S.of(context).add_new_node,
               onTap: (_) async => await Navigator.of(context).pushNamed(Routes.newPowNode),
             ),
@@ -47,10 +47,11 @@ class ManagePowNodesPage extends BasePage {
                       builder: (context) {
                         final node = nodeListViewModel.nodes[index];
                         final isSelected = node.keyIndex == nodeListViewModel.currentNode.keyIndex;
-                        final nodeListRow = PowNodeListRow(
+                        final nodeListRow = NodeListRow(
                           title: node.uriRaw,
                           node: node,
                           isSelected: isSelected,
+                          isPow: true,
                           onTap: (_) async {
                             if (isSelected) {
                               return;

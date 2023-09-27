@@ -14,7 +14,6 @@ import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
-import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
@@ -333,7 +332,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newPowNode:
       final args = settings.arguments as Map<String, dynamic>?;
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<PowNodeCreateOrEditPage>(
+          builder: (_) => getIt.get<NodeCreateOrEditPage>(
               param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?));
 
     case Routes.accountCreation:
@@ -521,7 +520,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (_) => AdvancedPrivacySettingsPage(
                 getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
-                getIt.get<NodeCreateOrEditViewModel>(param1: type),
+                getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
               ));
 
     case Routes.anonPayInvoicePage:

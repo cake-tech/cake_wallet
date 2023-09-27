@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -21,11 +22,11 @@ class AccountTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isCurrent
-        ? Theme.of(context).textTheme.titleSmall!.decorationColor!
-        : Theme.of(context).textTheme.displayLarge!.decorationColor!;
+        ? Theme.of(context).extension<AccountListTheme>()!.currentAccountBackgroundColor
+        : Theme.of(context).extension<AccountListTheme>()!.tilesBackgroundColor;
     final textColor = isCurrent
-        ? Theme.of(context).textTheme.titleSmall!.color!
-        : Theme.of(context).textTheme.displayLarge!.color!;
+        ? Theme.of(context).extension<AccountListTheme>()!.currentAccountTextColor
+        : Theme.of(context).extension<AccountListTheme>()!.tilesTextColor;
 
     final Widget cell = GestureDetector(
       onTap: onTap,

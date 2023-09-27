@@ -49,6 +49,7 @@ class ManageNodesPage extends BasePage {
                           title: node.uriRaw,
                           node: node,
                           isSelected: isSelected,
+                          isPow: false,
                           onTap: (_) async {
                             if (isSelected) {
                               return;
