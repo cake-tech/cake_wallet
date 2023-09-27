@@ -690,5 +690,7 @@
   "event": "Lamarin",
   "successful": "Nasara",
   "wouoldLikeToConnect": "ina son haɗi",
-  "message": "Sako"
+  "message": "Sako",
+  "do_not_have_enough_gas_asset": "Ba ku da isassun ${currency} don yin ma'amala tare da yanayin cibiyar sadarwar blockchain na yanzu. Kuna buƙatar ƙarin ${currency} don biyan kuɗaɗen cibiyar sadarwar blockchain, koda kuwa kuna aika wata kadara daban.",
+  "totp_auth_url": "TOTP AUTH URL"
 }

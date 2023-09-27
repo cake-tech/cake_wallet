@@ -711,5 +711,7 @@
   "event": "Evento",
   "successful": "Bem-sucedido",
   "wouoldLikeToConnect": "gostaria de me conectar",
-  "message": "Mensagem"
+  "message": "Mensagem",
+  "do_not_have_enough_gas_asset": "Você não tem ${currency} suficiente para fazer uma transação com as condições atuais da rede blockchain. Você precisa de mais ${currency} para pagar as taxas da rede blockchain, mesmo se estiver enviando um ativo diferente.",
+  "totp_auth_url": "URL de autenticação TOTP"
 }

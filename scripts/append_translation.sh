@@ -7,7 +7,7 @@
 # if you get an error `command not found`
 # give the correct permissions to this file using `chmod 777 append_translation.sh`
 
-langs=("ar" "bg" "cs" "de" "en" "es" "fr" "ha" "hi" "hr" "id" "it" "ja" "ko" "my" "nl" "pl" "pt" "ru" "th" "tr" "uk" "ur" "yo" "zh")
+langs=("ar" "bg" "cs" "de" "en" "es" "fr" "ha" "hi" "hr" "id" "it" "ja" "ko" "my" "nl" "pl" "pt" "ru" "th" "tl" "tr" "uk" "ur" "yo" "zh")
 
 name=$1
 text=$2
