@@ -107,7 +107,6 @@ Future<void> generateMonero(bool hasImplementation) async {
   const moneroCommonHeaders = """
 import 'package:cake_wallet/entities/unspent_transaction_output.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_monero/monero_unspent.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -221,6 +220,8 @@ abstract class Monero {
   List<Unspent> getUnspents(Object wallet);
   void updateUnspents(Object wallet);
 
+  Future<int> getCurrentHeight();
+
   WalletCredentials createMoneroRestoreWalletFromKeysCredentials({
     required String name,
     required String spendKey,
@@ -241,7 +242,7 @@ abstract class Monero {
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
-  WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+  WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource, Box<dynamic> unspentCoinSource);
   Map<String, String> pendingTransactionInfo(Object transaction);
 }
 
@@ -573,7 +574,10 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
-  final dependenciesIndex = inputLines.indexWhere((line) => line.toLowerCase() == 'dependencies:');
+  final dependenciesIndex = inputLines.indexWhere(
+	(line) => Platform.isWindows
+	? line.toLowerCase() == 'dependencies:\r' // On Windows it could contains `\r` (Carriage Return)
+	: line.toLowerCase() == 'dependencies:');
   var output = cwCore;
 
   if (hasMonero) {

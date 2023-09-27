@@ -324,8 +324,12 @@ class CWMonero extends Monero {
 
   @override
   WalletService createMoneroWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
-    return MoneroWalletService(walletInfoSource, unspentCoinSource);
+      Box<WalletInfo> walletInfoSource, Box<dynamic> unspentCoinSource) {
+    if (unspentCoinSource is Box<UnspentCoinsInfo>) {
+        return MoneroWalletService(walletInfoSource, unspentCoinSource);
+    }
+
+    throw Exception('Error while creating MoneroWalletService: unspentCoinSource is not Box<UnspentCoinsInfo>.');
   }
 
   @override
@@ -359,5 +363,10 @@ class CWMonero extends Monero {
   void updateUnspents(Object wallet) async {
     final moneroWallet = wallet as MoneroWallet;
     await moneroWallet.updateUnspent();
+  }
+
+  @override
+  Future<int> getCurrentHeight() async {
+    return monero_wallet.getCurrentHeight();
   }
 }

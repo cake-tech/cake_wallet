@@ -5,11 +5,12 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
-import 'package:package_info/package_info.dart';
+import 'package:cake_wallet/utils/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,7 +19,7 @@ class ExceptionHandler {
   static const _coolDownDurationInDays = 7;
 
   static void _saveException(String? error, StackTrace? stackTrace, {String? library}) async {
-    final appDocDir = await getApplicationDocumentsDirectory();
+    final appDocDir = await getAppDir();
 
     final file = File('${appDocDir.path}/error.txt');
     final exception = {
@@ -48,7 +49,7 @@ class ExceptionHandler {
 
   static void _sendExceptionFile() async {
     try {
-      final appDocDir = await getApplicationDocumentsDirectory();
+      final appDocDir = await getAppDir();
 
       final file = File('${appDocDir.path}/error.txt');
 
