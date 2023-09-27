@@ -80,7 +80,6 @@ import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.da
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
-import 'package:cake_wallet/view_model/node_list/pow_node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
@@ -829,7 +828,7 @@ Future<void> setup({
   getIt.registerFactoryParam<WalletRestoreChooseDerivationViewModel, List<DerivationInfo>, void>(
       (derivations, _) => WalletRestoreChooseDerivationViewModel(derivationInfos: derivations));
 
-  getIt.registerFactoryParam<WalletRestoreChooseDerivationPage, dynamic, void>((credentials, _) =>
+  getIt.registerFactoryParam<WalletRestoreChooseDerivationPage, List<DerivationInfo>, void>((credentials, _) =>
       WalletRestoreChooseDerivationPage(getIt.get<WalletRestoreChooseDerivationViewModel>(
         param1: credentials,
       )));
