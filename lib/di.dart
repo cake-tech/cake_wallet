@@ -725,7 +725,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => OtherSettingsPage(getIt.get<OtherSettingsViewModel>()));
 
-  getIt.registerFactory(() => NanoChangeRepPage());
+  getIt.registerFactory(() => NanoChangeRepPage(getIt.get<AppStore>().wallet!));
 
   getIt.registerFactoryParam<NodeCreateOrEditViewModel, WalletType?, bool?>(
       (WalletType? type, bool? isPow) => NodeCreateOrEditViewModel(

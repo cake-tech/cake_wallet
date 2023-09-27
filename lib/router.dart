@@ -200,8 +200,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.restoreWalletChooseDerivation:
       return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<WalletRestoreChooseDerivationPage>(param1: settings.arguments as List<DerivationInfo>));
+          builder: (_) => getIt.get<WalletRestoreChooseDerivationPage>(
+              param1: settings.arguments as List<DerivationInfo>));
 
     case Routes.sweepingWalletPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<SweepingWalletPage>());
@@ -247,7 +247,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage(isReadOnly: true));
 
     case Routes.changeRep:
-      return CupertinoPageRoute<void>(builder: (_) => NanoChangeRepPage());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<NanoChangeRepPage>());
 
     case Routes.seedLanguage:
       final args = settings.arguments as List<dynamic>;
