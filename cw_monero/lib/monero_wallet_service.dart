@@ -183,13 +183,19 @@ class MoneroWalletService extends WalletService<
       MoneroRestoreWalletFromKeysCredentials credentials) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
-      await monero_wallet_manager.restoreFromKeys(
+      // await monero_wallet_manager.restoreFromKeys(
+      //     path: path,
+      //     password: credentials.password!,
+      //     language: credentials.language,
+      //     restoreHeight: credentials.height!,
+      //     address: credentials.address,
+      //     viewKey: credentials.viewKey,
+      //     spendKey: credentials.spendKey);
+      await monero_wallet_manager.restoreFromSpendKey(
           path: path,
           password: credentials.password!,
           language: credentials.language,
           restoreHeight: credentials.height!,
-          address: credentials.address,
-          viewKey: credentials.viewKey,
           spendKey: credentials.spendKey);
       final wallet = MoneroWallet(
           walletInfo: credentials.walletInfo!, unspentCoinsInfo: unspentCoinsInfoSource);

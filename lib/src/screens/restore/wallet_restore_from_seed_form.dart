@@ -59,6 +59,13 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     super.initState();
   }
 
+  void onSeedChange(String seed) {
+    // ToDo: If Monero add Polyseed Detect
+    // ToDo: If Polyseed _setLanguageLabel("POLYSEED_$lang")
+    // ToDo: displayLanguageSelector = false
+    widget.onSeedChange?.call(seed);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -107,7 +114,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
               key: seedWidgetStateKey,
               language: language,
               type: widget.type,
-              onSeedChange: widget.onSeedChange),
+              onSeedChange: onSeedChange),
           if (widget.displayLanguageSelector)
             GestureDetector(
                 onTap: () async {

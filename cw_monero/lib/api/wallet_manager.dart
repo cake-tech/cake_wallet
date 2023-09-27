@@ -25,6 +25,11 @@ final restoreWalletFromKeysNative = moneroApi
         'restore_wallet_from_keys')
     .asFunction<RestoreWalletFromKeys>();
 
+final restoreWalletFromSpendKeyNative = moneroApi
+    .lookup<NativeFunction<restore_wallet_from_spend_key>>(
+    'restore_wallet_from_spend_key')
+    .asFunction<RestoreWalletFromSpendKey>();
+
 final isWalletExistNative = moneroApi
     .lookup<NativeFunction<is_wallet_exist>>('is_wallet_exist')
     .asFunction<IsWalletExist>();
@@ -141,6 +146,39 @@ void restoreWalletFromKeysSync(
   }
 }
 
+void restoreWalletFromSpendKeySync(
+    {required String path,
+      required String password,
+      required String language,
+      required String spendKey,
+      int nettype = 0,
+      int restoreHeight = 0}) {
+  final pathPointer = path.toNativeUtf8();
+  final passwordPointer = password.toNativeUtf8();
+  final languagePointer = language.toNativeUtf8();
+  final spendKeyPointer = spendKey.toNativeUtf8();
+  final errorMessagePointer = ''.toNativeUtf8();
+  final isWalletRestored = restoreWalletFromSpendKeyNative(
+      pathPointer,
+      passwordPointer,
+      languagePointer,
+      spendKeyPointer,
+      nettype,
+      restoreHeight,
+      errorMessagePointer) !=
+      0;
+
+  calloc.free(pathPointer);
+  calloc.free(passwordPointer);
+  calloc.free(languagePointer);
+  calloc.free(spendKeyPointer);
+
+  if (!isWalletRestored) {
+    throw WalletRestoreFromKeysException(
+        message: convertUTF8ToString(pointer: errorMessagePointer));
+  }
+}
+
 void loadWallet({
   required String path,
   required String password,
@@ -191,6 +229,21 @@ void _restoreFromKeys(Map<String, dynamic> args) {
       restoreHeight: restoreHeight,
       address: address,
       viewKey: viewKey,
+      spendKey: spendKey);
+}
+
+void _restoreFromSpendKey(Map<String, dynamic> args) {
+  final path = args['path'] as String;
+  final password = args['password'] as String;
+  final language = args['language'] as String;
+  final spendKey = args['spendKey'] as String;
+  final restoreHeight = args['restoreHeight'] as int;
+
+  restoreWalletFromSpendKeySync(
+      path: path,
+      password: password,
+      language: language,
+      restoreHeight: restoreHeight,
       spendKey: spendKey);
 }
 
@@ -246,6 +299,22 @@ Future<void> restoreFromKeys(
       'language': language,
       'address': address,
       'viewKey': viewKey,
+      'spendKey': spendKey,
+      'nettype': nettype,
+      'restoreHeight': restoreHeight
+    });
+
+Future<void> restoreFromSpendKey(
+    {required String path,
+      required String password,
+      required String language,
+      required String spendKey,
+      int nettype = 0,
+      int restoreHeight = 0}) async =>
+    compute<Map<String, Object>, void>(_restoreFromSpendKey, {
+      'path': path,
+      'password': password,
+      'language': language,
       'spendKey': spendKey,
       'nettype': nettype,
       'restoreHeight': restoreHeight

@@ -53,6 +53,8 @@ class WalletRestorePage extends BasePage {
                 }
               },
               onLanguageChange: (_) {
+                // ToDo: If starts with "POLYSEED_" disable languageSelection
+                walletRestoreViewModel.hasSeedEncryption = true; // ToDo
                 if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
                   final hasHeight = walletRestoreFromSeedFormKey.currentState!.blockchainHeightKey
                       .currentState!.restoreHeightController.text.isNotEmpty;
@@ -208,6 +210,7 @@ class WalletRestorePage extends BasePage {
   }
 
   bool _isValidSeed() {
+    // ToDo: Check for Polyseed
     final seedWords =
         walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.text.split(' ');
 
