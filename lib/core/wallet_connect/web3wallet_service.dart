@@ -131,7 +131,7 @@ abstract class Web3WalletServiceBase with Store {
   }
 
   @action
-  void _onSessionProposal(SessionProposalEvent? args) async {
+  Future<void> _onSessionProposal(SessionProposalEvent? args) async {
     if (args != null) {
       final Widget modalWidget = Web3RequestModal(
         child: ConnectionRequestWidget(
