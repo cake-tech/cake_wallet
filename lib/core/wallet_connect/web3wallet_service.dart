@@ -87,8 +87,7 @@ abstract class Web3WalletServiceBase with Store {
     log('Intializing web3wallet');
     await _web3Wallet.init();
 
-    final newPairings = _web3Wallet.pairings.getAll();
-    pairings.addAll(newPairings);
+    _refreshPairings();
 
     final newSessions = _web3Wallet.sessions.getAll();
     sessions.addAll(newSessions);
@@ -116,14 +115,19 @@ abstract class Web3WalletServiceBase with Store {
 
   void _onPairingsSync(StoreSyncEvent? args) {
     if (args != null) {
-      pairings.clear();
-      final allPairings = _web3Wallet.pairings.getAll();
-      pairings.addAll(allPairings);
+      _refreshPairings();
     }
   }
 
   void _onPairingDelete(PairingEvent? event) {
-    pairings.remove(event);
+    _refreshPairings();
+  }
+
+  @action
+  void _refreshPairings() {
+    pairings.clear();
+    final allPairings = _web3Wallet.pairings.getAll();
+    pairings.addAll(allPairings);
   }
 
   Future<void> _onSessionProposalError(SessionProposalErrorEvent? args) async {
