@@ -200,6 +200,7 @@ import 'package:polyseed/polyseed.dart';""";
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
+import 'package:cw_monero/monero_unspent.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
@@ -318,7 +319,7 @@ abstract class Monero {
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
-  WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource, Box<dynamic> unspentCoinSource);
+  WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   Map<String, String> pendingTransactionInfo(Object transaction);
 }
 
