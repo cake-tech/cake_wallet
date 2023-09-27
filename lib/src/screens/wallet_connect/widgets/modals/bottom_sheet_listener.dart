@@ -1,7 +1,7 @@
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:flutter/material.dart';
 
-import '../../models/bottom_sheet_queue_item_model.dart';
+import '../../../../../core/wallet_connect/models/bottom_sheet_queue_item_model.dart';
 
 class BottomSheetListener extends StatefulWidget {
   final BottomSheetService bottomSheetService;

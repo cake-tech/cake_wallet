@@ -1,12 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 
-import '../models/auth_request_model.dart';
-import '../models/connection_model.dart';
-import '../models/session_request_model.dart';
+import '../../../../core/wallet_connect/models/auth_request_model.dart';
+import '../../../../core/wallet_connect/models/connection_model.dart';
+import '../../../../core/wallet_connect/models/session_request_model.dart';
 import '../utils/namespace_model_builder.dart';
 import 'connection_widget.dart';
 
@@ -39,7 +40,14 @@ class _ConnectionRequestWidgetState extends State<ConnectionRequestWidget> {
   @override
   Widget build(BuildContext context) {
     if (metadata == null) {
-      return const Text('ERROR');
+      return Text(
+        S.current.error,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.normal,
+          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+        ),
+      );
     }
 
     return _ConnectionMetadataDisplayWidget(
@@ -132,7 +140,7 @@ class _AuthRequestWidget extends StatelessWidget {
       ),
     );
     return ConnectionWidget(
-      title: 'Message',
+      title: S.current.message,
       info: [model],
     );
   }

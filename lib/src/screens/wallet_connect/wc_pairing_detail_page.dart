@@ -18,8 +18,8 @@ class WalletConnectPairingDetailsPage extends StatefulWidget {
 
   const WalletConnectPairingDetailsPage({
     required this.pairing,
-    super.key,
     required this.web3walletService,
+    super.key,
   });
 
   @override
@@ -46,12 +46,7 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
   }
 
   void initSessions() {
-    List<SessionData> sessions = widget.web3walletService
-        .getWeb3Wallet()
-        .sessions
-        .getAll()
-        .where((element) => element.pairingTopic == widget.pairing.topic)
-        .toList();
+    List<SessionData> sessions = widget.web3walletService.getSessionsForPairingInfo(widget.pairing);
 
     for (final SessionData session in sessions) {
       List<Widget> namespaceWidget = ConnectionWidgetBuilder.buildFromNamespaces(
@@ -130,7 +125,7 @@ class WCCDetailsWidget extends BasePage {
               ),
               const SizedBox(height: 8.0),
               Text(
-                'Expires on: $expiryDate',
+                '${S.current.expiresOn}: $expiryDate',
                 style: TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.normal,
@@ -147,7 +142,7 @@ class WCCDetailsWidget extends BasePage {
               PrimaryButton(
                 onPressed: () =>
                     _onDeleteButtonPressed(context, pairing.peerMetadata!.name, web3walletService),
-                text: 'Delete',
+                text: S.current.delete,
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
               ),
@@ -167,7 +162,7 @@ class WCCDetailsWidget extends BasePage {
       builder: (BuildContext dialogContext) {
         return AlertWithTwoActions(
           alertTitle: S.of(context).delete,
-          alertContent: 'Are you sure that you want to delete the connection to $dAppName?',
+          alertContent: '${S.current.deleteConnectionConfirmationPrompt} $dAppName?',
           leftButtonText: S.of(context).cancel,
           rightButtonText: S.of(context).delete,
           actionLeftButton: () => Navigator.of(dialogContext).pop(),

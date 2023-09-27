@@ -1,6 +1,6 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
-import '../models/connection_model.dart';
+import '../../../../core/wallet_connect/models/connection_model.dart';
 
 class ConnectionItemWidget extends StatelessWidget {
   const ConnectionItemWidget({required this.model, Key? key}) : super(key: key);

@@ -3,12 +3,14 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:cake_wallet/core/wallet_connect/eth_transaction_model.dart';
+import 'package:cake_wallet/core/wallet_connect/evm_chain_id.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_displapy_widget.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_display_widget.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/models/chain_key_model.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/models/connection_model.dart';
+import 'package:cake_wallet/core/wallet_connect/models/chain_key_model.dart';
+import 'package:cake_wallet/core/wallet_connect/models/connection_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
@@ -22,39 +24,6 @@ import 'package:web3dart/web3dart.dart';
 import 'chain_service.dart';
 import 'wallet_connect_key_service.dart';
 
-enum EVMChainId {
-  ethereum,
-  polygon,
-  goerli,
-  mumbai,
-  arbitrum,
-}
-
-extension EVMChainIdX on EVMChainId {
-  String chain() {
-    String name = '';
-
-    switch (this) {
-      case EVMChainId.ethereum:
-        name = '1';
-        break;
-      case EVMChainId.polygon:
-        name = '137';
-        break;
-      case EVMChainId.goerli:
-        name = '5';
-        break;
-      case EVMChainId.arbitrum:
-        name = '42161';
-        break;
-      case EVMChainId.mumbai:
-        name = '80001';
-        break;
-    }
-
-    return '${EvmChainServiceImpl.namespace}:$name';
-  }
-}
 
 class EvmChainServiceImpl implements ChainService {
   final AppStore appStore;
@@ -136,7 +105,7 @@ class EvmChainServiceImpl implements ChainService {
     final bool? isApproved = await bottomSheetService.queueBottomSheet(
       widget: Web3RequestModal(
         child: ConnectionWidget(
-          title: 'Sign Transaction',
+          title: S.current.signTransaction,
           info: [
             ConnectionModel(
               text: text,
@@ -176,11 +145,7 @@ class EvmChainServiceImpl implements ChainService {
       final Credentials credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
       final String signature = hex.encode(
-        credentials.signPersonalMessageToUint8List(
-          Uint8List.fromList(
-            utf8.encode(message),
-          ),
-        ),
+        credentials.signPersonalMessageToUint8List(Uint8List.fromList(utf8.encode(message))),
       );
 
       return '0x$signature';
@@ -188,8 +153,8 @@ class EvmChainServiceImpl implements ChainService {
       log(e.toString());
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
-        widget: ErrorWidgetDisplay(
-          errorText: 'Failed: Error while getting credentials ${e.toString()}',
+        widget: BottomSheetMessageDisplayWidget(
+          message: '${S.current.errorGettingCredentials} ${e.toString()}',
         ),
       );
       return 'Failed: Error while getting credentials';
@@ -229,7 +194,7 @@ class EvmChainServiceImpl implements ChainService {
       log('error: ${e.toString()}');
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
-        widget: ErrorWidgetDisplay(errorText: 'Error: ${e.toString()}'),
+        widget: BottomSheetMessageDisplayWidget(message: '${S.current.error}: ${e.toString()}'),
       );
       return 'Failed';
     }
@@ -238,9 +203,11 @@ class EvmChainServiceImpl implements ChainService {
   Future<String> ethSignTransaction(String topic, dynamic parameters) async {
     log('received eth sign transaction request: $parameters');
 
-    final bodyParam = jsonEncode(parameters[0]);
+    final paramsData = parameters[0] as Map<String, dynamic>;
 
-    final String? authError = await requestAuthorization(bodyParam);
+    final message = _convertToReadable(paramsData);
+
+    final String? authError = await requestAuthorization(message);
 
     if (authError != null) {
       return authError;
@@ -254,23 +221,16 @@ class EvmChainServiceImpl implements ChainService {
     WCEthereumTransactionModel ethTransaction =
         WCEthereumTransactionModel.fromJson(parameters[0] as Map<String, dynamic>);
 
-    String hexValue = "0x00";
-    String data = "0x";
-    if ((parameters[0] as Map).containsKey("value")) {
-      hexValue = ethTransaction.value;
-    }
-    if ((parameters[0] as Map).containsKey("data")) {
-      data = ethTransaction.data ?? "";
-    }
-
-    BigInt? value = BigInt.tryParse(hexValue, radix: 16);
-
-    // Construct a transaction from the EthereumTransactionModel object
     final transaction = Transaction(
       from: EthereumAddress.fromHex(ethTransaction.from),
       to: EthereumAddress.fromHex(ethTransaction.to),
-      value: EtherAmount.fromBigInt(EtherUnit.wei, value ?? BigInt.zero),
-      data: hexToBytes(data),
+      maxGas: ethTransaction.gasLimit != null ? int.tryParse(ethTransaction.gasLimit ?? "") : null,
+      gasPrice: ethTransaction.gasPrice != null
+          ? EtherAmount.inWei(BigInt.parse(ethTransaction.gasPrice ?? ""))
+          : null,
+      value: EtherAmount.inWei(BigInt.parse(ethTransaction.value)),
+      data: hexToBytes(ethTransaction.data ?? ""),
+      nonce: ethTransaction.nonce != null ? int.tryParse(ethTransaction.nonce ?? "") : null,
     );
 
     try {
@@ -283,8 +243,8 @@ class EvmChainServiceImpl implements ChainService {
       log('An error has occured while signing transaction: ${e.toString()}');
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
-        widget: ErrorWidgetDisplay(
-          errorText: 'An error has occured while signing transaction: ${e.toString()}',
+        widget: BottomSheetMessageDisplayWidget(
+          message: '${S.current.errorSigningTransaction}: ${e.toString()}',
         ),
       );
       return 'Failed';
@@ -308,5 +268,21 @@ class EvmChainServiceImpl implements ChainService {
       jsonData: data ?? '',
       version: TypedDataVersion.V4,
     );
+  }
+
+  String _convertToReadable(Map<String, dynamic> data) {
+    String gas = int.parse((data['gas'] as String).substring(2), radix: 16).toString();
+    String value = data['value'] != null
+        ? (int.parse((data['value'] as String).substring(2), radix: 16) / 1e18).toString() + ' ETH'
+        : '0 ETH';
+    String from = data['from'] as String;
+    String to = data['to'] as String;
+
+    return '''
+ Gas: $gas\n
+ Value: $value\n
+ From: $from\n
+ To: $to
+             ''';
   }
 }

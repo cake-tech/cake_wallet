@@ -3,49 +3,48 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/models/auth_request_model.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/models/chain_key_model.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/models/session_request_model.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/core/wallet_connect/models/auth_request_model.dart';
+import 'package:cake_wallet/core/wallet_connect/models/chain_key_model.dart';
+import 'package:cake_wallet/core/wallet_connect/models/session_request_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_request_widget.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_displapy_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_display_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:mobx/mobx.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
 import 'wc_bottom_sheet_service.dart';
 
-abstract class Web3WalletService implements Disposable {
-  abstract ValueNotifier<List<PairingInfo>> pairings;
-  abstract ValueNotifier<List<SessionData>> sessions;
-  abstract ValueNotifier<List<StoredCacao>> auth;
+part 'web3wallet_service.g.dart';
 
-  void create();
-  Future<void> init();
-  Web3Wallet getWeb3Wallet();
-  Future<void> disconnectSession(String topic);
-}
+class Web3WalletService = Web3WalletServiceBase with _$Web3WalletService;
 
-class Web3WalletServiceImpl implements Web3WalletService {
+abstract class Web3WalletServiceBase with Store {
   final BottomSheetService _bottomSheetHandler;
   final WalletConnectKeyService walletKeyService;
 
-  Web3Wallet? _web3Wallet;
+  late Web3Wallet _web3Wallet;
 
   /// The list of requests from the dapp
   /// Potential types include, but aren't limited to:
   /// [SessionProposalEvent], [AuthRequest]
-  @override
-  ValueNotifier<List<PairingInfo>> pairings = ValueNotifier<List<PairingInfo>>([]);
-  @override
-  ValueNotifier<List<SessionData>> sessions = ValueNotifier<List<SessionData>>([]);
-  @override
-  ValueNotifier<List<StoredCacao>> auth = ValueNotifier<List<StoredCacao>>([]);
+  @observable
+  ObservableList<PairingInfo> pairings;
 
-  Web3WalletServiceImpl(this._bottomSheetHandler, this.walletKeyService);
+  @observable
+  ObservableList<SessionData> sessions;
 
-  @override
+  @observable
+  ObservableList<StoredCacao> auth;
+
+  Web3WalletServiceBase(this._bottomSheetHandler, this.walletKeyService)
+      : pairings = ObservableList<PairingInfo>(),
+        sessions = ObservableList<SessionData>(),
+        auth = ObservableList<StoredCacao>();
+
+  @action
   void create() {
     // Create the web3wallet client
     _web3Wallet = Web3Wallet(
@@ -53,8 +52,8 @@ class Web3WalletServiceImpl implements Web3WalletService {
       metadata: const PairingMetadata(
         name: 'Cake Wallet',
         description: 'Cake Wallet',
-        url: 'https://walletconnect.com/',
-        icons: ['https://walletconnect.com/walletconnect-logo.png'],
+        url: 'https://cakewallet.com',
+        icons: ['https://cakewallet.com/assets/image/cake_logo.png'],
       ),
     );
 
@@ -62,7 +61,7 @@ class Web3WalletServiceImpl implements Web3WalletService {
     List<ChainKeyModel> chainKeys = walletKeyService.getKeys();
     for (final chainKey in chainKeys) {
       for (final chainId in chainKey.chains) {
-        _web3Wallet!.registerAccount(
+        _web3Wallet.registerAccount(
           chainId: chainId,
           accountAddress: chainKey.publicKey,
         );
@@ -70,58 +69,73 @@ class Web3WalletServiceImpl implements Web3WalletService {
     }
 
     // Setup our listeners
-    log('web3wallet create');
-    _web3Wallet!.core.pairing.onPairingInvalid.subscribe(_onPairingInvalid);
-    _web3Wallet!.core.pairing.onPairingCreate.subscribe(_onPairingCreate);
-    _web3Wallet!.pairings.onSync.subscribe(_onPairingsSync);
-    _web3Wallet!.onSessionProposal.subscribe(_onSessionProposal);
-    _web3Wallet!.onSessionProposalError.subscribe(_onSessionProposalError);
-    _web3Wallet!.onSessionConnect.subscribe(_onSessionConnect);
-    _web3Wallet!.onAuthRequest.subscribe(_onAuthRequest);
+    log('Created instance of web3wallet');
+    _web3Wallet.core.pairing.onPairingInvalid.subscribe(_onPairingInvalid);
+    _web3Wallet.core.pairing.onPairingCreate.subscribe(_onPairingCreate);
+    _web3Wallet.core.pairing.onPairingDelete.subscribe(_onPairingDelete);
+    _web3Wallet.core.pairing.onPairingExpire.subscribe(_onPairingDelete);
+    _web3Wallet.pairings.onSync.subscribe(_onPairingsSync);
+    _web3Wallet.onSessionProposal.subscribe(_onSessionProposal);
+    _web3Wallet.onSessionProposalError.subscribe(_onSessionProposalError);
+    _web3Wallet.onSessionConnect.subscribe(_onSessionConnect);
+    _web3Wallet.onAuthRequest.subscribe(_onAuthRequest);
   }
 
-  @override
+  @action
   Future<void> init() async {
     // Await the initialization of the web3wallet
-    log('web3wallet init');
-    await _web3Wallet!.init();
+    log('Intializing web3wallet');
+    await _web3Wallet.init();
 
-    pairings.value = _web3Wallet!.pairings.getAll();
-    sessions.value = _web3Wallet!.sessions.getAll();
-    auth.value = _web3Wallet!.completeRequests.getAll();
+    final newPairings = _web3Wallet.pairings.getAll();
+    pairings.addAll(newPairings);
+
+    final newSessions = _web3Wallet.sessions.getAll();
+    sessions.addAll(newSessions);
+
+    final newAuthRequests = _web3Wallet.completeRequests.getAll();
+    auth.addAll(newAuthRequests);
   }
 
-  @override
+  @action
   FutureOr<void> onDispose() {
     log('web3wallet dispose');
-    _web3Wallet!.core.pairing.onPairingInvalid.unsubscribe(_onPairingInvalid);
-    _web3Wallet!.pairings.onSync.unsubscribe(_onPairingsSync);
-    _web3Wallet!.onSessionProposal.unsubscribe(_onSessionProposal);
-    _web3Wallet!.onSessionProposalError.unsubscribe(_onSessionProposalError);
-    _web3Wallet!.onSessionConnect.unsubscribe(_onSessionConnect);
-    _web3Wallet!.onAuthRequest.unsubscribe(_onAuthRequest);
+    _web3Wallet.core.pairing.onPairingInvalid.unsubscribe(_onPairingInvalid);
+    _web3Wallet.pairings.onSync.unsubscribe(_onPairingsSync);
+    _web3Wallet.onSessionProposal.unsubscribe(_onSessionProposal);
+    _web3Wallet.onSessionProposalError.unsubscribe(_onSessionProposalError);
+    _web3Wallet.onSessionConnect.unsubscribe(_onSessionConnect);
+    _web3Wallet.onAuthRequest.unsubscribe(_onAuthRequest);
+    _web3Wallet.core.pairing.onPairingDelete.unsubscribe(_onPairingDelete);
+    _web3Wallet.core.pairing.onPairingExpire.unsubscribe(_onPairingDelete);
   }
 
-  @override
   Web3Wallet getWeb3Wallet() {
-    return _web3Wallet!;
+    return _web3Wallet;
   }
 
   void _onPairingsSync(StoreSyncEvent? args) {
     if (args != null) {
-      pairings.value = _web3Wallet!.pairings.getAll();
+      pairings.clear();
+      final allPairings = _web3Wallet.pairings.getAll();
+      pairings.addAll(allPairings);
     }
+  }
+
+  void _onPairingDelete(PairingEvent? event) {
+    pairings.remove(event);
   }
 
   Future<void> _onSessionProposalError(SessionProposalErrorEvent? args) async {
     log(args.toString());
   }
 
+  @action
   void _onSessionProposal(SessionProposalEvent? args) async {
     if (args != null) {
       final Widget modalWidget = Web3RequestModal(
         child: ConnectionRequestWidget(
-          wallet: _web3Wallet!,
+          wallet: _web3Wallet,
           sessionProposal: SessionRequestModel(request: args.params),
         ),
       );
@@ -131,12 +145,12 @@ class Web3WalletServiceImpl implements Web3WalletService {
       ) as bool?;
 
       if (isApproved != null && isApproved) {
-        _web3Wallet!.approveSession(
+        _web3Wallet.approveSession(
           id: args.id,
           namespaces: args.params.generatedNamespaces!,
         );
       } else {
-        _web3Wallet!.rejectSession(
+        _web3Wallet.rejectSession(
           id: args.id,
           reason: Errors.getSdkError(
             Errors.USER_REJECTED,
@@ -146,11 +160,12 @@ class Web3WalletServiceImpl implements Web3WalletService {
     }
   }
 
+  @action
   void _onPairingInvalid(PairingInvalidEvent? args) {
     log('Pairing Invalid Event: $args');
     _bottomSheetHandler.queueBottomSheet(
       isModalDismissible: true,
-      widget: ErrorWidgetDisplay(errorText: 'Pairing Invalid Event: $args'),
+      widget: BottomSheetMessageDisplayWidget(message: '${S.current.pairingInvalidEvent}: $args'),
     );
   }
 
@@ -158,12 +173,14 @@ class Web3WalletServiceImpl implements Web3WalletService {
     log('Pairing Create Event: $args');
   }
 
+  @action
   void _onSessionConnect(SessionConnect? args) {
     if (args != null) {
-      sessions.value.add(args.session);
+      sessions.add(args.session);
     }
   }
 
+  @action
   Future<void> _onAuthRequest(AuthRequest? args) async {
     if (args != null) {
       List<ChainKeyModel> chainKeys = walletKeyService.getKeysForChain('eip155:1');
@@ -172,7 +189,7 @@ class Web3WalletServiceImpl implements Web3WalletService {
 
       final Widget modalWidget = Web3RequestModal(
         child: ConnectionRequestWidget(
-          wallet: _web3Wallet!,
+          wallet: _web3Wallet,
           authRequest: AuthRequestModel(iss: iss, request: args),
         ),
       );
@@ -181,7 +198,7 @@ class Web3WalletServiceImpl implements Web3WalletService {
       ) as bool?;
 
       if (isAuthenticated != null && isAuthenticated) {
-        final String message = _web3Wallet!.formatAuthMessage(
+        final String message = _web3Wallet.formatAuthMessage(
           iss: iss,
           cacaoPayload: CacaoRequestPayload.fromPayloadParams(
             args.payloadParams,
@@ -193,7 +210,7 @@ class Web3WalletServiceImpl implements Web3WalletService {
           privateKey: chainKeys.first.privateKey,
         );
 
-        await _web3Wallet!.respondAuthRequest(
+        await _web3Wallet.respondAuthRequest(
           id: args.id,
           iss: iss,
           signature: CacaoSignature(
@@ -202,7 +219,7 @@ class Web3WalletServiceImpl implements Web3WalletService {
           ),
         );
       } else {
-        await _web3Wallet!.respondAuthRequest(
+        await _web3Wallet.respondAuthRequest(
           id: args.id,
           iss: iss,
           error: Errors.getSdkError(
@@ -213,12 +230,17 @@ class Web3WalletServiceImpl implements Web3WalletService {
     }
   }
 
-  @override
+  @action
   Future<void> disconnectSession(String topic) async {
-    final session = sessions.value.firstWhere((element) => element.pairingTopic == topic);
+    final session = sessions.firstWhere((element) => element.pairingTopic == topic);
 
-    await _web3Wallet!.core.pairing.disconnect(topic: topic);
-    await _web3Wallet!.disconnectSession(
+    await _web3Wallet.core.pairing.disconnect(topic: topic);
+    await _web3Wallet.disconnectSession(
         topic: session.topic, reason: Errors.getSdkError(Errors.USER_DISCONNECTED));
+  }
+
+  @action
+  List<SessionData> getSessionsForPairingInfo(PairingInfo pairing) {
+    return sessions.where((element) => element.pairingTopic == pairing.topic).toList();
   }
 }

@@ -1,10 +1,11 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/material.dart';
 
-class ErrorWidgetDisplay extends StatelessWidget {
-  final String errorText;
+class BottomSheetMessageDisplayWidget extends StatelessWidget {
+  final String message;
+  final bool isError;
 
-  const ErrorWidgetDisplay({super.key, required this.errorText});
+  const BottomSheetMessageDisplayWidget({super.key, required this.message, this.isError = true});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +14,7 @@ class ErrorWidgetDisplay extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          S.current.error,
+          isError ? S.current.error : S.current.successful,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.normal,
@@ -22,7 +23,7 @@ class ErrorWidgetDisplay extends StatelessWidget {
         ),
         SizedBox(height: 8),
         Text(
-          errorText,
+          message,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.normal,

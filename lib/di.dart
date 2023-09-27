@@ -477,7 +477,7 @@ Future<void> setup({
       settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage(
-        // web3walletService: getIt.get<Web3WalletService>(),
+        bottomSheetService: getIt.get<BottomSheetService>(),
         balancePage: getIt.get<BalancePage>(),
         dashboardViewModel: getIt.get<DashboardViewModel>(),
         addressListViewModel: getIt.get<WalletAddressListViewModel>(),

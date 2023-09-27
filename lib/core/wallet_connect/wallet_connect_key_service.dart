@@ -1,5 +1,5 @@
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/models/chain_key_model.dart';
+import 'package:cake_wallet/core/wallet_connect/models/chain_key_model.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';

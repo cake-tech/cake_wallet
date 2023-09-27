@@ -1,7 +1,8 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_widget.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
-import '../models/connection_model.dart';
+import '../../../../core/wallet_connect/models/connection_model.dart';
 
 class ConnectionWidgetBuilder {
   static List<ConnectionWidget> buildFromRequiredNamespaces(
@@ -13,28 +14,12 @@ class ConnectionWidgetBuilder {
       final List<ConnectionModel> models = [];
       // If the chains property is present, add the chain data to the models
       if (ns.chains != null) {
-        models.add(
-          ConnectionModel(
-            title: 'Chains',
-            elements: ns.chains!,
-          ),
-        );
+        models.add(ConnectionModel(title: S.current.chains, elements: ns.chains!));
       }
-      models.add(ConnectionModel(
-        title: 'Methods',
-        elements: ns.methods,
-      ));
-      models.add(ConnectionModel(
-        title: 'Events',
-        elements: ns.events,
-      ));
+      models.add(ConnectionModel(title: S.current.methods, elements: ns.methods));
+      models.add(ConnectionModel(title: S.current.events, elements: ns.events));
 
-      views.add(
-        ConnectionWidget(
-          title: key,
-          info: models,
-        ),
-      );
+      views.add(ConnectionWidget(title: key, info: models));
     }
 
     return views;
@@ -52,12 +37,12 @@ class ConnectionWidgetBuilder {
       // If the chains property is present, add the chain data to the models
       models.add(
         ConnectionModel(
-          title: 'Chains',
+          title: S.current.chains,
           elements: ns.accounts,
         ),
       );
       models.add(ConnectionModel(
-        title: 'Methods',
+        title: S.current.methods,
         elements: ns.methods,
       ));
 
@@ -68,27 +53,17 @@ class ConnectionWidgetBuilder {
               ? key
               : NamespaceUtils.getChainFromAccount(ns.accounts.first);
           await web3wallet.emitSessionEvent(
-                topic: topic,
-                chainId: chainId,
-                event: SessionEventParams(
-                  name: event,
-                  data: 'Event: $event',
-                ),
-              );
+            topic: topic,
+            chainId: chainId,
+            event: SessionEventParams(name: event, data: '${S.current.event}: $event'),
+          );
         };
       }
-      models.add(ConnectionModel(
-        title: 'Events',
-        elements: ns.events,
-        elementActions: actions,
-      ));
-
-      views.add(
-        ConnectionWidget(
-          title: key,
-          info: models,
-        ),
+      models.add(
+        ConnectionModel(title: S.current.events, elements: ns.events, elementActions: actions),
       );
+
+      views.add(ConnectionWidget(title: key, info: models));
     }
 
     return views;

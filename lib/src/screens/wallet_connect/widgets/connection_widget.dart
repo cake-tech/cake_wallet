@@ -1,7 +1,7 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
-import '../models/connection_model.dart';
+import '../../../../core/wallet_connect/models/connection_model.dart';
 import 'connection_item_widget.dart';
 
 class ConnectionWidget extends StatelessWidget {
