@@ -34,6 +34,7 @@ class SecretKey {
     SecretKey('chatwootWebsiteToken', () => ''),
     SecretKey('robinhoodApplicationId', () => ''),
     SecretKey('robinhoodCIdApiSecret', () => ''),
+    SecretKey('walletConnectProjectId', () => ''),
   ];
 
   static final ethereumSecrets = [
