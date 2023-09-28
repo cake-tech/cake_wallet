@@ -44,7 +44,6 @@ class DashboardPage extends StatelessWidget {
     required this.addressListViewModel,
   });
 
-  // final Web3WalletService web3walletService;
   final BalancePage balancePage;
   final BottomSheetService bottomSheetService;
   final DashboardViewModel dashboardViewModel;
@@ -88,11 +87,9 @@ class _DashboardPageView extends BasePage {
     required this.balancePage,
     required this.dashboardViewModel,
     required this.addressListViewModel,
-    // required this.web3WalletService,
   });
 
   final BalancePage balancePage;
-  // final Web3WalletService web3WalletService;
 
   @override
   bool get gradientBackground => true;
@@ -322,7 +319,6 @@ class _DashboardPageView extends BasePage {
     );
 
     _showReleaseNotesPopup(context);
-    // await initializeWeb3WalletService(web3WalletService);
 
     var needToPresentYat = false;
     var isInactive = false;
@@ -383,9 +379,4 @@ class _DashboardPageView extends BasePage {
       sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
     }
   }
-
-  // Future<void> initializeWeb3WalletService(Web3WalletService web3WalletService) async {
-  //TODO(David): Explore initializing WC here
-  // await web3WalletService.init();
-  // }
 }
