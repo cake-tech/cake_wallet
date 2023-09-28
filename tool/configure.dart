@@ -645,7 +645,7 @@ abstract class NanoAccountList {
   Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
 }
 
-class NanoUtil {
+abstract class NanoUtil {
   String seedToPrivate(String seed, int index);
   String seedToAddress(String seed, int index);
   String seedToMnemonic(String seed);
@@ -675,8 +675,8 @@ class NanoUtil {
 }
   """;
 
-  const nanoEmptyDefinition = 'Nano? nano;\n';
-  const nanoCWDefinition = 'Nano? nano = CWNano();\n';
+  const nanoEmptyDefinition = 'Nano? nano;\nNanoUtil? nanoUtil = CWNanoUtil();\n';
+  const nanoCWDefinition = 'Nano? nano = CWNano();\nNanoUtil? nanoUtil = CWNanoUtil();\n';
 
   final output = '$nanoCommonHeaders\n' +
       (hasImplementation ? '$nanoCWHeaders\n' : '\n') +
