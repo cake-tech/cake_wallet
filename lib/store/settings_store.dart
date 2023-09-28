@@ -41,7 +41,6 @@ abstract class SettingsStoreBase with Store {
       {required BackgroundTasks backgroundTasks,
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
-      required bool initialInitializedWalletConnectDependencies,
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
@@ -581,8 +580,6 @@ abstract class SettingsStoreBase with Store {
     final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
-    final initializedWalletConnectDependencies =
-        sharedPreferences.getBool(PreferencesKey.initializedWalletConnectDependencies) ?? false;
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
@@ -664,7 +661,6 @@ abstract class SettingsStoreBase with Store {
     return SettingsStore(
         sharedPreferences: sharedPreferences,
         initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
-        initialInitializedWalletConnectDependencies: initializedWalletConnectDependencies,
         nodes: nodes,
         appVersion: packageInfo.version,
         deviceName: deviceName,
