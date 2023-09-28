@@ -93,7 +93,7 @@ class _ConnectionMetadataDisplayWidget extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           Text(
-            'would like to connect',
+            S.current.wouoldLikeToConnect,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.normal,
