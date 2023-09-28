@@ -37,7 +37,8 @@ abstract class Setup2FAViewModelBase with Store {
 
   String get deviceName => _settingsStore.deviceName;
 
-  String totpSecretKey = '';
+  @computed
+  String get totpSecretKey => _settingsStore.totpSecretKey;
 
   String totpVersionOneLink = '';
 
@@ -87,15 +88,22 @@ abstract class Setup2FAViewModelBase with Store {
 
   @action
   void generateSecretKey() {
-    totpSecretKey = Utils.generateRandomBase32SecretKey(16);
+    final _totpSecretKey = Utils.generateRandomBase32SecretKey(16);
 
     totpVersionOneLink =
-        'otpauth://totp/Cake%20Wallet:$deviceName?secret=$totpSecretKey&issuer=Cake%20Wallet&algorithm=SHA512&digits=8&period=30';
+        'otpauth://totp/Cake%20Wallet:$deviceName?secret=$_totpSecretKey&issuer=Cake%20Wallet&algorithm=SHA512&digits=8&period=30';
+
+    setTOTPSecretKey(_totpSecretKey);
   }
 
   @action
   void setUseTOTP2FA(bool value) {
     _settingsStore.useTOTP2FA = value;
+  }
+
+  @action
+  void setTOTPSecretKey(String value) {
+    _settingsStore.totpSecretKey = value;
   }
 
   Duration? banDuration() {

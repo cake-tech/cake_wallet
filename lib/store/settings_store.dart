@@ -51,6 +51,7 @@ abstract class SettingsStoreBase with Store {
       required BuyProviderType initialDefaultBuyProvider,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
+      required String initialTotpSecretKey,
       required bool initialUseTOTP2FA,
       required int initialFailedTokenTrial,
       required ExchangeApiMode initialExchangeStatus,
@@ -94,6 +95,7 @@ abstract class SettingsStoreBase with Store {
         fiatApiMode = initialFiatMode,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         selectedCake2FAPreset = initialCake2FAPresetOptions,
+        totpSecretKey = initialTotpSecretKey,
         useTOTP2FA = initialUseTOTP2FA,
         numberOfFailedTokenTrials = initialFailedTokenTrial,
         isAppSecure = initialAppSecure,
@@ -278,6 +280,8 @@ abstract class SettingsStoreBase with Store {
     reaction(
         (_) => useTOTP2FA, (bool use) => sharedPreferences.setBool(PreferencesKey.useTOTP2FA, use));
 
+    reaction((_) => totpSecretKey,
+        (String totpKey) => sharedPreferences.setString(PreferencesKey.totpSecretKey, totpKey));
     reaction(
         (_) => numberOfFailedTokenTrials,
         (int failedTokenTrail) =>
@@ -418,6 +422,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool useTOTP2FA;
+
+  @observable
+  String totpSecretKey;
 
   @observable
   int numberOfFailedTokenTrials;
@@ -563,6 +570,7 @@ abstract class SettingsStoreBase with Store {
             .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings) ??
         false;
     final useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? false;
+    final totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? '';
     final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
@@ -664,6 +672,7 @@ abstract class SettingsStoreBase with Store {
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialCake2FAPresetOptions: selectedCake2FAPreset,
         initialUseTOTP2FA: useTOTP2FA,
+        initialTotpSecretKey: totpSecretKey,
         initialFailedTokenTrial: tokenTrialNumber,
         initialExchangeStatus: exchangeStatus,
         initialTheme: savedTheme,
@@ -738,7 +747,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ??
             shouldSaveRecipientAddress;
     useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? useTOTP2FA;
-
+    totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? totpSecretKey;
     numberOfFailedTokenTrials =
         sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? numberOfFailedTokenTrials;
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
