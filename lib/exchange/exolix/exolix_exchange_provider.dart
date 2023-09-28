@@ -77,7 +77,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
       required bool isFixedRateMode}) async {
     final params = <String, String>{
       'rateType': getRateType(isFixedRateMode),
-      'amount': '0',
+      'amount': '1',
     };
     if (isFixedRateMode) {
       params['coinFrom'] = _normalizeCurrency(to);
@@ -93,7 +93,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final uri = Uri.https(apiBaseUrl, ratePath, params);
     final response = await get(uri);
 
-    if (response.statusCode != 422) {
+    if (response.statusCode != 200) {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
@@ -236,12 +236,13 @@ class ExolixExchangeProvider extends ExchangeProvider {
       final uri = Uri.https(apiBaseUrl, ratePath, params);
       final response = await get(uri);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final rate = responseJSON['rate'] as double;
 
-      if (response.statusCode == 422) {
-        final message = responseJSON['message'] as String;
+      if (response.statusCode != 200) {
+        final message = responseJSON['message'] as String?;
         throw Exception(message);
       }
+
+      final rate = responseJSON['rate'] as double;
 
       return rate;
     } catch (e) {
