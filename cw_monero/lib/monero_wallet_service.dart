@@ -7,6 +7,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/monero_wallet.dart';
@@ -212,6 +213,7 @@ class MoneroWalletService extends WalletService<
   @override
   Future<MoneroWallet> restoreFromSeed(
       MoneroRestoreWalletFromSeedCredentials credentials) async {
+    // ToDo: Implement restore from Polyseed
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       await monero_wallet_manager.restoreFromSeed(
@@ -219,6 +221,30 @@ class MoneroWalletService extends WalletService<
           password: credentials.password!,
           seed: credentials.mnemonic,
           restoreHeight: credentials.height!);
+      final wallet = MoneroWallet(
+          walletInfo: credentials.walletInfo!, unspentCoinsInfo: unspentCoinsInfoSource);
+      await wallet.init();
+
+      return wallet;
+    } catch (e) {
+      // TODO: Implement Exception for wallet list service.
+      print('MoneroWalletsManager Error: $e');
+      rethrow;
+    }
+  }
+
+  Future<MoneroWallet> restoreFromPolyseed(MoneroRestoreWalletFromSeedCredentials credentials) async {
+    try {
+      final path = await pathForWallet(name: credentials.name, type: getType());
+      final polyseed = Polyseed.decode(credentials.mnemonic);
+      final height = getMoneroHeigthByDate(date: DateTime.fromMillisecondsSinceEpoch(polyseed.birthday * 1000));
+      final spendKey = ""; //polyseed.generateKey()
+      await monero_wallet_manager.restoreFromSpendKey(
+          path: path,
+          password: credentials.password!,
+          language: credentials.language,
+          restoreHeight: height,
+          spendKey: spendKey);
       final wallet = MoneroWallet(
           walletInfo: credentials.walletInfo!, unspentCoinsInfo: unspentCoinsInfoSource);
       await wallet.init();
