@@ -1,5 +1,5 @@
 import 'package:cw_core/balance.dart';
-import 'package:cw_nano/nano_util.dart';
+import 'package:cw_nano/nano.dart';
 
 class BananoBalance extends Balance {
   final BigInt currentBalance;

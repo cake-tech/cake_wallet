@@ -92,11 +92,10 @@ class TransactionListItem extends ActionListItem with Keyable {
         break;
       case WalletType.nano:
         final nanoTransaction = transaction as dynamic;
-        dynamic NanoUtil = nano!.getNanoUtil();
         amount = calculateFiatAmountRaw(
-            cryptoAmount:
-                NanoUtil.getRawAsDecimalInstance(nanoTransaction.amountRaw.toString(), NanoUtil.rawPerNanoInstance)
-                    .toDouble() as double,
+            cryptoAmount: nanoUtil!
+                .getRawAsDecimal(nanoTransaction.amountRaw.toString(), nanoUtil!.rawPerNano)
+                .toDouble(),
             price: price);
         break;
       case WalletType.ethereum:

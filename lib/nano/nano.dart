@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/account.dart';
@@ -15,11 +18,17 @@ import 'package:cw_nano/nano_wallet.dart';
 import 'package:cw_nano/nano_wallet_service.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:cw_nano/nano_wallet_creation_credentials.dart';
-import 'package:cw_nano/nano_util.dart';
+// needed for nano_util:
+import 'package:convert/convert.dart';
+import "package:ed25519_hd_key/ed25519_hd_key.dart";
+import 'package:libcrypto/libcrypto.dart';
+import 'package:nanodart/nanodart.dart' as ND;
+import 'package:decimal/decimal.dart';
 
 part 'cw_nano.dart';
 
 Nano? nano = CWNano();
+NanoUtil? nanoUtil = CWNanoUtil();
 
 abstract class Nano {
   NanoAccountList getAccountList(Object wallet);
@@ -36,7 +45,7 @@ abstract class Nano {
     required String name,
     String password,
   });
-  
+
   WalletCredentials createNanoRestoreWalletFromSeedCredentials({
     required String name,
     required String password,
@@ -58,7 +67,6 @@ abstract class Nano {
   List<String> getNanoWordList(String language);
   Map<String, String> getKeys(Object wallet);
   Object createNanoTransactionCredentials(List<Output> outputs);
-  dynamic getNanoUtil();
   dynamic getNanoWalletService();
 }
 
@@ -70,4 +78,32 @@ abstract class NanoAccountList {
   Future<void> addAccount(Object wallet, {required String label});
   Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
 }
-  
+
+abstract class NanoUtil {
+  String seedToPrivate(String seed, int index);
+  String seedToAddress(String seed, int index);
+  String seedToMnemonic(String seed);
+  Future<String> mnemonicToSeed(String mnemonic);
+  String privateKeyToPublic(String privateKey);
+  String addressToPublicKey(String publicAddress);
+  String privateKeyToAddress(String privateKey);
+  String publicKeyToAddress(String publicKey);
+  bool isValidSeed(String seed);
+  Future<String> hdMnemonicListToSeed(List<String> words);
+  Future<String> hdSeedToPrivate(String seed, int index);
+  Future<String> hdSeedToAddress(String seed, int index);
+  Future<String> uniSeedToAddress(String seed, int index, String type);
+  Future<String> uniSeedToPrivate(String seed, int index, String type);
+  bool isValidBip39Seed(String seed);
+  static const int maxDecimalDigits = 6; // Max digits after decimal
+  BigInt rawPerNano = BigInt.parse("1000000000000000000000000000000");
+  BigInt rawPerNyano = BigInt.parse("1000000000000000000000000");
+  BigInt rawPerBanano = BigInt.parse("100000000000000000000000000000");
+  BigInt rawPerXMR = BigInt.parse("1000000000000");
+  BigInt convertXMRtoNano = BigInt.parse("1000000000000000000");
+  Decimal getRawAsDecimal(String? raw, BigInt? rawPerCur);
+  String truncateDecimal(Decimal input, {int digits = maxDecimalDigits});  
+  String getRawAsUsableString(String? raw, BigInt rawPerCur);
+  String getRawAccuracy(String? raw, BigInt rawPerCur);
+  String getAmountAsRaw(String amount, BigInt rawPerCur);
+}

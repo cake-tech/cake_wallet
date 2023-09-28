@@ -185,13 +185,215 @@ class CWNano extends Nano {
   }
 
   @override
-  dynamic getNanoUtil() {
-    return NanoUtil();
-  }
-
-  @override
   dynamic getNanoWalletService() async {
     Box<WalletInfo> _walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
     return NanoWalletService(_walletInfoSource);
+  }
+}
+
+
+
+class CWNanoUtil extends NanoUtil {
+    // standard:
+  @override
+  String seedToPrivate(String seed, int index) {
+    return ND.NanoKeys.seedToPrivate(seed, index);
+  }
+
+  @override
+  String seedToAddress(String seed, int index) {
+    return ND.NanoAccounts.createAccount(
+        ND.NanoAccountType.NANO, privateKeyToPublic(seedToPrivate(seed, index)));
+  }
+
+  @override
+  String seedToMnemonic(String seed) {
+    return NanoMnemomics.seedToMnemonic(seed).join(" ");
+  }
+
+  @override
+  Future<String> mnemonicToSeed(String mnemonic) async {
+    return NanoMnemomics.mnemonicListToSeed(mnemonic.split(' '));
+  }
+
+  @override
+  String privateKeyToPublic(String privateKey) {
+    // return NanoHelpers.byteToHex(Ed25519Blake2b.getPubkey(NanoHelpers.hexToBytes(privateKey))!);
+    return ND.NanoKeys.createPublicKey(privateKey);
+  }
+
+  @override
+  String addressToPublicKey(String publicAddress) {
+    return ND.NanoAccounts.extractPublicKey(publicAddress);
+  }
+
+  // universal:
+  @override
+  String privateKeyToAddress(String privateKey) {
+    return ND.NanoAccounts.createAccount(ND.NanoAccountType.NANO, privateKeyToPublic(privateKey));
+  }
+
+  @override
+  String publicKeyToAddress(String publicKey) {
+    return ND.NanoAccounts.createAccount(ND.NanoAccountType.NANO, publicKey);
+  }
+
+  // standard + hd:
+  @override
+  bool isValidSeed(String seed) {
+    // Ensure seed is 64 or 128 characters long
+    if (seed == null || (seed.length != 64 && seed.length != 128)) {
+      return false;
+    }
+    // Ensure seed only contains hex characters, 0-9;A-F
+    return ND.NanoHelpers.isHexString(seed);
+  }
+
+  // hd:
+  @override
+  Future<String> hdMnemonicListToSeed(List<String> words) async {
+    // if (words.length != 24) {
+    //   throw Exception('Expected a 24-word list, got a ${words.length} list');
+    // }
+    final Uint8List salt = Uint8List.fromList(utf8.encode('mnemonic'));
+    final Pbkdf2 hasher = Pbkdf2(iterations: 2048);
+    final String seed = await hasher.sha512(words.join(' '), salt);
+    return seed;
+  }
+
+  @override
+  Future<String> hdSeedToPrivate(String seed, int index) async {
+    List<int> seedBytes = hex.decode(seed);
+    KeyData data = await ED25519_HD_KEY.derivePath("m/44'/165'/$index'", seedBytes);
+    return hex.encode(data.key);
+  }
+
+  @override
+  Future<String> hdSeedToAddress(String seed, int index) async {
+    return ND.NanoAccounts.createAccount(
+        ND.NanoAccountType.NANO, privateKeyToPublic(await hdSeedToPrivate(seed, index)));
+  }
+
+  @override
+  Future<String> uniSeedToAddress(String seed, int index, String type) {
+    if (type == "standard") {
+      return Future<String>.value(seedToAddress(seed, index));
+    } else if (type == "hd") {
+      return hdSeedToAddress(seed, index);
+    } else {
+      throw Exception('Unknown seed type');
+    }
+  }
+
+  @override
+  Future<String> uniSeedToPrivate(String seed, int index, String type) {
+    if (type == "standard") {
+      return Future<String>.value(seedToPrivate(seed, index));
+    } else if (type == "hd") {
+      return hdSeedToPrivate(seed, index);
+    } else {
+      throw Exception('Unknown seed type');
+    }
+  }
+
+  @override
+  bool isValidBip39Seed(String seed) {
+    // Ensure seed is 128 characters long
+    if (seed.length != 128) {
+      return false;
+    }
+    // Ensure seed only contains hex characters, 0-9;A-F
+    return ND.NanoHelpers.isHexString(seed);
+  }
+
+  // number util:
+
+  static const int maxDecimalDigits = 6; // Max digits after decimal
+  BigInt rawPerNano = BigInt.parse("1000000000000000000000000000000");
+  BigInt rawPerNyano = BigInt.parse("1000000000000000000000000");
+  BigInt rawPerBanano = BigInt.parse("100000000000000000000000000000");
+  BigInt rawPerXMR = BigInt.parse("1000000000000");
+  BigInt convertXMRtoNano = BigInt.parse("1000000000000000000");
+  // static BigInt convertXMRtoNano = BigInt.parse("1000000000000000000000000000");
+
+  /// Convert raw to ban and return as BigDecimal
+  ///
+  /// @param raw 100000000000000000000000000000
+  /// @return Decimal value 1.000000000000000000000000000000
+  ///
+  @override
+  Decimal getRawAsDecimal(String? raw, BigInt? rawPerCur) {
+    rawPerCur ??= rawPerNano;
+    final Decimal amount = Decimal.parse(raw.toString());
+    final Decimal result = (amount / Decimal.parse(rawPerCur.toString())).toDecimal();
+    return result;
+  }
+
+  @override
+  String truncateDecimal(Decimal input, {int digits = maxDecimalDigits}) {
+    Decimal bigger = input.shift(digits);
+    bigger = bigger.floor(); // chop off the decimal: 1.059 -> 1.05
+    bigger = bigger.shift(-digits);
+    return bigger.toString();
+  }
+
+  /// Return raw as a NANO amount.
+  ///
+  /// @param raw 100000000000000000000000000000
+  /// @returns 1
+  ///
+  @override
+  String getRawAsUsableString(String? raw, BigInt rawPerCur) {
+    final String res =
+        truncateDecimal(getRawAsDecimal(raw, rawPerCur), digits: maxDecimalDigits + 9);
+
+    if (raw == null || raw == "0" || raw == "00000000000000000000000000000000") {
+      return "0";
+    }
+
+    if (!res.contains(".")) {
+      return res;
+    }
+
+    final String numAmount = res.split(".")[0];
+    String decAmount = res.split(".")[1];
+
+    // truncate:
+    if (decAmount.length > maxDecimalDigits) {
+      decAmount = decAmount.substring(0, maxDecimalDigits);
+      // remove trailing zeros:
+      decAmount = decAmount.replaceAllMapped(RegExp(r'0+$'), (Match match) => '');
+      if (decAmount.isEmpty) {
+        return numAmount;
+      }
+    }
+
+    return "$numAmount.$decAmount";
+  }
+
+  @override
+  String getRawAccuracy(String? raw, BigInt rawPerCur) {
+    final String rawString = getRawAsUsableString(raw, rawPerCur);
+    final String rawDecimalString = getRawAsDecimal(raw, rawPerCur).toString();
+
+    if (raw == null || raw.isEmpty || raw == "0") {
+      return "";
+    }
+
+    if (rawString != rawDecimalString) {
+      return "~";
+    }
+    return "";
+  }
+
+  /// Return readable string amount as raw string
+  /// @param amount 1.01
+  /// @returns  101000000000000000000000000000
+  ///
+  @override
+  String getAmountAsRaw(String amount, BigInt rawPerCur) {
+    final Decimal asDecimal = Decimal.parse(amount);
+    final Decimal rawDecimal = Decimal.parse(rawPerCur.toString());
+    return (asDecimal * rawDecimal).toString();
   }
 }

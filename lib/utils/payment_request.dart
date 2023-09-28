@@ -16,12 +16,10 @@ class PaymentRequest {
       scheme = uri.scheme;
     }
 
-    dynamic NanoUtil = nano!.getNanoUtil();
-
     if (address.contains("nano")) {
-      amount = NanoUtil.getRawAsUsableStringInstance(amount, NanoUtil.rawPerNanoInstance) as String;
+      amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerNano);
     } else if (address.contains("ban")) {
-      amount = NanoUtil.getRawAsUsableStringInstance(amount, NanoUtil.rawPerBananoInstance) as String;
+      amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerBanano);
     }
 
     return PaymentRequest(address, amount, note, scheme);
