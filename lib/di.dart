@@ -360,7 +360,7 @@ Future<void> setup({
       (onAuthFinished, closable) => AuthPage(getIt.get<AuthViewModel>(),
           onAuthenticationFinished: onAuthFinished, closable: closable));
 
-  getIt.registerFactory<Setup2FAViewModel>(
+  getIt.registerLazySingleton<Setup2FAViewModel>(
     () => Setup2FAViewModel(
       getIt.get<SettingsStore>(),
       getIt.get<SharedPreferences>(),
