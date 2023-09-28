@@ -306,12 +306,11 @@ class WalletRestorePage extends BasePage {
 
     switch (walletType) {
       case WalletType.nano:
-        dynamic WalletService = await nano!.getNanoWalletService();
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['private_key'] as String?;
-        dynamic bip39Info = await WalletService.getInfoFromSeedOrMnemonic(DerivationType.bip39,
+        dynamic bip39Info = await nanoUtil!.getInfoFromSeedOrMnemonic(DerivationType.bip39,
             mnemonic: mnemonic, seedKey: seedKey, node: node);
-        dynamic standardInfo = await WalletService.getInfoFromSeedOrMnemonic(
+        dynamic standardInfo = await nanoUtil!.getInfoFromSeedOrMnemonic(
           DerivationType.nano,
           mnemonic: mnemonic,
           seedKey: seedKey,

@@ -570,6 +570,7 @@ Future<void> generateNano(bool hasImplementation) async {
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/account.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -580,6 +581,7 @@ import 'package:hive/hive.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 """;
   const nanoCWHeaders = """
+import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_mnemonic.dart';
 import 'package:cw_nano/nano_wallet.dart';
 import 'package:cw_nano/nano_wallet_service.dart';
@@ -633,7 +635,6 @@ abstract class Nano {
   List<String> getNanoWordList(String language);
   Map<String, String> getKeys(Object wallet);
   Object createNanoTransactionCredentials(List<Output> outputs);
-  dynamic getNanoWalletService();
 }
 
 abstract class NanoAccountList {
@@ -672,6 +673,19 @@ abstract class NanoUtil {
   String getRawAsUsableString(String? raw, BigInt rawPerCur);
   String getRawAccuracy(String? raw, BigInt rawPerCur);
   String getAmountAsRaw(String amount, BigInt rawPerCur);
+
+  // derivationInfo:
+  Future<dynamic> getInfoFromSeedOrMnemonic(
+    DerivationType derivationType, {
+    String? seedKey,
+    String? mnemonic,
+    required Node node,
+  });
+  Future<List<DerivationType>> compareDerivationMethods({
+    String? mnemonic,
+    String? privateKey,
+    required Node node,
+  });
 }
   """;
 

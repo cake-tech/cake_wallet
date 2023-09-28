@@ -183,18 +183,10 @@ class CWNano extends Nano {
     await nanoWallet.walletAddresses.accountList
         .setLabelAccount(accountIndex: accountIndex, label: label);
   }
-
-  @override
-  dynamic getNanoWalletService() async {
-    Box<WalletInfo> _walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
-    return NanoWalletService(_walletInfoSource);
-  }
 }
 
-
-
 class CWNanoUtil extends NanoUtil {
-    // standard:
+  // standard:
   @override
   String seedToPrivate(String seed, int index) {
     return ND.NanoKeys.seedToPrivate(seed, index);
@@ -395,5 +387,116 @@ class CWNanoUtil extends NanoUtil {
     final Decimal asDecimal = Decimal.parse(amount);
     final Decimal rawDecimal = Decimal.parse(rawPerCur.toString());
     return (asDecimal * rawDecimal).toString();
+  }
+
+  @override
+  Future<dynamic> getInfoFromSeedOrMnemonic(
+    DerivationType derivationType, {
+    String? seedKey,
+    String? mnemonic,
+    required Node node,
+  }) async {
+    NanoClient nanoClient = NanoClient();
+    nanoClient.connect(node);
+    late String publicAddress;
+
+    if (seedKey != null) {
+      if (derivationType == DerivationType.bip39) {
+        publicAddress = await hdSeedToAddress(seedKey, 0);
+      } else if (derivationType == DerivationType.nano) {
+        publicAddress = await seedToAddress(seedKey, 0);
+      }
+    }
+
+    if (derivationType == DerivationType.bip39) {
+      if (mnemonic != null) {
+        seedKey = await hdMnemonicListToSeed(mnemonic.split(' '));
+        publicAddress = await hdSeedToAddress(seedKey, 0);
+      }
+    }
+
+    if (derivationType == DerivationType.nano) {
+      if (mnemonic != null) {
+        seedKey = await mnemonicToSeed(mnemonic);
+        publicAddress = await seedToAddress(seedKey, 0);
+      }
+    }
+
+    var accountInfo = await nanoClient.getAccountInfo(publicAddress);
+    accountInfo["address"] = publicAddress;
+    return accountInfo;
+  }
+
+  Future<List<DerivationType>> compareDerivationMethods({
+    String? mnemonic,
+    String? privateKey,
+    required Node node,
+  }) async {
+    String? seedKey = privateKey;
+
+    if (mnemonic?.split(' ').length == 12) {
+      return [DerivationType.bip39];
+    }
+    if (seedKey?.length == 128) {
+      return [DerivationType.bip39];
+    } else if (seedKey?.length == 64) {
+      return [DerivationType.nano];
+    }
+
+    late String publicAddressStandard;
+    late String publicAddressBip39;
+
+    try {
+      NanoClient nanoClient = NanoClient();
+      nanoClient.connect(node);
+
+      if (mnemonic != null) {
+        seedKey = await hdMnemonicListToSeed(mnemonic.split(' '));
+        publicAddressBip39 = await hdSeedToAddress(seedKey, 0);
+
+        seedKey = await mnemonicToSeed(mnemonic);
+        publicAddressStandard = await seedToAddress(seedKey, 0);
+      } else if (seedKey != null) {
+        try {
+          publicAddressBip39 = await hdSeedToAddress(seedKey, 0);
+        } catch (e) {
+          return [DerivationType.nano];
+        }
+        try {
+          publicAddressStandard = await seedToAddress(seedKey, 0);
+        } catch (e) {
+          return [DerivationType.bip39];
+        }
+      }
+
+      // check if account has a history:
+      var bip39Info;
+      var standardInfo;
+
+      try {
+        bip39Info = await nanoClient.getAccountInfo(publicAddressBip39);
+      } catch (e) {
+        bip39Info = null;
+      }
+      try {
+        standardInfo = await nanoClient.getAccountInfo(publicAddressStandard);
+      } catch (e) {
+        standardInfo = null;
+      }
+
+      // one of these is *probably* null:
+      if ((bip39Info == null || bip39Info["error"] != null) &&
+          (standardInfo != null && standardInfo["error"] == null)) {
+        return [DerivationType.nano];
+      } else if ((standardInfo == null || standardInfo["error"] != null) &&
+          (bip39Info != null && bip39Info["error"] == null)) {
+        return [DerivationType.bip39];
+      }
+
+      // we don't know for sure:
+      return [DerivationType.nano, DerivationType.bip39];
+    } catch (e) {
+      return [DerivationType.unknown];
+    }
   }
 }
