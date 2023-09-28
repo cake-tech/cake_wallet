@@ -27,6 +27,9 @@ abstract class Web3WalletServiceBase with Store {
 
   late Web3Wallet _web3Wallet;
 
+  @observable
+  bool isInitialized;
+
   /// The list of requests from the dapp
   /// Potential types include, but aren't limited to:
   /// [SessionProposalEvent], [AuthRequest]
@@ -42,7 +45,8 @@ abstract class Web3WalletServiceBase with Store {
   Web3WalletServiceBase(this._bottomSheetHandler, this.walletKeyService)
       : pairings = ObservableList<PairingInfo>(),
         sessions = ObservableList<SessionData>(),
-        auth = ObservableList<StoredCacao>();
+        auth = ObservableList<StoredCacao>(),
+        isInitialized = false;
 
   @action
   void create() {
@@ -85,7 +89,16 @@ abstract class Web3WalletServiceBase with Store {
   Future<void> init() async {
     // Await the initialization of the web3wallet
     log('Intializing web3wallet');
-    await _web3Wallet.init();
+    if (!isInitialized) {
+      try {
+        await _web3Wallet.init();
+        log('Initialized');
+        isInitialized = true;
+      } catch (e) {
+        log('Experimentallllll: $e');
+        isInitialized = false;
+      }
+    }
 
     _refreshPairings();
 
@@ -134,8 +147,8 @@ abstract class Web3WalletServiceBase with Store {
     log(args.toString());
   }
 
-  @action
-  Future<void> _onSessionProposal(SessionProposalEvent? args) async {
+
+  void _onSessionProposal(SessionProposalEvent? args) async {
     if (args != null) {
       final Widget modalWidget = Web3RequestModal(
         child: ConnectionRequestWidget(

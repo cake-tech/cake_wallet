@@ -3,12 +3,13 @@ import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
-// import 'package:cake_wallet/core/wallet_connect/chain_service.dart';
-// import 'package:cake_wallet/core/wallet_connect/evm_chain_service.dart';
-// import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
-// import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
+import 'package:cake_wallet/core/wallet_connect/chain_service.dart';
+import 'package:cake_wallet/core/wallet_connect/evm_chain_id.dart';
+import 'package:cake_wallet/core/wallet_connect/evm_chain_service.dart';
+import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
+import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -446,31 +447,71 @@ Future<void> setup({
   //TODO Switch Singleton to Factory when appropriate
   getIt.registerSingleton<BottomSheetService>(BottomSheetServiceImpl());
 
-  // final appStore = getIt.get<AppStore>();
+  final appStore = getIt.get<AppStore>();
 
-  // getIt.registerLazySingleton<WalletConnectKeyService>(() => KeyServiceImpl(appStore.wallet!));
+  getIt.registerLazySingleton<WalletConnectKeyService>(() => KeyServiceImpl(appStore.wallet!));
 
-  // getIt.registerLazySingleton<Web3WalletService>(() {
-  //   final Web3WalletService web3WalletService = Web3WalletServiceImpl(
-  //     getIt.get<BottomSheetService>(),
-  //     getIt.get<WalletConnectKeyService>(),
-  //   );
-  //   web3WalletService.create();
-  //   return web3WalletService;
-  // });
+  // final Web3WalletService web3WalletService = Web3WalletService(
+  //   getIt.get<BottomSheetService>(),
+  //   getIt.get<WalletConnectKeyService>(),
+  // );
+  // web3WalletService.create();
+  // getIt.registerLazySingleton<Web3WalletService>(() => web3WalletService);
 
-  // for (final cId in EVMChainId.values) {
-  //   getIt.registerFactory<ChainService>(
-  //     () => EvmChainServiceImpl(
-  //       reference: cId,
-  //       appStore: appStore,
-  //       wcKeyService: getIt.get<WalletConnectKeyService>(),
-  //       bottomSheetService: getIt.get<BottomSheetService>(),
-  //       web3WalletService: getIt.get<Web3WalletService>(),
-  //     ),
-  //     instanceName: cId.chain(),
-  //   );
-  // }
+  getIt.registerLazySingleton<Web3WalletService>(() {
+    final Web3WalletService web3WalletService = Web3WalletService(
+      getIt.get<BottomSheetService>(),
+      getIt.get<WalletConnectKeyService>(),
+    );
+    web3WalletService.create();
+    return web3WalletService;
+  });
+
+  for (final cId in EVMChainId.values) {
+    getIt.registerLazySingleton<ChainService>(
+      () => EvmChainServiceImpl(
+        reference: cId,
+        appStore: appStore,
+        wcKeyService: getIt.get<WalletConnectKeyService>(),
+        bottomSheetService: getIt.get<BottomSheetService>(),
+        web3WalletService: getIt.get<Web3WalletService>(),
+      ),
+      instanceName: cId.chain(),
+    );
+  }
+
+// //=======================
+
+//   if (!getIt.isRegistered<WalletConnectKeyService>()) {
+//     getIt.registerSingleton<WalletConnectKeyService>(KeyServiceImpl(appStore.wallet!));
+//   }
+
+//   if (!getIt.isRegistered<Web3WalletService>()) {
+//     final Web3WalletService web3WalletService = Web3WalletService(
+//       getIt.get<BottomSheetService>(),
+//       getIt.get<WalletConnectKeyService>(),
+//     );
+//     web3WalletService.create();
+//     getIt.registerSingleton<Web3WalletService>(web3WalletService);
+//   }
+
+//   for (final cId in EVMChainId.values) {
+//     if (!getIt.isRegistered<ChainService>(instanceName: cId.chain())) {
+//       getIt.registerSingleton<ChainService>(
+//         EvmChainServiceImpl(
+//           reference: cId,
+//           appStore: appStore,
+//           wcKeyService: getIt.get<WalletConnectKeyService>(),
+//           bottomSheetService: getIt.get<BottomSheetService>(),
+//           web3WalletService: getIt.get<Web3WalletService>(),
+//         ),
+//         instanceName: cId.chain(),
+//       );
+//     }
+//   }
+
+//     await getIt.get<Web3WalletService>().init();
+
 
   getIt.registerFactory(() => BalancePage(
       dashboardViewModel: getIt.get<DashboardViewModel>(),

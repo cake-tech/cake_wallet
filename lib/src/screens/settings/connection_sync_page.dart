@@ -81,7 +81,7 @@ class ConnectionSyncPage extends BasePage {
           if (dashboardViewModel.wallet.type == WalletType.ethereum) ...[
             WalletConnectTile(
               onTap: () async {
-                await initializeWCDependencies();
+                // await initializeWCDependencies();
                 log('All WC Dependencies done');
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -121,7 +121,6 @@ class ConnectionSyncPage extends BasePage {
   }
 
   Future<void> initializeWCDependencies() async {
-    // if (dashboardViewModel.initializedWalletConnectDependencies) return;
 
     final appStore = getIt.get<AppStore>();
 

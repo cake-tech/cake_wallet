@@ -1,3 +1,10 @@
+import 'dart:developer';
+
+import 'package:cake_wallet/core/wallet_connect/chain_service.dart';
+import 'package:cake_wallet/core/wallet_connect/evm_chain_id.dart';
+import 'package:cake_wallet/core/wallet_connect/evm_chain_service.dart';
+import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -148,6 +155,13 @@ abstract class DashboardViewModelBase with Store {
 
     reaction((_) => appStore.wallet, _onWalletChange);
 
+    if (!getIt.get<Web3WalletService>().isInitialized) {
+      final response =
+          getIt.get<ChainService>(instanceName: EVMChainId.ethereum.chain()).getChainId();
+      log(response);
+      getIt.get<Web3WalletService>().init();
+    }
+
     connectMapToListWithTransform(
         appStore.wallet!.transactionHistory.transactions,
         transactions,
@@ -279,7 +293,6 @@ abstract class DashboardViewModelBase with Store {
   TransactionFilterStore transactionFilterStore;
 
   Map<String, List<FilterItem>> filterItems;
-
 
   BuyProviderType get defaultBuyProvider => settingsStore.defaultBuyProvider;
 
