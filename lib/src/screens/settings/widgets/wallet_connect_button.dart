@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ class WalletConnectTile extends StatelessWidget {
             SizedBox(width: 16),
             Expanded(
               child: Text(
-                'WalletConnect',
+                S.current.walletConnect,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.normal,
