@@ -104,7 +104,6 @@ abstract class SettingsStoreBase with Store {
         disableSell = initialDisableSell,
         defaultBuyProvider = initialDefaultBuyProvider,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
-        initializedWalletConnectDependencies = initialInitializedWalletConnectDependencies,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
         pinCodeLength = initialPinLength,
@@ -295,11 +294,6 @@ abstract class SettingsStoreBase with Store {
         (bool value) =>
             sharedPreferences.setBool(PreferencesKey.shouldShowMarketPlaceInDashboard, value));
 
-    reaction(
-        (_) => initializedWalletConnectDependencies,
-        (bool value) =>
-            sharedPreferences.setBool(PreferencesKey.initializedWalletConnectDependencies, value));
-
     reaction((_) => pinCodeLength,
         (int pinLength) => sharedPreferences.setInt(PreferencesKey.currentPinLength, pinLength));
 
@@ -370,9 +364,6 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldShowMarketPlaceInDashboard;
-
-  @observable
-  bool initializedWalletConnectDependencies;
 
   @observable
   ObservableList<ActionListDisplayMode> actionlistDisplayMode;
@@ -802,9 +793,6 @@ abstract class SettingsStoreBase with Store {
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;
-    initializedWalletConnectDependencies =
-        sharedPreferences.getBool(PreferencesKey.initializedWalletConnectDependencies) ??
-            initializedWalletConnectDependencies;
     selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset) ??
             Cake2FAPresetsOptions.narrow.raw);

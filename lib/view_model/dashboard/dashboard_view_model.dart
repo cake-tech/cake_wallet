@@ -1,10 +1,3 @@
-import 'dart:developer';
-
-import 'package:cake_wallet/core/wallet_connect/chain_service.dart';
-import 'package:cake_wallet/core/wallet_connect/evm_chain_id.dart';
-import 'package:cake_wallet/core/wallet_connect/evm_chain_service.dart';
-import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -155,13 +148,6 @@ abstract class DashboardViewModelBase with Store {
 
     reaction((_) => appStore.wallet, _onWalletChange);
 
-    if (!getIt.get<Web3WalletService>().isInitialized) {
-      final response =
-          getIt.get<ChainService>(instanceName: EVMChainId.ethereum.chain()).getChainId();
-      log(response);
-      getIt.get<Web3WalletService>().init();
-    }
-
     connectMapToListWithTransform(
         appStore.wallet!.transactionHistory.transactions,
         transactions,
@@ -203,10 +189,6 @@ abstract class DashboardViewModelBase with Store {
 
   @observable
   bool isShowThirdYatIntroduction;
-
-  @computed
-  bool get initializedWalletConnectDependencies =>
-      appStore.settingsStore.initializedWalletConnectDependencies;
 
   @computed
   String get address => wallet.walletAddresses.address;
@@ -428,10 +410,7 @@ abstract class DashboardViewModelBase with Store {
     hasSellAction = !isHaven;
   }
 
-  @action
-  void isWalletConnectDependenciesIntialized({required bool isWCDependenciesInitialized}) {
-    settingsStore.initializedWalletConnectDependencies = isWCDependenciesInitialized;
-  }
+
 
   @computed
   SyncMode get syncMode => settingsStore.currentSyncMode;

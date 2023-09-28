@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:cake_wallet/core/wallet_connect/evm_chain_id.dart';
+import 'package:cake_wallet/core/wallet_connect/evm_chain_service.dart';
 import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/wallet_connect/models/auth_request_model.dart';
@@ -10,6 +12,7 @@ import 'package:cake_wallet/core/wallet_connect/models/session_request_model.dar
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_request_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_display_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
@@ -22,6 +25,7 @@ part 'web3wallet_service.g.dart';
 class Web3WalletService = Web3WalletServiceBase with _$Web3WalletService;
 
 abstract class Web3WalletServiceBase with Store {
+  final AppStore appStore;
   final BottomSheetService _bottomSheetHandler;
   final WalletConnectKeyService walletKeyService;
 
@@ -42,7 +46,7 @@ abstract class Web3WalletServiceBase with Store {
   @observable
   ObservableList<StoredCacao> auth;
 
-  Web3WalletServiceBase(this._bottomSheetHandler, this.walletKeyService)
+  Web3WalletServiceBase(this._bottomSheetHandler, this.walletKeyService, this.appStore)
       : pairings = ObservableList<PairingInfo>(),
         sessions = ObservableList<SessionData>(),
         auth = ObservableList<StoredCacao>(),
@@ -107,6 +111,16 @@ abstract class Web3WalletServiceBase with Store {
 
     final newAuthRequests = _web3Wallet.completeRequests.getAll();
     auth.addAll(newAuthRequests);
+
+    for (final cId in EVMChainId.values) {
+      EvmChainServiceImpl(
+        reference: cId,
+        appStore: appStore,
+        wcKeyService: walletKeyService,
+        bottomSheetService: _bottomSheetHandler,
+        wallet: _web3Wallet,
+      );
+    }
   }
 
   @action
@@ -146,7 +160,6 @@ abstract class Web3WalletServiceBase with Store {
   Future<void> _onSessionProposalError(SessionProposalErrorEvent? args) async {
     log(args.toString());
   }
-
 
   void _onSessionProposal(SessionProposalEvent? args) async {
     if (args != null) {

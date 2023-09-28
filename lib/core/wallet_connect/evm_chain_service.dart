@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:cake_wallet/core/wallet_connect/eth_transaction_model.dart';
 import 'package:cake_wallet/core/wallet_connect/evm_chain_id.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
-import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_display_widget.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -24,11 +23,10 @@ import 'package:web3dart/web3dart.dart';
 import 'chain_service.dart';
 import 'wallet_connect_key_service.dart';
 
-
 class EvmChainServiceImpl implements ChainService {
   final AppStore appStore;
   final BottomSheetService bottomSheetService;
-  final Web3WalletService web3WalletService;
+  final Web3Wallet wallet;
   final WalletConnectKeyService wcKeyService;
 
   static const namespace = 'eip155';
@@ -47,14 +45,14 @@ class EvmChainServiceImpl implements ChainService {
     required this.appStore,
     required this.wcKeyService,
     required this.bottomSheetService,
-    required this.web3WalletService,
+    required this.wallet,
     Web3Client? ethClient,
   }) : ethClient = ethClient ??
             Web3Client(
               appStore.settingsStore.getCurrentNode(WalletType.ethereum).uri.toString(),
               http.Client(),
             ) {
-    final Web3Wallet wallet = web3WalletService.getWeb3Wallet();
+ 
     for (final String event in getEvents()) {
       wallet.registerEventEmitter(chainId: getChainId(), event: event);
     }
