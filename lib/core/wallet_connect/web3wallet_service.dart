@@ -19,6 +19,7 @@ import 'package:mobx/mobx.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
 import 'wc_bottom_sheet_service.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'web3wallet_service.g.dart';
 
@@ -56,7 +57,7 @@ abstract class Web3WalletServiceBase with Store {
   void create() {
     // Create the web3wallet client
     _web3Wallet = Web3Wallet(
-      core: Core(projectId: '419b7919bdfe48515a1107e949ec811a'),
+      core: Core(projectId: secrets.walletConnectProjectId),
       metadata: const PairingMetadata(
         name: 'Cake Wallet',
         description: 'Cake Wallet',
