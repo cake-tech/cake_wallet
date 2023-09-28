@@ -64,7 +64,7 @@ class _ConnectionMetadataDisplayWidget extends StatelessWidget {
     required this.metadata,
     required this.wallet,
     this.authRequest,
-    this.sessionProposal,
+    required this.sessionProposal,
   });
 
   final ConnectionMetadata? metadata;
@@ -115,7 +115,9 @@ class _ConnectionMetadataDisplayWidget extends StatelessWidget {
           Visibility(
             visible: authRequest != null,
             child: _AuthRequestWidget(wallet: wallet, authRequest: authRequest),
-            replacement: _SessionProposalWidget(sessionProposal: sessionProposal),
+
+            //If authRequest is null, sessionProposal is not null.
+            replacement: _SessionProposalWidget(sessionProposal: sessionProposal!),
           ),
         ],
       ),
@@ -147,16 +149,16 @@ class _AuthRequestWidget extends StatelessWidget {
 }
 
 class _SessionProposalWidget extends StatelessWidget {
-  const _SessionProposalWidget({this.sessionProposal});
+  const _SessionProposalWidget({required this.sessionProposal});
 
-  final SessionRequestModel? sessionProposal;
+  final SessionRequestModel sessionProposal;
 
   @override
   Widget build(BuildContext context) {
     // Create the connection models using the required and optional namespaces provided by the proposal data
     // The key is the title and the list of values is the data
     final List<ConnectionWidget> views = ConnectionWidgetBuilder.buildFromRequiredNamespaces(
-      sessionProposal!.request.requiredNamespaces,
+      sessionProposal.request.requiredNamespaces,
     );
 
     return Column(children: views);
