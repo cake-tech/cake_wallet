@@ -31,7 +31,7 @@ class RestoreOptionsPage extends BasePage {
       child: Container(
           width: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint,
           height: double.infinity,
-          padding: EdgeInsets.symmetric(vertical: 24),
+          padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
