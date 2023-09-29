@@ -20,7 +20,7 @@ Future<String> extractAddressFromParsed(
       break;
     case ParseFrom.ens:
       title = S.of(context).address_detected;
-      content = S.of(context).address_from_ens(parsedAddress.name);
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (ENS)');
       address = parsedAddress.addresses.first;
       break;
     case ParseFrom.openAlias:
