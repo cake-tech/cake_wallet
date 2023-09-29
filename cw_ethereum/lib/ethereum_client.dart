@@ -65,13 +65,11 @@ class EthereumClient {
 
     bool _isEthereum = currency == CryptoCurrency.eth;
 
-    final price = await _client!.getGasPrice();
+    final price = _client!.getGasPrice();
 
     final Transaction transaction = Transaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
-      maxGas: gas,
-      gasPrice: price,
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
       value: _isEthereum ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
     );
@@ -101,7 +99,7 @@ class EthereumClient {
     return PendingEthereumTransaction(
       signedTransaction: signedTransaction,
       amount: amount,
-      fee: BigInt.from(gas) * price.getInWei,
+      fee: BigInt.from(gas) * (await price).getInWei,
       sendTransaction: _sendTransaction,
       exponent: exponent,
     );

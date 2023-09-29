@@ -53,6 +53,11 @@ abstract class SupportViewModelBase with Store {
         icon: 'assets/images/simpleSwap.png',
         linkTitle: 'support@simpleswap.io',
         link: 'mailto:support@simpleswap.io'),
+    LinkListItem(
+        title: 'Exolix',
+        icon: 'assets/images/exolix.png',
+        linkTitle: 'support@exolix.com',
+        link: 'mailto:support@exolix.com'),
       if (!isMoneroOnly) ... [    
          LinkListItem(
      title: 'Wyre',
