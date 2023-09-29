@@ -294,9 +294,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     _baseItems = [];
 
     if (wallet.type == WalletType.monero ||
-        wallet.type == WalletType.haven ||
+        wallet.type == WalletType.haven /*||
         wallet.type == WalletType.nano ||
-        wallet.type == WalletType.banano) {
+        wallet.type == WalletType.banano*/) {
       _baseItems.add(WalletAccountListHeader());
     }
 
