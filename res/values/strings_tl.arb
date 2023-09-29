@@ -688,7 +688,6 @@
   "support_description_other_links": "Sumali sa aming mga komunidad o maabot sa amin ang aming mga kasosyo sa pamamagitan ng iba pang mga pamamaraan",
   "select_destination": "Mangyaring piliin ang patutunguhan para sa backup file.",
   "save_to_downloads": "I -save sa mga pag -download",
-  "address_from_ens": "Ang address na ito ay mula sa ${domain} sa ens",
   "do_not_have_enough_gas_asset": "Wala kang sapat na ${currency} para gumawa ng transaksyon sa kasalukuyang kundisyon ng network ng blockchain. Kailangan mo ng higit pang ${currency} upang magbayad ng mga bayarin sa network ng blockchain, kahit na nagpapadala ka ng ibang asset.",
   "totp_auth_url": "TOTP AUTH URL"
 }

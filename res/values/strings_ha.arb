@@ -671,7 +671,6 @@
   "default_buy_provider": "Tsohuwar Siyarwa",
   "ask_each_time": "Tambaya kowane lokaci",
   "buy_provider_unavailable": "Mai ba da kyauta a halin yanzu babu.",
-  "address_from_ens": "Wannan adireshin daga ${domain} Don tabbatarwa",
   "do_not_have_enough_gas_asset": "Ba ku da isassun ${currency} don yin ma'amala tare da yanayin cibiyar sadarwar blockchain na yanzu. Kuna buƙatar ƙarin ${currency} don biyan kuɗaɗen cibiyar sadarwar blockchain, koda kuwa kuna aika wata kadara daban.",
   "totp_auth_url": "TOTP AUTH URL"
 }

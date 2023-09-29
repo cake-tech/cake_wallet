@@ -693,7 +693,6 @@
   "default_buy_provider": "デフォルトの購入プロバイダー",
   "ask_each_time": "毎回尋ねてください",
   "buy_provider_unavailable": "現在、プロバイダーは利用できません。",
-  "address_from_ens": "このアドレスはENSの${domain}からです",
   "do_not_have_enough_gas_asset": "現在のブロックチェーン ネットワークの状況では、トランザクションを行うのに十分な ${currency} がありません。別のアセットを送信する場合でも、ブロックチェーン ネットワーク料金を支払うにはさらに ${currency} が必要です。",
   "totp_auth_url": "TOTP認証URL"
 }

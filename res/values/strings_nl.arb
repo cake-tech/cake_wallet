@@ -693,7 +693,6 @@
   "default_buy_provider": "Standaard Koopprovider",
   "ask_each_time": "Vraag het elke keer",
   "buy_provider_unavailable": "Provider momenteel niet beschikbaar.",
-  "address_from_ens": "Dit adres is van ${domain} op ENS",
   "do_not_have_enough_gas_asset": "U heeft niet genoeg ${currency} om een transactie uit te voeren met de huidige blockchain-netwerkomstandigheden. U heeft meer ${currency} nodig om blockchain-netwerkkosten te betalen, zelfs als u een ander item verzendt.",
   "totp_auth_url": "TOTP AUTH-URL"
 }

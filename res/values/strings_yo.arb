@@ -687,7 +687,6 @@
   "default_buy_provider": "Aiyipada Ra Olupese",
   "ask_each_time": "Beere lọwọ kọọkan",
   "buy_provider_unavailable": "Olupese lọwọlọwọ ko si.",
-  "address_from_ens": "Adirẹsi yii ni lati ${domain} Lori ens",
   "do_not_have_enough_gas_asset": "O ko ni to ${currency} lati ṣe idunadura kan pẹlu awọn ipo nẹtiwọki blockchain lọwọlọwọ. O nilo diẹ sii ${currency} lati san awọn owo nẹtiwọọki blockchain, paapaa ti o ba nfi dukia miiran ranṣẹ.",
   "totp_auth_url": "TOTP AUTH URL"
 }

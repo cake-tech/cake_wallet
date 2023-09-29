@@ -693,7 +693,6 @@
   "default_buy_provider": "Standard-Kaufanbieter",
   "ask_each_time": "Jedes Mal fragen",
   "buy_provider_unavailable": "Anbieter derzeit nicht verfügbar.",
-  "address_from_ens": "Diese Adresse stammt von ${domain} auf Ens",
   "do_not_have_enough_gas_asset": "Sie verfügen nicht über genügend ${currency}, um eine Transaktion unter den aktuellen Bedingungen des Blockchain-Netzwerks durchzuführen. Sie benötigen mehr ${currency}, um die Gebühren für das Blockchain-Netzwerk zu bezahlen, auch wenn Sie einen anderen Vermögenswert senden.",
   "totp_auth_url": "TOTP-Auth-URL"
 }
