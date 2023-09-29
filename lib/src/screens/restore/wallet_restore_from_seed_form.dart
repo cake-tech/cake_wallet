@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:polyseed/polyseed.dart';
 
 class WalletRestoreFromSeedForm extends StatefulWidget {
   WalletRestoreFromSeedForm(
@@ -52,6 +53,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   final TextEditingController nameTextEditingController;
   final GlobalKey<FormState> formKey;
   String language;
+  bool isPolyseed = false;
 
   @override
   void initState() {
@@ -63,6 +65,16 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     // ToDo: If Monero add Polyseed Detect
     // ToDo: If Polyseed _setLanguageLabel("POLYSEED_$lang")
     // ToDo: displayLanguageSelector = false
+    if (widget.type == WalletType.monero && Polyseed.isValidSeed(seed)) {
+      final lang = PolyseedLang.getByPhrase(seed);
+      final polyseed = Polyseed.decode(seed, lang, PolyseedCoin.POLYSEED_MONERO);
+
+
+      _changeLanguage("POLYSEED_${lang.nameEnglish}");
+      setState(() => isPolyseed = true);
+    } else if(isPolyseed) {
+      setState(() => isPolyseed = false);
+    }
     widget.onSeedChange?.call(seed);
   }
 
@@ -115,7 +127,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
               language: language,
               type: widget.type,
               onSeedChange: onSeedChange),
-          if (widget.displayLanguageSelector)
+          if (!isPolyseed && widget.displayLanguageSelector)
             GestureDetector(
                 onTap: () async {
                   await showPopUp<void>(
@@ -131,7 +143,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                             controller: languageController,
                             enableInteractiveSelection: false,
                             readOnly: true)))),
-          if (widget.displayBlockHeightSelector)
+          if (!isPolyseed && widget.displayBlockHeightSelector)
             BlockchainHeightWidget(
                 focusNode: widget.blockHeightFocusNode,
                 key: blockchainHeightKey,

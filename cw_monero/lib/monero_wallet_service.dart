@@ -12,6 +12,8 @@ import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:hive/hive.dart';
+import 'package:polyseed/polyseed.dart';
+import 'package:polyseed/src/utils/key_utils.dart';
 
 class MoneroNewWalletCredentials extends WalletCredentials {
   MoneroNewWalletCredentials({required String name, required this.language, String? password})
@@ -213,7 +215,12 @@ class MoneroWalletService extends WalletService<
   @override
   Future<MoneroWallet> restoreFromSeed(
       MoneroRestoreWalletFromSeedCredentials credentials) async {
-    // ToDo: Implement restore from Polyseed
+
+    // Restore from Polyseed
+    if (Polyseed.isValidSeed(credentials.mnemonic)) {
+      return restoreFromPolyseed(credentials);
+    }
+
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       await monero_wallet_manager.restoreFromSeed(
@@ -236,13 +243,16 @@ class MoneroWalletService extends WalletService<
   Future<MoneroWallet> restoreFromPolyseed(MoneroRestoreWalletFromSeedCredentials credentials) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
-      final polyseed = Polyseed.decode(credentials.mnemonic);
+      final polyseedCoin = PolyseedCoin.POLYSEED_MONERO;
+      final lang = PolyseedLang.getByPhrase(credentials.mnemonic);
+      final polyseed = Polyseed.decode(credentials.mnemonic, lang, polyseedCoin);
       final height = getMoneroHeigthByDate(date: DateTime.fromMillisecondsSinceEpoch(polyseed.birthday * 1000));
-      final spendKey = ""; //polyseed.generateKey()
+      final spendKey = keyToHexString(polyseed.generateKey(polyseedCoin, 32));
+
       await monero_wallet_manager.restoreFromSpendKey(
           path: path,
           password: credentials.password!,
-          language: credentials.language,
+          language: lang.nameEnglish,
           restoreHeight: height,
           spendKey: spendKey);
       final wallet = MoneroWallet(

@@ -181,7 +181,10 @@ class CWMonero extends Monero {
 
   @override
   List<String> getMoneroWordList(String language) {
-    // ToDo: Add PolyseedLang
+    if (language.startsWith("POLYSEED_")) {
+      final lang = language.replaceAll("POLYSEED_", "");
+      return PolyseedLang.getByEnglishName(lang).words;
+    }
     switch (language.toLowerCase()) {
       case 'english':
         return EnglishMnemonics.words;

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polyseed/polyseed.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/execution_state.dart';
@@ -52,10 +53,10 @@ class WalletRestorePage extends BasePage {
                   walletRestoreViewModel.isButtonEnabled = _isValidSeed();
                 }
               },
-              onLanguageChange: (_) {
+              onLanguageChange: (String language) {
+                final isPolyseed = language.startsWith("POLYSEED_");
                 // ToDo: If starts with "POLYSEED_" disable languageSelection
-                walletRestoreViewModel.hasSeedEncryption = true; // ToDo
-                if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
+                if (!isPolyseed && walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
                   final hasHeight = walletRestoreFromSeedFormKey.currentState!.blockchainHeightKey
                       .currentState!.restoreHeightController.text.isNotEmpty;
 
@@ -210,9 +211,12 @@ class WalletRestorePage extends BasePage {
   }
 
   bool _isValidSeed() {
-    // ToDo: Check for Polyseed
-    final seedWords =
-        walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.text.split(' ');
+    final seedPhrase =
+        walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.text;
+    if (walletRestoreViewModel.type == WalletType.monero && Polyseed.isValidSeed(seedPhrase))
+      return true;
+
+    final seedWords = seedPhrase.split(' ');
 
     if ((walletRestoreViewModel.type == WalletType.monero ||
             walletRestoreViewModel.type == WalletType.haven) &&
@@ -241,7 +245,8 @@ class WalletRestorePage extends BasePage {
 
       if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
         credentials['height'] =
-            walletRestoreFromSeedFormKey.currentState!.blockchainHeightKey.currentState!.height;
+            walletRestoreFromSeedFormKey.currentState!.blockchainHeightKey.currentState?.height ??
+                -1;
       }
 
       credentials['name'] =

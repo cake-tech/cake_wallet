@@ -86,6 +86,9 @@ dependencies:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git
       ref: cake-update-v3
+  polyseed:
+    git:
+      url: https://github.com/cake-tech/polyseed_dart.git
 
 dev_dependencies:
   flutter_test:
