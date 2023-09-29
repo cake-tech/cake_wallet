@@ -100,7 +100,7 @@ class AddressResolver {
         return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
       }
 
-      if (text.contains(".")) {
+      if (text.endsWith(".eth")) {
         var wallet = getIt.get<AppStore>().wallet!;
         final address = await EnsRecord.fetchEnsAddress(text, wallet: wallet);
         if (address.isNotEmpty && address != "0x0000000000000000000000000000000000000000") {
