@@ -165,13 +165,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     final seedKey = options['private_key'] as String?;
     final mnemonic = options['seed'] as String?;
     WalletType walletType = options['walletType'] as WalletType;
-    var appStore = getIt.get<AppStore>();
-    var node = appStore.settingsStore.getCurrentNode(walletType);
+    AppStore appStore = getIt.get<AppStore>();
+    Node node = appStore.settingsStore.getCurrentNode(walletType);
 
     switch (type) {
       case WalletType.bitcoin:
-        dynamic WalletService = await bitcoin!.getBitcoinWalletService();
-        return WalletService.compareDerivationMethods(mnemonic: mnemonic!, node: node) as Future<List<DerivationType>>;
+        return bitcoin!.compareDerivationMethods(mnemonic: mnemonic!, node: node);
       // case WalletType.litecoin:
       //   return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
       //       name: name, mnemonic: seed, password: password);

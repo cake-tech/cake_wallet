@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -308,7 +309,7 @@ class WalletRestorePage extends BasePage {
     switch (walletType) {
       case WalletType.bitcoin:
         String? mnemonic = credentials['seed'] as String?;
-        return await BitcoinWalletService.getDerivationsFromMnemonic(
+        return bitcoin!.getDerivationsFromMnemonic(
             mnemonic: mnemonic!, node: node);
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
