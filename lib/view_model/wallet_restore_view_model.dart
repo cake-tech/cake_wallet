@@ -31,7 +31,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         hasBlockchainHeightLanguageSelector = type == WalletType.monero || type == WalletType.haven,
         hasRestoreFromPrivateKey = type == WalletType.ethereum,
         isButtonEnabled = false,
-        hasSeedEncryption = false,
         mode = WalletRestoreMode.seed,
         super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true) {
     isButtonEnabled =
@@ -53,9 +52,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
   @observable
   bool isButtonEnabled;
-
-  @observable
-  bool hasSeedEncryption;
 
   @override
   WalletCredentials getCredentials(dynamic options) {
