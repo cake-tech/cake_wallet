@@ -23,7 +23,7 @@ abstract class WalletConnectKeyService {
 
 class KeyServiceImpl implements WalletConnectKeyService {
   KeyServiceImpl(this.wallet)
-      : keys = [
+      : _keys = [
           ChainKeyModel(
             chains: [
               'eip155:1',
@@ -40,29 +40,29 @@ class KeyServiceImpl implements WalletConnectKeyService {
 
   late final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
-  late final List<ChainKeyModel> keys;
+  late final List<ChainKeyModel> _keys;
 
   @override
   List<String> getChains() {
     final List<String> chainIds = [];
-    for (final ChainKeyModel key in keys) {
+    for (final ChainKeyModel key in _keys) {
       chainIds.addAll(key.chains);
     }
     return chainIds;
   }
 
   @override
-  List<ChainKeyModel> getKeys() => keys;
+  List<ChainKeyModel> getKeys() => _keys;
 
   @override
   List<ChainKeyModel> getKeysForChain(String chain) {
-    return keys.where((e) => e.chains.contains(chain)).toList();
+    return _keys.where((e) => e.chains.contains(chain)).toList();
   }
 
   @override
   List<String> getAllAccounts() {
     final List<String> accounts = [];
-    for (final ChainKeyModel key in keys) {
+    for (final ChainKeyModel key in _keys) {
       for (final String chain in key.chains) {
         accounts.add('$chain:${key.publicKey}');
       }
