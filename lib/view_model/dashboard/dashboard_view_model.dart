@@ -99,6 +99,11 @@ abstract class DashboardViewModelBase with Store {
                 caption: ExchangeProviderDescription.trocador.title,
                 onChanged: () =>
                     tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.trocador)),
+            FilterItem(
+                value: () => tradeFilterStore.displayExolix,
+                caption: ExchangeProviderDescription.exolix.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
           ]
         },
         subname = '',
@@ -409,8 +414,6 @@ abstract class DashboardViewModelBase with Store {
     hasBuyAction = !isHaven;
     hasSellAction = !isHaven;
   }
-
-
 
   @computed
   SyncMode get syncMode => settingsStore.currentSyncMode;

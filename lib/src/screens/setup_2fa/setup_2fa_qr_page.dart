@@ -89,7 +89,7 @@ class Setup2FAQRPage extends BasePage {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      '${setup2FAViewModel.secretKey}',
+                      '${setup2FAViewModel.totpSecretKey}',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -108,7 +108,7 @@ class Setup2FAQRPage extends BasePage {
                 child: InkWell(
                   onTap: () {
                     ClipboardUtil.setSensitiveDataToClipboard(
-                        ClipboardData(text: '${setup2FAViewModel.secretKey}'));
+                        ClipboardData(text: '${setup2FAViewModel.totpSecretKey}'));
                     showBar<void>(context, S.of(context).copied_to_clipboard);
                   },
                   child: Container(
