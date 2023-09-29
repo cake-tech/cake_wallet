@@ -698,5 +698,7 @@
   "onramper_option_description": "多くの支払い方法で暗号をすばやく購入してください。ほとんどの国で利用可能です。スプレッドと料金は異なります。",
   "default_buy_provider": "デフォルトの購入プロバイダー",
   "ask_each_time": "毎回尋ねてください",
-  "buy_provider_unavailable": "現在、プロバイダーは利用できません。"
+  "buy_provider_unavailable": "現在、プロバイダーは利用できません。",
+  "do_not_have_enough_gas_asset": "現在のブロックチェーン ネットワークの状況では、トランザクションを行うのに十分な ${currency} がありません。別のアセットを送信する場合でも、ブロックチェーン ネットワーク料金を支払うにはさらに ${currency} が必要です。",
+  "totp_auth_url": "TOTP認証URL"
 }
