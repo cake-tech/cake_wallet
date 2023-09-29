@@ -828,10 +828,11 @@ Future<void> setup({
   getIt.registerFactoryParam<WalletRestoreChooseDerivationViewModel, List<DerivationInfo>, void>(
       (derivations, _) => WalletRestoreChooseDerivationViewModel(derivationInfos: derivations));
 
-  getIt.registerFactoryParam<WalletRestoreChooseDerivationPage, List<DerivationInfo>, void>((credentials, _) =>
-      WalletRestoreChooseDerivationPage(getIt.get<WalletRestoreChooseDerivationViewModel>(
-        param1: credentials,
-      )));
+  getIt.registerFactoryParam<WalletRestoreChooseDerivationPage, List<DerivationInfo>, void>(
+      (credentials, _) =>
+          WalletRestoreChooseDerivationPage(getIt.get<WalletRestoreChooseDerivationViewModel>(
+            param1: credentials,
+          )));
 
   getIt.registerFactoryParam<TransactionDetailsViewModel, TransactionInfo, void>(
       (TransactionInfo transactionInfo, _) {
@@ -1112,9 +1113,12 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactory<ManageNodesPage>(() => ManageNodesPage(getIt.get<NodeListViewModel>()));
-  getIt.registerFactory<ManagePowNodesPage>(
-      () => ManagePowNodesPage(getIt.get<PowNodeListViewModel>()));
+  getIt.registerFactoryParam<ManageNodesPage, bool, void>((bool isPow, _) {
+    if (isPow) {
+      return ManageNodesPage(isPow, powNodeListViewModel: getIt.get<PowNodeListViewModel>());
+    }
+    return ManageNodesPage(isPow, nodeListViewModel: getIt.get<NodeListViewModel>());
+  });
 
   _isSetupFinished = true;
 }

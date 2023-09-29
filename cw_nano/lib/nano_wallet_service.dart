@@ -70,7 +70,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
     await currentWallet.renameWalletFiles(newName);
 
-    final newWalletInfo = currentWalletInfo;  
+    final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
     newWalletInfo.name = newName;
 
@@ -90,9 +90,20 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     DerivationType derivationType = credentials.derivationType ?? DerivationType.nano;
     credentials.walletInfo!.derivationType = derivationType;
 
+    String? mnemonic;
+
+    // we can't derive the mnemonic from the key in all cases, only if it's a "nano" seed
+    if (credentials.seedKey.length == 64) {
+      try {
+        mnemonic = NanoUtil.seedToMnemonic(credentials.seedKey);
+      } catch (e) {
+        throw Exception("Wasn't a valid nano style seed!");
+      }
+    }
+
     final wallet = await NanoWallet(
       password: credentials.password!,
-      mnemonic: credentials.seedKey, // we can't derive the mnemonic from the key in all cases
+      mnemonic: mnemonic ?? credentials.seedKey,
       walletInfo: credentials.walletInfo!,
     );
     await wallet.init();

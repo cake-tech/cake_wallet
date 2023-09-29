@@ -585,10 +585,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.manageNodes:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>());
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: false));
 
     case Routes.managePowNodes:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<ManagePowNodesPage>());
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: true));
 
     default:
       return MaterialPageRoute<void>(
