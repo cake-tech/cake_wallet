@@ -607,8 +607,6 @@ abstract class Nano {
 
   WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource);
 
-  TransactionHistoryBase getTransactionHistory(Object wallet);
-
   WalletCredentials createNanoNewWalletCredentials({
     required String name,
     String password,
@@ -628,13 +626,10 @@ abstract class Nano {
     DerivationType? derivationType,
   });
 
-  String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
-
-  void onStartup();
-
   List<String> getNanoWordList(String language);
   Map<String, String> getKeys(Object wallet);
   Object createNanoTransactionCredentials(List<Output> outputs);
+  Future<void> changeRep(Object wallet, String address);
 }
 
 abstract class NanoAccountList {

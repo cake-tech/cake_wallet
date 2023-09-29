@@ -79,10 +79,6 @@ class CWNano extends Nano {
     return NanoWalletService(walletInfoSource);
   }
 
-  String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
-    throw UnimplementedError();
-  }
-
   @override
   Map<String, String> getKeys(Object wallet) {
     final nanoWallet = wallet as NanoWallet;
@@ -151,14 +147,6 @@ class CWNano extends Nano {
   }
 
   @override
-  TransactionHistoryBase getTransactionHistory(Object wallet) {
-    throw UnimplementedError();
-  }
-
-  @override
-  void onStartup() {}
-
-  @override
   Object createNanoTransactionCredentials(List<Output> outputs) {
     return NanoTransactionCredentials(
       outputs
@@ -182,6 +170,11 @@ class CWNano extends Nano {
     final nanoWallet = wallet as NanoWallet;
     await nanoWallet.walletAddresses.accountList
         .setLabelAccount(accountIndex: accountIndex, label: label);
+  }
+
+  @override
+  Future<void> changeRep(Object wallet, String address) async {
+    return (wallet as NanoWallet).changeRep(address);
   }
 }
 
@@ -427,6 +420,7 @@ class CWNanoUtil extends NanoUtil {
     return accountInfo;
   }
 
+  @override
   Future<List<DerivationType>> compareDerivationMethods({
     String? mnemonic,
     String? privateKey,

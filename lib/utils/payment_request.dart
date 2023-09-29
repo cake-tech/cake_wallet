@@ -16,10 +16,12 @@ class PaymentRequest {
       scheme = uri.scheme;
     }
 
-    if (address.contains("nano")) {
-      amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerNano);
-    } else if (address.contains("ban")) {
-      amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerBanano);
+    if (nano != null) {
+      if (address.contains("nano")) {
+        amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerNano);
+      } else if (address.contains("ban")) {
+        amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerBanano);
+      }
     }
 
     return PaymentRequest(address, amount, note, scheme);

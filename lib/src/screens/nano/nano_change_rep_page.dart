@@ -1,11 +1,14 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_nano/nano_wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -18,15 +21,13 @@ class NanoChangeRepPage extends BasePage {
       : _formKey = GlobalKey<FormState>(),
         _wallet = wallet,
         _addressController = TextEditingController() {
-    dynamic wallet = getIt.get<AppStore>().wallet!;
-    _addressController.text = wallet.representative as String;
+    WalletBase wallet = getIt.get<AppStore>().wallet!;
+    _addressController.text = (wallet as NanoWallet).representative;
   }
 
   final GlobalKey<FormState> _formKey;
   final TextEditingController _addressController;
   final WalletBase _wallet;
-
-  // final CryptoCurrency type;
 
   @override
   String get title => S.current.change_rep;
@@ -79,11 +80,18 @@ class NanoChangeRepPage extends BasePage {
 
                             if (confirmed) {
                               try {
-                                await (_wallet as dynamic).changeRep(_addressController.text);
-                                // TODO: show message saying success:
-
+                                await nano!.changeRep(_wallet, _addressController.text);
                                 Navigator.of(context).pop();
                               } catch (e) {
+                                await showPopUp<void>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertWithOneAction(
+                                          alertTitle: S.of(context).error,
+                                          alertContent: e.toString(),
+                                          buttonText: S.of(context).ok,
+                                          buttonAction: () => Navigator.pop(context));
+                                    });
                                 throw e;
                               }
                             }

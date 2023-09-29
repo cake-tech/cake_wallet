@@ -3,10 +3,7 @@ import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_nano/nano_account_list.dart';
-// import 'package:cw_core/account.dart';
-// import 'package:cw_core/subaddress.dart';
 import 'package:mobx/mobx.dart';
-import 'package:hive/hive.dart';
 
 part 'nano_wallet_addresses.g.dart';
 
@@ -41,5 +38,13 @@ abstract class NanoWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @override
-  Future<void> updateAddressesInBox() async {}
+  Future<void> updateAddressesInBox() async {
+    try {
+      addressesMap.clear();
+      addressesMap[address] = '';
+      await saveAddressesInBox();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 }

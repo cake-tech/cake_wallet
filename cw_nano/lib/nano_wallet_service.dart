@@ -1,12 +1,10 @@
 import 'dart:io';
 
-import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_mnemonic.dart' as nm;
 import 'package:cw_nano/nano_util.dart';
 import 'package:cw_nano/nano_wallet.dart';
@@ -33,10 +31,6 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     DerivationType derivationType = DerivationType.nano;
     String seedKey = NanoSeeds.generateSeed();
     String mnemonic = NanoUtil.seedToMnemonic(seedKey);
-
-    // bip39:
-    // derivationType derivationType = DerivationType.bip39;
-    // String mnemonic = bip39.generateMnemonic();
 
     credentials.walletInfo!.derivationType = derivationType;
 
@@ -69,8 +63,6 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     final currentWalletInfo = walletInfoSource.values
         .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
 
-    currentWalletInfo.derivationType = DerivationType.nano; // doesn't matter for the rename action
-
     String randomWords =
         (List<String>.from(nm.NanoMnemomics.WORDLIST)..shuffle()).take(24).join(' ');
     final currentWallet =
@@ -78,7 +70,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
     await currentWallet.renameWalletFiles(newName);
 
-    final newWalletInfo = currentWalletInfo;
+    final newWalletInfo = currentWalletInfo;  
     newWalletInfo.id = WalletBase.idFor(newName, getType());
     newWalletInfo.name = newName;
 
