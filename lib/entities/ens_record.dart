@@ -14,7 +14,7 @@ class EnsRecord {
     }
 
     if (_client == null) {
-      _client = Web3Client("ethereum.publicnode.com", Client());
+      _client = Web3Client("https://ethereum.publicnode.com", Client());
     }
 
     try {
