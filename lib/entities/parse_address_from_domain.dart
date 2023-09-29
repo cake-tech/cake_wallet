@@ -103,7 +103,7 @@ class AddressResolver {
       if (text.contains(".")) {
         var wallet = getIt.get<AppStore>().wallet!;
         final address = await EnsRecord.fetchEnsAddress(text, wallet: wallet);
-        if (address.isNotEmpty) {
+        if (address.isNotEmpty && address != "0x0000000000000000000000000000000000000000") {
           return ParsedAddress.fetchEnsAddress(name: text, address: address);
         }
       }
