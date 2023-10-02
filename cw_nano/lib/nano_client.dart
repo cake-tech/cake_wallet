@@ -422,10 +422,6 @@ class NanoClient {
     return blocks.keys.length;
   }
 
-  Future<dynamic> getTransactionDetails(String transactionHash) async {
-    throw UnimplementedError();
-  }
-
   void stop() {}
 
   Future<List<NanoTransactionModel>> fetchTransactions(String address) async {

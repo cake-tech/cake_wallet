@@ -165,14 +165,6 @@ class CWNano extends Nano {
   }
 
   @override
-  Future<void> setLabelAccount(Object wallet,
-      {required int accountIndex, required String label}) async {
-    final nanoWallet = wallet as NanoWallet;
-    await nanoWallet.walletAddresses.accountList
-        .setLabelAccount(accountIndex: accountIndex, label: label);
-  }
-
-  @override
   Future<void> changeRep(Object wallet, String address) async {
     return (wallet as NanoWallet).changeRep(address);
   }
@@ -227,7 +219,7 @@ class CWNanoUtil extends NanoUtil {
   @override
   bool isValidSeed(String seed) {
     // Ensure seed is 64 or 128 characters long
-    if (seed == null || (seed.length != 64 && seed.length != 128)) {
+    if (seed.length != 64 && seed.length != 128) {
       return false;
     }
     // Ensure seed only contains hex characters, 0-9;A-F

@@ -68,7 +68,7 @@ abstract class NanoWalletBase
   String? _representativeAddress;
   Timer? _receiveTimer;
 
-  late NanoClient _client;
+  late final NanoClient _client;
   bool _isTransactionUpdating;
 
   @override

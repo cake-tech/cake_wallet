@@ -407,8 +407,6 @@ class WalletRestorePage extends BasePage {
           derivationPath: "m/0'/1",
           height: 0,
         );
-        this.derivationType = derivationTypes[0];
-        this.derivationPath = "m/0'/1";
       }
 
       if (derivationInfo == null) {

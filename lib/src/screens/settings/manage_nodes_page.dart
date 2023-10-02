@@ -12,10 +12,10 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 
 class ManageNodesPage extends BasePage {
   ManageNodesPage(this.isPow, {this.nodeListViewModel, this.powNodeListViewModel})
-      : assert(nodeListViewModel != null || powNodeListViewModel != null);
+      : assert((isPow && powNodeListViewModel != null) || (!isPow && nodeListViewModel != null));
 
-  NodeListViewModel? nodeListViewModel;
-  PowNodeListViewModel? powNodeListViewModel;
+  final NodeListViewModel? nodeListViewModel;
+  final PowNodeListViewModel? powNodeListViewModel;
   final bool isPow;
 
   @override

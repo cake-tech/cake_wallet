@@ -3,7 +3,6 @@ import 'dart:core';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_nano/file.dart';
-import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_nano/nano_transaction_info.dart';

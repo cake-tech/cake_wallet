@@ -1,10 +1,8 @@
 import 'package:cake_wallet/core/address_validator.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -18,14 +16,11 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class NanoChangeRepPage extends BasePage {
   NanoChangeRepPage(WalletBase wallet)
-      : _formKey = GlobalKey<FormState>(),
-        _wallet = wallet,
+      : _wallet = wallet,
         _addressController = TextEditingController() {
-    WalletBase wallet = getIt.get<AppStore>().wallet!;
     _addressController.text = (wallet as NanoWallet).representative;
   }
 
-  final GlobalKey<FormState> _formKey;
   final TextEditingController _addressController;
   final WalletBase _wallet;
 
