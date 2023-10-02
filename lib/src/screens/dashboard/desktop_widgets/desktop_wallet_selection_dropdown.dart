@@ -15,6 +15,7 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/svg.dart';
 
 class DesktopWalletSelectionDropDown extends StatefulWidget {
   final WalletListViewModel walletListViewModel;
@@ -28,11 +29,6 @@ class DesktopWalletSelectionDropDown extends StatefulWidget {
 }
 
 class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionDropDown> {
-  final moneroIcon = Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
-  final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
-  final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
-  final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
-  final ethereumIcon = Image.asset('assets/images/eth_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
@@ -63,7 +59,9 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
                     constraints: BoxConstraints(maxWidth: 500),
                     child: DropDownItemWidget(
                         title: wallet.name,
-                        image: wallet.isEnabled ? _imageFor(type: wallet.type) : nonWalletTypeIcon),
+                        image: wallet.isEnabled
+                            ? buildIconFromPath(walletTypeToCryptoCurrency(wallet.type).iconPath)
+                            : nonWalletTypeIcon),
                   ),
                   onSelected: () => _onSelectedWallet(wallet),
                 ))
@@ -129,20 +127,20 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
     }
   }
 
-  Image _imageFor({required WalletType type}) {
-    switch (type) {
-      case WalletType.bitcoin:
-        return bitcoinIcon;
-      case WalletType.monero:
-        return moneroIcon;
-      case WalletType.litecoin:
-        return litecoinIcon;
-      case WalletType.haven:
-        return havenIcon;
-      case WalletType.ethereum:
-        return ethereumIcon;
-      default:
-        return nonWalletTypeIcon;
+  Widget buildIconFromPath(String? iconPath) {
+    if (iconPath != null && iconPath.contains('svg')) {
+      return SvgPicture.asset(
+        iconPath,
+        height: 24,
+        width: 24,
+        fit: BoxFit.contain,
+      );
+    } else {
+      return Image.asset(
+        iconPath ?? '',
+        height: 24,
+        width: 24,
+      );
     }
   }
 

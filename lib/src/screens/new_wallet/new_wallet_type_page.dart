@@ -10,6 +10,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class NewWalletTypePage extends BasePage {
   NewWalletTypePage({required this.onTypeSelected, required this.isCreate});
@@ -97,10 +98,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                         ...filteredTypes.map((type) => Padding(
                               padding: EdgeInsets.only(top: 12),
                               child: SelectButton(
-                                  image: Image.asset(
-                                      walletTypeToCryptoCurrency(type).iconPath ?? '',
-                                      height: 24,
-                                      width: 24),
+                                   image: buildIconFromPath(walletTypeToCryptoCurrency(type).iconPath),
                                   text: walletTypeToDisplayName(type),
                                   showTrailingIcon: false,
                                   height: 54,
@@ -129,5 +127,22 @@ class WalletTypeFormState extends State<WalletTypeForm> {
     }
 
     widget.onTypeSelected(context, selected!);
+  }
+
+  Widget buildIconFromPath(String? iconPath) {
+    if (iconPath != null && iconPath.contains('svg')) {
+      return SvgPicture.asset(
+        iconPath,
+        height: 24,
+        width: 24,
+        fit: BoxFit.contain,
+      );
+    } else {
+      return Image.asset(
+        iconPath ?? '',
+        height: 24,
+        width: 24,
+      );
+    }
   }
 }

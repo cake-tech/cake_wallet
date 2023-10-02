@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
+import 'package:flutter_svg/svg.dart';
 
 class Picker<Item, ImageType extends Widget> extends StatefulWidget {
   Picker({
@@ -393,11 +394,20 @@ class _PickerState<Item, ImageType extends Widget> extends State<Picker<Item, Im
   Widget? _getItemIcon(Item item) {
     if (item is Currency) {
       if (item.iconPath != null) {
-        return Image.asset(
-          item.iconPath!,
-          height: 20.0,
-          width: 20.0,
-        );
+        if (item.iconPath!.contains('.svg')) {
+          return SvgPicture.asset(
+            item.iconPath!,
+            width: 20,
+            height: 20,
+            fit: BoxFit.contain,
+          );
+        } else {
+          return Image.asset(
+            item.iconPath!,
+            height: 20.0,
+            width: 20.0,
+          );
+        }
       } else {
         return Container(
           height: 20.0,
