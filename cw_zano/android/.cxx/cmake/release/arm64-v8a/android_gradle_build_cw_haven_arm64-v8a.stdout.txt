@@ -1,0 +1,7 @@
+ninja: Entering directory `/opt/android/cake_wallet/cw_zano/android/.cxx/cmake/release/arm64-v8a'
+[1/2] Building CXX object CMakeFiles/cw_zano.dir/opt/android/cake_wallet/cw_zano/ios/Classes/zano_api.cpp.o
+/opt/android/cake_wallet/cw_zano/ios/Classes/zano_api.cpp:178:47: warning: object backing the pointer will be destroyed at the end of the full-expression [-Wdangling-gsl]
+            std::set<uint32_t>::iterator it = transaction->subaddrIndex().begin();
+                                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.
+[2/2] Linking CXX shared library /opt/android/cake_wallet/build/cw_zano/intermediates/cmake/release/obj/arm64-v8a/libcw_zano.so

@@ -1,0 +1,9 @@
+# ninja log v5
+2	2722	1695294279	CMakeFiles/cw_zano.dir/opt/android/cake_wallet/cw_zano/ios/Classes/zano_api.cpp.o	db4fcd8d10aae3
+2722	3436	1695294280	/opt/android/cake_wallet/build/cw_zano/intermediates/cmake/release/obj/arm64-v8a/libcw_zano.so	eb9f79de8b3719ec
+2	1687	1695314570	CMakeFiles/cw_zano.dir/opt/android/cake_wallet/cw_zano/ios/Classes/zano_api.cpp.o	db4fcd8d10aae3
+1687	2344	1695314570	/opt/android/cake_wallet/build/cw_zano/intermediates/cmake/release/obj/arm64-v8a/libcw_zano.so	eb9f79de8b3719ec
+1	1517	1695811881	CMakeFiles/cw_zano.dir/opt/android/cake_wallet/cw_zano/ios/Classes/zano_api.cpp.o	db4fcd8d10aae3
+1517	1889	1695811882	/opt/android/cake_wallet/build/cw_zano/intermediates/cmake/release/obj/arm64-v8a/libcw_zano.so	eb9f79de8b3719ec
+0	1561	1695986024	CMakeFiles/cw_zano.dir/opt/android/cake_wallet/cw_zano/ios/Classes/zano_api.cpp.o	606d692942cf5f01
+1562	2123	1695986024	/opt/android/cake_wallet/build/cw_zano/intermediates/cmake/release/obj/arm64-v8a/libcw_zano.so	4711e3c4165b04f5

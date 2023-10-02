@@ -1,0 +1,22 @@
+{
+  "buildFiles": [
+    "/opt/android/cake_wallet/cw_zano/android/CMakeLists.txt",
+    "/home/leo/android-sdk/ndk/25.1.8937393/build/cmake/android.toolchain.cmake",
+    "/home/leo/android-sdk/ndk/25.1.8937393/build/cmake/android-legacy.toolchain.cmake",
+    "/home/leo/android-sdk/ndk/25.1.8937393/build/cmake/platforms.cmake",
+    "/home/leo/android-sdk/ndk/25.1.8937393/build/cmake/compiler_id.cmake"
+  ],
+  "cleanCommands": [
+    "/home/leo/android-sdk/cmake/3.10.2.4988404/bin/ninja -C \"/opt/android/cake_wallet/cw_zano/android/.cxx/cmake/release/arm64-v8a\" clean"
+  ],
+  "buildTargetsCommand": "/home/leo/android-sdk/cmake/3.10.2.4988404/bin/ninja  -C \"/opt/android/cake_wallet/cw_zano/android/.cxx/cmake/release/arm64-v8a\" {LIST_OF_TARGETS_TO_BUILD}",
+  "libraries": {
+    "cw_zano-Release-arm64-v8a": {
+      "artifactName": "cw_zano",
+      "buildCommand": "/home/leo/android-sdk/cmake/3.10.2.4988404/bin/ninja -C \"/opt/android/cake_wallet/cw_zano/android/.cxx/cmake/release/arm64-v8a\" cw_zano",
+      "abi": "arm64-v8a",
+      "output": "/opt/android/cake_wallet/build/cw_zano/intermediates/cmake/release/obj/arm64-v8a/libcw_zano.so",
+      "runtimeFiles": []
+    }
+  }
+}

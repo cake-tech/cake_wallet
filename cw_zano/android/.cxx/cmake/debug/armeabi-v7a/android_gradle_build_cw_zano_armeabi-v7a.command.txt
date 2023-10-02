@@ -1,0 +1,7 @@
+Executable : /home/leo/android-sdk/cmake/3.10.2.4988404/bin/ninja
+arguments : 
+-C
+/opt/android/cake_wallet/cw_zano/android/.cxx/cmake/debug/armeabi-v7a
+cw_zano
+jvmArgs : 
+

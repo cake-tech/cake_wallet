@@ -189,14 +189,15 @@ const havenDates = {
 DateTime formatMapKey(String key) => dateFormat.parse(key);
 
 int getHavenHeightByDate({required DateTime date}) {
-  String closestKey =
-      havenDates.keys.firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
+  String closestKey = havenDates.keys
+      .firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
 
   return havenDates[closestKey] ?? 0;
 }
 
 Future<int> getHavenCurrentHeight() async {
-  final response = await http.get(Uri.parse('https://explorer.havenprotocol.org/api/networkinfo'));
+  final response = await http
+      .get(Uri.parse('https://explorer.havenprotocol.org/api/networkinfo'));
 
   if (response.statusCode == 200) {
     final info = jsonDecode(response.body);
@@ -204,4 +205,12 @@ Future<int> getHavenCurrentHeight() async {
   } else {
     throw Exception('Failed to load current blockchain height');
   }
+}
+
+int getZanoHeightByDate({required DateTime date}) {
+  return 0;
+}
+
+Future<int> getZanoCurrentHeight() async {
+  return 0;
 }

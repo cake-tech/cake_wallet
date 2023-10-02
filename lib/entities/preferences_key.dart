@@ -5,6 +5,7 @@ class PreferencesKey {
   static const currentBitcoinElectrumSererIdKey = 'current_node_id_btc';
   static const currentLitecoinElectrumSererIdKey = 'current_node_id_ltc';
   static const currentHavenNodeIdKey = 'current_node_id_xhv';
+  static const currentZanoNodeIdKey = 'current_node_id_zano';
   static const currentEthereumNodeIdKey = 'current_node_id_eth';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
@@ -51,7 +52,8 @@ class PreferencesKey {
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
 
   static const exchangeProvidersSelection = 'exchange-providers-selection';
-  static const autoGenerateSubaddressStatusKey = 'auto_generate_subaddress_status';
+  static const autoGenerateSubaddressStatusKey =
+      'auto_generate_subaddress_status';
   static const clearnetDonationLink = 'clearnet_donation_link';
   static const onionDonationLink = 'onion_donation_link';
   static const lastSeenAppVersion = 'last_seen_app_version';

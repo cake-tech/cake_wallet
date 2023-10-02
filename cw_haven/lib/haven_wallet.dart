@@ -69,7 +69,9 @@ abstract class HavenWalletBase
   ObservableMap<CryptoCurrency, MoneroBalance> balance;
 
   @override
-  String get seed => haven_wallet.getSeed();
+  String get seed {
+    return haven_wallet.getSeed();
+  }
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(

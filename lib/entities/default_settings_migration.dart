@@ -26,6 +26,7 @@ const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
+const zanoDefaultNodeUri = 'zano.org';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -514,6 +515,8 @@ Future<void> checkCurrentNodes(
       .getInt(PreferencesKey.currentHavenNodeIdKey);
   final currentEthereumNodeId = sharedPreferences
       .getInt(PreferencesKey.currentEthereumNodeIdKey);
+  final currentZanoNodeId = sharedPreferences
+      .getInt(PreferencesKey.currentZanoNodeIdKey);
   final currentMoneroNode = nodeSource.values.firstWhereOrNull(
       (node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer = nodeSource.values.firstWhereOrNull(
@@ -524,6 +527,7 @@ Future<void> checkCurrentNodes(
       (node) => node.key == currentHavenNodeId);
   final currentEthereumNodeServer = nodeSource.values.firstWhereOrNull(
       (node) => node.key == currentEthereumNodeId);
+  final currentZanoNode = nodeSource.values.firstWhereOrNull((node) => node.key == currentZanoNodeId);
 
   if (currentMoneroNode == null) {
     final newCakeWalletNode =
@@ -563,6 +567,13 @@ Future<void> checkCurrentNodes(
     await nodeSource.add(node);
     await sharedPreferences.setInt(
         PreferencesKey.currentEthereumNodeIdKey, node.key as int);
+  }
+
+  if (currentZanoNode == null) {
+    final node = Node(uri: zanoDefaultNodeUri, type: WalletType.zano);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(
+        PreferencesKey.currentZanoNodeIdKey, node.key as int);
   }
 }
 

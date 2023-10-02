@@ -13,7 +13,10 @@ CryptoCurrency currencyForWalletType(WalletType type) {
       return CryptoCurrency.xhv;
     case WalletType.ethereum:
       return CryptoCurrency.eth;
+    case WalletType.zano:
+      return CryptoCurrency.zano;
     default:
-      throw Exception('Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
+      throw Exception(
+          'Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
   }
 }

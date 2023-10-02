@@ -1,0 +1,12 @@
+CMake Warning at /home/leo/android-sdk/ndk/25.1.8937393/build/cmake/android-legacy.toolchain.cmake:415 (message):
+  An old version of CMake is being used that cannot automatically detect
+  compiler attributes.  Compiler identification is being bypassed.  Some
+  values may be wrong or missing.  Update to CMake 3.19 or newer to use
+  CMake's built-in compiler identification.
+Call Stack (most recent call first):
+  /home/leo/android-sdk/ndk/25.1.8937393/build/cmake/android.toolchain.cmake:54 (include)
+  .cxx/cmake/release/x86/CMakeFiles/3.10.2/CMakeSystem.cmake:6 (include)
+  CMakeLists.txt
+
+
+Configuring done

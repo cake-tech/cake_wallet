@@ -618,11 +618,16 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
+    final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
+    //final zanoNodeId = 9;
+    debugPrint("zanoNodeId $zanoNodeId");
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
+    final zanoNode = nodeSource.get(zanoNodeId);
+    debugPrint("zanoNode $zanoNode");
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
@@ -652,6 +657,10 @@ abstract class SettingsStoreBase with Store {
 
     if (ethereumNode != null) {
       nodes[WalletType.ethereum] = ethereumNode;
+    }
+
+    if (zanoNode != null) {
+      nodes[WalletType.zano] = zanoNode;
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
@@ -825,12 +834,14 @@ abstract class SettingsStoreBase with Store {
     final litecoinElectrumServerId =
         sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
+    final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
+    final zanoNode = nodeSource.get(zanoNodeId);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -850,6 +861,10 @@ abstract class SettingsStoreBase with Store {
 
     if (ethereumNode != null) {
       nodes[WalletType.ethereum] = ethereumNode;
+    }
+
+    if (zanoNode != null) {
+      nodes[WalletType.zano] = zanoNode;
     }
   }
 
@@ -871,6 +886,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.ethereum:
         await _sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.key as int);
+        break;
+      case WalletType.zano:
+        await _sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, node.key as int);
         break;
       default:
         break;
