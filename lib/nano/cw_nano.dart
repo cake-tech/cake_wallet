@@ -168,6 +168,11 @@ class CWNano extends Nano {
   Future<void> changeRep(Object wallet, String address) async {
     return (wallet as NanoWallet).changeRep(address);
   }
+
+  @override
+  Future<void> updateTransactions(Object wallet) async {
+    return (wallet as NanoWallet).updateTransactions();
+  }
 }
 
 class CWNanoUtil extends NanoUtil {

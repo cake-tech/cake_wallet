@@ -322,8 +322,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       await pendingTransaction!.commit();
 
       if (walletType == WalletType.nano) {
-        dynamic wallet = getIt.get<AppStore>().wallet;
-        wallet?.updateTransactions();
+        nano!.updateTransactions(wallet);
       }
 
       if (pendingTransaction!.id.isNotEmpty) {

@@ -630,6 +630,7 @@ abstract class Nano {
   Map<String, String> getKeys(Object wallet);
   Object createNanoTransactionCredentials(List<Output> outputs);
   Future<void> changeRep(Object wallet, String address);
+  Future<void> updateTransactions(Object wallet);
 }
 
 abstract class NanoAccountList {

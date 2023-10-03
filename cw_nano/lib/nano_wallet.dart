@@ -237,7 +237,6 @@ abstract class NanoWalletBase
 
       _isTransactionUpdating = true;
       final transactions = await fetchTransactions();
-      transactionHistory.clear();
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
       _isTransactionUpdating = false;
@@ -281,7 +280,7 @@ abstract class NanoWalletBase
 
   @override
   Future<void> rescan({required int height}) async {
-    fetchTransactions();
+    updateTransactions();
     _updateBalance();
     return;
   }

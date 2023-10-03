@@ -197,24 +197,14 @@ class NanoClient {
       }
 
       // get the account info (we need the frontier and representative):
-      final headers = {"Content-Type": "application/json"};
-      final infoBody = jsonEncode({
-        "action": "account_info",
-        "representative": "true",
-        "account": publicAddress,
-      });
-      final infoResponse = await http.post(
-        _node!.uri,
-        headers: headers,
-        body: infoBody,
-      );
+      final infoResponse = await getAccountInfo(publicAddress);
 
-      String frontier = jsonDecode(infoResponse.body)["frontier"].toString();
+      String frontier = infoResponse["frontier"].toString();
       // override if provided:
       if (previousHash != null) {
         frontier = previousHash;
       }
-      final String representative = jsonDecode(infoResponse.body)["representative"].toString();
+      final String representative = infoResponse["representative"].toString();
       // link = destination address:
       final String link = NanoAccounts.extractPublicKey(destinationAddress);
       final String linkAsAccount = destinationAddress;
