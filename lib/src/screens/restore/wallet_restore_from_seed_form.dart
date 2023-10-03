@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -148,7 +149,16 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 focusNode: widget.blockHeightFocusNode,
                 key: blockchainHeightKey,
                 onHeightOrDateEntered: widget.onHeightOrDateEntered,
-                hasDatePicker: widget.type == WalletType.monero)
+                hasDatePicker: widget.type == WalletType.monero),
+          if (isPolyseed)
+            Padding(
+              padding: EdgeInsets.only(top: 20.0),
+              child: Text("${S.of(context).polyseed_detected} 🥳",
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
+            )
         ]));
   }
 

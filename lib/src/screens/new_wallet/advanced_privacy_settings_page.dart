@@ -94,6 +94,17 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                 ],
               );
             }),
+            Observer(builder: (_) {
+              // ToDo: Make it work
+              return SettingsChoicesCell(
+                ChoicesListItem<String>(
+                  title: S.current.seedtype,
+                  items: ["Legacy (25 Words)", "Polyseed (16 Words)"],
+                  selectedItem: "Legacy (25 Words)",
+                  onItemSelected: (String mode) {},
+                ),
+              );
+            }),
           ],
         ),
         bottomSectionPadding: EdgeInsets.all(24),
