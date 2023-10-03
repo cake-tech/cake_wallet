@@ -20,8 +20,6 @@ class EnsRecord {
     try {
       final ens = Ens(client: _client);
 
-      dynamic res;
-
       if (wallet != null) {
         switch (wallet.type) {
           case WalletType.monero:

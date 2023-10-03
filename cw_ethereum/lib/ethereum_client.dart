@@ -209,22 +209,7 @@ I/flutter ( 4474): Gas Used: 53000
     }
   }
 
-  Future<String> checkEnsName(String ensName) async {
-    if (_client == null) {
-      return "";
-    }
-    try {
-      final ens = Ens(client: _client!);
-
-      final addr = await ens.withName(ensName).getAddress();
-      return addr.hex;
-    } catch (e) {
-      print(e);
-      return "";
-    }
-  }
-
-  dynamic getWeb3Client() {
+  Web3Client? getWeb3Client() {
     return _client;
   }
 
