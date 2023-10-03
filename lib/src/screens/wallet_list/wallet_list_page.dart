@@ -255,10 +255,10 @@ class WalletListBodyState extends State<WalletListBody> {
           return;
         }
 
-        // if (walletListItem.type == WalletType.haven) {
-        //   _onHavenWalletSelected(walletListItem);
-        //   return;
-        // }
+        if (walletListItem.type == WalletType.haven) {
+          _onHavenWalletSelected(walletListItem);
+          return;
+        }
 
         try {
           changeProcessText(S.of(context).wallet_list_loading_wallet(walletListItem.name));

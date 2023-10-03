@@ -54,7 +54,4 @@ Future<void> _navigateBasedOnWalletType(
     await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
     return;
   }
-
-  // await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-  // return;
 }
