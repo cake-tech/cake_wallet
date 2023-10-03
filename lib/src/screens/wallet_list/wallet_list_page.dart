@@ -270,6 +270,7 @@ class WalletListBodyState extends State<WalletListBody> {
           if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pop();
+              return;
             });
           }
         } catch (e) {
@@ -283,7 +284,9 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   Future<void> _onHavenWalletSelected(WalletListItem walletListItem) async {
+    changeProcessText(S.of(context).wallet_list_loading_wallet(walletListItem.name));
     final wallet = await widget.walletListViewModel.loadWalletWithoutChanging(walletListItem);
+    await hideProgressText();
     await Navigator.pushNamed(context, Routes.havenRemovalNoticePage, arguments: wallet);
   }
 

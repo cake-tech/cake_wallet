@@ -70,7 +70,7 @@ class HavenRemovalNoticePage extends BasePage {
               ),
               PrimaryButton(
                 onPressed: () => Navigator.of(context)
-                    .popAndPushNamed(Routes.havenRemovalSeedPage, arguments: [wallet, viewModel]),
+                    .pushNamed(Routes.havenRemovalSeedPage, arguments: [wallet, viewModel]),
                 text: S.of(context).pre_seed_button_text,
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,

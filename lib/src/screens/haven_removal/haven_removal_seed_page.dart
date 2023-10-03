@@ -45,10 +45,6 @@ class HavenRemovalSeedPage extends BasePage {
         ) ??
         false;
 
-    // if (confirmed) {
-    //   await havenRemovalViewModel.onSeedsCopiedConfirmed();
-    // }
-
     return;
   }
 

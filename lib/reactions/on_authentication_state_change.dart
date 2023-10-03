@@ -27,6 +27,7 @@ void startAuthenticationStateChange(AuthenticationStore authenticationStore,
 
       if (state == AuthenticationState.allowed) {
         await _navigateBasedOnWalletType(navigatorKey, appStore);
+        return;
       }
     },
   );
@@ -43,17 +44,20 @@ Future<void> _loadCurrentWallet() async {
 
 Future<void> _navigateBasedOnWalletType(
     GlobalKey<NavigatorState> navigatorKey, AppStore appStore) async {
-  final typeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0;
-  final type = deserializeFromInt(typeRaw);
+  final wallet = appStore.wallet!;
 
-  if (type == WalletType.haven) {
-    final wallet = appStore.wallet;
-
-    await navigatorKey.currentState!.pushNamed(Routes.havenRemovalNoticePage, arguments: wallet);
-
+  if (wallet.type == WalletType.haven) {
+    await navigatorKey.currentState!.pushNamedAndRemoveUntil(
+      Routes.havenRemovalNoticePage,
+      (route) => false,
+      arguments: wallet,
+    );
     return;
   } else {
     await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
     return;
   }
+
+  // await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+  // return;
 }
