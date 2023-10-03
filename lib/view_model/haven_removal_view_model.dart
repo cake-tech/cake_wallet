@@ -6,15 +6,13 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
-import 'package:mobx/mobx.dart';
 
-part 'haven_removal_view_model.g.dart';
-
-class HavenRemovalViewModel = HavenRemovalViewModelBase with _$HavenRemovalViewModel;
-
-abstract class HavenRemovalViewModelBase with Store {
-  HavenRemovalViewModelBase(
-      {required this.appStore, required this.walletInfoSource, required this.walletLoadingService});
+class HavenRemovalViewModel {
+  HavenRemovalViewModel({
+    required this.appStore,
+    required this.walletInfoSource,
+    required this.walletLoadingService,
+  });
 
   final AppStore appStore;
   final Box<WalletInfo> walletInfoSource;

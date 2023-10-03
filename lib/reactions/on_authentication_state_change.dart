@@ -1,5 +1,3 @@
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
@@ -8,7 +6,6 @@ import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/load_current_wallet.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 ReactionDisposer? _onAuthenticationStateChange;
 

@@ -5,7 +5,6 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:another_flushbar/flushbar.dart';
-import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/routes.dart';
@@ -256,10 +255,10 @@ class WalletListBodyState extends State<WalletListBody> {
           return;
         }
 
-        if (walletListItem.type == WalletType.haven) {
-          _onHavenWalletSelected(walletListItem);
-          return;
-        }
+        // if (walletListItem.type == WalletType.haven) {
+        //   _onHavenWalletSelected(walletListItem);
+        //   return;
+        // }
 
         try {
           changeProcessText(S.of(context).wallet_list_loading_wallet(walletListItem.name));
