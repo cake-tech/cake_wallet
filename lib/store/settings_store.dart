@@ -595,8 +595,7 @@ abstract class SettingsStoreBase with Store {
         SortBalanceBy.values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? 0];
     final pinNativeTokenAtTop =
         sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
-    final useEtherscan =
-        sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
+    final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
 
     // If no value
     if (pinLength == null || pinLength == 0) {

@@ -3,10 +3,12 @@ import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
+import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
+import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
+import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
-import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
@@ -399,6 +401,10 @@ Future<void> setup({
                 }
                 if (appStore.wallet != null) {
                   authStore.allowed();
+                 
+                  if (appStore.wallet!.type == WalletType.ethereum) {
+                    getIt.get<Web3WalletService>().init();
+                  }
                   return;
                 }
 
@@ -419,6 +425,10 @@ Future<void> setup({
         } else {
           if (appStore.wallet != null) {
             authStore.allowed();
+
+            if (appStore.wallet!.type == WalletType.ethereum) {
+              getIt.get<Web3WalletService>().init();
+            }
             return;
           }
 
@@ -438,11 +448,28 @@ Future<void> setup({
     }, closable: false);
   }, instanceName: 'login');
 
+  getIt.registerSingleton<BottomSheetService>(BottomSheetServiceImpl());
+ 
+  final appStore = getIt.get<AppStore>();
+
+  getIt.registerLazySingleton<WalletConnectKeyService>(() => KeyServiceImpl(appStore.wallet!));
+
+  getIt.registerLazySingleton<Web3WalletService>(() {
+    final Web3WalletService web3WalletService = Web3WalletService(
+      getIt.get<BottomSheetService>(),
+      getIt.get<WalletConnectKeyService>(),
+      appStore,
+    );
+    web3WalletService.create();
+    return web3WalletService;
+  });
+
   getIt.registerFactory(() => BalancePage(
       dashboardViewModel: getIt.get<DashboardViewModel>(),
       settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage(
+        bottomSheetService: getIt.get<BottomSheetService>(),
         balancePage: getIt.get<BalancePage>(),
         dashboardViewModel: getIt.get<DashboardViewModel>(),
         addressListViewModel: getIt.get<WalletAddressListViewModel>(),
@@ -459,6 +486,7 @@ Future<void> setup({
   });
   getIt.registerFactoryParam<DesktopDashboardPage, GlobalKey<NavigatorState>, void>(
       (desktopKey, _) => DesktopDashboardPage(
+            bottomSheetService: getIt.get<BottomSheetService>(),
             balancePage: getIt.get<BalancePage>(),
             dashboardViewModel: getIt.get<DashboardViewModel>(),
             addressListViewModel: getIt.get<WalletAddressListViewModel>(),
@@ -668,7 +696,9 @@ Future<void> setup({
     return NodeListViewModel(_nodeSource, appStore);
   });
 
-  getIt.registerFactory(() => ConnectionSyncPage(getIt.get<DashboardViewModel>()));
+  getIt.registerFactory(
+    () => ConnectionSyncPage(getIt.get<DashboardViewModel>(), getIt.get<Web3WalletService>()),
+  );
 
   getIt.registerFactory(
       () => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(), getIt.get<AuthService>()));
@@ -851,9 +881,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
 
-  getIt.registerFactory(() =>
-      SupportChatPage(
-          getIt.get<SupportViewModel>(), secureStorage: getIt.get<FlutterSecureStorage>()));
+  getIt.registerFactory(() => SupportChatPage(getIt.get<SupportViewModel>(),
+      secureStorage: getIt.get<FlutterSecureStorage>()));
 
   getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 

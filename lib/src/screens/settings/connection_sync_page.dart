@@ -1,12 +1,15 @@
+import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/wallet_connect_button.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -15,11 +18,12 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class ConnectionSyncPage extends BasePage {
-  ConnectionSyncPage(this.dashboardViewModel);
+  ConnectionSyncPage(this.dashboardViewModel, this.web3walletService);
 
   @override
   String get title => S.current.connection_sync;
 
+  final Web3WalletService web3walletService;
   final DashboardViewModel dashboardViewModel;
 
   @override
@@ -66,6 +70,20 @@ class ConnectionSyncPage extends BasePage {
             handler: (context) => Navigator.of(context).pushNamed(Routes.manageNodes),
           ),
           const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+          if (dashboardViewModel.wallet.type == WalletType.ethereum) ...[
+            WalletConnectTile(
+              onTap: () async {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return WalletConnectConnectionsView(web3walletService: web3walletService);
+                    },
+                  ),
+                );
+              },
+            ),
+            const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+          ]
         ],
       ),
     );
