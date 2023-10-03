@@ -283,7 +283,6 @@ abstract class DashboardViewModelBase with Store {
 
   Map<String, List<FilterItem>> filterItems;
 
-
   BuyProviderType get defaultBuyProvider => settingsStore.defaultBuyProvider;
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;

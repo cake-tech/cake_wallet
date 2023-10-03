@@ -486,7 +486,6 @@ Future<void> generateEthereum(bool hasImplementation) async {
   final outputFile = File(ethereumOutputPath);
   const ethereumCommonHeaders = """
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/output_info.dart';
@@ -496,7 +495,9 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:eth_sig_util/util/utils.dart';
 import 'package:hive/hive.dart';
+import 'package:web3dart/web3dart.dart';
 """;
   const ethereumCWHeaders = """
 import 'package:cw_ethereum/ethereum_formatter.dart';
@@ -517,6 +518,8 @@ abstract class Ethereum {
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   String getAddress(WalletBase wallet);
+  String getPrivateKey(WalletBase wallet);
+  String getPublicKey(WalletBase wallet);
   TransactionPriority getDefaultTransactionPriority();
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority deserializeEthereumTransactionPriority(int raw);
@@ -544,6 +547,7 @@ abstract class Ethereum {
   
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled);
+  Web3Client? getWeb3Client(WalletBase wallet);
 }
   """;
 
