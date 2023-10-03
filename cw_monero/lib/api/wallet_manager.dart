@@ -5,7 +5,6 @@ import 'package:cw_monero/api/convert_utf8_to_string.dart';
 import 'package:cw_monero/api/signatures.dart';
 import 'package:cw_monero/api/types.dart';
 import 'package:cw_monero/api/monero_api.dart';
-import 'package:cw_monero/api/wallet.dart';
 import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_creation_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_restore_from_keys_exception.dart';
@@ -149,18 +148,21 @@ void restoreWalletFromKeysSync(
 void restoreWalletFromSpendKeySync(
     {required String path,
       required String password,
+      required String seed,
       required String language,
       required String spendKey,
       int nettype = 0,
       int restoreHeight = 0}) {
   final pathPointer = path.toNativeUtf8();
   final passwordPointer = password.toNativeUtf8();
+  final seedPointer = seed.toNativeUtf8();
   final languagePointer = language.toNativeUtf8();
   final spendKeyPointer = spendKey.toNativeUtf8();
   final errorMessagePointer = ''.toNativeUtf8();
   final isWalletRestored = restoreWalletFromSpendKeyNative(
       pathPointer,
       passwordPointer,
+      seedPointer,
       languagePointer,
       spendKeyPointer,
       nettype,
@@ -235,6 +237,7 @@ void _restoreFromKeys(Map<String, dynamic> args) {
 void _restoreFromSpendKey(Map<String, dynamic> args) {
   final path = args['path'] as String;
   final password = args['password'] as String;
+  final seed = args['seed'] as String;
   final language = args['language'] as String;
   final spendKey = args['spendKey'] as String;
   final restoreHeight = args['restoreHeight'] as int;
@@ -242,6 +245,7 @@ void _restoreFromSpendKey(Map<String, dynamic> args) {
   restoreWalletFromSpendKeySync(
       path: path,
       password: password,
+      seed: seed,
       language: language,
       restoreHeight: restoreHeight,
       spendKey: spendKey);
@@ -307,6 +311,7 @@ Future<void> restoreFromKeys(
 Future<void> restoreFromSpendKey(
     {required String path,
       required String password,
+      required String seed,
       required String language,
       required String spendKey,
       int nettype = 0,
@@ -314,6 +319,7 @@ Future<void> restoreFromSpendKey(
     compute<Map<String, Object>, void>(_restoreFromSpendKey, {
       'path': path,
       'password': password,
+      'seed': seed,
       'language': language,
       'spendKey': spendKey,
       'nettype': nettype,

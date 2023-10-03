@@ -246,6 +246,7 @@ class MoneroWalletService extends WalletService<
       await monero_wallet_manager.restoreFromSpendKey(
           path: path,
           password: credentials.password!,
+          seed: credentials.mnemonic,
           language: lang.nameEnglish,
           restoreHeight: height,
           spendKey: spendKey);
