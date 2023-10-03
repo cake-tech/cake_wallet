@@ -43,13 +43,16 @@ class PreSeedPage extends BasePage {
                 constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
                 child: AspectRatio(aspectRatio: 1, child: image),
               ),
-              Text(
-                S.of(context).pre_seed_description(wordsCount.toString()),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+              Padding(
+                padding: EdgeInsets.all(10),
+                child: Text(
+                  S.of(context).pre_seed_description(wordsCount.toString()),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                  ),
                 ),
               ),
               PrimaryButton(
