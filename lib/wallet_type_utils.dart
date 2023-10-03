@@ -16,6 +16,10 @@ bool get isSingleCoin {
      return availableWalletTypes.length == 1;
 }
 
+bool get hasMonero {
+    return availableWalletTypes.contains(WalletType.monero);
+}
+
 String get approximatedAppName {
     if (isMoneroOnly) {
         return 'Monero.com';   
