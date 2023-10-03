@@ -18,10 +18,15 @@ class HavenRemovalViewModel {
   final Box<WalletInfo> walletInfoSource;
   final WalletLoadingService walletLoadingService;
 
-  Future<void> onSeedsCopiedConfirmed() async {
+  Future<bool> onSeedsCopiedConfirmed(bool isFromStart) async {
     if (walletInfoSource.length == 1) {
       _navigateToWelcomePage();
-      return;
+      return false;
+    }
+
+    if (!isFromStart) {
+      goBack();
+      return true;
     }
 
     final walletInfo = _getFirstNonHavenWallet();
@@ -31,6 +36,8 @@ class HavenRemovalViewModel {
     _changeWallet(wallet);
 
     await _navigateToDashboardPage();
+    
+    return false;
   }
 
   WalletInfo _getFirstNonHavenWallet() {
@@ -55,5 +62,9 @@ class HavenRemovalViewModel {
   Future<void> _navigateToWelcomePage() async {
     await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.welcome, (route) => false);
     return;
+  }
+
+  void goBack() {
+    navigatorKey.currentState!.pop(true);
   }
 }

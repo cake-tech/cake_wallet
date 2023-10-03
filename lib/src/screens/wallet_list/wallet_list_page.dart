@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/haven_removal_flow_parameters.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
@@ -286,7 +287,7 @@ class WalletListBodyState extends State<WalletListBody> {
     changeProcessText(S.of(context).wallet_list_loading_wallet(walletListItem.name));
     final wallet = await widget.walletListViewModel.loadWalletWithoutChanging(walletListItem);
     await hideProgressText();
-    await Navigator.pushNamed(context, Routes.havenRemovalNoticePage, arguments: wallet);
+    await Navigator.pushNamed(context, Routes.havenRemovalNoticePage, arguments: [wallet, false]);
   }
 
   void changeProcessText(String text) {

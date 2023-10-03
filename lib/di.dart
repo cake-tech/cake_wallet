@@ -4,6 +4,7 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
+import 'package:cake_wallet/core/haven_removal_flow_parameters.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -855,9 +856,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
 
-  getIt.registerFactory(() =>
-      SupportChatPage(
-          getIt.get<SupportViewModel>(), secureStorage: getIt.get<FlutterSecureStorage>()));
+  getIt.registerFactory(() => SupportChatPage(getIt.get<SupportViewModel>(),
+      secureStorage: getIt.get<FlutterSecureStorage>()));
 
   getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 
@@ -1059,13 +1059,21 @@ Future<void> setup({
       walletInfoSource: _walletInfoSource,
       walletLoadingService: getIt.get<WalletLoadingService>()));
 
-  getIt.registerFactoryParam<HavenRemovalNoticePage, WalletBase, void>(
-    (wallet, _) => HavenRemovalNoticePage(wallet, getIt.get<HavenRemovalViewModel>()),
+  getIt.registerFactoryParam<HavenRemovalNoticePage, WalletBase, bool>(
+    (wallet, isFromHavenRemovalAtStartFlow) {
+      final params = HavenRemovalFlowParameters(
+        wallet,
+        isFromHavenRemovalAtStartFlow,
+        getIt.get<HavenRemovalViewModel>(),
+      );
+      
+      return HavenRemovalNoticePage(params);
+    },
   );
 
-  getIt.registerFactoryParam<HavenRemovalSeedPage, WalletBase, HavenRemovalViewModel>(
-    (wallet, viewModel) => HavenRemovalSeedPage(wallet, viewModel),
+  getIt.registerFactoryParam<HavenRemovalSeedPage, HavenRemovalFlowParameters, void>(
+    (params, _) => HavenRemovalSeedPage(params),
   );
-  
+
   _isSetupFinished = true;
 }

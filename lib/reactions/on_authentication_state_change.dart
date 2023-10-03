@@ -44,11 +44,8 @@ Future<void> _navigateBasedOnWalletType(
   final wallet = appStore.wallet!;
 
   if (wallet.type == WalletType.haven) {
-    await navigatorKey.currentState!.pushNamedAndRemoveUntil(
-      Routes.havenRemovalNoticePage,
-      (route) => false,
-      arguments: wallet,
-    );
+    await navigatorKey.currentState!
+        .pushNamed(Routes.havenRemovalNoticePage, arguments: [wallet, true]);
     return;
   } else {
     await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/haven_removal_flow_parameters.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -17,12 +18,18 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class HavenRemovalSeedPage extends BasePage {
-  HavenRemovalSeedPage(this.wallet, this.havenRemovalViewModel);
+  HavenRemovalSeedPage(this.params)
+      : wallet = params.wallet,
+        isFromRemoveHavenAppStartFlow = params.isFromRemoveHavenAppStartFlow,
+        havenRemovalViewModel = params.havenRemovalViewModel!;
 
   final imageLight = Image.asset('assets/images/crypto_lock_light.png');
   final imageDark = Image.asset('assets/images/crypto_lock.png');
 
+  final HavenRemovalFlowParameters params;
+
   final WalletBase wallet;
+  final bool isFromRemoveHavenAppStartFlow;
   final HavenRemovalViewModel havenRemovalViewModel;
 
   @override
@@ -30,7 +37,7 @@ class HavenRemovalSeedPage extends BasePage {
 
   @override
   void onClose(BuildContext context) async {
-    await showPopUp<bool>(
+    final shouldPopBack = await showPopUp<bool>(
           context: context,
           builder: (BuildContext context) {
             return AlertWithTwoActions(
@@ -39,11 +46,16 @@ class HavenRemovalSeedPage extends BasePage {
               leftButtonText: S.of(context).seed_alert_back,
               rightButtonText: S.of(context).seed_alert_yes,
               actionLeftButton: () => Navigator.of(context).pop(false),
-              actionRightButton: () async => await havenRemovalViewModel.onSeedsCopiedConfirmed(),
+              actionRightButton: () async =>
+                  await havenRemovalViewModel.onSeedsCopiedConfirmed(isFromRemoveHavenAppStartFlow),
             );
           },
         ) ??
         false;
+
+    if (shouldPopBack) {
+      Navigator.of(context).pop();
+    }
 
     return;
   }
@@ -80,103 +92,99 @@ class HavenRemovalSeedPage extends BasePage {
   Widget body(BuildContext context) {
     final image = currentTheme.type == ThemeType.dark ? imageDark : imageLight;
 
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Container(
-        padding: EdgeInsets.all(24),
-        alignment: Alignment.center,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              ConstrainedBox(
-                constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
-                child: AspectRatio(aspectRatio: 1, child: image),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    wallet.name,
+    return Container(
+      padding: EdgeInsets.all(24),
+      alignment: Alignment.center,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
+              child: AspectRatio(aspectRatio: 1, child: image),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  wallet.name,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 20, left: 16, right: 16),
+                  child: Text(
+                    wallet.seed ?? '',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 20, left: 16, right: 16),
-                    child: Text(
-                      wallet.seed ?? '',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-              Column(
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 43, left: 43, right: 43),
-                    child: Text(
-                      S.of(context).seed_reminder,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal,
-                        color: Theme.of(context)
-                            .extension<TransactionTradeTheme>()!
-                            .detailsTitlesColor,
-                      ),
+                )
+              ],
+            ),
+            Column(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(bottom: 43, left: 43, right: 43),
+                  child: Text(
+                    S.of(context).seed_reminder,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.normal,
+                      color:
+                          Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
                     ),
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      Flexible(
-                          child: Container(
-                        padding: EdgeInsets.only(right: 8.0),
-                        child: PrimaryButton(
-                          onPressed: () {
-                            ShareUtil.share(
-                              text: wallet.seed ?? '',
-                              context: context,
-                            );
-                          },
-                          text: S.of(context).save,
-                          color: Colors.green,
-                          textColor: Colors.white,
-                        ),
-                      )),
-                      Flexible(
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: <Widget>[
+                    Flexible(
                         child: Container(
-                          padding: EdgeInsets.only(left: 8.0),
-                          child: Builder(
-                            builder: (context) => PrimaryButton(
-                              onPressed: () {
-                                ClipboardUtil.setSensitiveDataToClipboard(
-                                  ClipboardData(text: wallet.seed ?? ''),
-                                );
-                                showBar<void>(context, S.of(context).copied_to_clipboard);
-                              },
-                              text: S.of(context).copy,
-                              color: Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
-                              textColor: Colors.white,
-                            ),
+                      padding: EdgeInsets.only(right: 8.0),
+                      child: PrimaryButton(
+                        onPressed: () {
+                          ShareUtil.share(
+                            text: wallet.seed ?? '',
+                            context: context,
+                          );
+                        },
+                        text: S.of(context).save,
+                        color: Colors.green,
+                        textColor: Colors.white,
+                      ),
+                    )),
+                    Flexible(
+                      child: Container(
+                        padding: EdgeInsets.only(left: 8.0),
+                        child: Builder(
+                          builder: (context) => PrimaryButton(
+                            onPressed: () {
+                              ClipboardUtil.setSensitiveDataToClipboard(
+                                ClipboardData(text: wallet.seed ?? ''),
+                              );
+                              showBar<void>(context, S.of(context).copied_to_clipboard);
+                            },
+                            text: S.of(context).copy,
+                            color: Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
+                            textColor: Colors.white,
                           ),
                         ),
-                      )
-                    ],
-                  )
-                ],
-              )
-            ],
-          ),
+                      ),
+                    )
+                  ],
+                )
+              ],
+            )
+          ],
         ),
       ),
     );
