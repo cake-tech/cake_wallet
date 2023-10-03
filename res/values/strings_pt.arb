@@ -694,5 +694,6 @@
   "buy_provider_unavailable": "Provedor atualmente indisponível.",
   "havenSupportNotice": "Haven não é mais suportado no Cake, mas você pode restaurar as sementes em outra carteira",
   "havenSupportSeedsNotice": "Na próxima página, você verá as sementes exclusivas da sua Carteira Haven. Anote e guarde em local seguro. Você pode então restaurar as sementes em outra carteira.",
+  "do_not_have_enough_gas_asset": "Você não tem ${currency} suficiente para fazer uma transação com as condições atuais da rede blockchain. Você precisa de mais ${currency} para pagar as taxas da rede blockchain, mesmo se estiver enviando um ativo diferente.",
   "totp_auth_url": "URL de autenticação TOTP"
 }

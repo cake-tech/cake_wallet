@@ -695,5 +695,6 @@
   "buy_provider_unavailable": "Anbieter derzeit nicht verfügbar.",
   "havenSupportNotice": "Haven wird in Cake nicht mehr unterstützt, aber Sie können die Seeds in einer anderen Wallet wiederherstellen",
   "havenSupportSeedsNotice": "Auf der nächsten Seite sehen Sie die einzigartigen Samen für Ihr Haven Wallet. Schreiben Sie es auf und bewahren Sie es an einem sicheren Ort auf. Anschließend können Sie die Seeds in einem anderen Wallet wiederherstellen.",
+  "do_not_have_enough_gas_asset": "Sie verfügen nicht über genügend ${currency}, um eine Transaktion unter den aktuellen Bedingungen des Blockchain-Netzwerks durchzuführen. Sie benötigen mehr ${currency}, um die Gebühren für das Blockchain-Netzwerk zu bezahlen, auch wenn Sie einen anderen Vermögenswert senden.",
   "totp_auth_url": "TOTP-Auth-URL"
 }

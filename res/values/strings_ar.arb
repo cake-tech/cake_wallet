@@ -691,5 +691,7 @@
   "buy_provider_unavailable": "مزود حاليا غير متوفر.",
   "havenSupportNotice": "        ﻯﺮﺧﺃ ﺔﻈﻔﺤﻣ ﻲﻓ ﺭﻭﺬﺒﻟﺍ ﺓﺩﺎﻌﺘﺳﺍ ﻚﻨﻜﻤﻳ ﻦﻜﻟﻭ ،ﺔﻜﻌﻜﻟﺍ ﻲﻓ ﺎﻣًﻮﻋﺪﻣ ﺫﻼ﻿ﻤﻟﺍ ﺪﻌﻳ ﻢﻟ",
   "havenSupportSeedsNotice": ".ﻯﺮﺧﺃ ﺔﻈﻔﺤﻣ ﻲﻓ ﺭﻭﺬﺒﻟﺍ ﺓﺩﺎﻌﺘﺳﺍ ﻚﻟﺫ ﺪﻌﺑ ﻚﻨﻜﻤﻳ .ﻦﻣﺁ ﻥﺎﻜﻣ ﻲﻓ ﺎﻬﻈﻔﺣﺍﻭ ﺎﻬﺒﺘﻛﺍ .ﻚﺑ ﺔﺻ",
-  "totp_auth_url": "                                                    TOTP ﺔﻗﺩﺎﺼﻤﻟ URL ﻥﺍﻮﻨﻋ"
+  "do_not_have_enough_gas_asset": "ليس لديك ما يكفي من ${currency} لإجراء معاملة وفقًا لشروط شبكة blockchain الحالية. أنت بحاجة إلى المزيد من ${currency} لدفع رسوم شبكة blockchain، حتى لو كنت ترسل أصلًا مختلفًا.",
+  "totp_auth_url": "TOTP ﺔﻗﺩﺎﺼﻤﻟ URL ﻥﺍﻮﻨﻋ"
 }
+

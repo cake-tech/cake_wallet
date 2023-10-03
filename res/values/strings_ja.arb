@@ -695,5 +695,6 @@
   "buy_provider_unavailable": "現在、プロバイダーは利用できません。",
   "havenSupportNotice": "Haven は Cake ではサポートされなくなりましたが、シードを別のウォレットに復元することができます",
   "havenSupportSeedsNotice": "次のページでは、Haven ウォレットの固有のシードが表示されます。書き留めて安全な場所に保管してください。その後、シードを別のウォレットに復元できます。",
+  "do_not_have_enough_gas_asset": "現在のブロックチェーン ネットワークの状況では、トランザクションを行うのに十分な ${currency} がありません。別のアセットを送信する場合でも、ブロックチェーン ネットワーク料金を支払うにはさらに ${currency} が必要です。",
   "totp_auth_url": "TOTP認証URL"
 }

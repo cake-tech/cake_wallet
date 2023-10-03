@@ -695,5 +695,6 @@
   "buy_provider_unavailable": "Provider momenteel niet beschikbaar.",
   "havenSupportNotice": "Haven wordt niet langer ondersteund in Cake, maar je kunt de zaden in een andere portemonnee herstellen",
   "havenSupportSeedsNotice": "Op de volgende pagina ziet u de unieke zaden voor uw Haven Wallet. Schrijf het op en bewaar het op een veilige plaats. Je kunt de zaden vervolgens in een andere portemonnee herstellen.",
+  "do_not_have_enough_gas_asset": "U heeft niet genoeg ${currency} om een transactie uit te voeren met de huidige blockchain-netwerkomstandigheden. U heeft meer ${currency} nodig om blockchain-netwerkkosten te betalen, zelfs als u een ander item verzendt.",
   "totp_auth_url": "TOTP AUTH-URL"
 }

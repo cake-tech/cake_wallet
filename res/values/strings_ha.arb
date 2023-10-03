@@ -673,5 +673,6 @@
   "buy_provider_unavailable": "Mai ba da kyauta a halin yanzu babu.",
   "havenSupportNotice": "Haven baya tallafawa a cikin Cake, amma zaku iya dawo da tsaba a cikin wani walat ɗin",
   "havenSupportSeedsNotice": "A shafi na gaba, zaku ga keɓaɓɓen iri zuwa Haven Wallet ɗinku. Rubuta shi kuma adana shi a wuri mai aminci. Kuna iya dawo da tsaba a cikin wani walat ɗin.",
+  "do_not_have_enough_gas_asset": "Ba ku da isassun ${currency} don yin ma'amala tare da yanayin cibiyar sadarwar blockchain na yanzu. Kuna buƙatar ƙarin ${currency} don biyan kuɗaɗen cibiyar sadarwar blockchain, koda kuwa kuna aika wata kadara daban.",
   "totp_auth_url": "TOTP AUTH URL"
 }

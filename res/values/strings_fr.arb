@@ -695,5 +695,6 @@
   "buy_provider_unavailable": "Fournisseur actuellement indisponible.",
   "havenSupportNotice": "Haven n'est plus pris en charge dans Cake, mais vous pouvez restaurer les graines dans un autre portefeuille",
   "havenSupportSeedsNotice": "Sur la page suivante, vous verrez les graines uniques de votre Haven Wallet. Notez-le et conservez-le dans un endroit sûr. Vous pouvez ensuite restaurer les graines dans un autre portefeuille.",
+  "do_not_have_enough_gas_asset": "Vous n'avez pas assez de ${currency} pour effectuer une transaction avec les conditions actuelles du réseau blockchain. Vous avez besoin de plus de ${currency} pour payer les frais du réseau blockchain, même si vous envoyez un actif différent.",
   "totp_auth_url": "URL D'AUTORISATION TOTP"
 }

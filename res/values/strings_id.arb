@@ -683,5 +683,6 @@
   "buy_provider_unavailable": "Penyedia saat ini tidak tersedia.",
   "havenSupportNotice": "Haven tidak lagi didukung di Cake, namun Anda dapat memulihkan benih di dompet lain",
   "havenSupportSeedsNotice": "Di halaman berikutnya, Anda akan melihat benih unik untuk Dompet Haven Anda. Catat dan simpan di tempat yang aman. Anda kemudian dapat mengembalikan benih di dompet lain.",
+  "do_not_have_enough_gas_asset": "Anda tidak memiliki cukup ${currency} untuk melakukan transaksi dengan kondisi jaringan blockchain saat ini. Anda memerlukan lebih banyak ${currency} untuk membayar biaya jaringan blockchain, meskipun Anda mengirimkan aset yang berbeda.",
   "totp_auth_url": "URL Otentikasi TOTP"
 }

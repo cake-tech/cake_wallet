@@ -694,5 +694,6 @@
   "buy_provider_unavailable": "提供者目前不可用。",
   "havenSupportNotice": "Cake 不再支持 Haven，但您可以在另一个钱包中恢复种子",
   "havenSupportSeedsNotice": "在下一页上，您将看到您的 Haven 钱包中的独特种子。将其写下来并将其存放在安全的地方。然后您可以将种子恢复到另一个钱包中。",
+  "do_not_have_enough_gas_asset": "您没有足够的 ${currency} 来在当前的区块链网络条件下进行交易。即使您发送的是不同的资产，您也需要更多的 ${currency} 来支付区块链网络费用。",
   "totp_auth_url": "TOTP 授权 URL"
 }

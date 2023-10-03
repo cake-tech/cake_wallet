@@ -695,5 +695,6 @@
   "buy_provider_unavailable": "제공자는 현재 사용할 수 없습니다.",
   "havenSupportNotice": "Haven은 더 이상 Cake에서 지원되지 않지만, 다른 지갑에서 씨앗을 복원할 수 있습니다.",
   "havenSupportSeedsNotice": "다음 페이지에서는 Haven Wallet의 고유한 시드를 볼 수 있습니다. 적어서 안전한 곳에 보관하세요. 그런 다음 다른 지갑에 씨앗을 복원할 수 있습니다.",
+  "do_not_have_enough_gas_asset": "현재 블록체인 네트워크 조건으로 거래를 하기에는 ${currency}이(가) 충분하지 않습니다. 다른 자산을 보내더라도 블록체인 네트워크 수수료를 지불하려면 ${currency}가 더 필요합니다.",
   "totp_auth_url": "TOTP 인증 URL"
 }

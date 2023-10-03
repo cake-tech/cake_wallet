@@ -695,5 +695,6 @@
   "buy_provider_unavailable": "Dostawca obecnie niedostępny.",
   "havenSupportNotice": "Haven nie jest już obsługiwany w Cake, ale możesz przywrócić nasiona w innym portfelu",
   "havenSupportSeedsNotice": "Na następnej stronie zobaczysz unikalne nasiona w swoim portfelu Haven. Zapisz go i przechowuj w bezpiecznym miejscu. Następnie możesz przywrócić nasiona w innym portfelu.",
+  "do_not_have_enough_gas_asset": "Nie masz wystarczającej ilości ${currency}, aby dokonać transakcji przy bieżących warunkach sieci blockchain. Potrzebujesz więcej ${currency}, aby uiścić opłaty za sieć blockchain, nawet jeśli wysyłasz inny zasób.",
   "totp_auth_url": "Adres URL TOTP AUTH"
 }

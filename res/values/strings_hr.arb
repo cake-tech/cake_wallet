@@ -695,5 +695,6 @@
   "buy_provider_unavailable": "Davatelj trenutno nije dostupan.",
   "havenSupportNotice": "Haven više nije podržan u Cakeu, ali možete obnoviti sjemenke u drugom novčaniku",
   "havenSupportSeedsNotice": "Na sljedećoj stranici vidjet ćete jedinstveno sjeme za svoj novčanik Haven. Zapišite ga i pohranite na sigurno mjesto. Zatim možete vratiti sjeme u drugi novčanik.",
+  "do_not_have_enough_gas_asset": "Nemate dovoljno ${currency} da izvršite transakciju s trenutačnim uvjetima blockchain mreže. Trebate više ${currency} da platite naknade za blockchain mrežu, čak i ako šaljete drugu imovinu.",
   "totp_auth_url": "TOTP AUTH URL"
 }

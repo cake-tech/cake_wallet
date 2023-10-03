@@ -689,5 +689,6 @@
   "buy_provider_unavailable": "Olupese lọwọlọwọ ko si.",
   "havenSupportNotice": "Haven ko ni atilẹyin mọ ni Akara oyinbo, ṣugbọn o le mu awọn irugbin pada ninu apamọwọ miiran",
   "havenSupportSeedsNotice": "Ni oju-iwe atẹle, iwọ yoo rii awọn irugbin alailẹgbẹ si apamọwọ Haven rẹ. Kọ silẹ ki o si fi pamọ si aaye ailewu. Lẹhinna o le mu awọn irugbin pada ninu apamọwọ miiran.",
+  "do_not_have_enough_gas_asset": "O ko ni to ${currency} lati ṣe idunadura kan pẹlu awọn ipo nẹtiwọki blockchain lọwọlọwọ. O nilo diẹ sii ${currency} lati san awọn owo nẹtiwọọki blockchain, paapaa ti o ba nfi dukia miiran ranṣẹ.",
   "totp_auth_url": "TOTP AUTH URL"
 }
