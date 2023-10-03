@@ -10,7 +10,7 @@ class EnsRecord {
     Web3Client? _client;
 
     if (wallet != null && wallet.type == WalletType.ethereum) {
-      _client = ethereum!.getWeb3Client(wallet) as Web3Client?;
+      _client = ethereum!.getWeb3Client(wallet);
     }
 
     if (_client == null) {

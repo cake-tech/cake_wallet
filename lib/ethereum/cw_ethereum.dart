@@ -133,7 +133,7 @@ class CWEthereum extends Ethereum {
   }
 
   @override
-  dynamic getWeb3Client(WalletBase wallet) {
+  Web3Client? getWeb3Client(WalletBase wallet) {
     return (wallet as EthereumWallet).getWeb3Client();
   }
 }
