@@ -2,11 +2,10 @@ name: PR Test Build
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   PR_test_build:
-
     runs-on: ubuntu-20.04
     env:
       STORE_PASS: test@cake_wallet
@@ -23,12 +22,12 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
         with:
-          java-version: '8.x'
+          java-version: "8.x"
 
       - name: Flutter action
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: '3.10.x'
+          flutter-version: "3.10.x"
           channel: stable
 
       - name: Install package dependencies
@@ -131,6 +130,7 @@ jobs:
           echo "const exolixApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const robinhoodApplicationId = '${{ secrets.ROBINHOOD_APPLICATION_ID }}';" >> lib/.secrets.g.dart
           echo "const robinhoodCIdApiSecret = '${{ secrets.ROBINHOOD_CID_CLIENT_SECRET }}';" >> lib/.secrets.g.dart
+          echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
 
       - name: Rename app
         run: echo -e "id=com.cakewallet.test\nname=$GITHUB_HEAD_REF" > /opt/android/cake_wallet/android/app.properties
@@ -140,18 +140,18 @@ jobs:
           cd /opt/android/cake_wallet
           flutter build apk --release
 
-#      - name: Push to App Center
-#        run: |
-#          echo 'Installing App Center CLI tools'
-#          npm install -g appcenter-cli
-#          echo "Publishing test to App Center"
-#          appcenter distribute release \
-#              --group "Testers" \
-#              --file "/opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk" \
-#              --release-notes ${GITHUB_HEAD_REF} \
-#              --app Cake-Labs/Cake-Wallet \
-#              --token ${{ secrets.APP_CENTER_TOKEN }} \
-#              --quiet
+      #      - name: Push to App Center
+      #        run: |
+      #          echo 'Installing App Center CLI tools'
+      #          npm install -g appcenter-cli
+      #          echo "Publishing test to App Center"
+      #          appcenter distribute release \
+      #              --group "Testers" \
+      #              --file "/opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk" \
+      #              --release-notes ${GITHUB_HEAD_REF} \
+      #              --app Cake-Labs/Cake-Wallet \
+      #              --token ${{ secrets.APP_CENTER_TOKEN }} \
+      #              --quiet
 
       - name: Rename apk file
         run: |
@@ -171,6 +171,6 @@ jobs:
           token: ${{ secrets.SLACK_APP_TOKEN }}
           path: /opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk
           channel: ${{ secrets.SLACK_APK_CHANNEL }}
-          title: '${{github.head_ref}}.apk'
+          title: "${{github.head_ref}}.apk"
           filename: ${{github.head_ref}}.apk
           initial_comment: ${{ github.event.head_commit.message }}

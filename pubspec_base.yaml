@@ -82,6 +82,8 @@ dependencies:
   shared_preferences_android: 2.0.17
   url_launcher_android: 6.0.24
   sensitive_clipboard: ^1.0.0
+  walletconnect_flutter_v2: ^2.1.4
+  eth_sig_util: ^0.0.9
   bitcoin_flutter:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git

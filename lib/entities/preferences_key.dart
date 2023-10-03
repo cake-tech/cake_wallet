@@ -15,8 +15,7 @@ class PreferencesKey {
   static const disableSellKey = 'disable_sell';
   static const defaultBuyProvider = 'default_buy_provider';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
-  static const allowBiometricalAuthenticationKey =
-      'allow_biometrical_authentication';
+  static const allowBiometricalAuthenticationKey = 'allow_biometrical_authentication';
   static const useTOTP2FA = 'use_totp_2fa';
   static const failedTotpTokenTrials = 'failed_token_trials';
   static const disableExchangeKey = 'disable_exchange';
@@ -54,8 +53,7 @@ class PreferencesKey {
   static const clearnetDonationLink = 'clearnet_donation_link';
   static const onionDonationLink = 'onion_donation_link';
   static const lastSeenAppVersion = 'last_seen_app_version';
-  static const shouldShowMarketPlaceInDashboard =
-      'should_show_marketplace_in_dashboard';
+  static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';
   static const shouldRequireTOTP2FAForAccessingWallet =
       'should_require_totp_2fa_for_accessing_wallets';
