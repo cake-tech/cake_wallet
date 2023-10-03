@@ -24,6 +24,8 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
+import 'package:cake_wallet/src/screens/haven_removal/haven_removal_notice_page.dart';
+import 'package:cake_wallet/src/screens/haven_removal/haven_removal_seed_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
@@ -53,6 +55,7 @@ import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
+import 'package:cake_wallet/view_model/haven_removal_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_custom_tip_view_model.dart';
@@ -84,6 +87,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
@@ -1050,5 +1054,18 @@ Future<void> setup({
 
   getIt.registerFactory<ManageNodesPage>(() => ManageNodesPage(getIt.get<NodeListViewModel>()));
 
+  getIt.registerFactory<HavenRemovalViewModel>(() => HavenRemovalViewModel(
+      appStore: getIt.get<AppStore>(),
+      walletInfoSource: _walletInfoSource,
+      walletLoadingService: getIt.get<WalletLoadingService>()));
+
+  getIt.registerFactoryParam<HavenRemovalNoticePage, WalletBase, void>(
+    (wallet, _) => HavenRemovalNoticePage(wallet, getIt.get<HavenRemovalViewModel>()),
+  );
+
+  getIt.registerFactoryParam<HavenRemovalSeedPage, WalletBase, HavenRemovalViewModel>(
+    (wallet, viewModel) => HavenRemovalSeedPage(wallet, viewModel),
+  );
+  
   _isSetupFinished = true;
 }

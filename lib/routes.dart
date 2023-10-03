@@ -92,4 +92,6 @@ class Routes {
   static const homeSettings = '/home_settings';
   static const editToken = '/edit_token';
   static const manageNodes = '/manage_nodes';
+  static const havenRemovalNoticePage = '/haven_removal_notice_page';
+  static const havenRemovalSeedPage = '/haven_removal_seed_page';
 }

@@ -5,6 +5,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:another_flushbar/flushbar.dart';
+import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/routes.dart';
@@ -246,12 +247,8 @@ class WalletListBodyState extends State<WalletListBody> {
         return nonWalletTypeIcon;
     }
   }
- 
-  Future<void> _loadWallet(WalletListItem wallet) async {
-    final previousListType = widget.walletListViewModel.wallets
-        .where((element) => element.type == widget.walletListViewModel.currentWalletType)
-        .toList()[0];
 
+  Future<void> _loadWallet(WalletListItem walletListItem) async {
     await widget.authService.authenticateAction(
       context,
       onAuthSuccess: (isAuthenticatedSuccessfully) async {
@@ -259,24 +256,25 @@ class WalletListBodyState extends State<WalletListBody> {
           return;
         }
 
+        if (walletListItem.type == WalletType.haven) {
+          _onHavenWalletSelected(walletListItem);
+          return;
+        }
+
         try {
-          changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
-          await widget.walletListViewModel.loadWallet(wallet);
+          changeProcessText(S.of(context).wallet_list_loading_wallet(walletListItem.name));
+          await widget.walletListViewModel.loadWallet(walletListItem);
           await hideProgressText();
           // only pop the wallets route in mobile as it will go back to dashboard page
           // in desktop platforms the navigation tree is different
           if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (wallet.type == WalletType.haven) {
-                _onHavenWalletSelected(previousListType);
-                return;
-              } else {
-                Navigator.of(context).pop();
-              }
+              Navigator.of(context).pop();
             });
           }
         } catch (e) {
-          changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+          changeProcessText(
+              S.of(context).wallet_list_failed_to_load(walletListItem.name, e.toString()));
         }
       },
       conditionToDetermineIfToUse2FA:
@@ -284,11 +282,9 @@ class WalletListBodyState extends State<WalletListBody> {
     );
   }
 
-  Future<void> _onHavenWalletSelected(WalletListItem previousWalletListItem) async {
-    await Navigator.pushNamed(context, Routes.preSeed, arguments: WalletType.haven);
-    await Navigator.pushNamed(context, Routes.seed, arguments: true);
-
-    await widget.walletListViewModel.loadWallet(previousWalletListItem);
+  Future<void> _onHavenWalletSelected(WalletListItem walletListItem) async {
+    final wallet = await widget.walletListViewModel.loadWalletWithoutChanging(walletListItem);
+    await Navigator.pushNamed(context, Routes.havenRemovalNoticePage, arguments: wallet);
   }
 
   void changeProcessText(String text) {
