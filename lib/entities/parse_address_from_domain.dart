@@ -10,6 +10,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
 
@@ -101,7 +102,7 @@ class AddressResolver {
       }
 
       if (text.endsWith(".eth")) {
-        var wallet = getIt.get<AppStore>().wallet!;
+        WalletBase? wallet = getIt.get<AppStore>().wallet!;
         final address = await EnsRecord.fetchEnsAddress(text, wallet: wallet);
         if (address.isNotEmpty && address != "0x0000000000000000000000000000000000000000") {
           return ParsedAddress.fetchEnsAddress(name: text, address: address);
