@@ -18,8 +18,10 @@ Future<void> main(List<String> args) async {
   await generateMonero(hasMonero);
   await generateHaven(hasHaven);
   await generateEthereum(hasEthereum);
-  await generatePubspec(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasEthereum: hasEthereum);
-  await generateWalletTypes(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasEthereum: hasEthereum);
+  await generatePubspec(
+      hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasEthereum: hasEthereum);
+  await generateWalletTypes(
+      hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasEthereum: hasEthereum);
 }
 
 Future<void> generateBitcoin(bool hasImplementation) async {
@@ -88,12 +90,12 @@ abstract class Bitcoin {
   const bitcoinEmptyDefinition = 'Bitcoin? bitcoin;\n';
   const bitcoinCWDefinition = 'Bitcoin? bitcoin = CWBitcoin();\n';
 
-  final output = '$bitcoinCommonHeaders\n'
-    + (hasImplementation ? '$bitcoinCWHeaders\n' : '\n')
-    + (hasImplementation ? '$bitcoinCwPart\n\n' : '\n')
-    + (hasImplementation ? bitcoinCWDefinition : bitcoinEmptyDefinition)
-    + '\n'
-    + bitcoinContent;
+  final output = '$bitcoinCommonHeaders\n' +
+      (hasImplementation ? '$bitcoinCWHeaders\n' : '\n') +
+      (hasImplementation ? '$bitcoinCwPart\n\n' : '\n') +
+      (hasImplementation ? bitcoinCWDefinition : bitcoinEmptyDefinition) +
+      '\n' +
+      bitcoinContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -268,12 +270,12 @@ abstract class MoneroAccountList {
   const moneroEmptyDefinition = 'Monero? monero;\n';
   const moneroCWDefinition = 'Monero? monero = CWMonero();\n';
 
-  final output = '$moneroCommonHeaders\n'
-    + (hasImplementation ? '$moneroCWHeaders\n' : '\n')
-    + (hasImplementation ? '$moneroCwPart\n\n' : '\n')
-    + (hasImplementation ? moneroCWDefinition : moneroEmptyDefinition)
-    + '\n'
-    + moneroContent;
+  final output = '$moneroCommonHeaders\n' +
+      (hasImplementation ? '$moneroCWHeaders\n' : '\n') +
+      (hasImplementation ? '$moneroCwPart\n\n' : '\n') +
+      (hasImplementation ? moneroCWDefinition : moneroEmptyDefinition) +
+      '\n' +
+      moneroContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -283,7 +285,6 @@ abstract class MoneroAccountList {
 }
 
 Future<void> generateHaven(bool hasImplementation) async {
-  
   final outputFile = File(havenOutputPath);
   const havenCommonHeaders = """
 import 'package:mobx/mobx.dart';
@@ -448,12 +449,12 @@ abstract class HavenAccountList {
   const havenEmptyDefinition = 'Haven? haven;\n';
   const havenCWDefinition = 'Haven? haven = CWHaven();\n';
 
-  final output = '$havenCommonHeaders\n'
-    + (hasImplementation ? '$havenCWHeaders\n' : '\n')
-    + (hasImplementation ? '$havenCwPart\n\n' : '\n')
-    + (hasImplementation ? havenCWDefinition : havenEmptyDefinition)
-    + '\n'
-    + havenContent;
+  final output = '$havenCommonHeaders\n' +
+      (hasImplementation ? '$havenCWHeaders\n' : '\n') +
+      (hasImplementation ? '$havenCwPart\n\n' : '\n') +
+      (hasImplementation ? havenCWDefinition : havenEmptyDefinition) +
+      '\n' +
+      havenContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -463,11 +464,9 @@ abstract class HavenAccountList {
 }
 
 Future<void> generateEthereum(bool hasImplementation) async {
-
   final outputFile = File(ethereumOutputPath);
   const ethereumCommonHeaders = """
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/output_info.dart';
@@ -479,6 +478,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:hive/hive.dart';
+import 'package:web3dart/web3dart.dart';
 """;
   const ethereumCWHeaders = """
 import 'package:cw_ethereum/ethereum_formatter.dart';
@@ -528,18 +528,19 @@ abstract class Ethereum {
   
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled);
+  Web3Client? getWeb3Client(WalletBase wallet);
 }
   """;
 
   const ethereumEmptyDefinition = 'Ethereum? ethereum;\n';
   const ethereumCWDefinition = 'Ethereum? ethereum = CWEthereum();\n';
 
-  final output = '$ethereumCommonHeaders\n'
-    + (hasImplementation ? '$ethereumCWHeaders\n' : '\n')
-    + (hasImplementation ? '$ethereumCwPart\n\n' : '\n')
-    + (hasImplementation ? ethereumCWDefinition : ethereumEmptyDefinition)
-    + '\n'
-    + ethereumContent;
+  final output = '$ethereumCommonHeaders\n' +
+      (hasImplementation ? '$ethereumCWHeaders\n' : '\n') +
+      (hasImplementation ? '$ethereumCwPart\n\n' : '\n') +
+      (hasImplementation ? ethereumCWDefinition : ethereumEmptyDefinition) +
+      '\n' +
+      ethereumContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -548,8 +549,12 @@ abstract class Ethereum {
   await outputFile.writeAsString(output);
 }
 
-Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasEthereum}) async {
-  const cwCore =  """
+Future<void> generatePubspec(
+    {required bool hasMonero,
+    required bool hasBitcoin,
+    required bool hasHaven,
+    required bool hasEthereum}) async {
+  const cwCore = """
   cw_core:
     path: ./cw_core
     """;
@@ -601,7 +606,7 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
   final outputFile = File(pubspecOutputPath);
-  
+
   if (outputFile.existsSync()) {
     await outputFile.delete();
   }
@@ -609,9 +614,13 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
   await outputFile.writeAsString(outputContent);
 }
 
-Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasEthereum}) async {
+Future<void> generateWalletTypes(
+    {required bool hasMonero,
+    required bool hasBitcoin,
+    required bool hasHaven,
+    required bool hasEthereum}) async {
   final walletTypesFile = File(walletTypesPath);
-  
+
   if (walletTypesFile.existsSync()) {
     await walletTypesFile.delete();
   }

@@ -84,6 +84,10 @@ dependencies:
   sensitive_clipboard: ^1.0.0
   walletconnect_flutter_v2: ^2.1.4
   eth_sig_util: ^0.0.9
+  ens_dart:
+    git:
+      url: https://github.com/cake-tech/ens_dart.git
+      ref: main
   bitcoin_flutter:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git

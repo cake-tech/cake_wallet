@@ -145,4 +145,9 @@ class CWEthereum extends Ethereum {
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled) {
     (wallet as EthereumWallet).updateEtherscanUsageState(isEnabled);
   }
+
+  @override
+  Web3Client? getWeb3Client(WalletBase wallet) {
+    return (wallet as EthereumWallet).getWeb3Client();
+  }
 }
