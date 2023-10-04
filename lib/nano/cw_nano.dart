@@ -380,7 +380,7 @@ class CWNanoUtil extends NanoUtil {
   }
 
   @override
-  Future<dynamic> getInfoFromSeedOrMnemonic(
+  Future<AccountInfoResponse?> getInfoFromSeedOrMnemonic(
     DerivationType derivationType, {
     String? seedKey,
     String? mnemonic,
@@ -413,7 +413,7 @@ class CWNanoUtil extends NanoUtil {
     }
 
     var accountInfo = await nanoClient.getAccountInfo(publicAddress);
-    accountInfo["address"] = publicAddress;
+    accountInfo.address = publicAddress;
     return accountInfo;
   }
 
@@ -461,8 +461,8 @@ class CWNanoUtil extends NanoUtil {
       }
 
       // check if account has a history:
-      var bip39Info;
-      var standardInfo;
+      AccountInfoResponse? bip39Info;
+      AccountInfoResponse? standardInfo;
 
       try {
         bip39Info = await nanoClient.getAccountInfo(publicAddressBip39);
@@ -476,11 +476,9 @@ class CWNanoUtil extends NanoUtil {
       }
 
       // one of these is *probably* null:
-      if ((bip39Info == null || bip39Info["error"] != null) &&
-          (standardInfo != null && standardInfo["error"] == null)) {
+      if (bip39Info == null && standardInfo != null) {
         return [DerivationType.nano];
-      } else if ((standardInfo == null || standardInfo["error"] != null) &&
-          (bip39Info != null && bip39Info["error"] == null)) {
+      } else if (standardInfo == null && bip39Info != null) {
         return [DerivationType.bip39];
       }
 

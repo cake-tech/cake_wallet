@@ -589,6 +589,7 @@ import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_mnemonic.dart';
 import 'package:cw_nano/nano_wallet.dart';
 import 'package:cw_nano/nano_wallet_service.dart';
+import 'package:cw_nano/nano_account_info_response.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:cw_nano/nano_wallet_creation_credentials.dart';
 // needed for nano_util:
@@ -675,7 +676,7 @@ abstract class NanoUtil {
   String getAmountAsRaw(String amount, BigInt rawPerCur);
 
   // derivationInfo:
-  Future<dynamic> getInfoFromSeedOrMnemonic(
+  Future<AccountInfoResponse?> getInfoFromSeedOrMnemonic(
     DerivationType derivationType, {
     String? seedKey,
     String? mnemonic,

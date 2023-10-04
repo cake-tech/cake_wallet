@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_nano/nano_account_info_response.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
@@ -308,38 +309,33 @@ class WalletRestorePage extends BasePage {
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['private_key'] as String?;
-        dynamic bip39Info = await nanoUtil!.getInfoFromSeedOrMnemonic(DerivationType.bip39,
-            mnemonic: mnemonic, seedKey: seedKey, node: node);
-        dynamic standardInfo = await nanoUtil!.getInfoFromSeedOrMnemonic(
+        AccountInfoResponse? bip39Info = await nanoUtil!.getInfoFromSeedOrMnemonic(
+            DerivationType.bip39,
+            mnemonic: mnemonic,
+            seedKey: seedKey,
+            node: node);
+        AccountInfoResponse? standardInfo = await nanoUtil!.getInfoFromSeedOrMnemonic(
           DerivationType.nano,
           mnemonic: mnemonic,
           seedKey: seedKey,
           node: node,
         );
 
-        if (standardInfo["balance"] != null) {
+        if (standardInfo?.balance != null) {
           list.add(DerivationInfo(
             derivationType: DerivationType.nano,
-            balance: nanoUtil!
-                .getRawAsUsableString(standardInfo["balance"] as String, nanoUtil!.rawPerNano),
-            address: standardInfo["address"] as String,
-            height: int.tryParse(
-                  standardInfo["confirmation_height"] as String,
-                ) ??
-                0,
+            balance: nanoUtil!.getRawAsUsableString(standardInfo!.balance, nanoUtil!.rawPerNano),
+            address: standardInfo.address!,
+            height: standardInfo.confirmationHeight,
           ));
         }
 
-        if (bip39Info["balance"] != null) {
+        if (bip39Info?.balance != null) {
           list.add(DerivationInfo(
             derivationType: DerivationType.bip39,
-            balance: nanoUtil!
-                .getRawAsUsableString(bip39Info["balance"] as String, nanoUtil!.rawPerNano),
-            address: bip39Info["address"] as String,
-            height: int.tryParse(
-                  bip39Info["confirmation_height"] as String? ?? "",
-                ) ??
-                0,
+            balance: nanoUtil!.getRawAsUsableString(bip39Info!.balance, nanoUtil!.rawPerNano),
+            address: bip39Info.address!,
+            height: bip39Info.confirmationHeight,
           ));
         }
         break;

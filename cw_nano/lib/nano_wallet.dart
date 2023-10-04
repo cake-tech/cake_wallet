@@ -376,13 +376,10 @@ abstract class NanoWalletBase
   Future<void> _updateRep() async {
     try {
       final accountInfo = await _client.getAccountInfo(_publicAddress!);
-      if (accountInfo["error"] != null) {
-        // account not found:
-        _representativeAddress = NanoClient.DEFAULT_REPRESENTATIVE;
-      } else {
-        _representativeAddress = accountInfo["representative"] as String;
-      }
+      _representativeAddress = accountInfo.representative;
     } catch (e) {
+      // account not found:
+      _representativeAddress = NanoClient.DEFAULT_REPRESENTATIVE;
       throw Exception("Failed to get representative address $e");
     }
   }

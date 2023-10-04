@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cw_nano/nano_account_info_response.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_transaction_model.dart';
 import 'package:cw_nano/nano_util.dart';
@@ -52,7 +53,7 @@ class NanoClient {
     return NanoBalance(currentBalance: cur, receivableBalance: rec);
   }
 
-  Future<dynamic> getAccountInfo(String address) async {
+  Future<AccountInfoResponse> getAccountInfo(String address) async {
     try {
       final response = await http.post(
         _node!.uri,
@@ -66,7 +67,7 @@ class NanoClient {
         ),
       );
       final data = await jsonDecode(response.body);
-      return data;
+      return AccountInfoResponse.fromJson(data as Map<String, dynamic>);
     } catch (e) {
       print("error while getting account info");
       rethrow;
@@ -85,9 +86,9 @@ class NanoClient {
       Map<String, String> changeBlock = {
         "type": "state",
         "account": ourAddress,
-        "previous": accountInfo["frontier"] as String,
+        "previous": accountInfo.frontier,
         "representative": repAddress,
-        "balance": accountInfo["balance"] as String,
+        "balance": accountInfo.balance,
         "link": "0000000000000000000000000000000000000000000000000000000000000000",
         "link_as_account": "nano_1111111111111111111111111111111111111111111111111111hifc8npp",
       };
@@ -104,7 +105,7 @@ class NanoClient {
       final String signature = NanoSignatures.signBlock(hash, privateKey);
 
       // get PoW for the send block:
-      final String work = await requestWork(accountInfo["frontier"] as String);
+      final String work = await requestWork(accountInfo.frontier);
 
       changeBlock["signature"] = signature;
       changeBlock["work"] = work;
@@ -199,12 +200,12 @@ class NanoClient {
       // get the account info (we need the frontier and representative):
       final infoResponse = await getAccountInfo(publicAddress);
 
-      String frontier = infoResponse["frontier"].toString();
+      String frontier = infoResponse.frontier;
       // override if provided:
       if (previousHash != null) {
         frontier = previousHash;
       }
-      final String representative = infoResponse["representative"].toString();
+      final String representative = infoResponse.representative;
       // link = destination address:
       final String link = NanoAccounts.extractPublicKey(destinationAddress);
       final String linkAsAccount = destinationAddress;
