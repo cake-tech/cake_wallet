@@ -26,8 +26,8 @@ const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
-const nanoDefaultNodeUri = 'rpc.nano.to:443';
-const nanoDefaultPowNodeUri = 'rpc.nano.to:443';
+const nanoDefaultNodeUri = 'rpc.nano.to';
+const nanoDefaultPowNodeUri = 'rpc.nano.to';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -551,7 +551,7 @@ Future<void> checkCurrentNodes(
   }
 
   if (currentNanoNodeServer == null) {
-    final node = Node(uri: nanoDefaultNodeUri, type: WalletType.nano);
+    final node = Node(uri: nanoDefaultNodeUri, useSSL: true, type: WalletType.nano);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentNanoNodeIdKey, node.key as int);
   }
@@ -560,7 +560,7 @@ Future<void> checkCurrentNodes(
     Node? node = powNodeSource.values
         .firstWhereOrNull((node) => node.uri.toString() == nanoDefaultPowNodeUri);
     if (node == null) {
-      node = Node(uri: nanoDefaultPowNodeUri, type: WalletType.nano);
+      node = Node(uri: nanoDefaultPowNodeUri, useSSL: true, type: WalletType.nano);
       await powNodeSource.add(node);
     }
     await sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, node.key as int);

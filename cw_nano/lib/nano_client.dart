@@ -121,8 +121,7 @@ class NanoClient {
   }
 
   Future<String> requestWork(String hash) async {
-    return http
-        .post(
+    final response = await http.post(
       _powNode!.uri,
       headers: {'Content-type': 'application/json'},
       body: json.encode(
@@ -131,18 +130,16 @@ class NanoClient {
           "hash": hash,
         },
       ),
-    )
-        .then((http.Response response) {
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> decoded = json.decode(response.body) as Map<String, dynamic>;
-        if (decoded.containsKey("error")) {
-          throw Exception("Received error ${decoded["error"]}");
-        }
-        return decoded["work"] as String;
-      } else {
-        throw Exception("Received error ${response.statusCode}");
+    );
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body) as Map<String, dynamic>;
+      if (decoded.containsKey("error")) {
+        throw Exception("Received error ${decoded["error"]}");
       }
-    });
+      return decoded["work"] as String;
+    } else {
+      throw Exception("Received work error ${response.body}");
+    }
   }
 
   Future<String> send({
@@ -204,7 +201,8 @@ class NanoClient {
       // get the account info (we need the frontier and representative):
       AccountInfoResponse? infoResponse = await getAccountInfo(publicAddress);
       if (infoResponse == null) {
-        throw Exception("error while getting account info! (we probably don't have an open account yet)");
+        throw Exception(
+            "error while getting account info! (we probably don't have an open account yet)");
       }
 
       String frontier = infoResponse.frontier;
