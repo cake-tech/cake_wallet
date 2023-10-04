@@ -173,6 +173,11 @@ class CWNano extends Nano {
   Future<void> updateTransactions(Object wallet) async {
     return (wallet as NanoWallet).updateTransactions();
   }
+
+  @override
+  BigInt getTransactionAmountRaw(TransactionInfo transactionInfo) {
+    return (transactionInfo as NanoTransactionInfo).amountRaw;
+  }
 }
 
 class CWNanoUtil extends NanoUtil {
@@ -412,7 +417,10 @@ class CWNanoUtil extends NanoUtil {
       }
     }
 
-    var accountInfo = await nanoClient.getAccountInfo(publicAddress);
+    AccountInfoResponse? accountInfo = await nanoClient.getAccountInfo(publicAddress);
+    if (accountInfo == null) {
+      accountInfo = AccountInfoResponse(frontier: "", balance: "0", representative: "", confirmationHeight: 0);
+    }
     accountInfo.address = publicAddress;
     return accountInfo;
   }
