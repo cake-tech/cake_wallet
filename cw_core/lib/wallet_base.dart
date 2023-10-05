@@ -13,9 +13,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 
-abstract class WalletBase<
-    BalanceType extends Balance,
-    HistoryType extends TransactionHistoryBase,
+abstract class WalletBase<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
     TransactionType extends TransactionInfo> {
   WalletBase(this.walletInfo);
 
@@ -58,6 +56,9 @@ abstract class WalletBase<
 
   Future<void> connectToNode({required Node node});
 
+  // there is a default definition here because only coins with a pow node (nano based) need to override this
+  Future<void> connectToPowNode({required Node node}) async {}
+
   Future<void> startSync();
 
   Future<PendingTransaction> createTransaction(Object credentials);
@@ -83,4 +84,6 @@ abstract class WalletBase<
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => null;
 
   Future<void> renameWalletFiles(String newWalletName);
+
+  String signMessage(String message, {String? address = null}) => throw UnimplementedError();
 }

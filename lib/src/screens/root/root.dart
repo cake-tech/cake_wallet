@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:flutter/material.dart';
@@ -97,8 +98,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           return;
         }
 
-        if (!_isInactive &&
-            widget.authenticationStore.state == AuthenticationState.allowed) {
+        if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
           setState(() => _setInactive(true));
         }
 
@@ -125,22 +125,21 @@ class RootState extends State<Root> with WidgetsBindingObserver {
               return;
             } else {
               final useTotp = widget.appStore.settingsStore.useTOTP2FA;
-              final shouldUseTotp2FAToAccessWallets = widget.appStore
-                  .settingsStore.shouldRequireTOTP2FAForAccessingWallet;
+              final shouldUseTotp2FAToAccessWallets =
+                  widget.appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
               if (useTotp && shouldUseTotp2FAToAccessWallets) {
                 _reset();
                 auth.close(
                   route: Routes.totpAuthCodePage,
                   arguments: TotpAuthArgumentsModel(
                     onTotpAuthenticationFinished:
-                        (bool isAuthenticatedSuccessfully,
-                            TotpAuthCodePageState totpAuth) {
+                        (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) {
                       if (!isAuthenticatedSuccessfully) {
                         return;
                       }
                       _reset();
                       totpAuth.close(
-                        route: launchUri != null ? Routes.send : null,
+                        route: _isValidPaymentUri() ? Routes.send : null,
                         arguments: PaymentRequest.fromUri(launchUri),
                       );
                       launchUri = null;
@@ -152,7 +151,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
               } else {
                 _reset();
                 auth.close(
-                  route: launchUri != null ? Routes.send : null,
+                  route: _isValidPaymentUri() ? Routes.send : null,
                   arguments: PaymentRequest.fromUri(launchUri),
                 );
                 launchUri = null;
@@ -161,7 +160,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           },
         );
       });
-    } else if (launchUri != null) {
+    } else if (_isValidPaymentUri()) {
       widget.navigatorKey.currentState?.pushNamed(
         Routes.send,
         arguments: PaymentRequest.fromUri(launchUri),
@@ -169,7 +168,10 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       launchUri = null;
     }
 
-    return WillPopScope(onWillPop: () async => false, child: widget.child);
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: widget.child,
+    );
   }
 
   void _reset() {
@@ -183,4 +185,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     _isInactive = value;
     _isInactiveController.add(value);
   }
+
+  bool _isValidPaymentUri() => launchUri?.path.isNotEmpty ?? false;
 }

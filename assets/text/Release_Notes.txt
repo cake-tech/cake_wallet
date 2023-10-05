@@ -1,2 +1,4 @@
+Ethereum enhancements and bug fixes
+Fix 2FA code issue
 Bug fixes
-Fiat Onramp improvements
+Minor enhancements

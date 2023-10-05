@@ -1,6 +1,8 @@
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
+import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -41,22 +43,31 @@ class MainActions {
     isEnabled: (viewModel) => viewModel.isEnabledBuyAction,
     canShow: (viewModel) => viewModel.hasBuyAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
+      final defaultBuyProvider = viewModel.defaultBuyProvider;
       final walletType = viewModel.type;
+
+      if (!viewModel.isEnabledBuyAction) return;
 
       switch (walletType) {
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.ethereum:
-        case WalletType.monero:
-          if (viewModel.isEnabledBuyAction) {
-            final uri = getIt.get<OnRamperBuyProvider>().requestUrl(context);
-            if (DeviceInfo.instance.isMobile) {
-              Navigator.of(context)
-                  .pushNamed(Routes.webViewPage, arguments: [S.of(context).buy, uri]);
-            } else {
-              await launchUrl(uri);
-            }
+        case WalletType.nano:
+        case WalletType.banano:
+          switch (defaultBuyProvider) {
+            case BuyProviderType.AskEachTime:
+              Navigator.pushNamed(context, Routes.buy);
+              break;
+            case BuyProviderType.Onramper:
+              await getIt.get<OnRamperBuyProvider>().launchProvider(context);
+              break;
+            case BuyProviderType.Robinhood:
+              await getIt.get<RobinhoodBuyProvider>().launchProvider(context);
+              break;
           }
+          break;
+        case WalletType.monero:
+          await getIt.get<OnRamperBuyProvider>().launchProvider(context);
           break;
         default:
           await showPopUp<void>(
@@ -64,7 +75,7 @@ class MainActions {
               builder: (BuildContext context) {
                 return AlertWithOneAction(
                     alertTitle: S.of(context).buy,
-                    alertContent: S.of(context).buy_alert_content,
+                    alertContent: S.of(context).unsupported_asset,
                     buttonText: S.of(context).ok,
                     buttonAction: () => Navigator.of(context).pop());
               });
@@ -134,7 +145,7 @@ class MainActions {
             builder: (BuildContext context) {
               return AlertWithOneAction(
                   alertTitle: S.of(context).sell,
-                  alertContent: S.of(context).sell_alert_content,
+                  alertContent: S.of(context).unsupported_asset,
                   buttonText: S.of(context).ok,
                   buttonAction: () => Navigator.of(context).pop());
             },

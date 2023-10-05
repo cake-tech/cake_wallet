@@ -1,3 +1,5 @@
+import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -29,12 +31,26 @@ class OtherSettingsPage extends BasePage {
           padding: EdgeInsets.only(top: 10),
           child: Column(
             children: [
+              if (!_otherSettingsViewModel.changeRepresentativeEnabled)
+                SettingsPickerCell(
+                  title: S.current.settings_fee_priority,
+                  items: priorityForWalletType(_otherSettingsViewModel.walletType),
+                  displayItem: _otherSettingsViewModel.getDisplayPriority,
+                  selectedItem: _otherSettingsViewModel.transactionPriority,
+                  onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
+                ),
+              if (_otherSettingsViewModel.changeRepresentativeEnabled)
+                SettingsCellWithArrow(
+                  title: S.current.change_rep,
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.changeRep),
+                ),
               SettingsPickerCell(
-                title: S.current.settings_fee_priority,
-                items: priorityForWalletType(_otherSettingsViewModel.walletType),
-                displayItem: _otherSettingsViewModel.getDisplayPriority,
-                selectedItem: _otherSettingsViewModel.transactionPriority,
-                onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
+                title: S.current.default_buy_provider,
+                items: BuyProviderType.values,
+                displayItem: _otherSettingsViewModel.getBuyProviderType,
+                selectedItem: _otherSettingsViewModel.buyProviderType,
+                onItemSelected: _otherSettingsViewModel.onBuyProviderTypeSelected,
               ),
               SettingsCellWithArrow(
                 title: 'Checkpoints',
@@ -59,7 +75,7 @@ class OtherSettingsPage extends BasePage {
               StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
               Spacer(),
               SettingsVersionCell(
-                  title: S.of(context).version(_otherSettingsViewModel.currentVersion))
+                  title: S.of(context).version(_otherSettingsViewModel.currentVersion)),
             ],
           ),
         );

@@ -2,6 +2,7 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -16,9 +17,7 @@ import 'package:cw_core/wallet_type.dart';
 
 class TransactionListItem extends ActionListItem with Keyable {
   TransactionListItem(
-      {required this.transaction,
-      required this.balanceViewModel,
-      required this.settingsStore});
+      {required this.transaction, required this.balanceViewModel, required this.settingsStore});
 
   final TransactionInfo transaction;
   final BalanceViewModel balanceViewModel;
@@ -34,10 +33,9 @@ class TransactionListItem extends ActionListItem with Keyable {
   dynamic get keyIndex => transaction.id;
 
   String get formattedCryptoAmount {
-    return displayMode == BalanceDisplayMode.hiddenBalance
-        ? '---'
-        : transaction.amountFormatted();
+    return displayMode == BalanceDisplayMode.hiddenBalance ? '---' : transaction.amountFormatted();
   }
+
   String get formattedTitle {
     if (transaction.direction == TransactionDirection.incoming) {
       return S.current.received;
@@ -57,33 +55,47 @@ class TransactionListItem extends ActionListItem with Keyable {
     if (transaction.direction == TransactionDirection.incoming) {
       if (balanceViewModel.wallet.type == WalletType.monero ||
           balanceViewModel.wallet.type == WalletType.haven) {
-          return formattedPendingStatus;
-        }
+        return formattedPendingStatus;
       }
-    return transaction.isPending ? S.current.pending : '';
     }
+    return transaction.isPending ? S.current.pending : '';
+  }
 
   String get formattedFiatAmount {
     var amount = '';
 
-    switch(balanceViewModel.wallet.type) {
+    switch (balanceViewModel.wallet.type) {
       case WalletType.monero:
         amount = calculateFiatAmountRaw(
-          cryptoAmount: monero!.formatterMoneroAmountToDouble(amount: transaction.amount),
-          price: price);
+            cryptoAmount: monero!.formatterMoneroAmountToDouble(amount: transaction.amount),
+            price: price);
         break;
       case WalletType.bitcoin:
       case WalletType.litecoin:
         amount = calculateFiatAmountRaw(
-          cryptoAmount: bitcoin!.formatterBitcoinAmountToDouble(amount: transaction.amount),
-          price: price);
+            cryptoAmount: bitcoin!.formatterBitcoinAmountToDouble(amount: transaction.amount),
+            price: price);
         break;
       case WalletType.haven:
         final asset = haven!.assetOfTransaction(transaction);
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: haven!.formatterMoneroAmountToDouble(amount: transaction.amount),
-          price: price);
+            cryptoAmount: haven!.formatterMoneroAmountToDouble(amount: transaction.amount),
+            price: price);
+        break;
+      case WalletType.ethereum:
+        final asset = ethereum!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: ethereum!.formatterEthereumAmountToDouble(transaction: transaction),
+            price: price);
+        break;
+      case WalletType.nano:
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: nanoUtil!
+                .getRawAsDecimal(nano!.getTransactionAmountRaw(transaction).toString(), nanoUtil!.rawPerNano)
+                .toDouble(),
+            price: price);
         break;
       case WalletType.ethereum:
         final asset = ethereum!.assetOfTransaction(balanceViewModel.wallet, transaction);

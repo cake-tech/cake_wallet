@@ -234,7 +234,6 @@ extern "C"
         }
 
         void setUnlocked(bool unlocked);
-
     };
 
     Monero::Coins *m_coins;
@@ -568,7 +567,7 @@ extern "C"
             _preferred_inputs.insert(std::string(*preferred_inputs));
             preferred_inputs++;
         }
-
+      
         auto priority = static_cast<Monero::PendingTransaction::Priority>(priority_raw);
         std::string _payment_id;
         Monero::PendingTransaction *transaction;

@@ -124,6 +124,7 @@ lib/bitcoin/bitcoin.dart
 lib/monero/monero.dart
 lib/haven/haven.dart
 lib/ethereum/ethereum.dart
+lib/nano/nano.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_180.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_120.png

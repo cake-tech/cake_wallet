@@ -32,6 +32,14 @@ class ExceptionHandler {
     const String separator = '''\n\n==========================================================
       ==========================================================\n\n''';
 
+    /// don't save existing errors
+    if (file.existsSync()) {
+      final String fileContent = await file.readAsString();
+      if (fileContent.contains("${exception.values.first}")) {
+        return;
+      }
+    }
+
     file.writeAsStringSync(
       "$exception $separator",
       mode: FileMode.append,
@@ -82,6 +90,10 @@ class ExceptionHandler {
       errorDetails.stack,
       library: errorDetails.library,
     );
+
+    if (errorDetails.silent) {
+      return;
+    }
 
     final sharedPrefs = await SharedPreferences.getInstance();
 
@@ -149,6 +161,7 @@ class ExceptionHandler {
     "Handshake error in client",
     "Error while launching http",
     "OS Error: Network is unreachable",
+    "ClientException: Write failed, uri=https:",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
