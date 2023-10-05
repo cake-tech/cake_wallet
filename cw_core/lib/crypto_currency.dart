@@ -90,6 +90,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.zrx,
     CryptoCurrency.dydx,
     CryptoCurrency.steth,
+    CryptoCurrency.banano,
   ];
 
   static const havenCurrencies = [
@@ -109,6 +110,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   ];
 
   // title, tag (if applicable), fullName (if unique), raw, name, iconPath
+
   static const xmr = CryptoCurrency(title: 'XMR', fullName: 'Monero', raw: 0, name: 'xmr', iconPath: 'assets/images/crypto_assets/monero_icon.svg');
   static const ada = CryptoCurrency(title: 'ADA', fullName: 'Cardano', raw: 1, name: 'ada', iconPath: 'assets/images/crypto_assets/ada_icon.svg');
   static const bch = CryptoCurrency(title: 'BCH', fullName: 'Bitcoin Cash', raw: 2, name: 'bch', iconPath: 'assets/images/crypto_assets/bch_icon.svg');
@@ -198,7 +200,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const zrx = CryptoCurrency(title: 'ZRX', tag: 'ETH', fullName: '0x Protocol', raw: 83, name: 'zrx', iconPath: 'assets/images/crypto_assets/zrx_icon.svg');
   static const dydx = CryptoCurrency(title: 'DYDX', tag: 'ETH', fullName: 'dYdX', raw: 84, name: 'dydx', iconPath: 'assets/images/crypto_assets/dydx_icon.svg');
   static const steth = CryptoCurrency(title: 'STETH', tag: 'ETH', fullName: 'Lido Staked Ethereum', raw: 85, name: 'steth', iconPath: 'assets/images/crypto_assets/steth_icon.svg');
-
+  static const banano = CryptoCurrency(title: 'BAN', raw: 86, name: 'banano', iconPath: 'assets/images/nano_icon.png');
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
     [...all, ...havenCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
