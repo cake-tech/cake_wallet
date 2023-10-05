@@ -23,7 +23,7 @@ class ConnectionSyncPage extends BasePage {
   @override
   String get title => S.current.connection_sync;
 
-  final Web3WalletService web3walletService;
+  final Web3WalletService? web3walletService;
   final DashboardViewModel dashboardViewModel;
 
   @override
@@ -91,7 +91,7 @@ class ConnectionSyncPage extends BasePage {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {
-                      return WalletConnectConnectionsView(web3walletService: web3walletService);
+                      return WalletConnectConnectionsView(web3walletService: web3walletService!);
                     },
                   ),
                 );
