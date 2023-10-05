@@ -119,7 +119,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const eos = CryptoCurrency(title: 'EOS', fullName: 'EOS', raw: 7, name: 'eos', iconPath: 'assets/images/crypto_assets/eos_icon.svg');
   static const eth = CryptoCurrency(title: 'ETH', fullName: 'Ethereum', raw: 8, name: 'eth', iconPath: 'assets/images/crypto_assets/eth_icon.svg');
   static const ltc = CryptoCurrency(title: 'LTC', fullName: 'Litecoin', raw: 9, name: 'ltc', iconPath: 'assets/images/crypto_assets/ltc_icon.svg');
-  static const nano = CryptoCurrency(title: 'NANO', raw: 10, name: 'nano', iconPath: 'assets/images/crypto_assets/nano_icon.svg');
+  static const nano = CryptoCurrency(title: 'NANO', raw: 10, name: 'nano', iconPath: 'assets/images/crypto_assets/xno_icon.svg');
   static const trx = CryptoCurrency(title: 'TRX', fullName: 'TRON', raw: 11, name: 'trx', iconPath: 'assets/images/crypto_assets/trx_icon.svg');
   static const usdt = CryptoCurrency(title: 'USDT', tag: 'OMNI', fullName: 'USDT Tether', raw: 12, name: 'usdt', iconPath: 'assets/images/crypto_assets/usdt_icon.svg');
   static const usdterc20 = CryptoCurrency(title: 'USDT', tag: 'ETH', fullName: 'USDT Tether', raw: 13, name: 'usdterc20', iconPath: 'assets/images/crypto_assets/usdterc20_icon.svg');

@@ -16,6 +16,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/src/widgets/collapsible_standart_list.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ContactListPage extends BasePage {
   ContactListPage(this.contactListViewModel, this.authService);
@@ -112,10 +113,7 @@ class ContactListPage extends BasePage {
   }
 
   Widget generateRaw(BuildContext context, ContactBase contact) {
-    final image = contact.type.iconPath;
-    final currencyIcon = image != null
-        ? Image.asset(image, height: 24, width: 24)
-        : const SizedBox(height: 24, width: 24);
+    final currencyIcon = getIcon(contact.type.iconPath);
 
     return GestureDetector(
       onTap: () async {
@@ -154,6 +152,25 @@ class ContactListPage extends BasePage {
         ),
       ),
     );
+  }
+
+  Widget getIcon(String? image) {
+    if (image != null && image.contains('svg')) {
+      return SvgPicture.asset(
+        image,
+        height: 24,
+        width: 24,
+        fit: BoxFit.contain,
+      );
+    } else if (image != null && image.isNotEmpty) {
+      return Image.asset(
+        image,
+        height: 24,
+        width: 24,
+      );
+    } else {
+      return const SizedBox(height: 24, width: 24);
+    }
   }
 
   Future<bool> showAlertDialog(BuildContext context) async {
