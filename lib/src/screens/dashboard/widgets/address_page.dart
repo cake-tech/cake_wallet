@@ -120,31 +120,6 @@ class AddressPage extends BasePage {
   Widget body(BuildContext context) {
     _setEffects(context);
 
-    autorun((_) async {
-      if (!dashboardViewModel.isOutdatedElectrumWallet ||
-          !dashboardViewModel.settingsStore.shouldShowReceiveWarning) {
-        return;
-      }
-
-      await Future<void>.delayed(Duration(seconds: 1));
-      if (context.mounted) {
-        await showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithTwoActions(
-                  alertTitle: S.of(context).pre_seed_title,
-                  alertContent: S.of(context).outdated_electrum_wallet_receive_warning,
-                  leftButtonText: S.of(context).understand,
-                  actionLeftButton: () => Navigator.of(context).pop(),
-                  rightButtonText: S.of(context).do_not_show_me,
-                  actionRightButton: () {
-                    dashboardViewModel.settingsStore.setShouldShowReceiveWarning(false);
-                    Navigator.of(context).pop();
-                  });
-            });
-      }
-    });
-
     return KeyboardActions(
         autoScroll: false,
         disableScroll: true,

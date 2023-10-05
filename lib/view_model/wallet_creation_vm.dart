@@ -35,18 +35,16 @@ abstract class WalletCreationVMBase with Store {
   final Box<WalletInfo> _walletInfoSource;
   final AppStore _appStore;
 
-  bool nameExists(String name)
-    => walletCreationService.exists(name);
+  bool nameExists(String name) => walletCreationService.exists(name);
 
-  bool typeExists(WalletType type)
-    => walletCreationService.typeExists(type);
+  bool typeExists(WalletType type) => walletCreationService.typeExists(type);
 
   Future<void> create({dynamic options, RestoredWallet? restoreWallet}) async {
     final type = restoreWallet?.type ?? this.type;
     try {
       state = IsExecutingState();
       if (name.isEmpty) {
-            name = await generateName();
+        name = await generateName();
       }
 
       walletCreationService.checkIfExists(name);
@@ -55,17 +53,21 @@ abstract class WalletCreationVMBase with Store {
       final credentials = restoreWallet != null
           ? getCredentialsFromRestoredWallet(options, restoreWallet)
           : getCredentials(options);
+
       final walletInfo = WalletInfo.external(
-          id: WalletBase.idFor(name, type),
-          name: name,
-          type: type,
-          isRecovery: isRecovery,
-          restoreHeight: credentials.height ?? 0,
-          date: DateTime.now(),
-          path: path,
-          dirPath: dirPath,
-          address: '',
-          showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven);
+        id: WalletBase.idFor(name, type),
+        name: name,
+        type: type,
+        isRecovery: isRecovery,
+        restoreHeight: credentials.height ?? 0,
+        date: DateTime.now(),
+        path: path,
+        dirPath: dirPath,
+        address: '',
+        showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
+        derivationPath: credentials.derivationPath,
+        derivationType: credentials.derivationType,
+      );
       credentials.walletInfo = walletInfo;
       final wallet = restoreWallet != null
           ? await processFromRestoredWallet(credentials, restoreWallet)
@@ -80,15 +82,16 @@ abstract class WalletCreationVMBase with Store {
       state = FailureState(e.toString());
     }
   }
-  WalletCredentials getCredentials(dynamic options) =>
+
+  WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();
+
+  Future<WalletBase> process(WalletCredentials credentials) => throw UnimplementedError();
+
+  WalletCredentials getCredentialsFromRestoredWallet(
+          dynamic options, RestoredWallet restoreWallet) =>
       throw UnimplementedError();
 
-  Future<WalletBase> process(WalletCredentials credentials) =>
-      throw UnimplementedError();
-
-  WalletCredentials getCredentialsFromRestoredWallet(dynamic options, RestoredWallet restoreWallet) =>
-      throw UnimplementedError();
-
-  Future<WalletBase> processFromRestoredWallet(WalletCredentials credentials, RestoredWallet restoreWallet) =>
+  Future<WalletBase> processFromRestoredWallet(
+          WalletCredentials credentials, RestoredWallet restoreWallet) =>
       throw UnimplementedError();
 }

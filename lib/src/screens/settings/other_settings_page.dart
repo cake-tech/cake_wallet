@@ -28,13 +28,20 @@ class OtherSettingsPage extends BasePage {
           padding: EdgeInsets.only(top: 10),
           child: Column(
             children: [
-              SettingsPickerCell(
-                title: S.current.settings_fee_priority,
-                items: priorityForWalletType(_otherSettingsViewModel.walletType),
-                displayItem: _otherSettingsViewModel.getDisplayPriority,
-                selectedItem: _otherSettingsViewModel.transactionPriority,
-                onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
-              ),
+              if (!_otherSettingsViewModel.changeRepresentativeEnabled)
+                SettingsPickerCell(
+                  title: S.current.settings_fee_priority,
+                  items: priorityForWalletType(_otherSettingsViewModel.walletType),
+                  displayItem: _otherSettingsViewModel.getDisplayPriority,
+                  selectedItem: _otherSettingsViewModel.transactionPriority,
+                  onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
+                ),
+              if (_otherSettingsViewModel.changeRepresentativeEnabled)
+                SettingsCellWithArrow(
+                  title: S.current.change_rep,
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.changeRep),
+                ),
               SettingsPickerCell(
                 title: S.current.default_buy_provider,
                 items: BuyProviderType.values,
@@ -50,7 +57,7 @@ class OtherSettingsPage extends BasePage {
               StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
               Spacer(),
               SettingsVersionCell(
-                  title: S.of(context).version(_otherSettingsViewModel.currentVersion))
+                  title: S.of(context).version(_otherSettingsViewModel.currentVersion)),
             ],
           ),
         );
