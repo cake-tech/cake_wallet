@@ -66,15 +66,27 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.6"
+  bitcoin_base:
+    dependency: "direct main"
+    description:
+      path: "/home/rafael/Storage/Repositories/btc-silent-payments/bitcoin_base"
+      relative: false
+    source: path
+    version: "1.1.0"
   bitcoin_flutter:
     dependency: "direct main"
     description:
-      path: "."
-      ref: cake-update-v3
-      resolved-ref: df9204144011ed9419eff7d9ef3143102a40252d
-      url: "https://github.com/cake-tech/bitcoin_flutter.git"
-    source: git
+      path: "/home/rafael/Storage/Repositories/btc-silent-payments/bitcoin_flutter"
+      relative: false
+    source: path
     version: "2.0.2"
+  blockchain_utils:
+    dependency: transitive
+    description:
+      path: "/home/rafael/Storage/Repositories/btc-silent-payments/blockchain_utils"
+      relative: false
+    source: path
+    version: "0.4.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -196,6 +208,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.4.0"
+  coinlib:
+    dependency: transitive
+    description:
+      path: "/home/rafael/Storage/Repositories/btc-silent-payments/coinlib/coinlib"
+      relative: false
+    source: path
+    version: "1.0.0"
   collection:
     dependency: transitive
     description:
@@ -243,6 +262,22 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  dart_base_x:
+    dependency: transitive
+    description:
+      name: dart_base_x
+      sha256: c8af4f6a6518daab4aa85bb27ee148221644e80446bb44117052b6f4674cdb23
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
+  dart_bech32:
+    dependency: transitive
+    description:
+      name: dart_bech32
+      sha256: "0e1dc1ff39c9669c9ffeafd5d675104918f7b50799692491badfea7e1fb40888"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   dart_style:
     dependency: transitive
     description:
@@ -271,10 +306,10 @@ packages:
     dependency: transitive
     description:
       name: ffi
-      sha256: a38574032c5f1dd06c4aee541789906c12ccaab8ba01446e800d9c5b79c4a978
+      sha256: "7bf0adc28a23d395f19f3f1eb21dd7cfd1dd9f8e1c50051c069122e6853bc878"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "2.1.0"
   file:
     dependency: transitive
     description:
@@ -553,10 +588,10 @@ packages:
     dependency: transitive
     description:
       name: pointycastle
-      sha256: db7306cf0249f838d1a24af52b5a5887c5bf7f31d8bb4e827d071dc0939ad346
+      sha256: "7c1e5f0d23c9016c5bbd8b1473d0d3fb3fc851b876046039509e18e0c7485f2c"
       url: "https://pub.dev"
     source: hosted
-    version: "3.6.2"
+    version: "3.7.3"
   pool:
     dependency: transitive
     description:
@@ -710,10 +745,10 @@ packages:
     dependency: transitive
     description:
       name: typed_data
-      sha256: "26f87ade979c47a150c9eaab93ccd2bebe70a27dc0b4b29517f2904f04eb11a5"
+      sha256: facc8d6582f16042dd49f2463ff1bd6e2c9ef9f3d5da3d9b087e244a7b564b3c
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.1"
+    version: "1.3.2"
   unorm_dart:
     dependency: "direct main"
     description:
@@ -730,6 +765,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  wasm_interop:
+    dependency: transitive
+    description:
+      name: wasm_interop
+      sha256: b1b378f07a4cf0103c25faf34d9a64d2c3312135b9efb47e0ec116ec3b14e48f
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   watcher:
     dependency: transitive
     description:

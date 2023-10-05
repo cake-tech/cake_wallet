@@ -79,9 +79,7 @@ dependencies:
   url_launcher_android: 6.0.24
   sensitive_clipboard: ^1.0.0
   bitcoin_flutter:
-    git:
-      url: https://github.com/cake-tech/bitcoin_flutter.git
-      ref: cake-update-v3
+    path: /home/rafael/Storage/Repositories/btc-silent-payments/bitcoin_flutter
 
 dev_dependencies:
   flutter_test:

@@ -25,7 +25,10 @@ class AddressValidator extends TextValidator {
         return '^[0-9a-zA-Z]{59}\$|^[0-9a-zA-Z]{92}\$|^[0-9a-zA-Z]{104}\$'
             '|^[0-9a-zA-Z]{105}\$|^addr1[0-9a-zA-Z]{98}\$';
       case CryptoCurrency.btc:
-        return '^3[0-9a-zA-Z]{32}\$|^3[0-9a-zA-Z]{33}\$|^bc1[0-9a-zA-Z]{59}\$';
+        final p2sh = '^3[0-9a-zA-Z]{32}\$|^3[0-9a-zA-Z]{33}\$';
+        final testnet = '^tb1[0-9a-zA-Z]{59}\$';
+        final silentpayments = '^tsp1[0-9a-zA-Z]{113}\$';
+        return '^bc1[0-9a-zA-Z]{59}\$|$p2sh|$testnet|$silentpayments';
       case CryptoCurrency.nano:
         return '[0-9a-zA-Z_]';
       case CryptoCurrency.usdc:

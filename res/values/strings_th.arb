@@ -698,5 +698,8 @@
   "ask_each_time": "ถามทุกครั้ง",
   "buy_provider_unavailable": "ผู้ให้บริการไม่สามารถใช้งานได้ในปัจจุบัน",
   "do_not_have_enough_gas_asset": "คุณมี ${currency} ไม่เพียงพอที่จะทำธุรกรรมกับเงื่อนไขเครือข่ายบล็อคเชนในปัจจุบัน คุณต้องมี ${currency} เพิ่มขึ้นเพื่อชำระค่าธรรมเนียมเครือข่ายบล็อคเชน แม้ว่าคุณจะส่งสินทรัพย์อื่นก็ตาม",
-  "totp_auth_url": "URL การตรวจสอบสิทธิ์ TOTP"
+  "totp_auth_url": "URL การตรวจสอบสิทธิ์ TOTP",
+  "use_testnet": "ใช้ testnet",
+  "address_and_silent_addresses": "ที่อยู่และที่อยู่เงียบ",
+  "silent_addresses": "ที่อยู่เงียบ"
 }

@@ -75,6 +75,18 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                 ),
               );
             }),
+            if (widget.nodeViewModel.hasTestnetSupport)
+              Observer(builder: (_) {
+                return Column(
+                  children: [
+                    SettingsSwitcherCell(
+                      title: S.current.use_testnet,
+                      value: widget.privacySettingsViewModel.useTestnet,
+                      onValueChange: (_, __) => widget.privacySettingsViewModel.toggleUseTestnet(),
+                    ),
+                  ],
+                );
+              }),
             Observer(builder: (_) {
               return Column(
                 children: [
