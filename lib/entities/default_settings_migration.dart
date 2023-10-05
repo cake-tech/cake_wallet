@@ -161,7 +161,7 @@ Future<void> defaultSettingsMigration(
           break;
         case 22:
           await addNanoNodeList(nodes: nodes);
-          await addNanoPowNodeList(nodes: nodes);
+          await addNanoPowNodeList(nodes: powNodes);
           await changeNanoCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
           await changeNanoCurrentPowNodeToDefault(
               sharedPreferences: sharedPreferences, nodes: powNodes);
