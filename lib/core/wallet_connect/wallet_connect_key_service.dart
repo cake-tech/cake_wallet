@@ -4,7 +4,6 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
 
 abstract class WalletConnectKeyService {
   /// Returns a list of all the keys.
@@ -33,9 +32,10 @@ class KeyServiceImpl implements WalletConnectKeyService {
               'eip155:42161',
               'eip155:80001',
             ],
-            privateKey: _getPrivateKey(wallet),
-            publicKey: _getPublicKey(wallet),
+            privateKey: ethereum!.getPrivateKey(wallet),
+            publicKey: ethereum!.getPublicKey(wallet),
           ),
+          
         ];
 
   late final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
@@ -68,17 +68,5 @@ class KeyServiceImpl implements WalletConnectKeyService {
       }
     }
     return accounts;
-  }
-
-  static String _getPrivateKey(WalletBase wallet) {
-    if (wallet.type != WalletType.ethereum) return '';
-
-    return ethereum!.getPrivateKey(wallet);
-  }
-
-  static String _getPublicKey(WalletBase wallet) {
-    if (wallet.type != WalletType.ethereum) return '';
-
-    return ethereum!.getPublicKey(wallet);
   }
 }
