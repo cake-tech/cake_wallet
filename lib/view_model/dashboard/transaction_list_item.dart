@@ -14,8 +14,6 @@ import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/keyable.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_nano/nano_transaction_info.dart';
-import 'package:cw_nano/nano_util.dart';
 
 class TransactionListItem extends ActionListItem with Keyable {
   TransactionListItem(

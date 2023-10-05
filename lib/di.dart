@@ -217,7 +217,6 @@ import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
-import 'package:cake_wallet/nano/nano.dart' as nanoNano;
 
 import 'core/totp_request_details.dart';
 
@@ -776,7 +775,7 @@ Future<void> setup({
           nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(param2: true),
           editingNode: editingNode,
           isSelected: isSelected));
-          
+
   getIt.registerFactory<RobinhoodBuyProvider>(
       () => RobinhoodBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 

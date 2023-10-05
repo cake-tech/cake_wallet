@@ -52,8 +52,6 @@ Future<void> defaultSettingsMigration(
   
   await sharedPreferences.setBool(PreferencesKey.isNewInstall, isNewInstall);
 
-  await sharedPreferences.setBool(PreferencesKey.isNewInstall, isNewInstall);
-
   final currentVersion =
       sharedPreferences.getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) ?? 0;
 
