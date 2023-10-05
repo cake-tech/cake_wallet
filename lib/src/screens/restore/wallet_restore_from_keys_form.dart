@@ -13,6 +13,7 @@ import 'package:flutter/services.dart';
 class WalletRestoreFromKeysFrom extends StatefulWidget {
   WalletRestoreFromKeysFrom({
     required this.walletRestoreViewModel,
+    required this.onPrivateKeyChange,
     required this.displayPrivateKeyField,
     required this.onHeightOrDateEntered,
     Key? key,
@@ -20,6 +21,7 @@ class WalletRestoreFromKeysFrom extends StatefulWidget {
 
   final Function(bool) onHeightOrDateEntered;
   final WalletRestoreViewModel walletRestoreViewModel;
+  final void Function(String)? onPrivateKeyChange;
   final bool displayPrivateKeyField;
 
   @override
@@ -54,6 +56,7 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
       if (privateKeyController.text.isNotEmpty) {
         widget.onHeightOrDateEntered(true);
       }
+      widget.onPrivateKeyChange?.call(privateKeyController.text);
     });
   }
 
@@ -62,8 +65,8 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
     nameController.dispose();
     addressController.dispose();
     viewKeyController.dispose();
-    spendKeyController.dispose();
     privateKeyController.dispose();
+    spendKeyController.dispose();
     super.dispose();
   }
 

@@ -18,18 +18,21 @@ class MenuWidget extends StatefulWidget {
 
 class MenuWidgetState extends State<MenuWidget> {
   MenuWidgetState()
-      : this.menuWidth = 0,
-        this.screenWidth = 0,
-        this.screenHeight = 0,
-        this.headerHeight = 120,
-        this.tileHeight = 60,
-        this.fromTopEdge = 50,
-        this.fromBottomEdge = 25,
-        this.moneroIcon = Image.asset('assets/images/monero_menu.png'),
-        this.bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png'),
-        this.litecoinIcon = Image.asset('assets/images/litecoin_menu.png'),
-        this.havenIcon = Image.asset('assets/images/haven_menu.png'),
-        this.ethereumIcon = Image.asset('assets/images/eth_icon.png');
+    : this.menuWidth = 0,
+      this.screenWidth = 0,
+      this.screenHeight = 0,
+      this.headerHeight = 120,
+      this.tileHeight = 60,
+      this.fromTopEdge = 50,
+      this.fromBottomEdge = 25,
+      this.moneroIcon = Image.asset('assets/images/monero_menu.png'),
+      this.bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png'),
+      this.litecoinIcon = Image.asset('assets/images/litecoin_menu.png'),
+      this.havenIcon = Image.asset('assets/images/haven_menu.png'),
+      this.ethereumIcon = Image.asset('assets/images/eth_icon.png'),
+      this.nanoIcon = Image.asset('assets/images/nano_icon.png'),
+      this.bananoIcon = Image.asset('assets/images/nano_icon.png');
+
 
   final largeScreen = 731;
 
@@ -47,6 +50,9 @@ class MenuWidgetState extends State<MenuWidget> {
   Image litecoinIcon;
   Image havenIcon;
   Image ethereumIcon;
+  Image nanoIcon;
+  Image bananoIcon;
+
 
   @override
   void initState() {
@@ -206,6 +212,10 @@ class MenuWidgetState extends State<MenuWidget> {
         return havenIcon;
       case WalletType.ethereum:
         return ethereumIcon;
+      case WalletType.nano:
+        return nanoIcon;
+      case WalletType.banano:
+        return bananoIcon;
       default:
         throw Exception('No icon for ${type.toString()}');
     }

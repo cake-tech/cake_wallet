@@ -70,6 +70,21 @@ class ConnectionSyncPage extends BasePage {
             handler: (context) => Navigator.of(context).pushNamed(Routes.manageNodes),
           ),
           const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+          Observer(
+            builder: (context) {
+              if (!dashboardViewModel.hasPowNodes) return const SizedBox();
+
+              return Column(
+                children: [
+                  SettingsCellWithArrow(
+                    title: S.current.manage_pow_nodes,
+                    handler: (context) => Navigator.of(context).pushNamed(Routes.managePowNodes),
+                  ),
+                  const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+                ],
+              );
+            },
+          ),
           if (dashboardViewModel.wallet.type == WalletType.ethereum) ...[
             WalletConnectTile(
               onTap: () async {
