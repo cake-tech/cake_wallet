@@ -64,6 +64,7 @@ abstract class SettingsStoreBase with Store {
       required this.appVersion,
       required this.deviceName,
       required Map<WalletType, Node> nodes,
+      required Map<WalletType, Node> powNodes,
       required this.shouldShowYatPopup,
       required this.isBitcoinBuyEnabled,
       required this.actionlistDisplayMode,
@@ -86,6 +87,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialLitecoinTransactionPriority,
       TransactionPriority? initialEthereumTransactionPriority})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
+        powNodes = ObservableMap<WalletType, Node>.of(powNodes),
         _sharedPreferences = sharedPreferences,
         _backgroundTasks = backgroundTasks,
         fiatCurrency = initialFiatCurrency,
@@ -280,13 +282,12 @@ abstract class SettingsStoreBase with Store {
     reaction(
         (_) => useTOTP2FA, (bool use) => sharedPreferences.setBool(PreferencesKey.useTOTP2FA, use));
 
+    reaction((_) => totpSecretKey,
+        (String totpKey) => sharedPreferences.setString(PreferencesKey.totpSecretKey, totpKey));
     reaction(
         (_) => numberOfFailedTokenTrials,
         (int failedTokenTrail) =>
             sharedPreferences.setInt(PreferencesKey.failedTotpTokenTrials, failedTokenTrail));
-
-    reaction((_) => totpSecretKey,
-        (String totpKey) => sharedPreferences.setString(PreferencesKey.totpSecretKey, totpKey));
 
     reaction(
         (_) => shouldShowMarketPlaceInDashboard,
@@ -346,6 +347,12 @@ abstract class SettingsStoreBase with Store {
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
+      }
+    });
+
+    this.powNodes.observe((change) {
+      if (change.newValue != null && change.key != null) {
+        _saveCurrentPowNode(change.newValue!, change.key!);
       }
     });
   }
@@ -422,15 +429,10 @@ abstract class SettingsStoreBase with Store {
   bool shouldRequireTOTP2FAForAllSecurityAndBackupSettings;
 
   @observable
-  String totpSecretKey;
-
-  @computed
-  String get totpVersionOneLink {
-    return 'otpauth://totp/Cake%20Wallet:$deviceName?secret=$totpSecretKey&issuer=Cake%20Wallet&algorithm=SHA512&digits=8&period=30';
-  }
+  bool useTOTP2FA;
 
   @observable
-  bool useTOTP2FA;
+  String totpSecretKey;
 
   @observable
   int numberOfFailedTokenTrials;
@@ -479,12 +481,23 @@ abstract class SettingsStoreBase with Store {
   final BackgroundTasks _backgroundTasks;
 
   ObservableMap<WalletType, Node> nodes;
+  ObservableMap<WalletType, Node> powNodes;
 
   Node getCurrentNode(WalletType walletType) {
     final node = nodes[walletType];
 
     if (node == null) {
       throw Exception('No node found for wallet type: ${walletType.toString()}');
+    }
+
+    return node;
+  }
+
+  Node getCurrentPowNode(WalletType walletType) {
+    final node = powNodes[walletType];
+
+    if (node == null) {
+      throw Exception('No pow node found for wallet type: ${walletType.toString()}');
     }
 
     return node;
@@ -500,6 +513,7 @@ abstract class SettingsStoreBase with Store {
 
   static Future<SettingsStore> load(
       {required Box<Node> nodeSource,
+      required Box<Node> powNodeSource,
       required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
       BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance,
@@ -575,8 +589,8 @@ abstract class SettingsStoreBase with Store {
     final shouldRequireTOTP2FAForAllSecurityAndBackupSettings = sharedPreferences
             .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings) ??
         false;
-    final totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? '';
     final useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? false;
+    final totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? '';
     final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
@@ -601,8 +615,7 @@ abstract class SettingsStoreBase with Store {
         SortBalanceBy.values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? 0];
     final pinNativeTokenAtTop =
         sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
-    final useEtherscan =
-        sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
+    final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -618,11 +631,15 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
+    final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
+    final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
+    final nanoNode = nodeSource.get(nanoNodeId);
+    final nanoPowNode = powNodeSource.get(nanoPowNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
@@ -633,6 +650,7 @@ abstract class SettingsStoreBase with Store {
         ? AutoGenerateSubaddressStatus.deserialize(raw: generateSubaddresses)
         : defaultAutoGenerateSubaddressStatus;
     final nodes = <WalletType, Node>{};
+    final powNodes = <WalletType, Node>{};
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -654,6 +672,13 @@ abstract class SettingsStoreBase with Store {
       nodes[WalletType.ethereum] = ethereumNode;
     }
 
+    if (nanoNode != null) {
+      nodes[WalletType.nano] = nanoNode;
+    }
+    if (nanoPowNode != null) {
+      powNodes[WalletType.nano] = nanoPowNode;
+    }
+
     final savedSyncMode = SyncMode.all.firstWhere((element) {
       return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 1);
     });
@@ -663,6 +688,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences: sharedPreferences,
         initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
         nodes: nodes,
+        powNodes: powNodes,
         appVersion: packageInfo.version,
         deviceName: deviceName,
         isBitcoinBuyEnabled: isBitcoinBuyEnabled,
@@ -677,8 +703,8 @@ abstract class SettingsStoreBase with Store {
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialCake2FAPresetOptions: selectedCake2FAPreset,
-        initialTotpSecretKey: totpSecretKey,
         initialUseTOTP2FA: useTOTP2FA,
+        initialTotpSecretKey: totpSecretKey,
         initialFailedTokenTrial: tokenTrialNumber,
         initialExchangeStatus: exchangeStatus,
         initialTheme: savedTheme,
@@ -752,9 +778,8 @@ abstract class SettingsStoreBase with Store {
     shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ??
             shouldSaveRecipientAddress;
-    totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? totpSecretKey;
     useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? useTOTP2FA;
-
+    totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? totpSecretKey;
     numberOfFailedTokenTrials =
         sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? numberOfFailedTokenTrials;
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
@@ -826,11 +851,14 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
+    final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
+    final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
+    final nanoNode = nodeSource.get(nanoNodeId);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -850,6 +878,10 @@ abstract class SettingsStoreBase with Store {
 
     if (ethereumNode != null) {
       nodes[WalletType.ethereum] = ethereumNode;
+    }
+
+    if (nanoNode != null) {
+      nodes[WalletType.nano] = nanoNode;
     }
   }
 
@@ -872,11 +904,26 @@ abstract class SettingsStoreBase with Store {
       case WalletType.ethereum:
         await _sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.key as int);
         break;
+      case WalletType.nano:
+        await _sharedPreferences.setInt(PreferencesKey.currentNanoNodeIdKey, node.key as int);
+        break;
       default:
         break;
     }
 
     nodes[walletType] = node;
+  }
+
+  Future<void> _saveCurrentPowNode(Node node, WalletType walletType) async {
+    switch (walletType) {
+      case WalletType.nano:
+        await _sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, node.key as int);
+        break;
+      default:
+        break;
+    }
+
+    powNodes[walletType] = node;
   }
 
   static Future<String?> _getDeviceName() async {

@@ -1,0 +1,6 @@
+-
+  uri: rpc.nano.to
+  useSSL: true
+  is_default: true
+-
+  uri: node.perish.co:9076

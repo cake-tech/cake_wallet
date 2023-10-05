@@ -10,6 +10,8 @@ const walletTypes = [
   WalletType.litecoin,
   WalletType.haven,
   WalletType.ethereum,
+  WalletType.nano,
+  WalletType.banano,
 ];
 
 @HiveType(typeId: WALLET_TYPE_TYPE_ID)
@@ -31,6 +33,12 @@ enum WalletType {
 
   @HiveField(5)
   ethereum,
+
+  @HiveField(6)
+  nano,
+
+  @HiveField(7)
+  banano,
 }
 
 int serializeToInt(WalletType type) {
@@ -45,6 +53,10 @@ int serializeToInt(WalletType type) {
       return 3;
     case WalletType.ethereum:
       return 4;
+    case WalletType.nano:
+      return 5;
+    case WalletType.banano:
+      return 6;
     default:
       return -1;
   }
@@ -62,6 +74,10 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.haven;
     case 4:
       return WalletType.ethereum;
+    case 5:
+      return WalletType.nano;
+    case 6:
+      return WalletType.banano;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
@@ -79,6 +95,10 @@ String walletTypeToString(WalletType type) {
       return 'Haven';
     case WalletType.ethereum:
       return 'Ethereum';
+    case WalletType.nano:
+      return 'Nano';
+    case WalletType.banano:
+      return 'Banano';
     default:
       return '';
   }
@@ -96,6 +116,10 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Haven (XHV)';
     case WalletType.ethereum:
       return 'Ethereum (ETH)';
+    case WalletType.nano:
+      return 'Nano (XNO)';
+    case WalletType.banano:
+      return 'Banano (BAN)';
     default:
       return '';
   }
@@ -113,6 +137,10 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.xhv;
     case WalletType.ethereum:
       return CryptoCurrency.eth;
+    case WalletType.nano:
+      return CryptoCurrency.nano;
+    case WalletType.banano:
+      return CryptoCurrency.banano;
     default:
       throw Exception('Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
   }
