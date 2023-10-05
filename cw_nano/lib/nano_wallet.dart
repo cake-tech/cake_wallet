@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/nano_account_info_response.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -68,7 +69,7 @@ abstract class NanoWalletBase
   String? _representativeAddress;
   Timer? _receiveTimer;
 
-  late NanoClient _client;
+  late final NanoClient _client;
   bool _isTransactionUpdating;
 
   @override
@@ -237,7 +238,6 @@ abstract class NanoWalletBase
 
       _isTransactionUpdating = true;
       final transactions = await fetchTransactions();
-      transactionHistory.clear();
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
       _isTransactionUpdating = false;
@@ -281,7 +281,7 @@ abstract class NanoWalletBase
 
   @override
   Future<void> rescan({required int height}) async {
-    fetchTransactions();
+    updateTransactions();
     _updateBalance();
     return;
   }
@@ -376,14 +376,11 @@ abstract class NanoWalletBase
 
   Future<void> _updateRep() async {
     try {
-      final accountInfo = await _client.getAccountInfo(_publicAddress!);
-      if (accountInfo["error"] != null) {
-        // account not found:
-        _representativeAddress = NanoClient.DEFAULT_REPRESENTATIVE;
-      } else {
-        _representativeAddress = accountInfo["representative"] as String;
-      }
+      AccountInfoResponse accountInfo = (await _client.getAccountInfo(_publicAddress!))!;
+      _representativeAddress = accountInfo.representative;
     } catch (e) {
+      // account not found:
+      _representativeAddress = NanoClient.DEFAULT_REPRESENTATIVE;
       throw Exception("Failed to get representative address $e");
     }
   }

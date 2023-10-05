@@ -497,7 +497,6 @@ Future<void> generateEthereum(bool hasImplementation) async {
   final outputFile = File(ethereumOutputPath);
   const ethereumCommonHeaders = """
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/output_info.dart';
@@ -507,7 +506,9 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:eth_sig_util/util/utils.dart';
 import 'package:hive/hive.dart';
+import 'package:web3dart/web3dart.dart';
 """;
   const ethereumCWHeaders = """
 import 'package:cw_ethereum/ethereum_formatter.dart';
@@ -528,6 +529,8 @@ abstract class Ethereum {
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   String getAddress(WalletBase wallet);
+  String getPrivateKey(WalletBase wallet);
+  String getPublicKey(WalletBase wallet);
   TransactionPriority getDefaultTransactionPriority();
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority deserializeEthereumTransactionPriority(int raw);
@@ -555,6 +558,7 @@ abstract class Ethereum {
   
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled);
+  Web3Client? getWeb3Client(WalletBase wallet);
 }
   """;
 
@@ -578,23 +582,37 @@ abstract class Ethereum {
 Future<void> generateNano(bool hasImplementation) async {
   final outputFile = File(nanoOutputPath);
   const nanoCommonHeaders = """
-""";
-  const nanoCWHeaders = """
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/nano_account.dart';
-import 'package:cw_nano/nano_mnemonic.dart';
-import 'package:cw_nano/nano_wallet.dart';
-import 'package:cw_nano/nano_wallet_service.dart';
-import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/account.dart';
-import 'package:mobx/mobx.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/output_info.dart';
+import 'package:cw_core/nano_account_info_response.dart';
+import 'package:mobx/mobx.dart';
 import 'package:hive/hive.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+""";
+  const nanoCWHeaders = """
+import 'package:cw_nano/nano_client.dart';
+import 'package:cw_nano/nano_mnemonic.dart';
+import 'package:cw_nano/nano_wallet.dart';
+import 'package:cw_nano/nano_wallet_service.dart';
+import 'package:cw_nano/nano_transaction_info.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:cw_nano/nano_wallet_creation_credentials.dart';
+// needed for nano_util:
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:convert/convert.dart';
+import "package:ed25519_hd_key/ed25519_hd_key.dart";
+import 'package:libcrypto/libcrypto.dart';
+import 'package:nanodart/nanodart.dart' as ND;
+import 'package:decimal/decimal.dart';
 """;
   const nanoCwPart = "part 'cw_nano.dart';";
   const nanoContent = """
@@ -606,8 +624,6 @@ abstract class Nano {
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
 
   WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource);
-
-  TransactionHistoryBase getTransactionHistory(Object wallet);
 
   WalletCredentials createNanoNewWalletCredentials({
     required String name,
@@ -628,13 +644,12 @@ abstract class Nano {
     DerivationType? derivationType,
   });
 
-  String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
-
-  void onStartup();
-
   List<String> getNanoWordList(String language);
   Map<String, String> getKeys(Object wallet);
   Object createNanoTransactionCredentials(List<Output> outputs);
+  Future<void> changeRep(Object wallet, String address);
+  Future<void> updateTransactions(Object wallet);
+  BigInt getTransactionAmountRaw(TransactionInfo transactionInfo);
 }
 
 abstract class NanoAccountList {
@@ -645,10 +660,52 @@ abstract class NanoAccountList {
   Future<void> addAccount(Object wallet, {required String label});
   Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
 }
+
+abstract class NanoUtil {
+  String seedToPrivate(String seed, int index);
+  String seedToAddress(String seed, int index);
+  String seedToMnemonic(String seed);
+  Future<String> mnemonicToSeed(String mnemonic);
+  String privateKeyToPublic(String privateKey);
+  String addressToPublicKey(String publicAddress);
+  String privateKeyToAddress(String privateKey);
+  String publicKeyToAddress(String publicKey);
+  bool isValidSeed(String seed);
+  Future<String> hdMnemonicListToSeed(List<String> words);
+  Future<String> hdSeedToPrivate(String seed, int index);
+  Future<String> hdSeedToAddress(String seed, int index);
+  Future<String> uniSeedToAddress(String seed, int index, String type);
+  Future<String> uniSeedToPrivate(String seed, int index, String type);
+  bool isValidBip39Seed(String seed);
+  static const int maxDecimalDigits = 6; // Max digits after decimal
+  BigInt rawPerNano = BigInt.parse("1000000000000000000000000000000");
+  BigInt rawPerNyano = BigInt.parse("1000000000000000000000000");
+  BigInt rawPerBanano = BigInt.parse("100000000000000000000000000000");
+  BigInt rawPerXMR = BigInt.parse("1000000000000");
+  BigInt convertXMRtoNano = BigInt.parse("1000000000000000000");
+  Decimal getRawAsDecimal(String? raw, BigInt? rawPerCur);
+  String truncateDecimal(Decimal input, {int digits = maxDecimalDigits});  
+  String getRawAsUsableString(String? raw, BigInt rawPerCur);
+  String getRawAccuracy(String? raw, BigInt rawPerCur);
+  String getAmountAsRaw(String amount, BigInt rawPerCur);
+
+  // derivationInfo:
+  Future<AccountInfoResponse?> getInfoFromSeedOrMnemonic(
+    DerivationType derivationType, {
+    String? seedKey,
+    String? mnemonic,
+    required Node node,
+  });
+  Future<List<DerivationType>> compareDerivationMethods({
+    String? mnemonic,
+    String? privateKey,
+    required Node node,
+  });
+}
   """;
 
-  const nanoEmptyDefinition = 'Nano? nano;\n';
-  const nanoCWDefinition = 'Nano? nano = CWNano();\n';
+  const nanoEmptyDefinition = 'Nano? nano;\nNanoUtil? nanoUtil = CWNanoUtil();\n';
+  const nanoCWDefinition = 'Nano? nano = CWNano();\nNanoUtil? nanoUtil = CWNanoUtil();\n';
 
   final output = '$nanoCommonHeaders\n' +
       (hasImplementation ? '$nanoCWHeaders\n' : '\n') +

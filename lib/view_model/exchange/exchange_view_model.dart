@@ -86,13 +86,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         super(appStore: appStore) {
     _useTorOnly = _settingsStore.exchangeStatus == ExchangeApiMode.torOnly;
     _setProviders();
-    const excludeDepositCurrencies = [CryptoCurrency.btt, CryptoCurrency.nano];
+    const excludeDepositCurrencies = [CryptoCurrency.btt];
     const excludeReceiveCurrencies = [
       CryptoCurrency.xlm,
       CryptoCurrency.xrp,
       CryptoCurrency.bnb,
-      CryptoCurrency.btt,
-      CryptoCurrency.nano
+      CryptoCurrency.btt
     ];
     _initialPairBasedOnWallet();
 

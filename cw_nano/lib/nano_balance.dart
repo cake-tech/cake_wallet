@@ -1,6 +1,4 @@
 import 'package:cw_core/balance.dart';
-import 'package:cw_core/currency.dart';
-import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_nano/nano_util.dart';
 
 BigInt stringAmountToBigInt(String amount) {

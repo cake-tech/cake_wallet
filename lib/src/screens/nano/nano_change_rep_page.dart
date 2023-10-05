@@ -1,10 +1,11 @@
 import 'package:cake_wallet/core/address_validator.dart';
-import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_nano/nano_wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -14,20 +15,14 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class NanoChangeRepPage extends BasePage {
-
-  NanoChangeRepPage()
-      : _formKey = GlobalKey<FormState>(),
+  NanoChangeRepPage(WalletBase wallet)
+      : _wallet = wallet,
         _addressController = TextEditingController() {
-    var wallet = getIt.get<AppStore>().wallet!;
-    if (wallet is NanoWallet /*|| wallet is BananoWallet*/) {
-      _addressController.text = wallet.representative;
-    }
+    _addressController.text = (wallet as NanoWallet).representative;
   }
 
-  final GlobalKey<FormState> _formKey;
   final TextEditingController _addressController;
-
-  // final CryptoCurrency type;
+  final WalletBase _wallet;
 
   @override
   String get title => S.current.change_rep;
@@ -80,14 +75,18 @@ class NanoChangeRepPage extends BasePage {
 
                             if (confirmed) {
                               try {
-                                final wallet = getIt.get<AppStore>().wallet!;
-                                if (wallet is NanoWallet) {
-                                  await wallet.changeRep(_addressController.text);
-                                }
-                                // TODO: show message saying success:
-
+                                await nano!.changeRep(_wallet, _addressController.text);
                                 Navigator.of(context).pop();
                               } catch (e) {
+                                await showPopUp<void>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertWithOneAction(
+                                          alertTitle: S.of(context).error,
+                                          alertContent: e.toString(),
+                                          buttonText: S.of(context).ok,
+                                          buttonAction: () => Navigator.pop(context));
+                                    });
                                 throw e;
                               }
                             }

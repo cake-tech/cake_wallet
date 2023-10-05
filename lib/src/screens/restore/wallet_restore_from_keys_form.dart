@@ -66,6 +66,7 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
     addressController.dispose();
     viewKeyController.dispose();
     privateKeyController.dispose();
+    spendKeyController.dispose();
     super.dispose();
   }
 

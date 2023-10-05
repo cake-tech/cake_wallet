@@ -1,4 +1,4 @@
-import 'package:cw_nano/nano_util.dart';
+import 'package:cake_wallet/nano/nano.dart';
 
 class PaymentRequest {
   PaymentRequest(this.address, this.amount, this.note, this.scheme);
@@ -16,10 +16,12 @@ class PaymentRequest {
       scheme = uri.scheme;
     }
 
-    if (address.contains("nano")) {
-      amount = NanoUtil.getRawAsUsableString(amount, NanoUtil.rawPerNano);
-    } else if (address.contains("ban")) {
-      amount = NanoUtil.getRawAsUsableString(amount, NanoUtil.rawPerBanano);
+    if (nano != null) {
+      if (address.contains("nano")) {
+        amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerNano);
+      } else if (address.contains("ban")) {
+        amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerBanano);
+      }
     }
 
     return PaymentRequest(address, amount, note, scheme);

@@ -1,11 +1,10 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
-import 'package:cake_wallet/src/screens/nodes/widgets/pow_node_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/node_list/pow_node_create_or_edit_view_model.dart';
+import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cw_core/node.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -14,7 +13,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 
 class PowNodeCreateOrEditPage extends BasePage {
   PowNodeCreateOrEditPage({required this.nodeCreateOrEditViewModel,this.editingNode, this.isSelected})
@@ -81,7 +79,7 @@ class PowNodeCreateOrEditPage extends BasePage {
         ),
       );
       
-  final PowNodeCreateOrEditViewModel nodeCreateOrEditViewModel;
+  final NodeCreateOrEditViewModel nodeCreateOrEditViewModel;
   final Node? editingNode;
   final bool? isSelected;
 
@@ -124,7 +122,7 @@ class PowNodeCreateOrEditPage extends BasePage {
         padding: EdgeInsets.only(left: 24, right: 24),
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(bottom: 24.0),
-          content: PowNodeForm(
+          content: NodeForm(
             formKey: _formKey,
             nodeViewModel: nodeCreateOrEditViewModel,
             editingNode: editingNode,

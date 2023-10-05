@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -19,12 +21,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class DesktopDashboardPage extends StatelessWidget {
   DesktopDashboardPage({
     required this.balancePage,
+    required this.bottomSheetService,
     required this.dashboardViewModel,
     required this.addressListViewModel,
     required this.desktopKey,
   });
 
   final BalancePage balancePage;
+  final BottomSheetService bottomSheetService;
   final DashboardViewModel dashboardViewModel;
   final WalletAddressListViewModel addressListViewModel;
   final GlobalKey<NavigatorState> desktopKey;
@@ -36,31 +40,34 @@ class DesktopDashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     _setEffects(context);
 
-    return Container(
-      color: Theme.of(context).colorScheme.background,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 400,
-            child: balancePage,
-          ),
-          Flexible(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 500),
-              child: Navigator(
-                key: desktopKey,
-                initialRoute: Routes.desktop_actions,
-                onGenerateRoute: (settings) => Router.createRoute(settings),
-                onGenerateInitialRoutes: (NavigatorState navigator, String initialRouteName) {
-                  return [
-                    navigator.widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
-                  ];
-                },
+    return BottomSheetListener(
+      bottomSheetService: bottomSheetService,
+      child: Container(
+        color: Theme.of(context).colorScheme.background,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 400,
+              child: balancePage,
+            ),
+            Flexible(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 500),
+                child: Navigator(
+                  key: desktopKey,
+                  initialRoute: Routes.desktop_actions,
+                  onGenerateRoute: (settings) => Router.createRoute(settings),
+                  onGenerateInitialRoutes: (NavigatorState navigator, String initialRouteName) {
+                    return [
+                      navigator.widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
+                    ];
+                  },
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

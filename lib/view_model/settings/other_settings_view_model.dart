@@ -25,7 +25,7 @@ abstract class OtherSettingsViewModelBase with Store {
     final priority = _settingsStore.priority[_wallet.type];
     final priorities = priorityForWalletType(_wallet.type);
 
-    if (!priorities.contains(priority)) {
+    if (!priorities.contains(priority) && priorities.isNotEmpty) {
       _settingsStore.priority[_wallet.type] = priorities.first;
     }
   }

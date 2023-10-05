@@ -26,8 +26,8 @@ const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
-const nanoDefaultNodeUri = 'rpc.nano.to:443';
-const nanoDefaultPowNodeUri = 'rpc.nano.to:443';
+const nanoDefaultNodeUri = 'rpc.nano.to';
+const nanoDefaultPowNodeUri = 'rpc.nano.to';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -50,6 +50,8 @@ Future<void> defaultSettingsMigration(
 
   await _validateWalletInfoBoxData(walletInfoSource);
   
+  await sharedPreferences.setBool(PreferencesKey.isNewInstall, isNewInstall);
+
   await sharedPreferences.setBool(PreferencesKey.isNewInstall, isNewInstall);
 
   final currentVersion =
@@ -161,10 +163,10 @@ Future<void> defaultSettingsMigration(
           break;
         case 22:
           await addNanoNodeList(nodes: nodes);
+          await addNanoPowNodeList(nodes: powNodes);
           await changeNanoCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
           await changeNanoCurrentPowNodeToDefault(
               sharedPreferences: sharedPreferences, nodes: powNodes);
-          await resetPowToDefault(powNodes);
           break;
 
         default:
@@ -516,7 +518,7 @@ Future<void> checkCurrentNodes(
   final currentNanoNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
   final currentNanoPowNodeServer =
-      nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
+      powNodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
 
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
@@ -551,7 +553,7 @@ Future<void> checkCurrentNodes(
   }
 
   if (currentNanoNodeServer == null) {
-    final node = Node(uri: nanoDefaultNodeUri, type: WalletType.nano);
+    final node = Node(uri: nanoDefaultNodeUri, useSSL: true, type: WalletType.nano);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentNanoNodeIdKey, node.key as int);
   }
@@ -560,7 +562,7 @@ Future<void> checkCurrentNodes(
     Node? node = powNodeSource.values
         .firstWhereOrNull((node) => node.uri.toString() == nanoDefaultPowNodeUri);
     if (node == null) {
-      node = Node(uri: nanoDefaultPowNodeUri, type: WalletType.nano);
+      node = Node(uri: nanoDefaultPowNodeUri, useSSL: true, type: WalletType.nano);
       await powNodeSource.add(node);
     }
     await sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, node.key as int);
@@ -629,6 +631,15 @@ Future<void> changeEthereumCurrentNodeToDefault(
 
 Future<void> addNanoNodeList({required Box<Node> nodes}) async {
   final nodeList = await loadDefaultNanoNodes();
+  for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
+}
+
+Future<void> addNanoPowNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultNanoPowNodes();
   for (var node in nodeList) {
     if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
       await nodes.add(node);

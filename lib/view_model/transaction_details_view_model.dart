@@ -239,7 +239,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
       StandartListItem(
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
-      // StandartListItem(title: S.current.confirmed, value: (tx.confirmations > 0).toString()),
+      StandartListItem(title: S.current.confirmations, value: (tx.confirmations > 0).toString()),
       StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
       StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
     ];
