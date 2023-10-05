@@ -37,7 +37,7 @@ class DerivationInfo {
   String address;
   int height;
   final DerivationType derivationType;
-  final String? derivationPath;
+  String? derivationPath;
   final String? script_type;
   final String? description;
 }

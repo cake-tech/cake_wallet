@@ -36,7 +36,6 @@ import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
-import 'package:cake_wallet/src/screens/settings/manage_pow_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
@@ -766,10 +765,6 @@ Future<void> setup({
           type ?? getIt.get<AppStore>().wallet!.type,
           getIt.get<SettingsStore>()));
 
-  getIt.registerFactoryParam<PowNodeCreateOrEditViewModel, WalletType?, void>(
-      (WalletType? type, _) => PowNodeCreateOrEditViewModel(
-          _powNodeSource, type ?? getIt.get<AppStore>().wallet!.type, getIt.get<SettingsStore>()));
-
   getIt.registerFactoryParam<NodeCreateOrEditPage, Node?, bool?>(
       (Node? editingNode, bool? isSelected) => NodeCreateOrEditPage(
           nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(param2: false),
@@ -779,12 +774,6 @@ Future<void> setup({
   getIt.registerFactoryParam<PowNodeCreateOrEditPage, Node?, bool?>(
       (Node? editingNode, bool? isSelected) => PowNodeCreateOrEditPage(
           nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(param2: true),
-          editingNode: editingNode,
-          isSelected: isSelected));
-
-  getIt.registerFactoryParam<PowNodeCreateOrEditPage, Node?, bool?>(
-      (Node? editingNode, bool? isSelected) => PowNodeCreateOrEditPage(
-          nodeCreateOrEditViewModel: getIt.get<PowNodeCreateOrEditViewModel>(),
           editingNode: editingNode,
           isSelected: isSelected));
           
