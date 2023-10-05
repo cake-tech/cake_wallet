@@ -300,56 +300,6 @@ class WalletRestorePage extends BasePage {
     return credentials;
   }
 
-  Future<List<DerivationInfo>> getDerivationInfo(dynamic credentials) async {
-    var list = <DerivationInfo>[];
-    var walletType = credentials["walletType"] as WalletType;
-    var appStore = getIt.get<AppStore>();
-    var node = appStore.settingsStore.getCurrentNode(walletType);
-
-    switch (walletType) {
-      case WalletType.bitcoin:
-        String? mnemonic = credentials['seed'] as String?;
-        return bitcoin!.getDerivationsFromMnemonic(
-            mnemonic: mnemonic!, node: node);
-      case WalletType.nano:
-        String? mnemonic = credentials['seed'] as String?;
-        String? seedKey = credentials['private_key'] as String?;
-        AccountInfoResponse? bip39Info = await nanoUtil!.getInfoFromSeedOrMnemonic(
-            DerivationType.bip39,
-            mnemonic: mnemonic,
-            seedKey: seedKey,
-            node: node);
-        AccountInfoResponse? standardInfo = await nanoUtil!.getInfoFromSeedOrMnemonic(
-          DerivationType.nano,
-          mnemonic: mnemonic,
-          seedKey: seedKey,
-          node: node,
-        );
-
-        if (standardInfo?.balance != null) {
-          list.add(DerivationInfo(
-            derivationType: DerivationType.nano,
-            balance: nanoUtil!.getRawAsUsableString(standardInfo!.balance, nanoUtil!.rawPerNano),
-            address: standardInfo.address!,
-            height: standardInfo.confirmationHeight,
-          ));
-        }
-
-        if (bip39Info?.balance != null) {
-          list.add(DerivationInfo(
-            derivationType: DerivationType.bip39,
-            balance: nanoUtil!.getRawAsUsableString(bip39Info!.balance, nanoUtil!.rawPerNano),
-            address: bip39Info.address!,
-            height: bip39Info.confirmationHeight,
-          ));
-        }
-        break;
-      default:
-        break;
-    }
-    return list;
-  }
-
   Future<void> _confirmForm(BuildContext context) async {
     // Dismissing all visible keyboard to provide context for navigation
     FocusManager.instance.primaryFocus?.unfocus();
@@ -383,7 +333,7 @@ class WalletRestorePage extends BasePage {
 
     if (derivationTypes[0] == DerivationType.unknown || derivationTypes.length > 1) {
       // push screen to choose the derivation type:
-      List<DerivationInfo> derivations = await getDerivationInfo(_credentials());
+      List<DerivationInfo> derivations = await walletRestoreViewModel.getDerivationInfo(_credentials());
 
       int derivationsWithHistory = 0;
       int derivationWithHistoryIndex = 0;

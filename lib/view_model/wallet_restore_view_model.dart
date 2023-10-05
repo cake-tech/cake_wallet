@@ -2,6 +2,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cw_core/nano_account_info_response.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -155,6 +156,55 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     }
 
     throw Exception('Unexpected type: ${type.toString()}');
+  }
+
+  Future<List<DerivationInfo>> getDerivationInfo(dynamic credentials) async {
+    var list = <DerivationInfo>[];
+    var walletType = credentials["walletType"] as WalletType;
+    var appStore = getIt.get<AppStore>();
+    var node = appStore.settingsStore.getCurrentNode(walletType);
+
+    switch (walletType) {
+      case WalletType.bitcoin:
+        String? mnemonic = credentials['seed'] as String?;
+        return bitcoin!.getDerivationsFromMnemonic(mnemonic: mnemonic!, node: node);
+      case WalletType.nano:
+        String? mnemonic = credentials['seed'] as String?;
+        String? seedKey = credentials['private_key'] as String?;
+        AccountInfoResponse? bip39Info = await nanoUtil!.getInfoFromSeedOrMnemonic(
+            DerivationType.bip39,
+            mnemonic: mnemonic,
+            seedKey: seedKey,
+            node: node);
+        AccountInfoResponse? standardInfo = await nanoUtil!.getInfoFromSeedOrMnemonic(
+          DerivationType.nano,
+          mnemonic: mnemonic,
+          seedKey: seedKey,
+          node: node,
+        );
+
+        if (standardInfo?.balance != null) {
+          list.add(DerivationInfo(
+            derivationType: DerivationType.nano,
+            balance: nanoUtil!.getRawAsUsableString(standardInfo!.balance, nanoUtil!.rawPerNano),
+            address: standardInfo.address!,
+            height: standardInfo.confirmationHeight,
+          ));
+        }
+
+        if (bip39Info?.balance != null) {
+          list.add(DerivationInfo(
+            derivationType: DerivationType.bip39,
+            balance: nanoUtil!.getRawAsUsableString(bip39Info!.balance, nanoUtil!.rawPerNano),
+            address: bip39Info.address!,
+            height: bip39Info.confirmationHeight,
+          ));
+        }
+        break;
+      default:
+        break;
+    }
+    return list;
   }
 
   Future<List<DerivationType>> getDerivationTypes(dynamic options) async {
