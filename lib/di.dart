@@ -217,7 +217,6 @@ import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
-import 'package:cake_wallet/nano/nano.dart' as nanoNano;
 
 import 'core/totp_request_details.dart';
 
@@ -644,7 +643,7 @@ Future<void> setup({
       return MoneroAccountListViewModel(wallet);
     }
     throw Exception(
-        'Unexpected wallet type: ${wallet.type} for generate Nano/Monero AccountListViewModel');
+        'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel');
   });
 
   getIt.registerFactory(
@@ -929,7 +928,7 @@ Future<void> setup({
         wallet: wallet!);
   });
 
-  getIt.registerFactoryParam<BuyWebViewPage, List, void>((List args, _) {
+  getIt.registerFactoryParam<BuyWebViewPage, List<dynamic>, void>((List<dynamic> args, _) {
     final url = args.first as String;
     final buyViewModel = args[1] as BuyViewModel;
 
@@ -958,7 +957,7 @@ Future<void> setup({
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
 
-    return UnspentCoinsListViewModel(wallet: wallet!, unspentCoinsInfo: _unspentCoinsInfoSource!);
+    return UnspentCoinsListViewModel(wallet: wallet!, unspentCoinsInfo: _unspentCoinsInfoSource);
   });
 
   getIt.registerFactory(() =>
@@ -969,7 +968,7 @@ Future<void> setup({
       (item, model) =>
           UnspentCoinsDetailsViewModel(unspentCoinsItem: item, unspentCoinsListViewModel: model));
 
-  getIt.registerFactoryParam<UnspentCoinsDetailsPage, List, void>((List args, _) {
+  getIt.registerFactoryParam<UnspentCoinsDetailsPage, List<dynamic>, void>((List<dynamic> args, _) {
     final item = args.first as UnspentCoinsItem;
     final unspentCoinsListViewModel = args[1] as UnspentCoinsListViewModel;
 
@@ -1022,7 +1021,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => IoniaLoginPage(getIt.get<IoniaAuthViewModel>()));
 
-  getIt.registerFactoryParam<IoniaVerifyIoniaOtp, List, void>((List args, _) {
+  getIt.registerFactoryParam<IoniaVerifyIoniaOtp, List<dynamic>, void>((List<dynamic> args, _) {
     final email = args.first as String;
     final isSignIn = args[1] as bool;
 
@@ -1031,13 +1030,14 @@ Future<void> setup({
 
   getIt.registerFactory(() => IoniaWelcomePage());
 
-  getIt.registerFactoryParam<IoniaBuyGiftCardPage, List, void>((List args, _) {
+  getIt.registerFactoryParam<IoniaBuyGiftCardPage, List<dynamic>, void>((List<dynamic> args, _) {
     final merchant = args.first as IoniaMerchant;
 
     return IoniaBuyGiftCardPage(getIt.get<IoniaBuyCardViewModel>(param1: merchant));
   });
 
-  getIt.registerFactoryParam<IoniaBuyGiftCardDetailPage, List, void>((List args, _) {
+  getIt.registerFactoryParam<IoniaBuyGiftCardDetailPage, List<dynamic>, void>(
+      (List<dynamic> args, _) {
     final amount = args.first as double;
     final merchant = args.last as IoniaMerchant;
     return IoniaBuyGiftCardDetailPage(
@@ -1050,7 +1050,7 @@ Future<void> setup({
         ioniaService: getIt.get<IoniaService>(), giftCard: giftCard);
   });
 
-  getIt.registerFactoryParam<IoniaCustomTipViewModel, List, void>((List args, _) {
+  getIt.registerFactoryParam<IoniaCustomTipViewModel, List<dynamic>, void>((List<dynamic> args, _) {
     final amount = args[0] as double;
     final merchant = args[1] as IoniaMerchant;
     final tip = args[2] as IoniaTip;
@@ -1063,7 +1063,7 @@ Future<void> setup({
     return IoniaGiftCardDetailPage(getIt.get<IoniaGiftCardDetailsViewModel>(param1: giftCard));
   });
 
-  getIt.registerFactoryParam<IoniaMoreOptionsPage, List, void>((List args, _) {
+  getIt.registerFactoryParam<IoniaMoreOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
     final giftCard = args.first as IoniaGiftCard;
 
     return IoniaMoreOptionsPage(giftCard);
@@ -1073,13 +1073,13 @@ Future<void> setup({
       (IoniaGiftCard giftCard, _) =>
           IoniaCustomRedeemViewModel(giftCard: giftCard, ioniaService: getIt.get<IoniaService>()));
 
-  getIt.registerFactoryParam<IoniaCustomRedeemPage, List, void>((List args, _) {
+  getIt.registerFactoryParam<IoniaCustomRedeemPage, List<dynamic>, void>((List<dynamic> args, _) {
     final giftCard = args.first as IoniaGiftCard;
 
     return IoniaCustomRedeemPage(getIt.get<IoniaCustomRedeemViewModel>(param1: giftCard));
   });
 
-  getIt.registerFactoryParam<IoniaCustomTipPage, List, void>((List args, _) {
+  getIt.registerFactoryParam<IoniaCustomTipPage, List<dynamic>, void>((List<dynamic> args, _) {
     return IoniaCustomTipPage(getIt.get<IoniaCustomTipViewModel>(param1: args));
   });
 
