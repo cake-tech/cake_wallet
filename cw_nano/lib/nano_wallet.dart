@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/nano_account_info_response.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -11,7 +12,6 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_nano/file.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_client.dart';
@@ -39,11 +39,13 @@ abstract class NanoWalletBase
     required String mnemonic,
     required String password,
     NanoBalance? initialBalance,
+    required EncryptionFileUtils encryptionFileUtils,
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
         _derivationType = walletInfo.derivationType!,
         _isTransactionUpdating = false,
+        _encryptionFileUtils = encryptionFileUtils,
         _client = NanoClient(),
         walletAddresses = NanoWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, NanoBalance>.of({
@@ -52,7 +54,11 @@ abstract class NanoWalletBase
         }),
         super(walletInfo) {
     this.walletInfo = walletInfo;
-    transactionHistory = NanoTransactionHistory(walletInfo: walletInfo, password: password);
+    transactionHistory = NanoTransactionHistory(
+      walletInfo: walletInfo,
+      password: password,
+      encryptionFileUtils: encryptionFileUtils,
+    );
     if (!CakeHive.isAdapterRegistered(NanoAccount.typeId)) {
       CakeHive.registerAdapter(NanoAccountAdapter());
     }
@@ -61,6 +67,8 @@ abstract class NanoWalletBase
   final String _mnemonic;
   final String _password;
   final DerivationType _derivationType;
+
+  final EncryptionFileUtils _encryptionFileUtils;
 
   String? _privateKey;
   String? _publicAddress;
@@ -82,6 +90,9 @@ abstract class NanoWalletBase
   @override
   @observable
   late ObservableMap<CryptoCurrency, NanoBalance> balance;
+
+  @override
+  String get password => _password;
 
   // initialize the different forms of private / public key we'll need:
   Future<void> init() async {
@@ -290,7 +301,7 @@ abstract class NanoWalletBase
   Future<void> save() async {
     await walletAddresses.updateAddressesInBox();
     final path = await makePath();
-    await write(path: path, password: _password, data: toJSON());
+    await _encryptionFileUtils.write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
   }
 
@@ -339,9 +350,10 @@ abstract class NanoWalletBase
     required String name,
     required String password,
     required WalletInfo walletInfo,
+    required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final path = await pathForWallet(name: name, type: walletInfo.type);
-    final jsonSource = await read(path: path, password: password);
+    final jsonSource = await encryptionFileUtils.read(path: path, password: password);
 
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String;
@@ -361,6 +373,7 @@ abstract class NanoWalletBase
       password: password,
       mnemonic: mnemonic,
       initialBalance: balance,
+      encryptionFileUtils: encryptionFileUtils,
     );
     // init() should always be run after this!
   }

@@ -616,11 +616,11 @@ abstract class Nano {
 
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
 
-  WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource);
+  WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
 
   WalletCredentials createNanoNewWalletCredentials({
     required String name,
-    String password,
+    String? password,
   });
   
   WalletCredentials createNanoRestoreWalletFromSeedCredentials({

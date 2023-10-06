@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -15,9 +16,10 @@ import 'package:nanodart/nanodart.dart';
 
 class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     NanoRestoreWalletFromSeedCredentials, NanoRestoreWalletFromKeysCredentials> {
-  NanoWalletService(this.walletInfoSource);
+  NanoWalletService(this.walletInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
+  final bool isDirect;
 
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();
@@ -38,6 +40,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
       password: credentials.password!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
     wallet.init();
     return wallet;
@@ -65,8 +68,12 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
     String randomWords =
         (List<String>.from(nm.NanoMnemomics.WORDLIST)..shuffle()).take(24).join(' ');
-    final currentWallet =
-        NanoWallet(walletInfo: currentWalletInfo, password: password, mnemonic: randomWords);
+    final currentWallet = NanoWallet(
+      walletInfo: currentWalletInfo,
+      password: password,
+      mnemonic: randomWords,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
 
     await currentWallet.renameWalletFiles(newName);
 
@@ -105,6 +112,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       password: credentials.password!,
       mnemonic: mnemonic ?? credentials.seedKey,
       walletInfo: credentials.walletInfo!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
     await wallet.init();
     await wallet.save();
@@ -135,6 +143,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -154,6 +163,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       name: name,
       password: password,
       walletInfo: walletInfo,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();

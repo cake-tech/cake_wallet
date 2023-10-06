@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:cw_bitcoin/encryption_file_utils.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';

@@ -156,7 +156,7 @@ packages:
     source: hosted
     version: "8.4.4"
   cake_backup:
-    dependency: "direct main"
+    dependency: transitive
     description:
       path: "."
       ref: main

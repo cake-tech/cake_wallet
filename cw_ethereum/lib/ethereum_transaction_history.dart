@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:core';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_ethereum/encryption_file_utils.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_ethereum/ethereum_transaction_info.dart';

@@ -5,7 +5,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_ethereum/encryption_file_utils.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_ethereum/ethereum_mnemonics.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_ethereum/ethereum_wallet_creation_credentials.dart';
