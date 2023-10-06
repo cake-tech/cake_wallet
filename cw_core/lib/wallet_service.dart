@@ -6,7 +6,7 @@ abstract class WalletService<N extends WalletCredentials,
     RFS extends WalletCredentials, RFK extends WalletCredentials> {
   WalletType getType();
 
-  Future<WalletBase> create(N credentials);
+  Future<WalletBase> create(N credentials, {bool? isTestnet});
 
   Future<WalletBase> restoreFromSeed(RFS credentials);
 

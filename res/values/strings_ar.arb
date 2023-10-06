@@ -697,6 +697,8 @@
   "buy_provider_unavailable": "مزود حاليا غير متوفر.",
 
   "do_not_have_enough_gas_asset": "ليس لديك ما يكفي من ${currency} لإجراء معاملة وفقًا لشروط شبكة blockchain الحالية. أنت بحاجة إلى المزيد من ${currency} لدفع رسوم شبكة blockchain، حتى لو كنت ترسل أصلًا مختلفًا.",
-  "totp_auth_url": "                                                    TOTP ﺔﻗﺩﺎﺼﻤﻟ URL ﻥﺍﻮﻨﻋ"
+  "totp_auth_url": "                                                    TOTP ﺔﻗﺩﺎﺼﻤﻟ URL ﻥﺍﻮﻨﻋ",
+  "use_testnet": "استخدم testnet",
+  "address_and_silent_addresses": "العنوان والعناوين الصامتة",
+  "silent_addresses": "عناوين صامتة"
 }
-

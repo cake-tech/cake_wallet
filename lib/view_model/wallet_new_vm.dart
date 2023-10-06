@@ -1,6 +1,4 @@
-import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -26,6 +24,12 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: false);
 
   @observable
+  bool _useTestnet = false;
+
+  @computed
+  bool get useTestnet => _useTestnet;
+
+  @observable
   String selectedMnemonicLanguage;
 
   bool get hasLanguageSelector => type == WalletType.monero || type == WalletType.haven;
@@ -46,13 +50,16 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(name: name, password: walletPassword);
       default:
-        throw Exception('Unexpected type: ${type.toString()}');;
+        throw Exception('Unexpected type: ${type.toString()}');
     }
   }
 
   @override
   Future<WalletBase> process(WalletCredentials credentials) async {
     walletCreationService.changeWalletType(type: type);
-    return walletCreationService.create(credentials);
+    return walletCreationService.create(credentials, isTestnet: useTestnet);
   }
+
+  @action
+  void toggleUseTestnet() => _useTestnet = !_useTestnet;
 }

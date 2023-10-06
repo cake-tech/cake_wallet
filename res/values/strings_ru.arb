@@ -700,5 +700,8 @@
   "ask_each_time": "Спросите каждый раз",
   "buy_provider_unavailable": "Поставщик в настоящее время недоступен.",
   "do_not_have_enough_gas_asset": "У вас недостаточно ${currency} для совершения транзакции при текущих условиях сети блокчейн. Вам нужно больше ${currency} для оплаты комиссий за сеть блокчейна, даже если вы отправляете другой актив.",
-  "totp_auth_url": "URL-адрес TOTP-АВТОРИЗАЦИИ"
+  "totp_auth_url": "URL-адрес TOTP-АВТОРИЗАЦИИ",
+  "use_testnet": "Используйте Testnet",
+  "address_and_silent_addresses": "Адрес и молчаливые адреса",
+  "silent_addresses": "Молчаливые адреса"
 }

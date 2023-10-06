@@ -700,5 +700,8 @@
   "ask_each_time": "Chiedi ogni volta",
   "buy_provider_unavailable": "Provider attualmente non disponibile.",
   "do_not_have_enough_gas_asset": "Non hai abbastanza ${currency} per effettuare una transazione con le attuali condizioni della rete blockchain. Hai bisogno di più ${currency} per pagare le commissioni della rete blockchain, anche se stai inviando una risorsa diversa.",
-  "totp_auth_url": "URL DI AUT. TOTP"
+  "totp_auth_url": "URL DI AUT. TOTP",
+  "use_testnet": "Usa TestNet",
+  "address_and_silent_addresses": "Indirizzo e indirizzi silenziosi",
+  "silent_addresses": "Indirizzi silenziosi"
 }

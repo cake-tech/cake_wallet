@@ -5,7 +5,6 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   cw_monero
   devicelocale
-  platform_device_id_linux
   url_launcher_linux
 )
 

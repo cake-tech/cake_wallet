@@ -700,5 +700,8 @@
   "ask_each_time": "Vraag het elke keer",
   "buy_provider_unavailable": "Provider momenteel niet beschikbaar.",
   "do_not_have_enough_gas_asset": "U heeft niet genoeg ${currency} om een transactie uit te voeren met de huidige blockchain-netwerkomstandigheden. U heeft meer ${currency} nodig om blockchain-netwerkkosten te betalen, zelfs als u een ander item verzendt.",
-  "totp_auth_url": "TOTP AUTH-URL"
+  "totp_auth_url": "TOTP AUTH-URL",
+  "use_testnet": "Gebruik testnet",
+  "address_and_silent_addresses": "Adres en stille adressen",
+  "silent_addresses": "Stille adressen"
 }

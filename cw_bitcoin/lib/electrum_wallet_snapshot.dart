@@ -4,6 +4,7 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 
 class ElectrumWallletSnapshot {
   ElectrumWallletSnapshot({
@@ -13,6 +14,7 @@ class ElectrumWallletSnapshot {
     required this.mnemonic,
     required this.addresses,
     required this.balance,
+    required this.networkType,
     required this.regularAddressIndex,
     required this.changeAddressIndex});
 
@@ -23,6 +25,7 @@ class ElectrumWallletSnapshot {
   String mnemonic;
   List<BitcoinAddressRecord> addresses;
   ElectrumBalance balance;
+  bitcoin.NetworkType networkType;
   int regularAddressIndex;
   int changeAddressIndex;
 
@@ -38,6 +41,7 @@ class ElectrumWallletSnapshot {
         .toList();
     final balance = ElectrumBalance.fromJSON(data['balance'] as String) ??
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
+    final networkType = bitcoin.testnet;
     var regularAddressIndex = 0;
     var changeAddressIndex = 0;
 
@@ -53,6 +57,7 @@ class ElectrumWallletSnapshot {
       mnemonic: mnemonic,
       addresses: addresses,
       balance: balance,
+      networkType: networkType,
       regularAddressIndex: regularAddressIndex,
       changeAddressIndex: changeAddressIndex);
   }

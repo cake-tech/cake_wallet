@@ -571,11 +571,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
           param2: url));
 
     case Routes.advancedPrivacySettings:
-      final type = settings.arguments as WalletType;
+      final args = settings.arguments as List;
+      final type = args.first as WalletType;
+      final func = args[1] as void Function();
 
       return CupertinoPageRoute<void>(
           builder: (_) => AdvancedPrivacySettingsPage(
-            getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
+            getIt.get<AdvancedPrivacySettingsViewModel>(param1: func),
             getIt.get<NodeCreateOrEditViewModel>(param1: type),
           ));
 

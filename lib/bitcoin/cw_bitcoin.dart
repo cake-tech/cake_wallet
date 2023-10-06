@@ -105,6 +105,16 @@ class CWBitcoin extends Bitcoin {
 		return bitcoinWallet.walletAddresses.address;
 	}
 
+	String getReceiveAddress(Object wallet) {
+		final bitcoinWallet = wallet as ElectrumWallet;
+		return bitcoinWallet.walletAddresses.receiveAddress;
+	}
+
+	btc.SilentPaymentAddress? getSilentAddress(Object wallet) {
+		final bitcoinWallet = wallet as ElectrumWallet;
+		return bitcoinWallet.walletAddresses.silentAddress;
+	}
+
 	@override
 	String formatterBitcoinAmountToString({required int amount})
 		=> bitcoinAmountToString(amount: amount);
