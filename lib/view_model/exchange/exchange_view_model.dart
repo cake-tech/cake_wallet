@@ -7,6 +7,8 @@ import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
+import 'package:cake_wallet/exchange/exolix/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/exolix/exolix_request.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
@@ -85,13 +87,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         super(appStore: appStore) {
     _useTorOnly = _settingsStore.exchangeStatus == ExchangeApiMode.torOnly;
     _setProviders();
-    const excludeDepositCurrencies = [CryptoCurrency.btt, CryptoCurrency.nano];
+    const excludeDepositCurrencies = [CryptoCurrency.btt];
     const excludeReceiveCurrencies = [
       CryptoCurrency.xlm,
       CryptoCurrency.xrp,
       CryptoCurrency.bnb,
-      CryptoCurrency.btt,
-      CryptoCurrency.nano
+      CryptoCurrency.btt
     ];
     _initialPairBasedOnWallet();
 
@@ -152,6 +153,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         SideShiftExchangeProvider(),
         SimpleSwapExchangeProvider(),
         TrocadorExchangeProvider(useTorOnly: _useTorOnly),
+        ExolixExchangeProvider(),
       ];
 
   @observable
@@ -554,6 +556,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           amount = isFixedRateMode ? receiveAmount : depositAmount;
         }
 
+        if (provider is ExolixExchangeProvider) {
+          request = ExolixRequest(
+              from: depositCurrency,
+              to: receiveCurrency,
+              fromAmount: depositAmount.replaceAll(',', '.'),
+              toAmount: receiveAmount.replaceAll(',', '.'),
+              refundAddress: depositAddress,
+              address: receiveAddress);
+          amount = isFixedRateMode ? receiveAmount : depositAmount;
+        }
+
         amount = amount.replaceAll(',', '.');
 
         if (limitsState is LimitsLoadedSuccessfully) {
@@ -698,6 +711,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.ethereum:
         depositCurrency = CryptoCurrency.eth;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.nano:
+        depositCurrency = CryptoCurrency.nano;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       default:

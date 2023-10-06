@@ -5,6 +5,7 @@ import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
@@ -48,6 +49,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return ethereum!.createEthereumNewWalletCredentials(name: name);
       case WalletType.bitcoinCash:
         return bitcoinCash!.createBitcoinCashNewWalletCredentials(name: name);
+      case WalletType.nano:
+        return nano!.createNanoNewWalletCredentials(name: name);
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }

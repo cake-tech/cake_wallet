@@ -58,16 +58,23 @@ void startCurrentWalletChangeReaction(
       }
 
       final node = settingsStore.getCurrentNode(wallet.type);
+
       startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
       startCheckConnectionReaction(wallet, settingsStore);
       await getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
       await getIt
           .get<SharedPreferences>()
           .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
+
       if (wallet.type == WalletType.monero) {
         _setAutoGenerateSubaddressStatus(wallet, settingsStore);
       }
+
       await wallet.connectToNode(node: node);
+      if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
+        final powNode = settingsStore.getCurrentPowNode(wallet.type);
+        await wallet.connectToPowNode(node: powNode);
+      }
 
       if (wallet.type == WalletType.haven) {
         await updateHavenRate(fiatConversionStore);
@@ -101,7 +108,7 @@ void startCurrentWalletChangeReaction(
 
       if (wallet.type == WalletType.ethereum) {
         final currencies =
-                ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+            ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
 
         for (final currency in currencies) {
           () async {

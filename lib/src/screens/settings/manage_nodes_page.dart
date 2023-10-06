@@ -6,13 +6,17 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
+import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class ManageNodesPage extends BasePage {
-  ManageNodesPage(this.nodeListViewModel);
+  ManageNodesPage(this.isPow, {this.nodeListViewModel, this.powNodeListViewModel})
+      : assert((isPow && powNodeListViewModel != null) || (!isPow && nodeListViewModel != null));
 
-  final NodeListViewModel nodeListViewModel;
+  final NodeListViewModel? nodeListViewModel;
+  final PowNodeListViewModel? powNodeListViewModel;
+  final bool isPow;
 
   @override
   String get title => S.current.manage_nodes;
@@ -34,7 +38,8 @@ class ManageNodesPage extends BasePage {
           SizedBox(height: 20),
           Observer(
             builder: (BuildContext context) {
-              int itemsCount = nodeListViewModel.nodes.length;
+              int itemsCount =
+                  nodeListViewModel?.nodes.length ?? powNodeListViewModel!.nodes.length;
               return Flexible(
                 child: SectionStandardList(
                   sectionCount: 1,
@@ -43,12 +48,19 @@ class ManageNodesPage extends BasePage {
                   itemBuilder: (_, index) {
                     return Observer(
                       builder: (context) {
-                        final node = nodeListViewModel.nodes[index];
-                        final isSelected = node.keyIndex == nodeListViewModel.currentNode.keyIndex;
+                        final node =
+                            nodeListViewModel?.nodes[index] ?? powNodeListViewModel!.nodes[index];
+                        late bool isSelected;
+                        if (isPow) {
+                          isSelected = node.keyIndex == powNodeListViewModel!.currentNode.keyIndex;
+                        } else {
+                          isSelected = node.keyIndex == nodeListViewModel!.currentNode.keyIndex;
+                        }
                         final nodeListRow = NodeListRow(
                           title: node.uriRaw,
                           node: node,
                           isSelected: isSelected,
+                          isPow: false,
                           onTap: (_) async {
                             if (isSelected) {
                               return;
@@ -59,12 +71,17 @@ class ManageNodesPage extends BasePage {
                               builder: (BuildContext context) {
                                 return AlertWithTwoActions(
                                   alertTitle: S.of(context).change_current_node_title,
-                                  alertContent: nodeListViewModel.getAlertContent(node.uriRaw),
+                                  alertContent: nodeListViewModel?.getAlertContent(node.uriRaw) ??
+                                      powNodeListViewModel!.getAlertContent(node.uriRaw),
                                   leftButtonText: S.of(context).cancel,
                                   rightButtonText: S.of(context).change,
                                   actionLeftButton: () => Navigator.of(context).pop(),
                                   actionRightButton: () async {
-                                    await nodeListViewModel.setAsCurrent(node);
+                                    if (isPow) {
+                                      await powNodeListViewModel!.setAsCurrent(node);
+                                    } else {
+                                      await nodeListViewModel!.setAsCurrent(node);
+                                    }
                                     Navigator.of(context).pop();
                                   },
                                 );

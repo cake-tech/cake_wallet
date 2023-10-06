@@ -1,19 +1,23 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/entities/ens_record.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
+import 'package:cake_wallet/mastodon/mastodon_api.dart';
 import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
 
 class AddressResolver {
-  AddressResolver({required this.yatService, required this.walletType});
+  AddressResolver({required this.yatService, required this.wallet}) : walletType = wallet.type;
 
   final YatService yatService;
   final WalletType walletType;
+  final WalletBase wallet;
 
   static const unstoppableDomains = [
     'crypto',
@@ -63,13 +67,47 @@ class AddressResolver {
           });
           final userTweetsText = subString.toString();
           final addressFromPinnedTweet =
-          extractAddressByType(raw: userTweetsText, type: CryptoCurrency.fromString(ticker));
+              extractAddressByType(raw: userTweetsText, type: CryptoCurrency.fromString(ticker));
 
           if (addressFromPinnedTweet != null) {
             return ParsedAddress.fetchTwitterAddress(address: addressFromPinnedTweet, name: text);
           }
         }
       }
+
+      if (text.startsWith('@') && text.contains('@', 1) && text.contains('.', 1)) {
+        final subText = text.substring(1);
+        final hostNameIndex = subText.indexOf('@');
+        final hostName = subText.substring(hostNameIndex + 1);
+        final userName = subText.substring(0, hostNameIndex);
+
+        final mastodonUser =
+        await MastodonAPI.lookupUserByUserName(userName: userName, apiHost: hostName);
+
+        if (mastodonUser != null) {
+          String? addressFromBio =
+          extractAddressByType(raw: mastodonUser.note, type: CryptoCurrency.fromString(ticker));
+
+          if (addressFromBio != null) {
+            return ParsedAddress.fetchMastodonAddress(address: addressFromBio, name: text);
+          } else {
+            final pinnedPosts =
+            await MastodonAPI.getPinnedPosts(userId: mastodonUser.id, apiHost: hostName);
+
+            if (pinnedPosts.isNotEmpty) {
+              final userPinnedPostsText = pinnedPosts.map((item) => item.content).join('\n');
+              String? addressFromPinnedPost = extractAddressByType(
+                  raw: userPinnedPostsText, type: CryptoCurrency.fromString(ticker));
+
+              if (addressFromPinnedPost != null) {
+                return ParsedAddress.fetchMastodonAddress(
+                    address: addressFromPinnedPost, name: text);
+              }
+            }
+          }
+        }
+      }
+
       if (!text.startsWith('@') && text.contains('@') && !text.contains('.')) {
         final bool isFioRegistered = await FioAddressProvider.checkAvail(text);
         if (isFioRegistered) {
@@ -94,6 +132,13 @@ class AddressResolver {
       if (unstoppableDomains.any((domain) => name.trim() == domain)) {
         final address = await fetchUnstoppableDomainAddress(text, ticker);
         return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
+      }
+
+      if (text.endsWith(".eth")) {
+        final address = await EnsRecord.fetchEnsAddress(text, wallet: wallet);
+        if (address.isNotEmpty && address != "0x0000000000000000000000000000000000000000") {
+          return ParsedAddress.fetchEnsAddress(name: text, address: address);
+        }
       }
 
       if (formattedName.contains(".")) {

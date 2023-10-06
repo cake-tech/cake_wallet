@@ -15,6 +15,10 @@ CryptoCurrency currencyForWalletType(WalletType type) {
       return CryptoCurrency.eth;
     case WalletType.bitcoinCash:
       return CryptoCurrency.bch;
+    case WalletType.nano:
+      return CryptoCurrency.nano;
+    case WalletType.banano:
+      return CryptoCurrency.banano;
     default:
       throw Exception('Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
   }

@@ -11,6 +11,8 @@ const walletTypes = [
   WalletType.haven,
   WalletType.ethereum,
   WalletType.bitcoinCash,
+  WalletType.nano,
+  WalletType.banano,
 ];
 
 @HiveType(typeId: WALLET_TYPE_TYPE_ID)
@@ -34,7 +36,14 @@ enum WalletType {
   ethereum,
 
   @HiveField(6)
+  nano,
+
+  @HiveField(7)
+  banano,
+
+  @HiveField(8)
   bitcoinCash,
+
 }
 
 int serializeToInt(WalletType type) {
@@ -49,8 +58,12 @@ int serializeToInt(WalletType type) {
       return 3;
     case WalletType.ethereum:
       return 4;
-    case WalletType.bitcoinCash:
+    case WalletType.nano:
       return 5;
+    case WalletType.banano:
+      return 6;
+    case WalletType.bitcoinCash:
+      return 7;
     default:
       return -1;
   }
@@ -69,6 +82,10 @@ WalletType deserializeFromInt(int raw) {
     case 4:
       return WalletType.ethereum;
     case 5:
+      return WalletType.nano;
+    case 6:
+      return WalletType.banano;
+    case 7:
       return WalletType.bitcoinCash;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
@@ -89,6 +106,10 @@ String walletTypeToString(WalletType type) {
       return 'Ethereum';
     case WalletType.bitcoinCash:
       return 'Bitcoin Cash';
+    case WalletType.nano:
+      return 'Nano';
+    case WalletType.banano:
+      return 'Banano';
     default:
       return '';
   }
@@ -108,6 +129,10 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Ethereum (ETH)';
     case WalletType.bitcoinCash:
       return 'Bitcoin Cash (BCH)';
+    case WalletType.nano:
+      return 'Nano (XNO)';
+    case WalletType.banano:
+      return 'Banano (BAN)';
     default:
       return '';
   }
@@ -127,6 +152,10 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.eth;
     case WalletType.bitcoinCash:
       return CryptoCurrency.bch;
+    case WalletType.nano:
+      return CryptoCurrency.nano;
+    case WalletType.banano:
+      return CryptoCurrency.banano;
     default:
       throw Exception('Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
   }

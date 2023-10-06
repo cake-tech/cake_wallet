@@ -51,10 +51,11 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
-      // FIX-ME: Added `context` it was not used here before, maby bug ?
+      int itemsCount = tradeDetailsViewModel.items.length;
+
       return SectionStandardList(
           sectionCount: 1,
-          itemCounter: (int _) => tradeDetailsViewModel.items.length,
+          itemCounter: (int _) => itemsCount,
           itemBuilder: (__, index) {
             final item = tradeDetailsViewModel.items[index];
 

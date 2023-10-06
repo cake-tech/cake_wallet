@@ -25,7 +25,7 @@ abstract class OtherSettingsViewModelBase with Store {
     final priority = _settingsStore.priority[_wallet.type];
     final priorities = priorityForWalletType(_wallet.type);
 
-    if (!priorities.contains(priority)) {
+    if (!priorities.contains(priority) && priorities.isNotEmpty) {
       _settingsStore.priority[_wallet.type] = priorities.first;
     }
   }
@@ -50,6 +50,14 @@ abstract class OtherSettingsViewModelBase with Store {
   }
 
   @computed
+  bool get changeRepresentativeEnabled {
+    if (_wallet.type == WalletType.nano || _wallet.type == WalletType.banano) {
+      return true;
+    }
+
+    return false;
+  }
+  
   BuyProviderType get buyProviderType { return _settingsStore.defaultBuyProvider; }
 
   String getDisplayPriority(dynamic priority) {

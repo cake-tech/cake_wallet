@@ -29,6 +29,8 @@ class OnRamperBuyProvider {
         return "XMR_MONERO";
       case CryptoCurrency.bch:
         return "BCH_BITCOINCASH";
+      case CryptoCurrency.nano:
+        return "XNO_NANO";
       default:
         return _wallet.currency.title;
     }
