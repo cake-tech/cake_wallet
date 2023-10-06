@@ -721,5 +721,8 @@
   "message": "Ifiranṣẹ",
   "do_not_have_enough_gas_asset": "O ko ni to ${currency} lati ṣe idunadura kan pẹlu awọn ipo nẹtiwọki blockchain lọwọlọwọ. O nilo diẹ sii ${currency} lati san awọn owo nẹtiwọọki blockchain, paapaa ti o ba nfi dukia miiran ranṣẹ.",
   "totp_auth_url": "TOTP AUTH URL",
-  "awaitDAppProcessing": "Fi inurere duro fun dApp lati pari sisẹ."
+  "awaitDAppProcessing": "Fi inurere duro fun dApp lati pari sisẹ.",
+  "use_testnet": "Lo tele",
+  "address_and_silent_addresses": "Adirẹsi ati awọn adirẹsi ipalọlọ",
+  "silent_addresses": "Awọn adirẹsi ipalọlọ"
 }

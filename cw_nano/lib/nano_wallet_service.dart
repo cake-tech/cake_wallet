@@ -28,7 +28,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   WalletType getType() => WalletType.nano;
 
   @override
-  Future<WalletBase> create(NanoNewWalletCredentials credentials) async {
+  Future<WalletBase> create(NanoNewWalletCredentials credentials, {bool? isTestnet}) async {
     // nano standard:
     DerivationType derivationType = DerivationType.nano;
     String seedKey = NanoSeeds.generateSeed();

@@ -705,5 +705,8 @@
   "message": "Sako",
   "do_not_have_enough_gas_asset": "Ba ku da isassun ${currency} don yin ma'amala tare da yanayin cibiyar sadarwar blockchain na yanzu. Kuna buƙatar ƙarin ${currency} don biyan kuɗaɗen cibiyar sadarwar blockchain, koda kuwa kuna aika wata kadara daban.",
   "totp_auth_url": "TOTP AUTH URL",
-  "awaitDAppProcessing": "Da fatan za a jira dApp ya gama aiki."
+  "awaitDAppProcessing": "Da fatan za a jira dApp ya gama aiki.",
+  "use_testnet": "Amfani da gwaji",
+  "address_and_silent_addresses": "Adireshin da adreshin shiru",
+  "silent_addresses": "Adireshin Shiru"
 }

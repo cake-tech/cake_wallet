@@ -67,8 +67,7 @@ class ReceivePage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) =>
-          GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   Widget trailing(BuildContext context) {
@@ -99,7 +98,8 @@ class ReceivePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return (addressListViewModel.type == WalletType.monero ||
+    return (addressListViewModel.type == WalletType.bitcoin ||
+            addressListViewModel.type == WalletType.monero ||
             addressListViewModel.type == WalletType.haven ||
             addressListViewModel.type == WalletType.nano ||
             addressListViewModel.type == WalletType.banano)
@@ -156,7 +156,8 @@ class ReceivePage extends BasePage {
                                   icon: Icon(
                                     Icons.arrow_forward_ios,
                                     size: 14,
-                                    color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
+                                    color:
+                                        Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
                                   ));
                             }
 
@@ -164,11 +165,12 @@ class ReceivePage extends BasePage {
                               cell = HeaderTile(
                                   onTap: () =>
                                       Navigator.of(context).pushNamed(Routes.newSubaddress),
-                                  title: S.of(context).addresses,
+                                  title: S.of(context).silent_addresses,
                                   icon: Icon(
                                     Icons.add,
                                     size: 20,
-                                    color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
+                                    color:
+                                        Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
                                   ));
                             }
 
@@ -177,11 +179,19 @@ class ReceivePage extends BasePage {
                                 final isCurrent =
                                     item.address == addressListViewModel.address.address;
                                 final backgroundColor = isCurrent
-                                    ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileBackgroundColor
-                                    : Theme.of(context).extension<ReceivePageTheme>()!.tilesBackgroundColor;
+                                    ? Theme.of(context)
+                                        .extension<ReceivePageTheme>()!
+                                        .currentTileBackgroundColor
+                                    : Theme.of(context)
+                                        .extension<ReceivePageTheme>()!
+                                        .tilesBackgroundColor;
                                 final textColor = isCurrent
-                                    ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileTextColor
-                                    : Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor;
+                                    ? Theme.of(context)
+                                        .extension<ReceivePageTheme>()!
+                                        .currentTileTextColor
+                                    : Theme.of(context)
+                                        .extension<ReceivePageTheme>()!
+                                        .tilesTextColor;
 
                                 return AddressCell.fromItem(item,
                                     isCurrent: isCurrent,
@@ -202,6 +212,15 @@ class ReceivePage extends BasePage {
                                     child: cell,
                                   );
                           })),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
+                    child: Text(S.of(context).electrum_address_disclaimer,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 15,
+                            color:
+                                Theme.of(context).extension<BalancePageTheme>()!.labelTextColor)),
+                  ),
                 ],
               ),
             ))

@@ -297,8 +297,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
               const SizedBox(height: 25),
               GestureDetector(
                 onTap: () {
-                  Navigator.of(context)
-                      .pushNamed(Routes.advancedPrivacySettings, arguments: _walletNewVM.type);
+                  Navigator.of(context).pushNamed(Routes.advancedPrivacySettings,
+                      arguments: [_walletNewVM.type, _walletNewVM.toggleUseTestnet]);
                 },
                 child: Text(S.of(context).advanced_privacy_settings),
               ),

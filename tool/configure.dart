@@ -71,6 +71,7 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as btc;
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
@@ -93,6 +94,8 @@ abstract class Bitcoin {
 
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
+  String getReceiveAddress(Object wallet);
+  btc.SilentPaymentAddress? getSilentAddress(Object wallet);
 
   String formatterBitcoinAmountToString({required int amount});
   double formatterBitcoinAmountToDouble({required int amount});

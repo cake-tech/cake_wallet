@@ -719,5 +719,8 @@
   "message": "Съобщение",
   "do_not_have_enough_gas_asset": "Нямате достатъчно ${currency}, за да извършите транзакция с текущите условия на блокчейн мрежата. Имате нужда от повече ${currency}, за да платите таксите за блокчейн мрежа, дори ако изпращате различен актив.",
   "totp_auth_url": "TOTP AUTH URL",
-  "awaitDAppProcessing": "Моля, изчакайте dApp да завърши обработката."
+  "awaitDAppProcessing": "Моля, изчакайте dApp да завърши обработката.",
+  "use_testnet": "Използвайте TestNet",
+  "address_and_silent_addresses": "Адрес и мълчаливи адреси",
+  "silent_addresses": "Безшумни адреси"
 }

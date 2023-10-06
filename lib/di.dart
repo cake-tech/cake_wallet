@@ -1148,7 +1148,7 @@ Future<void> setup({
           IoniaPaymentStatusPage(
               getIt.get<IoniaPaymentStatusViewModel>(param1: paymentInfo, param2: committedInfo)));
 
-  getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
+  getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, void Function(), void>(
       (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<WalletUnlockLoadableViewModel, WalletUnlockArguments, void>((args, _) {

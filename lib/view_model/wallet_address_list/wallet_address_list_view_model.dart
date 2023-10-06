@@ -131,8 +131,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   })  : _baseItems = <ListItem>[],
         selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
-        hasAccounts =
-            appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven,
+        hasAccounts = appStore.wallet!.type == WalletType.bitcoin ||
+            appStore.wallet!.type == WalletType.monero ||
+            appStore.wallet!.type == WalletType.haven,
         amount = '',
         super(appStore: appStore) {
     _init();
@@ -143,7 +144,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     _init();
 
     selectedCurrency = walletTypeToCryptoCurrency(wallet.type);
-    hasAccounts = wallet.type == WalletType.monero || wallet.type == WalletType.haven;
+    hasAccounts = wallet.type == WalletType.bitcoin ||
+        wallet.type == WalletType.monero ||
+        wallet.type == WalletType.haven;
   }
 
   static const String _cryptoNumberPattern = '0.00000000';
@@ -237,9 +240,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (wallet.type == WalletType.bitcoin) {
-      final primaryAddress = bitcoin!.getAddress(wallet);
-      final bitcoinAddresses = bitcoin!.getAddresses(wallet).map((addr) {
-        final isPrimary = addr == primaryAddress;
+      final receiveAddress = bitcoin!.getReceiveAddress(wallet);
+      final silentAddress = bitcoin!.getSilentAddress(wallet).toString();
+      final bitcoinAddresses = [receiveAddress, silentAddress].map((addr) {
+        final isPrimary = addr == receiveAddress;
 
         return WalletAddressListItem(isPrimary: isPrimary, name: null, address: addr);
       });
@@ -272,11 +276,17 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   @computed
+  bool get hasSilentAddresses => wallet.type == WalletType.bitcoin;
+
+  @computed
   bool get hasAddressList =>
+      wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.monero ||
-      wallet.type == WalletType.haven;/* ||
+      wallet.type ==
+          WalletType
+              .haven; /* ||
       wallet.type == WalletType.nano ||
-      wallet.type == WalletType.banano;*/// TODO: nano accounts are disabled for now
+      wallet.type == WalletType.banano;*/ // TODO: nano accounts are disabled for now
 
   @computed
   bool get showElectrumAddressDisclaimer =>
@@ -294,9 +304,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     _baseItems = [];
 
     if (wallet.type == WalletType.monero ||
-        wallet.type == WalletType.haven /*||
+            wallet.type ==
+                WalletType
+                    .haven /*||
         wallet.type == WalletType.nano ||
-        wallet.type == WalletType.banano*/) {
+        wallet.type == WalletType.banano*/
+        ) {
       _baseItems.add(WalletAccountListHeader());
     }
 

@@ -727,5 +727,8 @@
   "message": "повідомлення",
   "do_not_have_enough_gas_asset": "У вас недостатньо ${currency}, щоб здійснити трансакцію з поточними умовами мережі блокчейн. Вам потрібно більше ${currency}, щоб сплатити комісію мережі блокчейн, навіть якщо ви надсилаєте інший актив.",
   "totp_auth_url": "TOTP AUTH URL",
-  "awaitDAppProcessing": "Зачекайте, доки dApp завершить обробку."
+  "awaitDAppProcessing": "Зачекайте, доки dApp завершить обробку.",
+  "use_testnet": "Використовуйте тестову мережу",
+  "address_and_silent_addresses": "Адреса та мовчазні адреси",
+  "silent_addresses": "Мовчазні адреси"
 }

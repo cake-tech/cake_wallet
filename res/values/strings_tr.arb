@@ -725,5 +725,8 @@
   "message": "İleti",
   "do_not_have_enough_gas_asset": "Mevcut blockchain ağ koşullarıyla işlem yapmak için yeterli ${currency} paranız yok. Farklı bir varlık gönderiyor olsanız bile blockchain ağ ücretlerini ödemek için daha fazla ${currency} miktarına ihtiyacınız var.",
   "totp_auth_url": "TOTP YETKİ URL'si",
-  "awaitDAppProcessing": "Lütfen dApp'in işlemeyi bitirmesini bekleyin."
+  "awaitDAppProcessing": "Lütfen dApp'in işlemeyi bitirmesini bekleyin.",
+  "use_testnet": "TestNet kullanın",
+  "address_and_silent_addresses": "Adres ve sessiz adresler",
+  "silent_addresses": "Sessiz adresler"
 }
