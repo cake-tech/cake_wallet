@@ -36,7 +36,7 @@ class WelcomePage extends BasePage {
       return S.of(context).haven_app_wallet_text;
     }
 
-    return S.of(context).first_wallet_text;
+    return S.of(context).new_first_wallet_text;
   }
 
   @override

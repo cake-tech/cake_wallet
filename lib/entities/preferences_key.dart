@@ -6,6 +6,10 @@ class PreferencesKey {
   static const currentLitecoinElectrumSererIdKey = 'current_node_id_ltc';
   static const currentHavenNodeIdKey = 'current_node_id_xhv';
   static const currentEthereumNodeIdKey = 'current_node_id_eth';
+  static const currentNanoNodeIdKey = 'current_node_id_nano';
+  static const currentNanoPowNodeIdKey = 'current_node_id_nano_pow';
+  static const currentBananoNodeIdKey = 'current_node_id_banano';
+  static const currentBananoPowNodeIdKey = 'current_node_id_banano_pow';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
@@ -15,11 +19,9 @@ class PreferencesKey {
   static const disableSellKey = 'disable_sell';
   static const defaultBuyProvider = 'default_buy_provider';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
-  static const allowBiometricalAuthenticationKey =
-      'allow_biometrical_authentication';
+  static const allowBiometricalAuthenticationKey = 'allow_biometrical_authentication';
   static const useTOTP2FA = 'use_totp_2fa';
   static const failedTotpTokenTrials = 'failed_token_trials';
-  static const totpSecretKey = 'totp_qr_secret_key';
   static const disableExchangeKey = 'disable_exchange';
   static const exchangeStatusKey = 'exchange_status';
   static const currentTheme = 'current_theme';
@@ -55,8 +57,7 @@ class PreferencesKey {
   static const clearnetDonationLink = 'clearnet_donation_link';
   static const onionDonationLink = 'onion_donation_link';
   static const lastSeenAppVersion = 'last_seen_app_version';
-  static const shouldShowMarketPlaceInDashboard =
-      'should_show_marketplace_in_dashboard';
+  static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';
   static const shouldRequireTOTP2FAForAccessingWallet =
       'should_require_totp_2fa_for_accessing_wallets';
@@ -75,4 +76,5 @@ class PreferencesKey {
   static const shouldRequireTOTP2FAForAllSecurityAndBackupSettings =
       'should_require_totp_2fa_for_all_security_and_backup_settings';
   static const selectedCake2FAPreset = 'selected_cake_2fa_preset';
+  static const totpSecretKey = 'totp_secret_key';
 }

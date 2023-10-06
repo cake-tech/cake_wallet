@@ -39,7 +39,6 @@ import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/cake_hive.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -98,6 +97,10 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(WalletInfoAdapter());
   }
 
+  if (!Hive.isAdapterRegistered(DERIVATION_TYPE_TYPE_ID)) {
+    CakeHive.registerAdapter(DerivationTypeAdapter());
+  }
+  
   if (!CakeHive.isAdapterRegistered(WALLET_TYPE_TYPE_ID)) {
     CakeHive.registerAdapter(WalletTypeAdapter());
   }
@@ -129,6 +132,7 @@ Future<void> initializeAppConfigs() async {
   final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
   final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
   final nodes = await CakeHive.openBox<Node>(Node.boxName);
+  final powNodes = await CakeHive.openBox<Node>(Node.boxName + "pow");// must be different from Node.boxName
   final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
       TransactionDescription.boxName,
       encryptionKey: transactionDescriptionsBoxKey);
@@ -143,6 +147,7 @@ Future<void> initializeAppConfigs() async {
   await initialSetup(
       sharedPreferences: await SharedPreferences.getInstance(),
       nodes: nodes,
+      powNodes: powNodes,
       walletInfoSource: walletInfoSource,
       contactSource: contacts,
       tradesSource: trades,
@@ -154,12 +159,13 @@ Future<void> initializeAppConfigs() async {
       transactionDescriptions: transactionDescriptions,
       secureStorage: secureStorage,
       anonpayInvoiceInfo: anonpayInvoiceInfo,
-      initialMigrationVersion: 21);
+      initialMigrationVersion: 22);
   }
 
 Future<void> initialSetup(
     {required SharedPreferences sharedPreferences,
     required Box<Node> nodes,
+    required Box<Node> powNodes,
     required Box<WalletInfo> walletInfoSource,
     required Box<Contact> contactSource,
     required Box<Trade> tradesSource,
@@ -180,10 +186,12 @@ Future<void> initialSetup(
       walletInfoSource: walletInfoSource,
       contactSource: contactSource,
       tradeSource: tradesSource,
-      nodes: nodes);
+      nodes: nodes,
+      powNodes: powNodes);
   await setup(
       walletInfoSource: walletInfoSource,
       nodeSource: nodes,
+      powNodeSource: powNodes,
       contactSource: contactSource,
       tradesSource: tradesSource,
       templates: templates,
@@ -308,26 +316,26 @@ class _Home extends StatefulWidget {
 }
 
 class _HomeState extends State<_Home> {
- @override
+  @override
   void didChangeDependencies() {
-    if(!ResponsiveLayoutUtil.instance.isMobile){
-    _setOrientation(context);
+    if (!ResponsiveLayoutUtil.instance.isMobile) {
+      _setOrientation(context);
     }
     super.didChangeDependencies();
   }
 
-
- void _setOrientation(BuildContext context){
+  void _setOrientation(BuildContext context) {
     final orientation = MediaQuery.of(context).orientation;
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     if (orientation == Orientation.portrait && width < height) {
-      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+      SystemChrome.setPreferredOrientations(
+          [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     } else if (orientation == Orientation.landscape && width > height) {
-      SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+      SystemChrome.setPreferredOrientations(
+          [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     }
-
- }
+  }
 
   @override
   Widget build(BuildContext context) {
