@@ -25,7 +25,7 @@ dependencies:
       ref: cake-update-v3
   bitbox:
     git:
-      url: https://github.com/Serhii-Borodenko/cw_bitbox.git
+      url: https://github.com/cake-tech/cw_bitbox.git
       ref: main
   rxdart: ^0.27.5
   unorm_dart: ^0.2.0
