@@ -536,6 +536,10 @@ Future<void> checkCurrentNodes(
       .getInt(PreferencesKey.currentHavenNodeIdKey);
   final currentEthereumNodeId = sharedPreferences
       .getInt(PreferencesKey.currentEthereumNodeIdKey);
+  final currentNanoNodeId = sharedPreferences
+      .getInt(PreferencesKey.currentNanoNodeIdKey);
+  final currentNanoPowNodeId = sharedPreferences
+      .getInt(PreferencesKey.currentNanoPowNodeIdKey);
   final currentBitcoinCashNodeId = sharedPreferences
       .getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
   final currentMoneroNode = nodeSource.values.firstWhereOrNull(

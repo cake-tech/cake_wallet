@@ -921,4 +921,3 @@ abstract class NanoUtil {
       await walletTypesFile.writeAsString(outputContent);
     }
   }
-}
