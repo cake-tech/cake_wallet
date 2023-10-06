@@ -57,7 +57,7 @@ class MoneroWalletService extends WalletService<
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
-
+      
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();
 

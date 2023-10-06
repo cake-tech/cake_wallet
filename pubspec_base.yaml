@@ -78,6 +78,12 @@ dependencies:
   shared_preferences_android: 2.0.17
   url_launcher_android: 6.0.24
   sensitive_clipboard: ^1.0.0
+  walletconnect_flutter_v2: ^2.1.4
+  eth_sig_util: ^0.0.9
+  ens_dart:
+    git:
+      url: https://github.com/cake-tech/ens_dart.git
+      ref: main
   bitcoin_flutter:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git
@@ -119,6 +125,8 @@ flutter:
     - assets/bitcoin_electrum_server_list.yml
     - assets/litecoin_electrum_server_list.yml
     - assets/ethereum_server_list.yml
+    - assets/nano_node_list.yml
+    - assets/nano_pow_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/

@@ -65,6 +65,7 @@ abstract class SettingsStoreBase with Store {
       required this.appVersion,
       required this.deviceName,
       required Map<WalletType, Node> nodes,
+      required Map<WalletType, Node> powNodes,
       required this.shouldShowYatPopup,
       required this.isBitcoinBuyEnabled,
       required this.actionlistDisplayMode,
@@ -87,6 +88,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialLitecoinTransactionPriority,
       TransactionPriority? initialEthereumTransactionPriority})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
+        powNodes = ObservableMap<WalletType, Node>.of(powNodes),
         _sharedPreferences = sharedPreferences,
         _backgroundTasks = backgroundTasks,
         fiatCurrency = initialFiatCurrency,
@@ -348,6 +350,12 @@ abstract class SettingsStoreBase with Store {
         _saveCurrentNode(change.newValue!, change.key!);
       }
     });
+
+    this.powNodes.observe((change) {
+      if (change.newValue != null && change.key != null) {
+        _saveCurrentPowNode(change.newValue!, change.key!);
+      }
+    });
   }
 
   static const defaultPinLength = 4;
@@ -475,12 +483,23 @@ abstract class SettingsStoreBase with Store {
   final BackgroundTasks _backgroundTasks;
 
   ObservableMap<WalletType, Node> nodes;
+  ObservableMap<WalletType, Node> powNodes;
 
   Node getCurrentNode(WalletType walletType) {
     final node = nodes[walletType];
 
     if (node == null) {
       throw Exception('No node found for wallet type: ${walletType.toString()}');
+    }
+
+    return node;
+  }
+
+  Node getCurrentPowNode(WalletType walletType) {
+    final node = powNodes[walletType];
+
+    if (node == null) {
+      throw Exception('No pow node found for wallet type: ${walletType.toString()}');
     }
 
     return node;
@@ -496,6 +515,7 @@ abstract class SettingsStoreBase with Store {
 
   static Future<SettingsStore> load(
       {required Box<Node> nodeSource,
+      required Box<Node> powNodeSource,
       required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
       BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance,
@@ -597,8 +617,7 @@ abstract class SettingsStoreBase with Store {
         SortBalanceBy.values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? 0];
     final pinNativeTokenAtTop =
         sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
-    final useEtherscan =
-        sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
+    final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -614,11 +633,15 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
+    final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
+    final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
+    final nanoNode = nodeSource.get(nanoNodeId);
+    final nanoPowNode = powNodeSource.get(nanoPowNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
@@ -630,6 +653,7 @@ abstract class SettingsStoreBase with Store {
         : defaultAutoGenerateSubaddressStatus;
 
     final nodes = <WalletType, Node>{};
+    final powNodes = <WalletType, Node>{};
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -651,6 +675,13 @@ abstract class SettingsStoreBase with Store {
       nodes[WalletType.ethereum] = ethereumNode;
     }
 
+    if (nanoNode != null) {
+      nodes[WalletType.nano] = nanoNode;
+    }
+    if (nanoPowNode != null) {
+      powNodes[WalletType.nano] = nanoPowNode;
+    }
+
     final savedSyncMode = SyncMode.all.firstWhere((element) {
       return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 1);
     });
@@ -660,6 +691,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences: sharedPreferences,
         initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
         nodes: nodes,
+        powNodes: powNodes,
         appVersion: packageInfo.version,
         deviceName: deviceName,
         isBitcoinBuyEnabled: isBitcoinBuyEnabled,
@@ -822,11 +854,14 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
+    final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
+    final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
+    final nanoNode = nodeSource.get(nanoNodeId);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -846,6 +881,10 @@ abstract class SettingsStoreBase with Store {
 
     if (ethereumNode != null) {
       nodes[WalletType.ethereum] = ethereumNode;
+    }
+
+    if (nanoNode != null) {
+      nodes[WalletType.nano] = nanoNode;
     }
   }
 
@@ -868,11 +907,26 @@ abstract class SettingsStoreBase with Store {
       case WalletType.ethereum:
         await _sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.key as int);
         break;
+      case WalletType.nano:
+        await _sharedPreferences.setInt(PreferencesKey.currentNanoNodeIdKey, node.key as int);
+        break;
       default:
         break;
     }
 
     nodes[walletType] = node;
+  }
+
+  Future<void> _saveCurrentPowNode(Node node, WalletType walletType) async {
+    switch (walletType) {
+      case WalletType.nano:
+        await _sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, node.key as int);
+        break;
+      default:
+        break;
+    }
+
+    powNodes[walletType] = node;
   }
 
   static Future<String?> _getDeviceName() async {

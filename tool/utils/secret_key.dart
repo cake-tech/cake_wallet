@@ -35,6 +35,7 @@ class SecretKey {
     SecretKey('exolixApiKey', () => ''),
     SecretKey('robinhoodApplicationId', () => ''),
     SecretKey('robinhoodCIdApiSecret', () => ''),
+    SecretKey('walletConnectProjectId', () => ''),
   ];
 
   static final ethereumSecrets = [

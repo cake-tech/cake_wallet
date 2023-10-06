@@ -11,10 +11,12 @@ class NodeListRow extends StandardListRow {
       {required String title,
       required this.node,
       required void Function(BuildContext context) onTap,
-      required bool isSelected})
+      required bool isSelected,
+      required this.isPow})
       : super(title: title, onTap: onTap, isSelected: isSelected);
 
   final Node node;
+  final bool isPow;
 
   @override
   Widget buildLeading(BuildContext context) {
@@ -33,7 +35,7 @@ class NodeListRow extends StandardListRow {
   @override
   Widget buildTrailing(BuildContext context) {
     return GestureDetector(
-        onTap: () => Navigator.of(context).pushNamed(Routes.newNode,
+        onTap: () => Navigator.of(context).pushNamed(isPow ? Routes.newPowNode : Routes.newNode,
             arguments: {'editingNode': node, 'isSelected': isSelected}),
         child: Container(
             padding: EdgeInsets.all(10),
