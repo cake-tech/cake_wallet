@@ -740,9 +740,13 @@ Future<void> setup({
     return PowNodeListViewModel(_powNodeSource, appStore);
   });
 
-  getIt.registerFactory(
-    () => ConnectionSyncPage(getIt.get<DashboardViewModel>(), getIt.get<Web3WalletService>()),
-  );
+  getIt.registerFactory(() {
+    final wallet = getIt.get<AppStore>().wallet;
+    return ConnectionSyncPage(
+      getIt.get<DashboardViewModel>(),
+      wallet?.type == WalletType.ethereum ? getIt.get<Web3WalletService>() : null,
+    );
+  });
 
   getIt.registerFactory(
       () => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(), getIt.get<AuthService>()));
