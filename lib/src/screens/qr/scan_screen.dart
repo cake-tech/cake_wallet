@@ -61,10 +61,6 @@ class ScanScreenState extends State<ScanScreen> {
           DottedBorder(
             strokeWidth: 8,
             dashPattern: const <double>[30, 35],
-            // dashPattern: const <double>[50,90],
-            // dashPattern: const <double>[50, 200],
-            // dashPattern: const <double>[1, 190, 60, 190, 60, 190, 60, 170, 90],
-            // dashPattern: const <double>[200, 50],
             strokeCap: StrokeCap.round,
             borderType: BorderType.RRect,
             radius: const Radius.circular(25),
