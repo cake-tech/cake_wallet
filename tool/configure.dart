@@ -639,6 +639,7 @@ abstract class Nano {
   Future<void> changeRep(Object wallet, String address);
   Future<void> updateTransactions(Object wallet);
   BigInt getTransactionAmountRaw(TransactionInfo transactionInfo);
+  String getRepresentative(Object wallet);
 }
 
 abstract class NanoAccountList {
@@ -672,8 +673,7 @@ abstract class NanoUtil {
   BigInt rawPerBanano = BigInt.parse("100000000000000000000000000000");
   BigInt rawPerXMR = BigInt.parse("1000000000000");
   BigInt convertXMRtoNano = BigInt.parse("1000000000000000000");
-  Decimal getRawAsDecimal(String? raw, BigInt? rawPerCur);
-  String truncateDecimal(Decimal input, {int digits = maxDecimalDigits});  
+  String getRawAsDecimalString(String? raw, BigInt? rawPerCur);
   String getRawAsUsableString(String? raw, BigInt rawPerCur);
   String getRawAccuracy(String? raw, BigInt rawPerCur);
   String getAmountAsRaw(String amount, BigInt rawPerCur);
@@ -693,7 +693,7 @@ abstract class NanoUtil {
 }
   """;
 
-  const nanoEmptyDefinition = 'Nano? nano;\nNanoUtil? nanoUtil = CWNanoUtil();\n';
+  const nanoEmptyDefinition = 'Nano? nano;\nNanoUtil? nanoUtil;\n';
   const nanoCWDefinition = 'Nano? nano = CWNano();\nNanoUtil? nanoUtil = CWNanoUtil();\n';
 
   final output = '$nanoCommonHeaders\n' +

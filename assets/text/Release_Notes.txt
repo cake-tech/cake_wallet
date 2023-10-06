@@ -1,4 +1,4 @@
-Ethereum enhancements and bug fixes
-Fix 2FA code issue
+Add Nano wallet
+Support getting Addresses from ENS and Mastodon
 Bug fixes
 Minor enhancements
