@@ -110,8 +110,9 @@ class WalletRestorePage extends BasePage {
   final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
   final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
   final FocusNode _blockHeightFocusNode;
-  DerivationType derivationType = DerivationType.unknown;
-  String? derivationPath = null;
+  // DerivationType derivationType = DerivationType.unknown;
+  // String? derivationPath = null;
+  DerivationInfo? derivationInfo;
 
   @override
   Widget body(BuildContext context) {
@@ -294,8 +295,7 @@ class WalletRestorePage extends BasePage {
       }
     }
 
-    credentials['derivationType'] = this.derivationType;
-    credentials['derivationPath'] = this.derivationPath;
+    credentials['derivationInfo'] = this.derivationInfo;
     credentials['walletType'] = walletRestoreViewModel.type;
     return credentials;
   }
@@ -330,10 +330,12 @@ class WalletRestorePage extends BasePage {
 
     List<DerivationType> derivationTypes =
         await walletRestoreViewModel.getDerivationTypes(_credentials());
+    DerivationInfo? dInfo;
 
-    if (derivationTypes[0] == DerivationType.unknown || derivationTypes.length > 1) {
+    if (derivationTypes.length > 1) {
       // push screen to choose the derivation type:
-      List<DerivationInfo> derivations = await walletRestoreViewModel.getDerivationInfo(_credentials());
+      List<DerivationInfo> derivations =
+          await walletRestoreViewModel.getDerivationInfo(_credentials());
 
       int derivationsWithHistory = 0;
       int derivationWithHistoryIndex = 0;
@@ -343,34 +345,25 @@ class WalletRestorePage extends BasePage {
           derivationWithHistoryIndex = i;
         }
       }
-      
-
-      DerivationInfo? derivationInfo;
 
       if (derivationsWithHistory > 1) {
-        derivationInfo = await Navigator.of(context).pushNamed(Routes.restoreWalletChooseDerivation,
+        dInfo = await Navigator.of(context).pushNamed(Routes.restoreWalletChooseDerivation,
             arguments: derivations) as DerivationInfo?;
       } else if (derivationsWithHistory == 1) {
-        derivationInfo = derivations[derivationWithHistoryIndex];
-      } else if (derivationsWithHistory == 0) {
-        // default derivation:
-        derivationInfo = DerivationInfo(
-          derivationType: derivationTypes[0],
-          derivationPath: "m/0'/1",
-          height: 0,
-        );
+        dInfo = derivations[derivationWithHistoryIndex];
       }
 
-      if (derivationInfo == null) {
+      if (dInfo == null) {
         walletRestoreViewModel.state = InitialExecutionState();
         return;
       }
-      this.derivationType = derivationInfo.derivationType;
-      this.derivationPath = derivationInfo.derivationPath;
-    } else {
-      // electrum derivation:
-      this.derivationType = derivationTypes[0];
-      this.derivationPath = "m/0'/1";
+
+      this.derivationInfo = dInfo;
+    }
+
+    // get the default derivation for this wallet type:
+    if (this.derivationInfo == null) {
+      this.derivationInfo = walletRestoreViewModel.getDefaultDerivation();
     }
 
     walletRestoreViewModel.state = InitialExecutionState();

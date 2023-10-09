@@ -70,8 +70,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     final password = generateWalletPassword();
     final height = options['height'] as int? ?? 0;
     name = options['name'] as String;
-    DerivationType? derivationType = options["derivationType"] as DerivationType?;
-    String? derivationPath = options["derivationPath"] as String?;
+    DerivationInfo? derivationInfo = options["derivationInfo"] as DerivationInfo?;
 
     if (mode == WalletRestoreMode.seed) {
       final seed = options['seed'] as String;
@@ -84,8 +83,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             mnemonic: seed,
             password: password,
-            derivationType: derivationType,
-            derivationPath: derivationPath,
+            derivationType: derivationInfo?.derivationType,
+            derivationPath: derivationInfo?.derivationPath,
           );
         case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
@@ -101,7 +100,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             mnemonic: seed,
             password: password,
-            derivationType: derivationType,
+            derivationType: derivationInfo?.derivationType,
           );
         default:
           break;
@@ -223,12 +222,30 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           privateKey: seedKey,
           node: node,
         );
+      case WalletType.litecoin:
+        return [DerivationType.electrum2];
       default:
         break;
     }
 
     // throw Exception('Unexpected type: ${type.toString()}');
     return [DerivationType.def];
+  }
+
+  DerivationInfo getDefaultDerivation() {
+    switch (type) {
+      case WalletType.nano:
+        return DerivationInfo(
+          derivationType: DerivationType.nano,
+        );
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      default:
+        return DerivationInfo(
+          derivationType: DerivationType.electrum2,
+          derivationPath: "m/0'/1",
+        );
+    }
   }
 
   @override

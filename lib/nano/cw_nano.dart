@@ -96,6 +96,7 @@ class CWNano extends Nano {
       NanoNewWalletCredentials(
         name: name,
         password: password,
+        derivationType: DerivationType.nano,
       );
 
   @override
