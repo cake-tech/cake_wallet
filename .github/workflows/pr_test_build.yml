@@ -42,6 +42,7 @@ jobs:
           cd cake_wallet/scripts/android/
           ./install_ndk.sh
           source ./app_env.sh cakewallet
+          chmod +x pubspec_gen.sh
           ./app_config.sh
 
       - name: Cache Externals
