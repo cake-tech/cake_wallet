@@ -6,7 +6,6 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_nano/nano_wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -18,7 +17,7 @@ class NanoChangeRepPage extends BasePage {
   NanoChangeRepPage(WalletBase wallet)
       : _wallet = wallet,
         _addressController = TextEditingController() {
-    _addressController.text = (wallet as NanoWallet).representative;
+    _addressController.text = nano!.getRepresentative(wallet);
   }
 
   final TextEditingController _addressController;

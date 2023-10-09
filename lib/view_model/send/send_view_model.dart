@@ -278,7 +278,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     List<bool> conditionsList = [];
 
     for (var output in outputs) {
-      final show = checkThroughChecksToDisplayTOTP(output.address);
+
+      final show = checkThroughChecksToDisplayTOTP(output.extractedAddress);
       conditionsList.add(show);
     }
 
@@ -427,9 +428,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
-  String translateErrorMessage(String error, WalletType walletType, CryptoCurrency currency,) {
+  String translateErrorMessage(
+    String error,
+    WalletType walletType,
+    CryptoCurrency currency,
+  ) {
     if (walletType == WalletType.ethereum || walletType == WalletType.haven) {
-      if (error.contains('gas required exceeds allowance') || error.contains('insufficient funds for')) {
+      if (error.contains('gas required exceeds allowance') ||
+          error.contains('insufficient funds for')) {
         return S.current.do_not_have_enough_gas_asset(currency.toString());
       }
     }
