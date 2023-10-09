@@ -178,6 +178,11 @@ class CWNano extends Nano {
   BigInt getTransactionAmountRaw(TransactionInfo transactionInfo) {
     return (transactionInfo as NanoTransactionInfo).amountRaw;
   }
+
+  @override
+  String getRepresentative(Object wallet) {
+    return (wallet as NanoWallet).representative;
+  }
 }
 
 class CWNanoUtil extends NanoUtil {
@@ -308,12 +313,17 @@ class CWNanoUtil extends NanoUtil {
   /// @param raw 100000000000000000000000000000
   /// @return Decimal value 1.000000000000000000000000000000
   ///
-  @override
-  Decimal getRawAsDecimal(String? raw, BigInt? rawPerCur) {
+  Decimal _getRawAsDecimal(String? raw, BigInt? rawPerCur) {
     rawPerCur ??= rawPerNano;
     final Decimal amount = Decimal.parse(raw.toString());
     final Decimal result = (amount / Decimal.parse(rawPerCur.toString())).toDecimal();
     return result;
+  }
+
+  @override
+  String getRawAsDecimalString(String? raw, BigInt? rawPerCur) {
+    final Decimal result = _getRawAsDecimal(raw, rawPerCur);
+    return result.toString();
   }
 
   @override
@@ -332,7 +342,7 @@ class CWNanoUtil extends NanoUtil {
   @override
   String getRawAsUsableString(String? raw, BigInt rawPerCur) {
     final String res =
-        truncateDecimal(getRawAsDecimal(raw, rawPerCur), digits: maxDecimalDigits + 9);
+        truncateDecimal(_getRawAsDecimal(raw, rawPerCur), digits: maxDecimalDigits + 9);
 
     if (raw == null || raw == "0" || raw == "00000000000000000000000000000000") {
       return "0";
@@ -361,7 +371,7 @@ class CWNanoUtil extends NanoUtil {
   @override
   String getRawAccuracy(String? raw, BigInt rawPerCur) {
     final String rawString = getRawAsUsableString(raw, rawPerCur);
-    final String rawDecimalString = getRawAsDecimal(raw, rawPerCur).toString();
+    final String rawDecimalString = _getRawAsDecimal(raw, rawPerCur).toString();
 
     if (raw == null || raw.isEmpty || raw == "0") {
       return "";

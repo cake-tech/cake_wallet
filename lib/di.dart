@@ -432,10 +432,6 @@ Future<void> setup({
                 }
                 if (appStore.wallet != null) {
                   authStore.allowed();
-
-                  if (appStore.wallet!.type == WalletType.ethereum) {
-                    getIt.get<Web3WalletService>().init();
-                  }
                   return;
                 }
 
@@ -456,10 +452,6 @@ Future<void> setup({
         } else {
           if (appStore.wallet != null) {
             authStore.allowed();
-
-            if (appStore.wallet!.type == WalletType.ethereum) {
-              getIt.get<Web3WalletService>().init();
-            }
             return;
           }
 
