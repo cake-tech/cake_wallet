@@ -595,6 +595,8 @@ abstract class BitcoinCash {
 
   Uint8List getSeedFromMnemonic(String seed);
 
+  String getCashAddrFormat(String address);
+
   WalletService createBitcoinCashWalletService(
       Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
 

@@ -124,13 +124,7 @@ class CWBitcoin extends Bitcoin {
 	@override
 	List<BitcoinUnspent> getUnspents(Object wallet) {
 		final bitcoinWallet = wallet as ElectrumWallet;
-		return bitcoinWallet.unspentCoins
-			.map((BitcoinUnspent bitcoinUnspent) => BitcoinUnspent(
-				bitcoinUnspent.bitcoinAddressRecord,
-				bitcoinUnspent.hash,
-				bitcoinUnspent.value,
-				bitcoinUnspent.vout))
-			.toList();
+		return bitcoinWallet.unspentCoins;
 	}
 
 	void updateUnspents(Object wallet) async {

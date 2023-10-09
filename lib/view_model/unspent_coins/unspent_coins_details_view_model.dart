@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
@@ -6,7 +7,6 @@ import 'package:cake_wallet/src/screens/transaction_details/transaction_details_
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_switch_item.dart';
-import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -101,6 +101,6 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
   List<TransactionDetailsListItem> items;
 
   String get formattedAddress => WalletType.bitcoinCash == _type
-      ? ElectrumWalletAddressesBase.toCashAddr(unspentCoinsItem.address)
+      ? bitcoinCash!.getCashAddrFormat(unspentCoinsItem.address)
       : unspentCoinsItem.address;
 }

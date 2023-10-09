@@ -7,6 +7,7 @@ import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/exolix/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/exolix/exolix_request.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
@@ -283,6 +284,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       case WalletType.litecoin:
         return transactionPriority ==
             bitcoin!.getLitecoinTransactionPrioritySlow();
+      case WalletType.ethereum:
+        return transactionPriority ==
+            ethereum!.getDefaultTransactionPriority();
       case WalletType.bitcoinCash:
         return transactionPriority ==
             bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
@@ -799,6 +803,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.litecoin:
         _settingsStore.priority[wallet.type] = bitcoin!.getLitecoinTransactionPriorityMedium();
+        break;
+      case WalletType.ethereum:
+        _settingsStore.priority[wallet.type] = ethereum!.getDefaultTransactionPriority();
         break;
       case WalletType.bitcoinCash:
         _settingsStore.priority[wallet.type] = bitcoinCash!.getDefaultTransactionPriority();

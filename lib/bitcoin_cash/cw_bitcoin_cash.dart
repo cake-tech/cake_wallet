@@ -8,6 +8,9 @@ class CWBitcoinCash extends BitcoinCash {
   Uint8List getSeedFromMnemonic(String seed) => Mnemonic.toSeed(seed);
 
   @override
+  String getCashAddrFormat(String address) => AddressUtils.getCashAddrFormat(address);
+
+  @override
   WalletService createBitcoinCashWalletService(
       Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
     return BitcoinCashWalletService(walletInfoSource, unspentCoinSource);
@@ -37,9 +40,6 @@ class CWBitcoinCash extends BitcoinCash {
   List<TransactionPriority> getTransactionPriorities() => BitcoinCashTransactionPriority.all;
 
   @override
-  TransactionPriority deserializeLitecoinTransactionPriority(int raw)
-  => BitcoinCashTransactionPriority.deserialize(raw: raw);
-
-  @override
-  TransactionPriority getBitcoinCashTransactionPrioritySlow() => BitcoinCashTransactionPriority.slow;
+  TransactionPriority getBitcoinCashTransactionPrioritySlow() =>
+      BitcoinCashTransactionPriority.slow;
 }
