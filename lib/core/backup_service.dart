@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -308,7 +309,7 @@ class BackupService {
     if (currentPinLength != null)
       await _sharedPreferences.setInt(PreferencesKey.currentPinLength, currentPinLength);
 
-    if (currentTheme != null)
+    if (currentTheme != null && DeviceInfo.instance.isMobile)
       await _sharedPreferences.setInt(PreferencesKey.currentTheme, currentTheme);
 
     if (exchangeStatus != null)

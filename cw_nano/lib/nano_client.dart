@@ -13,6 +13,11 @@ class NanoClient {
   static const String DEFAULT_REPRESENTATIVE =
       "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
 
+  static const Map<String, String> CAKE_HEADERS = {
+    "Content-Type": "application/json",
+    "nano-app": "cake-wallet"
+  };
+
   Node? _node;
   Node? _powNode;
 
@@ -37,7 +42,7 @@ class NanoClient {
   Future<NanoBalance> getBalance(String address) async {
     final response = await http.post(
       _node!.uri,
-      headers: {"Content-Type": "application/json"},
+      headers: CAKE_HEADERS,
       body: jsonEncode(
         {
           "action": "account_balance",
@@ -57,7 +62,7 @@ class NanoClient {
     try {
       final response = await http.post(
         _node!.uri,
-        headers: {"Content-Type": "application/json"},
+        headers: CAKE_HEADERS,
         body: jsonEncode(
           {
             "action": "account_info",
@@ -123,7 +128,7 @@ class NanoClient {
   Future<String> requestWork(String hash) async {
     final response = await http.post(
       _powNode!.uri,
-      headers: {'Content-type': 'application/json'},
+      headers: CAKE_HEADERS,
       body: json.encode(
         {
           "action": "work_generate",
@@ -157,7 +162,6 @@ class NanoClient {
   }
 
   Future<String> processBlock(Map<String, String> block, String subtype) async {
-    final headers = {"Content-Type": "application/json"};
     final processBody = jsonEncode({
       "action": "process",
       "json_block": "true",
@@ -167,7 +171,7 @@ class NanoClient {
 
     final processResponse = await http.post(
       _node!.uri,
-      headers: headers,
+      headers: CAKE_HEADERS,
       body: processBody,
     );
 
@@ -260,10 +264,6 @@ class NanoClient {
   }) async {
     bool openBlock = false;
 
-    final headers = {
-      "Content-Type": "application/json",
-    };
-
     // first check if the account is open:
     // get the account info (we need the frontier and representative):
     AccountInfoResponse? infoData = await getAccountInfo(destinationAddress);
@@ -335,7 +335,7 @@ class NanoClient {
     });
     final processResponse = await http.post(
       _node!.uri,
-      headers: headers,
+      headers: CAKE_HEADERS,
       body: processBody,
     );
 
@@ -351,7 +351,7 @@ class NanoClient {
     required String privateKey,
   }) async {
     final receivableResponse = await http.post(_node!.uri,
-        headers: {"Content-Type": "application/json"},
+        headers: CAKE_HEADERS,
         body: jsonEncode({
           "action": "receivable",
           "account": destinationAddress,
@@ -401,7 +401,7 @@ class NanoClient {
   Future<List<NanoTransactionModel>> fetchTransactions(String address) async {
     try {
       final response = await http.post(_node!.uri,
-          headers: {"Content-Type": "application/json"},
+          headers: CAKE_HEADERS,
           body: jsonEncode({
             "action": "account_history",
             "account": address,

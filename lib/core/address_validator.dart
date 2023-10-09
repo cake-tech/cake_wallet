@@ -8,8 +8,9 @@ class AddressValidator extends TextValidator {
   AddressValidator({required CryptoCurrency type})
       : super(
             errorMessage: S.current.error_text_address,
-            useAdditionalValidation:
-                type == CryptoCurrency.btc ? bitcoin.Address.validateAddress : null,
+            useAdditionalValidation: type == CryptoCurrency.btc
+                ? bitcoin.Address.validateAddress
+                : null,
             pattern: getPattern(type),
             length: getLength(type));
 
@@ -270,6 +271,10 @@ class AddressValidator extends TextValidator {
             '|([^0-9a-zA-Z]|^)ltc[a-zA-Z0-9]{26,45}([^0-9a-zA-Z]|\$)';
       case CryptoCurrency.eth:
         return '0x[0-9a-zA-Z]{42}';
+      case CryptoCurrency.nano:
+        return 'nano_[0-9a-zA-Z]{60}';
+      case CryptoCurrency.banano:
+        return 'ban_[0-9a-zA-Z]{60}';
       case CryptoCurrency.bch:
         return 'bitcoincash:q[0-9a-zA-Z]{41}([^0-9a-zA-Z]|\$)'
             '|bitcoincash:q[0-9a-zA-Z]{42}([^0-9a-zA-Z]|\$)'
