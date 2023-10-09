@@ -1,17 +1,17 @@
 part of 'bitcoin.dart';
 
 class CWBitcoin extends Bitcoin {
-
   @override
   TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;
 
   @override
-  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials(
-          {required String name,
-          required String mnemonic,
-          required String password,
-          DerivationType? derivationType,
-          String? derivationPath}) =>
+  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({
+    required String name,
+    required String mnemonic,
+    required String password,
+    required DerivationType derivationType,
+    required String derivationPath,
+  }) =>
       BitcoinRestoreWalletFromSeedCredentials(
           name: name,
           mnemonic: mnemonic,

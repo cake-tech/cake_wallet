@@ -104,15 +104,11 @@ class CWNano extends Nano {
     required String name,
     required String password,
     required String mnemonic,
-    DerivationType? derivationType,
+    required DerivationType derivationType,
   }) {
-    if (derivationType == null) {
-      // figure out the derivation type as best we can, otherwise set it to "unknown"
-      if (mnemonic.split(" ").length == 12) {
-        derivationType = DerivationType.bip39;
-      } else {
-        derivationType = DerivationType.unknown;
-      }
+    // figure out the derivation type as best we can, otherwise set it to "unknown"
+    if (mnemonic.split(" ").length == 12) {
+      derivationType = DerivationType.bip39;
     }
 
     return NanoRestoreWalletFromSeedCredentials(
@@ -128,15 +124,11 @@ class CWNano extends Nano {
     required String name,
     required String password,
     required String seedKey,
-    DerivationType? derivationType,
+    required DerivationType derivationType,
   }) {
-    if (derivationType == null) {
-      // figure out the derivation type as best we can, otherwise set it to "unknown"
-      if (seedKey.length == 64) {
-        derivationType = DerivationType.nano;
-      } else {
-        derivationType = DerivationType.unknown;
-      }
+    // figure out the derivation type as best we can, otherwise set it to "unknown"
+    if (seedKey.length == 64) {
+      derivationType = DerivationType.nano;
     }
 
     return NanoRestoreWalletFromKeysCredentials(
@@ -430,7 +422,8 @@ class CWNanoUtil extends NanoUtil {
 
     AccountInfoResponse? accountInfo = await nanoClient.getAccountInfo(publicAddress);
     if (accountInfo == null) {
-      accountInfo = AccountInfoResponse(frontier: "", balance: "0", representative: "", confirmationHeight: 0);
+      accountInfo = AccountInfoResponse(
+          frontier: "", balance: "0", representative: "", confirmationHeight: 0);
     }
     accountInfo.address = publicAddress;
     return accountInfo;

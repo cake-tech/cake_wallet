@@ -46,12 +46,9 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
 
   @override
   Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials) async {
-    // set default if not present:
-    DerivationType derivationType = credentials.derivationType ?? DerivationType.electrum2;
-    String derivationPath = credentials.derivationPath ?? "m/0'/1";
-    // only set if not in the walletInfo already:
-    credentials.walletInfo!.derivationInfo ??=
-        DerivationInfo(derivationType: derivationType, derivationPath: derivationPath);
+    
+    // set the walletInfo's derivationInfo if not present:
+    credentials.walletInfo!.derivationInfo ??= credentials.derivationInfo;
 
     final wallet = await BitcoinWalletBase.create(
         mnemonic: await generateElectrumMnemonic(strength: 132),

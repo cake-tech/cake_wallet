@@ -80,7 +80,13 @@ import 'package:cw_bitcoin/script_hash.dart';
 abstract class Bitcoin {
   TransactionPriority getMediumTransactionPriority();
 
-  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password, DerivationType? derivationType, String? derivationPath});
+  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({
+    required String name,
+    required String mnemonic,
+    required String password,
+    required DerivationType derivationType,
+    required String derivationPath,
+  });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
   WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo});
   List<String> getWordList();
@@ -634,14 +640,14 @@ abstract class Nano {
     required String name,
     required String password,
     required String mnemonic,
-    DerivationType? derivationType,
+    required DerivationType derivationType,
   });
 
   WalletCredentials createNanoRestoreWalletFromKeysCredentials({
     required String name,
     required String password,
     required String seedKey,
-    DerivationType? derivationType,
+    required DerivationType derivationType,
   });
 
   List<String> getNanoWordList(String language);

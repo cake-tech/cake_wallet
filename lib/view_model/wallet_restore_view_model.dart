@@ -83,12 +83,17 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             mnemonic: seed,
             password: password,
-            derivationType: derivationInfo?.derivationType,
-            derivationPath: derivationInfo?.derivationPath,
+            derivationType: derivationInfo!.derivationType!,
+            derivationPath: derivationInfo.derivationPath!,
           );
         case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
-              name: name, mnemonic: seed, password: password);
+            name: name,
+            mnemonic: seed,
+            password: password,
+            derivationType: derivationInfo!.derivationType!,
+            derivationPath: derivationInfo.derivationPath!,
+          );
         case WalletType.haven:
           return haven!.createHavenRestoreWalletFromSeedCredentials(
               name: name, height: height, mnemonic: seed, password: password);
@@ -100,7 +105,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             mnemonic: seed,
             password: password,
-            derivationType: derivationInfo?.derivationType,
+            derivationType: derivationInfo!.derivationType!,
           );
         default:
           break;
@@ -230,22 +235,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
     // throw Exception('Unexpected type: ${type.toString()}');
     return [DerivationType.def];
-  }
-
-  DerivationInfo getDefaultDerivation() {
-    switch (type) {
-      case WalletType.nano:
-        return DerivationInfo(
-          derivationType: DerivationType.nano,
-        );
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
-      default:
-        return DerivationInfo(
-          derivationType: DerivationType.electrum2,
-          derivationPath: "m/0'/1",
-        );
-    }
   }
 
   @override

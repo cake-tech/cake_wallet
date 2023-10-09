@@ -26,8 +26,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
         spendKey = '',
         wif = '',
         address = '',
-        super(appStore, walletInfoSource, walletCreationService,
-            type: type, isRecovery: true);
+        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
 
   @observable
   int height;
@@ -47,8 +46,10 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
   bool get hasRestorationHeight => type == WalletType.monero;
 
   @override
-  WalletCredentials getCredentialsFromRestoredWallet(dynamic options, RestoredWallet restoreWallet) {
+  WalletCredentials getCredentialsFromRestoredWallet(
+      dynamic options, RestoredWallet restoreWallet) {
     final password = generateWalletPassword();
+    DerivationInfo? derivationInfo = options["derivationInfo"] as DerivationInfo?;
 
     switch (restoreWallet.restoreMode) {
       case WalletRestoreMode.keys:
@@ -83,7 +84,12 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
           case WalletType.bitcoin:
           case WalletType.litecoin:
             return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
-                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
+              name: name,
+              mnemonic: restoreWallet.mnemonicSeed ?? '',
+              password: password,
+              derivationType: derivationInfo!.derivationType!,
+              derivationPath: derivationInfo.derivationPath!,
+            );
           case WalletType.ethereum:
             return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
@@ -96,7 +102,8 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
   }
 
   @override
-  Future<WalletBase> processFromRestoredWallet(WalletCredentials credentials, RestoredWallet restoreWallet) async {
+  Future<WalletBase> processFromRestoredWallet(
+      WalletCredentials credentials, RestoredWallet restoreWallet) async {
     try {
       switch (restoreWallet.restoreMode) {
         case WalletRestoreMode.keys:

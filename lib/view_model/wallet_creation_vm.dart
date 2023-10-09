@@ -47,6 +47,13 @@ abstract class WalletCreationVMBase with Store {
         name = await generateName();
       }
 
+      if (options == null || options["derivationInfo"] == null) {
+        if (options == null) {
+          options = {};
+        }
+        options["derivationInfo"] = getDefaultDerivation();
+      }
+
       walletCreationService.checkIfExists(name);
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
@@ -79,6 +86,22 @@ abstract class WalletCreationVMBase with Store {
       state = ExecutedSuccessfullyState();
     } catch (e) {
       state = FailureState(e.toString());
+    }
+  }
+
+  DerivationInfo getDefaultDerivation() {
+    switch (this.type) {
+      case WalletType.nano:
+        return DerivationInfo(
+          derivationType: DerivationType.nano,
+        );
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      default:
+        return DerivationInfo(
+          derivationType: DerivationType.electrum2,
+          derivationPath: "m/0'/1",
+        );
     }
   }
 

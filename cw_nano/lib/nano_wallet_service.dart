@@ -32,7 +32,8 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     String mnemonic = NanoUtil.seedToMnemonic(seedKey);
 
     // set default if not present:
-    DerivationType derivationType = credentials.derivationInfo?.derivationType ?? DerivationType.nano;
+    DerivationType derivationType =
+        credentials.derivationInfo?.derivationType ?? DerivationType.nano;
     credentials.walletInfo!.derivationInfo ??= DerivationInfo(derivationType: derivationType);
 
     final wallet = NanoWallet(
@@ -88,8 +89,8 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       }
     }
 
-    DerivationType derivationType = credentials.derivationType ?? DerivationType.nano;
-    credentials.walletInfo!.derivationInfo ??= DerivationInfo(derivationType: derivationType);
+    // set the walletInfo's derivationInfo if not present:
+    credentials.walletInfo!.derivationInfo ??= credentials.derivationInfo;
 
     String? mnemonic;
 
