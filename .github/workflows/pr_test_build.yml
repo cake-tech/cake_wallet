@@ -143,18 +143,18 @@ jobs:
           cd /opt/android/cake_wallet
           flutter build apk --release
 
-      #      - name: Push to App Center
-      #        run: |
-      #          echo 'Installing App Center CLI tools'
-      #          npm install -g appcenter-cli
-      #          echo "Publishing test to App Center"
-      #          appcenter distribute release \
-      #              --group "Testers" \
-      #              --file "/opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk" \
-      #              --release-notes ${GITHUB_HEAD_REF} \
-      #              --app Cake-Labs/Cake-Wallet \
-      #              --token ${{ secrets.APP_CENTER_TOKEN }} \
-      #              --quiet
+#            - name: Push to App Center
+#              run: |
+#                echo 'Installing App Center CLI tools'
+#                npm install -g appcenter-cli
+#                echo "Publishing test to App Center"
+#                appcenter distribute release \
+#                    --group "Testers" \
+#                    --file "/opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk" \
+#                    --release-notes ${GITHUB_HEAD_REF} \
+#                    --app Cake-Labs/Cake-Wallet \
+#                    --token ${{ secrets.APP_CENTER_TOKEN }} \
+#                    --quiet
 
       - name: Rename apk file
         run: |
