@@ -723,5 +723,7 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Зачекайте, доки dApp завершить обробку.",
   "polyseed_detected": "Ви використовуєте полісей",
-  "seedtype": "Насіннєвий тип"
+  "seedtype": "Насіннєвий тип",
+  "seedtype_legacy": "Спадщина (25 слів)",
+  "seedtype_polyseed": "Полісей (16 слів)"
 }

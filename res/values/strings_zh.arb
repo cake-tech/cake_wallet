@@ -722,5 +722,7 @@
   "totp_auth_url": "TOTP 授权 URL",
   "awaitDAppProcessing": "请等待 dApp 处理完成。",
   "polyseed_detected": "您正在使用多种物品",
-  "seedtype": "籽粒"
+  "seedtype": "籽粒",
+  "seedtype_legacy": "遗产（25个单词）",
+  "seedtype_polyseed": "多种物品（16个单词）"
 }

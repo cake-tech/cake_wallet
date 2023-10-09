@@ -723,5 +723,7 @@
   "totp_auth_url": "URL de autenticación TOTP",
   "awaitDAppProcessing": "Espere a que la dApp termine de procesarse.",
   "polyseed_detected": "Estás usando una polieta",
-  "seedtype": "Type de semillas"
+  "seedtype": "Type de semillas",
+  "seedtype_legacy": "Legado (25 palabras)",
+  "seedtype_polyseed": "Polieta (16 palabras)"
 }

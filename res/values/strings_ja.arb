@@ -723,5 +723,7 @@
   "totp_auth_url": "TOTP認証URL",
   "awaitDAppProcessing": "dAppの処理が完了するまでお待ちください。",
   "polyseed_detected": "あなたはポリシードを使用しています",
-  "seedtype": "SeedType"
+  "seedtype": "SeedType",
+  "seedtype_legacy": "レガシー（25語）",
+  "seedtype_polyseed": "ポリシード（16語）"
 }

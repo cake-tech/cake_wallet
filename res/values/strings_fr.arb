@@ -723,5 +723,7 @@
   "totp_auth_url": "URL D'AUTORISATION TOTP",
   "awaitDAppProcessing": "Veuillez attendre que le dApp termine le traitement.",
   "polyseed_detected": "Vous utilisez un polyse",
-  "seedtype": "Type de type graine"
+  "seedtype": "Type de type graine",
+  "seedtype_legacy": "Héritage (25 mots)",
+  "seedtype_polyseed": "Polyseed (16 mots)"
 }

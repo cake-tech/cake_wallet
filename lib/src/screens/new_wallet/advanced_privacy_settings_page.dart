@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
@@ -97,11 +98,11 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
             Observer(builder: (_) {
               // ToDo: Make it work
               return SettingsChoicesCell(
-                ChoicesListItem<String>(
+                ChoicesListItem<SeedType>(
                   title: S.current.seedtype,
-                  items: ["Legacy (25 Words)", "Polyseed (16 Words)"],
-                  selectedItem: "Legacy (25 Words)",
-                  onItemSelected: (String mode) {},
+                  items: SeedType.all,
+                  selectedItem: widget.privacySettingsViewModel.seedType,
+                  onItemSelected: widget.privacySettingsViewModel.setSeedType,
                 ),
               );
             }),

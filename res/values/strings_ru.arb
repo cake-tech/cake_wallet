@@ -723,5 +723,7 @@
   "totp_auth_url": "URL-адрес TOTP-АВТОРИЗАЦИИ",
   "awaitDAppProcessing": "Пожалуйста, подождите, пока dApp завершит обработку.",
   "polyseed_detected": "Вы используете многополичный",
-  "seedtype": "SEEDTYPE"
+  "seedtype": "SEEDTYPE",
+  "seedtype_legacy": "Наследие (25 слов)",
+  "seedtype_polyseed": "Полиса (16 слов)"
 }

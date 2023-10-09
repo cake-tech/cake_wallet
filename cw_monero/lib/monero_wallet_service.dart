@@ -16,10 +16,11 @@ import 'package:polyseed/polyseed.dart';
 import 'package:polyseed/src/utils/key_utils.dart';
 
 class MoneroNewWalletCredentials extends WalletCredentials {
-  MoneroNewWalletCredentials({required String name, required this.language, String? password})
+  MoneroNewWalletCredentials({required String name, required this.language, required this.isPolyseed, String? password})
       : super(name: name, password: password);
 
   final String language;
+  final bool isPolyseed;
 }
 
 class MoneroRestoreWalletFromSeedCredentials extends WalletCredentials {
@@ -72,14 +73,13 @@ class MoneroWalletService extends WalletService<
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
 
-      // ToDo
-      // if (isPolyseed) {
-      //   final polyseed = Polyseed.create();
-      //   final lang = PolyseedLang.getByEnglishName(credentials.language);
-      //
-      //   return _restoreFromPolyseed(
-      //       path, credentials.password!, polyseed, credentials.walletInfo!, lang);
-      // }
+      if (credentials.isPolyseed) {
+        final polyseed = Polyseed.create();
+        final lang = PolyseedLang.getByEnglishName(credentials.language);
+
+        return _restoreFromPolyseed(
+            path, credentials.password!, polyseed, credentials.walletInfo!, lang);
+      }
 
       await monero_wallet_manager.createWallet(
           path: path, password: credentials.password!, language: credentials.language);

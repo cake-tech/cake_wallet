@@ -721,5 +721,7 @@
   "totp_auth_url": "TOTP YETKİ URL'si",
   "awaitDAppProcessing": "Lütfen dApp'in işlemeyi bitirmesini bekleyin.",
   "polyseed_detected": "Polyseed kullanıyorsun",
-  "seedtype": "Tohum"
+  "seedtype": "Tohum",
+  "seedtype_legacy": "Miras (25 kelime)",
+  "seedtype_polyseed": "Polyseed (16 kelime)"
 }

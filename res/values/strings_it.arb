@@ -723,5 +723,7 @@
   "totp_auth_url": "URL DI AUT. TOTP",
   "awaitDAppProcessing": "Attendi gentilmente che la dApp termini l'elaborazione.",
   "polyseed_detected": "Stai usando un poligono",
-  "seedtype": "Seedtype"
+  "seedtype": "Seedtype",
+  "seedtype_legacy": "Legacy (25 parole)",
+  "seedtype_polyseed": "Polyseed (16 parole)"
 }

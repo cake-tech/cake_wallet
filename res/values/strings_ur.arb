@@ -715,5 +715,7 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "۔ﮟﯾﺮﮐ ﺭﺎﻈﺘﻧﺍ ﺎﮐ ﮯﻧﻮﮨ ﻞﻤﮑﻣ ﮓﻨﺴﯿﺳﻭﺮﭘ ﮯﮐ dApp ﻡﺮﮐ ﮦﺍﺮﺑ",
   "polyseed_detected": "آپ پولیسیڈ استعمال کر رہے ہیں",
-  "seedtype": "سیڈ ٹائپ"
+  "seedtype": "سیڈ ٹائپ",
+  "seedtype_legacy": "میراث (25 الفاظ)",
+  "seedtype_polyseed": "پالیسیڈ (16 الفاظ)"
 }

@@ -723,5 +723,7 @@
   "totp_auth_url": "TOTP AUTH-URL",
   "awaitDAppProcessing": "Wacht tot de dApp klaar is met verwerken.",
   "polyseed_detected": "U gebruikt een polyseed",
-  "seedtype": "Zaadtype"
+  "seedtype": "Zaadtype",
+  "seedtype_legacy": "Legacy (25 woorden)",
+  "seedtype_polyseed": "Polyseed (16 woorden)"
 }

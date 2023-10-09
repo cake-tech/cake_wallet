@@ -244,9 +244,11 @@ class CWMonero extends Monero {
   WalletCredentials createMoneroNewWalletCredentials({
     required String name,
     required String language,
+    required bool isPolyseed,
     String? password,
   }) {
-    return MoneroNewWalletCredentials(name: name, password: password, language: language);
+    return MoneroNewWalletCredentials(
+        name: name, password: password, language: language, isPolyseed: isPolyseed);
   }
 
   @override

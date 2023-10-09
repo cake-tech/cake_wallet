@@ -1,15 +1,12 @@
 import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/src/widgets/seed_widget.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
@@ -63,13 +60,9 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   }
 
   void onSeedChange(String seed) {
-    // ToDo: If Monero add Polyseed Detect
-    // ToDo: If Polyseed _setLanguageLabel("POLYSEED_$lang")
-    // ToDo: displayLanguageSelector = false
     if (widget.type == WalletType.monero && Polyseed.isValidSeed(seed)) {
       final lang = PolyseedLang.getByPhrase(seed);
-      final polyseed = Polyseed.decode(seed, lang, PolyseedCoin.POLYSEED_MONERO);
-
+      // final polyseed = Polyseed.decode(seed, lang, PolyseedCoin.POLYSEED_MONERO);
 
       _changeLanguage("POLYSEED_${lang.nameEnglish}");
       setState(() => isPolyseed = true);

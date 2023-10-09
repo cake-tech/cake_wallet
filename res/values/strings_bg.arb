@@ -715,5 +715,7 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Моля, изчакайте dApp да завърши обработката.",
   "polyseed_detected": "Използвате поли семе",
-  "seedtype": "Семенна тип"
+  "seedtype": "Семенна тип",
+  "seedtype_legacy": "Наследство (25 думи)",
+  "seedtype_polyseed": "Поли семе (16 думи)"
 }

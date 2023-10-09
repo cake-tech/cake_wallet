@@ -711,5 +711,7 @@
   "totp_auth_url": "URL Otentikasi TOTP",
   "awaitDAppProcessing": "Mohon tunggu hingga dApp menyelesaikan pemrosesan.",
   "polyseed_detected": "Anda menggunakan polyseed",
-  "seedtype": "Seedtype"
+  "seedtype": "Seedtype",
+  "seedtype_legacy": "Legacy (25 kata)",
+  "seedtype_polyseed": "Polyseed (16 kata)"
 }

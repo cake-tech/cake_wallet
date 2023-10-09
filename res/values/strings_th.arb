@@ -721,5 +721,7 @@
   "totp_auth_url": "URL การตรวจสอบสิทธิ์ TOTP",
   "awaitDAppProcessing": "โปรดรอให้ dApp ประมวลผลเสร็จสิ้น",
   "polyseed_detected": "คุณกำลังใช้โพลีส",
-  "seedtype": "เมล็ดพันธุ์"
+  "seedtype": "เมล็ดพันธุ์",
+  "seedtype_legacy": "มรดก (25 คำ)",
+  "seedtype_polyseed": "โพลีส (16 คำ)"
 }

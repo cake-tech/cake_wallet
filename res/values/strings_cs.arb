@@ -715,5 +715,7 @@
   "totp_auth_url": "URL AUTH TOTP",
   "awaitDAppProcessing": "Počkejte, až dApp dokončí zpracování.",
   "polyseed_detected": "Používáte polyseed",
-  "seedtype": "SeedType"
+  "seedtype": "SeedType",
+  "seedtype_legacy": "Legacy (25 slov)",
+  "seedtype_polyseed": "Polyseed (16 slov)"
 }

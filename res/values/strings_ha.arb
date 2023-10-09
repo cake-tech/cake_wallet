@@ -701,5 +701,7 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Da fatan za a jira dApp ya gama aiki.",
   "polyseed_detected": "Kuna amfani da polyseed",
-  "seedtype": "Seedtype"
+  "seedtype": "Seedtype",
+  "seedtype_legacy": "Legacy (25 kalmomi)",
+  "seedtype_polyseed": "Polyseed (16 kalmomi)"
 }

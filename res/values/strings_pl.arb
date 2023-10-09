@@ -723,5 +723,7 @@
   "totp_auth_url": "Adres URL TOTP AUTH",
   "awaitDAppProcessing": "Poczekaj, aż dApp zakończy przetwarzanie.",
   "polyseed_detected": "Używasz policyeedu",
-  "seedtype": "Sedtype"
+  "seedtype": "Sedtype",
+  "seedtype_legacy": "Dziedzictwo (25 słów)",
+  "seedtype_polyseed": "Poliqueed (16 słów)"
 }

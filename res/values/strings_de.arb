@@ -723,5 +723,7 @@
   "totp_auth_url": "TOTP-Auth-URL",
   "awaitDAppProcessing": "Bitte warten Sie, bis die dApp die Verarbeitung abgeschlossen hat.",
   "polyseed_detected": "Sie verwenden einen Polyseed",
-  "seedtype": "Seedtyp"
+  "seedtype": "Seedtyp",
+  "seedtype_legacy": "Veraltet (25 Wörter)",
+  "seedtype_polyseed": "Polyseed (16 Wörter)"
 }

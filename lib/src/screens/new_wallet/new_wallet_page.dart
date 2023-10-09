@@ -21,6 +21,10 @@ import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
+import '../../../di.dart';
+import '../../../entities/seed_type.dart';
+import '../../../store/settings_store.dart';
+
 class NewWalletPage extends BasePage {
   NewWalletPage(this._walletNewVM);
 
@@ -43,6 +47,7 @@ class WalletNameForm extends StatefulWidget {
 
   final WalletNewVM _walletNewVM;
   final Image walletImage;
+  final SettingsStore _settingsStore = getIt.get<SettingsStore>();
 
   @override
   _WalletNameFormState createState() => _WalletNameFormState(_walletNewVM);
@@ -237,9 +242,10 @@ class _WalletNameFormState extends State<WalletNameForm> {
                 buttonAction: () => Navigator.of(context).pop());
           });
     } else {
+      final isPolyseed = widget._settingsStore.moneroSeedType == SeedType.polyseed;
       _walletNewVM.create(
           options: _walletNewVM.hasLanguageSelector
-              ? _languageSelectorKey.currentState!.selected
+              ? [_languageSelectorKey.currentState!.selected, isPolyseed]
               : null);
     }
   }

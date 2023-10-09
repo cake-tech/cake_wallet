@@ -723,5 +723,7 @@
   "totp_auth_url": "TOTP प्रामाणिक यूआरएल",
   "awaitDAppProcessing": "कृपया डीएपी की प्रोसेसिंग पूरी होने तक प्रतीक्षा करें।",
   "polyseed_detected": "आप एक पॉलीसीड का उपयोग कर रहे हैं",
-  "seedtype": "बीज"
+  "seedtype": "बीज",
+  "seedtype_legacy": "विरासत (25 शब्द)",
+  "seedtype_polyseed": "पॉलीसीड (16 शब्द)"
 }

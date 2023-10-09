@@ -721,5 +721,7 @@
   "totp_auth_url": "TOTP 인증 URL",
   "awaitDAppProcessing": "dApp이 처리를 마칠 때까지 기다려주세요.",
   "polyseed_detected": "당신은 다문을 사용하고 있습니다",
-  "seedtype": "시드 타입"
+  "seedtype": "시드 타입",
+  "seedtype_legacy": "레거시 (25 단어)",
+  "seedtype_polyseed": "다문 (16 단어)"
 }

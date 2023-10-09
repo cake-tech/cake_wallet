@@ -721,5 +721,7 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Molimo pričekajte da dApp završi obradu.",
   "polyseed_detected": "Koristite poliseed",
-  "seedtype": "Sjemenska vrsta"
+  "seedtype": "Sjemenska vrsta",
+  "seedtype_legacy": "Nasljeđe (25 riječi)",
+  "seedtype_polyseed": "Poliseed (16 riječi)"
 }

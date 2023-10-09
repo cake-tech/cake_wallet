@@ -717,5 +717,7 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Fi inurere duro fun dApp lati pari sisẹ.",
   "polyseed_detected": "O nlo polyseed kan",
-  "seedtype": "Irugbin-seetypu"
+  "seedtype": "Irugbin-seetypu",
+  "seedtype_legacy": "Legacy (awọn ọrọ 25)",
+  "seedtype_polyseed": "Polyseed (awọn ọrọ 16)"
 }
