@@ -28,6 +28,8 @@ class AddressValidator extends TextValidator {
         return '^3[0-9a-zA-Z]{32}\$|^3[0-9a-zA-Z]{33}\$|^bc1[0-9a-zA-Z]{59}\$';
       case CryptoCurrency.nano:
         return '[0-9a-zA-Z_]';
+      case CryptoCurrency.banano:
+        return '[0-9a-zA-Z_]';
       case CryptoCurrency.usdc:
       case CryptoCurrency.usdcpoly:
       case CryptoCurrency.ape:
@@ -177,6 +179,8 @@ class AddressValidator extends TextValidator {
         return [34, 43, 63];
       case CryptoCurrency.nano:
         return [64, 65];
+      case CryptoCurrency.banano:
+        return [64, 65];
       case CryptoCurrency.sc:
         return [76];
       case CryptoCurrency.sol:
@@ -263,6 +267,10 @@ class AddressValidator extends TextValidator {
             '|([^0-9a-zA-Z]|^)ltc[a-zA-Z0-9]{26,45}([^0-9a-zA-Z]|\$)';
       case CryptoCurrency.eth:
         return '0x[0-9a-zA-Z]{42}';
+      case CryptoCurrency.nano:
+        return 'nano_[0-9a-zA-Z]{60}';
+      case CryptoCurrency.banano:
+        return 'ban_[0-9a-zA-Z]{60}';
       default:
         return null;
     }

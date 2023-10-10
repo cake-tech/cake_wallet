@@ -1,5 +1,5 @@
-New Buy Provider Robinhood
-Fix sending Ethereum issue
-Enhance Monero coin control
-Add Filipino localization
-Bug Fixes
+Add Nano wallet
+Add WalletConnect to connect your ETH wallet with your favorite dApp
+Support getting Addresses from ENS and Mastodon
+Bug fixes
+Minor enhancements

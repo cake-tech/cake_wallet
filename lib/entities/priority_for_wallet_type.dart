@@ -17,8 +17,11 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return haven!.getTransactionPriorities();
     case WalletType.ethereum:
       return ethereum!.getTransactionPriorities();
+    // no such thing for nano/banano:
+    case WalletType.nano:
+    case WalletType.banano:
+      return [];
     default:
       return [];
   }
 }
-

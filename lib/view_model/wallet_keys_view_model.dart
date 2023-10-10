@@ -1,3 +1,4 @@
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -104,6 +105,22 @@ abstract class WalletKeysViewModelBase with Store {
           StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
+
+    if (_appStore.wallet!.type == WalletType.nano || _appStore.wallet!.type == WalletType.banano) {
+
+      // we don't necessarily have the seed phrase for nano / banano:
+      if (_appStore.wallet!.seed != null) {
+        items.addAll([
+          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+        ]);
+      }
+
+      // we always have the hex version of the seed:
+      items.addAll([
+        if (_appStore.wallet!.privateKey != null)
+          StandartListItem(title: S.current.spend_key_private, value: _appStore.wallet!.privateKey!),
+      ]);
+    }
   }
 
   Future<int?> _currentHeight() async {
@@ -128,6 +145,10 @@ abstract class WalletKeysViewModelBase with Store {
         return 'haven-wallet';
       case WalletType.ethereum:
         return 'ethereum-wallet';
+      case WalletType.nano:
+        return 'nano-wallet';
+      case WalletType.banano:
+        return 'banano-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
     }

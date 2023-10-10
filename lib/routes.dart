@@ -6,6 +6,7 @@ class Routes {
   static const seed = '/seed';
   static const restoreOptions = '/restore_options';
   static const restoreWalletFromSeedKeys = '/restore_wallet_from_seeds_keys';
+  static const restoreWalletChooseDerivation = '/restore_wallet_choose_derivation';
   static const dashboard = '/dashboard';
   static const send = '/send';
   static const transactionDetails = '/transaction_info';
@@ -14,13 +15,16 @@ class Routes {
   static const walletEdit = '/walletEdit';
   static const disclaimer = '/disclaimer';
   static const readDisclaimer = '/read_disclaimer';
+  static const changeRep = '/change_representative';
   static const seedLanguage = '/seed_language';
   static const walletList = '/view_model.wallet_list';
   static const auth = '/auth';
   static const newNode = '/new_node_list';
+  static const newPowNode = '/new_pow_node_list';
   static const login = '/login';
   static const splash = '/splash';
   static const accountCreation = '/account_new';
+  static const nanoAccountCreation = '/nano_account_new';
   static const addressBook = '/address_book';
   static const pickerAddressBook = '/picker_address_book';
   static const addressBookAddContact = '/address_book_add_contact';
@@ -92,4 +96,6 @@ class Routes {
   static const homeSettings = '/home_settings';
   static const editToken = '/edit_token';
   static const manageNodes = '/manage_nodes';
+  static const managePowNodes = '/manage_pow_nodes';
+
 }

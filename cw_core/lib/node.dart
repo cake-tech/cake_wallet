@@ -9,19 +9,19 @@ import 'package:http/io_client.dart' as ioc;
 
 part 'node.g.dart';
 
-Uri createUriFromElectrumAddress(String address) =>
-    Uri.tryParse('tcp://$address')!;
+Uri createUriFromElectrumAddress(String address) => Uri.tryParse('tcp://$address')!;
 
 @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
-  Node(
-      {this.login,
-      this.password,
-      this.useSSL,
-      this.trusted = false,
-      this.socksProxyAddress,
-      String? uri,
-      WalletType? type,}) {
+  Node({
+    this.login,
+    this.password,
+    this.useSSL,
+    this.trusted = false,
+    this.socksProxyAddress,
+    String? uri,
+    WalletType? type,
+  }) {
     if (uri != null) {
       uriRaw = uri;
     }
@@ -78,6 +78,13 @@ class Node extends HiveObject with Keyable {
         return Uri.http(uriRaw, '');
       case WalletType.ethereum:
         return Uri.https(uriRaw, '');
+      case WalletType.nano:
+      case WalletType.banano:
+        if (isSSL) {
+          return Uri.https(uriRaw, '');
+        } else {
+          return Uri.http(uriRaw, '');
+        }
       default:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -86,13 +93,13 @@ class Node extends HiveObject with Keyable {
   @override
   bool operator ==(other) =>
       other is Node &&
-          (other.uriRaw == uriRaw &&
-              other.login == login &&
-              other.password == password &&
-              other.typeRaw == typeRaw &&
-              other.useSSL == useSSL &&
-              other.trusted == trusted &&
-              other.socksProxyAddress == socksProxyAddress);
+      (other.uriRaw == uriRaw &&
+          other.login == login &&
+          other.password == password &&
+          other.typeRaw == typeRaw &&
+          other.useSSL == useSSL &&
+          other.trusted == trusted &&
+          other.socksProxyAddress == socksProxyAddress);
 
   @override
   int get hashCode =>
@@ -120,7 +127,9 @@ class Node extends HiveObject with Keyable {
     try {
       switch (type) {
         case WalletType.monero:
-          return useSocksProxy ? requestNodeWithProxy(socksProxyAddress ?? '') : requestMoneroNode();
+          return useSocksProxy
+              ? requestNodeWithProxy(socksProxyAddress ?? '')
+              : requestMoneroNode();
         case WalletType.bitcoin:
           return requestElectrumServer();
         case WalletType.litecoin:
@@ -129,6 +138,9 @@ class Node extends HiveObject with Keyable {
           return requestMoneroNode();
         case WalletType.ethereum:
           return requestElectrumServer();
+        case WalletType.nano:
+        case WalletType.banano:
+          return requestNanoNode();
         default:
           return false;
       }
@@ -141,27 +153,23 @@ class Node extends HiveObject with Keyable {
     final path = '/json_rpc';
     final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
     final realm = 'monero-rpc';
-    final body = {
-        'jsonrpc': '2.0',
-        'id': '0',
-        'method': 'get_info'
-    };
+    final body = {'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'};
 
     try {
       final authenticatingClient = HttpClient();
 
       authenticatingClient.addCredentials(
-          rpcUri,
-          realm,
-          HttpClientDigestCredentials(login ?? '', password ?? ''),
+        rpcUri,
+        realm,
+        HttpClientDigestCredentials(login ?? '', password ?? ''),
       );
 
       final http.Client client = ioc.IOClient(authenticatingClient);
 
       final response = await client.post(
-          rpcUri,
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode(body),
+        rpcUri,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(body),
       );
 
       client.close();
@@ -173,8 +181,24 @@ class Node extends HiveObject with Keyable {
     }
   }
 
-  Future<bool> requestNodeWithProxy(String proxy) async {
+  Future<bool> requestNanoNode() async {
+    http.Response response = await http.post(
+      uri,
+      headers: {'Content-type': 'application/json'},
+      body: json.encode(
+        {
+          "action": "block_count",
+        },
+      ),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
+  Future<bool> requestNodeWithProxy(String proxy) async {
     if (proxy.isEmpty || !proxy.contains(':')) {
       return false;
     }

@@ -13,4 +13,11 @@ void startOnCurrentNodeChangeReaction(AppStore appStore) {
       print(e.toString());
     }
   });
+  appStore.settingsStore.powNodes.observe((change) async {
+    try {
+      await appStore.wallet!.connectToPowNode(node: change.newValue!);
+    } catch (e) {
+      print(e.toString());
+    }
+  });
 }
