@@ -142,6 +142,12 @@ class WalletInfo extends HiveObject {
   List<String>? usedAddresses;
 
   @HiveField(16)
+  DerivationType? derivationType;// no longer used
+
+  @HiveField(17)
+  String? derivationPath;// no longer used
+
+  @HiveField(18)
   DerivationInfo? derivationInfo;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';

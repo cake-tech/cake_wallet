@@ -48,7 +48,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return nano!.createNanoNewWalletCredentials(name: name);
       default:
         throw Exception('Unexpected type: ${type.toString()}');
-        ;
     }
   }
 

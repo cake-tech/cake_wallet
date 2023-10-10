@@ -101,12 +101,12 @@ abstract class ExchangeTradeViewModelBase with Store {
       return;
     }
 
-    sendViewModel.clearOutputs();
-    final output = sendViewModel.outputs.first;
-    output.address = trade.inputAddress ?? '';
-    output.setCryptoAmount(trade.amount);
-    sendViewModel.selectedCryptoCurrency = trade.from;
-    await sendViewModel.createTransaction();
+    // sendViewModel.clearOutputs();
+    // final output = sendViewModel.outputs.first;
+    // output.address = trade.inputAddress ?? '';
+    // output.setCryptoAmount(trade.amount);
+    // sendViewModel.selectedCryptoCurrency = trade.from;
+    // await sendViewModel.createTransaction();
   }
 
   @action
