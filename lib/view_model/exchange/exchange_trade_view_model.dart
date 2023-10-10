@@ -96,7 +96,7 @@ abstract class ExchangeTradeViewModelBase with Store {
   Timer? timer;
 
   @action
-  Future confirmSending() async {
+  Future<void> confirmSending() async {
     if (!isSendable) {
       return;
     }
