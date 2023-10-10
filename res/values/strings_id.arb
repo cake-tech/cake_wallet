@@ -713,5 +713,8 @@
   "polyseed_detected": "Anda menggunakan polyseed",
   "seedtype": "Seedtype",
   "seedtype_legacy": "Legacy (25 kata)",
-  "seedtype_polyseed": "Polyseed (16 kata)"
+  "seedtype_polyseed": "Polyseed (16 kata)",
+  "seed_language_czech": "Ceko",
+  "seed_language_korean": "Korea",
+  "seed_language_chinese_traditional": "Cina tradisional)"
 }

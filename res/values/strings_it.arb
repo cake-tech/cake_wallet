@@ -725,5 +725,8 @@
   "polyseed_detected": "Stai usando un poligono",
   "seedtype": "Seedtype",
   "seedtype_legacy": "Legacy (25 parole)",
-  "seedtype_polyseed": "Polyseed (16 parole)"
+  "seedtype_polyseed": "Polyseed (16 parole)",
+  "seed_language_czech": "ceco",
+  "seed_language_korean": "coreano",
+  "seed_language_chinese_traditional": "Cinese tradizionale)"
 }

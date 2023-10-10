@@ -725,5 +725,8 @@
   "polyseed_detected": "Vous utilisez un polyse",
   "seedtype": "Type de type graine",
   "seedtype_legacy": "Héritage (25 mots)",
-  "seedtype_polyseed": "Polyseed (16 mots)"
+  "seedtype_polyseed": "Polyseed (16 mots)",
+  "seed_language_czech": "tchèque",
+  "seed_language_korean": "coréen",
+  "seed_language_chinese_traditional": "Chinois (Traditionnel)"
 }

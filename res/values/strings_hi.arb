@@ -725,5 +725,8 @@
   "polyseed_detected": "आप एक पॉलीसीड का उपयोग कर रहे हैं",
   "seedtype": "बीज",
   "seedtype_legacy": "विरासत (25 शब्द)",
-  "seedtype_polyseed": "पॉलीसीड (16 शब्द)"
+  "seedtype_polyseed": "पॉलीसीड (16 शब्द)",
+  "seed_language_czech": "चेक",
+  "seed_language_korean": "कोरियाई",
+  "seed_language_chinese_traditional": "चीनी पारंपरिक)"
 }

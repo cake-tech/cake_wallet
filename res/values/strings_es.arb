@@ -725,5 +725,8 @@
   "polyseed_detected": "Estás usando una polieta",
   "seedtype": "Type de semillas",
   "seedtype_legacy": "Legado (25 palabras)",
-  "seedtype_polyseed": "Polieta (16 palabras)"
+  "seedtype_polyseed": "Polieta (16 palabras)",
+  "seed_language_czech": "checo",
+  "seed_language_korean": "coreano",
+  "seed_language_chinese_traditional": "Chino tradicional)"
 }

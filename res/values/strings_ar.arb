@@ -721,5 +721,8 @@
   "polyseed_detected": "أنت تستخدم polyseed",
   "seedtype": "البذور",
   "seedtype_legacy": "إرث (25 كلمة)",
-  "seedtype_polyseed": "بوليسيد (16 كلمة)"
+  "seedtype_polyseed": "بوليسيد (16 كلمة)",
+  "seed_language_czech": "التشيكية",
+  "seed_language_korean": "الكورية",
+  "seed_language_chinese_traditional": "تقاليد صينية)"
 }

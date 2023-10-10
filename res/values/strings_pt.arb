@@ -724,5 +724,8 @@
   "polyseed_detected": "Você está usando uma semente de poli",
   "seedtype": "SeedType",
   "seedtype_legacy": "Legado (25 palavras)",
-  "seedtype_polyseed": "Polyseed (16 palavras)"
+  "seedtype_polyseed": "Polyseed (16 palavras)",
+  "seed_language_czech": "Tcheco",
+  "seed_language_korean": "coreano",
+  "seed_language_chinese_traditional": "Chinês tradicional)"
 }

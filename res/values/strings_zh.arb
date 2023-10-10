@@ -724,5 +724,8 @@
   "polyseed_detected": "您正在使用多种物品",
   "seedtype": "籽粒",
   "seedtype_legacy": "遗产（25个单词）",
-  "seedtype_polyseed": "多种物品（16个单词）"
+  "seedtype_polyseed": "多种物品（16个单词）",
+  "seed_language_czech": "捷克",
+  "seed_language_korean": "韩国人",
+  "seed_language_chinese_traditional": "中国传统的）"
 }

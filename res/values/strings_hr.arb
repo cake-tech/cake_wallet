@@ -723,5 +723,8 @@
   "polyseed_detected": "Koristite poliseed",
   "seedtype": "Sjemenska vrsta",
   "seedtype_legacy": "Nasljeđe (25 riječi)",
-  "seedtype_polyseed": "Poliseed (16 riječi)"
+  "seedtype_polyseed": "Poliseed (16 riječi)",
+  "seed_language_czech": "češki",
+  "seed_language_korean": "korejski",
+  "seed_language_chinese_traditional": "Kinesko tradicionalno)"
 }

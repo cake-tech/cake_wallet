@@ -725,5 +725,8 @@
   "polyseed_detected": "Ви використовуєте полісей",
   "seedtype": "Насіннєвий тип",
   "seedtype_legacy": "Спадщина (25 слів)",
-  "seedtype_polyseed": "Полісей (16 слів)"
+  "seedtype_polyseed": "Полісей (16 слів)",
+  "seed_language_czech": "Чеський",
+  "seed_language_korean": "Корейський",
+  "seed_language_chinese_traditional": "Китайський традиційний)"
 }

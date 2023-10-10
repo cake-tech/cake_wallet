@@ -723,5 +723,8 @@
   "polyseed_detected": "당신은 다문을 사용하고 있습니다",
   "seedtype": "시드 타입",
   "seedtype_legacy": "레거시 (25 단어)",
-  "seedtype_polyseed": "다문 (16 단어)"
+  "seedtype_polyseed": "다문 (16 단어)",
+  "seed_language_czech": "체코 사람",
+  "seed_language_korean": "한국인",
+  "seed_language_chinese_traditional": "중국 전통)"
 }

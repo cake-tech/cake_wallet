@@ -718,5 +718,8 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Pakihintay na matapos ang pagproseso ng dApp.",
   "seedtype_legacy": "Pamana (25 salita)",
-  "seedtype_polyseed": "Polyseed (16 na salita)"
+  "seedtype_polyseed": "Polyseed (16 na salita)",
+  "seed_language_czech": "Czech",
+  "seed_language_korean": "Korean",
+  "seed_language_chinese_traditional": "Intsik (tradisyonal)"
 }

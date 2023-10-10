@@ -717,5 +717,8 @@
   "polyseed_detected": "آپ پولیسیڈ استعمال کر رہے ہیں",
   "seedtype": "سیڈ ٹائپ",
   "seedtype_legacy": "میراث (25 الفاظ)",
-  "seedtype_polyseed": "پالیسیڈ (16 الفاظ)"
+  "seedtype_polyseed": "پالیسیڈ (16 الفاظ)",
+  "seed_language_czech": "چیک",
+  "seed_language_korean": "کورین",
+  "seed_language_chinese_traditional": "چینی (روایتی)"
 }

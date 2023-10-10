@@ -11,5 +11,6 @@ class SyncMode {
     SyncMode("Disabled", SyncType.disabled, Duration.zero),
     SyncMode("Unobtrusive", SyncType.unobtrusive, Duration(days: 1)),
     SyncMode("Aggressive", SyncType.aggressive, Duration(hours: 6)),
+    SyncMode("Super Aggressive", SyncType.aggressive, Duration(minutes: 15)),
   ];
 }

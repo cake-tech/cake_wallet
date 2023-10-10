@@ -79,7 +79,6 @@ import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
 import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
-import 'package:cake_wallet/src/screens/seed_language/seed_language_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
@@ -248,17 +247,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.changeRep:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<NanoChangeRepPage>());
-
-    case Routes.seedLanguage:
-      final args = settings.arguments as List<dynamic>;
-      final type = args.first as WalletType;
-      final redirectRoute = args[1] as String;
-
-      return CupertinoPageRoute<void>(builder: (_) {
-        return SeedLanguage(
-            onConfirm: (context, lang) =>
-                Navigator.of(context).popAndPushNamed(redirectRoute, arguments: [type, lang]));
-      });
 
     case Routes.walletList:
       return MaterialPageRoute<void>(

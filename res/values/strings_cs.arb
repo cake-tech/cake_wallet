@@ -717,5 +717,8 @@
   "polyseed_detected": "Používáte polyseed",
   "seedtype": "SeedType",
   "seedtype_legacy": "Legacy (25 slov)",
-  "seedtype_polyseed": "Polyseed (16 slov)"
+  "seedtype_polyseed": "Polyseed (16 slov)",
+  "seed_language_czech": "čeština",
+  "seed_language_korean": "korejština",
+  "seed_language_chinese_traditional": "Číňan (tradiční)"
 }

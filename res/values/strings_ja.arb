@@ -725,5 +725,8 @@
   "polyseed_detected": "あなたはポリシードを使用しています",
   "seedtype": "SeedType",
   "seedtype_legacy": "レガシー（25語）",
-  "seedtype_polyseed": "ポリシード（16語）"
+  "seedtype_polyseed": "ポリシード（16語）",
+  "seed_language_czech": "チェコ",
+  "seed_language_korean": "韓国語",
+  "seed_language_chinese_traditional": "中国の伝統的な）"
 }
