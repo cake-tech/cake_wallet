@@ -47,13 +47,6 @@ abstract class WalletCreationVMBase with Store {
         name = await generateName();
       }
 
-      if (options == null || options["derivationInfo"] == null) {
-        if (options == null) {
-          options = {};
-        }
-        options["derivationInfo"] = getDefaultDerivation();
-      }
-
       walletCreationService.checkIfExists(name);
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
@@ -72,8 +65,9 @@ abstract class WalletCreationVMBase with Store {
         dirPath: dirPath,
         address: '',
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
-        derivationInfo: credentials.derivationInfo,
+        derivationInfo: getDefaultDerivation(),
       );
+      
       credentials.walletInfo = walletInfo;
       final wallet = restoreWallet != null
           ? await processFromRestoredWallet(credentials, restoreWallet)

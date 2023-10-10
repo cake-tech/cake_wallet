@@ -6,12 +6,15 @@ abstract class WalletCredentials {
     this.height,
     this.walletInfo,
     this.password,
-    this.derivationInfo,
-  });
+    DerivationInfo? derivationInfo,
+  }) {
+    if (this.walletInfo != null && derivationInfo != null) {
+      this.walletInfo!.derivationInfo = derivationInfo;
+    }
+  }
 
   final String name;
   final int? height;
   String? password;
   WalletInfo? walletInfo;
-  DerivationInfo? derivationInfo;
 }

@@ -31,10 +31,8 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     String seedKey = NanoSeeds.generateSeed();
     String mnemonic = NanoUtil.seedToMnemonic(seedKey);
 
-    // set default if not present:
-    DerivationType derivationType =
-        credentials.derivationInfo?.derivationType ?? DerivationType.nano;
-    credentials.walletInfo!.derivationInfo ??= DerivationInfo(derivationType: derivationType);
+    // ensure default if not present:
+    credentials.walletInfo!.derivationInfo ??= DerivationInfo(derivationType: DerivationType.nano);
 
     final wallet = NanoWallet(
       walletInfo: credentials.walletInfo!,
@@ -88,9 +86,6 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
         throw Exception("Invalid key length!");
       }
     }
-
-    // set the walletInfo's derivationInfo if not present:
-    credentials.walletInfo!.derivationInfo ??= credentials.derivationInfo;
 
     String? mnemonic;
 
@@ -153,6 +148,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   Future<NanoWallet> openWallet(String name, String password) async {
     final walletInfo =
         walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
+
     final wallet = await NanoWalletBase.open(
       name: name,
       password: password,

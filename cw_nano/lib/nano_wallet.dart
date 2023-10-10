@@ -355,6 +355,9 @@ abstract class NanoWalletBase
     }
 
     walletInfo.derivationInfo ??= DerivationInfo(derivationType: derivationType);
+    if (walletInfo.derivationInfo!.derivationType == null) {
+      walletInfo.derivationInfo!.derivationType = derivationType;
+    }
 
     return NanoWallet(
       walletInfo: walletInfo,
