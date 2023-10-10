@@ -170,7 +170,7 @@ abstract class NanoWalletBase
         amt = balance[currency]?.currentBalance ?? BigInt.zero;
       } else {
         amt = BigInt.tryParse(
-                NanoUtil.getAmountAsRaw(txOut.cryptoAmount ?? "0", NanoUtil.rawPerNano)) ??
+                NanoUtil.getAmountAsRaw(txOut.cryptoAmount?.replaceAll(',', '.') ?? "0", NanoUtil.rawPerNano)) ??
             BigInt.zero;
       }
 
