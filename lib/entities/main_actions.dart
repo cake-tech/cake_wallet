@@ -52,8 +52,6 @@ class MainActions {
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.ethereum:
-        case WalletType.nano:
-        case WalletType.banano:
           switch (defaultBuyProvider) {
             case BuyProviderType.AskEachTime:
               Navigator.pushNamed(context, Routes.buy);
@@ -66,6 +64,8 @@ class MainActions {
               break;
           }
           break;
+        case WalletType.nano:
+        case WalletType.banano:
         case WalletType.monero:
           await getIt.get<OnRamperBuyProvider>().launchProvider(context);
           break;
