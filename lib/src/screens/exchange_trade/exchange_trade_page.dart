@@ -5,7 +5,6 @@ import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/execution_state.dart';
@@ -26,16 +25,15 @@ import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 void showInformation(
     ExchangeTradeViewModel exchangeTradeViewModel, BuildContext context) {
-  final fetchingLabel = S.current.fetching;
   final trade = exchangeTradeViewModel.trade;
   final walletName = exchangeTradeViewModel.wallet.name;
 
   final information = exchangeTradeViewModel.isSendable
       ? S.current.exchange_result_confirm(
-          trade.amount ?? fetchingLabel, trade.from.toString(), walletName) +
+          trade.amount, trade.from.toString(), walletName) +
         exchangeTradeViewModel.extraInfo
       : S.current.exchange_result_description(
-          trade.amount ?? fetchingLabel, trade.from.toString()) +
+          trade.amount, trade.from.toString()) +
         exchangeTradeViewModel.extraInfo;
 
   showPopUp<void>(
@@ -177,7 +175,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     ),
                     itemBuilder: (context, index) {
                       final item = widget.exchangeTradeViewModel.items[index];
-                      final value = item.data ?? fetchingLabel;
+                      final value = item.data;
 
                       final content = ListRow(
                         title: item.title,
