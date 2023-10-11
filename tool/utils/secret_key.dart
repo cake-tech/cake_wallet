@@ -32,7 +32,6 @@ class SecretKey {
     SecretKey('fiatApiKey', () => ''),
     SecretKey('payfuraApiKey', () => ''),
     SecretKey('chatwootWebsiteToken', () => ''),
-    SecretKey('exolixApiKey', () => ''),
     SecretKey('robinhoodApplicationId', () => ''),
     SecretKey('robinhoodCIdApiSecret', () => ''),
     SecretKey('walletConnectProjectId', () => ''),

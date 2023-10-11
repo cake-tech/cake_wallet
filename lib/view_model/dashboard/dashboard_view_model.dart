@@ -98,11 +98,6 @@ abstract class DashboardViewModelBase with Store {
             caption: ExchangeProviderDescription.trocador.title,
             onChanged: () => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.trocador)),
-        FilterItem(
-            value: () => tradeFilterStore.displayExolix,
-            caption: ExchangeProviderDescription.exolix.title,
-            onChanged: () => tradeFilterStore
-                .toggleDisplayExchange(ExchangeProviderDescription.exolix)),
       ]
     },
     subname = '',
