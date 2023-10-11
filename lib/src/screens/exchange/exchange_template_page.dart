@@ -1,6 +1,6 @@
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/exchange/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:flutter/material.dart';

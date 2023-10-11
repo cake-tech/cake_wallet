@@ -6,12 +6,9 @@ import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
-import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
-import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
-import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
-import 'package:cake_wallet/exchange/simpleswap/simpleswap_request.dart';
-import 'package:cake_wallet/exchange/trocador/trocador_exchange_provider.dart';
-import 'package:cake_wallet/exchange/trocador/trocador_request.dart';
+import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -20,7 +17,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/exchange/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
@@ -31,8 +28,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/exchange/exchange_trade_state.dart';
-import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
-import 'package:cake_wallet/exchange/changenow/changenow_request.dart';
+import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
@@ -463,78 +459,34 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> createTrade() async {
-    TradeRequest? request;
-    String amount = '';
-
     try {
       for (var provider in _sortedAvailableProviders.values) {
-        if (!(await provider.checkIsAvailable())) {
-          continue;
-        }
+        if (!(await provider.checkIsAvailable())) continue;
 
-        if (provider is SideShiftExchangeProvider) {
-          request = SideShiftRequest(
-            depositMethod: depositCurrency,
-            settleMethod: receiveCurrency,
-            depositAmount: isFixedRateMode
-                ? receiveAmount.replaceAll(',', '.')
-                : depositAmount.replaceAll(',', '.'),
-            settleAddress: receiveAddress,
+        final request = TradeRequest(
+            fromCurrency: depositCurrency,
+            toCurrency: receiveCurrency,
+            fromAmount: depositAmount.replaceAll(',', '.'),
+            toAmount: receiveAmount.replaceAll(',', '.'),
             refundAddress: depositAddress,
-          );
-          amount = isFixedRateMode ? receiveAmount : depositAmount;
-        }
+            toAddress: receiveAddress,
+            isFixedRate: isFixedRateMode);
 
-        if (provider is SimpleSwapExchangeProvider) {
-          request = SimpleSwapRequest(
-            from: depositCurrency,
-            to: receiveCurrency,
-            amount: depositAmount.replaceAll(',', '.'),
-            address: receiveAddress,
-            refundAddress: depositAddress,
-          );
-          amount = isFixedRateMode ? receiveAmount : depositAmount;
-        }
-
-        if (provider is ChangeNowExchangeProvider) {
-          request = ChangeNowRequest(
-              from: depositCurrency,
-              to: receiveCurrency,
-              fromAmount: depositAmount.replaceAll(',', '.'),
-              toAmount: receiveAmount.replaceAll(',', '.'),
-              refundAddress: depositAddress,
-              address: receiveAddress,
-              isReverse: isFixedRateMode);
-          amount = isFixedRateMode ? receiveAmount : depositAmount;
-        }
-
-        if (provider is TrocadorExchangeProvider) {
-          request = TrocadorRequest(
-              from: depositCurrency,
-              to: receiveCurrency,
-              fromAmount: depositAmount.replaceAll(',', '.'),
-              toAmount: receiveAmount.replaceAll(',', '.'),
-              refundAddress: depositAddress,
-              address: receiveAddress,
-              isReverse: isFixedRateMode);
-          amount = isFixedRateMode ? receiveAmount : depositAmount;
-        }
-
+        var amount = isFixedRateMode ? receiveAmount : depositAmount;
         amount = amount.replaceAll(',', '.');
 
         if (limitsState is LimitsLoadedSuccessfully) {
-          if (double.tryParse(amount) == null) {
+          if (double.tryParse(amount) == null) continue;
+
+          if (limits.max != null && double.parse(amount) < limits.min!)
             continue;
-          }
-          if (limits.max != null && double.parse(amount) < limits.min!) {
+          else if (limits.max != null && double.parse(amount) > limits.max!)
             continue;
-          } else if (limits.max != null && double.parse(amount) > limits.max!) {
-            continue;
-          } else {
+          else {
             try {
               tradeState = TradeIsCreating();
               final trade =
-                  await provider.createTrade(request: request!, isFixedRateMode: isFixedRateMode);
+                  await provider.createTrade(request: request, isFixedRateMode: isFixedRateMode);
               trade.walletId = wallet.id;
               tradesStore.setTrade(trade);
               await trades.add(trade);
@@ -584,9 +536,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       final priority = _settingsStore.priority[wallet.type]!;
       final fee = wallet.calculateEstimatedFee(priority, null);
 
-      if (availableBalance < fee || availableBalance == 0) {
-        return;
-      }
+      if (availableBalance < fee || availableBalance == 0) return;
 
       final amount = availableBalance - fee;
       changeDepositAmount(amount: bitcoin!.formatterBitcoinAmountToString(amount: amount));
