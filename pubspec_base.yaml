@@ -66,6 +66,7 @@ dependencies:
   permission_handler: ^10.0.0
   device_display_brightness: ^0.0.6
   workmanager: ^0.5.1
+  background_fetch: ^1.2.1
   platform_device_id: ^1.0.1
   wakelock: ^0.6.2
   flutter_mailer: ^2.0.2
