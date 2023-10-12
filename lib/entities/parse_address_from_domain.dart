@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
+import 'package:cake_wallet/mastodon/mastodon_api.dart';
 import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -73,6 +74,40 @@ class AddressResolver {
           }
         }
       }
+
+      if (text.startsWith('@') && text.contains('@', 1) && text.contains('.', 1)) {
+        final subText = text.substring(1);
+        final hostNameIndex = subText.indexOf('@');
+        final hostName = subText.substring(hostNameIndex + 1);
+        final userName = subText.substring(0, hostNameIndex);
+
+        final mastodonUser =
+        await MastodonAPI.lookupUserByUserName(userName: userName, apiHost: hostName);
+
+        if (mastodonUser != null) {
+          String? addressFromBio =
+          extractAddressByType(raw: mastodonUser.note, type: CryptoCurrency.fromString(ticker));
+
+          if (addressFromBio != null) {
+            return ParsedAddress.fetchMastodonAddress(address: addressFromBio, name: text);
+          } else {
+            final pinnedPosts =
+            await MastodonAPI.getPinnedPosts(userId: mastodonUser.id, apiHost: hostName);
+
+            if (pinnedPosts.isNotEmpty) {
+              final userPinnedPostsText = pinnedPosts.map((item) => item.content).join('\n');
+              String? addressFromPinnedPost = extractAddressByType(
+                  raw: userPinnedPostsText, type: CryptoCurrency.fromString(ticker));
+
+              if (addressFromPinnedPost != null) {
+                return ParsedAddress.fetchMastodonAddress(
+                    address: addressFromPinnedPost, name: text);
+              }
+            }
+          }
+        }
+      }
+
       if (!text.startsWith('@') && text.contains('@') && !text.contains('.')) {
         final bool isFioRegistered = await FioAddressProvider.checkAvail(text);
         if (isFioRegistered) {
