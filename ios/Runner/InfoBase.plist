@@ -114,10 +114,10 @@
             <key>CFBundleTypeRole</key>
             <string>Viewer</string>
             <key>CFBundleURLName</key>
-            <string>banano</string>
+            <string>ban</string>
             <key>CFBundleURLSchemes</key>
             <array>
-                <string>banano</string>
+                <string>ban</string>
             </array>
         </dict>
     </array>
