@@ -52,6 +52,7 @@ class MainActions {
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.ethereum:
+        case WalletType.bitcoinCash:
           switch (defaultBuyProvider) {
             case BuyProviderType.AskEachTime:
               Navigator.pushNamed(context, Routes.buy);
@@ -123,6 +124,7 @@ class MainActions {
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.ethereum:
+        case WalletType.bitcoinCash:
           if (viewModel.isEnabledSellAction) {
             final moonPaySellProvider = MoonPaySellProvider();
             final uri = await moonPaySellProvider.requestUrl(

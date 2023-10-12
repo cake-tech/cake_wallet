@@ -13,6 +13,8 @@ CryptoCurrency currencyForWalletType(WalletType type) {
       return CryptoCurrency.xhv;
     case WalletType.ethereum:
       return CryptoCurrency.eth;
+    case WalletType.bitcoinCash:
+      return CryptoCurrency.bch;
     case WalletType.nano:
       return CryptoCurrency.nano;
     case WalletType.banano:
