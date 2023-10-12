@@ -128,6 +128,7 @@ jobs:
           echo "const payfuraApiKey = '${{ secrets.PAYFURA_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_ethereum/lib/.secrets.g.dart
           echo "const chatwootWebsiteToken = '${{ secrets.CHATWOOT_WEBSITE_TOKEN }}';" >> lib/.secrets.g.dart
+          echo "const exolixApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const robinhoodApplicationId = '${{ secrets.ROBINHOOD_APPLICATION_ID }}';" >> lib/.secrets.g.dart
           echo "const robinhoodCIdApiSecret = '${{ secrets.ROBINHOOD_CID_CLIENT_SECRET }}';" >> lib/.secrets.g.dart
           echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart

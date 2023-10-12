@@ -94,6 +94,9 @@ class TradeRow extends StatelessWidget {
             borderRadius: BorderRadius.circular(50),
             child: Image.asset('assets/images/trocador.png', width: 36, height: 36));
         break;
+      case ExchangeProviderDescription.exolix:
+        image = Image.asset('assets/images/exolix.png', width: 36, height: 36);
+        break;
       default:
         image = null;
     }
