@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 if [ -z "$APP_ANDROID_TYPE" ]; then
