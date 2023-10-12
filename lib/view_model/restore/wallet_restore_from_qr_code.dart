@@ -73,10 +73,12 @@ class WalletRestoreFromQRCode {
       case 'litecoin-wallet':
         return WalletType.litecoin;
       case 'bitcoincash':
-      case 'bitcoinCash-wallet':
+      case 'bitcoincash-wallet':
         return WalletType.bitcoinCash;
+      case 'ethereum':
       case 'ethereum-wallet':
         return WalletType.ethereum;
+      case 'nano':
       case 'nano-wallet':
         return WalletType.nano;
       default:
