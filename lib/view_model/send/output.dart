@@ -81,10 +81,8 @@ abstract class OutputBase with Store {
             _amount = monero!.formatterMoneroParseAmount(amount: _cryptoAmount);
             break;
           case WalletType.bitcoin:
-            _amount =
-                bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
-            break;
           case WalletType.litecoin:
+          case WalletType.bitcoinCash:
             _amount =
                 bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
             break;
@@ -116,7 +114,8 @@ abstract class OutputBase with Store {
           _settingsStore.priority[_wallet.type]!, formattedCryptoAmount);
 
       if (_wallet.type == WalletType.bitcoin ||
-          _wallet.type == WalletType.litecoin) {
+          _wallet.type == WalletType.litecoin ||
+          _wallet.type == WalletType.bitcoinCash) {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 
@@ -232,6 +231,9 @@ abstract class OutputBase with Store {
         maximumFractionDigits = 8;
         break;
       case WalletType.litecoin:
+        maximumFractionDigits = 8;
+        break;
+      case WalletType.bitcoinCash:
         maximumFractionDigits = 8;
         break;
       case WalletType.haven:

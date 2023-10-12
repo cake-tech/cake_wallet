@@ -19,6 +19,7 @@ abstract class WalletKeysViewModelBase with Store {
   WalletKeysViewModelBase(this._appStore)
       : title = _appStore.wallet!.type == WalletType.bitcoin ||
                 _appStore.wallet!.type == WalletType.litecoin ||
+                _appStore.wallet!.type == WalletType.bitcoinCash ||
                 _appStore.wallet!.type == WalletType.ethereum
             ? S.current.wallet_seed
             : S.current.wallet_keys,
@@ -91,7 +92,8 @@ abstract class WalletKeysViewModelBase with Store {
     }
 
     if (_appStore.wallet!.type == WalletType.bitcoin ||
-        _appStore.wallet!.type == WalletType.litecoin) {
+        _appStore.wallet!.type == WalletType.litecoin ||
+        _appStore.wallet!.type == WalletType.bitcoinCash) {
       items.addAll([
         StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
@@ -145,6 +147,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'haven-wallet';
       case WalletType.ethereum:
         return 'ethereum-wallet';
+      case WalletType.bitcoinCash:
+        return 'bitcoinCash-wallet';
       case WalletType.nano:
         return 'nano-wallet';
       case WalletType.banano:
