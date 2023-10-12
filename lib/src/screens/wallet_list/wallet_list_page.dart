@@ -268,6 +268,10 @@ class WalletListBodyState extends State<WalletListBody> {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pop();
             });
+          } else {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              // TODO: CW-499
+            });
           }
         } catch (e) {
           changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
