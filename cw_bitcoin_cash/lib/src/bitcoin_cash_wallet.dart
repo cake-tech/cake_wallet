@@ -51,21 +51,11 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         initialRegularAddressIndex: initialRegularAddressIndex,
         initialChangeAddressIndex: initialChangeAddressIndex,
         mainHd: hd,
-        sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: bitcoinCashNetworkType)
+        sideHd: bitcoin.HDWallet.fromSeed(seedBytes)
             .derivePath("m/44'/145'/0'/1"),
         networkType: networkType);
   }
 
-  static bitcoin.NetworkType bitcoinCashNetworkType = bitcoin.NetworkType(
-      messagePrefix: '\x18Bitcoin Signed Message:\n',
-      bech32: 'bc',
-      bip32: bitcoin.Bip32Type(
-        public: 0x0488b21e,
-        private: 0x0488ade4,
-      ),
-      pubKeyHash: 0x00,
-      scriptHash: 0x05,
-      wif: 0x80);
 
   static Future<BitcoinCashWallet> create(
       {required String mnemonic,
@@ -244,8 +234,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       final input = inputs[i];
       final keyPair = generateKeyPair(
           hd: input.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
-          index: input.bitcoinAddressRecord.index,
-          network: bitcoinCashNetworkType);
+          index: input.bitcoinAddressRecord.index);
       txb.sign(i, keyPair, input.value);
     }
 
@@ -258,8 +247,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
 
   bitbox.ECPair generateKeyPair(
           {required bitcoin.HDWallet hd,
-          required int index,
-          required bitcoin.NetworkType network}) =>
+          required int index}) =>
       bitbox.ECPair.fromWIF(hd.derive(index).wif!);
 
   @override

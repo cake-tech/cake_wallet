@@ -70,9 +70,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: main
+      ref: master
       resolved-ref: ea65073efbaf395a5557e8cd7bd72f195cd7eb11
-      url: "https://github.com/cake-tech/cw_bitbox.git"
+      url: "https://github.com/cake-tech/bitbox-flutter.git"
     source: git
     version: "1.0.1"
   bitcoin_flutter:

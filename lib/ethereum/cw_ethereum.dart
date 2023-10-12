@@ -51,6 +51,9 @@ class CWEthereum extends Ethereum {
   TransactionPriority getDefaultTransactionPriority() => EthereumTransactionPriority.medium;
 
   @override
+  TransactionPriority getEthereumTransactionPrioritySlow() => EthereumTransactionPriority.slow;
+
+  @override
   List<TransactionPriority> getTransactionPriorities() => EthereumTransactionPriority.all;
 
   @override

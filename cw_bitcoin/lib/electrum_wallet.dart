@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -12,7 +11,6 @@ import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_bitcoin/address_to_output_script.dart';
@@ -80,19 +78,8 @@ abstract class ElectrumWalletBase
     transactionHistory = ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
   }
 
-  static bitcoin.NetworkType bitcoinCashNetworkType = bitcoin.NetworkType(
-      messagePrefix: '\x18Bitcoin Signed Message:\n',
-      bech32: 'bc',
-      bip32: bitcoin.Bip32Type(
-        public: 0x0488b21e,
-        private: 0x0488ade4,
-      ),
-      pubKeyHash: 0x00,
-      scriptHash: 0x05,
-      wif: 0x80);
-
-  static HDWallet bitcoinCashHDWallet(Uint8List seedBytes) =>
-      bitcoin.HDWallet.fromSeed(seedBytes, network: bitcoinCashNetworkType)
+  static bitcoin.HDWallet bitcoinCashHDWallet(Uint8List seedBytes) =>
+      bitcoin.HDWallet.fromSeed(seedBytes)
           .derivePath("m/44'/145'/0'/0");
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>

@@ -30,16 +30,5 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
 
   @override
   String getAddress({required int index, required bitcoin.HDWallet hd}) =>
-      generateP2PKHAddress(hd: hd, index: index, networkType: bitcoinCashNetworkType);
-
-  static bitcoin.NetworkType bitcoinCashNetworkType = bitcoin.NetworkType(
-      messagePrefix: '\x18Bitcoin Signed Message:\n',
-      bech32: 'bc',
-      bip32: bitcoin.Bip32Type(
-        public: 0x0488b21e,
-        private: 0x0488ade4,
-      ),
-      pubKeyHash: 0x00,
-      scriptHash: 0x05,
-      wif: 0x80);
+      generateP2PKHAddress(hd: hd, index: index, networkType: networkType);
 }

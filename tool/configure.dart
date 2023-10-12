@@ -524,6 +524,7 @@ abstract class Ethereum {
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
   TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getEthereumTransactionPrioritySlow();
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority deserializeEthereumTransactionPriority(int raw);
 

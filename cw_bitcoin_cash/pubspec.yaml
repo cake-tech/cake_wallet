@@ -27,8 +27,8 @@ dependencies:
       ref: cake-update-v3
   bitbox:
     git:
-      url: https://github.com/cake-tech/cw_bitbox.git
-      ref: main
+      url: https://github.com/cake-tech/bitbox-flutter.git
+      ref: master
 
 
 

@@ -283,7 +283,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
             bitcoin!.getLitecoinTransactionPrioritySlow();
       case WalletType.ethereum:
         return transactionPriority ==
-            ethereum!.getDefaultTransactionPriority();
+            ethereum!.getEthereumTransactionPrioritySlow();
       case WalletType.bitcoinCash:
         return transactionPriority ==
             bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
