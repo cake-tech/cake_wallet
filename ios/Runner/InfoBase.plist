@@ -102,7 +102,27 @@
         </dict>
         <dict>
             <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>ethereum</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>ethereum</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
             <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>ethereum-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>ethereum-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
             <key>CFBundleURLName</key>
             <string>nano</string>
             <key>CFBundleURLSchemes</key>
@@ -114,10 +134,10 @@
             <key>CFBundleTypeRole</key>
             <string>Viewer</string>
             <key>CFBundleURLName</key>
-            <string>ban</string>
+            <string>nano-wallet</string>
             <key>CFBundleURLSchemes</key>
             <array>
-                <string>ban</string>
+                <string>nano-wallet</string>
             </array>
         </dict>
     </array>
