@@ -42,13 +42,21 @@ class EthereumClient {
       await _client!.getBalance(address);
 
   Future<int> getGasUnitPrice() async {
-    final gasPrice = await _client!.getGasPrice();
-    return gasPrice.getInWei.toInt();
+    try {
+      final gasPrice = await _client!.getGasPrice();
+      return gasPrice.getInWei.toInt();
+    } catch (_) {
+      return 0;
+    }
   }
 
   Future<int> getEstimatedGas() async {
-    final estimatedGas = await _client!.estimateGas();
-    return estimatedGas.toInt();
+    try {
+      final estimatedGas = await _client!.estimateGas();
+      return estimatedGas.toInt();
+    } catch (_) {
+      return 0;
+    }
   }
 
   Future<PendingEthereumTransaction> signTransaction({
