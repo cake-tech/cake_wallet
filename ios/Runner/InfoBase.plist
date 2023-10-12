@@ -100,6 +100,26 @@
                 <string>litecoin-wallet</string>
             </array>
         </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>nano</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>nano</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>banano</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>banano</string>
+            </array>
+        </dict>
     </array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
