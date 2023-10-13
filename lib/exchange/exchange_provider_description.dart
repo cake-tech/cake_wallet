@@ -20,7 +20,6 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       title: 'SimpleSwap', raw: 4, image: 'assets/images/simpleSwap.png');
   static const trocador =
       ExchangeProviderDescription(title: 'Trocador', raw: 5, image: 'assets/images/trocador.png');
-
   static const exolix =
       ExchangeProviderDescription(title: 'Exolix', raw: 6, image: 'assets/images/exolix.png');
 

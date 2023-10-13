@@ -1,14 +1,14 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cake_wallet/exchange/trade_request.dart';
-import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/exchange/limits.dart';
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:http/http.dart';
 
 class TrocadorExchangeProvider extends ExchangeProvider {
@@ -58,9 +58,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   @override
   Future<Limits> fetchLimits(
       {required CryptoCurrency from,
-        required CryptoCurrency to,
-        required bool isFixedRateMode}) async {
-    final params = <String, String>{
+      required CryptoCurrency to,
+      required bool isFixedRateMode}) async {
+    final params = {
       'api_key': apiKey,
       'ticker': _normalizeCurrency(from),
       'name': from.name,
@@ -69,15 +69,12 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final uri = await _getUri(coinPath, params);
     final response = await get(uri);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
-    }
 
     final responseJSON = json.decode(response.body) as List<dynamic>;
 
-    if (responseJSON.isEmpty) {
-      throw Exception('No data');
-    }
+    if (responseJSON.isEmpty) throw Exception('No data');
 
     final coinJson = responseJSON.first as Map<String, dynamic>;
 
@@ -90,10 +87,10 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   @override
   Future<double> fetchRate(
       {required CryptoCurrency from,
-        required CryptoCurrency to,
-        required double amount,
-        required bool isFixedRateMode,
-        required bool isReceiveAmount}) async {
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -129,7 +126,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
-    final params = <String, String>{
+    final params = {
       'api_key': apiKey,
       'ticker_from': _normalizeCurrency(request.fromCurrency),
       'ticker_to': _normalizeCurrency(request.toCurrency),
@@ -166,9 +163,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       throw Exception('${error}\n$message');
     }
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
-    }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['trade_id'] as String;
@@ -201,9 +197,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({required String id}) async {
     final uri = await _getUri(tradePath, {'api_key': apiKey, 'id': id});
     return get(uri).then((response) {
-      if (response.statusCode != 200) {
+      if (response.statusCode != 200)
         throw Exception('Unexpected http status: ${response.statusCode}');
-      }
 
       final responseListJson = json.decode(response.body) as List;
       final responseJSON = responseListJson.first;
