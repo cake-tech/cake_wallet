@@ -27,6 +27,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
