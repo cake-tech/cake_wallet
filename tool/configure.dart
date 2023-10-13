@@ -604,10 +604,10 @@ abstract class BitcoinCash {
   String getCashAddrFormat(String address);
 
   WalletService createBitcoinCashWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
 
   WalletCredentials createBitcoinCashNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo});
+      {required String name, WalletInfo? walletInfo, String? password});
 
   WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials(
       {required String name, required String mnemonic, required String password});

@@ -81,7 +81,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
-    required EncryptionFileUtils encryptionFileUtils
+    required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final snp = await ElectrumWallletSnapshot.load(encryptionFileUtils, name, walletInfo.type, password);
     return BitcoinWallet(
