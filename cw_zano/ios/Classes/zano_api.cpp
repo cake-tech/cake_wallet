@@ -14,6 +14,8 @@ void __clear_cache(void* start, void* end) { }
 #include "../External/android/include/wallet2_api.h"
 #endif
 
+#include "plain_wallet_api.h"
+
 using namespace std::chrono_literals;
 
 #ifdef __cplusplus
@@ -203,7 +205,7 @@ extern "C"
             hash = strdup(_transaction->txid()[0].c_str());
         }
     };
-
+    /*
     Monero::Wallet *m_wallet;
     Monero::TransactionHistory *m_transaction_history;
     MoneroWalletListener *m_listener;
@@ -213,9 +215,10 @@ extern "C"
     uint64_t m_cached_syncing_blockchain_height = 0;
     std::mutex store_lock;
     bool is_storing = false;
-
+    */
     void change_current_wallet(Monero::Wallet *wallet)
     {
+        /*
         m_wallet = wallet;
         m_listener = nullptr;
         
@@ -246,15 +249,18 @@ extern "C"
         {
             m_subaddress = nullptr;
         }
+        */
     }
 
     Monero::Wallet *get_current_wallet()
     {
-        return m_wallet;
+
+        return nullptr;//return m_wallet;
     }
 
     bool create_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
     {
+        /*
         Monero::WalletManagerFactory::setLogLevel(4);
 
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
@@ -273,12 +279,13 @@ extern "C"
         }
 
         change_current_wallet(wallet);
-
+        */
         return true;
     }
 
     bool restore_wallet_from_seed(char *path, char *password, char *seed, int32_t networkType, uint64_t restoreHeight, char *error)
     {
+        /*
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::Wallet *wallet = Monero::WalletManagerFactory::getWalletManager()->recoveryWallet(
             std::string(path),
@@ -299,11 +306,13 @@ extern "C"
         }
 
         change_current_wallet(wallet);
+        */
         return true;
     }
 
     bool restore_wallet_from_keys(char *path, char *password, char *language, char *address, char *viewKey, char *spendKey, int32_t networkType, uint64_t restoreHeight, char *error)
     {
+        /*
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::Wallet *wallet = Monero::WalletManagerFactory::getWalletManager()->createWalletFromKeys(
             std::string(path),
@@ -327,11 +336,13 @@ extern "C"
         }
 
         change_current_wallet(wallet);
+        */
         return true;
     }
 
     bool load_wallet(char *path, char *password, int32_t nettype)
     {
+        /*
         nice(19);
         Monero::NetworkType networkType = static_cast<Monero::NetworkType>(nettype);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
@@ -343,6 +354,8 @@ extern "C"
         change_current_wallet(wallet);
 
         return !(status != Monero::Wallet::Status_Ok || !errorString.empty());
+        */
+       return false;
     }
 
     char *error_string() {
@@ -352,53 +365,54 @@ extern "C"
 
     bool is_wallet_exist(char *path)
     {
-        return Monero::WalletManagerFactory::getWalletManager()->walletExists(std::string(path));
+        return false; //return Monero::WalletManagerFactory::getWalletManager()->walletExists(std::string(path));
     }
 
     void close_current_wallet()
     {
-        Monero::WalletManagerFactory::getWalletManager()->closeWallet(get_current_wallet());
-        change_current_wallet(nullptr);
+        //Monero::WalletManagerFactory::getWalletManager()->closeWallet(get_current_wallet());
+        //change_current_wallet(nullptr);
     }
 
     char *get_filename()
     {
-        return strdup(get_current_wallet()->filename().c_str());
+        return nullptr;//return strdup(get_current_wallet()->filename().c_str());
     }
 
     char *secret_view_key()
     {
-        return strdup(get_current_wallet()->secretViewKey().c_str());
+        return nullptr;//return strdup(get_current_wallet()->secretViewKey().c_str());
     }
 
     char *public_view_key()
     {
-        return strdup(get_current_wallet()->publicViewKey().c_str());
+        return nullptr;//return strdup(get_current_wallet()->publicViewKey().c_str());
     }
 
     char *secret_spend_key()
     {
-        return strdup(get_current_wallet()->secretSpendKey().c_str());
+        return nullptr;//return strdup(get_current_wallet()->secretSpendKey().c_str());
     }
 
     char *public_spend_key()
     {
-        return strdup(get_current_wallet()->publicSpendKey().c_str());
+        return nullptr;//return strdup(get_current_wallet()->publicSpendKey().c_str());
     }
 
     char *get_address(uint32_t account_index, uint32_t address_index)
     {
-        return strdup(get_current_wallet()->address(account_index, address_index).c_str());
+        return nullptr;//return strdup(get_current_wallet()->address(account_index, address_index).c_str());
     }
 
 
     const char *seed()
     {
-        return strdup(get_current_wallet()->seed().c_str());
+        return nullptr;//return strdup(get_current_wallet()->seed().c_str());
     }
 
     int64_t *get_full_balance(uint32_t account_index)
     {
+        /*
         std::map<std::string, uint64_t> accountBalance;
         std::map<uint32_t, std::map<std::string, uint64_t>> balanceSubaddresses = get_current_wallet()->balance(account_index);
         std::vector<std::string> assetList = Monero::Assets::list();
@@ -435,10 +449,13 @@ extern "C"
             i++;
         }
         return balanceAddresses;
+        */
+       return nullptr;
     }
 
     int64_t *get_unlocked_balance(uint32_t account_index)
     {
+        /*
         std::map<std::string, uint64_t> accountBalance;
         std::map<uint32_t, std::map<std::string, uint64_t>> balanceSubaddresses = get_current_wallet()->unlockedBalance(account_index);
         std::vector<std::string> assetList = Monero::Assets::list();
@@ -476,20 +493,23 @@ extern "C"
             i++;
         }
         return balanceAddresses;
+        */
+       return nullptr;
     }
 
     uint64_t get_current_height()
     {
-        return get_current_wallet()->blockChainHeight();
+        return 0;//return get_current_wallet()->blockChainHeight();
     }
 
     uint64_t get_node_height()
     {
-        return get_current_wallet()->daemonBlockChainHeight();
+        return 0;//return get_current_wallet()->daemonBlockChainHeight();
     }
 
     bool connect_to_node(char *error)
     {
+        /*
         nice(19);
         bool is_connected = get_current_wallet()->connectToDaemon();
 
@@ -499,14 +519,19 @@ extern "C"
         }
 
         return is_connected;
+        */
+        return false;
     }
 
     bool setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *error)
     {
+        
+        /*
+
         nice(19);
         Monero::Wallet *wallet = get_current_wallet();
         
-        std::string _login = "";
+        std::string _login = plain_wallet::get_version();
         std::string _password = "";
 
         if (login != nullptr)
@@ -529,31 +554,34 @@ extern "C"
         }
 
         return inited;
+        */
+       return false;
     }
 
     bool is_connected()
     {
-        return get_current_wallet()->connected();
+        return false;//return get_current_wallet()->connected();
     }
 
     void start_refresh()
     {
-        get_current_wallet()->refreshAsync();
-        get_current_wallet()->startRefresh();
+        //get_current_wallet()->refreshAsync();
+        //get_current_wallet()->startRefresh();
     }
 
     void set_refresh_from_block_height(uint64_t height)
     {
-        get_current_wallet()->setRefreshFromBlockHeight(height);
+        //get_current_wallet()->setRefreshFromBlockHeight(height);
     }
 
     void set_recovering_from_seed(bool is_recovery)
     {
-        get_current_wallet()->setRecoveringFromSeed(is_recovery);
+        //get_current_wallet()->setRecoveringFromSeed(is_recovery);
     }
 
     void store(char *path)
     {
+        /*
         store_lock.lock();
         if (is_storing) {
             return;
@@ -563,9 +591,12 @@ extern "C"
         get_current_wallet()->store(std::string(path));
         is_storing = false;
         store_lock.unlock();
+        */
     }
 
-    bool set_password(char *password, Utf8Box &error) {
+    bool set_password(char *password, Utf8Box &error) 
+    {
+        /*
         bool is_changed = get_current_wallet()->setPassword(std::string(password));
 
         if (!is_changed) {
@@ -573,11 +604,14 @@ extern "C"
         }
 
         return is_changed;
+        */
+       return false;
     }
 
     bool transaction_create(char *address, char *asset_type, char *payment_id, char *amount,
                                               uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
+        /*
         nice(19);
         
         auto priority = static_cast<Monero::PendingTransaction::Priority>(priority_raw);
@@ -613,11 +647,14 @@ extern "C"
 
         pendingTransaction = PendingTransactionRaw(transaction);
         return true;
+        */
+       return false;
     }
 
     bool transaction_create_mult_dest(char **addresses, char *asset_type, char *payment_id, char **amounts, uint32_t size,
                                                   uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
+        /*
         nice(19);
 
         std::vector<std::string> _addresses;
@@ -656,10 +693,13 @@ extern "C"
 
         pendingTransaction = PendingTransactionRaw(transaction);
         return true;
+        */
+       return false;
     }
 
     bool transaction_commit(PendingTransactionRaw *transaction, Utf8Box &error)
     {
+        /*
         bool committed = transaction->transaction->commit();
 
         if (!committed)
@@ -670,19 +710,25 @@ extern "C"
         }
 
         return committed;
+        */
+       return false;
     }
 
     uint64_t get_node_height_or_update(uint64_t base_eight)
     {
+        /*
         if (m_cached_syncing_blockchain_height < base_eight) {
             m_cached_syncing_blockchain_height = base_eight;
         }
 
         return m_cached_syncing_blockchain_height;
+        */
+       return 0;
     }
 
     uint64_t get_syncing_height()
     {
+        /*
         if (m_listener == nullptr) {
             return 0;
         }
@@ -699,10 +745,13 @@ extern "C"
         }
 
         return height;
+        */
+       return 0;
     }
 
     uint64_t is_needed_to_refresh()
     {
+        /*
         if (m_listener == nullptr) {
             return false;
         }
@@ -714,10 +763,12 @@ extern "C"
         }
 
         return should_refresh;
+        */
     }
 
     uint8_t is_new_transaction_exist()
     {
+        /*
         if (m_listener == nullptr) {
             return false;
         }
@@ -730,10 +781,13 @@ extern "C"
         }
 
         return is_new_transaction_exist;
+        */
+       return 0;
     }
 
     void set_listener()
     {
+        /*
         m_last_known_wallet_height = 0;
 
         if (m_listener != nullptr)
@@ -743,10 +797,12 @@ extern "C"
 
         m_listener = new MoneroWalletListener();
         get_current_wallet()->setListener(m_listener);
+        */
     }
 
     int64_t *subaddrress_get_all()
     {
+        /*
         std::vector<Monero::SubaddressRow *> _subaddresses = m_subaddress->getAll();
         size_t size = _subaddresses.size();
         int64_t *subaddresses = (int64_t *)malloc(size * sizeof(int64_t));
@@ -759,37 +815,42 @@ extern "C"
         }
 
         return subaddresses;
+        */
+       return nullptr;
     }
 
     int32_t subaddrress_size()
     {
-        std::vector<Monero::SubaddressRow *> _subaddresses = m_subaddress->getAll();
-        return _subaddresses.size();
+        //std::vector<Monero::SubaddressRow *> _subaddresses = m_subaddress->getAll();
+        //return _subaddresses.size();
+        return 0;
     }
 
     void subaddress_add_row(uint32_t accountIndex, char *label)
     {
-        m_subaddress->addRow(accountIndex, std::string(label));
+        //m_subaddress->addRow(accountIndex, std::string(label));
     }
 
     void subaddress_set_label(uint32_t accountIndex, uint32_t addressIndex, char *label)
     {
-        m_subaddress->setLabel(accountIndex, addressIndex, std::string(label));
+        //m_subaddress->setLabel(accountIndex, addressIndex, std::string(label));
     }
 
     void subaddress_refresh(uint32_t accountIndex)
     {
-        m_subaddress->refresh(accountIndex);
+        //m_subaddress->refresh(accountIndex);
     }
 
     int32_t account_size()
     {
-        std::vector<Monero::SubaddressAccountRow *> _accocunts = m_account->getAll();
-        return _accocunts.size();
+        //std::vector<Monero::SubaddressAccountRow *> _accocunts = m_account->getAll();
+        //return _accocunts.size();
+        return 0;
     }
 
     int64_t *account_get_all()
     {
+        /*
         std::vector<Monero::SubaddressAccountRow *> _accocunts = m_account->getAll();
         size_t size = _accocunts.size();
         int64_t *accocunts = (int64_t *)malloc(size * sizeof(int64_t));
@@ -802,25 +863,28 @@ extern "C"
         }
 
         return accocunts;
+        */
+       return nullptr;
     }
 
     void account_add_row(char *label)
     {
-        m_account->addRow(std::string(label));
+        //m_account->addRow(std::string(label));
     }
 
     void account_set_label_row(uint32_t account_index, char *label)
     {
-        m_account->setLabel(account_index, label);
+        //m_account->setLabel(account_index, label);
     }
 
     void account_refresh()
     {
-        m_account->refresh();
+        //m_account->refresh();
     }
 
     int64_t *transactions_get_all()
     {
+        /*
         std::vector<Monero::TransactionInfo *> transactions = m_transaction_history->getAll();
         size_t size = transactions.size();
         int64_t *transactionAddresses = (int64_t *)malloc(size * sizeof(int64_t));
@@ -833,16 +897,19 @@ extern "C"
         }
 
         return transactionAddresses;
+        */
+       return nullptr;
     }
 
     void transactions_refresh()
     {
-        m_transaction_history->refresh();
+        //m_transaction_history->refresh();
     }
 
     int64_t transactions_count()
     {
-        return m_transaction_history->count();
+        //return m_transaction_history->count();
+        return 0;
     }
 
     int LedgerExchange(
@@ -861,27 +928,28 @@ extern "C"
 
     void on_startup()
     {
-        Monero::Utils::onStartup();
-        Monero::WalletManagerFactory::setLogLevel(4);
+        //Monero::Utils::onStartup();
+        //Monero::WalletManagerFactory::setLogLevel(4);
     }
 
     void rescan_blockchain()
     {
-        m_wallet->rescanBlockchainAsync();
+        //m_wallet->rescanBlockchainAsync();
     }
 
     char * get_tx_key(char * txId)
     {
-        return strdup(m_wallet->getTxKey(std::string(txId)).c_str());
+        return nullptr; //return strdup(m_wallet->getTxKey(std::string(txId)).c_str());
     }
 
     int32_t asset_types_size() 
     {
-        return Monero::Assets::list().size();
+        return 0; //return Monero::Assets::list().size();
     }
 
     char **asset_types() 
     {
+        /*
         size_t size = Monero::Assets::list().size();
         std::vector<std::string> assetList = Monero::Assets::list();
         char **assetTypesPts;
@@ -896,17 +964,20 @@ extern "C"
         }
 
         return assetTypesPts;
+        */
+       return nullptr;
     }
 
-    std::map<std::string, uint64_t> rates;
+    //std::map<std::string, uint64_t> rates;
 
     void update_rate()
     {
-        rates = get_current_wallet()->oracleRates();
+        //rates = get_current_wallet()->oracleRates();
     }
 
     int64_t *get_rate()
     {
+        /*
         size_t size = rates.size();
         int64_t *havenRates = (int64_t *)malloc(size * sizeof(int64_t));
         int i = 0;
@@ -920,21 +991,24 @@ extern "C"
         }
 
         return havenRates;
+        */
+       return nullptr;
     }
 
     int32_t size_of_rate()
     {
-        return static_cast<int32_t>(rates.size());
+        return 0; //return static_cast<int32_t>(rates.size());
     }
 
     void set_trusted_daemon(bool arg)
     {
-        m_wallet->setTrustedDaemon(arg);
+        //m_wallet->setTrustedDaemon(arg);
     }
 
     bool trusted_daemon()
     {
-        return m_wallet->trustedDaemon();
+        return false;
+        //return m_wallet->trustedDaemon();
     }
 
 #ifdef __cplusplus

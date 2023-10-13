@@ -1,3 +1,0 @@
-/opt/android/cake_wallet/cw_zano/android/.cxx/cmake/debug/x86/CMakeFiles/edit_cache.dir
-/opt/android/cake_wallet/cw_zano/android/.cxx/cmake/debug/x86/CMakeFiles/rebuild_cache.dir
-/opt/android/cake_wallet/cw_zano/android/.cxx/cmake/debug/x86/CMakeFiles/cw_zano.dir

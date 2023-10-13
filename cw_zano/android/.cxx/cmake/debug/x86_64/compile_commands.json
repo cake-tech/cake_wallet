@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/opt/android/cake_wallet/cw_zano/android/.cxx/cmake/debug/x86_64",
-  "command": "/home/leo/android-sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android21 --sysroot=/home/leo/android-sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot  -Dcw_zano_EXPORTS -I../../../../../../cw_shared_external/ios/External/android/x86_64/include  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC   -o CMakeFiles/cw_zano.dir/opt/android/cake_wallet/cw_zano/ios/Classes/zano_api.cpp.o -c /opt/android/cake_wallet/cw_zano/ios/Classes/zano_api.cpp",
-  "file": "/opt/android/cake_wallet/cw_zano/ios/Classes/zano_api.cpp"
-}
-]
