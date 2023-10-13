@@ -1,5 +1,3 @@
-Add Nano wallet
-Add WalletConnect to connect your ETH wallet with your favorite dApp
-Support getting Addresses from ENS and Mastodon
+Add BitcoinCash (BCH)
 Bug fixes
-Minor enhancements
+Accessibility enhancements
