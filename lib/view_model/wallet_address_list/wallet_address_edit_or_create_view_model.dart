@@ -66,7 +66,8 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
     final wallet = _wallet;
 
     if (wallet.type == WalletType.bitcoin
-        || wallet.type == WalletType.litecoin) {
+        || wallet.type == WalletType.litecoin
+        || wallet.type == WalletType.bitcoinCash) {
       await bitcoin!.generateNewAddress(wallet);
       await wallet.save();
     }

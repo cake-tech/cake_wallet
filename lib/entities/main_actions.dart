@@ -52,6 +52,7 @@ class MainActions {
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.ethereum:
+        case WalletType.bitcoinCash:
         case WalletType.nano:
         case WalletType.banano:
           switch (defaultBuyProvider) {
@@ -123,6 +124,7 @@ class MainActions {
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.ethereum:
+        case WalletType.bitcoinCash:
           if (viewModel.isEnabledSellAction) {
             final moonPaySellProvider = MoonPaySellProvider();
             final uri = await moonPaySellProvider.requestUrl(

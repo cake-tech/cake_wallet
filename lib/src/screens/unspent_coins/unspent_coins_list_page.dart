@@ -1,8 +1,10 @@
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/widgets/unspent_coins_list_item.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -79,6 +81,9 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                 itemBuilder: (_, int index) {
                   return Observer(builder: (_) {
                     final item = unspentCoinsListViewModel.items[index];
+                    final address = unspentCoinsListViewModel.wallet.type == WalletType.bitcoinCash
+                        ? bitcoinCash!.getCashAddrFormat(item.address)
+                        : item.address;
 
                     return GestureDetector(
                         onTap: () =>
@@ -88,7 +93,7 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                         child: UnspentCoinsListItem(
                             note: item.note,
                             amount: item.amount,
-                            address: item.address,
+                            address: address,
                             isSending: item.isSending,
                             isFrozen: item.isFrozen,
                             onCheckBoxTap: item.isFrozen

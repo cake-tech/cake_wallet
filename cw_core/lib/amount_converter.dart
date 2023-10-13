@@ -80,6 +80,7 @@ class AmountConverter {
       case CryptoCurrency.xmr:
         return _moneroAmountToString(amount);
       case CryptoCurrency.btc:
+      case CryptoCurrency.bch:
         return _bitcoinAmountToString(amount);
       case CryptoCurrency.xhv:
       case CryptoCurrency.xag:
