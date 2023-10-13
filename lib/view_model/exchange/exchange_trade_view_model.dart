@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
@@ -45,6 +46,9 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
       case ExchangeProviderDescription.trocador:
         _provider = TrocadorExchangeProvider();
+        break;
+      case ExchangeProviderDescription.exolix:
+        _provider = ExolixExchangeProvider();
         break;
     }
 

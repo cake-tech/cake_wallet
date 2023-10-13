@@ -13,6 +13,7 @@ import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
@@ -143,6 +144,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         SideShiftExchangeProvider(),
         SimpleSwapExchangeProvider(),
         TrocadorExchangeProvider(useTorOnly: _useTorOnly),
+        ExolixExchangeProvider(),
       ];
 
   @observable
