@@ -148,7 +148,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.ethereum:
         return 'ethereum-wallet';
       case WalletType.bitcoinCash:
-        return 'bitcoinCash-wallet';
+        return 'bitcoincash-wallet';
       case WalletType.nano:
         return 'nano-wallet';
       case WalletType.banano:
