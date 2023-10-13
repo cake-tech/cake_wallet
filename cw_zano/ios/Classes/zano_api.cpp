@@ -555,7 +555,7 @@ extern "C"
 
         return inited;
         */
-       return false;
+       return plain_wallet::get_version().empty();
     }
 
     bool is_connected()

@@ -101,7 +101,7 @@ target_link_libraries(  cw_zano
                         zano_currency_core
                         zano_z
                         zano_wallet
-                        
+
                         boost_chrono
                         boost_date_time
                         boost_filesystem
@@ -115,4 +115,5 @@ target_link_libraries(  cw_zano
 
                         ssl
                         crypto
+                        ${log-lib}
                         )
