@@ -180,8 +180,8 @@ abstract class NanoWalletBase
       if (txOut.sendAll) {
         amt = balance[currency]?.currentBalance ?? BigInt.zero;
       } else {
-        amt = BigInt.tryParse(
-                NanoUtil.getAmountAsRaw(txOut.cryptoAmount ?? "0", NanoUtil.rawPerNano)) ??
+        amt = BigInt.tryParse(NanoUtil.getAmountAsRaw(
+                txOut.cryptoAmount?.replaceAll(',', '.') ?? "0", NanoUtil.rawPerNano)) ??
             BigInt.zero;
       }
 
@@ -193,7 +193,9 @@ abstract class NanoWalletBase
 
       final block = await _client.constructSendBlock(
         amountRaw: amt.toString(),
-        destinationAddress: txOut.extractedAddress ?? txOut.address,
+        destinationAddress: credentials.outputs.first.isParsedAddress
+            ? credentials.outputs.first.extractedAddress!
+            : credentials.outputs.first.address,
         privateKey: _privateKey!,
         balanceAfterTx: runningBalance,
         previousHash: previousHash,

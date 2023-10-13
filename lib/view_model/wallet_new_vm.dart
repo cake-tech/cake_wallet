@@ -1,4 +1,6 @@
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:flutter/foundation.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -44,6 +46,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
             name: name, language: options as String, password: walletPassword);
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(name: name, password: walletPassword);
+      case WalletType.bitcoinCash:
+        return bitcoinCash!.createBitcoinCashNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.nano:
         return nano!.createNanoNewWalletCredentials(name: name, password: walletPassword);
       default:

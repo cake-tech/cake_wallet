@@ -63,7 +63,9 @@ abstract class OtherSettingsViewModelBase with Store {
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
 
-    if (_wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin) {
+    if (_wallet.type == WalletType.bitcoin ||
+        _wallet.type == WalletType.litecoin ||
+        _wallet.type == WalletType.bitcoinCash) {
       final rate = bitcoin!.getFeeRate(_wallet, _priority);
       return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
     }

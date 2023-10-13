@@ -101,10 +101,10 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(WalletInfoAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(DERIVATION_TYPE_TYPE_ID)) {
+  if (!CakeHive.isAdapterRegistered(DERIVATION_TYPE_TYPE_ID)) {
     CakeHive.registerAdapter(DerivationTypeAdapter());
   }
-  
+
   if (!CakeHive.isAdapterRegistered(WALLET_TYPE_TYPE_ID)) {
     CakeHive.registerAdapter(WalletTypeAdapter());
   }
@@ -136,7 +136,8 @@ Future<void> initializeAppConfigs() async {
   final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
   final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
   final nodes = await CakeHive.openBox<Node>(Node.boxName);
-  final powNodes = await CakeHive.openBox<Node>(Node.boxName + "pow");// must be different from Node.boxName
+  final powNodes =
+      await CakeHive.openBox<Node>(Node.boxName + "pow"); // must be different from Node.boxName
   final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
       TransactionDescription.boxName,
       encryptionKey: transactionDescriptionsBoxKey);
@@ -163,7 +164,7 @@ Future<void> initializeAppConfigs() async {
       transactionDescriptions: transactionDescriptions,
       secureStorage: secureStorage,
       anonpayInvoiceInfo: anonpayInvoiceInfo,
-      initialMigrationVersion: 22);
+      initialMigrationVersion: 23);
   }
 
 Future<void> initialSetup(
