@@ -1,8 +1,10 @@
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
+import 'package:cake_wallet/dummy/dummy.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/currency.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -107,6 +109,38 @@ class EthereumURI extends PaymentURI {
   }
 }
 
+class ZanoURI extends PaymentURI {
+  ZanoURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'zano:' + address;
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
+class DummyURI extends PaymentURI {
+  DummyURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'dummy:' + address;
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
@@ -176,6 +210,14 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       return EthereumURI(amount: amount, address: address.address);
     }
 
+    if (wallet.type == WalletType.zano) {
+      return ZanoURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.dummy) {
+      return DummyURI(amount: amount, address: address.address);
+    }
+
     throw Exception('Unexpected type: ${type.toString()}');
   }
 
@@ -228,6 +270,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     if (wallet.type == WalletType.ethereum) {
       final primaryAddress = ethereum!.getAddress(wallet);
+
+      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+    }
+
+    if (wallet.type == WalletType.dummy) {
+      final primaryAddress = dummy!.getAddress(wallet);
 
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }

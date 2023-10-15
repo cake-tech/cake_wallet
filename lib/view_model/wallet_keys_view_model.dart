@@ -1,4 +1,5 @@
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -104,6 +105,19 @@ abstract class WalletKeysViewModelBase with Store {
           StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
+
+    if (_appStore.wallet!.type == WalletType.zano) {
+      items.addAll([
+        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+      ]);
+    }
+
+    if (_appStore.wallet!.type == WalletType.dummy) {
+      items.addAll([
+        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+      ]);
+    }
+
   }
 
   Future<int?> _currentHeight() async {
@@ -112,6 +126,9 @@ abstract class WalletKeysViewModelBase with Store {
     }
     if (_appStore.wallet!.type == WalletType.monero) {
       return monero_wallet.getCurrentHeight();
+    }
+    if (_appStore.wallet!.type == WalletType.zano) {
+      return await zano!.getCurrentHeight();
     }
     return null;
   }
@@ -128,6 +145,10 @@ abstract class WalletKeysViewModelBase with Store {
         return 'haven-wallet';
       case WalletType.ethereum:
         return 'ethereum-wallet';
+      case WalletType.zano:
+        return 'zano-wallet';
+      case WalletType.dummy:
+        return 'dummy-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
     }
@@ -172,6 +193,8 @@ abstract class WalletKeysViewModelBase with Store {
       return monero!.getHeigthByDate(date: date);
     } else if (type == WalletType.haven) {
       return haven!.getHeightByDate(date: date);
+    } else if (type == WalletType.zano) {
+      return zano!.getHeightByDate(date: date);
     }
     return 0;
   }

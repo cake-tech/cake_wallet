@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
+import 'package:cake_wallet/dummy/dummy.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
@@ -277,6 +278,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         return transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
       case WalletType.litecoin:
         return transactionPriority == bitcoin!.getLitecoinTransactionPrioritySlow();
+      case WalletType.zano:
+        return transactionPriority == monero!.getMoneroTransactionPrioritySlow();
+      case WalletType.dummy:
+        return transactionPriority == dummy!.getDummyTransactionPrioritySlow();
       default:
         return false;
     }
@@ -689,6 +694,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency = CryptoCurrency.eth;
         receiveCurrency = CryptoCurrency.xmr;
         break;
+      case WalletType.zano:
+        // TODO: !!!
+        // depositCurrency = CryptoCurrency.zano;
+        // receiveCurrency = ???
+        throw UnimplementedError();
+      case WalletType.dummy:
+        // TODO: !!!
+        // depositCurrency = CryptoCurrency.dummy;
+        // receiveCurrency = ???
+        throw UnimplementedError();
       default:
         break;
     }
@@ -771,6 +786,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.litecoin:
         _settingsStore.priority[wallet.type] = bitcoin!.getLitecoinTransactionPriorityMedium();
+        break;
+      case WalletType.zano:
+        _settingsStore.priority[wallet.type] = monero!.getMoneroTransactionPriorityAutomatic();
+        break;
+      case WalletType.dummy:
+        _settingsStore.priority[wallet.type] = dummy!.getDummyTransactionPriorityMedium();
         break;
       default:
         break;

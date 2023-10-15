@@ -1,10 +1,12 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/dummy/dummy.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -94,6 +96,12 @@ abstract class OutputBase with Store {
           case WalletType.ethereum:
             _amount = ethereum!.formatterEthereumParseAmount(_cryptoAmount);
             break;
+          case WalletType.zano:
+            _amount = zano!.formatterMoneroParseAmount(amount: _cryptoAmount);
+            break;
+          case WalletType.dummy:
+            _amount = dummy!.formatterDummyParseAmount(amount: _cryptoAmount);
+            break;
           default:
             break;
         }
@@ -128,8 +136,16 @@ abstract class OutputBase with Store {
         return haven!.formatterMoneroAmountToDouble(amount: fee);
       }
 
+      if (_wallet.type == WalletType.zano) {
+        return zano!.formatterMoneroAmountToDouble(amount: fee);
+      }
+
       if (_wallet.type == WalletType.ethereum) {
         return ethereum!.formatterEthereumAmountToDouble(amount: BigInt.from(fee));
+      }
+
+      if (_wallet.type == WalletType.dummy) {
+        return dummy!.formatterDummyAmountToDouble(amount: fee);
       }
     } catch (e) {
       print(e.toString());
@@ -240,6 +256,10 @@ abstract class OutputBase with Store {
       case WalletType.ethereum:
         maximumFractionDigits = 12;
         break;
+      case WalletType.dummy:
+      case WalletType.zano:
+        // TODO: enter correct values
+        throw UnimplementedError();
       default:
         break;
     }

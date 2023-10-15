@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/dummy/dummy.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
@@ -12,6 +13,7 @@ import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
@@ -84,7 +86,10 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialHavenTransactionPriority,
       TransactionPriority? initialLitecoinTransactionPriority,
-      TransactionPriority? initialEthereumTransactionPriority})
+      TransactionPriority? initialEthereumTransactionPriority,
+      TransactionPriority? initialZanoTransactionPriority,
+      TransactionPriority? initialDummyTransactionPriority,
+      })
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         _sharedPreferences = sharedPreferences,
         _backgroundTasks = backgroundTasks,
@@ -144,6 +149,14 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.ethereum] = initialEthereumTransactionPriority;
     }
 
+    if (initialZanoTransactionPriority != null) {
+      priority[WalletType.zano] = initialZanoTransactionPriority;
+    }
+
+    if (initialDummyTransactionPriority != null) {
+      priority[WalletType.dummy] = initialDummyTransactionPriority;
+    }
+
     reaction(
         (_) => fiatCurrency,
         (FiatCurrency fiatCurrency) => sharedPreferences.setString(
@@ -171,6 +184,12 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.ethereum:
           key = PreferencesKey.ethereumTransactionPriority;
+          break;
+        case WalletType.zano:
+          key = PreferencesKey.zanoTransactionPriority;
+          break;
+        case WalletType.dummy:
+          key = PreferencesKey.dummyTransactionPriority;
           break;
         default:
           key = null;
@@ -518,6 +537,8 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? havenTransactionPriority;
     TransactionPriority? litecoinTransactionPriority;
     TransactionPriority? ethereumTransactionPriority;
+    TransactionPriority? zanoTransactionPriority;
+    TransactionPriority? dummyTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -531,12 +552,22 @@ abstract class SettingsStoreBase with Store {
       ethereumTransactionPriority = bitcoin?.deserializeLitecoinTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority) != null) {
+      zanoTransactionPriority = monero?.deserializeMoneroTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority)!);
+    }
+    if (sharedPreferences.getInt(PreferencesKey.dummyTransactionPriority) != null) {
+      dummyTransactionPriority = dummy?.deserializeDummyTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.dummyTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
     havenTransactionPriority ??= monero?.getDefaultTransactionPriority();
     litecoinTransactionPriority ??= bitcoin?.getLitecoinTransactionPriorityMedium();
     ethereumTransactionPriority ??= ethereum?.getDefaultTransactionPriority();
+    zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
+    dummyTransactionPriority ??= dummy?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
@@ -619,15 +650,14 @@ abstract class SettingsStoreBase with Store {
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
-    //final zanoNodeId = 9;
-    debugPrint("zanoNodeId $zanoNodeId");
+    final dummyNodeId = sharedPreferences.getInt(PreferencesKey.currentDummyNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
     final zanoNode = nodeSource.get(zanoNodeId);
-    debugPrint("zanoNode $zanoNode");
+    final dummyNode = nodeSource.get(dummyNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
@@ -661,6 +691,10 @@ abstract class SettingsStoreBase with Store {
 
     if (zanoNode != null) {
       nodes[WalletType.zano] = zanoNode;
+    }
+
+    if (dummyNode != null) {
+      nodes[WalletType.dummy] = dummyNode;
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
@@ -702,6 +736,8 @@ abstract class SettingsStoreBase with Store {
         initialBitcoinTransactionPriority: bitcoinTransactionPriority,
         initialHavenTransactionPriority: havenTransactionPriority,
         initialLitecoinTransactionPriority: litecoinTransactionPriority,
+        initialZanoTransactionPriority: zanoTransactionPriority,
+        initialDummyTransactionPriority: dummyTransactionPriority,
         initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
         initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
         initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
@@ -747,6 +783,16 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.ethereum] = ethereum?.deserializeEthereumTransactionPriority(
               sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!) ??
           priority[WalletType.ethereum]!;
+    }
+    if (sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority) != null) {
+      priority[WalletType.zano] = zano?.deserializeMoneroTransactionPriority(
+              raw: sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority)!) ??
+          priority[WalletType.zano]!;
+    }
+    if (sharedPreferences.getInt(PreferencesKey.dummyTransactionPriority) != null) {
+      priority[WalletType.dummy] = dummy?.deserializeDummyTransactionPriority(
+              sharedPreferences.getInt(PreferencesKey.dummyTransactionPriority)!) ??
+          priority[WalletType.dummy]!;
     }
 
     final generateSubaddresses =
@@ -835,6 +881,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
+    final dummyNodeId = sharedPreferences.getInt(PreferencesKey.currentDummyNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
@@ -842,6 +889,7 @@ abstract class SettingsStoreBase with Store {
     final havenNode = nodeSource.get(havenNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
     final zanoNode = nodeSource.get(zanoNodeId);
+    final dummyNode = nodeSource.get(dummyNodeId);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -866,6 +914,10 @@ abstract class SettingsStoreBase with Store {
     if (zanoNode != null) {
       nodes[WalletType.zano] = zanoNode;
     }
+
+    if (dummyNode != null) {
+      nodes[WalletType.dummy] = dummyNode;
+    }
   }
 
   Future<void> _saveCurrentNode(Node node, WalletType walletType) async {
@@ -889,6 +941,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.zano:
         await _sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, node.key as int);
+        break;
+      case WalletType.dummy:
+        await _sharedPreferences.setInt(PreferencesKey.currentDummyNodeIdKey, node.key as int);
         break;
       default:
         break;

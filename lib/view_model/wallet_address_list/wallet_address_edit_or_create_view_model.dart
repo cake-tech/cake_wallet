@@ -1,3 +1,4 @@
+import 'package:cake_wallet/dummy/dummy.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
@@ -88,6 +89,11 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
             wallet,
             accountIndex: haven!.getCurrentAccount(wallet).id,
             label: label);
+      await wallet.save();
+    }
+
+    if (wallet.type == WalletType.dummy) {
+      await dummy!.generateNewAddress(wallet);
       await wallet.save();
     }
   }

@@ -15,6 +15,8 @@ CryptoCurrency currencyForWalletType(WalletType type) {
       return CryptoCurrency.eth;
     case WalletType.zano:
       return CryptoCurrency.zano;
+    case WalletType.dummy:
+      return CryptoCurrency.dummy;
     default:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');

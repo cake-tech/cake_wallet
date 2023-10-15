@@ -15,14 +15,17 @@ void __clear_cache(void* start, void* end) { }
 #endif
 
 #include "plain_wallet_api.h"
+#include "plain_wallet_api_ex.h"
 
-using namespace std::chrono_literals;
+
+
+//using namespace std::chrono_literals;
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-    const uint64_t MONERO_BLOCK_SIZE = 1000;
+    //const uint64_t MONERO_BLOCK_SIZE = 1000;
 
     struct Utf8Box
     {
@@ -61,19 +64,19 @@ extern "C"
         }
     };
 
-    struct HavenBalance
+    struct ZanoBalance
     {
         uint64_t amount;
         char *assetType;
 
-        HavenBalance(char *_assetType, uint64_t _amount)
+        ZanoBalance(char *_assetType, uint64_t _amount)
         {
             amount = _amount;
             assetType = _assetType;
         }
     };
 
-    struct HavenRate
+    struct ZanoRate
     {
         uint64_t rate;
         char *assetType;
@@ -85,7 +88,7 @@ extern "C"
         }
     };
 
-    struct MoneroWalletListener : Monero::WalletListener
+    /*struct MoneroWalletListener : Monero::WalletListener
     {
         uint64_t m_height;
         bool m_need_to_refresh;
@@ -153,6 +156,7 @@ extern "C"
             return m_height;
         }
     };
+    */
 
     struct TransactionInfoRow
     {
@@ -171,9 +175,9 @@ extern "C"
 
         int64_t datetime;
 
-        TransactionInfoRow(Monero::TransactionInfo *transaction)
-        {
-            amount = transaction->amount();
+        TransactionInfoRow(wallet_public::wallet_transfer_info& wti)
+        {            
+            amount = wti.subtransfers.
             fee = transaction->fee();
             blockHeight = transaction->blockHeight();
             subaddrAccount = transaction->subaddrAccount();
@@ -187,6 +191,7 @@ extern "C"
             hash = strdup(hash_str->c_str());
             paymentId = strdup(transaction->paymentId().c_str());
             assetType = strdup(transaction->assetType().c_str());
+            */
         }
     };
 

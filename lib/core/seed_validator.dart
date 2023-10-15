@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/dummy/dummy.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/zano/zano.dart';
@@ -32,6 +33,8 @@ class SeedValidator extends Validator<MnemonicItem> {
         return zano!.getMoneroWordList(language);
       case WalletType.ethereum:
         return ethereum!.getEthereumWordList(language);
+      case WalletType.dummy:
+        return dummy!.getDummyWordList();
       default:
         return [];
     }

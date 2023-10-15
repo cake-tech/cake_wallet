@@ -6,6 +6,7 @@ class PreferencesKey {
   static const currentLitecoinElectrumSererIdKey = 'current_node_id_ltc';
   static const currentHavenNodeIdKey = 'current_node_id_xhv';
   static const currentZanoNodeIdKey = 'current_node_id_zano';
+  static const currentDummyNodeIdKey = 'current_node_id_dummy';
   static const currentEthereumNodeIdKey = 'current_node_id_eth';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
@@ -35,6 +36,8 @@ class PreferencesKey {
   static const havenTransactionPriority = 'current_fee_priority_haven';
   static const litecoinTransactionPriority = 'current_fee_priority_litecoin';
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
+  static const zanoTransactionPriority = 'current_fee_priority_zano';
+  static const dummyTransactionPriority = 'current_fee_priority_dummy';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';

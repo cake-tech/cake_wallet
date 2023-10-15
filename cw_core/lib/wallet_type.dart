@@ -11,6 +11,7 @@ const walletTypes = [
   WalletType.haven,
   WalletType.ethereum,
   WalletType.zano,
+  WalletType.dummy,
 ];
 
 @HiveType(typeId: WALLET_TYPE_TYPE_ID)
@@ -35,6 +36,9 @@ enum WalletType {
 
   @HiveField(6)
   zano,
+
+  @HiveField(7)
+  dummy,
 }
 
 int serializeToInt(WalletType type) {
@@ -51,6 +55,8 @@ int serializeToInt(WalletType type) {
       return 4;
     case WalletType.zano:
       return 5;
+    case WalletType.dummy:
+      return 6;
     default:
       return -1;
   }
@@ -70,6 +76,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.ethereum;
     case 5:
       return WalletType.zano;
+    case 6:
+      return WalletType.dummy;
     default:
       throw Exception(
           'Unexpected token: $raw for WalletType deserializeFromInt');
@@ -90,6 +98,8 @@ String walletTypeToString(WalletType type) {
       return 'Ethereum';
     case WalletType.zano:
       return 'Zano';
+    case WalletType.dummy:
+      return 'Dummy';
     default:
       return '';
   }
@@ -109,6 +119,8 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Ethereum (ETH)';
     case WalletType.zano:
       return 'Zano (ZANO)';
+    case WalletType.dummy:
+      return 'Dummy (DUMMY)';
     default:
       return '';
   }
@@ -128,6 +140,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.zano;
     case WalletType.ethereum:
       return CryptoCurrency.eth;
+    case WalletType.dummy:
+      return CryptoCurrency.dummy;
     default:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');

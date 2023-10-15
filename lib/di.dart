@@ -5,6 +5,7 @@ import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/dummy/dummy.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -792,6 +793,9 @@ Future<void> setup({
         return ethereum!.createEthereumWalletService(_walletInfoSource);
       case WalletType.zano:
         return zano!.createZanoWalletService(_walletInfoSource);
+      case WalletType.dummy:
+        return dummy!.createDummyWalletService(_walletInfoSource);
+        
       default:
         throw Exception(
             'Unexpected token: ${param1.toString()} for generating of WalletService');
