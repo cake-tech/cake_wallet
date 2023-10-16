@@ -139,3 +139,7 @@ typedef coins_count = Int64 Function();
 // typedef coins_from_txid = Pointer<CoinsInfoRow> Function(Pointer<Utf8> txid);
 
 typedef coin = Pointer<CoinsInfoRow> Function(Int32 index);
+
+typedef freeze_coin = Void Function(Int32 index);
+
+typedef thaw_coin = Void Function(Int32 index);

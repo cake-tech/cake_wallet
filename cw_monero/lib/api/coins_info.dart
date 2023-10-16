@@ -16,8 +16,20 @@ final coinNative = moneroApi
     .lookup<NativeFunction<coin>>('coin')
     .asFunction<GetCoin>();
 
+final freezeCoinNative = moneroApi
+    .lookup<NativeFunction<freeze_coin>>('freeze_coin')
+    .asFunction<FreezeCoin>();
+
+final thawCoinNative = moneroApi
+    .lookup<NativeFunction<thaw_coin>>('thaw_coin')
+    .asFunction<ThawCoin>();
+
 void refreshCoins(int accountIndex) => refreshCoinsNative(accountIndex);
 
 int countOfCoins() => coinsCountNative();
 
 CoinsInfoRow getCoin(int index) => coinNative(index).ref;
+
+void freezeCoin(int index) => freezeCoinNative(index);
+
+void thawCoin(int index) => thawCoinNative(index);

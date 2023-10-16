@@ -139,3 +139,7 @@ typedef RefreshCoins = void Function(int);
 typedef CoinsCount = int Function();
 
 typedef GetCoin = Pointer<CoinsInfoRow> Function(int);
+
+typedef FreezeCoin = void Function(int);
+
+typedef ThawCoin = void Function(int);
