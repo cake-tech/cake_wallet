@@ -175,7 +175,7 @@ Future<void> defaultSettingsMigration(
               sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         case 24:
-          // TODO: await updateBtcAndNanoWalletInfos()
+          await updateBtcNanoWalletInfos(walletInfoSource);
           break;
 
         default:
@@ -523,6 +523,20 @@ Future<void> changeDefaultMoneroNode(
 
   if (needToReplaceCurrentMoneroNode) {
     await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, newCakeWalletNode.key as int);
+  }
+}
+
+Future<void> updateBtcNanoWalletInfos(Box<WalletInfo> walletsInfoSource) async {
+  for (WalletInfo walletInfo in walletsInfoSource.values) {
+    if (walletInfo.type == WalletType.nano || walletInfo.type == WalletType.bitcoin) {
+      walletInfo.derivationInfo = DerivationInfo(
+        derivationPath: walletInfo.derivationPath,
+        derivationType: walletInfo.derivationType,
+        address: walletInfo.address,
+        height: walletInfo.restoreHeight,
+      );
+      await walletInfo.save();
+    }
   }
 }
 
