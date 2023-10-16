@@ -11,6 +11,7 @@ class PreferencesKey {
   static const currentBananoNodeIdKey = 'current_node_id_banano';
   static const currentBananoPowNodeIdKey = 'current_node_id_banano_pow';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
+  static const currentBitcoinCashNodeIdKey = 'current_node_id_bch';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
@@ -36,6 +37,7 @@ class PreferencesKey {
   static const havenTransactionPriority = 'current_fee_priority_haven';
   static const litecoinTransactionPriority = 'current_fee_priority_litecoin';
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
+  static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
