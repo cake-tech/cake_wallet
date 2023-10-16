@@ -3,6 +3,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cw_core/nano_account_info_response.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -99,7 +100,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
               name: name, height: height, mnemonic: seed, password: password);
         case WalletType.ethereum:
           return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
-              name: name, mnemonic: seed, password: password);
+              name: name,
+              mnemonic: seed,
+              password: password);
+        case WalletType.bitcoinCash:
+          return bitcoinCash!.createBitcoinCashRestoreWalletFromSeedCredentials(
+              name: name,
+              mnemonic: seed,
+              password: password);
         case WalletType.nano:
           return nano!.createNanoRestoreWalletFromSeedCredentials(
             name: name,
@@ -152,8 +160,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             password: password,
             seedKey: options['private_key'] as String,
-            derivationType: options["derivationType"] as DerivationType,
-          );
+            derivationType: options["derivationType"] as DerivationType);
         default:
           break;
       }

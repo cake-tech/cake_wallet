@@ -17,13 +17,11 @@ class NanoRestoreWalletFromSeedCredentials extends WalletCredentials {
   NanoRestoreWalletFromSeedCredentials({
     required String name,
     required this.mnemonic,
-    int height = 0,
     String? password,
     required DerivationType derivationType,
   }) : super(
           name: name,
           password: password,
-          height: height,
           derivationInfo: DerivationInfo(derivationType: derivationType),
         );
 

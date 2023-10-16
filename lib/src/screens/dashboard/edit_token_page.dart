@@ -194,7 +194,9 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                           contractAddress: _contractAddressController.text,
                           decimal: int.parse(_tokenDecimalController.text),
                         ));
-                        Navigator.pop(context);
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                        }
                       }
                     },
                     text: S.of(context).save,

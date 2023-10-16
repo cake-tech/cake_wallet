@@ -719,5 +719,7 @@
   "message": "메시지",
   "do_not_have_enough_gas_asset": "현재 블록체인 네트워크 조건으로 거래를 하기에는 ${currency}이(가) 충분하지 않습니다. 다른 자산을 보내더라도 블록체인 네트워크 수수료를 지불하려면 ${currency}가 더 필요합니다.",
   "totp_auth_url": "TOTP 인증 URL",
-  "awaitDAppProcessing": "dApp이 처리를 마칠 때까지 기다려주세요."
+  "awaitDAppProcessing": "dApp이 처리를 마칠 때까지 기다려주세요.",
+  "seed_key": "시드 키",
+  "enter_seed_phrase": "시드 문구를 입력하십시오"
 }

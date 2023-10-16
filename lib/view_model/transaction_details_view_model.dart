@@ -39,6 +39,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
       case WalletType.bitcoin:
       case WalletType.litecoin:
+      case WalletType.bitcoinCash:
         _addElectrumListItems(tx, dateFormat);
         break;
       case WalletType.haven:
@@ -115,6 +116,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://mempool.space/tx/${txId}';
       case WalletType.litecoin:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
+      case WalletType.bitcoinCash:
+        return 'https://blockchair.com/bitcoin-cash/transaction/${txId}';
       case WalletType.haven:
         return 'https://explorer.havenprotocol.org/search?value=${txId}';
       case WalletType.ethereum:
@@ -135,6 +138,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.bitcoin:
         return S.current.view_transaction_on + 'mempool.space';
       case WalletType.litecoin:
+      case WalletType.bitcoinCash:
         return S.current.view_transaction_on + 'Blockchair.com';
       case WalletType.haven:
         return S.current.view_transaction_on + 'explorer.havenprotocol.org';

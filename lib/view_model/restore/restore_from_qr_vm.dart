@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
@@ -90,6 +91,9 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
               derivationType: derivationInfo!.derivationType!,
               derivationPath: derivationInfo.derivationPath!,
             );
+          case WalletType.bitcoinCash:
+            return bitcoinCash!.createBitcoinCashRestoreWalletFromSeedCredentials(
+                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
           case WalletType.ethereum:
             return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);

@@ -46,7 +46,7 @@ class AddressResolver {
     }
 
     final match = RegExp(addressPattern).firstMatch(raw);
-    return match?.group(0)?.replaceAll(RegExp('[^0-9a-zA-Z]'), '');
+    return match?.group(0)?.replaceAll(RegExp('[^0-9a-zA-Z_]'), '');
   }
 
   Future<ParsedAddress> resolve(String text, String ticker) async {

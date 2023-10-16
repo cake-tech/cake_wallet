@@ -721,5 +721,7 @@
   "message": "Nachricht",
   "do_not_have_enough_gas_asset": "Sie verfügen nicht über genügend ${currency}, um eine Transaktion unter den aktuellen Bedingungen des Blockchain-Netzwerks durchzuführen. Sie benötigen mehr ${currency}, um die Gebühren für das Blockchain-Netzwerk zu bezahlen, auch wenn Sie einen anderen Vermögenswert senden.",
   "totp_auth_url": "TOTP-Auth-URL",
-  "awaitDAppProcessing": "Bitte warten Sie, bis die dApp die Verarbeitung abgeschlossen hat."
+  "awaitDAppProcessing": "Bitte warten Sie, bis die dApp die Verarbeitung abgeschlossen hat.",
+  "seed_key": "Samenschlüssel",
+  "enter_seed_phrase": "Geben Sie Ihre Samenphrase ein"
 }

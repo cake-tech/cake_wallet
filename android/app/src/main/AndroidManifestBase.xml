@@ -52,6 +52,15 @@
                 <data android:scheme="litecoin" />
                 <data android:scheme="litecoin-wallet" />
                 <data android:scheme="litecoin_wallet" />
+                <data android:scheme="ethereum" />
+                <data android:scheme="ethereum-wallet" />
+                <data android:scheme="ethereum_wallet" />
+                <data android:scheme="nano" />
+                <data android:scheme="nano-wallet" />
+                <data android:scheme="nano_wallet" />
+                <data android:scheme="bitcoincash" />
+                <data android:scheme="bitcoincash-wallet" />
+                <data android:scheme="bitcoincash_wallet" />
             </intent-filter>
         </activity>
         <meta-data

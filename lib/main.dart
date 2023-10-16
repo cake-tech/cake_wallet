@@ -97,11 +97,11 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(WalletInfoAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(DERIVATION_TYPE_TYPE_ID)) {
+  if (!CakeHive.isAdapterRegistered(DERIVATION_TYPE_TYPE_ID)) {
     CakeHive.registerAdapter(DerivationTypeAdapter());
   }
 
-  if (!Hive.isAdapterRegistered(DERIVATION_INFO_TYPE_ID)) {
+  if (!CakeHive.isAdapterRegistered(DERIVATION_INFO_TYPE_ID)) {
     CakeHive.registerAdapter(DerivationInfoAdapter());
   }
   
@@ -129,14 +129,17 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(AnonpayInvoiceInfoAdapter());
   }
 
-  final secureStorage = FlutterSecureStorage();
+  final secureStorage = FlutterSecureStorage(
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+  );
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
   final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
   final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
   final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
   final nodes = await CakeHive.openBox<Node>(Node.boxName);
-  final powNodes = await CakeHive.openBox<Node>(Node.boxName + "pow");// must be different from Node.boxName
+  final powNodes =
+      await CakeHive.openBox<Node>(Node.boxName + "pow"); // must be different from Node.boxName
   final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
       TransactionDescription.boxName,
       encryptionKey: transactionDescriptionsBoxKey);
