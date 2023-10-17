@@ -14,7 +14,7 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
   final VoidCallback buttonAction;
 
   @override
-  String get titleText => 'Enter your WalletConnect URI';
+  String get titleText => S.current.enterWalletConnectURI;
 
   Future<void> _pasteWalletConnectURI() async {
     final clipboard = await Clipboard.getData('text/plain');
