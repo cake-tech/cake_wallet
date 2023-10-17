@@ -716,5 +716,7 @@
   "message": "Mensahe",
   "do_not_have_enough_gas_asset": "Wala kang sapat na ${currency} para gumawa ng transaksyon sa kasalukuyang kundisyon ng network ng blockchain. Kailangan mo ng higit pang ${currency} upang magbayad ng mga bayarin sa network ng blockchain, kahit na nagpapadala ka ng ibang asset.",
   "totp_auth_url": "TOTP AUTH URL",
-  "awaitDAppProcessing": "Pakihintay na matapos ang pagproseso ng dApp."
+  "awaitDAppProcessing": "Pakihintay na matapos ang pagproseso ng dApp.",
+  "seed_key": "Seed Key",
+  "enter_seed_phrase": "Ipasok ang iyong pariralang binhi"
 }

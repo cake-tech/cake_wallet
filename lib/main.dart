@@ -163,7 +163,7 @@ Future<void> initializeAppConfigs() async {
       secureStorage: secureStorage,
       anonpayInvoiceInfo: anonpayInvoiceInfo,
       initialMigrationVersion: 23);
-  }
+}
 
 Future<void> initialSetup(
     {required SharedPreferences sharedPreferences,
@@ -202,7 +202,8 @@ Future<void> initialSetup(
       transactionDescriptionBox: transactionDescriptions,
       ordersSource: ordersSource,
       anonpayInvoiceInfoSource: anonpayInvoiceInfo,
-      unspentCoinsInfoSource: unspentCoinsInfoSource);
+      unspentCoinsInfoSource: unspentCoinsInfoSource,
+      secureStorage: secureStorage);
   await bootstrap(navigatorKey);
   monero?.onStartup();
 }

@@ -46,7 +46,13 @@ class AddressResolver {
     }
 
     final match = RegExp(addressPattern).firstMatch(raw);
-    return match?.group(0)?.replaceAll(RegExp('[^0-9a-zA-Z]'), '');
+    return match?.group(0)?.replaceAllMapped(RegExp('[^0-9a-zA-Z]|bitcoincash:|nano_'), (Match match) {
+      String group = match.group(0)!;
+      if (group.startsWith('bitcoincash:') || group.startsWith('nano_')) {
+        return group;
+      }
+      return '';
+    });
   }
 
   Future<ParsedAddress> resolve(String text, String ticker) async {
