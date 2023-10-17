@@ -544,7 +544,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.desktop_settings_page:
-      return CupertinoPageRoute<void>(builder: (_) => DesktopSettingsPage());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<DesktopSettingsPage>());
 
     case Routes.empty_no_route:
       return MaterialPageRoute<void>(builder: (_) => SizedBox.shrink());

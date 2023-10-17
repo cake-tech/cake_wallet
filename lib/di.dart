@@ -219,6 +219,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 
 import 'core/totp_request_details.dart';
+import 'src/screens/settings/desktop_settings/desktop_settings_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -512,6 +513,9 @@ Future<void> setup({
 
   getIt.registerFactory<Modify2FAPage>(
       () => Modify2FAPage(setup2FAViewModel: getIt.get<Setup2FAViewModel>()));
+
+  getIt.registerFactory<DesktopSettingsPage>(
+      () => DesktopSettingsPage(bottomSheetService: getIt.get<BottomSheetService>()));
 
   getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>(
       (pageOption, _) => ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, pageOption));
