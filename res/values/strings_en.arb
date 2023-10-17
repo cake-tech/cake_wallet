@@ -724,5 +724,7 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Kindly wait for the dApp to finish processing.",
   "copyWalletConnectLink": "Copy the WalletConnect link from dApp and paste here",
-  "enterWalletConnectURI": "Enter WalletConnect URI"
+  "enterWalletConnectURI": "Enter WalletConnect URI",
+  "seed_key": "Seed key",
+  "enter_seed_phrase": "Enter your seed phrase"
 }

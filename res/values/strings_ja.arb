@@ -723,5 +723,7 @@
   "totp_auth_url": "TOTP認証URL",
   "awaitDAppProcessing": "dAppの処理が完了するまでお待ちください。",
   "copyWalletConnectLink": "dApp から WalletConnect リンクをコピーし、ここに貼り付けます",
-  "enterWalletConnectURI": "WalletConnect URI を入力してください"
+  "enterWalletConnectURI": "WalletConnect URI を入力してください",
+  "seed_key": "シードキー",
+  "enter_seed_phrase": "シードフレーズを入力してください"
 }

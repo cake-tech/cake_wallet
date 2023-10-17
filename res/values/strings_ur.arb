@@ -715,5 +715,7 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "۔ﮟﯾﺮﮐ ﺭﺎﻈﺘﻧﺍ ﺎﮐ ﮯﻧﻮﮨ ﻞﻤﮑﻣ ﮓﻨﺴﯿﺳﻭﺮﭘ ﮯﮐ dApp ﻡﺮﮐ ﮦﺍﺮﺑ",
   "copyWalletConnectLink": "dApp ﮯﺳ WalletConnect ۔ﮟﯾﺮﮐ ﭧﺴﯿﭘ ﮞﺎﮩﯾ ﺭﻭﺍ ﮟﯾﺮﮐ ﯽﭘﺎﮐ ﻮﮐ ﮏﻨﻟ",
-  "enterWalletConnectURI": "WalletConnect URI ۔ﮟﯾﺮﮐ ﺝﺭﺩ"
+  "enterWalletConnectURI": "WalletConnect URI ۔ﮟﯾﺮﮐ ﺝﺭﺩ",
+  "seed_key": "بیج کی کلید",
+  "enter_seed_phrase": "اپنے بیج کا جملہ درج کریں"
 }

@@ -723,5 +723,7 @@
   "totp_auth_url": "TOTP प्रामाणिक यूआरएल",
   "awaitDAppProcessing": "कृपया डीएपी की प्रोसेसिंग पूरी होने तक प्रतीक्षा करें।",
   "copyWalletConnectLink": "dApp से वॉलेटकनेक्ट लिंक को कॉपी करें और यहां पेस्ट करें",
-  "enterWalletConnectURI": "वॉलेटकनेक्ट यूआरआई दर्ज करें"
+  "enterWalletConnectURI": "वॉलेटकनेक्ट यूआरआई दर्ज करें",
+  "seed_key": "बीज कुंजी",
+  "enter_seed_phrase": "अपना बीज वाक्यांश दर्ज करें"
 }

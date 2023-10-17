@@ -129,6 +129,7 @@ flutter:
     - assets/bitcoin_electrum_server_list.yml
     - assets/litecoin_electrum_server_list.yml
     - assets/ethereum_server_list.yml
+    - assets/bitcoin_cash_electrum_server_list.yml
     - assets/nano_node_list.yml
     - assets/nano_pow_node_list.yml
     - assets/text/

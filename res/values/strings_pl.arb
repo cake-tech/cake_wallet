@@ -723,5 +723,7 @@
   "totp_auth_url": "Adres URL TOTP AUTH",
   "awaitDAppProcessing": "Poczekaj, aż dApp zakończy przetwarzanie.",
   "copyWalletConnectLink": "Skopiuj link do WalletConnect z dApp i wklej tutaj",
-  "enterWalletConnectURI": "Wprowadź identyfikator URI WalletConnect"
+  "enterWalletConnectURI": "Wprowadź identyfikator URI WalletConnect",
+  "seed_key": "Klucz nasion",
+  "enter_seed_phrase": "Wprowadź swoją frazę nasienną"
 }

@@ -2,6 +2,7 @@ import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
 import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
@@ -248,6 +249,7 @@ Future<void> setup({
   required Box<Order> ordersSource,
   required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
+  required FlutterSecureStorage secureStorage,
 }) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
@@ -289,7 +291,7 @@ Future<void> setup({
   getIt.registerFactory<Box<Node>>(() => _nodeSource);
   getIt.registerFactory<Box<Node>>(() => _powNodeSource, instanceName: Node.boxName + "pow");
 
-  getIt.registerSingleton<FlutterSecureStorage>(FlutterSecureStorage());
+  getIt.registerSingleton<FlutterSecureStorage>(secureStorage);
   getIt.registerSingleton(AuthenticationStore());
   getIt.registerSingleton<WalletListStore>(WalletListStore());
   getIt.registerSingleton(NodeListStoreBase.instance);
@@ -824,6 +826,8 @@ Future<void> setup({
         return bitcoin!.createLitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.ethereum:
         return ethereum!.createEthereumWalletService(_walletInfoSource);
+      case WalletType.bitcoinCash:
+        return bitcoinCash!.createBitcoinCashWalletService(_walletInfoSource, _unspentCoinsInfoSource!);
       case WalletType.nano:
         return nano!.createNanoWalletService(_walletInfoSource);
       default:

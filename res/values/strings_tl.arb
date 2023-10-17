@@ -718,5 +718,7 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Pakihintay na matapos ang pagproseso ng dApp.",
   "copyWalletConnectLink": "Kopyahin ang link ng WalletConnect mula sa dApp at i-paste dito",
-  "enterWalletConnectURI": "Ilagay ang WalletConnect URI"
+  "enterWalletConnectURI": "Ilagay ang WalletConnect URI",
+  "seed_key": "Seed Key",
+  "enter_seed_phrase": "Ipasok ang iyong pariralang binhi"
 }

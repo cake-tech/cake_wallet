@@ -723,5 +723,7 @@
   "totp_auth_url": "TOTP AUTH-URL",
   "awaitDAppProcessing": "Wacht tot de dApp klaar is met verwerken.",
   "copyWalletConnectLink": "Kopieer de WalletConnect-link van dApp en plak deze hier",
-  "enterWalletConnectURI": "Voer WalletConnect-URI in"
+  "enterWalletConnectURI": "Voer WalletConnect-URI in",
+  "seed_key": "Zaadsleutel",
+  "enter_seed_phrase": "Voer uw zaadzin in"
 }

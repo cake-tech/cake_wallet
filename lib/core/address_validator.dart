@@ -88,7 +88,9 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.dai:
       case CryptoCurrency.dash:
       case CryptoCurrency.eos:
+      return '[0-9a-zA-Z]';
       case CryptoCurrency.bch:
+        return '^(?!bitcoincash:)[0-9a-zA-Z]*\$|^(?!bitcoincash:)q[0-9a-zA-Z]{41}\$|^(?!bitcoincash:)q[0-9a-zA-Z]{42}\$|^bitcoincash:q[0-9a-zA-Z]{41}\$|^bitcoincash:q[0-9a-zA-Z]{42}\$';
       case CryptoCurrency.bnb:
         return '[0-9a-zA-Z]';
       case CryptoCurrency.ltc:
@@ -172,7 +174,9 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.steth:
       case CryptoCurrency.shib:
       case CryptoCurrency.avaxc:
+        return [42];
       case CryptoCurrency.bch:
+        return [42, 43, 44, 54, 55];
       case CryptoCurrency.bnb:
         return [42];
       case CryptoCurrency.ltc:
@@ -271,6 +275,11 @@ class AddressValidator extends TextValidator {
         return 'nano_[0-9a-zA-Z]{60}';
       case CryptoCurrency.banano:
         return 'ban_[0-9a-zA-Z]{60}';
+      case CryptoCurrency.bch:
+        return 'bitcoincash:q[0-9a-zA-Z]{41}([^0-9a-zA-Z]|\$)'
+            '|bitcoincash:q[0-9a-zA-Z]{42}([^0-9a-zA-Z]|\$)'
+            '|([^0-9a-zA-Z]|^)q[0-9a-zA-Z]{41}([^0-9a-zA-Z]|\$)'
+            '|([^0-9a-zA-Z]|^)q[0-9a-zA-Z]{42}([^0-9a-zA-Z]|\$)';
       default:
         return null;
     }

@@ -13,7 +13,8 @@ abstract class TradeFilterStoreBase with Store {
         displaySideShift = true,
         displayMorphToken = true,
         displaySimpleSwap = true,
-        displayTrocador = true;
+        displayTrocador = true,
+        displayExolix = true;
 
   @observable
   bool displayXMRTO;
@@ -33,8 +34,11 @@ abstract class TradeFilterStoreBase with Store {
   @observable
   bool displayTrocador;
 
+  @observable
+  bool displayExolix;
+
   @computed
-  bool get displayAllTrades => displayChangeNow && displaySideShift && displaySimpleSwap && displayTrocador;
+  bool get displayAllTrades => displayChangeNow && displaySideShift && displaySimpleSwap && displayTrocador && displayExolix;
 
   @action
   void toggleDisplayExchange(ExchangeProviderDescription provider) {
@@ -56,7 +60,10 @@ abstract class TradeFilterStoreBase with Store {
         break;
       case ExchangeProviderDescription.trocador:
         displayTrocador = !displayTrocador;
-        break; 
+        break;
+      case ExchangeProviderDescription.exolix:
+        displayExolix = !displayExolix;
+        break;
       case ExchangeProviderDescription.all:
         if (displayAllTrades) {
           displayChangeNow = false;
@@ -65,6 +72,7 @@ abstract class TradeFilterStoreBase with Store {
           displayMorphToken = false;
           displaySimpleSwap = false;
           displayTrocador = false;
+          displayExolix = false;
         } else {
           displayChangeNow = true;
           displaySideShift = true;
@@ -72,6 +80,7 @@ abstract class TradeFilterStoreBase with Store {
           displayMorphToken = true;
           displaySimpleSwap = true;
           displayTrocador = true;
+          displayExolix = true;
         }
         break;
     }
@@ -98,7 +107,8 @@ abstract class TradeFilterStoreBase with Store {
         ||(displaySimpleSwap &&
             item.trade.provider ==
                 ExchangeProviderDescription.simpleSwap)
-        ||(displayTrocador && item.trade.provider == ExchangeProviderDescription.trocador))
+        ||(displayTrocador && item.trade.provider == ExchangeProviderDescription.trocador)
+        ||(displayExolix && item.trade.provider == ExchangeProviderDescription.exolix))
         .toList()
         : _trades;
   }

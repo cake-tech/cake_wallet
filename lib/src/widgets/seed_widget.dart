@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/widgets/validable_annotated_editable_text.dart';
@@ -75,7 +76,7 @@ class SeedWidgetState extends State<SeedWidget> {
               Positioned(
                   top: 10,
                   left: 0,
-                  child: Text('Enter your seed',
+                  child: Text(S.of(context).enter_seed_phrase,
                       style: TextStyle(
                           fontSize: 16.0, color: Theme.of(context).hintColor))),
             Padding(

@@ -723,5 +723,7 @@
   "totp_auth_url": "URL-адрес TOTP-АВТОРИЗАЦИИ",
   "awaitDAppProcessing": "Пожалуйста, подождите, пока dApp завершит обработку.",
   "copyWalletConnectLink": "Скопируйте ссылку WalletConnect из dApp и вставьте сюда.",
-  "enterWalletConnectURI": "Введите URI WalletConnect"
+  "enterWalletConnectURI": "Введите URI WalletConnect",
+  "seed_key": "Ключ семян",
+  "enter_seed_phrase": "Введите свою семенную фразу"
 }

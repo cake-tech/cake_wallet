@@ -721,5 +721,7 @@
   "totp_auth_url": "URL การตรวจสอบสิทธิ์ TOTP",
   "awaitDAppProcessing": "โปรดรอให้ dApp ประมวลผลเสร็จสิ้น",
   "copyWalletConnectLink": "คัดลอกลิงก์ WalletConnect จาก dApp แล้ววางที่นี่",
-  "enterWalletConnectURI": "เข้าสู่ WalletConnect URI"
+  "enterWalletConnectURI": "เข้าสู่ WalletConnect URI",
+  "seed_key": "คีย์เมล็ดพันธุ์",
+  "enter_seed_phrase": "ป้อนวลีเมล็ดพันธุ์ของคุณ"
 }

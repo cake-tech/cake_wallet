@@ -723,5 +723,7 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Зачекайте, доки dApp завершить обробку.",
   "copyWalletConnectLink": "Скопіюйте посилання WalletConnect із dApp і вставте сюди",
-  "enterWalletConnectURI": "Введіть URI WalletConnect"
+  "enterWalletConnectURI": "Введіть URI WalletConnect",
+  "seed_key": "Насіннєвий ключ",
+  "enter_seed_phrase": "Введіть свою насіннєву фразу"
 }

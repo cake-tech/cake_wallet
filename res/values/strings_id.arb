@@ -711,5 +711,7 @@
   "totp_auth_url": "URL Otentikasi TOTP",
   "awaitDAppProcessing": "Mohon tunggu hingga dApp menyelesaikan pemrosesan.",
   "copyWalletConnectLink": "Salin tautan WalletConnect dari dApp dan tempel di sini",
-  "enterWalletConnectURI": "Masukkan URI WalletConnect"
+  "enterWalletConnectURI": "Masukkan URI WalletConnect",
+  "seed_key": "Kunci benih",
+  "enter_seed_phrase": "Masukkan frasa benih Anda"
 }
