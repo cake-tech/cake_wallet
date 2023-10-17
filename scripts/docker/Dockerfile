@@ -1,7 +1,7 @@
 FROM ubuntu:20.04
 LABEL authors="konsti"
 
-ENV MONERO_BRANCH=release-v0.18.2.2-android
+ENV MONERO_BRANCH=release-v0.18.3.1-android
 RUN apt-get update && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
     apt-get install -y dialog apt-utils curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang
