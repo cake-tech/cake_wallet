@@ -721,5 +721,9 @@
   "message": "Bericht",
   "do_not_have_enough_gas_asset": "U heeft niet genoeg ${currency} om een transactie uit te voeren met de huidige blockchain-netwerkomstandigheden. U heeft meer ${currency} nodig om blockchain-netwerkkosten te betalen, zelfs als u een ander item verzendt.",
   "totp_auth_url": "TOTP AUTH-URL",
-  "awaitDAppProcessing": "Wacht tot de dApp klaar is met verwerken."
+  "awaitDAppProcessing": "Wacht tot de dApp klaar is met verwerken.",
+  "normal_exchange_description": "Changenow, SideShift, Simpleswap en Trocador",
+  "moonpay_exchange_description": "Naadloze cryptocurrency swapping. \\ Ndocumenten vereist",
+  "select_exchange_provider_notice": "Selecteer hierboven een uitwisselingsprovider. U kunt dit scherm overslaan door uw standaarduitwisselingsprovider in te stellen in app -instellingen.",
+  "default_exchange_provider": "Standaard Exchange Provider"
 }

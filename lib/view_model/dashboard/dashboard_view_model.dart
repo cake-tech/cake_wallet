@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/entities/exchange_provider_types.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
@@ -284,6 +285,8 @@ abstract class DashboardViewModelBase with Store {
   Map<String, List<FilterItem>> filterItems;
 
   BuyProviderType get defaultBuyProvider => settingsStore.defaultBuyProvider;
+
+  ExchangeProviderType get defaultExchangeProvider => settingsStore.defaultExchangeProvider;
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 

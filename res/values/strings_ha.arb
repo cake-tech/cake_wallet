@@ -699,5 +699,9 @@
   "message": "Sako",
   "do_not_have_enough_gas_asset": "Ba ku da isassun ${currency} don yin ma'amala tare da yanayin cibiyar sadarwar blockchain na yanzu. Kuna buƙatar ƙarin ${currency} don biyan kuɗaɗen cibiyar sadarwar blockchain, koda kuwa kuna aika wata kadara daban.",
   "totp_auth_url": "TOTP AUTH URL",
-  "awaitDAppProcessing": "Da fatan za a jira dApp ya gama aiki."
+  "awaitDAppProcessing": "Da fatan za a jira dApp ya gama aiki.",
+  "normal_exchange_description": "Channenness, sassaƙa, simpeswap, da kuma Trocador",
+  "moonpay_exchange_description": "Sumba crypptocurrency. \\ NDOCUms da ake buƙata",
+  "select_exchange_provider_notice": "Zaɓi musayar mai musayar sama. Kuna iya tsallake wannan allon ta hanyar saita tsohuwar mai ba da musayar ta musayar ku a cikin saitunan App.",
+  "default_exchange_provider": "Mai Bayar da Musayar"
 }

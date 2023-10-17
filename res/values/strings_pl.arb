@@ -721,5 +721,9 @@
   "message": "Wiadomość",
   "do_not_have_enough_gas_asset": "Nie masz wystarczającej ilości ${currency}, aby dokonać transakcji przy bieżących warunkach sieci blockchain. Potrzebujesz więcej ${currency}, aby uiścić opłaty za sieć blockchain, nawet jeśli wysyłasz inny zasób.",
   "totp_auth_url": "Adres URL TOTP AUTH",
-  "awaitDAppProcessing": "Poczekaj, aż dApp zakończy przetwarzanie."
+  "awaitDAppProcessing": "Poczekaj, aż dApp zakończy przetwarzanie.",
+  "normal_exchange_description": "Changenow, Sideshift, SimplesWap i Trocador",
+  "moonpay_exchange_description": "Bezproblemowa zamiana kryptowalut.",
+  "select_exchange_provider_notice": "Wybierz powyższe dostawcę wymiany. Możesz pominąć ten ekran, ustawiając domyślnego dostawcę wymiany w ustawieniach aplikacji.",
+  "default_exchange_provider": "Domyślny dostawca wymiany"
 }

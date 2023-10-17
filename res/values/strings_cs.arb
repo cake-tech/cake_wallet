@@ -713,5 +713,9 @@
   "message": "Zpráva",
   "do_not_have_enough_gas_asset": "Nemáte dostatek ${currency} k provedení transakce s aktuálními podmínkami blockchainové sítě. K placení poplatků za blockchainovou síť potřebujete více ${currency}, i když posíláte jiné aktivum.",
   "totp_auth_url": "URL AUTH TOTP",
-  "awaitDAppProcessing": "Počkejte, až dApp dokončí zpracování."
+  "awaitDAppProcessing": "Počkejte, až dApp dokončí zpracování.",
+  "normal_exchange_description": "Channenow, SideShift, Simpmplewap a Trocador",
+  "moonpay_exchange_description": "Bezproblémové výměny kryptoměny.",
+  "select_exchange_provider_notice": "Vyberte výše uvedeného poskytovatele výměny. Tuto obrazovku můžete přeskočit nastavením výchozího poskytovatele výměny do nastavení aplikací.",
+  "default_exchange_provider": "Výchozí poskytovatel výměny"
 }

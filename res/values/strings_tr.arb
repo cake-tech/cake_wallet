@@ -719,5 +719,9 @@
   "message": "İleti",
   "do_not_have_enough_gas_asset": "Mevcut blockchain ağ koşullarıyla işlem yapmak için yeterli ${currency} paranız yok. Farklı bir varlık gönderiyor olsanız bile blockchain ağ ücretlerini ödemek için daha fazla ${currency} miktarına ihtiyacınız var.",
   "totp_auth_url": "TOTP YETKİ URL'si",
-  "awaitDAppProcessing": "Lütfen dApp'in işlemeyi bitirmesini bekleyin."
+  "awaitDAppProcessing": "Lütfen dApp'in işlemeyi bitirmesini bekleyin.",
+  "normal_exchange_description": "Changenow, Sideshift, Simpleswap ve Trocador",
+  "moonpay_exchange_description": "Kesintisiz kripto para değiştirme. \\ Ndocuments gerekli",
+  "select_exchange_provider_notice": "Yukarıda bir değişim sağlayıcısı seçin. App ayarlarında varsayılan değişim sağlayıcınızı ayarlayarak bu ekranı atlayabilirsiniz.",
+  "default_exchange_provider": "Varsayılan değişim sağlayıcısı"
 }

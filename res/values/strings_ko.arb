@@ -719,5 +719,9 @@
   "message": "메시지",
   "do_not_have_enough_gas_asset": "현재 블록체인 네트워크 조건으로 거래를 하기에는 ${currency}이(가) 충분하지 않습니다. 다른 자산을 보내더라도 블록체인 네트워크 수수료를 지불하려면 ${currency}가 더 필요합니다.",
   "totp_auth_url": "TOTP 인증 URL",
-  "awaitDAppProcessing": "dApp이 처리를 마칠 때까지 기다려주세요."
+  "awaitDAppProcessing": "dApp이 처리를 마칠 때까지 기다려주세요.",
+  "normal_exchange_description": "Changenow, Sideshift, Simpleswap 및 Trocador",
+  "moonpay_exchange_description": "원활한 cryptocurrency swapping. \\ ndocuments 필수",
+  "select_exchange_provider_notice": "위의 교환 제공 업체를 선택하십시오. 앱 설정에서 기본 교환 제공 업체를 설정 하여이 화면을 건너 뛸 수 있습니다.",
+  "default_exchange_provider": "기본 교환 제공 업체"
 }

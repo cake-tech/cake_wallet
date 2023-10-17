@@ -3,6 +3,7 @@ import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/buy_provider_types.dart';
+import 'package:cake_wallet/entities/exchange_provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -98,8 +99,42 @@ class MainActions {
     isEnabled: (viewModel) => viewModel.isEnabledExchangeAction,
     canShow: (viewModel) => viewModel.hasExchangeAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
-      if (viewModel.isEnabledExchangeAction) {
-        await Navigator.of(context).pushNamed(Routes.exchange);
+      if (!viewModel.isEnabledExchangeAction) return;
+      final defaultExchangeProvider = viewModel.defaultExchangeProvider;
+      final walletType = viewModel.type;
+
+      // TODO: CW-492 this is currently all wallets as the ticket didn't specify which wallets should be supported:
+      switch (walletType) {
+        case WalletType.bitcoin:
+        case WalletType.litecoin:
+        case WalletType.ethereum:
+        case WalletType.bitcoinCash:
+        case WalletType.nano:
+        case WalletType.banano:
+        case WalletType.monero:
+          switch (defaultExchangeProvider) {
+            case ExchangeProviderType.AskEachTime:
+              Navigator.pushNamed(context, Routes.choose_exchange_provider);
+              break;
+            case ExchangeProviderType.MoonPay:
+              await getIt.get<MoonPayBuyProvider>().launchProvider(context);
+              break;
+            case ExchangeProviderType.Normal:
+              await Navigator.of(context).pushNamed(Routes.exchange);
+              break;
+          }
+          break;
+        default:
+          await showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithOneAction(
+                    alertTitle: S.of(context).exchange,
+                    alertContent: S.of(context).unsupported_asset,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop());
+              });
+          break;
       }
     },
   );
@@ -133,8 +168,8 @@ class MainActions {
               settingsStore: viewModel.settingsStore,
             );
             if (DeviceInfo.instance.isMobile) {
-              Navigator.of(context).pushNamed(Routes.webViewPage,
-                  arguments: [S.of(context).sell, uri]);
+              Navigator.of(context)
+                  .pushNamed(Routes.webViewPage, arguments: [S.of(context).sell, uri]);
             } else {
               await launchUrl(uri);
             }

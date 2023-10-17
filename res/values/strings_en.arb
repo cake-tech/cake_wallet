@@ -722,5 +722,9 @@
   "message": "Message",
   "do_not_have_enough_gas_asset": "You do not have enough ${currency} to make a transaction with the current blockchain network conditions. You need more ${currency} to pay blockchain network fees, even if you are sending a different asset.",
   "totp_auth_url": "TOTP AUTH URL",
-  "awaitDAppProcessing": "Kindly wait for the dApp to finish processing."
+  "awaitDAppProcessing": "Kindly wait for the dApp to finish processing.",
+  "normal_exchange_description": "Changenow, SideShift, SimpleSwap, and Trocador",
+  "moonpay_exchange_description": "Seamless cryptocurrency swapping.\\nDocuments required",
+  "select_exchange_provider_notice": "Select an exchange provider above. You can skip this screen by setting your default exchange provider in app settings.",
+  "default_exchange_provider": "Default Exchange Provider"
 }

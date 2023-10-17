@@ -28,6 +28,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
+import 'package:cake_wallet/src/screens/exchange/exchange_options_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dart';
@@ -914,6 +915,8 @@ Future<void> setup({
   getIt.registerFactory(() => BuyAmountViewModel());
 
   getIt.registerFactory(() => BuyOptionsPage());
+
+  getIt.registerFactory(() => ExchangeOptionsPage());
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;

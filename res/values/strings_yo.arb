@@ -715,5 +715,9 @@
   "message": "Ifiranṣẹ",
   "do_not_have_enough_gas_asset": "O ko ni to ${currency} lati ṣe idunadura kan pẹlu awọn ipo nẹtiwọki blockchain lọwọlọwọ. O nilo diẹ sii ${currency} lati san awọn owo nẹtiwọọki blockchain, paapaa ti o ba nfi dukia miiran ranṣẹ.",
   "totp_auth_url": "TOTP AUTH URL",
-  "awaitDAppProcessing": "Fi inurere duro fun dApp lati pari sisẹ."
+  "awaitDAppProcessing": "Fi inurere duro fun dApp lati pari sisẹ.",
+  "normal_exchange_description": "Charginnow, Sidhatft, Simplewap, ati Trador",
+  "moonpay_exchange_description": "Spomprteras Crypturencys. \\ NDOCENST nilo",
+  "select_exchange_provider_notice": "Yan olupese olupese loke. O le rẹ iboju yii nipa ṣiṣe eto olupese aiyipada Exchange rẹ ninu Eto App.",
+  "default_exchange_provider": "Olupese paṣipaarọ aiyipada"
 }

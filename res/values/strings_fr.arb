@@ -721,5 +721,9 @@
   "message": "Message",
   "do_not_have_enough_gas_asset": "Vous n'avez pas assez de ${currency} pour effectuer une transaction avec les conditions actuelles du réseau blockchain. Vous avez besoin de plus de ${currency} pour payer les frais du réseau blockchain, même si vous envoyez un actif différent.",
   "totp_auth_url": "URL D'AUTORISATION TOTP",
-  "awaitDAppProcessing": "Veuillez attendre que le dApp termine le traitement."
+  "awaitDAppProcessing": "Veuillez attendre que le dApp termine le traitement.",
+  "normal_exchange_description": "Changenow, Sideshift, Simpleswap et Trocador",
+  "moonpay_exchange_description": "Échange de crypto-monnaie sans couture. \\ NDocuments requis",
+  "select_exchange_provider_notice": "Sélectionnez un fournisseur d'échange ci-dessus. Vous pouvez ignorer cet écran en définissant votre fournisseur d'échange par défaut dans les paramètres de l'application.",
+  "default_exchange_provider": "Fournisseur d'échange par défaut"
 }

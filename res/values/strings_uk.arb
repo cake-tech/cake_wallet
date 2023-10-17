@@ -721,5 +721,9 @@
   "message": "повідомлення",
   "do_not_have_enough_gas_asset": "У вас недостатньо ${currency}, щоб здійснити трансакцію з поточними умовами мережі блокчейн. Вам потрібно більше ${currency}, щоб сплатити комісію мережі блокчейн, навіть якщо ви надсилаєте інший актив.",
   "totp_auth_url": "TOTP AUTH URL",
-  "awaitDAppProcessing": "Зачекайте, доки dApp завершить обробку."
+  "awaitDAppProcessing": "Зачекайте, доки dApp завершить обробку.",
+  "normal_exchange_description": "Changenow, Sideshift, SimpleSwap та Trocador",
+  "moonpay_exchange_description": "Безшовна заміну криптовалюти. \\ Ndocuments Потрібні",
+  "select_exchange_provider_notice": "Виберіть постачальника обміну вище. Ви можете пропустити цей екран, встановивши свого постачальника обміну за замовчуванням у налаштуваннях додатків.",
+  "default_exchange_provider": "Постачальник обміну за замовчуванням"
 }

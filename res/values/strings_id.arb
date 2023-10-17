@@ -709,5 +709,9 @@
   "message": "Pesan",
   "do_not_have_enough_gas_asset": "Anda tidak memiliki cukup ${currency} untuk melakukan transaksi dengan kondisi jaringan blockchain saat ini. Anda memerlukan lebih banyak ${currency} untuk membayar biaya jaringan blockchain, meskipun Anda mengirimkan aset yang berbeda.",
   "totp_auth_url": "URL Otentikasi TOTP",
-  "awaitDAppProcessing": "Mohon tunggu hingga dApp menyelesaikan pemrosesan."
+  "awaitDAppProcessing": "Mohon tunggu hingga dApp menyelesaikan pemrosesan.",
+  "normal_exchange_description": "Changenow, sideshift, simpleswap, dan trocador",
+  "moonpay_exchange_description": "Pertukaran Cryptocurrency yang mulus. \\ Ndokumen diperlukan",
+  "select_exchange_provider_notice": "Pilih penyedia pertukaran di atas. Anda dapat melewatkan layar ini dengan mengatur penyedia pertukaran default Anda di pengaturan aplikasi.",
+  "default_exchange_provider": "Penyedia pertukaran default"
 }

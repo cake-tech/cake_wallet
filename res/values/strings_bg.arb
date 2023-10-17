@@ -713,5 +713,9 @@
   "message": "Съобщение",
   "do_not_have_enough_gas_asset": "Нямате достатъчно ${currency}, за да извършите транзакция с текущите условия на блокчейн мрежата. Имате нужда от повече ${currency}, за да платите таксите за блокчейн мрежа, дори ако изпращате различен актив.",
   "totp_auth_url": "TOTP AUTH URL",
-  "awaitDAppProcessing": "Моля, изчакайте dApp да завърши обработката."
+  "awaitDAppProcessing": "Моля, изчакайте dApp да завърши обработката.",
+  "normal_exchange_description": "Channigenow, Sideshift, Simpleswap и Trocador",
+  "moonpay_exchange_description": "Безпроблемна размяна на криптовалута.",
+  "select_exchange_provider_notice": "Изберете доставчик на обмен по -горе. Можете да пропуснете този екран, като зададете вашия доставчик на обмен по подразбиране в настройките на приложението.",
+  "default_exchange_provider": "Доставчик на обмен по подразбиране"
 }

@@ -719,5 +719,9 @@
   "message": "Poruka",
   "do_not_have_enough_gas_asset": "Nemate dovoljno ${currency} da izvršite transakciju s trenutačnim uvjetima blockchain mreže. Trebate više ${currency} da platite naknade za blockchain mrežu, čak i ako šaljete drugu imovinu.",
   "totp_auth_url": "TOTP AUTH URL",
-  "awaitDAppProcessing": "Molimo pričekajte da dApp završi obradu."
+  "awaitDAppProcessing": "Molimo pričekajte da dApp završi obradu.",
+  "normal_exchange_description": "ChanneGenow, Sideshift, Simpleswap i Trocador",
+  "moonpay_exchange_description": "Bešavna zamjena kriptovaluta.",
+  "select_exchange_provider_notice": "Odaberite gornji dobavljač razmjene. Ovaj zaslon možete preskočiti postavljanjem zadanog dobavljača Exchange u postavkama aplikacija.",
+  "default_exchange_provider": "Zadani davatelj razmjene"
 }
