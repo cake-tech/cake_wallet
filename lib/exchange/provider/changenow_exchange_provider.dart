@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
+import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
@@ -19,7 +19,8 @@ import 'package:http/http.dart';
 
 class ChangeNowExchangeProvider extends ExchangeProvider {
   ChangeNowExchangeProvider({required SettingsStore settingsStore})
-      : _settingsStore = settingsStore, _lastUsedRateId = '',
+      : _settingsStore = settingsStore,
+        _lastUsedRateId = '',
         super(pairList: supportedPairs(_notSupported));
 
   static const List<CryptoCurrency> _notSupported = [
@@ -80,9 +81,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       throw Exception('${error}\n$message');
     }
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
-    }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     return Limits(
@@ -92,10 +92,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   @override
   Future<double> fetchRate(
       {required CryptoCurrency from,
-        required CryptoCurrency to,
-        required double amount,
-        required bool isFixedRateMode,
-        required bool isReceiveAmount}) async {
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
     try {
       if (amount == 0) return 0.0;
 
@@ -111,11 +111,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         'flow': _getFlow(isFixedRateMode)
       };
 
-      if (isReverse) {
+      if (isReverse)
         params['toAmount'] = amount.toString();
-      } else {
+      else
         params['fromAmount'] = amount.toString();
-      }
 
       final uri = Uri.https(apiAuthority, estimatedAmountPath, params);
       final response = await get(uri, headers: headers);
@@ -182,9 +181,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       throw Exception('${error}\n$message');
     }
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
-    }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['id'] as String;
@@ -214,9 +212,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final uri = Uri.https(apiAuthority, findTradeByIdPath, params);
     final response = await get(uri, headers: headers);
 
-    if (response.statusCode == 404) {
-      throw TradeNotFoundException(id, provider: description);
-    }
+    if (response.statusCode == 404) throw TradeNotFoundException(id, provider: description);
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -225,9 +221,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       throw TradeNotFoundException(id, provider: description, description: error);
     }
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
-    }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['fromCurrency'] as String;

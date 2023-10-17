@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/exchange/exchange_provider_unsupported_exception.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -75,12 +76,14 @@ abstract class TradeDetailsViewModelBase with Store {
 
   @action
   Future<void> _updateTrade() async {
+    if (_provider == null) throw ExchangeProviderUnsupportedException(trade.provider);
+
     try {
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
-      if (updatedTrade.createdAt == null && trade.createdAt != null) {
+      if (updatedTrade.createdAt == null && trade.createdAt != null)
         updatedTrade.createdAt = trade.createdAt;
-      }
+
       Trade? foundElement = trades.values.firstWhereOrNull((element) => element.id == trade.id);
       if (foundElement != null) {
         final editedTrade = trades.get(foundElement.key);
