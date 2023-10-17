@@ -699,5 +699,7 @@
   "message": "Sako",
   "do_not_have_enough_gas_asset": "Ba ku da isassun ${currency} don yin ma'amala tare da yanayin cibiyar sadarwar blockchain na yanzu. Kuna buƙatar ƙarin ${currency} don biyan kuɗaɗen cibiyar sadarwar blockchain, koda kuwa kuna aika wata kadara daban.",
   "totp_auth_url": "TOTP AUTH URL",
-  "awaitDAppProcessing": "Da fatan za a jira dApp ya gama aiki."
+  "awaitDAppProcessing": "Da fatan za a jira dApp ya gama aiki.",
+  "seed_key": "Maɓallin iri",
+  "enter_seed_phrase": "Shigar da Sert Sentarku"
 }
