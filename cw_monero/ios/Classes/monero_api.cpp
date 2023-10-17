@@ -978,14 +978,12 @@ extern "C"
 
     void freeze_coin(int index)
     {
-        m_coins.setFrozen(index);
-        refresh_coins();
+        m_coins->setFrozen(index);
     }
 
     void thaw_coin(int index)
     {
-        m_coins.thaw(index);
-        refresh_coins();
+        m_coins->thaw(index);
     }
 
 #ifdef __cplusplus
