@@ -6,6 +6,7 @@
   is_default: false
 -
   uri: node.sethforprivacy.com:443
+  useSSL: true
   is_default: false
 -
   uri: nodes.hashvault.pro:18081
