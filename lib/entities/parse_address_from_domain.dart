@@ -65,16 +65,11 @@ class AddressResolver {
         if (addressFromBio != null) {
           return ParsedAddress.fetchTwitterAddress(address: addressFromBio, name: text);
         }
-        final tweets = twitterUser.tweets;
-        if (tweets != null) {
-          var subString = StringBuffer();
-          tweets.forEach((item) {
-            subString.writeln(item.text);
-          });
-          final userTweetsText = subString.toString();
-          final addressFromPinnedTweet =
-              extractAddressByType(raw: userTweetsText, type: CryptoCurrency.fromString(ticker));
 
+        final pinnedTweet = twitterUser.pinnedTweet?.text;
+        if (pinnedTweet != null) {
+          final addressFromPinnedTweet =
+          extractAddressByType(raw: pinnedTweet, type: CryptoCurrency.fromString(ticker));
           if (addressFromPinnedTweet != null) {
             return ParsedAddress.fetchTwitterAddress(address: addressFromPinnedTweet, name: text);
           }
