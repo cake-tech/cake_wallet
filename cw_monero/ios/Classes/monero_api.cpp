@@ -841,6 +841,12 @@ extern "C"
         return m_transaction_history->count();
     }
 
+    TransactionInfoRow* get_transaction(char * txId)
+    {
+        Monero::TransactionInfo *row = m_transaction_history->transaction(std::string(txId));
+        return new TransactionInfoRow(row);
+    }
+
     int LedgerExchange(
         unsigned char *command,
         unsigned int cmd_len,
@@ -978,7 +984,7 @@ extern "C"
 
     void thaw_coin(int index)
     {
-        m_coins.setFrozen(index);
+        m_coins.thaw(index);
         refresh_coins();
     }
 
