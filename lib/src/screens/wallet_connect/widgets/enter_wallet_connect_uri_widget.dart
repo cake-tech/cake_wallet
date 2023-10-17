@@ -4,14 +4,43 @@ import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class EnterWalletConnectURIWidget extends BaseAlertDialog {
-  EnterWalletConnectURIWidget({
-    required this.buttonAction,
+class EnterWalletConnectURIWrapperWidget extends StatefulWidget {
+  const EnterWalletConnectURIWrapperWidget({super.key});
+
+  @override
+  State<EnterWalletConnectURIWrapperWidget> createState() =>
+      _EnterWallectConnectURIWrapperWidgetState();
+}
+
+class _EnterWallectConnectURIWrapperWidgetState extends State<EnterWalletConnectURIWrapperWidget> {
+  late final TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _EnterWalletConnectURIWidget(
+      controller: controller,
+    );
+  }
+}
+
+class _EnterWalletConnectURIWidget extends BaseAlertDialog {
+  _EnterWalletConnectURIWidget({
     required this.controller,
   });
 
   final TextEditingController controller;
-  final VoidCallback buttonAction;
 
   @override
   String get titleText => S.current.enterWalletConnectURI;
@@ -91,7 +120,9 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
       child: ButtonTheme(
         minWidth: double.infinity,
         child: TextButton(
-          onPressed: buttonAction,
+          onPressed: () {
+            Navigator.pop(context, controller.text);
+          },
           child: Text(
             S.current.confirm,
             textAlign: TextAlign.center,

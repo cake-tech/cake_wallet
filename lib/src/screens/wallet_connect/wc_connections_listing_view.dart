@@ -43,7 +43,7 @@ class WCPairingsWidget extends BasePage {
     if (DeviceInfo.instance.isMobile) {
       uri = await presentQRScanner();
     } else {
-      uri = await _showEnterTOTPURIPopUp(context);
+      uri = await _showEnterWalletConnectURIPopUp(context);
     }
 
     if (uri == null) return _invalidUriToast(context, S.current.nullURIError);
@@ -59,24 +59,13 @@ class WCPairingsWidget extends BasePage {
     }
   }
 
-  Future<String?> _showEnterTOTPURIPopUp(BuildContext context) async {
-    final controller = TextEditingController();
-
-    await showPopUp<void>(
+  Future<String?> _showEnterWalletConnectURIPopUp(BuildContext context) async {
+    final walletConnectURI = await showPopUp<String>(
       context: context,
       builder: (BuildContext context) {
-        return EnterWalletConnectURIWidget(
-          buttonAction: () => Navigator.pop(context),
-          controller: controller,
-        );
+        return EnterWalletConnectURIWrapperWidget();
       },
     );
-
-    final walletConnectURI = controller.text;
-
-    //TODO(David): Find another point to dispose?
-    controller.dispose();
-
     return walletConnectURI;
   }
 
