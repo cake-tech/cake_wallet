@@ -134,11 +134,11 @@ class WalletRestoreFromQRCode {
       return WalletRestoreMode.seed;
     }
 
-    if (credentials.containsKey('spend_key') && credentials.containsKey('view_key')) {
+    if (credentials.containsKey('spend_key') || credentials.containsKey('view_key')) {
       final spendKeyValue = credentials['spend_key'] as String? ?? '';
       final viewKeyValue = credentials['view_key'] as String? ?? '';
 
-      return spendKeyValue.isNotEmpty && viewKeyValue.isNotEmpty
+      return spendKeyValue.isNotEmpty || viewKeyValue.isNotEmpty
           ? WalletRestoreMode.keys
           : throw Exception('Unexpected restore mode: spend_key or view_key is invalid');
     }
