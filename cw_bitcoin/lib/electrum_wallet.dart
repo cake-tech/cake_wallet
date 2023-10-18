@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:math';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:mobx/mobx.dart';
@@ -36,7 +35,6 @@ import 'package:cw_bitcoin/electrum.dart';
 import 'package:hex/hex.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:collection/collection.dart';
-import 'package:bip32/bip32.dart';
 
 part 'electrum_wallet.g.dart';
 
@@ -473,6 +471,7 @@ abstract class ElectrumWalletBase
         .then((unspent) => unspent
         .map((unspent) {
       try {
+        // ToDo: Add isChange
         return BitcoinUnspent.fromJSON(address, unspent);
       } catch(_) {
         return null;

@@ -398,8 +398,9 @@ abstract class MoneroWalletBase
     for (var i = 0; i < coinCount; i++) {
       final coin = getCoin(i);
       if (coin.spent == 0) {
-        final isChange =
-        unspentCoins.add(MoneroUnspent.fromCoinsInfoRow(coin));
+        final unspent = MoneroUnspent.fromCoinsInfoRow(coin);
+        unspent.isChange = transaction_history.getTransaction(unspent.hash).direction == 1;
+        unspentCoins.add(unspent);
       }
     }
 
