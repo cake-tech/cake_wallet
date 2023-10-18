@@ -41,7 +41,7 @@ class ExchangeOptionsPage extends BasePage {
                   image: iconRobinhood,
                   title: "MoonPay Swaps",
                   description: S.of(context).moonpay_exchange_description,
-                  onPressed: () async => await Navigator.of(context).pushReplacementNamed(Routes.exchange, arguments: ),
+                  onPressed: () async => await Navigator.of(context).pushReplacementNamed(Routes.exchange, arguments: true),
                 ),
               ),
               Padding(
