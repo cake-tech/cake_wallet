@@ -8,6 +8,7 @@ import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_provider_unsupported_item.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -53,11 +54,12 @@ abstract class TradeDetailsViewModelBase with Store {
         break;
     }
 
-    _updateItems();
+    if (_provider != null) {
+      _updateItems();
+      timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
+    }
 
     _updateTrade();
-
-    timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
   }
 
   final Box<Trade> trades;
@@ -103,6 +105,10 @@ abstract class TradeDetailsViewModelBase with Store {
     final dateFormat = DateFormatter.withCurrentLocal(reverse: true);
 
     items.clear();
+
+    if (_provider == null)
+      items.add(TradeProviderUnsupportedItem(
+          error: S.current.exchange_provider_unsupported(trade.provider.title)));
 
     items.add(
         DetailsListStatusItem(title: S.current.trade_details_state, value: trade.state.toString()));

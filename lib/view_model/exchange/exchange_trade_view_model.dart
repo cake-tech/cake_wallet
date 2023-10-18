@@ -53,9 +53,11 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
     }
 
+    if (_provider != null) {
+      _updateTrade();
+      timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
+    }
     _updateItems();
-    _updateTrade();
-    timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
   }
 
   final WalletBase wallet;
