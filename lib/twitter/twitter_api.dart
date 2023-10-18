@@ -1,7 +1,8 @@
 import 'dart:convert';
+
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/twitter/twitter_user.dart';
 import 'package:http/http.dart' as http;
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 class TwitterApi {
   static const twitterBearerToken = secrets.twitterBearerToken;
@@ -10,28 +11,49 @@ class TwitterApi {
   static const userPath = '/2/users/by/username/';
 
   static Future<TwitterUser> lookupUserByName({required String userName}) async {
-    final queryParams = {'user.fields': 'description', 'expansions': 'pinned_tweet_id'};
-
+    final queryParams = {
+      'user.fields': 'description',
+      'expansions': 'pinned_tweet_id',
+      'tweet.fields': 'note_tweet'
+    };
     final headers = {'authorization': 'Bearer $twitterBearerToken'};
-
     final uri = Uri(
-      scheme: httpsScheme,
-      host: apiHost,
-      path: userPath + userName,
-      queryParameters: queryParams,
-    );
+        scheme: httpsScheme,
+        host: apiHost,
+        path: userPath + userName,
+        queryParameters: queryParams);
 
-    var response = await http.get(uri, headers: headers);
+    final response = await http.get(uri, headers: headers).catchError((error) {
+      throw Exception('HTTP request failed: $error');
+    });
 
     if (response.statusCode != 200) {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
+    final Map<String, dynamic> responseJSON = jsonDecode(response.body) as Map<String, dynamic>;
     if (responseJSON['errors'] != null) {
       throw Exception(responseJSON['errors'][0]['detail']);
     }
 
-    return TwitterUser.fromJson(responseJSON);
+    return TwitterUser.fromJson(responseJSON, _getPinnedTweet(responseJSON));
+  }
+
+  static Tweet? _getPinnedTweet(Map<String, dynamic> responseJSON) {
+    final tweetId = responseJSON['data']['pinned_tweet_id'] as String?;
+    if (tweetId == null || responseJSON['includes'] == null) return null;
+
+    final tweetIncludes = List.from(responseJSON['includes']['tweets'] as List);
+    final pinnedTweetData = tweetIncludes.firstWhere(
+      (tweet) => tweet['id'] == tweetId,
+      orElse: () => null,
+    ) as Map<String, dynamic>?;
+
+    if (pinnedTweetData == null) return null;
+
+    final pinnedTweetText =
+        (pinnedTweetData['note_tweet']?['text'] ?? pinnedTweetData['text']) as String;
+
+    return Tweet(id: tweetId, text: pinnedTweetText);
   }
 }
