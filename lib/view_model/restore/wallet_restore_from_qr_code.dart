@@ -27,13 +27,18 @@ class WalletRestoreFromQRCode {
     'ethereum-wallet': WalletType.ethereum,
     'nano-wallet': WalletType.nano,
     'nano_wallet': WalletType.nano,
+    'bitcoincash': WalletType.bitcoinCash,
+    'bitcoincash-wallet': WalletType.bitcoinCash,
+    'bitcoincash_wallet': WalletType.bitcoinCash,
   };
 
   static bool _containsAssetSpecifier(String code) => _extractWalletType(code) != null;
 
   static WalletType? _extractWalletType(String code) {
-    final extracted =
-        _walletTypeMap.keys.firstWhereOrNull((key) => code.toLowerCase().contains(key));
+    final sortedKeys = _walletTypeMap.keys.toList()..sort((a, b) => b.length.compareTo(a.length));
+
+    final extracted = sortedKeys.firstWhereOrNull((key) => code.toLowerCase().contains(key));
+
     return _walletTypeMap[extracted];
   }
 
