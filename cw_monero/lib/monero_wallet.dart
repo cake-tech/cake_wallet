@@ -205,7 +205,7 @@ abstract class MoneroWalletBase
     for (final utx in unspentCoins) {
       if (utx.isSending) {
         allInputsAmount += utx.value;
-        inputs.add(utx.keyImage);
+        inputs.add(utx.keyImage!);
       }
     }
     final spendAllCoins = inputs.length == unspentCoins.length;
@@ -398,6 +398,7 @@ abstract class MoneroWalletBase
     for (var i = 0; i < coinCount; i++) {
       final coin = getCoin(i);
       if (coin.spent == 0) {
+        final isChange =
         unspentCoins.add(MoneroUnspent.fromCoinsInfoRow(coin));
       }
     }
