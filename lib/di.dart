@@ -14,6 +14,7 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/exchange/moonpay/moonpay_exchange_provider.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
@@ -774,6 +775,11 @@ Future<void> setup({
       () => RobinhoodBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
+        settingsStore: getIt.get<AppStore>().settingsStore,
+        wallet: getIt.get<AppStore>().wallet!,
+      ));
+
+  getIt.registerFactory<MoonPayExchangeProvider>(() => MoonPayExchangeProvider(
         settingsStore: getIt.get<AppStore>().settingsStore,
         wallet: getIt.get<AppStore>().wallet!,
       ));

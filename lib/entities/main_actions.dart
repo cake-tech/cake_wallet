@@ -4,6 +4,7 @@ import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/entities/exchange_provider_types.dart';
+import 'package:cake_wallet/exchange/moonpay/moonpay_exchange_provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -102,8 +103,7 @@ class MainActions {
       if (!viewModel.isEnabledExchangeAction) return;
       final defaultExchangeProvider = viewModel.defaultExchangeProvider;
       final walletType = viewModel.type;
-
-      // TODO: CW-492 this is currently all wallets as the ticket didn't specify which wallets should be supported:
+      
       switch (walletType) {
         case WalletType.bitcoin:
         case WalletType.litecoin:
@@ -117,7 +117,7 @@ class MainActions {
               Navigator.pushNamed(context, Routes.choose_exchange_provider);
               break;
             case ExchangeProviderType.MoonPay:
-              await getIt.get<MoonPayBuyProvider>().launchProvider(context);
+              await getIt.get<MoonPayExchangeProvider>().launchProvider(context);
               break;
             case ExchangeProviderType.Normal:
               await Navigator.of(context).pushNamed(Routes.exchange);

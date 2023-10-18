@@ -1,5 +1,6 @@
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/exchange/moonpay/moonpay_exchange_provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -40,8 +41,7 @@ class ExchangeOptionsPage extends BasePage {
                   image: iconRobinhood,
                   title: "MoonPay Swaps",
                   description: S.of(context).moonpay_exchange_description,
-                  onPressed: () async =>
-                      await getIt.get<RobinhoodBuyProvider>().launchProvider(context),
+                  onPressed: () async => await Navigator.of(context).pushReplacementNamed(Routes.exchange, arguments: ),
                 ),
               ),
               Padding(
