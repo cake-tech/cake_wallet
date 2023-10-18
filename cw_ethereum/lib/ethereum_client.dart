@@ -42,13 +42,21 @@ class EthereumClient {
       await _client!.getBalance(address);
 
   Future<int> getGasUnitPrice() async {
-    final gasPrice = await _client!.getGasPrice();
-    return gasPrice.getInWei.toInt();
+    try {
+      final gasPrice = await _client!.getGasPrice();
+      return gasPrice.getInWei.toInt();
+    } catch (_) {
+      return 0;
+    }
   }
 
   Future<int> getEstimatedGas() async {
-    final estimatedGas = await _client!.estimateGas();
-    return estimatedGas.toInt();
+    try {
+      final estimatedGas = await _client!.estimateGas();
+      return estimatedGas.toInt();
+    } catch (_) {
+      return 0;
+    }
   }
 
   Future<PendingEthereumTransaction> signTransaction({
@@ -65,13 +73,11 @@ class EthereumClient {
 
     bool _isEthereum = currency == CryptoCurrency.eth;
 
-    final price = await _client!.getGasPrice();
+    final price = _client!.getGasPrice();
 
     final Transaction transaction = Transaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
-      maxGas: gas,
-      gasPrice: price,
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
       value: _isEthereum ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
     );
@@ -93,6 +99,7 @@ class EthereumClient {
           EthereumAddress.fromHex(toAddress),
           BigInt.parse(amount),
           credentials: privateKey,
+          transaction: transaction,
         );
       };
     }
@@ -100,14 +107,14 @@ class EthereumClient {
     return PendingEthereumTransaction(
       signedTransaction: signedTransaction,
       amount: amount,
-      fee: BigInt.from(gas) * price.getInWei,
+      fee: BigInt.from(gas) * (await price).getInWei,
       sendTransaction: _sendTransaction,
       exponent: exponent,
     );
   }
 
   Future<String> sendTransaction(Uint8List signedTransaction) async =>
-      await _client!.sendRawTransaction(signedTransaction);
+      await _client!.sendRawTransaction(prependTransactionType(0x02, signedTransaction));
 
   Future getTransactionDetails(String transactionHash) async {
     // Wait for the transaction receipt to become available
@@ -207,6 +214,10 @@ I/flutter ( 4474): Gas Used: 53000
       print(e);
       return [];
     }
+  }
+
+  Web3Client? getWeb3Client() {
+    return _client;
   }
 
 // Future<int> _getDecimalPlacesForContract(DeployedContract contract) async {

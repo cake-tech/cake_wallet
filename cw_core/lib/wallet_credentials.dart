@@ -5,10 +5,15 @@ abstract class WalletCredentials {
     required this.name,
     this.height,
     this.walletInfo,
-    this.password});
+    this.password,
+    this.derivationType,
+    this.derivationPath,
+  });
 
   final String name;
   final int? height;
   String? password;
+  DerivationType? derivationType;
+  String? derivationPath;
   WalletInfo? walletInfo;
 }

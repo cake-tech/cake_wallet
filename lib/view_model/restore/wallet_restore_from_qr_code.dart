@@ -25,6 +25,8 @@ class WalletRestoreFromQRCode {
     'litecoin-wallet': WalletType.litecoin,
     'litecoin_wallet': WalletType.litecoin,
     'ethereum-wallet': WalletType.ethereum,
+    'nano-wallet': WalletType.nano,
+    'nano_wallet': WalletType.nano,
   };
 
   static bool _containsAssetSpecifier(String code) => _extractWalletType(code) != null;

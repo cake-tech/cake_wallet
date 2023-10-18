@@ -107,6 +107,38 @@ class EthereumURI extends PaymentURI {
   }
 }
 
+class BitcoinCashURI extends PaymentURI {
+  BitcoinCashURI({required String amount, required String address})
+    : super(amount: amount, address: address);
+  @override
+  String toString() {
+    var base = address;
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+  }
+
+
+
+class NanoURI extends PaymentURI {
+  NanoURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'nano:' + address;
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
@@ -174,6 +206,14 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     if (wallet.type == WalletType.ethereum) {
       return EthereumURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.bitcoinCash) {
+      return BitcoinCashURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.nano) {
+      return NanoURI(amount: amount, address: address.address);
     }
 
     throw Exception('Unexpected type: ${type.toString()}');
@@ -252,11 +292,17 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   @computed
-  bool get hasAddressList => wallet.type == WalletType.monero || wallet.type == WalletType.haven;
+  bool get hasAddressList =>
+      wallet.type == WalletType.monero ||
+      wallet.type == WalletType.haven;/* ||
+      wallet.type == WalletType.nano ||
+      wallet.type == WalletType.banano;*/// TODO: nano accounts are disabled for now
 
   @computed
   bool get showElectrumAddressDisclaimer =>
-      wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin;
+      wallet.type == WalletType.bitcoin ||
+          wallet.type == WalletType.litecoin ||
+          wallet.type == WalletType.bitcoinCash;
 
   List<ListItem> _baseItems;
 
@@ -269,11 +315,16 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void _init() {
     _baseItems = [];
 
-    if (wallet.type == WalletType.monero || wallet.type == WalletType.haven) {
+    if (wallet.type == WalletType.monero ||
+        wallet.type == WalletType.haven /*||
+        wallet.type == WalletType.nano ||
+        wallet.type == WalletType.banano*/) {
       _baseItems.add(WalletAccountListHeader());
     }
 
-    _baseItems.add(WalletAddressListHeader());
+    if (wallet.type != WalletType.nano && wallet.type != WalletType.banano) {
+      _baseItems.add(WalletAddressListHeader());
+    }
   }
 
   @action

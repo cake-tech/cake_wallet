@@ -4,6 +4,8 @@ const bitcoinOutputPath = 'lib/bitcoin/bitcoin.dart';
 const moneroOutputPath = 'lib/monero/monero.dart';
 const havenOutputPath = 'lib/haven/haven.dart';
 const ethereumOutputPath = 'lib/ethereum/ethereum.dart';
+const bitcoinCashOutputPath = 'lib/bitcoin_cash/bitcoin_cash.dart';
+const nanoOutputPath = 'lib/nano/nano.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
 const pubspecOutputPath = 'pubspec.yaml';
@@ -14,18 +16,42 @@ Future<void> main(List<String> args) async {
   final hasMonero = args.contains('${prefix}monero');
   final hasHaven = args.contains('${prefix}haven');
   final hasEthereum = args.contains('${prefix}ethereum');
+  final hasBitcoinCash = args.contains('${prefix}bitcoinCash');
+  final hasNano = args.contains('${prefix}nano');
+  final hasBanano = args.contains('${prefix}banano');
+
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
   await generateHaven(hasHaven);
   await generateEthereum(hasEthereum);
-  await generatePubspec(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasEthereum: hasEthereum);
-  await generateWalletTypes(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven, hasEthereum: hasEthereum);
+  await generateBitcoinCash(hasBitcoinCash);
+  await generateNano(hasNano);
+  // await generateBanano(hasEthereum);
+
+  await generatePubspec(
+    hasMonero: hasMonero,
+    hasBitcoin: hasBitcoin,
+    hasHaven: hasHaven,
+    hasEthereum: hasEthereum,
+    hasNano: hasNano,
+    hasBanano: hasBanano,
+    hasBitcoinCash: hasBitcoinCash,
+  );
+  await generateWalletTypes(
+    hasMonero: hasMonero,
+    hasBitcoin: hasBitcoin,
+    hasHaven: hasHaven,
+    hasEthereum: hasEthereum,
+    hasNano: hasNano,
+    hasBanano: hasBanano,
+    hasBitcoinCash: hasBitcoinCash,
+  );
 }
 
 Future<void> generateBitcoin(bool hasImplementation) async {
   final outputFile = File(bitcoinOutputPath);
   const bitcoinCommonHeaders = """
-import 'package:cake_wallet/entities/unspent_transaction_output.dart';
+import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -39,7 +65,6 @@ import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_service.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
@@ -59,8 +84,8 @@ abstract class Bitcoin {
   Map<String, String> getWalletKeys(Object wallet);
   List<TransactionPriority> getTransactionPriorities();
   List<TransactionPriority> getLitecoinTransactionPriorities();
-  TransactionPriority deserializeBitcoinTransactionPriority(int raw); 
-  TransactionPriority deserializeLitecoinTransactionPriority(int raw); 
+  TransactionPriority deserializeBitcoinTransactionPriority(int raw);
+  TransactionPriority deserializeLitecoinTransactionPriority(int raw);
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet);
   Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate});
@@ -88,12 +113,12 @@ abstract class Bitcoin {
   const bitcoinEmptyDefinition = 'Bitcoin? bitcoin;\n';
   const bitcoinCWDefinition = 'Bitcoin? bitcoin = CWBitcoin();\n';
 
-  final output = '$bitcoinCommonHeaders\n'
-    + (hasImplementation ? '$bitcoinCWHeaders\n' : '\n')
-    + (hasImplementation ? '$bitcoinCwPart\n\n' : '\n')
-    + (hasImplementation ? bitcoinCWDefinition : bitcoinEmptyDefinition)
-    + '\n'
-    + bitcoinContent;
+  final output = '$bitcoinCommonHeaders\n' +
+      (hasImplementation ? '$bitcoinCWHeaders\n' : '\n') +
+      (hasImplementation ? '$bitcoinCwPart\n\n' : '\n') +
+      (hasImplementation ? bitcoinCWDefinition : bitcoinEmptyDefinition) +
+      '\n' +
+      bitcoinContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -105,7 +130,7 @@ abstract class Bitcoin {
 Future<void> generateMonero(bool hasImplementation) async {
   final outputFile = File(moneroOutputPath);
   const moneroCommonHeaders = """
-import 'package:cake_wallet/entities/unspent_transaction_output.dart';
+import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_monero/monero_unspent.dart';
 import 'package:mobx/mobx.dart';
@@ -268,12 +293,12 @@ abstract class MoneroAccountList {
   const moneroEmptyDefinition = 'Monero? monero;\n';
   const moneroCWDefinition = 'Monero? monero = CWMonero();\n';
 
-  final output = '$moneroCommonHeaders\n'
-    + (hasImplementation ? '$moneroCWHeaders\n' : '\n')
-    + (hasImplementation ? '$moneroCwPart\n\n' : '\n')
-    + (hasImplementation ? moneroCWDefinition : moneroEmptyDefinition)
-    + '\n'
-    + moneroContent;
+  final output = '$moneroCommonHeaders\n' +
+      (hasImplementation ? '$moneroCWHeaders\n' : '\n') +
+      (hasImplementation ? '$moneroCwPart\n\n' : '\n') +
+      (hasImplementation ? moneroCWDefinition : moneroEmptyDefinition) +
+      '\n' +
+      moneroContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -283,7 +308,6 @@ abstract class MoneroAccountList {
 }
 
 Future<void> generateHaven(bool hasImplementation) async {
-  
   final outputFile = File(havenOutputPath);
   const havenCommonHeaders = """
 import 'package:mobx/mobx.dart';
@@ -448,12 +472,12 @@ abstract class HavenAccountList {
   const havenEmptyDefinition = 'Haven? haven;\n';
   const havenCWDefinition = 'Haven? haven = CWHaven();\n';
 
-  final output = '$havenCommonHeaders\n'
-    + (hasImplementation ? '$havenCWHeaders\n' : '\n')
-    + (hasImplementation ? '$havenCwPart\n\n' : '\n')
-    + (hasImplementation ? havenCWDefinition : havenEmptyDefinition)
-    + '\n'
-    + havenContent;
+  final output = '$havenCommonHeaders\n' +
+      (hasImplementation ? '$havenCWHeaders\n' : '\n') +
+      (hasImplementation ? '$havenCwPart\n\n' : '\n') +
+      (hasImplementation ? havenCWDefinition : havenEmptyDefinition) +
+      '\n' +
+      havenContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -463,11 +487,9 @@ abstract class HavenAccountList {
 }
 
 Future<void> generateEthereum(bool hasImplementation) async {
-
   final outputFile = File(ethereumOutputPath);
   const ethereumCommonHeaders = """
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/output_info.dart';
@@ -477,7 +499,9 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:eth_sig_util/util/utils.dart';
 import 'package:hive/hive.dart';
+import 'package:web3dart/web3dart.dart';
 """;
   const ethereumCWHeaders = """
 import 'package:cw_ethereum/ethereum_formatter.dart';
@@ -498,7 +522,10 @@ abstract class Ethereum {
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   String getAddress(WalletBase wallet);
+  String getPrivateKey(WalletBase wallet);
+  String getPublicKey(WalletBase wallet);
   TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getEthereumTransactionPrioritySlow();
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority deserializeEthereumTransactionPriority(int raw);
 
@@ -525,18 +552,19 @@ abstract class Ethereum {
   
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled);
+  Web3Client? getWeb3Client(WalletBase wallet);
 }
   """;
 
   const ethereumEmptyDefinition = 'Ethereum? ethereum;\n';
   const ethereumCWDefinition = 'Ethereum? ethereum = CWEthereum();\n';
 
-  final output = '$ethereumCommonHeaders\n'
-    + (hasImplementation ? '$ethereumCWHeaders\n' : '\n')
-    + (hasImplementation ? '$ethereumCwPart\n\n' : '\n')
-    + (hasImplementation ? ethereumCWDefinition : ethereumEmptyDefinition)
-    + '\n'
-    + ethereumContent;
+  final output = '$ethereumCommonHeaders\n' +
+      (hasImplementation ? '$ethereumCWHeaders\n' : '\n') +
+      (hasImplementation ? '$ethereumCwPart\n\n' : '\n') +
+      (hasImplementation ? ethereumCWDefinition : ethereumEmptyDefinition) +
+      '\n' +
+      ethereumContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -545,8 +573,219 @@ abstract class Ethereum {
   await outputFile.writeAsString(output);
 }
 
-Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasEthereum}) async {
-  const cwCore =  """
+Future<void> generateBitcoinCash(bool hasImplementation) async {
+  final outputFile = File(bitcoinCashOutputPath);
+  const bitcoinCashCommonHeaders = """
+import 'dart:typed_data';
+
+import 'package:cw_core/unspent_transaction_output.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+""";
+  const bitcoinCashCWHeaders = """
+import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+""";
+  const bitcoinCashCwPart = "part 'cw_bitcoin_cash.dart';";
+  const bitcoinCashContent = """
+abstract class BitcoinCash {
+  String getMnemonic(int? strength);
+
+  Uint8List getSeedFromMnemonic(String seed);
+
+  String getCashAddrFormat(String address);
+
+  WalletService createBitcoinCashWalletService(
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+
+  WalletCredentials createBitcoinCashNewWalletCredentials(
+      {required String name, WalletInfo? walletInfo});
+
+  WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials(
+      {required String name, required String mnemonic, required String password});
+
+  TransactionPriority deserializeBitcoinCashTransactionPriority(int raw);
+
+  TransactionPriority getDefaultTransactionPriority();
+
+  List<TransactionPriority> getTransactionPriorities();
+  
+  TransactionPriority getBitcoinCashTransactionPrioritySlow();
+}
+  """;
+
+  const bitcoinCashEmptyDefinition = 'BitcoinCash? bitcoinCash;\n';
+  const bitcoinCashCWDefinition = 'BitcoinCash? bitcoinCash = CWBitcoinCash();\n';
+
+  final output = '$bitcoinCashCommonHeaders\n' +
+      (hasImplementation ? '$bitcoinCashCWHeaders\n' : '\n') +
+      (hasImplementation ? '$bitcoinCashCwPart\n\n' : '\n') +
+      (hasImplementation ? bitcoinCashCWDefinition : bitcoinCashEmptyDefinition) +
+      '\n' +
+      bitcoinCashContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
+Future<void> generateNano(bool hasImplementation) async {
+  final outputFile = File(nanoOutputPath);
+  const nanoCommonHeaders = """
+import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/nano_account.dart';
+import 'package:cw_core/account.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cw_core/nano_account_info_response.dart';
+import 'package:mobx/mobx.dart';
+import 'package:hive/hive.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+""";
+  const nanoCWHeaders = """
+import 'package:cw_nano/nano_client.dart';
+import 'package:cw_nano/nano_mnemonic.dart';
+import 'package:cw_nano/nano_wallet.dart';
+import 'package:cw_nano/nano_wallet_service.dart';
+import 'package:cw_nano/nano_transaction_info.dart';
+import 'package:cw_nano/nano_transaction_credentials.dart';
+import 'package:cw_nano/nano_wallet_creation_credentials.dart';
+// needed for nano_util:
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:convert/convert.dart';
+import "package:ed25519_hd_key/ed25519_hd_key.dart";
+import 'package:libcrypto/libcrypto.dart';
+import 'package:nanodart/nanodart.dart' as ND;
+import 'package:decimal/decimal.dart';
+""";
+  const nanoCwPart = "part 'cw_nano.dart';";
+  const nanoContent = """
+abstract class Nano {
+  NanoAccountList getAccountList(Object wallet);
+
+  Account getCurrentAccount(Object wallet);
+
+  void setCurrentAccount(Object wallet, int id, String label, String? balance);
+
+  WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource);
+
+  WalletCredentials createNanoNewWalletCredentials({
+    required String name,
+    String password,
+  });
+  
+  WalletCredentials createNanoRestoreWalletFromSeedCredentials({
+    required String name,
+    required String password,
+    required String mnemonic,
+    DerivationType? derivationType,
+  });
+
+  WalletCredentials createNanoRestoreWalletFromKeysCredentials({
+    required String name,
+    required String password,
+    required String seedKey,
+    DerivationType? derivationType,
+  });
+
+  List<String> getNanoWordList(String language);
+  Map<String, String> getKeys(Object wallet);
+  Object createNanoTransactionCredentials(List<Output> outputs);
+  Future<void> changeRep(Object wallet, String address);
+  Future<void> updateTransactions(Object wallet);
+  BigInt getTransactionAmountRaw(TransactionInfo transactionInfo);
+  String getRepresentative(Object wallet);
+}
+
+abstract class NanoAccountList {
+  ObservableList<NanoAccount> get accounts;
+  void update(Object wallet);
+  void refresh(Object wallet);
+  Future<List<NanoAccount>> getAll(Object wallet);
+  Future<void> addAccount(Object wallet, {required String label});
+  Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
+}
+
+abstract class NanoUtil {
+  String seedToPrivate(String seed, int index);
+  String seedToAddress(String seed, int index);
+  String seedToMnemonic(String seed);
+  Future<String> mnemonicToSeed(String mnemonic);
+  String privateKeyToPublic(String privateKey);
+  String addressToPublicKey(String publicAddress);
+  String privateKeyToAddress(String privateKey);
+  String publicKeyToAddress(String publicKey);
+  bool isValidSeed(String seed);
+  Future<String> hdMnemonicListToSeed(List<String> words);
+  Future<String> hdSeedToPrivate(String seed, int index);
+  Future<String> hdSeedToAddress(String seed, int index);
+  Future<String> uniSeedToAddress(String seed, int index, String type);
+  Future<String> uniSeedToPrivate(String seed, int index, String type);
+  bool isValidBip39Seed(String seed);
+  static const int maxDecimalDigits = 6; // Max digits after decimal
+  BigInt rawPerNano = BigInt.parse("1000000000000000000000000000000");
+  BigInt rawPerNyano = BigInt.parse("1000000000000000000000000");
+  BigInt rawPerBanano = BigInt.parse("100000000000000000000000000000");
+  BigInt rawPerXMR = BigInt.parse("1000000000000");
+  BigInt convertXMRtoNano = BigInt.parse("1000000000000000000");
+  String getRawAsDecimalString(String? raw, BigInt? rawPerCur);
+  String getRawAsUsableString(String? raw, BigInt rawPerCur);
+  String getRawAccuracy(String? raw, BigInt rawPerCur);
+  String getAmountAsRaw(String amount, BigInt rawPerCur);
+
+  // derivationInfo:
+  Future<AccountInfoResponse?> getInfoFromSeedOrMnemonic(
+    DerivationType derivationType, {
+    String? seedKey,
+    String? mnemonic,
+    required Node node,
+  });
+  Future<List<DerivationType>> compareDerivationMethods({
+    String? mnemonic,
+    String? privateKey,
+    required Node node,
+  });
+}
+  """;
+
+  const nanoEmptyDefinition = 'Nano? nano;\nNanoUtil? nanoUtil;\n';
+  const nanoCWDefinition = 'Nano? nano = CWNano();\nNanoUtil? nanoUtil = CWNanoUtil();\n';
+
+  final output = '$nanoCommonHeaders\n' +
+      (hasImplementation ? '$nanoCWHeaders\n' : '\n') +
+      (hasImplementation ? '$nanoCwPart\n\n' : '\n') +
+      (hasImplementation ? nanoCWDefinition : nanoEmptyDefinition) +
+      '\n' +
+      nanoContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
+Future<void> generatePubspec(
+    {required bool hasMonero,
+    required bool hasBitcoin,
+    required bool hasHaven,
+    required bool hasEthereum,
+    required bool hasNano,
+    required bool hasBanano,
+    required bool hasBitcoinCash}) async {
+  const cwCore = """
   cw_core:
     path: ./cw_core
     """;
@@ -570,6 +809,18 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
   cw_ethereum:
     path: ./cw_ethereum
   """;
+  const cwBitcoinCash = """
+  cw_bitcoin_cash:
+    path: ./cw_bitcoin_cash
+  """;
+  const cwNano = """
+  cw_nano:
+    path: ./cw_nano
+  """;
+  const cwBanano = """
+  cw_banano:
+    path: ./cw_banano
+  """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
@@ -584,21 +835,33 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
     output += '\n$cwBitcoin';
   }
 
+  if (hasEthereum) {
+    output += '\n$cwEthereum';
+  }
+
+  if (hasNano) {
+    output += '\n$cwNano';
+  }
+
+  if (hasBanano) {
+    output += '\n$cwBanano';
+  }
+
+  if (hasBitcoinCash) {
+    output += '\n$cwBitcoinCash';
+  }
+
   if (hasHaven && !hasMonero) {
     output += '\n$cwSharedExternal\n$cwHaven';
   } else if (hasHaven) {
     output += '\n$cwHaven';
   }
 
-  if (hasEthereum) {
-    output += '\n$cwEthereum';
-  }
-
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
   final outputFile = File(pubspecOutputPath);
-  
+
   if (outputFile.existsSync()) {
     await outputFile.delete();
   }
@@ -606,9 +869,16 @@ Future<void> generatePubspec({required bool hasMonero, required bool hasBitcoin,
   await outputFile.writeAsString(outputContent);
 }
 
-Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitcoin, required bool hasHaven, required bool hasEthereum}) async {
+Future<void> generateWalletTypes(
+    {required bool hasMonero,
+    required bool hasBitcoin,
+    required bool hasHaven,
+    required bool hasEthereum,
+    required bool hasNano,
+    required bool hasBanano,
+    required bool hasBitcoinCash}) async {
   final walletTypesFile = File(walletTypesPath);
-  
+
   if (walletTypesFile.existsSync()) {
     await walletTypesFile.delete();
   }
@@ -631,6 +901,18 @@ Future<void> generateWalletTypes({required bool hasMonero, required bool hasBitc
 
   if (hasBitcoin) {
     outputContent += '\tWalletType.litecoin,\n';
+  }
+
+  if (hasBitcoinCash) {
+    outputContent += '\tWalletType.bitcoinCash,\n';
+  }
+
+  if (hasNano) {
+    outputContent += '\tWalletType.nano,\n';
+  }
+
+  if (hasBanano) {
+    outputContent += '\tWalletType.banano,\n';
   }
 
   if (hasHaven) {

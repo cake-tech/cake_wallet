@@ -28,6 +28,8 @@ class AddressValidator extends TextValidator {
         return '^3[0-9a-zA-Z]{32}\$|^3[0-9a-zA-Z]{33}\$|^bc1[0-9a-zA-Z]{59}\$';
       case CryptoCurrency.nano:
         return '[0-9a-zA-Z_]';
+      case CryptoCurrency.banano:
+        return '[0-9a-zA-Z_]';
       case CryptoCurrency.usdc:
       case CryptoCurrency.usdcpoly:
       case CryptoCurrency.ape:
@@ -86,7 +88,9 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.dai:
       case CryptoCurrency.dash:
       case CryptoCurrency.eos:
+      return '[0-9a-zA-Z]';
       case CryptoCurrency.bch:
+        return '^(?!bitcoincash:)[0-9a-zA-Z]*\$|^(?!bitcoincash:)q[0-9a-zA-Z]{41}\$|^(?!bitcoincash:)q[0-9a-zA-Z]{42}\$|^bitcoincash:q[0-9a-zA-Z]{41}\$|^bitcoincash:q[0-9a-zA-Z]{42}\$';
       case CryptoCurrency.bnb:
         return '[0-9a-zA-Z]';
       case CryptoCurrency.ltc:
@@ -170,12 +174,16 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.steth:
       case CryptoCurrency.shib:
       case CryptoCurrency.avaxc:
+        return [42];
       case CryptoCurrency.bch:
+        return [42, 43, 44, 54, 55];
       case CryptoCurrency.bnb:
         return [42];
       case CryptoCurrency.ltc:
         return [34, 43, 63];
       case CryptoCurrency.nano:
+        return [64, 65];
+      case CryptoCurrency.banano:
         return [64, 65];
       case CryptoCurrency.sc:
         return [76];
@@ -263,6 +271,15 @@ class AddressValidator extends TextValidator {
             '|([^0-9a-zA-Z]|^)ltc[a-zA-Z0-9]{26,45}([^0-9a-zA-Z]|\$)';
       case CryptoCurrency.eth:
         return '0x[0-9a-zA-Z]{42}';
+      case CryptoCurrency.nano:
+        return 'nano_[0-9a-zA-Z]{60}';
+      case CryptoCurrency.banano:
+        return 'ban_[0-9a-zA-Z]{60}';
+      case CryptoCurrency.bch:
+        return 'bitcoincash:q[0-9a-zA-Z]{41}([^0-9a-zA-Z]|\$)'
+            '|bitcoincash:q[0-9a-zA-Z]{42}([^0-9a-zA-Z]|\$)'
+            '|([^0-9a-zA-Z]|^)q[0-9a-zA-Z]{41}([^0-9a-zA-Z]|\$)'
+            '|([^0-9a-zA-Z]|^)q[0-9a-zA-Z]{42}([^0-9a-zA-Z]|\$)';
       default:
         return null;
     }

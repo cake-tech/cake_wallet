@@ -14,6 +14,7 @@ class EthereumTransactionInfo extends TransactionInfo {
     required this.isPending,
     required this.date,
     required this.confirmations,
+    required this.to,
   })  : this.amount = ethAmount.toInt(),
         this.fee = ethFee.toInt();
 
@@ -30,6 +31,7 @@ class EthereumTransactionInfo extends TransactionInfo {
   final int confirmations;
   final String tokenSymbol;
   String? _fiatAmount;
+  final String? to;
 
   @override
   String amountFormatted() =>
@@ -56,6 +58,7 @@ class EthereumTransactionInfo extends TransactionInfo {
       isPending: data['isPending'] as bool,
       confirmations: data['confirmations'] as int,
       tokenSymbol: data['tokenSymbol'] as String,
+      to: data['to'],
     );
   }
 
@@ -70,5 +73,6 @@ class EthereumTransactionInfo extends TransactionInfo {
         'isPending': isPending,
         'confirmations': confirmations,
         'tokenSymbol': tokenSymbol,
+        'to': to,
       };
 }

@@ -39,6 +39,10 @@
         <dict>
             <key>CFBundleTypeRole</key>
             <string>Editor</string>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
             <key>CFBundleURLName</key>
             <string>bitcoin</string>
             <key>CFBundleURLSchemes</key>
@@ -94,6 +98,66 @@
             <key>CFBundleURLSchemes</key>
             <array>
                 <string>litecoin-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>ethereum</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>ethereum</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>ethereum-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>ethereum-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>nano</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>nano</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>nano-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>nano-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>bitcoincash</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>bitcoincash</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>bitcoincash-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>bitcoincash-wallet</string>
             </array>
         </dict>
     </array>
