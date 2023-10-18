@@ -52,8 +52,8 @@ Future<void> generateBitcoin(bool hasImplementation) async {
   final outputFile = File(bitcoinOutputPath);
   const bitcoinCommonHeaders = """
 import 'dart:typed_data';
-import 'package:cake_wallet/entities/unspent_transaction_output.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -113,7 +113,7 @@ abstract class Bitcoin {
   int formatterStringDoubleToBitcoinAmount(String amount);
   String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate);
 
-  List<BitcoinUnspent> getUnspents(Object wallet);
+  List<Unspent> getUnspents(Object wallet);
   void updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
@@ -596,7 +596,7 @@ Future<void> generateBitcoinCash(bool hasImplementation) async {
   const bitcoinCashCommonHeaders = """
 import 'dart:typed_data';
 
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -606,6 +606,7 @@ import 'package:hive/hive.dart';
 """;
   const bitcoinCashCWHeaders = """
 import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 """;
   const bitcoinCashCwPart = "part 'cw_bitcoin_cash.dart';";
   const bitcoinCashContent = """

@@ -349,27 +349,27 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Object _credentials() {
     final priority = _settingsStore.priority[wallet.type];
 
+    if (priority == null && (wallet.type != WalletType.nano && wallet.type != WalletType.banano)) {
+      throw Exception('Priority is null for wallet type: ${wallet.type}');
+    }
+
     switch (wallet.type) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        if (priority == null) throw Exception('Priority is null for wallet type: ${wallet.type}');
-        return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority);
+        return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority!);
 
       case WalletType.monero:
-        if (priority == null) throw Exception('Priority is null for wallet type: ${wallet.type}');
         return monero!
-            .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority);
+            .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
 
       case WalletType.haven:
-        if (priority == null) throw Exception('Priority is null for wallet type: ${wallet.type}');
         return haven!.createHavenTransactionCreationCredentials(
-            outputs: outputs, priority: priority, assetType: selectedCryptoCurrency.title);
+            outputs: outputs, priority: priority!, assetType: selectedCryptoCurrency.title);
 
       case WalletType.ethereum:
-        if (priority == null) throw Exception('Priority is null for wallet type: ${wallet.type}');
         return ethereum!.createEthereumTransactionCredentials(outputs,
-            priority: priority, currency: selectedCryptoCurrency);
+            priority: priority!, currency: selectedCryptoCurrency);
       case WalletType.nano:
         return nano!.createNanoTransactionCredentials(outputs);
       default:
