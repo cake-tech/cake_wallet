@@ -124,9 +124,16 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
 
   Widget _restoreFromKeysFormFields() {
     if (widget.displayPrivateKeyField) {
+      // the term "private key" isn't actually what we're accepting here, and it's confusing to
+      // users of the nano community, what this form actually accepts (when importing for nano) is a nano seed in it's hex form, referred to in code as a "seed key"
+      // so we should change the placeholder text to reflect this
+      // supporting actual nano private keys is possible, but it's super niche in the nano community / they're not really used
+
+      bool nanoBased = widget.walletRestoreViewModel.type == WalletType.nano ||
+          widget.walletRestoreViewModel.type == WalletType.banano;
       return AddressTextField(
         controller: privateKeyController,
-        placeholder: S.of(context).private_key,
+        placeholder: nanoBased ? S.of(context).seed_key : S.of(context).private_key,
         options: [AddressTextFieldOption.paste],
         buttonColor: Theme.of(context).hintColor,
         onPushPasteButton: (_) {

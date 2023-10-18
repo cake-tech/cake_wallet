@@ -248,6 +248,7 @@ Future<void> setup({
   required Box<Order> ordersSource,
   required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
+  required FlutterSecureStorage secureStorage,
 }) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
@@ -289,7 +290,7 @@ Future<void> setup({
   getIt.registerFactory<Box<Node>>(() => _nodeSource);
   getIt.registerFactory<Box<Node>>(() => _powNodeSource, instanceName: Node.boxName + "pow");
 
-  getIt.registerSingleton<FlutterSecureStorage>(FlutterSecureStorage());
+  getIt.registerSingleton<FlutterSecureStorage>(secureStorage);
   getIt.registerSingleton(AuthenticationStore());
   getIt.registerSingleton<WalletListStore>(WalletListStore());
   getIt.registerSingleton(NodeListStoreBase.instance);
