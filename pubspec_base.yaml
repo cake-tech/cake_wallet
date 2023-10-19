@@ -20,8 +20,9 @@ dependencies:
   # provider: ^6.0.3
   rxdart: ^0.27.4
   yaml: ^3.1.1
-  #barcode_scan: any
-  barcode_scan2: ^4.2.1
+  # qr code scanning:
+  image_picker: ^1.0.2
+  mobile_scanner: 3.2.0
   http: ^1.1.0
   path_provider: ^2.0.11
   mobx: ^2.1.4
@@ -64,9 +65,9 @@ dependencies:
   unorm_dart: ^0.2.0
   # check unorm_dart for usage and for replace
   permission_handler: ^10.0.0
-  device_display_brightness: ^0.0.6
+  # device_display_brightness: ^0.0.6
+  screen_brightness: ^0.2.2
   workmanager: ^0.5.1
-  platform_device_id: ^1.0.1
   wakelock: ^0.6.2
   flutter_mailer: ^2.0.2
   device_info_plus: 8.1.0

@@ -188,7 +188,7 @@ class AddressTextField extends StatelessWidget {
   }
 
   Future<void> _presentQRScanner(BuildContext context) async {
-    final code = await presentQRScanner();
+    final code = await presentQRScanner(context);
     if (code.isEmpty) {
       return;
     }

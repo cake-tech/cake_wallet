@@ -36,7 +36,7 @@ class WCPairingsWidget extends BasePage {
   String get title => S.current.walletConnect;
 
   Future<void> _onScanQrCode(BuildContext context, Web3Wallet web3Wallet) async {
-    final String? uri = await presentQRScanner();
+    final String? uri = await presentQRScanner(context);
 
     if (uri == null) return _invalidUriToast(context, S.current.nullURIError);
 

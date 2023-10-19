@@ -10,7 +10,7 @@ class WalletRestoreFromQRCode {
   WalletRestoreFromQRCode();
 
   static Future<RestoredWallet> scanQRCodeForRestoring(BuildContext context) async {
-    String code = await presentQRScanner();
+    String code = await presentQRScanner(context);
     Map<String, dynamic> credentials = {};
 
     if (code.isEmpty) {
