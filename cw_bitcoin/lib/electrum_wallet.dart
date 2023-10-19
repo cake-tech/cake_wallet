@@ -27,6 +27,7 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -471,13 +472,16 @@ abstract class ElectrumWalletBase
         .getListUnspentWithAddress(address.address, networkType)
         .then((unspent) => unspent.map((unspent) {
               try {
-                // ToDo: Add isChange
                 return BitcoinUnspent.fromJSON(address, unspent);
               } catch (_) {
                 return null;
               }
             }).whereNotNull())));
     unspentCoins = unspent.expand((e) => e).toList();
+    unspentCoins.forEach((coin) async {
+      final tx = await fetchTransactionInfo(hash: coin.hash, height: 0);
+      coin.isChange = tx!.direction == TransactionDirection.outgoing;
+    });
 
     if (unspentCoinsInfo.isEmpty) {
       unspentCoins.forEach((coin) => _addCoinInfo(coin));
