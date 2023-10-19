@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/icon_from_path.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -127,22 +128,5 @@ class WalletTypeFormState extends State<WalletTypeForm> {
     }
 
     widget.onTypeSelected(context, selected!);
-  }
-
-  Widget buildIconFromPath(String? iconPath) {
-    if (iconPath != null && iconPath.contains('svg')) {
-      return SvgPicture.asset(
-        iconPath,
-        height: 24,
-        width: 24,
-        fit: BoxFit.contain,
-      );
-    } else {
-      return Image.asset(
-        iconPath ?? '',
-        height: 24,
-        width: 24,
-      );
-    }
   }
 }

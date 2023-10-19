@@ -7,6 +7,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/dropdown_item_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
+import 'package:cake_wallet/utils/icon_from_path.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -132,23 +133,6 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
 
     if (confirmed) {
       await _loadWallet(selectedWallet);
-    }
-  }
-
-  Widget buildIconFromPath(String? iconPath) {
-    if (iconPath != null && iconPath.contains('svg')) {
-      return SvgPicture.asset(
-        iconPath,
-        height: 24,
-        width: 24,
-        fit: BoxFit.contain,
-      );
-    } else {
-      return Image.asset(
-        iconPath ?? '',
-        height: 24,
-        width: 24,
-      );
     }
   }
 

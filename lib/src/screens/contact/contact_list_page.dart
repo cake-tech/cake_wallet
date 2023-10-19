@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/utils/icon_from_path.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -113,7 +114,7 @@ class ContactListPage extends BasePage {
   }
 
   Widget generateRaw(BuildContext context, ContactBase contact) {
-    final currencyIcon = getIcon(contact.type.iconPath);
+    final currencyIcon = buildIconFromPath(contact.type.iconPath);
 
     return GestureDetector(
       onTap: () async {
@@ -152,25 +153,6 @@ class ContactListPage extends BasePage {
         ),
       ),
     );
-  }
-
-  Widget getIcon(String? image) {
-    if (image != null && image.contains('svg')) {
-      return SvgPicture.asset(
-        image,
-        height: 24,
-        width: 24,
-        fit: BoxFit.contain,
-      );
-    } else if (image != null && image.isNotEmpty) {
-      return Image.asset(
-        image,
-        height: 24,
-        width: 24,
-      );
-    } else {
-      return const SizedBox(height: 24, width: 24);
-    }
   }
 
   Future<bool> showAlertDialog(BuildContext context) async {
