@@ -721,5 +721,7 @@
   "message": "メッセージ",
   "do_not_have_enough_gas_asset": "現在のブロックチェーン ネットワークの状況では、トランザクションを行うのに十分な ${currency} がありません。別のアセットを送信する場合でも、ブロックチェーン ネットワーク料金を支払うにはさらに ${currency} が必要です。",
   "totp_auth_url": "TOTP認証URL",
-  "awaitDAppProcessing": "dAppの処理が完了するまでお待ちください。"
+  "awaitDAppProcessing": "dAppの処理が完了するまでお待ちください。",
+  "seed_key": "シードキー",
+  "enter_seed_phrase": "シードフレーズを入力してください"
 }

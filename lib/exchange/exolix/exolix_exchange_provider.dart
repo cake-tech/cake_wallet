@@ -225,6 +225,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
         'networkFrom': _networkFor(from),
         'networkTo': _networkFor(to),
         'rateType': getRateType(isFixedRateMode),
+        'apiToken': apiKey,
       };
 
       if (isReceiveAmount) {

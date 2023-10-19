@@ -72,6 +72,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         break;
       case WalletType.bitcoin:
       case WalletType.litecoin:
+      case WalletType.bitcoinCash:
         amount = calculateFiatAmountRaw(
             cryptoAmount: bitcoin!.formatterBitcoinAmountToDouble(amount: transaction.amount),
             price: price);
@@ -92,16 +93,8 @@ class TransactionListItem extends ActionListItem with Keyable {
         break;
       case WalletType.nano:
         amount = calculateFiatAmountRaw(
-            cryptoAmount: nanoUtil!
-                .getRawAsDecimal(nano!.getTransactionAmountRaw(transaction).toString(), nanoUtil!.rawPerNano)
-                .toDouble(),
-            price: price);
-        break;
-      case WalletType.ethereum:
-        final asset = ethereum!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
-        amount = calculateFiatAmountRaw(
-            cryptoAmount: ethereum!.formatterEthereumAmountToDouble(transaction: transaction),
+            cryptoAmount: double.parse(nanoUtil!.getRawAsDecimalString(
+                nano!.getTransactionAmountRaw(transaction).toString(), nanoUtil!.rawPerNano)),
             price: price);
         break;
       default:

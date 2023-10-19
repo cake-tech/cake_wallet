@@ -178,6 +178,11 @@ class CWNano extends Nano {
   BigInt getTransactionAmountRaw(TransactionInfo transactionInfo) {
     return (transactionInfo as NanoTransactionInfo).amountRaw;
   }
+
+  @override
+  String getRepresentative(Object wallet) {
+    return (wallet as NanoWallet).representative;
+  }
 }
 
 class CWNanoUtil extends NanoUtil {
@@ -308,12 +313,17 @@ class CWNanoUtil extends NanoUtil {
   /// @param raw 100000000000000000000000000000
   /// @return Decimal value 1.000000000000000000000000000000
   ///
-  @override
-  Decimal getRawAsDecimal(String? raw, BigInt? rawPerCur) {
+  Decimal _getRawAsDecimal(String? raw, BigInt? rawPerCur) {
     rawPerCur ??= rawPerNano;
     final Decimal amount = Decimal.parse(raw.toString());
     final Decimal result = (amount / Decimal.parse(rawPerCur.toString())).toDecimal();
     return result;
+  }
+
+  @override
+  String getRawAsDecimalString(String? raw, BigInt? rawPerCur) {
+    final Decimal result = _getRawAsDecimal(raw, rawPerCur);
+    return result.toString();
   }
 
   @override
@@ -332,7 +342,7 @@ class CWNanoUtil extends NanoUtil {
   @override
   String getRawAsUsableString(String? raw, BigInt rawPerCur) {
     final String res =
-        truncateDecimal(getRawAsDecimal(raw, rawPerCur), digits: maxDecimalDigits + 9);
+        truncateDecimal(_getRawAsDecimal(raw, rawPerCur), digits: maxDecimalDigits + 9);
 
     if (raw == null || raw == "0" || raw == "00000000000000000000000000000000") {
       return "0";
@@ -361,7 +371,7 @@ class CWNanoUtil extends NanoUtil {
   @override
   String getRawAccuracy(String? raw, BigInt rawPerCur) {
     final String rawString = getRawAsUsableString(raw, rawPerCur);
-    final String rawDecimalString = getRawAsDecimal(raw, rawPerCur).toString();
+    final String rawDecimalString = _getRawAsDecimal(raw, rawPerCur).toString();
 
     if (raw == null || raw.isEmpty || raw == "0") {
       return "";
@@ -396,6 +406,13 @@ class CWNanoUtil extends NanoUtil {
     late String publicAddress;
 
     if (seedKey != null) {
+      if (seedKey.length == 64) {
+        try {
+          mnemonic = nanoUtil!.seedToMnemonic(seedKey);
+        } catch (e) {
+          print("not a valid 'nano' seed key");
+        }
+      }
       if (derivationType == DerivationType.bip39) {
         publicAddress = await hdSeedToAddress(seedKey, 0);
       } else if (derivationType == DerivationType.nano) {
@@ -419,7 +436,8 @@ class CWNanoUtil extends NanoUtil {
 
     AccountInfoResponse? accountInfo = await nanoClient.getAccountInfo(publicAddress);
     if (accountInfo == null) {
-      accountInfo = AccountInfoResponse(frontier: "", balance: "0", representative: "", confirmationHeight: 0);
+      accountInfo = AccountInfoResponse(
+          frontier: "", balance: "0", representative: "", confirmationHeight: 0);
     }
     accountInfo.address = publicAddress;
     return accountInfo;
@@ -439,7 +457,11 @@ class CWNanoUtil extends NanoUtil {
     if (seedKey?.length == 128) {
       return [DerivationType.bip39];
     } else if (seedKey?.length == 64) {
-      return [DerivationType.nano];
+      try {
+        mnemonic = nanoUtil!.seedToMnemonic(seedKey!);
+      } catch (e) {
+        print("not a valid 'nano' seed key");
+      }
     }
 
     late String publicAddressStandard;
@@ -493,7 +515,7 @@ class CWNanoUtil extends NanoUtil {
       // we don't know for sure:
       return [DerivationType.nano, DerivationType.bip39];
     } catch (e) {
-      return [DerivationType.unknown];
+      return [DerivationType.nano, DerivationType.bip39];
     }
   }
 }

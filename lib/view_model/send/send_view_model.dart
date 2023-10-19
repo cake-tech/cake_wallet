@@ -1,4 +1,3 @@
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -187,11 +186,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get hasCoinControl =>
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.litecoin ||
-      wallet.type == WalletType.monero;
+      wallet.type == WalletType.monero ||
+      wallet.type == WalletType.bitcoinCash;
 
   @computed
   bool get isElectrumWallet =>
-      wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin;
+      wallet.type == WalletType.bitcoin ||
+      wallet.type == WalletType.litecoin ||
+      wallet.type == WalletType.bitcoinCash;
 
   @computed
   bool get hasFees => wallet.type != WalletType.nano && wallet.type != WalletType.banano;
@@ -279,7 +281,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     List<bool> conditionsList = [];
 
     for (var output in outputs) {
-      final show = checkThroughChecksToDisplayTOTP(output.address);
+      final show = checkThroughChecksToDisplayTOTP(output.extractedAddress);
       conditionsList.add(show);
     }
 
@@ -345,54 +347,31 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       _settingsStore.priority[wallet.type] = priority;
 
   Object _credentials() {
+    final priority = _settingsStore.priority[wallet.type];
+
+    if (priority == null && wallet.type != WalletType.nano) {
+      throw Exception('Priority is null for wallet type: ${wallet.type}');
+    }
+
     switch (wallet.type) {
       case WalletType.bitcoin:
-        final priority = _settingsStore.priority[wallet.type];
-
-        if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${wallet.type}');
-        }
-
-        return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority);
       case WalletType.litecoin:
-        final priority = _settingsStore.priority[wallet.type];
+      case WalletType.bitcoinCash:
+        return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority!);
 
-        if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${wallet.type}');
-        }
-
-        return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority);
       case WalletType.monero:
-        final priority = _settingsStore.priority[wallet.type];
-
-        if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${wallet.type}');
-        }
-
         return monero!
-            .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority);
+            .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
+
       case WalletType.haven:
-        final priority = _settingsStore.priority[wallet.type];
-
-        if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${wallet.type}');
-        }
-
         return haven!.createHavenTransactionCreationCredentials(
-            outputs: outputs, priority: priority, assetType: selectedCryptoCurrency.title);
+            outputs: outputs, priority: priority!, assetType: selectedCryptoCurrency.title);
+
       case WalletType.ethereum:
-        final priority = _settingsStore.priority[wallet.type];
-
-        if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${wallet.type}');
-        }
-
         return ethereum!.createEthereumTransactionCredentials(outputs,
-            priority: priority, currency: selectedCryptoCurrency);
+            priority: priority!, currency: selectedCryptoCurrency);
       case WalletType.nano:
-        return nano!.createNanoTransactionCredentials(
-          outputs,
-        );
+        return nano!.createNanoTransactionCredentials(outputs);
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }
@@ -428,9 +407,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
-  String translateErrorMessage(String error, WalletType walletType, CryptoCurrency currency,) {
+  String translateErrorMessage(
+    String error,
+    WalletType walletType,
+    CryptoCurrency currency,
+  ) {
     if (walletType == WalletType.ethereum || walletType == WalletType.haven) {
-      if (error.contains('gas required exceeds allowance') || error.contains('insufficient funds for gas')) {
+      if (error.contains('gas required exceeds allowance') ||
+          error.contains('insufficient funds for')) {
         return S.current.do_not_have_enough_gas_asset(currency.toString());
       }
     }

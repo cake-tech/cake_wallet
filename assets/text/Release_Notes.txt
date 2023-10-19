@@ -1,4 +1,3 @@
-Ethereum enhancements and bug fixes
-Fix 2FA code issue
+Add BitcoinCash (BCH)
 Bug fixes
-Minor enhancements
+Accessibility enhancements

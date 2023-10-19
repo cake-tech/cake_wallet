@@ -709,5 +709,7 @@
   "message": "Pesan",
   "do_not_have_enough_gas_asset": "Anda tidak memiliki cukup ${currency} untuk melakukan transaksi dengan kondisi jaringan blockchain saat ini. Anda memerlukan lebih banyak ${currency} untuk membayar biaya jaringan blockchain, meskipun Anda mengirimkan aset yang berbeda.",
   "totp_auth_url": "URL Otentikasi TOTP",
-  "awaitDAppProcessing": "Mohon tunggu hingga dApp menyelesaikan pemrosesan."
+  "awaitDAppProcessing": "Mohon tunggu hingga dApp menyelesaikan pemrosesan.",
+  "seed_key": "Kunci benih",
+  "enter_seed_phrase": "Masukkan frasa benih Anda"
 }

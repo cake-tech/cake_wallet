@@ -292,7 +292,7 @@
   "available_balance": "Dostępne środki",
   "hidden_balance": "Ukryte saldo",
   "sync_status_syncronizing": "SYNCHRONIZACJA",
-  "sync_status_syncronized": "SYNCHRONIZOWANIE",
+  "sync_status_syncronized": "ZSYNCHRONIZOWANO",
   "sync_status_not_connected": "NIE POŁĄCZONY",
   "sync_status_starting_sync": "ROZPOCZĘCIE SYNCHRONIZACJI",
   "sync_status_failed_connect": "POŁĄCZENIE NIEUDANE",
@@ -721,5 +721,7 @@
   "message": "Wiadomość",
   "do_not_have_enough_gas_asset": "Nie masz wystarczającej ilości ${currency}, aby dokonać transakcji przy bieżących warunkach sieci blockchain. Potrzebujesz więcej ${currency}, aby uiścić opłaty za sieć blockchain, nawet jeśli wysyłasz inny zasób.",
   "totp_auth_url": "Adres URL TOTP AUTH",
-  "awaitDAppProcessing": "Poczekaj, aż dApp zakończy przetwarzanie."
+  "awaitDAppProcessing": "Poczekaj, aż dApp zakończy przetwarzanie.",
+  "seed_key": "Klucz nasion",
+  "enter_seed_phrase": "Wprowadź swoją frazę nasienną"
 }

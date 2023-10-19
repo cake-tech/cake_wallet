@@ -27,6 +27,8 @@ class OnRamperBuyProvider {
         return "LTC_LITECOIN";
       case CryptoCurrency.xmr:
         return "XMR_MONERO";
+      case CryptoCurrency.bch:
+        return "BCH_BITCOINCASH";
       case CryptoCurrency.nano:
         return "XNO_NANO";
       default:

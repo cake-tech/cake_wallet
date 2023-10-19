@@ -31,21 +31,29 @@ class HeaderRow extends StatelessWidget {
                 fontWeight: FontWeight.w500,
                 color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor),
           ),
-          GestureDetector(
-            onTap: () {
-              showPopUp<void>(
-                context: context,
-                builder: (context) =>
-                    FilterWidget(dashboardViewModel: dashboardViewModel)
-              );
-            },
-            child: Container(
-              height: 36,
-              width: 36,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).extension<FilterTheme>()!.buttonColor),
-              child: filterIcon,
+          Semantics(
+            container: true,
+            child: GestureDetector(
+              onTap: () {
+                showPopUp<void>(
+                  context: context,
+                  builder: (context) => FilterWidget(dashboardViewModel: dashboardViewModel),
+                );
+              },
+              child: Semantics(
+                label: 'Transaction Filter',
+                button: true,
+                enabled: true,
+                child: Container(
+                  height: 36,
+                  width: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Theme.of(context).extension<FilterTheme>()!.buttonColor,
+                  ),
+                  child: filterIcon,
+                ),
+              ),
             ),
           )
         ],

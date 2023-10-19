@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/exolix/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/exolix/exolix_request.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
@@ -14,6 +16,7 @@ import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dar
 import 'package:cake_wallet/exchange/simpleswap/simpleswap_request.dart';
 import 'package:cake_wallet/exchange/trocador/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trocador/trocador_request.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -152,7 +155,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         SideShiftExchangeProvider(),
         SimpleSwapExchangeProvider(),
         TrocadorExchangeProvider(useTorOnly: _useTorOnly),
-        ExolixExchangeProvider(),
+        if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
       ];
 
   @observable
@@ -265,8 +268,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   bool get hasAllAmount =>
-      (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) &&
-      depositCurrency == wallet.currency;
+      (wallet.type == WalletType.bitcoin ||
+          wallet.type == WalletType.litecoin ||
+          wallet.type == WalletType.bitcoinCash) &&
+          depositCurrency == wallet.currency;
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
 
@@ -278,7 +283,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       case WalletType.bitcoin:
         return transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
       case WalletType.litecoin:
-        return transactionPriority == bitcoin!.getLitecoinTransactionPrioritySlow();
+        return transactionPriority ==
+            bitcoin!.getLitecoinTransactionPrioritySlow();
+      case WalletType.ethereum:
+        return transactionPriority ==
+            ethereum!.getEthereumTransactionPrioritySlow();
+      case WalletType.bitcoinCash:
+        return transactionPriority ==
+            bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
       default:
         return false;
     }
@@ -619,7 +631,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   void calculateDepositAllAmount() {
-    if (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) {
+    if (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin || wallet.type == WalletType.bitcoinCash) {
       final availableBalance = wallet.balance[wallet.currency]!.available;
       final priority = _settingsStore.priority[wallet.type]!;
       final fee = wallet.calculateEstimatedFee(priority, null);
@@ -692,6 +704,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.litecoin:
         depositCurrency = CryptoCurrency.ltc;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.bitcoinCash:
+        depositCurrency = CryptoCurrency.bch;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.haven:
@@ -788,6 +804,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.litecoin:
         _settingsStore.priority[wallet.type] = bitcoin!.getLitecoinTransactionPriorityMedium();
+        break;
+      case WalletType.ethereum:
+        _settingsStore.priority[wallet.type] = ethereum!.getDefaultTransactionPriority();
+        break;
+      case WalletType.bitcoinCash:
+        _settingsStore.priority[wallet.type] = bitcoinCash!.getDefaultTransactionPriority();
         break;
       default:
         break;

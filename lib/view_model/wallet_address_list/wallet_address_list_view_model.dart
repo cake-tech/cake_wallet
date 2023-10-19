@@ -107,6 +107,23 @@ class EthereumURI extends PaymentURI {
   }
 }
 
+class BitcoinCashURI extends PaymentURI {
+  BitcoinCashURI({required String amount, required String address})
+    : super(amount: amount, address: address);
+  @override
+  String toString() {
+    var base = address;
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+  }
+
+
+
 class NanoURI extends PaymentURI {
   NanoURI({required String amount, required String address})
       : super(amount: amount, address: address);
@@ -114,7 +131,6 @@ class NanoURI extends PaymentURI {
   @override
   String toString() {
     var base = 'nano:' + address;
-
     if (amount.isNotEmpty) {
       base += '?amount=${amount.replaceAll(',', '.')}';
     }
@@ -190,6 +206,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     if (wallet.type == WalletType.ethereum) {
       return EthereumURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.bitcoinCash) {
+      return BitcoinCashURI(amount: amount, address: address.address);
     }
 
     if (wallet.type == WalletType.nano) {
@@ -280,7 +300,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   bool get showElectrumAddressDisclaimer =>
-      wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin;
+      wallet.type == WalletType.bitcoin ||
+          wallet.type == WalletType.litecoin ||
+          wallet.type == WalletType.bitcoinCash;
 
   List<ListItem> _baseItems;
 

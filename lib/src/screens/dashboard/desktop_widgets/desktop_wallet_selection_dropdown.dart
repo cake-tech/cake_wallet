@@ -29,6 +29,14 @@ class DesktopWalletSelectionDropDown extends StatefulWidget {
 }
 
 class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionDropDown> {
+  final moneroIcon = Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
+  final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
+  final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
+  final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
+  final ethereumIcon = Image.asset('assets/images/eth_icon.png', height: 24, width: 24);
+  final bitcoinCashIcon = Image.asset('assets/images/bch_icon.png', height: 24, width: 24);
+  final nanoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
+  final bananoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
