@@ -722,6 +722,8 @@
   "do_not_have_enough_gas_asset": "U heeft niet genoeg ${currency} om een transactie uit te voeren met de huidige blockchain-netwerkomstandigheden. U heeft meer ${currency} nodig om blockchain-netwerkkosten te betalen, zelfs als u een ander item verzendt.",
   "totp_auth_url": "TOTP AUTH-URL",
   "awaitDAppProcessing": "Wacht tot de dApp klaar is met verwerken.",
+  "copyWalletConnectLink": "Kopieer de WalletConnect-link van dApp en plak deze hier",
+  "enterWalletConnectURI": "Voer WalletConnect-URI in",
   "seed_key": "Zaadsleutel",
   "enter_seed_phrase": "Voer uw zaadzin in"
 }

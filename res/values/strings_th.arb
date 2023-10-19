@@ -720,6 +720,8 @@
   "do_not_have_enough_gas_asset": "คุณมี ${currency} ไม่เพียงพอที่จะทำธุรกรรมกับเงื่อนไขเครือข่ายบล็อคเชนในปัจจุบัน คุณต้องมี ${currency} เพิ่มขึ้นเพื่อชำระค่าธรรมเนียมเครือข่ายบล็อคเชน แม้ว่าคุณจะส่งสินทรัพย์อื่นก็ตาม",
   "totp_auth_url": "URL การตรวจสอบสิทธิ์ TOTP",
   "awaitDAppProcessing": "โปรดรอให้ dApp ประมวลผลเสร็จสิ้น",
+  "copyWalletConnectLink": "คัดลอกลิงก์ WalletConnect จาก dApp แล้ววางที่นี่",
+  "enterWalletConnectURI": "เข้าสู่ WalletConnect URI",
   "seed_key": "คีย์เมล็ดพันธุ์",
   "enter_seed_phrase": "ป้อนวลีเมล็ดพันธุ์ของคุณ"
 }

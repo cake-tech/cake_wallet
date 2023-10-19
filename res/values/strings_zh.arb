@@ -721,6 +721,8 @@
   "do_not_have_enough_gas_asset": "您没有足够的 ${currency} 来在当前的区块链网络条件下进行交易。即使您发送的是不同的资产，您也需要更多的 ${currency} 来支付区块链网络费用。",
   "totp_auth_url": "TOTP 授权 URL",
   "awaitDAppProcessing": "请等待 dApp 处理完成。",
+  "copyWalletConnectLink": "从 dApp 复制 WalletConnect 链接并粘贴到此处",
+  "enterWalletConnectURI": "输入 WalletConnect URI",
   "seed_key": "种子钥匙",
   "enter_seed_phrase": "输入您的种子短语"
 }

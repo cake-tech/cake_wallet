@@ -722,6 +722,8 @@
   "do_not_have_enough_gas_asset": "No tienes suficiente ${currency} para realizar una transacción con las condiciones actuales de la red blockchain. Necesita más ${currency} para pagar las tarifas de la red blockchain, incluso si envía un activo diferente.",
   "totp_auth_url": "URL de autenticación TOTP",
   "awaitDAppProcessing": "Espere a que la dApp termine de procesarse.",
+  "copyWalletConnectLink": "Copie el enlace de WalletConnect de dApp y péguelo aquí",
+  "enterWalletConnectURI": "Ingrese el URI de WalletConnect",
   "seed_key": "Llave de semilla",
   "enter_seed_phrase": "Ingrese su frase de semillas"
 }

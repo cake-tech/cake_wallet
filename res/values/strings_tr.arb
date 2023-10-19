@@ -720,6 +720,8 @@
   "do_not_have_enough_gas_asset": "Mevcut blockchain ağ koşullarıyla işlem yapmak için yeterli ${currency} paranız yok. Farklı bir varlık gönderiyor olsanız bile blockchain ağ ücretlerini ödemek için daha fazla ${currency} miktarına ihtiyacınız var.",
   "totp_auth_url": "TOTP YETKİ URL'si",
   "awaitDAppProcessing": "Lütfen dApp'in işlemeyi bitirmesini bekleyin.",
+  "copyWalletConnectLink": "WalletConnect bağlantısını dApp'ten kopyalayıp buraya yapıştırın",
+  "enterWalletConnectURI": "WalletConnect URI'sini girin",
   "seed_key": "Tohum",
   "enter_seed_phrase": "Tohum ifadenizi girin"
 }
