@@ -1,7 +1,5 @@
-import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
 import 'package:cake_wallet/typography.dart';
