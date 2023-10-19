@@ -21,14 +21,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class DesktopDashboardPage extends StatelessWidget {
   DesktopDashboardPage({
     required this.balancePage,
-    required this.bottomSheetService,
+    // required this.bottomSheetService,
     required this.dashboardViewModel,
     required this.addressListViewModel,
     required this.desktopKey,
   });
 
   final BalancePage balancePage;
-  final BottomSheetService bottomSheetService;
+  // final BottomSheetService bottomSheetService;
   final DashboardViewModel dashboardViewModel;
   final WalletAddressListViewModel addressListViewModel;
   final GlobalKey<NavigatorState> desktopKey;
@@ -40,34 +40,31 @@ class DesktopDashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     _setEffects(context);
 
-    return BottomSheetListener(
-      bottomSheetService: bottomSheetService,
-      child: Container(
-        color: Theme.of(context).colorScheme.background,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 400,
-              child: balancePage,
-            ),
-            Flexible(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 500),
-                child: Navigator(
-                  key: desktopKey,
-                  initialRoute: Routes.desktop_actions,
-                  onGenerateRoute: (settings) => Router.createRoute(settings),
-                  onGenerateInitialRoutes: (NavigatorState navigator, String initialRouteName) {
-                    return [
-                      navigator.widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
-                    ];
-                  },
-                ),
+    return Container(
+      color: Theme.of(context).colorScheme.background,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 400,
+            child: balancePage,
+          ),
+          Flexible(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 500),
+              child: Navigator(
+                key: desktopKey,
+                initialRoute: Routes.desktop_actions,
+                onGenerateRoute: (settings) => Router.createRoute(settings),
+                onGenerateInitialRoutes: (NavigatorState navigator, String initialRouteName) {
+                  return [
+                    navigator.widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
+                  ];
+                },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
