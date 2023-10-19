@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:cw_core/account.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/monero_amount_format.dart';
@@ -22,14 +23,14 @@ import 'package:cw_monero/api/transaction_history.dart' as transaction_history;
 import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
 import 'package:cw_monero/exceptions/monero_transaction_no_inputs_exception.dart';
-import 'package:cw_monero/pending_monero_transaction.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
 import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
 import 'package:cw_monero/monero_unspent.dart';
 import 'package:cw_monero/monero_wallet_addresses.dart';
-import 'package:mobx/mobx.dart';
+import 'package:cw_monero/pending_monero_transaction.dart';
 import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
 
 part 'monero_wallet.g.dart';
 
@@ -412,7 +413,7 @@ abstract class MoneroWalletBase
     if (unspentCoins.isNotEmpty) {
       unspentCoins.forEach((coin) {
         final coinInfoList = unspentCoinsInfo.values
-            .where((element) => element.walletId.contains(id) && element.hash.contains(coin.hash));
+            .where((element) => element.walletId.contains(id) && element.keyImage!.contains(coin.keyImage!));
 
         if (coinInfoList.isNotEmpty) {
           final coinInfo = coinInfoList.first;
@@ -432,15 +433,17 @@ abstract class MoneroWalletBase
 
   Future<void> _addCoinInfo(MoneroUnspent coin) async {
     final newInfo = UnspentCoinsInfo(
-        walletId: id,
-        hash: coin.hash,
-        isFrozen: coin.isFrozen,
-        isSending: coin.isSending,
-        noteRaw: coin.note,
-        address: coin.address,
-        value: coin.value,
-        vout: 0,
-        keyImage: coin.keyImage);
+      walletId: id,
+      hash: coin.hash,
+      isFrozen: coin.isFrozen,
+      isSending: coin.isSending,
+      noteRaw: coin.note,
+      address: coin.address,
+      value: coin.value,
+      vout: 0,
+      keyImage: coin.keyImage,
+      isChange: coin.isChange,
+    );
 
     await unspentCoinsInfo.add(newInfo);
   }
@@ -453,7 +456,8 @@ abstract class MoneroWalletBase
 
       if (currentWalletUnspentCoins.isNotEmpty) {
         currentWalletUnspentCoins.forEach((element) {
-          final existUnspentCoins = unspentCoins.where((coin) => element.hash.contains(coin.hash));
+          final existUnspentCoins =
+              unspentCoins.where((coin) => element.keyImage!.contains(coin.keyImage!));
 
           if (existUnspentCoins.isEmpty) {
             keys.add(element.key);
@@ -501,9 +505,8 @@ abstract class MoneroWalletBase
     }
   }
 
-  String getSubaddressLabel(int accountIndex, int addressIndex) {
-    return monero_wallet.getSubaddressLabel(accountIndex, addressIndex);
-  }
+  String getSubaddressLabel(int accountIndex, int addressIndex) =>
+      monero_wallet.getSubaddressLabel(accountIndex, addressIndex);
 
   List<MoneroTransactionInfo> _getAllTransactionsOfAccount(int? accountIndex) => transaction_history
       .getAllTransactions()

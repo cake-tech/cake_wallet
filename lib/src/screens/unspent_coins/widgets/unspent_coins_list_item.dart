@@ -11,6 +11,7 @@ class UnspentCoinsListItem extends StatelessWidget {
     required this.address,
     required this.isSending,
     required this.isFrozen,
+    required this.isChange,
     this.onCheckBoxTap,
   });
 
@@ -19,6 +20,7 @@ class UnspentCoinsListItem extends StatelessWidget {
   final String address;
   final bool isSending;
   final bool isFrozen;
+  final bool isChange;
   final Function()? onCheckBoxTap;
 
   @override
@@ -86,12 +88,14 @@ class UnspentCoinsListItem extends StatelessWidget {
                               S.of(context).frozen,
                               style:
                               TextStyle(color: amountColor, fontSize: 7, fontWeight: FontWeight.w600),
-                            ))
+                            )),
+
                     ],
                   ),
                   Expanded(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         AutoSizeText(
                           '${address.substring(0, 5)}...${address.substring(address.length-5)}', // ToDo: Maybe use address label
@@ -101,6 +105,19 @@ class UnspentCoinsListItem extends StatelessWidget {
                           ),
                           maxLines: 1,
                         ),
+                        if (isChange)
+                          Container(
+                              height: 17,
+                              padding: EdgeInsets.only(left: 6, right: 6),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(8.5)),
+                                  color: Colors.white),
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Is Change",
+                                style:
+                                TextStyle(color: itemColor, fontSize: 7, fontWeight: FontWeight.w600),
+                              ))
                       ],
                     ),
                   ),

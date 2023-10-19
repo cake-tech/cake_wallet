@@ -36,7 +36,9 @@ abstract class UnspentCoinsListViewModelBase with Store {
             isSending: info.isSending,
             amountRaw: elem.value,
             vout: elem.vout,
-            keyImage: elem.keyImage);
+            keyImage: elem.keyImage,
+            isChange: elem.isChange,
+        );
       }));
 
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
