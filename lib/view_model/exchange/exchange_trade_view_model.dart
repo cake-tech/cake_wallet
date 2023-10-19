@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/exchange_provider_unsupported_exception.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
@@ -53,11 +52,12 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
     }
 
+    _updateItems();
+
     if (_provider != null) {
       _updateTrade();
       timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
     }
-    _updateItems();
   }
 
   final WalletBase wallet;
@@ -109,8 +109,6 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   @action
   Future<void> _updateTrade() async {
-    if (_provider == null) throw ExchangeProviderUnsupportedException(trade.provider);
-
     try {
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
