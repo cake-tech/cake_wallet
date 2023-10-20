@@ -717,5 +717,6 @@
   "copyWalletConnectLink": "Копирайте връзката WalletConnect от dApp и я поставете тук",
   "enterWalletConnectURI": "Въведете URI на WalletConnect",
   "seed_key": "Ключ за семена",
-  "enter_seed_phrase": "Въведете вашата фраза за семена"
+  "enter_seed_phrase": "Въведете вашата фраза за семена",
+  "add_contact": "Добави контакт"
 }

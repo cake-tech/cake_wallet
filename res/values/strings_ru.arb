@@ -725,5 +725,6 @@
   "copyWalletConnectLink": "Скопируйте ссылку WalletConnect из dApp и вставьте сюда.",
   "enterWalletConnectURI": "Введите URI WalletConnect",
   "seed_key": "Ключ семян",
-  "enter_seed_phrase": "Введите свою семенную фразу"
+  "enter_seed_phrase": "Введите свою семенную фразу",
+  "add_contact": "Добавить контакт"
 }

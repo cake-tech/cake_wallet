@@ -723,5 +723,6 @@
   "copyWalletConnectLink": "dApp မှ WalletConnect လင့်ခ်ကို ကူးယူပြီး ဤနေရာတွင် ကူးထည့်ပါ။",
   "enterWalletConnectURI": "WalletConnect URI ကိုရိုက်ထည့်ပါ။",
   "seed_key": "မျိုးစေ့သော့",
-  "enter_seed_phrase": "သင့်ရဲ့မျိုးစေ့စကားစုကိုရိုက်ထည့်ပါ"
+  "enter_seed_phrase": "သင့်ရဲ့မျိုးစေ့စကားစုကိုရိုက်ထည့်ပါ",
+  "add_contact": "အဆက်အသွယ်ထည့်ပါ။"
 }

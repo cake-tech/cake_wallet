@@ -1,3 +1,4 @@
-Add BitcoinCash (BCH)
-Bug fixes
+BirdPay enhancements
+Nano fixes and improvements
+Minor bug fixes
 Accessibility enhancements

@@ -723,5 +723,6 @@
   "copyWalletConnectLink": "คัดลอกลิงก์ WalletConnect จาก dApp แล้ววางที่นี่",
   "enterWalletConnectURI": "เข้าสู่ WalletConnect URI",
   "seed_key": "คีย์เมล็ดพันธุ์",
-  "enter_seed_phrase": "ป้อนวลีเมล็ดพันธุ์ของคุณ"
+  "enter_seed_phrase": "ป้อนวลีเมล็ดพันธุ์ของคุณ",
+  "add_contact": "เพิ่มผู้ติดต่อ"
 }

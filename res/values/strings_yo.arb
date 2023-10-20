@@ -719,5 +719,6 @@
   "copyWalletConnectLink": "Daakọ ọna asopọ WalletConnect lati dApp ki o si lẹẹmọ nibi",
   "enterWalletConnectURI": "Tẹ WalletConnect URI sii",
   "seed_key": "Bọtini Ose",
-  "enter_seed_phrase": "Tẹ ọrọ-iru irugbin rẹ"
+  "enter_seed_phrase": "Tẹ ọrọ-iru irugbin rẹ",
+  "add_contact": "Fi olubasọrọ kun"
 }

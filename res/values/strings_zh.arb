@@ -724,5 +724,6 @@
   "copyWalletConnectLink": "从 dApp 复制 WalletConnect 链接并粘贴到此处",
   "enterWalletConnectURI": "输入 WalletConnect URI",
   "seed_key": "种子钥匙",
-  "enter_seed_phrase": "输入您的种子短语"
+  "enter_seed_phrase": "输入您的种子短语",
+  "add_contact": "增加联系人"
 }
