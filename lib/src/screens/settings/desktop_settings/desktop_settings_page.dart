@@ -12,6 +12,7 @@ final _settingsNavigatorKey = GlobalKey<NavigatorState>();
 class DesktopSettingsPage extends StatefulWidget {
   const DesktopSettingsPage({super.key});
 
+
   @override
   State<DesktopSettingsPage> createState() => _DesktopSettingsPageState();
 }
