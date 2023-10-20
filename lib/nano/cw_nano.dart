@@ -406,6 +406,13 @@ class CWNanoUtil extends NanoUtil {
     late String publicAddress;
 
     if (seedKey != null) {
+      if (seedKey.length == 64) {
+        try {
+          mnemonic = nanoUtil!.seedToMnemonic(seedKey);
+        } catch (e) {
+          print("not a valid 'nano' seed key");
+        }
+      }
       if (derivationType == DerivationType.bip39) {
         publicAddress = await hdSeedToAddress(seedKey, 0);
       } else if (derivationType == DerivationType.nano) {
@@ -429,7 +436,8 @@ class CWNanoUtil extends NanoUtil {
 
     AccountInfoResponse? accountInfo = await nanoClient.getAccountInfo(publicAddress);
     if (accountInfo == null) {
-      accountInfo = AccountInfoResponse(frontier: "", balance: "0", representative: "", confirmationHeight: 0);
+      accountInfo = AccountInfoResponse(
+          frontier: "", balance: "0", representative: "", confirmationHeight: 0);
     }
     accountInfo.address = publicAddress;
     return accountInfo;
@@ -449,7 +457,11 @@ class CWNanoUtil extends NanoUtil {
     if (seedKey?.length == 128) {
       return [DerivationType.bip39];
     } else if (seedKey?.length == 64) {
-      return [DerivationType.nano];
+      try {
+        mnemonic = nanoUtil!.seedToMnemonic(seedKey!);
+      } catch (e) {
+        print("not a valid 'nano' seed key");
+      }
     }
 
     late String publicAddressStandard;
@@ -503,7 +515,7 @@ class CWNanoUtil extends NanoUtil {
       // we don't know for sure:
       return [DerivationType.nano, DerivationType.bip39];
     } catch (e) {
-      return [DerivationType.unknown];
+      return [DerivationType.nano, DerivationType.bip39];
     }
   }
 }
