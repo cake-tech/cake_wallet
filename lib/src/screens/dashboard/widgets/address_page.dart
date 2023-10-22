@@ -64,7 +64,7 @@ class AddressPage extends BasePage {
 
   @override
   Widget? leading(BuildContext context) {
-    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
+    bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
     return MergeSemantics(
       child: SizedBox(

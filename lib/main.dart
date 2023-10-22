@@ -322,7 +322,7 @@ class _Home extends StatefulWidget {
 class _HomeState extends State<_Home> {
   @override
   void didChangeDependencies() {
-    if (!ResponsiveLayoutUtil.instance.isMobile) {
+    if (!responsiveLayoutUtil.shouldRenderMobileUI) {
       _setOrientation(context);
     }
     super.didChangeDependencies();
