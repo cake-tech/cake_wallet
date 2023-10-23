@@ -414,6 +414,9 @@ abstract class NanoWalletBase
   }
 
   Future<void> updateDefaultRep(String address) async {
+    if (address.isEmpty) {
+      return;
+    }
     NanoClient.defaultRepresentative = address;
   }
 

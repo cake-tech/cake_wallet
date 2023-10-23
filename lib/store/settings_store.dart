@@ -650,10 +650,8 @@ abstract class SettingsStoreBase with Store {
     final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
 
     // TODO: nano: figure out how to move to a constant variable, since it's currently storeed in nano_client.dart:
-    final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ??
-        "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
-    final defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ??
-        "ban_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
+    final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
+    final defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -899,10 +897,8 @@ abstract class SettingsStoreBase with Store {
     pinNativeTokenAtTop = sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
     useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
     // TODO: nano: figure out how to move to a constant variable, since it's currently storeed in nano_client.dart:
-    defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ??
-        "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
-    defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ??
-        "ban_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
+    defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
+    defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
 
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =

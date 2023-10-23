@@ -2,6 +2,7 @@ import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -74,6 +75,7 @@ void startCurrentWalletChangeReaction(
       if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
         final powNode = settingsStore.getCurrentPowNode(wallet.type);
         await wallet.connectToPowNode(node: powNode);
+        nano!.updateDefaultRep(wallet, appStore.settingsStore.defaultNanoRep);
       }
 
       if (wallet.type == WalletType.haven) {
