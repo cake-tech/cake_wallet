@@ -704,7 +704,6 @@ abstract class Nano {
   Map<String, String> getKeys(Object wallet);
   Object createNanoTransactionCredentials(List<Output> outputs);
   Future<void> changeRep(Object wallet, String address);
-  Future<void> updateDefaultRep(Object wallet, String address);
   Future<void> updateTransactions(Object wallet);
   BigInt getTransactionAmountRaw(TransactionInfo transactionInfo);
   String getRepresentative(Object wallet);

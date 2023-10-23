@@ -382,7 +382,7 @@ abstract class NanoWalletBase
       _representativeAddress = accountInfo.representative;
     } catch (e) {
       // account not found:
-      _representativeAddress = NanoClient.defaultRepresentative;
+      _representativeAddress = await _client.getRepFromPrefs();
       throw Exception("Failed to get representative address $e");
     }
   }
@@ -411,13 +411,6 @@ abstract class NanoWalletBase
     } catch (e) {
       throw Exception("Failed to change representative address $e");
     }
-  }
-
-  Future<void> updateDefaultRep(String address) async {
-    if (address.isEmpty) {
-      return;
-    }
-    NanoClient.defaultRepresentative = address;
   }
 
   Future<void>? updateBalance() async => await _updateBalance();

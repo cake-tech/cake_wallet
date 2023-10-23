@@ -75,7 +75,6 @@ void startCurrentWalletChangeReaction(
       if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
         final powNode = settingsStore.getCurrentPowNode(wallet.type);
         await wallet.connectToPowNode(node: powNode);
-        nano!.updateDefaultRep(wallet, appStore.settingsStore.defaultNanoRep);
       }
 
       if (wallet.type == WalletType.haven) {

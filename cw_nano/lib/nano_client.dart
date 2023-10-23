@@ -8,17 +8,31 @@ import 'package:cw_nano/nano_util.dart';
 import 'package:http/http.dart' as http;
 import 'package:nanodart/nanodart.dart';
 import 'package:cw_core/node.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NanoClient {
+
+
   static const Map<String, String> CAKE_HEADERS = {
     "Content-Type": "application/json",
     "nano-app": "cake-wallet"
   };
 
+  NanoClient() {
+    SharedPreferences.getInstance().then((value) => prefs = value);
+  }
+
+  late SharedPreferences prefs;
   Node? _node;
   Node? _powNode;
-  static String defaultRepresentative =
+  static String defaultDefaultRepresentative =
       "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
+
+
+  Future<String> getRepFromPrefs() async {
+    // from preferences_key.dart "defaultNanoRep" key:
+    return prefs.getString("default_nano_representative") ?? defaultDefaultRepresentative;
+  }
 
   bool connect(Node node) {
     try {
@@ -265,7 +279,7 @@ class NanoClient {
       // account is not open yet, we need to create an open block:
       openBlock = true;
       // we don't have a representative set yet:
-      representative = defaultRepresentative;
+      representative = await getRepFromPrefs();
       // we don't have a frontier yet:
       frontier = "0000000000000000000000000000000000000000000000000000000000000000";
     } else {

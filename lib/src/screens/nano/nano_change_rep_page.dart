@@ -20,7 +20,8 @@ class NanoChangeRepPage extends BasePage {
   NanoChangeRepPage({required SettingsStore settingsStore, required WalletBase wallet})
       : _wallet = wallet,
         _settingsStore = settingsStore,
-        _addressController = TextEditingController() {
+        _addressController = TextEditingController(),
+        _formKey = GlobalKey<FormState>() {
     _addressController.text = nano!.getRepresentative(wallet);
   }
 
@@ -28,12 +29,16 @@ class NanoChangeRepPage extends BasePage {
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
 
+  final GlobalKey<FormState> _formKey;
+
   @override
   String get title => S.current.change_rep;
 
   @override
   Widget body(BuildContext context) {
-    return Container(
+    return Form(
+      key: _formKey,
+      child: Container(
         padding: EdgeInsets.only(left: 24, right: 24),
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(bottom: 24.0),
@@ -72,6 +77,11 @@ class NanoChangeRepPage extends BasePage {
                         padding: EdgeInsets.only(right: 8.0),
                         child: LoadingPrimaryButton(
                           onPressed: () async {
+                            if (_formKey.currentState != null &&
+                                !_formKey.currentState!.validate()) {
+                              return;
+                            }
+
                             final confirmed = await showPopUp<bool>(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -88,7 +98,6 @@ class NanoChangeRepPage extends BasePage {
                             if (confirmed) {
                               try {
                                 _settingsStore.defaultNanoRep = _addressController.text;
-                                await nano!.updateDefaultRep(_wallet, _addressController.text);
                                 // we can only submit a change block if we have an existing transaction history:
                                 if (_wallet.transactionHistory.transactions.isNotEmpty) {
                                   await nano!.changeRep(_wallet, _addressController.text);
@@ -123,6 +132,8 @@ class NanoChangeRepPage extends BasePage {
                       )),
                     ],
                   )),
-        ));
+        ),
+      ),
+    );
   }
 }
