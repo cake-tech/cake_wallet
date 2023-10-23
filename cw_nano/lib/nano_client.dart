@@ -18,7 +18,7 @@ class NanoClient {
 
   Node? _node;
   Node? _powNode;
-  String defaultRepresentative = "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
+  static String defaultRepresentative = "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
 
   bool connect(Node node) {
     try {
