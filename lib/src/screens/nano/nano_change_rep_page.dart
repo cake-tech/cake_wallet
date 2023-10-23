@@ -3,6 +3,7 @@ import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -14,14 +15,16 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class NanoChangeRepPage extends BasePage {
-  NanoChangeRepPage(WalletBase wallet)
+  NanoChangeRepPage({required SettingsStore settingsStore, required WalletBase wallet})
       : _wallet = wallet,
+        _settingsStore = settingsStore,
         _addressController = TextEditingController() {
     _addressController.text = nano!.getRepresentative(wallet);
   }
 
   final TextEditingController _addressController;
   final WalletBase _wallet;
+  final SettingsStore _settingsStore;
 
   @override
   String get title => S.current.change_rep;
@@ -74,6 +77,7 @@ class NanoChangeRepPage extends BasePage {
 
                             if (confirmed) {
                               try {
+                                _settingsStore.defaultNanoRep = _addressController.text;
                                 await nano!.changeRep(_wallet, _addressController.text);
                                 Navigator.of(context).pop();
                               } catch (e) {

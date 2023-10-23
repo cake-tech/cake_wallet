@@ -246,6 +246,8 @@ class BackupService {
     final sortBalanceTokensBy = data[PreferencesKey.sortBalanceBy] as int?;
     final pinNativeTokenAtTop = data[PreferencesKey.pinNativeTokenAtTop] as bool?;
     final useEtherscan = data[PreferencesKey.useEtherscan] as bool?;
+    final defaultNanoRep = data[PreferencesKey.defaultNanoRep] as String?;
+    final defaultBananoRep = data[PreferencesKey.defaultBananoRep] as String?;
     final syncAll = data[PreferencesKey.syncAllKey] as bool?;
     final syncMode = data[PreferencesKey.syncModeKey] as int?;
     final autoGenerateSubaddressStatus = data[PreferencesKey.autoGenerateSubaddressStatusKey] as int?;
@@ -372,6 +374,12 @@ class BackupService {
 
     if (useEtherscan != null)
       await _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan);
+
+    if (defaultNanoRep != null)
+      await _sharedPreferences.setString(PreferencesKey.defaultNanoRep, defaultNanoRep);
+
+    if (defaultBananoRep != null)
+      await _sharedPreferences.setString(PreferencesKey.defaultBananoRep, defaultBananoRep);
 
     if (syncAll != null)
       await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
@@ -529,6 +537,10 @@ class BackupService {
           _sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop),
       PreferencesKey.useEtherscan:
           _sharedPreferences.getBool(PreferencesKey.useEtherscan),
+      PreferencesKey.defaultNanoRep:
+          _sharedPreferences.getString(PreferencesKey.defaultNanoRep),
+      PreferencesKey.defaultBananoRep:
+          _sharedPreferences.getString(PreferencesKey.defaultBananoRep),
       PreferencesKey.syncModeKey:
           _sharedPreferences.getInt(PreferencesKey.syncModeKey),
       PreferencesKey.syncAllKey:

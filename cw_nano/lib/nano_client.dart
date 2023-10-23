@@ -88,7 +88,11 @@ class NanoClient {
       AccountInfoResponse? accountInfo = await getAccountInfo(ourAddress);
 
       if (accountInfo == null) {
-        throw Exception("error while getting account info");
+        throw Exception("error while getting account info, can't change rep of an unopened account");
+      }
+
+      if (accountInfo.confirmationHeight == 0) {
+        throw Exception("the account has no transaction history yet, and you can't change the representative of an unopened account");
       }
 
       // construct the change block:

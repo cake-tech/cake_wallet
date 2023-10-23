@@ -50,6 +50,8 @@ class PreferencesKey {
   static const sortBalanceBy = 'sort_balance_by';
   static const pinNativeTokenAtTop = 'pin_native_token_at_top';
   static const useEtherscan = 'use_etherscan';
+  static const defaultNanoRep = 'default_nano_representative';
+  static const defaultBananoRep = 'default_banano_representative';
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
