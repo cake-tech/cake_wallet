@@ -10,7 +10,6 @@ import 'package:nanodart/nanodart.dart';
 import 'package:cw_core/node.dart';
 
 class NanoClient {
-
   static const Map<String, String> CAKE_HEADERS = {
     "Content-Type": "application/json",
     "nano-app": "cake-wallet"
@@ -18,7 +17,8 @@ class NanoClient {
 
   Node? _node;
   Node? _powNode;
-  static String defaultRepresentative = "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
+  static String defaultRepresentative =
+      "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
 
   bool connect(Node node) {
     try {
@@ -83,45 +83,42 @@ class NanoClient {
     required String repAddress,
     required String ourAddress,
   }) async {
-    try {
-      AccountInfoResponse? accountInfo = await getAccountInfo(ourAddress);
+    AccountInfoResponse? accountInfo = await getAccountInfo(ourAddress);
 
-      if (accountInfo == null) {
-        throw Exception("error while getting account info, you can't change the rep of an unopened account");
-      }
-
-      // construct the change block:
-      Map<String, String> changeBlock = {
-        "type": "state",
-        "account": ourAddress,
-        "previous": accountInfo.frontier,
-        "representative": repAddress,
-        "balance": accountInfo.balance,
-        "link": "0000000000000000000000000000000000000000000000000000000000000000",
-        "link_as_account": "nano_1111111111111111111111111111111111111111111111111111hifc8npp",
-      };
-
-      // sign the change block:
-      final String hash = NanoBlocks.computeStateHash(
-        NanoAccountType.NANO,
-        changeBlock["account"]!,
-        changeBlock["previous"]!,
-        changeBlock["representative"]!,
-        BigInt.parse(changeBlock["balance"]!),
-        changeBlock["link"]!,
-      );
-      final String signature = NanoSignatures.signBlock(hash, privateKey);
-
-      // get PoW for the send block:
-      final String work = await requestWork(accountInfo.frontier);
-
-      changeBlock["signature"] = signature;
-      changeBlock["work"] = work;
-
-      return await processBlock(changeBlock, "change");
-    } catch (e) {
-      throw Exception(e);
+    if (accountInfo == null) {
+      throw Exception(
+          "error while getting account info, you can't change the rep of an unopened account");
     }
+
+    // construct the change block:
+    Map<String, String> changeBlock = {
+      "type": "state",
+      "account": ourAddress,
+      "previous": accountInfo.frontier,
+      "representative": repAddress,
+      "balance": accountInfo.balance,
+      "link": "0000000000000000000000000000000000000000000000000000000000000000",
+      "link_as_account": "nano_1111111111111111111111111111111111111111111111111111hifc8npp",
+    };
+
+    // sign the change block:
+    final String hash = NanoBlocks.computeStateHash(
+      NanoAccountType.NANO,
+      changeBlock["account"]!,
+      changeBlock["previous"]!,
+      changeBlock["representative"]!,
+      BigInt.parse(changeBlock["balance"]!),
+      changeBlock["link"]!,
+    );
+    final String signature = NanoSignatures.signBlock(hash, privateKey);
+
+    // get PoW for the send block:
+    final String work = await requestWork(accountInfo.frontier);
+
+    changeBlock["signature"] = signature;
+    changeBlock["work"] = work;
+
+    return await processBlock(changeBlock, "change");
   }
 
   Future<String> requestWork(String hash) async {
@@ -190,68 +187,63 @@ class NanoClient {
     BigInt? balanceAfterTx,
     String? previousHash,
   }) async {
-    try {
-      // our address:
-      final String publicAddress = NanoUtil.privateKeyToAddress(privateKey);
+    // our address:
+    final String publicAddress = NanoUtil.privateKeyToAddress(privateKey);
 
-      // first get the current account balance:
-      if (balanceAfterTx == null) {
-        final BigInt currentBalance = (await getBalance(publicAddress)).currentBalance;
-        final BigInt txAmount = BigInt.parse(amountRaw);
-        balanceAfterTx = currentBalance - txAmount;
-      }
-
-      // get the account info (we need the frontier and representative):
-      AccountInfoResponse? infoResponse = await getAccountInfo(publicAddress);
-      if (infoResponse == null) {
-        throw Exception(
-            "error while getting account info! (we probably don't have an open account yet)");
-      }
-
-      String frontier = infoResponse.frontier;
-      // override if provided:
-      if (previousHash != null) {
-        frontier = previousHash;
-      }
-      final String representative = infoResponse.representative;
-      // link = destination address:
-      final String link = NanoAccounts.extractPublicKey(destinationAddress);
-      final String linkAsAccount = destinationAddress;
-
-      // construct the send block:
-      Map<String, String> sendBlock = {
-        "type": "state",
-        "account": publicAddress,
-        "previous": frontier,
-        "representative": representative,
-        "balance": balanceAfterTx.toString(),
-        "link": link,
-      };
-
-      // sign the send block:
-      final String hash = NanoBlocks.computeStateHash(
-        NanoAccountType.NANO,
-        sendBlock["account"]!,
-        sendBlock["previous"]!,
-        sendBlock["representative"]!,
-        BigInt.parse(sendBlock["balance"]!),
-        sendBlock["link"]!,
-      );
-      final String signature = NanoSignatures.signBlock(hash, privateKey);
-
-      // get PoW for the send block:
-      final String work = await requestWork(frontier);
-
-      sendBlock["link_as_account"] = linkAsAccount;
-      sendBlock["signature"] = signature;
-      sendBlock["work"] = work;
-
-      // ready to post send block:
-      return sendBlock;
-    } catch (e) {
-      print(e);
-      rethrow;
+    // first get the current account balance:
+    if (balanceAfterTx == null) {
+      final BigInt currentBalance = (await getBalance(publicAddress)).currentBalance;
+      final BigInt txAmount = BigInt.parse(amountRaw);
+      balanceAfterTx = currentBalance - txAmount;
     }
+
+    // get the account info (we need the frontier and representative):
+    AccountInfoResponse? infoResponse = await getAccountInfo(publicAddress);
+    if (infoResponse == null) {
+      throw Exception(
+          "error while getting account info! (we probably don't have an open account yet)");
+    }
+
+    String frontier = infoResponse.frontier;
+    // override if provided:
+    if (previousHash != null) {
+      frontier = previousHash;
+    }
+    final String representative = infoResponse.representative;
+    // link = destination address:
+    final String link = NanoAccounts.extractPublicKey(destinationAddress);
+    final String linkAsAccount = destinationAddress;
+
+    // construct the send block:
+    Map<String, String> sendBlock = {
+      "type": "state",
+      "account": publicAddress,
+      "previous": frontier,
+      "representative": representative,
+      "balance": balanceAfterTx.toString(),
+      "link": link,
+    };
+
+    // sign the send block:
+    final String hash = NanoBlocks.computeStateHash(
+      NanoAccountType.NANO,
+      sendBlock["account"]!,
+      sendBlock["previous"]!,
+      sendBlock["representative"]!,
+      BigInt.parse(sendBlock["balance"]!),
+      sendBlock["link"]!,
+    );
+    final String signature = NanoSignatures.signBlock(hash, privateKey);
+
+    // get PoW for the send block:
+    final String work = await requestWork(frontier);
+
+    sendBlock["link_as_account"] = linkAsAccount;
+    sendBlock["signature"] = signature;
+    sendBlock["work"] = work;
+
+    // ready to post send block:
+    return sendBlock;
   }
 
   Future<void> receiveBlock({
