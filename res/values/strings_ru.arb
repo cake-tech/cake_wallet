@@ -722,6 +722,8 @@
   "do_not_have_enough_gas_asset": "У вас недостаточно ${currency} для совершения транзакции при текущих условиях сети блокчейн. Вам нужно больше ${currency} для оплаты комиссий за сеть блокчейна, даже если вы отправляете другой актив.",
   "totp_auth_url": "URL-адрес TOTP-АВТОРИЗАЦИИ",
   "awaitDAppProcessing": "Пожалуйста, подождите, пока dApp завершит обработку.",
+  "copyWalletConnectLink": "Скопируйте ссылку WalletConnect из dApp и вставьте сюда.",
+  "enterWalletConnectURI": "Введите URI WalletConnect",
   "seed_key": "Ключ семян",
   "enter_seed_phrase": "Введите свою семенную фразу"
 }

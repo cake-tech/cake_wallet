@@ -717,6 +717,8 @@
   "do_not_have_enough_gas_asset": "Wala kang sapat na ${currency} para gumawa ng transaksyon sa kasalukuyang kundisyon ng network ng blockchain. Kailangan mo ng higit pang ${currency} upang magbayad ng mga bayarin sa network ng blockchain, kahit na nagpapadala ka ng ibang asset.",
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Pakihintay na matapos ang pagproseso ng dApp.",
+  "copyWalletConnectLink": "Kopyahin ang link ng WalletConnect mula sa dApp at i-paste dito",
+  "enterWalletConnectURI": "Ilagay ang WalletConnect URI",
   "seed_key": "Seed Key",
   "enter_seed_phrase": "Ipasok ang iyong pariralang binhi"
 }

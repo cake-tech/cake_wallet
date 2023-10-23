@@ -716,6 +716,8 @@
   "do_not_have_enough_gas_asset": "O ko ni to ${currency} lati ṣe idunadura kan pẹlu awọn ipo nẹtiwọki blockchain lọwọlọwọ. O nilo diẹ sii ${currency} lati san awọn owo nẹtiwọọki blockchain, paapaa ti o ba nfi dukia miiran ranṣẹ.",
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Fi inurere duro fun dApp lati pari sisẹ.",
+  "copyWalletConnectLink": "Daakọ ọna asopọ WalletConnect lati dApp ki o si lẹẹmọ nibi",
+  "enterWalletConnectURI": "Tẹ WalletConnect URI sii",
   "seed_key": "Bọtini Ose",
   "enter_seed_phrase": "Tẹ ọrọ-iru irugbin rẹ"
 }

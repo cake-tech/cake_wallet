@@ -416,37 +416,40 @@ class ExchangeCardState extends State<ExchangeCard> {
                                             width: 34,
                                             height: 34,
                                             padding: EdgeInsets.only(top: 0),
-                                            child: InkWell(
-                                              onTap: () async {
-                                                final contact =
-                                                    await Navigator.of(context)
-                                                    .pushNamed(
-                                                  Routes.pickerAddressBook,
-                                                  arguments: widget.initialCurrency,
-                                                );
+                                            child: Semantics(
+                                              label: S.of(context).address_book,
+                                              child: InkWell(
+                                                onTap: () async {
+                                                  final contact =
+                                                      await Navigator.of(context)
+                                                      .pushNamed(
+                                                    Routes.pickerAddressBook,
+                                                    arguments: widget.initialCurrency,
+                                                  );
 
-                                                if (contact is ContactBase &&
-                                                    contact.address != null) {
-                                                  setState(() =>
-                                                      addressController.text =
-                                                          contact.address);
-                                                  widget.onPushAddressBookButton
-                                                      ?.call(context);
-                                                }
-                                              },
-                                              child: Container(
-                                                  padding: EdgeInsets.all(8),
-                                                  decoration: BoxDecoration(
-                                                      color: widget
-                                                          .addressButtonsColor,
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  6))),
-                                                  child: Image.asset(
-                                                    'assets/images/open_book.png',
-                                                    color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
-                                                  )),
+                                                  if (contact is ContactBase &&
+                                                      contact.address != null) {
+                                                    setState(() =>
+                                                        addressController.text =
+                                                            contact.address);
+                                                    widget.onPushAddressBookButton
+                                                        ?.call(context);
+                                                  }
+                                                },
+                                                child: Container(
+                                                    padding: EdgeInsets.all(8),
+                                                    decoration: BoxDecoration(
+                                                        color: widget
+                                                            .addressButtonsColor,
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    6))),
+                                                    child: Image.asset(
+                                                      'assets/images/open_book.png',
+                                                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
+                                                    )),
+                                              ),
                                             )),
                                       ),
                                     Padding(
@@ -455,22 +458,25 @@ class ExchangeCardState extends State<ExchangeCard> {
                                             width: 34,
                                             height: 34,
                                             padding: EdgeInsets.only(top: 0),
-                                            child: InkWell(
-                                              onTap: () {
-                                                Clipboard.setData(ClipboardData(
-                                                    text: addressController
-                                                        .text));
-                                                showBar<void>(
-                                                    context,
-                                                    S
-                                                        .of(context)
-                                                        .copied_to_clipboard);
-                                              },
-                                              child: Container(
-                                                  padding: EdgeInsets.fromLTRB(
-                                                      8, 8, 0, 8),
-                                                  color: Colors.transparent,
-                                                  child: copyImage),
+                                            child: Semantics(
+                                              label: S.of(context).copy_address,
+                                              child: InkWell(
+                                                onTap: () {
+                                                  Clipboard.setData(ClipboardData(
+                                                      text: addressController
+                                                          .text));
+                                                  showBar<void>(
+                                                      context,
+                                                      S
+                                                          .of(context)
+                                                          .copied_to_clipboard);
+                                                },
+                                                child: Container(
+                                                    padding: EdgeInsets.fromLTRB(
+                                                        8, 8, 0, 8),
+                                                    color: Colors.transparent,
+                                                    child: copyImage),
+                                              ),
                                             )))
                                   ])))
                         ])),

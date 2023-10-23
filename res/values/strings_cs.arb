@@ -714,6 +714,8 @@
   "do_not_have_enough_gas_asset": "Nemáte dostatek ${currency} k provedení transakce s aktuálními podmínkami blockchainové sítě. K placení poplatků za blockchainovou síť potřebujete více ${currency}, i když posíláte jiné aktivum.",
   "totp_auth_url": "URL AUTH TOTP",
   "awaitDAppProcessing": "Počkejte, až dApp dokončí zpracování.",
+  "copyWalletConnectLink": "Zkopírujte odkaz WalletConnect z dApp a vložte jej sem",
+  "enterWalletConnectURI": "Zadejte identifikátor URI WalletConnect",
   "seed_key": "Klíč semen",
   "enter_seed_phrase": "Zadejte svou frázi semen"
 }

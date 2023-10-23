@@ -99,19 +99,22 @@ class AddressPage extends BasePage {
   Widget? trailing(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      child: IconButton(
-        padding: EdgeInsets.zero,
-        constraints: BoxConstraints(),
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        iconSize: 25,
-        onPressed: () {
-          ShareUtil.share(
-            text: addressListViewModel.uri.toString(),
-            context: context,
-          );
-        },
-        icon: Icon(Icons.share, size: 20, color: pageIconColor(context)),
+      child: Semantics(
+        label: S.of(context).share,
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          constraints: BoxConstraints(),
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          iconSize: 25,
+          onPressed: () {
+            ShareUtil.share(
+              text: addressListViewModel.uri.toString(),
+              context: context,
+            );
+          },
+          icon: Icon(Icons.share, size: 20, color: pageIconColor(context)),
+        ),
       ),
     );
   }
