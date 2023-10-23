@@ -2,8 +2,10 @@ import 'dart:developer';
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/enter_wallet_connect_uri_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
@@ -36,7 +38,13 @@ class WCPairingsWidget extends BasePage {
   String get title => S.current.walletConnect;
 
   Future<void> _onScanQrCode(BuildContext context, Web3Wallet web3Wallet) async {
-    final String? uri = await presentQRScanner();
+    final String? uri;
+
+    if (DeviceInfo.instance.isMobile) {
+      uri = await presentQRScanner();
+    } else {
+      uri = await _showEnterWalletConnectURIPopUp(context);
+    }
 
     if (uri == null) return _invalidUriToast(context, S.current.nullURIError);
 
@@ -49,6 +57,16 @@ class WCPairingsWidget extends BasePage {
     } catch (e) {
       await _invalidUriToast(context, e.toString());
     }
+  }
+
+  Future<String?> _showEnterWalletConnectURIPopUp(BuildContext context) async {
+    final walletConnectURI = await showPopUp<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return EnterWalletConnectURIWrapperWidget();
+      },
+    );
+    return walletConnectURI;
   }
 
   Future<void> _invalidUriToast(BuildContext context, String message) async {

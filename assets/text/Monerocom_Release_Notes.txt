@@ -1,3 +1,4 @@
-Support getting Addresses from ENS and Mastodon
-Bug fixes
-Minor enhancements
+BirdPay enhancements
+Nano fixes and improvements
+Minor bug fixes
+Accessibility enhancements

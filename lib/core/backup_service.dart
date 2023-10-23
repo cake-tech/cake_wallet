@@ -286,7 +286,7 @@ class BackupService {
       await _sharedPreferences.setInt(
           PreferencesKey.currentTransactionPriorityKeyLegacy, currentTransactionPriorityKeyLegacy);
 
-    if (allowBiometricalAuthentication != null)
+    if (allowBiometricalAuthentication != null && !Platform.isMacOS && !Platform.isLinux)
       await _sharedPreferences.setBool(
           PreferencesKey.allowBiometricalAuthenticationKey, allowBiometricalAuthentication);
 

@@ -237,6 +237,7 @@ import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 
 import 'core/totp_request_details.dart';
+import 'src/screens/settings/desktop_settings/desktop_settings_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -265,6 +266,7 @@ Future<void> setup({
   required Box<Order> ordersSource,
   required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
+  required FlutterSecureStorage secureStorage,
 }) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
@@ -502,6 +504,7 @@ Future<void> setup({
   getIt.registerFactory<DesktopSidebarWrapper>(() {
     final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
     return DesktopSidebarWrapper(
+      bottomSheetService: getIt.get<BottomSheetService>(),
       dashboardViewModel: getIt.get<DashboardViewModel>(),
       desktopSidebarViewModel: getIt.get<DesktopSidebarViewModel>(),
       child: getIt.get<DesktopDashboardPage>(param1: _navigatorKey),
@@ -510,7 +513,6 @@ Future<void> setup({
   });
   getIt.registerFactoryParam<DesktopDashboardPage, GlobalKey<NavigatorState>, void>(
       (desktopKey, _) => DesktopDashboardPage(
-            bottomSheetService: getIt.get<BottomSheetService>(),
             balancePage: getIt.get<BalancePage>(),
             dashboardViewModel: getIt.get<DashboardViewModel>(),
             addressListViewModel: getIt.get<WalletAddressListViewModel>(),
@@ -528,6 +530,9 @@ Future<void> setup({
 
   getIt.registerFactory<Modify2FAPage>(
       () => Modify2FAPage(setup2FAViewModel: getIt.get<Setup2FAViewModel>()));
+
+  getIt.registerFactory<DesktopSettingsPage>(
+      () => DesktopSettingsPage());
 
   getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>(
       (pageOption, _) => ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, pageOption));
