@@ -266,7 +266,6 @@ Future<void> setup({
   required Box<Order> ordersSource,
   required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
-  required FlutterSecureStorage secureStorage,
 }) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;

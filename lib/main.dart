@@ -204,8 +204,7 @@ Future<void> initialSetup(
       transactionDescriptionBox: transactionDescriptions,
       ordersSource: ordersSource,
       anonpayInvoiceInfoSource: anonpayInvoiceInfo,
-      unspentCoinsInfoSource: unspentCoinsInfoSource,
-      secureStorage: secureStorage);
+      unspentCoinsInfoSource: unspentCoinsInfoSource);
   await bootstrap(navigatorKey);
   monero?.onStartup();
 }
