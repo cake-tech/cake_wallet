@@ -10,8 +10,6 @@ import 'package:nanodart/nanodart.dart';
 import 'package:cw_core/node.dart';
 
 class NanoClient {
-  static const String DEFAULT_REPRESENTATIVE =
-      "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
 
   static const Map<String, String> CAKE_HEADERS = {
     "Content-Type": "application/json",
@@ -20,6 +18,7 @@ class NanoClient {
 
   Node? _node;
   Node? _powNode;
+  String defaultRepresentative = "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
 
   bool connect(Node node) {
     try {
@@ -88,11 +87,7 @@ class NanoClient {
       AccountInfoResponse? accountInfo = await getAccountInfo(ourAddress);
 
       if (accountInfo == null) {
-        throw Exception("error while getting account info, can't change rep of an unopened account");
-      }
-
-      if (accountInfo.confirmationHeight == 0) {
-        throw Exception("the account has no transaction history yet, and you can't change the representative of an unopened account");
+        throw Exception("error while getting account info, you can't change the rep of an unopened account");
       }
 
       // construct the change block:
@@ -125,7 +120,7 @@ class NanoClient {
 
       return await processBlock(changeBlock, "change");
     } catch (e) {
-      throw Exception("error while changing representative");
+      throw Exception(e);
     }
   }
 
@@ -278,7 +273,7 @@ class NanoClient {
       // account is not open yet, we need to create an open block:
       openBlock = true;
       // we don't have a representative set yet:
-      representative = DEFAULT_REPRESENTATIVE;
+      representative = defaultRepresentative;
       // we don't have a frontier yet:
       frontier = "0000000000000000000000000000000000000000000000000000000000000000";
     } else {
