@@ -726,5 +726,6 @@
   "enterWalletConnectURI": "Введіть URI WalletConnect",
   "seed_key": "Насіннєвий ключ",
   "enter_seed_phrase": "Введіть свою насіннєву фразу",
-  "change_rep_successful": "Успішно змінив представник"
+  "change_rep_successful": "Успішно змінив представник",
+  "add_contact": "Додати контакт"
 }

@@ -724,5 +724,6 @@
   "enterWalletConnectURI": "WalletConnect URI'sini girin",
   "seed_key": "Tohum",
   "enter_seed_phrase": "Tohum ifadenizi girin",
-  "change_rep_successful": "Temsilciyi başarıyla değiştirdi"
+  "change_rep_successful": "Temsilciyi başarıyla değiştirdi",
+  "add_contact": "Kişi ekle"
 }

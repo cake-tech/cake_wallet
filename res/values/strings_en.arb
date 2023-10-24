@@ -727,5 +727,6 @@
   "enterWalletConnectURI": "Enter WalletConnect URI",
   "seed_key": "Seed key",
   "enter_seed_phrase": "Enter your seed phrase",
-  "change_rep_successful": "Successfully changed representative"
+  "change_rep_successful": "Successfully changed representative",
+  "add_contact": "Add contact"
 }

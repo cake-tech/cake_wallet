@@ -724,5 +724,6 @@
   "enterWalletConnectURI": "WalletConnect URI를 입력하세요.",
   "seed_key": "시드 키",
   "enter_seed_phrase": "시드 문구를 입력하십시오",
-  "change_rep_successful": "대리인이 성공적으로 변경되었습니다"
+  "change_rep_successful": "대리인이 성공적으로 변경되었습니다",
+  "add_contact": "주소록에 추가"
 }

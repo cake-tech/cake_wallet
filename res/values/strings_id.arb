@@ -714,5 +714,6 @@
   "enterWalletConnectURI": "Masukkan URI WalletConnect",
   "seed_key": "Kunci benih",
   "enter_seed_phrase": "Masukkan frasa benih Anda",
-  "change_rep_successful": "Berhasil mengubah perwakilan"
+  "change_rep_successful": "Berhasil mengubah perwakilan",
+  "add_contact": "Tambah kontak"
 }

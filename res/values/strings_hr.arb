@@ -724,5 +724,6 @@
   "enterWalletConnectURI": "Unesite WalletConnect URI",
   "seed_key": "Sjemenski ključ",
   "enter_seed_phrase": "Unesite svoju sjemensku frazu",
-  "change_rep_successful": "Uspješno promijenjena reprezentativna"
+  "change_rep_successful": "Uspješno promijenjena reprezentativna",
+  "add_contact": "Dodaj kontakt"
 }

@@ -722,5 +722,6 @@
   "enterWalletConnectURI": "WalletConnect ـﻟ URI ﻞﺧﺩﺃ",
   "seed_key": "مفتاح البذور",
   "enter_seed_phrase": "أدخل عبارة البذور الخاصة بك",
-  "change_rep_successful": "تم تغيير ممثل بنجاح"
+  "change_rep_successful": "تم تغيير ممثل بنجاح",
+  "add_contact": "ﻝﺎﺼﺗﺍ ﺔﻬﺟ ﺔﻓﺎﺿﺇ"
 }

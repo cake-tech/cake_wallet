@@ -726,5 +726,6 @@
   "enterWalletConnectURI": "Geben Sie den WalletConnect-URI ein",
   "seed_key": "Samenschlüssel",
   "enter_seed_phrase": "Geben Sie Ihre Samenphrase ein",
-  "change_rep_successful": "Erfolgreich veränderte Vertreter"
+  "change_rep_successful": "Erfolgreich veränderte Vertreter",
+  "add_contact": "Kontakt hinzufügen"
 }
