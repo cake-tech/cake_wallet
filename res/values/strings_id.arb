@@ -713,5 +713,6 @@
   "copyWalletConnectLink": "Salin tautan WalletConnect dari dApp dan tempel di sini",
   "enterWalletConnectURI": "Masukkan URI WalletConnect",
   "seed_key": "Kunci benih",
-  "enter_seed_phrase": "Masukkan frasa benih Anda"
+  "enter_seed_phrase": "Masukkan frasa benih Anda",
+  "add_contact": "Tambah kontak"
 }

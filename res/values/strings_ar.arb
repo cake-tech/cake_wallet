@@ -721,5 +721,6 @@
   "copyWalletConnectLink": "ﺎﻨﻫ ﻪﻘﺼﻟﺍﻭ dApp ﻦﻣ WalletConnect ﻂﺑﺍﺭ ﺦﺴﻧﺍ",
   "enterWalletConnectURI": "WalletConnect ـﻟ URI ﻞﺧﺩﺃ",
   "seed_key": "مفتاح البذور",
-  "enter_seed_phrase": "أدخل عبارة البذور الخاصة بك"
+  "enter_seed_phrase": "أدخل عبارة البذور الخاصة بك",
+  "add_contact": "ﻝﺎﺼﺗﺍ ﺔﻬﺟ ﺔﻓﺎﺿﺇ"
 }

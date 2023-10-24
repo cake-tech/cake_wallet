@@ -723,5 +723,6 @@
   "copyWalletConnectLink": "WalletConnect bağlantısını dApp'ten kopyalayıp buraya yapıştırın",
   "enterWalletConnectURI": "WalletConnect URI'sini girin",
   "seed_key": "Tohum",
-  "enter_seed_phrase": "Tohum ifadenizi girin"
+  "enter_seed_phrase": "Tohum ifadenizi girin",
+  "add_contact": "Kişi ekle"
 }

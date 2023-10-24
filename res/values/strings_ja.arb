@@ -725,5 +725,6 @@
   "copyWalletConnectLink": "dApp から WalletConnect リンクをコピーし、ここに貼り付けます",
   "enterWalletConnectURI": "WalletConnect URI を入力してください",
   "seed_key": "シードキー",
-  "enter_seed_phrase": "シードフレーズを入力してください"
+  "enter_seed_phrase": "シードフレーズを入力してください",
+  "add_contact": "連絡先を追加"
 }

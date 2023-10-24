@@ -725,5 +725,6 @@
   "copyWalletConnectLink": "dApp से वॉलेटकनेक्ट लिंक को कॉपी करें और यहां पेस्ट करें",
   "enterWalletConnectURI": "वॉलेटकनेक्ट यूआरआई दर्ज करें",
   "seed_key": "बीज कुंजी",
-  "enter_seed_phrase": "अपना बीज वाक्यांश दर्ज करें"
+  "enter_seed_phrase": "अपना बीज वाक्यांश दर्ज करें",
+  "add_contact": "संपर्क जोड़ें"
 }

@@ -717,5 +717,6 @@
   "copyWalletConnectLink": "dApp ﮯﺳ WalletConnect ۔ﮟﯾﺮﮐ ﭧﺴﯿﭘ ﮞﺎﮩﯾ ﺭﻭﺍ ﮟﯾﺮﮐ ﯽﭘﺎﮐ ﻮﮐ ﮏﻨﻟ",
   "enterWalletConnectURI": "WalletConnect URI ۔ﮟﯾﺮﮐ ﺝﺭﺩ",
   "seed_key": "بیج کی کلید",
-  "enter_seed_phrase": "اپنے بیج کا جملہ درج کریں"
+  "enter_seed_phrase": "اپنے بیج کا جملہ درج کریں",
+  "add_contact": "۔ﮟﯾﺮﮐ ﻞﻣﺎﺷ ﮧﻄﺑﺍﺭ"
 }

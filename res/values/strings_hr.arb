@@ -723,5 +723,6 @@
   "copyWalletConnectLink": "Kopirajte vezu WalletConnect iz dApp-a i zalijepite je ovdje",
   "enterWalletConnectURI": "Unesite WalletConnect URI",
   "seed_key": "Sjemenski ključ",
-  "enter_seed_phrase": "Unesite svoju sjemensku frazu"
+  "enter_seed_phrase": "Unesite svoju sjemensku frazu",
+  "add_contact": "Dodaj kontakt"
 }

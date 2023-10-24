@@ -717,5 +717,6 @@
   "copyWalletConnectLink": "Zkopírujte odkaz WalletConnect z dApp a vložte jej sem",
   "enterWalletConnectURI": "Zadejte identifikátor URI WalletConnect",
   "seed_key": "Klíč semen",
-  "enter_seed_phrase": "Zadejte svou frázi semen"
+  "enter_seed_phrase": "Zadejte svou frázi semen",
+  "add_contact": "Přidat kontakt"
 }

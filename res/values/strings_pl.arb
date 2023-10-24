@@ -725,5 +725,6 @@
   "copyWalletConnectLink": "Skopiuj link do WalletConnect z dApp i wklej tutaj",
   "enterWalletConnectURI": "Wprowadź identyfikator URI WalletConnect",
   "seed_key": "Klucz nasion",
-  "enter_seed_phrase": "Wprowadź swoją frazę nasienną"
+  "enter_seed_phrase": "Wprowadź swoją frazę nasienną",
+  "add_contact": "Dodaj kontakt"
 }

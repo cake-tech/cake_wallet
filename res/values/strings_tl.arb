@@ -720,5 +720,6 @@
   "copyWalletConnectLink": "Kopyahin ang link ng WalletConnect mula sa dApp at i-paste dito",
   "enterWalletConnectURI": "Ilagay ang WalletConnect URI",
   "seed_key": "Seed Key",
-  "enter_seed_phrase": "Ipasok ang iyong pariralang binhi"
+  "enter_seed_phrase": "Ipasok ang iyong pariralang binhi",
+  "add_contact": "Magdagdag ng contact"
 }
