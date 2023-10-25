@@ -15,7 +15,7 @@ void __clear_cache(void* start, void* end) { }
 #endif
 
 #include "plain_wallet_api.h"
-#include "plain_wallet_api_ex.h"
+//#include "plain_wallet_api_ex.h"
 
 
 
@@ -81,7 +81,7 @@ extern "C"
         uint64_t rate;
         char *assetType;
 
-        HavenRate(char *_assetType, uint64_t _rate)
+        ZanoRate(char *_assetType, uint64_t _rate)
         {
             rate = _rate;
             assetType = _assetType;
@@ -175,8 +175,9 @@ extern "C"
 
         int64_t datetime;
 
-        TransactionInfoRow(wallet_public::wallet_transfer_info& wti)
-        {            
+        TransactionInfoRow(/*wallet_public::wallet_transfer_info& wti*/)
+        {       
+            /*     
             amount = wti.subtransfers.
             fee = transaction->fee();
             blockHeight = transaction->blockHeight();
@@ -221,8 +222,8 @@ extern "C"
     std::mutex store_lock;
     bool is_storing = false;
     */
-    void change_current_wallet(Monero::Wallet *wallet)
-    {
+    //void change_current_wallet(Monero::Wallet *wallet)
+    //{
         /*
         m_wallet = wallet;
         m_listener = nullptr;
@@ -255,64 +256,22 @@ extern "C"
             m_subaddress = nullptr;
         }
         */
+    //}
+
+    //Monero::Wallet *get_current_wallet()
+    //{
+
+    //    return nullptr;//return m_wallet;
+    //}
+
+    char * create_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
+    {
+        return  strdup(plain_wallet::generate(path, password).c_str());
     }
 
-    Monero::Wallet *get_current_wallet()
+    char * restore_wallet_from_seed(char *path, char *password, char *seed, int32_t networkType, uint64_t restoreHeight, char *error)
     {
-
-        return nullptr;//return m_wallet;
-    }
-
-    bool create_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
-    {
-        /*
-        Monero::WalletManagerFactory::setLogLevel(4);
-
-        Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
-        Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
-        Monero::Wallet *wallet = walletManager->createWallet(path, password, language, _networkType);
-
-        int status;
-        std::string errorString;
-
-        wallet->statusWithErrorString(status, errorString);
-
-        if (wallet->status() != Monero::Wallet::Status_Ok)
-        {
-            error = strdup(wallet->errorString().c_str());
-            return false;
-        }
-
-        change_current_wallet(wallet);
-        */
-        return true;
-    }
-
-    bool restore_wallet_from_seed(char *path, char *password, char *seed, int32_t networkType, uint64_t restoreHeight, char *error)
-    {
-        /*
-        Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
-        Monero::Wallet *wallet = Monero::WalletManagerFactory::getWalletManager()->recoveryWallet(
-            std::string(path),
-            std::string(password),
-            std::string(seed),
-            _networkType,
-            (uint64_t)restoreHeight);
-
-        int status;
-        std::string errorString;
-
-        wallet->statusWithErrorString(status, errorString);
-
-        if (status != Monero::Wallet::Status_Ok || !errorString.empty())
-        {
-            error = strdup(errorString.c_str());
-            return false;
-        }
-
-        change_current_wallet(wallet);
-        */
-        return true;
+        return  strdup(restore(seed, path,  password, "");
     }
 
     bool restore_wallet_from_keys(char *path, char *password, char *language, char *address, char *viewKey, char *spendKey, int32_t networkType, uint64_t restoreHeight, char *error)
@@ -342,275 +301,125 @@ extern "C"
 
         change_current_wallet(wallet);
         */
-        return true;
+        return false;
     }
 
-    bool load_wallet(char *path, char *password, int32_t nettype)
+    char * load_wallet(char *path, char *password, int32_t nettype)
     {
-        /*
-        nice(19);
-        Monero::NetworkType networkType = static_cast<Monero::NetworkType>(nettype);
-        Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
-        Monero::Wallet *wallet = walletManager->openWallet(std::string(path), std::string(password), networkType);
-        int status;
-        std::string errorString;
-
-        wallet->statusWithErrorString(status, errorString);
-        change_current_wallet(wallet);
-
-        return !(status != Monero::Wallet::Status_Ok || !errorString.empty());
-        */
-       return false;
+        return strdup(open(path, password));
     }
 
     char *error_string() {
-        return strdup(get_current_wallet()->errorString().c_str());
+        return strdup("");//strdup(get_current_wallet()->errorString().c_str());
     }
 
 
     bool is_wallet_exist(char *path)
     {
-        return false; //return Monero::WalletManagerFactory::getWalletManager()->walletExists(std::string(path));
+        return plain_wallet::is_wallet_exist(path);
     }
 
-    void close_current_wallet()
+    void close_wallet(uint64_t hwallet)
     {
-        //Monero::WalletManagerFactory::getWalletManager()->closeWallet(get_current_wallet());
-        //change_current_wallet(nullptr);
-    }
-
-    char *get_filename()
-    {
-        return nullptr;//return strdup(get_current_wallet()->filename().c_str());
-    }
-
-    char *secret_view_key()
-    {
-        return nullptr;//return strdup(get_current_wallet()->secretViewKey().c_str());
-    }
-
-    char *public_view_key()
-    {
-        return nullptr;//return strdup(get_current_wallet()->publicViewKey().c_str());
-    }
-
-    char *secret_spend_key()
-    {
-        return nullptr;//return strdup(get_current_wallet()->secretSpendKey().c_str());
-    }
-
-    char *public_spend_key()
-    {
-        return nullptr;//return strdup(get_current_wallet()->publicSpendKey().c_str());
-    }
-
-    char *get_address(uint32_t account_index, uint32_t address_index)
-    {
-        return nullptr;//return strdup(get_current_wallet()->address(account_index, address_index).c_str());
+        plain_wallet::close_wallet(hwallet);
     }
 
 
-    const char *seed()
-    {
-        return nullptr;//return strdup(get_current_wallet()->seed().c_str());
+    char *get_wallet_info(uint64_t hwallet) {
+        return strdup(plain_wallet::get_wallet_info(hwallet));
     }
 
-    int64_t *get_full_balance(uint32_t account_index)
+    /*
+     get_filename(): -> get_wallet_info(h).wi.path
+     secret_view_key(): -> get_wallet_info(h).wi_extended.view_private_key
+     public_view_key(): -> get_wallet_info(h).wi_extended.view_public_key
+     secret_spend_key(): -> get_wallet_info(h).wi_extended.spend_private_key
+     public_spend_key(): -> get_wallet_info(h).wi_extended.spend_public_key
+     get_address(): -> get_wallet_info(h).wi.address
+     seed(): -> get_wallet_info(h).wi_extended.seed
+     get_current_height(): -> get_wallet_status(h).current_wallet_height
+     get_node_height(): -> get_wallet_status(h).current_daemon_height
+
+     start_refresh() ???
+     set_refresh_from_block_height ???
+     set_recovering_from_seed ???
+
+     connect_to_node()/is_connected(): -> get_connectivity_status(): {
+                                                        "is_online": true,
+                                                        "last_daemon_is_disconnected": false,
+                                                        "is_server_busy": false,
+                                                        "last_proxy_communicate_timestamp": 12121212
+                                                        }
+                                                        
+     }
+     
+     get_full_balance/get_unlocked_balance(): -> async_call("get_recent_txs_and_info", hwallet, "{ params: {offset: 0,count: 30,update_provision_info: true}}") 
+                                    return list of last transactions + balances
+
+     store(): -> async_call("store", hwallet, "{params: {}}")  
+
+     set_password() return "OK" if succeded
+
+    */
+
+
+    char* get_wallet_status(uint64_t hwallet)
     {
-        /*
-        std::map<std::string, uint64_t> accountBalance;
-        std::map<uint32_t, std::map<std::string, uint64_t>> balanceSubaddresses = get_current_wallet()->balance(account_index);
-        std::vector<std::string> assetList = Monero::Assets::list();
-        //prefill balances
-        for (const auto &asset_type : assetList) {
-
-            accountBalance[asset_type] = 0;
-        }
-        // balances are mapped to their subaddress
-        // we compute total balances of account
-        for (auto const& balanceSubaddress : balanceSubaddresses)
-            {
-                
-                std::map<std::string, uint64_t> balanceOfSubaddress = balanceSubaddress.second;
-
-                 for (auto const& balance : balanceOfSubaddress)
-                    {
-                
-                        const std::string &assetType = balance.first;
-                        const uint64_t &amount = balance.second;
-                        accountBalance[assetType] +=amount;
-                    }
-            }
-
-        size_t size = accountBalance.size();
-        int64_t *balanceAddresses = (int64_t *)malloc(size * sizeof(int64_t));
-        int i = 0;
-
-        for (auto const& balance : accountBalance)
-        {
-            char *assetType = strdup(balance.first.c_str());
-            HavenBalance *hb = new HavenBalance(assetType, balance.second);
-            balanceAddresses[i] = reinterpret_cast<int64_t>(hb);
-            i++;
-        }
-        return balanceAddresses;
-        */
-       return nullptr;
+        return strdup(plain_wallet::get_wallet_status(hwallet));
     }
 
-    int64_t *get_unlocked_balance(uint32_t account_index)
+    char* async_call(char* method_name, uint64_t instance_id, char* params)
     {
-        /*
-        std::map<std::string, uint64_t> accountBalance;
-        std::map<uint32_t, std::map<std::string, uint64_t>> balanceSubaddresses = get_current_wallet()->unlockedBalance(account_index);
-        std::vector<std::string> assetList = Monero::Assets::list();
-
-        //prefill balances
-        for (const auto &asset_type : assetList) {
-
-            accountBalance[asset_type] = 0;
-        }
-        // balances are mapped to their subaddress
-        // we compute total balances of account
-        for (auto const& balanceSubaddress : balanceSubaddresses)
-            {
-                
-                std::map<std::string, uint64_t> balanceOfSubaddress = balanceSubaddress.second;
-
-                 for (auto const& balance : balanceOfSubaddress)
-                    {
-                
-                        const std::string &assetType = balance.first;
-                        const uint64_t &amount = balance.second;
-                        accountBalance[assetType] +=amount;
-                    }
-            }
-
-        size_t size = accountBalance.size();
-        int64_t *balanceAddresses = (int64_t *)malloc(size * sizeof(int64_t));
-        int i = 0;
-
-        for (auto const& balance : accountBalance)
-        {
-            char *assetType = strdup(balance.first.c_str());
-            HavenBalance *hb = new HavenBalance(assetType, balance.second);
-            balanceAddresses[i] = reinterpret_cast<int64_t>(hb);
-            i++;
-        }
-        return balanceAddresses;
-        */
-       return nullptr;
+        return strdup(plain_wallet::async_call(method_name, instance_id,  params));
+    }
+    char* try_pull_result(uint64_t job_id)
+    {
+        return strdup(plain_wallet::try_pull_result(job_id));
     }
 
-    uint64_t get_current_height()
+    char*  get_connectivity_status()
     {
-        return 0;//return get_current_wallet()->blockChainHeight();
-    }
-
-    uint64_t get_node_height()
-    {
-        return 0;//return get_current_wallet()->daemonBlockChainHeight();
-    }
-
-    bool connect_to_node(char *error)
-    {
-        /*
-        nice(19);
-        bool is_connected = get_current_wallet()->connectToDaemon();
-
-        if (!is_connected)
-        {
-            error = strdup(get_current_wallet()->errorString().c_str());
-        }
-
-        return is_connected;
-        */
-        return false;
+        return strdup(plain_wallet::get_connectivity_status());
     }
 
     bool setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *error)
     {
-        
-        /*
-
         nice(19);
-        Monero::Wallet *wallet = get_current_wallet();
-        
-        std::string _login = plain_wallet::get_version();
-        std::string _password = "";
-
-        if (login != nullptr)
+        if(use_ssl)
         {
-            _login = std::string(login);
+            //LOG_ERROR("SSL is not supported yet for Zano");
+            return false;
         }
 
-        if (password != nullptr)
+        std::string res = plain_wallet::init(address, "", 0);
+        if(API_RETURN_CODE_OK != res)
         {
-            _password = std::string(password);
+            //LOG_ERROR("Failed init wallet");
+            return false;
         }
 
-        bool inited = wallet->init(std::string(address), 0, _login, _password, use_ssl, is_light_wallet);
-
-        if (!inited)
-        {
-            error = strdup(wallet->errorString().c_str());
-        } else if (!wallet->connectToDaemon()) {
-            error = strdup(wallet->errorString().c_str());
-        }
-
-        return inited;
-        */
-       return plain_wallet::get_version().empty();
+        return true;
     }
 
-    bool is_connected()
-    {
-        return false;//return get_current_wallet()->connected();
-    }
-
-    void start_refresh()
-    {
+    //void start_refresh()
+    //{
         //get_current_wallet()->refreshAsync();
         //get_current_wallet()->startRefresh();
-    }
+    //}
 
-    void set_refresh_from_block_height(uint64_t height)
-    {
+    //void set_refresh_from_block_height(uint64_t height)
+    //{
         //get_current_wallet()->setRefreshFromBlockHeight(height);
-    }
+    //}
 
-    void set_recovering_from_seed(bool is_recovery)
-    {
+    //void set_recovering_from_seed(bool is_recovery)
+    //{
         //get_current_wallet()->setRecoveringFromSeed(is_recovery);
-    }
+    //}
 
-    void store(char *path)
+    char* set_password(uint64_t hwallet, char *password, Utf8Box &error) 
     {
-        /*
-        store_lock.lock();
-        if (is_storing) {
-            return;
-        }
-
-        is_storing = true;
-        get_current_wallet()->store(std::string(path));
-        is_storing = false;
-        store_lock.unlock();
-        */
-    }
-
-    bool set_password(char *password, Utf8Box &error) 
-    {
-        /*
-        bool is_changed = get_current_wallet()->setPassword(std::string(password));
-
-        if (!is_changed) {
-            error = Utf8Box(strdup(get_current_wallet()->errorString().c_str()));
-        }
-
-        return is_changed;
-        */
-       return false;
+       return strdup(plain_wallet::reset_wallet_password(hwallet, password));
     }
 
     bool transaction_create(char *address, char *asset_type, char *payment_id, char *amount,
