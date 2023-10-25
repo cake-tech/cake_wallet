@@ -339,7 +339,6 @@
   "template": "Шаблон",
   "confirm_delete_template": "Это действие удалит шаблон. Вы хотите продолжить?",
   "confirm_delete_wallet": "Это действие удалит кошелек. Вы хотите продолжить?",
-  "picker_description": "Чтобы выбрать ChangeNOW или MorphToken, сначала смените пару для обмена",
   "change_wallet_alert_title": "Изменить текущий кошелек",
   "change_wallet_alert_content": "Вы хотите изменить текущий кошелек на ${wallet_name}?",
   "creating_new_wallet": "Создание нового кошелька",
@@ -726,5 +725,6 @@
   "enterWalletConnectURI": "Введите URI WalletConnect",
   "seed_key": "Ключ семян",
   "enter_seed_phrase": "Введите свою семенную фразу",
-  "add_contact": "Добавить контакт"
+  "add_contact": "Добавить контакт",
+  "exchange_provider_unsupported": "${providerName} больше не поддерживается!"
 }

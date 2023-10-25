@@ -339,7 +339,6 @@
   "template": "قالب",
   "confirm_delete_template": "سيؤدي هذا الإجراء إلى حذف هذا القالب. هل ترغب في الاستمرار؟",
   "confirm_delete_wallet": "سيؤدي هذا الإجراء إلى حذف هذه المحفظة. هل ترغب في الاستمرار؟",
-  "picker_description": "لاختيار ChangeNOW أو MorphToken ، يرجى تغيير زوج التداول الخاص بك أولاً",
   "change_wallet_alert_title": "تغيير المحفظة الحالية",
   "change_wallet_alert_content": "هل تريد تغيير المحفظة الحالية إلى ${wallet_name}؟",
   "creating_new_wallet": "يتم إنشاء محفظة جديدة",
@@ -722,5 +721,6 @@
   "enterWalletConnectURI": "WalletConnect ـﻟ URI ﻞﺧﺩﺃ",
   "seed_key": "مفتاح البذور",
   "enter_seed_phrase": "أدخل عبارة البذور الخاصة بك",
-  "add_contact": "ﻝﺎﺼﺗﺍ ﺔﻬﺟ ﺔﻓﺎﺿﺇ"
+  "add_contact": "ﻝﺎﺼﺗﺍ ﺔﻬﺟ ﺔﻓﺎﺿﺇ",
+  "exchange_provider_unsupported": "${providerName} لم يعد مدعومًا!"
 }

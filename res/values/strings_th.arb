@@ -339,7 +339,6 @@
   "template": "แบบฟอร์ม",
   "confirm_delete_template": "การดำเนินการนี้จะลบแบบฟอร์มนี้ คุณต้องการดำเนินการต่อหรือไม่?",
   "confirm_delete_wallet": "การดำเนินการนี้จะลบกระเป๋านี้ คุณต้องการดำเนินการต่อหรือไม่?",
-  "picker_description": "ในการเลือก ChangeNOW หรือ MorphToken โปรดเปลี่ยนคู่แลกเปลี่ยนก่อน",
   "change_wallet_alert_title": "เปลี่ยนกระเป๋าปัจจุบัน",
   "change_wallet_alert_content": "คุณต้องการเปลี่ยนกระเป๋าปัจจุบันเป็น ${wallet_name} หรือไม่?",
   "creating_new_wallet": "กำลังสร้างกระเป๋าใหม่",
@@ -724,5 +723,6 @@
   "enterWalletConnectURI": "เข้าสู่ WalletConnect URI",
   "seed_key": "คีย์เมล็ดพันธุ์",
   "enter_seed_phrase": "ป้อนวลีเมล็ดพันธุ์ของคุณ",
-  "add_contact": "เพิ่มผู้ติดต่อ"
+  "add_contact": "เพิ่มผู้ติดต่อ",
+  "exchange_provider_unsupported": "${providerName} ไม่ได้รับการสนับสนุนอีกต่อไป!"
 }

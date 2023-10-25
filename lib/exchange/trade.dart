@@ -1,6 +1,6 @@
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
@@ -28,18 +28,13 @@ class Trade extends HiveObject {
     this.providerId,
     this.providerName,
   }) {
-    if (provider != null) {
-      providerRaw = provider.raw;
-    }
-    if (from != null) {
-      fromRaw = from.raw;
-    }
-    if (to != null) {
-      toRaw = to.raw;
-    }
-    if (state != null) {
-      stateRaw = state.raw;
-    }
+    if (provider != null) providerRaw = provider.raw;
+
+    if (from != null) fromRaw = from.raw;
+
+    if (to != null) toRaw = to.raw;
+
+    if (state != null) stateRaw = state.raw;
   }
 
   static const typeId = TRADE_TYPE_ID;

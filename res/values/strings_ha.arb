@@ -340,7 +340,6 @@
   "template": "Samfura",
   "confirm_delete_template": "Wannan aikin zai share wannan samfuri. Kuna so ku ci gaba?",
   "confirm_delete_wallet": "Wannan aikin zai share wannan walat. Kuna so ku ci gaba?",
-  "picker_description": "Don zaɓar ChangeNOW ko MorphToken, da farko canja kasuwancin pair din ku",
   "change_wallet_alert_title": "Canja walat yanzu",
   "change_wallet_alert_content": "Kana so ka canja walat yanzu zuwa ${wallet_name}?",
   "creating_new_wallet": "Haliccin walat sabuwa",
@@ -704,5 +703,6 @@
   "enterWalletConnectURI": "Shigar da WalletConnect URI",
   "seed_key": "Maɓallin iri",
   "enter_seed_phrase": "Shigar da Sert Sentarku",
-  "add_contact": "Ƙara lamba"
+  "add_contact": "Ƙara lamba",
+  "exchange_provider_unsupported": "${providerName}"
 }

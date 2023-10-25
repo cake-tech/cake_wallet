@@ -339,7 +339,6 @@
   "template": "주형",
   "confirm_delete_template": "이 작업은이 템플릿을 삭제합니다. 계속 하시겠습니까?",
   "confirm_delete_wallet": "이 작업은이 지갑을 삭제합니다. 계속 하시겠습니까?",
-  "picker_description": "ChangeNOW 또는 MorphToken을 선택하려면 먼저 거래 쌍을 변경하십시오.",
   "change_wallet_alert_title": "현재 지갑 변경",
   "change_wallet_alert_content": "현재 지갑을 다음으로 변경 하시겠습니까 ${wallet_name}?",
   "creating_new_wallet": "새 지갑 생성",
@@ -724,5 +723,6 @@
   "enterWalletConnectURI": "WalletConnect URI를 입력하세요.",
   "seed_key": "시드 키",
   "enter_seed_phrase": "시드 문구를 입력하십시오",
-  "add_contact": "주소록에 추가"
+  "add_contact": "주소록에 추가",
+  "exchange_provider_unsupported": "${providerName}은 더 이상 지원되지 않습니다!"
 }

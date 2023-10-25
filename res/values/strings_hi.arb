@@ -339,7 +339,6 @@
   "template": "खाका",
   "confirm_delete_template": "यह क्रिया इस टेम्पलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?",
   "confirm_delete_wallet": "यह क्रिया इस वॉलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?",
-  "picker_description": "ChangeNOW या MorphToken चुनने के लिए, कृपया अपनी ट्रेडिंग जोड़ी को पहले बदलें",
   "change_wallet_alert_title": "वर्तमान बटुआ बदलें",
   "change_wallet_alert_content": "क्या आप करंट वॉलेट को बदलना चाहते हैं ${wallet_name}?",
   "creating_new_wallet": "नया बटुआ बनाना",
@@ -726,5 +725,6 @@
   "enterWalletConnectURI": "वॉलेटकनेक्ट यूआरआई दर्ज करें",
   "seed_key": "बीज कुंजी",
   "enter_seed_phrase": "अपना बीज वाक्यांश दर्ज करें",
-  "add_contact": "संपर्क जोड़ें"
+  "add_contact": "संपर्क जोड़ें",
+  "exchange_provider_unsupported": "${providerName} अब समर्थित नहीं है!"
 }

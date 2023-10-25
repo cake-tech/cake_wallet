@@ -339,7 +339,6 @@
   "template": "Шаблон",
   "confirm_delete_template": "Този шаблон ще бъде изтрит. Искате ли да продължите?",
   "confirm_delete_wallet": "Този портфейл ще бъде изтрит. Искате ли да продължите?",
-  "picker_description": "За да изберете ChangeNOW или MorphToken, моля, първо променете своя trading pair",
   "change_wallet_alert_title": "Смяна на сегашния портфейл",
   "change_wallet_alert_content": "Искате ли да смените сегашния портфейл на ${wallet_name}?",
   "creating_new_wallet": "Създаване на нов портфейл",
@@ -718,5 +717,6 @@
   "enterWalletConnectURI": "Въведете URI на WalletConnect",
   "seed_key": "Ключ за семена",
   "enter_seed_phrase": "Въведете вашата фраза за семена",
-  "add_contact": "Добави контакт"
+  "add_contact": "Добави контакт",
+  "exchange_provider_unsupported": "${providerName} вече не се поддържа!"
 }

@@ -339,7 +339,6 @@
   "template": "ပုံစံခွက်",
   "confirm_delete_template": "ဤလုပ်ဆောင်ချက်သည် ဤပုံစံပြားကို ဖျက်လိုက်ပါမည်။ ဆက်လုပ်လိုပါသလား။",
   "confirm_delete_wallet": "ဤလုပ်ဆောင်ချက်သည် ဤပိုက်ဆံအိတ်ကို ဖျက်လိုက်ပါမည်။ ဆက်လုပ်လိုပါသလား။",
-  "picker_description": "ChangeNOW သို့မဟုတ် MorphToken ကိုရွေးချယ်ရန်၊ ကျေးဇူးပြု၍ သင်၏ကုန်သွယ်မှုအတွဲကို ဦးစွာပြောင်းလဲပါ။",
   "change_wallet_alert_title": "လက်ရှိပိုက်ဆံအိတ်ကို ပြောင်းပါ။",
   "change_wallet_alert_content": "လက်ရှိပိုက်ဆံအိတ်ကို ${wallet_name} သို့ ပြောင်းလိုပါသလား။",
   "creating_new_wallet": "ပိုက်ဆံအိတ်အသစ်ဖန်တီးခြင်း။",
@@ -724,5 +723,6 @@
   "enterWalletConnectURI": "WalletConnect URI ကိုရိုက်ထည့်ပါ။",
   "seed_key": "မျိုးစေ့သော့",
   "enter_seed_phrase": "သင့်ရဲ့မျိုးစေ့စကားစုကိုရိုက်ထည့်ပါ",
-  "add_contact": "အဆက်အသွယ်ထည့်ပါ။"
+  "add_contact": "အဆက်အသွယ်ထည့်ပါ။",
+  "exchange_provider_unsupported": "${providerName} မရှိတော့ပါ!"
 }

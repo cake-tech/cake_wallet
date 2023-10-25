@@ -339,7 +339,6 @@
   "template": "Àwòṣe",
   "confirm_delete_template": "Ìṣe yìí máa yọ àwòṣe yìí kúrò. Ṣé ẹ fẹ́ tẹ̀síwájú?",
   "confirm_delete_wallet": "Ìṣe yìí máa yọ àpamọ́wọ́ yìí kúrò. Ṣé ẹ fẹ́ tẹ̀síwájú?",
-  "picker_description": "Ẹ jọ̀wọ́ pààrọ̀ owó tí ẹ pàṣípààrọ̀ jọ yín lákọ̀ọ́kọ́ kí ẹ yán ChangeNOW tàbí MorphToken",
   "change_wallet_alert_title": "Ẹ pààrọ̀ àpamọ́wọ́ yìí",
   "change_wallet_alert_content": "Ṣe ẹ fẹ́ pààrọ̀ àpamọ́wọ́ yìí sí ${wallet_name}?",
   "creating_new_wallet": "Ń dá àpamọ́wọ́ títun",
@@ -720,5 +719,6 @@
   "enterWalletConnectURI": "Tẹ WalletConnect URI sii",
   "seed_key": "Bọtini Ose",
   "enter_seed_phrase": "Tẹ ọrọ-iru irugbin rẹ",
-  "add_contact": "Fi olubasọrọ kun"
+  "add_contact": "Fi olubasọrọ kun",
+  "exchange_provider_unsupported": "${providerName} ko ni atilẹyin mọ!"
 }

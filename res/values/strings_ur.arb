@@ -340,7 +340,6 @@
   "template": "سانچے",
   "confirm_delete_template": "یہ عمل اس ٹیمپلیٹ کو حذف کر دے گا۔ کیا آپ جاری رکھنا چاہتے ہیں؟",
   "confirm_delete_wallet": "اس کارروائی سے یہ پرس حذف ہو جائے گا۔ کیا آپ جاری رکھنا چاہتے ہیں؟",
-  "picker_description": "ChangeNOW یا MorphToken کو منتخب کرنے کے لیے، براہ کرم پہلے اپنا تجارتی جوڑا تبدیل کریں۔",
   "change_wallet_alert_title": "موجودہ پرس تبدیل کریں۔",
   "change_wallet_alert_content": "کیا آپ موجودہ والیٹ کو ${wallet_name} میں تبدیل کرنا چاہتے ہیں؟",
   "creating_new_wallet": "نیا پرس بنانا",
@@ -718,5 +717,6 @@
   "enterWalletConnectURI": "WalletConnect URI ۔ﮟﯾﺮﮐ ﺝﺭﺩ",
   "seed_key": "بیج کی کلید",
   "enter_seed_phrase": "اپنے بیج کا جملہ درج کریں",
-  "add_contact": "۔ﮟﯾﺮﮐ ﻞﻣﺎﺷ ﮧﻄﺑﺍﺭ"
+  "add_contact": "۔ﮟﯾﺮﮐ ﻞﻣﺎﺷ ﮧﻄﺑﺍﺭ",
+  "exchange_provider_unsupported": "${providerName} اب تعاون نہیں کیا جاتا ہے!"
 }
