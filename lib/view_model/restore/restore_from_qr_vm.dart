@@ -1,6 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:hive/hive.dart';
@@ -90,6 +91,9 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
           case WalletType.ethereum:
             return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
+                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
+          case WalletType.nano:
+            return nano!.createNanoRestoreWalletFromSeedCredentials(
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
           default:
             throw Exception('Unexpected type: ${type.toString()}');

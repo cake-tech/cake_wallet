@@ -189,6 +189,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 param2: false));
       }
 
+    case Routes.restoreWalletTypeFromQR:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<NewWalletTypePage>(
+              param1: (BuildContext context, WalletType type) => Navigator.of(context).pop(type)));
+
     case Routes.seed:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
