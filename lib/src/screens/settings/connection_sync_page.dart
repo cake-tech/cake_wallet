@@ -85,7 +85,7 @@ class ConnectionSyncPage extends BasePage {
               );
             },
           ),
-          if (dashboardViewModel.wallet.type == WalletType.ethereum && DeviceInfo.instance.isMobile) ...[
+          if (dashboardViewModel.wallet.type == WalletType.ethereum) ...[
             WalletConnectTile(
               onTap: () async {
                 Navigator.of(context).push(

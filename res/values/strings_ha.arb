@@ -340,7 +340,6 @@
   "template": "Samfura",
   "confirm_delete_template": "Wannan aikin zai share wannan samfuri. Kuna so ku ci gaba?",
   "confirm_delete_wallet": "Wannan aikin zai share wannan walat. Kuna so ku ci gaba?",
-  "picker_description": "Don zaɓar ChangeNOW ko MorphToken, da farko canja kasuwancin pair din ku",
   "change_wallet_alert_title": "Canja walat yanzu",
   "change_wallet_alert_content": "Kana so ka canja walat yanzu zuwa ${wallet_name}?",
   "creating_new_wallet": "Haliccin walat sabuwa",
@@ -700,6 +699,10 @@
   "do_not_have_enough_gas_asset": "Ba ku da isassun ${currency} don yin ma'amala tare da yanayin cibiyar sadarwar blockchain na yanzu. Kuna buƙatar ƙarin ${currency} don biyan kuɗaɗen cibiyar sadarwar blockchain, koda kuwa kuna aika wata kadara daban.",
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Da fatan za a jira dApp ya gama aiki.",
+  "copyWalletConnectLink": "Kwafi hanyar haɗin WalletConnect daga dApp kuma liƙa a nan",
+  "enterWalletConnectURI": "Shigar da WalletConnect URI",
   "seed_key": "Maɓallin iri",
-  "enter_seed_phrase": "Shigar da Sert Sentarku"
+  "enter_seed_phrase": "Shigar da Sert Sentarku",
+  "add_contact": "Ƙara lamba",
+  "exchange_provider_unsupported": "${providerName}"
 }

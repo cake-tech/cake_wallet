@@ -1,21 +1,20 @@
 import 'dart:convert';
 
-import 'package:cake_wallet/exchange/exchange_pair.dart';
-import 'package:cake_wallet/exchange/exchange_provider.dart';
-import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/trocador/trocador_request.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cake_wallet/exchange/trade_request.dart';
-import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/exchange/limits.dart';
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/exchange/limits.dart';
+import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/exchange/trade_request.dart';
+import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:http/http.dart';
 
 class TrocadorExchangeProvider extends ExchangeProvider {
   TrocadorExchangeProvider({this.useTorOnly = false})
       : _lastUsedRateId = '',
-        super(pairList: _supportedPairs());
+        super(pairList: supportedPairs(_notSupported));
 
   bool useTorOnly;
 
@@ -24,135 +23,58 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     CryptoCurrency.zaddr,
   ];
 
-  static List<ExchangePair> _supportedPairs() {
-    final supportedCurrencies =
-        CryptoCurrency.all.where((element) => !_notSupported.contains(element)).toList();
-
-    return supportedCurrencies
-        .map((i) => supportedCurrencies.map((k) => ExchangePair(from: i, to: k, reverse: true)))
-        .expand((i) => i)
-        .toList();
-  }
-
+  static const apiKey = secrets.trocadorApiKey;
   static const onionApiAuthority = 'trocadorfyhlu27aefre5u7zri66gudtzdyelymftvr4yjwcxhfaqsid.onion';
   static const clearNetAuthority = 'trocador.app';
-  static const apiKey = secrets.trocadorApiKey;
   static const markup = secrets.trocadorExchangeMarkup;
   static const newRatePath = '/api/new_rate';
   static const createTradePath = 'api/new_trade';
   static const tradePath = 'api/trade';
   static const coinPath = 'api/coin';
+
   String _lastUsedRateId;
 
   @override
-  Future<bool> checkIsAvailable() async => true;
+  String get title => 'Trocador';
 
   @override
-  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) {
-    final _request = request as TrocadorRequest;
-    return _createTrade(request: _request, isFixedRateMode: isFixedRateMode);
-  }
+  bool get isAvailable => true;
 
-  Future<Trade> _createTrade({
-    required TrocadorRequest request,
-    required bool isFixedRateMode,
-  }) async {
-    final params = <String, String>{
-      'api_key': apiKey,
-      'ticker_from': _normalizeCurrency(request.from),
-      'ticker_to': _normalizeCurrency(request.to),
-      'network_from': _networkFor(request.from),
-      'network_to': _networkFor(request.to),
-      'payment': isFixedRateMode ? 'True' : 'False',
-      'min_kycrating': 'C',
-      'markup': markup,
-      'best_only': 'True',
-      if (!isFixedRateMode) 'amount_from': request.fromAmount,
-      if (isFixedRateMode) 'amount_to': request.toAmount,
-      'address': request.address,
-      'refund': request.refundAddress
-    };
+  @override
+  bool get isEnabled => true;
 
-    if (isFixedRateMode) {
-      await fetchRate(
-        from: request.from,
-        to: request.to,
-        amount: double.tryParse(request.toAmount) ?? 0,
-        isFixedRateMode: true,
-        isReceiveAmount: true,
-      );
-      params['id'] = _lastUsedRateId;
-    }
+  @override
+  bool get supportsFixedRate => true;
 
-    final uri = await _getUri(createTradePath, params);
-    final response = await get(uri);
-
-    if (response.statusCode == 400) {
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final error = responseJSON['error'] as String;
-      final message = responseJSON['message'] as String;
-      throw Exception('${error}\n$message');
-    }
-
-    if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
-    }
-
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final id = responseJSON['trade_id'] as String;
-    final inputAddress = responseJSON['address_provider'] as String;
-    final refundAddress = responseJSON['refund_address'] as String;
-    final status = responseJSON['status'] as String;
-    final state = TradeState.deserialize(raw: status);
-    final payoutAddress = responseJSON['address_user'] as String;
-    final date = responseJSON['date'] as String;
-    final password = responseJSON['password'] as String;
-    final providerId = responseJSON['id_provider'] as String;
-    final providerName = responseJSON['provider'] as String;
-
-    return Trade(
-        id: id,
-        from: request.from,
-        to: request.to,
-        provider: description,
-        inputAddress: inputAddress,
-        refundAddress: refundAddress,
-        state: state,
-        password: password,
-        providerId: providerId,
-        providerName: providerName,
-        createdAt: DateTime.tryParse(date)?.toLocal(),
-        amount: responseJSON['amount_from']?.toString() ?? request.fromAmount,
-        payoutAddress: payoutAddress);
-  }
+  @override
+  bool get supportsOnionAddress => true;
 
   @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.trocador;
+
+  @override
+  Future<bool> checkIsAvailable() async => true;
 
   @override
   Future<Limits> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
-    final params = <String, String>{
+    final params = {
       'api_key': apiKey,
       'ticker': _normalizeCurrency(from),
       'name': from.name,
     };
 
     final uri = await _getUri(coinPath, params);
-
     final response = await get(uri);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
-    }
 
     final responseJSON = json.decode(response.body) as List<dynamic>;
 
-    if (responseJSON.isEmpty) {
-      throw Exception('No data');
-    }
+    if (responseJSON.isEmpty) throw Exception('No data');
 
     final coinJson = responseJSON.first as Map<String, dynamic>;
 
@@ -170,9 +92,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       required bool isFixedRateMode,
       required bool isReceiveAmount}) async {
     try {
-      if (amount == 0) {
-        return 0.0;
-      }
+      if (amount == 0) return 0.0;
 
       final params = <String, String>{
         'api_key': apiKey,
@@ -195,9 +115,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final toAmount = double.parse(responseJSON['amount_to'].toString());
       final rateId = responseJSON['trade_id'] as String? ?? '';
 
-      if (rateId.isNotEmpty) {
-        _lastUsedRateId = rateId;
-      }
+      if (rateId.isNotEmpty) _lastUsedRateId = rateId;
 
       return isReceiveAmount ? (amount / fromAmount) : (toAmount / amount);
     } catch (e) {
@@ -207,39 +125,102 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }
 
   @override
+  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
+    final params = {
+      'api_key': apiKey,
+      'ticker_from': _normalizeCurrency(request.fromCurrency),
+      'ticker_to': _normalizeCurrency(request.toCurrency),
+      'network_from': _networkFor(request.fromCurrency),
+      'network_to': _networkFor(request.toCurrency),
+      'payment': isFixedRateMode ? 'True' : 'False',
+      'min_kycrating': 'C',
+      'markup': markup,
+      'best_only': 'True',
+      if (!isFixedRateMode) 'amount_from': request.fromAmount,
+      if (isFixedRateMode) 'amount_to': request.toAmount,
+      'address': request.toAddress,
+      'refund': request.refundAddress
+    };
+
+    if (isFixedRateMode) {
+      await fetchRate(
+        from: request.fromCurrency,
+        to: request.toCurrency,
+        amount: double.tryParse(request.toAmount) ?? 0,
+        isFixedRateMode: true,
+        isReceiveAmount: true,
+      );
+      params['id'] = _lastUsedRateId;
+    }
+
+    final uri = await _getUri(createTradePath, params);
+    final response = await get(uri);
+
+    if (response.statusCode == 400) {
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final error = responseJSON['error'] as String;
+      final message = responseJSON['message'] as String;
+      throw Exception('${error}\n$message');
+    }
+
+    if (response.statusCode != 200)
+      throw Exception('Unexpected http status: ${response.statusCode}');
+
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final id = responseJSON['trade_id'] as String;
+    final inputAddress = responseJSON['address_provider'] as String;
+    final refundAddress = responseJSON['refund_address'] as String;
+    final status = responseJSON['status'] as String;
+    final payoutAddress = responseJSON['address_user'] as String;
+    final date = responseJSON['date'] as String;
+    final password = responseJSON['password'] as String;
+    final providerId = responseJSON['id_provider'] as String;
+    final providerName = responseJSON['provider'] as String;
+
+    return Trade(
+        id: id,
+        from: request.fromCurrency,
+        to: request.toCurrency,
+        provider: description,
+        inputAddress: inputAddress,
+        refundAddress: refundAddress,
+        state: TradeState.deserialize(raw: status),
+        password: password,
+        providerId: providerId,
+        providerName: providerName,
+        createdAt: DateTime.tryParse(date)?.toLocal(),
+        amount: responseJSON['amount_from']?.toString() ?? request.fromAmount,
+        payoutAddress: payoutAddress);
+  }
+
+  @override
   Future<Trade> findTradeById({required String id}) async {
     final uri = await _getUri(tradePath, {'api_key': apiKey, 'id': id});
     return get(uri).then((response) {
-      if (response.statusCode != 200) {
+      if (response.statusCode != 200)
         throw Exception('Unexpected http status: ${response.statusCode}');
-      }
 
       final responseListJson = json.decode(response.body) as List;
-
       final responseJSON = responseListJson.first;
       final id = responseJSON['trade_id'] as String;
       final payoutAddress = responseJSON['address_user'] as String;
       final refundAddress = responseJSON['refund_address'] as String;
       final inputAddress = responseJSON['address_provider'] as String;
       final fromAmount = responseJSON['amount_from']?.toString() ?? '0';
-      final from = CryptoCurrency.fromString(responseJSON['ticker_from'] as String);
-      final to = CryptoCurrency.fromString(responseJSON['ticker_to'] as String);
-      final state = TradeState.deserialize(raw: responseJSON['status'] as String);
-      final date = DateTime.parse(responseJSON['date'] as String);
       final password = responseJSON['password'] as String;
       final providerId = responseJSON['id_provider'] as String;
       final providerName = responseJSON['provider'] as String;
 
       return Trade(
         id: id,
-        from: from,
-        to: to,
+        from: CryptoCurrency.fromString(responseJSON['ticker_from'] as String),
+        to: CryptoCurrency.fromString(responseJSON['ticker_to'] as String),
         provider: description,
         inputAddress: inputAddress,
         refundAddress: refundAddress,
-        createdAt: date,
+        createdAt: DateTime.parse(responseJSON['date'] as String),
         amount: fromAmount,
-        state: state,
+        state: TradeState.deserialize(raw: responseJSON['status'] as String),
         payoutAddress: payoutAddress,
         password: password,
         providerId: providerId,
@@ -247,21 +228,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       );
     });
   }
-
-  @override
-  bool get isAvailable => true;
-
-  @override
-  bool get isEnabled => true;
-
-  @override
-  bool get supportsFixedRate => true;
-
-  @override
-  bool get supportsOnionAddress => true;
-
-  @override
-  String get title => 'Trocador';
 
   String _networkFor(CryptoCurrency currency) {
     switch (currency) {
@@ -301,15 +267,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }
 
   Future<Uri> _getUri(String path, Map<String, String> queryParams) async {
-    if (!supportsOnionAddress) {
-      return Uri.https(clearNetAuthority, path, queryParams);
-    }
-
     final uri = Uri.http(onionApiAuthority, path, queryParams);
 
-    if (useTorOnly) {
-      return uri;
-    }
+    if (useTorOnly) return uri;
 
     try {
       await get(uri);
