@@ -588,6 +588,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               final trade =
                   await provider.createTrade(request: request!, isFixedRateMode: isFixedRateMode);
               trade.walletId = wallet.id;
+              trade.fromWalletAddress = wallet.walletAddresses.address;
               tradesStore.setTrade(trade);
               await trades.add(trade);
               tradeState = TradeIsCreatedSuccessfully(trade: trade);
