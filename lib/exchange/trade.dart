@@ -114,7 +114,9 @@ class Trade extends HiveObject {
         createdAt:
             map['date'] != null ? DateTime.fromMillisecondsSinceEpoch(map['date'] as int) : null,
         amount: map['amount'] as String,
-        walletId: map['wallet_id'] as String);
+        walletId: map['wallet_id'] as String,
+        fromWalletAddress: map['from_wallet_address'] as String
+    );
   }
 
   Map<String, dynamic> toMap() {
