@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
-import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:flutter/material.dart';
@@ -139,8 +138,9 @@ class RootState extends State<Root> with WidgetsBindingObserver {
                       }
                       _reset();
                       totpAuth.close(
-                        route: _isValidPaymentUri() ? Routes.send : null,
-                        arguments: PaymentRequest.fromUri(launchUri),
+                        route: _getRouteToGo(),
+                        arguments:
+                            isWalletConnectLink ? launchUri : PaymentRequest.fromUri(launchUri),
                       );
                       launchUri = null;
                     },
@@ -151,8 +151,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
               } else {
                 _reset();
                 auth.close(
-                  route: _isValidPaymentUri() ? Routes.send : null,
-                  arguments: PaymentRequest.fromUri(launchUri),
+                  route: _getRouteToGo(),
+                  arguments: isWalletConnectLink ? launchUri : PaymentRequest.fromUri(launchUri),
                 );
                 launchUri = null;
               }
@@ -164,6 +164,12 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       widget.navigatorKey.currentState?.pushNamed(
         Routes.send,
         arguments: PaymentRequest.fromUri(launchUri),
+      );
+      launchUri = null;
+    } else if (isWalletConnectLink) {
+      widget.navigatorKey.currentState?.pushNamed(
+        Routes.walletConnectConnectionsListing,
+        arguments: launchUri,
       );
       launchUri = null;
     }
@@ -187,4 +193,16 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   }
 
   bool _isValidPaymentUri() => launchUri?.path.isNotEmpty ?? false;
+
+  bool get isWalletConnectLink => launchUri?.authority == 'wc';
+
+  String? _getRouteToGo() {
+    if (isWalletConnectLink) {
+      return Routes.walletConnectConnectionsListing;
+    } else if (_isValidPaymentUri()) {
+      return Routes.send;
+    } else {
+      return null;
+    }
+  }
 }

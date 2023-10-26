@@ -200,6 +200,24 @@ abstract class Web3WalletServiceBase with Store {
     );
   }
 
+  @action
+  Future<void> pairWithUri(Uri uri) async {
+    try {
+      log('Pairing with URI: $uri');
+      await _web3Wallet.pair(uri: uri);
+    } on WalletConnectError catch (e) {
+      _bottomSheetHandler.queueBottomSheet(
+        isModalDismissible: true,
+        widget: BottomSheetMessageDisplayWidget(message: e.message),
+      );
+    } catch (e) {
+      _bottomSheetHandler.queueBottomSheet(
+        isModalDismissible: true,
+        widget: BottomSheetMessageDisplayWidget(message: e.toString()),
+      );
+    }
+  }
+
   void _onPairingCreate(PairingEvent? args) {
     log('Pairing Create Event: $args');
   }
