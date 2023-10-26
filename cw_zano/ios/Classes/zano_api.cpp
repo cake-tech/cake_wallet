@@ -271,7 +271,7 @@ extern "C"
 
     char * restore_wallet_from_seed(char *path, char *password, char *seed, int32_t networkType, uint64_t restoreHeight, char *error)
     {
-        return  strdup(restore(seed, path,  password, "");
+        return  strdup(plain_wallet::restore(seed, path,  password, "").c_str());
     }
 
     bool restore_wallet_from_keys(char *path, char *password, char *language, char *address, char *viewKey, char *spendKey, int32_t networkType, uint64_t restoreHeight, char *error)
@@ -306,7 +306,7 @@ extern "C"
 
     char * load_wallet(char *path, char *password, int32_t nettype)
     {
-        return strdup(open(path, password));
+        return strdup(plain_wallet::open(path, password).c_str());
     }
 
     char *error_string() {
@@ -326,7 +326,7 @@ extern "C"
 
 
     char *get_wallet_info(uint64_t hwallet) {
-        return strdup(plain_wallet::get_wallet_info(hwallet));
+        return strdup(plain_wallet::get_wallet_info(hwallet).c_str());
     }
 
     /*
@@ -365,21 +365,21 @@ extern "C"
 
     char* get_wallet_status(uint64_t hwallet)
     {
-        return strdup(plain_wallet::get_wallet_status(hwallet));
+        return strdup(plain_wallet::get_wallet_status(hwallet).c_str());
     }
 
     char* async_call(char* method_name, uint64_t instance_id, char* params)
     {
-        return strdup(plain_wallet::async_call(method_name, instance_id,  params));
+        return strdup(plain_wallet::async_call(method_name, instance_id,  params).c_str());
     }
     char* try_pull_result(uint64_t job_id)
     {
-        return strdup(plain_wallet::try_pull_result(job_id));
+        return strdup(plain_wallet::try_pull_result(job_id).c_str());
     }
 
     char*  get_connectivity_status()
     {
-        return strdup(plain_wallet::get_connectivity_status());
+        return strdup(plain_wallet::get_connectivity_status().c_str());
     }
 
     bool setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *error)
@@ -419,7 +419,7 @@ extern "C"
 
     char* set_password(uint64_t hwallet, char *password, Utf8Box &error) 
     {
-       return strdup(plain_wallet::reset_wallet_password(hwallet, password));
+       return strdup(plain_wallet::reset_wallet_password(hwallet, password).c_str());
     }
 
     bool transaction_create(char *address, char *asset_type, char *payment_id, char *amount,
@@ -565,6 +565,7 @@ extern "C"
 
     uint64_t is_needed_to_refresh()
     {
+        return 0;
         /*
         if (m_listener == nullptr) {
             return false;
