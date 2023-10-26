@@ -1,19 +1,19 @@
 import 'dart:convert';
-import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
-import 'package:http/http.dart';
+
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cake_wallet/exchange/exchange_pair.dart';
-import 'package:cake_wallet/exchange/exchange_provider.dart';
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
+import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/exchange/exolix/exolix_request.dart';
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:http/http.dart';
 
 class ExolixExchangeProvider extends ExchangeProvider {
-  ExolixExchangeProvider() : super(pairList: _supportedPairs());
+  ExolixExchangeProvider() : super(pairList: supportedPairs(_notSupported));
 
   static final apiKey = secrets.exolixApiKey;
   static const apiBaseUrl = 'exolix.com';
@@ -40,16 +40,6 @@ class ExolixExchangeProvider extends ExchangeProvider {
     CryptoCurrency.weth,
   ];
 
-  static List<ExchangePair> _supportedPairs() {
-    final supportedCurrencies =
-        CryptoCurrency.all.where((element) => !_notSupported.contains(element)).toList();
-
-    return supportedCurrencies
-        .map((i) => supportedCurrencies.map((k) => ExchangePair(from: i, to: k, reverse: true)))
-        .expand((i) => i)
-        .toList();
-  }
-
   @override
   String get title => 'Exolix';
 
@@ -68,15 +58,13 @@ class ExolixExchangeProvider extends ExchangeProvider {
   @override
   Future<bool> checkIsAvailable() async => true;
 
-  static String getRateType(bool isFixedRate) => isFixedRate ? 'fixed' : 'float';
-
   @override
   Future<Limits> fetchLimits(
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
     final params = <String, String>{
-      'rateType': getRateType(isFixedRateMode),
+      'rateType': _getRateType(isFixedRateMode),
       'amount': '1',
     };
     if (isFixedRateMode) {
@@ -93,35 +81,71 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final uri = Uri.https(apiBaseUrl, ratePath, params);
     final response = await get(uri);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
-    }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     return Limits(min: responseJSON['minAmount'] as double?);
   }
 
   @override
-  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
-    final _request = request as ExolixRequest;
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
+    try {
+      if (amount == 0) return 0.0;
 
+      final params = {
+        'coinFrom': _normalizeCurrency(from),
+        'coinTo': _normalizeCurrency(to),
+        'networkFrom': _networkFor(from),
+        'networkTo': _networkFor(to),
+        'rateType': _getRateType(isFixedRateMode),
+        'apiToken': apiKey,
+      };
+
+      if (isReceiveAmount)
+        params['withdrawalAmount'] = amount.toString();
+      else
+        params['amount'] = amount.toString();
+
+      final uri = Uri.https(apiBaseUrl, ratePath, params);
+      final response = await get(uri);
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode != 200) {
+        final message = responseJSON['message'] as String?;
+        throw Exception(message);
+      }
+
+      return responseJSON['rate'] as double;
+    } catch (e) {
+      print(e.toString());
+      return 0.0;
+    }
+  }
+
+  @override
+  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
     final headers = {'Content-Type': 'application/json'};
-    final body = <String, dynamic>{
-      'coinFrom': _normalizeCurrency(_request.from),
-      'coinTo':  _normalizeCurrency(_request.to),
-      'networkFrom': _networkFor(_request.from),
-      'networkTo': _networkFor(_request.to),
-      'withdrawalAddress': _request.address,
-      'refundAddress': _request.refundAddress,
-      'rateType': getRateType(isFixedRateMode),
+    final body = {
+      'coinFrom': _normalizeCurrency(request.fromCurrency),
+      'coinTo': _normalizeCurrency(request.toCurrency),
+      'networkFrom': _networkFor(request.fromCurrency),
+      'networkTo': _networkFor(request.toCurrency),
+      'withdrawalAddress': request.toAddress,
+      'refundAddress': request.refundAddress,
+      'rateType': _getRateType(isFixedRateMode),
       'apiToken': apiKey,
     };
 
-    if (isFixedRateMode) {
-      body['withdrawalAmount'] = _request.toAmount;
-    } else {
-      body['amount'] = _request.fromAmount;
-    }
+    if (isFixedRateMode)
+      body['withdrawalAmount'] = request.toAmount;
+    else
+      body['amount'] = request.fromAmount;
 
     final uri = Uri.https(apiBaseUrl, transactionsPath);
     final response = await post(uri, headers: headers, body: json.encode(body));
@@ -133,9 +157,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
       throw Exception(errorMessage);
     }
 
-    if (response.statusCode != 200 && response.statusCode != 201) {
+    if (response.statusCode != 200 && response.statusCode != 201)
       throw Exception('Unexpected http status: ${response.statusCode}');
-    }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['id'] as String;
@@ -147,8 +170,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
     return Trade(
         id: id,
-        from: _request.from,
-        to: _request.to,
+        from: request.fromCurrency,
+        to: request.toCurrency,
         provider: description,
         inputAddress: inputAddress,
         refundAddress: refundAddress,
@@ -161,13 +184,11 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> findTradeById({required String id}) async {
-    final findTradeByIdPath = transactionsPath + '/$id';
+    final findTradeByIdPath = '$transactionsPath/$id';
     final uri = Uri.https(apiBaseUrl, findTradeByIdPath);
     final response = await get(uri);
 
-    if (response.statusCode == 404) {
-      throw TradeNotFoundException(id, provider: description);
-    }
+    if (response.statusCode == 404) throw TradeNotFoundException(id, provider: description);
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -177,80 +198,33 @@ class ExolixExchangeProvider extends ExchangeProvider {
       throw TradeNotFoundException(id, provider: description, description: errorMessage);
     }
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
-    }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final coinFrom = responseJSON['coinFrom']['coinCode'] as String;
-    final from = CryptoCurrency.fromString(coinFrom);
     final coinTo = responseJSON['coinTo']['coinCode'] as String;
-    final to = CryptoCurrency.fromString(coinTo);
     final inputAddress = responseJSON['depositAddress'] as String;
     final amount = responseJSON['amount'].toString();
     final status = responseJSON['status'] as String;
-    final state = TradeState.deserialize(raw: _prepareStatus(status));
     final extraId = responseJSON['depositExtraId'] as String?;
     final outputTransaction = responseJSON['hashOut']['hash'] as String?;
     final payoutAddress = responseJSON['withdrawalAddress'] as String;
 
     return Trade(
         id: id,
-        from: from,
-        to: to,
+        from: CryptoCurrency.fromString(coinFrom),
+        to: CryptoCurrency.fromString(coinTo),
         provider: description,
         inputAddress: inputAddress,
         amount: amount,
-        state: state,
+        state: TradeState.deserialize(raw: _prepareStatus(status)),
         extraId: extraId,
         outputTransaction: outputTransaction,
         payoutAddress: payoutAddress);
   }
 
-  @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
-    try {
-      if (amount == 0) {
-        return 0.0;
-      }
-
-      final params = <String, String>{
-        'coinFrom': _normalizeCurrency(from),
-        'coinTo': _normalizeCurrency(to),
-        'networkFrom': _networkFor(from),
-        'networkTo': _networkFor(to),
-        'rateType': getRateType(isFixedRateMode),
-        'apiToken': apiKey,
-      };
-
-      if (isReceiveAmount) {
-        params['withdrawalAmount'] = amount.toString();
-      } else {
-        params['amount'] = amount.toString();
-      }
-
-      final uri = Uri.https(apiBaseUrl, ratePath, params);
-      final response = await get(uri);
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-
-      if (response.statusCode != 200) {
-        final message = responseJSON['message'] as String?;
-        throw Exception(message);
-      }
-
-      final rate = responseJSON['rate'] as double;
-
-      return rate;
-    } catch (e) {
-      print(e.toString());
-      return 0.0;
-    }
-  }
+  String _getRateType(bool isFixedRate) => isFixedRate ? 'fixed' : 'float';
 
   String _prepareStatus(String status) {
     switch (status) {

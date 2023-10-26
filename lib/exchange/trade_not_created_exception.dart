@@ -8,12 +8,5 @@ class TradeNotCreatedException implements Exception {
   String description;
 
   @override
-  String toString() {
-    var text = provider != null
-        ? S.current.trade_for_not_created(provider.title)
-        : S.current.trade_not_created;
-    text += ' $description';
-
-    return text;
-  }
+  String toString() => '${S.current.trade_for_not_created(provider.title)} $description';
 }

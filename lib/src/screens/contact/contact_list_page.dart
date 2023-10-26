@@ -35,35 +35,39 @@ class ContactListPage extends BasePage {
         decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Theme.of(context).extension<ExchangePageTheme>()!.buttonBackgroundColor),
-        child: Stack(
-          alignment: Alignment.center,
-          children: <Widget>[
-            Icon(
-              Icons.add,
-              color: Theme.of(context).appBarTheme.titleTextStyle!.color,
-              size: 22.0,
-            ),
-            ButtonTheme(
-              minWidth: 32.0,
-              height: 32.0,
-              child: TextButton(
-                  // FIX-ME: Style
-                  //shape: CircleBorder(),
-                  onPressed: () async {
-                    if (contactListViewModel.shouldRequireTOTP2FAForAddingContacts) {
-                      authService.authenticateAction(
-                        context,
-                        route: Routes.addressBookAddContact,
-                        conditionToDetermineIfToUse2FA:
-                            contactListViewModel.shouldRequireTOTP2FAForAddingContacts,
-                      );
-                    } else {
-                      await Navigator.of(context).pushNamed(Routes.addressBookAddContact);
-                    }
-                  },
-                  child: Offstage()),
-            )
-          ],
+        child: Semantics(
+          label: S.of(context).add_contact,
+          button: true,
+          child: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              Icon(
+                Icons.add,
+                color: Theme.of(context).appBarTheme.titleTextStyle!.color,
+                size: 22.0,
+              ),
+              ButtonTheme(
+                minWidth: 32.0,
+                height: 32.0,
+                child: TextButton(
+                    // FIX-ME: Style
+                    //shape: CircleBorder(),
+                    onPressed: () async {
+                      if (contactListViewModel.shouldRequireTOTP2FAForAddingContacts) {
+                        authService.authenticateAction(
+                          context,
+                          route: Routes.addressBookAddContact,
+                          conditionToDetermineIfToUse2FA:
+                              contactListViewModel.shouldRequireTOTP2FAForAddingContacts,
+                        );
+                      } else {
+                        await Navigator.of(context).pushNamed(Routes.addressBookAddContact);
+                      }
+                    },
+                    child: Offstage()),
+              )
+            ],
+          ),
         ),
       ),
     );
