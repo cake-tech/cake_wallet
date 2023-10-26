@@ -11,11 +11,11 @@ cd $ZANO_SRC_DIR
 #git checkout ${ZANO_CHECKOUT_ID}
 #git submodule init
 #git submodule update
-git pull -r
-if [ $? -ne 0 ]; then
-    echo "Failed to git pull -r"
-    exit 1
-fi
+#git pull -r
+#if [ $? -ne 0 ]; then
+#    echo "Failed to git pull -r"
+#    exit 1
+#fi
 
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
