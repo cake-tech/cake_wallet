@@ -12,7 +12,8 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 
 part 'privacy_settings_view_model.g.dart';
 
-class PrivacySettingsViewModel = PrivacySettingsViewModelBase with _$PrivacySettingsViewModel;
+class
+PrivacySettingsViewModel = PrivacySettingsViewModelBase with _$PrivacySettingsViewModel;
 
 abstract class PrivacySettingsViewModelBase with Store {
   PrivacySettingsViewModelBase(this._settingsStore, this._wallet);
@@ -57,6 +58,15 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get useEtherscan => _settingsStore.useEtherscan;
 
+  @computed
+  bool get lookupTwitter => _settingsStore.looksUpTwitter;
+
+  @computed
+  bool get looksUpMastodon => _settingsStore.looksUpMastodon;
+
+  @computed
+  bool get looksUpENS => _settingsStore.looksUpENS;
+
   bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
 
   @action
@@ -77,6 +87,15 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setDisableSell(bool value) => _settingsStore.disableSell = value;
+
+  @action
+  void setLookupTwitter(bool value) => _settingsStore.looksUpTwitter = value;
+
+  @action
+  void setLooksUpMastodon(bool value) => _settingsStore.looksUpMastodon = value;
+
+  @action
+  void setLooksUpENS(bool value) => _settingsStore.looksUpENS = value;
 
   @action
   void setUseEtherscan(bool value) {

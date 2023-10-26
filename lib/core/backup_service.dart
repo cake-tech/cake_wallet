@@ -246,6 +246,9 @@ class BackupService {
     final sortBalanceTokensBy = data[PreferencesKey.sortBalanceBy] as int?;
     final pinNativeTokenAtTop = data[PreferencesKey.pinNativeTokenAtTop] as bool?;
     final useEtherscan = data[PreferencesKey.useEtherscan] as bool?;
+    final looksUpTwitter = data[PreferencesKey.looksUpTwitter] as bool?;
+    final looksUpMastodon = data[PreferencesKey.looksUpMastodon] as bool?;
+    final looksUpENS = data[PreferencesKey.looksUpENS] as bool?;
     final syncAll = data[PreferencesKey.syncAllKey] as bool?;
     final syncMode = data[PreferencesKey.syncModeKey] as int?;
     final autoGenerateSubaddressStatus = data[PreferencesKey.autoGenerateSubaddressStatusKey] as int?;
@@ -372,6 +375,15 @@ class BackupService {
 
     if (useEtherscan != null)
       await _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan);
+
+    if (looksUpTwitter != null)
+      await _sharedPreferences.setBool(PreferencesKey.looksUpTwitter, looksUpTwitter);
+
+    if (looksUpMastodon != null)
+      await _sharedPreferences.setBool(PreferencesKey.looksUpMastodon, looksUpMastodon);
+
+    if (looksUpENS != null)
+      await _sharedPreferences.setBool(PreferencesKey.looksUpENS, looksUpENS);
 
     if (syncAll != null)
       await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
@@ -529,6 +541,12 @@ class BackupService {
           _sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop),
       PreferencesKey.useEtherscan:
           _sharedPreferences.getBool(PreferencesKey.useEtherscan),
+      PreferencesKey.looksUpTwitter:
+      _sharedPreferences.getBool(PreferencesKey.looksUpTwitter),
+      PreferencesKey.looksUpMastodon:
+      _sharedPreferences.getBool(PreferencesKey.looksUpMastodon),
+      PreferencesKey.looksUpENS:
+      _sharedPreferences.getBool(PreferencesKey.looksUpENS),
       PreferencesKey.syncModeKey:
           _sharedPreferences.getInt(PreferencesKey.syncModeKey),
       PreferencesKey.syncAllKey:

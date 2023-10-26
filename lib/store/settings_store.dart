@@ -82,6 +82,9 @@ abstract class SettingsStoreBase with Store {
       required this.sortBalanceBy,
       required this.pinNativeTokenAtTop,
       required this.useEtherscan,
+      required this.looksUpTwitter,
+      required this.looksUpMastodon,
+      required this.looksUpENS,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialHavenTransactionPriority,
@@ -353,6 +356,21 @@ abstract class SettingsStoreBase with Store {
         (bool useEtherscan) =>
             _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan));
 
+    reaction(
+            (_) => looksUpTwitter,
+            (bool looksUpTwitter) =>
+            _sharedPreferences.setBool(PreferencesKey.looksUpTwitter, looksUpTwitter));
+
+    reaction(
+            (_) => looksUpMastodon,
+            (bool looksUpMastodon) =>
+            _sharedPreferences.setBool(PreferencesKey.looksUpMastodon, looksUpMastodon));
+
+    reaction(
+            (_) => looksUpENS,
+            (bool looksUpENS) =>
+            _sharedPreferences.setBool(PreferencesKey.looksUpENS, looksUpENS));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -475,6 +493,15 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool useEtherscan;
+
+  @observable
+  bool looksUpTwitter;
+
+  @observable
+  bool looksUpMastodon;
+
+  @observable
+  bool looksUpENS;
 
   @observable
   SyncMode currentSyncMode;
@@ -632,6 +659,9 @@ abstract class SettingsStoreBase with Store {
     final pinNativeTokenAtTop =
         sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
     final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
+    final looksUpTwitter = sharedPreferences.getBool(PreferencesKey.looksUpTwitter) ?? true;
+    final looksUpMastodon = sharedPreferences.getBool(PreferencesKey.looksUpMastodon) ?? true;
+    final looksUpENS = sharedPreferences.getBool(PreferencesKey.looksUpENS) ?? true;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -739,6 +769,9 @@ abstract class SettingsStoreBase with Store {
           sortBalanceBy: sortBalanceBy,
           pinNativeTokenAtTop: pinNativeTokenAtTop,
           useEtherscan: useEtherscan,
+          looksUpTwitter: looksUpTwitter,
+          looksUpMastodon: looksUpMastodon,
+          looksUpENS: looksUpENS,
           initialMoneroTransactionPriority: moneroTransactionPriority,
           initialBitcoinTransactionPriority: bitcoinTransactionPriority,
           initialHavenTransactionPriority: havenTransactionPriority,
@@ -874,6 +907,9 @@ abstract class SettingsStoreBase with Store {
         .values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? sortBalanceBy.index];
     pinNativeTokenAtTop = sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
     useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
+    looksUpTwitter = sharedPreferences.getBool(PreferencesKey.looksUpTwitter) ?? true;
+    looksUpMastodon = sharedPreferences.getBool(PreferencesKey.looksUpMastodon) ?? true;
+    looksUpENS = sharedPreferences.getBool(PreferencesKey.looksUpENS) ?? true;
 
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =
