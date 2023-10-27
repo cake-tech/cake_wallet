@@ -87,7 +87,7 @@ class PrivacyPage extends BasePage {
                     _privacySettingsViewModel.setUseEtherscan(value);
                   }),
             SettingsCellWithArrow(
-              title: 'S.current.manage_nodes',
+              title: S.current.domain_looks_up,
               handler: (context) => Navigator.of(context).pushNamed(Routes.domainLookupsPage),
             ),
           ],

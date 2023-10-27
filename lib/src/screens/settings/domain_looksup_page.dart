@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
@@ -8,7 +9,7 @@ class DomainLookupsPage extends BasePage {
   DomainLookupsPage(this._privacySettingsViewModel);
 
   @override
-  String get title => "S.current.display_settings";
+  String get title => S.current.domain_looks_up;
 
   final PrivacySettingsViewModel _privacySettingsViewModel;
 
@@ -21,27 +22,27 @@ class DomainLookupsPage extends BasePage {
           child: Column(
             children: [
               SettingsSwitcherCell(
-                  title: 'S.current.settings_display_balance',
+                  title: 'Twitter',
                   value: _privacySettingsViewModel.lookupTwitter,
                   onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupTwitter(value)),
               SettingsSwitcherCell(
-                  title: 'S.current.settings_display_balance',
+                  title: 'Mastodon',
                   value: _privacySettingsViewModel.looksUpMastodon,
                   onValueChange: (_, bool value) => _privacySettingsViewModel.setLooksUpMastodon(value)),
               SettingsSwitcherCell(
-                  title: 'S.current.settings_display_balance',
+                  title: 'Yat service',
                   value: _privacySettingsViewModel.looksUpYatService,
                   onValueChange: (_, bool value) => _privacySettingsViewModel.setLooksUpYatService(value)),
               SettingsSwitcherCell(
-                  title: 'S.current.settings_display_balance',
+                  title: 'Unstoppable Domains',
                   value: _privacySettingsViewModel.looksUpUnstoppableDomains,
                   onValueChange: (_, bool value) => _privacySettingsViewModel.setLooksUpUnstoppableDomains(value)),
               SettingsSwitcherCell(
-                  title: 'S.current.settings_display_balance',
+                  title: 'OpenAlias,',
                   value: _privacySettingsViewModel.looksUpOpenAlias,
                   onValueChange: (_, bool value) => _privacySettingsViewModel.setLooksUpOpenAlias(value)),
               SettingsSwitcherCell(
-                  title: 'S.current.settings_display_balance',
+                  title: 'Ethereum Name Service',
                   value: _privacySettingsViewModel.looksUpENS,
                   onValueChange: (_, bool value) => _privacySettingsViewModel.setLooksUpENS(value)),
 
