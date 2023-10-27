@@ -472,15 +472,15 @@ class SendPage extends BasePage {
 
   Future<void> _setInputsFromTemplate(BuildContext context,
       {required Output output, required Template template}) async {
-    final fiatFromTemplate =
-        FiatCurrency.all.singleWhere((element) => element.title == template.fiatCurrency);
-
     output.address = template.address;
 
     if (template.isCurrencySelected) {
       sendViewModel.setSelectedCryptoCurrency(template.cryptoCurrency);
       output.setCryptoAmount(template.amount);
     } else {
+      final fiatFromTemplate =
+          FiatCurrency.all.singleWhere((element) => element.title == template.fiatCurrency);
+
       sendViewModel.setFiatCurrency(fiatFromTemplate);
       output.setFiatAmount(template.amountFiat);
     }
