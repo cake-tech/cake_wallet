@@ -2,6 +2,7 @@ import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
 import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
@@ -219,6 +220,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 
 import 'core/totp_request_details.dart';
+import 'src/screens/settings/desktop_settings/desktop_settings_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -247,6 +249,7 @@ Future<void> setup({
   required Box<Order> ordersSource,
   required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
+  required FlutterSecureStorage secureStorage,
 }) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
@@ -288,7 +291,7 @@ Future<void> setup({
   getIt.registerFactory<Box<Node>>(() => _nodeSource);
   getIt.registerFactory<Box<Node>>(() => _powNodeSource, instanceName: Node.boxName + "pow");
 
-  getIt.registerSingleton<FlutterSecureStorage>(FlutterSecureStorage());
+  getIt.registerSingleton<FlutterSecureStorage>(secureStorage);
   getIt.registerSingleton(AuthenticationStore());
   getIt.registerSingleton<WalletListStore>(WalletListStore());
   getIt.registerSingleton(NodeListStoreBase.instance);
@@ -486,6 +489,7 @@ Future<void> setup({
   getIt.registerFactory<DesktopSidebarWrapper>(() {
     final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
     return DesktopSidebarWrapper(
+      bottomSheetService: getIt.get<BottomSheetService>(),
       dashboardViewModel: getIt.get<DashboardViewModel>(),
       desktopSidebarViewModel: getIt.get<DesktopSidebarViewModel>(),
       child: getIt.get<DesktopDashboardPage>(param1: _navigatorKey),
@@ -494,7 +498,6 @@ Future<void> setup({
   });
   getIt.registerFactoryParam<DesktopDashboardPage, GlobalKey<NavigatorState>, void>(
       (desktopKey, _) => DesktopDashboardPage(
-            bottomSheetService: getIt.get<BottomSheetService>(),
             balancePage: getIt.get<BalancePage>(),
             dashboardViewModel: getIt.get<DashboardViewModel>(),
             addressListViewModel: getIt.get<WalletAddressListViewModel>(),
@@ -512,6 +515,9 @@ Future<void> setup({
 
   getIt.registerFactory<Modify2FAPage>(
       () => Modify2FAPage(setup2FAViewModel: getIt.get<Setup2FAViewModel>()));
+
+  getIt.registerFactory<DesktopSettingsPage>(
+      () => DesktopSettingsPage());
 
   getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>(
       (pageOption, _) => ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, pageOption));
@@ -820,6 +826,8 @@ Future<void> setup({
         return bitcoin!.createLitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.ethereum:
         return ethereum!.createEthereumWalletService(_walletInfoSource);
+      case WalletType.bitcoinCash:
+        return bitcoinCash!.createBitcoinCashWalletService(_walletInfoSource, _unspentCoinsInfoSource!);
       case WalletType.nano:
         return nano!.createNanoWalletService(_walletInfoSource);
       default:

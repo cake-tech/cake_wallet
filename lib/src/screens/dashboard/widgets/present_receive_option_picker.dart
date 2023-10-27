@@ -1,5 +1,5 @@
+import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/rounded_checkbox.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/typography.dart';
@@ -71,77 +71,69 @@ class PresentReceiveOptionPicker extends StatelessWidget {
       builder: (BuildContext popUpContext) => Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.transparent,
-        body: AlertBackground(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Spacer(),
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 24),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  color: Theme.of(context).colorScheme.background,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 24, bottom: 24),
-                  child: (ListView.separated(
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    itemCount: receiveOptionViewModel.options.length,
-                    itemBuilder: (_, index) {
-                      final option = receiveOptionViewModel.options[index];
-                      return InkWell(
-                        onTap: () {
-                          Navigator.pop(popUpContext);
+        body: Stack(
+          alignment: AlignmentDirectional.center,
+          children:[ AlertBackground(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Spacer(),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 24),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Theme.of(context).colorScheme.background,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 24, bottom: 24),
+                    child: (ListView.separated(
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      itemCount: receiveOptionViewModel.options.length,
+                      itemBuilder: (_, index) {
+                        final option = receiveOptionViewModel.options[index];
+                        return InkWell(
+                          onTap: () {
+                            Navigator.pop(popUpContext);
 
-                          receiveOptionViewModel.selectReceiveOption(option);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 24, right: 24),
-                          child: Observer(builder: (_) {
-                            final value = receiveOptionViewModel.selectedReceiveOption;
+                            receiveOptionViewModel.selectReceiveOption(option);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 24, right: 24),
+                            child: Observer(builder: (_) {
+                              final value = receiveOptionViewModel.selectedReceiveOption;
 
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(option.toString(),
-                                    textAlign: TextAlign.left,
-                                    style: textSmall(
-                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                                    ).copyWith(
-                                      fontWeight:
-                                          value == option ? FontWeight.w800 : FontWeight.w500,
-                                    )),
-                                RoundedCheckbox(
-                                  value: value == option,
-                                )
-                              ],
-                            );
-                          }),
-                        ),
-                      );
-                    },
-                    separatorBuilder: (_, index) => SizedBox(height: 30),
-                  )),
-                ),
-              ),
-              Spacer(),
-              Container(
-                margin: EdgeInsets.only(bottom: 40),
-                child: InkWell(
-                  onTap: () => Navigator.pop(popUpContext),
-                  child: CircleAvatar(
-                    child: Icon(
-                      Icons.close,
-                      color: Palette.darkBlueCraiola,
-                    ),
-                    backgroundColor: Colors.white,
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(option.toString(),
+                                      textAlign: TextAlign.left,
+                                      style: textSmall(
+                                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                      ).copyWith(
+                                        fontWeight:
+                                            value == option ? FontWeight.w800 : FontWeight.w500,
+                                      )),
+                                  RoundedCheckbox(
+                                    value: value == option,
+                                  )
+                                ],
+                              );
+                            }),
+                          ),
+                        );
+                      },
+                      separatorBuilder: (_, index) => SizedBox(height: 30),
+                    )),
                   ),
                 ),
-              )
-            ],
+                Spacer()
+              ],
+            ),
           ),
+            AlertCloseButton(onTap: () => Navigator.of(popUpContext).pop(), bottom: 40)
+          ],
         ),
       ),
       context: context,

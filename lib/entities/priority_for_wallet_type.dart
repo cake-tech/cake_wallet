@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -17,6 +18,8 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return haven!.getTransactionPriorities();
     case WalletType.ethereum:
       return ethereum!.getTransactionPriorities();
+    case WalletType.bitcoinCash:
+      return bitcoinCash!.getTransactionPriorities();
     // no such thing for nano/banano:
     case WalletType.nano:
     case WalletType.banano:

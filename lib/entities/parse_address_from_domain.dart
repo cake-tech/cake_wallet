@@ -46,7 +46,13 @@ class AddressResolver {
     }
 
     final match = RegExp(addressPattern).firstMatch(raw);
-    return match?.group(0)?.replaceAll(RegExp('[^0-9a-zA-Z]'), '');
+    return match?.group(0)?.replaceAllMapped(RegExp('[^0-9a-zA-Z]|bitcoincash:|nano_'), (Match match) {
+      String group = match.group(0)!;
+      if (group.startsWith('bitcoincash:') || group.startsWith('nano_')) {
+        return group;
+      }
+      return '';
+    });
   }
 
   Future<ParsedAddress> resolve(String text, String ticker) async {
@@ -59,16 +65,11 @@ class AddressResolver {
         if (addressFromBio != null) {
           return ParsedAddress.fetchTwitterAddress(address: addressFromBio, name: text);
         }
-        final tweets = twitterUser.tweets;
-        if (tweets != null) {
-          var subString = StringBuffer();
-          tweets.forEach((item) {
-            subString.writeln(item.text);
-          });
-          final userTweetsText = subString.toString();
-          final addressFromPinnedTweet =
-              extractAddressByType(raw: userTweetsText, type: CryptoCurrency.fromString(ticker));
 
+        final pinnedTweet = twitterUser.pinnedTweet?.text;
+        if (pinnedTweet != null) {
+          final addressFromPinnedTweet =
+          extractAddressByType(raw: pinnedTweet, type: CryptoCurrency.fromString(ticker));
           if (addressFromPinnedTweet != null) {
             return ParsedAddress.fetchTwitterAddress(address: addressFromPinnedTweet, name: text);
           }

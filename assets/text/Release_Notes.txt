@@ -1,5 +1,4 @@
-Add Nano wallet
-Add WalletConnect to connect your ETH wallet with your favorite dApp
-Support getting Addresses from ENS and Mastodon
-Bug fixes
-Minor enhancements
+BirdPay enhancements
+Nano fixes and improvements
+Minor bug fixes
+Accessibility enhancements
