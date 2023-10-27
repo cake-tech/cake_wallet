@@ -246,12 +246,12 @@ class BackupService {
     final sortBalanceTokensBy = data[PreferencesKey.sortBalanceBy] as int?;
     final pinNativeTokenAtTop = data[PreferencesKey.pinNativeTokenAtTop] as bool?;
     final useEtherscan = data[PreferencesKey.useEtherscan] as bool?;
-    final looksUpTwitter = data[PreferencesKey.looksUpTwitter] as bool?;
-    final looksUpMastodon = data[PreferencesKey.looksUpMastodon] as bool?;
-    final looksUpYatService = data[PreferencesKey.looksUpYatService] as bool?;
-    final looksUpUnstoppableDomains = data[PreferencesKey.looksUpUnstoppableDomains] as bool?;
-    final looksUpOpenAlias = data[PreferencesKey.looksUpOpenAlias] as bool?;
-    final looksUpENS = data[PreferencesKey.looksUpENS] as bool?;
+    final lookupsTwitter = data[PreferencesKey.lookupsTwitter] as bool?;
+    final lookupsMastodon = data[PreferencesKey.lookupsMastodon] as bool?;
+    final lookupsYatService = data[PreferencesKey.lookupsYatService] as bool?;
+    final lookupsUnstoppableDomains = data[PreferencesKey.lookupsUnstoppableDomains] as bool?;
+    final lookupsOpenAlias = data[PreferencesKey.lookupsOpenAlias] as bool?;
+    final lookupsENS = data[PreferencesKey.lookupsENS] as bool?;
     final syncAll = data[PreferencesKey.syncAllKey] as bool?;
     final syncMode = data[PreferencesKey.syncModeKey] as int?;
     final autoGenerateSubaddressStatus = data[PreferencesKey.autoGenerateSubaddressStatusKey] as int?;
@@ -379,23 +379,23 @@ class BackupService {
     if (useEtherscan != null)
       await _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan);
 
-    if (looksUpTwitter != null)
-      await _sharedPreferences.setBool(PreferencesKey.looksUpTwitter, looksUpTwitter);
+    if (lookupsTwitter != null)
+      await _sharedPreferences.setBool(PreferencesKey.lookupsTwitter, lookupsTwitter);
 
-    if (looksUpMastodon != null)
-      await _sharedPreferences.setBool(PreferencesKey.looksUpMastodon, looksUpMastodon);
+    if (lookupsMastodon != null)
+      await _sharedPreferences.setBool(PreferencesKey.lookupsMastodon, lookupsMastodon);
 
-    if (looksUpYatService != null)
-      await _sharedPreferences.setBool(PreferencesKey.looksUpYatService, looksUpYatService);
+    if (lookupsYatService != null)
+      await _sharedPreferences.setBool(PreferencesKey.lookupsYatService, lookupsYatService);
 
-    if (looksUpUnstoppableDomains != null)
-      await _sharedPreferences.setBool(PreferencesKey.looksUpUnstoppableDomains, looksUpUnstoppableDomains);
+    if (lookupsUnstoppableDomains != null)
+      await _sharedPreferences.setBool(PreferencesKey.lookupsUnstoppableDomains, lookupsUnstoppableDomains);
 
-    if (looksUpOpenAlias != null)
-      await _sharedPreferences.setBool(PreferencesKey.looksUpOpenAlias, looksUpOpenAlias);
+    if (lookupsOpenAlias != null)
+      await _sharedPreferences.setBool(PreferencesKey.lookupsOpenAlias, lookupsOpenAlias);
 
-    if (looksUpENS != null)
-      await _sharedPreferences.setBool(PreferencesKey.looksUpENS, looksUpENS);
+    if (lookupsENS != null)
+      await _sharedPreferences.setBool(PreferencesKey.lookupsENS, lookupsENS);
 
     if (syncAll != null)
       await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
@@ -553,18 +553,18 @@ class BackupService {
           _sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop),
       PreferencesKey.useEtherscan:
           _sharedPreferences.getBool(PreferencesKey.useEtherscan),
-      PreferencesKey.looksUpTwitter:
-      _sharedPreferences.getBool(PreferencesKey.looksUpTwitter),
-      PreferencesKey.looksUpMastodon:
-      _sharedPreferences.getBool(PreferencesKey.looksUpMastodon),
-      PreferencesKey.looksUpYatService:
-      _sharedPreferences.getBool(PreferencesKey.looksUpYatService),
-      PreferencesKey.looksUpUnstoppableDomains:
-      _sharedPreferences.getBool(PreferencesKey.looksUpUnstoppableDomains),
-      PreferencesKey.looksUpOpenAlias:
-      _sharedPreferences.getBool(PreferencesKey.looksUpOpenAlias),
-      PreferencesKey.looksUpENS:
-      _sharedPreferences.getBool(PreferencesKey.looksUpENS),
+      PreferencesKey.lookupsTwitter:
+      _sharedPreferences.getBool(PreferencesKey.lookupsTwitter),
+      PreferencesKey.lookupsMastodon:
+      _sharedPreferences.getBool(PreferencesKey.lookupsMastodon),
+      PreferencesKey.lookupsYatService:
+      _sharedPreferences.getBool(PreferencesKey.lookupsYatService),
+      PreferencesKey.lookupsUnstoppableDomains:
+      _sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains),
+      PreferencesKey.lookupsOpenAlias:
+      _sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias),
+      PreferencesKey.lookupsENS:
+      _sharedPreferences.getBool(PreferencesKey.lookupsENS),
       PreferencesKey.syncModeKey:
           _sharedPreferences.getInt(PreferencesKey.syncModeKey),
       PreferencesKey.syncAllKey:

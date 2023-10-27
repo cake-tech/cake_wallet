@@ -23,7 +23,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
-import 'package:cake_wallet/src/screens/settings/domain_looksup_page.dart';
+import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';

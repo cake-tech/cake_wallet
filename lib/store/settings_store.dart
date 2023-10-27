@@ -82,12 +82,12 @@ abstract class SettingsStoreBase with Store {
       required this.sortBalanceBy,
       required this.pinNativeTokenAtTop,
       required this.useEtherscan,
-      required this.looksUpTwitter,
-      required this.looksUpMastodon,
-      required this.looksUpYatService,
-      required this.looksUpUnstoppableDomains,
-      required this.looksUpOpenAlias,
-      required this.looksUpENS,
+      required this.lookupsTwitter,
+      required this.lookupsMastodon,
+      required this.lookupsYatService,
+      required this.lookupsUnstoppableDomains,
+      required this.lookupsOpenAlias,
+      required this.lookupsENS,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialHavenTransactionPriority,
@@ -360,34 +360,34 @@ abstract class SettingsStoreBase with Store {
             _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan));
 
     reaction(
-            (_) => looksUpTwitter,
+            (_) => lookupsTwitter,
             (bool looksUpTwitter) =>
-            _sharedPreferences.setBool(PreferencesKey.looksUpTwitter, looksUpTwitter));
+            _sharedPreferences.setBool(PreferencesKey.lookupsTwitter, looksUpTwitter));
 
     reaction(
-            (_) => looksUpMastodon,
+            (_) => lookupsMastodon,
             (bool looksUpMastodon) =>
-            _sharedPreferences.setBool(PreferencesKey.looksUpMastodon, looksUpMastodon));
+            _sharedPreferences.setBool(PreferencesKey.lookupsMastodon, looksUpMastodon));
 
     reaction(
-            (_) => looksUpYatService,
+            (_) => lookupsYatService,
             (bool looksUpYatService) =>
-            _sharedPreferences.setBool(PreferencesKey.looksUpYatService, looksUpYatService));
+            _sharedPreferences.setBool(PreferencesKey.lookupsYatService, looksUpYatService));
 
     reaction(
-            (_) => looksUpUnstoppableDomains,
+            (_) => lookupsUnstoppableDomains,
             (bool looksUpUnstoppableDomains) =>
-            _sharedPreferences.setBool(PreferencesKey.looksUpUnstoppableDomains, looksUpUnstoppableDomains));
+            _sharedPreferences.setBool(PreferencesKey.lookupsUnstoppableDomains, looksUpUnstoppableDomains));
 
     reaction(
-            (_) => looksUpOpenAlias,
+            (_) => lookupsOpenAlias,
             (bool looksUpOpenAlias) =>
-            _sharedPreferences.setBool(PreferencesKey.looksUpOpenAlias, looksUpOpenAlias));
+            _sharedPreferences.setBool(PreferencesKey.lookupsOpenAlias, looksUpOpenAlias));
 
     reaction(
-            (_) => looksUpENS,
+            (_) => lookupsENS,
             (bool looksUpENS) =>
-            _sharedPreferences.setBool(PreferencesKey.looksUpENS, looksUpENS));
+            _sharedPreferences.setBool(PreferencesKey.lookupsENS, looksUpENS));
 
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
@@ -513,22 +513,22 @@ abstract class SettingsStoreBase with Store {
   bool useEtherscan;
 
   @observable
-  bool looksUpTwitter;
+  bool lookupsTwitter;
 
   @observable
-  bool looksUpMastodon;
+  bool lookupsMastodon;
 
   @observable
-  bool looksUpYatService;
+  bool lookupsYatService;
 
   @observable
-  bool looksUpUnstoppableDomains;
+  bool lookupsUnstoppableDomains;
 
   @observable
-  bool looksUpOpenAlias;
+  bool lookupsOpenAlias;
 
   @observable
-  bool looksUpENS;
+  bool lookupsENS;
 
   @observable
   SyncMode currentSyncMode;
@@ -686,12 +686,12 @@ abstract class SettingsStoreBase with Store {
     final pinNativeTokenAtTop =
         sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
     final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
-    final looksUpTwitter = sharedPreferences.getBool(PreferencesKey.looksUpTwitter) ?? true;
-    final looksUpMastodon = sharedPreferences.getBool(PreferencesKey.looksUpMastodon) ?? true;
-    final looksUpYatService = sharedPreferences.getBool(PreferencesKey.looksUpYatService) ?? true;
-    final looksUpUnstoppableDomains = sharedPreferences.getBool(PreferencesKey.looksUpUnstoppableDomains) ?? true;
-    final looksUpOpenAlias = sharedPreferences.getBool(PreferencesKey.looksUpOpenAlias) ?? true;
-    final looksUpENS = sharedPreferences.getBool(PreferencesKey.looksUpENS) ?? true;
+    final lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
+    final lookupsMastodon = sharedPreferences.getBool(PreferencesKey.lookupsMastodon) ?? true;
+    final lookupsYatService = sharedPreferences.getBool(PreferencesKey.lookupsYatService) ?? true;
+    final lookupsUnstoppableDomains = sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
+    final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
+    final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -799,12 +799,12 @@ abstract class SettingsStoreBase with Store {
           sortBalanceBy: sortBalanceBy,
           pinNativeTokenAtTop: pinNativeTokenAtTop,
           useEtherscan: useEtherscan,
-          looksUpTwitter: looksUpTwitter,
-          looksUpMastodon: looksUpMastodon,
-          looksUpYatService: looksUpYatService,
-          looksUpUnstoppableDomains: looksUpUnstoppableDomains,
-          looksUpOpenAlias: looksUpOpenAlias,
-          looksUpENS: looksUpENS,
+          lookupsTwitter: lookupsTwitter,
+          lookupsMastodon: lookupsMastodon,
+          lookupsYatService: lookupsYatService,
+          lookupsUnstoppableDomains: lookupsUnstoppableDomains,
+          lookupsOpenAlias: lookupsOpenAlias,
+          lookupsENS: lookupsENS,
           initialMoneroTransactionPriority: moneroTransactionPriority,
           initialBitcoinTransactionPriority: bitcoinTransactionPriority,
           initialHavenTransactionPriority: havenTransactionPriority,
@@ -940,12 +940,12 @@ abstract class SettingsStoreBase with Store {
         .values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? sortBalanceBy.index];
     pinNativeTokenAtTop = sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
     useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
-    looksUpTwitter = sharedPreferences.getBool(PreferencesKey.looksUpTwitter) ?? true;
-    looksUpMastodon = sharedPreferences.getBool(PreferencesKey.looksUpMastodon) ?? true;
-    looksUpYatService = sharedPreferences.getBool(PreferencesKey.looksUpYatService) ?? true;
-    looksUpUnstoppableDomains = sharedPreferences.getBool(PreferencesKey.looksUpUnstoppableDomains) ?? true;
-    looksUpOpenAlias = sharedPreferences.getBool(PreferencesKey.looksUpOpenAlias) ?? true;
-    looksUpENS = sharedPreferences.getBool(PreferencesKey.looksUpENS) ?? true;
+    lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
+    lookupsMastodon = sharedPreferences.getBool(PreferencesKey.lookupsMastodon) ?? true;
+    lookupsYatService = sharedPreferences.getBool(PreferencesKey.lookupsYatService) ?? true;
+    lookupsUnstoppableDomains = sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
+    lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
+    lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
 
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =

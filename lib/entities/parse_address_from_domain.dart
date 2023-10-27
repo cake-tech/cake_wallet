@@ -61,7 +61,7 @@ class AddressResolver {
   Future<ParsedAddress> resolve(String text, String ticker) async {
     try {
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
-        if(settingsStore.looksUpTwitter) {
+        if(settingsStore.lookupsTwitter) {
           final formattedName = text.substring(1);
           final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
           final addressFromBio = extractAddressByType(
@@ -82,7 +82,7 @@ class AddressResolver {
       }
 
       if (text.startsWith('@') && text.contains('@', 1) && text.contains('.', 1)) {
-        if (settingsStore.looksUpMastodon) {
+        if (settingsStore.lookupsMastodon) {
           final subText = text.substring(1);
           final hostNameIndex = subText.indexOf('@');
           final hostName = subText.substring(hostNameIndex + 1);
@@ -124,7 +124,7 @@ class AddressResolver {
         }
       }
       if (text.hasOnlyEmojis) {
-        if(settingsStore.looksUpYatService) {
+        if(settingsStore.lookupsYatService) {
           if (walletType != WalletType.haven) {
             final addresses = await yatService.fetchYatAddress(text, ticker);
             return ParsedAddress.fetchEmojiAddress(addresses: addresses, name: text);
@@ -140,14 +140,14 @@ class AddressResolver {
       }
 
       if (unstoppableDomains.any((domain) => name.trim() == domain)) {
-        if(settingsStore.looksUpUnstoppableDomains) {
+        if(settingsStore.lookupsUnstoppableDomains) {
           final address = await fetchUnstoppableDomainAddress(text, ticker);
           return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
         }
       }
 
       if (text.endsWith(".eth")) {
-        if (settingsStore.looksUpENS) {
+        if (settingsStore.lookupsENS) {
           final address = await EnsRecord.fetchEnsAddress(text, wallet: wallet);
           if (address.isNotEmpty && address != "0x0000000000000000000000000000000000000000") {
             return ParsedAddress.fetchEnsAddress(name: text, address: address);
@@ -156,7 +156,7 @@ class AddressResolver {
       }
 
       if (formattedName.contains(".")) {
-        if(settingsStore.looksUpOpenAlias) {
+        if(settingsStore.lookupsOpenAlias) {
           final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
           if (txtRecord != null) {
             final record = await OpenaliasRecord.fetchAddressAndName(

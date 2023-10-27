@@ -24,27 +24,27 @@ class DomainLookupsPage extends BasePage {
               SettingsSwitcherCell(
                   title: 'Twitter',
                   value: _privacySettingsViewModel.lookupTwitter,
-                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupTwitter(value)),
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsTwitter(value)),
               SettingsSwitcherCell(
                   title: 'Mastodon',
                   value: _privacySettingsViewModel.looksUpMastodon,
-                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLooksUpMastodon(value)),
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsMastodon(value)),
               SettingsSwitcherCell(
                   title: 'Yat service',
                   value: _privacySettingsViewModel.looksUpYatService,
-                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLooksUpYatService(value)),
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsYatService(value)),
               SettingsSwitcherCell(
                   title: 'Unstoppable Domains',
                   value: _privacySettingsViewModel.looksUpUnstoppableDomains,
-                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLooksUpUnstoppableDomains(value)),
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsUnstoppableDomains(value)),
               SettingsSwitcherCell(
                   title: 'OpenAlias,',
                   value: _privacySettingsViewModel.looksUpOpenAlias,
-                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLooksUpOpenAlias(value)),
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsOpenAlias(value)),
               SettingsSwitcherCell(
                   title: 'Ethereum Name Service',
                   value: _privacySettingsViewModel.looksUpENS,
-                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLooksUpENS(value)),
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsENS(value)),
 
               //if (!isHaven) it does not work correctly
             ],

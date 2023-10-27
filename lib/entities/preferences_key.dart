@@ -50,12 +50,12 @@ class PreferencesKey {
   static const sortBalanceBy = 'sort_balance_by';
   static const pinNativeTokenAtTop = 'pin_native_token_at_top';
   static const useEtherscan = 'use_etherscan';
-  static const looksUpTwitter = 'looks_up_twitter';
-  static const looksUpMastodon = 'looks_up_mastodon';
-  static const looksUpYatService = 'looks_up_mastodon';
-  static const looksUpUnstoppableDomains = 'looks_up_mastodon';
-  static const looksUpOpenAlias = 'looks_up_mastodon';
-  static const looksUpENS = 'looks_up_ens';
+  static const lookupsTwitter = 'looks_up_twitter';
+  static const lookupsMastodon = 'looks_up_mastodon';
+  static const lookupsYatService = 'looks_up_mastodon';
+  static const lookupsUnstoppableDomains = 'looks_up_mastodon';
+  static const lookupsOpenAlias = 'looks_up_mastodon';
+  static const lookupsENS = 'looks_up_ens';
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
