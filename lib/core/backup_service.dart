@@ -248,6 +248,9 @@ class BackupService {
     final useEtherscan = data[PreferencesKey.useEtherscan] as bool?;
     final looksUpTwitter = data[PreferencesKey.looksUpTwitter] as bool?;
     final looksUpMastodon = data[PreferencesKey.looksUpMastodon] as bool?;
+    final looksUpYatService = data[PreferencesKey.looksUpYatService] as bool?;
+    final looksUpUnstoppableDomains = data[PreferencesKey.looksUpUnstoppableDomains] as bool?;
+    final looksUpOpenAlias = data[PreferencesKey.looksUpOpenAlias] as bool?;
     final looksUpENS = data[PreferencesKey.looksUpENS] as bool?;
     final syncAll = data[PreferencesKey.syncAllKey] as bool?;
     final syncMode = data[PreferencesKey.syncModeKey] as int?;
@@ -381,6 +384,15 @@ class BackupService {
 
     if (looksUpMastodon != null)
       await _sharedPreferences.setBool(PreferencesKey.looksUpMastodon, looksUpMastodon);
+
+    if (looksUpYatService != null)
+      await _sharedPreferences.setBool(PreferencesKey.looksUpYatService, looksUpYatService);
+
+    if (looksUpUnstoppableDomains != null)
+      await _sharedPreferences.setBool(PreferencesKey.looksUpUnstoppableDomains, looksUpUnstoppableDomains);
+
+    if (looksUpOpenAlias != null)
+      await _sharedPreferences.setBool(PreferencesKey.looksUpOpenAlias, looksUpOpenAlias);
 
     if (looksUpENS != null)
       await _sharedPreferences.setBool(PreferencesKey.looksUpENS, looksUpENS);
@@ -545,6 +557,12 @@ class BackupService {
       _sharedPreferences.getBool(PreferencesKey.looksUpTwitter),
       PreferencesKey.looksUpMastodon:
       _sharedPreferences.getBool(PreferencesKey.looksUpMastodon),
+      PreferencesKey.looksUpYatService:
+      _sharedPreferences.getBool(PreferencesKey.looksUpYatService),
+      PreferencesKey.looksUpUnstoppableDomains:
+      _sharedPreferences.getBool(PreferencesKey.looksUpUnstoppableDomains),
+      PreferencesKey.looksUpOpenAlias:
+      _sharedPreferences.getBool(PreferencesKey.looksUpOpenAlias),
       PreferencesKey.looksUpENS:
       _sharedPreferences.getBool(PreferencesKey.looksUpENS),
       PreferencesKey.syncModeKey:

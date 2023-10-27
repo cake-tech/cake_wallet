@@ -30,8 +30,21 @@ class DomainLookupsPage extends BasePage {
                   onValueChange: (_, bool value) => _privacySettingsViewModel.setLooksUpMastodon(value)),
               SettingsSwitcherCell(
                   title: 'S.current.settings_display_balance',
+                  value: _privacySettingsViewModel.looksUpYatService,
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLooksUpYatService(value)),
+              SettingsSwitcherCell(
+                  title: 'S.current.settings_display_balance',
+                  value: _privacySettingsViewModel.looksUpUnstoppableDomains,
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLooksUpUnstoppableDomains(value)),
+              SettingsSwitcherCell(
+                  title: 'S.current.settings_display_balance',
+                  value: _privacySettingsViewModel.looksUpOpenAlias,
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLooksUpOpenAlias(value)),
+              SettingsSwitcherCell(
+                  title: 'S.current.settings_display_balance',
                   value: _privacySettingsViewModel.looksUpENS,
                   onValueChange: (_, bool value) => _privacySettingsViewModel.setLooksUpENS(value)),
+
               //if (!isHaven) it does not work correctly
             ],
           ),

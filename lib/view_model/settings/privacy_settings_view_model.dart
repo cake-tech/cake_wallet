@@ -65,6 +65,15 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get looksUpMastodon => _settingsStore.looksUpMastodon;
 
   @computed
+  bool get looksUpYatService => _settingsStore.looksUpYatService;
+
+  @computed
+  bool get looksUpUnstoppableDomains => _settingsStore.looksUpUnstoppableDomains;
+
+  @computed
+  bool get looksUpOpenAlias => _settingsStore.looksUpOpenAlias;
+
+  @computed
   bool get looksUpENS => _settingsStore.looksUpENS;
 
   bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
@@ -96,6 +105,15 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setLooksUpENS(bool value) => _settingsStore.looksUpENS = value;
+
+  @action
+  void setLooksUpYatService(bool value) => _settingsStore.looksUpYatService = value;
+
+  @action
+  void setLooksUpUnstoppableDomains(bool value) => _settingsStore.looksUpUnstoppableDomains = value;
+
+  @action
+  void setLooksUpOpenAlias(bool value) => _settingsStore.looksUpOpenAlias = value;
 
   @action
   void setUseEtherscan(bool value) {

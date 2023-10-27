@@ -983,7 +983,10 @@ Future<void> setup({
   getIt.registerFactory(() => YatService());
 
   getIt.registerFactory(() =>
-      AddressResolver(yatService: getIt.get<YatService>(), wallet: getIt.get<AppStore>().wallet!));
+      AddressResolver(
+          yatService: getIt.get<YatService>(),
+          wallet: getIt.get<AppStore>().wallet!,
+          settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<FullscreenQRPage, QrViewData, void>(
       (QrViewData viewData, _) => FullscreenQRPage(qrViewData: viewData));

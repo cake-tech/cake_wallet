@@ -52,6 +52,9 @@ class PreferencesKey {
   static const useEtherscan = 'use_etherscan';
   static const looksUpTwitter = 'looks_up_twitter';
   static const looksUpMastodon = 'looks_up_mastodon';
+  static const looksUpYatService = 'looks_up_mastodon';
+  static const looksUpUnstoppableDomains = 'looks_up_mastodon';
+  static const looksUpOpenAlias = 'looks_up_mastodon';
   static const looksUpENS = 'looks_up_ens';
 
   static String moneroWalletUpdateV1Key(String name) =>
