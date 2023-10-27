@@ -726,5 +726,6 @@
   "seed_key": "Ключ семян",
   "enter_seed_phrase": "Введите свою семенную фразу",
   "add_contact": "Добавить контакт",
-  "exchange_provider_unsupported": "${providerName} больше не поддерживается!"
+  "exchange_provider_unsupported": "${providerName} больше не поддерживается!",
+  "switchToETHWallet": "Пожалуйста, переключитесь на кошелек Ethereum и повторите попытку."
 }

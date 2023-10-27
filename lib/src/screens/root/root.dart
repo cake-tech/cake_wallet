@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_display_widget.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -21,12 +25,14 @@ class Root extends StatefulWidget {
     required this.child,
     required this.navigatorKey,
     required this.authService,
+    required this.bottomSheetService,
   }) : super(key: key);
 
   final AuthenticationStore authenticationStore;
   final AppStore appStore;
   final GlobalKey<NavigatorState> navigatorKey;
   final AuthService authService;
+  final BottomSheetService bottomSheetService;
   final Widget child;
 
   @override
@@ -167,11 +173,18 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       );
       launchUri = null;
     } else if (isWalletConnectLink) {
-      widget.navigatorKey.currentState?.pushNamed(
-        Routes.walletConnectConnectionsListing,
-        arguments: launchUri,
-      );
-      launchUri = null;
+      if (widget.appStore.wallet!.type == WalletType.ethereum) {
+        widget.navigatorKey.currentState?.pushNamed(
+          Routes.walletConnectConnectionsListing,
+          arguments: launchUri,
+        );
+        launchUri = null;
+      } else {
+        _nonETHWalletErrorToast(
+          context,
+          S.current.switchToETHWallet,
+        );
+      }
     }
 
     return WillPopScope(
@@ -198,11 +211,25 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   String? _getRouteToGo() {
     if (isWalletConnectLink) {
+      if (widget.appStore.wallet!.type != WalletType.ethereum) {
+        _nonETHWalletErrorToast(
+          context,
+          S.current.switchToETHWallet,
+        );
+        return null;
+      }
       return Routes.walletConnectConnectionsListing;
     } else if (_isValidPaymentUri()) {
       return Routes.send;
     } else {
       return null;
     }
+  }
+
+  Future<void> _nonETHWalletErrorToast(BuildContext context, String message) async {
+    await widget.bottomSheetService.queueBottomSheet(
+      isModalDismissible: true,
+      widget: BottomSheetMessageDisplayWidget(message: message),
+    );
   }
 }

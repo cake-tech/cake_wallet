@@ -725,5 +725,6 @@
   "seed_key": "种子钥匙",
   "enter_seed_phrase": "输入您的种子短语",
   "add_contact": "增加联系人",
-  "exchange_provider_unsupported": "${providerName}不再支持！"
+  "exchange_provider_unsupported": "${providerName}不再支持！",
+  "switchToETHWallet": "请切换到以太坊钱包并重试"
 }

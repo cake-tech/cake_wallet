@@ -718,5 +718,6 @@
   "seed_key": "بیج کی کلید",
   "enter_seed_phrase": "اپنے بیج کا جملہ درج کریں",
   "add_contact": "۔ﮟﯾﺮﮐ ﻞﻣﺎﺷ ﮧﻄﺑﺍﺭ",
-  "exchange_provider_unsupported": "${providerName} اب تعاون نہیں کیا جاتا ہے!"
+  "exchange_provider_unsupported": "${providerName} اب تعاون نہیں کیا جاتا ہے!",
+  "switchToETHWallet": "۔ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ Ethereum ﻡﺮﮐ ﮦﺍﺮﺑ"
 }

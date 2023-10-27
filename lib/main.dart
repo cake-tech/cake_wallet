@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/locales/locale.dart';
@@ -276,6 +277,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       final authService = getIt.get<AuthService>();
       final settingsStore = appStore.settingsStore;
       final statusBarColor = Colors.transparent;
+      final bottomSheetService = getIt.get<BottomSheetService>();
       final authenticationStore = getIt.get<AuthenticationStore>();
       final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
           ? Routes.disclaimer
@@ -296,6 +298,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
           authService: authService,
+          bottomSheetService: bottomSheetService,
           child: MaterialApp(
             navigatorObservers: [routeObserver],
             navigatorKey: navigatorKey,

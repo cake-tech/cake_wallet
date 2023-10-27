@@ -714,5 +714,6 @@
   "seed_key": "Kunci benih",
   "enter_seed_phrase": "Masukkan frasa benih Anda",
   "add_contact": "Tambah kontak",
-  "exchange_provider_unsupported": "${providerName} tidak lagi didukung!"
+  "exchange_provider_unsupported": "${providerName} tidak lagi didukung!",
+  "switchToETHWallet": "Silakan beralih ke dompet Ethereum dan coba lagi"
 }

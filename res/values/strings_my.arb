@@ -724,5 +724,6 @@
   "seed_key": "မျိုးစေ့သော့",
   "enter_seed_phrase": "သင့်ရဲ့မျိုးစေ့စကားစုကိုရိုက်ထည့်ပါ",
   "add_contact": "အဆက်အသွယ်ထည့်ပါ။",
-  "exchange_provider_unsupported": "${providerName} မရှိတော့ပါ!"
+  "exchange_provider_unsupported": "${providerName} မရှိတော့ပါ!",
+  "switchToETHWallet": "ကျေးဇူးပြု၍ Ethereum ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်စမ်းကြည့်ပါ။"
 }

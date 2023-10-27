@@ -726,5 +726,6 @@
   "seed_key": "Насіннєвий ключ",
   "enter_seed_phrase": "Введіть свою насіннєву фразу",
   "add_contact": "Додати контакт",
-  "exchange_provider_unsupported": "${providerName} більше не підтримується!"
+  "exchange_provider_unsupported": "${providerName} більше не підтримується!",
+  "switchToETHWallet": "Перейдіть на гаманець Ethereum і повторіть спробу"
 }

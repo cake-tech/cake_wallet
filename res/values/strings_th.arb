@@ -724,5 +724,6 @@
   "seed_key": "คีย์เมล็ดพันธุ์",
   "enter_seed_phrase": "ป้อนวลีเมล็ดพันธุ์ของคุณ",
   "add_contact": "เพิ่มผู้ติดต่อ",
-  "exchange_provider_unsupported": "${providerName} ไม่ได้รับการสนับสนุนอีกต่อไป!"
+  "exchange_provider_unsupported": "${providerName} ไม่ได้รับการสนับสนุนอีกต่อไป!",
+  "switchToETHWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงิน Ethereum แล้วลองอีกครั้ง"
 }

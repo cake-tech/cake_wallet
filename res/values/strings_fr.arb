@@ -726,5 +726,6 @@
   "seed_key": "Clé de graines",
   "enter_seed_phrase": "Entrez votre phrase de semence",
   "add_contact": "Ajouter le contact",
-  "exchange_provider_unsupported": "${providerName} n'est plus pris en charge!"
+  "exchange_provider_unsupported": "${providerName} n'est plus pris en charge!",
+  "switchToETHWallet": "Veuillez passer à un portefeuille Ethereum et réessayer"
 }

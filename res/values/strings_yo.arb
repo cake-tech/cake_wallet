@@ -720,5 +720,6 @@
   "seed_key": "Bọtini Ose",
   "enter_seed_phrase": "Tẹ ọrọ-iru irugbin rẹ",
   "add_contact": "Fi olubasọrọ kun",
-  "exchange_provider_unsupported": "${providerName} ko ni atilẹyin mọ!"
+  "exchange_provider_unsupported": "${providerName} ko ni atilẹyin mọ!",
+  "switchToETHWallet": "Jọwọ yipada si apamọwọ Ethereum ki o tun gbiyanju lẹẹkansi"
 }

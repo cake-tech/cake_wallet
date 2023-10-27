@@ -718,5 +718,6 @@
   "seed_key": "Ключ за семена",
   "enter_seed_phrase": "Въведете вашата фраза за семена",
   "add_contact": "Добави контакт",
-  "exchange_provider_unsupported": "${providerName} вече не се поддържа!"
+  "exchange_provider_unsupported": "${providerName} вече не се поддържа!",
+  "switchToETHWallet": "Моля, преминете към портфейл Ethereum и опитайте отново"
 }
