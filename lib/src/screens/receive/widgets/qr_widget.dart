@@ -38,7 +38,8 @@ class QRWidget extends StatelessWidget {
     final copyImage = Image.asset('assets/images/copy_address.png',
         color: Theme.of(context).extension<QRCodeTheme>()!.qrWidgetCopyButtonColor);
 
-    return Column(
+    return SingleChildScrollView(
+      child: Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -161,7 +162,7 @@ class QRWidget extends StatelessWidget {
           ),
         )
       ],
-    );
+    ));
   }
 
   void _presentPicker(BuildContext context) async {
