@@ -718,5 +718,6 @@
   "seed_key": "Klíč semen",
   "enter_seed_phrase": "Zadejte svou frázi semen",
   "add_contact": "Přidat kontakt",
-  "exchange_provider_unsupported": "${providerName} již není podporováno!"
+  "exchange_provider_unsupported": "${providerName} již není podporováno!",
+  "camera_permission_is_required": "Vyžaduje se povolení fotoaparátu.\nPovolte jej v nastavení aplikace."
 }

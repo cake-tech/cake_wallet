@@ -5,7 +5,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class PermissionHandler {
   static final Map<Permission, String> _permissionMessages = {
-    Permission.camera: "Camera permission is required. \nPlease enable it from app settings.",
+    Permission.camera: S.current.camera_permission_is_required,
   };
 
   static Future<bool> checkPermission(Permission permission,BuildContext context) async {
