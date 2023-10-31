@@ -76,6 +76,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialShouldRequireTOTP2FAForSendsToNonContact,
       required bool initialShouldRequireTOTP2FAForSendsToInternalWallets,
       required bool initialShouldRequireTOTP2FAForExchangesToInternalWallets,
+      required bool initialShouldRequireTOTP2FAForExchangesToExternalWallets,
       required bool initialShouldRequireTOTP2FAForAddingContacts,
       required bool initialShouldRequireTOTP2FAForCreatingNewWallets,
       required bool initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
@@ -118,6 +119,8 @@ abstract class SettingsStoreBase with Store {
             initialShouldRequireTOTP2FAForSendsToInternalWallets,
         shouldRequireTOTP2FAForExchangesToInternalWallets =
             initialShouldRequireTOTP2FAForExchangesToInternalWallets,
+        shouldRequireTOTP2FAForExchangesToExternalWallets =
+            initialShouldRequireTOTP2FAForExchangesToExternalWallets,
         shouldRequireTOTP2FAForAddingContacts = initialShouldRequireTOTP2FAForAddingContacts,
         shouldRequireTOTP2FAForCreatingNewWallets =
             initialShouldRequireTOTP2FAForCreatingNewWallets,
@@ -272,6 +275,12 @@ abstract class SettingsStoreBase with Store {
             requireTOTP2FAForExchangesToInternalWallets));
 
     reaction(
+        (_) => shouldRequireTOTP2FAForExchangesToExternalWallets,
+        (bool requireTOTP2FAForExchangesToExternalWallets) => sharedPreferences.setBool(
+            PreferencesKey.shouldRequireTOTP2FAForExchangesToExternalWallets,
+            requireTOTP2FAForExchangesToExternalWallets));
+
+    reaction(
         (_) => shouldRequireTOTP2FAForAddingContacts,
         (bool requireTOTP2FAForAddingContacts) => sharedPreferences.setBool(
             PreferencesKey.shouldRequireTOTP2FAForAddingContacts, requireTOTP2FAForAddingContacts));
@@ -424,6 +433,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldRequireTOTP2FAForExchangesToInternalWallets;
+
+  @observable
+  bool shouldRequireTOTP2FAForExchangesToExternalWallets;
 
   @observable
   Cake2FAPresetsOptions selectedCake2FAPreset;
@@ -597,6 +609,9 @@ abstract class SettingsStoreBase with Store {
     final shouldRequireTOTP2FAForExchangesToInternalWallets = sharedPreferences
         .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets) ??
         false;
+    final shouldRequireTOTP2FAForExchangesToExternalWallets = sharedPreferences
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToExternalWallets) ??
+        false;
     final shouldRequireTOTP2FAForAddingContacts =
         sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAddingContacts) ?? false;
     final shouldRequireTOTP2FAForCreatingNewWallets =
@@ -751,6 +766,8 @@ abstract class SettingsStoreBase with Store {
           shouldRequireTOTP2FAForSendsToInternalWallets,
           initialShouldRequireTOTP2FAForExchangesToInternalWallets:
           shouldRequireTOTP2FAForExchangesToInternalWallets,
+        initialShouldRequireTOTP2FAForExchangesToExternalWallets:
+            shouldRequireTOTP2FAForExchangesToExternalWallets,
           initialShouldRequireTOTP2FAForAddingContacts: shouldRequireTOTP2FAForAddingContacts,
           initialShouldRequireTOTP2FAForCreatingNewWallets: shouldRequireTOTP2FAForCreatingNewWallets,
           initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings:
@@ -834,6 +851,9 @@ abstract class SettingsStoreBase with Store {
             false;
     shouldRequireTOTP2FAForExchangesToInternalWallets = sharedPreferences
         .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets) ??
+        false;
+    shouldRequireTOTP2FAForExchangesToExternalWallets = sharedPreferences
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToExternalWallets) ??
         false;
     shouldRequireTOTP2FAForAddingContacts =
         sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAddingContacts) ?? false;

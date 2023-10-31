@@ -721,5 +721,6 @@
   "seed_key": "Seed Key",
   "enter_seed_phrase": "Ipasok ang iyong pariralang binhi",
   "add_contact": "Magdagdag ng contact",
-  "exchange_provider_unsupported": "Ang ${providerName} ay hindi na suportado!"
+  "exchange_provider_unsupported": "Ang ${providerName} ay hindi na suportado!",
+  "require_for_exchanges_to_external_wallets": "Kinakailangan para sa mga palitan sa mga panlabas na wallet"
 }

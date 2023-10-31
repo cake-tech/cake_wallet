@@ -726,5 +726,6 @@
   "seed_key": "Klucz nasion",
   "enter_seed_phrase": "Wprowadź swoją frazę nasienną",
   "add_contact": "Dodaj kontakt",
-  "exchange_provider_unsupported": "${providerName} nie jest już obsługiwany!"
+  "exchange_provider_unsupported": "${providerName} nie jest już obsługiwany!",
+  "require_for_exchanges_to_external_wallets": "Wymagaj wymiany na portfele zewnętrzne"
 }

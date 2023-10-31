@@ -718,5 +718,6 @@
   "seed_key": "بیج کی کلید",
   "enter_seed_phrase": "اپنے بیج کا جملہ درج کریں",
   "add_contact": "۔ﮟﯾﺮﮐ ﻞﻣﺎﺷ ﮧﻄﺑﺍﺭ",
-  "exchange_provider_unsupported": "${providerName} اب تعاون نہیں کیا جاتا ہے!"
+  "exchange_provider_unsupported": "${providerName} اب تعاون نہیں کیا جاتا ہے!",
+  "require_for_exchanges_to_external_wallets": "                                           ۔ﮯﮨ ﺕﺭﻭﺮﺿ ﯽﮐ ﮯﻟﺩﺎﺒﺗ ﮟﯿﻣ ﮮﻮﭩﺑ ﯽﻧﻭﺮﯿﺑ"
 }
