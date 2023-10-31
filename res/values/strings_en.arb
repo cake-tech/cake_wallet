@@ -339,7 +339,6 @@
   "template": "Template",
   "confirm_delete_template": "This action will delete this template. Do you wish to continue?",
   "confirm_delete_wallet": "This action will delete this wallet. Do you wish to continue?",
-  "picker_description": "To choose ChangeNOW  or MorphToken, please change your trading pair first",
   "change_wallet_alert_title": "Change current wallet",
   "change_wallet_alert_content": "Do you want to change current wallet to ${wallet_name}?",
   "creating_new_wallet": "Creating new wallet",
@@ -727,5 +726,6 @@
   "enterWalletConnectURI": "Enter WalletConnect URI",
   "seed_key": "Seed key",
   "enter_seed_phrase": "Enter your seed phrase",
-  "add_contact": "Add contact"
+  "add_contact": "Add contact",
+  "exchange_provider_unsupported": "${providerName} is no longer supported!"
 }

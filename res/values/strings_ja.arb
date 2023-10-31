@@ -339,7 +339,6 @@
   "template": "テンプレート",
   "confirm_delete_template": "この操作により、このテンプレートが削除されます。 続行しますか？",
   "confirm_delete_wallet": "このアクションにより、このウォレットが削除されます。 続行しますか？",
-  "picker_description": "ChangeNOWまたはMorphTokenを選択するには、最初にトレーディングペアを変更してください",
   "change_wallet_alert_title": "現在のウォレットを変更する",
   "change_wallet_alert_content": "現在のウォレットをに変更しますか ${wallet_name}?",
   "creating_new_wallet": "新しいウォレットの作成",
@@ -726,5 +725,6 @@
   "enterWalletConnectURI": "WalletConnect URI を入力してください",
   "seed_key": "シードキー",
   "enter_seed_phrase": "シードフレーズを入力してください",
-  "add_contact": "連絡先を追加"
+  "add_contact": "連絡先を追加",
+  "exchange_provider_unsupported": "${providerName}はサポートされなくなりました！"
 }

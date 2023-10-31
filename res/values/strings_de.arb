@@ -339,7 +339,6 @@
   "template": "Vorlage",
   "confirm_delete_template": "Diese Aktion löscht diese Vorlage. Möchten Sie fortfahren?",
   "confirm_delete_wallet": "Diese Aktion löscht diese Wallet. Möchten Sie fortfahren?",
-  "picker_description": "Um ChangeNOW oder MorphToken zu wählen, ändern Sie bitte zuerst Ihr Handelspaar",
   "change_wallet_alert_title": "Aktuelle Wallet ändern",
   "change_wallet_alert_content": "Möchten Sie die aktuelle Wallet zu ${wallet_name} ändern?",
   "creating_new_wallet": "Neue Wallet erstellen",
@@ -724,7 +723,8 @@
   "awaitDAppProcessing": "Bitte warten Sie, bis die dApp die Verarbeitung abgeschlossen hat.",
   "copyWalletConnectLink": "Kopieren Sie den WalletConnect-Link von dApp und fügen Sie ihn hier ein",
   "enterWalletConnectURI": "Geben Sie den WalletConnect-URI ein",
-  "seed_key": "Samenschlüssel",
-  "enter_seed_phrase": "Geben Sie Ihre Samenphrase ein",
-  "add_contact": "Kontakt hinzufügen"
+  "seed_key": "Seed-Schlüssel",
+  "enter_seed_phrase": "Geben Sie Ihre Seed-Phrase ein",
+  "add_contact": "Kontakt hinzufügen",
+  "exchange_provider_unsupported": "${providerName} wird nicht mehr unterstützt!"
 }

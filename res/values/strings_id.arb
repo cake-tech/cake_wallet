@@ -340,7 +340,6 @@
   "template": "Template",
   "confirm_delete_template": "Tindakan ini akan menghapus template ini. Apakah Anda ingin melanjutkan?",
   "confirm_delete_wallet": "Tindakan ini akan menghapus dompet ini. Apakah Anda ingin melanjutkan?",
-  "picker_description": "Untuk memilih ChangeNOW atau MorphToken, silakan ubah pasangan perdagangan Anda terlebih dahulu",
   "change_wallet_alert_title": "Ganti dompet saat ini",
   "change_wallet_alert_content": "Apakah Anda ingin mengganti dompet saat ini ke ${wallet_name}?",
   "creating_new_wallet": "Membuat dompet baru",
@@ -714,5 +713,6 @@
   "enterWalletConnectURI": "Masukkan URI WalletConnect",
   "seed_key": "Kunci benih",
   "enter_seed_phrase": "Masukkan frasa benih Anda",
-  "add_contact": "Tambah kontak"
+  "add_contact": "Tambah kontak",
+  "exchange_provider_unsupported": "${providerName} tidak lagi didukung!"
 }

@@ -339,7 +339,6 @@
   "template": "Template",
   "confirm_delete_template": "Ang pagkilos na ito ay tatanggalin ang template na ito. Nais mo bang magpatuloy?",
   "confirm_delete_wallet": "Ang pagkilos na ito ay tatanggalin ang pitaka na ito. Nais mo bang magpatuloy?",
-  "picker_description": "Upang pumili ng Changenow o MorphToken, mangyaring baguhin muna ang iyong pares ng kalakalan",
   "change_wallet_alert_title": "Baguhin ang kasalukuyang pitaka",
   "change_wallet_alert_content": "Nais mo bang baguhin ang kasalukuyang pitaka sa ${wallet_name}?",
   "creating_new_wallet": "Lumilikha ng bagong pitaka",
@@ -721,5 +720,6 @@
   "enterWalletConnectURI": "Ilagay ang WalletConnect URI",
   "seed_key": "Seed Key",
   "enter_seed_phrase": "Ipasok ang iyong pariralang binhi",
-  "add_contact": "Magdagdag ng contact"
+  "add_contact": "Magdagdag ng contact",
+  "exchange_provider_unsupported": "Ang ${providerName} ay hindi na suportado!"
 }

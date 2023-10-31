@@ -339,7 +339,6 @@
   "template": "Predložak",
   "confirm_delete_template": "Ovom ćete radnjom izbrisati ovaj predložak. Želite li nastaviti?",
   "confirm_delete_wallet": "Ovom ćete radnjom izbrisati ovaj novčanik. Želite li nastaviti?",
-  "picker_description": "Da biste odabrali ChangeNOW ili MorphToken, molimo da prvo odabete dvije valute za trgovanje",
   "change_wallet_alert_title": "Izmijeni trenutni novčanik",
   "change_wallet_alert_content": "Želite li promijeniti trenutni novčanik u ${wallet_name}?",
   "creating_new_wallet": "Stvaranje novog novčanika",
@@ -724,5 +723,6 @@
   "enterWalletConnectURI": "Unesite WalletConnect URI",
   "seed_key": "Sjemenski ključ",
   "enter_seed_phrase": "Unesite svoju sjemensku frazu",
-  "add_contact": "Dodaj kontakt"
+  "add_contact": "Dodaj kontakt",
+  "exchange_provider_unsupported": "${providerName} više nije podržan!"
 }

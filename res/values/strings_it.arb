@@ -339,7 +339,6 @@
   "template": "Modello",
   "confirm_delete_template": "Questa azione cancellerà questo modello. Desideri continuare?",
   "confirm_delete_wallet": "Questa azione cancellerà questo portafoglio. Desideri continuare?",
-  "picker_description": "Per scegliere ChangeNOW  o MorphToken, gentilmente cambia prima la tua coppia di valute",
   "change_wallet_alert_title": "Cambia portafoglio attuale",
   "change_wallet_alert_content": "Sei sicuro di voler cambiare il portafoglio attuale con ${wallet_name}?",
   "creating_new_wallet": "Creazione nuovo portafoglio",
@@ -726,5 +725,6 @@
   "enterWalletConnectURI": "Inserisci l'URI di WalletConnect",
   "seed_key": "Chiave di semi",
   "enter_seed_phrase": "Inserisci la tua frase di semi",
-  "add_contact": "Aggiungi contatto"
+  "add_contact": "Aggiungi contatto",
+  "exchange_provider_unsupported": "${providerName} non è più supportato!"
 }
