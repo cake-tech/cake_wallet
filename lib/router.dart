@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
+import 'package:cake_wallet/src/screens/exchange/moonpay_exchange_web_view.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
@@ -518,6 +519,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final url = args[1] as Uri;
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<WebViewPage>(param1: title, param2: url));
+
+    case Routes.moonpayExchangeWebView:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<MoonpayExchangeWebView>());
 
     case Routes.advancedPrivacySettings:
       final type = settings.arguments as WalletType;

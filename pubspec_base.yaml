@@ -135,6 +135,7 @@ flutter:
     - assets/text/
     - assets/faq/
     - assets/animation/
+    - assets/index.html
 
   fonts:
     - family: Lato

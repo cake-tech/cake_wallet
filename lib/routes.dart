@@ -78,6 +78,7 @@ class Routes {
   static const ioniaMoreOptionsPage = '/ionia_more_options_page';
   static const ioniaCustomRedeemPage = '/ionia_custom_redeem_page';
   static const webViewPage = '/web_view_page';
+  static const moonpayExchangeWebView = '/moonpay_exchange_web_view';
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
   static const privacyPage = '/privacy_page';
