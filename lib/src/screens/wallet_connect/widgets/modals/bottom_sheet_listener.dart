@@ -35,6 +35,7 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
     if (widget.bottomSheetService.currentSheet.value != null) {
       BottomSheetQueueItemModel item = widget.bottomSheetService.currentSheet.value!;
       final value = await showModalBottomSheet(
+        useRootNavigator: true,
         context: context,
         isDismissible: item.isModalDismissible,
         backgroundColor: Color.fromARGB(0, 0, 0, 0),

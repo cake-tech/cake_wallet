@@ -3,7 +3,6 @@ import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_display_widget.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -13,6 +12,7 @@ import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uni_links/uni_links.dart';
 
 import '../setup_2fa/setup_2fa_enter_code_page.dart';
@@ -180,13 +180,11 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         );
         launchUri = null;
       } else {
-        _nonETHWalletErrorToast(
-          context,
-          S.current.switchToETHWallet,
-        );
+        _nonETHWalletErrorToast(S.current.switchToETHWallet);
       }
     }
-
+    
+    launchUri = null;
     return WillPopScope(
       onWillPop: () async => false,
       child: widget.child,
@@ -212,10 +210,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   String? _getRouteToGo() {
     if (isWalletConnectLink) {
       if (widget.appStore.wallet!.type != WalletType.ethereum) {
-        _nonETHWalletErrorToast(
-          context,
-          S.current.switchToETHWallet,
-        );
+        _nonETHWalletErrorToast(S.current.switchToETHWallet);
         return null;
       }
       return Routes.walletConnectConnectionsListing;
@@ -226,10 +221,19 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _nonETHWalletErrorToast(BuildContext context, String message) async {
-    await widget.bottomSheetService.queueBottomSheet(
-      isModalDismissible: true,
-      widget: BottomSheetMessageDisplayWidget(message: message),
+  Future<void> _nonETHWalletErrorToast(String message) async {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.SNACKBAR,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.black,
+      textColor: Colors.white,
+      fontSize: 16.0,
     );
+    // await widget.bottomSheetService.queueBottomSheet(
+    //   isModalDismissible: true,
+    //   widget: BottomSheetMessageDisplayWidget(message: message),
+    // );
   }
 }

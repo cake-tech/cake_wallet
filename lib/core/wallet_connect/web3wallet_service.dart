@@ -10,7 +10,7 @@ import 'package:cake_wallet/core/wallet_connect/models/auth_request_model.dart';
 import 'package:cake_wallet/core/wallet_connect/models/chain_key_model.dart';
 import 'package:cake_wallet/core/wallet_connect/models/session_request_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_request_widget.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_display_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
