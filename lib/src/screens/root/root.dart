@@ -231,9 +231,5 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       textColor: Colors.white,
       fontSize: 16.0,
     );
-    // await widget.bottomSheetService.queueBottomSheet(
-    //   isModalDismissible: true,
-    //   widget: BottomSheetMessageDisplayWidget(message: message),
-    // );
   }
 }
