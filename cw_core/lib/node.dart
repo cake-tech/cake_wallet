@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'package:cw_core/keyable.dart';
 import 'dart:convert';
@@ -7,7 +6,6 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/io_client.dart' as ioc;
-import 'package:socks5_proxy/socks.dart';
 import 'package:tor/tor.dart';
 
 part 'node.g.dart';
@@ -132,9 +130,7 @@ class Node extends HiveObject with Keyable {
     try {
       switch (type) {
         case WalletType.monero:
-          return useSocksProxy
-              ? requestNodeWithProxy(socksProxyAddress ?? '')
-              : requestMoneroNode();
+          return requestMoneroNode();
         case WalletType.bitcoin:
           return requestElectrumServer();
         case WalletType.litecoin:
@@ -157,6 +153,9 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestMoneroNode() async {
+    if (uri.toString().contains(".onion") || useSocksProxy) {
+      return await requestNodeWithProxy();
+    }
     final path = '/json_rpc';
     final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
     final realm = 'monero-rpc';
@@ -171,34 +170,19 @@ class Node extends HiveObject with Keyable {
         HttpClientDigestCredentials(login ?? '', password ?? ''),
       );
 
-      if (rpcUri.toString().contains("onion") && Tor.instance.started) {
-        SocksTCPClient.assignToHttpClient(
-          authenticatingClient,
-          [ProxySettings(InternetAddress.loopbackIPv4, Tor.instance.port)],
-        );
-      } else {
-        return false;
-      }
-
       final http.Client client = ioc.IOClient(authenticatingClient);
 
-      final response = await client.get(
-        Uri.http('n4z7bdcmwk2oyddxvzaap3x2peqcplh3pzdy7tpkk5ejz5n4mhfvoxqd.onion', '/v2/rates'),
+      final response = await client.post(
+        rpcUri,
         headers: {'Content-Type': 'application/json'},
-        // body: json.encode(body),
+        body: json.encode(body),
       );
-
-      print("@@@@@@@@@@@@@@@@");
-      print(response.statusCode);
-      print(response.body);
 
       client.close();
 
       final resBody = json.decode(response.body) as Map<String, dynamic>;
       return !(resBody['result']['offline'] as bool);
-    } catch (e) {
-      print("############");
-      print(e);
+    } catch (_) {
       return false;
     }
   }
@@ -220,12 +204,19 @@ class Node extends HiveObject with Keyable {
     }
   }
 
-  Future<bool> requestNodeWithProxy(String proxy) async {
-    if (proxy.isEmpty || !proxy.contains(':')) {
+  Future<bool> requestNodeWithProxy() async {
+    if ((socksProxyAddress == null ||
+            socksProxyAddress!.isEmpty ||
+            !socksProxyAddress!.contains(':')) &&
+        !Tor.instance.enabled) {
       return false;
     }
-    final proxyAddress = proxy.split(':')[0];
-    final proxyPort = int.parse(proxy.split(':')[1]);
+
+    if (socksProxyAddress?.isEmpty ?? true) {
+      socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
+    }
+    final proxyAddress = socksProxyAddress!.split(':')[0];
+    final proxyPort = int.parse(socksProxyAddress!.split(':')[1]);
     try {
       final socket = await Socket.connect(proxyAddress, proxyPort, timeout: Duration(seconds: 5));
       socket.destroy();
@@ -256,14 +247,5 @@ class Node extends HiveObject with Keyable {
     } catch (_) {
       return false;
     }
-  }
-
-  Future<String> _readResponseAsString(HttpClientResponse response) {
-    var completer = Completer<String>();
-    var contents = StringBuffer();
-    response.transform(utf8.decoder).listen((String data) {
-      contents.write(data);
-    }, onDone: () => completer.complete(contents.toString()));
-    return completer.future;
   }
 }
