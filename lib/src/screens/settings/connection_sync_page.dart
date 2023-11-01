@@ -98,7 +98,11 @@ class ConnectionSyncPage extends BasePage {
               },
             ),
             const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          ]
+          ],
+          SettingsCellWithArrow(
+            title: S.current.tor_only, // TODO: change name
+            handler: (context) => Navigator.of(context).pushNamed(Routes.torPage),
+          ),
         ],
       ),
     );

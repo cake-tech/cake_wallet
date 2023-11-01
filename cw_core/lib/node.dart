@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:cw_core/keyable.dart';
 import 'dart:convert';
@@ -6,6 +7,8 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/io_client.dart' as ioc;
+import 'package:socks5_proxy/socks.dart';
+import 'package:tor/tor.dart';
 
 part 'node.g.dart';
 
@@ -168,19 +171,34 @@ class Node extends HiveObject with Keyable {
         HttpClientDigestCredentials(login ?? '', password ?? ''),
       );
 
+      if (rpcUri.toString().contains("onion") && Tor.instance.started) {
+        SocksTCPClient.assignToHttpClient(
+          authenticatingClient,
+          [ProxySettings(InternetAddress.loopbackIPv4, Tor.instance.port)],
+        );
+      } else {
+        return false;
+      }
+
       final http.Client client = ioc.IOClient(authenticatingClient);
 
-      final response = await client.post(
-        rpcUri,
+      final response = await client.get(
+        Uri.http('n4z7bdcmwk2oyddxvzaap3x2peqcplh3pzdy7tpkk5ejz5n4mhfvoxqd.onion', '/v2/rates'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode(body),
+        // body: json.encode(body),
       );
+
+      print("@@@@@@@@@@@@@@@@");
+      print(response.statusCode);
+      print(response.body);
 
       client.close();
 
       final resBody = json.decode(response.body) as Map<String, dynamic>;
       return !(resBody['result']['offline'] as bool);
-    } catch (_) {
+    } catch (e) {
+      print("############");
+      print(e);
       return false;
     }
   }
@@ -238,5 +256,14 @@ class Node extends HiveObject with Keyable {
     } catch (_) {
       return false;
     }
+  }
+
+  Future<String> _readResponseAsString(HttpClientResponse response) {
+    var completer = Completer<String>();
+    var contents = StringBuffer();
+    response.transform(utf8.decoder).listen((String data) {
+      contents.write(data);
+    }, onDone: () => completer.complete(contents.toString()));
+    return completer.future;
   }
 }
