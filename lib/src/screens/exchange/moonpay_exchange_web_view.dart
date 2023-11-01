@@ -22,15 +22,14 @@ class MoonpayExchangeWebView extends BasePage {
         const moonPay = window.MoonPayWebSdk.init;
 
 const moonPaySdk = moonPay({
-  flow: 'buy',
+  flow: 'swapsCustomerSetup',
   environment: 'production',
   variant: 'newTab',
   params: {
     apiKey: '${secrets.moonPayApiKey}',
     theme: 'dark',
-    baseCurrencyCode: 'usd',
-    baseCurrencyAmount: '100',
-    defaultCurrencyCode: 'eth'
+    amountCurrencyCode: 'usd',
+    amount: '100',
   },
   debug: $kDebugMode
 });
