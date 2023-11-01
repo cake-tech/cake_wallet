@@ -212,11 +212,13 @@ class Node extends HiveObject with Keyable {
       return false;
     }
 
-    if (socksProxyAddress?.isEmpty ?? true) {
-      socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
+    String? proxy = socksProxyAddress;
+
+    if ((proxy?.isEmpty ?? true) && Tor.instance.enabled) {
+      proxy = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
     }
-    final proxyAddress = socksProxyAddress!.split(':')[0];
-    final proxyPort = int.parse(socksProxyAddress!.split(':')[1]);
+    final proxyAddress = proxy!.split(':')[0];
+    final proxyPort = int.parse(proxy.split(':')[1]);
     try {
       final socket = await Socket.connect(proxyAddress, proxyPort, timeout: Duration(seconds: 5));
       socket.destroy();

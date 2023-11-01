@@ -1,22 +1,26 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:flutter/material.dart';
-import 'package:socks5_proxy/socks.dart';
-import 'package:tor/socks_socket.dart';
 import 'package:tor/tor.dart';
 
 class TorPage extends BasePage {
+  final AppStore appStore;
+
+  TorPage(this.appStore);
+
   @override
   Widget body(BuildContext context) {
-    return TorPageBody();
+    return TorPageBody(appStore);
   }
 }
 
 class TorPageBody extends StatefulWidget {
-  const TorPageBody({Key? key}) : super(key: key);
+  final AppStore appStore;
+
+  const TorPageBody(this.appStore, {Key? key}) : super(key: key);
 
   @override
   State<TorPageBody> createState() => _TorPageBodyState();
@@ -47,38 +51,23 @@ class _TorPageBodyState extends State<TorPageBody> {
       connecting = false;
     });
 
+    final node = widget.appStore.settingsStore.getCurrentNode(widget.appStore.wallet!.type);
+    if (node.socksProxyAddress?.isEmpty ?? true) {
+      node.socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
+    }
+    widget.appStore.wallet!.connectToNode(node: node);
+
     print('Done awaiting; tor should be running');
   }
 
   Future<void> endTor() async {
-    final client = HttpClient();
+    // Start the proxy
+    Tor.instance.disable();
 
-    // Assign connection factory.
-    SocksTCPClient.assignToHttpClient(client, [
-      ProxySettings(InternetAddress.loopbackIPv4, Tor.instance.port,
-          password: null), // TODO Need to get from tor config file.
-    ]);
-
-    print("@@@@@@@@@@@@");
-    print(Tor.instance.port);
-    print(Uri.http('n4z7bdcmwk2oyddxvzaap3x2peqcplh3pzdy7tpkk5ejz5n4mhfvoxqd.onion', '/v2/rates'));
-
-    // GET request.
-    final request = await client.getUrl(
-        Uri.http('n4z7bdcmwk2oyddxvzaap3x2peqcplh3pzdy7tpkk5ejz5n4mhfvoxqd.onion', '/v2/rates'));
-    final response = await request.close();
-
-    // Print response.
-    var responseString = await utf8.decodeStream(response);
-    print(responseString);
-    // If host input left to default icanhazip.com, a Tor
-    // exit node IP should be printed to the console.
-    //
-    // https://check.torproject.org is also good for
-    // doublechecking torability.
-
-    // Close client
-    client.close();
+    // Toggle started flag.
+    setState(() {
+      torEnabled = Tor.instance.enabled; // Update flag
+    });
 
     print('Done awaiting; tor should be stopped');
   }

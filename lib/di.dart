@@ -1154,7 +1154,7 @@ Future<void> setup({
     return ManageNodesPage(isPow, nodeListViewModel: getIt.get<NodeListViewModel>());
   });
 
-  getIt.registerFactory<TorPage>(() => TorPage());
+  getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
 
   _isSetupFinished = true;
 }
