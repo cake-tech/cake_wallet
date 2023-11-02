@@ -9,6 +9,8 @@ import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:cake_wallet/utils/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 enum AddressTextFieldOption { paste, qrCode, addressBook }
 
@@ -188,6 +190,9 @@ class AddressTextField extends StatelessWidget {
   }
 
   Future<void> _presentQRScanner(BuildContext context) async {
+    bool isCameraPermissionGranted =
+    await PermissionHandler.checkPermission(Permission.camera, context);
+    if (!isCameraPermissionGranted) return;
     final code = await presentQRScanner();
     if (code.isEmpty) {
       return;

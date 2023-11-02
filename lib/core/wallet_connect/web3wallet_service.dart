@@ -10,7 +10,7 @@ import 'package:cake_wallet/core/wallet_connect/models/auth_request_model.dart';
 import 'package:cake_wallet/core/wallet_connect/models/chain_key_model.dart';
 import 'package:cake_wallet/core/wallet_connect/models/session_request_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_request_widget.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_display_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
@@ -198,6 +198,24 @@ abstract class Web3WalletServiceBase with Store {
       isModalDismissible: true,
       widget: BottomSheetMessageDisplayWidget(message: '${S.current.pairingInvalidEvent}: $args'),
     );
+  }
+
+  @action
+  Future<void> pairWithUri(Uri uri) async {
+    try {
+      log('Pairing with URI: $uri');
+      await _web3Wallet.pair(uri: uri);
+    } on WalletConnectError catch (e) {
+      _bottomSheetHandler.queueBottomSheet(
+        isModalDismissible: true,
+        widget: BottomSheetMessageDisplayWidget(message: e.message),
+      );
+    } catch (e) {
+      _bottomSheetHandler.queueBottomSheet(
+        isModalDismissible: true,
+        widget: BottomSheetMessageDisplayWidget(message: e.toString()),
+      );
+    }
   }
 
   void _onPairingCreate(PairingEvent? args) {
