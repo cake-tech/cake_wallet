@@ -727,6 +727,7 @@
   "enter_seed_phrase": "Wprowadź swoją frazę nasienną",
   "add_contact": "Dodaj kontakt",
   "exchange_provider_unsupported": "${providerName} nie jest już obsługiwany!",
+  "require_for_exchanges_to_external_wallets": "Wymagaj wymiany na portfele zewnętrzne",
   "camera_permission_is_required": "Wymagane jest pozwolenie na korzystanie z aparatu.\nWłącz tę funkcję w ustawieniach aplikacji.",
   "switchToETHWallet": "Przejdź na portfel Ethereum i spróbuj ponownie"
 }

@@ -237,15 +237,21 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   bool get shouldDisplayTOTP2FAForExchangesToInternalWallet =>
       _settingsStore.shouldRequireTOTP2FAForExchangesToInternalWallets;
 
+  @computed
+  bool get shouldDisplayTOTP2FAForExchangesToExternalWallet =>
+      _settingsStore.shouldRequireTOTP2FAForExchangesToExternalWallets;
+
   //* Still open to further optimize these checks
   //* It works but can be made better
   @action
   bool shouldDisplayTOTP() {
     final isInternalWallet = checkIfWalletIsAnInternalWallet(receiveAddress);
+
     if (isInternalWallet) {
       return shouldDisplayTOTP2FAForExchangesToInternalWallet;
+    } else {
+      return shouldDisplayTOTP2FAForExchangesToExternalWallet;
     }
-    return false;
   }
 
   @computed
@@ -263,7 +269,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       (wallet.type == WalletType.bitcoin ||
           wallet.type == WalletType.litecoin ||
           wallet.type == WalletType.bitcoinCash) &&
-          depositCurrency == wallet.currency;
+      depositCurrency == wallet.currency;
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
 
@@ -275,14 +281,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       case WalletType.bitcoin:
         return transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
       case WalletType.litecoin:
-        return transactionPriority ==
-            bitcoin!.getLitecoinTransactionPrioritySlow();
+        return transactionPriority == bitcoin!.getLitecoinTransactionPrioritySlow();
       case WalletType.ethereum:
-        return transactionPriority ==
-            ethereum!.getEthereumTransactionPrioritySlow();
+        return transactionPriority == ethereum!.getEthereumTransactionPrioritySlow();
       case WalletType.bitcoinCash:
-        return transactionPriority ==
-            bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
+        return transactionPriority == bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
       default:
         return false;
     }
@@ -535,7 +538,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   void calculateDepositAllAmount() {
-    if (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin || wallet.type == WalletType.bitcoinCash) {
+    if (wallet.type == WalletType.bitcoin ||
+        wallet.type == WalletType.litecoin ||
+        wallet.type == WalletType.bitcoinCash) {
       final availableBalance = wallet.balance[wallet.currency]!.available;
       final priority = _settingsStore.priority[wallet.type]!;
       final fee = wallet.calculateEstimatedFee(priority, null);

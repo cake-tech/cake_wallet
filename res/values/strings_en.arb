@@ -728,6 +728,7 @@
   "enter_seed_phrase": "Enter your seed phrase",
   "add_contact": "Add contact",
   "exchange_provider_unsupported": "${providerName} is no longer supported!",
+  "require_for_exchanges_to_external_wallets": "Require for exchanges to external wallets",
   "camera_permission_is_required": "Camera permission is required. \nPlease enable it from app settings.",
   "switchToETHWallet": "Please switch to an Ethereum wallet and try again"
 }

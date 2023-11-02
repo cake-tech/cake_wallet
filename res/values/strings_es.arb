@@ -727,6 +727,7 @@
   "enter_seed_phrase": "Ingrese su frase de semillas",
   "add_contact": "Agregar contacto",
   "exchange_provider_unsupported": "¡${providerName} ya no es compatible!",
+  "require_for_exchanges_to_external_wallets": "Requerido para intercambios a billeteras externas",
   "camera_permission_is_required": "Se requiere permiso de la cámara.\nHabilítelo desde la configuración de la aplicación.",
   "switchToETHWallet": "Cambie a una billetera Ethereum e inténtelo nuevamente."
 }

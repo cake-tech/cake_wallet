@@ -727,6 +727,7 @@
   "enter_seed_phrase": "Введіть свою насіннєву фразу",
   "add_contact": "Додати контакт",
   "exchange_provider_unsupported": "${providerName} більше не підтримується!",
+  "require_for_exchanges_to_external_wallets": "Потрібен для обміну на зовнішні гаманці",
   "camera_permission_is_required": "Потрібен дозвіл камери.\nУвімкніть його в налаштуваннях програми.",
   "switchToETHWallet": "Перейдіть на гаманець Ethereum і повторіть спробу"
 }

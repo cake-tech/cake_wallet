@@ -722,6 +722,7 @@
   "enter_seed_phrase": "Ipasok ang iyong pariralang binhi",
   "add_contact": "Magdagdag ng contact",
   "exchange_provider_unsupported": "Ang ${providerName} ay hindi na suportado!",
+  "require_for_exchanges_to_external_wallets": "Kinakailangan para sa mga palitan sa mga panlabas na wallet",
   "camera_permission_is_required": "Kinakailangan ang pahintulot sa camera.\nMangyaring paganahin ito mula sa mga setting ng app.",
   "switchToETHWallet": "Mangyaring lumipat sa isang Ethereum wallet at subukang muli"
 }

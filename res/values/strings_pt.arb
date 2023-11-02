@@ -726,6 +726,7 @@
   "enter_seed_phrase": "Digite sua frase de semente",
   "add_contact": "Adicionar contato",
   "exchange_provider_unsupported": "${providerName} não é mais suportado!",
+  "require_for_exchanges_to_external_wallets": "Exigir trocas para carteiras externas",
   "camera_permission_is_required": "É necessária permissão da câmera.\nAtive-o nas configurações do aplicativo.",
   "switchToETHWallet": "Mude para uma carteira Ethereum e tente novamente"
 }
