@@ -6,7 +6,7 @@ import 'package:cake_wallet/core/wallet_connect/eth_transaction_model.dart';
 import 'package:cake_wallet/core/wallet_connect/evm_chain_id.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/error_display_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/core/wallet_connect/models/chain_key_model.dart';
 import 'package:cake_wallet/core/wallet_connect/models/connection_model.dart';
