@@ -705,5 +705,6 @@
   "enter_seed_phrase": "Shigar da Sert Sentarku",
   "add_contact": "Ƙara lamba",
   "exchange_provider_unsupported": "${providerName}",
+  "camera_permission_is_required": "Ana buƙatar izinin kyamara.\nDa fatan za a kunna shi daga saitunan app.",
   "switchToETHWallet": "Da fatan za a canza zuwa walat ɗin Ethereum kuma a sake gwadawa"
 }

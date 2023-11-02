@@ -726,5 +726,6 @@
   "enter_seed_phrase": "输入您的种子短语",
   "add_contact": "增加联系人",
   "exchange_provider_unsupported": "${providerName}不再支持！",
+  "camera_permission_is_required": "需要相机许可。\n请从应用程序设置中启用它。",
   "switchToETHWallet": "请切换到以太坊钱包并重试"
 }

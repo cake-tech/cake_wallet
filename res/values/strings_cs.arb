@@ -719,5 +719,6 @@
   "enter_seed_phrase": "Zadejte svou frázi semen",
   "add_contact": "Přidat kontakt",
   "exchange_provider_unsupported": "${providerName} již není podporováno!",
+  "camera_permission_is_required": "Vyžaduje se povolení fotoaparátu.\nPovolte jej v nastavení aplikace.",
   "switchToETHWallet": "Přejděte na peněženku Ethereum a zkuste to znovu"
 }

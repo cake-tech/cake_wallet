@@ -725,5 +725,6 @@
   "enter_seed_phrase": "Tohum ifadenizi girin",
   "add_contact": "Kişi ekle",
   "exchange_provider_unsupported": "${providerName} artık desteklenmiyor!",
+  "camera_permission_is_required": "Kamera izni gereklidir.\nLütfen uygulama ayarlarından etkinleştirin.",
   "switchToETHWallet": "Lütfen bir Ethereum cüzdanına geçin ve tekrar deneyin"
 }

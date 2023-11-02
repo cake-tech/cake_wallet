@@ -727,5 +727,6 @@
   "enter_seed_phrase": "Введите свою семенную фразу",
   "add_contact": "Добавить контакт",
   "exchange_provider_unsupported": "${providerName} больше не поддерживается!",
+  "camera_permission_is_required": "Требуется разрешение камеры.\nПожалуйста, включите его в настройках приложения.",
   "switchToETHWallet": "Пожалуйста, переключитесь на кошелек Ethereum и повторите попытку."
 }

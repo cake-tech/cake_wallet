@@ -727,5 +727,6 @@
   "enter_seed_phrase": "Voer uw zaadzin in",
   "add_contact": "Contactpersoon toevoegen",
   "exchange_provider_unsupported": "${providerName} wordt niet langer ondersteund!",
+  "camera_permission_is_required": "Cameratoestemming is vereist.\nSchakel dit in via de app-instellingen.",
   "switchToETHWallet": "Schakel over naar een Ethereum-portemonnee en probeer het opnieuw"
 }

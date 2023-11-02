@@ -725,5 +725,6 @@
   "enter_seed_phrase": "ป้อนวลีเมล็ดพันธุ์ของคุณ",
   "add_contact": "เพิ่มผู้ติดต่อ",
   "exchange_provider_unsupported": "${providerName} ไม่ได้รับการสนับสนุนอีกต่อไป!",
+  "camera_permission_is_required": "ต้องได้รับอนุญาตจากกล้อง\nโปรดเปิดใช้งานจากการตั้งค่าแอป",
   "switchToETHWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงิน Ethereum แล้วลองอีกครั้ง"
 }

@@ -721,5 +721,6 @@
   "enter_seed_phrase": "Tẹ ọrọ-iru irugbin rẹ",
   "add_contact": "Fi olubasọrọ kun",
   "exchange_provider_unsupported": "${providerName} ko ni atilẹyin mọ!",
+  "camera_permission_is_required": "A nilo igbanilaaye kamẹra.\nJọwọ jeki o lati app eto.",
   "switchToETHWallet": "Jọwọ yipada si apamọwọ Ethereum ki o tun gbiyanju lẹẹkansi"
 }

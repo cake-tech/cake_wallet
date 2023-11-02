@@ -725,5 +725,6 @@
   "enter_seed_phrase": "시드 문구를 입력하십시오",
   "add_contact": "주소록에 추가",
   "exchange_provider_unsupported": "${providerName}은 더 이상 지원되지 않습니다!",
+  "camera_permission_is_required": "카메라 권한이 필요합니다.\n앱 설정에서 활성화해 주세요.",
   "switchToETHWallet": "이더리움 지갑으로 전환한 후 다시 시도해 주세요."
 }

@@ -8,10 +8,12 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/utils/permission_handler.dart';
 
 import 'widgets/pairing_item_widget.dart';
 import 'wc_pairing_detail_page.dart';
@@ -58,6 +60,9 @@ class WCPairingsWidget extends BasePage {
     final String? uri;
 
     if (DeviceInfo.instance.isMobile) {
+      bool isCameraPermissionGranted =
+      await PermissionHandler.checkPermission(Permission.camera, context);
+      if (!isCameraPermissionGranted) return;
       uri = await presentQRScanner();
     } else {
       uri = await _showEnterWalletConnectURIPopUp(context);
