@@ -725,5 +725,6 @@
   "seed_key": "Chave de semente",
   "enter_seed_phrase": "Digite sua frase de semente",
   "add_contact": "Adicionar contato",
-  "exchange_provider_unsupported": "${providerName} não é mais suportado!"
+  "exchange_provider_unsupported": "${providerName} não é mais suportado!",
+  "switchToETHWallet": "Mude para uma carteira Ethereum e tente novamente"
 }

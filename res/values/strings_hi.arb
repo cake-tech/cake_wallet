@@ -726,5 +726,6 @@
   "seed_key": "बीज कुंजी",
   "enter_seed_phrase": "अपना बीज वाक्यांश दर्ज करें",
   "add_contact": "संपर्क जोड़ें",
-  "exchange_provider_unsupported": "${providerName} अब समर्थित नहीं है!"
+  "exchange_provider_unsupported": "${providerName} अब समर्थित नहीं है!",
+  "switchToETHWallet": "कृपया एथेरियम वॉलेट पर स्विच करें और पुनः प्रयास करें"
 }

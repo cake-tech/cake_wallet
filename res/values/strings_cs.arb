@@ -718,5 +718,6 @@
   "seed_key": "Klíč semen",
   "enter_seed_phrase": "Zadejte svou frázi semen",
   "add_contact": "Přidat kontakt",
-  "exchange_provider_unsupported": "${providerName} již není podporováno!"
+  "exchange_provider_unsupported": "${providerName} již není podporováno!",
+  "switchToETHWallet": "Přejděte na peněženku Ethereum a zkuste to znovu"
 }

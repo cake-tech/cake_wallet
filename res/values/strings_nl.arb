@@ -726,5 +726,6 @@
   "seed_key": "Zaadsleutel",
   "enter_seed_phrase": "Voer uw zaadzin in",
   "add_contact": "Contactpersoon toevoegen",
-  "exchange_provider_unsupported": "${providerName} wordt niet langer ondersteund!"
+  "exchange_provider_unsupported": "${providerName} wordt niet langer ondersteund!",
+  "switchToETHWallet": "Schakel over naar een Ethereum-portemonnee en probeer het opnieuw"
 }

@@ -724,5 +724,6 @@
   "seed_key": "Sjemenski ključ",
   "enter_seed_phrase": "Unesite svoju sjemensku frazu",
   "add_contact": "Dodaj kontakt",
-  "exchange_provider_unsupported": "${providerName} više nije podržan!"
+  "exchange_provider_unsupported": "${providerName} više nije podržan!",
+  "switchToETHWallet": "Prijeđite na Ethereum novčanik i pokušajte ponovno"
 }

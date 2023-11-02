@@ -19,7 +19,24 @@ import 'wc_pairing_detail_page.dart';
 class WalletConnectConnectionsView extends StatelessWidget {
   final Web3WalletService web3walletService;
 
-  WalletConnectConnectionsView({required this.web3walletService, Key? key}) : super(key: key);
+  WalletConnectConnectionsView({required this.web3walletService, Uri? launchUri, Key? key})
+      : super(key: key) {
+    _triggerPairingFromDeeplink(launchUri);
+  }
+
+  void _triggerPairingFromDeeplink(Uri? launchUri) async {
+    if (launchUri == null) return;
+
+    final actualLinkList = launchUri.query.split("uri=");
+
+    final query = actualLinkList[1];
+
+    final uri = Uri.decodeComponent(query);
+
+    final uriData = Uri.parse(uri);
+
+    await web3walletService.pairWithUri(uriData);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,15 +65,9 @@ class WCPairingsWidget extends BasePage {
 
     if (uri == null) return _invalidUriToast(context, S.current.nullURIError);
 
-    try {
-      log('_onFoundUri: $uri');
-      final Uri uriData = Uri.parse(uri);
-      await web3Wallet.pair(uri: uriData);
-    } on WalletConnectError catch (e) {
-      await _invalidUriToast(context, e.message);
-    } catch (e) {
-      await _invalidUriToast(context, e.toString());
-    }
+    log('_onFoundUri: $uri');
+    final Uri uriData = Uri.parse(uri);
+    await web3walletService.pairWithUri(uriData);
   }
 
   Future<String?> _showEnterWalletConnectURIPopUp(BuildContext context) async {

@@ -704,5 +704,6 @@
   "seed_key": "Maɓallin iri",
   "enter_seed_phrase": "Shigar da Sert Sentarku",
   "add_contact": "Ƙara lamba",
-  "exchange_provider_unsupported": "${providerName}"
+  "exchange_provider_unsupported": "${providerName}",
+  "switchToETHWallet": "Da fatan za a canza zuwa walat ɗin Ethereum kuma a sake gwadawa"
 }

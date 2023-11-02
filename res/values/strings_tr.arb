@@ -724,5 +724,6 @@
   "seed_key": "Tohum",
   "enter_seed_phrase": "Tohum ifadenizi girin",
   "add_contact": "Kişi ekle",
-  "exchange_provider_unsupported": "${providerName} artık desteklenmiyor!"
+  "exchange_provider_unsupported": "${providerName} artık desteklenmiyor!",
+  "switchToETHWallet": "Lütfen bir Ethereum cüzdanına geçin ve tekrar deneyin"
 }

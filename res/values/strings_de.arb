@@ -726,5 +726,6 @@
   "seed_key": "Seed-Schlüssel",
   "enter_seed_phrase": "Geben Sie Ihre Seed-Phrase ein",
   "add_contact": "Kontakt hinzufügen",
-  "exchange_provider_unsupported": "${providerName} wird nicht mehr unterstützt!"
+  "exchange_provider_unsupported": "${providerName} wird nicht mehr unterstützt!",
+  "switchToETHWallet": "Bitte wechseln Sie zu einem Ethereum-Wallet und versuchen Sie es erneut"
 }

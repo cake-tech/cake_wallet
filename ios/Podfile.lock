@@ -115,6 +115,9 @@ PODS:
     - Flutter
   - flutter_secure_storage (6.0.0):
     - Flutter
+  - fluttertoast (0.0.2):
+    - Flutter
+    - Toast
   - in_app_review (0.2.0):
     - Flutter
   - local_auth_ios (0.0.1):
@@ -143,6 +146,7 @@ PODS:
     - FlutterMacOS
   - SwiftProtobuf (1.22.0)
   - SwiftyGif (5.4.4)
+  - Toast (4.0.0)
   - uni_links (0.0.1):
     - Flutter
   - UnstoppableDomainsResolution (4.0.0):
@@ -171,6 +175,7 @@ DEPENDENCIES:
   - flutter_inappwebview (from `.symlinks/plugins/flutter_inappwebview/ios`)
   - flutter_mailer (from `.symlinks/plugins/flutter_mailer/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
+  - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - in_app_review (from `.symlinks/plugins/in_app_review/ios`)
   - local_auth_ios (from `.symlinks/plugins/local_auth_ios/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
@@ -198,6 +203,7 @@ SPEC REPOS:
     - SDWebImage
     - SwiftProtobuf
     - SwiftyGif
+    - Toast
     - UnstoppableDomainsResolution
 
 EXTERNAL SOURCES:
@@ -229,6 +235,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_mailer/ios"
   flutter_secure_storage:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
+  fluttertoast:
+    :path: ".symlinks/plugins/fluttertoast/ios"
   in_app_review:
     :path: ".symlinks/plugins/in_app_review/ios"
   local_auth_ios:
@@ -275,6 +283,7 @@ SPEC CHECKSUMS:
   flutter_inappwebview: 3d32228f1304635e7c028b0d4252937730bbc6cf
   flutter_mailer: 2ef5a67087bc8c6c4cefd04a178bf1ae2c94cd83
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
+  fluttertoast: fafc4fa4d01a6a9e4f772ecd190ffa525e9e2d9c
   in_app_review: 318597b3a06c22bb46dc454d56828c85f444f99d
   local_auth_ios: c6cf091ded637a88f24f86a8875d8b0f526e2605
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
@@ -290,6 +299,7 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
   SwiftProtobuf: 40bd808372cb8706108f22d28f8ab4a6b9bc6989
   SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
+  Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
   UnstoppableDomainsResolution: c3c67f4d0a5e2437cb00d4bd50c2e00d6e743841
   url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4

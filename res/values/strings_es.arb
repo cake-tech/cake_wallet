@@ -726,5 +726,6 @@
   "seed_key": "Llave de semilla",
   "enter_seed_phrase": "Ingrese su frase de semillas",
   "add_contact": "Agregar contacto",
-  "exchange_provider_unsupported": "¡${providerName} ya no es compatible!"
+  "exchange_provider_unsupported": "¡${providerName} ya no es compatible!",
+  "switchToETHWallet": "Cambie a una billetera Ethereum e inténtelo nuevamente."
 }
