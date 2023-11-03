@@ -98,5 +98,5 @@ class Routes {
   static const editToken = '/edit_token';
   static const manageNodes = '/manage_nodes';
   static const managePowNodes = '/manage_pow_nodes';
-
+  static const walletConnectConnectionsListing = '/wallet-connect-connections-listing';
 }

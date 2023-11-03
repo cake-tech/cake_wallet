@@ -71,6 +71,8 @@ class PreferencesKey {
       'should_require_totp_2fa_for_sends_to_internal_wallets';
   static const shouldRequireTOTP2FAForExchangesToInternalWallets =
       'should_require_totp_2fa_for_exchanges_to_internal_wallets';
+  static const shouldRequireTOTP2FAForExchangesToExternalWallets =
+      'should_require_totp_2fa_for_exchanges_to_external_wallets';
   static const shouldRequireTOTP2FAForAddingContacts =
       'should_require_totp_2fa_for_adding_contacts';
   static const shouldRequireTOTP2FAForCreatingNewWallets =

@@ -12,6 +12,8 @@ import 'package:cake_wallet/routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:cake_wallet/utils/permission_handler.dart';
 
 class RestoreOptionsPage extends BasePage {
   RestoreOptionsPage({required this.isNewInstall});
@@ -55,6 +57,9 @@ class RestoreOptionsPage extends BasePage {
                   padding: EdgeInsets.only(top: 24),
                   child: OptionTile(
                       onPressed: () async {
+                        bool isCameraPermissionGranted =
+                        await PermissionHandler.checkPermission(Permission.camera, context);
+                        if (!isCameraPermissionGranted) return;
                         bool isPinSet = false;
                         if (isNewInstall) {
                           await Navigator.pushNamed(context, Routes.setupPin,
