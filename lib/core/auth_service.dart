@@ -38,11 +38,13 @@ class AuthService with Store {
   Future<void> setPassword(String password) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final encodedPassword = encodedPinCode(pin: password);
+    await secureStorage.delete(key: key);
     await secureStorage.write(key: key, value: encodedPassword);
   }
 
   Future<bool> canAuthenticate() async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
+
     final walletName = sharedPreferences.getString(PreferencesKey.currentWalletName) ?? '';
     var password = '';
 
@@ -104,9 +106,8 @@ class AuthService with Store {
         }
         return;
       }
-}
+    }
 
-    
     Navigator.of(context).pushNamed(Routes.auth,
         arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
       if (!isAuthenticatedSuccessfully) {
@@ -140,8 +141,6 @@ class AuthService with Store {
           }
         }
       }
-      
-      });
-  
+    });
   }
 }
