@@ -70,7 +70,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
   Widget build(BuildContext context) {
     return Center(
         child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
             child: Column(
               children: [
                 Padding(

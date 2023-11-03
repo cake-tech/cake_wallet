@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/locales/locale.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -322,22 +323,20 @@ class _Home extends StatefulWidget {
 class _HomeState extends State<_Home> {
   @override
   void didChangeDependencies() {
-    if (!ResponsiveLayoutUtil.instance.isMobile) {
-      _setOrientation(context);
-    }
+    _setOrientation(context);
+
     super.didChangeDependencies();
   }
 
   void _setOrientation(BuildContext context) {
-    final orientation = MediaQuery.of(context).orientation;
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
-    if (orientation == Orientation.portrait && width < height) {
-      SystemChrome.setPreferredOrientations(
-          [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-    } else if (orientation == Orientation.landscape && width > height) {
-      SystemChrome.setPreferredOrientations(
-          [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    if (!DeviceInfo.instance.isDesktop) {
+      if (responsiveLayoutUtil.shouldRenderMobileUI) {
+        SystemChrome.setPreferredOrientations(
+            [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+      } else {
+        SystemChrome.setPreferredOrientations(
+            [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+      }
     }
   }
 

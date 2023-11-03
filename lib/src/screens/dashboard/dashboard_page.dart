@@ -52,26 +52,23 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
+      body: Observer(
+        builder: (_) {
+          final dashboardPageView = _DashboardPageView(
+            balancePage: balancePage,
+            bottomSheetService: bottomSheetService,
+            dashboardViewModel: dashboardViewModel,
+            addressListViewModel: addressListViewModel,
+          );
+
           if (DeviceInfo.instance.isDesktop) {
-            if (constraints.maxWidth > ResponsiveLayoutUtil.kDesktopMaxDashBoardWidthConstraint) {
+            if (responsiveLayoutUtil.screenWidth > ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
               return getIt.get<DesktopSidebarWrapper>();
             } else {
-              return _DashboardPageView(
-                balancePage: balancePage,
-                bottomSheetService: bottomSheetService,
-                dashboardViewModel: dashboardViewModel,
-                addressListViewModel: addressListViewModel,
-              );
+              return dashboardPageView;
             }
-          } else if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {
-            return _DashboardPageView(
-              bottomSheetService: bottomSheetService,
-              balancePage: balancePage,
-              dashboardViewModel: dashboardViewModel,
-              addressListViewModel: addressListViewModel,
-            );
+          } else if (responsiveLayoutUtil.shouldRenderMobileUI) {
+            return dashboardPageView;
           } else {
             return getIt.get<DesktopSidebarWrapper>();
           }
