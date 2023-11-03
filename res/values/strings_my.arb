@@ -725,6 +725,7 @@
   "enter_seed_phrase": "သင့်ရဲ့မျိုးစေ့စကားစုကိုရိုက်ထည့်ပါ",
   "add_contact": "အဆက်အသွယ်ထည့်ပါ။",
   "exchange_provider_unsupported": "${providerName} မရှိတော့ပါ!",
+  "domain_looks_up": "ဒိုမိန်းရှာဖွေမှုများ",
   "require_for_exchanges_to_external_wallets": "ပြင်ပပိုက်ဆံအိတ်များသို့ လဲလှယ်ရန် လိုအပ်သည်။",
   "camera_permission_is_required": "ကင်မရာခွင့်ပြုချက် လိုအပ်ပါသည်။\nအက်ပ်ဆက်တင်များမှ ၎င်းကိုဖွင့်ပါ။",
   "switchToETHWallet": "ကျေးဇူးပြု၍ Ethereum ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်စမ်းကြည့်ပါ။"

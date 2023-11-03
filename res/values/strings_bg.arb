@@ -719,6 +719,7 @@
   "enter_seed_phrase": "Въведете вашата фраза за семена",
   "add_contact": "Добави контакт",
   "exchange_provider_unsupported": "${providerName} вече не се поддържа!",
+  "domain_looks_up": "Търсене на домейни",
   "require_for_exchanges_to_external_wallets": "Изискване за обмен към външни портфейли",
   "camera_permission_is_required": "Изисква се разрешение за камерата.\nМоля, активирайте го от настройките на приложението.",
   "switchToETHWallet": "Моля, преминете към портфейл Ethereum и опитайте отново"

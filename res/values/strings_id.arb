@@ -715,6 +715,7 @@
   "enter_seed_phrase": "Masukkan frasa benih Anda",
   "add_contact": "Tambah kontak",
   "exchange_provider_unsupported": "${providerName} tidak lagi didukung!",
+  "domain_looks_up": "Pencarian domain",
   "require_for_exchanges_to_external_wallets": "Memerlukan pertukaran ke dompet eksternal",
   "camera_permission_is_required": "Izin kamera diperlukan.\nSilakan aktifkan dari pengaturan aplikasi.",
   "switchToETHWallet": "Silakan beralih ke dompet Ethereum dan coba lagi"
