@@ -413,39 +413,39 @@ class SendPage extends BasePage {
           if (context.mounted) {
             showPopUp<void>(
                 context: context,
-                builder: (BuildContext context) {
+                builder: (BuildContext _dialogContext) {
                   return ConfirmSendingAlert(
-                      alertTitle: S.of(context).confirm_sending,
-                      amount: S.of(context).send_amount,
+                      alertTitle: S.of(_dialogContext).confirm_sending,
+                      amount: S.of(_dialogContext).send_amount,
                       amountValue: sendViewModel.pendingTransaction!.amountFormatted,
                       fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
-                      fee: S.of(context).send_fee,
+                      fee: S.of(_dialogContext).send_fee,
                       feeValue: sendViewModel.pendingTransaction!.feeFormatted,
                       feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                       outputs: sendViewModel.outputs,
-                      rightButtonText: S.of(context).ok,
-                      leftButtonText: S.of(context).cancel,
+                      rightButtonText: S.of(_dialogContext).ok,
+                      leftButtonText: S.of(_dialogContext).cancel,
                       actionRightButton: () {
-                        Navigator.of(context).pop();
+                        Navigator.of(_dialogContext).pop();
                         sendViewModel.commitTransaction();
                         showPopUp<void>(
                             context: context,
-                            builder: (BuildContext context) {
+                            builder: (BuildContext _dialogContext) {
                               return Observer(builder: (_) {
                                 final state = sendViewModel.state;
 
                                 if (state is FailureState) {
-                                  Navigator.of(context).pop();
+                                  Navigator.of(_dialogContext).pop();
                                 }
 
                                 if (state is TransactionCommitted) {
                                   return AlertWithOneAction(
                                       alertTitle: '',
-                                      alertContent: S.of(context).send_success(
+                                      alertContent: S.of(_dialogContext).send_success(
                                           sendViewModel.selectedCryptoCurrency.toString()),
-                                      buttonText: S.of(context).ok,
+                                      buttonText: S.of(_dialogContext).ok,
                                       buttonAction: () {
-                                        Navigator.of(context).pop();
+                                        Navigator.of(_dialogContext).pop();
                                         RequestReviewHandler.requestReview();
                                       });
                                 }
@@ -454,7 +454,7 @@ class SendPage extends BasePage {
                               });
                             });
                       },
-                      actionLeftButton: () => Navigator.of(context).pop());
+                      actionLeftButton: () => Navigator.of(_dialogContext).pop());
                 });
           }
         });
@@ -472,15 +472,15 @@ class SendPage extends BasePage {
 
   Future<void> _setInputsFromTemplate(BuildContext context,
       {required Output output, required Template template}) async {
-    final fiatFromTemplate =
-        FiatCurrency.all.singleWhere((element) => element.title == template.fiatCurrency);
-
     output.address = template.address;
 
     if (template.isCurrencySelected) {
       sendViewModel.setSelectedCryptoCurrency(template.cryptoCurrency);
       output.setCryptoAmount(template.amount);
     } else {
+      final fiatFromTemplate =
+          FiatCurrency.all.singleWhere((element) => element.title == template.fiatCurrency);
+
       sendViewModel.setFiatCurrency(fiatFromTemplate);
       output.setFiatAmount(template.amountFiat);
     }

@@ -162,6 +162,9 @@ class Node extends HiveObject with Keyable {
     try {
       final authenticatingClient = HttpClient();
 
+      authenticatingClient.badCertificateCallback =
+          ((X509Certificate cert, String host, int port) => true);
+
       authenticatingClient.addCredentials(
         rpcUri,
         realm,
