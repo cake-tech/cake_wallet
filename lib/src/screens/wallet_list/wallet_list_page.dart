@@ -275,7 +275,7 @@ class WalletListBodyState extends State<WalletListBody> {
           await hideProgressText();
           // only pop the wallets route in mobile as it will go back to dashboard page
           // in desktop platforms the navigation tree is different
-          if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {
+          if (responsiveLayoutUtil.shouldRenderMobileUI) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pop();
             });

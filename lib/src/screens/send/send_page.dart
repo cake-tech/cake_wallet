@@ -69,7 +69,7 @@ class SendPage extends BasePage {
     final _closeButton =
         currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
 
-    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
+    bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
     return MergeSemantics(
       child: SizedBox(
@@ -98,7 +98,7 @@ class SendPage extends BasePage {
   double _sendCardHeight(BuildContext context) {
     final double initialHeight = sendViewModel.hasCoinControl ? 500 : 465;
 
-    if (!ResponsiveLayoutUtil.instance.isMobile) {
+    if (!responsiveLayoutUtil.shouldRenderMobileUI) {
       return initialHeight - 66;
     }
     return initialHeight;

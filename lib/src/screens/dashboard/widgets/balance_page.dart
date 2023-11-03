@@ -1,17 +1,18 @@
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
+import 'package:cake_wallet/src/widgets/introducing_card.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cake_wallet/src/widgets/introducing_card.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
 class BalancePage extends StatelessWidget {
   BalancePage({required this.dashboardViewModel, required this.settingsStore});
@@ -28,47 +29,59 @@ class BalancePage extends StatelessWidget {
           !dashboardViewModel.balanceViewModel.isReversing,
       child: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 56),
-            Container(
-              margin: const EdgeInsets.only(left: 24, bottom: 16),
-              child: Observer(
-                builder: (_) {
-                  return Row(
-                    children: [
-                      Text(
-                        dashboardViewModel.balanceViewModel.asset,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontFamily: 'Lato',
-                          fontWeight: FontWeight.w600,
-                          color:
-                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                          height: 1,
-                        ),
-                        maxLines: 1,
-                        textAlign: TextAlign.center,
-                      ),
-                      if (dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled)
-                        InkWell(
-                          onTap: () => Navigator.pushNamed(context, Routes.homeSettings,
-                              arguments: dashboardViewModel.balanceViewModel),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Image.asset(
-                              'assets/images/home_screen_settings_icon.png',
-                              color: Theme.of(context)
-                                  .extension<DashboardPageTheme>()!
-                                  .pageTitleTextColor,
+            Observer(
+                builder: (_) => dashboardViewModel.balanceViewModel.hasAccounts
+                    ? HomeScreenAccountWidget(
+                        walletName: dashboardViewModel.name,
+                        accountName: dashboardViewModel.subname)
+                    : Column(
+                        children: [
+                          SizedBox(height: 56),
+                          Container(
+                            margin: const EdgeInsets.only(left: 24, bottom: 16),
+                            child: Observer(
+                              builder: (_) {
+                                return Row(
+                                  children: [
+                                    Text(
+                                      dashboardViewModel.balanceViewModel.asset,
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        fontFamily: 'Lato',
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context)
+                                            .extension<DashboardPageTheme>()!
+                                            .pageTitleTextColor,
+                                        height: 1,
+                                      ),
+                                      maxLines: 1,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    if (dashboardViewModel
+                                        .balanceViewModel.isHomeScreenSettingsEnabled)
+                                      InkWell(
+                                        onTap: () => Navigator.pushNamed(
+                                            context, Routes.homeSettings,
+                                            arguments: dashboardViewModel.balanceViewModel),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Image.asset(
+                                            'assets/images/home_screen_settings_icon.png',
+                                            color: Theme.of(context)
+                                                .extension<DashboardPageTheme>()!
+                                                .pageTitleTextColor,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
                             ),
                           ),
-                        ),
-                    ],
-                  );
-                },
-              ),
-            ),
+                        ],
+                      )),
             Observer(
               builder: (_) {
                 if (dashboardViewModel.balanceViewModel.isShowCard &&

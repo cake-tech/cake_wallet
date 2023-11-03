@@ -127,7 +127,7 @@ class ExchangePage extends BasePage {
     final _closeButton =
         currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
 
-    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
+    bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
     return MergeSemantics(
       child: SizedBox(
@@ -705,7 +705,7 @@ class ExchangePage extends BasePage {
               },
             ));
 
-    if (ResponsiveLayoutUtil.instance.isMobile) {
+    if (responsiveLayoutUtil.shouldRenderMobileUI) {
       return MobileExchangeCardsSection(
         firstExchangeCard: firstExchangeCard,
         secondExchangeCard: secondExchangeCard,
