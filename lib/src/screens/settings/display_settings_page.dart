@@ -75,7 +75,7 @@ class DisplaySettingsPage extends BasePage {
                   return LanguageService.list[code]?.toLowerCase().contains(searchText) ?? false;
                 },
               ),
-              if (responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile)
+              if (ResponsiveLayoutUtil.instance.isMobile && DeviceInfo.instance.isMobile)
                 SettingsThemeChoicesCell(_displaySettingsViewModel),
             ],
           ),

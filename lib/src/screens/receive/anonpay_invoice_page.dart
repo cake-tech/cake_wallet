@@ -99,7 +99,7 @@ class AnonPayInvoicePage extends BasePage {
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(bottom: 24),
           content: Container(
-            decoration: responsiveLayoutUtil.shouldRenderMobileUI ? BoxDecoration(
+            decoration: ResponsiveLayoutUtil.instance.isMobile ? BoxDecoration(
               borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
               gradient: LinearGradient(

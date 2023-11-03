@@ -122,7 +122,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           ),
         ),
         Container(
-          decoration: responsiveLayoutUtil.shouldRenderMobileUI
+          decoration: ResponsiveLayoutUtil.instance.isMobile
               ? BoxDecoration(
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
@@ -139,9 +139,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               24,
-              responsiveLayoutUtil.shouldRenderMobileUI ? 100 : 55,
+              ResponsiveLayoutUtil.instance.isMobile ? 100 : 55,
               24,
-              responsiveLayoutUtil.shouldRenderMobileUI ? 32 : 0,
+              ResponsiveLayoutUtil.instance.isMobile ? 32 : 0,
             ),
             child: SingleChildScrollView(
               child: Observer(

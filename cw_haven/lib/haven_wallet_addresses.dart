@@ -63,14 +63,14 @@ abstract class HavenWalletAddressesBase extends WalletAddressesWithAccount<Accou
 
   bool validate() {
     accountList.update();
-    final accountListLength = accountList.accounts.length;
+    final accountListLength = accountList.accounts.length ?? 0;
 
     if (accountListLength <= 0) {
       return false;
     }
 
     subaddressList.update(accountIndex: accountList.accounts.first.id);
-    final subaddressListLength = subaddressList.subaddresses.length;
+    final subaddressListLength = subaddressList.subaddresses.length ?? 0;
 
     if (subaddressListLength <= 0) {
       return false;
@@ -84,8 +84,4 @@ abstract class HavenWalletAddressesBase extends WalletAddressesWithAccount<Accou
     subaddress = subaddressList.subaddresses.first;
     address = subaddress!.address;
   }
-
-  @override
-  bool containsAddress(String address) =>
-      addressInfos[account?.id ?? 0]?.any((it) => it.address == address) ?? false;
 }

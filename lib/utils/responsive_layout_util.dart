@@ -1,53 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:mobx/mobx.dart';
 
-part 'responsive_layout_util.g.dart';
-
-class _ResponsiveLayoutUtil = ResponsiveLayoutUtilBase with _$_ResponsiveLayoutUtil;
-
-abstract class ResponsiveLayoutUtilBase with Store, WidgetsBindingObserver {
+class ResponsiveLayoutUtil {
   static const double _kMobileThreshold = 550;
   static const double kDesktopMaxWidthConstraint = 400;
   static const double kDesktopMaxDashBoardWidthConstraint = 900;
   static const double kPopupWidth = 400;
   static const double kPopupSpaceHeight = 100;
 
-  ResponsiveLayoutUtilBase() {
-    WidgetsBinding.instance.addObserver(this);
-    final initialMediaQuery = MediaQueryData.fromView(WidgetsBinding.instance!.window);
-    updateDeviceInfo(initialMediaQuery);
+  const ResponsiveLayoutUtil._();
+
+  static final instance = ResponsiveLayoutUtil._();
+
+  bool get isMobile =>
+      MediaQueryData.fromWindow(WidgetsBinding.instance.window).size.shortestSide <=
+      _kMobileThreshold;
+
+  bool shouldRenderMobileUI() {
+    final mediaQuery = MediaQueryData.fromWindow(WidgetsBinding.instance.window);
+    final orientation = mediaQuery.orientation;
+    final width = mediaQuery.size.width;
+    final height = mediaQuery.size.height;
+    if (isMobile ||
+        (orientation == Orientation.portrait && width < height) ||
+        (orientation == Orientation.landscape && width < height)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
-  @override
-  void didChangeMetrics() {
-    final mediaQuery = MediaQueryData.fromView(WidgetsBinding.instance!.window);
-    updateDeviceInfo(mediaQuery);
-  }
+  /// Returns dynamic size.
+  ///
+  /// If screen size is mobile, it returns 66% ([scale]) of the [originalValue].
+  double getDynamicSize(
+    double originalValue, {
+    double? mobileSize,
+    double? scale,
+  }) {
+    scale ??= 2 / 3;
+    mobileSize ??= originalValue * scale;
+    final value = isMobile ? mobileSize : originalValue;
 
-  @observable
-  double screenWidth = 0.0;
-
-  @observable
-  double screenHeight = 0.0;
-
-  @observable
-  Orientation orientation = Orientation.portrait;
-
-  @action
-  void updateDeviceInfo(MediaQueryData mediaQuery) {
-    orientation = mediaQuery.orientation;
-    screenWidth = mediaQuery.size.width;
-    screenHeight = mediaQuery.size.height;
-  }
-
-  @computed
-  bool get shouldRenderMobileUI {
-    return (screenWidth <= _kMobileThreshold) ||
-        (orientation == Orientation.portrait && screenWidth < screenHeight) ||
-        (orientation == Orientation.landscape && screenWidth < screenHeight);
+    return value.roundToDouble();
   }
 }
-
-_ResponsiveLayoutUtil _singletonResponsiveLayoutUtil = _ResponsiveLayoutUtil();
-
-_ResponsiveLayoutUtil get responsiveLayoutUtil => _singletonResponsiveLayoutUtil;

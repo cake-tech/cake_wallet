@@ -52,7 +52,6 @@ import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart
 import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
 import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
@@ -281,7 +280,7 @@ Future<void> setup({
     powNodeSource: _powNodeSource,
     isBitcoinBuyEnabled: isBitcoinBuyEnabled,
     // Enforce darkTheme on platforms other than mobile till the design for other themes is completed
-    initialTheme: responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile
+    initialTheme: ResponsiveLayoutUtil.instance.isMobile && DeviceInfo.instance.isMobile
         ? null
         : ThemeList.darkTheme,
   );
@@ -1159,10 +1158,6 @@ Future<void> setup({
     }
     return ManageNodesPage(isPow, nodeListViewModel: getIt.get<NodeListViewModel>());
   });
-
-  getIt.registerFactory(
-      () => WalletConnectConnectionsView(web3walletService: getIt.get<Web3WalletService>()));
-
 
   _isSetupFinished = true;
 }

@@ -75,10 +75,6 @@ abstract class Setup2FAViewModelBase with Store {
       _settingsStore.shouldRequireTOTP2FAForExchangesToInternalWallets;
 
   @computed
-  bool get shouldRequireTOTP2FAForExchangesToExternalWallets =>
-      _settingsStore.shouldRequireTOTP2FAForExchangesToExternalWallets;
-
-  @computed
   bool get shouldRequireTOTP2FAForAddingContacts =>
       _settingsStore.shouldRequireTOTP2FAForAddingContacts;
 
@@ -281,7 +277,6 @@ abstract class Setup2FAViewModelBase with Store {
     switchShouldRequireTOTP2FAForAddingContacts(false);
     switchShouldRequireTOTP2FAForCreatingNewWallet(false);
     switchShouldRequireTOTP2FAForExchangesToInternalWallets(false);
-    switchShouldRequireTOTP2FAForExchangesToExternalWallets(false);
     switchShouldRequireTOTP2FAForSendsToInternalWallets(false);
     switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings(false);
     selected2FASettings.clear();
@@ -311,7 +306,6 @@ abstract class Setup2FAViewModelBase with Store {
 
   @action
   void selectCakePreset(Cake2FAPresetsOptions preset) {
-    setAllControlsToFalse();
     presetsMap[preset]?.forEach(toggleControl);
     _settingsStore.selectedCake2FAPreset = preset;
   }
@@ -330,8 +324,6 @@ abstract class Setup2FAViewModelBase with Store {
           switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
       VerboseControlSettings.exchangesToInternalWallets:
           switchShouldRequireTOTP2FAForExchangesToInternalWallets,
-      VerboseControlSettings.exchangesToExternalWallets:
-          switchShouldRequireTOTP2FAForExchangesToExternalWallets,
     };
 
     methodsMap[control]?.call(value);
@@ -365,12 +357,6 @@ abstract class Setup2FAViewModelBase with Store {
   void switchShouldRequireTOTP2FAForExchangesToInternalWallets(bool value) {
     _settingsStore.shouldRequireTOTP2FAForExchangesToInternalWallets = value;
     updateSelectedSettings(VerboseControlSettings.exchangesToInternalWallets, value);
-  }
-
-  @action
-  void switchShouldRequireTOTP2FAForExchangesToExternalWallets(bool value) {
-    _settingsStore.shouldRequireTOTP2FAForExchangesToExternalWallets = value;
-    updateSelectedSettings(VerboseControlSettings.exchangesToExternalWallets, value);
   }
 
   @action

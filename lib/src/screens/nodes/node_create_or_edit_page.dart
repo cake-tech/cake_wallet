@@ -69,7 +69,7 @@ class NodeCreateOrEditPage extends BasePage {
   @override
   Widget trailing(BuildContext context) => IconButton(
         onPressed: () async {
-          await nodeCreateOrEditViewModel.scanQRCodeForNewNode(context);
+          await nodeCreateOrEditViewModel.scanQRCodeForNewNode();
         },
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,

@@ -93,7 +93,7 @@ class WalletSeedPage extends BasePage {
           padding: EdgeInsets.all(24),
           alignment: Alignment.center,
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[

@@ -84,9 +84,6 @@ abstract class BalanceViewModelBase with Store {
   bool get isHomeScreenSettingsEnabled => wallet.type == WalletType.ethereum;
 
   @computed
-  bool get hasAccounts => wallet.type == WalletType.monero;
-
-  @computed
   SortBalanceBy get sortBalanceBy => settingsStore.sortBalanceBy;
 
   @computed

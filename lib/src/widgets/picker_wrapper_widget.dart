@@ -44,7 +44,7 @@ class PickerWrapperWidget extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: children,
                 ),
-                SizedBox(height: ResponsiveLayoutUtilBase.kPopupSpaceHeight),
+                SizedBox(height: ResponsiveLayoutUtil.kPopupSpaceHeight),
                 AlertCloseButton(bottom: closeButtonBottom),
               ],
             ),

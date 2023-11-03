@@ -87,7 +87,15 @@ class ConnectionSyncPage extends BasePage {
           ),
           if (dashboardViewModel.wallet.type == WalletType.ethereum) ...[
             WalletConnectTile(
-              onTap: () => Navigator.of(context).pushNamed(Routes.walletConnectConnectionsListing),
+              onTap: () async {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return WalletConnectConnectionsView(web3walletService: web3walletService!);
+                    },
+                  ),
+                );
+              },
             ),
             const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           ]

@@ -35,7 +35,7 @@ class PreSeedPage extends BasePage {
           alignment: Alignment.center,
           padding: EdgeInsets.all(24),
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[

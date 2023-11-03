@@ -235,7 +235,7 @@ abstract class Monero {
 
   String getSubaddressLabel(Object wallet, int accountIndex, int addressIndex);
 
-  int getHeightByDate({required DateTime date});
+  int getHeigthByDate({required DateTime date});
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority getMoneroTransactionPrioritySlow();
   TransactionPriority getMoneroTransactionPriorityAutomatic();

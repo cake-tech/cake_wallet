@@ -1,3 +1,4 @@
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -193,7 +194,7 @@ abstract class WalletKeysViewModelBase with Store {
 
   int _getRestoreHeightByTransactions(WalletType type, DateTime date) {
     if (type == WalletType.monero) {
-      return monero!.getHeightByDate(date: date);
+      return monero!.getHeigthByDate(date: date);
     } else if (type == WalletType.haven) {
       return haven!.getHeightByDate(date: date);
     }
