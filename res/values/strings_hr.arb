@@ -725,6 +725,7 @@
   "enter_seed_phrase": "Unesite svoju sjemensku frazu",
   "add_contact": "Dodaj kontakt",
   "exchange_provider_unsupported": "${providerName} više nije podržan!",
+  "domain_looks_up": "Pretraga domena",
   "require_for_exchanges_to_external_wallets": "Zahtijeva razmjene na vanjske novčanike",
   "camera_permission_is_required": "Potrebno je dopuštenje kamere.\nOmogućite ga u postavkama aplikacije.",
   "switchToETHWallet": "Prijeđite na Ethereum novčanik i pokušajte ponovno"

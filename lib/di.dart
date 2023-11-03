@@ -36,6 +36,7 @@ import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -751,6 +752,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => PrivacyPage(getIt.get<PrivacySettingsViewModel>()));
 
+  getIt.registerFactory(() => DomainLookupsPage(getIt.get<PrivacySettingsViewModel>()));
+
   getIt.registerFactory(() => DisplaySettingsPage(getIt.get<DisplaySettingsViewModel>()));
 
   getIt.registerFactory(() => OtherSettingsPage(getIt.get<OtherSettingsViewModel>()));
@@ -981,7 +984,10 @@ Future<void> setup({
   getIt.registerFactory(() => YatService());
 
   getIt.registerFactory(() =>
-      AddressResolver(yatService: getIt.get<YatService>(), wallet: getIt.get<AppStore>().wallet!));
+      AddressResolver(
+          yatService: getIt.get<YatService>(),
+          wallet: getIt.get<AppStore>().wallet!,
+          settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<FullscreenQRPage, QrViewData, void>(
       (QrViewData viewData, _) => FullscreenQRPage(qrViewData: viewData));

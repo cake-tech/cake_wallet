@@ -727,6 +727,7 @@
   "enter_seed_phrase": "Entrez votre phrase de semence",
   "add_contact": "Ajouter le contact",
   "exchange_provider_unsupported": "${providerName} n'est plus pris en charge!",
+  "domain_looks_up": "Recherches de domaine",
   "require_for_exchanges_to_external_wallets": "Exiger des échanges vers des portefeuilles externes",
   "camera_permission_is_required": "L'autorisation de la caméra est requise.\nVeuillez l'activer à partir des paramètres de l'application.",
   "switchToETHWallet": "Veuillez passer à un portefeuille Ethereum et réessayer"
