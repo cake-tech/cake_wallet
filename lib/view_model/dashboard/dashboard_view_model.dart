@@ -1,36 +1,36 @@
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
-import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
-import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
-import 'package:cake_wallet/view_model/settings/sync_mode.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/balance.dart';
-import 'package:cake_wallet/entities/balance_display_mode.dart';
-import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
+import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
+import 'package:cake_wallet/store/dashboard/trades_store.dart';
+import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
+import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
+import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
-import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cw_core/wallet_base.dart';
+import 'package:cake_wallet/view_model/settings/sync_mode.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/balance.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/store/dashboard/trades_store.dart';
-import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
-import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
-import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
-import 'package:cake_wallet/monero/monero.dart';
+import 'package:mobx/mobx.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -47,69 +47,69 @@ abstract class DashboardViewModelBase with Store {
       required this.yatStore,
       required this.ordersStore,
       required this.anonpayTransactionsStore})
-  : hasSellAction = false,
-    hasBuyAction = false,
-    hasExchangeAction = false,
-    isShowFirstYatIntroduction = false,
-    isShowSecondYatIntroduction = false,
-    isShowThirdYatIntroduction = false,
-    filterItems = {
-      S.current.transactions: [
-        FilterItem(
-            value: () => transactionFilterStore.displayAll,
-            caption: S.current.all_transactions,
-            onChanged:  transactionFilterStore.toggleAll),
-        FilterItem(
-            value: () => transactionFilterStore.displayIncoming,
-            caption: S.current.incoming,
-            onChanged:transactionFilterStore.toggleIncoming),
-        FilterItem(
-            value: () => transactionFilterStore.displayOutgoing,
-            caption: S.current.outgoing,
-            onChanged: transactionFilterStore.toggleOutgoing),
-        // FilterItem(
-        //     value: () => false,
-        //     caption: S.current.transactions_by_date,
-        //     onChanged: null),
-      ],
-      S.current.trades: [
-        FilterItem(
-            value: () => tradeFilterStore.displayAllTrades,
-            caption: S.current.all_trades,
-            onChanged: () => tradeFilterStore
-                .toggleDisplayExchange(ExchangeProviderDescription.all)),
-        FilterItem(
-            value: () => tradeFilterStore.displayChangeNow,
-            caption: ExchangeProviderDescription.changeNow.title,
-            onChanged: () => tradeFilterStore
-                .toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
-        FilterItem(
-            value: () => tradeFilterStore.displaySideShift,
-            caption: ExchangeProviderDescription.sideShift.title,
-            onChanged: () => tradeFilterStore
-                .toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
-        FilterItem(
-            value: () => tradeFilterStore.displaySimpleSwap,
-            caption: ExchangeProviderDescription.simpleSwap.title,
-            onChanged: () => tradeFilterStore
-                .toggleDisplayExchange(ExchangeProviderDescription.simpleSwap)),
-        FilterItem(
-            value: () => tradeFilterStore.displayTrocador,
-            caption: ExchangeProviderDescription.trocador.title,
-            onChanged: () => tradeFilterStore
-                .toggleDisplayExchange(ExchangeProviderDescription.trocador)),
-        FilterItem(
-            value: () => tradeFilterStore.displayExolix,
-            caption: ExchangeProviderDescription.exolix.title,
-            onChanged: () => tradeFilterStore
-                .toggleDisplayExchange(ExchangeProviderDescription.exolix)),
-      ]
-    },
-    subname = '',
-    name = appStore.wallet!.name,
-    type = appStore.wallet!.type,
-    transactions = ObservableList<TransactionListItem>(),
-    wallet = appStore.wallet! {
+      : hasSellAction = false,
+        hasBuyAction = false,
+        hasExchangeAction = false,
+        isShowFirstYatIntroduction = false,
+        isShowSecondYatIntroduction = false,
+        isShowThirdYatIntroduction = false,
+        filterItems = {
+          S.current.transactions: [
+            FilterItem(
+                value: () => transactionFilterStore.displayAll,
+                caption: S.current.all_transactions,
+                onChanged: transactionFilterStore.toggleAll),
+            FilterItem(
+                value: () => transactionFilterStore.displayIncoming,
+                caption: S.current.incoming,
+                onChanged: transactionFilterStore.toggleIncoming),
+            FilterItem(
+                value: () => transactionFilterStore.displayOutgoing,
+                caption: S.current.outgoing,
+                onChanged: transactionFilterStore.toggleOutgoing),
+            // FilterItem(
+            //     value: () => false,
+            //     caption: S.current.transactions_by_date,
+            //     onChanged: null),
+          ],
+          S.current.trades: [
+            FilterItem(
+                value: () => tradeFilterStore.displayAllTrades,
+                caption: S.current.all_trades,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.all)),
+            FilterItem(
+                value: () => tradeFilterStore.displayChangeNow,
+                caption: ExchangeProviderDescription.changeNow.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
+            FilterItem(
+                value: () => tradeFilterStore.displaySideShift,
+                caption: ExchangeProviderDescription.sideShift.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
+            FilterItem(
+                value: () => tradeFilterStore.displaySimpleSwap,
+                caption: ExchangeProviderDescription.simpleSwap.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.simpleSwap)),
+            FilterItem(
+                value: () => tradeFilterStore.displayTrocador,
+                caption: ExchangeProviderDescription.trocador.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.trocador)),
+            FilterItem(
+                value: () => tradeFilterStore.displayExolix,
+                caption: ExchangeProviderDescription.exolix.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
+          ]
+        },
+        subname = '',
+        name = appStore.wallet!.name,
+        type = appStore.wallet!.type,
+        transactions = ObservableList<TransactionListItem>(),
+        wallet = appStore.wallet! {
     name = wallet.name;
     type = wallet.type;
     isShowFirstYatIntroduction = false;
@@ -222,9 +222,8 @@ abstract class DashboardViewModelBase with Store {
   BalanceDisplayMode get balanceDisplayMode => appStore.settingsStore.balanceDisplayMode;
 
   @computed
-  bool get shouldShowMarketPlaceInDashboard {
-    return appStore.settingsStore.shouldShowMarketPlaceInDashboard;
-  }
+  bool get shouldShowMarketPlaceInDashboard =>
+      appStore.settingsStore.shouldShowMarketPlaceInDashboard;
 
   @computed
   List<TradeListItem> get trades =>

@@ -27,6 +27,7 @@ class Trade extends HiveObject {
     this.password,
     this.providerId,
     this.providerName,
+    this.fromWalletAddress
   }) {
     if (provider != null) providerRaw = provider.raw;
 
@@ -101,6 +102,9 @@ class Trade extends HiveObject {
   @HiveField(16)
   String? providerName;
 
+  @HiveField(17)
+  String? fromWalletAddress;
+
   static Trade fromMap(Map<String, Object?> map) {
     return Trade(
         id: map['id'] as String,
@@ -110,7 +114,9 @@ class Trade extends HiveObject {
         createdAt:
             map['date'] != null ? DateTime.fromMillisecondsSinceEpoch(map['date'] as int) : null,
         amount: map['amount'] as String,
-        walletId: map['wallet_id'] as String);
+        walletId: map['wallet_id'] as String,
+        fromWalletAddress: map['from_wallet_address'] as String?
+    );
   }
 
   Map<String, dynamic> toMap() {
@@ -121,7 +127,8 @@ class Trade extends HiveObject {
       'output': to.serialize(),
       'date': createdAt != null ? createdAt!.millisecondsSinceEpoch : null,
       'amount': amount,
-      'wallet_id': walletId
+      'wallet_id': walletId,
+      'from_wallet_address': fromWalletAddress
     };
   }
 

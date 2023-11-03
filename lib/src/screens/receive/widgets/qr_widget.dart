@@ -38,129 +38,134 @@ class QRWidget extends StatelessWidget {
     final copyImage = Image.asset('assets/images/copy_address.png',
         color: Theme.of(context).extension<QRCodeTheme>()!.qrWidgetCopyButtonColor);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Text(
-                S.of(context).qr_fullscreen,
-                style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
-              ),
-            ),
-            Row(
-              children: <Widget>[
-                Spacer(flex: 3),
-                Observer(
-                  builder: (_) => Flexible(
-                    flex: 5,
-                    child: GestureDetector(
-                      onTap: () {
-                        BrightnessUtil.changeBrightnessForFunction(
-                          () async {
-                            await Navigator.pushNamed(context, Routes.fullscreenQR,
-                                arguments: QrViewData(
-                                  data: addressListViewModel.uri.toString(),
-                                  heroTag: heroTag,
-                                ));
+    return Center(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    S.of(context).qr_fullscreen,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
+                  ),
+                ),
+                Row(
+                  children: <Widget>[
+                    Spacer(flex: 3),
+                    Observer(
+                      builder: (_) => Flexible(
+                        flex: 5,
+                        child: GestureDetector(
+                          onTap: () {
+                            BrightnessUtil.changeBrightnessForFunction(
+                              () async {
+                                await Navigator.pushNamed(context, Routes.fullscreenQR,
+                                    arguments: QrViewData(
+                                      data: addressListViewModel.uri.toString(),
+                                      heroTag: heroTag,
+                                    ));
+                              },
+                            );
                           },
-                        );
-                      },
-                      child: Hero(
-                        tag: Key(heroTag ?? addressListViewModel.uri.toString()),
-                        child: Center(
-                          child: AspectRatio(
-                            aspectRatio: 1.0,
-                            child: Container(
-                              padding: EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 3,
-                                  color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                                ),
-                              ),
-                              child: Container(
+                          child: Hero(
+                            tag: Key(heroTag ?? addressListViewModel.uri.toString()),
+                            child: Center(
+                              child: AspectRatio(
+                                aspectRatio: 1.0,
+                                child: Container(
+                                  padding: EdgeInsets.all(5),
                                   decoration: BoxDecoration(
                                     border: Border.all(
                                       width: 3,
-                                      color:Colors.white,
+                                      color:
+                                          Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                                     ),
                                   ),
-                                  child: QrImage(data: addressListViewModel.uri.toString())),
+                                  child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          width: 3,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      child: QrImage(data: addressListViewModel.uri.toString())),
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-                Spacer(flex: 3)
-              ],
-            ),
-          ],
-        ),
-        Observer(builder: (_) {
-          return Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Form(
-                    key: formKey,
-                    child: CurrencyInputField(
-                      focusNode: amountTextFieldFocusNode,
-                      controller: amountController,
-                      onTapPicker: () => _presentPicker(context),
-                      selectedCurrency: addressListViewModel.selectedCurrency,
-                      isLight: isLight,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-        Padding(
-          padding: EdgeInsets.only(top: 20, bottom: 8),
-          child: Builder(
-            builder: (context) => Observer(
-              builder: (context) => GestureDetector(
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: addressListViewModel.address.address));
-                  showBar<void>(context, S.of(context).copied_to_clipboard);
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        addressListViewModel.address.address,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 12),
-                      child: copyImage,
-                    )
+                    Spacer(flex: 3)
                   ],
                 ),
-              ),
+              ],
             ),
-          ),
-        )
-      ],
+            Observer(builder: (_) {
+              return Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Form(
+                        key: formKey,
+                        child: CurrencyInputField(
+                          focusNode: amountTextFieldFocusNode,
+                          controller: amountController,
+                          onTapPicker: () => _presentPicker(context),
+                          selectedCurrency: addressListViewModel.selectedCurrency,
+                          isLight: isLight,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            Padding(
+              padding: EdgeInsets.only(top: 20, bottom: 8),
+              child: Builder(
+                builder: (context) => Observer(
+                  builder: (context) => GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: addressListViewModel.address.address));
+                      showBar<void>(context, S.of(context).copied_to_clipboard);
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            addressListViewModel.address.address,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 12),
+                          child: copyImage,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 

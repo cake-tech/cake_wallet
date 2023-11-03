@@ -64,7 +64,15 @@ class AddressPage extends BasePage {
 
   @override
   Widget? leading(BuildContext context) {
-    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
+    final _backButton = Icon(
+      Icons.arrow_back_ios,
+      color: titleColor(context),
+      size: 16,
+    );
+    final _closeButton =
+    currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
+
+    bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
     return MergeSemantics(
       child: SizedBox(
@@ -79,7 +87,7 @@ class AddressPage extends BasePage {
                 overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
-              child: !isMobileView ? closeButton(context) : backButton(context),
+              child: !isMobileView ? _closeButton : _backButton,
             ),
           ),
         ),

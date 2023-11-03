@@ -27,7 +27,7 @@ class AddTemplateButton extends StatelessWidget {
           child: Container(
             height: 34,
             padding: EdgeInsets.symmetric(
-                horizontal: ResponsiveLayoutUtil.instance.isMobile ? 10 : 30),
+                horizontal: responsiveLayoutUtil.shouldRenderMobileUI ? 10 : 30),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(20)),

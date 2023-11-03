@@ -52,7 +52,7 @@ class PickerInnerWrapperWidget extends StatelessWidget {
                         itemsHeight != null && itemsHeight! <= containerHeight
                             ? itemsHeight!
                             : containerHeight,
-                    maxWidth: ResponsiveLayoutUtil.kPopupWidth,
+                    maxWidth: ResponsiveLayoutUtilBase.kPopupWidth,
                   ),
                   child: Column(
                     children: children,
@@ -77,7 +77,7 @@ class PickerInnerWrapperWidget extends StatelessWidget {
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: containerHeight,
-                  maxWidth: ResponsiveLayoutUtil.kPopupWidth,
+                  maxWidth: ResponsiveLayoutUtilBase.kPopupWidth,
                 ),
                 child: Column(
                   children: children,

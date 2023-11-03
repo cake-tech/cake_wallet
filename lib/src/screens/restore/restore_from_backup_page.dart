@@ -42,7 +42,7 @@ class RestoreFromBackupPage extends BasePage {
 
     return Center(
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+        constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
         child: Padding(
             padding: EdgeInsets.only(bottom: 24, left: 24, right: 24),
             child: Column(children: [
