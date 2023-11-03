@@ -36,4 +36,6 @@ abstract class WalletAddresses {
       print(e.toString());
     }
   }
+
+  bool containsAddress(String address) => addressesMap.containsKey(address);
 }

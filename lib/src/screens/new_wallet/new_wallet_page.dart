@@ -96,7 +96,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
           content: Center(
             child: ConstrainedBox(
               constraints:
-                  BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+                  BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [

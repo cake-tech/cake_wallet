@@ -61,7 +61,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(context).size.height * 0.65,
-                  maxWidth: ResponsiveLayoutUtil.kPopupWidth,
+                  maxWidth: ResponsiveLayoutUtilBase.kPopupWidth,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

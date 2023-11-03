@@ -25,7 +25,7 @@ class AlertBackground extends StatelessWidget {
                     Theme.of(context).extension<AlertTheme>()!.backdropColor),
             child: Center(
               child: Container(
-                width: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint,
+                width: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
                 child: child,
               ),
             ),
