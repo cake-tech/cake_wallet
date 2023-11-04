@@ -147,7 +147,7 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
       body: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint,
+            maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
