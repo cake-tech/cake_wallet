@@ -720,15 +720,15 @@
   "message": "Message",
   "do_not_have_enough_gas_asset": "Vous n'avez pas assez de ${currency} pour effectuer une transaction avec les conditions actuelles du réseau blockchain. Vous avez besoin de plus de ${currency} pour payer les frais du réseau blockchain, même si vous envoyez un actif différent.",
   "totp_auth_url": "URL D'AUTORISATION TOTP",
-  "awaitDAppProcessing": "Veuillez attendre que le dApp termine le traitement.",
-  "copyWalletConnectLink": "Copiez le lien WalletConnect depuis dApp et collez-le ici",
+  "awaitDAppProcessing": "Veuillez attendre que l'application décentralisée (dApp) termine le traitement.",
+  "copyWalletConnectLink": "Copiez le lien WalletConnect depuis l'application décentralisée (dApp) et collez-le ici",
   "enterWalletConnectURI": "Saisissez l'URI de WalletConnect.",
-  "seed_key": "Clé de graines",
-  "enter_seed_phrase": "Entrez votre phrase de semence",
+  "seed_key": "Clé secrète (seed key)",
+  "enter_seed_phrase": "Entrez votre phrase secrète (seed)",
   "add_contact": "Ajouter le contact",
-  "exchange_provider_unsupported": "${providerName} n'est plus pris en charge!",
+  "exchange_provider_unsupported": "${providerName} n'est plus pris en charge !",
   "domain_looks_up": "Recherches de domaine",
-  "require_for_exchanges_to_external_wallets": "Exiger des échanges vers des portefeuilles externes",
+  "require_for_exchanges_to_external_wallets": "Exiger pour les échanges vers des portefeuilles externes",
   "camera_permission_is_required": "L'autorisation de la caméra est requise.\nVeuillez l'activer à partir des paramètres de l'application.",
-  "switchToETHWallet": "Veuillez passer à un portefeuille Ethereum et réessayer"
+  "switchToETHWallet": "Veuillez passer à un portefeuille (wallet) Ethereum et réessayer"
 }
