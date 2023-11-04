@@ -340,7 +340,6 @@
   "template": "سانچے",
   "confirm_delete_template": "یہ عمل اس ٹیمپلیٹ کو حذف کر دے گا۔ کیا آپ جاری رکھنا چاہتے ہیں؟",
   "confirm_delete_wallet": "اس کارروائی سے یہ پرس حذف ہو جائے گا۔ کیا آپ جاری رکھنا چاہتے ہیں؟",
-  "picker_description": "ChangeNOW یا MorphToken کو منتخب کرنے کے لیے، براہ کرم پہلے اپنا تجارتی جوڑا تبدیل کریں۔",
   "change_wallet_alert_title": "موجودہ پرس تبدیل کریں۔",
   "change_wallet_alert_content": "کیا آپ موجودہ والیٹ کو ${wallet_name} میں تبدیل کرنا چاہتے ہیں؟",
   "creating_new_wallet": "نیا پرس بنانا",
@@ -686,12 +685,6 @@
   "select_destination": "۔ﮟﯾﺮﮐ ﺏﺎﺨﺘﻧﺍ ﺎﮐ ﻝﺰﻨﻣ ﮯﯿﻟ ﮯﮐ ﻞﺋﺎﻓ ﭖﺍ ﮏﯿﺑ ﻡﺮﮐ ﮦﺍﺮﺑ",
   "auto_generate_subaddresses": "آٹو سب ایڈریس تیار کرتا ہے",
   "save_to_downloads": "۔ﮟﯾﺮﮐ ﻅﻮﻔﺤﻣ ﮟﯿﻣ ﺯﮈﻮﻟ ﻥﺅﺍﮈ",
-  "invalid_password": "غلط پاسورڈ",
-  "unlock": "غیر مقفل",
-  "enter_wallet_password": "پرس کا پاس ورڈ درج کریں",
-  "repeat_wallet_password": "بٹوے کا پاس ورڈ دہرائیں",
-  "wallet_password_is_empty": "پرس کا پاس ورڈ خالی ہے۔ پرس کا پاس ورڈ خالی نہیں ہونا چاہئے",
-  "repeated_password_is_incorrect": "بار بار پاس ورڈ غلط ہے۔ براہ کرم دوبارہ پرس کا پاس ورڈ دہرائیں۔",
   "select_buy_provider_notice": "اوپر خریدنے والا خریدنے والا منتخب کریں۔ آپ ایپ کی ترتیبات میں اپنے پہلے سے طے شدہ خریدنے والے کو ترتیب دے کر اس اسکرین کو چھوڑ سکتے ہیں۔",
   "onramper_option_description": "ادائیگی کے بہت سے طریقوں سے جلدی سے کرپٹو خریدیں۔ زیادہ تر ممالک میں دستیاب ہے۔ پھیلاؤ اور فیس مختلف ہوتی ہے۔",
   "default_buy_provider": "پہلے سے طے شدہ خریدنے والا",
@@ -724,5 +717,10 @@
   "enterWalletConnectURI": "WalletConnect URI ۔ﮟﯾﺮﮐ ﺝﺭﺩ",
   "seed_key": "بیج کی کلید",
   "enter_seed_phrase": "اپنے بیج کا جملہ درج کریں",
-  "add_contact": "                                                              ۔ﮟﯾﺮﮐ ﻞﻣﺎﺷ ﮧﻄﺑﺍﺭ"
+  "add_contact": "۔ﮟﯾﺮﮐ ﻞﻣﺎﺷ ﮧﻄﺑﺍﺭ",
+  "exchange_provider_unsupported": "${providerName} اب تعاون نہیں کیا جاتا ہے!",
+  "domain_looks_up": "ڈومین تلاش کرنا",
+  "require_for_exchanges_to_external_wallets": "۔ﮯﮨ ﺕﺭﻭﺮﺿ ﯽﮐ ﮯﻟﺩﺎﺒﺗ ﮟﯿﻣ ﮮﻮﭩﺑ ﯽﻧﻭﺮﯿﺑ",
+  "camera_permission_is_required": "۔ﮯﮨ ﺭﺎﮐﺭﺩ ﺕﺯﺎﺟﺍ ﯽﮐ ﮮﺮﻤﯿﮐ",
+  "switchToETHWallet": "۔ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ Ethereum ﻡﺮﮐ ﮦﺍﺮﺑ"
 }

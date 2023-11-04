@@ -339,7 +339,6 @@
   "template": "テンプレート",
   "confirm_delete_template": "この操作により、このテンプレートが削除されます。 続行しますか？",
   "confirm_delete_wallet": "このアクションにより、このウォレットが削除されます。 続行しますか？",
-  "picker_description": "ChangeNOWまたはMorphTokenを選択するには、最初にトレーディングペアを変更してください",
   "change_wallet_alert_title": "現在のウォレットを変更する",
   "change_wallet_alert_content": "現在のウォレットをに変更しますか ${wallet_name}?",
   "creating_new_wallet": "新しいウォレットの作成",
@@ -694,12 +693,6 @@
   "select_destination": "バックアップファイルの保存先を選択してください。",
   "auto_generate_subaddresses": "Autoはサブアドレスを生成します",
   "save_to_downloads": "ダウンロードに保存",
-  "invalid_password": "無効なパスワード",
-  "unlock": "ロックを解除します",
-  "enter_wallet_password": "ウォレットパスワードを入力します",
-  "repeat_wallet_password": "ウォレットパスワードを繰り返します",
-  "wallet_password_is_empty": "ウォレットパスワードは空です。ウォレットのパスワードは空にしてはいけません",
-  "repeated_password_is_incorrect": "繰り返しパスワードが正しくありません。ウォレットのパスワードをもう一度繰り返してください。",
   "select_buy_provider_notice": "上記の購入プロバイダーを選択してください。デフォルトの購入プロバイダーをアプリ設定で設定して、この画面をスキップできます。",
   "onramper_option_description": "多くの支払い方法で暗号をすばやく購入してください。ほとんどの国で利用可能です。スプレッドと料金は異なります。",
   "default_buy_provider": "デフォルトの購入プロバイダー",
@@ -732,5 +725,10 @@
   "enterWalletConnectURI": "WalletConnect URI を入力してください",
   "seed_key": "シードキー",
   "enter_seed_phrase": "シードフレーズを入力してください",
-  "add_contact": "連絡先を追加"
+  "add_contact": "連絡先を追加",
+  "exchange_provider_unsupported": "${providerName}はサポートされなくなりました！",
+  "domain_looks_up": "ドメイン検索",
+  "require_for_exchanges_to_external_wallets": "外部ウォレットへの交換に必要",
+  "camera_permission_is_required": "カメラの許可が必要です。\nアプリの設定から有効にしてください。",
+  "switchToETHWallet": "イーサリアムウォレットに切り替えてもう一度お試しください"
 }

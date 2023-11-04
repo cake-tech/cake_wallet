@@ -339,7 +339,6 @@
   "template": "Шаблон",
   "confirm_delete_template": "Този шаблон ще бъде изтрит. Искате ли да продължите?",
   "confirm_delete_wallet": "Този портфейл ще бъде изтрит. Искате ли да продължите?",
-  "picker_description": "За да изберете ChangeNOW или MorphToken, моля, първо променете своя trading pair",
   "change_wallet_alert_title": "Смяна на сегашния портфейл",
   "change_wallet_alert_content": "Искате ли да смените сегашния портфейл на ${wallet_name}?",
   "creating_new_wallet": "Създаване на нов портфейл",
@@ -686,12 +685,6 @@
   "new_first_wallet_text": "Лесно пазете криптовалутата си в безопасност",
   "select_destination": "Моля, изберете дестинация за архивния файл.",
   "save_to_downloads": "Запазване в Изтегляния",
-  "invalid_password": "Невалидна парола",
-  "unlock": "Отключване",
-  "enter_wallet_password": "Въведете паролата за портфейла",
-  "repeat_wallet_password": "Повторете паролата на портфейла",
-  "wallet_password_is_empty": "Паролата за портфейл е празна. Паролата за портфейл не трябва да е празна",
-  "repeated_password_is_incorrect": "Многократната парола е неправилна. Моля, повторете отново паролата за портфейла.",
   "select_buy_provider_notice": "Изберете доставчик на покупка по -горе. Можете да пропуснете този екран, като зададете вашия доставчик по подразбиране по подразбиране в настройките на приложението.",
   "onramper_option_description": "Бързо купувайте криптовалута с много методи за плащане. Предлага се в повечето страни. Разпространенията и таксите варират.",
   "default_buy_provider": "Доставчик по подразбиране купува",
@@ -724,5 +717,10 @@
   "enterWalletConnectURI": "Въведете URI на WalletConnect",
   "seed_key": "Ключ за семена",
   "enter_seed_phrase": "Въведете вашата фраза за семена",
-  "add_contact": "Добави контакт"
+  "add_contact": "Добави контакт",
+  "exchange_provider_unsupported": "${providerName} вече не се поддържа!",
+  "domain_looks_up": "Търсене на домейни",
+  "require_for_exchanges_to_external_wallets": "Изискване за обмен към външни портфейли",
+  "camera_permission_is_required": "Изисква се разрешение за камерата.\nМоля, активирайте го от настройките на приложението.",
+  "switchToETHWallet": "Моля, преминете към портфейл Ethereum и опитайте отново"
 }

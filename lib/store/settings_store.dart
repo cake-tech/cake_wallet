@@ -77,12 +77,19 @@ abstract class SettingsStoreBase with Store {
       required bool initialShouldRequireTOTP2FAForSendsToNonContact,
       required bool initialShouldRequireTOTP2FAForSendsToInternalWallets,
       required bool initialShouldRequireTOTP2FAForExchangesToInternalWallets,
+      required bool initialShouldRequireTOTP2FAForExchangesToExternalWallets,
       required bool initialShouldRequireTOTP2FAForAddingContacts,
       required bool initialShouldRequireTOTP2FAForCreatingNewWallets,
       required bool initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
       required this.sortBalanceBy,
       required this.pinNativeTokenAtTop,
       required this.useEtherscan,
+      required this.lookupsTwitter,
+      required this.lookupsMastodon,
+      required this.lookupsYatService,
+      required this.lookupsUnstoppableDomains,
+      required this.lookupsOpenAlias,
+      required this.lookupsENS,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialHavenTransactionPriority,
@@ -119,6 +126,8 @@ abstract class SettingsStoreBase with Store {
             initialShouldRequireTOTP2FAForSendsToInternalWallets,
         shouldRequireTOTP2FAForExchangesToInternalWallets =
             initialShouldRequireTOTP2FAForExchangesToInternalWallets,
+        shouldRequireTOTP2FAForExchangesToExternalWallets =
+            initialShouldRequireTOTP2FAForExchangesToExternalWallets,
         shouldRequireTOTP2FAForAddingContacts = initialShouldRequireTOTP2FAForAddingContacts,
         shouldRequireTOTP2FAForCreatingNewWallets =
             initialShouldRequireTOTP2FAForCreatingNewWallets,
@@ -273,6 +282,12 @@ abstract class SettingsStoreBase with Store {
             requireTOTP2FAForExchangesToInternalWallets));
 
     reaction(
+        (_) => shouldRequireTOTP2FAForExchangesToExternalWallets,
+        (bool requireTOTP2FAForExchangesToExternalWallets) => sharedPreferences.setBool(
+            PreferencesKey.shouldRequireTOTP2FAForExchangesToExternalWallets,
+            requireTOTP2FAForExchangesToExternalWallets));
+
+    reaction(
         (_) => shouldRequireTOTP2FAForAddingContacts,
         (bool requireTOTP2FAForAddingContacts) => sharedPreferences.setBool(
             PreferencesKey.shouldRequireTOTP2FAForAddingContacts, requireTOTP2FAForAddingContacts));
@@ -354,6 +369,36 @@ abstract class SettingsStoreBase with Store {
         (bool useEtherscan) =>
             _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan));
 
+    reaction(
+            (_) => lookupsTwitter,
+            (bool looksUpTwitter) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsTwitter, looksUpTwitter));
+
+    reaction(
+            (_) => lookupsMastodon,
+            (bool looksUpMastodon) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsMastodon, looksUpMastodon));
+
+    reaction(
+            (_) => lookupsYatService,
+            (bool looksUpYatService) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsYatService, looksUpYatService));
+
+    reaction(
+            (_) => lookupsUnstoppableDomains,
+            (bool looksUpUnstoppableDomains) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsUnstoppableDomains, looksUpUnstoppableDomains));
+
+    reaction(
+            (_) => lookupsOpenAlias,
+            (bool looksUpOpenAlias) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsOpenAlias, looksUpOpenAlias));
+
+    reaction(
+            (_) => lookupsENS,
+            (bool looksUpENS) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsENS, looksUpENS));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -428,6 +473,9 @@ abstract class SettingsStoreBase with Store {
   bool shouldRequireTOTP2FAForExchangesToInternalWallets;
 
   @observable
+  bool shouldRequireTOTP2FAForExchangesToExternalWallets;
+
+  @observable
   Cake2FAPresetsOptions selectedCake2FAPreset;
 
   @observable
@@ -477,6 +525,24 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool useEtherscan;
+
+  @observable
+  bool lookupsTwitter;
+
+  @observable
+  bool lookupsMastodon;
+
+  @observable
+  bool lookupsYatService;
+
+  @observable
+  bool lookupsUnstoppableDomains;
+
+  @observable
+  bool lookupsOpenAlias;
+
+  @observable
+  bool lookupsENS;
 
   @observable
   SyncMode currentSyncMode;
@@ -599,6 +665,9 @@ abstract class SettingsStoreBase with Store {
     final shouldRequireTOTP2FAForExchangesToInternalWallets = sharedPreferences
         .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets) ??
         false;
+    final shouldRequireTOTP2FAForExchangesToExternalWallets = sharedPreferences
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToExternalWallets) ??
+        false;
     final shouldRequireTOTP2FAForAddingContacts =
         sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAddingContacts) ?? false;
     final shouldRequireTOTP2FAForCreatingNewWallets =
@@ -634,6 +703,12 @@ abstract class SettingsStoreBase with Store {
     final pinNativeTokenAtTop =
         sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
     final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
+    final lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
+    final lookupsMastodon = sharedPreferences.getBool(PreferencesKey.lookupsMastodon) ?? true;
+    final lookupsYatService = sharedPreferences.getBool(PreferencesKey.lookupsYatService) ?? true;
+    final lookupsUnstoppableDomains = sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
+    final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
+    final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -742,6 +817,12 @@ abstract class SettingsStoreBase with Store {
           sortBalanceBy: sortBalanceBy,
           pinNativeTokenAtTop: pinNativeTokenAtTop,
           useEtherscan: useEtherscan,
+          lookupsTwitter: lookupsTwitter,
+          lookupsMastodon: lookupsMastodon,
+          lookupsYatService: lookupsYatService,
+          lookupsUnstoppableDomains: lookupsUnstoppableDomains,
+          lookupsOpenAlias: lookupsOpenAlias,
+          lookupsENS: lookupsENS,
           initialMoneroTransactionPriority: moneroTransactionPriority,
           initialBitcoinTransactionPriority: bitcoinTransactionPriority,
           initialHavenTransactionPriority: havenTransactionPriority,
@@ -754,6 +835,8 @@ abstract class SettingsStoreBase with Store {
           shouldRequireTOTP2FAForSendsToInternalWallets,
           initialShouldRequireTOTP2FAForExchangesToInternalWallets:
           shouldRequireTOTP2FAForExchangesToInternalWallets,
+        initialShouldRequireTOTP2FAForExchangesToExternalWallets:
+            shouldRequireTOTP2FAForExchangesToExternalWallets,
           initialShouldRequireTOTP2FAForAddingContacts: shouldRequireTOTP2FAForAddingContacts,
           initialShouldRequireTOTP2FAForCreatingNewWallets: shouldRequireTOTP2FAForCreatingNewWallets,
           initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings:
@@ -838,6 +921,9 @@ abstract class SettingsStoreBase with Store {
     shouldRequireTOTP2FAForExchangesToInternalWallets = sharedPreferences
         .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets) ??
         false;
+    shouldRequireTOTP2FAForExchangesToExternalWallets = sharedPreferences
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToExternalWallets) ??
+        false;
     shouldRequireTOTP2FAForAddingContacts =
         sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAddingContacts) ?? false;
     shouldRequireTOTP2FAForCreatingNewWallets =
@@ -877,6 +963,12 @@ abstract class SettingsStoreBase with Store {
         .values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? sortBalanceBy.index];
     pinNativeTokenAtTop = sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
     useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
+    lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
+    lookupsMastodon = sharedPreferences.getBool(PreferencesKey.lookupsMastodon) ?? true;
+    lookupsYatService = sharedPreferences.getBool(PreferencesKey.lookupsYatService) ?? true;
+    lookupsUnstoppableDomains = sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
+    lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
+    lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
 
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =

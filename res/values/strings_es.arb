@@ -339,7 +339,6 @@
   "template": "Plantilla",
   "confirm_delete_template": "Esta acción eliminará esta plantilla. ¿Desea continuar?",
   "confirm_delete_wallet": "Esta acción eliminará esta billetera. ¿Desea continuar?",
-  "picker_description": "Para elegir ChangeNOW o MorphToken, primero cambie su par comercial",
   "change_wallet_alert_title": "Cambiar billetera actual",
   "change_wallet_alert_content": "¿Quieres cambiar la billetera actual a ${wallet_name}?",
   "creating_new_wallet": "Creando nueva billetera",
@@ -694,12 +693,6 @@
   "new_first_wallet_text": "Mantenga fácilmente su criptomoneda segura",
   "select_destination": "Seleccione el destino del archivo de copia de seguridad.",
   "save_to_downloads": "Guardar en Descargas",
-  "invalid_password": "Contraseña invalida",
-  "unlock": "desbloquear",
-  "enter_wallet_password": "Ingrese la contraseña de la billetera",
-  "repeat_wallet_password": "Repita la contraseña de billetera",
-  "wallet_password_is_empty": "La contraseña de billetera está vacía. La contraseña de la billetera no debe estar vacía",
-  "repeated_password_is_incorrect": "La contraseña repetida es incorrecta. Repita la contraseña de la billetera nuevamente.",
   "select_buy_provider_notice": "Seleccione un proveedor de compra arriba. Puede omitir esta pantalla configurando su proveedor de compra predeterminado en la configuración de la aplicación.",
   "onramper_option_description": "Compre rápidamente cripto con muchos métodos de pago. Disponible en la mayoría de los países. Los diferenciales y las tarifas varían.",
   "default_buy_provider": "Proveedor de compra predeterminado",
@@ -732,5 +725,10 @@
   "enterWalletConnectURI": "Ingrese el URI de WalletConnect",
   "seed_key": "Llave de semilla",
   "enter_seed_phrase": "Ingrese su frase de semillas",
-  "add_contact": "Agregar contacto"
+  "add_contact": "Agregar contacto",
+  "exchange_provider_unsupported": "¡${providerName} ya no es compatible!",
+  "domain_looks_up": "Búsquedas de dominio",
+  "require_for_exchanges_to_external_wallets": "Requerido para intercambios a billeteras externas",
+  "camera_permission_is_required": "Se requiere permiso de la cámara.\nHabilítelo desde la configuración de la aplicación.",
+  "switchToETHWallet": "Cambie a una billetera Ethereum e inténtelo nuevamente."
 }

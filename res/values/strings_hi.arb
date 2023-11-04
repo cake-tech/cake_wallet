@@ -339,7 +339,6 @@
   "template": "खाका",
   "confirm_delete_template": "यह क्रिया इस टेम्पलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?",
   "confirm_delete_wallet": "यह क्रिया इस वॉलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?",
-  "picker_description": "ChangeNOW या MorphToken चुनने के लिए, कृपया अपनी ट्रेडिंग जोड़ी को पहले बदलें",
   "change_wallet_alert_title": "वर्तमान बटुआ बदलें",
   "change_wallet_alert_content": "क्या आप करंट वॉलेट को बदलना चाहते हैं ${wallet_name}?",
   "creating_new_wallet": "नया बटुआ बनाना",
@@ -694,12 +693,6 @@
   "new_first_wallet_text": "आसानी से अपनी क्रिप्टोक्यूरेंसी को सुरक्षित रखें",
   "select_destination": "कृपया बैकअप फ़ाइल के लिए गंतव्य का चयन करें।",
   "save_to_downloads": "डाउनलोड में सहेजें",
-  "invalid_password": "अवैध पासवर्ड",
-  "unlock": "अनलॉक",
-  "enter_wallet_password": "वॉलेट पासवर्ड दर्ज करें",
-  "repeat_wallet_password": "वॉलेट पासवर्ड दोहराएं",
-  "wallet_password_is_empty": "वॉलेट पासवर्ड खाली है। वॉलेट पासवर्ड खाली नहीं होना चाहिए",
-  "repeated_password_is_incorrect": "बार -बार पासवर्ड गलत है। कृपया फिर से वॉलेट पासवर्ड दोहराएं।",
   "select_buy_provider_notice": "ऊपर एक खरीद प्रदाता का चयन करें। आप इस स्क्रीन को ऐप सेटिंग्स में अपना डिफ़ॉल्ट बाय प्रदाता सेट करके छोड़ सकते हैं।",
   "onramper_option_description": "जल्दी से कई भुगतान विधियों के साथ क्रिप्टो खरीदें। अधिकांश देशों में उपलब्ध है। फैलता है और फीस अलग -अलग होती है।",
   "default_buy_provider": "डिफ़ॉल्ट खरीद प्रदाता",
@@ -732,5 +725,10 @@
   "enterWalletConnectURI": "वॉलेटकनेक्ट यूआरआई दर्ज करें",
   "seed_key": "बीज कुंजी",
   "enter_seed_phrase": "अपना बीज वाक्यांश दर्ज करें",
-  "add_contact": "संपर्क जोड़ें"
+  "add_contact": "संपर्क जोड़ें",
+  "exchange_provider_unsupported": "${providerName} अब समर्थित नहीं है!",
+  "domain_looks_up": "डोमेन लुकअप",
+  "require_for_exchanges_to_external_wallets": "बाहरी वॉलेट में एक्सचेंज की आवश्यकता है",
+  "camera_permission_is_required": "कैमरे की अनुमति आवश्यक है.\nकृपया इसे ऐप सेटिंग से सक्षम करें।",
+  "switchToETHWallet": "कृपया एथेरियम वॉलेट पर स्विच करें और पुनः प्रयास करें"
 }

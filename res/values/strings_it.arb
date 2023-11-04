@@ -339,7 +339,6 @@
   "template": "Modello",
   "confirm_delete_template": "Questa azione cancellerà questo modello. Desideri continuare?",
   "confirm_delete_wallet": "Questa azione cancellerà questo portafoglio. Desideri continuare?",
-  "picker_description": "Per scegliere ChangeNOW  o MorphToken, gentilmente cambia prima la tua coppia di valute",
   "change_wallet_alert_title": "Cambia portafoglio attuale",
   "change_wallet_alert_content": "Sei sicuro di voler cambiare il portafoglio attuale con ${wallet_name}?",
   "creating_new_wallet": "Creazione nuovo portafoglio",
@@ -694,12 +693,6 @@
   "new_first_wallet_text": "Mantieni facilmente la tua criptovaluta al sicuro",
   "select_destination": "Seleziona la destinazione per il file di backup.",
   "save_to_downloads": "Salva in Download",
-  "invalid_password": "Password non valida",
-  "unlock": "Sbloccare",
-  "enter_wallet_password": "Immettere la password del portafoglio",
-  "repeat_wallet_password": "Ripeti la password del portafoglio",
-  "wallet_password_is_empty": "La password del portafoglio è vuota. La password del portafoglio non dovrebbe essere vuota",
-  "repeated_password_is_incorrect": "La password ripetuta non è corretta. Si prega di ripetere di nuovo la password del portafoglio.",
   "select_buy_provider_notice": "Seleziona un fornitore di acquisto sopra. È possibile saltare questa schermata impostando il provider di acquisto predefinito nelle impostazioni dell'app.",
   "onramper_option_description": "Acquista rapidamente la criptovaluta con molti metodi di pagamento. Disponibile nella maggior parte dei paesi. Gli spread e le commissioni variano.",
   "default_buy_provider": "Provider di acquisto predefinito",
@@ -732,5 +725,10 @@
   "enterWalletConnectURI": "Inserisci l'URI di WalletConnect",
   "seed_key": "Chiave di semi",
   "enter_seed_phrase": "Inserisci la tua frase di semi",
-  "add_contact": "Aggiungi contatto"
+  "add_contact": "Aggiungi contatto",
+  "exchange_provider_unsupported": "${providerName} non è più supportato!",
+  "domain_looks_up": "Ricerche di domini",
+  "require_for_exchanges_to_external_wallets": "Richiede scambi con portafogli esterni",
+  "camera_permission_is_required": "È richiesta l'autorizzazione della fotocamera.\nAbilitalo dalle impostazioni dell'app.",
+  "switchToETHWallet": "Passa a un portafoglio Ethereum e riprova"
 }

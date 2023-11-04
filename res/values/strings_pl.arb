@@ -339,7 +339,6 @@
   "template": "Szablon",
   "confirm_delete_template": "Ta czynność usunie ten szablon. Czy chcesz kontynuować?",
   "confirm_delete_wallet": "Ta czynność usunie ten portfel. Czy chcesz kontynuować?",
-  "picker_description": "Aby wybrać ChangeNOW lub MorphToken, najpierw zmień swoją parę handlową",
   "change_wallet_alert_title": "Zmień obecny portfel",
   "change_wallet_alert_content": "Czy chcesz zmienić obecny portfel na ${wallet_name}?",
   "creating_new_wallet": "Tworzenie nowego portfela",
@@ -694,12 +693,6 @@
   "new_first_wallet_text": "Łatwo zapewnić bezpieczeństwo kryptowalut",
   "select_destination": "Wybierz miejsce docelowe dla pliku kopii zapasowej.",
   "save_to_downloads": "Zapisz w Pobranych",
-  "invalid_password": "Nieprawidłowe hasło",
-  "unlock": "Odblokować",
-  "enter_wallet_password": "Wprowadź hasło portfela",
-  "repeat_wallet_password": "Powtórz hasło portfela",
-  "wallet_password_is_empty": "Hasło portfela jest puste. Hasło portfela nie powinno być puste",
-  "repeated_password_is_incorrect": "Powtarzane hasło jest nieprawidłowe. Powtórz ponownie hasło portfela.",
   "select_buy_provider_notice": "Wybierz powyższe dostawcę zakupu. Możesz pominąć ten ekran, ustawiając domyślnego dostawcę zakupu w ustawieniach aplikacji.",
   "onramper_option_description": "Szybko kup kryptowaluty z wieloma metodami płatności. Dostępne w większości krajów. Spready i opłaty różnią się.",
   "default_buy_provider": "Domyślny dostawca zakupu",
@@ -732,5 +725,10 @@
   "enterWalletConnectURI": "Wprowadź identyfikator URI WalletConnect",
   "seed_key": "Klucz nasion",
   "enter_seed_phrase": "Wprowadź swoją frazę nasienną",
-  "add_contact": "Dodaj kontakt"
+  "add_contact": "Dodaj kontakt",
+  "exchange_provider_unsupported": "${providerName} nie jest już obsługiwany!",
+  "domain_looks_up": "Wyszukiwanie domen",
+  "require_for_exchanges_to_external_wallets": "Wymagaj wymiany na portfele zewnętrzne",
+  "camera_permission_is_required": "Wymagane jest pozwolenie na korzystanie z aparatu.\nWłącz tę funkcję w ustawieniach aplikacji.",
+  "switchToETHWallet": "Przejdź na portfel Ethereum i spróbuj ponownie"
 }

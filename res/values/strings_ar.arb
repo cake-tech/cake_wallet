@@ -339,7 +339,6 @@
   "template": "قالب",
   "confirm_delete_template": "سيؤدي هذا الإجراء إلى حذف هذا القالب. هل ترغب في الاستمرار؟",
   "confirm_delete_wallet": "سيؤدي هذا الإجراء إلى حذف هذه المحفظة. هل ترغب في الاستمرار؟",
-  "picker_description": "لاختيار ChangeNOW أو MorphToken ، يرجى تغيير زوج التداول الخاص بك أولاً",
   "change_wallet_alert_title": "تغيير المحفظة الحالية",
   "change_wallet_alert_content": "هل تريد تغيير المحفظة الحالية إلى ${wallet_name}؟",
   "creating_new_wallet": "يتم إنشاء محفظة جديدة",
@@ -690,12 +689,6 @@
   "select_destination": ".ﻲﻃﺎﻴﺘﺣﻻ﻿ﺍ ﺦﺴﻨﻟﺍ ﻒﻠﻣ ﺔﻬﺟﻭ ﺪﻳﺪﺤﺗ ءﺎﺟﺮﻟﺍ",
   "auto_generate_subaddresses": "تلقائي توليد subddresses",
   "save_to_downloads": "ﺕﻼ﻿ﻳﺰﻨﺘﻟﺍ ﻲﻓ ﻆﻔﺣ",
-  "invalid_password": "رمز مرور خاطئ",
-  "unlock": "الغاء القفل",
-  "enter_wallet_password": "أدخل كلمة مرور المحفظة",
-  "repeat_wallet_password": "كرر كلمة مرور المحفظة",
-  "wallet_password_is_empty": "كلمة مرور المحفظة فارغة. يجب ألا تكون كلمة مرور المحفظة فارغة",
-  "repeated_password_is_incorrect": "كلمة المرور المتكررة غير صحيحة. يرجى تكرار كلمة مرور المحفظة مرة أخرى.",
   "select_buy_provider_notice": "حدد مزود شراء أعلاه. يمكنك تخطي هذه الشاشة عن طريق تعيين مزود شراء الافتراضي في إعدادات التطبيق.",
   "onramper_option_description": "شراء بسرعة التشفير مع العديد من طرق الدفع. متوفر في معظم البلدان. ينتشر وتختلف الرسوم.",
   "default_buy_provider": "مزود شراء الافتراضي",
@@ -728,5 +721,10 @@
   "enterWalletConnectURI": "WalletConnect ـﻟ URI ﻞﺧﺩﺃ",
   "seed_key": "مفتاح البذور",
   "enter_seed_phrase": "أدخل عبارة البذور الخاصة بك",
-  "add_contact": "                                                               ﻝﺎﺼﺗﺍ ﺔﻬﺟ ﺔﻓﺎﺿﺇ"
+  "add_contact": "ﻝﺎﺼﺗﺍ ﺔﻬﺟ ﺔﻓﺎﺿﺇ",
+  "exchange_provider_unsupported": "${providerName} لم يعد مدعومًا!",
+  "domain_looks_up": "ﻝﺎﺠﻤﻟﺍ ﺚﺤﺑ ﺕﺎﻴﻠﻤﻋ",
+  "require_for_exchanges_to_external_wallets": "ﺔﻴﺟﺭﺎﺧ ﻆﻓﺎﺤﻣ ﻰﻟﺇ ﺕﻻ﻿ﺩﺎﺒﺘﻟﺍ ﺐﻠﻄﺘﺗ",
+  "camera_permission_is_required": ".ﺍﺮﻴﻣﺎﻜﻟﺍ ﻥﺫﺇ ﺏﻮﻠﻄﻣ",
+  "switchToETHWallet": "ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ Ethereum ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ"
 }

@@ -340,7 +340,6 @@
   "template": "Samfura",
   "confirm_delete_template": "Wannan aikin zai share wannan samfuri. Kuna so ku ci gaba?",
   "confirm_delete_wallet": "Wannan aikin zai share wannan walat. Kuna so ku ci gaba?",
-  "picker_description": "Don zaɓar ChangeNOW ko MorphToken, da farko canja kasuwancin pair din ku",
   "change_wallet_alert_title": "Canja walat yanzu",
   "change_wallet_alert_content": "Kana so ka canja walat yanzu zuwa ${wallet_name}?",
   "creating_new_wallet": "Haliccin walat sabuwa",
@@ -672,12 +671,6 @@
   "new_first_wallet_text": "A sauƙaƙe kiyaye kuzarin ku",
   "select_destination": "Da fatan za a zaɓi wurin da za a yi wa madadin fayil ɗin.",
   "save_to_downloads": "Ajiye zuwa Zazzagewa",
-  "invalid_password": "Kalmar sirri mara inganci",
-  "unlock": "Buɗe",
-  "enter_wallet_password": "Shigar da kalmar sirri ta walat",
-  "repeat_wallet_password": "Maimaita kalmar sirri",
-  "wallet_password_is_empty": "Alamar Wallet babu komai. Al'adun Wallet bai zama komai ba",
-  "repeated_password_is_incorrect": "Maimaita kalmar sirri ba daidai ba ce. Da fatan za a sake maimaita kalmar sirri.",
   "select_buy_provider_notice": "Zaɓi mai ba da kyauta a sama. Zaka iya tsallake wannan allon ta hanyar saita mai ba da isasshen busasshen mai ba da isasshen busasshiyar saiti.",
   "onramper_option_description": "Da sauri sayi Crypto tare da hanyoyin biyan kuɗi da yawa. Akwai a yawancin ƙasashe. Yaduwa da kudade sun bambanta.",
   "default_buy_provider": "Tsohuwar Siyarwa",
@@ -710,5 +703,10 @@
   "enterWalletConnectURI": "Shigar da WalletConnect URI",
   "seed_key": "Maɓallin iri",
   "enter_seed_phrase": "Shigar da Sert Sentarku",
-  "add_contact": "Ƙara lamba"
+  "add_contact": "Ƙara lamba",
+  "exchange_provider_unsupported": "${providerName}",
+  "domain_looks_up": "Binciken yanki",
+  "require_for_exchanges_to_external_wallets": "Bukatar musanya zuwa wallet na waje",
+  "camera_permission_is_required": "Ana buƙatar izinin kyamara.\nDa fatan za a kunna shi daga saitunan app.",
+  "switchToETHWallet": "Da fatan za a canza zuwa walat ɗin Ethereum kuma a sake gwadawa"
 }

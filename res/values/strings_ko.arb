@@ -339,7 +339,6 @@
   "template": "주형",
   "confirm_delete_template": "이 작업은이 템플릿을 삭제합니다. 계속 하시겠습니까?",
   "confirm_delete_wallet": "이 작업은이 지갑을 삭제합니다. 계속 하시겠습니까?",
-  "picker_description": "ChangeNOW 또는 MorphToken을 선택하려면 먼저 거래 쌍을 변경하십시오.",
   "change_wallet_alert_title": "현재 지갑 변경",
   "change_wallet_alert_content": "현재 지갑을 다음으로 변경 하시겠습니까 ${wallet_name}?",
   "creating_new_wallet": "새 지갑 생성",
@@ -692,12 +691,6 @@
   "select_destination": "백업 파일의 대상을 선택하십시오.",
   "auto_generate_subaddresses": "자동 생성 서브 아드 드레스",
   "save_to_downloads": "다운로드에 저장",
-  "invalid_password": "유효하지 않은 비밀번호",
-  "unlock": "터놓다",
-  "enter_wallet_password": "지갑 암호를 입력하십시오",
-  "repeat_wallet_password": "지갑 암호를 반복하십시오",
-  "wallet_password_is_empty": "지갑 암호는 비어 있습니다. 지갑 암호는 비어 있지 않아야합니다",
-  "repeated_password_is_incorrect": "반복 된 비밀번호가 올바르지 않습니다. 지갑 암호를 다시 반복하십시오.",
   "select_buy_provider_notice": "위의 구매 제공자를 선택하십시오. 앱 설정에서 기본 구매 제공자를 설정 하여이 화면을 건너 뛸 수 있습니다.",
   "onramper_option_description": "많은 결제 방법으로 암호화를 신속하게 구입하십시오. 대부분의 국가에서 사용할 수 있습니다. 스프레드와 수수료는 다양합니다.",
   "default_buy_provider": "기본 구매 제공자",
@@ -730,5 +723,10 @@
   "enterWalletConnectURI": "WalletConnect URI를 입력하세요.",
   "seed_key": "시드 키",
   "enter_seed_phrase": "시드 문구를 입력하십시오",
-  "add_contact": "주소록에 추가"
+  "add_contact": "주소록에 추가",
+  "exchange_provider_unsupported": "${providerName}은 더 이상 지원되지 않습니다!",
+  "domain_looks_up": "도메인 조회",
+  "require_for_exchanges_to_external_wallets": "외부 지갑으로의 교환을 위해 필요",
+  "camera_permission_is_required": "카메라 권한이 필요합니다.\n앱 설정에서 활성화해 주세요.",
+  "switchToETHWallet": "이더리움 지갑으로 전환한 후 다시 시도해 주세요."
 }

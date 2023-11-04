@@ -339,7 +339,6 @@
   "template": "Modèle",
   "confirm_delete_template": "Cette action va supprimer ce modèle. Souhaitez-vous continuer ?",
   "confirm_delete_wallet": "Cette action va supprimer ce portefeuille (wallet). Souhaitez-vous contnuer ?",
-  "picker_description": "Pour choisir ChangeNOW ou MorphToken, merci de modifier d'abord la paire de votre échange",
   "change_wallet_alert_title": "Changer le portefeuille (wallet) actuel",
   "change_wallet_alert_content": "Souhaitez-vous changer le portefeuille (wallet) actuel vers ${wallet_name} ?",
   "creating_new_wallet": "Création d'un nouveau portefeuille (wallet)",
@@ -694,12 +693,6 @@
   "new_first_wallet_text": "Gardez facilement votre crypto-monnaie en sécurité",
   "select_destination": "Veuillez sélectionner la destination du fichier de sauvegarde.",
   "save_to_downloads": "Enregistrer dans les téléchargements",
-  "invalid_password": "Mot de passe incorrect",
-  "unlock": "Ouvrir",
-  "enter_wallet_password": "Entrez le mot de passe du portefeuille",
-  "repeat_wallet_password": "Répétez le mot de passe du portefeuille",
-  "wallet_password_is_empty": "Le mot de passe du portefeuille est vide. Le mot de passe du portefeuille ne doit pas être vide",
-  "repeated_password_is_incorrect": "Le mot de passe répété est incorrect. Veuillez répéter le mot de passe du portefeuille.",
   "select_buy_provider_notice": "Sélectionnez un fournisseur d'achat ci-dessus. Vous pouvez ignorer cet écran en définissant votre fournisseur d'achat par défaut dans les paramètres de l'application.",
   "onramper_option_description": "Achetez rapidement des cryptomonnaies avec de nombreuses méthodes de paiement. Disponible dans la plupart des pays. Les spreads et les frais peuvent varier.",
   "default_buy_provider": "Fournisseur d'achat par défaut",
@@ -732,5 +725,10 @@
   "enterWalletConnectURI": "Saisissez l'URI de WalletConnect.",
   "seed_key": "Clé de graines",
   "enter_seed_phrase": "Entrez votre phrase de semence",
-  "add_contact": "Ajouter le contact"
+  "add_contact": "Ajouter le contact",
+  "exchange_provider_unsupported": "${providerName} n'est plus pris en charge!",
+  "domain_looks_up": "Recherches de domaine",
+  "require_for_exchanges_to_external_wallets": "Exiger des échanges vers des portefeuilles externes",
+  "camera_permission_is_required": "L'autorisation de la caméra est requise.\nVeuillez l'activer à partir des paramètres de l'application.",
+  "switchToETHWallet": "Veuillez passer à un portefeuille Ethereum et réessayer"
 }

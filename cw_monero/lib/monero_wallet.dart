@@ -62,9 +62,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     walletAddresses = MoneroWalletAddresses(walletInfo, transactionHistory);
 
     _onAccountChangeReaction = reaction((_) => walletAddresses.account, (Account? account) {
-      if (account == null) {
-        return;
-      }
+      if (account == null) return;
 
       balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency, MoneroBalance>{
         currency: MoneroBalance(
@@ -72,6 +70,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
             unlockedBalance: monero_wallet.getUnlockedBalance(accountIndex: account.id))
       });
       _updateSubAddress(isEnabledAutoGenerateSubaddress, account: account);
+      _askForUpdateTransactionHistory();
     });
 
     reaction((_) => isEnabledAutoGenerateSubaddress, (bool enabled) {
@@ -509,9 +508,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
   }
 
-  String getSubaddressLabel(int accountIndex, int addressIndex) {
-    return monero_wallet.getSubaddressLabel(accountIndex, addressIndex);
-  }
+  String getSubaddressLabel(int accountIndex, int addressIndex) =>
+      monero_wallet.getSubaddressLabel(accountIndex, addressIndex);
 
   List<MoneroTransactionInfo> _getAllTransactionsOfAccount(int? accountIndex) => transaction_history
       .getAllTransactions()

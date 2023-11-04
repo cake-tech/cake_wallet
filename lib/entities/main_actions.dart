@@ -52,7 +52,7 @@ class MainActions {
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.ethereum:
-        case WalletType.bitcoinCash:
+        // case WalletType.bitcoinCash: // TODO: add sign message function to BCH first
           switch (defaultBuyProvider) {
             case BuyProviderType.AskEachTime:
               Navigator.pushNamed(context, Routes.buy);

@@ -1,6 +1,7 @@
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
@@ -23,6 +24,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -49,6 +51,7 @@ import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
 import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
@@ -204,6 +207,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 param2: false));
       }
 
+    case Routes.restoreWalletTypeFromQR:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<NewWalletTypePage>(
+              param1: (BuildContext context, WalletType type) => Navigator.of(context).pop(type)));
+
     case Routes.seed:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
@@ -345,6 +353,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.privacyPage:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<PrivacyPage>());
+
+    case Routes.domainLookupsPage:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<DomainLookupsPage>());
 
     case Routes.displaySettingsPage:
       return CupertinoPageRoute<void>(
@@ -633,6 +645,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.managePowNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: true));
 
+    case Routes.walletConnectConnectionsListing:
+      return MaterialPageRoute<void>(
+          builder: (_) => WalletConnectConnectionsView(
+                web3walletService: getIt.get<Web3WalletService>(),
+                launchUri: settings.arguments as Uri?,
+              ));
     default:
       return MaterialPageRoute<void>(
           builder: (_) => Scaffold(
