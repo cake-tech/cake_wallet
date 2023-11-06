@@ -96,7 +96,6 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
               );
             }),
             Observer(builder: (_) {
-              // ToDo: Make it work
               return SettingsChoicesCell(
                 ChoicesListItem<SeedType>(
                   title: S.current.seedtype,

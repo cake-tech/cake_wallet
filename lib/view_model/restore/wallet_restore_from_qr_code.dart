@@ -51,7 +51,7 @@ class WalletRestoreFromQRCode {
     RegExp _getPattern(int wordCount) =>
         RegExp(r'(?<=\W|^)((?:\w+\s+){' + (wordCount - 1).toString() + r'}\w+)(?=\W|$)');
 
-    List<int> patternCounts = walletType == WalletType.monero ? [25, 14, 13] : [24, 18, 12];
+    List<int> patternCounts = walletType == WalletType.monero ? [25, 16, 14, 13] : [24, 18, 12];
 
     for (final count in patternCounts) {
       final pattern = _getPattern(count);
