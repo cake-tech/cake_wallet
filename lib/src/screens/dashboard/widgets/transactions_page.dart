@@ -34,7 +34,7 @@ class TransactionsPage extends StatelessWidget {
       onLongPressUp: () => dashboardViewModel.balanceViewModel.isReversing =
           !dashboardViewModel.balanceViewModel.isReversing,
       child: Container(
-        color: ResponsiveLayoutUtil.instance.isMobile
+        color: responsiveLayoutUtil.shouldRenderMobileUI
             ? null
             : Theme.of(context).colorScheme.background,
         padding: EdgeInsets.only(top: 24, bottom: 24),

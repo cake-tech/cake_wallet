@@ -12,7 +12,8 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 
 part 'privacy_settings_view_model.g.dart';
 
-class PrivacySettingsViewModel = PrivacySettingsViewModelBase with _$PrivacySettingsViewModel;
+class
+PrivacySettingsViewModel = PrivacySettingsViewModelBase with _$PrivacySettingsViewModel;
 
 abstract class PrivacySettingsViewModelBase with Store {
   PrivacySettingsViewModelBase(this._settingsStore, this._wallet);
@@ -57,6 +58,24 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get useEtherscan => _settingsStore.useEtherscan;
 
+  @computed
+  bool get lookupTwitter => _settingsStore.lookupsTwitter;
+
+  @computed
+  bool get looksUpMastodon => _settingsStore.lookupsMastodon;
+
+  @computed
+  bool get looksUpYatService => _settingsStore.lookupsYatService;
+
+  @computed
+  bool get looksUpUnstoppableDomains => _settingsStore.lookupsUnstoppableDomains;
+
+  @computed
+  bool get looksUpOpenAlias => _settingsStore.lookupsOpenAlias;
+
+  @computed
+  bool get looksUpENS => _settingsStore.lookupsENS;
+
   bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
 
   @action
@@ -77,6 +96,24 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setDisableSell(bool value) => _settingsStore.disableSell = value;
+
+  @action
+  void setLookupsTwitter(bool value) => _settingsStore.lookupsTwitter = value;
+
+  @action
+  void setLookupsMastodon(bool value) => _settingsStore.lookupsMastodon = value;
+
+  @action
+  void setLookupsENS(bool value) => _settingsStore.lookupsENS = value;
+
+  @action
+  void setLookupsYatService(bool value) => _settingsStore.lookupsYatService = value;
+
+  @action
+  void setLookupsUnstoppableDomains(bool value) => _settingsStore.lookupsUnstoppableDomains = value;
+
+  @action
+  void setLookupsOpenAlias(bool value) => _settingsStore.lookupsOpenAlias = value;
 
   @action
   void setUseEtherscan(bool value) {

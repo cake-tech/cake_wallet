@@ -191,7 +191,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
               child: Center(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint,
+                    maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
                   ),
                   child: Container(
                     key: _gridViewKey,
