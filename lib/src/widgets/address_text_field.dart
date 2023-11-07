@@ -100,7 +100,7 @@ class AddressTextField extends StatelessWidget {
             child: SizedBox(
               width: prefixIconWidth * options.length + (spaceBetweenPrefixIcons * options.length),
               child: Row(
-                mainAxisAlignment: ResponsiveLayoutUtil.instance.isMobile
+                mainAxisAlignment: responsiveLayoutUtil.shouldRenderMobileUI
                     ? MainAxisAlignment.spaceBetween
                     : MainAxisAlignment.end,
                 children: [

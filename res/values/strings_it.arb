@@ -727,6 +727,7 @@
   "enter_seed_phrase": "Inserisci la tua frase di semi",
   "add_contact": "Aggiungi contatto",
   "exchange_provider_unsupported": "${providerName} non è più supportato!",
+  "domain_looks_up": "Ricerche di domini",
   "require_for_exchanges_to_external_wallets": "Richiede scambi con portafogli esterni",
   "camera_permission_is_required": "È richiesta l'autorizzazione della fotocamera.\nAbilitalo dalle impostazioni dell'app.",
   "switchToETHWallet": "Passa a un portafoglio Ethereum e riprova"

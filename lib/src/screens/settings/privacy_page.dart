@@ -1,7 +1,9 @@
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -84,6 +86,10 @@ class PrivacyPage extends BasePage {
                   onValueChange: (BuildContext _, bool value) {
                     _privacySettingsViewModel.setUseEtherscan(value);
                   }),
+            SettingsCellWithArrow(
+              title: S.current.domain_looks_up,
+              handler: (context) => Navigator.of(context).pushNamed(Routes.domainLookupsPage),
+            ),
           ],
         );
       }),
