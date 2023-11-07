@@ -99,4 +99,6 @@ class Routes {
   static const manageNodes = '/manage_nodes';
   static const managePowNodes = '/manage_pow_nodes';
   static const walletConnectConnectionsListing = '/wallet-connect-connections-listing';
+  static const nftDetailsPage = '/nft_details_page';
+  static const importNFTPage = '/import_nft_page';
 }
