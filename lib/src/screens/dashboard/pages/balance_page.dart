@@ -13,6 +13,7 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -29,42 +30,50 @@ class BalancePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Column(
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: TabBar(
-                indicatorSize: TabBarIndicatorSize.label,
-                isScrollable: true,
-                physics: NeverScrollableScrollPhysics(),
-                labelStyle: TextStyle(
-                  fontSize: 18,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                  height: 1,
+
+    return Observer(
+      builder: (context) {
+        final isEthereumWallet = dashboardViewModel.type == WalletType.ethereum;
+        return DefaultTabController(
+          length: isEthereumWallet ? 2 : 1,
+          child: Column(
+            children: [
+              if (isEthereumWallet)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: TabBar(
+                      indicatorSize: TabBarIndicatorSize.label,
+                      isScrollable: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      labelStyle: TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w600,
+                        color:
+                            Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                        height: 1,
+                      ),
+                      tabs: [
+                        Tab(text: 'My Crypto'),
+                        Tab(text: 'My NFTs'),
+                      ],
+                    ),
+                  ),
                 ),
-                tabs: [
-                  Tab(text: 'My Crypto'),
-                  Tab(text: 'My NFTs'),
-                ],
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    CryptoBalanceWidget(dashboardViewModel: dashboardViewModel),
+                    if (isEthereumWallet) NFTListingPage(nftViewModel: nftViewModel)
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                CryptoBalanceWidget(dashboardViewModel: dashboardViewModel),
-                NFTListingPage(nftViewModel: nftViewModel)
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -95,7 +104,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                         accountName: dashboardViewModel.subname)
                     : Column(
                         children: [
-                          SizedBox(height: 56),
+                          SizedBox(height: 16),
                           Container(
                             margin: const EdgeInsets.only(left: 24, bottom: 16),
                             child: Observer(

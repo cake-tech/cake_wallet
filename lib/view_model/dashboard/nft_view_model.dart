@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
@@ -21,6 +22,8 @@ abstract class NFTViewModelBase with Store {
         isImportNFTLoading = false,
         nftAssetByWalletModels = ObservableList() {
     getNFTAssetByWallet();
+
+    reaction((_) => appStore.wallet, (_) => getNFTAssetByWallet());
   }
 
   final AppStore appStore;
@@ -37,6 +40,7 @@ abstract class NFTViewModelBase with Store {
   @action
   Future<void> getNFTAssetByWallet() async {
     final walletAddress = appStore.wallet!.walletInfo.address;
+    log('Fetching wallet NFTs for $walletAddress');
 
     final uri = Uri.https(
       'deep-index.moralis.io',
