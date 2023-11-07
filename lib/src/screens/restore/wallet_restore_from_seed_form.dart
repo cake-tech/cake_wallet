@@ -69,8 +69,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
 
       _changeLanguage(lang.nameEnglish);
       setState(() => isPolyseed = true);
-    } else if (isPolyseed) {
-      setState(() => isPolyseed = false);
     }
     widget.onSeedChange?.call(seed);
   }
@@ -190,5 +188,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   void _setSeedType(SeedType item) {
     setState(() => isPolyseed = item == SeedType.polyseed);
     seedTypeController.text = item.toString();
+    _changeLanguage('English');
   }
 }
