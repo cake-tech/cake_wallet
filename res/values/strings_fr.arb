@@ -595,7 +595,6 @@
   "sweeping_wallet_alert": "Cette opération ne devrait pas prendre longtemps. NE QUITTEZ PAS CET ÉCRAN OU LES FONDS CONSOLIDÉS POURRAIENT ÊTRE PERDUS",
   "decimal_places_error": "Trop de décimales",
   "edit_node": "Modifier le nœud",
-  "frozen_balance": "Solde gelé",
   "invoice_details": "Détails de la facture",
   "donation_link_details": "Détails du lien de don",
   "anonpay_description": "Générez ${type}. Le destinataire peut ${method} avec n'importe quelle crypto-monnaie prise en charge, et vous recevrez des fonds dans ce portefeuille (wallet).",
@@ -730,5 +729,6 @@
   "domain_looks_up": "Recherches de domaine",
   "require_for_exchanges_to_external_wallets": "Exiger pour les échanges vers des portefeuilles externes",
   "camera_permission_is_required": "L'autorisation de la caméra est requise.\nVeuillez l'activer à partir des paramètres de l'application.",
-  "switchToETHWallet": "Veuillez passer à un portefeuille (wallet) Ethereum et réessayer"
+  "switchToETHWallet": "Veuillez passer à un portefeuille (wallet) Ethereum et réessayer",
+  "unavailable_balance": "Solde indisponible"
 }

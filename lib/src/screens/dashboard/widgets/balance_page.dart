@@ -230,7 +230,7 @@ class BalancePage extends StatelessWidget {
                 children: [
                   SizedBox(height: 26),
                   Text(
-                    S.current.frozen_balance,
+                    S.current.unavailable_balance,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 12,
