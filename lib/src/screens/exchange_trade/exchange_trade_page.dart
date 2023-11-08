@@ -91,6 +91,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
   bool _effectsInstalled = false;
 
+  ReactionDisposer? _exchangeStateReaction;
+
   @override
   void initState() {
     super.initState();
@@ -103,8 +105,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
   @override
   void dispose() {
-    super.dispose();
     widget.exchangeTradeViewModel.timer?.cancel();
+    _exchangeStateReaction?.reaction.dispose();
+    super.dispose();
   }
 
   @override
@@ -229,7 +232,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
       return;
     }
 
-    reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
+    _exchangeStateReaction = reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
         (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {

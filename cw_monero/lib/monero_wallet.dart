@@ -58,9 +58,7 @@ abstract class MoneroWalletBase
     walletAddresses = MoneroWalletAddresses(walletInfo, transactionHistory);
 
     _onAccountChangeReaction = reaction((_) => walletAddresses.account, (Account? account) {
-      if (account == null) {
-        return;
-      }
+      if (account == null) return;
 
       balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency, MoneroBalance>{
         currency: MoneroBalance(
@@ -68,6 +66,7 @@ abstract class MoneroWalletBase
             unlockedBalance: monero_wallet.getUnlockedBalance(accountIndex: account.id))
       });
       _updateSubAddress(isEnabledAutoGenerateSubaddress, account: account);
+      _askForUpdateTransactionHistory();
     });
 
     reaction((_) => isEnabledAutoGenerateSubaddress, (bool enabled) {
@@ -363,9 +362,7 @@ abstract class MoneroWalletBase
   }
 
   @override
-  Future<void> changePassword(String password) async {
-    monero_wallet.setPasswordSync(password);
-  }
+  Future<void> changePassword(String password) async => monero_wallet.setPasswordSync(password);
 
   Future<int> getNodeHeight() async => monero_wallet.getNodeHeight();
 

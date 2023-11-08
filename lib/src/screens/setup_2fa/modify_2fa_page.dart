@@ -136,6 +136,17 @@ class _2FAControlsWidget extends StatelessWidget {
         Observer(
           builder: (context) {
             return SettingsSwitcherCell(
+              title: S.current.require_for_exchanges_to_external_wallets,
+              value: setup2FAViewModel.shouldRequireTOTP2FAForExchangesToExternalWallets,
+              onValueChange: (context, value) async =>
+                  setup2FAViewModel.switchShouldRequireTOTP2FAForExchangesToExternalWallets(value),
+            );
+          },
+        ),
+        StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+        Observer(
+          builder: (context) {
+            return SettingsSwitcherCell(
               title: S.current.require_for_adding_contacts,
               value: setup2FAViewModel.shouldRequireTOTP2FAForAddingContacts,
               onValueChange: (context, value) async =>

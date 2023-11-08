@@ -50,6 +50,12 @@ class PreferencesKey {
   static const sortBalanceBy = 'sort_balance_by';
   static const pinNativeTokenAtTop = 'pin_native_token_at_top';
   static const useEtherscan = 'use_etherscan';
+  static const lookupsTwitter = 'looks_up_twitter';
+  static const lookupsMastodon = 'looks_up_mastodon';
+  static const lookupsYatService = 'looks_up_mastodon';
+  static const lookupsUnstoppableDomains = 'looks_up_mastodon';
+  static const lookupsOpenAlias = 'looks_up_mastodon';
+  static const lookupsENS = 'looks_up_ens';
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
@@ -71,6 +77,8 @@ class PreferencesKey {
       'should_require_totp_2fa_for_sends_to_internal_wallets';
   static const shouldRequireTOTP2FAForExchangesToInternalWallets =
       'should_require_totp_2fa_for_exchanges_to_internal_wallets';
+  static const shouldRequireTOTP2FAForExchangesToExternalWallets =
+      'should_require_totp_2fa_for_exchanges_to_external_wallets';
   static const shouldRequireTOTP2FAForAddingContacts =
       'should_require_totp_2fa_for_adding_contacts';
   static const shouldRequireTOTP2FAForCreatingNewWallets =
