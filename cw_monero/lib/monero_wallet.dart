@@ -409,8 +409,10 @@ abstract class MoneroWalletBase
 
     if (unspentCoins.isNotEmpty) {
       unspentCoins.forEach((coin) {
-        final coinInfoList = unspentCoinsInfo.values
-            .where((element) => element.walletId.contains(id) && element.keyImage!.contains(coin.keyImage!));
+        final coinInfoList = unspentCoinsInfo.values.where((element) =>
+            element.walletId.contains(id) &&
+            element.accountIndex == walletAddresses.account!.id &&
+            element.keyImage!.contains(coin.keyImage!));
 
         if (coinInfoList.isNotEmpty) {
           final coinInfo = coinInfoList.first;
@@ -430,17 +432,17 @@ abstract class MoneroWalletBase
 
   Future<void> _addCoinInfo(MoneroUnspent coin) async {
     final newInfo = UnspentCoinsInfo(
-      walletId: id,
-      hash: coin.hash,
-      isFrozen: coin.isFrozen,
-      isSending: coin.isSending,
-      noteRaw: coin.note,
-      address: coin.address,
-      value: coin.value,
-      vout: 0,
-      keyImage: coin.keyImage,
-      isChange: coin.isChange,
-    );
+        walletId: id,
+        hash: coin.hash,
+        isFrozen: coin.isFrozen,
+        isSending: coin.isSending,
+        noteRaw: coin.note,
+        address: coin.address,
+        value: coin.value,
+        vout: 0,
+        keyImage: coin.keyImage,
+        isChange: coin.isChange,
+        accountIndex: walletAddresses.account!.id);
 
     await unspentCoinsInfo.add(newInfo);
   }
@@ -448,8 +450,8 @@ abstract class MoneroWalletBase
   Future<void> _refreshUnspentCoinsInfo() async {
     try {
       final List<dynamic> keys = <dynamic>[];
-      final currentWalletUnspentCoins =
-          unspentCoinsInfo.values.where((element) => element.walletId.contains(id));
+      final currentWalletUnspentCoins = unspentCoinsInfo.values.where((element) =>
+          element.walletId.contains(id) && element.accountIndex == walletAddresses.account!.id);
 
       if (currentWalletUnspentCoins.isNotEmpty) {
         currentWalletUnspentCoins.forEach((element) {
@@ -572,7 +574,8 @@ abstract class MoneroWalletBase
   int _getFrozenBalance() {
     var frozenBalance = 0;
 
-    for (var coin in unspentCoinsInfo.values) {
+    for (var coin in unspentCoinsInfo.values.where((element) =>
+        element.walletId == id && element.accountIndex == walletAddresses.account!.id)) {
       if (coin.isFrozen) frozenBalance += coin.value;
     }
 
