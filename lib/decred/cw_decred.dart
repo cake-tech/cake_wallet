@@ -1,6 +1,10 @@
 part of 'decred.dart';
 
 class CWDecred extends Decred {
+  CWDecred() {
+    DecredWalletBase.init();
+  }
+
   @override
   TransactionPriority getMediumTransactionPriority() =>
       DecredTransactionPriority.medium;
@@ -17,9 +21,6 @@ class CWDecred extends Decred {
   WalletCredentials createDecredNewWalletCredentials(
           {required String name, WalletInfo? walletInfo}) =>
       DecredNewWalletCredentials(name: name, walletInfo: walletInfo);
-
-  @override
-  List<String> getWordList() => wordList();
 
   @override
   List<TransactionPriority> getTransactionPriorities() =>
@@ -56,8 +57,7 @@ class CWDecred extends Decred {
                   isParsedAddress: out.isParsedAddress,
                   formattedCryptoAmount: out.formattedCryptoAmount))
               .toList(),
-          priority:
-              priority != null ? priority as DecredTransactionPriority : null);
+          priority: priority as DecredTransactionPriority);
 
   @override
   List<String> getAddresses(Object wallet) {

@@ -1,10 +1,12 @@
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_decred/api/spvwallet.dart';
 import 'package:cw_decred/transaction_history.dart';
 import 'package:cw_decred/wallet_addresses.dart';
 import 'package:cw_decred/transaction_priority.dart';
-import 'package:cw_decred/api/dcrlibwallet.dart';
 import 'package:cw_decred/balance.dart';
 import 'package:cw_decred/transaction_info.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_decred/wallet_creation_credentials.dart';
 import 'package:mobx/mobx.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -35,13 +37,17 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
 
   final SPVWallet spv;
 
+  static void init() async {
+    final dcrDataDir =
+        await pathForWalletDir(name: '', type: WalletType.decred);
+    SPVWallet.init(dcrDataDir);
+  }
+
   static Future<DecredWallet> create(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo}) async {
-    final seed = mnemonicToSeedBytes(mnemonic);
-    final spv = SPVWallet().create(seed, password, walletInfo);
-    final wallet = DecredWallet(spv, walletInfo);
+      DecredNewWalletCredentials credentials) async {
+    final spv = SPVWallet.create(
+        credentials.password!, credentials.name, credentials.walletInfo!);
+    final wallet = DecredWallet(spv, credentials.walletInfo!);
     return wallet;
   }
 
@@ -49,7 +55,7 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
       {required String password,
       required String name,
       required WalletInfo walletInfo}) async {
-    final spv = SPVWallet().load(name, password, walletInfo);
+    final spv = SPVWallet.load(name, password, walletInfo);
     final wallet = DecredWallet(spv, walletInfo);
     return wallet;
   }
@@ -69,8 +75,7 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
 
   @override
   String? get seed {
-    // throw UnimplementedError();
-    return "";
+    return spv.seed();
   }
 
   // @override
@@ -153,12 +158,6 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
   @override
   Future<void> changePassword(String password) async {
     return this.spv.changePassword(password);
-  }
-
-  @override
-  String get password {
-    // throw UnimplementedError();
-    return "";
   }
 
   @override

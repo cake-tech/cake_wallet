@@ -28,3 +28,12 @@ migrate_working_dir/
 .dart_tool/
 .packages
 build/
+
+android/.externalNativeBuild/
+android/.cxx/
+android/libs
+ios/External/
+macos/External/
+
+libdcrwallet.h
+libdcrwallet_bindings.dart

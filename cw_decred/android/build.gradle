@@ -37,8 +37,10 @@ android {
     }
 
     sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-        test.java.srcDirs += 'src/test/kotlin'
+        main {
+            java.srcDirs += 'src/main/kotlin'
+            jniLibs.srcDirs 'libs' // contains libdcrwallet.so shared libraries
+        }
     }
 
     defaultConfig {

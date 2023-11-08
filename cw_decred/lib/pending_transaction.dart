@@ -1,6 +1,6 @@
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_decred/amount_format.dart';
-import 'package:cw_decred/api/dcrlibwallet.dart';
+import 'package:cw_decred/api/spvwallet.dart';
 
 class DecredPendingTransaction with PendingTransaction {
   DecredPendingTransaction(

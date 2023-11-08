@@ -1,8 +1,6 @@
 import 'dart:io';
-import 'package:cw_decred/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_decred/wallet_creation_credentials.dart';
 import 'package:cw_decred/wallet.dart';
-import 'package:cw_decred/api/dcrlibwallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -24,10 +22,7 @@ class DecredWalletService extends WalletService<
 
   @override
   Future<DecredWallet> create(DecredNewWalletCredentials credentials) async {
-    return await DecredWalletBase.create(
-        mnemonic: generateMnemonic(),
-        password: credentials.password!,
-        walletInfo: credentials.walletInfo!);
+    return await DecredWalletBase.create(credentials);
   }
 
   @override
@@ -72,15 +67,7 @@ class DecredWalletService extends WalletService<
   @override
   Future<DecredWallet> restoreFromSeed(
       DecredRestoreWalletFromSeedCredentials credentials) async {
-    if (!validateMnemonic(credentials.mnemonic)) {
-      throw DecredMnemonicIsIncorrectException();
-    }
-
-    final wallet = await DecredWalletBase.create(
-        password: credentials.password!,
-        mnemonic: credentials.mnemonic,
-        walletInfo: credentials.walletInfo!);
-    return wallet;
+    throw UnimplementedError();
   }
 
   @override

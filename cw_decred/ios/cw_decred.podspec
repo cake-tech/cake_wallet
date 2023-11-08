@@ -15,7 +15,8 @@ Pod::Spec.new do |s|
   s.dependency 'Flutter'
   s.platform = :ios, '11.0'
 
+  s.vendored_libraries = 'External/lib/libdcrwallet.a'
   # Flutter.framework does not contain a i386 slice.
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
+  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386', "OTHER_LDFLAGS" => "-force_load $(PODS_TARGET_SRCROOT)/External/lib/libdcrwallet.a -lstdc++" }
   s.swift_version = '5.0'
 end

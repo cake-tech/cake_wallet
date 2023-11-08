@@ -715,12 +715,15 @@ abstract class BitcoinCash {
   """;
 
   const bitcoinCashEmptyDefinition = 'BitcoinCash? bitcoinCash;\n';
-  const bitcoinCashCWDefinition = 'BitcoinCash? bitcoinCash = CWBitcoinCash();\n';
+  const bitcoinCashCWDefinition =
+      'BitcoinCash? bitcoinCash = CWBitcoinCash();\n';
 
   final output = '$bitcoinCashCommonHeaders\n' +
       (hasImplementation ? '$bitcoinCashCWHeaders\n' : '\n') +
       (hasImplementation ? '$bitcoinCashCwPart\n\n' : '\n') +
-      (hasImplementation ? bitcoinCashCWDefinition : bitcoinCashEmptyDefinition) +
+      (hasImplementation
+          ? bitcoinCashCWDefinition
+          : bitcoinCashEmptyDefinition) +
       '\n' +
       bitcoinCashContent;
 
@@ -857,7 +860,8 @@ abstract class NanoUtil {
   """;
 
   const nanoEmptyDefinition = 'Nano? nano;\nNanoUtil? nanoUtil;\n';
-  const nanoCWDefinition = 'Nano? nano = CWNano();\nNanoUtil? nanoUtil = CWNanoUtil();\n';
+  const nanoCWDefinition =
+      'Nano? nano = CWNano();\nNanoUtil? nanoUtil = CWNanoUtil();\n';
 
   final output = '$nanoCommonHeaders\n' +
       (hasImplementation ? '$nanoCWHeaders\n' : '\n') +
@@ -880,13 +884,11 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/output_info.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:hive/hive.dart';""";
   const decredCWHeaders = """
-import 'package:cw_decred/mnemonic.dart';
 import 'package:cw_decred/transaction_priority.dart';
 import 'package:cw_decred/wallet.dart';
 import 'package:cw_decred/wallet_service.dart';
@@ -902,7 +904,6 @@ abstract class Decred {
 
   WalletCredentials createDecredRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createDecredNewWalletCredentials({required String name, WalletInfo? walletInfo});
-  List<String> getWordList();
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority deserializeDecredTransactionPriority(int raw);
   int getFeeRate(Object wallet, TransactionPriority priority);
@@ -927,12 +928,12 @@ abstract class Decred {
   const decredEmptyDefinition = 'Decred? decred;\n';
   const decredCWDefinition = 'Decred? decred = CWDecred();\n';
 
-  final output = '$decredCommonHeaders\n'
-    + (hasImplementation ? '$decredCWHeaders\n' : '\n')
-    + (hasImplementation ? '$decredCwPart\n\n' : '\n')
-    + (hasImplementation ? decredCWDefinition : decredEmptyDefinition)
-    + '\n'
-    + decredContent;
+  final output = '$decredCommonHeaders\n' +
+      (hasImplementation ? '$decredCWHeaders\n' : '\n') +
+      (hasImplementation ? '$decredCwPart\n\n' : '\n') +
+      (hasImplementation ? decredCWDefinition : decredEmptyDefinition) +
+      '\n' +
+      decredContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -998,7 +999,8 @@ Future<void> generatePubspec(
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
-  final dependenciesIndex = inputLines.indexWhere((line) => line.toLowerCase() == 'dependencies:');
+  final dependenciesIndex =
+      inputLines.indexWhere((line) => line.toLowerCase() == 'dependencies:');
   var output = cwCore;
 
   if (hasMonero) {

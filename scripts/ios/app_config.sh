@@ -24,15 +24,15 @@ cp -rf ./ios/Runner/InfoBase.plist ./ios/Runner/Info.plist
 CONFIG_ARGS=""
 
 case $APP_IOS_TYPE in
-        $MONERO_COM)
+    $MONERO_COM)
 		CONFIG_ARGS="--monero"
 		;;
+
         $CAKEWALLET)
-		CONFIG_ARGS="--monero --bitcoin --haven --ethereum --polygon --nano --bitcoinCash"
+		CONFIG_ARGS="--monero --bitcoin --haven --ethereum --polygon --nano --bitcoinCash --decred"
 		;;
+
 	$HAVEN)
-
-
 		CONFIG_ARGS="--haven"
 		;;
 esac
