@@ -32,6 +32,7 @@ class RobinhoodBuyProvider {
         return _wallet.signMessage(message);
       case WalletType.litecoin:
       case WalletType.bitcoin:
+      case WalletType.bitcoinCash:
         return _wallet.signMessage(message, address: _wallet.walletAddresses.address);
       default:
         throw Exception("WalletType is not available for Robinhood ${_wallet.type}");
