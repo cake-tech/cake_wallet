@@ -196,23 +196,35 @@ class WalletRestorePage extends BasePage {
                   ),
                 Padding(
                   padding: EdgeInsets.only(top: 20, bottom: 24, left: 24, right: 24),
-                  child: Observer(
-                    builder: (context) {
-                      return LoadingPrimaryButton(
-                        onPressed: () async {
-                          await _confirmForm(context);
+                  child: Column(
+                    children: [
+                      Observer(
+                        builder: (context) {
+                          return LoadingPrimaryButton(
+                            onPressed: () async {
+                              await _confirmForm(context);
+                            },
+                            text: S.of(context).restore_recover,
+                            color: Theme.of(context)
+                                .extension<WalletListTheme>()!
+                                .createNewWalletButtonBackgroundColor,
+                            textColor: Theme.of(context)
+                                .extension<WalletListTheme>()!
+                                .restoreWalletButtonTextColor,
+                            isLoading: walletRestoreViewModel.state is IsExecutingState,
+                            isDisabled: !walletRestoreViewModel.isButtonEnabled,
+                          );
                         },
-                        text: S.of(context).restore_recover,
-                        color: Theme.of(context)
-                            .extension<WalletListTheme>()!
-                            .createNewWalletButtonBackgroundColor,
-                        textColor: Theme.of(context)
-                            .extension<WalletListTheme>()!
-                            .restoreWalletButtonTextColor,
-                        isLoading: walletRestoreViewModel.state is IsExecutingState,
-                        isDisabled: !walletRestoreViewModel.isButtonEnabled,
-                      );
-                    },
+                      ),
+                      const SizedBox(height: 25),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context)
+                              .pushNamed(Routes.advancedPrivacySettings, arguments: walletRestoreViewModel.type);
+                        },
+                        child: Text(S.of(context).advanced_privacy_settings),
+                      ),
+                    ],
                   ),
                 )
               ],
