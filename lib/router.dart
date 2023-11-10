@@ -403,9 +403,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true, builder: (_) => getIt.get<BuyWebViewPage>(param1: args));
 
     case Routes.exchange:
-    final args = settings.arguments as bool;
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<ExchangePage>(param1: args));
+          fullscreenDialog: true, builder: (_) => getIt.get<ExchangePage>());
 
     case Routes.exchangeTemplate:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<ExchangeTemplatePage>());
