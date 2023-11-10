@@ -5,6 +5,8 @@ class DecredBalance extends Balance {
   const DecredBalance({required this.confirmed, required this.unconfirmed})
       : super(confirmed, unconfirmed);
 
+  factory DecredBalance.zero() => DecredBalance(confirmed: 0, unconfirmed: 0);
+
   final int confirmed;
   final int unconfirmed;
 

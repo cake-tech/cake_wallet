@@ -2,12 +2,14 @@ part of 'decred.dart';
 
 class CWDecred extends Decred {
   CWDecred() {
-    DecredWalletBase.init();
+    // initialize the service for creating and loading dcr wallets.
+    DecredWalletService.init();
   }
 
   @override
-  TransactionPriority getMediumTransactionPriority() =>
-      DecredTransactionPriority.medium;
+  WalletCredentials createDecredNewWalletCredentials(
+          {required String name, WalletInfo? walletInfo}) =>
+      DecredNewWalletCredentials(name: name, walletInfo: walletInfo);
 
   @override
   WalletCredentials createDecredRestoreWalletFromSeedCredentials(
@@ -17,14 +19,25 @@ class CWDecred extends Decred {
       DecredRestoreWalletFromSeedCredentials(
           name: name, mnemonic: mnemonic, password: password);
 
-  @override
-  WalletCredentials createDecredNewWalletCredentials(
-          {required String name, WalletInfo? walletInfo}) =>
-      DecredNewWalletCredentials(name: name, walletInfo: walletInfo);
+  WalletService createDecredWalletService(Box<WalletInfo> walletInfoSource) {
+    return DecredWalletService(walletInfoSource);
+  }
 
   @override
   List<TransactionPriority> getTransactionPriorities() =>
       DecredTransactionPriority.all;
+
+  @override
+  TransactionPriority getMediumTransactionPriority() =>
+      DecredTransactionPriority.medium;
+
+  @override
+  TransactionPriority getDecredTransactionPriorityMedium() =>
+      DecredTransactionPriority.medium;
+
+  @override
+  TransactionPriority getDecredTransactionPrioritySlow() =>
+      DecredTransactionPriority.slow;
 
   @override
   TransactionPriority deserializeDecredTransactionPriority(int raw) =>
@@ -34,12 +47,6 @@ class CWDecred extends Decred {
   int getFeeRate(Object wallet, TransactionPriority priority) {
     final decredWallet = wallet as DecredWallet;
     return decredWallet.feeRate(priority);
-  }
-
-  @override
-  Future<void> generateNewAddress(Object wallet) async {
-    final decredWallet = wallet as DecredWallet;
-    await decredWallet.walletAddresses.generateNewAddress();
   }
 
   @override
@@ -72,6 +79,12 @@ class CWDecred extends Decred {
   }
 
   @override
+  Future<void> generateNewAddress(Object wallet) async {
+    final decredWallet = wallet as DecredWallet;
+    await decredWallet.walletAddresses.generateNewAddress();
+  }
+
+  @override
   String formatterDecredAmountToString({required int amount}) =>
       decredAmountToString(amount: amount);
 
@@ -90,16 +103,4 @@ class CWDecred extends Decred {
   }
 
   void updateUnspents(Object wallet) async {}
-
-  WalletService createDecredWalletService(Box<WalletInfo> walletInfoSource) {
-    return DecredWalletService(walletInfoSource);
-  }
-
-  @override
-  TransactionPriority getDecredTransactionPriorityMedium() =>
-      DecredTransactionPriority.medium;
-
-  @override
-  TransactionPriority getDecredTransactionPrioritySlow() =>
-      DecredTransactionPriority.slow;
 }

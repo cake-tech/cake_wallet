@@ -887,7 +887,8 @@ import 'package:cw_core/output_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:hive/hive.dart';""";
+import 'package:hive/hive.dart';
+""";
   const decredCWHeaders = """
 import 'package:cw_decred/transaction_priority.dart';
 import 'package:cw_decred/wallet.dart';
@@ -900,18 +901,22 @@ import 'package:cw_decred/transaction_credentials.dart';
   const decredContent = """
 
 abstract class Decred {
-  TransactionPriority getMediumTransactionPriority();
-
-  WalletCredentials createDecredRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createDecredNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  WalletCredentials createDecredRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  WalletService createDecredWalletService(Box<WalletInfo> walletInfoSource);
+
   List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority getMediumTransactionPriority();
+  TransactionPriority getDecredTransactionPriorityMedium();
+  TransactionPriority getDecredTransactionPrioritySlow();
   TransactionPriority deserializeDecredTransactionPriority(int raw);
+  
   int getFeeRate(Object wallet, TransactionPriority priority);
-  Future<void> generateNewAddress(Object wallet);
   Object createDecredTransactionCredentials(List<Output> outputs, TransactionPriority priority);
 
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
+  Future<void> generateNewAddress(Object wallet);
 
   String formatterDecredAmountToString({required int amount});
   double formatterDecredAmountToDouble({required int amount});
@@ -919,9 +924,6 @@ abstract class Decred {
 
   List<Unspent> getUnspents(Object wallet);
   void updateUnspents(Object wallet);
-  WalletService createDecredWalletService(Box<WalletInfo> walletInfoSource);
-  TransactionPriority getDecredTransactionPriorityMedium();
-  TransactionPriority getDecredTransactionPrioritySlow();
 }
 """;
 

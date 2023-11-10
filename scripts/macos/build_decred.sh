@@ -8,9 +8,16 @@ LIBWALLET_URL="https://github.com/itswisdomagain/libwallet.git"
 echo "======================= DECRED LIBWALLET ========================="
 
 echo "Cloning DECRED LIBWALLET from - $LIBWALLET_URL"
+if [ -e $LIBWALLET_PATH ]; then
+       rm -fr $LIBWALLET_PATH
+fi
+mkdir -p $LIBWALLET_PATH
 git clone $LIBWALLET_URL $LIBWALLET_PATH --branch cgo
 cd $LIBWALLET_PATH
-rm -rf ./build
+
+if [ -e ./build ]; then
+       rm -fr ./build
+fi
 go build -buildmode=c-archive -o ./build/libdcrwallet.a ./cgo
 
 CW_DECRED_DIR=${CW_ROOT}/cw_decred

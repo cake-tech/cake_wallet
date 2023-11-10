@@ -4,6 +4,10 @@
 LIBWALLET_PATH="${EXTERNAL_IOS_SOURCE_DIR}/libwallet"
 LIBWALLET_URL="https://github.com/itswisdomagain/libwallet.git"
 
+if [ -e $LIBWALLET_PATH ]; then
+       rm -fr $LIBWALLET_PATH
+fi
+mkdir -p $LIBWALLET_PATH
 git clone $LIBWALLET_URL $LIBWALLET_PATH --branch cgo
 cd $LIBWALLET_PATH
 
@@ -11,7 +15,9 @@ SYSROOT=`xcrun --sdk iphoneos --show-sdk-path`
 CLANG="clang -isysroot ${SYSROOT}"
 CLANGXX="clang++ -isysroot ${SYSROOT}"
 
-rm -rf ./build
+if [ -e ./build ]; then
+       rm -fr ./build
+fi
 CGO_ENABLED=1 GOOS=ios GOARCH=arm64 CC=$CLANG CXX=$CLANGXX \
 go build -buildmode=c-archive -o ./build/libdcrwallet.a ./cgo || exit 1
 

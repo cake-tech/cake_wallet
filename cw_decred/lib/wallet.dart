@@ -1,15 +1,16 @@
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_decred/api/spvwallet.dart';
+import 'dart:io';
+import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_decred/pending_transaction.dart';
+import 'package:flutter/foundation.dart';
+import 'package:mobx/mobx.dart';
+
+import 'package:cw_decred/api/libdcrwallet.dart' as libdcrwallet;
 import 'package:cw_decred/transaction_history.dart';
 import 'package:cw_decred/wallet_addresses.dart';
 import 'package:cw_decred/transaction_priority.dart';
 import 'package:cw_decred/balance.dart';
 import 'package:cw_decred/transaction_info.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_decred/wallet_creation_credentials.dart';
-import 'package:mobx/mobx.dart';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -25,61 +26,36 @@ class DecredWallet = DecredWalletBase with _$DecredWallet;
 
 abstract class DecredWalletBase extends WalletBase<DecredBalance,
     DecredTransactionHistory, DecredTransactionInfo> with Store {
-  DecredWalletBase(SPVWallet spv, WalletInfo walletInfo)
-      : this.spv = spv,
-        balance = ObservableMap<CryptoCurrency, DecredBalance>.of(
-            {CryptoCurrency.dcr: spv.balance()}),
+  DecredWalletBase(WalletInfo walletInfo, String password)
+      : _password = password,
         syncStatus = NotConnectedSyncStatus(),
+        balance = ObservableMap.of({CryptoCurrency.dcr: DecredBalance.zero()}),
         super(walletInfo) {
+    walletAddresses = DecredWalletAddresses(walletInfo);
     transactionHistory = DecredTransactionHistory();
-    walletAddresses = DecredWalletAddresses(walletInfo, spv);
   }
 
-  final SPVWallet spv;
-
-  static void init() async {
-    final dcrDataDir =
-        await pathForWalletDir(name: '', type: WalletType.decred);
-    SPVWallet.init(dcrDataDir);
-  }
-
-  static Future<DecredWallet> create(
-      DecredNewWalletCredentials credentials) async {
-    final spv = SPVWallet.create(
-        credentials.password!, credentials.name, credentials.walletInfo!);
-    final wallet = DecredWallet(spv, credentials.walletInfo!);
-    return wallet;
-  }
-
-  static Future<DecredWallet> open(
-      {required String password,
-      required String name,
-      required WalletInfo walletInfo}) async {
-    final spv = SPVWallet.load(name, password, walletInfo);
-    final wallet = DecredWallet(spv, walletInfo);
-    return wallet;
-  }
+  // password is currently only used for seed display, but would likely also be
+  // required to sign inputs when creating transactions.
+  final String _password;
 
   // TODO: Set up a way to change the balance and sync status when dcrlibwallet
   // changes. Long polling probably?
   @override
   @observable
-  late ObservableMap<CryptoCurrency, DecredBalance> balance;
+  SyncStatus syncStatus;
 
   @override
   @observable
-  SyncStatus syncStatus;
+  late ObservableMap<CryptoCurrency, DecredBalance> balance;
 
-  // @override
-  // set syncStatus(SyncStatus status);
+  @override
+  late DecredWalletAddresses walletAddresses;
 
   @override
   String? get seed {
-    return spv.seed();
+    return libdcrwallet.walletSeed(walletInfo.name, _password);
   }
-
-  // @override
-  // String? get privateKey => null;
 
   @override
   Object get keys {
@@ -87,14 +63,11 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
     return {};
   }
 
-  @override
-  late DecredWalletAddresses walletAddresses;
-
-  // @override
-  // set isEnabledAutoGenerateSubaddress(bool value) {}
-
-  // @override
-  // bool get isEnabledAutoGenerateSubaddress => false;
+  Future<void> init() async {
+    updateBalance();
+    // TODO: update other wallet properties such as syncStatus, walletAddresses
+    // and transactionHistory with data from libdcrwallet.
+  }
 
   @override
   Future<void> connectToNode({required Node node}) async {
@@ -104,34 +77,29 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
   @action
   @override
   Future<void> startSync() async {
-    try {
-      this.spv.startSync();
-      syncStatus = this.spv.syncStatus();
-    } catch (e, stacktrace) {
-      print(stacktrace);
-      print(e.toString());
-      syncStatus = FailedSyncStatus();
-    }
+    // TODO: call libdcrwallet.spvSync() and update syncStatus.
   }
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-    return this.spv.createTransaction(credentials);
+    return DecredPendingTransaction(
+        txid:
+            "3cbf3eb9523fd04e96dbaf98cdbd21779222cc8855ece8700494662ae7578e02",
+        amount: 12345678,
+        fee: 1234,
+        rawHex: "baadbeef");
   }
 
   int feeRate(TransactionPriority priority) {
-    try {
-      return this.spv.feeRate(priority.raw);
-    } catch (_) {
-      return 0;
-    }
+    // TODO
+    return 1000;
   }
 
   @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
     if (priority is DecredTransactionPriority) {
-      return this.spv.calculateEstimatedFeeWithFeeRate(
-          this.spv.feeRate(priority.raw), amount ?? 0);
+      return libdcrwallet.calculateEstimatedFeeWithFeeRate(
+          this.feeRate(priority), amount ?? 0);
     }
 
     return 0;
@@ -139,7 +107,21 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
 
   @override
   Future<Map<String, DecredTransactionInfo>> fetchTransactions() async {
-    return this.spv.transactions();
+    // TODO: Read from libdcrwallet.
+    final txInfo = DecredTransactionInfo(
+      id: "3cbf3eb9523fd04e96dbaf98cdbd21779222cc8855ece8700494662ae7578e02",
+      amount: 1234567,
+      fee: 123,
+      direction: TransactionDirection.outgoing,
+      isPending: true,
+      date: DateTime.now(),
+      height: 0,
+      confirmations: 0,
+      to: "DsT4qJPPaYEuQRimfgvSKxKH3paysn1x3Nt",
+    );
+    return {
+      "3cbf3eb9523fd04e96dbaf98cdbd21779222cc8855ece8700494662ae7578e02": txInfo
+    };
   }
 
   @override
@@ -147,22 +129,27 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
 
   @override
   Future<void> rescan({required int height}) async {
-    return spv.rescan(height);
+    // TODO.
   }
 
   @override
   void close() {
-    this.spv.close();
+    libdcrwallet.closeWallet(walletInfo.name);
   }
 
   @override
   Future<void> changePassword(String password) async {
-    return this.spv.changePassword(password);
+    await libdcrwallet.changeWalletPassword(
+        walletInfo.name, _password, password);
   }
 
   @override
   Future<void>? updateBalance() async {
-    balance[CryptoCurrency.dcr] = this.spv.balance();
+    final balanceMap = libdcrwallet.balance(walletInfo.name);
+    balance[CryptoCurrency.dcr] = DecredBalance(
+      confirmed: balanceMap["confirmed"] ?? 0,
+      unconfirmed: balanceMap["unconfirmed"] ?? 0,
+    );
   }
 
   @override
@@ -192,10 +179,17 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
 
   @override
   String signMessage(String message, {String? address = null}) {
-    return this.spv.signMessage(message, address);
+    return ""; // TODO
   }
 
   List<Unspent> unspents() {
-    return this.spv.unspents();
+    return [
+      Unspent(
+          "DsT4qJPPaYEuQRimfgvSKxKH3paysn1x3Nt",
+          "3cbf3eb9523fd04e96dbaf98cdbd21779222cc8855ece8700494662ae7578e02",
+          1234567,
+          0,
+          null)
+    ];
   }
 }
