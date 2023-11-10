@@ -42,6 +42,7 @@ import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
+import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
@@ -322,6 +323,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.privacyPage:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<PrivacyPage>());
+
+    case Routes.trocadorProvidersPage:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<TrocadorProvidersPage>());
 
     case Routes.domainLookupsPage:
       return CupertinoPageRoute<void>(

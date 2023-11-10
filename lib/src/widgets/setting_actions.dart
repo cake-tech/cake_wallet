@@ -19,6 +19,7 @@ class SettingActions {
     addressBookSettingAction,
     securityBackupSettingAction,
     privacySettingAction,
+    trocadorProvidersAction,
     displaySettingAction,
     otherSettingAction,
     supportSettingAction,
@@ -30,6 +31,7 @@ class SettingActions {
     addressBookSettingAction,
     securityBackupSettingAction,
     privacySettingAction,
+    trocadorProvidersAction,
     displaySettingAction,
     otherSettingAction,
     supportSettingAction,
@@ -77,6 +79,15 @@ class SettingActions {
     onTap: (BuildContext context) {
       Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.privacyPage);
+    },
+  );
+
+  static SettingActions trocadorProvidersAction = SettingActions._(
+    name: (context) => 'Trocador Providers',
+    image: 'assets/images/privacy_menu.png',
+    onTap: (BuildContext context) {
+      Navigator.pop(context);
+      Navigator.of(context).pushNamed(Routes.trocadorProvidersPage);
     },
   );
 
