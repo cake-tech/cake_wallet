@@ -37,6 +37,7 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
           fullName: name,
           tag: "ETH",
           iconPath: iconPath,
+          decimals: decimal
         );
 
   Erc20Token.copyWith(Erc20Token other, String? icon)
@@ -52,6 +53,7 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
           fullName: other.name,
           tag: "ETH",
           iconPath: icon,
+          decimals: other.decimal
         );
 
   static const typeId = ERC20_TOKEN_TYPE_ID;

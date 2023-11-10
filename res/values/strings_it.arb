@@ -339,7 +339,6 @@
   "template": "Modello",
   "confirm_delete_template": "Questa azione cancellerà questo modello. Desideri continuare?",
   "confirm_delete_wallet": "Questa azione cancellerà questo portafoglio. Desideri continuare?",
-  "picker_description": "Per scegliere ChangeNOW  o MorphToken, gentilmente cambia prima la tua coppia di valute",
   "change_wallet_alert_title": "Cambia portafoglio attuale",
   "change_wallet_alert_content": "Sei sicuro di voler cambiare il portafoglio attuale con ${wallet_name}?",
   "creating_new_wallet": "Creazione nuovo portafoglio",
@@ -725,5 +724,15 @@
   "normal_exchange_description": "CHANPENGENOW, SIDSHIFT, SIMPLESWAP e TROCADOR",
   "moonpay_exchange_description": "Scambiamento di criptovaluta senza soluzione di continuità. \\ Ndocuments richiesto",
   "select_exchange_provider_notice": "Seleziona un provider di scambio sopra. È possibile saltare questa schermata impostando il provider di scambio predefinito nelle impostazioni dell'app.",
-  "default_exchange_provider": "Provider di scambio predefinito"
+  "default_exchange_provider": "Provider di scambio predefinito",
+  "copyWalletConnectLink": "Copia il collegamento WalletConnect dalla dApp e incollalo qui",
+  "enterWalletConnectURI": "Inserisci l'URI di WalletConnect",
+  "seed_key": "Chiave di semi",
+  "enter_seed_phrase": "Inserisci la tua frase di semi",
+  "add_contact": "Aggiungi contatto",
+  "exchange_provider_unsupported": "${providerName} non è più supportato!",
+  "domain_looks_up": "Ricerche di domini",
+  "require_for_exchanges_to_external_wallets": "Richiede scambi con portafogli esterni",
+  "camera_permission_is_required": "È richiesta l'autorizzazione della fotocamera.\nAbilitalo dalle impostazioni dell'app.",
+  "switchToETHWallet": "Passa a un portafoglio Ethereum e riprova"
 }

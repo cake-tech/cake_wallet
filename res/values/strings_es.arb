@@ -339,7 +339,6 @@
   "template": "Plantilla",
   "confirm_delete_template": "Esta acción eliminará esta plantilla. ¿Desea continuar?",
   "confirm_delete_wallet": "Esta acción eliminará esta billetera. ¿Desea continuar?",
-  "picker_description": "Para elegir ChangeNOW o MorphToken, primero cambie su par comercial",
   "change_wallet_alert_title": "Cambiar billetera actual",
   "change_wallet_alert_content": "¿Quieres cambiar la billetera actual a ${wallet_name}?",
   "creating_new_wallet": "Creando nueva billetera",
@@ -725,5 +724,15 @@
   "normal_exchange_description": "Changenow, Sidriofift, Simpleswap y Trocador",
   "moonpay_exchange_description": "Cambio de criptomonedas sin interrupciones. \\ Ndocumentos requeridos",
   "select_exchange_provider_notice": "Seleccione un proveedor de intercambio anterior. Puede omitir esta pantalla configurando su proveedor de intercambio predeterminado en la configuración de la aplicación.",
-  "default_exchange_provider": "Proveedor de intercambio predeterminado"
+  "default_exchange_provider": "Proveedor de intercambio predeterminado",
+  "copyWalletConnectLink": "Copie el enlace de WalletConnect de dApp y péguelo aquí",
+  "enterWalletConnectURI": "Ingrese el URI de WalletConnect",
+  "seed_key": "Llave de semilla",
+  "enter_seed_phrase": "Ingrese su frase de semillas",
+  "add_contact": "Agregar contacto",
+  "exchange_provider_unsupported": "¡${providerName} ya no es compatible!",
+  "domain_looks_up": "Búsquedas de dominio",
+  "require_for_exchanges_to_external_wallets": "Requerido para intercambios a billeteras externas",
+  "camera_permission_is_required": "Se requiere permiso de la cámara.\nHabilítelo desde la configuración de la aplicación.",
+  "switchToETHWallet": "Cambie a una billetera Ethereum e inténtelo nuevamente."
 }

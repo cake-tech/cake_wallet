@@ -339,7 +339,6 @@
   "template": "テンプレート",
   "confirm_delete_template": "この操作により、このテンプレートが削除されます。 続行しますか？",
   "confirm_delete_wallet": "このアクションにより、このウォレットが削除されます。 続行しますか？",
-  "picker_description": "ChangeNOWまたはMorphTokenを選択するには、最初にトレーディングペアを変更してください",
   "change_wallet_alert_title": "現在のウォレットを変更する",
   "change_wallet_alert_content": "現在のウォレットをに変更しますか ${wallet_name}?",
   "creating_new_wallet": "新しいウォレットの作成",
@@ -725,5 +724,15 @@
   "normal_exchange_description": "Changenow、Sideshift、SimpleSwap、およびTrocador",
   "moonpay_exchange_description": "シームレスな暗号通貨スワッピング。\\ nDocumentsが必要です",
   "select_exchange_provider_notice": "上記の交換プロバイダーを選択します。デフォルトの交換プロバイダーをアプリ設定で設定して、この画面をスキップできます。",
-  "default_exchange_provider": "デフォルトの交換プロバイダー"
+  "default_exchange_provider": "デフォルトの交換プロバイダー",
+  "copyWalletConnectLink": "dApp から WalletConnect リンクをコピーし、ここに貼り付けます",
+  "enterWalletConnectURI": "WalletConnect URI を入力してください",
+  "seed_key": "シードキー",
+  "enter_seed_phrase": "シードフレーズを入力してください",
+  "add_contact": "連絡先を追加",
+  "exchange_provider_unsupported": "${providerName}はサポートされなくなりました！",
+  "domain_looks_up": "ドメイン検索",
+  "require_for_exchanges_to_external_wallets": "外部ウォレットへの交換に必要",
+  "camera_permission_is_required": "カメラの許可が必要です。\nアプリの設定から有効にしてください。",
+  "switchToETHWallet": "イーサリアムウォレットに切り替えてもう一度お試しください"
 }

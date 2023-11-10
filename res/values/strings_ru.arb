@@ -339,7 +339,6 @@
   "template": "Шаблон",
   "confirm_delete_template": "Это действие удалит шаблон. Вы хотите продолжить?",
   "confirm_delete_wallet": "Это действие удалит кошелек. Вы хотите продолжить?",
-  "picker_description": "Чтобы выбрать ChangeNOW или MorphToken, сначала смените пару для обмена",
   "change_wallet_alert_title": "Изменить текущий кошелек",
   "change_wallet_alert_content": "Вы хотите изменить текущий кошелек на ${wallet_name}?",
   "creating_new_wallet": "Создание нового кошелька",
@@ -725,5 +724,15 @@
   "normal_exchange_description": "Changenow, SideShift, SimplesWap и Trocador",
   "moonpay_exchange_description": "Беспланочное обмена криптовалют. \\ NDOCUNTION",
   "select_exchange_provider_notice": "Выберите провайдера обмена выше. Вы можете пропустить этот экран, установив свой провайдер обмена по умолчанию в настройках приложения.",
-  "default_exchange_provider": "По умолчанию провайдер обмена"
+  "default_exchange_provider": "По умолчанию провайдер обмена",
+  "copyWalletConnectLink": "Скопируйте ссылку WalletConnect из dApp и вставьте сюда.",
+  "enterWalletConnectURI": "Введите URI WalletConnect",
+  "seed_key": "Ключ семян",
+  "enter_seed_phrase": "Введите свою семенную фразу",
+  "add_contact": "Добавить контакт",
+  "exchange_provider_unsupported": "${providerName} больше не поддерживается!",
+  "domain_looks_up": "Поиск доменов",
+  "require_for_exchanges_to_external_wallets": "Требовать обмена на внешние кошельки",
+  "camera_permission_is_required": "Требуется разрешение камеры.\nПожалуйста, включите его в настройках приложения.",
+  "switchToETHWallet": "Пожалуйста, переключитесь на кошелек Ethereum и повторите попытку."
 }

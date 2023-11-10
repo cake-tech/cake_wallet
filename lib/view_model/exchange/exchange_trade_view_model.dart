@@ -1,22 +1,21 @@
 import 'dart:async';
-import 'package:cake_wallet/exchange/exolix/exolix_exchange_provider.dart';
-import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
-import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
-import 'package:cake_wallet/exchange/trocador/trocador_exchange_provider.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
-import 'package:cake_wallet/exchange/exchange_provider.dart';
+
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 
 part 'exchange_trade_view_model.g.dart';
 
@@ -35,15 +34,9 @@ abstract class ExchangeTradeViewModelBase with Store {
                 tradesStore.trade!.from.tag == CryptoCurrency.eth.title),
         items = ObservableList<ExchangeTradeItem>() {
     switch (trade.provider) {
-      case ExchangeProviderDescription.xmrto:
-        _provider = XMRTOExchangeProvider();
-        break;
       case ExchangeProviderDescription.changeNow:
         _provider =
             ChangeNowExchangeProvider(settingsStore: sendViewModel.balanceViewModel.settingsStore);
-        break;
-      case ExchangeProviderDescription.morphToken:
-        _provider = MorphTokenExchangeProvider(trades: trades);
         break;
       case ExchangeProviderDescription.sideShift:
         _provider = SideShiftExchangeProvider();
@@ -60,8 +53,11 @@ abstract class ExchangeTradeViewModelBase with Store {
     }
 
     _updateItems();
-    _updateTrade();
-    timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
+
+    if (_provider != null) {
+      _updateTrade();
+      timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
+    }
   }
 
   final WalletBase wallet;
@@ -100,10 +96,8 @@ abstract class ExchangeTradeViewModelBase with Store {
   Timer? timer;
 
   @action
-  Future confirmSending() async {
-    if (!isSendable) {
-      return;
-    }
+  Future<void> confirmSending() async {
+    if (!isSendable) return;
 
     sendViewModel.clearOutputs();
     final output = sendViewModel.outputs.first;
@@ -118,13 +112,10 @@ abstract class ExchangeTradeViewModelBase with Store {
     try {
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
-      if (updatedTrade.createdAt == null && trade.createdAt != null) {
+      if (updatedTrade.createdAt == null && trade.createdAt != null)
         updatedTrade.createdAt = trade.createdAt;
-      }
 
-      if (updatedTrade.amount.isEmpty) {
-        updatedTrade.amount = trade.amount;
-      }
+      if (updatedTrade.amount.isEmpty) updatedTrade.amount = trade.amount;
 
       trade = updatedTrade;
 

@@ -1,18 +1,19 @@
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_provider_unsupported_item.dart';
+import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/standard_list_card.dart';
 import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/trade_details_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/list_row.dart';
-import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
-import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
-import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 
 class TradeDetailsPage extends BasePage {
   TradeDetailsPage(this.tradeDetailsViewModel);
@@ -23,8 +24,7 @@ class TradeDetailsPage extends BasePage {
   final TradeDetailsViewModel tradeDetailsViewModel;
 
   @override
-  Widget body(BuildContext context) =>
-      TradeDetailsPageBody(tradeDetailsViewModel);
+  Widget body(BuildContext context) => TradeDetailsPageBody(tradeDetailsViewModel);
 }
 
 class TradeDetailsPageBody extends StatefulWidget {
@@ -33,8 +33,7 @@ class TradeDetailsPageBody extends StatefulWidget {
   final TradeDetailsViewModel tradeDetailsViewModel;
 
   @override
-  TradeDetailsPageBodyState createState() =>
-      TradeDetailsPageBodyState(tradeDetailsViewModel);
+  TradeDetailsPageBodyState createState() => TradeDetailsPageBodyState(tradeDetailsViewModel);
 }
 
 class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
@@ -51,7 +50,7 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
-      int itemsCount = tradeDetailsViewModel.items.length;
+      final itemsCount = tradeDetailsViewModel.items.length;
 
       return SectionStandardList(
           sectionCount: 1,
@@ -59,37 +58,39 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
           itemBuilder: (__, index) {
             final item = tradeDetailsViewModel.items[index];
 
-            if (item is TrackTradeListItem) {
+            if (item is TrackTradeListItem)
               return GestureDetector(
                   onTap: item.onTap,
-                  child: ListRow(
-                      title: '${item.title}', value: '${item.value}'));
-            }
+                  child: ListRow(title: '${item.title}', value: '${item.value}'));
 
-            if (item is DetailsListStatusItem) {
-              return StandardListStatusRow(
-                  title: item.title,
-                  value: item.value);
-            }
+            if (item is DetailsListStatusItem)
+              return StandardListStatusRow(title: item.title, value: item.value);
 
-            if (item is TradeDetailsListCardItem) {
+            if (item is TradeDetailsListCardItem)
               return TradeDetailsStandardListCard(
-                  id: item.id,
-                  create: item.createdAt,
-                  pair: item.pair,
-                  currentTheme: tradeDetailsViewModel.settingsStore.currentTheme.type,
-                  onTap: item.onTap,);
-            }
+                id: item.id,
+                create: item.createdAt,
+                pair: item.pair,
+                currentTheme: tradeDetailsViewModel.settingsStore.currentTheme.type,
+                onTap: item.onTap,
+              );
 
-              return GestureDetector(
-                  onTap: () {
-                    Clipboard.setData(ClipboardData(text: '${item.value}'));
-                    showBar<void>(context, S.of(context).copied_to_clipboard);
-                  },
-                  child: ListRow(
-                      title: '${item.title}', value: '${item.value}'));
+            if (item is TradeProviderUnsupportedItem)
+              return AutoSizeText(item.value,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.red,
+                  ));
+
+            return GestureDetector(
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: '${item.value}'));
+                  showBar<void>(context, S.of(context).copied_to_clipboard);
+                },
+                child: ListRow(title: '${item.title}', value: '${item.value}'));
           });
     });
   }
-
 }

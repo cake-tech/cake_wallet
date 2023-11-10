@@ -339,7 +339,6 @@
   "template": "Template",
   "confirm_delete_template": "Ang pagkilos na ito ay tatanggalin ang template na ito. Nais mo bang magpatuloy?",
   "confirm_delete_wallet": "Ang pagkilos na ito ay tatanggalin ang pitaka na ito. Nais mo bang magpatuloy?",
-  "picker_description": "Upang pumili ng Changenow o MorphToken, mangyaring baguhin muna ang iyong pares ng kalakalan",
   "change_wallet_alert_title": "Baguhin ang kasalukuyang pitaka",
   "change_wallet_alert_content": "Nais mo bang baguhin ang kasalukuyang pitaka sa ${wallet_name}?",
   "creating_new_wallet": "Lumilikha ng bagong pitaka",
@@ -720,5 +719,15 @@
   "normal_exchange_description": "Changenow, Sideshift, Simpleswap, at Trocador",
   "moonpay_exchange_description": "Seamless cryptocurrency swapping. Kinakailangan ang mga ndocuments",
   "select_exchange_provider_notice": "Pumili ng isang exchange provider sa itaas. Maaari mong laktawan ang screen na ito sa pamamagitan ng pagtatakda ng iyong default na tagapagbigay ng palitan sa mga setting ng app.",
-  "default_exchange_provider": "Default exchange provider"
+  "default_exchange_provider": "Default exchange provider",
+  "copyWalletConnectLink": "Kopyahin ang link ng WalletConnect mula sa dApp at i-paste dito",
+  "enterWalletConnectURI": "Ilagay ang WalletConnect URI",
+  "seed_key": "Seed Key",
+  "enter_seed_phrase": "Ipasok ang iyong pariralang binhi",
+  "add_contact": "Magdagdag ng contact",
+  "exchange_provider_unsupported": "Ang ${providerName} ay hindi na suportado!",
+  "domain_looks_up": "Mga paghahanap ng domain",
+  "require_for_exchanges_to_external_wallets": "Kinakailangan para sa mga palitan sa mga panlabas na wallet",
+  "camera_permission_is_required": "Kinakailangan ang pahintulot sa camera.\nMangyaring paganahin ito mula sa mga setting ng app.",
+  "switchToETHWallet": "Mangyaring lumipat sa isang Ethereum wallet at subukang muli"
 }

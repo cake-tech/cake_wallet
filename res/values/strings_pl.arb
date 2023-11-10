@@ -339,7 +339,6 @@
   "template": "Szablon",
   "confirm_delete_template": "Ta czynność usunie ten szablon. Czy chcesz kontynuować?",
   "confirm_delete_wallet": "Ta czynność usunie ten portfel. Czy chcesz kontynuować?",
-  "picker_description": "Aby wybrać ChangeNOW lub MorphToken, najpierw zmień swoją parę handlową",
   "change_wallet_alert_title": "Zmień obecny portfel",
   "change_wallet_alert_content": "Czy chcesz zmienić obecny portfel na ${wallet_name}?",
   "creating_new_wallet": "Tworzenie nowego portfela",
@@ -725,5 +724,15 @@
   "normal_exchange_description": "Changenow, Sideshift, SimplesWap i Trocador",
   "moonpay_exchange_description": "Bezproblemowa zamiana kryptowalut.",
   "select_exchange_provider_notice": "Wybierz powyższe dostawcę wymiany. Możesz pominąć ten ekran, ustawiając domyślnego dostawcę wymiany w ustawieniach aplikacji.",
-  "default_exchange_provider": "Domyślny dostawca wymiany"
+  "default_exchange_provider": "Domyślny dostawca wymiany",
+  "copyWalletConnectLink": "Skopiuj link do WalletConnect z dApp i wklej tutaj",
+  "enterWalletConnectURI": "Wprowadź identyfikator URI WalletConnect",
+  "seed_key": "Klucz nasion",
+  "enter_seed_phrase": "Wprowadź swoją frazę nasienną",
+  "add_contact": "Dodaj kontakt",
+  "exchange_provider_unsupported": "${providerName} nie jest już obsługiwany!",
+  "domain_looks_up": "Wyszukiwanie domen",
+  "require_for_exchanges_to_external_wallets": "Wymagaj wymiany na portfele zewnętrzne",
+  "camera_permission_is_required": "Wymagane jest pozwolenie na korzystanie z aparatu.\nWłącz tę funkcję w ustawieniach aplikacji.",
+  "switchToETHWallet": "Przejdź na portfel Ethereum i spróbuj ponownie"
 }

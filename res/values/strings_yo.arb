@@ -339,7 +339,6 @@
   "template": "Àwòṣe",
   "confirm_delete_template": "Ìṣe yìí máa yọ àwòṣe yìí kúrò. Ṣé ẹ fẹ́ tẹ̀síwájú?",
   "confirm_delete_wallet": "Ìṣe yìí máa yọ àpamọ́wọ́ yìí kúrò. Ṣé ẹ fẹ́ tẹ̀síwájú?",
-  "picker_description": "Ẹ jọ̀wọ́ pààrọ̀ owó tí ẹ pàṣípààrọ̀ jọ yín lákọ̀ọ́kọ́ kí ẹ yán ChangeNOW tàbí MorphToken",
   "change_wallet_alert_title": "Ẹ pààrọ̀ àpamọ́wọ́ yìí",
   "change_wallet_alert_content": "Ṣe ẹ fẹ́ pààrọ̀ àpamọ́wọ́ yìí sí ${wallet_name}?",
   "creating_new_wallet": "Ń dá àpamọ́wọ́ títun",
@@ -719,5 +718,15 @@
   "normal_exchange_description": "Charginnow, Sidhatft, Simplewap, ati Trador",
   "moonpay_exchange_description": "Spomprteras Crypturencys. \\ NDOCENST nilo",
   "select_exchange_provider_notice": "Yan olupese olupese loke. O le rẹ iboju yii nipa ṣiṣe eto olupese aiyipada Exchange rẹ ninu Eto App.",
-  "default_exchange_provider": "Olupese paṣipaarọ aiyipada"
+  "default_exchange_provider": "Olupese paṣipaarọ aiyipada",
+  "copyWalletConnectLink": "Daakọ ọna asopọ WalletConnect lati dApp ki o si lẹẹmọ nibi",
+  "enterWalletConnectURI": "Tẹ WalletConnect URI sii",
+  "seed_key": "Bọtini Ose",
+  "enter_seed_phrase": "Tẹ ọrọ-iru irugbin rẹ",
+  "add_contact": "Fi olubasọrọ kun",
+  "exchange_provider_unsupported": "${providerName} ko ni atilẹyin mọ!",
+  "domain_looks_up": "Awọn wiwa agbegbe",
+  "require_for_exchanges_to_external_wallets": "Beere fun awọn paṣipaarọ si awọn apamọwọ ita",
+  "camera_permission_is_required": "A nilo igbanilaaye kamẹra.\nJọwọ jeki o lati app eto.",
+  "switchToETHWallet": "Jọwọ yipada si apamọwọ Ethereum ki o tun gbiyanju lẹẹkansi"
 }

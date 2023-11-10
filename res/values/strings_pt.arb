@@ -339,7 +339,6 @@
   "template": "Modelo",
   "confirm_delete_template": "Esta ação excluirá este modelo. Você deseja continuar?",
   "confirm_delete_wallet": "Esta ação excluirá esta carteira. Você deseja continuar?",
-  "picker_description": "Para escolher ChangeNOW ou MorphToken, altere primeiro o seu par de negociação",
   "change_wallet_alert_title": "Alterar carteira atual",
   "change_wallet_alert_content": "Quer mudar a carteira atual para ${wallet_name}?",
   "creating_new_wallet": "Criando nova carteira",
@@ -724,5 +723,15 @@
   "normal_exchange_description": "Canalgenow, lateral, simpleswap e trocador",
   "moonpay_exchange_description": "Troca de criptomoeda sem costura.",
   "select_exchange_provider_notice": "Selecione um provedor de troca acima. Você pode pular esta tela definindo seu provedor de troca padrão nas configurações de aplicativos.",
-  "default_exchange_provider": "Provedor de troca padrão"
+  "default_exchange_provider": "Provedor de troca padrão",
+  "copyWalletConnectLink": "Copie o link WalletConnect do dApp e cole aqui",
+  "enterWalletConnectURI": "Insira o URI do WalletConnect",
+  "seed_key": "Chave de semente",
+  "enter_seed_phrase": "Digite sua frase de semente",
+  "add_contact": "Adicionar contato",
+  "exchange_provider_unsupported": "${providerName} não é mais suportado!",
+  "domain_looks_up": "Pesquisas de domínio",
+  "require_for_exchanges_to_external_wallets": "Exigir trocas para carteiras externas",
+  "camera_permission_is_required": "É necessária permissão da câmera.\nAtive-o nas configurações do aplicativo.",
+  "switchToETHWallet": "Mude para uma carteira Ethereum e tente novamente"
 }

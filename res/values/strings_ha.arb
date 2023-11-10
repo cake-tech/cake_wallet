@@ -340,7 +340,6 @@
   "template": "Samfura",
   "confirm_delete_template": "Wannan aikin zai share wannan samfuri. Kuna so ku ci gaba?",
   "confirm_delete_wallet": "Wannan aikin zai share wannan walat. Kuna so ku ci gaba?",
-  "picker_description": "Don zaɓar ChangeNOW ko MorphToken, da farko canja kasuwancin pair din ku",
   "change_wallet_alert_title": "Canja walat yanzu",
   "change_wallet_alert_content": "Kana so ka canja walat yanzu zuwa ${wallet_name}?",
   "creating_new_wallet": "Haliccin walat sabuwa",
@@ -703,5 +702,15 @@
   "normal_exchange_description": "Channenness, sassaƙa, simpeswap, da kuma Trocador",
   "moonpay_exchange_description": "Sumba crypptocurrency. \\ NDOCUms da ake buƙata",
   "select_exchange_provider_notice": "Zaɓi musayar mai musayar sama. Kuna iya tsallake wannan allon ta hanyar saita tsohuwar mai ba da musayar ta musayar ku a cikin saitunan App.",
-  "default_exchange_provider": "Mai Bayar da Musayar"
+  "default_exchange_provider": "Mai Bayar da Musayar",
+  "copyWalletConnectLink": "Kwafi hanyar haɗin WalletConnect daga dApp kuma liƙa a nan",
+  "enterWalletConnectURI": "Shigar da WalletConnect URI",
+  "seed_key": "Maɓallin iri",
+  "enter_seed_phrase": "Shigar da Sert Sentarku",
+  "add_contact": "Ƙara lamba",
+  "exchange_provider_unsupported": "${providerName}",
+  "domain_looks_up": "Binciken yanki",
+  "require_for_exchanges_to_external_wallets": "Bukatar musanya zuwa wallet na waje",
+  "camera_permission_is_required": "Ana buƙatar izinin kyamara.\nDa fatan za a kunna shi daga saitunan app.",
+  "switchToETHWallet": "Da fatan za a canza zuwa walat ɗin Ethereum kuma a sake gwadawa"
 }

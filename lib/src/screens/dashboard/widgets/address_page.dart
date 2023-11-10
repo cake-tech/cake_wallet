@@ -64,7 +64,15 @@ class AddressPage extends BasePage {
 
   @override
   Widget? leading(BuildContext context) {
-    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
+    final _backButton = Icon(
+      Icons.arrow_back_ios,
+      color: titleColor(context),
+      size: 16,
+    );
+    final _closeButton =
+    currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
+
+    bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
     return MergeSemantics(
       child: SizedBox(
@@ -79,7 +87,7 @@ class AddressPage extends BasePage {
                 overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
-              child: !isMobileView ? closeButton(context) : backButton(context),
+              child: !isMobileView ? _closeButton : _backButton,
             ),
           ),
         ),
@@ -99,19 +107,22 @@ class AddressPage extends BasePage {
   Widget? trailing(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      child: IconButton(
-        padding: EdgeInsets.zero,
-        constraints: BoxConstraints(),
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        iconSize: 25,
-        onPressed: () {
-          ShareUtil.share(
-            text: addressListViewModel.uri.toString(),
-            context: context,
-          );
-        },
-        icon: Icon(Icons.share, size: 20, color: pageIconColor(context)),
+      child: Semantics(
+        label: S.of(context).share,
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          constraints: BoxConstraints(),
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          iconSize: 25,
+          onPressed: () {
+            ShareUtil.share(
+              text: addressListViewModel.uri.toString(),
+              context: context,
+            );
+          },
+          icon: Icon(Icons.share, size: 20, color: pageIconColor(context)),
+        ),
       ),
     );
   }

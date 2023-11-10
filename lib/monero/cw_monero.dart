@@ -120,8 +120,6 @@ class CWMoneroWalletDetails extends MoneroWalletDetails {
   @computed
   @override
   MoneroBalance get balance {
-    final moneroWallet = _wallet as MoneroWallet;
-    final balance = moneroWallet.balance;
     throw Exception('Unimplemented');
     // return MoneroBalance();
     //return MoneroBalance(
@@ -132,14 +130,10 @@ class CWMoneroWalletDetails extends MoneroWalletDetails {
 
 class CWMonero extends Monero {
   @override
-  MoneroAccountList getAccountList(Object wallet) {
-    return CWMoneroAccountList(wallet);
-  }
+  MoneroAccountList getAccountList(Object wallet) => CWMoneroAccountList(wallet);
 
   @override
-  MoneroSubaddressList getSubaddressList(Object wallet) {
-    return CWMoneroSubaddressList(wallet);
-  }
+  MoneroSubaddressList getSubaddressList(Object wallet) => CWMoneroSubaddressList(wallet);
 
   @override
   TransactionHistoryBase getTransactionHistory(Object wallet) {
@@ -148,19 +142,13 @@ class CWMonero extends Monero {
   }
 
   @override
-  MoneroWalletDetails getMoneroWalletDetails(Object wallet) {
-    return CWMoneroWalletDetails(wallet);
-  }
+  MoneroWalletDetails getMoneroWalletDetails(Object wallet) => CWMoneroWalletDetails(wallet);
 
   @override
-  int getHeigthByDate({required DateTime date}) {
-    return getMoneroHeigthByDate(date: date);
-  }
+  int getHeightByDate({required DateTime date}) => getMoneroHeigthByDate(date: date);
 
   @override
-  TransactionPriority getDefaultTransactionPriority() {
-    return MoneroTransactionPriority.automatic;
-  }
+  TransactionPriority getDefaultTransactionPriority() => MoneroTransactionPriority.automatic;
 
   @override
   TransactionPriority getMoneroTransactionPrioritySlow() => MoneroTransactionPriority.slow;
@@ -170,14 +158,11 @@ class CWMonero extends Monero {
       MoneroTransactionPriority.automatic;
 
   @override
-  TransactionPriority deserializeMoneroTransactionPriority({required int raw}) {
-    return MoneroTransactionPriority.deserialize(raw: raw);
-  }
+  TransactionPriority deserializeMoneroTransactionPriority({required int raw}) =>
+      MoneroTransactionPriority.deserialize(raw: raw);
 
   @override
-  List<TransactionPriority> getTransactionPriorities() {
-    return MoneroTransactionPriority.all;
-  }
+  List<TransactionPriority> getTransactionPriorities() => MoneroTransactionPriority.all;
 
   @override
   List<String> getMoneroWordList(String language) {
@@ -209,41 +194,37 @@ class CWMonero extends Monero {
 
   @override
   WalletCredentials createMoneroRestoreWalletFromKeysCredentials(
-      {required String name,
-      required String spendKey,
-      required String viewKey,
-      required String address,
-      required String password,
-      required String language,
-      required int height}) {
-    return MoneroRestoreWalletFromKeysCredentials(
-        name: name,
-        spendKey: spendKey,
-        viewKey: viewKey,
-        address: address,
-        password: password,
-        language: language,
-        height: height);
-  }
+          {required String name,
+          required String spendKey,
+          required String viewKey,
+          required String address,
+          required String password,
+          required String language,
+          required int height}) =>
+      MoneroRestoreWalletFromKeysCredentials(
+          name: name,
+          spendKey: spendKey,
+          viewKey: viewKey,
+          address: address,
+          password: password,
+          language: language,
+          height: height);
 
   @override
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials(
-      {required String name,
-      required String password,
-      required int height,
-      required String mnemonic}) {
-    return MoneroRestoreWalletFromSeedCredentials(
-        name: name, password: password, height: height, mnemonic: mnemonic);
-  }
+          {required String name,
+          required String password,
+          required int height,
+          required String mnemonic}) =>
+      MoneroRestoreWalletFromSeedCredentials(
+          name: name, password: password, height: height, mnemonic: mnemonic);
 
   @override
   WalletCredentials createMoneroNewWalletCredentials({
     required String name,
     required String language,
-    String? password,
-  }) {
-    return MoneroNewWalletCredentials(name: name, password: password, language: language);
-  }
+    String? password}) =>
+      MoneroNewWalletCredentials(name: name, password: password, language: language);
 
   @override
   Map<String, String> getKeys(Object wallet) {
@@ -259,43 +240,37 @@ class CWMonero extends Monero {
 
   @override
   Object createMoneroTransactionCreationCredentials(
-      {required List<Output> outputs, required TransactionPriority priority}) {
-    return MoneroTransactionCreationCredentials(
-        outputs: outputs
-            .map((out) => OutputInfo(
-                fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
-                address: out.address,
-                note: out.note,
-                sendAll: out.sendAll,
-                extractedAddress: out.extractedAddress,
-                isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount))
-            .toList(),
-        priority: priority as MoneroTransactionPriority);
-  }
+          {required List<Output> outputs, required TransactionPriority priority}) =>
+      MoneroTransactionCreationCredentials(
+          outputs: outputs
+              .map((out) => OutputInfo(
+                  fiatAmount: out.fiatAmount,
+                  cryptoAmount: out.cryptoAmount,
+                  address: out.address,
+                  note: out.note,
+                  sendAll: out.sendAll,
+                  extractedAddress: out.extractedAddress,
+                  isParsedAddress: out.isParsedAddress,
+                  formattedCryptoAmount: out.formattedCryptoAmount))
+              .toList(),
+          priority: priority as MoneroTransactionPriority);
 
   @override
   Object createMoneroTransactionCreationCredentialsRaw(
-      {required List<OutputInfo> outputs, required TransactionPriority priority}) {
-    return MoneroTransactionCreationCredentials(
-        outputs: outputs, priority: priority as MoneroTransactionPriority);
-  }
+          {required List<OutputInfo> outputs, required TransactionPriority priority}) =>
+      MoneroTransactionCreationCredentials(
+          outputs: outputs, priority: priority as MoneroTransactionPriority);
 
   @override
-  String formatterMoneroAmountToString({required int amount}) {
-    return moneroAmountToString(amount: amount);
-  }
+  String formatterMoneroAmountToString({required int amount}) =>
+      moneroAmountToString(amount: amount);
 
   @override
-  double formatterMoneroAmountToDouble({required int amount}) {
-    return moneroAmountToDouble(amount: amount);
-  }
+  double formatterMoneroAmountToDouble({required int amount}) =>
+      moneroAmountToDouble(amount: amount);
 
   @override
-  int formatterMoneroParseAmount({required String amount}) {
-    return moneroParseAmount(amount: amount);
-  }
+  int formatterMoneroParseAmount({required String amount}) => moneroParseAmount(amount: amount);
 
   @override
   Account getCurrentAccount(Object wallet) {
@@ -312,9 +287,7 @@ class CWMonero extends Monero {
   }
 
   @override
-  void onStartup() {
-    monero_wallet_api.onStartup();
-  }
+  void onStartup() => monero_wallet_api.onStartup();
 
   @override
   int getTransactionInfoAccountId(TransactionInfo tx) {
@@ -324,9 +297,8 @@ class CWMonero extends Monero {
 
   @override
   WalletService createMoneroWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
-    return MoneroWalletService(walletInfoSource, unspentCoinSource);
-  }
+          Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) =>
+      MoneroWalletService(walletInfoSource, unspentCoinSource);
 
   @override
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {

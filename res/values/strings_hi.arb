@@ -339,7 +339,6 @@
   "template": "खाका",
   "confirm_delete_template": "यह क्रिया इस टेम्पलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?",
   "confirm_delete_wallet": "यह क्रिया इस वॉलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?",
-  "picker_description": "ChangeNOW या MorphToken चुनने के लिए, कृपया अपनी ट्रेडिंग जोड़ी को पहले बदलें",
   "change_wallet_alert_title": "वर्तमान बटुआ बदलें",
   "change_wallet_alert_content": "क्या आप करंट वॉलेट को बदलना चाहते हैं ${wallet_name}?",
   "creating_new_wallet": "नया बटुआ बनाना",
@@ -725,5 +724,15 @@
   "normal_exchange_description": "Changenow, Sideshift, Simpleswap, और Trocador",
   "moonpay_exchange_description": "सीमलेस क्रिप्टोक्यूरेंसी स्वैपिंग। \\ ndocuments आवश्यक",
   "select_exchange_provider_notice": "ऊपर एक एक्सचेंज प्रदाता का चयन करें। आप ऐप सेटिंग्स में अपने डिफ़ॉल्ट एक्सचेंज प्रदाता को सेट करके इस स्क्रीन को छोड़ सकते हैं।",
-  "default_exchange_provider": "डिफ़ॉल्ट विनिमय प्रदाता"
+  "default_exchange_provider": "डिफ़ॉल्ट विनिमय प्रदाता",
+  "copyWalletConnectLink": "dApp से वॉलेटकनेक्ट लिंक को कॉपी करें और यहां पेस्ट करें",
+  "enterWalletConnectURI": "वॉलेटकनेक्ट यूआरआई दर्ज करें",
+  "seed_key": "बीज कुंजी",
+  "enter_seed_phrase": "अपना बीज वाक्यांश दर्ज करें",
+  "add_contact": "संपर्क जोड़ें",
+  "exchange_provider_unsupported": "${providerName} अब समर्थित नहीं है!",
+  "domain_looks_up": "डोमेन लुकअप",
+  "require_for_exchanges_to_external_wallets": "बाहरी वॉलेट में एक्सचेंज की आवश्यकता है",
+  "camera_permission_is_required": "कैमरे की अनुमति आवश्यक है.\nकृपया इसे ऐप सेटिंग से सक्षम करें।",
+  "switchToETHWallet": "कृपया एथेरियम वॉलेट पर स्विच करें और पुनः प्रयास करें"
 }

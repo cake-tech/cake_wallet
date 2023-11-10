@@ -339,7 +339,6 @@
   "template": "قالب",
   "confirm_delete_template": "سيؤدي هذا الإجراء إلى حذف هذا القالب. هل ترغب في الاستمرار؟",
   "confirm_delete_wallet": "سيؤدي هذا الإجراء إلى حذف هذه المحفظة. هل ترغب في الاستمرار؟",
-  "picker_description": "لاختيار ChangeNOW أو MorphToken ، يرجى تغيير زوج التداول الخاص بك أولاً",
   "change_wallet_alert_title": "تغيير المحفظة الحالية",
   "change_wallet_alert_content": "هل تريد تغيير المحفظة الحالية إلى ${wallet_name}؟",
   "creating_new_wallet": "يتم إنشاء محفظة جديدة",
@@ -721,5 +720,15 @@
   "normal_exchange_description": "Changenow و Sideshift و SimplesWap و Trocador",
   "moonpay_exchange_description": "مبادلة عملة مشفرة سلسة.",
   "select_exchange_provider_notice": "حدد مزود تبادل أعلاه. يمكنك تخطي هذه الشاشة عن طريق تعيين مزود التبادل الافتراضي في إعدادات التطبيق.",
-  "default_exchange_provider": "مزود التبادل الافتراضي"
+  "default_exchange_provider": "مزود التبادل الافتراضي",
+  "copyWalletConnectLink": "ﺎﻨﻫ ﻪﻘﺼﻟﺍﻭ dApp ﻦﻣ WalletConnect ﻂﺑﺍﺭ ﺦﺴﻧﺍ",
+  "enterWalletConnectURI": "WalletConnect ـﻟ URI ﻞﺧﺩﺃ",
+  "seed_key": "مفتاح البذور",
+  "enter_seed_phrase": "أدخل عبارة البذور الخاصة بك",
+  "add_contact": "ﻝﺎﺼﺗﺍ ﺔﻬﺟ ﺔﻓﺎﺿﺇ",
+  "exchange_provider_unsupported": "${providerName} لم يعد مدعومًا!",
+  "domain_looks_up": "ﻝﺎﺠﻤﻟﺍ ﺚﺤﺑ ﺕﺎﻴﻠﻤﻋ",
+  "require_for_exchanges_to_external_wallets": "ﺔﻴﺟﺭﺎﺧ ﻆﻓﺎﺤﻣ ﻰﻟﺇ ﺕﻻ﻿ﺩﺎﺒﺘﻟﺍ ﺐﻠﻄﺘﺗ",
+  "camera_permission_is_required": ".ﺍﺮﻴﻣﺎﻜﻟﺍ ﻥﺫﺇ ﺏﻮﻠﻄﻣ",
+  "switchToETHWallet": "ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ Ethereum ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ"
 }
