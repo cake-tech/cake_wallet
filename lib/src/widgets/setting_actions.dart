@@ -84,7 +84,7 @@ class SettingActions {
 
   static SettingActions trocadorProvidersAction = SettingActions._(
     name: (context) => 'Trocador Providers',
-    image: 'assets/images/privacy_menu.png',
+    image: 'assets/images/trocador_menu.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.trocadorProvidersPage);
