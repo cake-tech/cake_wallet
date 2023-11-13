@@ -58,7 +58,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   @override
   void initState() {
     _setLanguageLabel(language);
-    _setSeedType(SeedType.defaultSeedType);
     super.initState();
   }
 
