@@ -1,37 +1,49 @@
-import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
-import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.dart';
+import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class TrocadorProvidersPage extends BasePage {
-  TrocadorProvidersPage(this.trocadorProvidersViewModel);
+  TrocadorProvidersPage(this._privacySettingsViewModel);
 
   @override
   String get title => 'Trocador Providers';
 
-  final TrocadorProvidersViewModel trocadorProvidersViewModel;
+  final PrivacySettingsViewModel _privacySettingsViewModel;
 
   @override
   Widget body(BuildContext context) {
-    final availableProviders = TrocadorExchangeProvider.availableProviders;
-    final providerStates = trocadorProvidersViewModel.providerStates;
     return Container(
       padding: EdgeInsets.only(top: 10),
-      child: ListView.builder(
-        itemCount: availableProviders.length,
-        itemBuilder: (_, index) {
-          String provider = availableProviders[index];
-          return Observer(
-              builder: (_) => SettingsSwitcherCell(
-                  title: provider,
-                  value: providerStates[provider] ?? false,
+      child: Observer(builder: (_) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SettingsSwitcherCell(
+                title: 'Provider 1',
+                value: false,
+                onValueChange: (BuildContext _, bool value) {
+                }),
+            SettingsSwitcherCell(
+                title: 'Provider 2',
+                value: false,
+                onValueChange: (BuildContext _, bool value) {
+                }),
+            SettingsSwitcherCell(
+                title: 'Provider 3',
+                value: false,
+                onValueChange: (BuildContext _, bool value) {
+                }),
+              SettingsSwitcherCell(
+                  title: 'Provider 4',
+                  value: false,
                   onValueChange: (BuildContext _, bool value) {
-                    trocadorProvidersViewModel.toggleProviderState(provider);
-                  }));
-        },
-      ),
+                  }),
+          ],
+        );
+      }),
     );
   }
 }

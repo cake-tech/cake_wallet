@@ -10,7 +10,6 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
-import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -161,8 +160,6 @@ abstract class SettingsStoreBase with Store {
     if (initialBitcoinCashTransactionPriority != null) {
       priority[WalletType.bitcoinCash] = initialBitcoinCashTransactionPriority;
     }
-
-    initializeTrocadorProviderStates();
 
     reaction(
         (_) => fiatCurrency,
@@ -517,9 +514,6 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   ObservableMap<WalletType, TransactionPriority> priority;
-
-  @observable
-  ObservableMap<String, bool> trocadorProviderStates = ObservableMap<String, bool>();
 
   @observable
   SortBalanceBy sortBalanceBy;
@@ -1064,19 +1058,6 @@ abstract class SettingsStoreBase with Store {
 
     powNodes[walletType] = node;
   }
-
-  void initializeTrocadorProviderStates() {
-    for (var provider in TrocadorExchangeProvider.availableProviders) {
-      final savedState = _sharedPreferences.getBool(provider) ?? true;
-      trocadorProviderStates[provider] = savedState;
-    }
-  }
-
-  void saveTrocadorProviderState(String providerName, bool state) {
-    _sharedPreferences.setBool(providerName, state);
-    trocadorProviderStates[providerName] = state;
-  }
-
 
   static Future<String?> _getDeviceName() async {
     String? deviceName = '';

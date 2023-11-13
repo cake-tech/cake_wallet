@@ -12,25 +12,11 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:http/http.dart';
 
 class TrocadorExchangeProvider extends ExchangeProvider {
-  TrocadorExchangeProvider({this.useTorOnly = false, this.providerStates = const {}})
-      : _lastUsedRateId = '', _provider = [],
+  TrocadorExchangeProvider({this.useTorOnly = false})
+      : _lastUsedRateId = '',
         super(pairList: supportedPairs(_notSupported));
 
   bool useTorOnly;
-  final Map<String, bool> providerStates;
-
-  static const List<String> availableProviders = [
-    'Swapter',
-    'StealthEx',
-    'Simpleswap',
-    'ChangeNow',
-    'FixedFloat',
-    'LetsExchange',
-    'Exolix',
-    'Godex',
-    'Exch',
-    'CoinCraddle'
-  ];
 
   static const List<CryptoCurrency> _notSupported = [
     CryptoCurrency.stx,
@@ -47,7 +33,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   static const coinPath = 'api/coin';
 
   String _lastUsedRateId;
-  List<dynamic> _provider;
 
   @override
   String get title => 'Trocador';
@@ -120,6 +105,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         'payment': isFixedRateMode ? 'True' : 'False',
         'min_kycrating': 'C',
         'markup': markup,
+        'best_only': 'True',
       };
 
       final uri = await _getUri(newRatePath, params);
@@ -128,9 +114,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final fromAmount = double.parse(responseJSON['amount_from'].toString());
       final toAmount = double.parse(responseJSON['amount_to'].toString());
       final rateId = responseJSON['trade_id'] as String? ?? '';
-
-      var quotes = responseJSON['quotes']['quotes'] as List;
-      _provider = quotes.map((quote) => quote['provider']).toList();
 
       if (rateId.isNotEmpty) _lastUsedRateId = rateId;
 
@@ -143,7 +126,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
-
     final params = {
       'api_key': apiKey,
       'ticker_from': _normalizeCurrency(request.fromCurrency),
@@ -153,6 +135,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       'payment': isFixedRateMode ? 'True' : 'False',
       'min_kycrating': 'C',
       'markup': markup,
+      'best_only': 'True',
       if (!isFixedRateMode) 'amount_from': request.fromAmount,
       if (isFixedRateMode) 'amount_to': request.toAmount,
       'address': request.toAddress,
@@ -169,22 +152,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       );
       params['id'] = _lastUsedRateId;
     }
-
-
-    String firstAvailableProvider = '';
-
-      for (var provider in _provider) {
-        if (providerStates.containsKey(provider) && providerStates[provider] == true) {
-          firstAvailableProvider = provider as String;
-          break;
-        }
-      }
-
-      if (firstAvailableProvider.isEmpty) {
-        throw Exception('No available provider is enabled');
-      }
-
-      params['provider'] = firstAvailableProvider;
 
     final uri = await _getUri(createTradePath, params);
     final response = await get(uri);
