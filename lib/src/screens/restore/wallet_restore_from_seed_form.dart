@@ -58,6 +58,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   @override
   void initState() {
     _setLanguageLabel(language);
+    _setSeedType(SeedType.defaultSeedType);
     super.initState();
   }
 
@@ -131,7 +132,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                             items: SeedType.all,
                             selectedAtIndex: 0,
                             mainAxisAlignment: MainAxisAlignment.start,
-                            onItemSelected: _setSeedType,
+                            onItemSelected: _changeSeedType,
                             isSeparated: false,
                           ));
                 },
@@ -184,9 +185,13 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   void _setLanguageLabel(String language) =>
       languageController.text = '${language.replaceAll("POLYSEED_", "")} (Seed language)';
 
+  void _changeSeedType(SeedType item) {
+    _setSeedType(item);
+    _changeLanguage('English');
+  }
+
   void _setSeedType(SeedType item) {
     setState(() => isPolyseed = item == SeedType.polyseed);
     seedTypeController.text = item.toString();
-    _changeLanguage('English');
   }
 }
