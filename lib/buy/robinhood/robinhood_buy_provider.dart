@@ -11,8 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class RobinhoodBuyProvider {
-  RobinhoodBuyProvider({required WalletBase wallet})
-      : this._wallet = wallet;
+  RobinhoodBuyProvider({required WalletBase wallet}) : this._wallet = wallet;
 
   final WalletBase _wallet;
 
@@ -20,10 +19,15 @@ class RobinhoodBuyProvider {
   static const _cIdBaseUrl = 'exchange-helper.cakewallet.com';
 
   String get _applicationId => secrets.robinhoodApplicationId;
+
   String get _apiSecret => secrets.robinhoodCIdApiSecret;
 
-  bool get isAvailable =>
-      [WalletType.bitcoin, WalletType.litecoin, WalletType.ethereum].contains(_wallet.type);
+  bool get isAvailable => [
+        WalletType.bitcoin,
+        WalletType.bitcoinCash,
+        WalletType.litecoin,
+        WalletType.ethereum
+      ].contains(_wallet.type);
 
   String getSignature(String message) {
     switch (_wallet.type) {
@@ -55,7 +59,8 @@ class RobinhoodBuyProvider {
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as Map<String, dynamic>)['connectId'] as String;
     } else {
-      throw Exception('Provider currently unavailable. Status: ${response.statusCode} ${response.body}');
+      throw Exception(
+          'Provider currently unavailable. Status: ${response.statusCode} ${response.body}');
     }
   }
 
