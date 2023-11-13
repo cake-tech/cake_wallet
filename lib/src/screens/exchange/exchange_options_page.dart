@@ -37,21 +37,21 @@ class ExchangeOptionsPage extends BasePage {
               Padding(
                 padding: EdgeInsets.only(top: 24),
                 child: OptionTile(
-                  image: iconMoonPay,
-                  title: "MoonPay Swaps",
-                  description: S.of(context).moonpay_exchange_description,
-                  onPressed: () async =>
-                      await getIt.get<MoonPayExchangeProvider>().launchProvider(context),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 24),
-                child: OptionTile(
                   image: iconNormalExchange,
                   title: "Normal Exchange",
                   description: S.of(context).normal_exchange_description,
                   onPressed: () async =>
                       await Navigator.of(context).pushReplacementNamed(Routes.exchange),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 24),
+                child: OptionTile(
+                  image: iconMoonPay,
+                  title: "MoonPay Swaps",
+                  description: S.of(context).moonpay_exchange_description,
+                  onPressed: () async =>
+                      await getIt.get<MoonPayExchangeProvider>().launchProvider(context),
                 ),
               ),
               Spacer(),
