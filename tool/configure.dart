@@ -598,7 +598,6 @@ import 'package:web3dart/web3dart.dart';
 """;
   const polygonCWHeaders = """
 import 'package:cw_polygon/polygon_formatter.dart';
-import 'package:cw_polygon/polygon_mnemonics.dart';
 import 'package:cw_polygon/polygon_transaction_credentials.dart';
 import 'package:cw_polygon/polygon_transaction_info.dart';
 import 'package:cw_polygon/polygon_wallet.dart';
