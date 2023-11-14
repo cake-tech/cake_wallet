@@ -44,7 +44,7 @@ class EthereumTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
-  String feeFormatted() => '${(ethFee / BigInt.from(10).pow(18)).toString()} ETH';
+  String feeFormatted() => '${(ethFee / BigInt.from(10).pow(18)).toString()} $tokenSymbol';
 
   factory EthereumTransactionInfo.fromJson(Map<String, dynamic> data) {
     return EthereumTransactionInfo(
