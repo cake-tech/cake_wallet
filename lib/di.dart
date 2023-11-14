@@ -532,8 +532,7 @@ Future<void> setup({
   getIt.registerFactory<Modify2FAPage>(
       () => Modify2FAPage(setup2FAViewModel: getIt.get<Setup2FAViewModel>()));
 
-  getIt.registerFactory<DesktopSettingsPage>(
-      () => DesktopSettingsPage());
+  getIt.registerFactory<DesktopSettingsPage>(() => DesktopSettingsPage());
 
   getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>(
       (pageOption, _) => ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, pageOption));
@@ -653,7 +652,7 @@ Future<void> setup({
 
   getIt.registerFactory<MoneroAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;
-    if (wallet.type == WalletType.monero || wallet.type == WalletType.haven) {
+    if (true) {
       return MoneroAccountListViewModel(wallet);
     }
     throw Exception(
@@ -848,8 +847,8 @@ Future<void> setup({
         return ethereum!.createEthereumWalletService(
             _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.bitcoinCash:
-        return bitcoinCash!.createBitcoinCashWalletService(_walletInfoSource, _unspentCoinsInfoSource,
-            SettingsStoreBase.walletPasswordDirectInput);
+        return bitcoinCash!.createBitcoinCashWalletService(_walletInfoSource,
+            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.nano:
         return nano!.createNanoWalletService(
             _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
@@ -1155,8 +1154,8 @@ Future<void> setup({
           IoniaPaymentStatusPage(
               getIt.get<IoniaPaymentStatusViewModel>(param1: paymentInfo, param2: committedInfo)));
 
-  getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
-      (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
+  getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, void, void>(
+      (type, _) => AdvancedPrivacySettingsViewModel(getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<WalletUnlockLoadableViewModel, WalletUnlockArguments, void>((args, _) {
     final currentWalletName =

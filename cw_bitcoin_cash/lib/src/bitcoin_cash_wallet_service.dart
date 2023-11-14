@@ -29,8 +29,7 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
       File(await pathForWallet(name: name, type: getType())).existsSync();
 
   @override
-  Future<BitcoinCashWallet> create(
-      credentials) async {
+  Future<BitcoinCashWallet> create(credentials, {bool? isTestnet}) async {
     final wallet = await BitcoinCashWalletBase.create(
         mnemonic: await Mnemonic.generate(),
         password: credentials.password!,

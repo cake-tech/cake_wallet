@@ -21,7 +21,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
   final bool isDirect;
 
   @override
-  Future<EthereumWallet> create(EthereumNewWalletCredentials credentials) async {
+  Future<EthereumWallet> create(EthereumNewWalletCredentials credentials, {bool? isTestnet}) async {
     final mnemonic = bip39.generateMnemonic();
     final wallet = EthereumWallet(
       walletInfo: credentials.walletInfo!,

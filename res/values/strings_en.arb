@@ -435,7 +435,7 @@
   "search_language": "Search language",
   "search_currency": "Search currency",
   "new_template": "New Template",
-  "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work",
+  "electrum_address_disclaimer": "We generate new primary addresses each time you use one, but previous addresses continue to work",
   "wallet_name_exists": "A wallet with that name already exists. Please choose a different name or rename the other wallet first.",
   "market_place": "Marketplace",
   "cake_pay_title": "Cake Pay Gift Cards",
@@ -737,5 +737,8 @@
   "domain_looks_up": "Domain lookups",
   "require_for_exchanges_to_external_wallets": "Require for exchanges to external wallets",
   "camera_permission_is_required": "Camera permission is required. \nPlease enable it from app settings.",
-  "switchToETHWallet": "Please switch to an Ethereum wallet and try again"
+  "switchToETHWallet": "Please switch to an Ethereum wallet and try again",
+  "use_testnet": "Use testnet",
+  "address_and_silent_addresses": "Address and Silent Addresses",
+  "silent_addresses": "Silent Addresses"
 }

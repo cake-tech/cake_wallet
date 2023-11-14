@@ -435,7 +435,7 @@
   "search_language": "검색 언어",
   "search_currency": "통화 검색",
   "new_template": "새 템플릿",
-  "electrum_address_disclaimer": "사용할 때마다 새 주소가 생성되지만 이전 주소는 계속 작동합니다.",
+  "electrum_address_disclaimer": "우리는 당신이 하나를 사용할 때마다 새로운 기본 주소를 생성하지만 이전 주소는 계속 작동합니다.",
   "wallet_name_exists": "해당 이름의 지갑이 이미 존재합니다.",
   "market_place": "마켓플레이스",
   "cake_pay_title": "케이크 페이 기프트 카드",
@@ -734,5 +734,8 @@
   "domain_looks_up": "도메인 조회",
   "require_for_exchanges_to_external_wallets": "외부 지갑으로의 교환을 위해 필요",
   "camera_permission_is_required": "카메라 권한이 필요합니다.\n앱 설정에서 활성화해 주세요.",
-  "switchToETHWallet": "이더리움 지갑으로 전환한 후 다시 시도해 주세요."
+  "switchToETHWallet": "이더리움 지갑으로 전환한 후 다시 시도해 주세요.",
+  "use_testnet": "TestNet을 사용하십시오",
+  "address_and_silent_addresses": "주소 및 조용한 주소",
+  "silent_addresses": "조용한 주소"
 }

@@ -48,7 +48,7 @@ dependencies:
   basic_utils: ^5.6.1
   get_it: ^7.2.0
   # connectivity: ^3.0.3
-  connectivity_plus: ^2.3.5
+  # connectivity_plus: ^2.3.5
   keyboard_actions: ^4.0.1
   another_flushbar: ^1.12.29
   archive: ^3.3.0
@@ -85,9 +85,7 @@ dependencies:
       url: https://github.com/cake-tech/ens_dart.git
       ref: main
   bitcoin_flutter:
-    git:
-      url: https://github.com/cake-tech/bitcoin_flutter.git
-      ref: cake-update-v3
+    path: /home/rafael/Storage/Repositories/bitcoin_flutter
   fluttertoast: 8.1.4
 
 dev_dependencies:

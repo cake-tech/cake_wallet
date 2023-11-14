@@ -435,7 +435,7 @@
   "search_language": "Jezik pretraživanja",
   "search_currency": "Traži valutu",
   "new_template": "novi predložak",
-  "electrum_address_disclaimer": "Minden egyes alkalommal új címeket generálunk, de a korábbi címek továbbra is működnek",
+  "electrum_address_disclaimer": "Generiramo nove primarne adrese svaki put kada ih koristite, ali prethodne adrese i dalje rade",
   "wallet_name_exists": "Novčanik s tim nazivom već postoji",
   "market_place": "Tržnica",
   "cake_pay_title": "Cake Pay poklon kartice",
@@ -734,5 +734,8 @@
   "domain_looks_up": "Pretraga domena",
   "require_for_exchanges_to_external_wallets": "Zahtijeva razmjene na vanjske novčanike",
   "camera_permission_is_required": "Potrebno je dopuštenje kamere.\nOmogućite ga u postavkama aplikacije.",
-  "switchToETHWallet": "Prijeđite na Ethereum novčanik i pokušajte ponovno"
+  "switchToETHWallet": "Prijeđite na Ethereum novčanik i pokušajte ponovno",
+  "use_testnet": "Koristite TestNet",
+  "address_and_silent_addresses": "Adresa i tihe adrese",
+  "silent_addresses": "Tihe adrese"
 }

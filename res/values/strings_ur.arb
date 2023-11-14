@@ -436,7 +436,7 @@
   "search_language": "زبان تلاش کریں۔",
   "search_currency": "کرنسی تلاش کریں۔",
   "new_template": "نیا سانچہ",
-  "electrum_address_disclaimer": "جب بھی آپ ایک کا استعمال کرتے ہیں تو ہم نئے پتے تیار کرتے ہیں، لیکن پچھلے پتے کام کرتے رہتے ہیں۔",
+  "electrum_address_disclaimer": "ہم ہر بار جب آپ کسی کو استعمال کرتے ہیں تو نئے پرائمری پتے تیار کرتے ہیں ، لیکن پچھلے پتے کام کرتے رہتے ہیں",
   "wallet_name_exists": "اس نام کا پرس پہلے سے موجود ہے۔ براہ کرم ایک مختلف نام منتخب کریں یا پہلے دوسرے بٹوے کا نام تبدیل کریں۔",
   "market_place": "بازار",
   "cake_pay_title": "Cake پے گفٹ کارڈز",
@@ -728,5 +728,8 @@
   "domain_looks_up": "ڈومین تلاش کرنا",
   "require_for_exchanges_to_external_wallets": "۔ﮯﮨ ﺕﺭﻭﺮﺿ ﯽﮐ ﮯﻟﺩﺎﺒﺗ ﮟﯿﻣ ﮮﻮﭩﺑ ﯽﻧﻭﺮﯿﺑ",
   "camera_permission_is_required": "۔ﮯﮨ ﺭﺎﮐﺭﺩ ﺕﺯﺎﺟﺍ ﯽﮐ ﮮﺮﻤﯿﮐ",
-  "switchToETHWallet": "۔ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ Ethereum ﻡﺮﮐ ﮦﺍﺮﺑ"
+  "switchToETHWallet": "۔ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ Ethereum ﻡﺮﮐ ﮦﺍﺮﺑ",
+  "use_testnet": "ٹیسٹ نیٹ استعمال کریں",
+  "address_and_silent_addresses": "پتہ اور خاموش پتے",
+  "silent_addresses": "خاموش پتے"
 }

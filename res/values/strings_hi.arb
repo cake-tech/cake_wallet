@@ -435,7 +435,7 @@
   "search_language": "भाषा खोजें",
   "search_currency": "मुद्रा खोजें",
   "new_template": "नया टेम्पलेट",
-  "electrum_address_disclaimer": "हर बार जब आप एक का उपयोग करते हैं तो हम नए पते उत्पन्न करते हैं, लेकिन पिछले पते काम करना जारी रखते हैं",
+  "electrum_address_disclaimer": "हम हर बार जब आप एक का उपयोग करते हैं, तो हम नए प्राथमिक पते उत्पन्न करते हैं, लेकिन पिछले पते काम करना जारी रखते हैं",
   "wallet_name_exists": "उस नाम वाला वॉलेट पहले से मौजूद है",
   "market_place": "मार्केटप्लेस",
   "cake_pay_title": "केक पे गिफ्ट कार्ड्स",
@@ -736,5 +736,8 @@
   "domain_looks_up": "डोमेन लुकअप",
   "require_for_exchanges_to_external_wallets": "बाहरी वॉलेट में एक्सचेंज की आवश्यकता है",
   "camera_permission_is_required": "कैमरे की अनुमति आवश्यक है.\nकृपया इसे ऐप सेटिंग से सक्षम करें।",
-  "switchToETHWallet": "कृपया एथेरियम वॉलेट पर स्विच करें और पुनः प्रयास करें"
+  "switchToETHWallet": "कृपया एथेरियम वॉलेट पर स्विच करें और पुनः प्रयास करें",
+  "use_testnet": "टेस्टनेट का उपयोग करें",
+  "address_and_silent_addresses": "पता और मूक पते",
+  "silent_addresses": "मूक पते"
 }

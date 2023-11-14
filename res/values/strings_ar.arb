@@ -435,7 +435,7 @@
   "search_language": "ابحث عن لغة",
   "search_currency": "ابحث عن عملة",
   "new_template": "قالب جديد",
-  "electrum_address_disclaimer": "نقوم بإنشاء عناوين جديدة في كل مرة تستخدم فيها عنوانًا ، لكن العناوين السابقة تستمر في العمل",
+  "electrum_address_disclaimer": "نقوم بإنشاء عناوين أساسية جديدة في كل مرة تستخدم فيها واحدة ، لكن العناوين السابقة تستمر في العمل",
   "wallet_name_exists": "توجد بالفعل محفظة بهذا الاسم. الرجاء اختيار اسم مختلف أو إعادة تسمية المحفظة الأخرى أولاً.",
   "market_place": "منصة التجارة",
   "cake_pay_title": "بطاقات هدايا Cake Pay",
@@ -732,5 +732,8 @@
   "domain_looks_up": "ﻝﺎﺠﻤﻟﺍ ﺚﺤﺑ ﺕﺎﻴﻠﻤﻋ",
   "require_for_exchanges_to_external_wallets": "ﺔﻴﺟﺭﺎﺧ ﻆﻓﺎﺤﻣ ﻰﻟﺇ ﺕﻻ﻿ﺩﺎﺒﺘﻟﺍ ﺐﻠﻄﺘﺗ",
   "camera_permission_is_required": ".ﺍﺮﻴﻣﺎﻜﻟﺍ ﻥﺫﺇ ﺏﻮﻠﻄﻣ",
-  "switchToETHWallet": "ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ Ethereum ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ"
+  "switchToETHWallet": "ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ Ethereum ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ",
+  "use_testnet": "استخدم testnet",
+  "address_and_silent_addresses": "العنوان والعناوين الصامتة",
+  "silent_addresses": "عناوين صامتة"
 }

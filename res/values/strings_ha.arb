@@ -436,7 +436,7 @@
   "search_language": "Bincika harshe",
   "search_currency": "Neman kudin waje",
   "new_template": "Sabon Samfura",
-  "electrum_address_disclaimer": "Muna samar da sababbin adireshi duk lokacin da kuka yi amfani da ɗaya, amma adiresoshin da suka gabata suna ci gaba da aiki",
+  "electrum_address_disclaimer": "Muna samar da sabbin adiresoshin farko a duk lokacin da kake amfani da ɗaya, amma adiresoshin da suka gabata suna ci gaba da aiki",
   "wallet_name_exists": "Wallet mai wannan sunan ya riga ya wanzu. Da fatan za a zaɓi wani suna daban ko sake suna ɗayan walat tukuna.",
   "market_place": "Kasuwa",
   "cake_pay_title": "Cake Pay Gift Cards",
@@ -714,5 +714,8 @@
   "domain_looks_up": "Binciken yanki",
   "require_for_exchanges_to_external_wallets": "Bukatar musanya zuwa wallet na waje",
   "camera_permission_is_required": "Ana buƙatar izinin kyamara.\nDa fatan za a kunna shi daga saitunan app.",
-  "switchToETHWallet": "Da fatan za a canza zuwa walat ɗin Ethereum kuma a sake gwadawa"
+  "switchToETHWallet": "Da fatan za a canza zuwa walat ɗin Ethereum kuma a sake gwadawa",
+  "use_testnet": "Amfani da gwaji",
+  "address_and_silent_addresses": "Adireshin da adreshin shiru",
+  "silent_addresses": "Adireshin Shiru"
 }

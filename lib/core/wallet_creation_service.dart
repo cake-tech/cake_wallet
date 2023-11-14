@@ -49,7 +49,7 @@ class WalletCreationService {
     }
   }
 
-  Future<WalletBase> create(WalletCredentials credentials) async {
+  Future<WalletBase> create(WalletCredentials credentials, {bool? isTestnet}) async {
     checkIfExists(credentials.name);
 
     if (credentials.password == null) {
@@ -58,7 +58,7 @@ class WalletCreationService {
         password: credentials.password!, walletName: credentials.name);
     }
 
-    final wallet =  await _service!.create(credentials);
+    final wallet =  await _service!.create(credentials, isTestnet: isTestnet);
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(

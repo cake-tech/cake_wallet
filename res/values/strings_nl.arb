@@ -435,7 +435,7 @@
   "search_language": "Zoektaal",
   "search_currency": "Zoek valuta",
   "new_template": "Nieuwe sjabloon",
-  "electrum_address_disclaimer": "We genereren nieuwe adressen elke keer dat u er een gebruikt, maar eerdere adressen blijven werken",
+  "electrum_address_disclaimer": "We genereren nieuwe primaire adressen telkens wanneer u er een gebruikt, maar eerdere adressen blijven werken",
   "wallet_name_exists": "Portemonnee met die naam bestaat al",
   "market_place": "Marktplaats",
   "cake_pay_title": "Cake Pay-cadeaubonnen",
@@ -736,5 +736,8 @@
   "domain_looks_up": "Domein opzoeken",
   "require_for_exchanges_to_external_wallets": "Vereist voor uitwisselingen naar externe portemonnees",
   "camera_permission_is_required": "Cameratoestemming is vereist.\nSchakel dit in via de app-instellingen.",
-  "switchToETHWallet": "Schakel over naar een Ethereum-portemonnee en probeer het opnieuw"
+  "switchToETHWallet": "Schakel over naar een Ethereum-portemonnee en probeer het opnieuw",
+  "use_testnet": "Gebruik testnet",
+  "address_and_silent_addresses": "Adres en stille adressen",
+  "silent_addresses": "Stille adressen"
 }

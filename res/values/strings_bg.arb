@@ -435,7 +435,7 @@
   "search_language": "Търсене на език",
   "search_currency": "Търсене на валута",
   "new_template": "Нов шаблон",
-  "electrum_address_disclaimer": "Нови адреси се генерират всеки път, когато използвате този, но и предишните продължават да работят",
+  "electrum_address_disclaimer": "Ние генерираме нови първични адреси всеки път, когато използвате един, но предишните адреси продължават да работят",
   "wallet_name_exists": "Вече има портфейл с това име. Моля, изберете друго име или преименувайте другия портфейл.",
   "market_place": "Магазин",
   "cake_pay_title": "Cake Pay Gift Карти",
@@ -728,5 +728,8 @@
   "domain_looks_up": "Търсене на домейни",
   "require_for_exchanges_to_external_wallets": "Изискване за обмен към външни портфейли",
   "camera_permission_is_required": "Изисква се разрешение за камерата.\nМоля, активирайте го от настройките на приложението.",
-  "switchToETHWallet": "Моля, преминете към портфейл Ethereum и опитайте отново"
+  "switchToETHWallet": "Моля, преминете към портфейл Ethereum и опитайте отново",
+  "use_testnet": "Използвайте TestNet",
+  "address_and_silent_addresses": "Адрес и мълчаливи адреси",
+  "silent_addresses": "Безшумни адреси"
 }

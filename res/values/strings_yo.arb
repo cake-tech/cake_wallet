@@ -433,7 +433,7 @@
   "search_language": "Wá èdè",
   "search_currency": "Wá irú owó",
   "new_template": "Àwòṣe títun",
-  "electrum_address_disclaimer": "A dá àwọn àdírẹ́sì títun ní gbogbo àwọn ìgbà t'ẹ́ lo ó kan ṣùgbọ́n ẹ lè tẹ̀síwájú lo àwọn àdírẹ́sì tẹ́lẹ̀tẹ́lẹ̀.",
+  "electrum_address_disclaimer": "A ṣe ina awọn adirẹsi akọkọ akọkọ ni igba kọọkan ti o lo ọkan, ṣugbọn awọn adirẹsi iṣaaju tẹsiwaju lati ṣiṣẹ",
   "wallet_name_exists": "Ẹ ti ní àpamọ́wọ́ pẹ̀lú orúkọ̀ yẹn. Ẹ jọ̀wọ́ yàn orúkọ̀ tó yàtọ̀ tàbí pààrọ̀ orúkọ ti àpamọ́wọ́ tẹ́lẹ̀.",
   "market_place": "Ọjà",
   "cake_pay_title": "Àwọn káàdì ìrajà t'á lò nínú ìtajà kan ti Cake Pay",
@@ -730,5 +730,8 @@
   "domain_looks_up": "Awọn wiwa agbegbe",
   "require_for_exchanges_to_external_wallets": "Beere fun awọn paṣipaarọ si awọn apamọwọ ita",
   "camera_permission_is_required": "A nilo igbanilaaye kamẹra.\nJọwọ jeki o lati app eto.",
-  "switchToETHWallet": "Jọwọ yipada si apamọwọ Ethereum ki o tun gbiyanju lẹẹkansi"
+  "switchToETHWallet": "Jọwọ yipada si apamọwọ Ethereum ki o tun gbiyanju lẹẹkansi",
+  "use_testnet": "Lo tele",
+  "address_and_silent_addresses": "Adirẹsi ati awọn adirẹsi ipalọlọ",
+  "silent_addresses": "Awọn adirẹsi ipalọlọ"
 }

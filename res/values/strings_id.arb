@@ -436,7 +436,7 @@
   "search_language": "Cari bahasa",
   "search_currency": "Cari mata uang",
   "new_template": "Template Baru",
-  "electrum_address_disclaimer": "Kami menghasilkan alamat baru setiap kali Anda menggunakan satu, tetapi alamat sebelumnya tetap berfungsi",
+  "electrum_address_disclaimer": "Kami menghasilkan alamat utama baru setiap kali Anda menggunakannya, tetapi alamat sebelumnya terus berfungsi",
   "wallet_name_exists": "Nama dompet sudah ada. Silakan pilih nama yang berbeda atau ganti nama dompet yang lain terlebih dahulu.",
   "market_place": "Pasar",
   "cake_pay_title": "Kartu Hadiah Cake Pay",
@@ -724,5 +724,8 @@
   "domain_looks_up": "Pencarian domain",
   "require_for_exchanges_to_external_wallets": "Memerlukan pertukaran ke dompet eksternal",
   "camera_permission_is_required": "Izin kamera diperlukan.\nSilakan aktifkan dari pengaturan aplikasi.",
-  "switchToETHWallet": "Silakan beralih ke dompet Ethereum dan coba lagi"
+  "switchToETHWallet": "Silakan beralih ke dompet Ethereum dan coba lagi",
+  "use_testnet": "Gunakan TestNet",
+  "address_and_silent_addresses": "Alamat dan alamat diam",
+  "silent_addresses": "Alamat diam"
 }

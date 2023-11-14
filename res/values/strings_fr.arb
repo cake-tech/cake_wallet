@@ -435,7 +435,7 @@
   "search_language": "Rechercher une langue",
   "search_currency": "Rechercher une devise",
   "new_template": "Nouveau Modèle",
-  "electrum_address_disclaimer": "Nous générons de nouvelles adresses à chaque fois que vous en utilisez une, mais les adresses précédentes continuent à fonctionner",
+  "electrum_address_disclaimer": "Nous générons de nouvelles adresses primaires chaque fois que vous en utilisez une, mais les adresses précédentes continuent de fonctionner",
   "wallet_name_exists": "Un portefeuille (wallet) portant ce nom existe déjà",
   "market_place": "Place de marché",
   "cake_pay_title": "Cartes cadeaux Cake Pay",
@@ -702,7 +702,7 @@
   "select_buy_provider_notice": "Sélectionnez un fournisseur d'achat ci-dessus. Vous pouvez ignorer cet écran en définissant votre fournisseur d'achat par défaut dans les paramètres de l'application.",
   "onramper_option_description": "Achetez rapidement des cryptomonnaies avec de nombreuses méthodes de paiement. Disponible dans la plupart des pays. Les spreads et les frais peuvent varier.",
   "default_buy_provider": "Fournisseur d'achat par défaut",
-  "ask_each_time": "Demander à chaque fois",
+  "ask_each_time": "Demandez à chaque fois",
   "buy_provider_unavailable": "Fournisseur actuellement indisponible.",
   "signTransaction": "Signer une transaction",
   "errorGettingCredentials": "Échec : erreur lors de l'obtention des informations d'identification",
@@ -736,5 +736,8 @@
   "domain_looks_up": "Recherches de domaine",
   "require_for_exchanges_to_external_wallets": "Exiger des échanges vers des portefeuilles externes",
   "camera_permission_is_required": "L'autorisation de la caméra est requise.\nVeuillez l'activer à partir des paramètres de l'application.",
-  "switchToETHWallet": "Veuillez passer à un portefeuille Ethereum et réessayer"
+  "switchToETHWallet": "Veuillez passer à un portefeuille Ethereum et réessayer",
+  "use_testnet": "Utiliser TestNet",
+  "address_and_silent_addresses": "Adresse et adresses silencieuses",
+  "silent_addresses": "Adresses silencieuses"
 }

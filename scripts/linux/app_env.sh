@@ -1,10 +1,10 @@
 #!/bin/sh
 
+source ../android/app_env.sh cakewallet
+
 APP_LINUX_NAME=""
 APP_LINUX_VERSION=""
 APP_LINUX_BUILD_VERSION=""
-
-CAKEWALLET="cakewallet"
 
 TYPES=($CAKEWALLET)
 APP_LINUX_TYPE=$CAKEWALLET

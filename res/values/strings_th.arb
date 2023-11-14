@@ -435,7 +435,7 @@
   "search_language": "ค้นหาภาษา",
   "search_currency": "ค้นหาสกุลเงิน",
   "new_template": "แม่แบบใหม่",
-  "electrum_address_disclaimer": "เราสร้างที่อยู่ใหม่ทุกครั้งที่คุณใช้หนึ่งอย่าง แต่ที่อยู่เก่ายังสามารถใช้ได้ต่อไป",
+  "electrum_address_disclaimer": "เราสร้างที่อยู่หลักใหม่ทุกครั้งที่คุณใช้ แต่ที่อยู่ก่อนหน้านี้ยังคงทำงานต่อไป",
   "wallet_name_exists": "กระเป๋าที่มีชื่อนี้มีอยู่แล้ว โปรดเลือกชื่ออื่นหรือเปลี่ยนชื่อกระเป๋าอื่นก่อน",
   "market_place": "ตลาดพื้นที่",
   "cake_pay_title": "บัตรของขวัญ Cake Pay",
@@ -734,5 +734,8 @@
   "domain_looks_up": "การค้นหาโดเมน",
   "require_for_exchanges_to_external_wallets": "จำเป็นต้องแลกเปลี่ยนกับกระเป๋าเงินภายนอก",
   "camera_permission_is_required": "ต้องได้รับอนุญาตจากกล้อง\nโปรดเปิดใช้งานจากการตั้งค่าแอป",
-  "switchToETHWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงิน Ethereum แล้วลองอีกครั้ง"
+  "switchToETHWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงิน Ethereum แล้วลองอีกครั้ง",
+  "use_testnet": "ใช้ testnet",
+  "address_and_silent_addresses": "ที่อยู่และที่อยู่เงียบ",
+  "silent_addresses": "ที่อยู่เงียบ"
 }

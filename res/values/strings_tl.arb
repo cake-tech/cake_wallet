@@ -435,7 +435,7 @@
   "search_language": "Maghanap ng wika",
   "search_currency": "Maghanap ng pera",
   "new_template": "Bagong template",
-  "electrum_address_disclaimer": "Bumubuo kami ng mga bagong address sa tuwing gumagamit ka ng isa, ngunit ang mga nakaraang address ay patuloy na gumagana",
+  "electrum_address_disclaimer": "Bumubuo kami ng mga bagong pangunahing address sa tuwing gumagamit ka ng isa, ngunit ang mga nakaraang address ay patuloy na gumagana",
   "wallet_name_exists": "Ang isang pitaka na may pangalang iyon ay mayroon na. Mangyaring pumili ng ibang pangalan o palitan muna ang iba pang pitaka.",
   "market_place": "Marketplace",
   "cake_pay_title": "Cake pay card card",
@@ -731,5 +731,8 @@
   "domain_looks_up": "Mga paghahanap ng domain",
   "require_for_exchanges_to_external_wallets": "Kinakailangan para sa mga palitan sa mga panlabas na wallet",
   "camera_permission_is_required": "Kinakailangan ang pahintulot sa camera.\nMangyaring paganahin ito mula sa mga setting ng app.",
-  "switchToETHWallet": "Mangyaring lumipat sa isang Ethereum wallet at subukang muli"
+  "switchToETHWallet": "Mangyaring lumipat sa isang Ethereum wallet at subukang muli",
+  "use_testnet": "Gumamit ng testnet",
+  "address_and_silent_addresses": "Address at tahimik na mga address",
+  "silent_addresses": "Tahimik na mga address"
 }

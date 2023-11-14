@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/routes.dart';
@@ -253,6 +254,12 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               ),
                             ),
                           ],
+                          Observer(builder: (context) {
+                            return SettingsSwitcherCell(
+                                title: S.current.use_testnet,
+                                value: widget._walletNewVM.useTestnet,
+                                onValueChange: (_, __) => widget._walletNewVM.toggleUseTestnet());
+                          }),
                         ],
                       ),
                     ),

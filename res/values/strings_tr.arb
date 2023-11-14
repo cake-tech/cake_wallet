@@ -435,7 +435,7 @@
   "search_language": "Dil arat",
   "search_currency": "Para birimi ara",
   "new_template": "Yeni Şablon",
-  "electrum_address_disclaimer": "Adresini her kullandığında yeni adres oluşturuyoruz, ancak önceki adresler de çalışmaya devam eder",
+  "electrum_address_disclaimer": "Her kullandığınızda yeni birincil adresler oluşturuyoruz, ancak önceki adresler çalışmaya devam ediyor",
   "wallet_name_exists": "Bu isimde bir cüzdan zaten mevcut. Lütfen farklı bir isim seç veya önce diğer cüzdanı yeniden adlandır.",
   "market_place": "Pazar Alanı",
   "cake_pay_title": "Cake Pay Hediye Kartları",
@@ -734,5 +734,8 @@
   "domain_looks_up": "Etki alanı aramaları",
   "require_for_exchanges_to_external_wallets": "Harici cüzdanlara geçiş yapılmasını zorunlu kılın",
   "camera_permission_is_required": "Kamera izni gereklidir.\nLütfen uygulama ayarlarından etkinleştirin.",
-  "switchToETHWallet": "Lütfen bir Ethereum cüzdanına geçin ve tekrar deneyin"
+  "switchToETHWallet": "Lütfen bir Ethereum cüzdanına geçin ve tekrar deneyin",
+  "use_testnet": "TestNet kullanın",
+  "address_and_silent_addresses": "Adres ve sessiz adresler",
+  "silent_addresses": "Sessiz adresler"
 }

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -27,8 +28,7 @@ class AddressEditOrCreateStateFailure extends AddressEditOrCreateState {
 }
 
 abstract class WalletAddressEditOrCreateViewModelBase with Store {
-  WalletAddressEditOrCreateViewModelBase(
-      {required WalletBase wallet, WalletAddressListItem? item})
+  WalletAddressEditOrCreateViewModelBase({required WalletBase wallet, WalletAddressListItem? item})
       : isEdit = item != null,
         state = AddressEditOrCreateStateInitial(),
         label = item?.name ?? '',
@@ -68,27 +68,21 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
     if (wallet.type == WalletType.bitcoin
         || wallet.type == WalletType.litecoin
         || wallet.type == WalletType.bitcoinCash) {
-      await bitcoin!.generateNewAddress(wallet);
+      await bitcoin!.generateNewAddress(wallet, label: label);
       await wallet.save();
     }
 
     if (wallet.type == WalletType.monero) {
-      await monero
-          !.getSubaddressList(wallet)
-          .addSubaddress(
-            wallet,
-            accountIndex: monero!.getCurrentAccount(wallet).id,
-            label: label);
+      await monero!
+          .getSubaddressList(wallet)
+          .addSubaddress(wallet, accountIndex: monero!.getCurrentAccount(wallet).id, label: label);
       await wallet.save();
     }
 
     if (wallet.type == WalletType.haven) {
-      await haven
-          !.getSubaddressList(wallet)
-          .addSubaddress(
-            wallet,
-            accountIndex: haven!.getCurrentAccount(wallet).id,
-            label: label);
+      await haven!
+          .getSubaddressList(wallet)
+          .addSubaddress(wallet, accountIndex: haven!.getCurrentAccount(wallet).id, label: label);
       await wallet.save();
     }
   }
@@ -109,9 +103,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
       }
       if (wallet.type == WalletType.haven) {
         await haven!.getSubaddressList(wallet).setLabelSubaddress(wallet,
-            accountIndex: haven!.getCurrentAccount(wallet).id,
-            addressIndex: index,
-            label: label);
+            accountIndex: haven!.getCurrentAccount(wallet).id, addressIndex: index, label: label);
         await wallet.save();
       }
     }

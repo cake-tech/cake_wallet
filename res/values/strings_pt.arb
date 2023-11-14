@@ -435,7 +435,7 @@
   "search_language": "Idioma de pesquisa",
   "search_currency": "Pesquisar moeda",
   "new_template": "Novo modelo",
-  "electrum_address_disclaimer": "Geramos novos endereços cada vez que você usa um, mas os endereços anteriores continuam funcionando",
+  "electrum_address_disclaimer": "Geramos novos endereços primários cada vez que você usa um, mas os endereços anteriores continuam funcionando",
   "wallet_name_exists": "A carteira com esse nome já existe",
   "market_place": "Mercado",
   "cake_pay_title": "Cartões de presente de CakePay",
@@ -735,5 +735,8 @@
   "domain_looks_up": "Pesquisas de domínio",
   "require_for_exchanges_to_external_wallets": "Exigir trocas para carteiras externas",
   "camera_permission_is_required": "É necessária permissão da câmera.\nAtive-o nas configurações do aplicativo.",
-  "switchToETHWallet": "Mude para uma carteira Ethereum e tente novamente"
+  "switchToETHWallet": "Mude para uma carteira Ethereum e tente novamente",
+  "use_testnet": "Use testNet",
+  "address_and_silent_addresses": "Endereço e endereços silenciosos",
+  "silent_addresses": "Endereços silenciosos"
 }

@@ -435,7 +435,7 @@
   "search_language": "検索言語",
   "search_currency": "検索通貨",
   "new_template": "新しいテンプレート",
-  "electrum_address_disclaimer": "使用するたびに新しいアドレスが生成されますが、以前のアドレスは引き続き機能します",
+  "electrum_address_disclaimer": "使用するたびに新しいプライマリアドレスを生成しますが、以前のアドレスは機能し続けます",
   "wallet_name_exists": "その名前のウォレットはすでに存在しています",
   "market_place": "Marketplace",
   "cake_pay_title": "ケーキペイギフトカード",
@@ -736,5 +736,8 @@
   "domain_looks_up": "ドメイン検索",
   "require_for_exchanges_to_external_wallets": "外部ウォレットへの交換に必要",
   "camera_permission_is_required": "カメラの許可が必要です。\nアプリの設定から有効にしてください。",
-  "switchToETHWallet": "イーサリアムウォレットに切り替えてもう一度お試しください"
+  "switchToETHWallet": "イーサリアムウォレットに切り替えてもう一度お試しください",
+  "use_testnet": "TestNetを使用します",
+  "address_and_silent_addresses": "住所とサイレントアドレス",
+  "silent_addresses": "サイレントアドレス"
 }

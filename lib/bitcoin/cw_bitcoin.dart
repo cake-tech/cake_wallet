@@ -64,9 +64,9 @@ class CWBitcoin extends Bitcoin {
 	}
 
 	@override
-	Future<void> generateNewAddress(Object wallet) async {
+	Future<void> generateNewAddress(Object wallet, {String? label}) async {
 		final bitcoinWallet = wallet as ElectrumWallet;
-		await bitcoinWallet.walletAddresses.generateNewAddress();
+		await bitcoinWallet.walletAddresses.generateNewAddress(label: label);
 	}
 	
 	@override
@@ -104,6 +104,21 @@ class CWBitcoin extends Bitcoin {
 	String getAddress(Object wallet) {
 		final bitcoinWallet = wallet as ElectrumWallet;
 		return bitcoinWallet.walletAddresses.address;
+	}
+
+	String getReceiveAddress(Object wallet) {
+		final bitcoinWallet = wallet as ElectrumWallet;
+		return bitcoinWallet.walletAddresses.receiveAddress;
+	}
+
+	btc.SilentPaymentAddress? getSilentAddress(Object wallet) {
+		final bitcoinWallet = wallet as ElectrumWallet;
+		return bitcoinWallet.walletAddresses.silentAddress;
+	}
+
+	List<BitcoinAddressRecord> getSilentAddresses(Object wallet) {
+		final bitcoinWallet = wallet as ElectrumWallet;
+		return bitcoinWallet.walletAddresses.silentAddresses;
 	}
 
 	@override

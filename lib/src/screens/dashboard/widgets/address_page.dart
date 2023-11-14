@@ -161,10 +161,10 @@ class AddressPage extends BasePage {
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList) {
                   return GestureDetector(
-                    onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled
+                    onTap: () async => !addressListViewModel.hasSilentAddresses &&
+                            dashboardViewModel.isAutoGenerateSubaddressesEnabled
                         ? await showPopUp<void>(
-                        context: context,
-                        builder: (_) => getIt.get<MoneroAccountListPage>())
+                            context: context, builder: (_) => getIt.get<MoneroAccountListPage>())
                         : Navigator.of(context).pushNamed(Routes.receive),
                     child: Container(
                       height: 50,
@@ -184,26 +184,30 @@ class AddressPage extends BasePage {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           Observer(
-                              builder: (_) {
-                                String label = addressListViewModel.hasAccounts
-                                    ? S.of(context).accounts_subaddresses
-                                    : S.of(context).addresses;
+                            builder: (_) {
+                              String label = addressListViewModel.hasSilentAddresses
+                                  ? S.of(context).address_and_silent_addresses
+                                  : addressListViewModel.hasAccounts
+                                      ? S.of(context).accounts_subaddresses
+                                      : S.of(context).addresses;
 
-                                if (dashboardViewModel.isAutoGenerateSubaddressesEnabled) {
-                                  label = addressListViewModel.hasAccounts
-                                      ? S.of(context).accounts
-                                      : S.of(context).account;
-                                }
-                                return Text(
-                                  label,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: Theme.of(context)
-                                            .extension<SyncIndicatorTheme>()!
-                                            .textColor),
-                                );
-                              },),
+                              if (!addressListViewModel.hasSilentAddresses &&
+                                  dashboardViewModel.isAutoGenerateSubaddressesEnabled) {
+                                label = addressListViewModel.hasAccounts
+                                    ? S.of(context).accounts
+                                    : S.of(context).account;
+                              }
+                              return Text(
+                                label,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context)
+                                        .extension<SyncIndicatorTheme>()!
+                                        .textColor),
+                              );
+                            },
+                          ),
                           Icon(
                             Icons.arrow_forward_ios,
                             size: 14,
@@ -213,7 +217,8 @@ class AddressPage extends BasePage {
                       ),
                     ),
                   );
-                } else if (dashboardViewModel.isAutoGenerateSubaddressesEnabled || addressListViewModel.showElectrumAddressDisclaimer) {
+                } else if (dashboardViewModel.isAutoGenerateSubaddressesEnabled ||
+                    addressListViewModel.showElectrumAddressDisclaimer) {
                   return Text(S.of(context).electrum_address_disclaimer,
                       textAlign: TextAlign.center,
                       style: TextStyle(

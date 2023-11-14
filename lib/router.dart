@@ -124,7 +124,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newWalletFromWelcome:
       if (SettingsStoreBase.walletPasswordDirectInput) {
         if (availableWalletTypes.length == 1) {
-          return createRoute(RouteSettings(name: Routes.newWallet, arguments: availableWalletTypes.first));
+          return createRoute(
+              RouteSettings(name: Routes.newWallet, arguments: availableWalletTypes.first));
         } else {
           return createRoute(RouteSettings(name: Routes.newWalletType));
         }
@@ -295,16 +296,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.auth:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_)
-            => SettingsStoreBase.walletPasswordDirectInput
-                ? getIt.get<WalletUnlockPage>(
-                    param1: WalletUnlockArguments(
+          builder: (_) => SettingsStoreBase.walletPasswordDirectInput
+              ? getIt.get<WalletUnlockPage>(
+                  param1: WalletUnlockArguments(
                       callback: settings.arguments as OnAuthenticationFinished),
-                      instanceName: 'wallet_unlock_verifiable',
-                    param2: true)
-                : getIt.get<AuthPage>(
-                    param1: settings.arguments as OnAuthenticationFinished,
-                    param2: true));
+                  instanceName: 'wallet_unlock_verifiable',
+                  param2: true)
+              : getIt.get<AuthPage>(
+                  param1: settings.arguments as OnAuthenticationFinished, param2: true));
 
     case Routes.totpAuthCodePage:
       final args = settings.arguments as TotpAuthArgumentsModel;
@@ -318,28 +317,25 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.walletUnlockLoadable:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_)
-            => getIt.get<WalletUnlockPage>(
+          builder: (_) => getIt.get<WalletUnlockPage>(
               param1: settings.arguments as WalletUnlockArguments,
-                instanceName: 'wallet_unlock_loadable',
+              instanceName: 'wallet_unlock_loadable',
               param2: true));
 
     case Routes.unlock:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_)
-            => SettingsStoreBase.walletPasswordDirectInput
-                ? WillPopScope(
-                    child: getIt.get<WalletUnlockPage>(
+          builder: (_) => SettingsStoreBase.walletPasswordDirectInput
+              ? WillPopScope(
+                  child: getIt.get<WalletUnlockPage>(
                       param1: WalletUnlockArguments(
-                        callback: settings.arguments as OnAuthenticationFinished),
+                          callback: settings.arguments as OnAuthenticationFinished),
                       param2: false,
                       instanceName: 'wallet_unlock_verifiable'),
-                    onWillPop: () async => false)
-                : WillPopScope(
-                    child: getIt.get<AuthPage>(
-                      param1: settings.arguments as OnAuthenticationFinished,
-                      param2: false),
+                  onWillPop: () async => false)
+              : WillPopScope(
+                  child: getIt.get<AuthPage>(
+                      param1: settings.arguments as OnAuthenticationFinished, param2: false),
                   onWillPop: () async => false));
 
     case Routes.connectionSync:
@@ -376,11 +372,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (context) => WillPopScope(
               child: SettingsStoreBase.walletPasswordDirectInput
-                ? getIt.get<WalletUnlockPage>(instanceName: 'wallet_password_login')
-                : getIt.get<AuthPage>(instanceName: 'login'),
+                  ? getIt.get<WalletUnlockPage>(instanceName: 'wallet_password_login')
+                  : getIt.get<AuthPage>(instanceName: 'login'),
               onWillPop: () async =>
-              // FIX-ME: Additional check does it works correctly
-                  (await SystemChannels.platform.invokeMethod<bool>('SystemNavigator.pop') ?? false)),
+                  // FIX-ME: Additional check does it works correctly
+                  (await SystemChannels.platform.invokeMethod<bool>('SystemNavigator.pop') ??
+                      false)),
           fullscreenDialog: true);
 
     case Routes.newPowNode:
@@ -470,8 +467,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.support:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true,
-          builder: (_) => getIt.get<SupportPage>());
+          fullscreenDialog: true, builder: (_) => getIt.get<SupportPage>());
 
     case Routes.supportLiveChat:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<SupportChatPage>());
@@ -575,7 +571,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
       return CupertinoPageRoute<void>(
           builder: (_) => AdvancedPrivacySettingsPage(
-                getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
+                getIt.get<AdvancedPrivacySettingsViewModel>(),
                 getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
               ));
 

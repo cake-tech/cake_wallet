@@ -435,7 +435,7 @@
   "search_language": "Idioma de búsqueda",
   "search_currency": "Moneda de búsqueda",
   "new_template": "Nueva plantilla",
-  "electrum_address_disclaimer": "Generamos nuevas direcciones cada vez que usa una, pero las direcciones anteriores siguen funcionando",
+  "electrum_address_disclaimer": "Generamos nuevas direcciones primarias cada vez que usa una, pero las direcciones anteriores continúan funcionando",
   "wallet_name_exists": "Wallet con ese nombre ya ha existido",
   "market_place": "Mercado",
   "cake_pay_title": "Tarjetas de regalo Cake Pay",
@@ -736,5 +736,8 @@
   "domain_looks_up": "Búsquedas de dominio",
   "require_for_exchanges_to_external_wallets": "Requerido para intercambios a billeteras externas",
   "camera_permission_is_required": "Se requiere permiso de la cámara.\nHabilítelo desde la configuración de la aplicación.",
-  "switchToETHWallet": "Cambie a una billetera Ethereum e inténtelo nuevamente."
+  "switchToETHWallet": "Cambie a una billetera Ethereum e inténtelo nuevamente.",
+  "use_testnet": "Use TestNet",
+  "address_and_silent_addresses": "Dirección y direcciones silenciosas",
+  "silent_addresses": "Direcciones silenciosas"
 }

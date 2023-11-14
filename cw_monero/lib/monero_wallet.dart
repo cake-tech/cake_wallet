@@ -40,11 +40,12 @@ const moneroBlockSize = 1000;
 
 class MoneroWallet = MoneroWalletBase with _$MoneroWallet;
 
-abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
-    MoneroTransactionHistory, MoneroTransactionInfo> with Store {
-  MoneroWalletBase({required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required String password})
+abstract class MoneroWalletBase
+    extends WalletBase<MoneroBalance, MoneroTransactionHistory, MoneroTransactionInfo> with Store {
+  MoneroWalletBase(
+      {required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      required String password})
       : balance = ObservableMap<CryptoCurrency, MoneroBalance>.of({
           CryptoCurrency.xmr: MoneroBalance(
               fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
@@ -160,8 +161,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           login: node.login,
           password: node.password,
           useSSL: node.isSSL,
-          isLightWallet: false,
           // FIXME: hardcoded value
+          isLightWallet: false,
           socksProxyAddress: node.socksProxyAddress);
 
       monero_wallet.setTrustedDaemon(node.trusted);

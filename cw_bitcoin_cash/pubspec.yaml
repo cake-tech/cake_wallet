@@ -22,9 +22,7 @@ dependencies:
   cw_bitcoin:
     path: ../cw_bitcoin
   bitcoin_flutter:
-    git:
-      url: https://github.com/cake-tech/bitcoin_flutter.git
-      ref: cake-update-v3
+    path: /home/rafael/Storage/Repositories/bitcoin_flutter
   bitbox:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git

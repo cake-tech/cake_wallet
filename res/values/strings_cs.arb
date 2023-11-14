@@ -435,7 +435,7 @@
   "search_language": "Hledat jazyk",
   "search_currency": "Hledat měnu",
   "new_template": "Nová šablona",
-  "electrum_address_disclaimer": "Po každém použití je generována nová adresa, ale předchozí adresy také stále fungují",
+  "electrum_address_disclaimer": "Pokaždé, když jednu použijete, generujeme nové primární adresy, ale předchozí adresy nadále fungují",
   "wallet_name_exists": "Peněženka s tímto názvem už existuje. Prosím zvolte si jiný název, nebo nejprve přejmenujte nejprve druhou peněženku.",
   "market_place": "Obchod",
   "cake_pay_title": "Cake Pay dárkové karty",
@@ -728,5 +728,8 @@
   "domain_looks_up": "Vyhledávání domén",
   "require_for_exchanges_to_external_wallets": "Vyžadovat pro výměny do externích peněženek",
   "camera_permission_is_required": "Vyžaduje se povolení fotoaparátu.\nPovolte jej v nastavení aplikace.",
-  "switchToETHWallet": "Přejděte na peněženku Ethereum a zkuste to znovu"
+  "switchToETHWallet": "Přejděte na peněženku Ethereum a zkuste to znovu",
+  "use_testnet": "Použijte testNet",
+  "address_and_silent_addresses": "Adresa a tiché adresy",
+  "silent_addresses": "Tiché adresy"
 }
