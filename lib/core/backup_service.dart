@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -319,8 +320,13 @@ class BackupService {
     if (currentPinLength != null)
       await _sharedPreferences.setInt(PreferencesKey.currentPinLength, currentPinLength);
 
-    if (currentTheme != null && DeviceInfo.instance.isMobile)
+    if (currentTheme != null && DeviceInfo.instance.isMobile) {
       await _sharedPreferences.setInt(PreferencesKey.currentTheme, currentTheme);
+    // enforce dark theme on desktop platforms until the design is ready:
+    } else if (DeviceInfo.instance.isDesktop) {
+      await _sharedPreferences.setInt(PreferencesKey.currentTheme, ThemeList.darkTheme.raw);
+    }
+    
 
     if (exchangeStatus != null)
       await _sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, exchangeStatus);
