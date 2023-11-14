@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -25,8 +26,14 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   final SettingsStore _settingsStore;
 
+  bool get hasSeedPhraseLengthOption =>
+      type == WalletType.bitcoinCash || type == WalletType.ethereum;
+
   @computed
   bool get addCustomNode => _addCustomNode;
+
+  @computed
+  SeedPhraseLength get seedPhraseLength => _settingsStore.seedPhraseLength;
 
   @action
   void setFiatApiMode(FiatApiMode fiatApiMode) => _settingsStore.fiatApiMode = fiatApiMode;
@@ -36,4 +43,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   @action
   void toggleAddCustomNode() => _addCustomNode = !_addCustomNode;
+
+  @action
+  void setSeedPhraseLength(SeedPhraseLength length) => _settingsStore.seedPhraseLength = length;
 }
