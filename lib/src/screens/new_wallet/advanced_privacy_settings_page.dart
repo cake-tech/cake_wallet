@@ -99,7 +99,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
             if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
             Observer(builder: (_) {
               return SettingsPickerCell<SeedPhraseLength>(
-                title: 'S.current.seed_phrase_length',
+                title: S.current.seed_phrase_length,
                 items: SeedPhraseLength.values,
                 selectedItem: widget.privacySettingsViewModel.seedPhraseLength,
                 onItemSelected: (SeedPhraseLength length) {
