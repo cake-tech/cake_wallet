@@ -331,6 +331,7 @@ Future<void> setup({
           keyService: getIt.get<KeyService>(),
           secureStorage: getIt.get<FlutterSecureStorage>(),
           sharedPreferences: getIt.get<SharedPreferences>(),
+          settingsStore: getIt.get<SettingsStore>(),
           walletInfoSource: _walletInfoSource));
 
   getIt.registerFactory<WalletLoadingService>(() => WalletLoadingService(
@@ -338,9 +339,10 @@ Future<void> setup({
       getIt.get<KeyService>(),
       (WalletType type) => getIt.get<WalletService>(param1: type)));
 
-  getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) => WalletNewVM(
-      getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
-      type: type));
+  getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) =>
+      WalletNewVM(getIt.get<AppStore>(),
+          getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
+          type: type));
 
   getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
