@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/reactions/check_wallet_connect_access.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -44,7 +45,7 @@ abstract class AppStoreBase with Store {
     this.wallet = wallet;
     this.wallet!.setExceptionHandler(ExceptionHandler.onError);
 
-    if (wallet.type == WalletType.ethereum) {
+    if (isEVMCompatibleChain(wallet.type)) {
       getIt.get<Web3WalletService>().init();
     }
   }

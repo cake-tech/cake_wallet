@@ -52,6 +52,7 @@ class MainActions {
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.ethereum:
+        case WalletType.polygon:
         // case WalletType.bitcoinCash: // TODO: add sign message function to BCH first
           switch (defaultBuyProvider) {
             case BuyProviderType.AskEachTime:
@@ -124,6 +125,7 @@ class MainActions {
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.ethereum:
+        case WalletType.polygon:
         case WalletType.bitcoinCash:
           if (viewModel.isEnabledSellAction) {
             final moonPaySellProvider = MoonPaySellProvider();

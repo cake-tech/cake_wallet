@@ -49,7 +49,7 @@ class EvmChainServiceImpl implements ChainService {
     Web3Client? ethClient,
   }) : ethClient = ethClient ??
             Web3Client(
-              appStore.settingsStore.getCurrentNode(WalletType.ethereum).uri.toString(),
+              appStore.settingsStore.getCurrentNode(appStore.wallet!.type).uri.toString(),
               http.Client(),
             ) {
  
@@ -97,6 +97,8 @@ class EvmChainServiceImpl implements ChainService {
   List<String> getEvents() {
     return ['chainChanged', 'accountsChanged'];
   }
+
+
 
   Future<String?> requestAuthorization(String? text) async {
     // Show the bottom sheet

@@ -5,6 +5,7 @@ import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -118,8 +119,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   String get pendingTransactionFeeFiatAmount {
     try {
       if (pendingTransaction != null) {
-        final currency =
-            walletType == WalletType.ethereum ? wallet.currency : selectedCryptoCurrency;
+        final currency = walletType == WalletType.ethereum || walletType == WalletType.polygon
+            ? wallet.currency
+            : selectedCryptoCurrency;
         final fiat = calculateFiatAmount(
             price: _fiatConversationStore.prices[currency]!,
             cryptoAmount: pendingTransaction!.feeFormatted);
@@ -372,6 +374,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             priority: priority!, currency: selectedCryptoCurrency);
       case WalletType.nano:
         return nano!.createNanoTransactionCredentials(outputs);
+      case WalletType.polygon:
+        return polygon!.createPolygonTransactionCredentials(outputs,
+            priority: priority!, currency: selectedCryptoCurrency);
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }
@@ -412,11 +417,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     WalletType walletType,
     CryptoCurrency currency,
   ) {
-    if (walletType == WalletType.ethereum || walletType == WalletType.haven) {
+    if (walletType == WalletType.ethereum ||
+        walletType == WalletType.polygon ||
+        walletType == WalletType.haven) {
       if (error.contains('gas required exceeds allowance') ||
           error.contains('insufficient funds for')) {
         return S.current.do_not_have_enough_gas_asset(currency.toString());
       }
+
+      return error;
     }
 
     return error;

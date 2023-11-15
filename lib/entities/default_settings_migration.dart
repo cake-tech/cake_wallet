@@ -26,6 +26,7 @@ const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
+const polygonDefaultNodeUri = 'polygon-rpc.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
@@ -175,7 +176,11 @@ Future<void> defaultSettingsMigration(
           await changeBitcoinCurrentElectrumServerToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
           break;
-
+        case 24:
+          await addPolygonNodeList(nodes: nodes);
+          await changePolygonCurrentNodeToDefault(
+              sharedPreferences: sharedPreferences, nodes: nodes);
+          break;
         default:
           break;
       }
@@ -327,6 +332,11 @@ Node? getHavenDefaultNode({required Box<Node> nodes}) {
 Node? getEthereumDefaultNode({required Box<Node> nodes}) {
   return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == ethereumDefaultNodeUri) ??
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.ethereum);
+}
+
+Node? getPolygonDefaultNode({required Box<Node> nodes}) {
+  return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == polygonDefaultNodeUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.polygon);
 }
 
 Node? getNanoDefaultNode({required Box<Node> nodes}) {
@@ -543,6 +553,7 @@ Future<void> checkCurrentNodes(
       .getInt(PreferencesKey.currentHavenNodeIdKey);
   final currentEthereumNodeId = sharedPreferences
       .getInt(PreferencesKey.currentEthereumNodeIdKey);
+  final currentPolygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
   final currentNanoNodeId = sharedPreferences
       .getInt(PreferencesKey.currentNanoNodeIdKey);
   final currentNanoPowNodeId = sharedPreferences
@@ -559,6 +570,8 @@ Future<void> checkCurrentNodes(
       (node) => node.key == currentHavenNodeId);
   final currentEthereumNodeServer = nodeSource.values.firstWhereOrNull(
       (node) => node.key == currentEthereumNodeId);
+  final currentPolygonNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentPolygonNodeId);
   final currentNanoNodeServer =
   nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
   final currentNanoPowNodeServer =
@@ -618,6 +631,12 @@ Future<void> checkCurrentNodes(
     await nodeSource.add(node);
     await sharedPreferences.setInt(
         PreferencesKey.currentBitcoinCashNodeIdKey, node.key as int);
+  }
+
+  if (currentPolygonNodeServer == null) {
+    final node = Node(uri: polygonDefaultNodeUri, type: WalletType.polygon);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.key as int);
   }
 }
 
@@ -712,4 +731,21 @@ Future<void> changeNanoCurrentPowNodeToDefault(
   final node = getNanoDefaultPowNode(nodes: nodes);
   final nodeId = node?.key as int? ?? 0;
   await sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, nodeId);
+}
+
+Future<void> addPolygonNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultPolygonNodes();
+  for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
+}
+
+Future<void> changePolygonCurrentNodeToDefault(
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+  final node = getPolygonDefaultNode(nodes: nodes);
+  final nodeId = node?.key as int? ?? 0;
+
+  await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, nodeId);
 }

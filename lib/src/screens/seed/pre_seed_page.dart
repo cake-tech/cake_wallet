@@ -74,6 +74,7 @@ class PreSeedPage extends BasePage {
         return 25;
       case WalletType.ethereum:
       case WalletType.bitcoinCash:
+      case WalletType.polygon:
         return 12;
       default:
         return 24;

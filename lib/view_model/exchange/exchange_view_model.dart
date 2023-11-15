@@ -23,6 +23,7 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -286,6 +287,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         return transactionPriority == ethereum!.getEthereumTransactionPrioritySlow();
       case WalletType.bitcoinCash:
         return transactionPriority == bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
+      case WalletType.polygon:
+        return transactionPriority == polygon!.getPolygonTransactionPrioritySlow();
       default:
         return false;
     }
@@ -625,6 +628,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency = CryptoCurrency.nano;
         receiveCurrency = CryptoCurrency.xmr;
         break;
+      case WalletType.polygon:
+        depositCurrency = CryptoCurrency.matic;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
       default:
         break;
     }
@@ -711,6 +718,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.bitcoinCash:
         _settingsStore.priority[wallet.type] = bitcoinCash!.getDefaultTransactionPriority();
+        break;
+      case WalletType.polygon:
+        _settingsStore.priority[wallet.type] = polygon!.getDefaultTransactionPriority();
         break;
       default:
         break;

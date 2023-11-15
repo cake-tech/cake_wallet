@@ -16,6 +16,8 @@ import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
 
+import '../polygon/polygon.dart';
+
 part 'wallet_new_vm.g.dart';
 
 class WalletNewVM = WalletNewVMBase with _$WalletNewVM;
@@ -51,6 +53,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return bitcoinCash!.createBitcoinCashNewWalletCredentials(name: name);
       case WalletType.nano:
         return nano!.createNanoNewWalletCredentials(name: name);
+      case WalletType.polygon:
+        return polygon!.createPolygonNewWalletCredentials(name: name);
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }
