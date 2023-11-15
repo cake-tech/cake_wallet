@@ -1,71 +1,49 @@
 import 'dart:convert';
-import 'package:cake_wallet/exchange/exchange_pair.dart';
-import 'package:cake_wallet/exchange/exchange_provider.dart';
+
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/simpleswap/simpleswap_request.dart';
-import 'package:cake_wallet/exchange/trade_not_created_exeption.dart';
-import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
+import 'package:cake_wallet/exchange/limits.dart';
+import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
+import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
+import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cake_wallet/exchange/trade_request.dart';
-import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/exchange/limits.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:http/http.dart';
 
 class SimpleSwapExchangeProvider extends ExchangeProvider {
-  SimpleSwapExchangeProvider()
-      : super(
-            pairList: CryptoCurrency.all
-                .where((i) => i != CryptoCurrency.zaddr)
-                .map((i) => CryptoCurrency.all
-                    .where((i) => i != CryptoCurrency.zaddr)
-                    .map((k) => ExchangePair(from: i, to: k, reverse: true)))
-                .expand((i) => i)
-                .toList());
+  SimpleSwapExchangeProvider() : super(pairList: supportedPairs(_notSupported));
 
+  static const List<CryptoCurrency> _notSupported = [
+    CryptoCurrency.zaddr,
+    CryptoCurrency.xhv,
+  ];
+
+  static final apiKey =
+      DeviceInfo.instance.isMobile ? secrets.simpleSwapApiKey : secrets.simpleSwapApiKeyDesktop;
   static const apiAuthority = 'api.simpleswap.io';
   static const getEstimatePath = '/v1/get_estimated';
   static const rangePath = '/v1/get_ranges';
   static const getExchangePath = '/v1/get_exchange';
   static const createExchangePath = '/v1/create_exchange';
-  static final apiKey = DeviceInfo.instance.isMobile ? secrets.simpleSwapApiKey : secrets.simpleSwapApiKeyDesktop;
 
   @override
-  ExchangeProviderDescription get description =>
-      ExchangeProviderDescription.simpleSwap;
+  String get title => 'SimpleSwap';
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
-    try {
-      if (amount == 0) {
-        return 0.0;
-      }
-      final fromCurrency = _normalizeCryptoCurrency(from);
-      final toCurrency = _normalizeCryptoCurrency(to);
-      final params = <String, String>{
-        'api_key': apiKey,
-        'currency_from': fromCurrency,
-        'currency_to': toCurrency,
-        'amount': amount.toString(),
-        'fixed': isFixedRateMode.toString()
-      };
-      final uri = Uri.https(apiAuthority, getEstimatePath, params);
-      final response = await get(uri);
+  bool get isAvailable => true;
 
-      if (response.body == "null") return 0.00;
-      final data = json.decode(response.body) as String;
-      return double.parse(data) / amount;
-    } catch (_) {
-      return 0.00;
-    }
-  }
+  @override
+  bool get isEnabled => true;
+
+  @override
+  bool get supportsFixedRate => false;
+
+  @override
+  ExchangeProviderDescription get description => ExchangeProviderDescription.simpleSwap;
 
   @override
   Future<bool> checkIsAvailable() async {
@@ -76,20 +54,79 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
-    final _request = request as SimpleSwapRequest;
-     final headers = {
-      'Content-Type': 'application/json'};
-    final params = <String, String>{
+  Future<Limits> fetchLimits(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required bool isFixedRateMode}) async {
+    final params = <String, dynamic>{
       'api_key': apiKey,
+      'fixed': isFixedRateMode.toString(),
+      'currency_from': _normalizeCurrency(from),
+      'currency_to': _normalizeCurrency(to),
     };
+    final uri = Uri.https(apiAuthority, rangePath, params);
+
+    final response = await get(uri);
+
+    if (response.statusCode == 500) {
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final error = responseJSON['message'] as String;
+
+      throw Exception('$error');
+    }
+
+    if (response.statusCode != 200) {
+      throw Exception('Unexpected http status: ${response.statusCode}');
+    }
+
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final min = double.tryParse(responseJSON['min'] as String? ?? '');
+    final max = double.tryParse(responseJSON['max'] as String? ?? '');
+
+    return Limits(min: min, max: max);
+  }
+
+  @override
+  Future<double> fetchRate(
+      {required CryptoCurrency from,
+      required CryptoCurrency to,
+      required double amount,
+      required bool isFixedRateMode,
+      required bool isReceiveAmount}) async {
+    try {
+      if (amount == 0) return 0.0;
+
+      final params = {
+        'api_key': apiKey,
+        'currency_from': _normalizeCurrency(from),
+        'currency_to': _normalizeCurrency(to),
+        'amount': amount.toString(),
+        'fixed': isFixedRateMode.toString()
+      };
+      final uri = Uri.https(apiAuthority, getEstimatePath, params);
+      final response = await get(uri);
+
+      if (response.body == "null") return 0.00;
+
+      final data = json.decode(response.body) as String;
+
+      return double.parse(data) / amount;
+    } catch (_) {
+      return 0.00;
+    }
+  }
+
+  @override
+  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
+    final headers = {'Content-Type': 'application/json'};
+    final params = {'api_key': apiKey};
     final body = <String, dynamic>{
-      "currency_from": _normalizeCryptoCurrency(_request.from),
-      "currency_to": _normalizeCryptoCurrency(_request.to),
-      "amount": _request.amount,
+      "currency_from": _normalizeCurrency(request.fromCurrency),
+      "currency_to": _normalizeCurrency(request.toCurrency),
+      "amount": request.fromAmount,
       "fixed": isFixedRateMode,
-      "user_refund_address": _request.refundAddress,
-      "address_to": _request.address
+      "user_refund_address": request.refundAddress,
+      "address_to": request.toAddress
     };
     final uri = Uri.https(apiAuthority, createExchangePath, params);
 
@@ -112,54 +149,20 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final payoutAddress = responseJSON['address_to'] as String;
     final settleAddress = responseJSON['user_refund_address'] as String;
     final extraId = responseJSON['extra_id_from'] as String?;
+
     return Trade(
       id: id,
       provider: description,
-      from: _request.from,
-      to: _request.to,
+      from: request.fromCurrency,
+      to: request.toCurrency,
       inputAddress: inputAddress,
       refundAddress: settleAddress,
       extraId: extraId,
       state: TradeState.created,
-      amount: _request.amount,
+      amount: request.fromAmount,
       payoutAddress: payoutAddress,
       createdAt: DateTime.now(),
     );
-  }
-
-  @override
-  Future<Limits> fetchLimits({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-    required bool isFixedRateMode}) async {
-    final fromCurrency = _normalizeCryptoCurrency(from);
-    final toCurrency = _normalizeCryptoCurrency(to);
-    final params = <String, dynamic>{
-      'api_key': apiKey,
-      'fixed': isFixedRateMode.toString(),
-      'currency_from': fromCurrency,
-      'currency_to': toCurrency,
-    };
-    final uri = Uri.https(apiAuthority, rangePath, params);
-
-    final response = await get(uri);
-
-    if (response.statusCode == 500) {
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final error = responseJSON['message'] as String;
-
-      throw Exception('$error');
-    }
-
-    if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
-    }
-
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final min = double.tryParse(responseJSON['min'] as String? ?? '');
-    final max = double.tryParse(responseJSON['max'] as String? ?? '');
-
-    return Limits(min: min, max: max);
   }
 
   @override
@@ -185,42 +188,27 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['currency_from'] as String;
-    final from = CryptoCurrency.fromString(fromCurrency);
     final toCurrency = responseJSON['currency_to'] as String;
-    final to = CryptoCurrency.fromString(toCurrency);
     final inputAddress = responseJSON['address_from'] as String;
     final expectedSendAmount = responseJSON['expected_amount'].toString();
     final extraId = responseJSON['extra_id_from'] as String?;
     final status = responseJSON['status'] as String;
     final payoutAddress = responseJSON['address_to'] as String;
-    final state = TradeState.deserialize(raw: status);
 
     return Trade(
       id: id,
-      from: from,
-      to: to,
+      from: CryptoCurrency.fromString(fromCurrency),
+      to: CryptoCurrency.fromString(toCurrency),
       extraId: extraId,
       provider: description,
       inputAddress: inputAddress,
       amount: expectedSendAmount,
-      state: state,
+      state: TradeState.deserialize(raw: status),
       payoutAddress: payoutAddress,
     );
   }
 
-  @override
-  bool get isAvailable => true;
-
-  @override
-  bool get isEnabled => true;
-
-  @override
-  bool get supportsFixedRate => false;
-
-  @override
-  String get title => 'SimpleSwap';
-
-  static String _normalizeCryptoCurrency(CryptoCurrency currency) {
+  static String _normalizeCurrency(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.zaddr:
         return 'zec';

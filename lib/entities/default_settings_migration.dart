@@ -191,63 +191,70 @@ Future<void> defaultSettingsMigration(
 }
 
 Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async {
-  final root = await getApplicationDocumentsDirectory();
+  try {
+    final root = await getApplicationDocumentsDirectory();
 
-  for (var type in WalletType.values) {
-    if (type == WalletType.none) {
-      continue;
-    }
-
-    String prefix = walletTypeToString(type).toLowerCase();
-    Directory walletsDir = Directory('${root.path}/wallets/$prefix/');
-
-    if (!walletsDir.existsSync()) {
-      continue;
-    }
-
-    List<String> walletNames = walletsDir.listSync().map((e) => e.path.split("/").last).toList();
-
-    for (var name in walletNames) {
-      final dir = Directory(await pathForWalletDir(name: name, type: type));
-
-      final walletFiles = dir.listSync();
-      final hasCacheFile = walletFiles.any((element) => element.path.contains("$name/$name"));
-
-      if (!hasCacheFile) {
+    for (var type in WalletType.values) {
+      if (type == WalletType.none) {
         continue;
       }
 
-      if (type == WalletType.monero || type == WalletType.haven) {
-        final hasKeysFile = walletFiles.any((element) => element.path.contains(".keys"));
+      String prefix = walletTypeToString(type).toLowerCase();
+      Directory walletsDir = Directory('${root.path}/wallets/$prefix/');
 
-        if (!hasKeysFile) {
+      if (!walletsDir.existsSync()) {
+        continue;
+      }
+
+      List<String> walletNames = walletsDir.listSync().map((e) => e.path.split("/").last).toList();
+
+      for (var name in walletNames) {
+        final Directory dir;
+        try {
+          dir = Directory(await pathForWalletDir(name: name, type: type));
+        } catch (_) {
           continue;
         }
+
+        final walletFiles = dir.listSync();
+        final hasCacheFile = walletFiles.any((element) => element.path.contains("$name/$name"));
+
+        if (!hasCacheFile) {
+          continue;
+        }
+
+        if (type == WalletType.monero || type == WalletType.haven) {
+          final hasKeysFile = walletFiles.any((element) => element.path.contains(".keys"));
+
+          if (!hasKeysFile) {
+            continue;
+          }
+        }
+
+        final id = prefix + '_' + name;
+        final exist = walletInfoSource.values.any((el) => el.id == id);
+
+        if (exist) {
+          continue;
+        }
+
+        final walletInfo = WalletInfo.external(
+          id: id,
+          type: type,
+          name: name,
+          isRecovery: true,
+          restoreHeight: 0,
+          date: DateTime.now(),
+          dirPath: dir.path,
+          path: '${dir.path}/$name',
+          address: '',
+          showIntroCakePayCard: false,
+        );
+
+        walletInfoSource.add(walletInfo);
       }
-
-      final id = prefix + '_' + name;
-      final exist = walletInfoSource.values.any((el) => el.id == id);
-
-      if (exist) {
-        continue;
-      }
-
-      final walletInfo = WalletInfo.external(
-        id: id,
-        type: type,
-        name: name,
-        isRecovery: true,
-        restoreHeight: 0,
-        date: DateTime.now(),
-        dirPath: dir.path,
-        path: '${dir.path}/$name',
-        address: '',
-        showIntroCakePayCard: false,
-      );
-
-      walletInfoSource.add(walletInfo);
     }
-  }
+  } catch (_) {}
 }
 
 Future<void> validateBitcoinSavedTransactionPriority(SharedPreferences sharedPreferences) async {

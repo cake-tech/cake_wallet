@@ -340,7 +340,6 @@
   "template": "Template",
   "confirm_delete_template": "Tindakan ini akan menghapus template ini. Apakah Anda ingin melanjutkan?",
   "confirm_delete_wallet": "Tindakan ini akan menghapus dompet ini. Apakah Anda ingin melanjutkan?",
-  "picker_description": "Untuk memilih ChangeNOW atau MorphToken, silakan ubah pasangan perdagangan Anda terlebih dahulu",
   "change_wallet_alert_title": "Ganti dompet saat ini",
   "change_wallet_alert_content": "Apakah Anda ingin mengganti dompet saat ini ke ${wallet_name}?",
   "creating_new_wallet": "Membuat dompet baru",
@@ -710,6 +709,14 @@
   "do_not_have_enough_gas_asset": "Anda tidak memiliki cukup ${currency} untuk melakukan transaksi dengan kondisi jaringan blockchain saat ini. Anda memerlukan lebih banyak ${currency} untuk membayar biaya jaringan blockchain, meskipun Anda mengirimkan aset yang berbeda.",
   "totp_auth_url": "URL Otentikasi TOTP",
   "awaitDAppProcessing": "Mohon tunggu hingga dApp menyelesaikan pemrosesan.",
+  "copyWalletConnectLink": "Salin tautan WalletConnect dari dApp dan tempel di sini",
+  "enterWalletConnectURI": "Masukkan URI WalletConnect",
   "seed_key": "Kunci benih",
-  "enter_seed_phrase": "Masukkan frasa benih Anda"
+  "enter_seed_phrase": "Masukkan frasa benih Anda",
+  "add_contact": "Tambah kontak",
+  "exchange_provider_unsupported": "${providerName} tidak lagi didukung!",
+  "domain_looks_up": "Pencarian domain",
+  "require_for_exchanges_to_external_wallets": "Memerlukan pertukaran ke dompet eksternal",
+  "camera_permission_is_required": "Izin kamera diperlukan.\nSilakan aktifkan dari pengaturan aplikasi.",
+  "switchToETHWallet": "Silakan beralih ke dompet Ethereum dan coba lagi"
 }

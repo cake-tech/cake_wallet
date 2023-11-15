@@ -339,7 +339,6 @@
   "template": "Šablona",
   "confirm_delete_template": "Tato akce smaže tuto šablonu. Přejete si pokračovat?",
   "confirm_delete_wallet": "Tato akce smaže tuto peněženku. Přejete si pokračovat?",
-  "picker_description": "Pro volbu ChangeNOW, nebo MorphToken si prosím vyberte nejprve pár pro obchodování",
   "change_wallet_alert_title": "Přepnout peněženku",
   "change_wallet_alert_content": "Opravdu chcete změnit aktivní peněženku na ${wallet_name}?",
   "creating_new_wallet": "Vytvářím novou peněženku",
@@ -714,6 +713,14 @@
   "do_not_have_enough_gas_asset": "Nemáte dostatek ${currency} k provedení transakce s aktuálními podmínkami blockchainové sítě. K placení poplatků za blockchainovou síť potřebujete více ${currency}, i když posíláte jiné aktivum.",
   "totp_auth_url": "URL AUTH TOTP",
   "awaitDAppProcessing": "Počkejte, až dApp dokončí zpracování.",
+  "copyWalletConnectLink": "Zkopírujte odkaz WalletConnect z dApp a vložte jej sem",
+  "enterWalletConnectURI": "Zadejte identifikátor URI WalletConnect",
   "seed_key": "Klíč semen",
-  "enter_seed_phrase": "Zadejte svou frázi semen"
+  "enter_seed_phrase": "Zadejte svou frázi semen",
+  "add_contact": "Přidat kontakt",
+  "exchange_provider_unsupported": "${providerName} již není podporováno!",
+  "domain_looks_up": "Vyhledávání domén",
+  "require_for_exchanges_to_external_wallets": "Vyžadovat pro výměny do externích peněženek",
+  "camera_permission_is_required": "Vyžaduje se povolení fotoaparátu.\nPovolte jej v nastavení aplikace.",
+  "switchToETHWallet": "Přejděte na peněženku Ethereum a zkuste to znovu"
 }
