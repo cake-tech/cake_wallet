@@ -718,5 +718,6 @@
   "domain_looks_up": "Pencarian domain",
   "require_for_exchanges_to_external_wallets": "Memerlukan pertukaran ke dompet eksternal",
   "camera_permission_is_required": "Izin kamera diperlukan.\nSilakan aktifkan dari pengaturan aplikasi.",
-  "switchToETHWallet": "Silakan beralih ke dompet Ethereum dan coba lagi"
+  "switchToETHWallet": "Silakan beralih ke dompet Ethereum dan coba lagi",
+  "unspent_change": "Mengubah"
 }

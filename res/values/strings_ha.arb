@@ -708,5 +708,6 @@
   "domain_looks_up": "Binciken yanki",
   "require_for_exchanges_to_external_wallets": "Bukatar musanya zuwa wallet na waje",
   "camera_permission_is_required": "Ana buƙatar izinin kyamara.\nDa fatan za a kunna shi daga saitunan app.",
-  "switchToETHWallet": "Da fatan za a canza zuwa walat ɗin Ethereum kuma a sake gwadawa"
+  "switchToETHWallet": "Da fatan za a canza zuwa walat ɗin Ethereum kuma a sake gwadawa",
+  "unspent_change": "Canza"
 }

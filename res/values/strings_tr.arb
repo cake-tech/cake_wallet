@@ -728,5 +728,6 @@
   "domain_looks_up": "Etki alanı aramaları",
   "require_for_exchanges_to_external_wallets": "Harici cüzdanlara geçiş yapılmasını zorunlu kılın",
   "camera_permission_is_required": "Kamera izni gereklidir.\nLütfen uygulama ayarlarından etkinleştirin.",
-  "switchToETHWallet": "Lütfen bir Ethereum cüzdanına geçin ve tekrar deneyin"
+  "switchToETHWallet": "Lütfen bir Ethereum cüzdanına geçin ve tekrar deneyin",
+  "unspent_change": "Değiştirmek"
 }

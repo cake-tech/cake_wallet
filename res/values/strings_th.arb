@@ -728,5 +728,6 @@
   "domain_looks_up": "การค้นหาโดเมน",
   "require_for_exchanges_to_external_wallets": "จำเป็นต้องแลกเปลี่ยนกับกระเป๋าเงินภายนอก",
   "camera_permission_is_required": "ต้องได้รับอนุญาตจากกล้อง\nโปรดเปิดใช้งานจากการตั้งค่าแอป",
-  "switchToETHWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงิน Ethereum แล้วลองอีกครั้ง"
+  "switchToETHWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงิน Ethereum แล้วลองอีกครั้ง",
+  "unspent_change": "เปลี่ยน"
 }
