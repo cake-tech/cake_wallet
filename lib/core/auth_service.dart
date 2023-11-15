@@ -38,6 +38,7 @@ class AuthService with Store {
   Future<void> setPassword(String password) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final encodedPassword = encodedPinCode(pin: password);
+    await secureStorage.delete(key: key);
     await secureStorage.write(key: key, value: encodedPassword);
   }
 

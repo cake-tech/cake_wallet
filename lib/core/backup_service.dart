@@ -322,11 +322,10 @@ class BackupService {
 
     if (currentTheme != null && DeviceInfo.instance.isMobile) {
       await _sharedPreferences.setInt(PreferencesKey.currentTheme, currentTheme);
-    // enforce dark theme on desktop platforms until the design is ready:
+      // enforce dark theme on desktop platforms until the design is ready:
     } else if (DeviceInfo.instance.isDesktop) {
       await _sharedPreferences.setInt(PreferencesKey.currentTheme, ThemeList.darkTheme.raw);
     }
-    
 
     if (exchangeStatus != null)
       await _sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, exchangeStatus);
@@ -428,6 +427,7 @@ class BackupService {
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
 
+    await _flutterSecureStorage.delete(key: backupPasswordKey);
     await _flutterSecureStorage.write(key: backupPasswordKey, value: backupPassword);
 
     keychainWalletsInfo.forEach((dynamic rawInfo) async {
@@ -435,6 +435,7 @@ class BackupService {
       await importWalletKeychainInfo(info);
     });
 
+    await _flutterSecureStorage.delete(key: pinCodeKey);
     await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
 
     keychainDumpFile.deleteSync();
@@ -454,6 +455,7 @@ class BackupService {
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
 
+    await _flutterSecureStorage.delete(key: backupPasswordKey);
     await _flutterSecureStorage.write(key: backupPasswordKey, value: backupPassword);
 
     keychainWalletsInfo.forEach((dynamic rawInfo) async {
@@ -461,6 +463,7 @@ class BackupService {
       await importWalletKeychainInfo(info);
     });
 
+    await _flutterSecureStorage.delete(key: pinCodeKey);
     await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
 
     keychainDumpFile.deleteSync();
