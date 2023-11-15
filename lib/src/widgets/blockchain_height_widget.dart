@@ -36,16 +36,13 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
     restoreHeightController.addListener(() {
       if (restoreHeightController.text.isNotEmpty) {
         widget.onHeightOrDateEntered?.call(true);
-      }
-      else {
+      } else {
         widget.onHeightOrDateEntered?.call(false);
         dateController.text = '';
       }
       try {
-        _changeHeight(restoreHeightController.text != null &&
-                restoreHeightController.text.isNotEmpty
-            ? int.parse(restoreHeightController.text)
-            : 0);
+        _changeHeight(
+            restoreHeightController.text.isNotEmpty ? int.parse(restoreHeightController.text) : 0);
       } catch (_) {
         _changeHeight(0);
       }
@@ -117,7 +114,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
     );
   }
 
-  Future _selectDate(BuildContext context) async {
+  Future<void> _selectDate(BuildContext context) async {
     final now = DateTime.now();
     final date = await getDate(
         context: context,
@@ -126,7 +123,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
         lastDate: now);
 
     if (date != null) {
-      final height = monero!.getHeigthByDate(date: date);
+      final height = monero!.getHeightByDate(date: date);
       setState(() {
         dateController.text = DateFormat('yyyy-MM-dd').format(date);
         restoreHeightController.text = '$height';

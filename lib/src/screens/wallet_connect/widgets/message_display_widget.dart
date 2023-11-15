@@ -22,13 +22,19 @@ class BottomSheetMessageDisplayWidget extends StatelessWidget {
           ),
         ),
         SizedBox(height: 8),
-        Text(
-          message,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.normal,
-            color: Colors.white,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

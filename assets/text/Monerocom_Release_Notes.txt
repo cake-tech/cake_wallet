@@ -1,4 +1,4 @@
-BirdPay enhancements
-Nano fixes and improvements
-Minor bug fixes
-Accessibility enhancements
+UI enhancements
+Privacy settings enhancements
+Tablet/iPad fixes
+Bug fixes
