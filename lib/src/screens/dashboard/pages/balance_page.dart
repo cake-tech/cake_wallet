@@ -64,6 +64,7 @@ class BalancePage extends StatelessWidget {
                 ),
               Expanded(
                 child: TabBarView(
+                  physics: NeverScrollableScrollPhysics(),
                   children: [
                     CryptoBalanceWidget(dashboardViewModel: dashboardViewModel),
                     if (isEthereumWallet) NFTListingPage(nftViewModel: nftViewModel)
