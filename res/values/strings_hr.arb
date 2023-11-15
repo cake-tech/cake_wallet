@@ -728,5 +728,6 @@
   "domain_looks_up": "Pretraga domena",
   "require_for_exchanges_to_external_wallets": "Zahtijeva razmjene na vanjske novčanike",
   "camera_permission_is_required": "Potrebno je dopuštenje kamere.\nOmogućite ga u postavkama aplikacije.",
-  "switchToETHWallet": "Prijeđite na Ethereum novčanik i pokušajte ponovno"
+  "switchToETHWallet": "Prijeđite na Ethereum novčanik i pokušajte ponovno",
+  "unspent_change": "Promijeniti"
 }

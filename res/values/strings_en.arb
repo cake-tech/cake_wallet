@@ -731,5 +731,6 @@
   "domain_looks_up": "Domain lookups",
   "require_for_exchanges_to_external_wallets": "Require for exchanges to external wallets",
   "camera_permission_is_required": "Camera permission is required. \nPlease enable it from app settings.",
-  "switchToETHWallet": "Please switch to an Ethereum wallet and try again"
+  "switchToETHWallet": "Please switch to an Ethereum wallet and try again",
+  "unspent_change": "Change"
 }

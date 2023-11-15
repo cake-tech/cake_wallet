@@ -1,6 +1,7 @@
 import 'dart:ffi';
 import 'package:cw_monero/api/structs/coins_info_row.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
+import 'package:cw_monero/api/structs/transaction_info_row.dart';
 import 'package:cw_monero/api/structs/ut8_box.dart';
 import 'package:ffi/ffi.dart';
 
@@ -81,6 +82,8 @@ typedef account_set_label = Void Function(Int32 accountIndex, Pointer<Utf8> labe
 
 typedef transactions_refresh = Void Function();
 
+typedef get_transaction = Pointer<TransactionInfoRow> Function(Pointer<Utf8> txId);
+
 typedef get_tx_key = Pointer<Utf8>? Function(Pointer<Utf8> txId);
 
 typedef transactions_count = Int64 Function();
@@ -139,3 +142,7 @@ typedef coins_count = Int64 Function();
 // typedef coins_from_txid = Pointer<CoinsInfoRow> Function(Pointer<Utf8> txid);
 
 typedef coin = Pointer<CoinsInfoRow> Function(Int32 index);
+
+typedef freeze_coin = Void Function(Int32 index);
+
+typedef thaw_coin = Void Function(Int32 index);

@@ -730,5 +730,6 @@
   "domain_looks_up": "ドメイン検索",
   "require_for_exchanges_to_external_wallets": "外部ウォレットへの交換に必要",
   "camera_permission_is_required": "カメラの許可が必要です。\nアプリの設定から有効にしてください。",
-  "switchToETHWallet": "イーサリアムウォレットに切り替えてもう一度お試しください"
+  "switchToETHWallet": "イーサリアムウォレットに切り替えてもう一度お試しください",
+  "unspent_change": "変化"
 }

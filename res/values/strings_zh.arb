@@ -729,5 +729,6 @@
   "domain_looks_up": "域名查找",
   "require_for_exchanges_to_external_wallets": "需要兑换到外部钱包",
   "camera_permission_is_required": "需要相机许可。\n请从应用程序设置中启用它。",
-  "switchToETHWallet": "请切换到以太坊钱包并重试"
+  "switchToETHWallet": "请切换到以太坊钱包并重试",
+  "unspent_change": "改变"
 }
