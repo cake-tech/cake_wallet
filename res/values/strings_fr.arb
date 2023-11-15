@@ -727,9 +727,9 @@
   "enter_seed_phrase": "Entrez votre phrase secrète (seed)",
   "add_contact": "Ajouter le contact",
   "exchange_provider_unsupported": "${providerName} n'est plus pris en charge !",
-  "domain_looks_up": "Recherches de domaine",
+  "domain_looks_up": "Résolution de nom",
   "require_for_exchanges_to_external_wallets": "Exiger pour les échanges vers des portefeuilles externes",
-  "camera_permission_is_required": "L'autorisation de la caméra est requise.\nVeuillez l'activer à partir des paramètres de l'application.",
+  "camera_permission_is_required": "L'autorisation d'accès à la caméra est requise.\nVeuillez l'activer depuis les paramètres de l'application.",
   "switchToETHWallet": "Veuillez passer à un portefeuille (wallet) Ethereum et réessayer",
   "unspent_change": "Changement"
 }
