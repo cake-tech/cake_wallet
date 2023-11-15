@@ -20,7 +20,14 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
 
   @override
   Future<EthereumWallet> create(EthereumNewWalletCredentials credentials) async {
-    final mnemonic = bip39.generateMnemonic();
+
+    final strength = (credentials.seedPhraseLength == 12)
+        ? 128
+        : (credentials.seedPhraseLength == 24)
+        ? 256
+        : 128;
+
+    final mnemonic = bip39.generateMnemonic(strength: strength);
     final wallet = EthereumWallet(
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
