@@ -53,7 +53,7 @@ class MainActions {
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.ethereum:
-        // case WalletType.bitcoinCash: // TODO: add sign message function to BCH first
+          // case WalletType.bitcoinCash: // TODO: add sign message function to BCH first
           switch (defaultBuyProvider) {
             case BuyProviderType.AskEachTime:
               Navigator.pushNamed(context, Routes.buy);
@@ -102,7 +102,7 @@ class MainActions {
       if (!viewModel.isEnabledExchangeAction) return;
       final defaultExchangeProvider = viewModel.defaultExchangeProvider;
       final walletType = viewModel.type;
-      
+
       switch (walletType) {
         case WalletType.bitcoin:
         case WalletType.litecoin:
