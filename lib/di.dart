@@ -890,8 +890,9 @@ Future<void> setup({
   getIt.registerFactoryParam<NewWalletTypePage, void Function(BuildContext, WalletType), bool?>(
       (param1, isCreate) => NewWalletTypePage(onTypeSelected: param1, isCreate: isCreate ?? true));
 
-  getIt.registerFactoryParam<PreSeedPage, WalletType, void>(
-      (WalletType type, _) => PreSeedPage(type));
+  getIt.registerFactoryParam<PreSeedPage, WalletType, AdvancedPrivacySettingsViewModel>(
+      (WalletType type, AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel)
+      => PreSeedPage(type, advancedPrivacySettingsViewModel));
 
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
       TradeDetailsViewModel(
