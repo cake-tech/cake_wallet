@@ -104,13 +104,7 @@ class MainActions {
       final walletType = viewModel.type;
 
       switch (walletType) {
-        case WalletType.bitcoin:
-        case WalletType.litecoin:
         case WalletType.ethereum:
-        case WalletType.bitcoinCash:
-        case WalletType.nano:
-        case WalletType.banano:
-        case WalletType.monero:
           switch (defaultExchangeProvider) {
             case ExchangeProviderType.AskEachTime:
               Navigator.pushNamed(context, Routes.choose_exchange_provider);
@@ -122,6 +116,14 @@ class MainActions {
               await Navigator.of(context).pushNamed(Routes.exchange);
               break;
           }
+          break;
+        case WalletType.bitcoin:
+        case WalletType.litecoin:
+        case WalletType.bitcoinCash:
+        case WalletType.nano:
+        case WalletType.banano:
+        case WalletType.monero:
+          await Navigator.of(context).pushNamed(Routes.exchange);
           break;
         default:
           await showPopUp<void>(
