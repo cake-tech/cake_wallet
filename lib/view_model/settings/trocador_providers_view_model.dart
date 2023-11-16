@@ -16,7 +16,6 @@ abstract class TrocadorProvidersViewModelBase with Store {
   @action
   void toggleProviderState(String providerName) {
     final currentState = providerStates[providerName] ?? false;
-    _settingsStore.trocadorProviderStates[providerName] = !currentState;
     _settingsStore.saveTrocadorProviderState(providerName, !currentState);
   }
 }

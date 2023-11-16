@@ -23,7 +23,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     'Swapter',
     'StealthEx',
     'Simpleswap',
+    'Swapuz'
     'ChangeNow',
+    'Changehero',
     'FixedFloat',
     'LetsExchange',
     'Exolix',
@@ -173,18 +175,18 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     String firstAvailableProvider = '';
 
-      for (var provider in _provider) {
-        if (providerStates.containsKey(provider) && providerStates[provider] == true) {
-          firstAvailableProvider = provider as String;
-          break;
-        }
+    for (var provider in _provider) {
+      if (providerStates.containsKey(provider) && providerStates[provider] == true) {
+        firstAvailableProvider = provider as String;
+        break;
       }
+    }
 
-      if (firstAvailableProvider.isEmpty) {
-        throw Exception('No available provider is enabled');
-      }
+    if (firstAvailableProvider.isEmpty) {
+      throw Exception('No available provider is enabled');
+    }
 
-      params['provider'] = firstAvailableProvider;
+    params['provider'] = firstAvailableProvider;
 
     final uri = await _getUri(createTradePath, params);
     final response = await get(uri);
