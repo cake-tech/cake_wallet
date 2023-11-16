@@ -1,6 +1,8 @@
+import 'package:cake_wallet/src/screens/wallet_list/wallet_list_filter.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -28,6 +30,30 @@ class WalletListPage extends BasePage {
   @override
   Widget body(BuildContext context) =>
       WalletListBody(walletListViewModel: walletListViewModel, authService: authService);
+
+  @override
+  Widget trailing(BuildContext context) {
+    return MergeSemantics(
+      child: SizedBox(
+        height: 37,
+        width: 37,
+        child: ButtonTheme(
+          minWidth: double.minPositive,
+          child: Semantics(
+            label: S.of(context).seed_alert_back,
+            child: TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
+              ),
+              // onPressed: () => onClose(context),
+              onPressed: () {},
+              child: Text("filter"),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class WalletListBody extends StatefulWidget {
@@ -69,11 +95,8 @@ class WalletListBodyState extends State<WalletListBody> {
           Expanded(
             child: Container(
               child: Observer(
-                builder: (_) => ListView.separated(
-                  physics: const BouncingScrollPhysics(),
-                  separatorBuilder: (_, index) =>
-                      Divider(color: Theme.of(context).colorScheme.background, height: 32),
-                  itemCount: widget.walletListViewModel.wallets.length,
+                builder: (_) => FilteredWalletList(
+                  walletList: widget.walletListViewModel.wallets,
                   itemBuilder: (__, index) {
                     final wallet = widget.walletListViewModel.wallets[index];
                     final currentColor = wallet.isCurrent
@@ -82,6 +105,7 @@ class WalletListBodyState extends State<WalletListBody> {
                             .createNewWalletButtonBackgroundColor
                         : Theme.of(context).colorScheme.background;
                     final row = GestureDetector(
+                      key: ValueKey(wallet.name),
                       onTap: () => wallet.isCurrent ? null : _loadWallet(wallet),
                       child: Container(
                         height: tileHeight,
@@ -116,7 +140,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                         maxLines: null,
                                         softWrap: true,
                                         style: TextStyle(
-                                          fontSize: 22,
+                                          fontSize: 20,
                                           fontWeight: FontWeight.w500,
                                           color: Theme.of(context)
                                               .extension<CakeTextTheme>()!
@@ -136,13 +160,15 @@ class WalletListBodyState extends State<WalletListBody> {
                     return wallet.isCurrent
                         ? row
                         : Row(
+                            key: ValueKey(wallet.name),
                             children: [
                               Expanded(child: row),
                               GestureDetector(
                                 onTap: () => Navigator.of(context).pushNamed(Routes.walletEdit,
                                     arguments: [widget.walletListViewModel, wallet]),
                                 child: Container(
-                                  padding: EdgeInsets.only(right: 20),
+                                  padding: EdgeInsets.only(
+                                      right: DeviceInfo.instance.isMobile ? 20 : 40),
                                   child: Center(
                                     child: Container(
                                       height: 40,
