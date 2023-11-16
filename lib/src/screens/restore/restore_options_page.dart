@@ -21,7 +21,6 @@ class RestoreOptionsPage extends BasePage {
   @override
   String get title => S.current.restore_restore_wallet;
 
-
   final bool isNewInstall;
   final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png');
   final imageBackup = Image.asset('assets/images/backup.png');
@@ -38,8 +37,7 @@ class RestoreOptionsPage extends BasePage {
             child: Column(
               children: <Widget>[
                 OptionTile(
-                    onPressed: () => Navigator.pushNamed(
-                        context, Routes.restoreWalletFromSeedKeys,
+                    onPressed: () => Navigator.pushNamed(context, Routes.restoreWalletFromSeedKeys,
                         arguments: isNewInstall),
                     image: imageSeedKeys,
                     title: S.of(context).restore_title_from_seed_keys,
@@ -58,7 +56,7 @@ class RestoreOptionsPage extends BasePage {
                   child: OptionTile(
                       onPressed: () async {
                         bool isCameraPermissionGranted =
-                        await PermissionHandler.checkPermission(Permission.camera, context);
+                            await PermissionHandler.checkPermission(Permission.camera, context);
                         if (!isCameraPermissionGranted) return;
                         bool isPinSet = false;
                         if (isNewInstall) {
@@ -73,7 +71,8 @@ class RestoreOptionsPage extends BasePage {
                             final restoreWallet =
                                 await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
 
-                            final restoreFromQRViewModel = getIt.get<WalletRestorationFromQRVM>(param1: restoreWallet.type);
+                            final restoreFromQRViewModel =
+                                getIt.get<WalletRestorationFromQRVM>(param1: restoreWallet.type);
 
                             await restoreFromQRViewModel.create(restoreWallet: restoreWallet);
                             if (restoreFromQRViewModel.state is FailureState) {
