@@ -594,7 +594,6 @@
   "sweeping_wallet_alert": "To nie powinno zająć dużo czasu. NIE WYCHODŹ Z TEGO EKRANU, W PRZECIWNYM WYPADKU MOŻE ZOSTAĆ UTRACONA ŚRODKI",
   "decimal_places_error": "Muitas casas decimais",
   "edit_node": "Editar nó",
-  "frozen_balance": "Saldo Congelado",
   "invoice_details": "Detalhes da fatura",
   "donation_link_details": "Detalhes do link de doação",
   "anonpay_description": "Gere ${type}. O destinatário pode ${method} com qualquer criptomoeda suportada e você receberá fundos nesta carteira.",
@@ -730,5 +729,7 @@
   "require_for_exchanges_to_external_wallets": "Exigir trocas para carteiras externas",
   "camera_permission_is_required": "É necessária permissão da câmera.\nAtive-o nas configurações do aplicativo.",
   "switchToETHWallet": "Mude para uma carteira Ethereum e tente novamente",
+  "unavailable_balance": "Saldo indisponível",
+  "unavailable_balance_description": "Saldo Indisponível: Este total inclui fundos bloqueados em transações pendentes e aqueles que você congelou ativamente nas configurações de controle de moedas. Os saldos bloqueados ficarão disponíveis assim que suas respectivas transações forem concluídas, enquanto os saldos congelados permanecerão inacessíveis para transações até que você decida descongelá-los.",
   "unspent_change": "Mudar"
 }

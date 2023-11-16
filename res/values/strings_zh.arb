@@ -594,7 +594,6 @@
   "sweeping_wallet_alert": "\n这应该不会花很长时间。请勿离开此屏幕，否则可能会丢失所掠取的资金",
   "decimal_places_error": "小数位太多",
   "edit_node": "编辑节点",
-  "frozen_balance": "冻结余额",
   "invoice_details": "发票明细",
   "donation_link_details": "捐赠链接详情",
   "anonpay_description": "生成 ${type}。收款人可以使用任何受支持的加密货币 ${method}，您将在此钱包中收到资金。",
@@ -730,5 +729,7 @@
   "require_for_exchanges_to_external_wallets": "需要兑换到外部钱包",
   "camera_permission_is_required": "需要相机许可。\n请从应用程序设置中启用它。",
   "switchToETHWallet": "请切换到以太坊钱包并重试",
+  "unavailable_balance": "不可用余额",
+  "unavailable_balance_description": "不可用余额：此总额包括锁定在待处理交易中的资金以及您在硬币控制设置中主动冻结的资金。一旦各自的交易完成，锁定的余额将变得可用，而冻结的余额在您决定解冻之前仍然无法进行交易。",
   "unspent_change": "改变"
 }

@@ -9,5 +9,5 @@ abstract class Balance {
 
   String get formattedAdditionalBalance;
 
-  String get formattedFrozenBalance => '';
+  String get formattedUnAvailableBalance => '';
 }

@@ -595,7 +595,6 @@
   "sweeping_wallet_alert": "Cette opération ne devrait pas prendre longtemps. NE QUITTEZ PAS CET ÉCRAN OU LES FONDS CONSOLIDÉS POURRAIENT ÊTRE PERDUS",
   "decimal_places_error": "Trop de décimales",
   "edit_node": "Modifier le nœud",
-  "frozen_balance": "Solde gelé",
   "invoice_details": "Détails de la facture",
   "donation_link_details": "Détails du lien de don",
   "anonpay_description": "Générez ${type}. Le destinataire peut ${method} avec n'importe quelle crypto-monnaie prise en charge, et vous recevrez des fonds dans ce portefeuille (wallet).",
@@ -729,6 +728,8 @@
   "exchange_provider_unsupported": "${providerName} n'est plus pris en charge !",
   "domain_looks_up": "Résolution de nom",
   "require_for_exchanges_to_external_wallets": "Exiger pour les échanges vers des portefeuilles externes",
+  "unavailable_balance": "Solde indisponible",
+  "unavailable_balance_description": "Solde indisponible : ce total comprend les fonds bloqués dans les transactions en attente et ceux que vous avez activement gelés dans vos paramètres de contrôle des pièces. Les soldes bloqués deviendront disponibles une fois leurs transactions respectives terminées, tandis que les soldes gelés resteront inaccessibles aux transactions jusqu'à ce que vous décidiez de les débloquer.",
   "camera_permission_is_required": "L'autorisation d'accès à la caméra est requise.\nVeuillez l'activer depuis les paramètres de l'application.",
   "switchToETHWallet": "Veuillez passer à un portefeuille (wallet) Ethereum et réessayer",
   "unspent_change": "Changement"

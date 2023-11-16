@@ -584,7 +584,6 @@
   "contact_list_wallets": "Dompet Saya",
   "decimal_places_error": "Terlalu banyak tempat desimal",
   "edit_node": "Sunting Node",
-  "frozen_balance": "Saldo Beku",
   "invoice_details": "Detail faktur",
   "donation_link_details": "Detail tautan donasi",
   "anonpay_description": "Hasilkan ${type}. Penerima dapat ${method} dengan cryptocurrency apa pun yang didukung, dan Anda akan menerima dana di dompet ini.",
@@ -719,5 +718,7 @@
   "require_for_exchanges_to_external_wallets": "Memerlukan pertukaran ke dompet eksternal",
   "camera_permission_is_required": "Izin kamera diperlukan.\nSilakan aktifkan dari pengaturan aplikasi.",
   "switchToETHWallet": "Silakan beralih ke dompet Ethereum dan coba lagi",
+  "unavailable_balance": "Saldo tidak tersedia",
+  "unavailable_balance_description": "Saldo Tidak Tersedia: Total ini termasuk dana yang terkunci dalam transaksi yang tertunda dan dana yang telah Anda bekukan secara aktif di pengaturan kontrol koin Anda. Saldo yang terkunci akan tersedia setelah transaksi masing-masing selesai, sedangkan saldo yang dibekukan tetap tidak dapat diakses untuk transaksi sampai Anda memutuskan untuk mencairkannya.",
   "unspent_change": "Mengubah"
 }

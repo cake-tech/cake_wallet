@@ -595,7 +595,6 @@
   "sweeping_wallet_alert": "Esto no debería llevar mucho tiempo. NO DEJES ESTA PANTALLA O SE PUEDEN PERDER LOS FONDOS BARRIDOS",
   "decimal_places_error": "Demasiados lugares decimales",
   "edit_node": "Editar nodo",
-  "frozen_balance": "Balance congelado",
   "invoice_details": "Detalles de la factura",
   "donation_link_details": "Detalles del enlace de donación",
   "anonpay_description": "Genera ${type}. El destinatario puede ${method} con cualquier criptomoneda admitida, y recibirá fondos en esta billetera.",
@@ -731,5 +730,7 @@
   "require_for_exchanges_to_external_wallets": "Requerido para intercambios a billeteras externas",
   "camera_permission_is_required": "Se requiere permiso de la cámara.\nHabilítelo desde la configuración de la aplicación.",
   "switchToETHWallet": "Cambie a una billetera Ethereum e inténtelo nuevamente.",
+  "unavailable_balance": "Saldo no disponible",
+  "unavailable_balance_description": "Saldo no disponible: este total incluye fondos que están bloqueados en transacciones pendientes y aquellos que usted ha congelado activamente en su configuración de control de monedas. Los saldos bloqueados estarán disponibles una vez que se completen sus respectivas transacciones, mientras que los saldos congelados permanecerán inaccesibles para las transacciones hasta que usted decida descongelarlos.",
   "unspent_change": "Cambiar"
 }

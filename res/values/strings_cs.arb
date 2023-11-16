@@ -588,7 +588,6 @@
   "error_dialog_content": "Nastala chyba.\n\nProsím odešlete zprávu o chybě naší podpoře, aby mohli zajistit opravu.",
   "decimal_places_error": "Příliš mnoho desetinných míst",
   "edit_node": "Upravit uzel",
-  "frozen_balance": "Zmrazená bilance",
   "invoice_details": "detaily faktury",
   "donation_link_details": "Podrobnosti odkazu na darování",
   "anonpay_description": "Vygenerujte ${type}. Příjemce může ${method} s jakoukoli podporovanou kryptoměnou a vy obdržíte prostředky v této peněžence.",
@@ -723,5 +722,7 @@
   "require_for_exchanges_to_external_wallets": "Vyžadovat pro výměny do externích peněženek",
   "camera_permission_is_required": "Vyžaduje se povolení fotoaparátu.\nPovolte jej v nastavení aplikace.",
   "switchToETHWallet": "Přejděte na peněženku Ethereum a zkuste to znovu",
+  "unavailable_balance": "Nedostupný zůstatek",
+  "unavailable_balance_description": "Nedostupný zůstatek: Tento součet zahrnuje prostředky, které jsou uzamčeny v nevyřízených transakcích a ty, které jste aktivně zmrazili v nastavení kontroly mincí. Uzamčené zůstatky budou k dispozici po dokončení příslušných transakcí, zatímco zmrazené zůstatky zůstanou pro transakce nepřístupné, dokud se nerozhodnete je uvolnit.",
   "unspent_change": "Změna"
 }

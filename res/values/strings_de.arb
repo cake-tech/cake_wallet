@@ -595,7 +595,6 @@
   "sweeping_wallet_alert": "Das sollte nicht lange dauern. VERLASSEN SIE DIESEN BILDSCHIRM NICHT, ANDERNFALLS KÖNNEN DIE GELDER VERLOREN GEHEN",
   "decimal_places_error": "Zu viele Nachkommastellen",
   "edit_node": "Knoten bearbeiten",
-  "frozen_balance": "Gefrorenes Guthaben",
   "invoice_details": "Rechnungs-Details",
   "donation_link_details": "Details zum Spendenlink",
   "anonpay_description": "Generieren Sie ${type}. Der Empfänger kann ${method} mit jeder unterstützten Kryptowährung verwenden, und Sie erhalten Geld in dieser Wallet.",
@@ -731,5 +730,7 @@
   "require_for_exchanges_to_external_wallets": "Erforderlich für den Umtausch in externe Wallets",
   "camera_permission_is_required": "Eine Kameraerlaubnis ist erforderlich.\nBitte aktivieren Sie es in den App-Einstellungen.",
   "switchToETHWallet": "Bitte wechseln Sie zu einem Ethereum-Wallet und versuchen Sie es erneut",
+  "unavailable_balance": "Nicht verfügbares Guthaben",
+  "unavailable_balance_description": "Nicht verfügbares Guthaben: Diese Summe umfasst Gelder, die in ausstehenden Transaktionen gesperrt sind, und solche, die Sie in Ihren Münzkontrolleinstellungen aktiv eingefroren haben. Gesperrte Guthaben werden verfügbar, sobald die entsprechenden Transaktionen abgeschlossen sind, während eingefrorene Guthaben für Transaktionen nicht zugänglich bleiben, bis Sie sich dazu entschließen, sie wieder freizugeben.",
   "unspent_change": "Wechselgeld"
 }

@@ -595,7 +595,6 @@
   "sweeping_wallet_alert": "오래 걸리지 않습니다. 이 화면을 떠나지 마십시오. 그렇지 않으면 스웹트 자금이 손실될 수 있습니다.",
   "decimal_places_error": "소수점 이하 자릿수가 너무 많습니다.",
   "edit_node": "노드 편집",
-  "frozen_balance": "얼어붙은 균형",
   "invoice_details": "인보이스 세부정보",
   "donation_link_details": "기부 링크 세부정보",
   "anonpay_description": "${type} 생성. 수신자는 지원되는 모든 암호화폐로 ${method}할 수 있으며 이 지갑에서 자금을 받게 됩니다.",
@@ -729,5 +728,7 @@
   "require_for_exchanges_to_external_wallets": "외부 지갑으로의 교환을 위해 필요",
   "camera_permission_is_required": "카메라 권한이 필요합니다.\n앱 설정에서 활성화해 주세요.",
   "switchToETHWallet": "이더리움 지갑으로 전환한 후 다시 시도해 주세요.",
+  "unavailable_balance": "사용할 수 없는 잔액",
+  "unavailable_balance_description": "사용할 수 없는 잔액: 이 총계에는 보류 중인 거래에 잠겨 있는 자금과 코인 관리 설정에서 적극적으로 동결된 자금이 포함됩니다. 잠긴 잔액은 해당 거래가 완료되면 사용할 수 있게 되며, 동결된 잔액은 동결을 해제하기 전까지 거래에 액세스할 수 없습니다.",
   "unspent_change": "변화"
 }

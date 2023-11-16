@@ -595,7 +595,6 @@
   "sweeping_wallet_alert": "Questo non dovrebbe richiedere molto tempo. NON LASCIARE QUESTA SCHERMATA O I FONDI SPAZZATI POTREBBERO ANDARE PERSI",
   "decimal_places_error": "Troppe cifre decimali",
   "edit_node": "Modifica nodo",
-  "frozen_balance": "Equilibrio congelato",
   "invoice_details": "Dettagli della fattura",
   "donation_link_details": "Dettagli del collegamento alla donazione",
   "anonpay_description": "Genera ${type}. Il destinatario può ${method} con qualsiasi criptovaluta supportata e riceverai fondi in questo portafoglio.",
@@ -731,5 +730,7 @@
   "require_for_exchanges_to_external_wallets": "Richiede scambi con portafogli esterni",
   "camera_permission_is_required": "È richiesta l'autorizzazione della fotocamera.\nAbilitalo dalle impostazioni dell'app.",
   "switchToETHWallet": "Passa a un portafoglio Ethereum e riprova",
+  "unavailable_balance": "Saldo non disponibile",
+  "unavailable_balance_description": "Saldo non disponibile: questo totale include i fondi bloccati nelle transazioni in sospeso e quelli che hai congelato attivamente nelle impostazioni di controllo delle monete. I saldi bloccati diventeranno disponibili una volta completate le rispettive transazioni, mentre i saldi congelati rimarranno inaccessibili per le transazioni finché non deciderai di sbloccarli.",
   "unspent_change": "Modifica"
 }

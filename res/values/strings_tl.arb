@@ -606,7 +606,6 @@
   "onion_link": "Link ng Onion",
   "decimal_places_error": "Masyadong maraming mga lugar na desimal",
   "edit_node": "I -edit ang node",
-  "frozen_balance": "Frozen na balanse",
   "settings": "Mga setting",
   "sell_monero_com_alert_content": "Ang pagbebenta ng Monero ay hindi pa suportado",
   "error_text_input_below_minimum_limit": "Ang halaga ay mas mababa sa minimum",
@@ -726,5 +725,7 @@
   "require_for_exchanges_to_external_wallets": "Kinakailangan para sa mga palitan sa mga panlabas na wallet",
   "camera_permission_is_required": "Kinakailangan ang pahintulot sa camera.\nMangyaring paganahin ito mula sa mga setting ng app.",
   "switchToETHWallet": "Mangyaring lumipat sa isang Ethereum wallet at subukang muli",
+  "unavailable_balance": "Hindi available na balanse",
+  "unavailable_balance_description": "Hindi Available na Balanse: Kasama sa kabuuang ito ang mga pondong naka-lock sa mga nakabinbing transaksyon at ang mga aktibong na-freeze mo sa iyong mga setting ng kontrol ng coin. Magiging available ang mga naka-lock na balanse kapag nakumpleto na ang kani-kanilang mga transaksyon, habang ang mga nakapirming balanse ay nananatiling hindi naa-access para sa mga transaksyon hanggang sa magpasya kang i-unfreeze ang mga ito.",
   "unspent_change": "Baguhin"
 }

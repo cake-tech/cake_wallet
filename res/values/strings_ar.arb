@@ -591,7 +591,6 @@
   "sweeping_wallet_alert": "لن يستغرق هذا وقتًا طويلاً. لا تترك هذه الشاشة وإلا فقد يتم فقد أموال سويبت",
   "decimal_places_error": "عدد كبير جدًا من المنازل العشرية",
   "edit_node": "تحرير العقدة",
-  "frozen_balance": "الرصيد المجمد",
   "invoice_details": "تفاصيل الفاتورة",
   "donation_link_details": "تفاصيل رابط التبرع",
   "anonpay_description": "توليد ${type}. يمكن للمستلم ${method} بأي عملة مشفرة مدعومة ، وستتلقى أموالاً في هذه",
@@ -727,5 +726,7 @@
   "require_for_exchanges_to_external_wallets": "ﺔﻴﺟﺭﺎﺧ ﻆﻓﺎﺤﻣ ﻰﻟﺇ ﺕﻻ﻿ﺩﺎﺒﺘﻟﺍ ﺐﻠﻄﺘﺗ",
   "camera_permission_is_required": ".ﺍﺮﻴﻣﺎﻜﻟﺍ ﻥﺫﺇ ﺏﻮﻠﻄﻣ",
   "switchToETHWallet": "ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ Ethereum ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ",
+  "unavailable_balance": "                                                                                                                                           ﺮﻓﻮﺘﻣ ﺮﻴﻏ ﺪﻴﺻﺭ",
+  "unavailable_balance_description": ".ﺎﻫﺪﻴﻤﺠﺗ ءﺎﻐﻟﺇ ﺭﺮﻘﺗ ﻰﺘﺣ ﺕﻼ﻿ﻣﺎﻌﻤﻠﻟ ﻝﻮﺻﻮﻠﻟ ﺔﻠﺑﺎﻗ ﺮﻴﻏ ﺓﺪﻤﺠﻤﻟﺍ ﺓﺪﺻﺭﻷ﻿ﺍ ﻞﻈﺗ ﺎﻤﻨﻴﺑ ،ﺎﻬﺑ ﺔﺻﺎﺨﻟﺍ ﺕﻼ﻿ﻣﺎﻌﻤﻟﺍ ﻝﺎﻤﺘﻛﺍ ﺩﺮﺠﻤﺑ ﺔﺣﺎﺘﻣ ﺔﻠﻔﻘﻤﻟﺍ ﺓﺪﺻﺭﻷ﻿ﺍ ﺢﺒﺼﺘﺳ .ﻚﺑ ﺔﺻﺎﺨﻟﺍ ﺕﻼ﻿ﻤﻌﻟﺍ ﻲﻓ ﻢﻜﺤﺘﻟﺍ ﺕﺍﺩﺍﺪﻋﺇ ﻲﻓ ﻂﺸﻧ ﻞﻜﺸﺑ ﺎﻫﺪﻴﻤﺠﺘﺑ ﺖﻤﻗ",
   "unspent_change": "يتغير"
 }

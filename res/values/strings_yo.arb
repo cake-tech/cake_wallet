@@ -599,7 +599,6 @@
   "onion_link": "Kọja ilọ alubosa",
   "decimal_places_error": "Oọ̀rọ̀ ayipada ti o wa ni o dara julọ",
   "edit_node": "Tun awọn ọwọnrin ṣiṣe",
-  "frozen_balance": "Aferugbo Iye",
   "settings": "Awọn aseṣe",
   "sell_monero_com_alert_content": "Kọ ju lọwọ Monero ko ṣe ni ibamu",
   "error_text_input_below_minimum_limit": "Iye jọwọ ni o kere ti o wọle diẹ",
@@ -725,5 +724,7 @@
   "require_for_exchanges_to_external_wallets": "Beere fun awọn paṣipaarọ si awọn apamọwọ ita",
   "camera_permission_is_required": "A nilo igbanilaaye kamẹra.\nJọwọ jeki o lati app eto.",
   "switchToETHWallet": "Jọwọ yipada si apamọwọ Ethereum ki o tun gbiyanju lẹẹkansi",
+  "unavailable_balance": "Iwontunwonsi ti ko si",
+  "unavailable_balance_description": "Iwontunws.funfun ti ko si: Lapapọ yii pẹlu awọn owo ti o wa ni titiipa ni awọn iṣowo isunmọ ati awọn ti o ti didi ni itara ninu awọn eto iṣakoso owo rẹ. Awọn iwọntunwọnsi titiipa yoo wa ni kete ti awọn iṣowo oniwun wọn ba ti pari, lakoko ti awọn iwọntunwọnsi tio tutunini ko ni iraye si fun awọn iṣowo titi iwọ o fi pinnu lati mu wọn kuro.",
   "unspent_change": "Yipada"
 }

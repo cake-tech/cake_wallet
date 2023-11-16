@@ -593,7 +593,6 @@
   "sweeping_wallet_alert": "Bu uzun sürmemeli. BU EKRANDAN BIRAKMAYIN YOKSA SÜPÜRÜLEN FONLAR KAYBOLABİLİR",
   "decimal_places_error": "Çok fazla ondalık basamak",
   "edit_node": "Düğümü Düzenle",
-  "frozen_balance": "Dondurulmuş Bakiye",
   "invoice_details": "fatura detayları",
   "donation_link_details": "Bağış bağlantısı ayrıntıları",
   "anonpay_description": "${type} oluşturun. Alıcı, desteklenen herhangi bir kripto para birimi ile ${method} yapabilir ve bu cüzdanda para alırsınız.",
@@ -729,5 +728,7 @@
   "require_for_exchanges_to_external_wallets": "Harici cüzdanlara geçiş yapılmasını zorunlu kılın",
   "camera_permission_is_required": "Kamera izni gereklidir.\nLütfen uygulama ayarlarından etkinleştirin.",
   "switchToETHWallet": "Lütfen bir Ethereum cüzdanına geçin ve tekrar deneyin",
+  "unavailable_balance": "Kullanılamayan bakiye",
+  "unavailable_balance_description": "Kullanılamayan Bakiye: Bu toplam, bekleyen işlemlerde kilitlenen fonları ve jeton kontrol ayarlarınızda aktif olarak dondurduğunuz fonları içerir. Kilitli bakiyeler, ilgili işlemleri tamamlandıktan sonra kullanılabilir hale gelir; dondurulmuş bakiyeler ise siz onları dondurmaya karar verene kadar işlemler için erişilemez durumda kalır.",
   "unspent_change": "Değiştirmek"
 }

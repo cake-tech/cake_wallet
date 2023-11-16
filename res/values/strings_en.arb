@@ -606,7 +606,6 @@
   "onion_link": "Onion link",
   "decimal_places_error": "Too many decimal places",
   "edit_node": "Edit Node",
-  "frozen_balance": "Frozen Balance",
   "settings": "Settings",
   "sell_monero_com_alert_content": "Selling Monero is not supported yet",
   "error_text_input_below_minimum_limit": "Amount is less than the minimum",
@@ -732,5 +731,7 @@
   "require_for_exchanges_to_external_wallets": "Require for exchanges to external wallets",
   "camera_permission_is_required": "Camera permission is required. \nPlease enable it from app settings.",
   "switchToETHWallet": "Please switch to an Ethereum wallet and try again",
+  "unavailable_balance": "Unavailable balance",
+  "unavailable_balance_description": "Unavailable Balance: This total includes funds that are locked in pending transactions and those you have actively frozen in your coin control settings. Locked balances will become available once their respective transactions are completed, while frozen balances remain inaccessible for transactions until you decide to unfreeze them.",
   "unspent_change": "Change"
 }

@@ -602,7 +602,6 @@
   "onion_link": "Lambar onion",
   "decimal_places_error": "Wadannan suna da tsawon harsuna",
   "edit_node": "Shirya Node",
-  "frozen_balance": "Falin kuma maɓallin",
   "settings": "Saiti",
   "sell_monero_com_alert_content": "Selling Monero bai sami ƙarshen mai bukatar samun ba",
   "error_text_input_below_minimum_limit": "Kudin ba a kamai",
@@ -709,5 +708,7 @@
   "require_for_exchanges_to_external_wallets": "Bukatar musanya zuwa wallet na waje",
   "camera_permission_is_required": "Ana buƙatar izinin kyamara.\nDa fatan za a kunna shi daga saitunan app.",
   "switchToETHWallet": "Da fatan za a canza zuwa walat ɗin Ethereum kuma a sake gwadawa",
+  "unavailable_balance": "Ma'aunin da ba ya samuwa",
+  "unavailable_balance_description": "Ma'auni Babu: Wannan jimlar ya haɗa da kuɗi waɗanda ke kulle a cikin ma'amaloli da ke jiran aiki da waɗanda kuka daskare sosai a cikin saitunan sarrafa kuɗin ku. Ma'auni da aka kulle za su kasance da zarar an kammala ma'amalolinsu, yayin da daskararrun ma'auni ba za su iya samun damar yin ciniki ba har sai kun yanke shawarar cire su.",
   "unspent_change": "Canza"
 }
