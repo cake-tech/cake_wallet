@@ -339,7 +339,6 @@
   "template": "Vorlage",
   "confirm_delete_template": "Diese Aktion löscht diese Vorlage. Möchten Sie fortfahren?",
   "confirm_delete_wallet": "Diese Aktion löscht diese Wallet. Möchten Sie fortfahren?",
-  "picker_description": "Um ChangeNOW oder MorphToken zu wählen, ändern Sie bitte zuerst Ihr Handelspaar",
   "change_wallet_alert_title": "Aktuelle Wallet ändern",
   "change_wallet_alert_content": "Möchten Sie die aktuelle Wallet zu ${wallet_name} ändern?",
   "creating_new_wallet": "Neue Wallet erstellen",
@@ -727,5 +726,11 @@
   "seed_key": "Samenschlüssel",
   "enter_seed_phrase": "Geben Sie Ihre Samenphrase ein",
   "change_rep_successful": "Erfolgreich veränderte Vertreter",
-  "add_contact": "Kontakt hinzufügen"
+  "add_contact": "Kontakt hinzufügen",
+  "exchange_provider_unsupported": "${providerName} wird nicht mehr unterstützt!",
+  "domain_looks_up": "Domain-Suchen",
+  "require_for_exchanges_to_external_wallets": "Erforderlich für den Umtausch in externe Wallets",
+  "camera_permission_is_required": "Eine Kameraerlaubnis ist erforderlich.\nBitte aktivieren Sie es in den App-Einstellungen.",
+  "switchToETHWallet": "Bitte wechseln Sie zu einem Ethereum-Wallet und versuchen Sie es erneut",
+  "unspent_change": "Wechselgeld"
 }

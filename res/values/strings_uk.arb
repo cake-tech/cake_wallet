@@ -339,7 +339,6 @@
   "template": "Шаблон",
   "confirm_delete_template": "Ця дія видалить шаблон. Ви хочете продовжити?",
   "confirm_delete_wallet": "Ця дія видалить гаманець. Ви хочете продовжити?",
-  "picker_description": "Щоб вибрати ChangeNOW або MorphToken, спочатку змініть пару для обміну",
   "change_wallet_alert_title": "Змінити поточний гаманець",
   "change_wallet_alert_content": "Ви хочете змінити поточний гаманець на ${wallet_name}?",
   "creating_new_wallet": "Створення нового гаманця",
@@ -727,5 +726,11 @@
   "seed_key": "Насіннєвий ключ",
   "enter_seed_phrase": "Введіть свою насіннєву фразу",
   "change_rep_successful": "Успішно змінив представник",
-  "add_contact": "Додати контакт"
+  "add_contact": "Додати контакт",
+  "exchange_provider_unsupported": "${providerName} більше не підтримується!",
+  "domain_looks_up": "Пошук доменів",
+  "require_for_exchanges_to_external_wallets": "Потрібен для обміну на зовнішні гаманці",
+  "camera_permission_is_required": "Потрібен дозвіл камери.\nУвімкніть його в налаштуваннях програми.",
+  "switchToETHWallet": "Перейдіть на гаманець Ethereum і повторіть спробу",
+  "unspent_change": "Зміна"
 }
