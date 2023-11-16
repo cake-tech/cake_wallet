@@ -720,7 +720,6 @@
   "totp_auth_url": "URL การตรวจสอบสิทธิ์ TOTP",
   "awaitDAppProcessing": "โปรดรอให้ dApp ประมวลผลเสร็จสิ้น",
   "normal_exchange_description": "ช่องทาง, sideshift, simpleswap และ trocador",
-  "moonpay_exchange_description": "การแลกเปลี่ยน cryptocurrency ที่ไร้รอยต่อ \\ ndocuments จำเป็นต้องใช้",
   "select_exchange_provider_notice": "เลือกผู้ให้บริการแลกเปลี่ยนด้านบน คุณสามารถข้ามหน้าจอนี้ได้โดยการตั้งค่าผู้ให้บริการแลกเปลี่ยนเริ่มต้นในการตั้งค่าแอป",
   "default_exchange_provider": "ผู้ให้บริการแลกเปลี่ยนเริ่มต้น",
   "copyWalletConnectLink": "คัดลอกลิงก์ WalletConnect จาก dApp แล้ววางที่นี่",
@@ -732,5 +731,7 @@
   "domain_looks_up": "การค้นหาโดเมน",
   "require_for_exchanges_to_external_wallets": "จำเป็นต้องแลกเปลี่ยนกับกระเป๋าเงินภายนอก",
   "camera_permission_is_required": "ต้องได้รับอนุญาตจากกล้อง\nโปรดเปิดใช้งานจากการตั้งค่าแอป",
-  "switchToETHWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงิน Ethereum แล้วลองอีกครั้ง"
+  "switchToETHWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงิน Ethereum แล้วลองอีกครั้ง",
+  "moonpay_exchange_description": "การแลกเปลี่ยน cryptocurrency ไร้รอยต่อ",
+  "kyc_required": "ต้องมีบัญชีและ KYC"
 }

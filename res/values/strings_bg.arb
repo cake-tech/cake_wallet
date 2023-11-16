@@ -714,7 +714,6 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Моля, изчакайте dApp да завърши обработката.",
   "normal_exchange_description": "Channigenow, Sideshift, Simpleswap и Trocador",
-  "moonpay_exchange_description": "Безпроблемна размяна на криптовалута.",
   "select_exchange_provider_notice": "Изберете доставчик на обмен по -горе. Можете да пропуснете този екран, като зададете вашия доставчик на обмен по подразбиране в настройките на приложението.",
   "default_exchange_provider": "Доставчик на обмен по подразбиране",
   "copyWalletConnectLink": "Копирайте връзката WalletConnect от dApp и я поставете тук",
@@ -726,5 +725,7 @@
   "domain_looks_up": "Търсене на домейни",
   "require_for_exchanges_to_external_wallets": "Изискване за обмен към външни портфейли",
   "camera_permission_is_required": "Изисква се разрешение за камерата.\nМоля, активирайте го от настройките на приложението.",
-  "switchToETHWallet": "Моля, преминете към портфейл Ethereum и опитайте отново"
+  "switchToETHWallet": "Моля, преминете към портфейл Ethereum и опитайте отново",
+  "moonpay_exchange_description": "Безпроблемна размяна на криптовалута.",
+  "kyc_required": "Изисква се акаунт и KYC"
 }

@@ -720,7 +720,6 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "ကျေးဇူးပြု၍ dApp ကို စီမံလုပ်ဆောင်ခြင်း အပြီးသတ်ရန် စောင့်ပါ။",
   "normal_exchange_description": "Changenow, sideshift, Simpleswap နှင့် Trocador",
-  "moonpay_exchange_description": "ချောမွေ့စွာ cryptocurrencrenrencrenrens ။ \\ NDocuments လိုအပ်သည်",
   "select_exchange_provider_notice": "အပေါ်ကလဲလှယ်ပေးသူကိုရွေးပါ။ သင်၏ default EmpressInter ကို app setting တွင် setting လုပ်ခြင်းဖြင့်ဤ screen ကိုကျော်သွားနိုင်သည်။",
   "default_exchange_provider": "ပုံမှန်ဖလှယ်မှုပံ့ပိုးသူ",
   "copyWalletConnectLink": "dApp မှ WalletConnect လင့်ခ်ကို ကူးယူပြီး ဤနေရာတွင် ကူးထည့်ပါ။",
@@ -732,5 +731,7 @@
   "domain_looks_up": "ဒိုမိန်းရှာဖွေမှုများ",
   "require_for_exchanges_to_external_wallets": "ပြင်ပပိုက်ဆံအိတ်များသို့ လဲလှယ်ရန် လိုအပ်သည်။",
   "camera_permission_is_required": "ကင်မရာခွင့်ပြုချက် လိုအပ်ပါသည်။\nအက်ပ်ဆက်တင်များမှ ၎င်းကိုဖွင့်ပါ။",
-  "switchToETHWallet": "ကျေးဇူးပြု၍ Ethereum ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်စမ်းကြည့်ပါ။"
+  "switchToETHWallet": "ကျေးဇူးပြု၍ Ethereum ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်စမ်းကြည့်ပါ။",
+  "moonpay_exchange_description": "ချောမွေ့စွာ cryptocurrencrencrencrens",
+  "kyc_required": "အကောင့်နှင့် KYC လိုအပ်သည်"
 }

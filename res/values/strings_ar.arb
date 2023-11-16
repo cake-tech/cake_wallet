@@ -718,7 +718,6 @@
   "totp_auth_url": "TOTP ﺔﻗﺩﺎﺼﻤﻟ URL ﻥﺍﻮﻨﻋ",
   "awaitDAppProcessing": ".ﺔﺠﻟﺎﻌﻤﻟﺍ ﻦﻣ dApp ﻲﻬﺘﻨﻳ ﻰﺘﺣ ﺭﺎﻈﺘﻧﻻ﻿ﺍ ﻰﺟﺮﻳ",
   "normal_exchange_description": "Changenow و Sideshift و SimplesWap و Trocador",
-  "moonpay_exchange_description": "مبادلة عملة مشفرة سلسة.",
   "select_exchange_provider_notice": "حدد مزود تبادل أعلاه. يمكنك تخطي هذه الشاشة عن طريق تعيين مزود التبادل الافتراضي في إعدادات التطبيق.",
   "default_exchange_provider": "مزود التبادل الافتراضي",
   "copyWalletConnectLink": "ﺎﻨﻫ ﻪﻘﺼﻟﺍﻭ dApp ﻦﻣ WalletConnect ﻂﺑﺍﺭ ﺦﺴﻧﺍ",
@@ -730,5 +729,7 @@
   "domain_looks_up": "ﻝﺎﺠﻤﻟﺍ ﺚﺤﺑ ﺕﺎﻴﻠﻤﻋ",
   "require_for_exchanges_to_external_wallets": "ﺔﻴﺟﺭﺎﺧ ﻆﻓﺎﺤﻣ ﻰﻟﺇ ﺕﻻ﻿ﺩﺎﺒﺘﻟﺍ ﺐﻠﻄﺘﺗ",
   "camera_permission_is_required": ".ﺍﺮﻴﻣﺎﻜﻟﺍ ﻥﺫﺇ ﺏﻮﻠﻄﻣ",
-  "switchToETHWallet": "ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ Ethereum ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ"
+  "switchToETHWallet": "ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ Ethereum ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ",
+  "moonpay_exchange_description": "تبديل العملة المشفرة سلسة.",
+  "kyc_required": "الحساب و KYC مطلوب"
 }

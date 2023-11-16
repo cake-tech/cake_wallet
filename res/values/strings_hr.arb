@@ -720,7 +720,6 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Molimo pričekajte da dApp završi obradu.",
   "normal_exchange_description": "ChanneGenow, Sideshift, Simpleswap i Trocador",
-  "moonpay_exchange_description": "Bešavna zamjena kriptovaluta.",
   "select_exchange_provider_notice": "Odaberite gornji dobavljač razmjene. Ovaj zaslon možete preskočiti postavljanjem zadanog dobavljača Exchange u postavkama aplikacija.",
   "default_exchange_provider": "Zadani davatelj razmjene",
   "copyWalletConnectLink": "Kopirajte vezu WalletConnect iz dApp-a i zalijepite je ovdje",
@@ -732,5 +731,7 @@
   "domain_looks_up": "Pretraga domena",
   "require_for_exchanges_to_external_wallets": "Zahtijeva razmjene na vanjske novčanike",
   "camera_permission_is_required": "Potrebno je dopuštenje kamere.\nOmogućite ga u postavkama aplikacije.",
-  "switchToETHWallet": "Prijeđite na Ethereum novčanik i pokušajte ponovno"
+  "switchToETHWallet": "Prijeđite na Ethereum novčanik i pokušajte ponovno",
+  "moonpay_exchange_description": "Bešavna zamjena kriptovaluta.",
+  "kyc_required": "Potrebni su račun i KYC"
 }

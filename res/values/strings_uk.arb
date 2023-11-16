@@ -722,7 +722,6 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Зачекайте, доки dApp завершить обробку.",
   "normal_exchange_description": "Changenow, Sideshift, SimpleSwap та Trocador",
-  "moonpay_exchange_description": "Безшовна заміну криптовалюти. \\ Ndocuments Потрібні",
   "select_exchange_provider_notice": "Виберіть постачальника обміну вище. Ви можете пропустити цей екран, встановивши свого постачальника обміну за замовчуванням у налаштуваннях додатків.",
   "default_exchange_provider": "Постачальник обміну за замовчуванням",
   "copyWalletConnectLink": "Скопіюйте посилання WalletConnect із dApp і вставте сюди",
@@ -734,5 +733,7 @@
   "domain_looks_up": "Пошук доменів",
   "require_for_exchanges_to_external_wallets": "Потрібен для обміну на зовнішні гаманці",
   "camera_permission_is_required": "Потрібен дозвіл камери.\nУвімкніть його в налаштуваннях програми.",
-  "switchToETHWallet": "Перейдіть на гаманець Ethereum і повторіть спробу"
+  "switchToETHWallet": "Перейдіть на гаманець Ethereum і повторіть спробу",
+  "moonpay_exchange_description": "Безшовна заміну криптовалюти.",
+  "kyc_required": "Потрібно рахунок та kyc"
 }

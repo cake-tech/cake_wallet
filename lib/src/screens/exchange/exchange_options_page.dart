@@ -49,7 +49,7 @@ class ExchangeOptionsPage extends BasePage {
                 child: OptionTile(
                   image: iconMoonPay,
                   title: "MoonPay Swaps",
-                  description: S.of(context).moonpay_exchange_description,
+                  description: S.of(context).moonpay_exchange_description + "\n" + S.of(context).kyc_required,
                   onPressed: () async =>
                       await getIt.get<MoonPayExchangeProvider>().launchProvider(context),
                 ),

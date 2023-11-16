@@ -722,7 +722,6 @@
   "totp_auth_url": "URL de autenticación TOTP",
   "awaitDAppProcessing": "Espere a que la dApp termine de procesarse.",
   "normal_exchange_description": "Changenow, Sidriofift, Simpleswap y Trocador",
-  "moonpay_exchange_description": "Cambio de criptomonedas sin interrupciones. \\ Ndocumentos requeridos",
   "select_exchange_provider_notice": "Seleccione un proveedor de intercambio anterior. Puede omitir esta pantalla configurando su proveedor de intercambio predeterminado en la configuración de la aplicación.",
   "default_exchange_provider": "Proveedor de intercambio predeterminado",
   "copyWalletConnectLink": "Copie el enlace de WalletConnect de dApp y péguelo aquí",
@@ -734,5 +733,7 @@
   "domain_looks_up": "Búsquedas de dominio",
   "require_for_exchanges_to_external_wallets": "Requerido para intercambios a billeteras externas",
   "camera_permission_is_required": "Se requiere permiso de la cámara.\nHabilítelo desde la configuración de la aplicación.",
-  "switchToETHWallet": "Cambie a una billetera Ethereum e inténtelo nuevamente."
+  "switchToETHWallet": "Cambie a una billetera Ethereum e inténtelo nuevamente.",
+  "moonpay_exchange_description": "Cambio de criptomonedas sin costuras.",
+  "kyc_required": "Cuenta y KYC requerido"
 }

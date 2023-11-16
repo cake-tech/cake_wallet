@@ -714,7 +714,6 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "۔ﮟﯾﺮﮐ ﺭﺎﻈﺘﻧﺍ ﺎﮐ ﮯﻧﻮﮨ ﻞﻤﮑﻣ ﮓﻨﺴﯿﺳﻭﺮﭘ ﮯﮐ dApp ﻡﺮﮐ ﮦﺍﺮﺑ",
   "normal_exchange_description": "چینجو ، سڈشفٹ ، سادہ سویپ ، اور ٹروکاڈور",
-  "moonpay_exchange_description": "ہموار کریپٹوکرنسی تبادلہ کرنا۔ \\ n دستاویزات کی ضرورت ہے",
   "select_exchange_provider_notice": "مذکورہ بالا ایکسچینج فراہم کنندہ کو منتخب کریں۔ آپ ایپ کی ترتیبات میں اپنے ڈیفالٹ ایکسچینج فراہم کنندہ کو ترتیب دے کر اس اسکرین کو چھوڑ سکتے ہیں۔",
   "default_exchange_provider": "پہلے سے طے شدہ تبادلہ فراہم کنندہ",
   "copyWalletConnectLink": "dApp ﮯﺳ WalletConnect ۔ﮟﯾﺮﮐ ﭧﺴﯿﭘ ﮞﺎﮩﯾ ﺭﻭﺍ ﮟﯾﺮﮐ ﯽﭘﺎﮐ ﻮﮐ ﮏﻨﻟ",
@@ -726,5 +725,7 @@
   "domain_looks_up": "ڈومین تلاش کرنا",
   "require_for_exchanges_to_external_wallets": "۔ﮯﮨ ﺕﺭﻭﺮﺿ ﯽﮐ ﮯﻟﺩﺎﺒﺗ ﮟﯿﻣ ﮮﻮﭩﺑ ﯽﻧﻭﺮﯿﺑ",
   "camera_permission_is_required": "۔ﮯﮨ ﺭﺎﮐﺭﺩ ﺕﺯﺎﺟﺍ ﯽﮐ ﮮﺮﻤﯿﮐ",
-  "switchToETHWallet": "۔ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ Ethereum ﻡﺮﮐ ﮦﺍﺮﺑ"
+  "switchToETHWallet": "۔ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ Ethereum ﻡﺮﮐ ﮦﺍﺮﺑ",
+  "moonpay_exchange_description": "ہموار کریپٹوکرنسی تبادلہ کرنا۔",
+  "kyc_required": "اکاؤنٹ اور کے وائی سی کی ضرورت ہے"
 }

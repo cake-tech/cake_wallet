@@ -722,7 +722,6 @@
   "totp_auth_url": "TOTP प्रामाणिक यूआरएल",
   "awaitDAppProcessing": "कृपया डीएपी की प्रोसेसिंग पूरी होने तक प्रतीक्षा करें।",
   "normal_exchange_description": "Changenow, Sideshift, Simpleswap, और Trocador",
-  "moonpay_exchange_description": "सीमलेस क्रिप्टोक्यूरेंसी स्वैपिंग। \\ ndocuments आवश्यक",
   "select_exchange_provider_notice": "ऊपर एक एक्सचेंज प्रदाता का चयन करें। आप ऐप सेटिंग्स में अपने डिफ़ॉल्ट एक्सचेंज प्रदाता को सेट करके इस स्क्रीन को छोड़ सकते हैं।",
   "default_exchange_provider": "डिफ़ॉल्ट विनिमय प्रदाता",
   "copyWalletConnectLink": "dApp से वॉलेटकनेक्ट लिंक को कॉपी करें और यहां पेस्ट करें",
@@ -734,5 +733,7 @@
   "domain_looks_up": "डोमेन लुकअप",
   "require_for_exchanges_to_external_wallets": "बाहरी वॉलेट में एक्सचेंज की आवश्यकता है",
   "camera_permission_is_required": "कैमरे की अनुमति आवश्यक है.\nकृपया इसे ऐप सेटिंग से सक्षम करें।",
-  "switchToETHWallet": "कृपया एथेरियम वॉलेट पर स्विच करें और पुनः प्रयास करें"
+  "switchToETHWallet": "कृपया एथेरियम वॉलेट पर स्विच करें और पुनः प्रयास करें",
+  "moonpay_exchange_description": "सीमलेस क्रिप्टोक्यूरेंसी स्वैपिंग।",
+  "kyc_required": "खाता और KYC की आवश्यकता है"
 }

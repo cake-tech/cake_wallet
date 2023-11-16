@@ -723,7 +723,6 @@
   "totp_auth_url": "TOTP AUTH URL",
   "awaitDAppProcessing": "Kindly wait for the dApp to finish processing.",
   "normal_exchange_description": "Changenow, SideShift, SimpleSwap, and Trocador",
-  "moonpay_exchange_description": "Seamless cryptocurrency swapping.\\nDocuments required",
   "select_exchange_provider_notice": "Select an exchange provider above. You can skip this screen by setting your default exchange provider in app settings.",
   "default_exchange_provider": "Default Exchange Provider",
   "copyWalletConnectLink": "Copy the WalletConnect link from dApp and paste here",
@@ -735,5 +734,7 @@
   "domain_looks_up": "Domain lookups",
   "require_for_exchanges_to_external_wallets": "Require for exchanges to external wallets",
   "camera_permission_is_required": "Camera permission is required. \nPlease enable it from app settings.",
-  "switchToETHWallet": "Please switch to an Ethereum wallet and try again"
+  "switchToETHWallet": "Please switch to an Ethereum wallet and try again",
+  "moonpay_exchange_description": "Seamless cryptocurrency swapping.",
+  "kyc_required": "Account and KYC required"
 }
