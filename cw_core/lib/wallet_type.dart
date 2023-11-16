@@ -46,7 +46,7 @@ enum WalletType {
   bitcoinCash,
 
   @HiveField(9)
-  polygon,
+  polygon
 }
 
 int serializeToInt(WalletType type) {

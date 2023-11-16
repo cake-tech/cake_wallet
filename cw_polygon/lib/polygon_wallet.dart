@@ -57,7 +57,7 @@ abstract class PolygonWalletBase
         _client = PolygonClient(),
         walletAddresses = PolygonWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, ERC20Balance>.of(
-            {CryptoCurrency.eth: initialBalance ?? ERC20Balance(BigInt.zero)}),
+            {CryptoCurrency.matic: initialBalance ?? ERC20Balance(BigInt.zero)}),
         super(walletInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = PolygonTransactionHistory(walletInfo: walletInfo, password: password);
