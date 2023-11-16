@@ -729,5 +729,6 @@
   "camera_permission_is_required": "Potrebno je dopuštenje kamere.\nOmogućite ga u postavkama aplikacije.",
   "switchToETHWallet": "Prijeđite na Ethereum novčanik i pokušajte ponovno",
   "unavailable_balance": "Nedostupno stanje",
-  "unavailable_balance_description": "Nedostupno stanje: Ovaj ukupni iznos uključuje sredstva koja su zaključana u transakcijama na čekanju i ona koja ste aktivno zamrznuli u postavkama kontrole novčića. Zaključani saldi postat će dostupni kada se dovrše njihove transakcije, dok zamrznuti saldi ostaju nedostupni za transakcije sve dok ih ne odlučite odmrznuti."
+  "unavailable_balance_description": "Nedostupno stanje: Ovaj ukupni iznos uključuje sredstva koja su zaključana u transakcijama na čekanju i ona koja ste aktivno zamrznuli u postavkama kontrole novčića. Zaključani saldi postat će dostupni kada se dovrše njihove transakcije, dok zamrznuti saldi ostaju nedostupni za transakcije sve dok ih ne odlučite odmrznuti.",
+  "unspent_change": "Promijeniti"
 }

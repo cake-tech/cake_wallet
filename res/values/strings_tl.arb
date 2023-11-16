@@ -726,5 +726,6 @@
   "camera_permission_is_required": "Kinakailangan ang pahintulot sa camera.\nMangyaring paganahin ito mula sa mga setting ng app.",
   "switchToETHWallet": "Mangyaring lumipat sa isang Ethereum wallet at subukang muli",
   "unavailable_balance": "Hindi available na balanse",
-  "unavailable_balance_description": "Hindi Available na Balanse: Kasama sa kabuuang ito ang mga pondong naka-lock sa mga nakabinbing transaksyon at ang mga aktibong na-freeze mo sa iyong mga setting ng kontrol ng coin. Magiging available ang mga naka-lock na balanse kapag nakumpleto na ang kani-kanilang mga transaksyon, habang ang mga nakapirming balanse ay nananatiling hindi naa-access para sa mga transaksyon hanggang sa magpasya kang i-unfreeze ang mga ito."
+  "unavailable_balance_description": "Hindi Available na Balanse: Kasama sa kabuuang ito ang mga pondong naka-lock sa mga nakabinbing transaksyon at ang mga aktibong na-freeze mo sa iyong mga setting ng kontrol ng coin. Magiging available ang mga naka-lock na balanse kapag nakumpleto na ang kani-kanilang mga transaksyon, habang ang mga nakapirming balanse ay nananatiling hindi naa-access para sa mga transaksyon hanggang sa magpasya kang i-unfreeze ang mga ito.",
+  "unspent_change": "Baguhin"
 }
