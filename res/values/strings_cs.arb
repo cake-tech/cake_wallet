@@ -722,5 +722,6 @@
   "domain_looks_up": "Vyhledávání domén",
   "require_for_exchanges_to_external_wallets": "Vyžadovat pro výměny do externích peněženek",
   "camera_permission_is_required": "Vyžaduje se povolení fotoaparátu.\nPovolte jej v nastavení aplikace.",
-  "switchToETHWallet": "Přejděte na peněženku Ethereum a zkuste to znovu"
+  "switchToETHWallet": "Přejděte na peněženku Ethereum a zkuste to znovu",
+  "unspent_change": "Změna"
 }

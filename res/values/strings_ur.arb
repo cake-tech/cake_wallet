@@ -722,5 +722,6 @@
   "domain_looks_up": "ڈومین تلاش کرنا",
   "require_for_exchanges_to_external_wallets": "۔ﮯﮨ ﺕﺭﻭﺮﺿ ﯽﮐ ﮯﻟﺩﺎﺒﺗ ﮟﯿﻣ ﮮﻮﭩﺑ ﯽﻧﻭﺮﯿﺑ",
   "camera_permission_is_required": "۔ﮯﮨ ﺭﺎﮐﺭﺩ ﺕﺯﺎﺟﺍ ﯽﮐ ﮮﺮﻤﯿﮐ",
-  "switchToETHWallet": "۔ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ Ethereum ﻡﺮﮐ ﮦﺍﺮﺑ"
+  "switchToETHWallet": "۔ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ Ethereum ﻡﺮﮐ ﮦﺍﺮﺑ",
+  "unspent_change": "تبدیل کریں"
 }
