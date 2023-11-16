@@ -735,5 +735,6 @@
   "camera_permission_is_required": "Cameratoestemming is vereist.\nSchakel dit in via de app-instellingen.",
   "switchToETHWallet": "Schakel over naar een Ethereum-portemonnee en probeer het opnieuw",
   "moonpay_exchange_description": "Naadloze cryptocurrency swapping.",
-  "kyc_required": "Account en KYC vereist"
+  "kyc_required": "Account en KYC vereist",
+  "unspent_change": "Wijziging"
 }

@@ -723,5 +723,6 @@
   "camera_permission_is_required": "Izin kamera diperlukan.\nSilakan aktifkan dari pengaturan aplikasi.",
   "switchToETHWallet": "Silakan beralih ke dompet Ethereum dan coba lagi",
   "moonpay_exchange_description": "Pertukaran cryptocurrency yang mulus.",
-  "kyc_required": "Akun dan KYC diperlukan"
+  "kyc_required": "Akun dan KYC diperlukan",
+  "unspent_change": "Mengubah"
 }

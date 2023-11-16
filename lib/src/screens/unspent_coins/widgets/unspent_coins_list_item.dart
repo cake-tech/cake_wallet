@@ -1,8 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 
 class UnspentCoinsListItem extends StatelessWidget {
   UnspentCoinsListItem({
@@ -11,6 +11,7 @@ class UnspentCoinsListItem extends StatelessWidget {
     required this.address,
     required this.isSending,
     required this.isFrozen,
+    required this.isChange,
     this.onCheckBoxTap,
   });
 
@@ -19,6 +20,7 @@ class UnspentCoinsListItem extends StatelessWidget {
   final String address;
   final bool isSending;
   final bool isFrozen;
+  final bool isChange;
   final Function()? onCheckBoxTap;
 
   @override
@@ -27,9 +29,8 @@ class UnspentCoinsListItem extends StatelessWidget {
     final selectedItemColor = Theme.of(context).primaryColor;
     final itemColor = isSending ? selectedItemColor : unselectedItemColor;
 
-    final amountColor = isSending
-        ? Colors.white
-        : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor;
+    final amountColor =
+        isSending ? Colors.white : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor;
     final addressColor = isSending
         ? Colors.white.withOpacity(0.5)
         : Theme.of(context).extension<CakeTextTheme>()!.buttonSecondaryTextColor;
@@ -47,7 +48,8 @@ class UnspentCoinsListItem extends StatelessWidget {
                 child: StandardCheckbox(
                     iconColor: amountColor,
                     borderColor: addressColor,
-                    value: isSending, onChanged: (value) => onCheckBoxTap?.call())),
+                    value: isSending,
+                    onChanged: (value) => onCheckBoxTap?.call())),
             Expanded(
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -57,9 +59,7 @@ class UnspentCoinsListItem extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         if (note.isNotEmpty)
                           AutoSizeText(
                             note,
@@ -69,8 +69,8 @@ class UnspentCoinsListItem extends StatelessWidget {
                           ),
                         AutoSizeText(
                           amount,
-                          style:
-                              TextStyle(color: amountColor, fontSize: 15, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              color: amountColor, fontSize: 15, fontWeight: FontWeight.w600),
                           maxLines: 1,
                         )
                       ]),
@@ -84,23 +84,41 @@ class UnspentCoinsListItem extends StatelessWidget {
                             alignment: Alignment.center,
                             child: Text(
                               S.of(context).frozen,
-                              style:
-                              TextStyle(color: amountColor, fontSize: 7, fontWeight: FontWeight.w600),
-                            ))
+                              style: TextStyle(
+                                  color: amountColor, fontSize: 7, fontWeight: FontWeight.w600),
+                            )),
                     ],
                   ),
                   Expanded(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         AutoSizeText(
-                          '${address.substring(0, 5)}...${address.substring(address.length-5)}', // ToDo: Maybe use address label
+                          '${address.substring(0, 5)}...${address.substring(address.length - 5)}', // ToDo: Maybe use address label
                           style: TextStyle(
                             color: addressColor,
                             fontSize: 12,
                           ),
                           maxLines: 1,
                         ),
+                        if (isChange)
+                          Container(
+                            height: 17,
+                            padding: EdgeInsets.only(left: 6, right: 6),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.all(Radius.circular(8.5)),
+                                color: Colors.white),
+                            alignment: Alignment.center,
+                            child: Text(
+                              S.of(context).unspent_change,
+                              style: TextStyle(
+                                color: itemColor,
+                                fontSize: 7,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),

@@ -729,5 +729,6 @@
   "camera_permission_is_required": "A nilo igbanilaaye kamẹra.\nJọwọ jeki o lati app eto.",
   "switchToETHWallet": "Jọwọ yipada si apamọwọ Ethereum ki o tun gbiyanju lẹẹkansi",
   "moonpay_exchange_description": "Iboju ti ko ni itiju.",
-  "kyc_required": "Akọọlẹ ati KYC beere"
+  "kyc_required": "Akọọlẹ ati KYC beere",
+  "unspent_change": "Yipada"
 }

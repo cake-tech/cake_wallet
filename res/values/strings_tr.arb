@@ -733,5 +733,6 @@
   "camera_permission_is_required": "Kamera izni gereklidir.\nLütfen uygulama ayarlarından etkinleştirin.",
   "switchToETHWallet": "Lütfen bir Ethereum cüzdanına geçin ve tekrar deneyin",
   "moonpay_exchange_description": "Kesintisiz kripto para değiştirme.",
-  "kyc_required": "Hesap ve KYC gerekli"
+  "kyc_required": "Hesap ve KYC gerekli",
+  "unspent_change": "Değiştirmek"
 }

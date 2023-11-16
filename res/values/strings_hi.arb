@@ -735,5 +735,6 @@
   "camera_permission_is_required": "कैमरे की अनुमति आवश्यक है.\nकृपया इसे ऐप सेटिंग से सक्षम करें।",
   "switchToETHWallet": "कृपया एथेरियम वॉलेट पर स्विच करें और पुनः प्रयास करें",
   "moonpay_exchange_description": "सीमलेस क्रिप्टोक्यूरेंसी स्वैपिंग।",
-  "kyc_required": "खाता और KYC की आवश्यकता है"
+  "kyc_required": "खाता और KYC की आवश्यकता है",
+  "unspent_change": "परिवर्तन"
 }

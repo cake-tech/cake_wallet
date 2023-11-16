@@ -727,5 +727,6 @@
   "camera_permission_is_required": "Vyžaduje se povolení fotoaparátu.\nPovolte jej v nastavení aplikace.",
   "switchToETHWallet": "Přejděte na peněženku Ethereum a zkuste to znovu",
   "moonpay_exchange_description": "Bezproblémové výměny kryptoměny.",
-  "kyc_required": "Účet a KYC vyžadoval"
+  "kyc_required": "Účet a KYC vyžadoval",
+  "unspent_change": "Změna"
 }

@@ -735,5 +735,6 @@
   "camera_permission_is_required": "Требуется разрешение камеры.\nПожалуйста, включите его в настройках приложения.",
   "switchToETHWallet": "Пожалуйста, переключитесь на кошелек Ethereum и повторите попытку.",
   "moonpay_exchange_description": "Беспланное обмена криптовалютой.",
-  "kyc_required": "Учетная запись и KYC требуются"
+  "kyc_required": "Учетная запись и KYC требуются",
+  "unspent_change": "Изменять"
 }

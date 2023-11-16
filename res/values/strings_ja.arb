@@ -735,5 +735,6 @@
   "camera_permission_is_required": "カメラの許可が必要です。\nアプリの設定から有効にしてください。",
   "switchToETHWallet": "イーサリアムウォレットに切り替えてもう一度お試しください",
   "moonpay_exchange_description": "シームレスな暗号通貨スワッピング。",
-  "kyc_required": "アカウントとKYCが必要です"
+  "kyc_required": "アカウントとKYCが必要です",
+  "unspent_change": "変化"
 }

@@ -735,5 +735,6 @@
   "camera_permission_is_required": "Se requiere permiso de la cámara.\nHabilítelo desde la configuración de la aplicación.",
   "switchToETHWallet": "Cambie a una billetera Ethereum e inténtelo nuevamente.",
   "moonpay_exchange_description": "Cambio de criptomonedas sin costuras.",
-  "kyc_required": "Cuenta y KYC requerido"
+  "kyc_required": "Cuenta y KYC requerido",
+  "unspent_change": "Cambiar"
 }

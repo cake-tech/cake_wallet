@@ -713,5 +713,6 @@
   "camera_permission_is_required": "Ana buƙatar izinin kyamara.\nDa fatan za a kunna shi daga saitunan app.",
   "switchToETHWallet": "Da fatan za a canza zuwa walat ɗin Ethereum kuma a sake gwadawa",
   "moonpay_exchange_description": "Sumba crypptocurrency.",
-  "kyc_required": "Asusun da KyKC da ake buƙata"
+  "kyc_required": "Asusun da KyKC da ake buƙata",
+  "unspent_change": "Canza"
 }

@@ -733,5 +733,6 @@
   "camera_permission_is_required": "ต้องได้รับอนุญาตจากกล้อง\nโปรดเปิดใช้งานจากการตั้งค่าแอป",
   "switchToETHWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงิน Ethereum แล้วลองอีกครั้ง",
   "moonpay_exchange_description": "การแลกเปลี่ยน cryptocurrency ไร้รอยต่อ",
-  "kyc_required": "ต้องมีบัญชีและ KYC"
+  "kyc_required": "ต้องมีบัญชีและ KYC",
+  "unspent_change": "เปลี่ยน"
 }

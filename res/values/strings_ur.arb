@@ -727,5 +727,6 @@
   "camera_permission_is_required": "۔ﮯﮨ ﺭﺎﮐﺭﺩ ﺕﺯﺎﺟﺍ ﯽﮐ ﮮﺮﻤﯿﮐ",
   "switchToETHWallet": "۔ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ Ethereum ﻡﺮﮐ ﮦﺍﺮﺑ",
   "moonpay_exchange_description": "ہموار کریپٹوکرنسی تبادلہ کرنا۔",
-  "kyc_required": "اکاؤنٹ اور کے وائی سی کی ضرورت ہے"
+  "kyc_required": "اکاؤنٹ اور کے وائی سی کی ضرورت ہے",
+  "unspent_change": "تبدیل کریں"
 }

@@ -734,5 +734,6 @@
   "camera_permission_is_required": "需要相机许可。\n请从应用程序设置中启用它。",
   "switchToETHWallet": "请切换到以太坊钱包并重试",
   "moonpay_exchange_description": "无缝加密货币交换。",
-  "kyc_required": "帐户和KYC需要"
+  "kyc_required": "帐户和KYC需要",
+  "unspent_change": "改变"
 }

@@ -730,5 +730,6 @@
   "camera_permission_is_required": "Kinakailangan ang pahintulot sa camera.\nMangyaring paganahin ito mula sa mga setting ng app.",
   "switchToETHWallet": "Mangyaring lumipat sa isang Ethereum wallet at subukang muli",
   "moonpay_exchange_description": "Seamless cryptocurrency swapping.",
-  "kyc_required": "Kinakailangan ang account at KYC"
+  "kyc_required": "Kinakailangan ang account at KYC",
+  "unspent_change": "Baguhin"
 }

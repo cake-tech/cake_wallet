@@ -733,5 +733,6 @@
   "camera_permission_is_required": "Potrebno je dopuštenje kamere.\nOmogućite ga u postavkama aplikacije.",
   "switchToETHWallet": "Prijeđite na Ethereum novčanik i pokušajte ponovno",
   "moonpay_exchange_description": "Bešavna zamjena kriptovaluta.",
-  "kyc_required": "Potrebni su račun i KYC"
+  "kyc_required": "Potrebni su račun i KYC",
+  "unspent_change": "Promijeniti"
 }

@@ -731,5 +731,6 @@
   "camera_permission_is_required": ".ﺍﺮﻴﻣﺎﻜﻟﺍ ﻥﺫﺇ ﺏﻮﻠﻄﻣ",
   "switchToETHWallet": "ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ Ethereum ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ",
   "moonpay_exchange_description": "تبديل العملة المشفرة سلسة.",
-  "kyc_required": "الحساب و KYC مطلوب"
+  "kyc_required": "الحساب و KYC مطلوب",
+  "unspent_change": "يتغير"
 }
