@@ -418,7 +418,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.preSeed:
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<PreSeedPage>(param1: settings.arguments as WalletType));
+          builder: (_) => getIt.get<PreSeedPage>(
+              param1: settings.arguments as WalletType,
+              param2: getIt.get<AdvancedPrivacySettingsViewModel>(
+                  param1: settings.arguments as WalletType)));
 
     case Routes.backup:
       return CupertinoPageRoute<void>(

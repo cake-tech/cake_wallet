@@ -729,6 +729,7 @@
   "require_for_exchanges_to_external_wallets": "需要兑换到外部钱包",
   "camera_permission_is_required": "需要相机许可。\n请从应用程序设置中启用它。",
   "switchToETHWallet": "请切换到以太坊钱包并重试",
+  "seed_phrase_length": "种子短语长度",
   "unavailable_balance": "不可用余额",
   "unavailable_balance_description": "不可用余额：此总额包括锁定在待处理交易中的资金以及您在硬币控制设置中主动冻结的资金。一旦各自的交易完成，锁定的余额将变得可用，而冻结的余额在您决定解冻之前仍然无法进行交易。",
   "unspent_change": "改变"

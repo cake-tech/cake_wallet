@@ -730,6 +730,7 @@
   "require_for_exchanges_to_external_wallets": "Vereist voor uitwisselingen naar externe portemonnees",
   "camera_permission_is_required": "Cameratoestemming is vereist.\nSchakel dit in via de app-instellingen.",
   "switchToETHWallet": "Schakel over naar een Ethereum-portemonnee en probeer het opnieuw",
+  "seed_phrase_length": "Lengte van de zaadzin",
   "unavailable_balance": "Onbeschikbaar saldo",
   "unavailable_balance_description": "Niet-beschikbaar saldo: Dit totaal omvat het geld dat is vergrendeld in lopende transacties en het geld dat u actief hebt bevroren in uw muntcontrole-instellingen. Vergrendelde saldi komen beschikbaar zodra de betreffende transacties zijn voltooid, terwijl bevroren saldi ontoegankelijk blijven voor transacties totdat u besluit ze weer vrij te geven.",
   "unspent_change": "Wijziging"

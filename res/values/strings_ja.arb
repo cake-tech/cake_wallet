@@ -730,6 +730,7 @@
   "require_for_exchanges_to_external_wallets": "外部ウォレットへの交換に必要",
   "camera_permission_is_required": "カメラの許可が必要です。\nアプリの設定から有効にしてください。",
   "switchToETHWallet": "イーサリアムウォレットに切り替えてもう一度お試しください",
+  "seed_phrase_length": "シードフレーズの長さ",
   "unavailable_balance": "利用できない残高",
   "unavailable_balance_description": "利用不可能な残高: この合計には、保留中のトランザクションにロックされている資金と、コイン管理設定でアクティブに凍結した資金が含まれます。ロックされた残高は、それぞれの取引が完了すると利用可能になりますが、凍結された残高は、凍結を解除するまで取引にアクセスできません。",
   "unspent_change": "変化"

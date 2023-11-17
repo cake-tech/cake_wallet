@@ -9,6 +9,7 @@ import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
@@ -71,6 +72,7 @@ abstract class SettingsStoreBase with Store {
       required this.isBitcoinBuyEnabled,
       required this.actionlistDisplayMode,
       required this.pinTimeOutDuration,
+      required this.seedPhraseLength,
       required Cake2FAPresetsOptions initialCake2FAPresetOptions,
       required bool initialShouldRequireTOTP2FAForAccessingWallet,
       required bool initialShouldRequireTOTP2FAForSendsToContact,
@@ -330,6 +332,11 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.setString(PreferencesKey.currentLanguageCode, languageCode));
 
     reaction(
+            (_) => seedPhraseLength,
+            (SeedPhraseLength seedPhraseWordCount) =>
+            sharedPreferences.setInt(PreferencesKey.currentSeedPhraseLength, seedPhraseWordCount.value));
+
+    reaction(
         (_) => pinTimeOutDuration,
         (PinCodeRequiredDuration pinCodeInterval) =>
             sharedPreferences.setInt(PreferencesKey.pinTimeOutDuration, pinCodeInterval.value));
@@ -418,6 +425,7 @@ abstract class SettingsStoreBase with Store {
   static const defaultActionsMode = 11;
   static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenminutes;
   static const defaultAutoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.initialized;
+  static const defaultSeedPhraseLength = SeedPhraseLength.twelveWords;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -508,6 +516,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   PinCodeRequiredDuration pinTimeOutDuration;
+
+  @observable
+  SeedPhraseLength seedPhraseLength;
 
   @computed
   ThemeData get theme => currentTheme.themeData;
@@ -699,9 +710,13 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
     var pinLength = sharedPreferences.getInt(PreferencesKey.currentPinLength);
     final timeOutDuration = sharedPreferences.getInt(PreferencesKey.pinTimeOutDuration);
+    final seedPhraseCount = sharedPreferences.getInt(PreferencesKey.currentSeedPhraseLength);
     final pinCodeTimeOutDuration = timeOutDuration != null
         ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
         : defaultPinCodeTimeOutDuration;
+    final seedPhraseWordCount = seedPhraseCount != null
+        ? SeedPhraseLength.deserialize(raw: seedPhraseCount)
+        : defaultSeedPhraseLength;
     final sortBalanceBy =
     SortBalanceBy.values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? 0];
     final pinNativeTokenAtTop =
@@ -816,6 +831,7 @@ abstract class SettingsStoreBase with Store {
           actionlistDisplayMode: actionListDisplayMode,
           initialPinLength: pinLength,
           pinTimeOutDuration: pinCodeTimeOutDuration,
+          seedPhraseLength: seedPhraseWordCount,
           initialLanguageCode: savedLanguageCode,
           sortBalanceBy: sortBalanceBy,
           pinNativeTokenAtTop: pinNativeTokenAtTop,

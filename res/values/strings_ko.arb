@@ -728,6 +728,7 @@
   "require_for_exchanges_to_external_wallets": "외부 지갑으로의 교환을 위해 필요",
   "camera_permission_is_required": "카메라 권한이 필요합니다.\n앱 설정에서 활성화해 주세요.",
   "switchToETHWallet": "이더리움 지갑으로 전환한 후 다시 시도해 주세요.",
+  "seed_phrase_length": "시드 문구 길이",
   "unavailable_balance": "사용할 수 없는 잔액",
   "unavailable_balance_description": "사용할 수 없는 잔액: 이 총계에는 보류 중인 거래에 잠겨 있는 자금과 코인 관리 설정에서 적극적으로 동결된 자금이 포함됩니다. 잠긴 잔액은 해당 거래가 완료되면 사용할 수 있게 되며, 동결된 잔액은 동결을 해제하기 전까지 거래에 액세스할 수 없습니다.",
   "unspent_change": "변화"

@@ -726,6 +726,7 @@
   "require_for_exchanges_to_external_wallets": "ﺔﻴﺟﺭﺎﺧ ﻆﻓﺎﺤﻣ ﻰﻟﺇ ﺕﻻ﻿ﺩﺎﺒﺘﻟﺍ ﺐﻠﻄﺘﺗ",
   "camera_permission_is_required": ".ﺍﺮﻴﻣﺎﻜﻟﺍ ﻥﺫﺇ ﺏﻮﻠﻄﻣ",
   "switchToETHWallet": "ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ Ethereum ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ",
+  "seed_phrase_length": "                                                                                                                                                                                                            ﺭﻭﺬﺒﻟﺍ ﺓﺭﺎﺒﻌﻟﺍ ﻝﻮﻃ",
   "unavailable_balance": "                                                                                                                                           ﺮﻓﻮﺘﻣ ﺮﻴﻏ ﺪﻴﺻﺭ",
   "unavailable_balance_description": ".ﺎﻫﺪﻴﻤﺠﺗ ءﺎﻐﻟﺇ ﺭﺮﻘﺗ ﻰﺘﺣ ﺕﻼ﻿ﻣﺎﻌﻤﻠﻟ ﻝﻮﺻﻮﻠﻟ ﺔﻠﺑﺎﻗ ﺮﻴﻏ ﺓﺪﻤﺠﻤﻟﺍ ﺓﺪﺻﺭﻷ﻿ﺍ ﻞﻈﺗ ﺎﻤﻨﻴﺑ ،ﺎﻬﺑ ﺔﺻﺎﺨﻟﺍ ﺕﻼ﻿ﻣﺎﻌﻤﻟﺍ ﻝﺎﻤﺘﻛﺍ ﺩﺮﺠﻤﺑ ﺔﺣﺎﺘﻣ ﺔﻠﻔﻘﻤﻟﺍ ﺓﺪﺻﺭﻷ﻿ﺍ ﺢﺒﺼﺘﺳ .ﻚﺑ ﺔﺻﺎﺨﻟﺍ ﺕﻼ﻿ﻤﻌﻟﺍ ﻲﻓ ﻢﻜﺤﺘﻟﺍ ﺕﺍﺩﺍﺪﻋﺇ ﻲﻓ ﻂﺸﻧ ﻞﻜﺸﺑ ﺎﻫﺪﻴﻤﺠﺘﺑ ﺖﻤﻗ",
   "unspent_change": "يتغير"
