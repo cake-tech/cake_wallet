@@ -724,6 +724,7 @@
   "enterWalletConnectURI": "WalletConnect URI を入力してください",
   "seed_key": "シードキー",
   "enter_seed_phrase": "シードフレーズを入力してください",
+  "change_rep_successful": "代表者の変更に成功しました",
   "add_contact": "連絡先を追加",
   "exchange_provider_unsupported": "${providerName}はサポートされなくなりました！",
   "domain_looks_up": "ドメイン検索",

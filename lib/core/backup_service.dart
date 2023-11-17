@@ -247,6 +247,8 @@ class BackupService {
     final sortBalanceTokensBy = data[PreferencesKey.sortBalanceBy] as int?;
     final pinNativeTokenAtTop = data[PreferencesKey.pinNativeTokenAtTop] as bool?;
     final useEtherscan = data[PreferencesKey.useEtherscan] as bool?;
+    final defaultNanoRep = data[PreferencesKey.defaultNanoRep] as String?;
+    final defaultBananoRep = data[PreferencesKey.defaultBananoRep] as String?;
     final lookupsTwitter = data[PreferencesKey.lookupsTwitter] as bool?;
     final lookupsMastodon = data[PreferencesKey.lookupsMastodon] as bool?;
     final lookupsYatService = data[PreferencesKey.lookupsYatService] as bool?;
@@ -322,11 +324,10 @@ class BackupService {
 
     if (currentTheme != null && DeviceInfo.instance.isMobile) {
       await _sharedPreferences.setInt(PreferencesKey.currentTheme, currentTheme);
-    // enforce dark theme on desktop platforms until the design is ready:
+      // enforce dark theme on desktop platforms until the design is ready:
     } else if (DeviceInfo.instance.isDesktop) {
       await _sharedPreferences.setInt(PreferencesKey.currentTheme, ThemeList.darkTheme.raw);
     }
-    
 
     if (exchangeStatus != null)
       await _sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, exchangeStatus);
@@ -389,6 +390,13 @@ class BackupService {
     if (useEtherscan != null)
       await _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan);
 
+    if (defaultNanoRep != null)
+      await _sharedPreferences.setString(PreferencesKey.defaultNanoRep, defaultNanoRep);
+
+    if (defaultBananoRep != null)
+      await _sharedPreferences.setString(PreferencesKey.defaultBananoRep, defaultBananoRep);
+
+    if (syncAll != null) await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
     if (lookupsTwitter != null)
       await _sharedPreferences.setBool(PreferencesKey.lookupsTwitter, lookupsTwitter);
 
@@ -560,6 +568,9 @@ class BackupService {
       PreferencesKey.pinNativeTokenAtTop:
           _sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop),
       PreferencesKey.useEtherscan: _sharedPreferences.getBool(PreferencesKey.useEtherscan),
+      PreferencesKey.defaultNanoRep: _sharedPreferences.getString(PreferencesKey.defaultNanoRep),
+      PreferencesKey.defaultBananoRep:
+          _sharedPreferences.getString(PreferencesKey.defaultBananoRep),
       PreferencesKey.lookupsTwitter: _sharedPreferences.getBool(PreferencesKey.lookupsTwitter),
       PreferencesKey.lookupsMastodon: _sharedPreferences.getBool(PreferencesKey.lookupsMastodon),
       PreferencesKey.lookupsYatService:

@@ -724,6 +724,7 @@
   "enterWalletConnectURI": "Введите URI WalletConnect",
   "seed_key": "Ключ семян",
   "enter_seed_phrase": "Введите свою семенную фразу",
+  "change_rep_successful": "Успешно изменил представитель",
   "add_contact": "Добавить контакт",
   "exchange_provider_unsupported": "${providerName} больше не поддерживается!",
   "domain_looks_up": "Поиск доменов",

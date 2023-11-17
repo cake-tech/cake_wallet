@@ -724,6 +724,7 @@
   "enterWalletConnectURI": "Inserisci l'URI di WalletConnect",
   "seed_key": "Chiave di semi",
   "enter_seed_phrase": "Inserisci la tua frase di semi",
+  "change_rep_successful": "Rappresentante modificato con successo",
   "add_contact": "Aggiungi contatto",
   "exchange_provider_unsupported": "${providerName} non è più supportato!",
   "domain_looks_up": "Ricerche di domini",

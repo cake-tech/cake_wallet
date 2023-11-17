@@ -716,6 +716,7 @@
   "enterWalletConnectURI": "WalletConnect URI ۔ﮟﯾﺮﮐ ﺝﺭﺩ",
   "seed_key": "بیج کی کلید",
   "enter_seed_phrase": "اپنے بیج کا جملہ درج کریں",
+  "change_rep_successful": "نمائندہ کو کامیابی کے ساتھ تبدیل کیا",
   "add_contact": "۔ﮟﯾﺮﮐ ﻞﻣﺎﺷ ﮧﻄﺑﺍﺭ",
   "exchange_provider_unsupported": "${providerName} اب تعاون نہیں کیا جاتا ہے!",
   "domain_looks_up": "ڈومین تلاش کرنا",

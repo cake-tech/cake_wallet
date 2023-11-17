@@ -702,6 +702,7 @@
   "enterWalletConnectURI": "Shigar da WalletConnect URI",
   "seed_key": "Maɓallin iri",
   "enter_seed_phrase": "Shigar da Sert Sentarku",
+  "change_rep_successful": "An samu nasarar canzawa wakilin",
   "add_contact": "Ƙara lamba",
   "exchange_provider_unsupported": "${providerName}",
   "domain_looks_up": "Binciken yanki",

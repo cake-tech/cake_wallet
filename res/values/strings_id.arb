@@ -712,6 +712,7 @@
   "enterWalletConnectURI": "Masukkan URI WalletConnect",
   "seed_key": "Kunci benih",
   "enter_seed_phrase": "Masukkan frasa benih Anda",
+  "change_rep_successful": "Berhasil mengubah perwakilan",
   "add_contact": "Tambah kontak",
   "exchange_provider_unsupported": "${providerName} tidak lagi didukung!",
   "domain_looks_up": "Pencarian domain",

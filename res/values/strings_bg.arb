@@ -716,6 +716,7 @@
   "enterWalletConnectURI": "Въведете URI на WalletConnect",
   "seed_key": "Ключ за семена",
   "enter_seed_phrase": "Въведете вашата фраза за семена",
+  "change_rep_successful": "Успешно промени представител",
   "add_contact": "Добави контакт",
   "exchange_provider_unsupported": "${providerName} вече не се поддържа!",
   "domain_looks_up": "Търсене на домейни",

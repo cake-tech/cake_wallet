@@ -724,6 +724,7 @@
   "enterWalletConnectURI": "Voer WalletConnect-URI in",
   "seed_key": "Zaadsleutel",
   "enter_seed_phrase": "Voer uw zaadzin in",
+  "change_rep_successful": "Met succes veranderde vertegenwoordiger",
   "add_contact": "Contactpersoon toevoegen",
   "exchange_provider_unsupported": "${providerName} wordt niet langer ondersteund!",
   "domain_looks_up": "Domein opzoeken",

@@ -722,6 +722,7 @@
   "enterWalletConnectURI": "WalletConnect URI ကိုရိုက်ထည့်ပါ။",
   "seed_key": "မျိုးစေ့သော့",
   "enter_seed_phrase": "သင့်ရဲ့မျိုးစေ့စကားစုကိုရိုက်ထည့်ပါ",
+  "change_rep_successful": "အောင်မြင်စွာကိုယ်စားလှယ်ပြောင်းလဲသွားတယ်",
   "add_contact": "အဆက်အသွယ်ထည့်ပါ။",
   "exchange_provider_unsupported": "${providerName} မရှိတော့ပါ!",
   "domain_looks_up": "ဒိုမိန်းရှာဖွေမှုများ",

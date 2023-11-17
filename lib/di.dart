@@ -522,8 +522,7 @@ Future<void> setup({
   getIt.registerFactory<Modify2FAPage>(
       () => Modify2FAPage(setup2FAViewModel: getIt.get<Setup2FAViewModel>()));
 
-  getIt.registerFactory<DesktopSettingsPage>(
-      () => DesktopSettingsPage());
+  getIt.registerFactory<DesktopSettingsPage>(() => DesktopSettingsPage());
 
   getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>(
       (pageOption, _) => ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, pageOption));
@@ -766,7 +765,10 @@ Future<void> setup({
 
   getIt.registerFactory(() => OtherSettingsPage(getIt.get<OtherSettingsViewModel>()));
 
-  getIt.registerFactory(() => NanoChangeRepPage(getIt.get<AppStore>().wallet!));
+  getIt.registerFactory(() => NanoChangeRepPage(
+        settingsStore: getIt.get<AppStore>().settingsStore,
+        wallet: getIt.get<AppStore>().wallet!,
+      ));
 
   getIt.registerFactoryParam<NodeCreateOrEditViewModel, WalletType?, bool?>(
       (WalletType? type, bool? isPow) => NodeCreateOrEditViewModel(
@@ -839,7 +841,8 @@ Future<void> setup({
       case WalletType.ethereum:
         return ethereum!.createEthereumWalletService(_walletInfoSource);
       case WalletType.bitcoinCash:
-        return bitcoinCash!.createBitcoinCashWalletService(_walletInfoSource, _unspentCoinsInfoSource!);
+        return bitcoinCash!
+            .createBitcoinCashWalletService(_walletInfoSource, _unspentCoinsInfoSource!);
       case WalletType.nano:
         return nano!.createNanoWalletService(_walletInfoSource);
       default:

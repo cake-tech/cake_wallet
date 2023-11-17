@@ -719,6 +719,7 @@
   "enterWalletConnectURI": "Ilagay ang WalletConnect URI",
   "seed_key": "Seed Key",
   "enter_seed_phrase": "Ipasok ang iyong pariralang binhi",
+  "change_rep_successful": "Matagumpay na nagbago ng kinatawan",
   "add_contact": "Magdagdag ng contact",
   "exchange_provider_unsupported": "Ang ${providerName} ay hindi na suportado!",
   "domain_looks_up": "Mga paghahanap ng domain",

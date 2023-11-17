@@ -722,6 +722,7 @@
   "enterWalletConnectURI": "เข้าสู่ WalletConnect URI",
   "seed_key": "คีย์เมล็ดพันธุ์",
   "enter_seed_phrase": "ป้อนวลีเมล็ดพันธุ์ของคุณ",
+  "change_rep_successful": "เปลี่ยนตัวแทนสำเร็จ",
   "add_contact": "เพิ่มผู้ติดต่อ",
   "exchange_provider_unsupported": "${providerName} ไม่ได้รับการสนับสนุนอีกต่อไป!",
   "domain_looks_up": "การค้นหาโดเมน",

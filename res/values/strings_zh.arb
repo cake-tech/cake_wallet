@@ -723,6 +723,7 @@
   "enterWalletConnectURI": "输入 WalletConnect URI",
   "seed_key": "种子钥匙",
   "enter_seed_phrase": "输入您的种子短语",
+  "change_rep_successful": "成功改变了代表",
   "add_contact": "增加联系人",
   "exchange_provider_unsupported": "${providerName}不再支持！",
   "domain_looks_up": "域名查找",

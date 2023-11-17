@@ -718,6 +718,7 @@
   "enterWalletConnectURI": "Tẹ WalletConnect URI sii",
   "seed_key": "Bọtini Ose",
   "enter_seed_phrase": "Tẹ ọrọ-iru irugbin rẹ",
+  "change_rep_successful": "Ni ifijišẹ yipada aṣoju",
   "add_contact": "Fi olubasọrọ kun",
   "exchange_provider_unsupported": "${providerName} ko ni atilẹyin mọ!",
   "domain_looks_up": "Awọn wiwa agbegbe",

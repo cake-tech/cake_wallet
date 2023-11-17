@@ -716,6 +716,7 @@
   "enterWalletConnectURI": "Zadejte identifikátor URI WalletConnect",
   "seed_key": "Klíč semen",
   "enter_seed_phrase": "Zadejte svou frázi semen",
+  "change_rep_successful": "Úspěšně změnil zástupce",
   "add_contact": "Přidat kontakt",
   "exchange_provider_unsupported": "${providerName} již není podporováno!",
   "domain_looks_up": "Vyhledávání domén",

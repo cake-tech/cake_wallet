@@ -724,6 +724,7 @@
   "enterWalletConnectURI": "Wprowadź identyfikator URI WalletConnect",
   "seed_key": "Klucz nasion",
   "enter_seed_phrase": "Wprowadź swoją frazę nasienną",
+  "change_rep_successful": "Pomyślnie zmienił przedstawiciela",
   "add_contact": "Dodaj kontakt",
   "exchange_provider_unsupported": "${providerName} nie jest już obsługiwany!",
   "domain_looks_up": "Wyszukiwanie domen",

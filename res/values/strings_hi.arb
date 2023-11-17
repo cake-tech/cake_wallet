@@ -724,6 +724,7 @@
   "enterWalletConnectURI": "वॉलेटकनेक्ट यूआरआई दर्ज करें",
   "seed_key": "बीज कुंजी",
   "enter_seed_phrase": "अपना बीज वाक्यांश दर्ज करें",
+  "change_rep_successful": "सफलतापूर्वक बदलकर प्रतिनिधि",
   "add_contact": "संपर्क जोड़ें",
   "exchange_provider_unsupported": "${providerName} अब समर्थित नहीं है!",
   "domain_looks_up": "डोमेन लुकअप",
