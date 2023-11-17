@@ -65,8 +65,6 @@ class RestoreFromBackupPage extends BasePage {
                         ),
                         Observer(
                           builder: (_) {
-                            print("@@@@@@@@@@@@");
-                            print(restoreFromBackupViewModel.filePath);
                             if (restoreFromBackupViewModel.filePath.isNotEmpty) {
                               return Column(
                                 children: [
