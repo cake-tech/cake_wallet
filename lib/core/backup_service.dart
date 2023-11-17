@@ -295,7 +295,7 @@ class BackupService {
       await _sharedPreferences.setInt(
           PreferencesKey.currentTransactionPriorityKeyLegacy, currentTransactionPriorityKeyLegacy);
 
-    if (Platform.isMacOS || Platform.isLinux) {
+    if (DeviceInfo.instance.isDesktop) {
       await _sharedPreferences.setBool(PreferencesKey.allowBiometricalAuthenticationKey, false);
     } else if (allowBiometricalAuthentication != null) {
       await _sharedPreferences.setBool(

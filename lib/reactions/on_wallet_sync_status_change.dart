@@ -7,7 +7,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/sync_status.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 ReactionDisposer? _onWalletSyncStatusChangeReaction;
 
@@ -27,10 +27,10 @@ void startWalletSyncStatusChangeReaction(
         }
       }
       if (status is SyncingSyncStatus) {
-        await Wakelock.enable();
+        await WakelockPlus.enable();
       }
       if (status is SyncedSyncStatus || status is FailedSyncStatus) {
-        await Wakelock.disable();
+        await WakelockPlus.disable();
       }
     } catch(e) {
       print(e.toString());
