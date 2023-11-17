@@ -1,6 +1,6 @@
 import 'dart:ffi';
 import 'package:cw_zano/api/convert_utf8_to_string.dart';
-import 'package:cw_zano/api/monero_output.dart';
+import 'package:cw_zano/api/zano_output.dart';
 import 'package:cw_zano/api/structs/ut8_box.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
@@ -11,13 +11,13 @@ import 'package:cw_zano/api/structs/transaction_info_row.dart';
 import 'package:cw_zano/api/structs/pending_transaction.dart';
 import 'package:cw_zano/api/exceptions/creation_transaction_exception.dart';
 
-final transactionsRefreshNative = zanoApi
+/**final transactionsRefreshNative = zanoApi
     .lookup<NativeFunction<transactions_refresh>>('transactions_refresh')
-    .asFunction<TransactionsRefresh>();
+    .asFunction<TransactionsRefresh>();*/
 
-final transactionsCountNative = zanoApi
+/**final transactionsCountNative = zanoApi
     .lookup<NativeFunction<transactions_count>>('transactions_count')
-    .asFunction<TransactionsCount>();
+    .asFunction<TransactionsCount>();*/
 
 final transactionsGetAllNative = zanoApi
     .lookup<NativeFunction<transactions_get_all>>('transactions_get_all')
@@ -53,18 +53,29 @@ String getTxKey(String txId) {
   return '';
 }
 
-void refreshTransactions() => transactionsRefreshNative();
+void refreshTransactions() {
+  // TODO: fix it
+  //transactionsRefreshNative();
+  debugPrint("refreshing transactions");
+}
 
-int countOfTransactions() => transactionsCountNative();
+int countOfTransactions() {
+  //return transactionsCountNative();
+  // TODO: fix it
+  debugPrint("count of transactions");
+  return 0;
+}
 
 List<TransactionInfoRow> getAllTransations() {
-  final size = transactionsCountNative();
+  // TODO: fix it
+  return [];
+  /*final size = transactionsCountNative();
   final transactionsPointer = transactionsGetAllNative();
   final transactionsAddresses = transactionsPointer.asTypedList(size);
 
   return transactionsAddresses
       .map((addr) => Pointer<TransactionInfoRow>.fromAddress(addr).ref)
-      .toList();
+      .toList();*/
 }
 
 PendingTransactionDescription createTransactionSync(
@@ -72,8 +83,7 @@ PendingTransactionDescription createTransactionSync(
     required String assetType,
     required String paymentId,
     required int priorityRaw,
-    String? amount,
-    int accountIndex = 0}) {
+    String? amount}) {
   final addressPointer = address.toNativeUtf8();
   final assetTypePointer = assetType.toNativeUtf8();
   final paymentIdPointer = paymentId.toNativeUtf8();
@@ -86,7 +96,6 @@ PendingTransactionDescription createTransactionSync(
           paymentIdPointer,
           amountPointer,
           priorityRaw,
-          accountIndex,
           errorMessagePointer,
           pendingTransactionRawPointer) !=
       0;
@@ -113,11 +122,10 @@ PendingTransactionDescription createTransactionSync(
 }
 
 PendingTransactionDescription createTransactionMultDestSync(
-    {required List<MoneroOutput> outputs,
+    {required List<ZanoOutput> outputs,
     required String assetType,
     required String paymentId,
-    required int priorityRaw,
-    int accountIndex = 0}) {
+    required int priorityRaw}) {
   final int size = outputs.length;
   final List<Pointer<Utf8>> addressesPointers =
       outputs.map((output) => output.address.toNativeUtf8()).toList();
@@ -142,7 +150,6 @@ PendingTransactionDescription createTransactionMultDestSync(
           amountsPointerPointer,
           size,
           priorityRaw,
-          accountIndex,
           errorMessagePointer,
           pendingTransactionRawPointer) !=
       0;
@@ -193,30 +200,26 @@ PendingTransactionDescription _createTransactionSync(Map args) {
   final paymentId = args['paymentId'] as String;
   final amount = args['amount'] as String;
   final priorityRaw = args['priorityRaw'] as int;
-  final accountIndex = args['accountIndex'] as int;
 
   return createTransactionSync(
       address: address,
       assetType: assetType,
       paymentId: paymentId,
       amount: amount,
-      priorityRaw: priorityRaw,
-      accountIndex: accountIndex);
+      priorityRaw: priorityRaw);
 }
 
 PendingTransactionDescription _createTransactionMultDestSync(Map args) {
-  final outputs = args['outputs'] as List<MoneroOutput>;
+  final outputs = args['outputs'] as List<ZanoOutput>;
   final assetType = args['assetType'] as String;
   final paymentId = args['paymentId'] as String;
   final priorityRaw = args['priorityRaw'] as int;
-  final accountIndex = args['accountIndex'] as int;
 
   return createTransactionMultDestSync(
       outputs: outputs,
       assetType: assetType,
       paymentId: paymentId,
-      priorityRaw: priorityRaw,
-      accountIndex: accountIndex);
+      priorityRaw: priorityRaw);
 }
 
 Future<PendingTransactionDescription> createTransaction(
@@ -224,27 +227,23 @@ Future<PendingTransactionDescription> createTransaction(
         required String assetType,
         required int priorityRaw,
         String? amount,
-        String paymentId = '',
-        int accountIndex = 0}) =>
+        String paymentId = ''}) =>
     compute(_createTransactionSync, {
       'address': address,
       'assetType': assetType,
       'paymentId': paymentId,
       'amount': amount,
       'priorityRaw': priorityRaw,
-      'accountIndex': accountIndex
     });
 
 Future<PendingTransactionDescription> createTransactionMultDest(
-        {required List<MoneroOutput> outputs,
+        {required List<ZanoOutput> outputs,
         required int priorityRaw,
         String? assetType,
-        String paymentId = '',
-        int accountIndex = 0}) =>
+        String paymentId = ''}) =>
     compute(_createTransactionMultDestSync, {
       'outputs': outputs,
       'assetType': assetType,
       'paymentId': paymentId,
       'priorityRaw': priorityRaw,
-      'accountIndex': accountIndex
     });

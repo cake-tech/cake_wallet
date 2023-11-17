@@ -48,8 +48,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(name: name);
       case WalletType.zano:
-        return zano!.createZanoNewWalletCredentials(
-            name: name, language: "en");
+        return zano!.createZanoNewWalletCredentials(name: name);
       case WalletType.dummy:
         return dummy!.createDummyNewWalletCredentials(name: name);
       default:

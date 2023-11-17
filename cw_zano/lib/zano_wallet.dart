@@ -3,11 +3,13 @@ import 'dart:io';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_zano/api/zano_output.dart';
 import 'package:cw_zano/zano_transaction_creation_credentials.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_zano/zano_transaction_creation_exception.dart';
 import 'package:cw_zano/zano_transaction_info.dart';
 import 'package:cw_zano/zano_wallet_addresses.dart';
+import 'package:cw_zano/api/calls.dart' as calls;
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_zano/api/structs/pending_transaction.dart';
 import 'package:flutter/foundation.dart';
@@ -17,7 +19,7 @@ import 'package:cw_zano/api/transaction_history.dart'
 //import 'package:cw_zano/wallet.dart';
 import 'package:cw_zano/api/wallet.dart' as zano_wallet;
 import 'package:cw_zano/api/transaction_history.dart' as transaction_history;
-import 'package:cw_zano/api/monero_output.dart';
+import 'package:cw_zano/api/zano_output.dart';
 import 'package:cw_zano/pending_zano_transaction.dart';
 import 'package:cw_core/monero_wallet_keys.dart';
 import 'package:cw_core/monero_balance.dart';
@@ -37,24 +39,35 @@ const moneroBlockSize = 1000;
 
 class ZanoWallet = ZanoWalletBase with _$ZanoWallet;
 
-abstract class ZanoWalletBase extends WalletBase<MoneroBalance,
-    ZanoTransactionHistory, ZanoTransactionInfo> with Store {
+abstract class ZanoWalletBase
+    extends WalletBase<ZanoBalance, ZanoTransactionHistory, ZanoTransactionInfo>
+    with Store {
+  ZanoWalletBase.simple({required WalletInfo walletInfo})
+      : balance = ObservableMap(),
+        _isTransactionUpdating = false,
+        _hasSyncAfterStartup = false,
+        walletAddresses = ZanoWalletAddresses(walletInfo),
+        syncStatus = NotConnectedSyncStatus(),
+        super(walletInfo) {
+          transactionHistory = ZanoTransactionHistory();
+        }
+
   ZanoWalletBase({required WalletInfo walletInfo})
-      : balance = ObservableMap.of(getZanoBalance(accountIndex: 0)),
+      : balance = ObservableMap.of({CryptoCurrency.zano: ZanoBalance(0, 0)}),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
         walletAddresses = ZanoWalletAddresses(walletInfo),
         syncStatus = NotConnectedSyncStatus(),
         super(walletInfo) {
     transactionHistory = ZanoTransactionHistory();
-    _onAccountChangeReaction =
+    /*_onAccountChangeReaction =
         reaction((_) => walletAddresses.account, (Account? account) {
       if (account == null) {
         return;
       }
       balance.addAll(getZanoBalance(accountIndex: account.id));
-      walletAddresses.updateSubaddressList(accountIndex: account.id);
-    });
+      /**walletAddresses.updateSubaddressList(accountIndex: account.id);*/
+    });*/
   }
 
   static const int _autoSaveInterval = 30;
@@ -68,12 +81,18 @@ abstract class ZanoWalletBase extends WalletBase<MoneroBalance,
 
   @override
   @observable
-  ObservableMap<CryptoCurrency, MoneroBalance> balance;
+  ObservableMap<CryptoCurrency, ZanoBalance> balance;
 
   @override
-  String get seed => zano_wallet.getSeed();
+  String get seed {
+    // TODO: fix it
+    //return calls.seed(hWallet);
+    return "test";
+    /**zano_wallet.getSeed();*/
+  }
 
   @override
+  // TODO: ?? why monero
   MoneroWalletKeys get keys => MoneroWalletKeys(
       privateSpendKey: zano_wallet.getSecretSpendKey(),
       privateViewKey: zano_wallet.getSecretViewKey(),
@@ -81,22 +100,30 @@ abstract class ZanoWalletBase extends WalletBase<MoneroBalance,
       publicViewKey: zano_wallet.getPublicViewKey());
 
   zano_wallet.SyncListener? _listener;
-  ReactionDisposer? _onAccountChangeReaction;
+  /**ReactionDisposer? _onAccountChangeReaction;*/
   bool _isTransactionUpdating;
   bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
 
+  int _hWallet = 0;
+
+  int get hWallet => _hWallet;
+
+  set hWallet(int value) {
+    _hWallet = value;
+  }
+
   Future<void> init() async {
     await walletAddresses.init();
     balance
-        .addAll(getZanoBalance(accountIndex: walletAddresses.account?.id ?? 0));
+        .addAll(getZanoBalance(/**accountIndex: walletAddresses.account?.id ?? 0*/));
     _setListeners();
     await updateTransactions();
 
     if (walletInfo.isRecovery) {
       zano_wallet.setRecoveringFromSeed(isRecovery: walletInfo.isRecovery);
 
-      if (zano_wallet.getCurrentHeight() <= 1) {
+      if (zano_wallet.getCurrentHeight(hWallet) <= 1) {
         zano_wallet.setRefreshFromBlockHeight(height: walletInfo.restoreHeight);
       }
     }
@@ -111,7 +138,7 @@ abstract class ZanoWalletBase extends WalletBase<MoneroBalance,
   @override
   void close() {
     _listener?.stop();
-    _onAccountChangeReaction?.reaction.dispose();
+    /**_onAccountChangeReaction?.reaction.dispose();*/
     _autoSaveTimer?.cancel();
   }
 
@@ -120,12 +147,13 @@ abstract class ZanoWalletBase extends WalletBase<MoneroBalance,
     try {
       syncStatus = ConnectingSyncStatus();
       await zano_wallet.setupNode(
-          address: node.uriRaw,
-          login: node.login,
-          password: node.password,
-          useSSL: node.useSSL ?? false,
-          isLightWallet: false, // FIXME: hardcoded value
-          socksProxyAddress: node.socksProxyAddress);
+        address: "195.201.107.230:33336", // node.uriRaw,
+        login: "", // node.login,
+        password: "", // node.password,
+        useSSL: false, // node.useSSL ?? false,
+        isLightWallet: false, // FIXME: hardcoded value
+        /*socksProxyAddress: node.socksProxyAddress*/
+      );
 
       zano_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();
@@ -160,7 +188,7 @@ abstract class ZanoWalletBase extends WalletBase<MoneroBalance,
     final hasMultiDestination = outputs.length > 1;
     final assetType =
         CryptoCurrency.fromString(_credentials.assetType.toLowerCase());
-    final balances = getZanoBalance(accountIndex: walletAddresses.account!.id);
+    final balances = getZanoBalance(/*accountIndex: walletAddresses.account!.id*/);
     final unlockedBalance = balances[assetType]!.unlockedBalance;
 
     PendingTransactionDescription pendingTransactionDescription;
@@ -184,17 +212,16 @@ abstract class ZanoWalletBase extends WalletBase<MoneroBalance,
             'You do not have enough coins to send this amount.');
       }
 
-      final moneroOutputs = outputs
-          .map((output) => MoneroOutput(
+      final zanoOutputs = outputs
+          .map((output) => ZanoOutput(
               address: output.address,
               amount: output.cryptoAmount!.replaceAll(',', '.')))
           .toList();
 
       pendingTransactionDescription =
           await transaction_history.createTransactionMultDest(
-              outputs: moneroOutputs,
-              priorityRaw: _credentials.priority.serialize(),
-              accountIndex: walletAddresses.account!.id);
+              outputs: zanoOutputs,
+              priorityRaw: _credentials.priority.serialize());
     } else {
       final output = outputs.first;
       final address = output.isParsedAddress &&
@@ -219,8 +246,7 @@ abstract class ZanoWalletBase extends WalletBase<MoneroBalance,
               address: address,
               assetType: _credentials.assetType,
               amount: amount,
-              priorityRaw: _credentials.priority.serialize(),
-              accountIndex: walletAddresses.account!.id);
+              priorityRaw: _credentials.priority.serialize());
     }
 
     return PendingZanoTransaction(pendingTransactionDescription, assetType);
@@ -252,7 +278,7 @@ abstract class ZanoWalletBase extends WalletBase<MoneroBalance,
   Future<void> save() async {
     await walletAddresses.updateAddressesInBox();
     await backupWalletFiles(name);
-    await zano_wallet.store();
+    await zano_wallet.store(hWallet);
   }
 
   @override
@@ -301,7 +327,7 @@ abstract class ZanoWalletBase extends WalletBase<MoneroBalance,
     zano_wallet.rescanBlockchainAsync();
     await startSync();
     _askForUpdateBalance();
-    walletAddresses.accountList.update();
+    /**walletAddresses.accountList.update();*/
     await _askForUpdateTransactionHistory();
     await save();
     await walletInfo.save();
@@ -355,7 +381,7 @@ abstract class ZanoWalletBase extends WalletBase<MoneroBalance,
       return;
     }
 
-    final currentHeight = zano_wallet.getCurrentHeight();
+    final currentHeight = zano_wallet.getCurrentHeight(hWallet);
 
     if (currentHeight <= 1) {
       final height = _getHeightByDate(walletInfo.date);
@@ -385,7 +411,7 @@ abstract class ZanoWalletBase extends WalletBase<MoneroBalance,
   }
 
   void _askForUpdateBalance() =>
-      balance.addAll(getZanoBalance(accountIndex: walletAddresses.account!.id));
+      balance.addAll(getZanoBalance());
 
   Future<void> _askForUpdateTransactionHistory() async =>
       await updateTransactions();
@@ -395,13 +421,13 @@ abstract class ZanoWalletBase extends WalletBase<MoneroBalance,
       if (walletInfo.isRecovery) {
         await _askForUpdateTransactionHistory();
         _askForUpdateBalance();
-        walletAddresses.accountList.update();
+        /*walletAddresses.accountList.update();*/
       }
 
       if (blocksLeft < 1000) {
         await _askForUpdateTransactionHistory();
         _askForUpdateBalance();
-        walletAddresses.accountList.update();
+        /*walletAddresses.accountList.update();*/
         syncStatus = SyncedSyncStatus();
 
         if (!_hasSyncAfterStartup) {

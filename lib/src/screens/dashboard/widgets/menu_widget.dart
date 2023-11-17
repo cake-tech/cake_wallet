@@ -31,7 +31,7 @@ class MenuWidgetState extends State<MenuWidget> {
         this.havenIcon = Image.asset('assets/images/haven_menu.png'),
         this.ethereumIcon = Image.asset('assets/images/eth_icon.png'),
         this.zanoIcon = Image.asset('assets/images/zano_icon.png'),
-        this.dummyIcon = Image.asset('assets/images/dummy_icon.png');
+        this.dummyIcon = Image.asset('assets/images/zano_icon.png');
 
   final largeScreen = 731;
 

@@ -200,7 +200,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const dydx = CryptoCurrency(title: 'DYDX', tag: 'ETH', fullName: 'dYdX', raw: 84, name: 'dydx', iconPath: 'assets/images/dydx_icon.png');
   static const steth = CryptoCurrency(title: 'STETH', tag: 'ETH', fullName: 'Lido Staked Ethereum', raw: 85, name: 'steth', iconPath: 'assets/images/steth_icon.png');
   static const zano = CryptoCurrency(title: 'ZANO', tag: 'ZANO', fullName: 'Zano', raw: 86, name: 'zano', iconPath: 'assets/images/zano_icon.png');
-  static const dummy = CryptoCurrency(title: 'DUMMY', tag: 'DUMMY', fullName: 'Dummy', raw: 87, name: 'dummy', iconPath: 'assets/images/dummy_icon.png');
+  static const dummy = CryptoCurrency(title: 'DUMMY', tag: 'DUMMY', fullName: 'Dummy', raw: 87, name: 'dummy', iconPath: 'assets/images/zano_icon.png');
 
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =

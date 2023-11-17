@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:collection/collection.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_zano/api/wallet_manager.dart' as zano_wallet_manager;
 import 'package:cw_zano/api/wallet.dart' as zano_wallet;
+import 'package:cw_zano/api/calls.dart' as calls;
 import 'package:cw_zano/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_zano/zano_wallet.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -14,11 +16,8 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class ZanoNewWalletCredentials extends WalletCredentials {
-  ZanoNewWalletCredentials(
-      {required String name, required this.language, String? password})
+  ZanoNewWalletCredentials({required String name, String? password})
       : super(name: name, password: password);
-
-  final String language;
 }
 
 class ZanoRestoreWalletFromSeedCredentials extends WalletCredentials {
@@ -65,18 +64,23 @@ class ZanoWalletService extends WalletService<
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();
 
+  int hWallet = 0;
+
   @override
   WalletType getType() => WalletType.zano;
 
   @override
   Future<ZanoWallet> create(ZanoNewWalletCredentials credentials) async {
     try {
+      final wallet = ZanoWallet.simple(walletInfo: credentials.walletInfo!);
+      wallet.connectToNode(node: Node());
       final path = await pathForWallet(name: credentials.name, type: getType());
-      await zano_wallet_manager.createWallet(
-          path: path,
-          password: credentials.password!,
-          language: credentials.language);
-      final wallet = ZanoWallet(walletInfo: credentials.walletInfo!);
+      final result = await zano_wallet_manager.createWallet(
+          language: "", path: path, password: credentials.password!);
+      hWallet = -1; 
+      wallet.hWallet = hWallet;
+      // TODO: remove it
+      calls.store(hWallet);
       await wallet.init();
       return wallet;
     } catch (e) {
@@ -112,13 +116,13 @@ class ZanoWalletService extends WalletService<
       final walletInfo = walletInfoSource.values.firstWhereOrNull(
           (info) => info.id == WalletBase.idFor(name, getType()))!;
       final wallet = ZanoWallet(walletInfo: walletInfo);
-      final isValid = wallet.walletAddresses.validate();
+      /*final isValid = wallet.walletAddresses.validate();
 
       if (!isValid) {
         await restoreOrResetWalletFiles(name);
         wallet.close();
         return openWallet(name, password);
-      }
+      }*/
 
       await wallet.init();
 

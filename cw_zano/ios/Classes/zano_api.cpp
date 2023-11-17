@@ -428,6 +428,11 @@ extern "C"
         return strdup(plain_wallet::try_pull_result(job_id).c_str());
     }
 
+    char* sync_call(const std::string& method_name, uint64_t instance_id, const std::string& params)    
+    {
+        return strdup(plain_wallet::sync_call(method_name, instance_id,  params).c_str());
+    }
+
     char*  get_connectivity_status()
     {
         return strdup(plain_wallet::get_connectivity_status().c_str());
@@ -845,6 +850,11 @@ extern "C"
     {
         return false;
         //return m_wallet->trustedDaemon();
+    }
+
+    char* get_version()
+    {
+        return strdup(plain_wallet::get_version().c_str());
     }
 
 #ifdef __cplusplus

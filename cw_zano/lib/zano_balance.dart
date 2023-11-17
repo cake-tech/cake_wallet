@@ -1,16 +1,34 @@
+import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/monero_balance.dart';
 import 'package:cw_zano/api/balance_list.dart';
 import 'package:cw_zano/api/structs/zano_balance_row.dart';
 
-const inactiveBalances = [
-  CryptoCurrency.xcad,
-  CryptoCurrency.xjpy,
-  CryptoCurrency.xnok,
-  CryptoCurrency.xnzd
-];
+class ZanoBalance extends Balance {
+  ZanoBalance(super.available, super.additional);
+  late int unlockedBalance;
+  @override
+  // TODO: implement formattedAdditionalBalance
+  String get formattedAdditionalBalance {
+    // TODO: fix it
+    return "0";
+  }
 
-Map<CryptoCurrency, MoneroBalance> getZanoBalance({required int accountIndex}) {
+  @override
+  // TODO: implement formattedAvailableBalance
+  String get formattedAvailableBalance {
+    // TODO: fix it
+    return "0";
+  }
+
+}
+
+Map<CryptoCurrency, ZanoBalance> getZanoBalance() {
+  // TODO: fix it
+  return { CryptoCurrency.zano: ZanoBalance(0, 0) };
+}
+
+/*Map<CryptoCurrency, MoneroBalance> getZanoBalance({required int accountIndex}) {
   final fullBalances = getZanoFullBalance(accountIndex: accountIndex);
   final unlockedBalances = getZanoUnlockedBalance(accountIndex: accountIndex);
   final zanoBalances = <CryptoCurrency, MoneroBalance>{};
@@ -32,4 +50,4 @@ Map<CryptoCurrency, MoneroBalance> getZanoBalance({required int accountIndex}) {
   }
 
   return zanoBalances;
-}
+}*/

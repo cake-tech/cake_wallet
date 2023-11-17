@@ -37,7 +37,7 @@ final errorStringNative = zanoApi
     .lookup<NativeFunction<error_string>>('error_string')
     .asFunction<ErrorString>();
 
-void createWalletSync(
+String createWalletSync(
     {required String path,
     required String password,
     required String language,
@@ -46,20 +46,23 @@ void createWalletSync(
   final passwordPointer = password.toNativeUtf8();
   final languagePointer = language.toNativeUtf8();
   final errorMessagePointer = ''.toNativeUtf8();
-  final isWalletCreated = createWalletNative(pathPointer, passwordPointer,
-          languagePointer, nettype, errorMessagePointer) !=
-      0;
+  debugPrint("create_wallet path $path password $password language $language");
+  final result = convertUTF8ToString(pointer: createWalletNative(pathPointer, passwordPointer,
+          languagePointer, nettype, errorMessagePointer));
+  //debugPrint("create_wallet $result");
 
   calloc.free(pathPointer);
   calloc.free(passwordPointer);
   calloc.free(languagePointer);
 
-  if (!isWalletCreated) {
+  return result;
+  /*if (hWallet == 0) {
     throw WalletCreationException(
         message: convertUTF8ToString(pointer: errorMessagePointer));
   }
 
-  // setupNodeSync(address: "node.moneroworld.com:18089");
+  return hWallet;
+  // setupNodeSync(address: "node.moneroworld.com:18089");*/
 }
 
 bool isWalletExistSync({required String path}) {
@@ -155,12 +158,12 @@ void loadWallet(
   }
 }
 
-void _createWallet(Map<String, dynamic> args) {
+String _createWallet(Map<String, dynamic> args) {
   final path = args['path'] as String;
   final password = args['password'] as String;
   final language = args['language'] as String;
 
-  createWalletSync(path: path, password: password, language: language);
+  return createWalletSync(path: path, password: password, language: language);
 }
 
 void _restoreFromSeed(Map<String, dynamic> args) {
@@ -206,12 +209,12 @@ void openWallet(
 Future<void> openWalletAsync(Map<String, String> args) async =>
     compute(_openWallet, args);
 
-Future<void> createWallet(
+Future<String> createWallet(
         {required String path,
         required String password,
         required String language,
         int nettype = 0}) async =>
-    compute(_createWallet, {
+    compute<Map<String, dynamic>, String>(_createWallet, {
       'path': path,
       'password': password,
       'language': language,

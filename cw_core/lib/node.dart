@@ -132,7 +132,7 @@ class Node extends HiveObject with Keyable {
         case WalletType.haven:
           return requestMoneroNode();
         case WalletType.zano:
-          return requestMoneroNode();
+          return requestZanoNode();
         case WalletType.ethereum:
           return requestElectrumServer();
         case WalletType.dummy:
@@ -143,6 +143,11 @@ class Node extends HiveObject with Keyable {
     } catch (_) {
       return false;
     }
+  }
+
+  Future<bool> requestZanoNode() async {
+    // TODO: fix it
+    return true;
   }
 
   Future<bool> requestMoneroNode() async {

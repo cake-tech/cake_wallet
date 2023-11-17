@@ -7,6 +7,7 @@ import 'package:cw_zano/api/zano_api.dart';
 import 'package:cw_zano/api/structs/subaddress_row.dart';
 import 'package:cw_zano/api/wallet.dart';
 
+/**
 final subaddressSizeNative = zanoApi
     .lookup<NativeFunction<subaddrress_size>>('subaddrress_size')
     .asFunction<SubaddressSize>();
@@ -99,3 +100,4 @@ Future setLabelForSubaddress(
   });
   await store();
 }
+*/

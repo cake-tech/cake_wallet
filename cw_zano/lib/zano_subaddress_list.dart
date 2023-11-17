@@ -4,9 +4,9 @@ import 'package:mobx/mobx.dart';
 import 'package:cw_zano/api/subaddress_list.dart' as subaddress_list;
 import 'package:cw_core/subaddress.dart';
 
-part 'zano_subaddress_list.g.dart';
+//part 'zano_subaddress_list.g.dart';
 
-class ZanoSubaddressList = ZanoSubaddressListBase with _$ZanoSubaddressList;
+/*class ZanoSubaddressList = ZanoSubaddressListBase with _$ZanoSubaddressList;
 
 abstract class ZanoSubaddressListBase with Store {
   ZanoSubaddressListBase()
@@ -85,4 +85,4 @@ abstract class ZanoSubaddressListBase with Store {
       rethrow;
     }
   }
-}
+}*/

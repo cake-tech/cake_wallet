@@ -37,21 +37,21 @@ part 'cw_zano.dart';
 
 Zano? zano = CWZano();
 
-class Account {
-  Account({required this.id, required this.label});
-  final int id;
-  final String label;
-}
+// class Account {
+//   Account({required this.id, required this.label});
+//   final int id;
+//   final String label;
+// }
 
-class Subaddress {
-  Subaddress({
-    required this.id,
-    required this.label,
-    required this.address});
-  final int id;
-  final String label;
-  final String address;
-}
+// class Subaddress {
+//   Subaddress({
+//     required this.id,
+//     required this.label,
+//     required this.address});
+//   final int id;
+//   final String label;
+//   final String address;
+// }
 
 class ZanoBalance extends Balance {
   ZanoBalance({required this.fullBalance, required this.unlockedBalance})
@@ -89,21 +89,19 @@ class AssetRate {
 
 abstract class ZanoWalletDetails {
   // FIX-ME: it's abstruct class
-  @observable
-  late Account account;
+  // @observable
+  // late Account account;
   // FIX-ME: it's abstruct class
   @observable
   late ZanoBalance balance;
 }
 
 abstract class Zano {
-  ZanoAccountList getAccountList(Object wallet);
+  /**ZanoAccountList getAccountList(Object wallet);*/
   
-  MoneroSubaddressList getSubaddressList(Object wallet);
-
   TransactionHistoryBase getTransactionHistory(Object wallet);
 
-  ZanoWalletDetails getMoneroWalletDetails(Object wallet);
+  ZanoWalletDetails getZanoWalletDetails(Object wallet);
 
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
 
@@ -123,14 +121,14 @@ abstract class Zano {
       required String language,
       required int height});
   WalletCredentials createZanoRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
-  WalletCredentials createZanoNewWalletCredentials({required String name, required String language, String password});
+  WalletCredentials createZanoNewWalletCredentials({required String name, String password});
   Map<String, String> getKeys(Object wallet);
   Object createZanoTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority, required String assetType});
   String formatterMoneroAmountToString({required int amount});
   double formatterMoneroAmountToDouble({required int amount});
   int formatterMoneroParseAmount({required String amount});
-  Account getCurrentAccount(Object wallet);
-  void setCurrentAccount(Object wallet, int id, String label);
+  // Account getCurrentAccount(Object wallet);
+  // void setCurrentAccount(Object wallet, int id, String label);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createZanoWalletService(Box<WalletInfo> walletInfoSource);
@@ -138,22 +136,22 @@ abstract class Zano {
   List<AssetRate> getAssetRate();
 }
 
-abstract class MoneroSubaddressList {
-  ObservableList<Subaddress> get subaddresses;
-  void update(Object wallet, {required int accountIndex});
-  void refresh(Object wallet, {required int accountIndex});
-  List<Subaddress> getAll(Object wallet);
-  Future<void> addSubaddress(Object wallet, {required int accountIndex, required String label});
-  Future<void> setLabelSubaddress(Object wallet,
-      {required int accountIndex, required int addressIndex, required String label});
-}
+// abstract class MoneroSubaddressList {
+//   ObservableList<Subaddress> get subaddresses;
+//   void update(Object wallet, {required int accountIndex});
+//   void refresh(Object wallet, {required int accountIndex});
+//   List<Subaddress> getAll(Object wallet);
+//   Future<void> addSubaddress(Object wallet, {required int accountIndex, required String label});
+//   Future<void> setLabelSubaddress(Object wallet,
+//       {required int accountIndex, required int addressIndex, required String label});
+// }
 
-abstract class ZanoAccountList {
-  ObservableList<Account> get accounts;
-  void update(Object wallet);
-  void refresh(Object wallet);
-  List<Account> getAll(Object wallet);
-  Future<void> addAccount(Object wallet, {required String label});
-  Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
-}
+// abstract class ZanoAccountList {
+//   ObservableList<Account> get accounts;
+//   void update(Object wallet);
+//   void refresh(Object wallet);
+//   List<Account> getAll(Object wallet);
+//   Future<void> addAccount(Object wallet, {required String label});
+//   Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
+// }
   

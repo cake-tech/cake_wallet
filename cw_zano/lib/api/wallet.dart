@@ -6,6 +6,7 @@ import 'package:cw_zano/api/convert_utf8_to_string.dart';
 import 'package:cw_zano/api/signatures.dart';
 import 'package:cw_zano/api/types.dart';
 import 'package:cw_zano/api/zano_api.dart';
+import 'package:cw_zano/api/calls.dart' as calls;
 import 'package:cw_zano/api/exceptions/setup_wallet_exception.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -16,8 +17,8 @@ final getFileNameNative = zanoApi
     .lookup<NativeFunction<get_filename>>('get_filename')
     .asFunction<GetFilename>();
 
-final getSeedNative =
-    zanoApi.lookup<NativeFunction<get_seed>>('seed').asFunction<GetSeed>();
+/*final getSeedNative =
+    zanoApi.lookup<NativeFunction<get_seed>>('seed').asFunction<GetSeed>();*/
 
 final getAddressNative = zanoApi
     .lookup<NativeFunction<get_address>>('get_address')
@@ -31,9 +32,9 @@ final getUnlockedBalanceNative = zanoApi
     .lookup<NativeFunction<get_unlocked_balanace>>('get_unlocked_balance')
     .asFunction<GetUnlockedBalance>();
 
-final getCurrentHeightNative = zanoApi
+/**final getCurrentHeightNative = zanoApi
     .lookup<NativeFunction<get_current_height>>('get_current_height')
-    .asFunction<GetCurrentHeight>();
+    .asFunction<GetCurrentHeight>();*/
 
 final getNodeHeightNative = zanoApi
     .lookup<NativeFunction<get_node_height>>('get_node_height')
@@ -72,9 +73,9 @@ final setPasswordNative = zanoApi
     .lookup<NativeFunction<set_password>>('set_password')
     .asFunction<SetPassword>();
 
-final setListenerNative = zanoApi
+/**final setListenerNative = zanoApi
     .lookup<NativeFunction<set_listener>>('set_listener')
-    .asFunction<SetListener>();
+    .asFunction<SetListener>();*/
 
 final getSyncingHeightNative = zanoApi
     .lookup<NativeFunction<get_syncing_height>>('get_syncing_height')
@@ -133,7 +134,7 @@ bool isNewTransactionExist() => isNewTransactionExistNative() != 0;
 
 String getFilename() => convertUTF8ToString(pointer: getFileNameNative());
 
-String getSeed() => convertUTF8ToString(pointer: getSeedNative());
+/**String getSeed() => convertUTF8ToString(pointer: getSeedNative());*/
 
 String getAddress({int accountIndex = 0, int addressIndex = 0}) =>
     convertUTF8ToString(pointer: getAddressNative(accountIndex, addressIndex));
@@ -144,7 +145,11 @@ int getFullBalance({int accountIndex = 0}) =>
 int getUnlockedBalance({int accountIndex = 0}) =>
     getUnlockedBalanceNative(accountIndex);
 
-int getCurrentHeight() => getCurrentHeightNative();
+int getCurrentHeight(int hWallet) {
+  calls.getWalletStatus(hWallet);
+  return -1;
+  //return getCurrentHeightNative();
+}
 
 int getNodeHeightSync() => getNodeHeightNative();
 
@@ -156,7 +161,7 @@ bool setupNodeSync(
     String? password,
     bool useSSL = false,
     bool isLightWallet = false,
-    String? socksProxyAddress}) {
+    /*String? socksProxyAddress*/}) {
   final addressPointer = address.toNativeUtf8();
   Pointer<Utf8>? loginPointer;
   Pointer<Utf8>? socksProxyAddressPointer;
@@ -170,20 +175,23 @@ bool setupNodeSync(
     passwordPointer = password.toNativeUtf8();
   }
 
-  if (socksProxyAddress != null) {
+  /*if (socksProxyAddress != null) {
     socksProxyAddressPointer = socksProxyAddress.toNativeUtf8();
-  }
+  }*/
 
   final errorMessagePointer = ''.toNativeUtf8();
+  debugPrint("setup_node address $address login $login password $password useSSL $useSSL isLightWallet $isLightWallet");
+  // TODO: here can be ZERO! upd: no
   final isSetupNode = setupNodeNative(
           addressPointer,
           loginPointer,
           passwordPointer,
           _boolToInt(useSSL),
           _boolToInt(isLightWallet),
-          socksProxyAddressPointer,
+          /*socksProxyAddressPointer,*/
           errorMessagePointer) !=
       0;
+  debugPrint("setup_node result $isSetupNode");
 
   calloc.free(addressPointer);
 
@@ -195,10 +203,11 @@ bool setupNodeSync(
     calloc.free(passwordPointer);
   }
 
-  if (!isSetupNode) {
+  // TODO: fix it
+  /**if (!isSetupNode) {
     throw SetupWalletException(
         message: convertUTF8ToString(pointer: errorMessagePointer));
-  }
+  }*/
 
   return isSetupNode;
 }
@@ -213,10 +222,12 @@ void setRefreshFromBlockHeight({required int height}) =>
 void setRecoveringFromSeed({required bool isRecovery}) =>
     setRecoveringFromSeedNative(_boolToInt(isRecovery));
 
-void storeSync() {
-  final pathPointer = ''.toNativeUtf8();
+void storeSync(int hWallet) {
+  calls.store(hWallet);
+  // TODO: fixit
+  /*final pathPointer = ''.toNativeUtf8();
   storeNative(pathPointer);
-  calloc.free(pathPointer);
+  calloc.free(pathPointer);*/
 }
 
 void setPasswordSync(String password) {
@@ -283,7 +294,8 @@ class SyncListener {
       var syncHeight = getSyncingHeight();
 
       if (syncHeight <= 0) {
-        syncHeight = getCurrentHeight();
+        // TODO: fix it
+        syncHeight = getCurrentHeight(-1);
       }
 
       if (_initialSyncHeight <= 0) {
@@ -317,13 +329,13 @@ class SyncListener {
 SyncListener setListeners(void Function(int, int, double) onNewBlock,
     void Function() onNewTransaction) {
   final listener = SyncListener(onNewBlock, onNewTransaction);
-  setListenerNative();
+  /**setListenerNative();*/
   return listener;
 }
 
 void onStartup() => onStartupNative();
 
-void _storeSync(Object _) => storeSync();
+void _storeSync(int hWallet) => storeSync(hWallet);
 
 bool _setupNodeSync(Map args) {
   final address = args['address'] as String;
@@ -331,7 +343,7 @@ bool _setupNodeSync(Map args) {
   final password = (args['password'] ?? '') as String;
   final useSSL = args['useSSL'] as bool;
   final isLightWallet = args['isLightWallet'] as bool;
-  final socksProxyAddress = (args['socksProxyAddress'] ?? '') as String;
+  /*final socksProxyAddress = (args['socksProxyAddress'] ?? '') as String;*/
 
   return setupNodeSync(
       address: address,
@@ -339,7 +351,7 @@ bool _setupNodeSync(Map args) {
       password: password,
       useSSL: useSSL,
       isLightWallet: isLightWallet,
-      socksProxyAddress: socksProxyAddress);
+      /*socksProxyAddress: socksProxyAddress*/);
 }
 
 bool _isConnected(Object _) => isConnectedSync();
@@ -348,23 +360,23 @@ int _getNodeHeight(Object _) => getNodeHeightSync();
 
 void startRefresh() => startRefreshSync();
 
-Future<void> setupNode(
+Future<bool> setupNode(
         {required String address,
         String? login,
         String? password,
         bool useSSL = false,
-        String? socksProxyAddress,
+        /*String? socksProxyAddress,*/
         bool isLightWallet = false}) =>
-    compute<Map<String, Object?>, void>(_setupNodeSync, {
+    compute<Map<String, Object?>, bool>(_setupNodeSync, {
       'address': address,
       'login': login,
       'password': password,
       'useSSL': useSSL,
       'isLightWallet': isLightWallet,
-      'socksProxyAddress': socksProxyAddress
+      //'socksProxyAddress': socksProxyAddress
     });
 
-Future<void> store() => compute<int, void>(_storeSync, 0);
+Future<void> store(int hWallet) => compute<int, void>(_storeSync, 0);
 
 Future<bool> isConnected() => compute(_isConnected, 0);
 

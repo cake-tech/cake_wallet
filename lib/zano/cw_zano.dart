@@ -1,6 +1,6 @@
 part of 'zano.dart';
 
-class CWZanoAccountList extends ZanoAccountList {
+/**class CWZanoAccountList extends ZanoAccountList {
   CWZanoAccountList(this._wallet);
 
   final Object _wallet;
@@ -49,73 +49,20 @@ class CWZanoAccountList extends ZanoAccountList {
     await zanoWallet.walletAddresses.accountList
         .setLabelAccount(accountIndex: accountIndex, label: label);
   }
-}
-
-class CWZanoSubaddressList extends MoneroSubaddressList {
-  CWZanoSubaddressList(this._wallet);
-
-  final Object _wallet;
-
-  @override
-  @computed
-  ObservableList<Subaddress> get subaddresses {
-    final zanoWallet = _wallet as ZanoWallet;
-    final subAddresses = zanoWallet.walletAddresses.subaddressList.subaddresses
-        .map((sub) => Subaddress(id: sub.id, address: sub.address, label: sub.label))
-        .toList();
-    return ObservableList<Subaddress>.of(subAddresses);
-  }
-
-  @override
-  void update(Object wallet, {required int accountIndex}) {
-    final zanoWallet = wallet as ZanoWallet;
-    zanoWallet.walletAddresses.subaddressList.update(accountIndex: accountIndex);
-  }
-
-  @override
-  void refresh(Object wallet, {required int accountIndex}) {
-    final zanoWallet = wallet as ZanoWallet;
-    zanoWallet.walletAddresses.subaddressList.refresh(accountIndex: accountIndex);
-  }
-
-  @override
-  List<Subaddress> getAll(Object wallet) {
-    final zanoWallet = wallet as ZanoWallet;
-    return zanoWallet.walletAddresses.subaddressList
-        .getAll()
-        .map((sub) => Subaddress(id: sub.id, label: sub.label, address: sub.address))
-        .toList();
-  }
-
-  @override
-  Future<void> addSubaddress(Object wallet,
-      {required int accountIndex, required String label}) async {
-    final zanoWallet = wallet as ZanoWallet;
-    await zanoWallet.walletAddresses.subaddressList
-        .addSubaddress(accountIndex: accountIndex, label: label);
-  }
-
-  @override
-  Future<void> setLabelSubaddress(Object wallet,
-      {required int accountIndex, required int addressIndex, required String label}) async {
-    final zanoWallet = wallet as ZanoWallet;
-    await zanoWallet.walletAddresses.subaddressList
-        .setLabelSubaddress(accountIndex: accountIndex, addressIndex: addressIndex, label: label);
-  }
-}
+}*/
 
 class CWZanoWalletDetails extends ZanoWalletDetails {
   CWZanoWalletDetails(this._wallet);
 
   final Object _wallet;
 
-  @computed
-  @override
-  Account get account {
-    final zanoWallet = _wallet as ZanoWallet;
-    final acc = zanoWallet.walletAddresses.account as monero_account.Account;
-    return Account(id: acc.id, label: acc.label);
-  }
+  // @computed
+  // @override
+  // Account get account {
+  //   final zanoWallet = _wallet as ZanoWallet;
+  //   final acc = zanoWallet.walletAddresses.account as monero_account.Account;
+  //   return Account(id: acc.id, label: acc.label);
+  // }
 
   @computed
   @override
@@ -130,15 +77,10 @@ class CWZanoWalletDetails extends ZanoWalletDetails {
 }
 
 class CWZano extends Zano {
-  @override
+  /**@override
   ZanoAccountList getAccountList(Object wallet) {
     return CWZanoAccountList(wallet);
-  }
-
-  @override
-  MoneroSubaddressList getSubaddressList(Object wallet) {
-    return CWZanoSubaddressList(wallet);
-  }
+  }*/
 
   @override
   TransactionHistoryBase getTransactionHistory(Object wallet) {
@@ -147,7 +89,7 @@ class CWZano extends Zano {
   }
 
   @override
-  ZanoWalletDetails getMoneroWalletDetails(Object wallet) {
+  ZanoWalletDetails getZanoWalletDetails(Object wallet) {
     return CWZanoWalletDetails(wallet);
   }
 
@@ -231,8 +173,8 @@ class CWZano extends Zano {
 
   @override
   WalletCredentials createZanoNewWalletCredentials(
-      {required String name, required String language, String? password}) {
-    return ZanoNewWalletCredentials(name: name, password: password, language: language);
+      {required String name, String? password}) {
+    return ZanoNewWalletCredentials(name: name, password: password);
   }
 
   @override
@@ -283,18 +225,18 @@ class CWZano extends Zano {
     return moneroParseAmount(amount: amount);
   }
 
-  @override
-  Account getCurrentAccount(Object wallet) {
-    final zanoWallet = wallet as ZanoWallet;
-    final acc = zanoWallet.walletAddresses.account as monero_account.Account;
-    return Account(id: acc.id, label: acc.label);
-  }
+  // @override
+  // Account getCurrentAccount(Object wallet) {
+  //   final zanoWallet = wallet as ZanoWallet;
+  //   final acc = zanoWallet.walletAddresses.account as monero_account.Account;
+  //   return Account(id: acc.id, label: acc.label);
+  // }
 
-  @override
-  void setCurrentAccount(Object wallet, int id, String label) {
-    final zanoWallet = wallet as ZanoWallet;
-    zanoWallet.walletAddresses.account = monero_account.Account(id: id, label: label);
-  }
+  // @override
+  // void setCurrentAccount(Object wallet, int id, String label) {
+  //   final zanoWallet = wallet as ZanoWallet;
+  //   zanoWallet.walletAddresses.account = monero_account.Account(id: id, label: label);
+  // }
 
   @override
   void onStartup() {

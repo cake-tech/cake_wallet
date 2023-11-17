@@ -3,11 +3,16 @@ import 'package:cw_core/account.dart';
 import 'package:cw_core/account_list.dart';
 import 'package:cw_zano/api/account_list.dart' as account_list;
 
-part 'zano_account_list.g.dart';
-
+//part 'zano_account_list.g.dart';
+/*
 class ZanoAccountList = ZanoAccountListBase with _$ZanoAccountList;
 
 abstract class ZanoAccountListBase extends AccountList<Account> with Store {
+  ZanoAccountListBase.simple()
+    : accounts = ObservableList<Account>(),
+      _isRefreshing = false,
+      _isUpdating = false {}
+      
   ZanoAccountListBase()
       : accounts = ObservableList<Account>(),
         _isRefreshing = false,
@@ -67,7 +72,7 @@ abstract class ZanoAccountListBase extends AccountList<Account> with Store {
 
   @override
   void refresh() {
-    if (_isRefreshing) {
+    /**if (_isRefreshing) {
       return;
     }
 
@@ -80,5 +85,5 @@ abstract class ZanoAccountListBase extends AccountList<Account> with Store {
       print(e);
       rethrow;
     }
-  }
-}
+  }*/
+}*/

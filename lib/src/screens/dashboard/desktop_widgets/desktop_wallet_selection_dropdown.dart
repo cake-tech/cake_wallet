@@ -34,7 +34,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final ethereumIcon = Image.asset('assets/images/eth_icon.png', height: 24, width: 24);
   final zanoIcon = Image.asset('assets/images/zano_icon.png', height: 24, width: 24);
-  final dummyIcon = Image.asset('assets/images/dummy_icon.png', height: 24, width: 24);
+  final dummyIcon = Image.asset('assets/images/zano_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(

@@ -3,7 +3,7 @@ import 'package:cw_zano/api/structs/pending_transaction.dart';
 import 'package:cw_zano/api/structs/ut8_box.dart';
 import 'package:ffi/ffi.dart';
 
-typedef CreateWallet = int Function(
+typedef CreateWallet = Pointer<Utf8> Function(
     Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, int, Pointer<Utf8>);
 
 typedef RestoreWalletFromSeed = int Function(
@@ -47,7 +47,7 @@ typedef GetNodeHeight = int Function();
 typedef IsConnected = int Function();
 
 typedef SetupNode = int Function(Pointer<Utf8>, Pointer<Utf8>?, Pointer<Utf8>?,
-    int, int, Pointer<Utf8>?, Pointer<Utf8>);
+    int, int, Pointer<Utf8>);
 
 typedef StartRefresh = void Function();
 
@@ -105,7 +105,6 @@ typedef TransactionCreate = int Function(
     Pointer<Utf8> paymentId,
     Pointer<Utf8> amount,
     int priorityRaw,
-    int subaddrAccount,
     Pointer<Utf8Box> error,
     Pointer<PendingTransactionRaw> pendingTransaction);
 
@@ -116,7 +115,6 @@ typedef TransactionCreateMultDest = int Function(
     Pointer<Pointer<Utf8>> amounts,
     int size,
     int priorityRaw,
-    int subaddrAccount,
     Pointer<Utf8Box> error,
     Pointer<PendingTransactionRaw> pendingTransaction);
 
