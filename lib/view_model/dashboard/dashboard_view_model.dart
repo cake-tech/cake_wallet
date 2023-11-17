@@ -260,7 +260,10 @@ abstract class DashboardViewModelBase with Store {
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
-  bool get hasRescan => wallet.type == WalletType.monero || wallet.type == WalletType.haven;
+  bool get hasRescan =>
+      wallet.type == WalletType.monero ||
+      wallet.type == WalletType.haven ||
+      wallet.type == WalletType.bitcoin;
 
   BalanceViewModel balanceViewModel;
 

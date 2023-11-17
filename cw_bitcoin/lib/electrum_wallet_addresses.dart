@@ -136,7 +136,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           hd: sideHd,
           startIndex: totalCountOfChangeAddresses > 0 ? totalCountOfChangeAddresses - 1 : 0,
           isHidden: true);
-      _addAddresses(newAddresses);
+      addAddresses(newAddresses);
     }
 
     if (currentChangeAddressIndex >= changeAddresses.length) {
@@ -237,7 +237,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     if (addresses.length < addrs.length) {
-      _addAddresses(addrs);
+      addAddresses(addrs);
     }
   }
 
@@ -282,7 +282,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return list;
   }
 
-  void _addAddresses(Iterable<BitcoinAddressRecord> addresses) {
+  @action
+  void addAddresses(Iterable<BitcoinAddressRecord> addresses) {
     final addressesSet = this.addresses.toSet();
     addressesSet.addAll(addresses);
     this.addresses.removeRange(0, this.addresses.length);

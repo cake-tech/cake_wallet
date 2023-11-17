@@ -49,7 +49,12 @@ class ElectrumClient {
   Timer? _aliveTimer;
   String unterminatedString;
 
-  Future<void> connectToUri(Uri uri) async => await connect(host: uri.host, port: uri.port);
+  Uri? uri;
+
+  Future<void> connectToUri(Uri uri) async {
+    this.uri = uri;
+    await connect(host: uri.host, port: uri.port);
+  }
 
   Future<void> connect({required String host, required int port}) async {
     try {
@@ -273,6 +278,9 @@ class ElectrumClient {
     });
   }
 
+  Future<String> getTxidFromPos({required int height, required int pos}) async =>
+      await call(method: 'blockchain.transaction.id_from_pos', params: [height, pos]) as String;
+
   Future<Map<String, dynamic>> getMerkle({required String hash, required int height}) async =>
       await call(method: 'blockchain.transaction.get_merkle', params: [hash, height])
           as Map<String, dynamic>;
@@ -350,6 +358,12 @@ class ElectrumClient {
 
         return null;
       });
+
+  BehaviorSubject<Object>? chainTipUpdate() {
+    _id += 1;
+    return subscribe<Object>(
+        id: 'blockchain.headers.subscribe', method: 'blockchain.headers.subscribe');
+  }
 
   BehaviorSubject<Object>? scripthashUpdate(String scripthash) {
     _id += 1;

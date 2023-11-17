@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -7,9 +8,13 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
+// import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:cake_wallet/main.dart';
@@ -88,51 +93,119 @@ void callbackDispatcher() {
 
           final walletLoadingService = getIt.get<WalletLoadingService>();
 
-          final node = getIt.get<SettingsStore>().getCurrentNode(WalletType.bitcoin);
+          final name = getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
+          final wallet =
+              await walletLoadingService.load(WalletType.bitcoin, name!) as BitcoinWallet;
 
-          final typeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType);
+          String? checkpointTx = inputData!["checkpoint_tx"] as String?;
 
-          WalletBase? wallet;
+          try {
+            final height = wallet.walletInfo.restoreHeight;
 
-          if (inputData!['sync_all'] as bool) {
-            // /// get all Monero wallets of the user and sync them
-            // final List<WalletListItem> moneroWallets = getIt
-            //     .get<WalletListViewModel>()
-            //     .wallets
-            //     .where((element) => element.type == WalletType.monero)
-            //     .toList();
+            print(["HEIGHT:", height]);
 
-            // for (int i = 0; i < moneroWallets.length; i++) {
-            //   wallet = await walletLoadingService.load(WalletType.monero, moneroWallets[i].name);
-
-            //   await wallet.connectToNode(node: node);
-            //   await wallet.startSync();
-            // }
-          } else {
-            /// if the user chose to sync only active wallet
-            /// if the current wallet is monero; sync it only
-            if (typeRaw == WalletType.bitcoin.index) {
-              final name =
-                  getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
-
-              wallet = await walletLoadingService.load(WalletType.bitcoin, name!);
-
-              await wallet.startSync();
+            List<String> txids = [];
+            int pos = 0;
+            while (pos < 150) {
+              var txid = await wallet.electrumClient.getTxidFromPos(height: height, pos: pos);
+              print(["TXID", txid]);
+              txids.add(txid);
+              pos++;
             }
-          }
 
-          if (wallet?.syncStatus.progress() == null) {
-            return Future.error("No Bitcoin wallet with silent payments enabled found");
-          }
+            if (checkpointTx != null && checkpointTx.isNotEmpty) {
+              txids = txids.sublist(txids.indexOf(checkpointTx) + 1);
+            }
 
-          for (int i = 0;; i++) {
-            await Future<void>.delayed(const Duration(seconds: 1));
-            if (wallet?.syncStatus.progress() == 1.0) {
-              break;
+            List<BitcoinUnspent> unspentCoins = [];
+
+            for (var txid in txids) {
+              checkpointTx = txid.toString();
+
+              List<String> pubkeys = [];
+              List<bitcoin.Outpoint> outpoints = [];
+              Map<String, bitcoin.Outpoint> outpointsByP2TRpubkey = {};
+
+              // final txInfo =
+              //     await wallet.fetchTransactionInfo(hash: txid.toString(), height: height);
+
+              // print(txInfo);
+
+              bool skip = false;
+              // obj["vin"].forEach((input) {
+              //   if (input["witness"] == null) {
+              //     skip = true;
+              //     return;
+              //   }
+
+              //   final witness = input["witness"] as List<dynamic>;
+              //   if (witness.length != 2) {
+              //     skip = true;
+              //     return;
+              //   }
+
+              //   final pubkey = witness[1] as String;
+              //   pubkeys.add(pubkey);
+              //   outpoints.add(bitcoin.Outpoint(txid: input["txid"] as String, index: input["vout"] as int));
+              // });
+
+              // if (skip) continue;
+
+              // int i = 0;
+              // obj['vout'].forEach((out) {
+              //   if (out["scriptpubkey_type"] != "v1_p2tr") {
+              //     return;
+              //   }
+
+              //   outpointsByP2TRpubkey[out['scriptpubkey_address'] as String] =
+              //       bitcoin.Outpoint(txid: txid.toString(), index: i, value: out["value"] as int);
+
+              //   i++;
+              // });
+
+              if (pubkeys.isEmpty && outpoints.isEmpty && outpointsByP2TRpubkey.isEmpty) {
+                continue;
+              }
+
+              Uint8List sumOfInputPublicKeys =
+                  bitcoin.getSumInputPubKeys(pubkeys).toCompressedHex().fromHex;
+              final outpointHash = bitcoin.SilentPayment.hashOutpoints(outpoints);
+
+              final result = bitcoin.scanOutputs(
+                  wallet.walletAddresses.silentAddress!.scanPrivkey.toCompressedHex().fromHex,
+                  wallet.walletAddresses.silentAddress!.spendPubkey.toCompressedHex().fromHex,
+                  sumOfInputPublicKeys,
+                  outpointHash,
+                  outpointsByP2TRpubkey.keys.toList());
+
+              if (result.isEmpty) {
+                continue;
+              }
+
+              result.forEach((key, value) {
+                final outpoint = outpointsByP2TRpubkey[key];
+
+                if (outpoint == null) {
+                  return;
+                }
+
+                unspentCoins.add(BitcoinUnspent(
+                  BitcoinAddressRecord(key, index: 0),
+                  outpoint.txid,
+                  outpoint.value!,
+                  outpoint.index,
+                  silentPaymentTweak: value.hex,
+                ));
+              });
             }
-            if (i > 600) {
-              return Future.error("Synchronization Timed out");
-            }
+
+            break;
+          } catch (e, stacktrace) {
+            print(stacktrace);
+            print(e.toString());
+            // timeout, wait 30sec
+            // return Future.delayed(const Duration(seconds: 30),
+            //     () => startRefresh({"checkpoint_tx": checkpointTx ?? ""}));
           }
           break;
       }
@@ -209,8 +282,7 @@ class BackgroundTasks {
           .any((element) => element.type == WalletType.bitcoin);
 
       /// if its not android nor ios, or the user has no monero wallets; exit
-      // if (hasBitcoin) {
-      if (false) {
+      if (hasBitcoin) {
         final settingsStore = getIt.get<SettingsStore>();
 
         final SyncMode syncMode = settingsStore.currentSyncMode;
@@ -270,5 +342,130 @@ class BackgroundTasks {
       print(error);
       print(stackTrace);
     }
+  }
+}
+
+Future<List<BitcoinUnspent>> startRefresh(Map<dynamic, dynamic> data) async {
+  // final rootIsolateToken = data["rootIsolateToken"] as RootIsolateToken;
+
+  // BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
+
+  /// The work manager runs on a separate isolate from the main flutter isolate.
+  /// thus we initialize app configs first; hive, getIt, etc...
+  await initializeAppConfigs();
+
+  final walletLoadingService = getIt.get<WalletLoadingService>();
+
+  final name = getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
+  final wallet = await walletLoadingService.load(WalletType.bitcoin, name!) as BitcoinWallet;
+
+  String? checkpointTx = data["checkpoint_tx"] as String?;
+
+  try {
+    final height = wallet.walletInfo.restoreHeight;
+
+    print(["HEIGHT:", height]);
+
+    List<String> txids = [];
+    int pos = 0;
+    while (pos < 150) {
+      var txid = await wallet.electrumClient.getTxidFromPos(height: height, pos: pos);
+      print(["TXID", txid]);
+      txids.add(txid);
+      pos++;
+    }
+
+    if (checkpointTx != null && checkpointTx.isNotEmpty) {
+      txids = txids.sublist(txids.indexOf(checkpointTx) + 1);
+    }
+
+    List<BitcoinUnspent> unspentCoins = [];
+
+    for (var txid in txids) {
+      checkpointTx = txid.toString();
+
+      List<String> pubkeys = [];
+      List<bitcoin.Outpoint> outpoints = [];
+      Map<String, bitcoin.Outpoint> outpointsByP2TRpubkey = {};
+
+      // final txInfo = await wallet.fetchTransactionInfo(hash: txid.toString(), height: height);
+
+      // print(txInfo);
+
+      bool skip = false;
+      // obj["vin"].forEach((input) {
+      //   if (input["witness"] == null) {
+      //     skip = true;
+      //     return;
+      //   }
+
+      //   final witness = input["witness"] as List<dynamic>;
+      //   if (witness.length != 2) {
+      //     skip = true;
+      //     return;
+      //   }
+
+      //   final pubkey = witness[1] as String;
+      //   pubkeys.add(pubkey);
+      //   outpoints.add(bitcoin.Outpoint(txid: input["txid"] as String, index: input["vout"] as int));
+      // });
+
+      // if (skip) continue;
+
+      // int i = 0;
+      // obj['vout'].forEach((out) {
+      //   if (out["scriptpubkey_type"] != "v1_p2tr") {
+      //     return;
+      //   }
+
+      //   outpointsByP2TRpubkey[out['scriptpubkey_address'] as String] =
+      //       bitcoin.Outpoint(txid: txid.toString(), index: i, value: out["value"] as int);
+
+      //   i++;
+      // });
+
+      if (pubkeys.isEmpty && outpoints.isEmpty && outpointsByP2TRpubkey.isEmpty) {
+        continue;
+      }
+
+      Uint8List sumOfInputPublicKeys =
+          bitcoin.getSumInputPubKeys(pubkeys).toCompressedHex().fromHex;
+      final outpointHash = bitcoin.SilentPayment.hashOutpoints(outpoints);
+
+      final result = bitcoin.scanOutputs(
+          wallet.walletAddresses.silentAddress!.scanPrivkey.toCompressedHex().fromHex,
+          wallet.walletAddresses.silentAddress!.spendPubkey.toCompressedHex().fromHex,
+          sumOfInputPublicKeys,
+          outpointHash,
+          outpointsByP2TRpubkey.keys.toList());
+
+      if (result.isEmpty) {
+        continue;
+      }
+
+      result.forEach((key, value) {
+        final outpoint = outpointsByP2TRpubkey[key];
+
+        if (outpoint == null) {
+          return;
+        }
+
+        unspentCoins.add(BitcoinUnspent(
+          BitcoinAddressRecord(key, index: 0),
+          outpoint.txid,
+          outpoint.value!,
+          outpoint.index,
+          silentPaymentTweak: value.hex,
+        ));
+      });
+    }
+
+    return unspentCoins;
+  } catch (e, stacktrace) {
+    print(stacktrace);
+    print(e.toString());
+    // timeout, wait 30sec
+    return Future.delayed(
+        const Duration(seconds: 30), () => startRefresh({"checkpoint_tx": checkpointTx ?? ""}));
   }
 }

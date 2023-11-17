@@ -80,13 +80,6 @@ packages:
       relative: false
     source: path
     version: "2.0.2"
-  blockchain_utils:
-    dependency: transitive
-    description:
-      path: "/home/rafael/Storage/Repositories/blockchain_utils"
-      relative: false
-    source: path
-    version: "1.0.3"
   boolean_selector:
     dependency: transitive
     description:
@@ -255,13 +248,6 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
-  dart_bech32:
-    dependency: transitive
-    description:
-      path: "/home/rafael/Storage/Repositories/dart-bech32"
-      relative: false
-    source: path
-    version: "2.0.0"
   dart_style:
     dependency: transitive
     description:
@@ -807,5 +793,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.0.6 <4.0.0"
+  dart: ">=3.0.0 <4.0.0"
   flutter: ">=3.7.0"

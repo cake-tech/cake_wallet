@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:math';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:mobx/mobx.dart';
@@ -36,8 +36,6 @@ import 'package:cw_bitcoin/electrum.dart';
 import 'package:hex/hex.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:collection/collection.dart';
-// import 'package:bip32/bip32.dart';
-import 'package:http/http.dart' as http;
 
 part 'electrum_wallet.g.dart';
 
@@ -132,6 +130,7 @@ abstract class ElectrumWalletBase
   List<BitcoinUnspent> unspentCoins;
   List<int> _feeRates;
   Map<String, BehaviorSubject<Object>?> _scripthashesUpdateSubject;
+  BehaviorSubject<Object>? _chainTipUpdateSubject;
   bool _isTransactionUpdating;
 
   void Function(FlutterErrorDetails)? _onError;
@@ -145,12 +144,13 @@ abstract class ElectrumWalletBase
   @action
   @override
   Future<void> startSync() async {
-    compute(test, {
-      "scanPrivateKeyCompressed": walletAddresses.silentAddress!.scanPrivkey.toCompressedHex(),
-      "spendPubkeyCompressed": walletAddresses.silentAddress!.spendPubkey.toCompressedHex()
-    });
     try {
-      syncStatus = AttemptingSyncStatus();
+      await _setInitialHeight();
+    } catch (_) {}
+
+    try {
+      rescan(height: walletInfo.restoreHeight);
+
       await walletAddresses.discoverAddresses();
       await updateTransactions();
       _subscribeForUpdates();
@@ -160,8 +160,6 @@ abstract class ElectrumWalletBase
 
       Timer.periodic(
           const Duration(minutes: 1), (timer) async => _feeRates = await electrumClient.feeRates());
-
-      syncStatus = SyncedSyncStatus();
     } catch (e, stacktrace) {
       print(stacktrace);
       print(e.toString());
@@ -506,7 +504,53 @@ abstract class ElectrumWalletBase
       generateKeyPair(hd: hd, index: index, network: networkType);
 
   @override
-  Future<void> rescan({required int height}) async => throw UnimplementedError();
+  Future<void> rescan({required int height}) async {
+    syncStatus = AttemptingSyncStatus();
+
+    walletInfo.restoreHeight = height;
+    ReceivePort receivePort = ReceivePort();
+    Isolate.spawn(startRefresh, {
+      "silentAddress": walletAddresses.silentAddress!.toString(),
+      "scanPrivateKeyCompressed": walletAddresses.silentAddress!.scanPrivkey.toCompressedHex(),
+      "spendPubkeyCompressed": walletAddresses.silentAddress!.spendPubkey.toCompressedHex(),
+      "height": walletInfo.restoreHeight.toString(),
+      "node": electrumClient.uri.toString(),
+      "receivePort": receivePort.sendPort,
+    });
+    await for (var unspentScannedCoins in receivePort) {
+      if (unspentScannedCoins is List<BitcoinUnspent>) {
+        if (unspentScannedCoins.isNotEmpty) {
+          print("UNSPENT COIN FOUND!");
+          final myNewAddresses = unspentScannedCoins.map((coin) {
+            return BitcoinAddressRecord(
+              coin.address,
+              index: 0,
+              isHidden: false,
+              isUsed: true,
+              silentAddressLabel: null,
+              silentPaymentTweak: coin.silentPaymentTweak,
+            );
+          });
+          walletAddresses.addAddresses(myNewAddresses);
+          await updateTransactions();
+          _subscribeForUpdates();
+          await updateUnspent();
+          await updateBalance();
+        }
+
+        final currentHeight = await electrumClient.getCurrentBlockChainTip();
+
+        if (currentHeight != null && currentHeight > walletInfo.restoreHeight) {
+          walletInfo.restoreHeight = walletInfo.restoreHeight + 1;
+          await save();
+          // recursive, scan next block again until at the current tip
+          rescan(height: walletInfo.restoreHeight);
+        } else {
+          syncStatus = SyncedSyncStatus();
+        }
+      }
+    }
+  }
 
   @override
   Future<void> close() async {
@@ -527,7 +571,7 @@ abstract class ElectrumWalletBase
                 return null;
               }
             }).whereNotNull())));
-    unspentCoins = unspent.expand((e) => e).toList();
+    unspentCoins.addAll(unspent.expand((e) => e).toList());
 
     if (unspentCoinsInfo.isEmpty) {
       unspentCoins.forEach((coin) => _addCoinInfo(coin));
@@ -593,48 +637,6 @@ abstract class ElectrumWalletBase
     }
   }
 
-  Future<ElectrumTransactionBundle> getTransactionExpanded(
-      {required String hash, required int height}) async {
-    final verboseTransaction =
-        await electrumClient.getTransactionRaw(hash: hash, networkType: networkType);
-
-    String transactionHex;
-    int? time;
-    int confirmations = 0;
-    if (networkType == bitcoin.testnet) {
-      transactionHex = verboseTransaction as String;
-      confirmations = 1;
-    } else {
-      transactionHex = verboseTransaction['hex'] as String;
-      time = verboseTransaction['time'] as int?;
-      confirmations = verboseTransaction['confirmations'] as int? ?? 0;
-    }
-
-    final original = bitcoin.Transaction.fromHex(transactionHex);
-    final ins = <bitcoin.Transaction>[];
-
-    for (final vin in original.ins) {
-      final id = HEX.encode(vin.hash!.reversed.toList());
-      final txHex = await electrumClient.getTransactionHex(hash: id);
-      final tx = bitcoin.Transaction.fromHex(txHex);
-      ins.add(tx);
-    }
-
-    return ElectrumTransactionBundle(original, ins: ins, time: time, confirmations: confirmations);
-  }
-
-  Future<ElectrumTransactionInfo?> fetchTransactionInfo(
-      {required String hash, required int height}) async {
-    try {
-      final tx = await getTransactionExpanded(hash: hash, height: height);
-      final addresses = walletAddresses.addresses.map((addr) => addr.address).toSet();
-      return ElectrumTransactionInfo.fromElectrumBundle(tx, walletInfo.type, networkType,
-          addresses: addresses, height: height);
-    } catch (_) {
-      return null;
-    }
-  }
-
   @override
   Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
     final addressHashes = <String, BitcoinAddressRecord>{};
@@ -658,7 +660,12 @@ abstract class ElectrumWalletBase
     final historiesWithDetails = await Future.wait(normalizedHistories.map((transaction) {
       try {
         return fetchTransactionInfo(
-            hash: transaction['tx_hash'] as String, height: transaction['height'] as int);
+            hash: transaction['tx_hash'] as String,
+            height: transaction['height'] as int,
+            electrumClient: electrumClient,
+            addressRecords: walletAddresses.addresses,
+            walletInfo: walletInfo,
+            networkType: networkType);
       } catch (_) {
         return Future.value(null);
       }
@@ -692,7 +699,7 @@ abstract class ElectrumWalletBase
     }
   }
 
-  void _subscribeForUpdates() {
+  void _subscribeForUpdates() async {
     scriptHashes.forEach((sh) async {
       await _scripthashesUpdateSubject[sh]?.close();
       _scripthashesUpdateSubject[sh] = electrumClient.scripthashUpdate(sh);
@@ -710,6 +717,22 @@ abstract class ElectrumWalletBase
           ));
         }
       });
+    });
+    await _chainTipUpdateSubject?.close();
+    _chainTipUpdateSubject = electrumClient.chainTipUpdate();
+    _chainTipUpdateSubject?.listen((event) async {
+      try {
+        final currentHeight = await electrumClient.getCurrentBlockChainTip();
+        if (currentHeight != null) walletInfo.restoreHeight = currentHeight;
+        rescan(height: walletInfo.restoreHeight);
+      } catch (e, s) {
+        print(e.toString());
+        _onError?.call(FlutterErrorDetails(
+          exception: e,
+          stack: s,
+          library: this.runtimeType.toString(),
+        ));
+      }
     });
   }
 
@@ -786,94 +809,194 @@ abstract class ElectrumWalletBase
         : base64Encode(hd.derive(index).sign(message));
   }
 
-  // int _getHeightByDate(DateTime date) {
-  //   final currentHeight = await electrumClient.getCurrentBlockChainTip();
-  //   final heightDistance = _getHeightDistance(date);
-
-  //   if (nodeHeight <= 0) {
-  //     return 0;
-  //   }
-
-  //   return nodeHeight - heightDistance;
-  // }
-
-  // Silent payments initial sync height
-  // inspiried my monero_wallet.dart's _setInitialHeight()
-  void _setInitialHeight() async {
-    if (walletInfo.isRecovery) {
+  Future<void> _setInitialHeight() async {
+    if (walletInfo.isRecovery || walletInfo.restoreHeight != 0) {
       return;
     }
 
+    // final currentHeight = 2538835;
     final currentHeight = await electrumClient.getCurrentBlockChainTip();
-    if (currentHeight == null) return;
-
-    if (currentHeight <= 1) {
-      // final height = _getHeightByDate(walletInfo.date);
-      // monero_wallet.setRecoveringFromSeed(isRecovery: true);
-      // monero_wallet.setRefreshFromBlockHeight(height: height);
-    }
+    if (currentHeight != null) walletInfo.restoreHeight = currentHeight;
   }
 }
 
-void test(Map<String, String> addrs) async {
-  final txid = "920244856cba9d8421ea01f3930baec80642b2b908c0e83a7e6c918040d5656e";
-  final uri = Uri(scheme: 'https', host: 'blockstream.info', path: '/testnet/api/tx/$txid');
-  // final uri = Uri(scheme: 'https', host: 'blockstream.info', path: 'testnet/api/block-height/0');
+Future<ElectrumTransactionInfo?> fetchTransactionInfo(
+    {required String hash,
+    required int height,
+    required ElectrumClient electrumClient,
+    required Iterable<BitcoinAddressRecord> addressRecords,
+    required WalletInfo walletInfo,
+    required bitcoin.NetworkType networkType}) async {
+  try {
+    final tx = await getTransactionExpanded(
+        hash: hash, height: height, electrumClient: electrumClient, networkType: networkType);
+    final addresses = addressRecords.map((addr) => addr.address).toSet();
+    return ElectrumTransactionInfo.fromElectrumBundle(tx, walletInfo.type, networkType,
+        addresses: addresses, height: height);
+  } catch (_) {
+    return null;
+  }
+}
 
-  await http.get(uri).then((response) {
-    // print(response.body);
-    final obj = json.decode(response.body);
+Future<ElectrumTransactionBundle> getTransactionExpanded(
+    {required String hash,
+    required int height,
+    required ElectrumClient electrumClient,
+    required bitcoin.NetworkType networkType}) async {
+  final verboseTransaction =
+      await electrumClient.getTransactionRaw(hash: hash, networkType: networkType);
 
-    List<String> pubkeys = [];
-    List<bitcoin.Outpoint> outpoints = [];
-    obj["vin"].forEach((input) {
-      final witness = input["witness"] as List<dynamic>;
-      final pubkey = witness[1] as String;
-      pubkeys.add(pubkey);
-      outpoints.add(bitcoin.Outpoint(txid: input["txid"] as String, index: input["vout"] as int));
-    });
+  String transactionHex;
+  int? time;
+  int confirmations = 0;
+  if (networkType == bitcoin.testnet) {
+    transactionHex = verboseTransaction as String;
+    confirmations = 1;
+  } else {
+    transactionHex = verboseTransaction['hex'] as String;
+    time = verboseTransaction['time'] as int?;
+    confirmations = verboseTransaction['confirmations'] as int? ?? 0;
+  }
 
-    Uint8List sumOfInputPublicKeys = bitcoin.getSumInputPubKeys(pubkeys).toCompressedHex().fromHex;
-    final outpointHash = bitcoin.SilentPayment.hashOutpoints(outpoints);
+  final original = bitcoin.Transaction.fromHex(transactionHex);
+  final ins = <bitcoin.Transaction>[];
 
-    Map<String, bitcoin.Outpoint> outpointsByP2TRpubkey = {};
-    int i = 0;
-    obj['vout'].forEach((out) {
-      if (out["scriptpubkey_type"] == "v1_p2tr")
-        outpointsByP2TRpubkey[out['scriptpubkey_address'] as String] =
-            bitcoin.Outpoint(txid: txid, index: i, value: out["value"] as int);
+  for (final vin in original.ins) {
+    final id = HEX.encode(vin.hash!.reversed.toList());
+    final txHex = await electrumClient.getTransactionHex(hash: id);
+    final tx = bitcoin.Transaction.fromHex(txHex);
+    ins.add(tx);
+  }
 
-      i++;
-    });
-    final result = bitcoin.scanOutputs(
-        (addrs["scanPrivateKeyCompressed"] as String).fromHex,
-        (addrs["spendPubkeyCompressed"] as String).fromHex,
-        sumOfInputPublicKeys,
-        outpointHash,
-        outpointsByP2TRpubkey.keys.toList());
+  return ElectrumTransactionBundle(original, ins: ins, time: time, confirmations: confirmations);
+}
 
-    print(["RESULT:", result]);
+Future<void> startRefresh(Map<String, dynamic> data) async {
+  final sendPort = data["receivePort"] as SendPort;
+  String? checkpointTx = data["checkpoint_tx"] as String?;
 
-    result.forEach((key, value) {
-      final outpoint = outpointsByP2TRpubkey[key];
-      // if (outpoint != null) {
-      //   unspentCoins.add(BitcoinUnspent(
-      //       BitcoinAddressRecord(walletAddresses.silentAddress.toString(), index: 0),
-      //       outpoint.txid,
-      //       outpoint.value!,
-      //       outpoint.n));
+  try {
+    final height = int.parse(data["height"] as String);
+    // final height = 2538835;
 
-      //   final currentBalance = balance[currency];
-      //   if (currentBalance != null) {
-      //     balance[currency] = ElectrumBalance(
-      //         confirmed: currentBalance.confirmed + outpoint.value!,
-      //         unconfirmed: currentBalance.unconfirmed,
-      //         frozen: currentBalance.frozen);
-      //   } else {
-      //     balance[currency] =
-      //         ElectrumBalance(confirmed: outpoint.value!, unconfirmed: 0, frozen: 0);
-      //   }
-      // }
-    });
-  });
+    final node = data["node"] as String;
+    final electrumClient = ElectrumClient();
+    await electrumClient.connectToUri(Uri.parse(node));
+
+    print(["HEIGHT:", height]);
+
+    List<String> txids = [];
+    int pos = 0;
+    while (true) {
+      try {
+        var txid = await electrumClient.getTxidFromPos(height: height, pos: pos);
+        txids.add(txid);
+        pos++;
+      } catch (_) {
+        // no more txs
+        break;
+      }
+    }
+
+    if (checkpointTx != null && checkpointTx.isNotEmpty) {
+      txids = txids.sublist(txids.indexOf(checkpointTx) + 1);
+    }
+
+    List<BitcoinUnspent> unspentCoins = [];
+
+    for (var txid in txids) {
+      checkpointTx = txid.toString();
+
+      List<String> pubkeys = [];
+      List<bitcoin.Outpoint> outpoints = [];
+      Map<String, bitcoin.Outpoint> outpointsByP2TRpubkey = {};
+
+      try {
+        // TODO: networkType
+        final txBundle = await getTransactionExpanded(
+            hash: txid,
+            height: height,
+            electrumClient: electrumClient,
+            networkType: bitcoin.testnet);
+
+        bool skip = false;
+        txBundle.originalTransaction.ins.forEach((input) {
+          if (input.witness == null) {
+            skip = true;
+            return;
+          }
+
+          if (input.witness!.length != 2) {
+            skip = true;
+            return;
+          }
+
+          final pubkey = input.witness![1].hex;
+          pubkeys.add(pubkey);
+          outpoints.add(bitcoin.Outpoint(
+              txid: HEX.encode(input.hash!.reversed.toList()), index: input.index!));
+        });
+
+        if (skip) continue;
+
+        int i = 0;
+        txBundle.originalTransaction.outs.forEach((output) {
+          if (bitcoin.classifyOutput(output.script!) != "taproot") {
+            return;
+          }
+
+          print(bitcoin.P2trAddress(program: output.script!.sublist(2).hex)
+              .toAddress(bitcoin.NetworkInfo.TESTNET));
+          outpointsByP2TRpubkey[bitcoin.P2trAddress(program: output.script!.sublist(2).hex)
+                  .toAddress(bitcoin.NetworkInfo.TESTNET)] =
+              bitcoin.Outpoint(txid: txid, index: i, value: output.value!);
+
+          i++;
+        });
+
+        if (pubkeys.isEmpty && outpoints.isEmpty && outpointsByP2TRpubkey.isEmpty) {
+          continue;
+        }
+
+        Uint8List sumOfInputPublicKeys =
+            bitcoin.getSumInputPubKeys(pubkeys).toCompressedHex().fromHex;
+        final outpointHash = bitcoin.SilentPayment.hashOutpoints(outpoints);
+
+        final result = bitcoin.scanOutputs(
+            (data["scanPrivateKeyCompressed"] as String).fromHex,
+            (data["spendPubkeyCompressed"] as String).fromHex,
+            sumOfInputPublicKeys,
+            outpointHash,
+            outpointsByP2TRpubkey.keys.toList());
+
+        if (result.isEmpty) {
+          continue;
+        }
+
+        result.forEach((key, value) {
+          final outpoint = outpointsByP2TRpubkey[key];
+
+          if (outpoint == null) {
+            return;
+          }
+
+          unspentCoins.add(BitcoinUnspent(
+            BitcoinAddressRecord(key, index: 0),
+            outpoint.txid,
+            outpoint.value!,
+            outpoint.index,
+            silentPaymentTweak: value.hex,
+          ));
+        });
+      } catch (_) {}
+    }
+
+    sendPort.send(unspentCoins);
+  } catch (e, stacktrace) {
+    print(stacktrace);
+    print(e.toString());
+    // timeout, wait 30sec
+    sendPort.send(Future.delayed(const Duration(seconds: 30),
+        () => startRefresh({...data, "checkpoint_tx": checkpointTx ?? ""})));
+  }
 }
