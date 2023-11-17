@@ -11,8 +11,6 @@ import 'package:cw_core/node.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NanoClient {
-
-
   static const Map<String, String> CAKE_HEADERS = {
     "Content-Type": "application/json",
     "nano-app": "cake-wallet"
@@ -25,13 +23,12 @@ class NanoClient {
   late SharedPreferences prefs;
   Node? _node;
   Node? _powNode;
-  static String defaultDefaultRepresentative =
+  static const String _defaultDefaultRepresentative =
       "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
 
-
-  Future<String> getRepFromPrefs() async {
+  String getRepFromPrefs() {
     // from preferences_key.dart "defaultNanoRep" key:
-    return prefs.getString("default_nano_representative") ?? defaultDefaultRepresentative;
+    return prefs.getString("default_nano_representative") ?? _defaultDefaultRepresentative;
   }
 
   bool connect(Node node) {
@@ -132,7 +129,11 @@ class NanoClient {
     changeBlock["signature"] = signature;
     changeBlock["work"] = work;
 
-    return await processBlock(changeBlock, "change");
+    try {
+      return await processBlock(changeBlock, "change");
+    } catch (e) {
+      throw Exception("error while changing representative: $e");
+    }
   }
 
   Future<String> requestWork(String hash) async {

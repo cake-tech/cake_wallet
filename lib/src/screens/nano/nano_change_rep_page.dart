@@ -98,10 +98,9 @@ class NanoChangeRepPage extends BasePage {
                             if (confirmed) {
                               try {
                                 _settingsStore.defaultNanoRep = _addressController.text;
-                                // we can only submit a change block if we have an existing transaction history:
-                                if (_wallet.transactionHistory.transactions.isNotEmpty) {
-                                  await nano!.changeRep(_wallet, _addressController.text);
-                                }
+
+                                await nano!.changeRep(_wallet, _addressController.text);
+
                                 await showPopUp<void>(
                                     context: context,
                                     builder: (BuildContext context) {
