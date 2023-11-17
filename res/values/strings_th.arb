@@ -737,5 +737,6 @@
   "switchToETHWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงิน Ethereum แล้วลองอีกครั้ง",
   "use_testnet": "ใช้ testnet",
   "address_and_silent_addresses": "ที่อยู่และที่อยู่เงียบ",
-  "silent_addresses": "ที่อยู่เงียบ"
+  "silent_addresses": "ที่อยู่เงียบ",
+  "Block_remaining": "${status} เหลือบล็อกที่เหลืออยู่"
 }

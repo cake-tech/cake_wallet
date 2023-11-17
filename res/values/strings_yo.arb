@@ -733,5 +733,6 @@
   "switchToETHWallet": "Jọwọ yipada si apamọwọ Ethereum ki o tun gbiyanju lẹẹkansi",
   "use_testnet": "Lo tele",
   "address_and_silent_addresses": "Adirẹsi ati awọn adirẹsi ipalọlọ",
-  "silent_addresses": "Awọn adirẹsi ipalọlọ"
+  "silent_addresses": "Awọn adirẹsi ipalọlọ",
+  "Block_remaining": "${status} Bdund díẹ"
 }

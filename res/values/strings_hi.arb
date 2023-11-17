@@ -739,5 +739,6 @@
   "switchToETHWallet": "कृपया एथेरियम वॉलेट पर स्विच करें और पुनः प्रयास करें",
   "use_testnet": "टेस्टनेट का उपयोग करें",
   "address_and_silent_addresses": "पता और मूक पते",
-  "silent_addresses": "मूक पते"
+  "silent_addresses": "मूक पते",
+  "Block_remaining": "${status} शेष ब्लॉक"
 }

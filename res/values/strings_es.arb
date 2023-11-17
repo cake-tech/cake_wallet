@@ -739,5 +739,6 @@
   "switchToETHWallet": "Cambie a una billetera Ethereum e inténtelo nuevamente.",
   "use_testnet": "Use TestNet",
   "address_and_silent_addresses": "Dirección y direcciones silenciosas",
-  "silent_addresses": "Direcciones silenciosas"
+  "silent_addresses": "Direcciones silenciosas",
+  "Block_remaining": "${status} bloque restante"
 }

@@ -729,18 +729,16 @@
   "awaitDAppProcessing": "Bitte warten Sie, bis die dApp die Verarbeitung abgeschlossen hat.",
   "copyWalletConnectLink": "Kopieren Sie den WalletConnect-Link von dApp und fügen Sie ihn hier ein",
   "enterWalletConnectURI": "Geben Sie den WalletConnect-URI ein",
-  "seed_key": "Seed-Schlüssel",
-  "enter_seed_phrase": "Geben Sie Ihre Seed-Phrase ein",
+  "seed_key": "Samenschlüssel",
+  "enter_seed_phrase": "Geben Sie Ihre Samenphrase ein",
   "add_contact": "Kontakt hinzufügen",
   "exchange_provider_unsupported": "${providerName} wird nicht mehr unterstützt!",
   "domain_looks_up": "Domain-Suchen",
   "require_for_exchanges_to_external_wallets": "Erforderlich für den Umtausch in externe Wallets",
   "camera_permission_is_required": "Eine Kameraerlaubnis ist erforderlich.\nBitte aktivieren Sie es in den App-Einstellungen.",
   "switchToETHWallet": "Bitte wechseln Sie zu einem Ethereum-Wallet und versuchen Sie es erneut",
-  "seed_key": "Samenschlüssel",
-  "enter_seed_phrase": "Geben Sie Ihre Samenphrase ein",
-  "add_contact": "Kontakt hinzufügen",
   "use_testnet": "TESTNET verwenden",
   "address_and_silent_addresses": "Adresse und stille Adressen",
-  "silent_addresses": "Stille Adressen"
+  "silent_addresses": "Stille Adressen",
+  "Block_remaining": "${status} Block verbleibend"
 }

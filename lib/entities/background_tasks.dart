@@ -194,7 +194,7 @@ void callbackDispatcher() {
                   outpoint.txid,
                   outpoint.value!,
                   outpoint.index,
-                  silentPaymentTweak: value.hex,
+                  silentPaymentTweak: value,
                 ));
               });
             }
@@ -455,7 +455,7 @@ Future<List<BitcoinUnspent>> startRefresh(Map<dynamic, dynamic> data) async {
           outpoint.txid,
           outpoint.value!,
           outpoint.index,
-          silentPaymentTweak: value.hex,
+          silentPaymentTweak: value,
         ));
       });
     }

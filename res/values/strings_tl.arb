@@ -734,5 +734,6 @@
   "switchToETHWallet": "Mangyaring lumipat sa isang Ethereum wallet at subukang muli",
   "use_testnet": "Gumamit ng testnet",
   "address_and_silent_addresses": "Address at tahimik na mga address",
-  "silent_addresses": "Tahimik na mga address"
+  "silent_addresses": "Tahimik na mga address",
+  "Block_remaining": "${status} I -block ang natitira"
 }

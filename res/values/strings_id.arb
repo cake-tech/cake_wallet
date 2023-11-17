@@ -727,5 +727,6 @@
   "switchToETHWallet": "Silakan beralih ke dompet Ethereum dan coba lagi",
   "use_testnet": "Gunakan TestNet",
   "address_and_silent_addresses": "Alamat dan alamat diam",
-  "silent_addresses": "Alamat diam"
+  "silent_addresses": "Alamat diam",
+  "Block_remaining": "${status} blok tersisa"
 }

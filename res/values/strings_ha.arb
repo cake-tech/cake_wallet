@@ -717,5 +717,6 @@
   "switchToETHWallet": "Da fatan za a canza zuwa walat ɗin Ethereum kuma a sake gwadawa",
   "use_testnet": "Amfani da gwaji",
   "address_and_silent_addresses": "Adireshin da adreshin shiru",
-  "silent_addresses": "Adireshin Shiru"
+  "silent_addresses": "Adireshin Shiru",
+  "Block_remaining": "${status} toshe ragowar"
 }

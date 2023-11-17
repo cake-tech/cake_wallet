@@ -737,5 +737,6 @@
   "switchToETHWallet": "이더리움 지갑으로 전환한 후 다시 시도해 주세요.",
   "use_testnet": "TestNet을 사용하십시오",
   "address_and_silent_addresses": "주소 및 조용한 주소",
-  "silent_addresses": "조용한 주소"
+  "silent_addresses": "조용한 주소",
+  "Block_remaining": "${status} 나머지 블록"
 }

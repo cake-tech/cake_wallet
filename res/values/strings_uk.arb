@@ -739,5 +739,6 @@
   "switchToETHWallet": "Перейдіть на гаманець Ethereum і повторіть спробу",
   "use_testnet": "Використовуйте тестову мережу",
   "address_and_silent_addresses": "Адреса та мовчазні адреси",
-  "silent_addresses": "Мовчазні адреси"
+  "silent_addresses": "Мовчазні адреси",
+  "Block_remaining": "${status} блок залишився"
 }

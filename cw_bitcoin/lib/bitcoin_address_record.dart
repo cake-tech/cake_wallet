@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 class BitcoinAddressRecord {
   BitcoinAddressRecord(this.address,
@@ -24,7 +25,7 @@ class BitcoinAddressRecord {
   final String address;
   final bool isHidden;
   final String? silentAddressLabel;
-  final String? silentPaymentTweak;
+  final Uint8List? silentPaymentTweak;
   final int index;
   bool get isUsed => _isUsed;
 
@@ -35,6 +36,12 @@ class BitcoinAddressRecord {
 
   void setAsUsed() => _isUsed = true;
 
-  String toJSON() =>
-      json.encode({'address': address, 'index': index, 'isHidden': isHidden, 'isUsed': isUsed});
+  String toJSON() => json.encode({
+        'address': address,
+        'index': index,
+        'isHidden': isHidden,
+        'isUsed': isUsed,
+        'silentAddressLabel': silentAddressLabel,
+        'silentPaymentTweak': silentPaymentTweak
+      });
 }

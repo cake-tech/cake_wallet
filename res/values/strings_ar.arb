@@ -735,5 +735,6 @@
   "switchToETHWallet": "ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ Ethereum ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ",
   "use_testnet": "استخدم testnet",
   "address_and_silent_addresses": "العنوان والعناوين الصامتة",
-  "silent_addresses": "عناوين صامتة"
+  "silent_addresses": "عناوين صامتة",
+  "Block_remaining": "كتلة ${status} المتبقية"
 }

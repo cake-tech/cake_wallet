@@ -731,5 +731,6 @@
   "switchToETHWallet": "Přejděte na peněženku Ethereum a zkuste to znovu",
   "use_testnet": "Použijte testNet",
   "address_and_silent_addresses": "Adresa a tiché adresy",
-  "silent_addresses": "Tiché adresy"
+  "silent_addresses": "Tiché adresy",
+  "Block_remaining": "${status} Blok zbývající"
 }

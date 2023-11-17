@@ -739,5 +739,6 @@
   "switchToETHWallet": "Schakel over naar een Ethereum-portemonnee en probeer het opnieuw",
   "use_testnet": "Gebruik testnet",
   "address_and_silent_addresses": "Adres en stille adressen",
-  "silent_addresses": "Stille adressen"
+  "silent_addresses": "Stille adressen",
+  "Block_remaining": "${status} blok resterend"
 }

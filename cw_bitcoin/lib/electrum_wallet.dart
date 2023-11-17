@@ -132,6 +132,8 @@ abstract class ElectrumWalletBase
   Map<String, BehaviorSubject<Object>?> _scripthashesUpdateSubject;
   BehaviorSubject<Object>? _chainTipUpdateSubject;
   bool _isTransactionUpdating;
+  int _initialSyncHeight = 0;
+  Future<Isolate>? _isolate;
 
   void Function(FlutterErrorDetails)? _onError;
 
@@ -299,33 +301,56 @@ abstract class ElectrumWalletBase
     List<bitcoin.PrivateKeyInfo> inputPrivKeys = [];
     List<bitcoin.Outpoint> outpoints = [];
     inputs.forEach((input) {
-      inputPrivKeys.add(bitcoin.PrivateKeyInfo(
-          bitcoin.PrivateKey.fromHex(
-              bitcoin.getSecp256k1(),
-              HEX.encode(generateKeyPair(
-                      hd: input.bitcoinAddressRecord.isHidden
-                          ? walletAddresses.sideHd
-                          : walletAddresses.mainHd,
-                      index: input.bitcoinAddressRecord.index,
-                      network: networkType)
-                  .privateKey!)),
-          false));
+      final isSilentPayment = input.bitcoinAddressRecord.silentPaymentTweak != null;
+
       outpoints.add(bitcoin.Outpoint(txid: input.hash, index: input.vout));
 
-      if (input.isP2wpkh) {
-        final p2wpkh = bitcoin
-            .P2WPKH(
-                data: generatePaymentData(
-                    hd: input.bitcoinAddressRecord.isHidden
-                        ? walletAddresses.sideHd
-                        : walletAddresses.mainHd,
-                    index: input.bitcoinAddressRecord.index),
+      if (isSilentPayment) {
+        // https://github.com/bitcoin/bips/blob/c55f80c53c98642357712c1839cfdc0551d531c4/bip-0352.mediawiki#user-content-Spending
+        final d = walletAddresses.silentAddress!.spendPrivkey
+            .tweakAdd(input.bitcoinAddressRecord.silentPaymentTweak!.bigint)!;
+
+        inputPrivKeys.add(bitcoin.PrivateKeyInfo(d, true));
+
+        print(["output", d]);
+
+        final p2tr = bitcoin
+            .P2TR(
+                data: bitcoin.PaymentData(pubkey: d.publicKey.toCompressedHex().fromHex),
                 network: networkType)
             .data;
 
-        txb.addInput(input.hash, input.vout, null, p2wpkh.output);
+        print(["output", p2tr.output]);
+        txb.addInput(input.hash, input.vout, null, p2tr.output);
       } else {
-        txb.addInput(input.hash, input.vout);
+        inputPrivKeys.add(bitcoin.PrivateKeyInfo(
+            bitcoin.PrivateKey.fromHex(
+                bitcoin.getSecp256k1(),
+                generateKeyPair(
+                        hd: input.bitcoinAddressRecord.isHidden
+                            ? walletAddresses.sideHd
+                            : walletAddresses.mainHd,
+                        index: input.bitcoinAddressRecord.index,
+                        network: networkType)
+                    .privateKey!
+                    .hex),
+            false));
+
+        if (input.isP2wpkh) {
+          final p2wpkh = bitcoin
+              .P2WPKH(
+                  data: generatePaymentData(
+                      hd: input.bitcoinAddressRecord.isHidden
+                          ? walletAddresses.sideHd
+                          : walletAddresses.mainHd,
+                      index: input.bitcoinAddressRecord.index),
+                  network: networkType)
+              .data;
+
+          txb.addInput(input.hash, input.vout, null, p2wpkh.output);
+        } else {
+          txb.addInput(input.hash, input.vout);
+        }
       }
     });
 
@@ -503,51 +528,85 @@ abstract class ElectrumWalletBase
   bitcoin.ECPair keyPairFor({required int index}) =>
       generateKeyPair(hd: hd, index: index, network: networkType);
 
+  @action
   @override
-  Future<void> rescan({required int height}) async {
+  Future<void> rescan({required int height, int? chainTip, ScanData? scanData}) async {
     syncStatus = AttemptingSyncStatus();
 
     walletInfo.restoreHeight = height;
-    ReceivePort receivePort = ReceivePort();
-    Isolate.spawn(startRefresh, {
-      "silentAddress": walletAddresses.silentAddress!.toString(),
-      "scanPrivateKeyCompressed": walletAddresses.silentAddress!.scanPrivkey.toCompressedHex(),
-      "spendPubkeyCompressed": walletAddresses.silentAddress!.spendPubkey.toCompressedHex(),
-      "height": walletInfo.restoreHeight.toString(),
-      "node": electrumClient.uri.toString(),
-      "receivePort": receivePort.sendPort,
-    });
-    await for (var unspentScannedCoins in receivePort) {
-      if (unspentScannedCoins is List<BitcoinUnspent>) {
-        if (unspentScannedCoins.isNotEmpty) {
-          print("UNSPENT COIN FOUND!");
-          final myNewAddresses = unspentScannedCoins.map((coin) {
-            return BitcoinAddressRecord(
-              coin.address,
-              index: 0,
-              isHidden: false,
-              isUsed: true,
-              silentAddressLabel: null,
-              silentPaymentTweak: coin.silentPaymentTweak,
-            );
-          });
-          walletAddresses.addAddresses(myNewAddresses);
-          await updateTransactions();
-          _subscribeForUpdates();
-          await updateUnspent();
-          await updateBalance();
+    await walletInfo.save();
+
+    final currentChainTip = chainTip ?? await electrumClient.getCurrentBlockChainTip() ?? 0;
+
+    if (_isolate != null) {
+      final runningIsolate = await _isolate!;
+      runningIsolate.kill(priority: Isolate.immediate);
+    }
+
+    if (currentChainTip <= height) {
+      syncStatus = SyncedSyncStatus();
+      return;
+    }
+
+    final receivePort = ReceivePort();
+    _isolate = Isolate.spawn(
+        startRefresh,
+        ScanData(
+            sendPort: receivePort.sendPort,
+            silentAddress: walletAddresses.silentAddress!.toString(),
+            scanPrivkeyCompressed:
+                walletAddresses.silentAddress!.scanPrivkey.toCompressedHex().fromHex,
+            spendPubkeyCompressed:
+                walletAddresses.silentAddress!.spendPubkey.toCompressedHex().fromHex,
+            networkType: networkType,
+            height: walletInfo.restoreHeight,
+            chainTip: currentChainTip,
+            initialSyncHeight: _initialSyncHeight,
+            electrumClient: ElectrumClient(),
+            transactionHistoryIds: transactionHistory.transactions.keys.toList(),
+            node: electrumClient.uri.toString()));
+
+    await for (var message in receivePort) {
+      if (message is BitcoinUnspent) {
+        final myNewUnspent = message;
+        final hasUnspent = unspentCoins.any((element) {
+          if (element.address == message.address) {
+            unspentCoins.remove(element);
+            unspentCoins.add(myNewUnspent);
+            return true;
+          }
+          return false;
+        });
+        if (!hasUnspent) {
+          unspentCoins.add(myNewUnspent);
         }
 
-        final currentHeight = await electrumClient.getCurrentBlockChainTip();
-
-        if (currentHeight != null && currentHeight > walletInfo.restoreHeight) {
-          walletInfo.restoreHeight = walletInfo.restoreHeight + 1;
-          await save();
-          // recursive, scan next block again until at the current tip
-          rescan(height: walletInfo.restoreHeight);
-        } else {
-          syncStatus = SyncedSyncStatus();
+        final myNewAddress = message.bitcoinAddressRecord;
+        final hasAddress = walletAddresses.addresses.any((element) {
+          if (element.address == message.address) {
+            walletAddresses.addresses.remove(element);
+            walletAddresses.addresses.add(myNewAddress);
+            return true;
+          }
+          return false;
+        });
+        if (!hasAddress) {
+          walletAddresses.addresses.add(myNewAddress);
         }
+
+        await save();
+
+        await updateUnspent();
+        await updateBalance();
+        await updateTransactions();
+        _subscribeForUpdates();
+      }
+
+      // check if is a SyncStatus type since "is SyncStatus" doesn't work here
+      if (message is SyncResponse) {
+        syncStatus = message.syncStatus;
+        walletInfo.restoreHeight = message.height;
+        await walletInfo.save();
       }
     }
   }
@@ -571,7 +630,15 @@ abstract class ElectrumWalletBase
                 return null;
               }
             }).whereNotNull())));
-    unspentCoins.addAll(unspent.expand((e) => e).toList());
+    unspent.expand((e) => e).forEach((newUnspent) {
+      try {
+        if (!unspentCoins.any((currentUnspent) =>
+            currentUnspent.address.contains(newUnspent.address) &&
+            currentUnspent.hash.contains(newUnspent.hash))) {
+          unspentCoins.add(newUnspent);
+        }
+      } catch (_) {}
+    });
 
     if (unspentCoinsInfo.isEmpty) {
       unspentCoins.forEach((coin) => _addCoinInfo(coin));
@@ -580,8 +647,10 @@ abstract class ElectrumWalletBase
 
     if (unspentCoins.isNotEmpty) {
       unspentCoins.forEach((coin) {
-        final coinInfoList = unspentCoinsInfo.values
-            .where((element) => element.walletId.contains(id) && element.hash.contains(coin.hash));
+        final coinInfoList = unspentCoinsInfo.values.where((element) =>
+            element.walletId.contains(id) &&
+            element.hash.contains(coin.hash) &&
+            element.address.contains(coin.address));
 
         if (coinInfoList.isNotEmpty) {
           final coinInfo = coinInfoList.first;
@@ -642,6 +711,10 @@ abstract class ElectrumWalletBase
     final addressHashes = <String, BitcoinAddressRecord>{};
     final normalizedHistories = <Map<String, dynamic>>[];
     walletAddresses.addresses.forEach((addressRecord) {
+      if (addressRecord.address ==
+          "tb1pch9qmsq87wy4my4akd60x2r2yt784zfmfwqeuk7w7g7u45za4ktq9pdnmf") {
+        print(["during fetch txs", addressRecord.address, addressRecord.silentPaymentTweak]);
+      }
       final sh = scriptHash(addressRecord.address, networkType: networkType);
       addressHashes[sh] = addressRecord;
     });
@@ -708,6 +781,9 @@ abstract class ElectrumWalletBase
           await updateUnspent();
           await updateBalance();
           await updateTransactions();
+          final currentHeight = await electrumClient.getCurrentBlockChainTip();
+          if (currentHeight != null) walletInfo.restoreHeight = currentHeight;
+          rescan(height: walletInfo.restoreHeight);
         } catch (e, s) {
           print(e.toString());
           _onError?.call(FlutterErrorDetails(
@@ -717,22 +793,6 @@ abstract class ElectrumWalletBase
           ));
         }
       });
-    });
-    await _chainTipUpdateSubject?.close();
-    _chainTipUpdateSubject = electrumClient.chainTipUpdate();
-    _chainTipUpdateSubject?.listen((event) async {
-      try {
-        final currentHeight = await electrumClient.getCurrentBlockChainTip();
-        if (currentHeight != null) walletInfo.restoreHeight = currentHeight;
-        rescan(height: walletInfo.restoreHeight);
-      } catch (e, s) {
-        print(e.toString());
-        _onError?.call(FlutterErrorDetails(
-          exception: e,
-          stack: s,
-          library: this.runtimeType.toString(),
-        ));
-      }
     });
   }
 
@@ -810,13 +870,16 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> _setInitialHeight() async {
-    if (walletInfo.isRecovery || walletInfo.restoreHeight != 0) {
+    if (walletInfo.isRecovery) {
       return;
     }
 
-    // final currentHeight = 2538835;
-    final currentHeight = await electrumClient.getCurrentBlockChainTip();
-    if (currentHeight != null) walletInfo.restoreHeight = currentHeight;
+    if (walletInfo.restoreHeight == 0) {
+      final currentHeight = await electrumClient.getCurrentBlockChainTip();
+      if (currentHeight != null) walletInfo.restoreHeight = currentHeight;
+    }
+
+    _initialSyncHeight = walletInfo.restoreHeight;
   }
 }
 
@@ -849,7 +912,7 @@ Future<ElectrumTransactionBundle> getTransactionExpanded(
   String transactionHex;
   int? time;
   int confirmations = 0;
-  if (networkType == bitcoin.testnet) {
+  if (networkType.bech32 == bitcoin.testnet.bech32) {
     transactionHex = verboseTransaction as String;
     confirmations = 1;
   } else {
@@ -871,132 +934,231 @@ Future<ElectrumTransactionBundle> getTransactionExpanded(
   return ElectrumTransactionBundle(original, ins: ins, time: time, confirmations: confirmations);
 }
 
-Future<void> startRefresh(Map<String, dynamic> data) async {
-  final sendPort = data["receivePort"] as SendPort;
-  String? checkpointTx = data["checkpoint_tx"] as String?;
+class ScanData {
+  final SendPort sendPort;
+  final Uint8List scanPrivkeyCompressed;
+  final Uint8List spendPubkeyCompressed;
+  final String silentAddress;
+  final int height;
+  final String node;
+  final bitcoin.NetworkType networkType;
+  final int chainTip;
+  final int initialSyncHeight;
+  final ElectrumClient electrumClient;
+  final List<String> transactionHistoryIds;
+
+  final int? checkpointTxPos;
+
+  ScanData(
+      {required this.sendPort,
+      required this.scanPrivkeyCompressed,
+      required this.spendPubkeyCompressed,
+      required this.silentAddress,
+      required this.height,
+      required this.node,
+      required this.networkType,
+      required this.chainTip,
+      required this.initialSyncHeight,
+      required this.electrumClient,
+      required this.transactionHistoryIds,
+      this.checkpointTxPos});
+
+  factory ScanData.withCheckpoint(ScanData scanData, int newHeight, int? checkpointTx) {
+    return ScanData(
+        sendPort: scanData.sendPort,
+        scanPrivkeyCompressed: scanData.scanPrivkeyCompressed,
+        spendPubkeyCompressed: scanData.spendPubkeyCompressed,
+        silentAddress: scanData.silentAddress,
+        height: newHeight,
+        node: scanData.node,
+        networkType: scanData.networkType,
+        chainTip: scanData.chainTip,
+        initialSyncHeight: scanData.initialSyncHeight,
+        electrumClient: scanData.electrumClient,
+        transactionHistoryIds: scanData.transactionHistoryIds,
+        checkpointTxPos: checkpointTx);
+  }
+}
+
+class SyncResponse {
+  final int height;
+  final SyncStatus syncStatus;
+
+  SyncResponse(this.height, this.syncStatus);
+}
+
+Future<void> startRefresh(ScanData scanData) async {
+  final currentChainTip = scanData.chainTip;
+  if (scanData.height >= currentChainTip) {
+    scanData.sendPort.send(SyncResponse(scanData.height, SyncedSyncStatus()));
+    return;
+  }
+
+  var checkpointTxPos = scanData.checkpointTxPos;
+  final height = scanData.height;
+
+  print(["HEIGHT:", height]);
 
   try {
-    final height = int.parse(data["height"] as String);
-    // final height = 2538835;
+    final track = currentChainTip - height;
+    final diff = (currentChainTip - scanData.initialSyncHeight) - track;
+    final ptc = diff <= 0 ? 0.0 : diff / track;
+    scanData.sendPort.send(SyncResponse(height, SyncingSyncStatus(track, ptc)));
 
-    final node = data["node"] as String;
-    final electrumClient = ElectrumClient();
-    await electrumClient.connectToUri(Uri.parse(node));
+    final electrumClient = scanData.electrumClient;
+    if (!electrumClient.isConnected) {
+      final node = scanData.node;
+      await electrumClient.connectToUri(Uri.parse(node));
+    }
 
-    print(["HEIGHT:", height]);
-
-    List<String> txids = [];
-    int pos = 0;
+    // tx pos always begin from 1 --> we know pos 0 is coinbase tx
+    int pos = checkpointTxPos ?? 1;
     while (true) {
       try {
-        var txid = await electrumClient.getTxidFromPos(height: height, pos: pos);
-        txids.add(txid);
+        final txid = await electrumClient.getTxidFromPos(height: height, pos: pos);
+        print(["scanning tx:", txid]);
+
+        // TODO: if already tx already scanned & stored skip
+        // if (scanData.transactionHistoryIds.contains(txid)) {
+        //   // already scanned tx, continue to next tx
+        //   checkpointTxPos = pos;
+        //   pos++;
+        //   continue;
+        // }
+
+        List<String> pubkeys = [];
+        List<bitcoin.Outpoint> outpoints = [];
+
+        try {
+          final txBundle = await getTransactionExpanded(
+              hash: txid,
+              height: height,
+              electrumClient: electrumClient,
+              networkType: scanData.networkType);
+
+          bool skip = false;
+          txBundle.originalTransaction.ins.forEach((input) {
+            if (input.witness == null) {
+              skip = true;
+              return;
+            }
+
+            if (input.witness!.length != 2) {
+              skip = true;
+              return;
+            }
+
+            final pubkey = input.witness![1].hex;
+            pubkeys.add(pubkey);
+            outpoints.add(bitcoin.Outpoint(
+                txid: HEX.encode(input.hash!.reversed.toList()), index: input.index!));
+          });
+
+          if (skip) {
+            // skipped tx, save checkpoint in case of issues and continue to next tx
+            checkpointTxPos = pos;
+            pos++;
+            continue;
+          }
+
+          Map<String, bitcoin.Outpoint> outpointsByP2TRpubkey = {};
+          int i = 0;
+          txBundle.originalTransaction.outs.forEach((output) {
+            if (bitcoin.classifyOutput(output.script!) != "taproot") {
+              return;
+            }
+
+            final address = bitcoin.P2trAddress(program: output.script!.sublist(2).hex).toAddress(
+                scanData.networkType.bech32 == bitcoin.testnet.bech32
+                    ? bitcoin.NetworkInfo.TESTNET
+                    : bitcoin.NetworkInfo.BITCOIN);
+
+            print(["verifying taproot address:", address]);
+
+            outpointsByP2TRpubkey[address] =
+                bitcoin.Outpoint(txid: txid, index: i, value: output.value!);
+
+            i++;
+          });
+
+          if (pubkeys.isEmpty || outpoints.isEmpty || outpointsByP2TRpubkey.isEmpty) {
+            // skipped tx, save checkpoint in case of issues and continue to next tx
+            checkpointTxPos = pos;
+            pos++;
+            continue;
+          }
+
+          Uint8List sumOfInputPublicKeys =
+              bitcoin.getSumInputPubKeys(pubkeys).toCompressedHex().fromHex;
+          final outpointHash = bitcoin.SilentPayment.hashOutpoints(outpoints);
+
+          final result = bitcoin.scanOutputs(
+              scanData.scanPrivkeyCompressed,
+              scanData.spendPubkeyCompressed,
+              sumOfInputPublicKeys,
+              outpointHash,
+              outpointsByP2TRpubkey.keys.toList());
+
+          if (result.isEmpty) {
+            // no results tx, save checkpoint in case of issues and continue to next tx
+            checkpointTxPos = pos;
+            pos++;
+            continue;
+          }
+
+          print("UNSPENT COIN FOUND!");
+
+          print(result);
+          result.forEach((key, value) {
+            final outpoint = outpointsByP2TRpubkey[key];
+
+            if (outpoint == null) {
+              return;
+            }
+
+            // found utxo for tx
+            scanData.sendPort.send(BitcoinUnspent(
+              BitcoinAddressRecord(
+                key,
+                index: 0,
+                isHidden: false,
+                isUsed: true,
+                silentAddressLabel: null,
+                silentPaymentTweak: value,
+              ),
+              outpoint.txid,
+              outpoint.value!,
+              outpoint.index,
+              silentPaymentTweak: value,
+            ));
+          });
+        } catch (e, stacktrace) {
+          print(stacktrace);
+          print(e.toString());
+        }
+
         pos++;
-      } catch (_) {
-        // no more txs
+      } catch (e, stacktrace) {
+        print(stacktrace);
+        print(e.toString());
+
+        // last position, no more txs for the given block height
         break;
       }
     }
 
-    if (checkpointTx != null && checkpointTx.isNotEmpty) {
-      txids = txids.sublist(txids.indexOf(checkpointTx) + 1);
+    final newHeight = height + 1;
+    if (newHeight < currentChainTip) {
+      // recursive, scan next block again until at the current tip
+      return startRefresh(ScanData.withCheckpoint(scanData, newHeight, 1));
     }
 
-    List<BitcoinUnspent> unspentCoins = [];
-
-    for (var txid in txids) {
-      checkpointTx = txid.toString();
-
-      List<String> pubkeys = [];
-      List<bitcoin.Outpoint> outpoints = [];
-      Map<String, bitcoin.Outpoint> outpointsByP2TRpubkey = {};
-
-      try {
-        // TODO: networkType
-        final txBundle = await getTransactionExpanded(
-            hash: txid,
-            height: height,
-            electrumClient: electrumClient,
-            networkType: bitcoin.testnet);
-
-        bool skip = false;
-        txBundle.originalTransaction.ins.forEach((input) {
-          if (input.witness == null) {
-            skip = true;
-            return;
-          }
-
-          if (input.witness!.length != 2) {
-            skip = true;
-            return;
-          }
-
-          final pubkey = input.witness![1].hex;
-          pubkeys.add(pubkey);
-          outpoints.add(bitcoin.Outpoint(
-              txid: HEX.encode(input.hash!.reversed.toList()), index: input.index!));
-        });
-
-        if (skip) continue;
-
-        int i = 0;
-        txBundle.originalTransaction.outs.forEach((output) {
-          if (bitcoin.classifyOutput(output.script!) != "taproot") {
-            return;
-          }
-
-          print(bitcoin.P2trAddress(program: output.script!.sublist(2).hex)
-              .toAddress(bitcoin.NetworkInfo.TESTNET));
-          outpointsByP2TRpubkey[bitcoin.P2trAddress(program: output.script!.sublist(2).hex)
-                  .toAddress(bitcoin.NetworkInfo.TESTNET)] =
-              bitcoin.Outpoint(txid: txid, index: i, value: output.value!);
-
-          i++;
-        });
-
-        if (pubkeys.isEmpty && outpoints.isEmpty && outpointsByP2TRpubkey.isEmpty) {
-          continue;
-        }
-
-        Uint8List sumOfInputPublicKeys =
-            bitcoin.getSumInputPubKeys(pubkeys).toCompressedHex().fromHex;
-        final outpointHash = bitcoin.SilentPayment.hashOutpoints(outpoints);
-
-        final result = bitcoin.scanOutputs(
-            (data["scanPrivateKeyCompressed"] as String).fromHex,
-            (data["spendPubkeyCompressed"] as String).fromHex,
-            sumOfInputPublicKeys,
-            outpointHash,
-            outpointsByP2TRpubkey.keys.toList());
-
-        if (result.isEmpty) {
-          continue;
-        }
-
-        result.forEach((key, value) {
-          final outpoint = outpointsByP2TRpubkey[key];
-
-          if (outpoint == null) {
-            return;
-          }
-
-          unspentCoins.add(BitcoinUnspent(
-            BitcoinAddressRecord(key, index: 0),
-            outpoint.txid,
-            outpoint.value!,
-            outpoint.index,
-            silentPaymentTweak: value.hex,
-          ));
-        });
-      } catch (_) {}
-    }
-
-    sendPort.send(unspentCoins);
+    // otherwise, finished scanning
+    scanData.sendPort.send(SyncResponse(currentChainTip, SyncedSyncStatus()));
   } catch (e, stacktrace) {
     print(stacktrace);
     print(e.toString());
-    // timeout, wait 30sec
-    sendPort.send(Future.delayed(const Duration(seconds: 30),
-        () => startRefresh({...data, "checkpoint_tx": checkpointTx ?? ""})));
+
+    startRefresh(ScanData.withCheckpoint(scanData, height, checkpointTxPos));
   }
 }

@@ -739,5 +739,6 @@
   "switchToETHWallet": "イーサリアムウォレットに切り替えてもう一度お試しください",
   "use_testnet": "TestNetを使用します",
   "address_and_silent_addresses": "住所とサイレントアドレス",
-  "silent_addresses": "サイレントアドレス"
+  "silent_addresses": "サイレントアドレス",
+  "Block_remaining": "${status}ブロックの残り"
 }

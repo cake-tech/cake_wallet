@@ -737,5 +737,6 @@
   "switchToETHWallet": "Prijeđite na Ethereum novčanik i pokušajte ponovno",
   "use_testnet": "Koristite TestNet",
   "address_and_silent_addresses": "Adresa i tihe adrese",
-  "silent_addresses": "Tihe adrese"
+  "silent_addresses": "Tihe adrese",
+  "Block_remaining": "${status} blok preostaje"
 }

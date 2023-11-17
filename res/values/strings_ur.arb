@@ -731,5 +731,6 @@
   "switchToETHWallet": "۔ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ Ethereum ﻡﺮﮐ ﮦﺍﺮﺑ",
   "use_testnet": "ٹیسٹ نیٹ استعمال کریں",
   "address_and_silent_addresses": "پتہ اور خاموش پتے",
-  "silent_addresses": "خاموش پتے"
+  "silent_addresses": "خاموش پتے",
+  "Block_remaining": "${status} باقی بلاک"
 }

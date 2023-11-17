@@ -739,5 +739,6 @@
   "switchToETHWallet": "Пожалуйста, переключитесь на кошелек Ethereum и повторите попытку.",
   "use_testnet": "Используйте Testnet",
   "address_and_silent_addresses": "Адрес и молчаливые адреса",
-  "silent_addresses": "Молчаливые адреса"
+  "silent_addresses": "Молчаливые адреса",
+  "Block_remaining": "${status} оставшееся блок"
 }

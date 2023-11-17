@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 
@@ -12,5 +14,5 @@ class BitcoinUnspent extends Unspent {
           address, json['tx_hash'] as String, json['value'] as int, json['tx_pos'] as int);
 
   final BitcoinAddressRecord bitcoinAddressRecord;
-  String? silentPaymentTweak;
+  Uint8List? silentPaymentTweak;
 }

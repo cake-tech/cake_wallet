@@ -731,5 +731,6 @@
   "switchToETHWallet": "Моля, преминете към портфейл Ethereum и опитайте отново",
   "use_testnet": "Използвайте TestNet",
   "address_and_silent_addresses": "Адрес и мълчаливи адреси",
-  "silent_addresses": "Безшумни адреси"
+  "silent_addresses": "Безшумни адреси",
+  "Block_remaining": "${status} останал блок"
 }

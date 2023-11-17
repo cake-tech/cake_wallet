@@ -739,5 +739,6 @@
   "switchToETHWallet": "Przejdź na portfel Ethereum i spróbuj ponownie",
   "use_testnet": "Użyj testne",
   "address_and_silent_addresses": "Adres i ciche adresy",
-  "silent_addresses": "Ciche adresy"
+  "silent_addresses": "Ciche adresy",
+  "Block_remaining": "${status} Block pozostały"
 }

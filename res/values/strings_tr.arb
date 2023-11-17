@@ -737,5 +737,6 @@
   "switchToETHWallet": "Lütfen bir Ethereum cüzdanına geçin ve tekrar deneyin",
   "use_testnet": "TestNet kullanın",
   "address_and_silent_addresses": "Adres ve sessiz adresler",
-  "silent_addresses": "Sessiz adresler"
+  "silent_addresses": "Sessiz adresler",
+  "Block_remaining": "${status} blok kalan blok"
 }

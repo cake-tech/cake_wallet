@@ -737,5 +737,6 @@
   "switchToETHWallet": "ကျေးဇူးပြု၍ Ethereum ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်စမ်းကြည့်ပါ။",
   "use_testnet": "testnet ကိုသုံးပါ",
   "address_and_silent_addresses": "လိပ်စာနှင့်အသံတိတ်လိပ်စာများ",
-  "silent_addresses": "အသံတိတ်လိပ်စာများ"
+  "silent_addresses": "အသံတိတ်လိပ်စာများ",
+  "Block_remaining": "ကျန်ရှိသော ${status}"
 }
