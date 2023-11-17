@@ -9,7 +9,9 @@ import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
+import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -70,6 +72,7 @@ abstract class SettingsStoreBase with Store {
       required this.isBitcoinBuyEnabled,
       required this.actionlistDisplayMode,
       required this.pinTimeOutDuration,
+      required this.seedPhraseLength,
       required Cake2FAPresetsOptions initialCake2FAPresetOptions,
       required bool initialShouldRequireTOTP2FAForAccessingWallet,
       required bool initialShouldRequireTOTP2FAForSendsToContact,
@@ -83,6 +86,8 @@ abstract class SettingsStoreBase with Store {
       required this.sortBalanceBy,
       required this.pinNativeTokenAtTop,
       required this.useEtherscan,
+      required this.defaultNanoRep,
+      required this.defaultBananoRep,
       required this.lookupsTwitter,
       required this.lookupsMastodon,
       required this.lookupsYatService,
@@ -160,6 +165,8 @@ abstract class SettingsStoreBase with Store {
     if (initialBitcoinCashTransactionPriority != null) {
       priority[WalletType.bitcoinCash] = initialBitcoinCashTransactionPriority;
     }
+
+    initializeTrocadorProviderStates();
 
     reaction(
         (_) => fiatCurrency,
@@ -327,6 +334,11 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.setString(PreferencesKey.currentLanguageCode, languageCode));
 
     reaction(
+            (_) => seedPhraseLength,
+            (SeedPhraseLength seedPhraseWordCount) =>
+            sharedPreferences.setInt(PreferencesKey.currentSeedPhraseLength, seedPhraseWordCount.value));
+
+    reaction(
         (_) => pinTimeOutDuration,
         (PinCodeRequiredDuration pinCodeInterval) =>
             sharedPreferences.setInt(PreferencesKey.pinTimeOutDuration, pinCodeInterval.value));
@@ -368,6 +380,13 @@ abstract class SettingsStoreBase with Store {
         (bool useEtherscan) =>
             _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan));
 
+    reaction((_) => defaultNanoRep,
+        (String nanoRep) => _sharedPreferences.setString(PreferencesKey.defaultNanoRep, nanoRep));
+
+    reaction(
+        (_) => defaultBananoRep,
+        (String bananoRep) =>
+            _sharedPreferences.setString(PreferencesKey.defaultBananoRep, bananoRep));
     reaction(
             (_) => lookupsTwitter,
             (bool looksUpTwitter) =>
@@ -415,6 +434,7 @@ abstract class SettingsStoreBase with Store {
   static const defaultActionsMode = 11;
   static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenminutes;
   static const defaultAutoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.initialized;
+  static const defaultSeedPhraseLength = SeedPhraseLength.twelveWords;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -506,6 +526,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   PinCodeRequiredDuration pinTimeOutDuration;
 
+  @observable
+  SeedPhraseLength seedPhraseLength;
+
   @computed
   ThemeData get theme => currentTheme.themeData;
 
@@ -516,6 +539,9 @@ abstract class SettingsStoreBase with Store {
   ObservableMap<WalletType, TransactionPriority> priority;
 
   @observable
+  ObservableMap<String, bool> trocadorProviderStates = ObservableMap<String, bool>();
+
+  @observable
   SortBalanceBy sortBalanceBy;
 
   @observable
@@ -523,6 +549,12 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool useEtherscan;
+
+  @observable
+  String defaultNanoRep;
+
+  @observable
+  String defaultBananoRep;
 
   @observable
   bool lookupsTwitter;
@@ -601,8 +633,8 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? moneroTransactionPriority = monero?.deserializeMoneroTransactionPriority(
         raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!);
     TransactionPriority? bitcoinTransactionPriority =
-    bitcoin?.deserializeBitcoinTransactionPriority(
-        sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority)!);
+        bitcoin?.deserializeBitcoinTransactionPriority(
+            sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority)!);
 
     TransactionPriority? havenTransactionPriority;
     TransactionPriority? litecoinTransactionPriority;
@@ -641,8 +673,8 @@ abstract class SettingsStoreBase with Store {
     final isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
     final disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? false;
     final disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? false;
-    final defaultBuyProvider = BuyProviderType.values[sharedPreferences.getInt(
-        PreferencesKey.defaultBuyProvider) ?? 0];
+    final defaultBuyProvider =
+        BuyProviderType.values[sharedPreferences.getInt(PreferencesKey.defaultBuyProvider) ?? 0];
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
             FiatApiMode.enabled.raw);
@@ -661,7 +693,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets) ??
             false;
     final shouldRequireTOTP2FAForExchangesToInternalWallets = sharedPreferences
-        .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets) ??
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets) ??
         false;
     final shouldRequireTOTP2FAForExchangesToExternalWallets = sharedPreferences
             .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToExternalWallets) ??
@@ -672,7 +704,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets) ??
             false;
     final shouldRequireTOTP2FAForAllSecurityAndBackupSettings = sharedPreferences
-        .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings) ??
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings) ??
         false;
     final useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? false;
     final totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? '';
@@ -693,14 +725,20 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
     var pinLength = sharedPreferences.getInt(PreferencesKey.currentPinLength);
     final timeOutDuration = sharedPreferences.getInt(PreferencesKey.pinTimeOutDuration);
+    final seedPhraseCount = sharedPreferences.getInt(PreferencesKey.currentSeedPhraseLength);
     final pinCodeTimeOutDuration = timeOutDuration != null
         ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
         : defaultPinCodeTimeOutDuration;
+    final seedPhraseWordCount = seedPhraseCount != null
+        ? SeedPhraseLength.deserialize(raw: seedPhraseCount)
+        : defaultSeedPhraseLength;
     final sortBalanceBy =
-    SortBalanceBy.values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? 0];
+        SortBalanceBy.values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? 0];
     final pinNativeTokenAtTop =
         sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
     final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
+    final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
+    final defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     final lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
     final lookupsMastodon = sharedPreferences.getBool(PreferencesKey.lookupsMastodon) ?? true;
     final lookupsYatService = sharedPreferences.getBool(PreferencesKey.lookupsYatService) ?? true;
@@ -717,11 +755,11 @@ abstract class SettingsStoreBase with Store {
         await LanguageService.localeDetection();
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =
-    sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
+        sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
     final litecoinElectrumServerId =
-    sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
+        sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final bitcoinCashElectrumServerId =
-    sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
+        sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
@@ -738,7 +776,7 @@ abstract class SettingsStoreBase with Store {
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
     final generateSubaddresses =
-    sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey);
+        sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey);
 
     final autoGenerateSubaddressStatus = generateSubaddresses != null
         ? AutoGenerateSubaddressStatus.deserialize(raw: generateSubaddresses)
@@ -778,10 +816,10 @@ abstract class SettingsStoreBase with Store {
       powNodes[WalletType.nano] = nanoPowNode;
     }
 
-      final savedSyncMode = SyncMode.all.firstWhere((element) {
-        return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 1);
-      });
-      final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
+    final savedSyncMode = SyncMode.all.firstWhere((element) {
+      return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 1);
+    });
+    final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
 
       return SettingsStore(
           sharedPreferences: sharedPreferences,
@@ -810,10 +848,13 @@ abstract class SettingsStoreBase with Store {
           actionlistDisplayMode: actionListDisplayMode,
           initialPinLength: pinLength,
           pinTimeOutDuration: pinCodeTimeOutDuration,
+          seedPhraseLength: seedPhraseWordCount,
           initialLanguageCode: savedLanguageCode,
           sortBalanceBy: sortBalanceBy,
           pinNativeTokenAtTop: pinNativeTokenAtTop,
           useEtherscan: useEtherscan,
+          defaultNanoRep: defaultNanoRep,
+          defaultBananoRep: defaultBananoRep,
           lookupsTwitter: lookupsTwitter,
           lookupsMastodon: lookupsMastodon,
           lookupsYatService: lookupsYatService,
@@ -852,35 +893,35 @@ abstract class SettingsStoreBase with Store {
         raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
 
     priority[WalletType.monero] = monero?.deserializeMoneroTransactionPriority(
-        raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
+            raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
         priority[WalletType.monero]!;
     priority[WalletType.bitcoin] = bitcoin?.deserializeBitcoinTransactionPriority(
-        sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
+            sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
         priority[WalletType.bitcoin]!;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       priority[WalletType.haven] = monero?.deserializeMoneroTransactionPriority(
-          raw: sharedPreferences.getInt(PreferencesKey.havenTransactionPriority)!) ??
+              raw: sharedPreferences.getInt(PreferencesKey.havenTransactionPriority)!) ??
           priority[WalletType.haven]!;
     }
     if (sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority) != null) {
       priority[WalletType.litecoin] = bitcoin?.deserializeLitecoinTransactionPriority(
-          sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority)!) ??
+              sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority)!) ??
           priority[WalletType.litecoin]!;
     }
     if (sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority) != null) {
       priority[WalletType.ethereum] = ethereum?.deserializeEthereumTransactionPriority(
-          sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!) ??
+              sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!) ??
           priority[WalletType.ethereum]!;
     }
     if (sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
       priority[WalletType.bitcoinCash] = bitcoinCash?.deserializeBitcoinCashTransactionPriority(
-          sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority)!) ??
+              sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority)!) ??
           priority[WalletType.bitcoinCash]!;
     }
 
     final generateSubaddresses =
-    sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey);
+        sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey);
 
     autoGenerateSubaddressStatus = generateSubaddresses != null
         ? AutoGenerateSubaddressStatus.deserialize(raw: generateSubaddresses)
@@ -899,7 +940,7 @@ abstract class SettingsStoreBase with Store {
     disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? disableBuy;
     disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? disableSell;
     defaultBuyProvider =
-    BuyProviderType.values[sharedPreferences.getInt(PreferencesKey.defaultBuyProvider) ?? 0];
+        BuyProviderType.values[sharedPreferences.getInt(PreferencesKey.defaultBuyProvider) ?? 0];
     allowBiometricalAuthentication =
         sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
             allowBiometricalAuthentication;
@@ -916,7 +957,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets) ??
             false;
     shouldRequireTOTP2FAForExchangesToInternalWallets = sharedPreferences
-        .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets) ??
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets) ??
         false;
     shouldRequireTOTP2FAForExchangesToExternalWallets = sharedPreferences
             .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToExternalWallets) ??
@@ -927,7 +968,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets) ??
             false;
     shouldRequireTOTP2FAForAllSecurityAndBackupSettings = sharedPreferences
-        .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings) ??
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings) ??
         false;
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
@@ -960,6 +1001,8 @@ abstract class SettingsStoreBase with Store {
         .values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? sortBalanceBy.index];
     pinNativeTokenAtTop = sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
     useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
+    defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
+    defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
     lookupsMastodon = sharedPreferences.getBool(PreferencesKey.lookupsMastodon) ?? true;
     lookupsYatService = sharedPreferences.getBool(PreferencesKey.lookupsYatService) ?? true;
@@ -969,11 +1012,11 @@ abstract class SettingsStoreBase with Store {
 
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =
-    sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
+        sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
     final litecoinElectrumServerId =
-    sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
+        sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final bitcoinCashElectrumServerId =
-    sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
+        sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
@@ -1035,7 +1078,8 @@ abstract class SettingsStoreBase with Store {
         await _sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.key as int);
         break;
       case WalletType.bitcoinCash:
-        await _sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(
+            PreferencesKey.currentBitcoinCashNodeIdKey, node.key as int);
         break;
       case WalletType.nano:
         await _sharedPreferences.setInt(PreferencesKey.currentNanoNodeIdKey, node.key as int);
@@ -1058,6 +1102,19 @@ abstract class SettingsStoreBase with Store {
 
     powNodes[walletType] = node;
   }
+
+  void initializeTrocadorProviderStates() {
+    for (var provider in TrocadorExchangeProvider.availableProviders) {
+      final savedState = _sharedPreferences.getBool(provider) ?? true;
+      trocadorProviderStates[provider] = savedState;
+    }
+  }
+
+  void saveTrocadorProviderState(String providerName, bool state) {
+    _sharedPreferences.setBool(providerName, state);
+    trocadorProviderStates[providerName] = state;
+  }
+
 
   static Future<String?> _getDeviceName() async {
     String? deviceName = '';
