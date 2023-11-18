@@ -726,5 +726,6 @@
   "seed_phrase_length": "Délka fráze semene",
   "unavailable_balance": "Nedostupný zůstatek",
   "unavailable_balance_description": "Nedostupný zůstatek: Tento součet zahrnuje prostředky, které jsou uzamčeny v nevyřízených transakcích a ty, které jste aktivně zmrazili v nastavení kontroly mincí. Uzamčené zůstatky budou k dispozici po dokončení příslušných transakcí, zatímco zmrazené zůstatky zůstanou pro transakce nepřístupné, dokud se nerozhodnete je uvolnit.",
-  "unspent_change": "Změna"
+  "unspent_change": "Změna",
+  "tor_connection": "Připojení Tor"
 }

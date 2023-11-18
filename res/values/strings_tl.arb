@@ -729,5 +729,6 @@
   "seed_phrase_length": "Haba ng parirala ng binhi",
   "unavailable_balance": "Hindi available na balanse",
   "unavailable_balance_description": "Hindi Available na Balanse: Kasama sa kabuuang ito ang mga pondong naka-lock sa mga nakabinbing transaksyon at ang mga aktibong na-freeze mo sa iyong mga setting ng kontrol ng coin. Magiging available ang mga naka-lock na balanse kapag nakumpleto na ang kani-kanilang mga transaksyon, habang ang mga nakapirming balanse ay nananatiling hindi naa-access para sa mga transaksyon hanggang sa magpasya kang i-unfreeze ang mga ito.",
-  "unspent_change": "Baguhin"
+  "unspent_change": "Baguhin",
+  "tor_connection": "Koneksyon ng Tor"
 }

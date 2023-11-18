@@ -733,5 +733,6 @@
   "seed_phrase_length": "种子短语长度",
   "unavailable_balance": "不可用余额",
   "unavailable_balance_description": "不可用余额：此总额包括锁定在待处理交易中的资金以及您在硬币控制设置中主动冻结的资金。一旦各自的交易完成，锁定的余额将变得可用，而冻结的余额在您决定解冻之前仍然无法进行交易。",
-  "unspent_change": "改变"
+  "unspent_change": "改变",
+  "tor_connection": "Tor连接"
 }
