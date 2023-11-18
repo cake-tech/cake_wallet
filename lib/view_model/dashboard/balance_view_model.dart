@@ -81,7 +81,8 @@ abstract class BalanceViewModelBase with Store {
   bool get isFiatDisabled => settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   @computed
-  bool get isHomeScreenSettingsEnabled => wallet.type == WalletType.ethereum;
+  bool get isHomeScreenSettingsEnabled =>
+      wallet.type == WalletType.ethereum || wallet.type == WalletType.polygon;
 
   @computed
   bool get hasAccounts => wallet.type == WalletType.monero;
