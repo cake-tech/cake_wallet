@@ -734,5 +734,6 @@
   "unavailable_balance_description": "Solde indisponible : ce total comprend les fonds bloqués dans les transactions en attente et ceux que vous avez activement gelés dans vos paramètres de contrôle des pièces. Les soldes bloqués deviendront disponibles une fois leurs transactions respectives terminées, tandis que les soldes gelés resteront inaccessibles aux transactions jusqu'à ce que vous décidiez de les débloquer.",
   "camera_permission_is_required": "L'autorisation d'accès à la caméra est requise.\nVeuillez l'activer depuis les paramètres de l'application.",
   "switchToETHWallet": "Veuillez passer à un portefeuille (wallet) Ethereum et réessayer",
-  "unspent_change": "Changement"
+  "unspent_change": "Changement",
+  "tor_connection": "Connexion Tor"
 }

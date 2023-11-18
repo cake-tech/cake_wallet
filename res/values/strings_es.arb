@@ -734,5 +734,6 @@
   "seed_phrase_length": "Longitud de la frase inicial",
   "unavailable_balance": "Saldo no disponible",
   "unavailable_balance_description": "Saldo no disponible: este total incluye fondos que están bloqueados en transacciones pendientes y aquellos que usted ha congelado activamente en su configuración de control de monedas. Los saldos bloqueados estarán disponibles una vez que se completen sus respectivas transacciones, mientras que los saldos congelados permanecerán inaccesibles para las transacciones hasta que usted decida descongelarlos.",
-  "unspent_change": "Cambiar"
+  "unspent_change": "Cambiar",
+  "tor_connection": "conexión tor"
 }

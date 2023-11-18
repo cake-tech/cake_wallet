@@ -734,5 +734,6 @@
   "seed_phrase_length": "Długość frazy początkowej",
   "unavailable_balance": "Niedostępne saldo",
   "unavailable_balance_description": "Niedostępne saldo: Suma ta obejmuje środki zablokowane w transakcjach oczekujących oraz te, które aktywnie zamroziłeś w ustawieniach kontroli monet. Zablokowane salda staną się dostępne po zakończeniu odpowiednich transakcji, natomiast zamrożone salda pozostaną niedostępne dla transakcji, dopóki nie zdecydujesz się ich odblokować.",
-  "unspent_change": "Zmiana"
+  "unspent_change": "Zmiana",
+  "tor_connection": "Połączenie Torem"
 }
