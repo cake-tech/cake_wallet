@@ -43,6 +43,7 @@ import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
+import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
@@ -615,6 +616,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 web3walletService: getIt.get<Web3WalletService>(),
                 launchUri: settings.arguments as Uri?,
               ));
+    case Routes.torPage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<TorPage>());
+
     default:
       return MaterialPageRoute<void>(
           builder: (_) => Scaffold(

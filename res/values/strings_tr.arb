@@ -732,5 +732,6 @@
   "seed_phrase_length": "Çekirdek cümle uzunluğu",
   "unavailable_balance": "Kullanılamayan bakiye",
   "unavailable_balance_description": "Kullanılamayan Bakiye: Bu toplam, bekleyen işlemlerde kilitlenen fonları ve jeton kontrol ayarlarınızda aktif olarak dondurduğunuz fonları içerir. Kilitli bakiyeler, ilgili işlemleri tamamlandıktan sonra kullanılabilir hale gelir; dondurulmuş bakiyeler ise siz onları dondurmaya karar verene kadar işlemler için erişilemez durumda kalır.",
-  "unspent_change": "Değiştirmek"
+  "unspent_change": "Değiştirmek",
+  "tor_connection": "Tor bağlantısı"
 }
