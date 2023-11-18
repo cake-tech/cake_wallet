@@ -1,5 +1,6 @@
-WalletConnect enhancements
-UI enhancements
+Coin control fixes and enhancements
+Accessibility enhancements
 Privacy settings enhancements
-Tablet/iPad fixes
+UI enhancements
+Backup flow fixes
 Bug fixes

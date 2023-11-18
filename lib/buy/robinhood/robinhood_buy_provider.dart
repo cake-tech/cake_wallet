@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -12,8 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class RobinhoodBuyProvider {
-  RobinhoodBuyProvider({required WalletBase wallet})
-      : this._wallet = wallet;
+  RobinhoodBuyProvider({required WalletBase wallet}) : this._wallet = wallet;
 
   final WalletBase _wallet;
 
@@ -21,10 +19,15 @@ class RobinhoodBuyProvider {
   static const _cIdBaseUrl = 'exchange-helper.cakewallet.com';
 
   String get _applicationId => secrets.robinhoodApplicationId;
+
   String get _apiSecret => secrets.robinhoodCIdApiSecret;
 
-  bool get isAvailable =>
-      [WalletType.bitcoin, WalletType.litecoin, WalletType.ethereum].contains(_wallet.type);
+  bool get isAvailable => [
+        WalletType.bitcoin,
+        WalletType.bitcoinCash,
+        WalletType.litecoin,
+        WalletType.ethereum
+      ].contains(_wallet.type);
 
   String getSignature(String message) {
     switch (_wallet.type) {
@@ -32,6 +35,7 @@ class RobinhoodBuyProvider {
         return _wallet.signMessage(message);
       case WalletType.litecoin:
       case WalletType.bitcoin:
+      case WalletType.bitcoinCash:
         return _wallet.signMessage(message, address: _wallet.walletAddresses.address);
       default:
         throw Exception("WalletType is not available for Robinhood ${_wallet.type}");
@@ -55,7 +59,8 @@ class RobinhoodBuyProvider {
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as Map<String, dynamic>)['connectId'] as String;
     } else {
-      throw Exception('Provider currently unavailable. Status: ${response.statusCode} ${response.body}');
+      throw Exception(
+          'Provider currently unavailable. Status: ${response.statusCode} ${response.body}');
     }
   }
 
@@ -76,8 +81,7 @@ class RobinhoodBuyProvider {
     try {
       final uri = await requestUrl();
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (e, s) {
-      ExceptionHandler.onError(FlutterErrorDetails(exception: e, stack: s));
+    } catch (_) {
       await showPopUp<void>(
           context: context,
           builder: (BuildContext context) {

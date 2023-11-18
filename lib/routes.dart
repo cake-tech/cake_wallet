@@ -81,6 +81,7 @@ class Routes {
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
   static const privacyPage = '/privacy_page';
+  static const trocadorProvidersPage = '/trocador_providers_page';
   static const domainLookupsPage = '/domain_lookups_page';
   static const displaySettingsPage = '/display_settings_page';
   static const otherSettingsPage = '/other_settings_page';

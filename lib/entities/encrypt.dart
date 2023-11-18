@@ -2,18 +2,18 @@ import 'package:encrypt/encrypt.dart';
 // import 'package:password/password.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
-String encrypt({required String source, required String key, int keyLength = 16}) {
+String encrypt({required String source, required String key}) {
   final _key = Key.fromUtf8(key);
-  final iv = IV.fromLength(keyLength);
+  final iv = IV.allZerosOfLength(16);
   final encrypter = Encrypter(AES(_key));
   final encrypted = encrypter.encrypt(source, iv: iv);
 
   return encrypted.base64;
 }
 
-String decrypt({required String source, required String key, int keyLength = 16}) {
+String decrypt({required String source, required String key}) {
   final _key = Key.fromUtf8(key);
-  final iv = IV.fromLength(keyLength);
+  final iv = IV.allZerosOfLength(16);
   final encrypter = Encrypter(AES(_key));
   final decrypted = encrypter.decrypt64(source, iv: iv);
 
