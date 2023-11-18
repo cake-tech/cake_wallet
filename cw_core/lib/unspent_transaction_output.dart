@@ -2,6 +2,7 @@ class Unspent {
   Unspent(this.address, this.hash, this.value, this.vout, this.keyImage)
       : isSending = true,
         isFrozen = false,
+        isChange = false,
         note = '';
 
   final String address;
@@ -10,6 +11,7 @@ class Unspent {
   final int vout;
   final String? keyImage;
 
+  bool isChange;
   bool isSending;
   bool isFrozen;
   String note;

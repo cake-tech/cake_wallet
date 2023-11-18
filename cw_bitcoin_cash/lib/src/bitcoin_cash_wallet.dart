@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cw_core/encryption_file_utils.dart';
@@ -300,5 +302,17 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     }
 
     return 0;
+  }
+
+  @override
+  String signMessage(String message, {String? address = null}) {
+    final index = address != null
+        ? walletAddresses.addresses
+            .firstWhere((element) => element.address == AddressUtils.toLegacyAddress(address))
+            .index
+        : null;
+    return index == null
+        ? base64Encode(hd.sign(message))
+        : base64Encode(hd.derive(index).sign(message));
   }
 }

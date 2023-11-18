@@ -166,7 +166,10 @@ class CWNano extends Nano {
 
   @override
   Future<void> changeRep(Object wallet, String address) async {
-    return (wallet as NanoWallet).changeRep(address);
+    if ((wallet as NanoWallet).transactionHistory.transactions.isEmpty) {
+      throw Exception("Can't change representative without an existing transaction history");
+    }
+    return wallet.changeRep(address);
   }
 
   @override

@@ -229,7 +229,7 @@ packages:
     dependency: "direct main"
     description:
       name: cryptography
-      sha256: df156c5109286340817d21fa7b62f9140f17915077127dd70f8bd7a2a0997a35
+      sha256: e0e37f79665cd5c86e8897f9abe1accfe813c0cc5299dab22256e22fddc1fef8
       url: "https://pub.dev"
     source: hosted
     version: "2.5.0"
@@ -640,6 +640,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  socks5_proxy:
+    dependency: transitive
+    description:
+      name: socks5_proxy
+      sha256: "1d21b5606169654bbf4cfb904e8e6ed897e9f763358709f87310c757096d909a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   source_gen:
     dependency: transitive
     description:
@@ -720,7 +728,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
-  tuple:
+  tor:
     dependency: transitive
     description:
       name: tuple

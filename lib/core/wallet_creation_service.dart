@@ -1,4 +1,5 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:flutter/foundation.dart';
@@ -16,6 +17,7 @@ class WalletCreationService {
       {required WalletType initialType,
       required this.keyService,
       required this.sharedPreferences,
+      required this.settingsStore,
       required this.walletInfoSource})
       : type = initialType {
     changeWalletType(type: type);
@@ -23,6 +25,7 @@ class WalletCreationService {
 
   WalletType type;
   final SharedPreferences sharedPreferences;
+  final SettingsStore settingsStore;
   final KeyService keyService;
   final Box<WalletInfo> walletInfoSource;
   WalletService? _service;
@@ -56,6 +59,10 @@ class WalletCreationService {
       credentials.password = generateWalletPassword();
       await keyService.saveWalletPassword(
         password: credentials.password!, walletName: credentials.name);
+    }
+
+    if (type == WalletType.bitcoinCash || type == WalletType.ethereum) {
+      credentials.seedPhraseLength = settingsStore.seedPhraseLength.value;
     }
 
     final wallet =  await _service!.create(credentials, isTestnet: isTestnet);

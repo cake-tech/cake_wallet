@@ -24,6 +24,11 @@ dependencies:
       url: https://github.com/cake-tech/cake_backup.git
       ref: main
       version: 1.0.0
+  socks5_proxy: ^1.0.4
+  tor:
+    git:
+      url: https://github.com/cake-tech/tor.git
+      ref: main
 
 dev_dependencies:
   flutter_test:

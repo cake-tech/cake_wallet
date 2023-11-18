@@ -595,7 +595,6 @@
   "sweeping_wallet_alert": "To nie powinno zająć dużo czasu. NIE WYCHODŹ Z TEGO EKRANU, W PRZECIWNYM WYPADKU MOŻE ZOSTAĆ UTRACONA ŚRODKI",
   "decimal_places_error": "Za dużo miejsc dziesiętnych",
   "edit_node": "Edytuj węzeł",
-  "frozen_balance": "Zamrożona równowaga",
   "invoice_details": "Dane do faktury",
   "donation_link_details": "Szczegóły linku darowizny",
   "anonpay_description": "Wygeneruj ${type}. Odbiorca może ${method} z dowolną obsługiwaną kryptowalutą, a Ty otrzymasz środki w tym portfelu.",
@@ -731,6 +730,7 @@
   "enterWalletConnectURI": "Wprowadź identyfikator URI WalletConnect",
   "seed_key": "Klucz nasion",
   "enter_seed_phrase": "Wprowadź swoją frazę nasienną",
+  "change_rep_successful": "Pomyślnie zmienił przedstawiciela",
   "add_contact": "Dodaj kontakt",
   "exchange_provider_unsupported": "${providerName} nie jest już obsługiwany!",
   "domain_looks_up": "Wyszukiwanie domen",
@@ -740,5 +740,10 @@
   "use_testnet": "Użyj testne",
   "address_and_silent_addresses": "Adres i ciche adresy",
   "silent_addresses": "Ciche adresy",
-  "Block_remaining": "${status} Block pozostały"
+  "Block_remaining": "${status} Block pozostały",
+  "seed_phrase_length": "Długość frazy początkowej",
+  "unavailable_balance": "Niedostępne saldo",
+  "unavailable_balance_description": "Niedostępne saldo: Suma ta obejmuje środki zablokowane w transakcjach oczekujących oraz te, które aktywnie zamroziłeś w ustawieniach kontroli monet. Zablokowane salda staną się dostępne po zakończeniu odpowiednich transakcji, natomiast zamrożone salda pozostaną niedostępne dla transakcji, dopóki nie zdecydujesz się ich odblokować.",
+  "unspent_change": "Zmiana",
+  "tor_connection": "Połączenie Torem"
 }

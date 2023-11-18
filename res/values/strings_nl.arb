@@ -595,7 +595,6 @@
   "sweeping_wallet_alert": "Dit duurt niet lang. VERLAAT DIT SCHERM NIET, ANDERS KAN HET SWEPT-GELD VERLOREN WORDEN",
   "decimal_places_error": "Te veel decimalen",
   "edit_node": "Knooppunt bewerken",
-  "frozen_balance": "Bevroren saldo",
   "invoice_details": "Factuurgegevens",
   "donation_link_details": "Details van de donatielink",
   "anonpay_description": "Genereer ${type}. De ontvanger kan ${method} gebruiken met elke ondersteunde cryptocurrency en u ontvangt geld in deze portemonnee",
@@ -731,6 +730,7 @@
   "enterWalletConnectURI": "Voer WalletConnect-URI in",
   "seed_key": "Zaadsleutel",
   "enter_seed_phrase": "Voer uw zaadzin in",
+  "change_rep_successful": "Met succes veranderde vertegenwoordiger",
   "add_contact": "Contactpersoon toevoegen",
   "exchange_provider_unsupported": "${providerName} wordt niet langer ondersteund!",
   "domain_looks_up": "Domein opzoeken",
@@ -740,5 +740,10 @@
   "use_testnet": "Gebruik testnet",
   "address_and_silent_addresses": "Adres en stille adressen",
   "silent_addresses": "Stille adressen",
-  "Block_remaining": "${status} blok resterend"
+  "Block_remaining": "${status} blok resterend",
+  "seed_phrase_length": "Lengte van de zaadzin",
+  "unavailable_balance": "Onbeschikbaar saldo",
+  "unavailable_balance_description": "Niet-beschikbaar saldo: Dit totaal omvat het geld dat is vergrendeld in lopende transacties en het geld dat u actief hebt bevroren in uw muntcontrole-instellingen. Vergrendelde saldi komen beschikbaar zodra de betreffende transacties zijn voltooid, terwijl bevroren saldi ontoegankelijk blijven voor transacties totdat u besluit ze weer vrij te geven.",
+  "unspent_change": "Wijziging",
+  "tor_connection": "Tor-verbinding"
 }

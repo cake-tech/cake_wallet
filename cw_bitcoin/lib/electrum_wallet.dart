@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
-import 'package:cw_core/pending_transaction.dart';
+
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
@@ -12,30 +12,39 @@ import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:cw_bitcoin/electrum_transaction_info.dart';
-import 'package:cw_core/pathForWallet.dart';
+import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_to_output_script.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
-import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_no_inputs_exception.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_wrong_balance_exception.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
+import 'package:cw_bitcoin/electrum.dart';
+import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/electrum_transaction_history.dart';
+import 'package:cw_bitcoin/electrum_transaction_info.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_bitcoin/utils.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_bitcoin/electrum.dart';
-import 'package:hex/hex.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:flutter/foundation.dart';
+import 'package:hex/hex.dart';
+import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
+import 'package:rxdart/subjects.dart';
 
 part 'electrum_wallet.g.dart';
 
@@ -678,6 +687,7 @@ abstract class ElectrumWalletBase
       address: coin.bitcoinAddressRecord.address,
       value: coin.value,
       vout: coin.vout,
+      isChange: coin.isChange,
     );
 
     await unspentCoinsInfo.add(newInfo);

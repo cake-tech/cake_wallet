@@ -591,7 +591,6 @@
   "sweeping_wallet_alert": "لن يستغرق هذا وقتًا طويلاً. لا تترك هذه الشاشة وإلا فقد يتم فقد أموال سويبت",
   "decimal_places_error": "عدد كبير جدًا من المنازل العشرية",
   "edit_node": "تحرير العقدة",
-  "frozen_balance": "الرصيد المجمد",
   "invoice_details": "تفاصيل الفاتورة",
   "donation_link_details": "تفاصيل رابط التبرع",
   "anonpay_description": "توليد ${type}. يمكن للمستلم ${method} بأي عملة مشفرة مدعومة ، وستتلقى أموالاً في هذه",
@@ -727,6 +726,7 @@
   "enterWalletConnectURI": "WalletConnect ـﻟ URI ﻞﺧﺩﺃ",
   "seed_key": "مفتاح البذور",
   "enter_seed_phrase": "أدخل عبارة البذور الخاصة بك",
+  "change_rep_successful": "تم تغيير ممثل بنجاح",
   "add_contact": "ﻝﺎﺼﺗﺍ ﺔﻬﺟ ﺔﻓﺎﺿﺇ",
   "exchange_provider_unsupported": "${providerName} لم يعد مدعومًا!",
   "domain_looks_up": "ﻝﺎﺠﻤﻟﺍ ﺚﺤﺑ ﺕﺎﻴﻠﻤﻋ",
@@ -736,5 +736,10 @@
   "use_testnet": "استخدم testnet",
   "address_and_silent_addresses": "العنوان والعناوين الصامتة",
   "silent_addresses": "عناوين صامتة",
-  "Block_remaining": "كتلة ${status} المتبقية"
+  "Block_remaining": "كتلة ${status} المتبقية",
+  "seed_phrase_length": "                                                                                                                                                                                                            ﺭﻭﺬﺒﻟﺍ ﺓﺭﺎﺒﻌﻟﺍ ﻝﻮﻃ",
+  "unavailable_balance": "                                                                                                                                           ﺮﻓﻮﺘﻣ ﺮﻴﻏ ﺪﻴﺻﺭ",
+  "unavailable_balance_description": ".ﺎﻫﺪﻴﻤﺠﺗ ءﺎﻐﻟﺇ ﺭﺮﻘﺗ ﻰﺘﺣ ﺕﻼ﻿ﻣﺎﻌﻤﻠﻟ ﻝﻮﺻﻮﻠﻟ ﺔﻠﺑﺎﻗ ﺮﻴﻏ ﺓﺪﻤﺠﻤﻟﺍ ﺓﺪﺻﺭﻷ﻿ﺍ ﻞﻈﺗ ﺎﻤﻨﻴﺑ ،ﺎﻬﺑ ﺔﺻﺎﺨﻟﺍ ﺕﻼ﻿ﻣﺎﻌﻤﻟﺍ ﻝﺎﻤﺘﻛﺍ ﺩﺮﺠﻤﺑ ﺔﺣﺎﺘﻣ ﺔﻠﻔﻘﻤﻟﺍ ﺓﺪﺻﺭﻷ﻿ﺍ ﺢﺒﺼﺘﺳ .ﻚﺑ ﺔﺻﺎﺨﻟﺍ ﺕﻼ﻿ﻤﻌﻟﺍ ﻲﻓ ﻢﻜﺤﺘﻟﺍ ﺕﺍﺩﺍﺪﻋﺇ ﻲﻓ ﻂﺸﻧ ﻞﻜﺸﺑ ﺎﻫﺪﻴﻤﺠﺘﺑ ﺖﻤﻗ",
+  "unspent_change": "يتغير",
+  "tor_connection": "                                                                     ﺭﻮﺗ ﻝﺎﺼﺗﺍ"
 }

@@ -595,7 +595,6 @@
   "sweeping_wallet_alert": "Ovo ne bi trebalo dugo trajati. NE NAPUŠTAJTE OVAJ ZASLON INAČE SE POBREŠENA SREDSTVA MOGU IZGUBITI",
   "decimal_places_error": "Previše decimalnih mjesta",
   "edit_node": "Uredi čvor",
-  "frozen_balance": "Zamrznuti saldo",
   "invoice_details": "Podaci o fakturi",
   "donation_link_details": "Detalji veza za donacije",
   "anonpay_description": "Generiraj ${type}. Primatelj može ${method} s bilo kojom podržanom kriptovalutom, a vi ćete primiti sredstva u ovaj novčanik.",
@@ -729,6 +728,7 @@
   "enterWalletConnectURI": "Unesite WalletConnect URI",
   "seed_key": "Sjemenski ključ",
   "enter_seed_phrase": "Unesite svoju sjemensku frazu",
+  "change_rep_successful": "Uspješno promijenjena reprezentativna",
   "add_contact": "Dodaj kontakt",
   "exchange_provider_unsupported": "${providerName} više nije podržan!",
   "domain_looks_up": "Pretraga domena",
@@ -738,5 +738,10 @@
   "use_testnet": "Koristite TestNet",
   "address_and_silent_addresses": "Adresa i tihe adrese",
   "silent_addresses": "Tihe adrese",
-  "Block_remaining": "${status} blok preostaje"
+  "Block_remaining": "${status} blok preostaje",
+  "seed_phrase_length": "Duljina početne fraze",
+  "unavailable_balance": "Nedostupno stanje",
+  "unavailable_balance_description": "Nedostupno stanje: Ovaj ukupni iznos uključuje sredstva koja su zaključana u transakcijama na čekanju i ona koja ste aktivno zamrznuli u postavkama kontrole novčića. Zaključani saldi postat će dostupni kada se dovrše njihove transakcije, dok zamrznuti saldi ostaju nedostupni za transakcije sve dok ih ne odlučite odmrznuti.",
+  "unspent_change": "Promijeniti",
+  "tor_connection": "Tor veza"
 }

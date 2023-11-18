@@ -122,6 +122,7 @@ packages:
       url: "https://github.com/cake-tech/cake_backup.git"
     source: git
     version: "1.0.0+1"
+    version: "8.4.3"
   characters:
     dependency: transitive
     description:
@@ -194,6 +195,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.6"
+    version: "3.0.2"
   cw_core:
     dependency: "direct main"
     description:
@@ -568,6 +570,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  socks5_proxy:
+    dependency: transitive
+    description:
+      name: socks5_proxy
+      sha256: "1d21b5606169654bbf4cfb904e8e6ed897e9f763358709f87310c757096d909a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   source_gen:
     dependency: transitive
     description:
@@ -648,14 +658,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
-  tuple:
+  tor:
     dependency: transitive
     description:
-      name: tuple
-      sha256: a97ce2013f240b2f3807bcbaf218765b6f301c3eff91092bcfa23a039e7dd151
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.2"
+      path: "."
+      ref: main
+      resolved-ref: "09ba92cb11d4e3cacf97256e57863b805f79f2e5"
+      url: "https://github.com/cake-tech/tor.git"
+    source: git
+    version: "0.0.1"
   typed_data:
     dependency: transitive
     description:

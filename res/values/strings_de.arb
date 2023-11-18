@@ -595,7 +595,6 @@
   "sweeping_wallet_alert": "Das sollte nicht lange dauern. VERLASSEN SIE DIESEN BILDSCHIRM NICHT, ANDERNFALLS KÖNNEN DIE GELDER VERLOREN GEHEN",
   "decimal_places_error": "Zu viele Nachkommastellen",
   "edit_node": "Knoten bearbeiten",
-  "frozen_balance": "Gefrorenes Guthaben",
   "invoice_details": "Rechnungs-Details",
   "donation_link_details": "Details zum Spendenlink",
   "anonpay_description": "Generieren Sie ${type}. Der Empfänger kann ${method} mit jeder unterstützten Kryptowährung verwenden, und Sie erhalten Geld in dieser Wallet.",
@@ -731,6 +730,7 @@
   "enterWalletConnectURI": "Geben Sie den WalletConnect-URI ein",
   "seed_key": "Samenschlüssel",
   "enter_seed_phrase": "Geben Sie Ihre Samenphrase ein",
+  "change_rep_successful": "Erfolgreich veränderte Vertreter",
   "add_contact": "Kontakt hinzufügen",
   "exchange_provider_unsupported": "${providerName} wird nicht mehr unterstützt!",
   "domain_looks_up": "Domain-Suchen",
@@ -740,5 +740,10 @@
   "use_testnet": "TESTNET verwenden",
   "address_and_silent_addresses": "Adresse und stille Adressen",
   "silent_addresses": "Stille Adressen",
-  "Block_remaining": "${status} Block verbleibend"
+  "Block_remaining": "${status} Block verbleibend",
+  "seed_phrase_length": "Länge der Seed-Phrase",
+  "unavailable_balance": "Nicht verfügbares Guthaben",
+  "unavailable_balance_description": "Nicht verfügbares Guthaben: Diese Summe umfasst Gelder, die in ausstehenden Transaktionen gesperrt sind, und solche, die Sie in Ihren Münzkontrolleinstellungen aktiv eingefroren haben. Gesperrte Guthaben werden verfügbar, sobald die entsprechenden Transaktionen abgeschlossen sind, während eingefrorene Guthaben für Transaktionen nicht zugänglich bleiben, bis Sie sich dazu entschließen, sie wieder freizugeben.",
+  "unspent_change": "Wechselgeld",
+  "tor_connection": "Tor-Verbindung"
 }
