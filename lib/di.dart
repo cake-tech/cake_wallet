@@ -356,10 +356,9 @@ Future<void> setup({
       getIt.get<KeyService>(),
       (WalletType type) => getIt.get<WalletService>(param1: type)));
 
-  getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) =>
-      WalletNewVM(getIt.get<AppStore>(),
-          getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
-          type: type));
+  getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) => WalletNewVM(
+      getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
+      type: type));
 
   getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
@@ -919,8 +918,8 @@ Future<void> setup({
       (param1, isCreate) => NewWalletTypePage(onTypeSelected: param1, isCreate: isCreate ?? true));
 
   getIt.registerFactoryParam<PreSeedPage, WalletType, AdvancedPrivacySettingsViewModel>(
-      (WalletType type, AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel)
-      => PreSeedPage(type, advancedPrivacySettingsViewModel));
+      (WalletType type, AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel) =>
+          PreSeedPage(type, advancedPrivacySettingsViewModel));
 
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
       TradeDetailsViewModel(
@@ -1014,11 +1013,10 @@ Future<void> setup({
 
   getIt.registerFactory(() => YatService());
 
-  getIt.registerFactory(() =>
-      AddressResolver(
-          yatService: getIt.get<YatService>(),
-          wallet: getIt.get<AppStore>().wallet!,
-          settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerFactory(() => AddressResolver(
+      yatService: getIt.get<YatService>(),
+      wallet: getIt.get<AppStore>().wallet!,
+      settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<FullscreenQRPage, QrViewData, void>(
       (QrViewData viewData, _) => FullscreenQRPage(qrViewData: viewData));
@@ -1167,8 +1165,8 @@ Future<void> setup({
           IoniaPaymentStatusPage(
               getIt.get<IoniaPaymentStatusViewModel>(param1: paymentInfo, param2: committedInfo)));
 
-  getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, void, void>(
-      (type, _) => AdvancedPrivacySettingsViewModel(getIt.get<SettingsStore>()));
+  getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
+      (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<WalletUnlockLoadableViewModel, WalletUnlockArguments, void>((args, _) {
     final currentWalletName =

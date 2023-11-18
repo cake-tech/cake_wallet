@@ -28,16 +28,16 @@ abstract class UnspentCoinsListViewModelBase with Store {
             getUnspentCoinInfo(elem.hash, elem.address, elem.value, elem.vout, elem.keyImage);
 
         return UnspentCoinsItem(
-            address: elem.address,
-            amount: '${formatAmountToString(elem.value)} ${wallet.currency.title}',
-            hash: elem.hash,
-            isFrozen: info.isFrozen,
-            note: info.note,
-            isSending: info.isSending,
-            amountRaw: elem.value,
-            vout: elem.vout,
-            keyImage: elem.keyImage,
-            isChange: elem.isChange,
+          address: elem.address,
+          amount: '${formatAmountToString(elem.value)} ${wallet.currency.title}',
+          hash: elem.hash,
+          isFrozen: info.isFrozen,
+          note: info.note,
+          isSending: info.isSending,
+          amountRaw: elem.value,
+          vout: elem.vout,
+          keyImage: elem.keyImage,
+          isChange: elem.isChange,
         );
       }));
 
@@ -59,14 +59,33 @@ abstract class UnspentCoinsListViewModelBase with Store {
   }
 
   UnspentCoinsInfo getUnspentCoinInfo(
-          String hash, String address, int value, int vout, String? keyImage) =>
-      _unspentCoinsInfo.values.firstWhere((element) =>
-          element.walletId == wallet.id &&
+      String hash, String address, int value, int vout, String? keyImage) {
+    print([wallet.id, hash, address, value, vout, keyImage]);
+
+    return _unspentCoinsInfo.values.firstWhere((element) {
+      if (element.walletId == "bitcoin_Usable Math")
+        print([
+          element.walletId,
+          element.walletId == wallet.id,
+          element.hash,
+          element.hash == hash,
+          element.address,
+          element.address == address,
+          element.value,
+          element.value == value,
+          element.vout,
+          element.vout == vout,
+          element.keyImage,
+          element.keyImage == keyImage,
+        ]);
+      return element.walletId == wallet.id &&
           element.hash == hash &&
           element.address == address &&
-          element.value == value &&
-          element.vout == vout &&
-          element.keyImage == keyImage);
+          // element.value == value &&
+          // element.vout == vout &&
+          element.keyImage == keyImage;
+    });
+  }
 
   String formatAmountToString(int fullBalance) {
     if (wallet.type == WalletType.monero)

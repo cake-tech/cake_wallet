@@ -222,7 +222,9 @@ abstract class ElectrumWalletBase
         throw BitcoinTransactionNoInputsException();
       }
 
-      final allAmountFee = 222;
+      final allAmountFee = transactionCredentials.feeRate != null
+          ? feeAmountWithFeeRate(transactionCredentials.feeRate!, inputs.length, outputs.length)
+          : feeAmountForPriority(transactionCredentials.priority!, inputs.length, outputs.length);
 
       final allAmount = allInputsAmount - allAmountFee;
 
@@ -292,18 +294,13 @@ abstract class ElectrumWalletBase
 
       for (int i = 0; i < inputs.length; i++) {
         final utx = inputs[i];
-        leftAmount = utx.value - leftAmount;
+        leftAmount = leftAmount - utx.value;
         totalInputAmount += utx.value;
-
-        if (leftAmount <= 0) {
-          break;
-        }
-
-        final isSilentPayment = utx.bitcoinAddressRecord.silentPaymentTweak != null;
 
         outpoints.add(bitcoin.Outpoint(txid: utx.hash, index: utx.vout));
 
-        if (isSilentPayment) {
+        print(utx.bitcoinAddressRecord.silentPaymentTweak);
+        if (utx.bitcoinAddressRecord.silentPaymentTweak != null) {
           // https://github.com/bitcoin/bips/blob/c55f80c53c98642357712c1839cfdc0551d531c4/bip-0352.mediawiki#user-content-Spending
           final d = bitcoin.PrivateKey.fromHex(bitcoin.getSecp256k1(),
                   walletAddresses.silentAddress!.spendPrivkey.toCompressedHex())
@@ -356,6 +353,10 @@ abstract class ElectrumWalletBase
         }
 
         txb.addInput(utx.hash, utx.vout, null, null, keyPair, utx.value);
+
+        if (leftAmount <= 0) {
+          break;
+        }
       }
 
       if (txb.inputs.isEmpty) {
@@ -371,6 +372,7 @@ abstract class ElectrumWalletBase
         final outputAmount = hasMultiDestination ? item.formattedCryptoAmount : amount;
         final outputAddress = item.isParsedAddress ? item.extractedAddress! : item.address;
         if (outputAddress.startsWith('tsp1')) {
+          print([outputAddress, outputAmount!]);
           silentPaymentDestinations
               .add(bitcoin.SilentPaymentDestination.fromAddress(outputAddress, outputAmount!));
         } else {
@@ -390,19 +392,20 @@ abstract class ElectrumWalletBase
             // TODO: DRY code: pubkeyToOutputScript (?)
             final point = bitcoin.ECPublic.fromHex(generatedPubkey).toTapPoint();
             final p2tr = bitcoin.P2trAddress(program: point);
-            txb.addOutput(p2tr.toScriptPubKey().toBytes(), amount);
+            print([p2tr.toScriptPubKey().toBytes(), output.$2]);
+            txb.addOutput(p2tr.toScriptPubKey().toBytes(), output.$2);
           });
         });
       }
 
       final estimatedSize = estimatedTransactionSize(inputs.length, outputs.length + 1);
-      var feeAmount = 222;
+      var feeAmount = 0;
 
-      // if (transactionCredentials.feeRate != null) {
-      //   feeAmount = transactionCredentials.feeRate! * estimatedSize;
-      // } else {
-      //   feeAmount = feeRate(transactionCredentials.priority!) * estimatedSize;
-      // }
+      if (transactionCredentials.feeRate != null) {
+        feeAmount = transactionCredentials.feeRate! * estimatedSize;
+      } else {
+        feeAmount = feeRate(transactionCredentials.priority!) * estimatedSize;
+      }
 
       final changeValue = totalInputAmount - amount - feeAmount;
 
@@ -553,10 +556,10 @@ abstract class ElectrumWalletBase
       runningIsolate.kill(priority: Isolate.immediate);
     }
 
-    if (currentChainTip <= height) {
-      syncStatus = SyncedSyncStatus();
-      return;
-    }
+    // if (currentChainTip <= height) {
+    //   syncStatus = SyncedSyncStatus();
+    //   return;
+    // }
 
     final receivePort = ReceivePort();
     _isolate = Isolate.spawn(
@@ -578,32 +581,8 @@ abstract class ElectrumWalletBase
 
     await for (var message in receivePort) {
       if (message is BitcoinUnspent) {
-        final myNewUnspent = message;
-        final hasUnspent = unspentCoins.any((element) {
-          if (element.address == message.address) {
-            unspentCoins.remove(element);
-            unspentCoins.add(myNewUnspent);
-            return true;
-          }
-          return false;
-        });
-        if (!hasUnspent) {
-          unspentCoins.add(myNewUnspent);
-        }
-
-        final myNewAddress = message.bitcoinAddressRecord;
-        final hasAddress = walletAddresses.addresses.any((element) {
-          if (element.address == message.address) {
-            walletAddresses.addresses.remove(element);
-            walletAddresses.addresses.add(myNewAddress);
-            return true;
-          }
-          return false;
-        });
-        if (!hasAddress) {
-          walletAddresses.addresses.add(myNewAddress);
-        }
-
+        unspentCoins.add(message);
+        walletAddresses.addresses.add(message.bitcoinAddressRecord);
         await save();
 
         await updateUnspent();
@@ -722,8 +701,6 @@ abstract class ElectrumWalletBase
     final addressHashes = <String, BitcoinAddressRecord>{};
     final normalizedHistories = <Map<String, dynamic>>[];
     walletAddresses.addresses.forEach((addressRecord) {
-      if (addressRecord.address ==
-          "tb1pch9qmsq87wy4my4akd60x2r2yt784zfmfwqeuk7w7g7u45za4ktq9pdnmf") {}
       final sh = scriptHash(addressRecord.address, networkType: networkType);
       addressHashes[sh] = addressRecord;
     });
@@ -998,10 +975,10 @@ class SyncResponse {
 
 Future<void> startRefresh(ScanData scanData) async {
   final currentChainTip = scanData.chainTip;
-  if (scanData.height >= currentChainTip) {
-    scanData.sendPort.send(SyncResponse(scanData.height, SyncedSyncStatus()));
-    return;
-  }
+  // if (scanData.height >= currentChainTip) {
+  //   scanData.sendPort.send(SyncResponse(scanData.height, SyncedSyncStatus()));
+  //   return;
+  // }
 
   var checkpointTxPos = scanData.checkpointTxPos;
   final height = scanData.height;
@@ -1115,9 +1092,13 @@ Future<void> startRefresh(ScanData scanData) async {
             continue;
           }
 
-          print("UNSPENT COIN FOUND!");
-
+          if (result.length > 1) {
+            print("MULTIPLE UNSPENT COINS FOUND!");
+          } else {
+            print("UNSPENT COIN FOUND!");
+          }
           print(result);
+
           result.forEach((key, value) {
             final outpoint = outpointsByP2TRpubkey[key];
 

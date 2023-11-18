@@ -70,15 +70,3 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                 })));
   }
 }
-
-void showUnspentCoinsAlert(BuildContext context) {
-  showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertWithOneAction(
-            alertTitle: '',
-            alertContent: 'Information about unspent coins',
-            buttonText: S.of(context).ok,
-            buttonAction: () => Navigator.of(context).pop());
-      });
-}
