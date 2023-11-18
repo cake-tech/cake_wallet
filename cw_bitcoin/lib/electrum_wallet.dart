@@ -189,234 +189,235 @@ abstract class ElectrumWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-    const minAmount = 546;
-    final transactionCredentials = credentials as BitcoinTransactionCredentials;
-    final inputs = <BitcoinUnspent>[];
-    final outputs = transactionCredentials.outputs;
-    final hasMultiDestination = outputs.length > 1;
-    var allInputsAmount = 0;
+    try {
+      const minAmount = 546;
+      final transactionCredentials = credentials as BitcoinTransactionCredentials;
+      final inputs = <BitcoinUnspent>[];
+      final outputs = transactionCredentials.outputs;
+      final hasMultiDestination = outputs.length > 1;
+      var allInputsAmount = 0;
 
-    if (unspentCoins.isEmpty) {
-      await updateUnspent();
-    }
-
-    for (final utx in unspentCoins) {
-      if (utx.isSending) {
-        allInputsAmount += utx.value;
-        inputs.add(utx);
-      }
-    }
-
-    if (inputs.isEmpty) {
-      throw BitcoinTransactionNoInputsException();
-    }
-
-    final allAmountFee = 222;
-
-    final allAmount = allInputsAmount - allAmountFee;
-
-    var credentialsAmount = 0;
-    var amount = 0;
-    var fee = 0;
-
-    if (hasMultiDestination) {
-      if (outputs.any((item) => item.sendAll || item.formattedCryptoAmount! <= 0)) {
-        throw BitcoinTransactionWrongBalanceException(currency);
+      if (unspentCoins.isEmpty) {
+        await updateUnspent();
       }
 
-      credentialsAmount = outputs.fold(0, (acc, value) => acc + value.formattedCryptoAmount!);
-
-      if (allAmount - credentialsAmount < minAmount) {
-        throw BitcoinTransactionWrongBalanceException(currency);
+      for (int i = 0; i < unspentCoins.length; i++) {
+        final utx = unspentCoins[i];
+        if (utx.isSending) {
+          allInputsAmount += utx.value;
+          inputs.add(utx);
+        }
       }
 
-      amount = credentialsAmount;
+      if (inputs.isEmpty) {
+        throw BitcoinTransactionNoInputsException();
+      }
 
-      if (transactionCredentials.feeRate != null) {
-        fee = calculateEstimatedFeeWithFeeRate(transactionCredentials.feeRate!, amount,
-            outputsCount: outputs.length + 1);
+      final allAmountFee = 222;
+
+      final allAmount = allInputsAmount - allAmountFee;
+
+      var credentialsAmount = 0;
+      var amount = 0;
+      var fee = 0;
+
+      if (hasMultiDestination) {
+        if (outputs.any((item) => item.sendAll || item.formattedCryptoAmount! <= 0)) {
+          throw BitcoinTransactionWrongBalanceException(currency);
+        }
+
+        credentialsAmount = outputs.fold(0, (acc, value) => acc + value.formattedCryptoAmount!);
+
+        if (allAmount - credentialsAmount < minAmount) {
+          throw BitcoinTransactionWrongBalanceException(currency);
+        }
+
+        amount = credentialsAmount;
+
+        if (transactionCredentials.feeRate != null) {
+          fee = calculateEstimatedFeeWithFeeRate(transactionCredentials.feeRate!, amount,
+              outputsCount: outputs.length + 1);
+        } else {
+          fee = calculateEstimatedFee(transactionCredentials.priority, amount,
+              outputsCount: outputs.length + 1);
+        }
       } else {
-        fee = calculateEstimatedFee(transactionCredentials.priority, amount,
-            outputsCount: outputs.length + 1);
+        final output = outputs.first;
+        credentialsAmount = !output.sendAll ? output.formattedCryptoAmount! : 0;
+
+        if (credentialsAmount > allAmount) {
+          throw BitcoinTransactionWrongBalanceException(currency);
+        }
+
+        amount = output.sendAll || allAmount - credentialsAmount < minAmount
+            ? allAmount
+            : credentialsAmount;
+
+        if (output.sendAll || amount == allAmount) {
+          fee = allAmountFee;
+        } else if (transactionCredentials.feeRate != null) {
+          fee = calculateEstimatedFeeWithFeeRate(transactionCredentials.feeRate!, amount);
+        } else {
+          fee = calculateEstimatedFee(transactionCredentials.priority, amount);
+        }
       }
-    } else {
-      final output = outputs.first;
-      credentialsAmount = !output.sendAll ? output.formattedCryptoAmount! : 0;
 
-      if (credentialsAmount > allAmount) {
-        throw BitcoinTransactionWrongBalanceException(currency);
+      if (fee == 0 && networkType == bitcoin.bitcoin) {
+        // throw BitcoinTransactionWrongBalanceException(currency);
       }
 
-      amount = output.sendAll || allAmount - credentialsAmount < minAmount
-          ? allAmount
-          : credentialsAmount;
+      final totalAmount = amount + fee;
 
-      if (output.sendAll || amount == allAmount) {
-        fee = allAmountFee;
-      } else if (transactionCredentials.feeRate != null) {
-        fee = calculateEstimatedFeeWithFeeRate(transactionCredentials.feeRate!, amount);
-      } else {
-        fee = calculateEstimatedFee(transactionCredentials.priority, amount);
+      if (totalAmount > balance[currency]!.confirmed || totalAmount > allInputsAmount) {
+        // throw BitcoinTransactionWrongBalanceException(currency);
       }
-    }
 
-    if (fee == 0 && networkType == bitcoin.bitcoin) {
-      // throw BitcoinTransactionWrongBalanceException(currency);
-    }
+      final changeAddress = await walletAddresses.getChangeAddress();
+      var leftAmount = totalAmount;
+      var totalInputAmount = 0;
 
-    final totalAmount = amount + fee;
+      final txb = bitcoin.TransactionBuilder(network: networkType, version: 1);
 
-    if (totalAmount > balance[currency]!.confirmed || totalAmount > allInputsAmount) {
-      // throw BitcoinTransactionWrongBalanceException(currency);
-    }
+      List<bitcoin.PrivateKeyInfo> inputPrivKeys = [];
+      List<bitcoin.Outpoint> outpoints = [];
 
-    final txb = bitcoin.TransactionBuilder(network: networkType);
-    final changeAddress = await walletAddresses.getChangeAddress();
-    var leftAmount = totalAmount;
-    var totalInputAmount = 0;
-
-    inputs.clear();
-
-    for (final utx in unspentCoins) {
-      if (utx.isSending) {
-        leftAmount = leftAmount - utx.value;
+      for (int i = 0; i < inputs.length; i++) {
+        final utx = inputs[i];
+        leftAmount = utx.value - leftAmount;
         totalInputAmount += utx.value;
-        inputs.add(utx);
 
         if (leftAmount <= 0) {
           break;
         }
-      }
-    }
 
-    if (inputs.isEmpty) {
-      throw BitcoinTransactionNoInputsException();
-    }
+        final isSilentPayment = utx.bitcoinAddressRecord.silentPaymentTweak != null;
 
-    if (amount <= 0 || totalInputAmount < totalAmount) {
-      // throw BitcoinTransactionWrongBalanceException(currency);
-    }
+        outpoints.add(bitcoin.Outpoint(txid: utx.hash, index: utx.vout));
 
-    txb.setVersion(1);
-    List<bitcoin.PrivateKeyInfo> inputPrivKeys = [];
-    List<bitcoin.Outpoint> outpoints = [];
-    inputs.forEach((input) {
-      final isSilentPayment = input.bitcoinAddressRecord.silentPaymentTweak != null;
+        if (isSilentPayment) {
+          // https://github.com/bitcoin/bips/blob/c55f80c53c98642357712c1839cfdc0551d531c4/bip-0352.mediawiki#user-content-Spending
+          final d = bitcoin.PrivateKey.fromHex(bitcoin.getSecp256k1(),
+                  walletAddresses.silentAddress!.spendPrivkey.toCompressedHex())
+              .tweakAdd(utx.bitcoinAddressRecord.silentPaymentTweak!.bigint)!;
 
-      outpoints.add(bitcoin.Outpoint(txid: input.hash, index: input.vout));
+          inputPrivKeys.add(bitcoin.PrivateKeyInfo(d, true));
 
-      if (isSilentPayment) {
-        // https://github.com/bitcoin/bips/blob/c55f80c53c98642357712c1839cfdc0551d531c4/bip-0352.mediawiki#user-content-Spending
-        final d = walletAddresses.silentAddress!.spendPrivkey
-            .tweakAdd(input.bitcoinAddressRecord.silentPaymentTweak!.bigint)!;
+          final point = bitcoin.ECPublic.fromHex(d.publicKey.toHex()).toTapPoint();
+          final p2tr = bitcoin.P2trAddress(program: point);
 
-        inputPrivKeys.add(bitcoin.PrivateKeyInfo(d, true));
+          bitcoin.ECPair keyPair = bitcoin.ECPair.fromPrivateKey(d.toCompressedHex().fromHex,
+              compressed: true, network: networkType);
 
-        print(["output", d]);
+          txb.addInput(
+              utx.hash, utx.vout, null, p2tr.toScriptPubKey().toBytes(), keyPair, utx.value);
+          continue;
+        }
 
-        final p2tr = bitcoin
-            .P2TR(
-                data: bitcoin.PaymentData(pubkey: d.publicKey.toCompressedHex().fromHex),
-                network: networkType)
-            .data;
-
-        print(["output", p2tr.output]);
-        txb.addInput(input.hash, input.vout, null, p2tr.output);
-      } else {
         inputPrivKeys.add(bitcoin.PrivateKeyInfo(
             bitcoin.PrivateKey.fromHex(
                 bitcoin.getSecp256k1(),
                 generateKeyPair(
-                        hd: input.bitcoinAddressRecord.isHidden
+                        hd: utx.bitcoinAddressRecord.isHidden
                             ? walletAddresses.sideHd
                             : walletAddresses.mainHd,
-                        index: input.bitcoinAddressRecord.index,
+                        index: utx.bitcoinAddressRecord.index,
                         network: networkType)
                     .privateKey!
                     .hex),
             false));
 
-        if (input.isP2wpkh) {
+        bitcoin.ECPair keyPair = generateKeyPair(
+            hd: utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+            index: utx.bitcoinAddressRecord.index,
+            network: networkType);
+
+        if (utx.isP2wpkh) {
           final p2wpkh = bitcoin
               .P2WPKH(
                   data: generatePaymentData(
-                      hd: input.bitcoinAddressRecord.isHidden
+                      hd: utx.bitcoinAddressRecord.isHidden
                           ? walletAddresses.sideHd
                           : walletAddresses.mainHd,
-                      index: input.bitcoinAddressRecord.index),
+                      index: utx.bitcoinAddressRecord.index),
                   network: networkType)
               .data;
 
-          txb.addInput(input.hash, input.vout, null, p2wpkh.output);
-        } else {
-          txb.addInput(input.hash, input.vout);
+          txb.addInput(utx.hash, utx.vout, null, p2wpkh.output, keyPair, utx.value);
+          continue;
         }
+
+        txb.addInput(utx.hash, utx.vout, null, null, keyPair, utx.value);
       }
-    });
 
-    List<bitcoin.SilentPaymentDestination> silentAddresses = [];
-    outputs.forEach((item) {
-      final outputAmount = hasMultiDestination ? item.formattedCryptoAmount : amount;
-      final outputAddress = item.isParsedAddress ? item.extractedAddress! : item.address;
-      if (outputAddress.startsWith('tsp1')) {
-        silentAddresses
-            .add(bitcoin.SilentPaymentDestination.fromAddress(outputAddress, outputAmount!));
-      } else {
-        txb.addOutput(addressToOutputScript(outputAddress, networkType), outputAmount!);
+      if (txb.inputs.isEmpty) {
+        throw BitcoinTransactionNoInputsException();
       }
-    });
 
-    if (silentAddresses.isNotEmpty) {
-      final outpointsHash = bitcoin.SilentPayment.hashOutpoints(outpoints);
+      if (amount <= 0 || totalInputAmount < totalAmount) {
+        // throw BitcoinTransactionWrongBalanceException(currency);
+      }
 
-      final aSum = bitcoin.SilentPayment.getSumInputPrivKeys(inputPrivKeys);
+      List<bitcoin.SilentPaymentDestination> silentPaymentDestinations = [];
+      outputs.forEach((item) {
+        final outputAmount = hasMultiDestination ? item.formattedCryptoAmount : amount;
+        final outputAddress = item.isParsedAddress ? item.extractedAddress! : item.address;
+        if (outputAddress.startsWith('tsp1')) {
+          silentPaymentDestinations
+              .add(bitcoin.SilentPaymentDestination.fromAddress(outputAddress, outputAmount!));
+        } else {
+          txb.addOutput(addressToOutputScript(outputAddress, networkType), outputAmount!);
+        }
+      });
 
-      final generatedOutputs = bitcoin.SilentPayment.generateMultipleRecipientPubkeys(
-          aSum, outpointsHash, silentAddresses);
+      if (silentPaymentDestinations.isNotEmpty) {
+        final outpointsHash = bitcoin.SilentPayment.hashOutpoints(outpoints);
+        final aSum = bitcoin.SilentPayment.getSumInputPrivKeys(inputPrivKeys);
+        final generatedOutputs = bitcoin.SilentPayment.generateMultipleRecipientPubkeys(
+            aSum, outpointsHash, silentPaymentDestinations);
 
-      generatedOutputs.forEach((recipientSilentAddress, generatedOutput) {
-        generatedOutput.forEach((output) {
-          final generatedPubkey = output.$1.toHex();
-          // TODO: pubkeyToOutputScript (?)
-          final point = bitcoin.ECPublic.fromHex(generatedPubkey).toTapPoint();
-          final p2tr = bitcoin.P2trAddress(program: point);
-          txb.addOutput(p2tr.toScriptPubKey().toBytes(), amount);
+        generatedOutputs.forEach((recipientSilentAddress, generatedOutput) {
+          generatedOutput.forEach((output) {
+            final generatedPubkey = output.$1.toHex();
+            // TODO: DRY code: pubkeyToOutputScript (?)
+            final point = bitcoin.ECPublic.fromHex(generatedPubkey).toTapPoint();
+            final p2tr = bitcoin.P2trAddress(program: point);
+            txb.addOutput(p2tr.toScriptPubKey().toBytes(), amount);
+          });
         });
-      });
+      }
+
+      final estimatedSize = estimatedTransactionSize(inputs.length, outputs.length + 1);
+      var feeAmount = 222;
+
+      // if (transactionCredentials.feeRate != null) {
+      //   feeAmount = transactionCredentials.feeRate! * estimatedSize;
+      // } else {
+      //   feeAmount = feeRate(transactionCredentials.priority!) * estimatedSize;
+      // }
+
+      final changeValue = totalInputAmount - amount - feeAmount;
+
+      if (changeValue > minAmount) {
+        txb.addOutput(changeAddress, changeValue);
+      }
+
+      final amounts = txb.inputs.map((utx) => utx.value!).toList();
+      final scriptPubKeys = txb.inputs.map((utx) => utx.prevOutScript!).toList();
+      for (var i = 0; i < inputs.length; i++) {
+        txb.sign(vin: i, amounts: amounts, scriptPubKeys: scriptPubKeys, inputs: inputs);
+      }
+
+      return PendingBitcoinTransaction(txb.build(), type,
+          electrumClient: electrumClient, amount: amount, fee: fee)
+        ..addListener((transaction) async {
+          transactionHistory.addOne(transaction);
+          await updateBalance();
+        });
+    } catch (e, stacktrace) {
+      print(stacktrace);
+      print(e.toString());
+      rethrow;
     }
-
-    final estimatedSize = estimatedTransactionSize(inputs.length, outputs.length + 1);
-    var feeAmount = 222;
-
-    // if (transactionCredentials.feeRate != null) {
-    //   feeAmount = transactionCredentials.feeRate! * estimatedSize;
-    // } else {
-    //   feeAmount = feeRate(transactionCredentials.priority!) * estimatedSize;
-    // }
-
-    final changeValue = totalInputAmount - amount - feeAmount;
-
-    if (changeValue > minAmount) {
-      txb.addOutput(changeAddress, changeValue);
-    }
-
-    for (var i = 0; i < inputs.length; i++) {
-      final input = inputs[i];
-      final keyPair = generateKeyPair(
-          hd: input.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
-          index: input.bitcoinAddressRecord.index,
-          network: networkType);
-      final witnessValue = input.isP2wpkh ? input.value : null;
-
-      txb.sign(vin: i, keyPair: keyPair, witnessValue: witnessValue);
-    }
-
-    return PendingBitcoinTransaction(txb.build(), type,
-        electrumClient: electrumClient, amount: amount, fee: fee)
-      ..addListener((transaction) async {
-        transactionHistory.addOne(transaction);
-        await updateBalance();
-      });
   }
 
   String toJSON() => json.encode({
@@ -712,9 +713,7 @@ abstract class ElectrumWalletBase
     final normalizedHistories = <Map<String, dynamic>>[];
     walletAddresses.addresses.forEach((addressRecord) {
       if (addressRecord.address ==
-          "tb1pch9qmsq87wy4my4akd60x2r2yt784zfmfwqeuk7w7g7u45za4ktq9pdnmf") {
-        print(["during fetch txs", addressRecord.address, addressRecord.silentPaymentTweak]);
-      }
+          "tb1pch9qmsq87wy4my4akd60x2r2yt784zfmfwqeuk7w7g7u45za4ktq9pdnmf") {}
       final sh = scriptHash(addressRecord.address, networkType: networkType);
       addressHashes[sh] = addressRecord;
     });
