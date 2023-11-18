@@ -38,6 +38,8 @@ jobs:
           sudo mkdir -p /opt/android
           sudo chown $USER /opt/android
           cd /opt/android
+          -y curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+          cargo install cargo-ndk
           git clone https://github.com/cake-tech/cake_wallet.git --branch $GITHUB_HEAD_REF
           cd cake_wallet/scripts/android/
           ./install_ndk.sh

@@ -56,6 +56,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
+import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
@@ -1242,6 +1243,7 @@ Future<void> setup({
   getIt.registerFactory(
       () => WalletConnectConnectionsView(web3walletService: getIt.get<Web3WalletService>()));
 
+  getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
 
   _isSetupFinished = true;
 }
