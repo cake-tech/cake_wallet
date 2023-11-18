@@ -1,8 +1,11 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes/extensions/address_theme.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -14,21 +17,28 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class NanoChangeRepPage extends BasePage {
-  NanoChangeRepPage(WalletBase wallet)
+  NanoChangeRepPage({required SettingsStore settingsStore, required WalletBase wallet})
       : _wallet = wallet,
-        _addressController = TextEditingController() {
+        _settingsStore = settingsStore,
+        _addressController = TextEditingController(),
+        _formKey = GlobalKey<FormState>() {
     _addressController.text = nano!.getRepresentative(wallet);
   }
 
   final TextEditingController _addressController;
   final WalletBase _wallet;
+  final SettingsStore _settingsStore;
+
+  final GlobalKey<FormState> _formKey;
 
   @override
   String get title => S.current.change_rep;
 
   @override
   Widget body(BuildContext context) {
-    return Container(
+    return Form(
+      key: _formKey,
+      child: Container(
         padding: EdgeInsets.only(left: 24, right: 24),
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(bottom: 24.0),
@@ -38,9 +48,17 @@ class NanoChangeRepPage extends BasePage {
                 Row(
                   children: <Widget>[
                     Expanded(
-                      child: BaseTextFormField(
+                      child: AddressTextField(
                         controller: _addressController,
-                        hintText: S.of(context).node_address,
+                        onURIScanned: (uri) {
+                          final paymentRequest = PaymentRequest.fromUri(uri);
+                          _addressController.text = paymentRequest.address;
+                        },
+                        options: [
+                          AddressTextFieldOption.paste,
+                          AddressTextFieldOption.qrCode,
+                        ],
+                        buttonColor: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
                         validator: AddressValidator(type: CryptoCurrency.nano),
                       ),
                     )
@@ -59,6 +77,11 @@ class NanoChangeRepPage extends BasePage {
                         padding: EdgeInsets.only(right: 8.0),
                         child: LoadingPrimaryButton(
                           onPressed: () async {
+                            if (_formKey.currentState != null &&
+                                !_formKey.currentState!.validate()) {
+                              return;
+                            }
+
                             final confirmed = await showPopUp<bool>(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -74,8 +97,19 @@ class NanoChangeRepPage extends BasePage {
 
                             if (confirmed) {
                               try {
+                                _settingsStore.defaultNanoRep = _addressController.text;
+
                                 await nano!.changeRep(_wallet, _addressController.text);
-                                Navigator.of(context).pop();
+
+                                await showPopUp<void>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertWithOneAction(
+                                          alertTitle: S.of(context).successful,
+                                          alertContent: S.of(context).change_rep_successful,
+                                          buttonText: S.of(context).ok,
+                                          buttonAction: () => Navigator.pop(context));
+                                    });
                               } catch (e) {
                                 await showPopUp<void>(
                                     context: context,
@@ -97,6 +131,8 @@ class NanoChangeRepPage extends BasePage {
                       )),
                     ],
                   )),
-        ));
+        ),
+      ),
+    );
   }
 }

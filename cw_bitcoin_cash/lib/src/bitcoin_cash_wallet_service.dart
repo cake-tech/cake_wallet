@@ -32,8 +32,13 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
   @override
   Future<BitcoinCashWallet> create(
       credentials) async {
+    final strength = (credentials.seedPhraseLength == 12)
+        ? 128
+        : (credentials.seedPhraseLength == 24)
+        ? 256
+        : 128;
     final wallet = await BitcoinCashWalletBase.create(
-        mnemonic: await Mnemonic.generate(),
+        mnemonic: await Mnemonic.generate(strength: strength),
         password: credentials.password!,
         walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource);

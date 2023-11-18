@@ -2,41 +2,41 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
-import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
-import 'package:mobx/mobx.dart';
-import 'package:rxdart/subjects.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:cw_bitcoin/electrum_transaction_info.dart';
-import 'package:cw_core/pathForWallet.dart';
+import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_to_output_script.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
-import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_no_inputs_exception.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_wrong_balance_exception.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
+import 'package:cw_bitcoin/electrum.dart';
+import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/electrum_transaction_history.dart';
+import 'package:cw_bitcoin/electrum_transaction_info.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/file.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_bitcoin/utils.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_bitcoin/electrum.dart';
-import 'package:hex/hex.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:collection/collection.dart';
-import 'package:bip32/bip32.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:flutter/foundation.dart';
+import 'package:hex/hex.dart';
+import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
+import 'package:rxdart/subjects.dart';
 
 part 'electrum_wallet.g.dart';
 
@@ -47,18 +47,18 @@ abstract class ElectrumWalletBase
     with Store {
   ElectrumWalletBase(
       {required String password,
-        required WalletInfo walletInfo,
-        required Box<UnspentCoinsInfo> unspentCoinsInfo,
-        required this.networkType,
-        required this.mnemonic,
-        required Uint8List seedBytes,
-        List<BitcoinAddressRecord>? initialAddresses,
-        ElectrumClient? electrumClient,
-        ElectrumBalance? initialBalance,
-        CryptoCurrency? currency})
+      required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      required this.networkType,
+      required this.mnemonic,
+      required Uint8List seedBytes,
+      List<BitcoinAddressRecord>? initialAddresses,
+      ElectrumClient? electrumClient,
+      ElectrumBalance? initialBalance,
+      CryptoCurrency? currency})
       : hd = currency == CryptoCurrency.bch
-      ? bitcoinCashHDWallet(seedBytes)
-      : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/0"),
+            ? bitcoinCashHDWallet(seedBytes)
+            : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/0"),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
@@ -67,9 +67,9 @@ abstract class ElectrumWalletBase
         _scripthashesUpdateSubject = {},
         balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of(currency != null
             ? {
-          currency:
-          initialBalance ?? const ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0)
-        }
+                currency:
+                    initialBalance ?? const ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0)
+              }
             : {}),
         this.unspentCoinsInfo = unspentCoinsInfo,
         super(walletInfo) {
@@ -79,8 +79,7 @@ abstract class ElectrumWalletBase
   }
 
   static bitcoin.HDWallet bitcoinCashHDWallet(Uint8List seedBytes) =>
-      bitcoin.HDWallet.fromSeed(seedBytes)
-          .derivePath("m/44'/145'/0'/0");
+      bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'/0");
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 146 + outputsCounts * 33 + 8;
@@ -294,10 +293,12 @@ abstract class ElectrumWalletBase
       if (input.isP2wpkh) {
         final p2wpkh = bitcoin
             .P2WPKH(
-            data: generatePaymentData(
-                hd: input.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
-                index: input.bitcoinAddressRecord.index),
-            network: networkType)
+                data: generatePaymentData(
+                    hd: input.bitcoinAddressRecord.isHidden
+                        ? walletAddresses.sideHd
+                        : walletAddresses.mainHd,
+                    index: input.bitcoinAddressRecord.index),
+                network: networkType)
             .data;
 
         txb.addInput(input.hash, input.vout, null, p2wpkh.output);
@@ -347,12 +348,12 @@ abstract class ElectrumWalletBase
   }
 
   String toJSON() => json.encode({
-    'mnemonic': mnemonic,
-    'account_index': walletAddresses.currentReceiveAddressIndex.toString(),
-    'change_address_index': walletAddresses.currentChangeAddressIndex.toString(),
-    'addresses': walletAddresses.addresses.map((addr) => addr.toJSON()).toList(),
-    'balance': balance[currency]?.toJSON()
-  });
+        'mnemonic': mnemonic,
+        'account_index': walletAddresses.currentReceiveAddressIndex.toString(),
+        'change_address_index': walletAddresses.currentChangeAddressIndex.toString(),
+        'addresses': walletAddresses.addresses.map((addr) => addr.toJSON()).toList(),
+        'balance': balance[currency]?.toJSON()
+      });
 
   int feeRate(TransactionPriority priority) {
     try {
@@ -367,7 +368,7 @@ abstract class ElectrumWalletBase
   }
 
   int feeAmountForPriority(
-      BitcoinTransactionPriority priority, int inputsCount, int outputsCount) =>
+          BitcoinTransactionPriority priority, int inputsCount, int outputsCount) =>
       feeRate(priority) * estimatedTransactionSize(inputsCount, outputsCount);
 
   int feeAmountWithFeeRate(int feeRate, int inputsCount, int outputsCount) =>
@@ -467,18 +468,20 @@ abstract class ElectrumWalletBase
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
   Future<void> updateUnspent() async {
-    final unspent = await Future.wait(walletAddresses
-        .addresses.map((address) => electrumClient
+    final unspent = await Future.wait(walletAddresses.addresses.map((address) => electrumClient
         .getListUnspentWithAddress(address.address, networkType)
-        .then((unspent) => unspent
-        .map((unspent) {
-      try {
-        return BitcoinUnspent.fromJSON(address, unspent);
-      } catch(_) {
-        return null;
-      }
-    }).whereNotNull())));
+        .then((unspent) => unspent.map((unspent) {
+              try {
+                return BitcoinUnspent.fromJSON(address, unspent);
+              } catch (_) {
+                return null;
+              }
+            }).whereNotNull())));
     unspentCoins = unspent.expand((e) => e).toList();
+    unspentCoins.forEach((coin) async {
+      final tx = await fetchTransactionInfo(hash: coin.hash, height: 0);
+      coin.isChange = tx!.direction == TransactionDirection.outgoing;
+    });
 
     if (unspentCoinsInfo.isEmpty) {
       unspentCoins.forEach((coin) => _addCoinInfo(coin));
@@ -515,6 +518,7 @@ abstract class ElectrumWalletBase
       address: coin.bitcoinAddressRecord.address,
       value: coin.value,
       vout: coin.vout,
+      isChange: coin.isChange,
     );
 
     await unspentCoinsInfo.add(newInfo);
@@ -524,7 +528,7 @@ abstract class ElectrumWalletBase
     try {
       final List<dynamic> keys = <dynamic>[];
       final currentWalletUnspentCoins =
-      unspentCoinsInfo.values.where((element) => element.walletId.contains(id));
+          unspentCoinsInfo.values.where((element) => element.walletId.contains(id));
 
       if (currentWalletUnspentCoins.isNotEmpty) {
         currentWalletUnspentCoins.forEach((element) {
@@ -657,7 +661,7 @@ abstract class ElectrumWalletBase
     final addresses = walletAddresses.addresses.toList();
     final balanceFutures = <Future<Map<String, dynamic>>>[];
     for (var i = 0; i < addresses.length; i++) {
-      final addressRecord = addresses[i] ;
+      final addressRecord = addresses[i];
       final sh = scriptHash(addressRecord.address, networkType: networkType);
       final balanceFuture = electrumClient.getBalance(sh);
       balanceFutures.add(balanceFuture);

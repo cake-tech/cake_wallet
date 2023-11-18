@@ -321,10 +321,7 @@ class CWMonero extends Monero {
   @override
   List<Unspent> getUnspents(Object wallet) {
     final moneroWallet = wallet as MoneroWallet;
-    return moneroWallet.unspentCoins
-        .map((MoneroUnspent moneroUnspent) => Unspent(moneroUnspent.address, moneroUnspent.hash,
-            moneroUnspent.value, 0, moneroUnspent.keyImage))
-        .toList();
+    return moneroWallet.unspentCoins;
   }
 
   @override
