@@ -1,4 +1,5 @@
 Coin control fixes and enhancements
+In-app Tor connection
 Accessibility enhancements
 Privacy settings enhancements
 UI enhancements
