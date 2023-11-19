@@ -6,7 +6,6 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/io_client.dart' as ioc;
-import 'package:tor/tor.dart';
 
 part 'node.g.dart';
 
@@ -130,7 +129,9 @@ class Node extends HiveObject with Keyable {
     try {
       switch (type) {
         case WalletType.monero:
-          return requestMoneroNode();
+          return useSocksProxy
+              ? requestNodeWithProxy(socksProxyAddress ?? '')
+              : requestMoneroNode();
         case WalletType.bitcoin:
           return requestElectrumServer();
         case WalletType.litecoin:
@@ -153,9 +154,6 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestMoneroNode() async {
-    if (uri.toString().contains(".onion") || useSocksProxy) {
-      return await requestNodeWithProxy();
-    }
     final path = '/json_rpc';
     final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
     final realm = 'monero-rpc';
@@ -207,20 +205,11 @@ class Node extends HiveObject with Keyable {
     }
   }
 
-  Future<bool> requestNodeWithProxy() async {
-    if ((socksProxyAddress == null ||
-            socksProxyAddress!.isEmpty ||
-            !socksProxyAddress!.contains(':')) &&
-        !Tor.instance.enabled) {
+  Future<bool> requestNodeWithProxy(String proxy) async {
+    if (proxy.isEmpty || !proxy.contains(':')) {
       return false;
     }
-
-    String? proxy = socksProxyAddress;
-
-    if ((proxy?.isEmpty ?? true) && Tor.instance.enabled) {
-      proxy = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
-    }
-    final proxyAddress = proxy!.split(':')[0];
+    final proxyAddress = proxy.split(':')[0];
     final proxyPort = int.parse(proxy.split(':')[1]);
     try {
       final socket = await Socket.connect(proxyAddress, proxyPort, timeout: Duration(seconds: 5));
