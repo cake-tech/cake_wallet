@@ -22,7 +22,9 @@ dependencies:
   cw_bitcoin:
     path: ../cw_bitcoin
   bitcoin_flutter:
-    path: /home/rafael/Storage/Repositories/bitcoin_flutter
+    git:
+      url: https://github.com/cake-tech/bitcoin_flutter
+      ref: silent-payments
   bitbox:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git

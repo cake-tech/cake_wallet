@@ -87,7 +87,9 @@ dependencies:
       url: https://github.com/cake-tech/ens_dart.git
       ref: main
   bitcoin_flutter:
-    path: /home/rafael/Storage/Repositories/bitcoin_flutter
+    git:
+      url: https://github.com/cake-tech/bitcoin_flutter
+      ref: silent-payments
   fluttertoast: 8.1.4
   tor:
     git:
