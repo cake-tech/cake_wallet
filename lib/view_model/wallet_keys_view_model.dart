@@ -172,7 +172,7 @@ abstract class WalletKeysViewModelBase with Store {
     final restoreHeightResult = await restoreHeight;
     return {
       if (_appStore.wallet!.seed != null) 'seed': _appStore.wallet!.seed!,
-      if (_appStore.wallet!.privateKey != null) 'private_key': _appStore.wallet!.privateKey!,
+      if (_appStore.wallet!.privateKey != null && _appStore.wallet!.seed == null) 'private_key': _appStore.wallet!.privateKey!,
       if (restoreHeightResult != null) ...{'height': restoreHeightResult}
     };
   }

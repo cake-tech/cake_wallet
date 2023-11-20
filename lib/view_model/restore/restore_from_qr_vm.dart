@@ -51,7 +51,11 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
   WalletCredentials getCredentialsFromRestoredWallet(
       dynamic options, RestoredWallet restoreWallet) {
     final password = generateWalletPassword();
-    DerivationInfo? derivationInfo = options["derivationInfo"] as DerivationInfo?;
+    DerivationInfo? derivationInfo;
+    if (options != null) {
+      derivationInfo = options["derivationInfo"] as DerivationInfo?;
+    }
+    derivationInfo ??= getDefaultDerivation();
 
     switch (restoreWallet.restoreMode) {
       case WalletRestoreMode.keys:
@@ -89,7 +93,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
               name: name,
               mnemonic: restoreWallet.mnemonicSeed ?? '',
               password: password,
-              derivationType: derivationInfo!.derivationType!,
+              derivationType: derivationInfo.derivationType!,
               derivationPath: derivationInfo.derivationPath!,
             );
           case WalletType.bitcoinCash:
@@ -100,7 +104,10 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
           case WalletType.nano:
             return nano!.createNanoRestoreWalletFromSeedCredentials(
-                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password, derivationType: DerivationType.def);
+                name: name,
+                mnemonic: restoreWallet.mnemonicSeed ?? '',
+                password: password,
+                derivationType: derivationInfo.derivationType!);
           default:
             throw Exception('Unexpected type: ${type.toString()}');
         }
