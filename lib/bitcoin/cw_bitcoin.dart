@@ -136,14 +136,11 @@ class CWBitcoin extends Bitcoin {
   @override
   int formatterStringDoubleToBitcoinAmount(String amount) => stringDoubleToBitcoinAmount(amount);
 
-  @override
-  List<Unspent> getUnspents(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.unspentCoins
-        .map((BitcoinUnspent bitcoinUnspent) => Unspent(bitcoinUnspent.address.address,
-            bitcoinUnspent.hash, bitcoinUnspent.value, bitcoinUnspent.vout, null))
-        .toList();
-  }
+	@override
+	List<BitcoinUnspent> getUnspents(Object wallet) {
+		final bitcoinWallet = wallet as ElectrumWallet;
+		return bitcoinWallet.unspentCoins;
+	}
 
   WalletService createBitcoinWalletService(
       Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {

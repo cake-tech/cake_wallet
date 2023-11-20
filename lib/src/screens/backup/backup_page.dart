@@ -17,7 +17,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class BackupPage extends BasePage {
   BackupPage(this.backupViewModelBase);
@@ -129,15 +128,8 @@ class BackupPage extends BasePage {
               alertTitle: S.of(context).export_backup,
               alertContent: S.of(context).select_destination,
               rightButtonText: S.of(context).save_to_downloads,
-              leftButtonText:S.of(context).share,
+              leftButtonText: S.of(context).share,
               actionRightButton: () async {
-                final permission = await Permission.storage.request();
-
-                if (permission.isDenied) {
-                  Navigator.of(dialogContext).pop();
-                  return;
-                }
-
                 await backupViewModelBase.saveToDownload(backup.name, backup.content);
                 Navigator.of(dialogContext).pop();
               },

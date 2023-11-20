@@ -1,6 +1,6 @@
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/exchange/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:flutter/material.dart';
@@ -9,9 +9,6 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
-// import 'package:cake_wallet/exchange/exchange_trade_state.dart';
-// import 'package:cake_wallet/exchange/limits_state.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/exchange_card.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
@@ -176,9 +173,7 @@ class ExchangeTemplatePage extends BasePage {
                                   exchangeViewModel.wallet.currency
                                   ? exchangeViewModel.wallet.walletAddresses.address
                                   : exchangeViewModel.receiveAddress,
-                              initialIsAmountEditable:
-                              exchangeViewModel.provider is
-                              XMRTOExchangeProvider ? true : false,
+                              initialIsAmountEditable: false,
                               initialIsAddressEditable:
                               exchangeViewModel.isReceiveAddressEnabled,
                               isAmountEstimated: true,
@@ -205,26 +200,25 @@ class ExchangeTemplatePage extends BasePage {
               bottomSectionPadding:
               EdgeInsets.only(left: 24, right: 24, bottom: 24),
               bottomSection: Column(children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(bottom: 15),
-                  child: Observer(builder: (_) {
-                    final description =
-                    exchangeViewModel.provider is XMRTOExchangeProvider
-                        ? S.of(context).amount_is_guaranteed
-                        : S.of(context).amount_is_estimate;
-                    return Center(
-                      child: Text(
-                        description,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Theme.of(context).extension<ExchangePageTheme>()!.receiveAmountColor,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 12),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 15),
+                      child: Observer(
+                        builder: (_) => Center(
+                          child: Text(
+                            S.of(context).amount_is_estimate,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Theme.of(context)
+                                  .extension<ExchangePageTheme>()!
+                                  .receiveAmountColor,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
                       ),
-                    );
-                  }),
-                ),
-                PrimaryButton(
+                    ),
+                    PrimaryButton(
                     onPressed: () {
                       if (_formKey.currentState != null && _formKey.currentState!.validate()) {
                         exchangeViewModel.addTemplate(
@@ -340,9 +334,7 @@ class ExchangeTemplatePage extends BasePage {
         });
 
     reaction((_) => exchangeViewModel.provider, (ExchangeProvider? provider) {
-      provider is XMRTOExchangeProvider
-          ? receiveKey.currentState!.isAmountEditable(isEditable: true)
-          : receiveKey.currentState!.isAmountEditable(isEditable: false);
+      receiveKey.currentState!.isAmountEditable(isEditable: false);
     });
 
     /*reaction((_) => exchangeViewModel.limitsState, (LimitsState state) {

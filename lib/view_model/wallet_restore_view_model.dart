@@ -3,9 +3,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_service.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_nano/nano_wallet.dart';
-import 'package:cw_nano/nano_wallet_service.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -87,8 +85,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             mnemonic: seed,
             password: password,
-            derivationType: derivationType,
-            derivationPath: derivationPath,
+            derivationType: derivationType!,
+            derivationPath: derivationPath!,
           );
         case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
@@ -98,7 +96,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
               name: name, height: height, mnemonic: seed, password: password);
         case WalletType.ethereum:
           return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
-              name: name, mnemonic: seed, password: password);
+              name: name,
+              mnemonic: seed,
+              password: password);
+        case WalletType.bitcoinCash:
+          return bitcoinCash!.createBitcoinCashRestoreWalletFromSeedCredentials(
+              name: name,
+              mnemonic: seed,
+              password: password);
         case WalletType.nano:
           return nano!.createNanoRestoreWalletFromSeedCredentials(
             name: name,
@@ -175,7 +180,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       //   return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
       //       name: name, mnemonic: seed, password: password);
       case WalletType.nano:
-        return await NanoWalletService.compareDerivationMethods(
+        return await nanoUtil.compareDerivationMethods(
           mnemonic: mnemonic,
           seedKey: seedKey,
           node: node,
@@ -183,8 +188,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       default:
         break;
     }
-
-    // throw Exception('Unexpected type: ${type.toString()}');
+    
     return [DerivationType.def];
   }
 

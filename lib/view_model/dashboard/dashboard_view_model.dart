@@ -1,36 +1,36 @@
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
-import 'package:cake_wallet/entities/exchange_api_mode.dart';
-import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
-import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
-import 'package:cake_wallet/view_model/settings/sync_mode.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/balance.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
-import 'package:cw_core/transaction_info.dart';
+import 'package:cake_wallet/entities/buy_provider_types.dart';
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
+import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
+import 'package:cake_wallet/store/dashboard/trades_store.dart';
+import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
+import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
+import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
-import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cw_core/wallet_base.dart';
+import 'package:cake_wallet/view_model/settings/sync_mode.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/balance.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/store/dashboard/trades_store.dart';
-import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
-import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
-import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
-import 'package:cake_wallet/monero/monero.dart';
+import 'package:mobx/mobx.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -98,6 +98,11 @@ abstract class DashboardViewModelBase with Store {
                 caption: ExchangeProviderDescription.trocador.title,
                 onChanged: () =>
                     tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.trocador)),
+            FilterItem(
+                value: () => tradeFilterStore.displayExolix,
+                caption: ExchangeProviderDescription.exolix.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
           ]
         },
         subname = '',
@@ -217,9 +222,8 @@ abstract class DashboardViewModelBase with Store {
   BalanceDisplayMode get balanceDisplayMode => appStore.settingsStore.balanceDisplayMode;
 
   @computed
-  bool get shouldShowMarketPlaceInDashboard {
-    return appStore.settingsStore.shouldShowMarketPlaceInDashboard;
-  }
+  bool get shouldShowMarketPlaceInDashboard =>
+      appStore.settingsStore.shouldShowMarketPlaceInDashboard;
 
   @computed
   List<TradeListItem> get trades =>
@@ -277,6 +281,8 @@ abstract class DashboardViewModelBase with Store {
   TransactionFilterStore transactionFilterStore;
 
   Map<String, List<FilterItem>> filterItems;
+
+  BuyProviderType get defaultBuyProvider => settingsStore.defaultBuyProvider;
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 

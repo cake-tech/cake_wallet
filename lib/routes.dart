@@ -6,6 +6,7 @@ class Routes {
   static const seed = '/seed';
   static const restoreOptions = '/restore_options';
   static const restoreWalletFromSeedKeys = '/restore_wallet_from_seeds_keys';
+  static const restoreWalletTypeFromQR = '/restore_wallet_from_qr_code';
   static const restoreWalletChooseDerivation = '/restore_wallet_choose_derivation';
   static const dashboard = '/dashboard';
   static const send = '/send';
@@ -54,7 +55,7 @@ class Routes {
   static const supportLiveChat = '/support/live_chat';
   static const supportOtherLinks = '/support/other';
   static const orderDetails = '/order_details';
-  static const preOrder = '/pre_order';
+  static const buy = '/buy';
   static const buyWebView = '/buy_web_view';
   static const unspentCoinsList = '/unspent_coins_list';
   static const unspentCoinsDetails = '/unspent_coins_details';
@@ -80,6 +81,8 @@ class Routes {
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
   static const privacyPage = '/privacy_page';
+  static const trocadorProvidersPage = '/trocador_providers_page';
+  static const domainLookupsPage = '/domain_lookups_page';
   static const displaySettingsPage = '/display_settings_page';
   static const otherSettingsPage = '/other_settings_page';
   static const advancedPrivacySettings = '/advanced_privacy_settings';
@@ -97,5 +100,6 @@ class Routes {
   static const editToken = '/edit_token';
   static const manageNodes = '/manage_nodes';
   static const managePowNodes = '/manage_pow_nodes';
-
+  static const walletConnectConnectionsListing = '/wallet-connect-connections-listing';
+  static const torPage = '/tor_page';
 }

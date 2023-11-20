@@ -39,6 +39,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
       case WalletType.bitcoin:
       case WalletType.litecoin:
+      case WalletType.bitcoinCash:
         _addElectrumListItems(tx, dateFormat);
         break;
       case WalletType.haven:
@@ -115,6 +116,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://mempool.space/tx/${txId}';
       case WalletType.litecoin:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
+      case WalletType.bitcoinCash:
+        return 'https://blockchair.com/bitcoin-cash/transaction/${txId}';
       case WalletType.haven:
         return 'https://explorer.havenprotocol.org/search?value=${txId}';
       case WalletType.ethereum:
@@ -135,6 +138,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.bitcoin:
         return S.current.view_transaction_on + 'mempool.space';
       case WalletType.litecoin:
+      case WalletType.bitcoinCash:
         return S.current.view_transaction_on + 'Blockchair.com';
       case WalletType.haven:
         return S.current.view_transaction_on + 'explorer.havenprotocol.org';
@@ -226,6 +230,22 @@ abstract class TransactionDetailsViewModelBase with Store {
       StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
       if (tx.feeFormatted()?.isNotEmpty ?? false)
         StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+      if (showRecipientAddress && tx.to != null)
+        StandartListItem(title: S.current.transaction_details_recipient_address, value: tx.to!),
+    ];
+
+    items.addAll(_items);
+  }
+
+
+  void _addNanoListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+      StandartListItem(title: S.current.confirmations, value: (tx.confirmations > 0).toString()),
+      StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
     ];
 
     items.addAll(_items);

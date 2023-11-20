@@ -4,11 +4,8 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cw_bitcoin/bitcoin_wallet_service.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_nano/nano_util.dart';
-import 'package:cw_nano/nano_wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
@@ -164,7 +161,7 @@ class WalletRestorePage extends BasePage {
         color: Theme.of(context).colorScheme.background,
         child: Center(
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -197,23 +194,35 @@ class WalletRestorePage extends BasePage {
                   ),
                 Padding(
                   padding: EdgeInsets.only(top: 20, bottom: 24, left: 24, right: 24),
-                  child: Observer(
-                    builder: (context) {
-                      return LoadingPrimaryButton(
-                        onPressed: () async {
-                          await _confirmForm(context);
+                  child: Column(
+                    children: [
+                      Observer(
+                        builder: (context) {
+                          return LoadingPrimaryButton(
+                            onPressed: () async {
+                              await _confirmForm(context);
+                            },
+                            text: S.of(context).restore_recover,
+                            color: Theme.of(context)
+                                .extension<WalletListTheme>()!
+                                .createNewWalletButtonBackgroundColor,
+                            textColor: Theme.of(context)
+                                .extension<WalletListTheme>()!
+                                .restoreWalletButtonTextColor,
+                            isLoading: walletRestoreViewModel.state is IsExecutingState,
+                            isDisabled: !walletRestoreViewModel.isButtonEnabled,
+                          );
                         },
-                        text: S.of(context).restore_recover,
-                        color: Theme.of(context)
-                            .extension<WalletListTheme>()!
-                            .createNewWalletButtonBackgroundColor,
-                        textColor: Theme.of(context)
-                            .extension<WalletListTheme>()!
-                            .restoreWalletButtonTextColor,
-                        isLoading: walletRestoreViewModel.state is IsExecutingState,
-                        isDisabled: !walletRestoreViewModel.isButtonEnabled,
-                      );
-                    },
+                      ),
+                      const SizedBox(height: 25),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context)
+                              .pushNamed(Routes.advancedPrivacySettings, arguments: walletRestoreViewModel.type);
+                        },
+                        child: Text(S.of(context).advanced_privacy_settings),
+                      ),
+                    ],
                   ),
                 )
               ],
@@ -241,7 +250,7 @@ class WalletRestorePage extends BasePage {
     }
 
     // bip39:
-    const validSeedLengths = [12, 15, 18, 21, 24];
+    const validSeedLengths = [12, 18, 24];
     if (walletRestoreViewModel.type == WalletType.bitcoin &&
         !(validSeedLengths.contains(seedWords.length))) {
       return false;
@@ -305,46 +314,38 @@ class WalletRestorePage extends BasePage {
     var walletType = credentials["walletType"] as WalletType;
     var appStore = getIt.get<AppStore>();
     var node = appStore.settingsStore.getCurrentNode(walletType);
+
     switch (walletType) {
-      case WalletType.bitcoin:
-        String? mnemonic = credentials['seed'] as String?;
-        return await BitcoinWalletService.getDerivationsFromMnemonic(
-            mnemonic: mnemonic!, node: node);
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['private_key'] as String?;
-        dynamic bip39Info = await NanoWalletService.getInfoFromSeedOrMnemonic(DerivationType.bip39,
-            mnemonic: mnemonic, seedKey: seedKey, node: node);
-        dynamic standardInfo = await NanoWalletService.getInfoFromSeedOrMnemonic(
+        AccountInfoResponse? bip39Info = await nanoUtil!.getInfoFromSeedOrMnemonic(
+            DerivationType.bip39,
+            mnemonic: mnemonic,
+            seedKey: seedKey,
+            node: node);
+        AccountInfoResponse? standardInfo = await nanoUtil!.getInfoFromSeedOrMnemonic(
           DerivationType.nano,
           mnemonic: mnemonic,
           seedKey: seedKey,
           node: node,
         );
 
-        if (standardInfo["balance"] != null) {
+        if (standardInfo?.balance != null) {
           list.add(DerivationInfo(
             derivationType: DerivationType.nano,
-            balance: NanoUtil.getRawAsUsableString(
-                standardInfo["balance"] as String, NanoUtil.rawPerNano),
-            address: standardInfo["address"] as String,
-            height: int.tryParse(
-                  standardInfo["confirmation_height"] as String,
-                ) ??
-                0,
+            balance: nanoUtil!.getRawAsUsableString(standardInfo!.balance, nanoUtil!.rawPerNano),
+            address: standardInfo.address!,
+            height: standardInfo.confirmationHeight,
           ));
         }
 
-        if (bip39Info["balance"] != null) {
+        if (bip39Info?.balance != null) {
           list.add(DerivationInfo(
             derivationType: DerivationType.bip39,
-            balance:
-                NanoUtil.getRawAsUsableString(bip39Info["balance"] as String, NanoUtil.rawPerNano),
-            address: bip39Info["address"] as String,
-            height: int.tryParse(
-                  bip39Info["confirmation_height"] as String? ?? "",
-                ) ??
-                0,
+            balance: nanoUtil!.getRawAsUsableString(bip39Info!.balance, nanoUtil!.rawPerNano),
+            address: bip39Info.address!,
+            height: bip39Info.confirmationHeight,
           ));
         }
         break;
@@ -398,6 +399,7 @@ class WalletRestorePage extends BasePage {
         }
       }
       
+
       DerivationInfo? derivationInfo;
 
       if (derivationsWithHistory > 1) {
@@ -412,8 +414,6 @@ class WalletRestorePage extends BasePage {
           derivationPath: "m/0'/1",
           height: 0,
         );
-        this.derivationType = derivationTypes[0];
-        this.derivationPath = "m/0'/1";
       }
 
       if (derivationInfo == null) {

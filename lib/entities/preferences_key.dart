@@ -11,18 +11,18 @@ class PreferencesKey {
   static const currentBananoNodeIdKey = 'current_node_id_banano';
   static const currentBananoPowNodeIdKey = 'current_node_id_banano_pow';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
+  static const currentBitcoinCashNodeIdKey = 'current_node_id_bch';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
   static const isAppSecureKey = 'is_app_secure';
   static const disableBuyKey = 'disable_buy';
   static const disableSellKey = 'disable_sell';
+  static const defaultBuyProvider = 'default_buy_provider';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
-  static const allowBiometricalAuthenticationKey =
-      'allow_biometrical_authentication';
+  static const allowBiometricalAuthenticationKey = 'allow_biometrical_authentication';
   static const useTOTP2FA = 'use_totp_2fa';
   static const failedTotpTokenTrials = 'failed_token_trials';
-  static const totpSecretKey = 'totp_qr_secret_key';
   static const disableExchangeKey = 'disable_exchange';
   static const exchangeStatusKey = 'exchange_status';
   static const currentTheme = 'current_theme';
@@ -37,6 +37,7 @@ class PreferencesKey {
   static const havenTransactionPriority = 'current_fee_priority_haven';
   static const litecoinTransactionPriority = 'current_fee_priority_litecoin';
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
+  static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
@@ -49,6 +50,14 @@ class PreferencesKey {
   static const sortBalanceBy = 'sort_balance_by';
   static const pinNativeTokenAtTop = 'pin_native_token_at_top';
   static const useEtherscan = 'use_etherscan';
+  static const defaultNanoRep = 'default_nano_representative';
+  static const defaultBananoRep = 'default_banano_representative';
+  static const lookupsTwitter = 'looks_up_twitter';
+  static const lookupsMastodon = 'looks_up_mastodon';
+  static const lookupsYatService = 'looks_up_mastodon';
+  static const lookupsUnstoppableDomains = 'looks_up_mastodon';
+  static const lookupsOpenAlias = 'looks_up_mastodon';
+  static const lookupsENS = 'looks_up_ens';
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
@@ -58,8 +67,7 @@ class PreferencesKey {
   static const clearnetDonationLink = 'clearnet_donation_link';
   static const onionDonationLink = 'onion_donation_link';
   static const lastSeenAppVersion = 'last_seen_app_version';
-  static const shouldShowMarketPlaceInDashboard =
-      'should_show_marketplace_in_dashboard';
+  static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';
   static const shouldRequireTOTP2FAForAccessingWallet =
       'should_require_totp_2fa_for_accessing_wallets';
@@ -71,6 +79,8 @@ class PreferencesKey {
       'should_require_totp_2fa_for_sends_to_internal_wallets';
   static const shouldRequireTOTP2FAForExchangesToInternalWallets =
       'should_require_totp_2fa_for_exchanges_to_internal_wallets';
+  static const shouldRequireTOTP2FAForExchangesToExternalWallets =
+      'should_require_totp_2fa_for_exchanges_to_external_wallets';
   static const shouldRequireTOTP2FAForAddingContacts =
       'should_require_totp_2fa_for_adding_contacts';
   static const shouldRequireTOTP2FAForCreatingNewWallets =
@@ -78,4 +88,6 @@ class PreferencesKey {
   static const shouldRequireTOTP2FAForAllSecurityAndBackupSettings =
       'should_require_totp_2fa_for_all_security_and_backup_settings';
   static const selectedCake2FAPreset = 'selected_cake_2fa_preset';
+  static const totpSecretKey = 'totp_secret_key';
+  static const currentSeedPhraseLength = 'current_seed_phrase_length';
 }

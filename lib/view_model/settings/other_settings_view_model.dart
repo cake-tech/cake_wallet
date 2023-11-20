@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/balance.dart';
@@ -24,7 +25,7 @@ abstract class OtherSettingsViewModelBase with Store {
     final priority = _settingsStore.priority[_wallet.type];
     final priorities = priorityForWalletType(_wallet.type);
 
-    if (!priorities.contains(priority)) {
+    if (!priorities.contains(priority) && priorities.isNotEmpty) {
       _settingsStore.priority[_wallet.type] = priorities.first;
     }
   }
@@ -56,11 +57,15 @@ abstract class OtherSettingsViewModelBase with Store {
 
     return false;
   }
+  
+  BuyProviderType get buyProviderType { return _settingsStore.defaultBuyProvider; }
 
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
 
-    if (_wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin) {
+    if (_wallet.type == WalletType.bitcoin ||
+        _wallet.type == WalletType.litecoin ||
+        _wallet.type == WalletType.bitcoinCash) {
       final rate = bitcoin!.getFeeRate(_wallet, _priority);
       return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
     }
@@ -68,6 +73,16 @@ abstract class OtherSettingsViewModelBase with Store {
     return priority.toString();
   }
 
+  String getBuyProviderType (dynamic buyProviderType) {
+    final _buyProviderType = buyProviderType as BuyProviderType;
+
+    return _buyProviderType.toString();
+  }
+
   void onDisplayPrioritySelected(TransactionPriority priority) =>
       _settingsStore.priority[_wallet.type] = priority;
+
+  void onBuyProviderTypeSelected(BuyProviderType buyProviderType) =>
+      _settingsStore.defaultBuyProvider = buyProviderType;
+
 }

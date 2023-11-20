@@ -5,7 +5,8 @@
   uri: cakexmrl7bonq7ovjka5kuwuyd3f7qnkz6z6s6dmsy3uckwra7bvggyd.onion:18081
   is_default: false
 -
-  uri: node.sethforprivacy.com:18089
+  uri: node.sethforprivacy.com:443
+  useSSL: true
   is_default: false
 -
   uri: nodes.hashvault.pro:18081

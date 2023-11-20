@@ -151,7 +151,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: containerHeight,
-                  maxWidth: ResponsiveLayoutUtil.kPopupWidth,
+                  maxWidth: ResponsiveLayoutUtilBase.kPopupWidth,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

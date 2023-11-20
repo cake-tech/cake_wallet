@@ -1,5 +1,4 @@
-Ability to Auto generate new Monero subaddress when used
-Coin Control for Monero
-In-app Live Chat support
-Additional themes
-Bug Fixes and performance enhancements
+UI enhancements
+Privacy settings enhancements
+Tablet/iPad fixes
+Bug fixes

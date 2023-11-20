@@ -1,17 +1,19 @@
 import 'dart:async';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uni_links/uni_links.dart';
-
-import '../setup_2fa/setup_2fa_enter_code_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 
 class Root extends StatefulWidget {
   Root({
@@ -97,8 +99,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           return;
         }
 
-        if (!_isInactive &&
-            widget.authenticationStore.state == AuthenticationState.allowed) {
+        if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
           setState(() => _setInactive(true));
         }
 
@@ -125,23 +126,23 @@ class RootState extends State<Root> with WidgetsBindingObserver {
               return;
             } else {
               final useTotp = widget.appStore.settingsStore.useTOTP2FA;
-              final shouldUseTotp2FAToAccessWallets = widget.appStore
-                  .settingsStore.shouldRequireTOTP2FAForAccessingWallet;
+              final shouldUseTotp2FAToAccessWallets =
+                  widget.appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
               if (useTotp && shouldUseTotp2FAToAccessWallets) {
                 _reset();
                 auth.close(
                   route: Routes.totpAuthCodePage,
                   arguments: TotpAuthArgumentsModel(
                     onTotpAuthenticationFinished:
-                        (bool isAuthenticatedSuccessfully,
-                            TotpAuthCodePageState totpAuth) {
+                        (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) {
                       if (!isAuthenticatedSuccessfully) {
                         return;
                       }
                       _reset();
                       totpAuth.close(
-                        route: launchUri != null ? Routes.send : null,
-                        arguments: PaymentRequest.fromUri(launchUri),
+                        route: _getRouteToGo(),
+                        arguments:
+                            isWalletConnectLink ? launchUri : PaymentRequest.fromUri(launchUri),
                       );
                       launchUri = null;
                     },
@@ -152,8 +153,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
               } else {
                 _reset();
                 auth.close(
-                  route: launchUri != null ? Routes.send : null,
-                  arguments: PaymentRequest.fromUri(launchUri),
+                  route: _getRouteToGo(),
+                  arguments: isWalletConnectLink ? launchUri : PaymentRequest.fromUri(launchUri),
                 );
                 launchUri = null;
               }
@@ -161,15 +162,29 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           },
         );
       });
-    } else if (launchUri != null) {
+    } else if (_isValidPaymentUri()) {
       widget.navigatorKey.currentState?.pushNamed(
         Routes.send,
         arguments: PaymentRequest.fromUri(launchUri),
       );
       launchUri = null;
+    } else if (isWalletConnectLink) {
+      if (widget.appStore.wallet!.type == WalletType.ethereum) {
+        widget.navigatorKey.currentState?.pushNamed(
+          Routes.walletConnectConnectionsListing,
+          arguments: launchUri,
+        );
+        launchUri = null;
+      } else {
+        _nonETHWalletErrorToast(S.current.switchToETHWallet);
+      }
     }
-
-    return WillPopScope(onWillPop: () async => false, child: widget.child);
+    
+    launchUri = null;
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: widget.child,
+    );
   }
 
   void _reset() {
@@ -182,5 +197,34 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   void _setInactive(bool value) {
     _isInactive = value;
     _isInactiveController.add(value);
+  }
+
+  bool _isValidPaymentUri() => launchUri?.path.isNotEmpty ?? false;
+
+  bool get isWalletConnectLink => launchUri?.authority == 'wc';
+
+  String? _getRouteToGo() {
+    if (isWalletConnectLink) {
+      if (widget.appStore.wallet!.type != WalletType.ethereum) {
+        _nonETHWalletErrorToast(S.current.switchToETHWallet);
+        return null;
+      }
+      return Routes.walletConnectConnectionsListing;
+    } else if (_isValidPaymentUri()) {
+      return Routes.send;
+    } else {
+      return null;
+    }
+  }
+
+  Future<void> _nonETHWalletErrorToast(String message) async {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.SNACKBAR,
+      backgroundColor: Colors.black,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
   }
 }

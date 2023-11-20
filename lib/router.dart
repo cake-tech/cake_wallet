@@ -1,15 +1,16 @@
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
+import 'package:cake_wallet/src/screens/buy/buy_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
-import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
@@ -23,6 +24,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_pow_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
@@ -41,6 +43,8 @@ import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
+import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
+import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
@@ -50,6 +54,7 @@ import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
 import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
@@ -190,6 +195,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 param2: false));
       }
 
+    case Routes.restoreWalletTypeFromQR:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<NewWalletTypePage>(
+              param1: (BuildContext context, WalletType type) => Navigator.of(context).pop(type)));
+
     case Routes.seed:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
@@ -201,8 +211,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.restoreWalletChooseDerivation:
       return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<WalletRestoreChooseDerivationPage>(param1: settings.arguments as List<DerivationInfo>));
+          builder: (_) => getIt.get<WalletRestoreChooseDerivationPage>(
+              param1: settings.arguments as List<DerivationInfo>));
 
     case Routes.sweepingWalletPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<SweepingWalletPage>());
@@ -248,7 +258,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage(isReadOnly: true));
 
     case Routes.changeRep:
-      return CupertinoPageRoute<void>(builder: (_) => NanoChangeRepPage());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<NanoChangeRepPage>());
 
     case Routes.seedLanguage:
       final args = settings.arguments as List<dynamic>;
@@ -316,6 +326,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<PrivacyPage>());
 
+    case Routes.trocadorProvidersPage:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<TrocadorProvidersPage>());
+
+    case Routes.domainLookupsPage:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<DomainLookupsPage>());
+
     case Routes.displaySettingsPage:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<DisplaySettingsPage>());
@@ -378,8 +396,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
 
-    case Routes.preOrder:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<PreOrderPage>());
+    case Routes.buy:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuyOptionsPage>());
 
     case Routes.buyWebView:
       final args = settings.arguments as List;
@@ -402,7 +420,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.preSeed:
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<PreSeedPage>(param1: settings.arguments as WalletType));
+          builder: (_) => getIt.get<PreSeedPage>(
+              param1: settings.arguments as WalletType,
+              param2: getIt.get<AdvancedPrivacySettingsViewModel>(
+                  param1: settings.arguments as WalletType)));
 
     case Routes.backup:
       return CupertinoPageRoute<void>(
@@ -521,7 +542,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (_) => AdvancedPrivacySettingsPage(
                 getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
-                getIt.get<NodeCreateOrEditViewModel>(param1: type),
+                getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
               ));
 
     case Routes.anonPayInvoicePage:
@@ -545,7 +566,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.desktop_settings_page:
-      return CupertinoPageRoute<void>(builder: (_) => DesktopSettingsPage());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<DesktopSettingsPage>());
 
     case Routes.empty_no_route:
       return MaterialPageRoute<void>(builder: (_) => SizedBox.shrink());
@@ -585,7 +606,19 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.manageNodes:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>());
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: false));
+
+    case Routes.managePowNodes:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: true));
+
+    case Routes.walletConnectConnectionsListing:
+      return MaterialPageRoute<void>(
+          builder: (_) => WalletConnectConnectionsView(
+                web3walletService: getIt.get<Web3WalletService>(),
+                launchUri: settings.arguments as Uri?,
+              ));
+    case Routes.torPage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<TorPage>());
 
     case Routes.managePowNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManagePowNodesPage>());

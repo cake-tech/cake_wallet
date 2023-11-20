@@ -1,19 +1,35 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cw_core/nano_account_info_response.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_transaction_model.dart';
 import 'package:cw_nano/nano_util.dart';
 import 'package:http/http.dart' as http;
 import 'package:nanodart/nanodart.dart';
 import 'package:cw_core/node.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NanoClient {
-  static const String DEFAULT_REPRESENTATIVE =
-      "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
+  static const Map<String, String> CAKE_HEADERS = {
+    "Content-Type": "application/json",
+    "nano-app": "cake-wallet"
+  };
 
+  NanoClient() {
+    SharedPreferences.getInstance().then((value) => prefs = value);
+  }
+
+  late SharedPreferences prefs;
   Node? _node;
   Node? _powNode;
+  static const String _defaultDefaultRepresentative =
+      "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579";
+
+  String getRepFromPrefs() {
+    // from preferences_key.dart "defaultNanoRep" key:
+    return prefs.getString("default_nano_representative") ?? _defaultDefaultRepresentative;
+  }
 
   bool connect(Node node) {
     try {
@@ -36,7 +52,7 @@ class NanoClient {
   Future<NanoBalance> getBalance(String address) async {
     final response = await http.post(
       _node!.uri,
-      headers: {"Content-Type": "application/json"},
+      headers: CAKE_HEADERS,
       body: jsonEncode(
         {
           "action": "account_balance",
@@ -52,11 +68,11 @@ class NanoClient {
     return NanoBalance(currentBalance: cur, receivableBalance: rec);
   }
 
-  Future<dynamic> getAccountInfo(String address) async {
+  Future<AccountInfoResponse?> getAccountInfo(String address) async {
     try {
       final response = await http.post(
         _node!.uri,
-        headers: {"Content-Type": "application/json"},
+        headers: CAKE_HEADERS,
         body: jsonEncode(
           {
             "action": "account_info",
@@ -66,10 +82,10 @@ class NanoClient {
         ),
       );
       final data = await jsonDecode(response.body);
-      return data;
+      return AccountInfoResponse.fromJson(data as Map<String, dynamic>);
     } catch (e) {
       print("error while getting account info");
-      rethrow;
+      return null;
     }
   }
 
@@ -78,66 +94,68 @@ class NanoClient {
     required String repAddress,
     required String ourAddress,
   }) async {
+    AccountInfoResponse? accountInfo = await getAccountInfo(ourAddress);
+
+    if (accountInfo == null) {
+      throw Exception(
+          "error while getting account info, you can't change the rep of an unopened account");
+    }
+
+    // construct the change block:
+    Map<String, String> changeBlock = {
+      "type": "state",
+      "account": ourAddress,
+      "previous": accountInfo.frontier,
+      "representative": repAddress,
+      "balance": accountInfo.balance,
+      "link": "0000000000000000000000000000000000000000000000000000000000000000",
+      "link_as_account": "nano_1111111111111111111111111111111111111111111111111111hifc8npp",
+    };
+
+    // sign the change block:
+    final String hash = NanoBlocks.computeStateHash(
+      NanoAccountType.NANO,
+      changeBlock["account"]!,
+      changeBlock["previous"]!,
+      changeBlock["representative"]!,
+      BigInt.parse(changeBlock["balance"]!),
+      changeBlock["link"]!,
+    );
+    final String signature = NanoSignatures.signBlock(hash, privateKey);
+
+    // get PoW for the send block:
+    final String work = await requestWork(accountInfo.frontier);
+
+    changeBlock["signature"] = signature;
+    changeBlock["work"] = work;
+
     try {
-      final accountInfo = await getAccountInfo(ourAddress);
-
-      // construct the change block:
-      Map<String, String> changeBlock = {
-        "type": "state",
-        "account": ourAddress,
-        "previous": accountInfo["frontier"] as String,
-        "representative": repAddress,
-        "balance": accountInfo["balance"] as String,
-        "link": "0000000000000000000000000000000000000000000000000000000000000000",
-        "link_as_account": "nano_1111111111111111111111111111111111111111111111111111hifc8npp",
-      };
-
-      // sign the change block:
-      final String hash = NanoBlocks.computeStateHash(
-        NanoAccountType.NANO,
-        changeBlock["account"]!,
-        changeBlock["previous"]!,
-        changeBlock["representative"]!,
-        BigInt.parse(changeBlock["balance"]!),
-        changeBlock["link"]!,
-      );
-      final String signature = NanoSignatures.signBlock(hash, privateKey);
-
-      // get PoW for the send block:
-      final String work = await requestWork(accountInfo["frontier"] as String);
-
-      changeBlock["signature"] = signature;
-      changeBlock["work"] = work;
-
       return await processBlock(changeBlock, "change");
     } catch (e) {
-      throw Exception("error while changing representative");
+      throw Exception("error while changing representative: $e");
     }
   }
 
   Future<String> requestWork(String hash) async {
-    return http
-        .post(
+    final response = await http.post(
       _powNode!.uri,
-      headers: {'Content-type': 'application/json'},
+      headers: CAKE_HEADERS,
       body: json.encode(
         {
           "action": "work_generate",
           "hash": hash,
         },
       ),
-    )
-        .then((http.Response response) {
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> decoded = json.decode(response.body) as Map<String, dynamic>;
-        if (decoded.containsKey("error")) {
-          throw Exception("Received error ${decoded["error"]}");
-        }
-        return decoded["work"] as String;
-      } else {
-        throw Exception("Received error ${response.statusCode}");
+    );
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> decoded = json.decode(response.body) as Map<String, dynamic>;
+      if (decoded.containsKey("error")) {
+        throw Exception("Received error ${decoded["error"]}");
       }
-    });
+      return decoded["work"] as String;
+    } else {
+      throw Exception("Received work error ${response.body}");
+    }
   }
 
   Future<String> send({
@@ -155,7 +173,6 @@ class NanoClient {
   }
 
   Future<String> processBlock(Map<String, String> block, String subtype) async {
-    final headers = {"Content-Type": "application/json"};
     final processBody = jsonEncode({
       "action": "process",
       "json_block": "true",
@@ -165,7 +182,7 @@ class NanoClient {
 
     final processResponse = await http.post(
       _node!.uri,
-      headers: headers,
+      headers: CAKE_HEADERS,
       body: processBody,
     );
 
@@ -185,74 +202,63 @@ class NanoClient {
     BigInt? balanceAfterTx,
     String? previousHash,
   }) async {
-    try {
-      // our address:
-      final String publicAddress = NanoUtil.privateKeyToAddress(privateKey);
+    // our address:
+    final String publicAddress = NanoUtil.privateKeyToAddress(privateKey);
 
-      // first get the current account balance:
-      if (balanceAfterTx == null) {
-        final BigInt currentBalance = (await getBalance(publicAddress)).currentBalance;
-        final BigInt txAmount = BigInt.parse(amountRaw);
-        balanceAfterTx = currentBalance - txAmount;
-      }
-
-      // get the account info (we need the frontier and representative):
-      final headers = {"Content-Type": "application/json"};
-      final infoBody = jsonEncode({
-        "action": "account_info",
-        "representative": "true",
-        "account": publicAddress,
-      });
-      final infoResponse = await http.post(
-        _node!.uri,
-        headers: headers,
-        body: infoBody,
-      );
-
-      String frontier = jsonDecode(infoResponse.body)["frontier"].toString();
-      // override if provided:
-      if (previousHash != null) {
-        frontier = previousHash;
-      }
-      final String representative = jsonDecode(infoResponse.body)["representative"].toString();
-      // link = destination address:
-      final String link = NanoAccounts.extractPublicKey(destinationAddress);
-      final String linkAsAccount = destinationAddress;
-
-      // construct the send block:
-      Map<String, String> sendBlock = {
-        "type": "state",
-        "account": publicAddress,
-        "previous": frontier,
-        "representative": representative,
-        "balance": balanceAfterTx.toString(),
-        "link": link,
-      };
-
-      // sign the send block:
-      final String hash = NanoBlocks.computeStateHash(
-        NanoAccountType.NANO,
-        sendBlock["account"]!,
-        sendBlock["previous"]!,
-        sendBlock["representative"]!,
-        BigInt.parse(sendBlock["balance"]!),
-        sendBlock["link"]!,
-      );
-      final String signature = NanoSignatures.signBlock(hash, privateKey);
-
-      // get PoW for the send block:
-      final String work = await requestWork(frontier);
-
-      sendBlock["link_as_account"] = linkAsAccount;
-      sendBlock["signature"] = signature;
-      sendBlock["work"] = work;
-
-      // ready to post send block:
-      return sendBlock;
-    } catch (e) {
-      print(e);
-      rethrow;
+    // first get the current account balance:
+    if (balanceAfterTx == null) {
+      final BigInt currentBalance = (await getBalance(publicAddress)).currentBalance;
+      final BigInt txAmount = BigInt.parse(amountRaw);
+      balanceAfterTx = currentBalance - txAmount;
     }
+
+    // get the account info (we need the frontier and representative):
+    AccountInfoResponse? infoResponse = await getAccountInfo(publicAddress);
+    if (infoResponse == null) {
+      throw Exception(
+          "error while getting account info! (we probably don't have an open account yet)");
+    }
+
+    String frontier = infoResponse.frontier;
+    // override if provided:
+    if (previousHash != null) {
+      frontier = previousHash;
+    }
+    final String representative = infoResponse.representative;
+    // link = destination address:
+    final String link = NanoAccounts.extractPublicKey(destinationAddress);
+    final String linkAsAccount = destinationAddress;
+
+    // construct the send block:
+    Map<String, String> sendBlock = {
+      "type": "state",
+      "account": publicAddress,
+      "previous": frontier,
+      "representative": representative,
+      "balance": balanceAfterTx.toString(),
+      "link": link,
+    };
+
+    // sign the send block:
+    final String hash = NanoBlocks.computeStateHash(
+      NanoAccountType.NANO,
+      sendBlock["account"]!,
+      sendBlock["previous"]!,
+      sendBlock["representative"]!,
+      BigInt.parse(sendBlock["balance"]!),
+      sendBlock["link"]!,
+    );
+    final String signature = NanoSignatures.signBlock(hash, privateKey);
+
+    // get PoW for the send block:
+    final String work = await requestWork(frontier);
+
+    sendBlock["link_as_account"] = linkAsAccount;
+    sendBlock["signature"] = signature;
+    sendBlock["work"] = work;
+
+    // ready to post send block:
+    return sendBlock;
   }
 
   Future<void> receiveBlock({
@@ -264,53 +270,28 @@ class NanoClient {
   }) async {
     bool openBlock = false;
 
-    final headers = {
-      "Content-Type": "application/json",
-    };
-
     // first check if the account is open:
     // get the account info (we need the frontier and representative):
-    final infoBody = jsonEncode({
-      "action": "account_info",
-      "representative": "true",
-      "account": destinationAddress,
-    });
-    final infoResponse = await http.post(
-      _node!.uri,
-      headers: headers,
-      body: infoBody,
-    );
-    final infoData = jsonDecode(infoResponse.body);
+    AccountInfoResponse? infoData = await getAccountInfo(destinationAddress);
+    String? frontier;
+    String? representative;
 
-    if (infoData["error"] != null) {
+    if (infoData == null) {
       // account is not open yet, we need to create an open block:
       openBlock = true;
+      // we don't have a representative set yet:
+      representative = await getRepFromPrefs();
+      // we don't have a frontier yet:
+      frontier = "0000000000000000000000000000000000000000000000000000000000000000";
+    } else {
+      frontier = infoData.frontier;
+      representative = infoData.representative;
     }
 
     // first get the account balance:
-    final balanceBody = jsonEncode({
-      "action": "account_balance",
-      "account": destinationAddress,
-    });
-
-    final balanceResponse = await http.post(
-      _node!.uri,
-      headers: headers,
-      body: balanceBody,
-    );
-
-    final balanceData = jsonDecode(balanceResponse.body);
-    final BigInt currentBalance = BigInt.parse(balanceData["balance"].toString());
+    final BigInt currentBalance = (await getBalance(destinationAddress)).currentBalance;
     final BigInt txAmount = BigInt.parse(amountRaw);
     final BigInt balanceAfterTx = currentBalance + txAmount;
-
-    String frontier = infoData["frontier"].toString();
-    String representative = infoData["representative"].toString();
-
-    if (openBlock) {
-      // we don't have a representative set yet:
-      representative = DEFAULT_REPRESENTATIVE;
-    }
 
     // link = send block hash:
     final String link = blockHash;
@@ -321,8 +302,7 @@ class NanoClient {
     Map<String, String> receiveBlock = {
       "type": "state",
       "account": destinationAddress,
-      "previous":
-          openBlock ? "0000000000000000000000000000000000000000000000000000000000000000" : frontier,
+      "previous": frontier,
       "representative": representative,
       "balance": balanceAfterTx.toString(),
       "link": link,
@@ -361,7 +341,7 @@ class NanoClient {
     });
     final processResponse = await http.post(
       _node!.uri,
-      headers: headers,
+      headers: CAKE_HEADERS,
       body: processBody,
     );
 
@@ -377,7 +357,7 @@ class NanoClient {
     required String privateKey,
   }) async {
     final receivableResponse = await http.post(_node!.uri,
-        headers: {"Content-Type": "application/json"},
+        headers: CAKE_HEADERS,
         body: jsonEncode({
           "action": "receivable",
           "account": destinationAddress,
@@ -422,16 +402,12 @@ class NanoClient {
     return blocks.keys.length;
   }
 
-  Future<dynamic> getTransactionDetails(String transactionHash) async {
-    throw UnimplementedError();
-  }
-
   void stop() {}
 
   Future<List<NanoTransactionModel>> fetchTransactions(String address) async {
     try {
       final response = await http.post(_node!.uri,
-          headers: {"Content-Type": "application/json"},
+          headers: CAKE_HEADERS,
           body: jsonEncode({
             "action": "account_history",
             "account": address,

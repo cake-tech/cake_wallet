@@ -1,5 +1,6 @@
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -9,15 +10,19 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 
 class PreSeedPage extends BasePage {
-  PreSeedPage(this.type)
+  PreSeedPage(this.type, this.advancedPrivacySettingsViewModel)
       : imageLight = Image.asset('assets/images/pre_seed_light.png'),
         imageDark = Image.asset('assets/images/pre_seed_dark.png'),
-        wordsCount = _wordsCount(type);
+        seedPhraseLength = advancedPrivacySettingsViewModel.seedPhraseLength.value {
+    wordsCount = _wordsCount(type, seedPhraseLength);
+  }
 
   final Image imageDark;
   final Image imageLight;
   final WalletType type;
-  final int wordsCount;
+  final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
+  final int seedPhraseLength;
+  late final int wordsCount;
 
   @override
   Widget? leading(BuildContext context) => null;
@@ -35,7 +40,7 @@ class PreSeedPage extends BasePage {
           alignment: Alignment.center,
           padding: EdgeInsets.all(24),
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -68,12 +73,13 @@ class PreSeedPage extends BasePage {
         ));
   }
 
-  static int _wordsCount(WalletType type) {
+  static int _wordsCount(WalletType type, int seedPhraseLength) {
     switch (type) {
       case WalletType.monero:
         return 25;
       case WalletType.ethereum:
-        return 12;
+      case WalletType.bitcoinCash:
+        return seedPhraseLength;
       default:
         return 24;
     }

@@ -5,7 +5,6 @@ import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/execution_state.dart';
@@ -26,16 +25,15 @@ import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 void showInformation(
     ExchangeTradeViewModel exchangeTradeViewModel, BuildContext context) {
-  final fetchingLabel = S.current.fetching;
   final trade = exchangeTradeViewModel.trade;
   final walletName = exchangeTradeViewModel.wallet.name;
 
   final information = exchangeTradeViewModel.isSendable
       ? S.current.exchange_result_confirm(
-          trade.amount ?? fetchingLabel, trade.from.toString(), walletName) +
+          trade.amount, trade.from.toString(), walletName) +
         exchangeTradeViewModel.extraInfo
       : S.current.exchange_result_description(
-          trade.amount ?? fetchingLabel, trade.from.toString()) +
+          trade.amount, trade.from.toString()) +
         exchangeTradeViewModel.extraInfo;
 
   showPopUp<void>(
@@ -93,6 +91,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
   bool _effectsInstalled = false;
 
+  ReactionDisposer? _exchangeStateReaction;
+
   @override
   void initState() {
     super.initState();
@@ -105,8 +105,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
   @override
   void dispose() {
-    super.dispose();
     widget.exchangeTradeViewModel.timer?.cancel();
+    _exchangeStateReaction?.reaction.dispose();
+    super.dispose();
   }
 
   @override
@@ -177,7 +178,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     ),
                     itemBuilder: (context, index) {
                       final item = widget.exchangeTradeViewModel.items[index];
-                      final value = item.data ?? fetchingLabel;
+                      final value = item.data;
 
                       final content = ListRow(
                         title: item.title,
@@ -231,7 +232,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
       return;
     }
 
-    reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
+    _exchangeStateReaction = reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
         (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {

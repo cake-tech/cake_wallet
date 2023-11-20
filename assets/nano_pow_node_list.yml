@@ -5,4 +5,5 @@
 -
   uri: workers.perish.co
 -
-  uri: worker.nanoriver.cc:443
+  uri: worker.nanoriver.cc
+  useSSL: true

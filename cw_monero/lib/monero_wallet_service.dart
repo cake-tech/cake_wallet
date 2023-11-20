@@ -135,9 +135,18 @@ class MoneroWalletService extends WalletService<
           (e is WalletOpeningException && e.message.contains('basic_string'));
 
       final bool isMissingCacheFilesAndroid = e.toString().contains('input_stream') ||
-          (e is WalletOpeningException && e.message.contains('input_stream'));
+          e.toString().contains('input stream error') ||
+          (e is WalletOpeningException &&
+              (e.message.contains('input_stream') || e.message.contains('input stream error')));
 
-      if (isBadAlloc || doesNotCorrespond || isMissingCacheFilesIOS || isMissingCacheFilesAndroid) {
+      final bool invalidSignature = e.toString().contains('invalid signature') ||
+          (e is WalletOpeningException && e.message.contains('invalid signature'));
+
+      if (isBadAlloc ||
+          doesNotCorrespond ||
+          isMissingCacheFilesIOS ||
+          isMissingCacheFilesAndroid ||
+          invalidSignature) {
         await restoreOrResetWalletFiles(name);
         return openWallet(name, password);
       }

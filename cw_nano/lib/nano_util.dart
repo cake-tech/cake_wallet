@@ -3,18 +3,13 @@ import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
 import "package:ed25519_hd_key/ed25519_hd_key.dart";
-import 'package:flutter/material.dart';
 import 'package:libcrypto/libcrypto.dart';
-import 'package:nanodart/nanodart.dart';
-import 'package:ed25519_hd_key/ed25519_hd_key.dart';
 import 'package:nanodart/nanodart.dart';
 import 'package:decimal/decimal.dart';
 
 class NanoUtil {
   // standard:
   static String seedToPrivate(String seed, int index) {
-    // return NanoHelpers.byteToHex(Ed25519Blake2b.derivePrivkey(NanoHelpers.hexToBytes(seed), index)!)
-    //     .toUpperCase();
     return NanoKeys.seedToPrivate(seed, index);
   }
 
@@ -30,10 +25,6 @@ class NanoUtil {
   static Future<String> mnemonicToSeed(String mnemonic) async {
     return NanoMnemomics.mnemonicListToSeed(mnemonic.split(' '));
   }
-
-  // static String createPublicKey(String privateKey) {
-  //   return NanoHelpers.byteToHex(Ed25519Blake2b.getPubkey(NanoHelpers.hexToBytes(privateKey))!);
-  // }
 
   static String privateKeyToPublic(String privateKey) {
     // return NanoHelpers.byteToHex(Ed25519Blake2b.getPubkey(NanoHelpers.hexToBytes(privateKey))!);
@@ -105,26 +96,9 @@ class NanoUtil {
     }
   }
 
-
-
-  // static String hdSeedToPrivate(String seed, int index) {
-  //   // List<int> seedBytes = hex.decode(seed);
-  //   // KeyData data = await ED25519_HD_KEY.derivePath("m/44'/165'/$index'", seedBytes);
-  //   // return hex.encode(data.key);
-  //   Chain chain = Chain.seed(hex.encode(utf8.encode(seed)));
-  //   ExtendedKey key = chain.forPath("m/44'/165'/$index'");
-  //   print(key.privateKeyHex());
-  //   return "";
-  // }
-
-  // static String hdSeedToAddress(String seed, int index) {
-  //   // return NanoAccounts.createAccount(NanoAccountType.NANO, NanoKeys.createPublicKey(seedToPrivate(seed, index)));
-  //   return "";
-  // }
-
   static bool isValidBip39Seed(String seed) {
     // Ensure seed is 128 characters long
-    if (seed == null || seed.length != 128) {
+    if (seed.length != 128) {
       return false;
     }
     // Ensure seed only contains hex characters, 0-9;A-F
