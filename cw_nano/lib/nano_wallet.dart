@@ -299,7 +299,7 @@ abstract class NanoWalletBase
 
   @override
   String? get seed => _mnemonic.isNotEmpty ? _mnemonic : null;
-  
+
   String get hexSeed => _hexSeed!;
 
   String get representative => _representativeAddress ?? "";
@@ -354,9 +354,9 @@ abstract class NanoWalletBase
         formattedCurrentBalance: data['currentBalance'] as String? ?? "0",
         formattedReceivableBalance: data['receivableBalance'] as String? ?? "0");
 
-    DerivationType derivationType = DerivationType.bip39;
-    if (data['derivationType'] == "DerivationType.nano") {
-      derivationType = DerivationType.nano;
+    DerivationType derivationType = DerivationType.nano;
+    if (data['derivationType'] == "DerivationType.bip39") {
+      derivationType = DerivationType.bip39;
     }
 
     walletInfo.derivationType = derivationType;
