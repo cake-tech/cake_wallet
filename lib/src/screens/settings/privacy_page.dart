@@ -90,6 +90,10 @@ class PrivacyPage extends BasePage {
               title: S.current.domain_looks_up,
               handler: (context) => Navigator.of(context).pushNamed(Routes.domainLookupsPage),
             ),
+            SettingsCellWithArrow(
+              title: 'Trocador providers',
+              handler: (context) => Navigator.of(context).pushNamed(Routes.trocadorProvidersPage),
+            ),
           ],
         );
       }),

@@ -45,6 +45,7 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dar
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
+import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
@@ -92,6 +93,7 @@ import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -331,6 +333,7 @@ Future<void> setup({
           keyService: getIt.get<KeyService>(),
           secureStorage: getIt.get<FlutterSecureStorage>(),
           sharedPreferences: getIt.get<SharedPreferences>(),
+          settingsStore: getIt.get<SettingsStore>(),
           walletInfoSource: _walletInfoSource));
 
   getIt.registerFactory<WalletLoadingService>(() => WalletLoadingService(
@@ -338,9 +341,10 @@ Future<void> setup({
       getIt.get<KeyService>(),
       (WalletType type) => getIt.get<WalletService>(param1: type)));
 
-  getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) => WalletNewVM(
-      getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
-      type: type));
+  getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) =>
+      WalletNewVM(getIt.get<AppStore>(),
+          getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
+          type: type));
 
   getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
@@ -699,6 +703,8 @@ Future<void> setup({
     return PrivacySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
   });
 
+  getIt.registerFactory(() => TrocadorProvidersViewModel(getIt.get<SettingsStore>()));
+
   getIt.registerFactory(() {
     return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
   });
@@ -751,6 +757,8 @@ Future<void> setup({
       () => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(), getIt.get<AuthService>()));
 
   getIt.registerFactory(() => PrivacyPage(getIt.get<PrivacySettingsViewModel>()));
+
+  getIt.registerFactory(() => TrocadorProvidersPage(getIt.get<TrocadorProvidersViewModel>()));
 
   getIt.registerFactory(() => DomainLookupsPage(getIt.get<PrivacySettingsViewModel>()));
 
@@ -888,8 +896,9 @@ Future<void> setup({
   getIt.registerFactoryParam<NewWalletTypePage, void Function(BuildContext, WalletType), bool?>(
       (param1, isCreate) => NewWalletTypePage(onTypeSelected: param1, isCreate: isCreate ?? true));
 
-  getIt.registerFactoryParam<PreSeedPage, WalletType, void>(
-      (WalletType type, _) => PreSeedPage(type));
+  getIt.registerFactoryParam<PreSeedPage, WalletType, AdvancedPrivacySettingsViewModel>(
+      (WalletType type, AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel)
+      => PreSeedPage(type, advancedPrivacySettingsViewModel));
 
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
       TradeDetailsViewModel(
