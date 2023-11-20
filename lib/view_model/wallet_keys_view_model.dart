@@ -107,7 +107,9 @@ abstract class WalletKeysViewModelBase with Store {
       ]);
     }
 
-    if (_appStore.wallet!.type == WalletType.nano || _appStore.wallet!.type == WalletType.banano) {
+    bool nanoBased = _appStore.wallet!.type == WalletType.nano || _appStore.wallet!.type == WalletType.banano;
+
+    if (nanoBased) {
 
       // we don't necessarily have the seed phrase for nano / banano:
       if (_appStore.wallet!.seed != null) {
@@ -119,7 +121,7 @@ abstract class WalletKeysViewModelBase with Store {
       // we always have the hex version of the seed:
       items.addAll([
         if (_appStore.wallet!.privateKey != null)
-          StandartListItem(title: S.current.spend_key_private, value: _appStore.wallet!.privateKey!),
+          StandartListItem(title: S.current.seed_hex_form, value: _appStore.wallet!.privateKey!),
       ]);
     }
   }
