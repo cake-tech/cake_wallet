@@ -166,32 +166,3 @@ class _ImportNFTPage extends BasePage {
     );
   }
 }
-
-class PasteTextWidget extends StatelessWidget {
-  const PasteTextWidget({
-    required this.onTap,
-    super.key,
-  });
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 32,
-      height: 32,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Image.asset(
-            'assets/images/paste_ios.png',
-            color: Theme.of(context).primaryColor,
-          ),
-        ),
-      ),
-    );
-  }
-}
