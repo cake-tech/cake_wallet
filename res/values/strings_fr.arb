@@ -736,5 +736,5 @@
   "switchToETHWallet": "Veuillez passer à un portefeuille (wallet) Ethereum et réessayer",
   "unspent_change": "Changement",
   "tor_connection": "Connexion Tor",
-  "seed_hex_form": "Graine du portefeuille (forme hexagonale):"
+  "seed_hex_form": "Graine du portefeuille (forme hexagonale)"
 }
