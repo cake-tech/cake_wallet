@@ -107,21 +107,19 @@ abstract class WalletKeysViewModelBase with Store {
       ]);
     }
 
-    bool nanoBased = _appStore.wallet!.type == WalletType.nano || _appStore.wallet!.type == WalletType.banano;
+    bool nanoBased =
+        _appStore.wallet!.type == WalletType.nano || _appStore.wallet!.type == WalletType.banano;
 
     if (nanoBased) {
-
-      // we don't necessarily have the seed phrase for nano / banano:
-      if (_appStore.wallet!.seed != null) {
-        items.addAll([
-          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
-        ]);
-      }
-
-      // we always have the hex version of the seed:
+      
+      // we always have the hex version of the seed and private key:
       items.addAll([
+        if (_appStore.wallet!.seed != null)
+          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+        if (_appStore.wallet!.hexSeed != null)
+          StandartListItem(title: S.current.seed_hex_form, value: _appStore.wallet!.hexSeed!),
         if (_appStore.wallet!.privateKey != null)
-          StandartListItem(title: S.current.seed_hex_form, value: _appStore.wallet!.privateKey!),
+          StandartListItem(title: S.current.private_key, value: _appStore.wallet!.privateKey!),
       ]);
     }
   }
@@ -172,9 +170,13 @@ abstract class WalletKeysViewModelBase with Store {
 
   Future<Map<String, String>> get _queryParams async {
     final restoreHeightResult = await restoreHeight;
+    bool nanoBased =
+        _appStore.wallet!.type == WalletType.nano || _appStore.wallet!.type == WalletType.banano;
     return {
       if (_appStore.wallet!.seed != null) 'seed': _appStore.wallet!.seed!,
-      if (_appStore.wallet!.privateKey != null && _appStore.wallet!.seed == null) 'private_key': _appStore.wallet!.privateKey!,
+      if (_appStore.wallet!.seed == null && _appStore.wallet!.hexSeed != null)
+        'hexSeed': _appStore.wallet!.hexSeed!,
+      if (_appStore.wallet!.privateKey != null) 'private_key': _appStore.wallet!.privateKey!,
       if (restoreHeightResult != null) ...{'height': restoreHeightResult}
     };
   }
