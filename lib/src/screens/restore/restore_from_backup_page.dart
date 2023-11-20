@@ -4,7 +4,6 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/restore_from_backup_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -31,10 +30,11 @@ class RestoreFromBackupPage extends BasePage {
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
-                    alertTitle: S.of(context).error,
-                    alertContent: state.error,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
+                  alertTitle: S.of(context).error,
+                  alertContent: state.error,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop(),
+                );
               });
         });
       }
@@ -44,42 +44,97 @@ class RestoreFromBackupPage extends BasePage {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
         child: Padding(
-            padding: EdgeInsets.only(bottom: 24, left: 24, right: 24),
-            child: Column(children: [
+          padding: EdgeInsets.only(bottom: 24, left: 24, right: 24),
+          child: Column(
+            children: [
               Expanded(
                 child: Container(
                   child: Center(
-                      child: TextFormField(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextFormField(
                           obscureText: true,
                           enableSuggestions: false,
                           autocorrect: false,
-                          decoration: InputDecoration(
-                              hintText: S.of(context).enter_backup_password),
+                          decoration:
+                              InputDecoration(hintText: S.of(context).enter_backup_password),
                           keyboardType: TextInputType.visiblePassword,
                           controller: textEditingController,
-                          style: TextStyle(fontSize: 26, color: Colors.black))),
+                          style: TextStyle(fontSize: 26, color: Colors.black),
+                        ),
+                        Observer(
+                          builder: (_) {
+                            if (restoreFromBackupViewModel.filePath.isNotEmpty) {
+                              return Column(
+                                children: [
+                                  const SizedBox(height: 100),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "File Name: ",
+                                        style: TextStyle(
+                                          fontSize: 18.0,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Lato',
+                                          color: titleColor(context),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          restoreFromBackupViewModel.filePath.split("/").last,
+                                          style: TextStyle(
+                                            fontSize: 18.0,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Lato',
+                                            color: titleColor(context),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              );
+                            }
+
+                            return const SizedBox();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
               Container(
-                  child: Row(children: [
-                Expanded(
-                    child: PrimaryButton(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: PrimaryButton(
                         onPressed: () => presentFilePicker(),
                         text: S.of(context).select_backup_file,
                         color: Colors.grey,
-                        textColor: Colors.white)),
-                SizedBox(width: 20),
-                Expanded(child: Observer(builder: (_) {
-                  return LoadingPrimaryButton(
-                      isLoading:
-                          restoreFromBackupViewModel.state is IsExecutingState,
-                      onPressed: () => onImportHandler(context),
-                      text: S.of(context).import,
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white);
-                }))
-              ])),
-            ])),
+                        textColor: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 20),
+                    Expanded(
+                      child: Observer(
+                        builder: (_) {
+                          return LoadingPrimaryButton(
+                              isLoading: restoreFromBackupViewModel.state is IsExecutingState,
+                              onPressed: () => onImportHandler(context),
+                              text: S.of(context).import,
+                              color: Theme.of(context).primaryColor,
+                              textColor: Colors.white);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -87,7 +142,7 @@ class RestoreFromBackupPage extends BasePage {
   Future<void> presentFilePicker() async {
     final result = await FilePicker.platform.pickFiles();
 
-    if (result?.files?.isEmpty ?? true) {
+    if (result?.files.isEmpty ?? true) {
       return;
     }
 
@@ -95,8 +150,7 @@ class RestoreFromBackupPage extends BasePage {
   }
 
   Future<void> onImportHandler(BuildContext context) async {
-    if (textEditingController.text.isEmpty ||
-        (restoreFromBackupViewModel.filePath.isEmpty ?? true)) {
+    if (textEditingController.text.isEmpty || (restoreFromBackupViewModel.filePath.isEmpty)) {
       await showPopUp<void>(
           context: context,
           builder: (_) {

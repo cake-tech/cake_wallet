@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -246,6 +247,8 @@ class BackupService {
     final sortBalanceTokensBy = data[PreferencesKey.sortBalanceBy] as int?;
     final pinNativeTokenAtTop = data[PreferencesKey.pinNativeTokenAtTop] as bool?;
     final useEtherscan = data[PreferencesKey.useEtherscan] as bool?;
+    final defaultNanoRep = data[PreferencesKey.defaultNanoRep] as String?;
+    final defaultBananoRep = data[PreferencesKey.defaultBananoRep] as String?;
     final lookupsTwitter = data[PreferencesKey.lookupsTwitter] as bool?;
     final lookupsMastodon = data[PreferencesKey.lookupsMastodon] as bool?;
     final lookupsYatService = data[PreferencesKey.lookupsYatService] as bool?;
@@ -254,7 +257,8 @@ class BackupService {
     final lookupsENS = data[PreferencesKey.lookupsENS] as bool?;
     final syncAll = data[PreferencesKey.syncAllKey] as bool?;
     final syncMode = data[PreferencesKey.syncModeKey] as int?;
-    final autoGenerateSubaddressStatus = data[PreferencesKey.autoGenerateSubaddressStatusKey] as int?;
+    final autoGenerateSubaddressStatus =
+        data[PreferencesKey.autoGenerateSubaddressStatusKey] as int?;
 
     await _sharedPreferences.setString(PreferencesKey.currentWalletName, currentWalletName);
 
@@ -291,9 +295,12 @@ class BackupService {
       await _sharedPreferences.setInt(
           PreferencesKey.currentTransactionPriorityKeyLegacy, currentTransactionPriorityKeyLegacy);
 
-    if (allowBiometricalAuthentication != null && !Platform.isMacOS && !Platform.isLinux)
+    if (DeviceInfo.instance.isDesktop) {
+      await _sharedPreferences.setBool(PreferencesKey.allowBiometricalAuthenticationKey, false);
+    } else if (allowBiometricalAuthentication != null) {
       await _sharedPreferences.setBool(
           PreferencesKey.allowBiometricalAuthenticationKey, allowBiometricalAuthentication);
+    }
 
     if (currentBitcoinElectrumSererId != null)
       await _sharedPreferences.setInt(
@@ -309,14 +316,18 @@ class BackupService {
     if (fiatApiMode != null)
       await _sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, fiatApiMode);
     if (autoGenerateSubaddressStatus != null)
-      await _sharedPreferences.setInt(PreferencesKey.autoGenerateSubaddressStatusKey,
-          autoGenerateSubaddressStatus);
+      await _sharedPreferences.setInt(
+          PreferencesKey.autoGenerateSubaddressStatusKey, autoGenerateSubaddressStatus);
 
     if (currentPinLength != null)
       await _sharedPreferences.setInt(PreferencesKey.currentPinLength, currentPinLength);
 
-    if (currentTheme != null && DeviceInfo.instance.isMobile)
+    if (currentTheme != null && DeviceInfo.instance.isMobile) {
       await _sharedPreferences.setInt(PreferencesKey.currentTheme, currentTheme);
+      // enforce dark theme on desktop platforms until the design is ready:
+    } else if (DeviceInfo.instance.isDesktop) {
+      await _sharedPreferences.setInt(PreferencesKey.currentTheme, ThemeList.darkTheme.raw);
+    }
 
     if (exchangeStatus != null)
       await _sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, exchangeStatus);
@@ -379,6 +390,13 @@ class BackupService {
     if (useEtherscan != null)
       await _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan);
 
+    if (defaultNanoRep != null)
+      await _sharedPreferences.setString(PreferencesKey.defaultNanoRep, defaultNanoRep);
+
+    if (defaultBananoRep != null)
+      await _sharedPreferences.setString(PreferencesKey.defaultBananoRep, defaultBananoRep);
+
+    if (syncAll != null) await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
     if (lookupsTwitter != null)
       await _sharedPreferences.setBool(PreferencesKey.lookupsTwitter, lookupsTwitter);
 
@@ -389,19 +407,17 @@ class BackupService {
       await _sharedPreferences.setBool(PreferencesKey.lookupsYatService, lookupsYatService);
 
     if (lookupsUnstoppableDomains != null)
-      await _sharedPreferences.setBool(PreferencesKey.lookupsUnstoppableDomains, lookupsUnstoppableDomains);
+      await _sharedPreferences.setBool(
+          PreferencesKey.lookupsUnstoppableDomains, lookupsUnstoppableDomains);
 
     if (lookupsOpenAlias != null)
       await _sharedPreferences.setBool(PreferencesKey.lookupsOpenAlias, lookupsOpenAlias);
 
-    if (lookupsENS != null)
-      await _sharedPreferences.setBool(PreferencesKey.lookupsENS, lookupsENS);
+    if (lookupsENS != null) await _sharedPreferences.setBool(PreferencesKey.lookupsENS, lookupsENS);
 
-    if (syncAll != null)
-      await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
+    if (syncAll != null) await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
 
-    if (syncMode != null)
-      await _sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode);
+    if (syncMode != null) await _sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode);
 
     await preferencesFile.delete();
   }
@@ -505,7 +521,8 @@ class BackupService {
           _sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey),
       PreferencesKey.disableBuyKey: _sharedPreferences.getBool(PreferencesKey.disableBuyKey),
       PreferencesKey.disableSellKey: _sharedPreferences.getBool(PreferencesKey.disableSellKey),
-      PreferencesKey.defaultBuyProvider: _sharedPreferences.getInt(PreferencesKey.defaultBuyProvider),
+      PreferencesKey.defaultBuyProvider:
+          _sharedPreferences.getInt(PreferencesKey.defaultBuyProvider),
       PreferencesKey.isDarkThemeLegacy:
           _sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy),
       PreferencesKey.currentPinLength: _sharedPreferences.getInt(PreferencesKey.currentPinLength),
@@ -547,28 +564,23 @@ class BackupService {
           _sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets),
       PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings: _sharedPreferences
           .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
-      PreferencesKey.sortBalanceBy:
-          _sharedPreferences.getInt(PreferencesKey.sortBalanceBy),
+      PreferencesKey.sortBalanceBy: _sharedPreferences.getInt(PreferencesKey.sortBalanceBy),
       PreferencesKey.pinNativeTokenAtTop:
           _sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop),
-      PreferencesKey.useEtherscan:
-          _sharedPreferences.getBool(PreferencesKey.useEtherscan),
-      PreferencesKey.lookupsTwitter:
-      _sharedPreferences.getBool(PreferencesKey.lookupsTwitter),
-      PreferencesKey.lookupsMastodon:
-      _sharedPreferences.getBool(PreferencesKey.lookupsMastodon),
+      PreferencesKey.useEtherscan: _sharedPreferences.getBool(PreferencesKey.useEtherscan),
+      PreferencesKey.defaultNanoRep: _sharedPreferences.getString(PreferencesKey.defaultNanoRep),
+      PreferencesKey.defaultBananoRep:
+          _sharedPreferences.getString(PreferencesKey.defaultBananoRep),
+      PreferencesKey.lookupsTwitter: _sharedPreferences.getBool(PreferencesKey.lookupsTwitter),
+      PreferencesKey.lookupsMastodon: _sharedPreferences.getBool(PreferencesKey.lookupsMastodon),
       PreferencesKey.lookupsYatService:
-      _sharedPreferences.getBool(PreferencesKey.lookupsYatService),
+          _sharedPreferences.getBool(PreferencesKey.lookupsYatService),
       PreferencesKey.lookupsUnstoppableDomains:
-      _sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains),
-      PreferencesKey.lookupsOpenAlias:
-      _sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias),
-      PreferencesKey.lookupsENS:
-      _sharedPreferences.getBool(PreferencesKey.lookupsENS),
-      PreferencesKey.syncModeKey:
-          _sharedPreferences.getInt(PreferencesKey.syncModeKey),
-      PreferencesKey.syncAllKey:
-          _sharedPreferences.getBool(PreferencesKey.syncAllKey),
+          _sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains),
+      PreferencesKey.lookupsOpenAlias: _sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias),
+      PreferencesKey.lookupsENS: _sharedPreferences.getBool(PreferencesKey.lookupsENS),
+      PreferencesKey.syncModeKey: _sharedPreferences.getInt(PreferencesKey.syncModeKey),
+      PreferencesKey.syncAllKey: _sharedPreferences.getBool(PreferencesKey.syncAllKey),
       PreferencesKey.autoGenerateSubaddressStatusKey:
           _sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey),
     };

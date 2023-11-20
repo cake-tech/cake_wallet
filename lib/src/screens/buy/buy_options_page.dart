@@ -37,21 +37,21 @@ class BuyOptionsPage extends BasePage {
               Padding(
                 padding: EdgeInsets.only(top: 24),
                 child: OptionTile(
-                  image: iconRobinhood,
-                  title: "Robinhood Connect",
-                  description: S.of(context).robinhood_option_description,
-                  onPressed: () async =>
-                      await getIt.get<RobinhoodBuyProvider>().launchProvider(context),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 24),
-                child: OptionTile(
                   image: iconOnramper,
                   title: "Onramper",
                   description: S.of(context).onramper_option_description,
                   onPressed: () async =>
                       await getIt.get<OnRamperBuyProvider>().launchProvider(context),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 24),
+                child: OptionTile(
+                  image: iconRobinhood,
+                  title: "Robinhood Connect",
+                  description: S.of(context).robinhood_option_description,
+                  onPressed: () async =>
+                  await getIt.get<RobinhoodBuyProvider>().launchProvider(context),
                 ),
               ),
               Spacer(),
