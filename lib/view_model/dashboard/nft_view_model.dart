@@ -4,7 +4,6 @@ import 'dart:developer';
 
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
@@ -42,6 +41,11 @@ abstract class NFTViewModelBase with Store {
     final walletAddress = appStore.wallet!.walletInfo.address;
     log('Fetching wallet NFTs for $walletAddress');
 
+    // the [chain] refers to the chain network that the nft is on
+    // the [format] refers to the number format type of the responses
+    // the [normalizedMetadata] field is a boolean that determines if
+    // the response would include a json string of the NFT Metadata that can be decoded
+    // and used within the wallet
     final uri = Uri.https(
       'deep-index.moralis.io',
       '/api/v2.2/$walletAddress/nft',
@@ -87,6 +91,12 @@ abstract class NFTViewModelBase with Store {
 
   @action
   Future<void> importNFT(String tokenAddress, String tokenId) async {
+    
+    // the [chain] refers to the chain network that the nft is on
+    // the [format] refers to the number format type of the responses
+    // the [normalizedMetadata] field is a boolean that determines if
+    // the response would include a json string of the NFT Metadata that can be decoded
+    // and used within the wallet
     final uri = Uri.https(
       'deep-index.moralis.io',
       '/api/v2.2/nft/$tokenAddress/$tokenId',

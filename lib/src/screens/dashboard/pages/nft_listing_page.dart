@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/nft_tile_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -21,10 +22,14 @@ class NFTListingPage extends StatelessWidget {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: PrimaryButton(
-                text: 'Import NFTs',
+                text: S.current.import,
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
-                onPressed: () => Navigator.pushNamed(context, Routes.importNFTPage),
+                onPressed: () => Navigator.pushNamed(
+                  context,
+                  Routes.importNFTPage,
+                  arguments: nftViewModel,
+                ),
               ),
             ),
             if (nftViewModel.isLoading)
@@ -45,7 +50,7 @@ class NFTListingPage extends StatelessWidget {
                 child: nftViewModel.nftAssetByWalletModels.isEmpty
                     ? Center(
                         child: Text(
-                          'No NFTs yet',
+                          S.current.noNFTYet,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 20,

@@ -383,7 +383,7 @@
   "change_backup_password_alert": "Vaše předchozí soubory se zálohami nebude možné naimportovat s novým heslem. Nové heslo bude použito pouze pro nové zálohy. Opravdu chcete změnit heslo pro zálohy?",
   "enter_backup_password": "Zde zadejte své heslo pro zálohy",
   "select_backup_file": "Vybrat soubor se zálohou",
-  "import": "Importovat",
+  "import": "Import",
   "please_select_backup_file": "Prosím vyberte soubor se zálohou a zadejte heslo pro zálohy.",
   "fixed_rate": "Pevný kurz",
   "fixed_rate_alert": "Když je zvolený pevný kurz, můžete zadat konkrétní částku, kterou chcete dostat. Chcete se přepnout do režimu s pevným kurzem?",
@@ -722,5 +722,12 @@
   "domain_looks_up": "Vyhledávání domén",
   "require_for_exchanges_to_external_wallets": "Vyžadovat pro výměny do externích peněženek",
   "camera_permission_is_required": "Vyžaduje se povolení fotoaparátu.\nPovolte jej v nastavení aplikace.",
-  "switchToETHWallet": "Přejděte na peněženku Ethereum a zkuste to znovu"
+  "switchToETHWallet": "Přejděte na peněženku Ethereum a zkuste to znovu",
+  "importNFTs": "Importujte NFT",
+  "noNFTYet": "Zatím žádné NFT",
+  "address": "Adresa",
+  "enterTokenID": "Zadejte ID tokenu",
+  "tokenID": "ID",
+  "name": "název",
+  "symbol": "Symbol"
 }

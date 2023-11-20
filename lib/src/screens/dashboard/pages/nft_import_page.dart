@@ -1,7 +1,9 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +59,7 @@ class _ImportNFTPage extends BasePage {
   final TextEditingController tokenAddressController;
 
   @override
-  String? get title => 'Import NFT';
+  String? get title => S.current.import;
 
   @override
   Widget body(BuildContext context) {
@@ -66,40 +68,50 @@ class _ImportNFTPage extends BasePage {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+       
           Text(
-            'Address',
+            S.current.address,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
               fontFamily: 'Lato',
               fontWeight: FontWeight.w800,
-              color: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
+              color:
+                  Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
               height: 1,
             ),
           ),
-          BaseTextFormField(
-            suffixIcon: PasteTextWidget(
-              onTap: () async {
-                final clipboard = await Clipboard.getData('text/plain');
-                final tokenAddress = clipboard?.text ?? '';
-
-                if (tokenAddress.isNotEmpty) {
-                  tokenAddressController.text = tokenAddress;
-                }
-              },
-            ),
-            textAlign: TextAlign.left,
-            hintText: '0x...',
+          AddressTextField(
             controller: tokenAddressController,
-            keyboardType: TextInputType.number,
-            placeholderTextStyle: TextStyle(
+            options: [AddressTextFieldOption.paste],
+            onPushPasteButton: (context) async {
+              final clipboard = await Clipboard.getData('text/plain');
+              final tokenAddress = clipboard?.text ?? '';
+
+              if (tokenAddress.isNotEmpty) {
+                tokenAddressController.text = tokenAddress;
+              }
+            },
+            borderColor: Theme.of(context)
+                .extension<CakeTextTheme>()!
+                .textfieldUnderlineColor,
+            iconColor: Theme.of(context).primaryColor,
+            placeholder: '0x...',
+            textStyle: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w400,
+              color: PaletteDark.darkCyanBlue,
+            ),
+            hintStyle: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              color: PaletteDark.darkCyanBlue,
             ),
           ),
+      
           SizedBox(height: 48),
           Text(
-            'ID',
+            S.current.tokenID,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
@@ -109,31 +121,38 @@ class _ImportNFTPage extends BasePage {
               height: 1,
             ),
           ),
-          BaseTextFormField(
-            textAlign: TextAlign.left,
-            hintText: 'Enter the token ID',
+          AddressTextField(
             controller: tokenIDController,
-            keyboardType: TextInputType.number,
-            suffixIcon: PasteTextWidget(
-              onTap: () async {
-                final clipboard = await Clipboard.getData('text/plain');
-                final tokenID = clipboard?.text ?? '';
+            options: [AddressTextFieldOption.paste],
+            onPushPasteButton: (context) async {
+              final clipboard = await Clipboard.getData('text/plain');
+              final tokenID = clipboard?.text ?? '';
 
-                if (tokenID.isNotEmpty) {
-                  tokenIDController.text = tokenID;
-                }
-              },
-            ),
-            placeholderTextStyle: TextStyle(
+              if (tokenID.isNotEmpty) {
+                tokenIDController.text = tokenID;
+              }
+            },
+            borderColor: Theme.of(context)
+                .extension<CakeTextTheme>()!
+                .textfieldUnderlineColor,
+            iconColor: Theme.of(context).primaryColor,
+            placeholder: S.current.enterTokenID,
+            textStyle: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w400,
+              color: PaletteDark.darkCyanBlue,
+            ),
+            hintStyle: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              color: PaletteDark.darkCyanBlue,
             ),
           ),
           Spacer(),
           Observer(builder: (context) {
             return LoadingPrimaryButton(
               isLoading: nftViewModel.isImportNFTLoading,
-              text: 'IMPORT',
+              text: S.current.import,
               color: Theme.of(context).primaryColor,
               textColor: Colors.white,
               onPressed: () async {

@@ -21,7 +21,8 @@ class NFTDetailsPage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) =>
+          GradientBackground(scaffold: scaffold);
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -33,7 +34,8 @@ class NFTDetailsPage extends BasePage {
   Widget trailing(BuildContext context) {
     final menuButton = Image.asset(
       'assets/images/menu.png',
-      color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+      color:
+          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
     );
 
     return Container(
@@ -61,10 +63,14 @@ class NFTDetailsPage extends BasePage {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30.0),
             border: Border.all(
-              color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+              color: Theme.of(context)
+                  .extension<BalancePageTheme>()!
+                  .cardBorderColor,
               width: 1,
             ),
-            color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+            color: Theme.of(context)
+                .extension<SyncIndicatorTheme>()!
+                .syncedBackgroundColor,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,63 +82,94 @@ class NFTDetailsPage extends BasePage {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30.0),
                   border: Border.all(
-                    color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+                    color: Theme.of(context)
+                        .extension<BalancePageTheme>()!
+                        .cardBorderColor,
                     width: 1,
                   ),
-                  color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                  color: Theme.of(context)
+                      .extension<SyncIndicatorTheme>()!
+                      .syncedBackgroundColor,
                   image: nftAsset.normalizedMetadata?.imageUrl == null
                       ? null
                       : DecorationImage(
                           image: Image.network(
                             nftAsset.normalizedMetadata?.imageUrl ?? '',
                             fit: BoxFit.cover,
-                            loadingBuilder:
-                                (BuildContext _, Widget child, ImageChunkEvent? loadingProgress) {
+                            loadingBuilder: (BuildContext _, Widget child,
+                                ImageChunkEvent? loadingProgress) {
                               if (loadingProgress == null) {
                                 return child;
                               } else {
                                 return PlaceholderContainer(text: 'Logo');
                               }
                             },
-                            errorBuilder: (_, __, ___) => PlaceholderContainer(text: '!'),
+                            errorBuilder: (_, __, ___) =>
+                                PlaceholderContainer(text: '!'),
                           ).image,
                         ),
                 ),
               ),
               SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Name',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w400,
-                        color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-                        height: 1,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      nftAsset.name ?? '',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w900,
-                        color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
-                        height: 1,
-                      ),
-                    ),
-                  ],
-                ),
+              _NFTSingleInfoTile(
+                infoType: S.current.name,
+                infoValue: nftAsset.normalizedMetadata?.name ?? '',
+              ),
+              SizedBox(height: 16),
+              _NFTSingleInfoTile(
+                infoType: S.current.symbol,
+                infoValue: nftAsset.symbol ?? '',
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _NFTSingleInfoTile extends StatelessWidget {
+  const _NFTSingleInfoTile({
+    required this.infoType,
+    required this.infoValue,
+  });
+
+  final String infoType;
+  final String infoValue;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+infoType,
+            style: TextStyle(
+              fontSize: 12,
+              fontFamily: 'Lato',
+              fontWeight: FontWeight.w400,
+              color: Theme.of(context)
+                  .extension<BalancePageTheme>()!
+                  .labelTextColor,
+              height: 1,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            infoValue,
+            style: TextStyle(
+              fontSize: 16,
+              fontFamily: 'Lato',
+              fontWeight: FontWeight.w900,
+              color: Theme.of(context)
+                  .extension<BalancePageTheme>()!
+                  .assetTitleColor,
+              height: 1,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

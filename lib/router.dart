@@ -624,7 +624,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.importNFTPage:
       return MaterialPageRoute<void>(
         builder: (_) => ImportNFTPage(
-          nftViewModel: getIt.get<NFTViewModel>(),
+          nftViewModel: settings.arguments as NFTViewModel,
         ),
       ); 
     default: 

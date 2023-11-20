@@ -730,5 +730,12 @@
   "domain_looks_up": "Поиск доменов",
   "require_for_exchanges_to_external_wallets": "Требовать обмена на внешние кошельки",
   "camera_permission_is_required": "Требуется разрешение камеры.\nПожалуйста, включите его в настройках приложения.",
-  "switchToETHWallet": "Пожалуйста, переключитесь на кошелек Ethereum и повторите попытку."
+  "switchToETHWallet": "Пожалуйста, переключитесь на кошелек Ethereum и повторите попытку.",
+  "importNFTs": "Импортировать NFT",
+  "noNFTYet": "NFT пока нет",
+  "address": "Адрес",
+  "enterTokenID": "Введите идентификатор токена",
+  "tokenID": "ИДЕНТИФИКАТОР",
+  "name": "Имя",
+  "symbol": "Символ"
 }
