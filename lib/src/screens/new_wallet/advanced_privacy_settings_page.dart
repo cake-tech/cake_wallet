@@ -98,26 +98,27 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
               );
             }),
             if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
-            Observer(builder: (_) {
-              return SettingsPickerCell<SeedPhraseLength>(
-                title: S.current.seed_phrase_length,
-                items: SeedPhraseLength.values,
-                selectedItem: widget.privacySettingsViewModel.seedPhraseLength,
-                onItemSelected: (SeedPhraseLength length) {
-                  widget.privacySettingsViewModel.setSeedPhraseLength(length);
-                },
-              );
-            }),
-            Observer(builder: (_) {
-              return SettingsChoicesCell(
-                ChoicesListItem<SeedType>(
-                  title: S.current.seedtype,
-                  items: SeedType.all,
-                  selectedItem: widget.privacySettingsViewModel.seedType,
-                  onItemSelected: widget.privacySettingsViewModel.setSeedType,
-                ),
-              );
-            }),
+              Observer(builder: (_) {
+                return SettingsPickerCell<SeedPhraseLength>(
+                  title: S.current.seed_phrase_length,
+                  items: SeedPhraseLength.values,
+                  selectedItem: widget.privacySettingsViewModel.seedPhraseLength,
+                  onItemSelected: (SeedPhraseLength length) {
+                    widget.privacySettingsViewModel.setSeedPhraseLength(length);
+                  },
+                );
+              }),
+            if (widget.privacySettingsViewModel.hasSeedTypeOption)
+              Observer(builder: (_) {
+                return SettingsChoicesCell(
+                  ChoicesListItem<SeedType>(
+                    title: S.current.seedtype,
+                    items: SeedType.all,
+                    selectedItem: widget.privacySettingsViewModel.seedType,
+                    onItemSelected: widget.privacySettingsViewModel.setSeedType,
+                  ),
+                );
+              }),
           ],
         ),
         bottomSectionPadding: EdgeInsets.all(24),
