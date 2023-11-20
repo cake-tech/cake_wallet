@@ -38,8 +38,13 @@ class EthereumClient {
     // });
   }
 
-  Future<EtherAmount> getBalance(EthereumAddress address) async =>
-      await _client!.getBalance(address);
+  Future<EtherAmount> getBalance(EthereumAddress address) async {
+    try {
+      return await _client!.getBalance(address);
+    } catch (_) {
+      return EtherAmount.zero();
+    }
+  }
 
   Future<int> getGasUnitPrice() async {
     try {

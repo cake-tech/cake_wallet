@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -40,7 +42,9 @@ class AuthService with Store {
     final encodedPassword = encodedPinCode(pin: password);
     // secure storage has a weird bug on macOS, where overwriting a key doesn't work, unless
     // we delete what's there first:
-    await secureStorage.delete(key: key);
+    if (Platform.isMacOS) {
+      await secureStorage.delete(key: key);
+    }
     await secureStorage.write(key: key, value: encodedPassword);
   }
 

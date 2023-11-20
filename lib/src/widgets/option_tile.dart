@@ -52,7 +52,7 @@ class OptionTile extends StatelessWidget {
                       child: Text(
                         description,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 14,
                           fontWeight: FontWeight.normal,
                           color: Theme.of(context).extension<OptionTileTheme>()!.descriptionColor,
                         ),

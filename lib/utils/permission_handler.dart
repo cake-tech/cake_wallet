@@ -17,7 +17,9 @@ class PermissionHandler {
     var status = await permission.status;
 
     if (status.isDenied) {
-      status = await permission.request();
+      try {
+        status = await permission.request();
+      } catch (_) {}
     }
 
     if (status.isPermanentlyDenied || status.isDenied) {
