@@ -100,7 +100,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
           case WalletType.nano:
             return nano!.createNanoRestoreWalletFromSeedCredentials(
-                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
+                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password, derivationType: DerivationType.def);
           default:
             throw Exception('Unexpected type: ${type.toString()}');
         }

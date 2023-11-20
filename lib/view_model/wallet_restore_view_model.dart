@@ -239,8 +239,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       default:
         break;
     }
-
-    // throw Exception('Unexpected type: ${type.toString()}');
     return [DerivationType.def];
   }
 
