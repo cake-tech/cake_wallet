@@ -1,28 +1,28 @@
 import 'dart:async';
-import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
-import 'package:cake_wallet/exchange/exchange_provider.dart';
+
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/exolix/exolix_exchange_provider.dart';
-import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dart';
-import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
-import 'package:cake_wallet/exchange/simpleswap/simpleswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/exchange/trocador/trocador_exchange_provider.dart';
-import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
+import 'package:cake_wallet/src/screens/trade_details/trade_provider_unsupported_item.dart';
+import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
-import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
-import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
-import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:collection/collection.dart';
 
 part 'trade_details_view_model.g.dart';
 
@@ -37,14 +37,8 @@ abstract class TradeDetailsViewModelBase with Store {
         trade = trades.values.firstWhereOrNull((element) => element.id == tradeForDetails.id) ??
             tradeForDetails {
     switch (trade.provider) {
-      case ExchangeProviderDescription.xmrto:
-        _provider = XMRTOExchangeProvider();
-        break;
       case ExchangeProviderDescription.changeNow:
         _provider = ChangeNowExchangeProvider(settingsStore: settingsStore);
-        break;
-      case ExchangeProviderDescription.morphToken:
-        _provider = MorphTokenExchangeProvider(trades: trades);
         break;
       case ExchangeProviderDescription.sideShift:
         _provider = SideShiftExchangeProvider();
@@ -62,9 +56,10 @@ abstract class TradeDetailsViewModelBase with Store {
 
     _updateItems();
 
-    _updateTrade();
-
-    timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
+    if (_provider != null) {
+      _updateTrade();
+      timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
+    }
   }
 
   final Box<Trade> trades;
@@ -86,9 +81,9 @@ abstract class TradeDetailsViewModelBase with Store {
     try {
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
-      if (updatedTrade.createdAt == null && trade.createdAt != null) {
+      if (updatedTrade.createdAt == null && trade.createdAt != null)
         updatedTrade.createdAt = trade.createdAt;
-      }
+
       Trade? foundElement = trades.values.firstWhereOrNull((element) => element.id == trade.id);
       if (foundElement != null) {
         final editedTrade = trades.get(foundElement.key);
@@ -108,6 +103,10 @@ abstract class TradeDetailsViewModelBase with Store {
     final dateFormat = DateFormatter.withCurrentLocal(reverse: true);
 
     items.clear();
+
+    if (_provider == null)
+      items.add(TradeProviderUnsupportedItem(
+          error: S.current.exchange_provider_unsupported(trade.provider.title)));
 
     items.add(
         DetailsListStatusItem(title: S.current.trade_details_state, value: trade.state.toString()));
@@ -165,7 +164,7 @@ abstract class TradeDetailsViewModelBase with Store {
     if (trade.provider == ExchangeProviderDescription.exolix) {
       final buildURL = 'https://exolix.com/transaction/${trade.id.toString()}';
       items.add(
-        TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => _launchUrl(buildURL)));
+          TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => _launchUrl(buildURL)));
     }
   }
 

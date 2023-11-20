@@ -84,6 +84,9 @@ abstract class BalanceViewModelBase with Store {
   bool get isHomeScreenSettingsEnabled => wallet.type == WalletType.ethereum;
 
   @computed
+  bool get hasAccounts => wallet.type == WalletType.monero;
+
+  @computed
   SortBalanceBy get sortBalanceBy => settingsStore.sortBalanceBy;
 
   @computed
@@ -172,10 +175,8 @@ abstract class BalanceViewModelBase with Store {
       return '---';
     }
 
-    return  _getFiatBalance(
-        price: price,
-        cryptoAmount: getFormattedFrozenBalance(walletBalance)) + ' ' + fiatCurrency.toString();
-
+    return _getFiatBalance(price: price, cryptoAmount: getFormattedFrozenBalance(walletBalance)) +
+        ' ${fiatCurrency.toString()}';
   }
 
   @computed
@@ -198,10 +199,8 @@ abstract class BalanceViewModelBase with Store {
       return '---';
     }
 
-    return  _getFiatBalance(
-            price: price,
-            cryptoAmount: walletBalance.formattedAvailableBalance) + ' ' + fiatCurrency.toString();
-
+    return _getFiatBalance(price: price, cryptoAmount: walletBalance.formattedAvailableBalance) +
+        ' ${fiatCurrency.toString()}';
   }
 
   @computed
@@ -213,10 +212,8 @@ abstract class BalanceViewModelBase with Store {
       return '---';
     }
 
-    return   _getFiatBalance(
-            price: price,
-            cryptoAmount: walletBalance.formattedAdditionalBalance) + ' ' + fiatCurrency.toString();
-
+    return _getFiatBalance(price: price, cryptoAmount: walletBalance.formattedAdditionalBalance) +
+        ' ${fiatCurrency.toString()}';
   }
 
   @computed
@@ -395,6 +392,6 @@ abstract class BalanceViewModelBase with Store {
     }
   }
 
-  String getFormattedFrozenBalance(Balance walletBalance) => walletBalance.formattedFrozenBalance;
+  String getFormattedFrozenBalance(Balance walletBalance) => walletBalance.formattedUnAvailableBalance;
 }
 

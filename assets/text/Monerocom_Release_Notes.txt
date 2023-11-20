@@ -1,3 +1,4 @@
-Support getting Addresses from ENS and Mastodon
+UI enhancements
+Privacy settings enhancements
+Tablet/iPad fixes
 Bug fixes
-Minor enhancements

@@ -1,5 +1,4 @@
 import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -33,7 +32,7 @@ class AccountTile extends StatelessWidget {
     final Widget cell = GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 77,
+        height: 60,
         width: double.infinity,
         padding: EdgeInsets.only(left: 24, right: 24),
         color: color,

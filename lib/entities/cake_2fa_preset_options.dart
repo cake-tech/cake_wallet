@@ -33,6 +33,7 @@ enum VerboseControlSettings {
   sendsToNonContacts,
   sendsToInternalWallets,
   exchangesToInternalWallets,
+  exchangesToExternalWallets,
   securityAndBackupSettings,
   creatingNewWallets,
 }

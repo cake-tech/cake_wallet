@@ -12,13 +12,14 @@ import 'package:cake_wallet/routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:cake_wallet/utils/permission_handler.dart';
 
 class RestoreOptionsPage extends BasePage {
   RestoreOptionsPage({required this.isNewInstall});
 
   @override
   String get title => S.current.restore_restore_wallet;
-
 
   final bool isNewInstall;
   final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png');
@@ -29,15 +30,14 @@ class RestoreOptionsPage extends BasePage {
   Widget body(BuildContext context) {
     return Center(
       child: Container(
-          width: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint,
+          width: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
           height: double.infinity,
           padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
                 OptionTile(
-                    onPressed: () => Navigator.pushNamed(
-                        context, Routes.restoreWalletFromSeedKeys,
+                    onPressed: () => Navigator.pushNamed(context, Routes.restoreWalletFromSeedKeys,
                         arguments: isNewInstall),
                     image: imageSeedKeys,
                     title: S.of(context).restore_title_from_seed_keys,
@@ -55,6 +55,9 @@ class RestoreOptionsPage extends BasePage {
                   padding: EdgeInsets.only(top: 24),
                   child: OptionTile(
                       onPressed: () async {
+                        bool isCameraPermissionGranted =
+                            await PermissionHandler.checkPermission(Permission.camera, context);
+                        if (!isCameraPermissionGranted) return;
                         bool isPinSet = false;
                         if (isNewInstall) {
                           await Navigator.pushNamed(context, Routes.setupPin,
@@ -68,7 +71,8 @@ class RestoreOptionsPage extends BasePage {
                             final restoreWallet =
                                 await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
 
-                            final restoreFromQRViewModel = getIt.get<WalletRestorationFromQRVM>(param1: restoreWallet.type);
+                            final restoreFromQRViewModel =
+                                getIt.get<WalletRestorationFromQRVM>(param1: restoreWallet.type);
 
                             await restoreFromQRViewModel.create(restoreWallet: restoreWallet);
                             if (restoreFromQRViewModel.state is FailureState) {

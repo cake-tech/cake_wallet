@@ -32,7 +32,7 @@ class CurrencyInputField extends StatelessWidget {
     );
     // This magic number for wider screen sets the text input focus at center of the inputfield
     final _width =
-        ResponsiveLayoutUtil.instance.isMobile ? MediaQuery.of(context).size.width : 500;
+        responsiveLayoutUtil.shouldRenderMobileUI ? MediaQuery.of(context).size.width : 500;
 
     return Column(
       children: [

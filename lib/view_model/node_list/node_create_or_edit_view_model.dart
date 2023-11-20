@@ -1,11 +1,14 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:collection/collection.dart';
+import 'package:cake_wallet/utils/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 part 'node_create_or_edit_view_model.g.dart';
 
@@ -175,8 +178,11 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   void setAsCurrent(Node node) => _settingsStore.nodes[_walletType] = node;
 
   @action
-  Future<void> scanQRCodeForNewNode() async {
+  Future<void> scanQRCodeForNewNode(BuildContext context) async {
     try {
+      bool isCameraPermissionGranted =
+      await PermissionHandler.checkPermission(Permission.camera, context);
+      if (!isCameraPermissionGranted) return;
       String code = await presentQRScanner();
 
       if (code.isEmpty) {
