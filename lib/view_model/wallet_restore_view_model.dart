@@ -180,15 +180,15 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       //   return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
       //       name: name, mnemonic: seed, password: password);
       case WalletType.nano:
-        return await nanoUtil.compareDerivationMethods(
+        return await nanoUtil!.compareDerivationMethods(
           mnemonic: mnemonic,
-          seedKey: seedKey,
+          privateKey: seedKey,
           node: node,
         );
       default:
         break;
     }
-    
+
     return [DerivationType.def];
   }
 
