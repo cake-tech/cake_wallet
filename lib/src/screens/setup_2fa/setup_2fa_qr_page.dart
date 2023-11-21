@@ -30,6 +30,9 @@ class Setup2FAQRPage extends BasePage {
       width: 12,
       color: Color(0xFF355688),
     );
+    final cake2FAHowToUseTitle = 'How to use';
+    final cake2FAHowToUseUrl = Uri.parse(
+        'https://guides.cakewallet.com/docs/advanced-features/authentication/#enabling-cake-2fa');
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -180,6 +183,23 @@ class Setup2FAQRPage extends BasePage {
           ),
           SizedBox(height: 8),
           StandardListSeparator(),
+          SizedBox(height: 16),
+          GestureDetector(
+              onTap: () => Navigator.of(context).pushNamed(Routes.webViewPage,
+                  arguments: [cake2FAHowToUseTitle, cake2FAHowToUseUrl]),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(cake2FAHowToUseTitle,
+                      style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      )),
+                  Icon(Icons.info_outline,size: 20)
+                ],
+              )),
           Spacer(),
           PrimaryButton(
             onPressed: () {

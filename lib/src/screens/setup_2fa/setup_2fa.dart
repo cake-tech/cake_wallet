@@ -19,6 +19,9 @@ class Setup2FAPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    final cake2FAGuideTitle = 'Cake 2FA Guide';
+    final cake2FAGuideUri =
+    Uri.parse('https://guides.cakewallet.com/docs/advanced-features/authentication');
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,7 +53,7 @@ class Setup2FAPage extends BasePage {
               ],
             ),
           ),
-          SizedBox(height: 86),
+          SizedBox(height: 56),
           SettingsCellWithArrow(
             title: S.current.setup_totp_recommended,
             handler: (_) {
@@ -58,6 +61,11 @@ class Setup2FAPage extends BasePage {
               return Navigator.of(context).pushReplacementNamed(Routes.setup_2faQRPage);
             },
           ),
+          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+          SettingsCellWithArrow(
+              title: cake2FAGuideTitle,
+              handler: (_) => Navigator.of(context)
+                  .pushNamed(Routes.webViewPage, arguments: [cake2FAGuideTitle, cake2FAGuideUri])),
           StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
         ],
       ),
