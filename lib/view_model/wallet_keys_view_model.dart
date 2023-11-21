@@ -111,7 +111,6 @@ abstract class WalletKeysViewModelBase with Store {
         _appStore.wallet!.type == WalletType.nano || _appStore.wallet!.type == WalletType.banano;
 
     if (nanoBased) {
-      
       // we always have the hex version of the seed and private key:
       items.addAll([
         if (_appStore.wallet!.seed != null)
@@ -170,13 +169,12 @@ abstract class WalletKeysViewModelBase with Store {
 
   Future<Map<String, String>> get _queryParams async {
     final restoreHeightResult = await restoreHeight;
-    bool nanoBased =
-        _appStore.wallet!.type == WalletType.nano || _appStore.wallet!.type == WalletType.banano;
     return {
       if (_appStore.wallet!.seed != null) 'seed': _appStore.wallet!.seed!,
       if (_appStore.wallet!.seed == null && _appStore.wallet!.hexSeed != null)
         'hexSeed': _appStore.wallet!.hexSeed!,
-      if (_appStore.wallet!.privateKey != null) 'private_key': _appStore.wallet!.privateKey!,
+      if (_appStore.wallet!.seed == null && _appStore.wallet!.privateKey != null)
+        'private_key': _appStore.wallet!.privateKey!,
       if (restoreHeightResult != null) ...{'height': restoreHeightResult}
     };
   }

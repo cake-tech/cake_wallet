@@ -60,7 +60,7 @@ abstract class NanoWalletBase
 
   String _mnemonic;
   final String _password;
-  final DerivationType _derivationType;
+  DerivationType _derivationType;
 
   String? _privateKey;
   String? _publicAddress;
@@ -85,6 +85,9 @@ abstract class NanoWalletBase
 
   // initialize the different forms of private / public key we'll need:
   Future<void> init() async {
+    if (_derivationType == DerivationType.unknown) {
+      _derivationType = DerivationType.nano;
+    }
     final String type = (_derivationType == DerivationType.nano) ? "standard" : "hd";
 
     // our "mnemonic" is actually a hex form seed:
