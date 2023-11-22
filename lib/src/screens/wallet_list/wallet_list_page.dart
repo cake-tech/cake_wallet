@@ -1,10 +1,15 @@
-import 'package:cake_wallet/src/screens/wallet_list/wallet_list_filter.dart';
+import 'package:cake_wallet/entities/wallet_list_order_types.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +38,8 @@ class WalletListPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
+    final filterIcon = Image.asset('assets/images/filter_icon.png',
+        color: Theme.of(context).extension<FilterTheme>()!.iconColor);
     return MergeSemantics(
       child: SizedBox(
         height: 37,
@@ -40,14 +47,32 @@ class WalletListPage extends BasePage {
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
-            label: S.of(context).seed_alert_back,
-            child: TextButton(
-              style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
+            container: true,
+            child: GestureDetector(
+              onTap: () async {
+                WalletListOrderType? type = await showPopUp<WalletListOrderType>(
+                  context: context,
+                  builder: (context) =>
+                      FilterListWidget(initialType: walletListViewModel.orderType),
+                );
+                if (type != null) {
+                  walletListViewModel.setOrderType(type);
+                }
+              },
+              child: Semantics(
+                label: 'Transaction Filter',
+                button: true,
+                enabled: true,
+                child: Container(
+                  height: 36,
+                  width: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Theme.of(context).extension<FilterTheme>()!.buttonColor,
+                  ),
+                  child: filterIcon,
+                ),
               ),
-              // onPressed: () => onClose(context),
-              onPressed: () {},
-              child: Text("filter"),
             ),
           ),
         ),
@@ -95,8 +120,10 @@ class WalletListBodyState extends State<WalletListBody> {
           Expanded(
             child: Container(
               child: Observer(
-                builder: (_) => FilteredWalletList(
-                  walletList: widget.walletListViewModel.wallets,
+                warnWhenNoObservables: true,
+                builder: (_) => FilteredList(
+                  list: widget.walletListViewModel.wallets,
+                  updateFunction: widget.walletListViewModel.reorderAccordingToWalletList,
                   itemBuilder: (__, index) {
                     final wallet = widget.walletListViewModel.wallets[index];
                     final currentColor = wallet.isCurrent

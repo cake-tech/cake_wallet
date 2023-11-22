@@ -2,30 +2,36 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 
-class FilteredWalletList extends StatefulWidget {
-  FilteredWalletList({required this.walletList, required this.itemBuilder});
+class FilteredList extends StatefulWidget {
+  FilteredList({
+    required this.list,
+    required this.itemBuilder,
+    required this.updateFunction,
+  });
 
-  final ObservableList<WalletListItem> walletList;
+  final ObservableList<WalletListItem> list;
   final Widget Function(BuildContext, int) itemBuilder;
+  final Function updateFunction;
 
   @override
-  FilteredWalletListState createState() => FilteredWalletListState();
+  FilteredListState createState() => FilteredListState();
 }
 
-class FilteredWalletListState extends State<FilteredWalletList> {
+class FilteredListState extends State<FilteredList> {
   @override
   Widget build(BuildContext context) {
     return ReorderableListView.builder(
       physics: const BouncingScrollPhysics(),
       itemBuilder: widget.itemBuilder,
-      itemCount: widget.walletList.length,
+      itemCount: widget.list.length,
       onReorder: (int oldIndex, int newIndex) {
         setState(() {
           if (oldIndex < newIndex) {
             newIndex -= 1;
           }
-          final WalletListItem item = widget.walletList.removeAt(oldIndex);
-          widget.walletList.insert(newIndex, item);
+          final WalletListItem item = widget.list.removeAt(oldIndex);
+          widget.list.insert(newIndex, item);
+          widget.updateFunction();
         });
       },
     );
