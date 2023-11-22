@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/themes/extensions/alert_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 
 class BaseAlertDialog extends StatelessWidget {
   String get titleText => '';
@@ -49,7 +48,7 @@ class BaseAlertDialog extends StatelessWidget {
 
   Widget actionButtons(BuildContext context) {
     return Container(
-      height: 52,
+      height: 60,
       child: Row(
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.stretch,

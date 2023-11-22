@@ -392,6 +392,6 @@ abstract class BalanceViewModelBase with Store {
     }
   }
 
-  String getFormattedFrozenBalance(Balance walletBalance) => walletBalance.formattedFrozenBalance;
+  String getFormattedFrozenBalance(Balance walletBalance) => walletBalance.formattedUnAvailableBalance;
 }
 

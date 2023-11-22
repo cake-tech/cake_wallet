@@ -67,13 +67,16 @@ class AddressTextField extends StatelessWidget {
           enabled: isActive,
           controller: controller,
           focusNode: focusNode,
+        
           style: textStyle ??
               TextStyle(
                   fontSize: 16, color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
           decoration: InputDecoration(
+          
             suffixIcon: SizedBox(
               width: prefixIconWidth * options.length + (spaceBetweenPrefixIcons * options.length),
             ),
+         
             hintStyle: hintStyle ?? TextStyle(fontSize: 16, color: Theme.of(context).hintColor),
             hintText: placeholder ?? S.current.widgets_address,
             focusedBorder: isBorderExist

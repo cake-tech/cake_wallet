@@ -1,7 +1,9 @@
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
@@ -92,6 +94,17 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                       ),
                     )
                 ],
+              );
+            }),
+            if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
+            Observer(builder: (_) {
+              return SettingsPickerCell<SeedPhraseLength>(
+                title: S.current.seed_phrase_length,
+                items: SeedPhraseLength.values,
+                selectedItem: widget.privacySettingsViewModel.seedPhraseLength,
+                onItemSelected: (SeedPhraseLength length) {
+                  widget.privacySettingsViewModel.setSeedPhraseLength(length);
+                },
               );
             }),
           ],

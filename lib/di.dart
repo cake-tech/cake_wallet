@@ -28,8 +28,8 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sideba
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_options_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dart';
@@ -47,6 +47,8 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dar
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
+import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
+import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
@@ -65,6 +67,7 @@ import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
@@ -80,7 +83,7 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dar
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
 import 'package:cake_wallet/src/screens/ionia/ionia.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/balance_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
@@ -94,6 +97,7 @@ import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -211,7 +215,7 @@ import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_card_details_view_model.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.dart';
@@ -333,6 +337,7 @@ Future<void> setup({
           keyService: getIt.get<KeyService>(),
           secureStorage: getIt.get<FlutterSecureStorage>(),
           sharedPreferences: getIt.get<SharedPreferences>(),
+          settingsStore: getIt.get<SettingsStore>(),
           walletInfoSource: _walletInfoSource));
 
   getIt.registerFactory<WalletLoadingService>(() => WalletLoadingService(
@@ -480,6 +485,7 @@ Future<void> setup({
   });
 
   getIt.registerFactory(() => BalancePage(
+      nftViewModel: getIt.get<NFTViewModel>(),
       dashboardViewModel: getIt.get<DashboardViewModel>(),
       settingsStore: getIt.get<SettingsStore>()));
 
@@ -700,6 +706,8 @@ Future<void> setup({
     return PrivacySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
   });
 
+  getIt.registerFactory(() => TrocadorProvidersViewModel(getIt.get<SettingsStore>()));
+
   getIt.registerFactory(() {
     return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
   });
@@ -753,13 +761,18 @@ Future<void> setup({
 
   getIt.registerFactory(() => PrivacyPage(getIt.get<PrivacySettingsViewModel>()));
 
+  getIt.registerFactory(() => TrocadorProvidersPage(getIt.get<TrocadorProvidersViewModel>()));
+
   getIt.registerFactory(() => DomainLookupsPage(getIt.get<PrivacySettingsViewModel>()));
 
   getIt.registerFactory(() => DisplaySettingsPage(getIt.get<DisplaySettingsViewModel>()));
 
   getIt.registerFactory(() => OtherSettingsPage(getIt.get<OtherSettingsViewModel>()));
 
-  getIt.registerFactory(() => NanoChangeRepPage(getIt.get<AppStore>().wallet!));
+  getIt.registerFactory(() => NanoChangeRepPage(
+        settingsStore: getIt.get<AppStore>().settingsStore,
+        wallet: getIt.get<AppStore>().wallet!,
+      ));
 
   getIt.registerFactoryParam<NodeCreateOrEditViewModel, WalletType?, bool?>(
       (WalletType? type, bool? isPow) => NodeCreateOrEditViewModel(
@@ -895,8 +908,9 @@ Future<void> setup({
   getIt.registerFactoryParam<NewWalletTypePage, void Function(BuildContext, WalletType), bool?>(
       (param1, isCreate) => NewWalletTypePage(onTypeSelected: param1, isCreate: isCreate ?? true));
 
-  getIt.registerFactoryParam<PreSeedPage, WalletType, void>(
-      (WalletType type, _) => PreSeedPage(type));
+  getIt.registerFactoryParam<PreSeedPage, WalletType, AdvancedPrivacySettingsViewModel>(
+      (WalletType type, AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel) =>
+          PreSeedPage(type, advancedPrivacySettingsViewModel));
 
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
       TradeDetailsViewModel(
@@ -1170,6 +1184,9 @@ Future<void> setup({
 
   getIt.registerFactory(
       () => WalletConnectConnectionsView(web3walletService: getIt.get<Web3WalletService>()));
+
+  getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
+  getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
 
   _isSetupFinished = true;
 }

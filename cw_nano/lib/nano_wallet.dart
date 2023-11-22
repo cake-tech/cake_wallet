@@ -382,7 +382,7 @@ abstract class NanoWalletBase
       _representativeAddress = accountInfo.representative;
     } catch (e) {
       // account not found:
-      _representativeAddress = NanoClient.DEFAULT_REPRESENTATIVE;
+      _representativeAddress = await _client.getRepFromPrefs();
       throw Exception("Failed to get representative address $e");
     }
   }

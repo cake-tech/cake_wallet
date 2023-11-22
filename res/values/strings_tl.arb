@@ -606,7 +606,6 @@
   "onion_link": "Link ng Onion",
   "decimal_places_error": "Masyadong maraming mga lugar na desimal",
   "edit_node": "I -edit ang node",
-  "frozen_balance": "Frozen na balanse",
   "settings": "Mga setting",
   "sell_monero_com_alert_content": "Ang pagbebenta ng Monero ay hindi pa suportado",
   "error_text_input_below_minimum_limit": "Ang halaga ay mas mababa sa minimum",
@@ -723,6 +722,7 @@
   "enterWalletConnectURI": "Ilagay ang WalletConnect URI",
   "seed_key": "Seed Key",
   "enter_seed_phrase": "Ipasok ang iyong pariralang binhi",
+  "change_rep_successful": "Matagumpay na nagbago ng kinatawan",
   "add_contact": "Magdagdag ng contact",
   "exchange_provider_unsupported": "Ang ${providerName} ay hindi na suportado!",
   "domain_looks_up": "Mga paghahanap ng domain",
@@ -731,5 +731,16 @@
   "switchToETHWallet": "Mangyaring lumipat sa isang Ethereum wallet at subukang muli",
   "moonpay_exchange_description": "Seamless cryptocurrency swapping.",
   "kyc_required": "Kinakailangan ang account at KYC",
-  "unspent_change": "Baguhin"
+  "importNFTs": "Mag-import ng mga NFT",
+  "noNFTYet": "Wala pang NFT",
+  "address": "Address",
+  "enterTokenID": "Ilagay ang token ID",
+  "tokenID": "ID",
+  "name": "Pangalan",
+  "symbol": "Simbolo",
+  "seed_phrase_length": "Haba ng parirala ng binhi",
+  "unavailable_balance": "Hindi available na balanse",
+  "unavailable_balance_description": "Hindi Available na Balanse: Kasama sa kabuuang ito ang mga pondong naka-lock sa mga nakabinbing transaksyon at ang mga aktibong na-freeze mo sa iyong mga setting ng kontrol ng coin. Magiging available ang mga naka-lock na balanse kapag nakumpleto na ang kani-kanilang mga transaksyon, habang ang mga nakapirming balanse ay nananatiling hindi naa-access para sa mga transaksyon hanggang sa magpasya kang i-unfreeze ang mga ito.",
+  "unspent_change": "Baguhin",
+  "tor_connection": "Koneksyon ng Tor"
 }
