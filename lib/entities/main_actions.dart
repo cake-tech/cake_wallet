@@ -1,4 +1,4 @@
-import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_exchange_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_sell_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
