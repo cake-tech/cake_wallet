@@ -719,5 +719,6 @@
   "require_for_exchanges_to_external_wallets": "Memerlukan pertukaran ke dompet eksternal",
   "camera_permission_is_required": "Izin kamera diperlukan.\nSilakan aktifkan dari pengaturan aplikasi.",
   "switchToETHWallet": "Silakan beralih ke dompet Ethereum dan coba lagi",
-  "unspent_change": "Mengubah"
+  "unspent_change": "Mengubah",
+  "order_by": "Dipesan oleh"
 }

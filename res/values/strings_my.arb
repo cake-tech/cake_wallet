@@ -729,5 +729,6 @@
   "require_for_exchanges_to_external_wallets": "ပြင်ပပိုက်ဆံအိတ်များသို့ လဲလှယ်ရန် လိုအပ်သည်။",
   "camera_permission_is_required": "ကင်မရာခွင့်ပြုချက် လိုအပ်ပါသည်။\nအက်ပ်ဆက်တင်များမှ ၎င်းကိုဖွင့်ပါ။",
   "switchToETHWallet": "ကျေးဇူးပြု၍ Ethereum ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်စမ်းကြည့်ပါ။",
-  "unspent_change": "ပေြာင်းလဲခြင်း"
+  "unspent_change": "ပေြာင်းလဲခြင်း",
+  "order_by": "အမှာစာ"
 }

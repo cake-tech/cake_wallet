@@ -730,5 +730,6 @@
   "require_for_exchanges_to_external_wallets": "Exigir trocas para carteiras externas",
   "camera_permission_is_required": "É necessária permissão da câmera.\nAtive-o nas configurações do aplicativo.",
   "switchToETHWallet": "Mude para uma carteira Ethereum e tente novamente",
-  "unspent_change": "Mudar"
+  "unspent_change": "Mudar",
+  "order_by": "Ordenar por"
 }

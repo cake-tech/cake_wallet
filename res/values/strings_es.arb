@@ -731,5 +731,6 @@
   "require_for_exchanges_to_external_wallets": "Requerido para intercambios a billeteras externas",
   "camera_permission_is_required": "Se requiere permiso de la cámara.\nHabilítelo desde la configuración de la aplicación.",
   "switchToETHWallet": "Cambie a una billetera Ethereum e inténtelo nuevamente.",
-  "unspent_change": "Cambiar"
+  "unspent_change": "Cambiar",
+  "order_by": "Ordenar"
 }

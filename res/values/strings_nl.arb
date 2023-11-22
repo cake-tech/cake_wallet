@@ -731,5 +731,6 @@
   "require_for_exchanges_to_external_wallets": "Vereist voor uitwisselingen naar externe portemonnees",
   "camera_permission_is_required": "Cameratoestemming is vereist.\nSchakel dit in via de app-instellingen.",
   "switchToETHWallet": "Schakel over naar een Ethereum-portemonnee en probeer het opnieuw",
-  "unspent_change": "Wijziging"
+  "unspent_change": "Wijziging",
+  "order_by": "Bestellen door"
 }

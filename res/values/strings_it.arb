@@ -731,5 +731,6 @@
   "require_for_exchanges_to_external_wallets": "Richiede scambi con portafogli esterni",
   "camera_permission_is_required": "È richiesta l'autorizzazione della fotocamera.\nAbilitalo dalle impostazioni dell'app.",
   "switchToETHWallet": "Passa a un portafoglio Ethereum e riprova",
-  "unspent_change": "Modifica"
+  "unspent_change": "Modifica",
+  "order_by": "Ordinato da"
 }

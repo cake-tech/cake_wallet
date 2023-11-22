@@ -31,7 +31,7 @@ class FilterListWidget extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.all(24.0),
                   child: Text(
-                    S.of(context).filter_by,
+                    S.of(context).order_by,
                     style: TextStyle(
                       color:
                           Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,

@@ -729,5 +729,6 @@
   "require_for_exchanges_to_external_wallets": "Harici cüzdanlara geçiş yapılmasını zorunlu kılın",
   "camera_permission_is_required": "Kamera izni gereklidir.\nLütfen uygulama ayarlarından etkinleştirin.",
   "switchToETHWallet": "Lütfen bir Ethereum cüzdanına geçin ve tekrar deneyin",
-  "unspent_change": "Değiştirmek"
+  "unspent_change": "Değiştirmek",
+  "order_by": "Tarafından sipariş"
 }
