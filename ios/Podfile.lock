@@ -302,7 +302,7 @@ SPEC CHECKSUMS:
   tor: 662a9f5b980b5c86decb8ba611de9bcd4c8286eb
   uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
   UnstoppableDomainsResolution: c3c67f4d0a5e2437cb00d4bd50c2e00d6e743841
-  url_launcher_ios: 68d46cc9766d0c41dbdc884310529557e3cd7a86
+  url_launcher_ios: bf5ce03e0e2088bad9cc378ea97fa0ed5b49673b
   wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
   workmanager: 0afdcf5628bbde6924c21af7836fed07b42e30e6
 
