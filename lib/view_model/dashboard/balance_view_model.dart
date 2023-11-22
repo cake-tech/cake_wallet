@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
+import 'package:cake_wallet/reactions/check_wallet_connect_access.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/balance.dart';
@@ -81,8 +82,7 @@ abstract class BalanceViewModelBase with Store {
   bool get isFiatDisabled => settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   @computed
-  bool get isHomeScreenSettingsEnabled =>
-      wallet.type == WalletType.ethereum || wallet.type == WalletType.polygon;
+  bool get isHomeScreenSettingsEnabled => isEVMCompatibleChain(wallet.type);
 
   @computed
   bool get hasAccounts => wallet.type == WalletType.monero;
@@ -281,8 +281,8 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
-  bool get hasAdditionalBalance =>
-      wallet.type != WalletType.ethereum || wallet.type != WalletType.polygon;
+  bool get hasAdditionalBalance => isEVMCompatibleChain(wallet.type);
+   
 
   @computed
   List<BalanceRecord> get formattedBalances {
