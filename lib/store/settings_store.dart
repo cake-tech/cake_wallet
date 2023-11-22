@@ -9,8 +9,10 @@ import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
+import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -72,6 +74,7 @@ abstract class SettingsStoreBase with Store {
       required this.isBitcoinBuyEnabled,
       required this.actionlistDisplayMode,
       required this.pinTimeOutDuration,
+      required this.seedPhraseLength,
       required Cake2FAPresetsOptions initialCake2FAPresetOptions,
       required bool initialShouldRequireTOTP2FAForAccessingWallet,
       required bool initialShouldRequireTOTP2FAForSendsToContact,
@@ -85,6 +88,8 @@ abstract class SettingsStoreBase with Store {
       required this.sortBalanceBy,
       required this.pinNativeTokenAtTop,
       required this.useEtherscan,
+      required this.defaultNanoRep,
+      required this.defaultBananoRep,
       required this.lookupsTwitter,
       required this.lookupsMastodon,
       required this.lookupsYatService,
@@ -163,6 +168,8 @@ abstract class SettingsStoreBase with Store {
     if (initialBitcoinCashTransactionPriority != null) {
       priority[WalletType.bitcoinCash] = initialBitcoinCashTransactionPriority;
     }
+
+    initializeTrocadorProviderStates();
 
     reaction(
         (_) => fiatCurrency,
@@ -335,6 +342,11 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.setString(PreferencesKey.currentLanguageCode, languageCode));
 
     reaction(
+            (_) => seedPhraseLength,
+            (SeedPhraseLength seedPhraseWordCount) =>
+            sharedPreferences.setInt(PreferencesKey.currentSeedPhraseLength, seedPhraseWordCount.value));
+
+    reaction(
         (_) => pinTimeOutDuration,
         (PinCodeRequiredDuration pinCodeInterval) =>
             sharedPreferences.setInt(PreferencesKey.pinTimeOutDuration, pinCodeInterval.value));
@@ -376,6 +388,13 @@ abstract class SettingsStoreBase with Store {
         (bool useEtherscan) =>
             _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan));
 
+    reaction((_) => defaultNanoRep,
+        (String nanoRep) => _sharedPreferences.setString(PreferencesKey.defaultNanoRep, nanoRep));
+
+    reaction(
+        (_) => defaultBananoRep,
+        (String bananoRep) =>
+            _sharedPreferences.setString(PreferencesKey.defaultBananoRep, bananoRep));
     reaction(
         (_) => lookupsTwitter,
         (bool looksUpTwitter) =>
@@ -421,6 +440,7 @@ abstract class SettingsStoreBase with Store {
   static const defaultActionsMode = 11;
   static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenminutes;
   static const defaultAutoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.initialized;
+  static const defaultSeedPhraseLength = SeedPhraseLength.twelveWords;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -515,6 +535,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   PinCodeRequiredDuration pinTimeOutDuration;
 
+  @observable
+  SeedPhraseLength seedPhraseLength;
+
   @computed
   ThemeData get theme => currentTheme.themeData;
 
@@ -525,6 +548,9 @@ abstract class SettingsStoreBase with Store {
   ObservableMap<WalletType, TransactionPriority> priority;
 
   @observable
+  ObservableMap<String, bool> trocadorProviderStates = ObservableMap<String, bool>();
+
+  @observable
   SortBalanceBy sortBalanceBy;
 
   @observable
@@ -532,6 +558,12 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool useEtherscan;
+
+  @observable
+  String defaultNanoRep;
+
+  @observable
+  String defaultBananoRep;
 
   @observable
   bool lookupsTwitter;
@@ -704,14 +736,20 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
     var pinLength = sharedPreferences.getInt(PreferencesKey.currentPinLength);
     final timeOutDuration = sharedPreferences.getInt(PreferencesKey.pinTimeOutDuration);
+    final seedPhraseCount = sharedPreferences.getInt(PreferencesKey.currentSeedPhraseLength);
     final pinCodeTimeOutDuration = timeOutDuration != null
         ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
         : defaultPinCodeTimeOutDuration;
+    final seedPhraseWordCount = seedPhraseCount != null
+        ? SeedPhraseLength.deserialize(raw: seedPhraseCount)
+        : defaultSeedPhraseLength;
     final sortBalanceBy =
         SortBalanceBy.values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? 0];
     final pinNativeTokenAtTop =
         sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
     final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
+    final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
+    final defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     final lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
     final lookupsMastodon = sharedPreferences.getBool(PreferencesKey.lookupsMastodon) ?? true;
     final lookupsYatService = sharedPreferences.getBool(PreferencesKey.lookupsYatService) ?? true;
@@ -795,56 +833,59 @@ abstract class SettingsStoreBase with Store {
     });
     final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
 
-    return SettingsStore(
-        sharedPreferences: sharedPreferences,
-        initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
-        nodes: nodes,
-        powNodes: powNodes,
-        appVersion: packageInfo.version,
-        deviceName: deviceName,
-        isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-        initialFiatCurrency: currentFiatCurrency,
-        initialBalanceDisplayMode: currentBalanceDisplayMode,
-        initialSaveRecipientAddress: shouldSaveRecipientAddress,
-        initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
-        initialAppSecure: isAppSecure,
-        initialDisableBuy: disableBuy,
-        initialDisableSell: disableSell,
-        initialDefaultBuyProvider: defaultBuyProvider,
-        initialWalletListOrder: walletListOrder,
-        initialFiatMode: currentFiatApiMode,
-        initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
-        initialCake2FAPresetOptions: selectedCake2FAPreset,
-        initialUseTOTP2FA: useTOTP2FA,
-        initialTotpSecretKey: totpSecretKey,
-        initialFailedTokenTrial: tokenTrialNumber,
-        initialExchangeStatus: exchangeStatus,
-        initialTheme: savedTheme,
-        actionlistDisplayMode: actionListDisplayMode,
-        initialPinLength: pinLength,
-        pinTimeOutDuration: pinCodeTimeOutDuration,
-        initialLanguageCode: savedLanguageCode,
-        sortBalanceBy: sortBalanceBy,
-        pinNativeTokenAtTop: pinNativeTokenAtTop,
-        useEtherscan: useEtherscan,
-        lookupsTwitter: lookupsTwitter,
-        lookupsMastodon: lookupsMastodon,
-        lookupsYatService: lookupsYatService,
-        lookupsUnstoppableDomains: lookupsUnstoppableDomains,
-        lookupsOpenAlias: lookupsOpenAlias,
-        lookupsENS: lookupsENS,
-        initialMoneroTransactionPriority: moneroTransactionPriority,
-        initialBitcoinTransactionPriority: bitcoinTransactionPriority,
-        initialHavenTransactionPriority: havenTransactionPriority,
-        initialLitecoinTransactionPriority: litecoinTransactionPriority,
-        initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
-        initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
-        initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
-        initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
-        initialShouldRequireTOTP2FAForSendsToInternalWallets:
-            shouldRequireTOTP2FAForSendsToInternalWallets,
-        initialShouldRequireTOTP2FAForExchangesToInternalWallets:
-            shouldRequireTOTP2FAForExchangesToInternalWallets,
+      return SettingsStore(
+          sharedPreferences: sharedPreferences,
+          initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
+          nodes: nodes,
+          powNodes: powNodes,
+          appVersion: packageInfo.version,
+          deviceName: deviceName,
+          isBitcoinBuyEnabled: isBitcoinBuyEnabled,
+          initialFiatCurrency: currentFiatCurrency,
+          initialBalanceDisplayMode: currentBalanceDisplayMode,
+          initialSaveRecipientAddress: shouldSaveRecipientAddress,
+          initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
+          initialAppSecure: isAppSecure,
+          initialDisableBuy: disableBuy,
+          initialDisableSell: disableSell,
+          initialDefaultBuyProvider: defaultBuyProvider,
+          initialWalletListOrder: walletListOrder,
+          initialFiatMode: currentFiatApiMode,
+          initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
+          initialCake2FAPresetOptions: selectedCake2FAPreset,
+          initialUseTOTP2FA: useTOTP2FA,
+          initialTotpSecretKey: totpSecretKey,
+          initialFailedTokenTrial: tokenTrialNumber,
+          initialExchangeStatus: exchangeStatus,
+          initialTheme: savedTheme,
+          actionlistDisplayMode: actionListDisplayMode,
+          initialPinLength: pinLength,
+          pinTimeOutDuration: pinCodeTimeOutDuration,
+          seedPhraseLength: seedPhraseWordCount,
+          initialLanguageCode: savedLanguageCode,
+          sortBalanceBy: sortBalanceBy,
+          pinNativeTokenAtTop: pinNativeTokenAtTop,
+          useEtherscan: useEtherscan,
+          defaultNanoRep: defaultNanoRep,
+          defaultBananoRep: defaultBananoRep,
+          lookupsTwitter: lookupsTwitter,
+          lookupsMastodon: lookupsMastodon,
+          lookupsYatService: lookupsYatService,
+          lookupsUnstoppableDomains: lookupsUnstoppableDomains,
+          lookupsOpenAlias: lookupsOpenAlias,
+          lookupsENS: lookupsENS,
+          initialMoneroTransactionPriority: moneroTransactionPriority,
+          initialBitcoinTransactionPriority: bitcoinTransactionPriority,
+          initialHavenTransactionPriority: havenTransactionPriority,
+          initialLitecoinTransactionPriority: litecoinTransactionPriority,
+          initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
+          initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
+          initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
+          initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
+          initialShouldRequireTOTP2FAForSendsToInternalWallets:
+          shouldRequireTOTP2FAForSendsToInternalWallets,
+          initialShouldRequireTOTP2FAForExchangesToInternalWallets:
+          shouldRequireTOTP2FAForExchangesToInternalWallets,
         initialShouldRequireTOTP2FAForExchangesToExternalWallets:
             shouldRequireTOTP2FAForExchangesToExternalWallets,
         initialShouldRequireTOTP2FAForAddingContacts: shouldRequireTOTP2FAForAddingContacts,
@@ -975,6 +1016,8 @@ abstract class SettingsStoreBase with Store {
         .values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? sortBalanceBy.index];
     pinNativeTokenAtTop = sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
     useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
+    defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
+    defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
     lookupsMastodon = sharedPreferences.getBool(PreferencesKey.lookupsMastodon) ?? true;
     lookupsYatService = sharedPreferences.getBool(PreferencesKey.lookupsYatService) ?? true;
@@ -1075,6 +1118,19 @@ abstract class SettingsStoreBase with Store {
 
     powNodes[walletType] = node;
   }
+
+  void initializeTrocadorProviderStates() {
+    for (var provider in TrocadorExchangeProvider.availableProviders) {
+      final savedState = _sharedPreferences.getBool(provider) ?? true;
+      trocadorProviderStates[provider] = savedState;
+    }
+  }
+
+  void saveTrocadorProviderState(String providerName, bool state) {
+    _sharedPreferences.setBool(providerName, state);
+    trocadorProviderStates[providerName] = state;
+  }
+
 
   static Future<String?> _getDeviceName() async {
     String? deviceName = '';
