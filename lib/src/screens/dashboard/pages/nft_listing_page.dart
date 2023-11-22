@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/nft_tile_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -20,10 +21,12 @@ class NFTListingPage extends StatelessWidget {
           children: [
             SizedBox(height: 16),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
               child: PrimaryButton(
                 text: S.current.import,
-                color: Theme.of(context).primaryColorDark,
+                color: Theme.of(context)
+                    .extension<SyncIndicatorTheme>()!
+                    .syncedBackgroundColor,
                 textColor: Colors.white,
                 onPressed: () => Navigator.pushNamed(
                   context,

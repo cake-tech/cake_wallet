@@ -3,7 +3,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/nft_image_tile_widget.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/nft_tile_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
@@ -55,78 +54,79 @@ class NFTDetailsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          // height: MediaQuery.sizeOf(context).height / 1.2,
-          width: double.infinity,
-          margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30.0),
-            border: Border.all(
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30.0),
+              border: Border.all(
+                color: Theme.of(context)
+                    .extension<BalancePageTheme>()!
+                    .cardBorderColor,
+                width: 1,
+              ),
               color: Theme.of(context)
-                  .extension<BalancePageTheme>()!
-                  .cardBorderColor,
-              width: 1,
+                  .extension<SyncIndicatorTheme>()!
+                  .syncedBackgroundColor,
             ),
-            color: Theme.of(context)
-                .extension<SyncIndicatorTheme>()!
-                .syncedBackgroundColor,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: MediaQuery.sizeOf(context).height / 2.5,
-                width: double.infinity,
-                clipBehavior: Clip.hardEdge,
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16.0),
-                  border: Border.all(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: MediaQuery.sizeOf(context).height / 2.5,
+                  width: double.infinity,
+                  clipBehavior: Clip.hardEdge,
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16.0),
+                    border: Border.all(
+                      color: Theme.of(context)
+                          .extension<BalancePageTheme>()!
+                          .cardBorderColor,
+                      width: 1,
+                    ),
                     color: Theme.of(context)
-                        .extension<BalancePageTheme>()!
-                        .cardBorderColor,
-                    width: 1,
+                        .extension<SyncIndicatorTheme>()!
+                        .syncedBackgroundColor,
+
                   ),
-                  color: Theme.of(context)
-                      .extension<SyncIndicatorTheme>()!
-                      .syncedBackgroundColor,
-                 
+                  child: NFTImageWidget(
+                    imageUrl: nftAsset.normalizedMetadata?.imageUrl,
+                  ),
                 ),
-                child: NFTImageWidget(
-                  imageUrl: nftAsset.normalizedMetadata?.imageUrl,
-                ),
-              ),
-              SizedBox(height: 16),
-              _NFTSingleInfoTile(
-                infoType: S.current.name,
-                infoValue: nftAsset.normalizedMetadata?.name ?? '',
-              ),
-    
-              if (nftAsset.normalizedMetadata?.description != null) ...[
                 SizedBox(height: 16),
                 _NFTSingleInfoTile(
-                  infoType: 'Description',
-                  infoValue: nftAsset.normalizedMetadata?.description ?? '',
+                  infoType: S.current.name,
+                  infoValue: nftAsset.normalizedMetadata?.name ?? '',
+                ),
+
+                if (nftAsset.normalizedMetadata?.description != null) ...[
+                  SizedBox(height: 16),
+                  _NFTSingleInfoTile(
+                    infoType: 'Description',
+                    infoValue: nftAsset.normalizedMetadata?.description ?? '',
+                  ),
+                ],
+
+                SizedBox(height: 16),
+                _NFTSingleInfoTile(
+                  infoType: 'Contract Name',
+                  infoValue: nftAsset.name ?? '',
+                ),
+                SizedBox(height: 8),
+                _NFTSingleInfoTile(
+                  infoType: 'Contract Symbol',
+                  infoValue: nftAsset.symbol ?? '',
                 ),
               ],
-          
-              SizedBox(height: 16),
-              _NFTSingleInfoTile(
-                infoType: 'Contract Name',
-                infoValue: nftAsset.name ?? '',
-              ),
-              SizedBox(height: 8),
-              _NFTSingleInfoTile(
-                infoType: 'Contract Symbol',
-                infoValue: nftAsset.symbol ?? '',
-              ),
-            ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
