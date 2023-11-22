@@ -723,7 +723,6 @@
   "require_for_exchanges_to_external_wallets": "Изискване за обмен към външни портфейли",
   "camera_permission_is_required": "Изисква се разрешение за камерата.\nМоля, активирайте го от настройките на приложението.",
   "switchToETHWallet": "Моля, преминете към портфейл Ethereum и опитайте отново",
-  "unspent_change": "Промяна",
   "order_by": "Подредени по",
   "creation_date": "Дата на създаване",
   "group_by_type": "Група по вид",
