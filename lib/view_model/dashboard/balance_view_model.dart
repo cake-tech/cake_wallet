@@ -281,7 +281,7 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
-  bool get hasAdditionalBalance => isEVMCompatibleChain(wallet.type);
+  bool get hasAdditionalBalance => !isEVMCompatibleChain(wallet.type);
    
 
   @computed
