@@ -731,6 +731,8 @@
   "add_contact": "Ajouter le contact",
   "exchange_provider_unsupported": "${providerName} n'est plus pris en charge !",
   "domain_looks_up": "Résolution de nom",
+  "camera_permission_is_required": "L'autorisation de la caméra est requise.\nVeuillez l'activer à partir des paramètres de l'application.",
+  "switchToETHWallet": "Veuillez passer à un portefeuille (wallet) Ethereum et réessayer",
   "require_for_exchanges_to_external_wallets": "Exiger pour les échanges vers des portefeuilles externes",
   "moonpay_exchange_description": "Échange de crypto-monnaie sans couture.",
   "kyc_required": "Compte et KYC requis",
