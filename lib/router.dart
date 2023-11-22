@@ -40,7 +40,7 @@ import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
-import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
+import 'package:cake_wallet/src/screens/seed/warning_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/settings/tor_page.dart';
@@ -417,12 +417,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.faq:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<FaqPage>());
 
-    case Routes.preSeed:
+    case Routes.warningPage:
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<PreSeedPage>(
-              param1: settings.arguments as WalletType,
-              param2: getIt.get<AdvancedPrivacySettingsViewModel>(
-                  param1: settings.arguments as WalletType)));
+          builder: (_) => getIt.get<WarningPage>(
+              param1: settings.arguments as int));
 
     case Routes.backup:
       return CupertinoPageRoute<void>(

@@ -129,7 +129,7 @@ import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
-import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
+import 'package:cake_wallet/src/screens/seed/warning_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
@@ -337,6 +337,9 @@ Future<void> setup({
           settingsStore: getIt.get<SettingsStore>(),
           walletInfoSource: _walletInfoSource));
 
+  getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
+          (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
+
   getIt.registerFactory<WalletLoadingService>(() => WalletLoadingService(
       getIt.get<SharedPreferences>(),
       getIt.get<KeyService>(),
@@ -345,7 +348,7 @@ Future<void> setup({
   getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) =>
       WalletNewVM(getIt.get<AppStore>(),
           getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
-          type: type));
+          getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),type: type));
 
   getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
@@ -900,9 +903,9 @@ Future<void> setup({
   getIt.registerFactoryParam<NewWalletTypePage, void Function(BuildContext, WalletType), bool?>(
       (param1, isCreate) => NewWalletTypePage(onTypeSelected: param1, isCreate: isCreate ?? true));
 
-  getIt.registerFactoryParam<PreSeedPage, WalletType, AdvancedPrivacySettingsViewModel>(
-      (WalletType type, AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel)
-      => PreSeedPage(type, advancedPrivacySettingsViewModel));
+  getIt.registerFactoryParam<WarningPage, int, void>(
+      (seedPhraseLength, _)
+      => WarningPage(seedPhraseLength));
 
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
       TradeDetailsViewModel(
@@ -1148,9 +1151,6 @@ Future<void> setup({
       (IoniaAnyPayPaymentInfo paymentInfo, AnyPayPaymentCommittedInfo committedInfo) =>
           IoniaPaymentStatusPage(
               getIt.get<IoniaPaymentStatusViewModel>(param1: paymentInfo, param2: committedInfo)));
-
-  getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
-      (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<HomeSettingsPage, BalanceViewModel, void>((balanceViewModel, _) =>
       HomeSettingsPage(getIt.get<HomeSettingsViewModel>(param1: balanceViewModel)));

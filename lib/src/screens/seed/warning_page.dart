@@ -9,20 +9,14 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 
-class PreSeedPage extends BasePage {
-  PreSeedPage(this.type, this.advancedPrivacySettingsViewModel)
+class WarningPage extends BasePage {
+  WarningPage(this.seedPhraseLength)
       : imageLight = Image.asset('assets/images/pre_seed_light.png'),
-        imageDark = Image.asset('assets/images/pre_seed_dark.png'),
-        seedPhraseLength = advancedPrivacySettingsViewModel.seedPhraseLength.value {
-    wordsCount = _wordsCount(type, seedPhraseLength);
-  }
+        imageDark = Image.asset('assets/images/pre_seed_dark.png');
 
   final Image imageDark;
   final Image imageLight;
-  final WalletType type;
-  final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
-  final int seedPhraseLength;
-  late final int wordsCount;
+  final int? seedPhraseLength;
 
   @override
   Widget? leading(BuildContext context) => null;
@@ -53,7 +47,7 @@ class PreSeedPage extends BasePage {
                 Padding(
                   padding: EdgeInsets.all(10),
                   child: Text(
-                    S.of(context).pre_seed_description(wordsCount.toString()),
+                    S.of(context).pre_seed_description(seedPhraseLength.toString()),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 14,
@@ -71,17 +65,5 @@ class PreSeedPage extends BasePage {
             ),
           ),
         ));
-  }
-
-  static int _wordsCount(WalletType type, int seedPhraseLength) {
-    switch (type) {
-      case WalletType.monero:
-        return 25;
-      case WalletType.ethereum:
-      case WalletType.bitcoinCash:
-        return seedPhraseLength;
-      default:
-        return 24;
-    }
   }
 }
