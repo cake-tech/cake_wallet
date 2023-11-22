@@ -732,5 +732,7 @@
   "camera_permission_is_required": "Cameratoestemming is vereist.\nSchakel dit in via de app-instellingen.",
   "switchToETHWallet": "Schakel over naar een Ethereum-portemonnee en probeer het opnieuw",
   "unspent_change": "Wijziging",
-  "order_by": "Bestellen door"
+  "order_by": "Bestellen door",
+  "creation_date": "Aanmaakdatum",
+  "group_by_type": "Groep voor type"
 }

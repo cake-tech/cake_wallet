@@ -724,5 +724,7 @@
   "camera_permission_is_required": "Vyžaduje se povolení fotoaparátu.\nPovolte jej v nastavení aplikace.",
   "switchToETHWallet": "Přejděte na peněženku Ethereum a zkuste to znovu",
   "unspent_change": "Změna",
-  "order_by": "Seřadit podle"
+  "order_by": "Seřadit podle",
+  "creation_date": "Datum vzniku",
+  "group_by_type": "Skupina podle typu"
 }

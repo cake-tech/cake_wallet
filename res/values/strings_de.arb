@@ -732,5 +732,7 @@
   "camera_permission_is_required": "Eine Kameraerlaubnis ist erforderlich.\nBitte aktivieren Sie es in den App-Einstellungen.",
   "switchToETHWallet": "Bitte wechseln Sie zu einem Ethereum-Wallet und versuchen Sie es erneut",
   "unspent_change": "Wechselgeld",
-  "order_by": "Sortieren nach"
+  "order_by": "Sortieren nach",
+  "creation_date": "Erstellungsdatum",
+  "group_by_type": "Gruppe nach Typ"
 }

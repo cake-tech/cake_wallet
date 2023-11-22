@@ -731,5 +731,7 @@
   "camera_permission_is_required": "需要相机许可。\n请从应用程序设置中启用它。",
   "switchToETHWallet": "请切换到以太坊钱包并重试",
   "unspent_change": "改变",
-  "order_by": "订购"
+  "order_by": "订购",
+  "creation_date": "创建日期",
+  "group_by_type": "按类型组"
 }

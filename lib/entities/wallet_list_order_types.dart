@@ -10,13 +10,13 @@ enum WalletListOrderType {
   String toString() {
     switch (this) {
       case WalletListOrderType.CreationDate:
-        return "Creation date";// TODO: CW-512 localize this
+        return S.current.creation_date;
       case WalletListOrderType.Alphabetical:
-        return "Alphabetical";
+        return S.current.alphabetical;
       case WalletListOrderType.GroupByType:
-        return "Group by type";
+        return S.current.group_by_type;
       case WalletListOrderType.Custom:
-        return "Custom";
+        return S.current.custom;
     }
   }
 }

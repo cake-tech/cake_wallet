@@ -720,5 +720,7 @@
   "camera_permission_is_required": "Izin kamera diperlukan.\nSilakan aktifkan dari pengaturan aplikasi.",
   "switchToETHWallet": "Silakan beralih ke dompet Ethereum dan coba lagi",
   "unspent_change": "Mengubah",
-  "order_by": "Dipesan oleh"
+  "order_by": "Dipesan oleh",
+  "creation_date": "Tanggal Pembuatan",
+  "group_by_type": "Grup demi jenis"
 }

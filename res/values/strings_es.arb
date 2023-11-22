@@ -732,5 +732,7 @@
   "camera_permission_is_required": "Se requiere permiso de la cámara.\nHabilítelo desde la configuración de la aplicación.",
   "switchToETHWallet": "Cambie a una billetera Ethereum e inténtelo nuevamente.",
   "unspent_change": "Cambiar",
-  "order_by": "Ordenar"
+  "order_by": "Ordenar",
+  "creation_date": "Fecha de creación",
+  "group_by_type": "Grupo por tipo"
 }

@@ -730,5 +730,7 @@
   "camera_permission_is_required": "ต้องได้รับอนุญาตจากกล้อง\nโปรดเปิดใช้งานจากการตั้งค่าแอป",
   "switchToETHWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงิน Ethereum แล้วลองอีกครั้ง",
   "unspent_change": "เปลี่ยน",
-  "order_by": "สั่งโดย"
+  "order_by": "สั่งโดย",
+  "creation_date": "วันที่สร้าง",
+  "group_by_type": "กลุ่มตามประเภท"
 }

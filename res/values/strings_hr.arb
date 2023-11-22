@@ -730,5 +730,7 @@
   "camera_permission_is_required": "Potrebno je dopuštenje kamere.\nOmogućite ga u postavkama aplikacije.",
   "switchToETHWallet": "Prijeđite na Ethereum novčanik i pokušajte ponovno",
   "unspent_change": "Promijeniti",
-  "order_by": "Narediti"
+  "order_by": "Narediti",
+  "creation_date": "Datum stvaranja",
+  "group_by_type": "Grupirati"
 }

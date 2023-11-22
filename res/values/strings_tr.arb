@@ -730,5 +730,7 @@
   "camera_permission_is_required": "Kamera izni gereklidir.\nLütfen uygulama ayarlarından etkinleştirin.",
   "switchToETHWallet": "Lütfen bir Ethereum cüzdanına geçin ve tekrar deneyin",
   "unspent_change": "Değiştirmek",
-  "order_by": "Tarafından sipariş"
+  "order_by": "Tarafından sipariş",
+  "creation_date": "Oluşturulma tarihi",
+  "group_by_type": "Türüne göre grup"
 }

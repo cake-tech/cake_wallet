@@ -732,5 +732,7 @@
   "camera_permission_is_required": "L'autorisation d'accès à la caméra est requise.\nVeuillez l'activer depuis les paramètres de l'application.",
   "switchToETHWallet": "Veuillez passer à un portefeuille (wallet) Ethereum et réessayer",
   "unspent_change": "Changement",
-  "order_by": "Commandé par"
+  "order_by": "Commandé par",
+  "creation_date": "Date de création",
+  "group_by_type": "Groupe par type"
 }

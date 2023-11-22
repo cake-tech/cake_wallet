@@ -733,5 +733,7 @@
   "camera_permission_is_required": "Camera permission is required. \nPlease enable it from app settings.",
   "switchToETHWallet": "Please switch to an Ethereum wallet and try again",
   "unspent_change": "Change",
-  "order_by": "Order by"
+  "order_by": "Order by",
+  "creation_date": "Creation Date",
+  "group_by_type": "Group by type"
 }

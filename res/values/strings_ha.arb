@@ -710,5 +710,7 @@
   "camera_permission_is_required": "Ana buƙatar izinin kyamara.\nDa fatan za a kunna shi daga saitunan app.",
   "switchToETHWallet": "Da fatan za a canza zuwa walat ɗin Ethereum kuma a sake gwadawa",
   "unspent_change": "Canza",
-  "order_by": "Oda ta"
+  "order_by": "Oda ta",
+  "creation_date": "Ranar halitta",
+  "group_by_type": "Rukuni ta nau'in"
 }
