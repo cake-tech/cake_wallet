@@ -65,10 +65,9 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   void onSeedChange(String seed) {
     if (widget.type == WalletType.monero && Polyseed.isValidSeed(seed)) {
       final lang = PolyseedLang.getByPhrase(seed);
-      // final polyseed = Polyseed.decode(seed, lang, PolyseedCoin.POLYSEED_MONERO);
 
+      _changeSeedType(SeedType.polyseed);
       _changeLanguage(lang.nameEnglish);
-      setState(() => isPolyseed = true);
     }
     widget.onSeedChange?.call(seed);
   }
