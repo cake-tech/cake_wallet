@@ -120,7 +120,6 @@ class WalletListBodyState extends State<WalletListBody> {
           Expanded(
             child: Container(
               child: Observer(
-                warnWhenNoObservables: true,
                 builder: (_) => FilteredList(
                   list: widget.walletListViewModel.wallets,
                   updateFunction: widget.walletListViewModel.reorderAccordingToWalletList,
