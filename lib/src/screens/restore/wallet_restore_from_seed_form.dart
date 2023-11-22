@@ -129,7 +129,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                       context: context,
                       builder: (_) => Picker(
                             items: SeedType.all,
-                            selectedAtIndex: 0,
+                            selectedAtIndex: isPolyseed ? 1 : 0,
                             mainAxisAlignment: MainAxisAlignment.start,
                             onItemSelected: _changeSeedType,
                             isSeparated: false,

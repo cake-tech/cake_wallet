@@ -226,9 +226,9 @@ class WalletRestorePage extends BasePage {
   void _validateOnChange({bool isPolyseed = false}) {
     if (!isPolyseed && walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
       final hasHeight = walletRestoreFromSeedFormKey
-          .currentState!.blockchainHeightKey.currentState!.restoreHeightController.text.isNotEmpty;
+          .currentState?.blockchainHeightKey.currentState?.restoreHeightController.text.isNotEmpty;
 
-      if (hasHeight) {
+      if (hasHeight == true) {
         walletRestoreViewModel.isButtonEnabled = _isValidSeed();
       }
     } else {
