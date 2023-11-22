@@ -72,6 +72,8 @@ class NormalizedMetadata {
   String? get imageUrl {
     if (image == null) return image;
 
+    if (image!.contains('ipfs.io')) return image;
+
     if (!image!.contains('ipfs')) return image;
 
     // IPFS public gateway provided by Cloudflare is https://cloudflare-ipfs.com/ipfs/
@@ -79,6 +81,8 @@ class NormalizedMetadata {
     // Here is an example of an ipfs image link:
     //
     // [ipfs://bafkreia2i2ctfexpovgzfff66wqhbmwwpvqjvozan7ioifzcnq76jharwu]
+
+    //https://ipfs.io/ipfs/QmTRcRXo6cXByjHYHTVxGpag6vpocrG3rxjPC9PxKAArR9/1620.png
 
     const String ipfsPublicGateway = 'https://cloudflare-ipfs.com/ipfs/';
 

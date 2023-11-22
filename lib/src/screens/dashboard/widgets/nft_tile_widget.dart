@@ -1,7 +1,9 @@
 import 'package:cake_wallet/entities/wallet_nft_response.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/nft_image_tile_widget.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NFTTileWidget extends StatelessWidget {
@@ -11,76 +13,78 @@ class NFTTileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.pushNamed(context, Routes.nftDetailsPage, arguments: nftAsset),
+      onTap: () => Navigator.pushNamed(context, Routes.nftDetailsPage,
+          arguments: nftAsset),
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.only(left: 16, right: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30.0),
           border: Border.all(
-            color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+            color: Theme.of(context)
+                .extension<BalancePageTheme>()!
+                .cardBorderColor,
             width: 1,
           ),
-          color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+          color: Theme.of(context)
+              .extension<SyncIndicatorTheme>()!
+              .syncedBackgroundColor,
         ),
         child: Row(
           children: [
             Container(
               height: 100,
               width: 100,
+              clipBehavior: Clip.hardEdge,
               margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30.0),
+                borderRadius: BorderRadius.circular(16.0),
                 border: Border.all(
-                  color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+                  color: Theme.of(context)
+                      .extension<BalancePageTheme>()!
+                      .cardBorderColor,
                   width: 1,
                 ),
-                color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-                image: nftAsset.normalizedMetadata?.imageUrl == null
-                    ? null
-                    : DecorationImage(
-                        image: Image.network(
-                          nftAsset.normalizedMetadata?.imageUrl ?? '',
-                          fit: BoxFit.cover,
-                          loadingBuilder:
-                              (BuildContext _, Widget child, ImageChunkEvent? loadingProgress) {
-                            if (loadingProgress == null) {
-                              return child;
-                            } else {
-                              return PlaceholderContainer(text: 'Logo');
-                            }
-                          },
-                          errorBuilder: (_, __, ___) => PlaceholderContainer(text: '!'),
-                        ).image,
-                      ),
+                color: Theme.of(context)
+                    .extension<SyncIndicatorTheme>()!
+                    .syncedBackgroundColor,
+              ),
+              child: NFTImageWidget(
+                imageUrl: nftAsset.normalizedMetadata?.imageUrl,
               ),
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  nftAsset.contractType ?? '',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w400,
-                    color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-                    height: 1,
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${nftAsset.name ?? ''} - ${nftAsset.symbol ?? ''}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context)
+                          .extension<BalancePageTheme>()!
+                          .labelTextColor,
+                      height: 1,
+                    ),
                   ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  nftAsset.name ?? "",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w900,
-                    color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
-                    height: 1,
+                  SizedBox(height: 8),
+                  Text(
+                    nftAsset.normalizedMetadata?.name ?? nftAsset.name ?? "",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w900,
+                      color: Theme.of(context)
+                          .extension<BalancePageTheme>()!
+                          .assetTitleColor,
+                      height: 1,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             )
           ],
         ),
@@ -89,34 +93,3 @@ class NFTTileWidget extends StatelessWidget {
   }
 }
 
-class PlaceholderContainer extends StatelessWidget {
-  const PlaceholderContainer({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 142,
-      width: 142,
-      child: Center(
-        child: Text(
-          text,
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 12,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-      ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30.0),
-        border: Border.all(
-          color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
-          width: 1,
-        ),
-        color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-      ),
-    );
-  }
-}

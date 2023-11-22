@@ -23,7 +23,7 @@ class NFTListingPage extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: PrimaryButton(
                 text: S.current.import,
-                color: Theme.of(context).primaryColor,
+                color: Theme.of(context).primaryColorDark,
                 textColor: Colors.white,
                 onPressed: () => Navigator.pushNamed(
                   context,

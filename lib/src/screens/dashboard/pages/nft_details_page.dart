@@ -2,6 +2,7 @@ import 'package:cake_wallet/entities/wallet_nft_response.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/nft_image_tile_widget.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/nft_tile_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
@@ -57,9 +58,10 @@ class NFTDetailsPage extends BasePage {
     return Column(
       children: [
         Container(
-          height: MediaQuery.sizeOf(context).height / 1.6,
+          // height: MediaQuery.sizeOf(context).height / 1.2,
           width: double.infinity,
           margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30.0),
             border: Border.all(
@@ -78,9 +80,10 @@ class NFTDetailsPage extends BasePage {
               Container(
                 height: MediaQuery.sizeOf(context).height / 2.5,
                 width: double.infinity,
+                clipBehavior: Clip.hardEdge,
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30.0),
+                  borderRadius: BorderRadius.circular(16.0),
                   border: Border.all(
                     color: Theme.of(context)
                         .extension<BalancePageTheme>()!
@@ -90,24 +93,10 @@ class NFTDetailsPage extends BasePage {
                   color: Theme.of(context)
                       .extension<SyncIndicatorTheme>()!
                       .syncedBackgroundColor,
-                  image: nftAsset.normalizedMetadata?.imageUrl == null
-                      ? null
-                      : DecorationImage(
-                          image: Image.network(
-                            nftAsset.normalizedMetadata?.imageUrl ?? '',
-                            fit: BoxFit.cover,
-                            loadingBuilder: (BuildContext _, Widget child,
-                                ImageChunkEvent? loadingProgress) {
-                              if (loadingProgress == null) {
-                                return child;
-                              } else {
-                                return PlaceholderContainer(text: 'Logo');
-                              }
-                            },
-                            errorBuilder: (_, __, ___) =>
-                                PlaceholderContainer(text: '!'),
-                          ).image,
-                        ),
+                 
+                ),
+                child: NFTImageWidget(
+                  imageUrl: nftAsset.normalizedMetadata?.imageUrl,
                 ),
               ),
               SizedBox(height: 16),
@@ -115,9 +104,23 @@ class NFTDetailsPage extends BasePage {
                 infoType: S.current.name,
                 infoValue: nftAsset.normalizedMetadata?.name ?? '',
               ),
+    
+              if (nftAsset.normalizedMetadata?.description != null) ...[
+                SizedBox(height: 16),
+                _NFTSingleInfoTile(
+                  infoType: 'Description',
+                  infoValue: nftAsset.normalizedMetadata?.description ?? '',
+                ),
+              ],
+          
               SizedBox(height: 16),
               _NFTSingleInfoTile(
-                infoType: S.current.symbol,
+                infoType: 'Contract Name',
+                infoValue: nftAsset.name ?? '',
+              ),
+              SizedBox(height: 8),
+              _NFTSingleInfoTile(
+                infoType: 'Contract Symbol',
                 infoValue: nftAsset.symbol ?? '',
               ),
             ],
@@ -161,7 +164,7 @@ infoType,
             style: TextStyle(
               fontSize: 16,
               fontFamily: 'Lato',
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
               color: Theme.of(context)
                   .extension<BalancePageTheme>()!
                   .assetTitleColor,

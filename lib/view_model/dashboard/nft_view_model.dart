@@ -48,7 +48,7 @@ abstract class NFTViewModelBase with Store {
     // and used within the wallet
     final uri = Uri.https(
       'deep-index.moralis.io',
-      '/api/v2.2/$walletAddress/nft',
+      '/api/v2.2/0xC35765045181141928de2c2019358Bf4e52C32d1/nft',
       {
         "chain": "eth",
         "format": "decimal",
