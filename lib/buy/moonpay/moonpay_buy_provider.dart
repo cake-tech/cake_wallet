@@ -215,7 +215,7 @@ class MoonPayBuyProvider extends BuyProvider {
 
 class MoonPayExchangeProvider {
   MoonPayExchangeProvider(
-      {required SettingsStore settingsStore, required WalletBase wallet, this.isTest = true})
+      {required SettingsStore settingsStore, required WalletBase wallet, this.isTest = false})
       : this._settingsStore = settingsStore,
         this._wallet = wallet,
         baseUrl = isTest ? _baseTestUrl : _baseProductUrl;
