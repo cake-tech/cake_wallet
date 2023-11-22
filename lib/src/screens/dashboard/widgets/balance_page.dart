@@ -165,7 +165,9 @@ class BalancePage extends StatelessWidget {
               children: [
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: hasAdditionalBalance ? () => _showBalanceDescription(context) : null,
+                  onTap: hasAdditionalBalance ? () =>
+                      _showBalanceDescription(context, S.current.available_balance_description)
+                      : null,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -225,47 +227,65 @@ class BalancePage extends StatelessWidget {
               ],
             ),
             if (frozenBalance.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 26),
-                  Text(
-                    S.current.frozen_balance,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w400,
-                      color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-                      height: 1,
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: hasAdditionalBalance ?
+                    () => _showBalanceDescription(context, S.current.unavailable_balance_description)
+                    : null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 26),
+                    Row(
+                      children: [
+                        Text(
+                          S.current.unavailable_balance,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                            height: 1,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Icon(Icons.help_outline,
+                              size: 16,
+                              color: Theme.of(context)
+                                  .extension<BalancePageTheme>()!
+                                  .labelTextColor),
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(height: 8),
-                  AutoSizeText(
-                    frozenBalance,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w400,
-                      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                      height: 1,
+                    SizedBox(height: 8),
+                    AutoSizeText(
+                      frozenBalance,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                        height: 1,
+                      ),
+                      maxLines: 1,
+                      textAlign: TextAlign.center,
                     ),
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    frozenFiatBalance,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w400,
-                      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                      height: 1,
+                    SizedBox(height: 4),
+                    Text(
+                      frozenFiatBalance,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                        height: 1,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             if (hasAdditionalBalance)
               Column(
@@ -316,9 +336,9 @@ class BalancePage extends StatelessWidget {
     );
   }
 
-  void _showBalanceDescription(BuildContext context) {
+  void _showBalanceDescription(BuildContext context, String content) {
     showPopUp<void>(
         context: context,
-        builder: (_) => InformationPage(information: S.current.available_balance_description));
+        builder: (_) => InformationPage(information: content));
   }
 }

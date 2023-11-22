@@ -4,6 +4,7 @@ abstract class WalletCredentials {
   WalletCredentials({
     required this.name,
     this.height,
+    this.seedPhraseLength,
     this.walletInfo,
     this.password,
     this.derivationType,
@@ -12,6 +13,7 @@ abstract class WalletCredentials {
 
   final String name;
   final int? height;
+  int? seedPhraseLength;
   String? password;
   DerivationType? derivationType;
   String? derivationPath;

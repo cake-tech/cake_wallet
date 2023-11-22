@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -23,8 +24,8 @@ ReactionDisposer? _onCurrentWalletChangeReaction;
 ReactionDisposer? _onCurrentWalletChangeFiatRateUpdateReaction;
 //ReactionDisposer _onCurrentWalletAddressChangeReaction;
 
-void startCurrentWalletChangeReaction(
-    AppStore appStore, SettingsStore settingsStore, FiatConversionStore fiatConversionStore) {
+void startCurrentWalletChangeReaction(AppStore appStore,
+    SettingsStore settingsStore, FiatConversionStore fiatConversionStore) {
   _onCurrentWalletChangeReaction?.reaction.dispose();
   _onCurrentWalletChangeFiatRateUpdateReaction?.reaction.dispose();
   //_onCurrentWalletAddressChangeReaction?.reaction?dispose();
@@ -50,9 +51,9 @@ void startCurrentWalletChangeReaction(
   //}
   //});
 
-  _onCurrentWalletChangeReaction = reaction((_) => appStore.wallet,
-      (WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
-          wallet) async {
+  _onCurrentWalletChangeReaction = reaction((_) => appStore.wallet, (WalletBase<
+          Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
+      wallet) async {
     try {
       if (wallet == null) {
         return;
@@ -62,10 +63,11 @@ void startCurrentWalletChangeReaction(
 
       startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
       startCheckConnectionReaction(wallet, settingsStore);
-      await getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
       await getIt
           .get<SharedPreferences>()
-          .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
+          .setString(PreferencesKey.currentWalletName, wallet.name);
+      await getIt.get<SharedPreferences>().setInt(
+          PreferencesKey.currentWalletType, serializeToInt(wallet.type));
 
       if (wallet.type == WalletType.monero) {
         _setAutoGenerateSubaddressStatus(wallet, settingsStore);
@@ -93,8 +95,9 @@ void startCurrentWalletChangeReaction(
     }
   });
 
-  _onCurrentWalletChangeFiatRateUpdateReaction = reaction((_) => appStore.wallet,
-      (WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
+  _onCurrentWalletChangeFiatRateUpdateReaction =
+      reaction((_) => appStore.wallet, (WalletBase<Balance,
+              TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
           wallet) async {
     try {
       if (wallet == null || settingsStore.fiatApiMode == FiatApiMode.disabled) {
@@ -102,14 +105,16 @@ void startCurrentWalletChangeReaction(
       }
 
       fiatConversionStore.prices[wallet.currency] = 0;
-      fiatConversionStore.prices[wallet.currency] = await FiatConversionService.fetchPrice(
-          crypto: wallet.currency,
-          fiat: settingsStore.fiatCurrency,
-          torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+      fiatConversionStore.prices[wallet.currency] =
+          await FiatConversionService.fetchPrice(
+              crypto: wallet.currency,
+              fiat: settingsStore.fiatCurrency,
+              torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
 
       if (wallet.type == WalletType.ethereum) {
-        final currencies =
-            ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+        final currencies = ethereum!
+            .getERC20Currencies(appStore.wallet!)
+            .where((element) => element.enabled);
 
         for (final currency in currencies) {
           () async {
@@ -129,10 +134,11 @@ void startCurrentWalletChangeReaction(
 
         for (final currency in currencies) {
           () async {
-            fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
-                crypto: currency,
-                fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+            fiatConversionStore.prices[currency] =
+                await FiatConversionService.fetchPrice(
+                    crypto: currency,
+                    fiat: settingsStore.fiatCurrency,
+                    torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
           }.call();
         }
       }
@@ -143,15 +149,21 @@ void startCurrentWalletChangeReaction(
 }
 
 void _setAutoGenerateSubaddressStatus(
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+      wallet,
   SettingsStore settingsStore,
 ) async {
-  final walletHasAddresses = await wallet.walletAddresses.addressesMap.length > 1;
-  if (settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.initialized &&
+  final walletHasAddresses =
+      await wallet.walletAddresses.addressesMap.length > 1;
+  if (settingsStore.autoGenerateSubaddressStatus ==
+          AutoGenerateSubaddressStatus.initialized &&
       walletHasAddresses) {
-    settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.disabled;
+    settingsStore.autoGenerateSubaddressStatus =
+        AutoGenerateSubaddressStatus.disabled;
   }
   wallet.isEnabledAutoGenerateSubaddress =
-      settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled ||
-          settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.initialized;
+      settingsStore.autoGenerateSubaddressStatus ==
+              AutoGenerateSubaddressStatus.enabled ||
+          settingsStore.autoGenerateSubaddressStatus ==
+              AutoGenerateSubaddressStatus.initialized;
 }

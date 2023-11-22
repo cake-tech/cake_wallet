@@ -147,7 +147,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         ChangeNowExchangeProvider(settingsStore: _settingsStore),
         SideShiftExchangeProvider(),
         SimpleSwapExchangeProvider(),
-        TrocadorExchangeProvider(useTorOnly: _useTorOnly),
+        TrocadorExchangeProvider(useTorOnly: _useTorOnly,
+            providerStates: _settingsStore.trocadorProviderStates),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
       ];
 
