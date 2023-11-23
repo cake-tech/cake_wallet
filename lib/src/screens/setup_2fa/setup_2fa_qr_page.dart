@@ -36,7 +36,7 @@ class Setup2FAQRPage extends BasePage {
         children: [
           Spacer(),
           Text(
-            S.current.add_secret_code,
+            S.current.scan_qr_on_device,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,

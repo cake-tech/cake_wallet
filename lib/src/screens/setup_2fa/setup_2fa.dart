@@ -14,23 +14,27 @@ class Setup2FAPage extends BasePage {
   final Setup2FAViewModel setup2FAViewModel;
 
   @override
-  String get title => S.current.setup_2fa;
+  String get title => 'CAKE 2FA';
 
   @override
   Widget body(BuildContext context) {
     final cake2FAGuideTitle = 'Cake 2FA Guide';
     final cake2FAGuideUri =
         Uri.parse('https://guides.cakewallet.com/docs/advanced-features/authentication');
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          ConstrainedBox(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          flex: 2,
+          child: ConstrainedBox(
             constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
             child:
                 AspectRatio(aspectRatio: 1, child: Image.asset('assets/images/setup_2fa_img.png')),
           ),
-          Padding(
+        ),
+        Expanded(
+          flex: 2,
+          child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Text(
               S.current.setup_2fa_text,
@@ -43,20 +47,25 @@ class Setup2FAPage extends BasePage {
               ),
             ),
           ),
-          SizedBox(height: 56),
-          SettingsCellWithArrow(
-            title: S.current.setup_totp_recommended,
-            handler: (_) {
-              setup2FAViewModel.generateSecretKey();
-              return Navigator.of(context).pushReplacementNamed(Routes.setup_2faQRPage);
-            },
+        ),
+        Expanded(
+          child: Column(
+            children: [
+              SettingsCellWithArrow(
+                title: S.current.setup_totp_recommended,
+                handler: (_) {
+                  setup2FAViewModel.generateSecretKey();
+                  return Navigator.of(context).pushReplacementNamed(Routes.setup_2faQRPage);
+                },
+              ),
+              StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+              SettingsCellWithArrow(
+                  title: cake2FAGuideTitle, handler: (_) => _launchUrl(cake2FAGuideUri)),
+              StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+            ],
           ),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          SettingsCellWithArrow(
-              title: cake2FAGuideTitle, handler: (_) => _launchUrl(cake2FAGuideUri)),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

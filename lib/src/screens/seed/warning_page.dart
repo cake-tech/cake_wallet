@@ -30,9 +30,6 @@ class WarningPage extends BasePage {
   Widget body(BuildContext context) {
     final image = currentTheme.type == ThemeType.dark ? imageDark : imageLight;
 
-    final text =
-        "Cake 2FA is a second authentication for certain actions in the wallet. It is NOT as secure as cold storage. If you lose access to your 2FA app or passkeys, you WILL lose access to this wallet. You will need to restore your wallet from the mnemonic seed. Cake support will be unable to assist you if you lose access to your 2FA or mnemonic seeds. Before using Cake 2FA, we recommend reading through the guide here.";
-
     return WillPopScope(
         onWillPop: () async => false,
         child: Container(
@@ -44,29 +41,35 @@ class WarningPage extends BasePage {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
-                  child: AspectRatio(aspectRatio: 1, child: image),
+                Expanded(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
+                    child: AspectRatio(aspectRatio: 1, child: image),
+                  ),
                 ),
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Text(
-                      isPreSeedPage
-                          ? S.of(context).pre_seed_description(seedPhraseLength.toString())
-                          : text,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal,
-                          color: isPreSeedPage
-                              ? Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor
-                              : Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Text(
+                        isPreSeedPage
+                            ? S.of(context).pre_seed_description(seedPhraseLength.toString())
+                            : S.of(context).setup_warning_2fa_text,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                            color: isPreSeedPage
+                                ? Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor
+                                : Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
+                  ),
                 ),
                 PrimaryButton(
                     onPressed: () => isPreSeedPage
                         ? Navigator.of(context).popAndPushNamed(Routes.seed, arguments: true)
                         : Navigator.of(context).popAndPushNamed(Routes.setup_2faPage),
-                    text: isPreSeedPage ? S.of(context).pre_seed_button_text : 'Neeeeeeee',
+                    text: isPreSeedPage
+                        ? S.of(context).pre_seed_button_text
+                        : S.of(context).understand,
                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white)
               ],
