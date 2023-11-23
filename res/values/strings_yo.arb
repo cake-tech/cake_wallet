@@ -621,7 +621,6 @@
   "enter_totp_code": "Jọwọ pọ koodu TOTP.",
   "add_secret_code": "Fọya koodu iye yii si eto miiran",
   "totp_secret_code": "Koodu iye TOTP",
-  "important_note": "Iwọ nikan nipasẹ iwe iṣẹ kan",
   "setup_2fa_text": "Cake 2FA kii ṣe nipasẹ aisan tabi ni akoso aisan. 2FA ti ṣe pada ninu awọn iṣẹ pataki, bi atilẹyin ti o fun iṣẹ rẹ ti o ti jẹ saanu.\n\n Cake 2FA kii ṣe pada ninu atilẹyin ti o ti ba alabara kan ti o sise gidi gan.\n\n Ti o ba pọ akosile rẹ 2FA, O YOO RI ATOJU SI IWE IWE NA. O yoo nilo lati yan pẹlu iwe iwe ni o ba ṣe iṣẹ rẹ. O ni aṣẹ iru ki o gba asise akojọ iwe iwe rẹ! Nitori a ko ni aṣẹ pẹlu ohun ti o ba ṣe iṣẹ rẹ lati yan pẹlu akojọ iwe iwe rẹ, nitori Cake ni iwe iwe ti ko se iṣẹ itumọ.",
   "setup_totp_recommended": "Sọ TOTP (Kẹṣọdọ)",
   "disable_buy": "Ko iṣọrọ ọja",

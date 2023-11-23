@@ -627,7 +627,6 @@
   "enter_totp_code": "Unesite TOTP kod.",
   "add_secret_code": "Dodajte ovaj tajni kod na drugi uređaj",
   "totp_secret_code": "TOTP tajni kod",
-  "important_note": "Važna nota",
   "setup_2fa_text": "Torta 2FA NIJE sigurna kao hladno skladište. 2FA štiti od osnovnih vrsta napada, kao što je vaš prijatelj koji vam daje otisak prsta dok spavate.\n\n Cake 2FA NE štiti od kompromitiranog uređaja od strane sofisticiranog napadača.\n\n Ako izgubite pristup svojim 2FA kodovima , IZGUBIT ĆETE PRISTUP OVOM NOVČANIKU. Morat ćete obnoviti svoj novčanik iz mnemoničkog sjemena. STOGA MORATE NAPRAVITI SIGURNOSNE KOPIJE SVOJIH MNEMONIČKIH SJEMENA! Nadalje, netko tko ima pristup vašem mnemoničkom seedu(ima) moći će ukrasti vaša sredstva, zaobilazeći Cake 2FA.\n\n Cake osoblje za podršku neće vam moći pomoći ako izgubite pristup svom mnemoničkom seedu, budući da je Cake neskrbnički novčanik.",
   "setup_totp_recommended": "Postavite TOTP (preporučeno)",
   "disable_buy": "Onemogući kupnju",

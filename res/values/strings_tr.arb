@@ -625,7 +625,6 @@
   "enter_totp_code": "Lütfen TOTP Kodunu giriniz.",
   "add_secret_code": "Bu gizli kodu başka bir cihaza ekleyin",
   "totp_secret_code": "TOTP Gizli Kodu",
-  "important_note": "Önemli Not",
   "setup_2fa_text": "Cake 2FA, soğuk hava deposu kadar güvenli DEĞİLDİR. 2FA, siz uyurken arkadaşınızın parmak izinizi sağlaması gibi temel saldırı türlerine karşı koruma sağlar.\n\n Cake 2FA, gelişmiş bir saldırgan tarafından güvenliği ihlal edilmiş bir cihaza karşı koruma SAĞLAMAZ.\n\n 2FA kodlarınıza erişimi kaybederseniz , BU CÜZDANA ERİŞİMİNİZİ KAYBEDECEKSİNİZ. Mnemonic seed'den cüzdanınızı geri yüklemeniz gerekecek. BU NEDENLE HATIRLAYICI TOHUMLARINIZI YEDEKLEMELİSİNİZ! Ayrıca anımsatıcı tohumlarınıza erişimi olan biri, Cake 2FA'yı atlayarak paranızı çalabilir.\n\n Cake, anımsatıcı tohumlarınıza erişimi kaybederseniz size yardımcı olamaz, çünkü Cake bir saklama dışı cüzdan.",
   "setup_totp_recommended": "TOTP'yi kurun (Önerilir)",
   "disable_buy": "Satın alma işlemini devre dışı bırak",

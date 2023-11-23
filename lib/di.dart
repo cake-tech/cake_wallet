@@ -903,7 +903,7 @@ Future<void> setup({
   getIt.registerFactoryParam<NewWalletTypePage, void Function(BuildContext, WalletType), bool?>(
       (param1, isCreate) => NewWalletTypePage(onTypeSelected: param1, isCreate: isCreate ?? true));
 
-  getIt.registerFactoryParam<WarningPage, int, void>(
+  getIt.registerFactoryParam<WarningPage, int?, void>(
       (seedPhraseLength, _)
       => WarningPage(seedPhraseLength));
 

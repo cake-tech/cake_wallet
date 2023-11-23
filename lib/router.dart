@@ -420,7 +420,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.warningPage:
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<WarningPage>(
-              param1: settings.arguments as int));
+              param1: settings.arguments as int?));
 
     case Routes.backup:
       return CupertinoPageRoute<void>(

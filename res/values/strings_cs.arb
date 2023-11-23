@@ -619,7 +619,6 @@
   "enter_totp_code": "Zadejte kód TOTP.",
   "add_secret_code": "Přidejte tento tajný kód do jiného zařízení",
   "totp_secret_code": "Tajný kód TOTP",
-  "important_note": "Důležitá poznámka",
   "setup_2fa_text": "Cake 2FA NENÍ tak bezpečný jako skladování v chladu. 2FA chrání před základními typy útoků, jako je váš přítel, který vám poskytne otisk prstu, když spíte.\n\n Cake 2FA nechrání před napadením zařízení sofistikovaným útočníkem.\n\n Pokud ztratíte přístup ke svým kódům 2FA , ZTRÁTÍTE PŘÍSTUP K TÉTO PENĚŽENCE. Budete muset obnovit svou peněženku z mnemotechnického semínka. MUSÍTE TEDY ZÁLOHOVAT SVÉ MNEMONICKÉ SEMÉNKY! Kromě toho někdo s přístupem k vašemu mnemotechnickému semenu bude moci ukrást vaše finanční prostředky a obejít Cake 2FA.\n\n Pracovníci podpory Cake vám nebudou schopni pomoci, pokud ztratíte přístup k vašemu mnemotechnickému semenu, protože Cake je nevazební peněženka.",
   "setup_totp_recommended": "Nastavit TOTP (doporučeno)",
   "disable_buy": "Zakázat akci nákupu",

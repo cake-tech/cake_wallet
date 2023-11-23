@@ -615,7 +615,6 @@
   "enter_totp_code": "Masukkan Kode TOTP.",
   "add_secret_code": "Tambahkan kode rahasia ini ke perangkat lain",
   "totp_secret_code": "Kode Rahasia TOTP",
-  "important_note": "Catatan penting",
   "setup_2fa_text": "Cake 2FA TIDAK seaman cold storage. 2FA melindungi dari jenis serangan dasar, seperti teman Anda memberikan sidik jari saat Anda sedang tidur.\n\n Cake 2FA TIDAK melindungi dari perangkat yang disusupi oleh penyerang canggih.\n\n Jika Anda kehilangan akses ke kode 2FA , ANDA AKAN KEHILANGAN AKSES KE DOMPET INI. Anda perlu memulihkan dompet Anda dari benih mnemonik. OLEH KARENA ITU, ANDA HARUS MENYIMPAN BIJI MNEMONIK ANDA! Selanjutnya, seseorang yang memiliki akses ke benih mnemonik Anda akan dapat mencuri dana Anda, melewati Cake 2FA.\n\n Staf pendukung Cake tidak akan dapat membantu Anda jika Anda kehilangan akses ke benih mnemonik Anda, karena Cake adalah dompet tanpa hak asuh.",
   "setup_totp_recommended": "Siapkan TOTP (Disarankan)",
   "disable_buy": "Nonaktifkan tindakan beli",

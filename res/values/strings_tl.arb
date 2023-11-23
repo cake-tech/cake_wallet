@@ -628,7 +628,6 @@
   "enter_totp_code": "Mangyaring ipasok ang TOTP code.",
   "add_secret_code": "Idagdag ang lihim na code na ito sa isa pang aparato",
   "totp_secret_code": "TOTP Secret Code",
-  "important_note": "Mahalagang paalaala",
   "setup_2fa_text": "Ang cake 2FA ay hindi ligtas tulad ng malamig na imbakan. Pinoprotektahan ng 2FA laban sa mga pangunahing uri ng pag -atake, tulad ng iyong kaibigan na nagbibigay ng iyong fingerprint habang natutulog ka.\n\n Hindi pinoprotektahan ng cake 2FA laban sa isang nakompromiso na aparato ng isang sopistikadong umaatake.\n\n Kung nawalan ka ng pag -access sa iyong 2FA code, mawawalan ka ng access sa pitaka na ito. Kakailanganin mong ibalik ang iyong pitaka mula sa binhi ng mnemonic. Dapat mong i -back up ang iyong mga buto ng mnemonic! Dagdag pa, ang isang tao na may access sa iyong (mga) binhi ng mnemonic ay maaaring magnakaw ng iyong mga pondo, na lumampas sa cake 2FA.\n\n Ang mga kawani ng suporta sa cake ay hindi makakatulong sa iyo kung nawalan ka ng pag -access sa iyong mnemonic seed, dahil ang cake ay isang noncustodial wallet.",
   "setup_totp_recommended": "I -set up ang TOTP (inirerekomenda)",
   "disable_buy": "Huwag paganahin ang pagkilos ng pagbili",

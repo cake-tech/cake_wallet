@@ -626,7 +626,6 @@
   "enter_totp_code": "Digite o código TOTP.",
   "add_secret_code": "Adicione este código secreto a outro dispositivo",
   "totp_secret_code": "Código Secreto TOTP",
-  "important_note": "Nota importante",
   "setup_2fa_text": "O Cake 2FA NÃO é tão seguro quanto o armazenamento a frio. O 2FA protege contra tipos básicos de ataques, como seu amigo fornecer sua impressão digital enquanto você está dormindo.\n\n O Cake 2FA NÃO protege contra um dispositivo comprometido por um invasor sofisticado.\n\n Se você perder o acesso aos seus códigos 2FA , VOCÊ PERDERÁ O ACESSO A ESTA CARTEIRA. Você precisará restaurar sua carteira da semente mnemônica. VOCÊ DEVE, PORTANTO, FAZER BACKUP DE SUAS SEMENTES MNEMÔNICAS! Além disso, alguém com acesso às suas sementes mnemônicas poderá roubar seus fundos, ignorando o Cake 2FA.\n\n A equipe de suporte do Cake não poderá ajudá-lo se você perder o acesso à sua semente mnemônica, pois o Cake é um carteira não custodial.",
   "setup_totp_recommended": "Configurar TOTP (recomendado)",
   "disable_buy": "Desativar ação de compra",
