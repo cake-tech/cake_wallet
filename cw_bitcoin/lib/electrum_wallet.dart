@@ -480,7 +480,7 @@ abstract class ElectrumWalletBase
     unspentCoins = unspent.expand((e) => e).toList();
     unspentCoins.forEach((coin) async {
       final tx = await fetchTransactionInfo(hash: coin.hash, height: 0);
-      coin.isChange = tx!.direction == TransactionDirection.outgoing;
+      coin.isChange = tx?.direction == TransactionDirection.outgoing;
     });
 
     if (unspentCoinsInfo.isEmpty) {
