@@ -742,5 +742,6 @@
   "unavailable_balance": "Nicht verfügbares Guthaben",
   "unavailable_balance_description": "Nicht verfügbares Guthaben: Diese Summe umfasst Gelder, die in ausstehenden Transaktionen gesperrt sind, und solche, die Sie in Ihren Münzkontrolleinstellungen aktiv eingefroren haben. Gesperrte Guthaben werden verfügbar, sobald die entsprechenden Transaktionen abgeschlossen sind, während eingefrorene Guthaben für Transaktionen nicht zugänglich bleiben, bis Sie sich dazu entschließen, sie wieder freizugeben.",
   "unspent_change": "Wechselgeld",
-  "tor_connection": "Tor-Verbindung"
+  "tor_connection": "Tor-Verbindung",
+  "seed_hex_form": "Brieftaschensamen (Sechskantform)"
 }

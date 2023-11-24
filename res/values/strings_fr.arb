@@ -744,5 +744,6 @@
   "camera_permission_is_required": "L'autorisation d'accès à la caméra est requise.\nVeuillez l'activer depuis les paramètres de l'application.",
   "switchToETHWallet": "Veuillez passer à un portefeuille (wallet) Ethereum et réessayer",
   "unspent_change": "Changement",
-  "tor_connection": "Connexion Tor"
+  "tor_connection": "Connexion Tor",
+  "seed_hex_form": "Graine du portefeuille (forme hexagonale)"
 }

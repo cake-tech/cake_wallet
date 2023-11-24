@@ -740,5 +740,6 @@
   "unavailable_balance": "Nedostupno stanje",
   "unavailable_balance_description": "Nedostupno stanje: Ovaj ukupni iznos uključuje sredstva koja su zaključana u transakcijama na čekanju i ona koja ste aktivno zamrznuli u postavkama kontrole novčića. Zaključani saldi postat će dostupni kada se dovrše njihove transakcije, dok zamrznuti saldi ostaju nedostupni za transakcije sve dok ih ne odlučite odmrznuti.",
   "unspent_change": "Promijeniti",
-  "tor_connection": "Tor veza"
+  "tor_connection": "Tor veza",
+  "seed_hex_form": "Sjeme novčanika (šesterokutni oblik)"
 }

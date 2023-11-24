@@ -151,6 +151,14 @@ class WalletRestoreFromQRCode {
       return WalletRestoreMode.keys;
     }
 
+    if ((type == WalletType.nano || type == WalletType.banano) && credentials.containsKey('hexSeed')) {
+      final hexSeed = credentials['hexSeed'] as String;
+      if (hexSeed.isEmpty) {
+        throw Exception('Unexpected restore mode: hexSeed');
+      }
+      return WalletRestoreMode.seed;
+    }
+
     throw Exception('Unexpected restore mode: restore params are invalid');
   }
 }

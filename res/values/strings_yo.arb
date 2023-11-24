@@ -736,5 +736,6 @@
   "unavailable_balance": "Iwontunwonsi ti ko si",
   "unavailable_balance_description": "Iwontunws.funfun ti ko si: Lapapọ yii pẹlu awọn owo ti o wa ni titiipa ni awọn iṣowo isunmọ ati awọn ti o ti didi ni itara ninu awọn eto iṣakoso owo rẹ. Awọn iwọntunwọnsi titiipa yoo wa ni kete ti awọn iṣowo oniwun wọn ba ti pari, lakoko ti awọn iwọntunwọnsi tio tutunini ko ni iraye si fun awọn iṣowo titi iwọ o fi pinnu lati mu wọn kuro.",
   "unspent_change": "Yipada",
-  "tor_connection": "Tor asopọ"
+  "tor_connection": "Tor asopọ",
+  "seed_hex_form": "Irú Opamọwọ apamọwọ (HOX)"
 }

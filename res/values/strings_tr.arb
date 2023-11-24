@@ -740,5 +740,6 @@
   "unavailable_balance": "Kullanılamayan bakiye",
   "unavailable_balance_description": "Kullanılamayan Bakiye: Bu toplam, bekleyen işlemlerde kilitlenen fonları ve jeton kontrol ayarlarınızda aktif olarak dondurduğunuz fonları içerir. Kilitli bakiyeler, ilgili işlemleri tamamlandıktan sonra kullanılabilir hale gelir; dondurulmuş bakiyeler ise siz onları dondurmaya karar verene kadar işlemler için erişilemez durumda kalır.",
   "unspent_change": "Değiştirmek",
-  "tor_connection": "Tor bağlantısı"
+  "tor_connection": "Tor bağlantısı",
+  "seed_hex_form": "Cüzdan tohumu (onaltılık form)"
 }
