@@ -103,6 +103,7 @@ dependencies:
       url: https://github.com/cake-tech/tor.git
       ref: main
   socks5_proxy: ^1.0.4
+  flutter_svg: ^2.0.9
 
 dev_dependencies:
   flutter_test:
