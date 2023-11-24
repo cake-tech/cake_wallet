@@ -162,6 +162,7 @@ class ExceptionHandler {
     "Error while launching http",
     "OS Error: Network is unreachable",
     "ClientException: Write failed, uri=http",
+    "Connection terminated during handshake",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
