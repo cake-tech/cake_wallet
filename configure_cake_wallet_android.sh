@@ -2,6 +2,7 @@ cd scripts/android
 source ./app_env.sh cakewallet
 ./app_config.sh
 cd ../.. && flutter pub get
+flutter packages pub run tool/generate_localization.dart
 cd cw_core && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
 cd cw_monero && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
 cd cw_bitcoin && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
