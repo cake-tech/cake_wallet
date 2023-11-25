@@ -741,5 +741,11 @@
   "unavailable_balance_description": "Nedostupno stanje: Ovaj ukupni iznos uključuje sredstva koja su zaključana u transakcijama na čekanju i ona koja ste aktivno zamrznuli u postavkama kontrole novčića. Zaključani saldi postat će dostupni kada se dovrše njihove transakcije, dok zamrznuti saldi ostaju nedostupni za transakcije sve dok ih ne odlučite odmrznuti.",
   "unspent_change": "Promijeniti",
   "tor_connection": "Tor veza",
-  "seed_hex_form": "Sjeme novčanika (šesterokutni oblik)"
+  "seed_hex_form": "Sjeme novčanika (šesterokutni oblik)",
+  "seedtype": "Sjemenska vrsta",
+  "seedtype_legacy": "Nasljeđe (25 riječi)",
+  "seedtype_polyseed": "Poliseed (16 riječi)",
+  "seed_language_czech": "češki",
+  "seed_language_korean": "korejski",
+  "seed_language_chinese_traditional": "Kinesko tradicionalno)"
 }

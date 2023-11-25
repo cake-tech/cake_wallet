@@ -743,5 +743,11 @@
   "unavailable_balance_description": "Saldo non disponibile: questo totale include i fondi bloccati nelle transazioni in sospeso e quelli che hai congelato attivamente nelle impostazioni di controllo delle monete. I saldi bloccati diventeranno disponibili una volta completate le rispettive transazioni, mentre i saldi congelati rimarranno inaccessibili per le transazioni finché non deciderai di sbloccarli.",
   "unspent_change": "Modifica",
   "tor_connection": "Connessione Tor",
-  "seed_hex_form": "Seme di portafoglio (forma esadecimale)"
+  "seed_hex_form": "Seme di portafoglio (forma esadecimale)",
+  "seedtype": "Seedtype",
+  "seedtype_legacy": "Legacy (25 parole)",
+  "seedtype_polyseed": "Polyseed (16 parole)",
+  "seed_language_czech": "ceco",
+  "seed_language_korean": "coreano",
+  "seed_language_chinese_traditional": "Cinese tradizionale)"
 }

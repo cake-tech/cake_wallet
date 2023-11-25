@@ -743,5 +743,11 @@
   "unavailable_balance_description": "Niet-beschikbaar saldo: Dit totaal omvat het geld dat is vergrendeld in lopende transacties en het geld dat u actief hebt bevroren in uw muntcontrole-instellingen. Vergrendelde saldi komen beschikbaar zodra de betreffende transacties zijn voltooid, terwijl bevroren saldi ontoegankelijk blijven voor transacties totdat u besluit ze weer vrij te geven.",
   "unspent_change": "Wijziging",
   "tor_connection": "Tor-verbinding",
-  "seed_hex_form": "Portemonnee zaad (hexvorm)"
+  "seed_hex_form": "Portemonnee zaad (hexvorm)",
+  "seedtype": "Zaadtype",
+  "seedtype_legacy": "Legacy (25 woorden)",
+  "seedtype_polyseed": "Polyseed (16 woorden)",
+  "seed_language_czech": "Tsjechisch",
+  "seed_language_korean": "Koreaans",
+  "seed_language_chinese_traditional": "Chinese traditionele)"
 }

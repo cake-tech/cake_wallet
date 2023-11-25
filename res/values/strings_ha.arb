@@ -721,5 +721,11 @@
   "unavailable_balance_description": "Ma'auni Babu: Wannan jimlar ya haɗa da kuɗi waɗanda ke kulle a cikin ma'amaloli da ke jiran aiki da waɗanda kuka daskare sosai a cikin saitunan sarrafa kuɗin ku. Ma'auni da aka kulle za su kasance da zarar an kammala ma'amalolinsu, yayin da daskararrun ma'auni ba za su iya samun damar yin ciniki ba har sai kun yanke shawarar cire su.",
   "unspent_change": "Canza",
   "tor_connection": "Tor haɗin gwiwa",
-  "seed_hex_form": "Gany Sero (form form)"
+  "seed_hex_form": "Gany Sero (form form)",
+  "seedtype": "Seedtype",
+  "seedtype_legacy": "Legacy (25 kalmomi)",
+  "seedtype_polyseed": "Polyseed (16 kalmomi)",
+  "seed_language_czech": "Czech",
+  "seed_language_korean": "Yaren Koriya",
+  "seed_language_chinese_traditional": "Sinanci (na gargajiya)"
 }

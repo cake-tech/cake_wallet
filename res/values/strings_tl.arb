@@ -738,5 +738,10 @@
   "unavailable_balance_description": "Hindi Available na Balanse: Kasama sa kabuuang ito ang mga pondong naka-lock sa mga nakabinbing transaksyon at ang mga aktibong na-freeze mo sa iyong mga setting ng kontrol ng coin. Magiging available ang mga naka-lock na balanse kapag nakumpleto na ang kani-kanilang mga transaksyon, habang ang mga nakapirming balanse ay nananatiling hindi naa-access para sa mga transaksyon hanggang sa magpasya kang i-unfreeze ang mga ito.",
   "unspent_change": "Baguhin",
   "tor_connection": "Koneksyon ng Tor",
-  "seed_hex_form": "Wallet seed (hex form)"
+  "seed_hex_form": "Wallet seed (hex form)",
+  "seedtype_legacy": "Pamana (25 salita)",
+  "seedtype_polyseed": "Polyseed (16 na salita)",
+  "seed_language_czech": "Czech",
+  "seed_language_korean": "Korean",
+  "seed_language_chinese_traditional": "Intsik (tradisyonal)"
 }

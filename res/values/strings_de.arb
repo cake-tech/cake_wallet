@@ -722,9 +722,9 @@
   "awaitDAppProcessing": "Bitte warten Sie, bis die dApp die Verarbeitung abgeschlossen hat.",
   "copyWalletConnectLink": "Kopieren Sie den WalletConnect-Link von dApp und fügen Sie ihn hier ein",
   "enterWalletConnectURI": "Geben Sie den WalletConnect-URI ein",
-  "seed_key": "Samenschlüssel",
-  "enter_seed_phrase": "Geben Sie Ihre Samenphrase ein",
-  "change_rep_successful": "Erfolgreich veränderte Vertreter",
+  "seed_key": "Seed-Schlüssel",
+  "enter_seed_phrase": "Geben Sie Ihre Seed-Phrase ein",
+  "change_rep_successful": "Vertreter erfolgreich gerändert",
   "add_contact": "Kontakt hinzufügen",
   "exchange_provider_unsupported": "${providerName} wird nicht mehr unterstützt!",
   "domain_looks_up": "Domain-Suchen",
@@ -743,5 +743,11 @@
   "unavailable_balance_description": "Nicht verfügbares Guthaben: Diese Summe umfasst Gelder, die in ausstehenden Transaktionen gesperrt sind, und solche, die Sie in Ihren Münzkontrolleinstellungen aktiv eingefroren haben. Gesperrte Guthaben werden verfügbar, sobald die entsprechenden Transaktionen abgeschlossen sind, während eingefrorene Guthaben für Transaktionen nicht zugänglich bleiben, bis Sie sich dazu entschließen, sie wieder freizugeben.",
   "unspent_change": "Wechselgeld",
   "tor_connection": "Tor-Verbindung",
-  "seed_hex_form": "Brieftaschensamen (Sechskantform)"
+  "seed_hex_form": "Brieftaschensamen (Sechskantform)",
+  "seedtype": "Seedtyp",
+  "seedtype_legacy": "Veraltet (25 Wörter)",
+  "seedtype_polyseed": "Polyseed (16 Wörter)",
+  "seed_language_czech": "Tschechisch",
+  "seed_language_korean": "Koreanisch",
+  "seed_language_chinese_traditional": "Chinesisch (Traditionell)"
 }

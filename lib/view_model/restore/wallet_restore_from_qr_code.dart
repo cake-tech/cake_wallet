@@ -10,6 +10,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:collection/collection.dart';
+import 'package:polyseed/polyseed.dart';
 
 class WalletRestoreFromQRCode {
   WalletRestoreFromQRCode();
@@ -51,7 +52,7 @@ class WalletRestoreFromQRCode {
     RegExp _getPattern(int wordCount) =>
         RegExp(r'(?<=\W|^)((?:\w+\s+){' + (wordCount - 1).toString() + r'}\w+)(?=\W|$)');
 
-    List<int> patternCounts = walletType == WalletType.monero ? [25, 14, 13] : [24, 18, 12];
+    List<int> patternCounts = walletType == WalletType.monero ? [25, 16, 14, 13] : [24, 18, 12];
 
     for (final count in patternCounts) {
       final pattern = _getPattern(count);
@@ -123,12 +124,17 @@ class WalletRestoreFromQRCode {
     }
 
     if (credentials['seed'] != null) {
-      final seedValue = credentials['seed'];
+      final seedValue = credentials['seed'] as String;
       final words = SeedValidator.getWordList(type: type, language: 'english');
+
+      if (type == WalletType.monero && Polyseed.isValidSeed(seedValue)) {
+        return WalletRestoreMode.seed;
+      }
+
       seedValue.split(' ').forEach((element) {
         if (!words.contains(element)) {
           throw Exception(
-              'Unexpected restore mode: mnemonic_seed is invalid or does\'t match wallet type');
+              "Unexpected restore mode: mnemonic_seed is invalid or doesn't match wallet type");
         }
       });
       return WalletRestoreMode.seed;

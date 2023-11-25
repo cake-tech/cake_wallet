@@ -731,5 +731,11 @@
   "unavailable_balance_description": "Saldo Tidak Tersedia: Total ini termasuk dana yang terkunci dalam transaksi yang tertunda dan dana yang telah Anda bekukan secara aktif di pengaturan kontrol koin Anda. Saldo yang terkunci akan tersedia setelah transaksi masing-masing selesai, sedangkan saldo yang dibekukan tetap tidak dapat diakses untuk transaksi sampai Anda memutuskan untuk mencairkannya.",
   "unspent_change": "Mengubah",
   "tor_connection": "koneksi Tor",
-  "seed_hex_form": "Biji dompet (bentuk hex)"
+  "seed_hex_form": "Biji dompet (bentuk hex)",
+  "seedtype": "Seedtype",
+  "seedtype_legacy": "Legacy (25 kata)",
+  "seedtype_polyseed": "Polyseed (16 kata)",
+  "seed_language_czech": "Ceko",
+  "seed_language_korean": "Korea",
+  "seed_language_chinese_traditional": "Cina tradisional)"
 }

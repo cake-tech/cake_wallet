@@ -745,5 +745,12 @@
   "switchToETHWallet": "Veuillez passer à un portefeuille (wallet) Ethereum et réessayer",
   "unspent_change": "Changement",
   "tor_connection": "Connexion Tor",
-  "seed_hex_form": "Graine du portefeuille (forme hexagonale)"
+  "seed_hex_form": "Graine du portefeuille (forme hexagonale)",
+  "camera_permission_is_required": "L'autorisation de la caméra est requise.\nVeuillez l'activer à partir des paramètres de l'application.",
+  "seedtype": "Type de type graine",
+  "seedtype_legacy": "Héritage (25 mots)",
+  "seedtype_polyseed": "Polyseed (16 mots)",
+  "seed_language_czech": "tchèque",
+  "seed_language_korean": "coréen",
+  "seed_language_chinese_traditional": "Chinois (Traditionnel)"
 }

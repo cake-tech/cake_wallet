@@ -741,5 +741,11 @@
   "unavailable_balance_description": "Kullanılamayan Bakiye: Bu toplam, bekleyen işlemlerde kilitlenen fonları ve jeton kontrol ayarlarınızda aktif olarak dondurduğunuz fonları içerir. Kilitli bakiyeler, ilgili işlemleri tamamlandıktan sonra kullanılabilir hale gelir; dondurulmuş bakiyeler ise siz onları dondurmaya karar verene kadar işlemler için erişilemez durumda kalır.",
   "unspent_change": "Değiştirmek",
   "tor_connection": "Tor bağlantısı",
-  "seed_hex_form": "Cüzdan tohumu (onaltılık form)"
+  "seed_hex_form": "Cüzdan tohumu (onaltılık form)",
+  "seedtype": "Tohum",
+  "seedtype_legacy": "Miras (25 kelime)",
+  "seedtype_polyseed": "Polyseed (16 kelime)",
+  "seed_language_czech": "Çek",
+  "seed_language_korean": "Koreli",
+  "seed_language_chinese_traditional": "Çin geleneği)"
 }

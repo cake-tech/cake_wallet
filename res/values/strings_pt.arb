@@ -742,5 +742,11 @@
   "unavailable_balance_description": "Saldo Indisponível: Este total inclui fundos bloqueados em transações pendentes e aqueles que você congelou ativamente nas configurações de controle de moedas. Os saldos bloqueados ficarão disponíveis assim que suas respectivas transações forem concluídas, enquanto os saldos congelados permanecerão inacessíveis para transações até que você decida descongelá-los.",
   "unspent_change": "Mudar",
   "tor_connection": "Conexão Tor",
-  "seed_hex_form": "Semente de carteira (forma hexadecimal)"
+  "seed_hex_form": "Semente de carteira (forma hexadecimal)",
+  "seedtype": "SeedType",
+  "seedtype_legacy": "Legado (25 palavras)",
+  "seedtype_polyseed": "Polyseed (16 palavras)",
+  "seed_language_czech": "Tcheco",
+  "seed_language_korean": "coreano",
+  "seed_language_chinese_traditional": "Chinês tradicional)"
 }

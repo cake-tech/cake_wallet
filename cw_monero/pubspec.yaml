@@ -19,6 +19,9 @@ dependencies:
   flutter_mobx: ^2.0.6+1
   intl: ^0.18.0
   encrypt: ^5.0.1
+  polyseed:
+    git:
+      url: https://github.com/cake-tech/polyseed_dart.git
   cw_core:
     path: ../cw_core
 

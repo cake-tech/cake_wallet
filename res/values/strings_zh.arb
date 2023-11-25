@@ -742,5 +742,11 @@
   "unavailable_balance_description": "不可用余额：此总额包括锁定在待处理交易中的资金以及您在硬币控制设置中主动冻结的资金。一旦各自的交易完成，锁定的余额将变得可用，而冻结的余额在您决定解冻之前仍然无法进行交易。",
   "unspent_change": "改变",
   "tor_connection": "Tor连接",
-  "seed_hex_form": "钱包种子（十六进制形式）"
+  "seed_hex_form": "钱包种子（十六进制形式）",
+  "seedtype": "籽粒",
+  "seedtype_legacy": "遗产（25个单词）",
+  "seedtype_polyseed": "多种物品（16个单词）",
+  "seed_language_czech": "捷克",
+  "seed_language_korean": "韩国人",
+  "seed_language_chinese_traditional": "中国传统的）"
 }

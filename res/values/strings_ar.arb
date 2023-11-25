@@ -739,5 +739,11 @@
   "unavailable_balance_description": ".ﺎﻫﺪﻴﻤﺠﺗ ءﺎﻐﻟﺇ ﺭﺮﻘﺗ ﻰﺘﺣ ﺕﻼ﻿ﻣﺎﻌﻤﻠﻟ ﻝﻮﺻﻮﻠﻟ ﺔﻠﺑﺎﻗ ﺮﻴﻏ ﺓﺪﻤﺠﻤﻟﺍ ﺓﺪﺻﺭﻷ﻿ﺍ ﻞﻈﺗ ﺎﻤﻨﻴﺑ ،ﺎﻬﺑ ﺔﺻﺎﺨﻟﺍ ﺕﻼ﻿ﻣﺎﻌﻤﻟﺍ ﻝﺎﻤﺘﻛﺍ ﺩﺮﺠﻤﺑ ﺔﺣﺎﺘﻣ ﺔﻠﻔﻘﻤﻟﺍ ﺓﺪﺻﺭﻷ﻿ﺍ ﺢﺒﺼﺘﺳ .ﻚﺑ ﺔﺻﺎﺨﻟﺍ ﺕﻼ﻿ﻤﻌﻟﺍ ﻲﻓ ﻢﻜﺤﺘﻟﺍ ﺕﺍﺩﺍﺪﻋﺇ ﻲﻓ ﻂﺸﻧ ﻞﻜﺸﺑ ﺎﻫﺪﻴﻤﺠﺘﺑ ﺖﻤﻗ",
   "unspent_change": "يتغير",
   "seed_hex_form": "بذور المحفظة (شكل عرافة)",
-  "tor_connection": "ﺭﻮﺗ ﻝﺎﺼﺗﺍ"
+  "tor_connection": "ﺭﻮﺗ ﻝﺎﺼﺗﺍ",
+  "seedtype": "البذور",
+  "seedtype_legacy": "إرث (25 كلمة)",
+  "seedtype_polyseed": "بوليسيد (16 كلمة)",
+  "seed_language_czech": "التشيكية",
+  "seed_language_korean": "الكورية",
+  "seed_language_chinese_traditional": "تقاليد صينية)"
 }

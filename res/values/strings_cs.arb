@@ -735,5 +735,11 @@
   "unavailable_balance_description": "Nedostupný zůstatek: Tento součet zahrnuje prostředky, které jsou uzamčeny v nevyřízených transakcích a ty, které jste aktivně zmrazili v nastavení kontroly mincí. Uzamčené zůstatky budou k dispozici po dokončení příslušných transakcí, zatímco zmrazené zůstatky zůstanou pro transakce nepřístupné, dokud se nerozhodnete je uvolnit.",
   "unspent_change": "Změna",
   "tor_connection": "Připojení Tor",
-  "seed_hex_form": "Semeno peněženky (hex formulář)"
+  "seed_hex_form": "Semeno peněženky (hex formulář)",
+  "seedtype": "SeedType",
+  "seedtype_legacy": "Legacy (25 slov)",
+  "seedtype_polyseed": "Polyseed (16 slov)",
+  "seed_language_czech": "čeština",
+  "seed_language_korean": "korejština",
+  "seed_language_chinese_traditional": "Číňan (tradiční)"
 }

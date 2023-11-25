@@ -743,5 +743,11 @@
   "unavailable_balance_description": "Saldo no disponible: este total incluye fondos que están bloqueados en transacciones pendientes y aquellos que usted ha congelado activamente en su configuración de control de monedas. Los saldos bloqueados estarán disponibles una vez que se completen sus respectivas transacciones, mientras que los saldos congelados permanecerán inaccesibles para las transacciones hasta que usted decida descongelarlos.",
   "unspent_change": "Cambiar",
   "tor_connection": "conexión tor",
-  "seed_hex_form": "Semilla de billetera (forma hexadecimal)"
+  "seed_hex_form": "Semilla de billetera (forma hexadecimal)",
+  "seedtype": "Type de semillas",
+  "seedtype_legacy": "Legado (25 palabras)",
+  "seedtype_polyseed": "Polieta (16 palabras)",
+  "seed_language_czech": "checo",
+  "seed_language_korean": "coreano",
+  "seed_language_chinese_traditional": "Chino tradicional)"
 }

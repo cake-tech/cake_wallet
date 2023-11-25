@@ -744,5 +744,11 @@
   "unavailable_balance_description": "Unavailable Balance: This total includes funds that are locked in pending transactions and those you have actively frozen in your coin control settings. Locked balances will become available once their respective transactions are completed, while frozen balances remain inaccessible for transactions until you decide to unfreeze them.",
   "unspent_change": "Change",
   "tor_connection": "Tor connection",
-  "seed_hex_form": "Wallet seed (hex form)"
+  "seed_hex_form": "Wallet seed (hex form)",
+  "seedtype": "Seedtype",
+  "seedtype_legacy": "Legacy (25 words)",
+  "seedtype_polyseed": "Polyseed (16 words)",
+  "seed_language_czech": "Czech",
+  "seed_language_korean": "Korean",
+  "seed_language_chinese_traditional": "Chinese (Traditional)"
 }
