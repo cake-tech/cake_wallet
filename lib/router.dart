@@ -56,6 +56,7 @@ import 'package:cake_wallet/src/screens/support_other_links/support_other_links_
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
@@ -146,8 +147,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newWallet:
       final type = settings.arguments as WalletType;
       final walletNewVM = getIt.get<WalletNewVM>(param1: type);
+      final settingsStore = getIt.get<SettingsStore>();
 
-      return CupertinoPageRoute<void>(builder: (_) => NewWalletPage(walletNewVM));
+      return CupertinoPageRoute<void>(builder: (_) => NewWalletPage(walletNewVM, settingsStore));
 
     case Routes.setupPin:
       Function(PinCodeState<PinCodeWidget>, String)? callback;

@@ -20,15 +20,14 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-
-import '../../../di.dart';
-import '../../../entities/seed_type.dart';
-import '../../../store/settings_store.dart';
+import 'package:cake_wallet/entities/seed_type.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 
 class NewWalletPage extends BasePage {
-  NewWalletPage(this._walletNewVM);
+  NewWalletPage(this._walletNewVM, this._settingsStore);
 
   final WalletNewVM _walletNewVM;
+  final SettingsStore _settingsStore;
 
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
 
@@ -39,15 +38,15 @@ class NewWalletPage extends BasePage {
 
   @override
   Widget body(BuildContext context) => WalletNameForm(
-      _walletNewVM, currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage);
+      _walletNewVM, currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage, _settingsStore);
 }
 
 class WalletNameForm extends StatefulWidget {
-  WalletNameForm(this._walletNewVM, this.walletImage);
+  WalletNameForm(this._walletNewVM, this.walletImage, this._settingsStore);
 
   final WalletNewVM _walletNewVM;
   final Image walletImage;
-  final SettingsStore _settingsStore = getIt.get<SettingsStore>();
+  final SettingsStore _settingsStore;
 
   @override
   _WalletNameFormState createState() => _WalletNameFormState(_walletNewVM);
