@@ -104,6 +104,9 @@ dependencies:
       ref: main
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
+  polyseed:
+    git:
+      url: https://github.com/cake-tech/polyseed_dart.git
 
 dev_dependencies:
   flutter_test:
