@@ -46,17 +46,17 @@ class DFXBuyProvider {
     });
 
     final uri = Uri.https(_baseUrl, _signUpPath);
-    var response =
-        await http.post(uri, headers: {'Content-Type': 'application/json'}, body: requestBody);
+    var response = await http.post(uri,
+        headers: {'Content-Type': 'application/json'}, body: requestBody);
 
     if (response.statusCode == 201) {
       final responseBody = jsonDecode(response.body);
       return responseBody['accessToken'] as String;
     } else {
-      throw Exception('Failed to sign up. Status: ${response.statusCode} ${response.body}');
+      throw Exception(
+          'Failed to sign up. Status: ${response.statusCode} ${response.body}');
     }
   }
-
 
   Future<String> signIn() async {
     final signMessage = getSignature(await getSignMessage());
@@ -68,14 +68,15 @@ class DFXBuyProvider {
     });
 
     final uri = Uri.https(_baseUrl, _signInPath);
-    var response =
-    await http.post(uri, headers: {'Content-Type': 'application/json'}, body: requestBody);
+    var response = await http.post(uri,
+        headers: {'Content-Type': 'application/json'}, body: requestBody);
 
     if (response.statusCode == 201) {
       final responseBody = jsonDecode(response.body);
       return responseBody['accessToken'] as String;
     } else {
-      throw Exception('Failed to sign in. Status: ${response.statusCode} ${response.body}');
+      throw Exception(
+          'Failed to sign in. Status: ${response.statusCode} ${response.body}');
     }
   }
 
@@ -86,7 +87,8 @@ class DFXBuyProvider {
       case WalletType.litecoin:
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
-        return _wallet.signMessage(message, address: _wallet.walletAddresses.address);
+        return _wallet.signMessage(message,
+            address: _wallet.walletAddresses.address);
       default:
         throw Exception("WalletType is not available for DFX ${_wallet.type}");
     }
@@ -94,11 +96,20 @@ class DFXBuyProvider {
 
   Future<void> launchProvider(BuildContext context) async {
     try {
+      String accessToken;
 
-      final signUpAccessToken = await signUp();
-      final signInAccessToken = await signIn();
+      try {
+        accessToken = await signUp();
+      } on Exception catch (e) {
+        if (e.toString().contains('409')) {
+          accessToken = await signIn();
+        } else {
+          rethrow;
+        }
+      }
 
-      final uriString = 'https://dev.services.dfx.swiss/?session=$signInAccessToken';
+      final uriString =
+          'https://dev.services.dfx.swiss/buy?session=$accessToken';
       final uri = Uri.parse(uriString);
 
       if (await canLaunchUrl(uri)) {

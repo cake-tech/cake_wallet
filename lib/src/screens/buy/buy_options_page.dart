@@ -61,7 +61,7 @@ class BuyOptionsPage extends BasePage {
                 padding: EdgeInsets.only(top: 24),
                 child: OptionTile(
                   image: iconDFX,
-                  title: "DFX Connec",
+                  title: "DFX Connect",
                   description: 'Buy crypto with EUR & CHF. Up to 990€ without additional KYC. For retail and corporate customers in Europe',
                   onPressed: () async =>
                   await getIt.get<DFXBuyProvider>().launchProvider(context),
