@@ -14,6 +14,9 @@ typedef restore_wallet_from_seed = Int8 Function(
 typedef restore_wallet_from_keys = Int8 Function(Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>,
     Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int32, Int64, Pointer<Utf8>);
 
+typedef restore_wallet_from_spend_key = Int8 Function(Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>,
+    Pointer<Utf8>, Pointer<Utf8>, Int32, Int64, Pointer<Utf8>);
+
 typedef is_wallet_exist = Int8 Function(Pointer<Utf8>);
 
 typedef load_wallet = Int8 Function(Pointer<Utf8>, Pointer<Utf8>, Int8);

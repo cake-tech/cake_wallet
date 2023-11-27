@@ -385,6 +385,36 @@ extern "C"
     }
 
     FUNCTION_VISABILITY_ATTRIBUTE
+    bool restore_wallet_from_spend_key(char *path, char *password, char *seed, char *language, char *spendKey, int32_t networkType, uint64_t restoreHeight, char *error)
+    {
+        Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
+        Monero::Wallet *wallet = Monero::WalletManagerFactory::getWalletManager()->createDeterministicWalletFromSpendKey(
+            std::string(path),
+            std::string(password),
+            std::string(language),
+            _networkType,
+            (uint64_t)restoreHeight,
+            std::string(spendKey));
+
+        int status;
+        std::string errorString;
+
+        wallet->statusWithErrorString(status, errorString);
+
+        if (status != Monero::Wallet::Status_Ok || !errorString.empty())
+        {
+            error = strdup(errorString.c_str());
+            return false;
+        }
+
+        // Cache Raw to support Polyseed
+        wallet->setCacheAttribute("cakewallet.seed", std::string(seed));
+
+        change_current_wallet(wallet);
+        return true;
+    }
+
+    FUNCTION_VISABILITY_ATTRIBUTE
     bool load_wallet(char *path, char *password, int32_t nettype)
     {
         (void) nice(19);
@@ -457,6 +487,11 @@ extern "C"
     FUNCTION_VISABILITY_ATTRIBUTE
     const char *seed()
     {
+        std::string _rawSeed = get_current_wallet()->getCacheAttribute("cakewallet.seed");
+        if (!_rawSeed.empty())
+        {
+            return strdup(_rawSeed.c_str());
+        }
         return strdup(get_current_wallet()->seed().c_str());
     }
 

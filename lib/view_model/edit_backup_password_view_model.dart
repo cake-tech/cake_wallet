@@ -37,6 +37,7 @@ abstract class EditBackupPasswordViewModelBase with Store {
   @action
   Future<void> save() async {
     final key = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
+    await secureStorage.delete(key: key);
     await secureStorage.write(key: key, value: backupPassword);
     secretStore.write(key: key, value: backupPassword);
   }

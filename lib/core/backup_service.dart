@@ -438,6 +438,7 @@ class BackupService {
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
 
+    await _flutterSecureStorage.delete(key: backupPasswordKey);
     await _flutterSecureStorage.write(key: backupPasswordKey, value: backupPassword);
 
     keychainWalletsInfo.forEach((dynamic rawInfo) async {
@@ -445,6 +446,7 @@ class BackupService {
       await importWalletKeychainInfo(info);
     });
 
+    await _flutterSecureStorage.delete(key: pinCodeKey);
     await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
 
     keychainDumpFile.deleteSync();
@@ -464,6 +466,7 @@ class BackupService {
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
 
+    await _flutterSecureStorage.delete(key: backupPasswordKey);
     await _flutterSecureStorage.write(key: backupPasswordKey, value: backupPassword);
 
     keychainWalletsInfo.forEach((dynamic rawInfo) async {
@@ -471,6 +474,7 @@ class BackupService {
       await importWalletKeychainInfo(info);
     });
 
+    await _flutterSecureStorage.delete(key: pinCodeKey);
     await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
 
     keychainDumpFile.deleteSync();

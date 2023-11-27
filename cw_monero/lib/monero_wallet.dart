@@ -31,6 +31,7 @@ import 'package:cw_monero/monero_transaction_info.dart';
 import 'package:cw_monero/monero_unspent.dart';
 import 'package:cw_monero/monero_wallet_addresses.dart';
 import 'package:cw_monero/pending_monero_transaction.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
@@ -81,6 +82,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   static const int _autoSaveInterval = 30;
 
   Box<UnspentCoinsInfo> unspentCoinsInfo;
+
+  void Function(FlutterErrorDetails)? _onError;
 
   @override
   late MoneroWalletAddresses walletAddresses;
@@ -399,46 +402,59 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   Future<void> updateUnspent() async {
-    refreshCoins(walletAddresses.account!.id);
+    try {
+      refreshCoins(walletAddresses.account!.id);
 
-    unspentCoins.clear();
+      unspentCoins.clear();
 
-    final coinCount = countOfCoins();
-    for (var i = 0; i < coinCount; i++) {
-      final coin = getCoin(i);
-      if (coin.spent == 0) {
-        final unspent = MoneroUnspent.fromCoinsInfoRow(coin);
-        unspent.isChange = transaction_history.getTransaction(unspent.hash).direction == 1;
-        unspentCoins.add(unspent);
-      }
-    }
-
-    if (unspentCoinsInfo.isEmpty) {
-      unspentCoins.forEach((coin) => _addCoinInfo(coin));
-      return;
-    }
-
-    if (unspentCoins.isNotEmpty) {
-      unspentCoins.forEach((coin) {
-        final coinInfoList = unspentCoinsInfo.values.where((element) =>
-            element.walletId.contains(id) &&
-            element.accountIndex == walletAddresses.account!.id &&
-            element.keyImage!.contains(coin.keyImage!));
-
-        if (coinInfoList.isNotEmpty) {
-          final coinInfo = coinInfoList.first;
-
-          coin.isFrozen = coinInfo.isFrozen;
-          coin.isSending = coinInfo.isSending;
-          coin.note = coinInfo.note;
-        } else {
-          _addCoinInfo(coin);
+      final coinCount = countOfCoins();
+      for (var i = 0; i < coinCount; i++) {
+        final coin = getCoin(i);
+        if (coin.spent == 0) {
+          final unspent = MoneroUnspent.fromCoinsInfoRow(coin);
+          if (unspent.hash.isNotEmpty) {
+            unspent.isChange = transaction_history
+                .getTransaction(unspent.hash)
+                .direction == 1;
+          }
+          unspentCoins.add(unspent);
         }
-      });
-    }
+      }
 
-    await _refreshUnspentCoinsInfo();
-    _askForUpdateBalance();
+      if (unspentCoinsInfo.isEmpty) {
+        unspentCoins.forEach((coin) => _addCoinInfo(coin));
+        return;
+      }
+
+      if (unspentCoins.isNotEmpty) {
+        unspentCoins.forEach((coin) {
+          final coinInfoList = unspentCoinsInfo.values.where((element) =>
+          element.walletId.contains(id) &&
+              element.accountIndex == walletAddresses.account!.id &&
+              element.keyImage!.contains(coin.keyImage!));
+
+          if (coinInfoList.isNotEmpty) {
+            final coinInfo = coinInfoList.first;
+
+            coin.isFrozen = coinInfo.isFrozen;
+            coin.isSending = coinInfo.isSending;
+            coin.note = coinInfo.note;
+          } else {
+            _addCoinInfo(coin);
+          }
+        });
+      }
+
+      await _refreshUnspentCoinsInfo();
+      _askForUpdateBalance();
+    } catch (e, s) {
+      print(e.toString());
+      _onError?.call(FlutterErrorDetails(
+        exception: e,
+        stack: s,
+        library: this.runtimeType.toString(),
+      ));
+    }
   }
 
   Future<void> _addCoinInfo(MoneroUnspent coin) async {
@@ -643,4 +659,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       walletAddresses.updateSubaddressList(accountIndex: account?.id ?? 0);
     }
   }
+
+  @override
+  void setExceptionHandler(void Function(FlutterErrorDetails) onError) => _onError = onError;
 }

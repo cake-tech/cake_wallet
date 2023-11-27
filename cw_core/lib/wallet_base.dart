@@ -44,6 +44,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   String? get privateKey => null;
 
+  String? get hexSeed => null;
+
   Object get keys;
 
   WalletAddresses get walletAddresses;
