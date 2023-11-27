@@ -3,7 +3,6 @@ import 'package:cake_wallet/src/widgets/option_tile.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -13,6 +12,25 @@ class ConnectDevicePage extends BasePage {
   String get title => "Connect Ledger";
 
   final imageBackup = Image.asset('assets/images/backup.png');
+  final ledgerOptions = LedgerOptions(
+    maxScanDuration: const Duration(milliseconds: 5000),
+  );
+
+  @override
+  Widget? trailing(BuildContext context) {
+    // TODO: implement trailing
+    return TextButton(
+      style: ButtonStyle(
+        overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
+      ),
+      onPressed: () => onClose(context),
+      child: Icon(
+        Icons.sync,
+        color: pageIconColor(context),
+        size: 16,
+      ),
+    );
+  }
 
   @override
   Widget body(BuildContext context) {
@@ -26,13 +44,8 @@ class ConnectDevicePage extends BasePage {
               children: <Widget>[
                 OptionTile(
                     onPressed: () {
-                      final options = LedgerOptions(
-                        maxScanDuration: const Duration(milliseconds: 5000),
-                      );
-
-
                       final ledger = Ledger(
-                        options: options,
+                        options: ledgerOptions,
                         onPermissionRequest: (status) async {
                           Map<Permission, PermissionStatus> statuses = await [
                             // Permission.location,
