@@ -93,6 +93,8 @@ class Node extends HiveObject with Keyable {
     }
   }
 
+  bool get isValidProxyAddress => socksProxyAddress?.contains(':') ?? false;
+
   @override
   bool operator ==(other) =>
       other is Node &&
@@ -208,10 +210,7 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestNodeWithProxy() async {
-    if ((socksProxyAddress == null ||
-            socksProxyAddress!.isEmpty ||
-            !socksProxyAddress!.contains(':')) &&
-        !Tor.instance.enabled) {
+    if (!isValidProxyAddress && !Tor.instance.enabled) {
       return false;
     }
 

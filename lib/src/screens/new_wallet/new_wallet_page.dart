@@ -14,17 +14,20 @@ import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
+import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:cake_wallet/entities/seed_type.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 
 class NewWalletPage extends BasePage {
-  NewWalletPage(this._walletNewVM);
+  NewWalletPage(this._walletNewVM, this._settingsStore);
 
   final WalletNewVM _walletNewVM;
+  final SettingsStore _settingsStore;
 
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
 
@@ -35,14 +38,15 @@ class NewWalletPage extends BasePage {
 
   @override
   Widget body(BuildContext context) => WalletNameForm(
-      _walletNewVM, currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage);
+      _walletNewVM, currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage, _settingsStore);
 }
 
 class WalletNameForm extends StatefulWidget {
-  WalletNameForm(this._walletNewVM, this.walletImage);
+  WalletNameForm(this._walletNewVM, this.walletImage, this._settingsStore);
 
   final WalletNewVM _walletNewVM;
   final Image walletImage;
+  final SettingsStore _settingsStore;
 
   @override
   _WalletNameFormState createState() => _WalletNameFormState(_walletNewVM);
@@ -125,15 +129,20 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               hintStyle: TextStyle(
                                   fontSize: 18.0,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor),
+                                  color:
+                                      Theme.of(context).extension<NewWalletTheme>()!.hintTextColor),
                               hintText: S.of(context).wallet_name,
                               focusedBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
+                                      color: Theme.of(context)
+                                          .extension<NewWalletTheme>()!
+                                          .underlineColor,
                                       width: 1.0)),
                               enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
                                     width: 1.0),
                               ),
                               suffixIcon: Semantics(
@@ -160,7 +169,9 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                     height: 34,
                                     child: Image.asset(
                                       'assets/images/refresh_icon.png',
-                                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
+                                      color: Theme.of(context)
+                                          .extension<SendPageTheme>()!
+                                          .textFieldButtonIconColor,
                                     ),
                                   ),
                                 ),
@@ -184,10 +195,15 @@ class _WalletNameFormState extends State<WalletNameForm> {
                             color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 24),
-                      child: SeedLanguageSelector(
-                          key: _languageSelectorKey, initialSelected: defaultSeedLanguage),
+                    Observer(
+                      builder: (BuildContext build) => Padding(
+                        padding: EdgeInsets.only(top: 24),
+                        child: SeedLanguageSelector(
+                          key: _languageSelectorKey,
+                          initialSelected: defaultSeedLanguage,
+                          seedType: widget._settingsStore.moneroSeedType,
+                        ),
+                      ),
                     )
                   ]
                 ],
@@ -237,9 +253,10 @@ class _WalletNameFormState extends State<WalletNameForm> {
                 buttonAction: () => Navigator.of(context).pop());
           });
     } else {
+      final isPolyseed = widget._settingsStore.moneroSeedType == SeedType.polyseed;
       _walletNewVM.create(
           options: _walletNewVM.hasLanguageSelector
-              ? _languageSelectorKey.currentState!.selected
+              ? [_languageSelectorKey.currentState!.selected, isPolyseed]
               : null);
     }
   }

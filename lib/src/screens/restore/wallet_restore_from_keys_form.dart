@@ -133,7 +133,7 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
           widget.walletRestoreViewModel.type == WalletType.banano;
       return AddressTextField(
         controller: privateKeyController,
-        placeholder: nanoBased ? S.of(context).seed_key : S.of(context).private_key,
+        placeholder: nanoBased ? S.of(context).seed_hex_form : S.of(context).private_key,
         options: [AddressTextFieldOption.paste],
         buttonColor: Theme.of(context).hintColor,
         onPushPasteButton: (_) {
