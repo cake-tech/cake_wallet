@@ -65,6 +65,8 @@ Future<void> defaultSettingsMigration(
   final migrationVersions =
       List<int>.generate(migrationVersionsLength, (i) => currentVersion + (i + 1));
 
+/// When you add a new case, increase the initialMigrationVersion parameter in the main.dart file.
+  /// This ensures that this switch case runs the newly added case.
   await Future.forEach(migrationVersions, (int version) async {
     try {
       switch (version) {
