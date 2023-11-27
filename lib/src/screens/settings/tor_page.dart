@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:flutter/material.dart';
-// import 'package:tor/tor.dart';
+import 'package:tor/tor.dart';
 
 class TorPage extends BasePage {
   final AppStore appStore;
@@ -40,20 +40,20 @@ class _TorPageBodyState extends State<TorPageBody> {
       connecting = true; // Update flag
     });
 
-    // await Tor.init();
+    await Tor.init();
 
     // Start the proxy
-    // await Tor.instance.start();
+    await Tor.instance.start();
 
     // Toggle started flag.
     setState(() {
-      // torEnabled = Tor.instance.enabled; // Update flag
+      torEnabled = Tor.instance.enabled; // Update flag
       connecting = false;
     });
 
     final node = widget.appStore.settingsStore.getCurrentNode(widget.appStore.wallet!.type);
     if (node.socksProxyAddress?.isEmpty ?? true) {
-      // node.socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
+      node.socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
     }
     widget.appStore.wallet!.connectToNode(node: node);
 
@@ -62,11 +62,11 @@ class _TorPageBodyState extends State<TorPageBody> {
 
   Future<void> endTor() async {
     // Start the proxy
-    // Tor.instance.disable();
+    Tor.instance.disable();
 
     // Toggle started flag.
     setState(() {
-      // torEnabled = Tor.instance.enabled; // Update flag
+      torEnabled = Tor.instance.enabled; // Update flag
     });
 
     print('Done awaiting; tor should be stopped');
@@ -76,7 +76,7 @@ class _TorPageBodyState extends State<TorPageBody> {
   void initState() {
     super.initState();
 
-    // torEnabled = Tor.instance.enabled;
+    torEnabled = Tor.instance.enabled;
   }
 
   @override
