@@ -53,9 +53,10 @@ class BuyOptionsPage extends BasePage {
                 child: OptionTile(
                   image: iconMoonPay,
                   title: "MoonPay",
-                  description: S.of(context).moonpay_exchange_description +
-                      "\n" +
-                      S.of(context).kyc_required,
+                  description: "TODO-CW-521",
+                  // description: S.of(context).moonpay_exchange_description +
+                  //     "\n" +
+                  //     S.of(context).kyc_required,
                   onPressed: () async {
                     // await getIt.get<MoonPayBuyProvider>().launchProvider(context);
                   },
