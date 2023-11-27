@@ -747,5 +747,12 @@
   "unavailable_balance": "Niedostępne saldo",
   "unavailable_balance_description": "Niedostępne saldo: Suma ta obejmuje środki zablokowane w transakcjach oczekujących oraz te, które aktywnie zamroziłeś w ustawieniach kontroli monet. Zablokowane salda staną się dostępne po zakończeniu odpowiednich transakcji, natomiast zamrożone salda pozostaną niedostępne dla transakcji, dopóki nie zdecydujesz się ich odblokować.",
   "unspent_change": "Zmiana",
-  "tor_connection": "Połączenie Torem"
+  "tor_connection": "Połączenie Torem",
+  "seed_hex_form": "Nasiona portfela (forma sześciokątna)",
+  "seedtype": "Sedtype",
+  "seedtype_legacy": "Dziedzictwo (25 słów)",
+  "seedtype_polyseed": "Poliqueed (16 słów)",
+  "seed_language_czech": "Czech",
+  "seed_language_korean": "koreański",
+  "seed_language_chinese_traditional": "Chiński tradycyjny)"
 }

@@ -134,7 +134,6 @@ import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_monero/monero_unspent.dart';
 import 'package:mobx/mobx.dart';
-import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -144,7 +143,8 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/wallet_service.dart';
-import 'package:hive/hive.dart';""";
+import 'package:hive/hive.dart';
+import 'package:polyseed/polyseed.dart';""";
   const moneroCWHeaders = """
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_amount_format.dart';
@@ -152,7 +152,6 @@ import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
-import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
 import 'package:cw_core/account.dart' as monero_account;
 import 'package:cw_monero/api/wallet.dart' as monero_wallet_api;
@@ -255,7 +254,7 @@ abstract class Monero {
     required String language,
     required int height});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
-  WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, String password,});
+  WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required bool isPolyseed, String password});
   Map<String, String> getKeys(Object wallet);
   Object createMoneroTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority});
   Object createMoneroTransactionCreationCredentialsRaw({required List<OutputInfo> outputs, required TransactionPriority priority});

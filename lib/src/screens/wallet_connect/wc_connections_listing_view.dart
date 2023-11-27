@@ -31,6 +31,8 @@ class WalletConnectConnectionsView extends StatelessWidget {
 
     final actualLinkList = launchUri.query.split("uri=");
 
+    if (actualLinkList.length <= 1) return;
+
     final query = actualLinkList[1];
 
     final uri = Uri.decodeComponent(query);
