@@ -1,6 +1,4 @@
-import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -33,18 +31,19 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   bool get hasLanguageSelector => type == WalletType.monero || type == WalletType.haven;
 
   @override
-  WalletCredentials getCredentials(dynamic options) {
+  WalletCredentials getCredentials(dynamic _options) {
+    final options = _options as List<dynamic>;
     switch (type) {
       case WalletType.monero:
         return monero!.createMoneroNewWalletCredentials(
-            name: name, language: options as String);
+            name: name, language: options.first as String, isPolyseed: options.last as bool);
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name);
       case WalletType.litecoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name);
       case WalletType.haven:
         return haven!.createHavenNewWalletCredentials(
-            name: name, language: options as String);
+            name: name, language: options.first as String);
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(name: name);
       case WalletType.bitcoinCash:

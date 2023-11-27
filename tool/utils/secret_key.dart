@@ -36,6 +36,7 @@ class SecretKey {
     SecretKey('robinhoodApplicationId', () => ''),
     SecretKey('robinhoodCIdApiSecret', () => ''),
     SecretKey('walletConnectProjectId', () => ''),
+    SecretKey('moralisApiKey', () => '')
   ];
 
   static final ethereumSecrets = [

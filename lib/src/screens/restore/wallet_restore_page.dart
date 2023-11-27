@@ -1,29 +1,30 @@
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/restore/wallet_restore_from_keys_form.dart';
+import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_form.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
+import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/restore/restore_mode.dart';
+import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cw_core/nano_account_info_response.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polyseed/polyseed.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
-import 'package:cake_wallet/src/screens/restore/wallet_restore_from_keys_form.dart';
-import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_form.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/restore/restore_mode.dart';
-import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 
 class WalletRestorePage extends BasePage {
   WalletRestorePage(this.walletRestoreViewModel)
@@ -48,27 +49,13 @@ class WalletRestorePage extends BasePage {
                 }
               },
               onSeedChange: (String seed) {
-                if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
-                  final hasHeight = walletRestoreFromSeedFormKey.currentState!.blockchainHeightKey
-                      .currentState!.restoreHeightController.text.isNotEmpty;
-                  if (hasHeight) {
-                    walletRestoreViewModel.isButtonEnabled = _isValidSeed();
-                  }
-                } else {
-                  walletRestoreViewModel.isButtonEnabled = _isValidSeed();
-                }
+                final isPolyseed =
+                    walletRestoreViewModel.type == WalletType.monero && Polyseed.isValidSeed(seed);
+                _validateOnChange(isPolyseed: isPolyseed);
               },
-              onLanguageChange: (_) {
-                if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
-                  final hasHeight = walletRestoreFromSeedFormKey.currentState!.blockchainHeightKey
-                      .currentState!.restoreHeightController.text.isNotEmpty;
-
-                  if (hasHeight) {
-                    walletRestoreViewModel.isButtonEnabled = _isValidSeed();
-                  }
-                } else {
-                  walletRestoreViewModel.isButtonEnabled = _isValidSeed();
-                }
+              onLanguageChange: (String language) {
+                final isPolyseed = language.startsWith("POLYSEED_");
+                _validateOnChange(isPolyseed: isPolyseed);
               }));
           break;
         case WalletRestoreMode.keys:
@@ -163,7 +150,8 @@ class WalletRestorePage extends BasePage {
         color: Theme.of(context).colorScheme.background,
         child: Center(
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+            constraints:
+                BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -219,8 +207,8 @@ class WalletRestorePage extends BasePage {
                       const SizedBox(height: 25),
                       GestureDetector(
                         onTap: () {
-                          Navigator.of(context)
-                              .pushNamed(Routes.advancedPrivacySettings, arguments: walletRestoreViewModel.type);
+                          Navigator.of(context).pushNamed(Routes.advancedPrivacySettings,
+                              arguments: walletRestoreViewModel.type);
                         },
                         child: Text(S.of(context).advanced_privacy_settings),
                       ),
@@ -235,9 +223,26 @@ class WalletRestorePage extends BasePage {
     );
   }
 
+  void _validateOnChange({bool isPolyseed = false}) {
+    if (!isPolyseed && walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
+      final hasHeight = walletRestoreFromSeedFormKey
+          .currentState?.blockchainHeightKey.currentState?.restoreHeightController.text.isNotEmpty;
+
+      if (hasHeight == true) {
+        walletRestoreViewModel.isButtonEnabled = _isValidSeed();
+      }
+    } else {
+      walletRestoreViewModel.isButtonEnabled = _isValidSeed();
+    }
+  }
+
   bool _isValidSeed() {
-    final seedWords =
-        walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.text.split(' ');
+    final seedPhrase =
+        walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.text;
+    if (walletRestoreViewModel.type == WalletType.monero && Polyseed.isValidSeed(seedPhrase))
+      return true;
+
+    final seedWords = seedPhrase.split(' ');
 
     if ((walletRestoreViewModel.type == WalletType.monero ||
             walletRestoreViewModel.type == WalletType.haven) &&
@@ -282,7 +287,8 @@ class WalletRestorePage extends BasePage {
 
       if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
         credentials['height'] =
-            walletRestoreFromSeedFormKey.currentState!.blockchainHeightKey.currentState!.height;
+            walletRestoreFromSeedFormKey.currentState!.blockchainHeightKey.currentState?.height ??
+                -1;
       }
 
       credentials['name'] =

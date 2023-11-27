@@ -58,13 +58,13 @@ abstract class NanoWalletBase
     }
   }
 
-  final String _mnemonic;
+  String _mnemonic;
   final String _password;
-  final DerivationType _derivationType;
+  DerivationType _derivationType;
 
   String? _privateKey;
   String? _publicAddress;
-  String? _seedKey;
+  String? _hexSeed;
 
   String? _representativeAddress;
   Timer? _receiveTimer;
@@ -85,22 +85,26 @@ abstract class NanoWalletBase
 
   // initialize the different forms of private / public key we'll need:
   Future<void> init() async {
+    if (_derivationType == DerivationType.unknown) {
+      _derivationType = DerivationType.nano;
+    }
     final String type = (_derivationType == DerivationType.nano) ? "standard" : "hd";
 
-    // our "mnemonic" is actually a seedkey:
+    // our "mnemonic" is actually a hex form seed:
     if (!_mnemonic.contains(' ')) {
-      _seedKey = _mnemonic;
+      _hexSeed = _mnemonic;
+      _mnemonic = "";
     }
 
-    if (_seedKey == null) {
+    if (_hexSeed == null) {
       if (_derivationType == DerivationType.nano) {
-        _seedKey = bip39.mnemonicToEntropy(_mnemonic).toUpperCase();
+        _hexSeed = bip39.mnemonicToEntropy(_mnemonic).toUpperCase();
       } else {
-        _seedKey = await NanoUtil.hdMnemonicListToSeed(_mnemonic.split(' '));
+        _hexSeed = await NanoUtil.hdMnemonicListToSeed(_mnemonic.split(' '));
       }
     }
-    _privateKey = await NanoUtil.uniSeedToPrivate(_seedKey!, 0, type);
-    _publicAddress = await NanoUtil.uniSeedToAddress(_seedKey!, 0, type);
+    _privateKey = await NanoUtil.uniSeedToPrivate(_hexSeed!, 0, type);
+    _publicAddress = await NanoUtil.uniSeedToAddress(_hexSeed!, 0, type);
     this.walletInfo.address = _publicAddress!;
 
     await walletAddresses.init();
@@ -275,11 +279,11 @@ abstract class NanoWalletBase
 
   @override
   NanoWalletKeys get keys {
-    return NanoWalletKeys(seedKey: _seedKey!);
+    return NanoWalletKeys(seedKey: _hexSeed!);
   }
 
   @override
-  String? get privateKey => _seedKey!;
+  String? get privateKey => _privateKey!;
 
   @override
   Future<void> rescan({required int height}) async {
@@ -297,7 +301,9 @@ abstract class NanoWalletBase
   }
 
   @override
-  String get seed => _mnemonic;
+  String? get seed => _mnemonic.isNotEmpty ? _mnemonic : null;
+
+  String get hexSeed => _hexSeed!;
 
   String get representative => _representativeAddress ?? "";
 
@@ -330,7 +336,7 @@ abstract class NanoWalletBase
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
   String toJSON() => json.encode({
-        'seedKey': _seedKey,
+        'seedKey': _hexSeed,
         'mnemonic': _mnemonic,
         'currentBalance': balance[currency]?.currentBalance.toString() ?? "0",
         'receivableBalance': balance[currency]?.receivableBalance.toString() ?? "0",
@@ -351,9 +357,9 @@ abstract class NanoWalletBase
         formattedCurrentBalance: data['currentBalance'] as String? ?? "0",
         formattedReceivableBalance: data['receivableBalance'] as String? ?? "0");
 
-    DerivationType derivationType = DerivationType.bip39;
-    if (data['derivationType'] == "DerivationType.nano") {
-      derivationType = DerivationType.nano;
+    DerivationType derivationType = DerivationType.nano;
+    if (data['derivationType'] == "DerivationType.bip39") {
+      derivationType = DerivationType.bip39;
     }
 
     walletInfo.derivationType = derivationType;
@@ -390,9 +396,9 @@ abstract class NanoWalletBase
   Future<void> regenerateAddress() async {
     final String type = (_derivationType == DerivationType.nano) ? "standard" : "hd";
     _privateKey =
-        await NanoUtil.uniSeedToPrivate(_seedKey!, this.walletAddresses.account!.id, type);
+        await NanoUtil.uniSeedToPrivate(_hexSeed!, this.walletAddresses.account!.id, type);
     _publicAddress =
-        await NanoUtil.uniSeedToAddress(_seedKey!, this.walletAddresses.account!.id, type);
+        await NanoUtil.uniSeedToAddress(_hexSeed!, this.walletAddresses.account!.id, type);
 
     this.walletInfo.address = _publicAddress!;
     this.walletAddresses.address = _publicAddress!;

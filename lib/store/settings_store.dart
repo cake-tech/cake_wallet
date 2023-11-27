@@ -10,6 +10,7 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
+import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
@@ -49,6 +50,7 @@ abstract class SettingsStoreBase with Store {
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
       required AutoGenerateSubaddressStatus initialAutoGenerateSubaddressStatus,
+      required SeedType initialMoneroSeedType,
       required bool initialAppSecure,
       required bool initialDisableBuy,
       required bool initialDisableSell,
@@ -110,6 +112,7 @@ abstract class SettingsStoreBase with Store {
         balanceDisplayMode = initialBalanceDisplayMode,
         shouldSaveRecipientAddress = initialSaveRecipientAddress,
         autoGenerateSubaddressStatus = initialAutoGenerateSubaddressStatus,
+        moneroSeedType = initialMoneroSeedType,
         fiatApiMode = initialFiatMode,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         selectedCake2FAPreset = initialCake2FAPresetOptions,
@@ -247,6 +250,11 @@ abstract class SettingsStoreBase with Store {
         (_) => autoGenerateSubaddressStatus,
         (AutoGenerateSubaddressStatus autoGenerateSubaddressStatus) => sharedPreferences.setInt(
             PreferencesKey.autoGenerateSubaddressStatusKey, autoGenerateSubaddressStatus.value));
+
+    reaction(
+        (_) => moneroSeedType,
+        (SeedType moneroSeedType) => sharedPreferences.setInt(
+            PreferencesKey.moneroSeedType, moneroSeedType.raw));
 
     reaction(
         (_) => fiatApiMode,
@@ -441,6 +449,7 @@ abstract class SettingsStoreBase with Store {
   static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenminutes;
   static const defaultAutoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.initialized;
   static const defaultSeedPhraseLength = SeedPhraseLength.twelveWords;
+  static const defaultMoneroSeedType = SeedType.defaultSeedType;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -465,6 +474,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   AutoGenerateSubaddressStatus autoGenerateSubaddressStatus;
+
+  @observable
+  SeedType moneroSeedType;
 
   @observable
   bool isAppSecure;
@@ -787,12 +799,20 @@ abstract class SettingsStoreBase with Store {
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
+
     final generateSubaddresses =
         sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey);
 
     final autoGenerateSubaddressStatus = generateSubaddresses != null
         ? AutoGenerateSubaddressStatus.deserialize(raw: generateSubaddresses)
         : defaultAutoGenerateSubaddressStatus;
+
+    final _moneroSeedType = sharedPreferences.getInt(PreferencesKey.moneroSeedType);
+
+    final moneroSeedType = _moneroSeedType != null
+        ? SeedType.deserialize(raw: _moneroSeedType)
+        : defaultMoneroSeedType;
+
     final nodes = <WalletType, Node>{};
     final powNodes = <WalletType, Node>{};
 
@@ -845,28 +865,28 @@ abstract class SettingsStoreBase with Store {
           initialBalanceDisplayMode: currentBalanceDisplayMode,
           initialSaveRecipientAddress: shouldSaveRecipientAddress,
           initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
-          initialAppSecure: isAppSecure,
-          initialDisableBuy: disableBuy,
-          initialDisableSell: disableSell,
-          initialDefaultBuyProvider: defaultBuyProvider,
-          initialWalletListOrder: walletListOrder,
-          initialFiatMode: currentFiatApiMode,
-          initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
-          initialCake2FAPresetOptions: selectedCake2FAPreset,
-          initialUseTOTP2FA: useTOTP2FA,
-          initialTotpSecretKey: totpSecretKey,
-          initialFailedTokenTrial: tokenTrialNumber,
-          initialExchangeStatus: exchangeStatus,
-          initialTheme: savedTheme,
-          actionlistDisplayMode: actionListDisplayMode,
-          initialPinLength: pinLength,
-          pinTimeOutDuration: pinCodeTimeOutDuration,
-          seedPhraseLength: seedPhraseWordCount,
-          initialLanguageCode: savedLanguageCode,
-          sortBalanceBy: sortBalanceBy,
-          pinNativeTokenAtTop: pinNativeTokenAtTop,
-          useEtherscan: useEtherscan,
-          defaultNanoRep: defaultNanoRep,
+          initialMoneroSeedType: moneroSeedType,
+        initialAppSecure: isAppSecure,
+        initialDisableBuy: disableBuy,
+        initialDisableSell: disableSell,
+        initialDefaultBuyProvider: defaultBuyProvider,
+        initialWalletListOrder: walletListOrder,
+        initialFiatMode: currentFiatApiMode,
+        initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
+        initialCake2FAPresetOptions: selectedCake2FAPreset,
+        initialUseTOTP2FA: useTOTP2FA,
+        initialTotpSecretKey: totpSecretKey,
+        initialFailedTokenTrial: tokenTrialNumber,
+        initialExchangeStatus: exchangeStatus,
+        initialTheme: savedTheme,
+        actionlistDisplayMode: actionListDisplayMode,
+        initialPinLength: pinLength,
+        pinTimeOutDuration: pinCodeTimeOutDuration,
+        seedPhraseLength: seedPhraseWordCount,initialLanguageCode: savedLanguageCode,
+        sortBalanceBy: sortBalanceBy,
+        pinNativeTokenAtTop: pinNativeTokenAtTop,
+        useEtherscan: useEtherscan,
+        defaultNanoRep: defaultNanoRep,
           defaultBananoRep: defaultBananoRep,
           lookupsTwitter: lookupsTwitter,
           lookupsMastodon: lookupsMastodon,
@@ -875,10 +895,10 @@ abstract class SettingsStoreBase with Store {
           lookupsOpenAlias: lookupsOpenAlias,
           lookupsENS: lookupsENS,
           initialMoneroTransactionPriority: moneroTransactionPriority,
-          initialBitcoinTransactionPriority: bitcoinTransactionPriority,
-          initialHavenTransactionPriority: havenTransactionPriority,
-          initialLitecoinTransactionPriority: litecoinTransactionPriority,
-          initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
+        initialBitcoinTransactionPriority: bitcoinTransactionPriority,
+        initialHavenTransactionPriority: havenTransactionPriority,
+        initialLitecoinTransactionPriority: litecoinTransactionPriority,
+        initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
           initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
           initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
           initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
@@ -939,6 +959,12 @@ abstract class SettingsStoreBase with Store {
     autoGenerateSubaddressStatus = generateSubaddresses != null
         ? AutoGenerateSubaddressStatus.deserialize(raw: generateSubaddresses)
         : defaultAutoGenerateSubaddressStatus;
+
+    final _moneroSeedType = sharedPreferences.getInt(PreferencesKey.moneroSeedType);
+
+    moneroSeedType = _moneroSeedType != null
+        ? SeedType.deserialize(raw: _moneroSeedType)
+        : defaultMoneroSeedType;
 
     balanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
