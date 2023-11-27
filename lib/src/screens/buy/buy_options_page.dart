@@ -1,3 +1,4 @@
+import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
@@ -58,7 +59,7 @@ class BuyOptionsPage extends BasePage {
                   //     "\n" +
                   //     S.of(context).kyc_required,
                   onPressed: () async {
-                    // await getIt.get<MoonPayBuyProvider>().launchProvider(context);
+                    await getIt.get<MoonPayBuyProvider>().launchProvider(context);
                   },
                 ),
               ),
