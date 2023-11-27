@@ -14,12 +14,12 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_ethereum/default_erc20_tokens.dart';
 import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_ethereum/ethereum_formatter.dart';
 import 'package:cw_ethereum/ethereum_transaction_model.dart';
 import 'package:cw_ethereum/file.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_polygon/default_erc20_tokens.dart';
 import 'package:cw_polygon/polygon_client.dart';
 import 'package:cw_polygon/polygon_exceptions.dart';
 import 'package:cw_polygon/polygon_formatter.dart';
@@ -75,7 +75,7 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
   final String? _hexPrivateKey;
   final String _password;
 
-  late final Box<Erc20Token> erc20TokensBox;
+  late final Box<Erc20Token> polygonErc20TokensBox;
 
   late final EthPrivateKey _ethPrivateKey;
 
@@ -104,7 +104,8 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
   Completer<SharedPreferences> _sharedPrefs = Completer();
 
   Future<void> init() async {
-    erc20TokensBox = await CakeHive.openBox<Erc20Token>(Erc20Token.boxName);
+    polygonErc20TokensBox =
+        await CakeHive.openBox<Erc20Token>(Erc20Token.polygonBoxName);
     await walletAddresses.init();
     await transactionHistory.init();
     _ethPrivateKey = await getPrivateKey(
@@ -391,21 +392,14 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
   }
 
   Future<void> _fetchErc20Balances() async {
-    print('erc token box');
-    print(erc20TokensBox.values.length);
-    for (var token in erc20TokensBox.values) {
+    for (var token in polygonErc20TokensBox.values) {
       try {
         if (token.enabled) {
-          print('Adding this token==========> ${token.symbol}');
-
           balance[token] = await _client.fetchERC20Balances(
             _ethPrivateKey.address,
             token.contractAddress,
           );
-          print('Balance is =>>>>>>>>>${balance[token]}');
         } else {
-          print('Remving this token =========>${token.symbol}');
-
           balance.remove(token);
         }
       } catch (_) {}
@@ -434,7 +428,7 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
 
   Future<void>? updateBalance() async => await _updateBalance();
 
-  List<Erc20Token> get erc20Currencies => erc20TokensBox.values.toList();
+  List<Erc20Token> get erc20Currencies => polygonErc20TokensBox.values.toList();
 
   Future<void> addErc20Token(Erc20Token token) async {
     String? iconPath;
@@ -454,7 +448,7 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
       iconPath: iconPath,
     );
 
-    await erc20TokensBox.put(_token.contractAddress, _token);
+    await polygonErc20TokensBox.put(_token.contractAddress, _token);
 
     if (_token.enabled) {
       balance[_token] = await _client.fetchERC20Balances(
@@ -482,10 +476,12 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
   }
 
   void addInitialTokens() {
-    final initialErc20Tokens = DefaultErc20Tokens().initialErc20Tokens;
+    final initialErc20Tokens =
+        DefaultPolygonErc20Tokens().initialPolygonErc20Tokens;
 
-    initialErc20Tokens
-        .forEach((token) => erc20TokensBox.put(token.contractAddress, token));
+    for (var token in initialErc20Tokens) {
+      polygonErc20TokensBox.put(token.contractAddress, token);
+    }
   }
 
   @override
