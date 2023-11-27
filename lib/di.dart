@@ -225,6 +225,7 @@ import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 
+import 'buy/dfx/dfx_buy_provider.dart';
 import 'core/totp_request_details.dart';
 import 'src/screens/settings/desktop_settings/desktop_settings_page.dart';
 
@@ -792,6 +793,9 @@ Future<void> setup({
 
   getIt.registerFactory<RobinhoodBuyProvider>(
       () => RobinhoodBuyProvider(wallet: getIt.get<AppStore>().wallet!));
+
+  getIt.registerFactory<DFXBuyProvider>(
+          () => DFXBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
         settingsStore: getIt.get<AppStore>().settingsStore,

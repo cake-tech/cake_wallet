@@ -1,3 +1,4 @@
+import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
@@ -13,6 +14,7 @@ class BuyOptionsPage extends BasePage {
   final iconLightRobinhood = 'assets/images/robinhood_light.png';
   final iconDarkOnramper = 'assets/images/onramper_dark.png';
   final iconLightOnramper = 'assets/images/onramper_light.png';
+  final iconDFXImage = 'assets/images/dfx_icon.png';
 
   @override
   String get title => S.current.buy;
@@ -27,6 +29,7 @@ class BuyOptionsPage extends BasePage {
         Image.asset(isLightMode ? iconLightRobinhood : iconDarkRobinhood, height: 40, width: 40);
     final iconOnramper =
         Image.asset(isLightMode ? iconLightOnramper : iconDarkOnramper, height: 40, width: 40);
+    final iconDFX = Image.asset(iconDFXImage, height: 40, width: 40);
 
     return Container(
       child: Center(
@@ -52,6 +55,16 @@ class BuyOptionsPage extends BasePage {
                   description: S.of(context).robinhood_option_description,
                   onPressed: () async =>
                   await getIt.get<RobinhoodBuyProvider>().launchProvider(context),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 24),
+                child: OptionTile(
+                  image: iconDFX,
+                  title: "DFX Connec",
+                  description: 'Buy crypto with EUR & CHF. Up to 990€ without additional KYC. For retail and corporate customers in Europe',
+                  onPressed: () async =>
+                  await getIt.get<DFXBuyProvider>().launchProvider(context),
                 ),
               ),
               Spacer(),
