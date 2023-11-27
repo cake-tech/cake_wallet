@@ -293,7 +293,10 @@ class MoneroWalletService extends WalletService<
         restoreHeight: height,
         spendKey: spendKey);
     final wallet = MoneroWallet(
-        walletInfo: walletInfo, unspentCoinsInfo: unspentCoinsInfoSource);
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      password: password,
+    );
     await wallet.init();
 
     return wallet;
