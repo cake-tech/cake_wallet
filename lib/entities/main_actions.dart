@@ -60,6 +60,9 @@ class MainActions {
             case BuyProviderType.Onramper:
               await getIt.get<OnRamperBuyProvider>().launchProvider(context);
               break;
+            case BuyProviderType.MoonPay:
+              // await getIt.get<MoonPayBuyProvider>().launchProvider(context);
+              break;
             case BuyProviderType.Robinhood:
               await getIt.get<RobinhoodBuyProvider>().launchProvider(context);
               break;
