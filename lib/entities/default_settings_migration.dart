@@ -508,6 +508,7 @@ Future<void> generateBackupPassword(FlutterSecureStorage secureStorage) async {
   }
 
   final password = encrypt.Key.fromSecureRandom(32).base16;
+  await secureStorage.delete(key: key);
   await secureStorage.write(key: key, value: password);
 }
 

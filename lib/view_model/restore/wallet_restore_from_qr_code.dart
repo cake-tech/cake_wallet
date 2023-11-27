@@ -10,6 +10,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:collection/collection.dart';
+import 'package:polyseed/polyseed.dart';
 
 class WalletRestoreFromQRCode {
   WalletRestoreFromQRCode();
@@ -33,12 +34,15 @@ class WalletRestoreFromQRCode {
     'bitcoincash_wallet': WalletType.bitcoinCash,
   };
 
-  static bool _containsAssetSpecifier(String code) => _extractWalletType(code) != null;
+  static bool _containsAssetSpecifier(String code) =>
+      _extractWalletType(code) != null;
 
   static WalletType? _extractWalletType(String code) {
-    final sortedKeys = _walletTypeMap.keys.toList()..sort((a, b) => b.length.compareTo(a.length));
+    final sortedKeys = _walletTypeMap.keys.toList()
+      ..sort((a, b) => b.length.compareTo(a.length));
 
-    final extracted = sortedKeys.firstWhereOrNull((key) => code.toLowerCase().contains(key));
+    final extracted =
+        sortedKeys.firstWhereOrNull((key) => code.toLowerCase().contains(key));
 
     return _walletTypeMap[extracted];
   }
@@ -48,11 +52,14 @@ class WalletRestoreFromQRCode {
         raw: rawString, type: walletTypeToCryptoCurrency(type));
   }
 
-  static String? _extractSeedPhraseFromUrl(String rawString, WalletType walletType) {
-    RegExp _getPattern(int wordCount) =>
-        RegExp(r'(?<=\W|^)((?:\w+\s+){' + (wordCount - 1).toString() + r'}\w+)(?=\W|$)');
+  static String? _extractSeedPhraseFromUrl(
+      String rawString, WalletType walletType) {
+    RegExp _getPattern(int wordCount) => RegExp(r'(?<=\W|^)((?:\w+\s+){' +
+        (wordCount - 1).toString() +
+        r'}\w+)(?=\W|$)');
 
-    List<int> patternCounts = walletType == WalletType.monero ? [25, 14, 13] : [24, 18, 12];
+    List<int> patternCounts =
+        walletType == WalletType.monero ? [25, 16, 14, 13] : [24, 18, 12];
 
     for (final count in patternCounts) {
       final pattern = _getPattern(count);
@@ -64,18 +71,23 @@ class WalletRestoreFromQRCode {
     return null;
   }
 
-  static Future<RestoredWallet> scanQRCodeForRestoring(BuildContext context) async {
+  static Future<RestoredWallet> scanQRCodeForRestoring(
+      BuildContext context) async {
     String code = await presentQRScanner();
-    if (code.isEmpty) throw Exception('Unexpected scan QR code value: value is empty');
+    if (code.isEmpty)
+      throw Exception('Unexpected scan QR code value: value is empty');
 
     WalletType? walletType;
     String formattedUri = '';
 
     if (!_containsAssetSpecifier(code)) {
-      await _specifyWalletAssets(context, "Can't determine wallet type, please pick it manually");
+      await _specifyWalletAssets(
+          context, "Can't determine wallet type, please pick it manually");
       walletType =
-          await Navigator.pushNamed(context, Routes.restoreWalletTypeFromQR) as WalletType?;
-      if (walletType == null) throw Exception("Failed to determine wallet type.");
+          await Navigator.pushNamed(context, Routes.restoreWalletTypeFromQR)
+              as WalletType?;
+      if (walletType == null)
+        throw Exception("Failed to determine wallet type.");
 
       final seedPhrase = _extractSeedPhraseFromUrl(code, walletType);
 
@@ -115,7 +127,8 @@ class WalletRestoreFromQRCode {
     }
   }
 
-  static WalletRestoreMode _determineWalletRestoreMode(Map<String, dynamic> credentials) {
+  static WalletRestoreMode _determineWalletRestoreMode(
+      Map<String, dynamic> credentials) {
     final type = credentials['type'] as WalletType;
     if (credentials.containsKey('tx_payment_id')) {
       final txIdValue = credentials['tx_payment_id'] as String? ?? '';
@@ -124,24 +137,31 @@ class WalletRestoreFromQRCode {
     }
 
     if (credentials['seed'] != null) {
-      final seedValue = credentials['seed'];
+      final seedValue = credentials['seed'] as String;
       final words = SeedValidator.getWordList(type: type, language: 'english');
+
+      if (type == WalletType.monero && Polyseed.isValidSeed(seedValue)) {
+        return WalletRestoreMode.seed;
+      }
+
       seedValue.split(' ').forEach((element) {
         if (!words.contains(element)) {
           throw Exception(
-              'Unexpected restore mode: mnemonic_seed is invalid or does\'t match wallet type');
+              "Unexpected restore mode: mnemonic_seed is invalid or doesn't match wallet type");
         }
       });
       return WalletRestoreMode.seed;
     }
 
-    if (credentials.containsKey('spend_key') || credentials.containsKey('view_key')) {
+    if (credentials.containsKey('spend_key') ||
+        credentials.containsKey('view_key')) {
       final spendKeyValue = credentials['spend_key'] as String? ?? '';
       final viewKeyValue = credentials['view_key'] as String? ?? '';
 
       return spendKeyValue.isNotEmpty || viewKeyValue.isNotEmpty
           ? WalletRestoreMode.keys
-          : throw Exception('Unexpected restore mode: spend_key or view_key is invalid');
+          : throw Exception(
+              'Unexpected restore mode: spend_key or view_key is invalid');
     }
 
     if (type == WalletType.ethereum && credentials.containsKey('private_key')) {
@@ -158,6 +178,15 @@ class WalletRestoreFromQRCode {
         throw Exception('Unexpected restore mode: private_key');
       }
       return WalletRestoreMode.keys;
+    }
+
+    if ((type == WalletType.nano || type == WalletType.banano) &&
+        credentials.containsKey('hexSeed')) {
+      final hexSeed = credentials['hexSeed'] as String;
+      if (hexSeed.isEmpty) {
+        throw Exception('Unexpected restore mode: hexSeed');
+      }
+      return WalletRestoreMode.seed;
     }
 
     throw Exception('Unexpected restore mode: restore params are invalid');

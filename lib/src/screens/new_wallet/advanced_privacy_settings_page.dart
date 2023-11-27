@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
+import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
@@ -97,16 +98,27 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
               );
             }),
             if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
-            Observer(builder: (_) {
-              return SettingsPickerCell<SeedPhraseLength>(
-                title: S.current.seed_phrase_length,
-                items: SeedPhraseLength.values,
-                selectedItem: widget.privacySettingsViewModel.seedPhraseLength,
-                onItemSelected: (SeedPhraseLength length) {
-                  widget.privacySettingsViewModel.setSeedPhraseLength(length);
-                },
-              );
-            }),
+              Observer(builder: (_) {
+                return SettingsPickerCell<SeedPhraseLength>(
+                  title: S.current.seed_phrase_length,
+                  items: SeedPhraseLength.values,
+                  selectedItem: widget.privacySettingsViewModel.seedPhraseLength,
+                  onItemSelected: (SeedPhraseLength length) {
+                    widget.privacySettingsViewModel.setSeedPhraseLength(length);
+                  },
+                );
+              }),
+            if (widget.privacySettingsViewModel.hasSeedTypeOption)
+              Observer(builder: (_) {
+                return SettingsChoicesCell(
+                  ChoicesListItem<SeedType>(
+                    title: S.current.seedtype,
+                    items: SeedType.all,
+                    selectedItem: widget.privacySettingsViewModel.seedType,
+                    onItemSelected: widget.privacySettingsViewModel.setSeedType,
+                  ),
+                );
+              }),
           ],
         ),
         bottomSectionPadding: EdgeInsets.all(24),
