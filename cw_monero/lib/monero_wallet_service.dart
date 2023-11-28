@@ -273,6 +273,8 @@ class MoneroWalletService extends WalletService<
         date: DateTime.fromMillisecondsSinceEpoch(polyseed.birthday * 1000));
     final spendKey = keyToHexString(polyseed.generateKey(coin, 32));
 
+    walletInfo.isRecovery = true;
+
     await monero_wallet_manager.restoreFromSpendKey(
         path: path,
         password: password,
