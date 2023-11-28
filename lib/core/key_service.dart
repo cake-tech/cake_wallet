@@ -19,6 +19,7 @@ class KeyService {
         key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
     final encodedPassword = encodeWalletPassword(password: password);
 
+    await _secureStorage.delete(key: key);
     await _secureStorage.write(key: key, value: encodedPassword);
   }
 
