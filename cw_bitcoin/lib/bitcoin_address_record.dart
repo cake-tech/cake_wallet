@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 class BitcoinAddressRecord {
   BitcoinAddressRecord(this.address,
@@ -25,7 +24,7 @@ class BitcoinAddressRecord {
   final String address;
   final bool isHidden;
   final String? silentAddressLabel;
-  final Uint8List? silentPaymentTweak;
+  final String? silentPaymentTweak;
   final int index;
   bool get isUsed => _isUsed;
 

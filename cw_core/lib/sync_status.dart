@@ -14,6 +14,16 @@ class SyncingSyncStatus extends SyncStatus {
 
   @override
   String toString() => '$blocksLeft';
+
+  factory SyncingSyncStatus.fromHeightValues(int chainTip, int initialSyncHeight, int syncHeight) {
+    final track = chainTip - initialSyncHeight;
+    final diff = track - (chainTip - syncHeight);
+    final ptc = diff <= 0 ? 0.0 : diff / track;
+    final left = chainTip - syncHeight;
+
+    // sum 1 because if at the chain tip, will say "0 blocks left"
+    return SyncingSyncStatus(left + 1, ptc);
+  }
 }
 
 class SyncedSyncStatus extends SyncStatus {
