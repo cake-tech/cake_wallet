@@ -127,17 +127,11 @@ class MainActions {
         case WalletType.bitcoinCash:
           if (viewModel.isEnabledSellAction) {
             final moonPaySellProvider = MoonPaySellProvider();
-            final uri = await moonPaySellProvider.requestUrl(
-              currency: viewModel.wallet.currency,
-              refundWalletAddress: viewModel.wallet.walletAddresses.address,
+            await moonPaySellProvider.launchProvider(
+              context,
+              wallet: viewModel.wallet,
               settingsStore: viewModel.settingsStore,
             );
-            if (DeviceInfo.instance.isMobile) {
-              Navigator.of(context).pushNamed(Routes.webViewPage,
-                  arguments: [S.of(context).sell, uri]);
-            } else {
-              await launchUrl(uri);
-            }
           }
 
           break;
