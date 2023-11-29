@@ -940,7 +940,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => BuyAmountViewModel());
 
-  getIt.registerFactory(() => BuyOptionsPage());
+  getIt.registerFactory(() => BuyOptionsPage(getIt.get<DashboardViewModel>()));
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;

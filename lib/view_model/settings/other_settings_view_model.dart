@@ -13,14 +13,15 @@ import 'package:package_info/package_info.dart';
 
 part 'other_settings_view_model.g.dart';
 
-class OtherSettingsViewModel = OtherSettingsViewModelBase with _$OtherSettingsViewModel;
+class OtherSettingsViewModel = OtherSettingsViewModelBase
+    with _$OtherSettingsViewModel;
 
 abstract class OtherSettingsViewModelBase with Store {
   OtherSettingsViewModelBase(this._settingsStore, this._wallet)
       : walletType = _wallet.type,
         currentVersion = '' {
-    PackageInfo.fromPlatform()
-        .then((PackageInfo packageInfo) => currentVersion = packageInfo.version);
+    PackageInfo.fromPlatform().then(
+        (PackageInfo packageInfo) => currentVersion = packageInfo.version);
 
     final priority = _settingsStore.priority[_wallet.type];
     final priorities = priorityForWalletType(_wallet.type);
@@ -31,7 +32,8 @@ abstract class OtherSettingsViewModelBase with Store {
   }
 
   final WalletType walletType;
-  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
+  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+      TransactionInfo> _wallet;
 
   @observable
   String currentVersion;
@@ -50,15 +52,19 @@ abstract class OtherSettingsViewModelBase with Store {
   }
 
   @computed
-  bool get changeRepresentativeEnabled {
-    if (_wallet.type == WalletType.nano || _wallet.type == WalletType.banano) {
-      return true;
-    }
+  bool get changeRepresentativeEnabled =>
+      _wallet.type == WalletType.nano || _wallet.type == WalletType.banano;
 
-    return false;
-  }
-  
-  BuyProviderType get buyProviderType { return _settingsStore.defaultBuyProvider; }
+  @computed
+  bool get isEnabledBuyAction =>
+      !_settingsStore.disableBuy && _wallet.type != WalletType.haven;
+
+  List<BuyProviderType> get availableBuyProviders =>
+      BuyProviderType.getAvailableProviders(walletType);
+
+  BuyProviderType get buyProviderType =>
+      _settingsStore.defaultBuyProviders[walletType] ??
+      BuyProviderType.AskEachTime;
 
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
@@ -73,7 +79,7 @@ abstract class OtherSettingsViewModelBase with Store {
     return priority.toString();
   }
 
-  String getBuyProviderType (dynamic buyProviderType) {
+  String getBuyProviderType(dynamic buyProviderType) {
     final _buyProviderType = buyProviderType as BuyProviderType;
 
     return _buyProviderType.toString();
@@ -83,6 +89,5 @@ abstract class OtherSettingsViewModelBase with Store {
       _settingsStore.priority[_wallet.type] = priority;
 
   void onBuyProviderTypeSelected(BuyProviderType buyProviderType) =>
-      _settingsStore.defaultBuyProvider = buyProviderType;
-
+      _settingsStore.defaultBuyProviders[walletType] = buyProviderType;
 }

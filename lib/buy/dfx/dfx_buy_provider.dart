@@ -84,6 +84,8 @@ class DFXBuyProvider {
     switch (_wallet.type) {
       case WalletType.ethereum:
         return _wallet.signMessage(message);
+      case WalletType.ethereum:
+        return _wallet.signMessage(message);
       case WalletType.litecoin:
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
@@ -109,7 +111,7 @@ class DFXBuyProvider {
       }
 
       final uriString =
-          'https://dev.services.dfx.swiss/buy?session=$accessToken';
+          'https://services.dfx.swiss/buy?session=$accessToken';
       final uri = Uri.parse(uriString);
 
       if (await canLaunchUrl(uri)) {
@@ -118,19 +120,14 @@ class DFXBuyProvider {
         throw Exception('Could not launch URL');
       }
     } catch (e) {
-      await showDialog<void>(
+      await showPopUp<void>(
           context: context,
           builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('DFX Connect'),
-              content: Text('Provider currently unavailable: $e'),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('OK'),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            );
+            return AlertWithOneAction(
+                alertTitle: "DFX Connect",
+                alertContent: S.of(context).buy_provider_unavailable + ': $e',
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
           });
     }
   }

@@ -35,7 +35,6 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/set_app_secure_native.dart';
-
 part 'settings_store.g.dart';
 
 class SettingsStore = SettingsStoreBase with _$SettingsStore;
@@ -120,7 +119,6 @@ abstract class SettingsStoreBase with Store {
         isAppSecure = initialAppSecure,
         disableBuy = initialDisableBuy,
         disableSell = initialDisableSell,
-        defaultBuyProvider = initialDefaultBuyProvider,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
@@ -170,6 +168,12 @@ abstract class SettingsStoreBase with Store {
     }
 
     initializeTrocadorProviderStates();
+
+    WalletType.values.forEach((walletType) {
+      final key = 'defaultBuyProvider_${walletType.toString()}';
+      final providerIndex = sharedPreferences.getInt(key);
+      defaultBuyProviders[walletType] = providerIndex != null ? BuyProviderType.values[providerIndex] : BuyProviderType.AskEachTime;
+    });
 
     reaction(
         (_) => fiatCurrency,
@@ -234,9 +238,14 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.setBool(PreferencesKey.disableSellKey, disableSell));
 
     reaction(
-        (_) => defaultBuyProvider,
-        (BuyProviderType defaultBuyProvider) =>
-            sharedPreferences.setInt(PreferencesKey.defaultBuyProvider, defaultBuyProvider.index));
+            (_) => defaultBuyProviders.asObservable(),
+            (ObservableMap<WalletType, BuyProviderType> providers) {
+          providers.forEach((walletType, provider) {
+            final key = 'defaultBuyProvider_${walletType.toString()}';
+            sharedPreferences.setInt(key, provider.index);
+          });
+        }
+    );
 
     reaction(
         (_) => autoGenerateSubaddressStatus,
@@ -323,6 +332,7 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => totpSecretKey,
         (String totpKey) => sharedPreferences.setString(PreferencesKey.totpSecretKey, totpKey));
+
     reaction(
         (_) => numberOfFailedTokenTrials,
         (int failedTokenTrail) =>
@@ -482,9 +492,6 @@ abstract class SettingsStoreBase with Store {
   bool disableSell;
 
   @observable
-  BuyProviderType defaultBuyProvider;
-
-  @observable
   bool allowBiometricalAuthentication;
 
   @observable
@@ -552,6 +559,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   ObservableMap<String, bool> trocadorProviderStates = ObservableMap<String, bool>();
+
+  @observable
+  ObservableMap<WalletType, BuyProviderType> defaultBuyProviders = ObservableMap<WalletType, BuyProviderType>();
 
   @observable
   SortBalanceBy sortBalanceBy;
@@ -965,8 +975,6 @@ abstract class SettingsStoreBase with Store {
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? disableBuy;
     disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? disableSell;
-    defaultBuyProvider =
-        BuyProviderType.values[sharedPreferences.getInt(PreferencesKey.defaultBuyProvider) ?? 0];
     allowBiometricalAuthentication =
         sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
             allowBiometricalAuthentication;
