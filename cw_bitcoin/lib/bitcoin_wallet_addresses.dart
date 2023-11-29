@@ -31,7 +31,14 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
             silentAddress: silentAddress);
 
   @override
-  String getAddress({required int index, required bitcoin.HDWallet hd}) =>
-      generateP2WPKHAddress(hd: hd, index: index, networkType: networkType);
-}
+  String getAddress(
+      {required int index, required bitcoin.HDWallet hd, bitcoin.AddressType? addressType}) {
+    if (addressType == bitcoin.AddressType.p2pkh)
+      return generateP2PKHAddress(hd: hd, index: index, networkType: networkType);
 
+    if (addressType == bitcoin.AddressType.p2tr)
+      return generateP2TRAddress(hd: hd, index: index, networkType: networkType);
+
+    return generateP2WPKHAddress(hd: hd, index: index, networkType: networkType);
+  }
+}

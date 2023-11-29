@@ -28,6 +28,7 @@ import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 
 class AddressPage extends BasePage {
   AddressPage({
@@ -70,7 +71,7 @@ class AddressPage extends BasePage {
       size: 16,
     );
     final _closeButton =
-    currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
+        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -186,7 +187,7 @@ class AddressPage extends BasePage {
                           Observer(
                             builder: (_) {
                               String label = addressListViewModel.hasSilentAddresses
-                                  ? S.of(context).address_and_silent_addresses
+                                  ? S.of(context).labeled_silent_addresses
                                   : addressListViewModel.hasAccounts
                                       ? S.of(context).accounts_subaddresses
                                       : S.of(context).addresses;
@@ -238,7 +239,7 @@ class AddressPage extends BasePage {
       return;
     }
 
-    reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
+    reaction((_) => receiveOptionViewModel.selectedReceiveOption, (dynamic option) async {
       switch (option) {
         case ReceivePageOption.anonPayInvoice:
           Navigator.pushNamed(
@@ -269,6 +270,12 @@ class AddressPage extends BasePage {
               arguments: [addressListViewModel.address.address, option],
             );
           }
+          break;
+        case bitcoin.AddressType.p2pkh:
+        case bitcoin.AddressType.p2wpkh:
+        case bitcoin.AddressType.p2tr:
+        case bitcoin.AddressType.p2sp:
+          await addressListViewModel.setAddressType(option);
           break;
         default:
       }

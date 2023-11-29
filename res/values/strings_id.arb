@@ -726,11 +726,10 @@
   "camera_permission_is_required": "Izin kamera diperlukan.\nSilakan aktifkan dari pengaturan aplikasi.",
   "switchToETHWallet": "Silakan beralih ke dompet Ethereum dan coba lagi",
   "use_testnet": "Gunakan TestNet",
-  "address_and_silent_addresses": "Alamat dan alamat diam",
-  "silent_addresses": "Alamat diam",
   "Block_remaining": "${status} blok tersisa",
   "seed_phrase_length": "Panjang frase benih",
   "unavailable_balance": "Saldo tidak tersedia",
   "unavailable_balance_description": "Saldo Tidak Tersedia: Total ini termasuk dana yang terkunci dalam transaksi yang tertunda dan dana yang telah Anda bekukan secara aktif di pengaturan kontrol koin Anda. Saldo yang terkunci akan tersedia setelah transaksi masing-masing selesai, sedangkan saldo yang dibekukan tetap tidak dapat diakses untuk transaksi sampai Anda memutuskan untuk mencairkannya.",
-  "unspent_change": "Mengubah"
+  "unspent_change": "Mengubah",
+  "labeled_silent_addresses": "Label alamat diam"
 }

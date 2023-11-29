@@ -19,10 +19,7 @@ class AddressTextField extends StatelessWidget {
       {required this.controller,
       this.isActive = true,
       this.placeholder,
-      this.options = const [
-        AddressTextFieldOption.qrCode,
-        AddressTextFieldOption.addressBook
-      ],
+      this.options = const [AddressTextFieldOption.qrCode, AddressTextFieldOption.addressBook],
       this.onURIScanned,
       this.focusNode,
       this.isBorderExist = true,
@@ -133,8 +130,7 @@ class AddressTextField extends StatelessWidget {
                           ),
                         )),
                   ],
-                  if (this.options.contains(AddressTextFieldOption.qrCode) &&
-                      DeviceInfo.instance.isMobile) ...[
+                  if (this.options.contains(AddressTextFieldOption.qrCode)) ...[
                     Container(
                         width: prefixIconWidth,
                         height: prefixIconHeight,
@@ -194,7 +190,7 @@ class AddressTextField extends StatelessWidget {
 
   Future<void> _presentQRScanner(BuildContext context) async {
     bool isCameraPermissionGranted =
-    await PermissionHandler.checkPermission(Permission.camera, context);
+        await PermissionHandler.checkPermission(Permission.camera, context);
     if (!isCameraPermissionGranted) return;
     final code = await presentQRScanner();
     if (code.isEmpty) {

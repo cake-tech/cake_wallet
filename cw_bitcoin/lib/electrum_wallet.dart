@@ -324,13 +324,14 @@ abstract class ElectrumWalletBase
       }
 
       if (fee == 0 && networkType == bitcoin.bitcoin) {
-        // throw BitcoinTransactionWrongBalanceException(currency);
+        throw BitcoinTransactionWrongBalanceException(currency);
       }
 
       final totalAmount = amount + fee;
 
-      if (totalAmount > balance[currency]!.confirmed || totalAmount > allInputsAmount) {
-        // throw BitcoinTransactionWrongBalanceException(currency);
+      if ((totalAmount > balance[currency]!.confirmed || totalAmount > allInputsAmount) &&
+          networkType == bitcoin.bitcoin) {
+        throw BitcoinTransactionWrongBalanceException(currency);
       }
 
       final changeAddress = await walletAddresses.getChangeAddress();

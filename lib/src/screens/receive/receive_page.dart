@@ -165,7 +165,7 @@ class ReceivePage extends BasePage {
                               cell = HeaderTile(
                                   onTap: () =>
                                       Navigator.of(context).pushNamed(Routes.newSubaddress),
-                                  title: S.of(context).silent_addresses,
+                                  title: S.of(context).labeled_silent_addresses,
                                   icon: Icon(
                                     Icons.add,
                                     size: 20,

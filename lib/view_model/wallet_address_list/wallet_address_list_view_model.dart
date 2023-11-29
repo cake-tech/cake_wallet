@@ -15,6 +15,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as btc;
 
 part 'wallet_address_list_view_model.g.dart';
 
@@ -145,9 +146,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   })  : _baseItems = <ListItem>[],
         selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
-        hasAccounts = appStore.wallet!.type == WalletType.bitcoin ||
-            appStore.wallet!.type == WalletType.monero ||
-            appStore.wallet!.type == WalletType.haven,
         amount = '',
         super(appStore: appStore) {
     _init();
@@ -158,9 +156,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     _init();
 
     selectedCurrency = walletTypeToCryptoCurrency(wallet.type);
-    hasAccounts = wallet.type == WalletType.bitcoin ||
-        wallet.type == WalletType.monero ||
-        wallet.type == WalletType.haven;
+    _hasAccounts =
+        hasSilentAddresses || wallet.type == WalletType.monero || wallet.type == WalletType.haven;
   }
 
   static const String _cryptoNumberPattern = '0.00000000';
@@ -283,7 +280,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   @observable
-  bool hasAccounts;
+  bool _hasAccounts = false;
+
+  @computed
+  bool get hasAccounts => _hasAccounts;
 
   @computed
   String get accountLabel {
@@ -298,12 +298,19 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     return '';
   }
 
+  @observable
+  // ignore: prefer_final_fields
+  bool? _hasSilentAddresses = null;
+
   @computed
-  bool get hasSilentAddresses => wallet.type == WalletType.bitcoin;
+  bool get hasSilentAddresses =>
+      _hasSilentAddresses ??
+      wallet.type == WalletType.bitcoin &&
+          wallet.walletAddresses.addressPageType == btc.AddressType.p2sp;
 
   @computed
   bool get hasAddressList =>
-      wallet.type == WalletType.bitcoin ||
+      hasSilentAddresses ||
       wallet.type == WalletType.monero ||
       wallet.type ==
           WalletType
@@ -313,7 +320,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   bool get showElectrumAddressDisclaimer =>
-      wallet.type == WalletType.bitcoin ||
+      (wallet.type == WalletType.bitcoin && !hasSilentAddresses) ||
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.bitcoinCash;
 
@@ -324,6 +331,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @action
   void setAddress(WalletAddressListItem address) =>
       wallet.walletAddresses.address = address.address;
+
+  @action
+  Future<void> setAddressType(dynamic option) async {
+    await wallet.walletAddresses.setAddressType(option);
+    _hasSilentAddresses = option == btc.AddressType.p2sp;
+  }
 
   void _init() {
     _baseItems = [];

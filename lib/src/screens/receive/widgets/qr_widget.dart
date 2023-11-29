@@ -37,6 +37,8 @@ class QRWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_address.png',
         color: Theme.of(context).extension<QRCodeTheme>()!.qrWidgetCopyButtonColor);
+    print(
+        'addressListViewModel.address.type: ${addressListViewModel.wallet.walletAddresses.address}');
 
     return Center(
       child: SingleChildScrollView(
@@ -85,8 +87,9 @@ class QRWidget extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     border: Border.all(
                                       width: 3,
-                                      color:
-                                          Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                                      color: Theme.of(context)
+                                          .extension<DashboardPageTheme>()!
+                                          .textColor,
                                     ),
                                   ),
                                   child: Container(
@@ -150,7 +153,8 @@ class QRWidget extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
+                                color:
+                                    Theme.of(context).extension<DashboardPageTheme>()!.textColor),
                           ),
                         ),
                         Padding(

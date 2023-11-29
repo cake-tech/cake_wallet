@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart';
 
 class BitcoinAddressRecord {
   BitcoinAddressRecord(this.address,
@@ -6,7 +7,8 @@ class BitcoinAddressRecord {
       this.isHidden = false,
       bool isUsed = false,
       this.silentAddressLabel,
-      this.silentPaymentTweak})
+      this.silentPaymentTweak,
+      this.type})
       : _isUsed = isUsed;
 
   factory BitcoinAddressRecord.fromJSON(String jsonSource) {
@@ -15,7 +17,12 @@ class BitcoinAddressRecord {
     return BitcoinAddressRecord(decoded['address'] as String,
         index: decoded['index'] as int,
         isHidden: decoded['isHidden'] as bool? ?? false,
-        isUsed: decoded['isUsed'] as bool? ?? false);
+        isUsed: decoded['isUsed'] as bool? ?? false,
+        silentAddressLabel: decoded['silentAddressLabel'] as String?,
+        silentPaymentTweak: decoded['silentPaymentTweak'] as String?,
+        type: decoded['type'] != null && decoded['type'] != ''
+            ? AddressType.values.firstWhere((type) => type.toString() == decoded['type'] as String)
+            : null);
   }
 
   @override
@@ -35,12 +42,15 @@ class BitcoinAddressRecord {
 
   void setAsUsed() => _isUsed = true;
 
+  AddressType? type;
+
   String toJSON() => json.encode({
         'address': address,
         'index': index,
         'isHidden': isHidden,
         'isUsed': isUsed,
         'silentAddressLabel': silentAddressLabel,
-        'silentPaymentTweak': silentPaymentTweak
+        'silentPaymentTweak': silentPaymentTweak,
+        'type': type?.toString() ?? '',
       });
 }

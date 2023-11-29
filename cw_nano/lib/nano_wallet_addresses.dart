@@ -47,4 +47,9 @@ abstract class NanoWalletAddressesBase extends WalletAddresses with Store {
       print(e.toString());
     }
   }
+
+  @override
+  Future<void> setAddressType(dynamic type) {
+    throw UnimplementedError();
+  }
 }

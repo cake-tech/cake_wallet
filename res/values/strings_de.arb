@@ -738,11 +738,10 @@
   "camera_permission_is_required": "Eine Kameraerlaubnis ist erforderlich.\nBitte aktivieren Sie es in den App-Einstellungen.",
   "switchToETHWallet": "Bitte wechseln Sie zu einem Ethereum-Wallet und versuchen Sie es erneut",
   "use_testnet": "TESTNET verwenden",
-  "address_and_silent_addresses": "Adresse und stille Adressen",
-  "silent_addresses": "Stille Adressen",
   "Block_remaining": "${status} Block verbleibend",
   "seed_phrase_length": "Länge der Seed-Phrase",
   "unavailable_balance": "Nicht verfügbares Guthaben",
   "unavailable_balance_description": "Nicht verfügbares Guthaben: Diese Summe umfasst Gelder, die in ausstehenden Transaktionen gesperrt sind, und solche, die Sie in Ihren Münzkontrolleinstellungen aktiv eingefroren haben. Gesperrte Guthaben werden verfügbar, sobald die entsprechenden Transaktionen abgeschlossen sind, während eingefrorene Guthaben für Transaktionen nicht zugänglich bleiben, bis Sie sich dazu entschließen, sie wieder freizugeben.",
-  "unspent_change": "Wechselgeld"
+  "unspent_change": "Wechselgeld",
+  "labeled_silent_addresses": "Bezeichnete stille Adressen"
 }

@@ -2,6 +2,7 @@ import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 
 part 'receive_option_view_model.g.dart';
 
@@ -9,26 +10,38 @@ class ReceiveOptionViewModel = ReceiveOptionViewModelBase with _$ReceiveOptionVi
 
 abstract class ReceiveOptionViewModelBase with Store {
   ReceiveOptionViewModelBase(this._wallet, this.initialPageOption)
-      : selectedReceiveOption = initialPageOption ?? ReceivePageOption.mainnet,
+      : selectedReceiveOption = initialPageOption ??
+            (_wallet.type == WalletType.bitcoin
+                ? _wallet.walletAddresses.addressPageType
+                : ReceivePageOption.mainnet),
         _options = [] {
     final walletType = _wallet.type;
-    _options =
-        walletType == WalletType.haven ? [ReceivePageOption.mainnet] : ReceivePageOption.values;
+    _options = walletType == WalletType.haven
+        ? [ReceivePageOption.mainnet]
+        : walletType == WalletType.bitcoin
+            ? [
+                bitcoin.AddressType.p2pkh,
+                bitcoin.AddressType.p2wpkh,
+                bitcoin.AddressType.p2tr,
+                bitcoin.AddressType.p2sp,
+                ...ReceivePageOption.values.where((element) => element != ReceivePageOption.mainnet)
+              ]
+            : ReceivePageOption.values;
   }
 
   final WalletBase _wallet;
 
-  final ReceivePageOption? initialPageOption;
+  final dynamic initialPageOption;
 
-  List<ReceivePageOption> _options;
+  List<dynamic> _options;
 
   @observable
-  ReceivePageOption selectedReceiveOption;
+  dynamic selectedReceiveOption;
 
-  List<ReceivePageOption> get options => _options;
+  List<dynamic> get options => _options;
 
   @action
-  void selectReceiveOption(ReceivePageOption option) {
+  void selectReceiveOption(dynamic option) {
     selectedReceiveOption = option;
   }
 }

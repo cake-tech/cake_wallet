@@ -537,7 +537,7 @@ Future<void> setup({
 
   getIt.registerFactory<DesktopSettingsPage>(() => DesktopSettingsPage());
 
-  getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>(
+  getIt.registerFactoryParam<ReceiveOptionViewModel, dynamic, void>(
       (pageOption, _) => ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, pageOption));
 
   getIt.registerFactoryParam<AnonInvoicePageViewModel, List<dynamic>, void>((args, _) {

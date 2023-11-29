@@ -34,6 +34,6 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses
       networkType: networkType);
 
   @override
-  String getAddress({required int index, required bitcoin.HDWallet hd}) =>
+  String getAddress({required int index, required bitcoin.HDWallet hd, bitcoin.AddressType? addressType}) =>
       generateP2WPKHAddress(hd: hd, index: index, networkType: networkType);
 }
