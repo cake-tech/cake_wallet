@@ -33,3 +33,14 @@ int getChainIdBasedOnWalletType(WalletType walletType) {
       return 1;
   }
 }
+
+String getChainNameBasedOnWalletType(WalletType walletType) {
+  switch (walletType) {
+    case WalletType.ethereum:
+      return 'eth';
+    case WalletType.polygon:
+      return 'polygon';
+    default:
+      return '';
+  }
+}

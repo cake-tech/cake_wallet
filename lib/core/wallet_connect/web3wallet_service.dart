@@ -14,7 +14,6 @@ import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_reques
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
