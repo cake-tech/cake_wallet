@@ -10,7 +10,7 @@ echo "============================ SODIUM ============================"
 echo "Cloning SODIUM from - $SODIUM_URL"
 git clone $SODIUM_URL $SODIUM_PATH --branch stable
 cd $SODIUM_PATH
-./dist-build/macos.sh
+./dist-build/apple-xcframework.sh
 
-mv ${SODIUM_PATH}/libsodium-osx/include/* $EXTERNAL_IOS_INCLUDE_DIR
-mv ${SODIUM_PATH}/libsodium-osx/lib/* $EXTERNAL_IOS_LIB_DIR
+mv ${SODIUM_PATH}/libsodium-apple-xcframework/include/* $EXTERNAL_IOS_INCLUDE_DIR
+mv ${SODIUM_PATH}/libsodium-apple-xcframework/lib/* $EXTERNAL_IOS_LIB_DIR
