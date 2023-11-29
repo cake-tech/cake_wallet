@@ -94,6 +94,7 @@ abstract class NFTViewModelBase with Store {
 
   @action
   Future<void> importNFT(String tokenAddress, String tokenId) async {
+    final chainName = getChainNameBasedOnWalletType(appStore.wallet!.type);
     // the [chain] refers to the chain network that the nft is on
     // the [format] refers to the number format type of the responses
     // the [normalizedMetadata] field is a boolean that determines if
@@ -103,7 +104,7 @@ abstract class NFTViewModelBase with Store {
       'deep-index.moralis.io',
       '/api/v2.2/nft/$tokenAddress/$tokenId',
       {
-        "chain": "eth",
+        "chain": chainName,
         "format": "decimal",
         "media_items": "false",
         "normalizeMetadata": "true",
