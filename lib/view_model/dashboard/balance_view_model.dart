@@ -1,6 +1,6 @@
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
-import 'package:cake_wallet/reactions/check_wallet_connect_access.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/balance.dart';

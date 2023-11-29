@@ -1,5 +1,5 @@
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
-import 'package:cake_wallet/reactions/check_wallet_connect_access.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
@@ -9,7 +9,6 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';

@@ -1,9 +1,8 @@
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/reactions/check_wallet_connect_access.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/wallet_base.dart';

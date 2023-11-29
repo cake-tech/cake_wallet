@@ -1,4 +1,4 @@
-import 'package:cake_wallet/reactions/check_wallet_connect_access.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';

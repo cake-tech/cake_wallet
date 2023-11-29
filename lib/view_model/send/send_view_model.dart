@@ -6,7 +6,7 @@ import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
-import 'package:cake_wallet/reactions/check_wallet_connect_access.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
