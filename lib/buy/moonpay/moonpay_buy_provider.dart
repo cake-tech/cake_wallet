@@ -213,7 +213,7 @@ class MoonPayBuyProvider extends BuyProvider {
   }
 
   Future<void> launchProvider(BuildContext context) async {
-    final uri = Uri.parse(await requestUrl("0.0", walletAddress));
+    final uri = Uri.parse(await requestUrl("0.0", "USD"));
     if (DeviceInfo.instance.isMobile) {
       Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [S.of(context).exchange, uri]);
     } else {
