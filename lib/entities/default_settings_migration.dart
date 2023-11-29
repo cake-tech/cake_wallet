@@ -176,7 +176,7 @@ Future<void> defaultSettingsMigration(
               sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         case 25:
-          await rewriteSecureStoragePin(secureStorage);
+          await rewriteSecureStoragePin(secureStorage: secureStorage);
           break;
 
         default:
