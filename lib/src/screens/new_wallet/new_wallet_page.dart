@@ -248,7 +248,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   Navigator.of(context)
                       .pushNamed(Routes.advancedPrivacySettings, arguments: _walletNewVM.type);
                 },
-                child: Text(S.of(context).advanced_privacy_settings),
+                child: Text(S.of(context).advanced_settings),
               ),
             ],
           )),
@@ -281,6 +281,6 @@ class _WalletNameFormState extends State<WalletNameForm> {
 
   void _setSeedType(SeedType item) {
     widget._settingsStore.moneroSeedType = item;
-    _languageSelectorKey.currentState?.selected = defaultSeedLanguage;
+    _languageSelectorKey.currentState?.selected = defaultSeedLanguage; // Reset Seed language
   }
 }

@@ -571,7 +571,7 @@
   "always": "zawsze",
   "minutes_to_pin_code": "${minute} minut",
   "disable_exchange": "Wyłącz wymianę",
-  "advanced_privacy_settings": "Zaawansowane ustawienia prywatności",
+  "advanced_settings": "Zaawansowane ustawienia",
   "settings_can_be_changed_later": "Te ustawienia można później zmienić w ustawieniach aplikacji",
   "add_custom_node": "Dodaj nowy węzeł niestandardowy",
   "disable_fiat": "Wyłącz waluty FIAT",

@@ -569,7 +569,7 @@
   "always": "Vždy",
   "minutes_to_pin_code": "${minute} minutách",
   "disable_exchange": "Zakázat směnárny",
-  "advanced_privacy_settings": "Pokročilá nastavení soukromí",
+  "advanced_settings": "Pokročilé nastavení",
   "settings_can_be_changed_later": "Tato nastavení mohou být změněna později v nastavení v této aplikaci",
   "add_custom_node": "Přidat vlastní uzel",
   "disable_fiat": "Zakázat fiat",

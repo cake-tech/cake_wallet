@@ -571,7 +571,7 @@
   "always": "toujours",
   "minutes_to_pin_code": "${minute} minutes",
   "disable_exchange": "Désactiver l'échange",
-  "advanced_privacy_settings": "Paramètres de confidentialité avancés",
+  "advanced_settings": "Réglages avancés",
   "settings_can_be_changed_later": "Ces paramètres peuvent être modifiés ultérieurement dans les paramètres de l'application",
   "add_custom_node": "Ajouter un nouveau nœud personnalisé",
   "disable_fiat": "Désactiver les montants en fiat",

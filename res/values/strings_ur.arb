@@ -570,7 +570,7 @@
   "always": "ہمیشہ",
   "minutes_to_pin_code": "${minute} منٹ",
   "disable_exchange": "تبادلے کو غیر فعال کریں۔",
-  "advanced_privacy_settings": "اعلی درجے کی رازداری کی ترتیبات",
+  "advanced_settings": "اعلی درجے کی ترتیبات",
   "settings_can_be_changed_later": "ان ترتیبات کو بعد میں ایپ کی ترتیبات میں تبدیل کیا جا سکتا ہے۔",
   "add_custom_node": "نیا کسٹم نوڈ شامل کریں۔",
   "disable_fiat": "فیاٹ کو غیر فعال کریں۔",

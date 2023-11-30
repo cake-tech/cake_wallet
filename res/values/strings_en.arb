@@ -572,7 +572,7 @@
   "always": "Always",
   "minutes_to_pin_code": "${minute} minutes",
   "disable_exchange": "Disable exchange",
-  "advanced_privacy_settings": "Advanced Privacy Settings",
+  "advanced_settings": "Advanced Settings",
   "settings_can_be_changed_later": "These settings can be changed later in the app settings",
   "add_custom_node": "Add New Custom Node",
   "disable_fiat": "Disable fiat",

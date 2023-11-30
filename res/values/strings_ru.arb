@@ -571,7 +571,7 @@
   "always": "всегда",
   "minutes_to_pin_code": "${minute} минут",
   "disable_exchange": "Отключить обмен",
-  "advanced_privacy_settings": "Расширенные настройки конфиденциальности",
+  "advanced_settings": "Расширенные настройки",
   "settings_can_be_changed_later": "Эти настройки можно изменить позже в настройках приложения.",
   "add_custom_node": "Добавить новый пользовательский узел",
   "disable_fiat": "Отключить фиат",

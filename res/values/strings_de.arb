@@ -571,7 +571,7 @@
   "always": "immer",
   "minutes_to_pin_code": "${minute} Minuten",
   "disable_exchange": "Exchange deaktivieren",
-  "advanced_privacy_settings": "Erweiterte Datenschutzeinstellungen",
+  "advanced_settings": "Erweiterte Einstellungen",
   "settings_can_be_changed_later": "Diese Einstellungen können später in den App-Einstellungen geändert werden",
   "add_custom_node": "Neuen benutzerdefinierten Knoten hinzufügen",
   "disable_fiat": "Fiat deaktivieren",

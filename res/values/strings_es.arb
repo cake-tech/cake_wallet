@@ -571,7 +571,7 @@
   "always": "siempre",
   "minutes_to_pin_code": "${minute} minutos",
   "disable_exchange": "Deshabilitar intercambio",
-  "advanced_privacy_settings": "Configuración avanzada de privacidad",
+  "advanced_settings": "Ajustes avanzados",
   "settings_can_be_changed_later": "Estas configuraciones se pueden cambiar más tarde en la configuración de la aplicación",
   "add_custom_node": "Agregar nuevo nodo personalizado",
   "disable_fiat": "Deshabilitar fiat",
@@ -749,5 +749,5 @@
   "seedtype_polyseed": "Polieta (16 palabras)",
   "seed_language_czech": "checo",
   "seed_language_korean": "coreano",
-  "seed_language_chinese_traditional": "Chino tradicional)"
+  "seed_language_chinese_traditional": "Chino (tradicional)"
 }
