@@ -1,7 +1,2 @@
-Coin control fixes and enhancements
-In-app Tor connection
-Accessibility enhancements
-Privacy settings enhancements
-UI enhancements
-Backup flow fixes
-Bug fixes
+Monero Polyseed support, under Advanced privacy settings, create and restore from a 16 words phrase and without the need to remember the wallet creation date
+Minor bug fixes and enhancements
