@@ -67,6 +67,11 @@ abstract class WalletListViewModelBase with Store {
   }
 
   Future<void> reorderAccordingToWalletList() async {
+    if (wallets.isEmpty) {
+      updateList();
+      return;
+    }
+
     _appStore.settingsStore.walletListOrder = WalletListOrderType.Custom;
 
     // make a copy of the walletInfoSource:
