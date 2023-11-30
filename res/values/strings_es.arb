@@ -753,5 +753,6 @@
   "seed_language_czech": "checo",
   "seed_language_korean": "coreano",
   "seed_language_chinese_traditional": "Chino (tradicional)",
-  "ascending": "Ascendente"
+  "ascending": "Ascendente",
+  "descending": "Descendente"
 }

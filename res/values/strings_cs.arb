@@ -745,5 +745,6 @@
   "seed_language_czech": "čeština",
   "seed_language_korean": "korejština",
   "seed_language_chinese_traditional": "Číňan (tradiční)",
-  "ascending": "Vzestupné"
+  "ascending": "Vzestupné",
+  "descending": "Klesající"
 }

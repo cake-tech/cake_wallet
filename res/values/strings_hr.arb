@@ -751,5 +751,6 @@
   "seed_language_czech": "češki",
   "seed_language_korean": "korejski",
   "seed_language_chinese_traditional": "Kinesko (tradicionalno)",
-  "ascending": "Uzlazni"
+  "ascending": "Uzlazni",
+  "descending": "Silazni"
 }

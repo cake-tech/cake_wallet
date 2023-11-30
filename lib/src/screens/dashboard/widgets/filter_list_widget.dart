@@ -1,8 +1,10 @@
+import 'package:cake_wallet/entities/list_order_mode.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
+import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -66,17 +68,20 @@ class FilterListWidgetState extends State<FilterListWidget> {
                     ),
                   ),
                 ),
-                if (type != WalletListOrderType.Custom &&
-                    type != WalletListOrderType.GroupByType) ...[
+                if (type != WalletListOrderType.Custom) ...[
                   sectionDivider,
-                  SettingsSwitcherCell(
-                      title: S.current.ascending,
-                      value: ascending,
-                      onValueChange: (BuildContext context, bool value) {
+                  SettingsChoicesCell(
+                    ChoicesListItem<ListOrderMode>(
+                      title: "",
+                      items: ListOrderMode.all,
+                      selectedItem: ascending ? ListOrderMode.ascending : ListOrderMode.descending,
+                      onItemSelected: (ListOrderMode listOrderMode) {
                         setState(() {
-                          ascending = value;
+                          ascending = listOrderMode == ListOrderMode.ascending;
                         });
-                      }),
+                      },
+                    ),
+                  ),
                 ],
                 sectionDivider,
                 RadioListTile(

@@ -747,5 +747,6 @@
   "seed_language_czech": "Czech",
   "seed_language_korean": "Korean",
   "seed_language_chinese_traditional": "Intsik (tradisyonal)",
-  "ascending": "Umakyat"
+  "ascending": "Umakyat",
+  "descending": "Pababang"
 }

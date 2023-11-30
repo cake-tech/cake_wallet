@@ -17,19 +17,21 @@ class SettingsChoicesCell extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text(
-                choicesListItem.title,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+          if (choicesListItem.title.isNotEmpty) ...[
+            Row(
+              children: [
+                Text(
+                  choicesListItem.title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
+              ],
+            ),
+            const SizedBox(height: 24),
+          ],
           Center(
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -50,9 +52,7 @@ class SettingsChoicesCell extends StatelessWidget {
                         padding: EdgeInsets.symmetric(horizontal: 32, vertical: 8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(30),
-                          color: isSelected
-                              ? Theme.of(context).primaryColor
-                              : null,
+                          color: isSelected ? Theme.of(context).primaryColor : null,
                         ),
                         child: Text(
                           choicesListItem.displayItem.call(e),

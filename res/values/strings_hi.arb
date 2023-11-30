@@ -753,5 +753,6 @@
   "seed_language_czech": "चेक",
   "seed_language_korean": "कोरियाई",
   "seed_language_chinese_traditional": "चीनी पारंपरिक)",
-  "ascending": "आरोही"
+  "ascending": "आरोही",
+  "descending": "अवरोही"
 }

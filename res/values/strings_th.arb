@@ -751,5 +751,6 @@
   "seed_language_czech": "ภาษาเช็ก",
   "seed_language_korean": "เกาหลี",
   "seed_language_chinese_traditional": "จีน (ดั้งเดิม)",
-  "ascending": "จากน้อยไปมาก"
+  "ascending": "จากน้อยไปมาก",
+  "descending": "ลงมา"
 }

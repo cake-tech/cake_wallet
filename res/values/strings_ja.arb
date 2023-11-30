@@ -753,5 +753,6 @@
   "seed_language_czech": "チェコ",
   "seed_language_korean": "韓国語",
   "seed_language_chinese_traditional": "中国の伝統的な）",
-  "ascending": "上昇"
+  "ascending": "上昇",
+  "descending": "下降"
 }

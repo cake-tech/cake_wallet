@@ -745,5 +745,6 @@
   "seed_language_czech": "Чех",
   "seed_language_korean": "Корейски",
   "seed_language_chinese_traditional": "Традиционен китайски)",
-  "ascending": "Възходящ"
+  "ascending": "Възходящ",
+  "descending": "Низходящ"
 }

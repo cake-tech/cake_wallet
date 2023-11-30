@@ -752,5 +752,6 @@
   "seed_language_czech": "捷克",
   "seed_language_korean": "韩国人",
   "seed_language_chinese_traditional": "中国传统的）",
-  "ascending": "上升"
+  "ascending": "上升",
+  "descending": "下降"
 }

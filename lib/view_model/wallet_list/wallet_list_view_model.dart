@@ -99,7 +99,11 @@ abstract class WalletListViewModelBase with Store {
     // sort the wallets by type:
     List<WalletInfo> walletInfoSourceCopy = _walletInfoSource.values.toList();
     await _walletInfoSource.clear();
-    walletInfoSourceCopy.sort((a, b) => a.type.toString().compareTo(b.type.toString()));
+    if (ascending) {
+      walletInfoSourceCopy.sort((a, b) => a.type.toString().compareTo(b.type.toString()));
+    } else {
+      walletInfoSourceCopy.sort((a, b) => b.type.toString().compareTo(a.type.toString()));
+    }
     await _walletInfoSource.addAll(walletInfoSourceCopy);
     updateList();
   }
@@ -130,7 +134,7 @@ abstract class WalletListViewModelBase with Store {
     updateList();
   }
 
-  void setAscending(bool ascending)  {
+  void setAscending(bool ascending) {
     _appStore.settingsStore.walletListAscending = ascending;
   }
 

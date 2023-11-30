@@ -751,5 +751,6 @@
   "seed_language_czech": "체코 사람",
   "seed_language_korean": "한국인",
   "seed_language_chinese_traditional": "중국 전통)",
-  "ascending": "오름차순"
+  "ascending": "오름차순",
+  "descending": "내림차순"
 }
