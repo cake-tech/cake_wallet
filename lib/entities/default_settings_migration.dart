@@ -584,29 +584,25 @@ Future<void> checkCurrentNodes(
   final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
   final currentBitcoinElectrumSeverId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
-  final currentLitecoinElectrumSeverId = sharedPreferences
-      .getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
-  final currentHavenNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentHavenNodeIdKey);
-  final currentEthereumNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentEthereumNodeIdKey);
+  final currentLitecoinElectrumSeverId =
+      sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
+  final currentHavenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
+  final currentEthereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
   final currentPolygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
-  final currentNanoNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentNanoNodeIdKey);
-  final currentNanoPowNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentNanoPowNodeIdKey);
-  final currentBitcoinCashNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
-  final currentMoneroNode = nodeSource.values.firstWhereOrNull(
-      (node) => node.key == currentMoneroNodeId);
-  final currentBitcoinElectrumServer = nodeSource.values.firstWhereOrNull(
-      (node) => node.key == currentBitcoinElectrumSeverId);
-  final currentLitecoinElectrumServer = nodeSource.values.firstWhereOrNull(
-      (node) => node.key == currentLitecoinElectrumSeverId);
-  final currentHavenNodeServer = nodeSource.values.firstWhereOrNull(
-      (node) => node.key == currentHavenNodeId);
-  final currentEthereumNodeServer = nodeSource.values.firstWhereOrNull(
-      (node) => node.key == currentEthereumNodeId);
+  final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
+  final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
+  final currentBitcoinCashNodeId =
+      sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
+  final currentMoneroNode =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
+  final currentBitcoinElectrumServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinElectrumSeverId);
+  final currentLitecoinElectrumServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentLitecoinElectrumSeverId);
+  final currentHavenNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentHavenNodeId);
+  final currentEthereumNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentEthereumNodeId);
   final currentPolygonNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentPolygonNodeId);
   final currentNanoNodeServer =
