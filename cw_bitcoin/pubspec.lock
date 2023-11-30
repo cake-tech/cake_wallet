@@ -88,7 +88,7 @@ packages:
     description:
       path: "."
       ref: silent-payments
-      resolved-ref: d4f4f9726499750da66a6057ce12dc70f60215c6
+      resolved-ref: "55aae884098aa7ea9031ea6769eebc55f8dacc14"
       url: "https://github.com/cake-tech/bitcoin_flutter.git"
     source: git
     version: "2.0.2"
