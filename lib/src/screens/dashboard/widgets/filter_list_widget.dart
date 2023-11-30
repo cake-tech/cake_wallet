@@ -22,7 +22,6 @@ class FilterListWidget extends StatefulWidget {
 }
 
 class FilterListWidgetState extends State<FilterListWidget> {
-
   late bool ascending;
   late WalletListOrderType? type;
 
@@ -67,15 +66,18 @@ class FilterListWidgetState extends State<FilterListWidget> {
                     ),
                   ),
                 ),
-                sectionDivider,
-                SettingsSwitcherCell(
-                    title: S.current.ascending,
-                    value: ascending,
-                    onValueChange: (BuildContext context, bool value) {
-                      setState(() {
-                        ascending = value;
-                      });
-                    }),
+                if (type != WalletListOrderType.Custom &&
+                    type != WalletListOrderType.GroupByType) ...[
+                  sectionDivider,
+                  SettingsSwitcherCell(
+                      title: S.current.ascending,
+                      value: ascending,
+                      onValueChange: (BuildContext context, bool value) {
+                        setState(() {
+                          ascending = value;
+                        });
+                      }),
+                ],
                 sectionDivider,
                 RadioListTile(
                   value: WalletListOrderType.CreationDate,
