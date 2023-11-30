@@ -188,6 +188,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       return walletCreationService.restoreFromKeys(credentials);
     }
 
-    return walletCreationService.restoreFromSeed(credentials);
+    return walletCreationService.restoreFromSeed(credentials, isTestnet: useTestnet);
   }
 }

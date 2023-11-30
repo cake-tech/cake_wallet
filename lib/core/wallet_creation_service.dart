@@ -88,12 +88,12 @@ class WalletCreationService {
     return wallet;
   }
 
-  Future<WalletBase> restoreFromSeed(WalletCredentials credentials) async {
+  Future<WalletBase> restoreFromSeed(WalletCredentials credentials, {bool? isTestnet}) async {
     checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);
-    final wallet = await _service!.restoreFromSeed(credentials);
+    final wallet = await _service!.restoreFromSeed(credentials, isTestnet: isTestnet);
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(

@@ -36,6 +36,8 @@ class WalletRestorePage extends BasePage {
       switch (mode) {
         case WalletRestoreMode.seed:
           _pages.add(WalletRestoreFromSeedForm(
+              isTestnet: walletRestoreViewModel.useTestnet,
+              toggleTestnet: walletRestoreViewModel.toggleUseTestnet,
               displayBlockHeightSelector:
                   walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
               displayLanguageSelector: walletRestoreViewModel.hasSeedLanguageSelector,
@@ -163,7 +165,8 @@ class WalletRestorePage extends BasePage {
         color: Theme.of(context).colorScheme.background,
         child: Center(
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+            constraints:
+                BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -219,8 +222,8 @@ class WalletRestorePage extends BasePage {
                       const SizedBox(height: 25),
                       GestureDetector(
                         onTap: () {
-                          Navigator.of(context)
-                              .pushNamed(Routes.advancedPrivacySettings, arguments: walletRestoreViewModel.type);
+                          Navigator.of(context).pushNamed(Routes.advancedPrivacySettings,
+                              arguments: walletRestoreViewModel.type);
                         },
                         child: Text(S.of(context).advanced_privacy_settings),
                       ),

@@ -173,7 +173,7 @@ class HavenWalletService extends WalletService<
 
   @override
   Future<HavenWallet> restoreFromKeys(
-      HavenRestoreWalletFromKeysCredentials credentials) async {
+      HavenRestoreWalletFromKeysCredentials credentials, {bool? isTestnet}) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       await haven_wallet_manager.restoreFromKeys(
@@ -197,7 +197,8 @@ class HavenWalletService extends WalletService<
 
   @override
   Future<HavenWallet> restoreFromSeed(
-      HavenRestoreWalletFromSeedCredentials credentials) async {
+      HavenRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
+
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       await haven_wallet_manager.restoreFromSeed(

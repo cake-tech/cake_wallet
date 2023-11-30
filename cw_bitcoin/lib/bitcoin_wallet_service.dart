@@ -84,11 +84,13 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
   }
 
   @override
-  Future<BitcoinWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials) async =>
+  Future<BitcoinWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials,
+          {bool? isTestnet}) async =>
       throw UnimplementedError();
 
   @override
-  Future<BitcoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials) async {
+  Future<BitcoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
     if (!validateMnemonic(credentials.mnemonic)) {
       throw BitcoinMnemonicIsIncorrectException();
     }
@@ -98,6 +100,7 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
+      networkType: isTestnet == true ? bitcoin.testnet : bitcoin.bitcoin,
     );
     await wallet.save();
     await wallet.init();

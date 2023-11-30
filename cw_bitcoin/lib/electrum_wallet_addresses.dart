@@ -92,8 +92,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     try {
-      receiveAddresses.forEach(
-          (element) => print('element: ${element.address} ${element.type} $addressPageType'));
       return receiveAddresses
           .firstWhere((address) => addressPageType == bitcoin.AddressType.p2wpkh
               ? address.type == null || address.type == addressPageType

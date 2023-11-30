@@ -73,7 +73,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
   }
 
   @override
-  Future<EthereumWallet> restoreFromKeys(EthereumRestoreWalletFromPrivateKey credentials) async {
+  Future<EthereumWallet> restoreFromKeys(EthereumRestoreWalletFromPrivateKey credentials, {bool? isTestnet}) async {
     final wallet = EthereumWallet(
       password: credentials.password!,
       privateKey: credentials.privateKey,
@@ -89,7 +89,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
 
   @override
   Future<EthereumWallet> restoreFromSeed(
-      EthereumRestoreWalletFromSeedCredentials credentials) async {
+      EthereumRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
     if (!bip39.validateMnemonic(credentials.mnemonic)) {
       throw EthereumMnemonicIsIncorrectException();
     }

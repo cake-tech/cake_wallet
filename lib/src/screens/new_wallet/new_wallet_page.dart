@@ -176,12 +176,6 @@ class _WalletNameFormState extends State<WalletNameForm> {
                             ),
                             validator: WalletNameValidator(),
                           ),
-                          Observer(builder: (context) {
-                            return SettingsSwitcherCell(
-                                title: S.current.use_testnet,
-                                value: widget._walletNewVM.useTestnet,
-                                onValueChange: (_, __) => widget._walletNewVM.toggleUseTestnet());
-                          }),
                         ],
                       ),
                     ),
@@ -203,7 +197,13 @@ class _WalletNameFormState extends State<WalletNameForm> {
                       child: SeedLanguageSelector(
                           key: _languageSelectorKey, initialSelected: defaultSeedLanguage),
                     )
-                  ]
+                  ],
+                  Observer(builder: (context) {
+                    return SettingsSwitcherCell(
+                        title: S.current.use_testnet,
+                        value: widget._walletNewVM.useTestnet,
+                        onValueChange: (_, __) => widget._walletNewVM.toggleUseTestnet());
+                  }),
                 ],
               ),
             ),

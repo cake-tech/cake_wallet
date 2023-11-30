@@ -28,12 +28,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: false);
 
   @observable
-  bool _useTestnet = false;
-
-  @computed
-  bool get useTestnet => _useTestnet;
-
-  @observable
   String selectedMnemonicLanguage;
 
   bool get hasLanguageSelector => type == WalletType.monero || type == WalletType.haven;
@@ -65,9 +59,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   @override
   Future<WalletBase> process(WalletCredentials credentials) async {
     walletCreationService.changeWalletType(type: type);
-    return walletCreationService.create(credentials, isTestnet: useTestnet);
+    return walletCreationService.create(credentials);
   }
-
-  @action
-  void toggleUseTestnet() => _useTestnet = !_useTestnet;
 }
