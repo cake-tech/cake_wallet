@@ -30,6 +30,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
 
   bool get hasLanguageSelector => type == WalletType.monero || type == WalletType.haven;
 
+  bool get hasSeedType => type == WalletType.monero;
+
   @override
   WalletCredentials getCredentials(dynamic _options) {
     final options = _options as List<dynamic>?;

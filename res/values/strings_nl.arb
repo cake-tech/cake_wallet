@@ -160,7 +160,7 @@
   "seed_title": "Zaad",
   "seed_share": "Deel zaad",
   "copy": "Kopiëren",
-  "seed_language_choose": "Kies een starttaal:",
+  "seed_language": "Zaadtaal",
   "seed_choose": "Kies een starttaal",
   "seed_language_next": "Volgende",
   "seed_language_english": "Engels",
@@ -571,7 +571,7 @@
   "always": "altijd",
   "minutes_to_pin_code": "${minute} minuten",
   "disable_exchange": "Uitwisseling uitschakelen",
-  "advanced_privacy_settings": "Geavanceerde privacy-instellingen",
+  "advanced_settings": "Geavanceerde instellingen",
   "settings_can_be_changed_later": "Deze instellingen kunnen later worden gewijzigd in de app-instellingen",
   "add_custom_node": "Voeg een nieuw aangepast knooppunt toe",
   "disable_fiat": "Schakel Fiat uit",
@@ -749,5 +749,5 @@
   "seedtype_polyseed": "Polyseed (16 woorden)",
   "seed_language_czech": "Tsjechisch",
   "seed_language_korean": "Koreaans",
-  "seed_language_chinese_traditional": "Chinese traditionele)"
+  "seed_language_chinese_traditional": "Chinese (traditionele)"
 }
