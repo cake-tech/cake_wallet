@@ -28,8 +28,7 @@ class EthereumClient {
     }
   }
 
-  void setListeners(
-      EthereumAddress userAddress, Function() onNewTransaction) async {
+  void setListeners(EthereumAddress userAddress, Function() onNewTransaction) async {
     // _client?.pendingTransactions().listen((transactionHash) async {
     //   final transaction = await _client!.getTransactionByHash(transactionHash);
     //
@@ -79,8 +78,7 @@ class EthereumClient {
         currency == CryptoCurrency.matic ||
         contractAddress != null);
 
-    bool _isEVMCompatibleChain =
-        currency == CryptoCurrency.eth || currency == CryptoCurrency.matic;
+    bool _isEVMCompatibleChain = currency == CryptoCurrency.eth || currency == CryptoCurrency.matic;
 
     final price = _client!.getGasPrice();
 
@@ -88,15 +86,13 @@ class EthereumClient {
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
-      value: _isEVMCompatibleChain
-          ? EtherAmount.inWei(BigInt.parse(amount))
-          : EtherAmount.zero(),
+      value: _isEVMCompatibleChain ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
     );
 
     final chainId = _getChainIdForCurrency(currency);
 
-    final signedTransaction = await _client!
-        .signTransaction(privateKey, transaction, chainId: chainId);
+    final signedTransaction =
+        await _client!.signTransaction(privateKey, transaction, chainId: chainId);
 
     final Function _sendTransaction;
 
@@ -139,8 +135,7 @@ class EthereumClient {
   }
 
   Future<String> sendTransaction(Uint8List signedTransaction) async =>
-      await _client!
-          .sendRawTransaction(prependTransactionType(0x02, signedTransaction));
+      await _client!.sendRawTransaction(prependTransactionType(0x02, signedTransaction));
 
   Future getTransactionDetails(String transactionHash) async {
     // Wait for the transaction receipt to become available
@@ -167,8 +162,7 @@ I/flutter ( 4474): Gas Used: 21000
     TransactionInformation? transactionInformation;
     while (transactionInformation == null) {
       print("********************************");
-      transactionInformation =
-          await _client!.getTransactionByHash(transactionHash);
+      transactionInformation = await _client!.getTransactionByHash(transactionHash);
       await Future.delayed(Duration(seconds: 1));
     }
     // Print the receipt information
@@ -187,8 +181,7 @@ I/flutter ( 4474): Gas Used: 53000
 
   Future<ERC20Balance> fetchERC20Balances(
       EthereumAddress userAddress, String contractAddress) async {
-    final erc20 = ERC20(
-        address: EthereumAddress.fromHex(contractAddress), client: _client!);
+    final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
     final balance = await erc20.balanceOf(userAddress);
 
     int exponent = (await erc20.decimals()).toInt();
@@ -198,8 +191,7 @@ I/flutter ( 4474): Gas Used: 53000
 
   Future<Erc20Token?> getErc20Token(String contractAddress) async {
     try {
-      final erc20 = ERC20(
-          address: EthereumAddress.fromHex(contractAddress), client: _client!);
+      final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
       final name = await erc20.name();
       final symbol = await erc20.symbol();
       final decimal = await erc20.decimals();
@@ -222,8 +214,25 @@ I/flutter ( 4474): Gas Used: 53000
   Future<List<EthereumTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
-      final response =
-          await _httpClient.get(Uri.https("api.etherscan.io", "/api", {
+      //! This is the flow to fetch transactions using Moralis
+      // final uri = Uri.https(
+      //   'deep-index.moralis.io',
+      //   '/api/v2.2/$address',
+      //   {
+      //     "chain": chainName,
+      //   },
+      // );
+
+      // final response = await _httpClient.get(
+      //   uri,
+      //   headers: {
+      //     "Accept": "application/json",
+      //     "X-API-Key": secrets.moralisApiKey,
+      //   },
+      // );
+
+      //! This is the flow to fetch transactions using EtherScan (or PolygionScan)
+      final response = await _httpClient.get(Uri.https("api.etherscan.io", "/api", {
         "module": "account",
         "action": contractAddress != null ? "tokentx" : "txlist",
         if (contractAddress != null) "contractaddress": contractAddress,
@@ -233,12 +242,9 @@ I/flutter ( 4474): Gas Used: 53000
 
       final _jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
-      if (response.statusCode >= 200 &&
-          response.statusCode < 300 &&
-          _jsonResponse['status'] != 0) {
+      if (response.statusCode >= 200 && response.statusCode < 300 && _jsonResponse['status'] != 0) {
         return (_jsonResponse['result'] as List)
-            .map((e) =>
-                EthereumTransactionModel.fromJson(e as Map<String, dynamic>))
+            .map((e) => EthereumTransactionModel.fromJson(e as Map<String, dynamic>))
             .toList();
       }
 

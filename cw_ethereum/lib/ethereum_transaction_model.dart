@@ -1,3 +1,4 @@
+//! Model used for in parsing transactions fetched using etherscan
 class EthereumTransactionModel {
   final DateTime date;
   final String hash;
@@ -45,3 +46,39 @@ class EthereumTransactionModel {
         isError: json["isError"] == "1",
       );
 }
+
+
+//! Model for parsing transactions fetched using Moralis
+// class EthereumTransactionModel {
+//   final DateTime date;
+//   final String hash;
+//   final String from;
+//   final String to;
+//   final BigInt amount;
+//   final int gasUsed;
+//   final BigInt gasPrice;
+//   final int blockNumber;
+
+//   EthereumTransactionModel({
+//     required this.date,
+//     required this.hash,
+//     required this.from,
+//     required this.to,
+//     required this.amount,
+//     required this.gasUsed,
+//     required this.gasPrice,
+//     required this.blockNumber,
+//   });
+
+//   factory EthereumTransactionModel.fromJson(Map<String, dynamic> json) => EthereumTransactionModel(
+//         date: DateTime.parse(json["block_timestamp"]),
+//         hash: json["hash"],
+//         from: json["from_address"],
+//         to: json["to_address"],
+//         amount: BigInt.parse(json["value"]),
+//         gasUsed: int.parse(json["gas"]),
+//         gasPrice: BigInt.parse(json["gas_price"]),
+//         blockNumber: int.parse(json["block_number"]),
+//       );
+// }
+
