@@ -1,25 +1,28 @@
+import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_ethereum/ethereum_wallet_creation_credentials.dart';
-
-class PolygonNewWalletCredentials extends EthereumNewWalletCredentials {
+class PolygonNewWalletCredentials extends WalletCredentials {
   PolygonNewWalletCredentials({required String name, WalletInfo? walletInfo})
       : super(name: name, walletInfo: walletInfo);
 }
 
-class PolygonRestoreWalletFromSeedCredentials extends EthereumRestoreWalletFromSeedCredentials {
+class PolygonRestoreWalletFromSeedCredentials extends WalletCredentials {
   PolygonRestoreWalletFromSeedCredentials(
       {required String name,
       required String password,
-      required String mnemonic,
+      required this.mnemonic,
       WalletInfo? walletInfo})
-      : super(name: name, password: password, walletInfo: walletInfo, mnemonic: mnemonic);
+      : super(name: name, password: password, walletInfo: walletInfo);
+
+  final String mnemonic;
 }
 
-class PolygonRestoreWalletFromPrivateKey extends EthereumRestoreWalletFromPrivateKey {
+class PolygonRestoreWalletFromPrivateKey extends WalletCredentials {
   PolygonRestoreWalletFromPrivateKey(
       {required String name,
       required String password,
-      required String privateKey,
+      required this.privateKey,
       WalletInfo? walletInfo})
-      : super(name: name, password: password, walletInfo: walletInfo, privateKey: privateKey);
+      : super(name: name, password: password, walletInfo: walletInfo);
+
+  final String privateKey;
 }
