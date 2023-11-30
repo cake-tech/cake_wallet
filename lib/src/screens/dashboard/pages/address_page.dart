@@ -183,16 +183,18 @@ class AddressPage extends BasePage {
                         children: <Widget>[
                           Observer(
                             builder: (_) {
-                              String label = addressListViewModel.hasSilentAddresses
-                                  ? S.of(context).labeled_silent_addresses
-                                  : addressListViewModel.hasAccounts
-                                      ? S.of(context).accounts_subaddresses
-                                      : S.of(context).addresses;
+                              String label = addressListViewModel.hasAccounts
+                                  ? S.of(context).accounts_subaddresses
+                                  : S.of(context).addresses;
 
                               if (dashboardViewModel.isAutoGenerateSubaddressesEnabled) {
                                 label = addressListViewModel.hasAccounts
                                     ? S.of(context).accounts
                                     : S.of(context).account;
+                              }
+
+                              if (addressListViewModel.hasSilentAddresses) {
+                                label = S.of(context).labeled_silent_addresses;
                               }
                               return Text(
                                 label,
