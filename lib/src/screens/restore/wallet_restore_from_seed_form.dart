@@ -124,25 +124,30 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
               onSeedChange: onSeedChange),
           if (widget.type == WalletType.monero)
             GestureDetector(
-                onTap: () async {
-                  await showPopUp<void>(
-                      context: context,
-                      builder: (_) => Picker(
-                            items: SeedType.all,
-                            selectedAtIndex: isPolyseed ? 1 : 0,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            onItemSelected: _changeSeedType,
-                            isSeparated: false,
-                          ));
-                },
-                child: Container(
-                    color: Colors.transparent,
-                    padding: EdgeInsets.only(top: 20.0),
-                    child: IgnorePointer(
-                        child: BaseTextFormField(
-                            controller: seedTypeController,
-                            enableInteractiveSelection: false,
-                            readOnly: true)))),
+              onTap: () async {
+                await showPopUp<void>(
+                    context: context,
+                    builder: (_) => Picker(
+                          items: SeedType.all,
+                          selectedAtIndex: isPolyseed ? 1 : 0,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          onItemSelected: _changeSeedType,
+                          isSeparated: false,
+                        ));
+              },
+              child: Container(
+                color: Colors.transparent,
+                padding: EdgeInsets.only(top: 20.0),
+                child: IgnorePointer(
+                  child: BaseTextFormField(
+                    controller: seedTypeController,
+                    enableInteractiveSelection: false,
+                    readOnly: true,
+                    suffixIcon: expandIcon,
+                  ),
+                ),
+              ),
+            ),
           if (widget.displayLanguageSelector)
             GestureDetector(
                 onTap: () async {
@@ -154,14 +159,19 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                             seedType: isPolyseed ? SeedType.polyseed : SeedType.legacy,
                           ));
                 },
-                child: Container(
-                    color: Colors.transparent,
-                    padding: EdgeInsets.only(top: 20.0),
-                    child: IgnorePointer(
-                        child: BaseTextFormField(
-                            controller: languageController,
-                            enableInteractiveSelection: false,
-                            readOnly: true)))),
+              child: Container(
+                color: Colors.transparent,
+                padding: EdgeInsets.only(top: 20.0),
+                child: IgnorePointer(
+                  child: BaseTextFormField(
+                    controller: languageController,
+                    enableInteractiveSelection: false,
+                    readOnly: true,
+                    suffixIcon: expandIcon,
+                  ),
+                ),
+              ),
+            ),
           if (!isPolyseed && widget.displayBlockHeightSelector)
             BlockchainHeightWidget(
                 focusNode: widget.blockHeightFocusNode,
@@ -170,6 +180,17 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 hasDatePicker: widget.type == WalletType.monero),
         ]));
   }
+
+  Widget get expandIcon => Container(
+        padding: EdgeInsets.all(18),
+        width: 24,
+        height: 24,
+        child: Image.asset(
+          'assets/images/arrow_bottom_purple_icon.png',
+          height: 8,
+          color: Theme.of(context).hintColor,
+        ),
+      );
 
   void _changeLanguage(String language) {
     final setLang = isPolyseed ? "POLYSEED_$language" : language;
