@@ -9,7 +9,7 @@ import 'package:cw_core/wallet_type.dart';
 
 class PendingBitcoinTransaction with PendingTransaction {
   PendingBitcoinTransaction(this._tx, this.type,
-      {required this.electrumClient, required this.amount, required this.fee})
+      {required this.electrumClient, required this.amount, required this.fee, this.networkType})
       : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
   final WalletType type;
@@ -17,6 +17,7 @@ class PendingBitcoinTransaction with PendingTransaction {
   final ElectrumClient electrumClient;
   final int amount;
   final int fee;
+  final bitcoin.NetworkType? networkType;
 
   @override
   String get id => _tx.getId();
@@ -34,8 +35,8 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    final result =
-        await electrumClient.broadcastTransaction(transactionRaw: _tx.txHex ?? _tx.toHex());
+    final result = await electrumClient.broadcastTransaction(
+        transactionRaw: _tx.txHex ?? _tx.toHex(), networkType: networkType);
 
     if (result.isEmpty) {
       throw BitcoinCommitTransactionException();

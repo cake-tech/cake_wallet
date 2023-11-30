@@ -256,19 +256,23 @@ class ElectrumClient {
         return '';
       });
 
-  Future<String> broadcastTransaction({required String transactionRaw}) async {
-    return http
-        .post(Uri(scheme: 'https', host: 'blockstream.info', path: '/testnet/api/tx'),
-            headers: <String, String>{'Content-Type': 'application/json; charset=utf-8'},
-            body: transactionRaw)
-        .then((http.Response response) {
-      print(response.body);
-      if (response.statusCode == 200) {
-        return response.body;
-      }
+  Future<String> broadcastTransaction(
+      {required String transactionRaw, NetworkType? networkType}) async {
+    if (networkType != null && networkType.bech32 == testnet.bech32) {
+      return http
+          .post(Uri(scheme: 'https', host: 'blockstream.info', path: '/testnet/api/tx'),
+              headers: <String, String>{'Content-Type': 'application/json; charset=utf-8'},
+              body: transactionRaw)
+          .then((http.Response response) {
+        print(response.body);
+        if (response.statusCode == 200) {
+          return response.body;
+        }
 
-      return '';
-    });
+        return '';
+      });
+    }
+
     return call(method: 'blockchain.transaction.broadcast', params: [transactionRaw])
         .then((dynamic result) {
       if (result is String) {

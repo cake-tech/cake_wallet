@@ -512,7 +512,7 @@ abstract class ElectrumWalletBase
       }
 
       return PendingBitcoinTransaction(txb.build(), type,
-          electrumClient: electrumClient, amount: amount, fee: fee)
+          electrumClient: electrumClient, amount: amount, fee: fee, networkType: networkType)
         ..addListener((transaction) async {
           transactionHistory.addOne(transaction);
           await updateBalance();
