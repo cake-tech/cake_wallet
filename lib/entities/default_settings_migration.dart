@@ -384,6 +384,10 @@ Future<void> rewriteSecureStoragePin({required FlutterSecureStorage secureStorag
     return;
   }
 
+  if (encodedPin == null) {
+    return;
+  }
+
   // ensure we overwrite by deleting the old key first:
   await secureStorage.delete(key: keyForPinCode);
   await secureStorage.write(
