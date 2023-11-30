@@ -160,7 +160,7 @@
   "seed_title": "Bibit",
   "seed_share": "Bagikan bibit",
   "copy": "Salin",
-  "seed_language_choose": "Silakan pilih bahasa bibit:",
+  "seed_language": "Bahasa benih",
   "seed_choose": "Pilih bahasa bibit",
   "seed_language_next": "Selanjutnya",
   "seed_language_english": "Inggris",
@@ -570,7 +570,7 @@
   "always": "Selalu",
   "minutes_to_pin_code": "${minute} menit",
   "disable_exchange": "Nonaktifkan pertukaran",
-  "advanced_privacy_settings": "Pengaturan Privasi Lanjutan",
+  "advanced_settings": "Pengaturan lanjutan",
   "settings_can_be_changed_later": "Pengaturan ini dapat diubah nanti di pengaturan aplikasi",
   "add_custom_node": "Tambahkan Node Kustom Baru",
   "disable_fiat": "Nonaktifkan fiat",
@@ -737,5 +737,5 @@
   "seedtype_polyseed": "Polyseed (16 kata)",
   "seed_language_czech": "Ceko",
   "seed_language_korean": "Korea",
-  "seed_language_chinese_traditional": "Cina tradisional)"
+  "seed_language_chinese_traditional": "Cina (tradisional)"
 }

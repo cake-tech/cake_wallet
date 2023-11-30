@@ -160,7 +160,7 @@
   "seed_title": "Prisupni izraz",
   "seed_share": "Podijeli pristupni izraz",
   "copy": "Kopiraj",
-  "seed_language_choose": "Molimo odaberite jezik pristupnog izraza:",
+  "seed_language": "Sjemeni jezik",
   "seed_choose": "Odaberi jezik pristupnog izraza",
   "seed_language_next": "Dalje",
   "seed_language_english": "Engleski",
@@ -571,7 +571,7 @@
   "always": "Uvijek",
   "minutes_to_pin_code": "${minute} minuta",
   "disable_exchange": "Onemogući exchange",
-  "advanced_privacy_settings": "Napredne postavke privatnosti",
+  "advanced_settings": "Napredne postavke",
   "settings_can_be_changed_later": "Te se postavke mogu promijeniti kasnije u postavkama aplikacije",
   "add_custom_node": "Dodaj novi prilagođeni čvor",
   "disable_fiat": "Isključi, fiat",
@@ -747,5 +747,5 @@
   "seedtype_polyseed": "Poliseed (16 riječi)",
   "seed_language_czech": "češki",
   "seed_language_korean": "korejski",
-  "seed_language_chinese_traditional": "Kinesko tradicionalno)"
+  "seed_language_chinese_traditional": "Kinesko (tradicionalno)"
 }

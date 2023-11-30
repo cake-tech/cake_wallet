@@ -160,7 +160,7 @@
   "seed_title": "Мнемонічна фраза",
   "seed_share": "Поділитися мнемонічною фразою",
   "copy": "Скопіювати",
-  "seed_language_choose": "Будь ласка, виберіть мову мнемонічної фрази:",
+  "seed_language": "Насіннєва мова",
   "seed_choose": "Виберіть мову мнемонічної фрази",
   "seed_language_next": "Продовжити",
   "seed_language_english": "Англійська",
@@ -571,7 +571,7 @@
   "always": "Завжди",
   "minutes_to_pin_code": "${minute} хвилин",
   "disable_exchange": "Вимкнути exchange",
-  "advanced_privacy_settings": "Розширені налаштування конфіденційності",
+  "advanced_settings": "Розширені налаштування",
   "settings_can_be_changed_later": "Ці параметри можна змінити пізніше в налаштуваннях програми",
   "add_custom_node": "Додати новий спеціальний вузол",
   "disable_fiat": "Вимкнути фиат",
@@ -749,5 +749,5 @@
   "seedtype_polyseed": "Полісей (16 слів)",
   "seed_language_czech": "Чеський",
   "seed_language_korean": "Корейський",
-  "seed_language_chinese_traditional": "Китайський традиційний)"
+  "seed_language_chinese_traditional": "Китайський (традиційний)"
 }
