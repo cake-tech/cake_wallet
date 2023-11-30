@@ -32,18 +32,18 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
 
   @override
   WalletCredentials getCredentials(dynamic _options) {
-    final options = _options as List<dynamic>;
+    final options = _options as List<dynamic>?;
     switch (type) {
       case WalletType.monero:
         return monero!.createMoneroNewWalletCredentials(
-            name: name, language: options.first as String, isPolyseed: options.last as bool);
+            name: name, language: options!.first as String, isPolyseed: options.last as bool);
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name);
       case WalletType.litecoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name);
       case WalletType.haven:
         return haven!.createHavenNewWalletCredentials(
-            name: name, language: options.first as String);
+            name: name, language: options!.first as String);
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(name: name);
       case WalletType.bitcoinCash:
