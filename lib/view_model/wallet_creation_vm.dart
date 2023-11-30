@@ -39,7 +39,7 @@ abstract class WalletCreationVMBase with Store {
 
   bool typeExists(WalletType type) => walletCreationService.typeExists(type);
 
-  Future<void> create({dynamic options, RestoredWallet? restoreWallet}) async {
+  Future<void> create({dynamic options, RestoredWallet? restoreWallet, bool? isTestnet}) async {
     final type = restoreWallet?.type ?? this.type;
     try {
       state = IsExecutingState();

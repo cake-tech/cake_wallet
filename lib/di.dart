@@ -222,6 +222,7 @@ import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as btc;
 
 import 'core/totp_request_details.dart';
 import 'src/screens/settings/desktop_settings/desktop_settings_page.dart';
@@ -341,10 +342,9 @@ Future<void> setup({
       getIt.get<KeyService>(),
       (WalletType type) => getIt.get<WalletService>(param1: type)));
 
-  getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) =>
-      WalletNewVM(getIt.get<AppStore>(),
-          getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
-          type: type));
+  getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) => WalletNewVM(
+      getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
+      type: type));
 
   getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
@@ -524,7 +524,7 @@ Future<void> setup({
 
   getIt.registerFactory<DesktopSettingsPage>(() => DesktopSettingsPage());
 
-  getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>(
+  getIt.registerFactoryParam<ReceiveOptionViewModel, dynamic, void>(
       (pageOption, _) => ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, pageOption));
 
   getIt.registerFactoryParam<AnonInvoicePageViewModel, List<dynamic>, void>((args, _) {
@@ -642,7 +642,10 @@ Future<void> setup({
 
   getIt.registerFactory<MoneroAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;
-    if (wallet.type == WalletType.monero || wallet.type == WalletType.haven) {
+    if ((wallet.type == WalletType.bitcoin &&
+            wallet.walletAddresses.addressPageType == btc.AddressType.p2sp) ||
+        wallet.type == WalletType.monero ||
+        wallet.type == WalletType.haven) {
       return MoneroAccountListViewModel(wallet);
     }
     throw Exception(
@@ -900,8 +903,8 @@ Future<void> setup({
       (param1, isCreate) => NewWalletTypePage(onTypeSelected: param1, isCreate: isCreate ?? true));
 
   getIt.registerFactoryParam<PreSeedPage, WalletType, AdvancedPrivacySettingsViewModel>(
-      (WalletType type, AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel)
-      => PreSeedPage(type, advancedPrivacySettingsViewModel));
+      (WalletType type, AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel) =>
+          PreSeedPage(type, advancedPrivacySettingsViewModel));
 
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
       TradeDetailsViewModel(
@@ -995,11 +998,10 @@ Future<void> setup({
 
   getIt.registerFactory(() => YatService());
 
-  getIt.registerFactory(() =>
-      AddressResolver(
-          yatService: getIt.get<YatService>(),
-          wallet: getIt.get<AppStore>().wallet!,
-          settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerFactory(() => AddressResolver(
+      yatService: getIt.get<YatService>(),
+      wallet: getIt.get<AppStore>().wallet!,
+      settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<FullscreenQRPage, QrViewData, void>(
       (QrViewData viewData, _) => FullscreenQRPage(qrViewData: viewData));
@@ -1174,7 +1176,6 @@ Future<void> setup({
 
   getIt.registerFactory(
       () => WalletConnectConnectionsView(web3walletService: getIt.get<Web3WalletService>()));
-
 
   _isSetupFinished = true;
 }

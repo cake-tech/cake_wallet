@@ -29,6 +29,12 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
             networkType: networkType);
 
   @override
-  String getAddress({required int index, required bitcoin.HDWallet hd}) =>
+  String getAddress(
+          {required int index, required bitcoin.HDWallet hd, bitcoin.AddressType? addressType}) =>
       generateP2PKHAddress(hd: hd, index: index, networkType: networkType);
+
+  @override
+  Future<void> setAddressType(dynamic type) {
+    throw UnimplementedError();
+  }
 }

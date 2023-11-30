@@ -4,17 +4,20 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/file.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 
-class ElectrumWallletSnapshot {
-  ElectrumWallletSnapshot({
+class ElectrumWalletSnapshot {
+  ElectrumWalletSnapshot({
     required this.name,
     required this.type,
     required this.password,
     required this.mnemonic,
     required this.addresses,
     required this.balance,
+    required this.networkType,
     required this.regularAddressIndex,
-    required this.changeAddressIndex});
+    required this.changeAddressIndex,
+  });
 
   final String name;
   final String password;
@@ -23,10 +26,11 @@ class ElectrumWallletSnapshot {
   String mnemonic;
   List<BitcoinAddressRecord> addresses;
   ElectrumBalance balance;
+  bitcoin.NetworkType networkType;
   int regularAddressIndex;
   int changeAddressIndex;
 
-  static Future<ElectrumWallletSnapshot> load(String name, WalletType type, String password) async {
+  static Future<ElectrumWalletSnapshot> load(String name, WalletType type, String password) async {
     final path = await pathForWallet(name: name, type: type);
     final jsonSource = await read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
@@ -38,6 +42,7 @@ class ElectrumWallletSnapshot {
         .toList();
     final balance = ElectrumBalance.fromJSON(data['balance'] as String) ??
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
+    final networkType = data['network_type'] == 'testnet' ? bitcoin.testnet : bitcoin.bitcoin;
     var regularAddressIndex = 0;
     var changeAddressIndex = 0;
 
@@ -46,14 +51,15 @@ class ElectrumWallletSnapshot {
       changeAddressIndex = int.parse(data['change_address_index'] as String? ?? '0');
     } catch (_) {}
 
-    return ElectrumWallletSnapshot(
-      name: name,
-      type: type,
-      password: password,
-      mnemonic: mnemonic,
-      addresses: addresses,
-      balance: balance,
-      regularAddressIndex: regularAddressIndex,
-      changeAddressIndex: changeAddressIndex);
+    return ElectrumWalletSnapshot(
+        name: name,
+        type: type,
+        password: password,
+        mnemonic: mnemonic,
+        addresses: addresses,
+        balance: balance,
+        networkType: networkType,
+        regularAddressIndex: regularAddressIndex,
+        changeAddressIndex: changeAddressIndex);
   }
 }

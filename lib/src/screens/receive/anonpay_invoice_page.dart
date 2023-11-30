@@ -190,7 +190,7 @@ class AnonPayInvoicePage extends BasePage {
       return;
     }
 
-    reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
+    reaction((_) => receiveOptionViewModel.selectedReceiveOption, (dynamic option) {
       switch (option) {
         case ReceivePageOption.mainnet:
           Navigator.popAndPushNamed(context, Routes.addressPage);

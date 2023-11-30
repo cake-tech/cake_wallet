@@ -31,7 +31,7 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
 
   @override
   Future<BitcoinCashWallet> create(
-      credentials) async {
+      credentials, {bool? isTestnet}) async {
     final strength = (credentials.seedPhraseLength == 12)
         ? 128
         : (credentials.seedPhraseLength == 24)

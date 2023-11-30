@@ -22,53 +22,58 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       required String password,
       required WalletInfo walletInfo,
       required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      bitcoin.NetworkType? networkType,
       required Uint8List seedBytes,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumBalance? initialBalance,
       int initialRegularAddressIndex = 0,
-      int initialChangeAddressIndex = 0})
+      int initialChangeAddressIndex = 0,
+      bitcoin.SilentPaymentReceiver? silentAddress})
       : super(
-            mnemonic: mnemonic,
-            password: password,
-            walletInfo: walletInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
-            networkType: bitcoin.bitcoin,
-            initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            seedBytes: seedBytes,
-            currency: CryptoCurrency.btc) {
-    walletAddresses = BitcoinWalletAddresses(
-        walletInfo,
+          mnemonic: mnemonic,
+          password: password,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfo,
+          networkType: networkType ?? bitcoin.bitcoin,
+          initialAddresses: initialAddresses,
+          initialBalance: initialBalance,
+          seedBytes: seedBytes,
+          currency: CryptoCurrency.btc,
+        ) {
+    walletAddresses = BitcoinWalletAddresses(walletInfo,
         electrumClient: electrumClient,
         initialAddresses: initialAddresses,
         initialRegularAddressIndex: initialRegularAddressIndex,
         initialChangeAddressIndex: initialChangeAddressIndex,
         mainHd: hd,
-        sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-              .derivePath("m/0'/1"),
-        networkType: networkType);
+        sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
+        networkType: networkType ?? bitcoin.bitcoin,
+        silentAddress: silentAddress);
   }
 
-  static Future<BitcoinWallet> create({
-    required String mnemonic,
-    required String password,
-    required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    List<BitcoinAddressRecord>? initialAddresses,
-    ElectrumBalance? initialBalance,
-    int initialRegularAddressIndex = 0,
-    int initialChangeAddressIndex = 0
-  }) async {
+  static Future<BitcoinWallet> create(
+      {required String mnemonic,
+      required String password,
+      required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      bitcoin.NetworkType? networkType,
+      List<BitcoinAddressRecord>? initialAddresses,
+      ElectrumBalance? initialBalance,
+      int initialRegularAddressIndex = 0,
+      int initialChangeAddressIndex = 0}) async {
     return BitcoinWallet(
         mnemonic: mnemonic,
         password: password,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfo,
+        networkType: networkType,
         initialAddresses: initialAddresses,
         initialBalance: initialBalance,
         seedBytes: await mnemonicToSeedBytes(mnemonic),
         initialRegularAddressIndex: initialRegularAddressIndex,
-        initialChangeAddressIndex: initialChangeAddressIndex);
+        initialChangeAddressIndex: initialChangeAddressIndex,
+        silentAddress: await bitcoin.SilentPaymentReceiver.fromMnemonic(mnemonic,
+            hrp: networkType == bitcoin.bitcoin ? 'sp' : 'tsp'));
   }
 
   static Future<BitcoinWallet> open({
@@ -77,16 +82,19 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
-    final snp = await ElectrumWallletSnapshot.load(name, walletInfo.type, password);
+    final snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password);
     return BitcoinWallet(
         mnemonic: snp.mnemonic,
         password: password,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfo,
+        networkType: snp.networkType,
         initialAddresses: snp.addresses,
         initialBalance: snp.balance,
         seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
         initialRegularAddressIndex: snp.regularAddressIndex,
-        initialChangeAddressIndex: snp.changeAddressIndex);
+        initialChangeAddressIndex: snp.changeAddressIndex,
+        silentAddress: await bitcoin.SilentPaymentReceiver.fromMnemonic(snp.mnemonic,
+            hrp: snp.networkType == bitcoin.bitcoin ? 'sp' : 'tsp'));
   }
 }

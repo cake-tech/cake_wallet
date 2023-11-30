@@ -8,9 +8,8 @@ class AddressValidator extends TextValidator {
   AddressValidator({required CryptoCurrency type})
       : super(
             errorMessage: S.current.error_text_address,
-            useAdditionalValidation: type == CryptoCurrency.btc
-                ? bitcoin.Address.validateAddress
-                : null,
+            useAdditionalValidation:
+                type == CryptoCurrency.btc ? bitcoin.Address.validateAddress : null,
             pattern: getPattern(type),
             length: getLength(type));
 
@@ -25,7 +24,9 @@ class AddressValidator extends TextValidator {
         return '^[0-9a-zA-Z]{59}\$|^[0-9a-zA-Z]{92}\$|^[0-9a-zA-Z]{104}\$'
             '|^[0-9a-zA-Z]{105}\$|^addr1[0-9a-zA-Z]{98}\$';
       case CryptoCurrency.btc:
-        return '^3[0-9a-zA-Z]{32}\$|^3[0-9a-zA-Z]{33}\$|^bc1[0-9a-zA-Z]{59}\$';
+        final silentpayments = '^tsp1[0-9a-zA-Z]{113}\$';
+        return '${bitcoin.P2pkhAddress.REGEX.pattern}|${bitcoin.P2shAddress.REGEX.pattern}|${bitcoin.P2wpkhAddress.REGEX.pattern}|${bitcoin.P2trAddress.REGEX.pattern}|$silentpayments';
+      case CryptoCurrency.nano:
       case CryptoCurrency.nano:
         return '[0-9a-zA-Z_]';
       case CryptoCurrency.banano:
@@ -88,7 +89,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.dai:
       case CryptoCurrency.dash:
       case CryptoCurrency.eos:
-      return '[0-9a-zA-Z]';
+        return '[0-9a-zA-Z]';
       case CryptoCurrency.bch:
         return '^(?!bitcoincash:)[0-9a-zA-Z]*\$|^(?!bitcoincash:)q[0-9a-zA-Z]{41}\$|^(?!bitcoincash:)q[0-9a-zA-Z]{42}\$|^bitcoincash:q[0-9a-zA-Z]{41}\$|^bitcoincash:q[0-9a-zA-Z]{42}\$';
       case CryptoCurrency.bnb:
@@ -285,3 +286,4 @@ class AddressValidator extends TextValidator {
     }
   }
 }
+

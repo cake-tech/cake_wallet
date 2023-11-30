@@ -734,5 +734,8 @@
   "seed_phrase_length": "Lunghezza della frase seed",
   "unavailable_balance": "Saldo non disponibile",
   "unavailable_balance_description": "Saldo non disponibile: questo totale include i fondi bloccati nelle transazioni in sospeso e quelli che hai congelato attivamente nelle impostazioni di controllo delle monete. I saldi bloccati diventeranno disponibili una volta completate le rispettive transazioni, mentre i saldi congelati rimarranno inaccessibili per le transazioni finché non deciderai di sbloccarli.",
-  "unspent_change": "Modifica"
+  "unspent_change": "Modifica",
+  "Block_remaining": "${status} blocco rimanente",
+  "labeled_silent_addresses": "Indirizzi silenziosi etichettati",
+  "use_testnet": "Usa TestNet"
 }

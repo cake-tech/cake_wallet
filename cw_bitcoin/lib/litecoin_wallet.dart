@@ -81,7 +81,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
-    final snp = await ElectrumWallletSnapshot.load (name, walletInfo.type, password);
+    final snp = await ElectrumWalletSnapshot.load (name, walletInfo.type, password);
     return LitecoinWallet(
         mnemonic: snp.mnemonic,
         password: password,

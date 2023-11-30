@@ -19,7 +19,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
   final Box<WalletInfo> walletInfoSource;
 
   @override
-  Future<EthereumWallet> create(EthereumNewWalletCredentials credentials) async {
+  Future<EthereumWallet> create(EthereumNewWalletCredentials credentials, {bool? isTestnet}) async {
 
     final strength = (credentials.seedPhraseLength == 12)
         ? 128

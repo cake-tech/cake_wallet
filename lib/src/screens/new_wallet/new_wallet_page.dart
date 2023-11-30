@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/routes.dart';
@@ -125,15 +126,20 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               hintStyle: TextStyle(
                                   fontSize: 18.0,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor),
+                                  color:
+                                      Theme.of(context).extension<NewWalletTheme>()!.hintTextColor),
                               hintText: S.of(context).wallet_name,
                               focusedBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
+                                      color: Theme.of(context)
+                                          .extension<NewWalletTheme>()!
+                                          .underlineColor,
                                       width: 1.0)),
                               enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
                                     width: 1.0),
                               ),
                               suffixIcon: Semantics(
@@ -160,7 +166,9 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                     height: 34,
                                     child: Image.asset(
                                       'assets/images/refresh_icon.png',
-                                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
+                                      color: Theme.of(context)
+                                          .extension<SendPageTheme>()!
+                                          .textFieldButtonIconColor,
                                     ),
                                   ),
                                 ),
@@ -168,6 +176,12 @@ class _WalletNameFormState extends State<WalletNameForm> {
                             ),
                             validator: WalletNameValidator(),
                           ),
+                          Observer(builder: (context) {
+                            return SettingsSwitcherCell(
+                                title: S.current.use_testnet,
+                                value: widget._walletNewVM.useTestnet,
+                                onValueChange: (_, __) => widget._walletNewVM.toggleUseTestnet());
+                          }),
                         ],
                       ),
                     ),

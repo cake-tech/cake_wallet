@@ -96,7 +96,7 @@ dependencies:
   bitcoin_flutter:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git
-      ref: cake-update-v3
+      ref: silent-payments
   fluttertoast: 8.1.4
 
 dev_dependencies:

@@ -31,6 +31,7 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 
 part 'dashboard_view_model.g.dart';
 
@@ -260,7 +261,11 @@ abstract class DashboardViewModelBase with Store {
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
-  bool get hasRescan => wallet.type == WalletType.monero || wallet.type == WalletType.haven;
+  bool get hasRescan =>
+      (wallet.type == WalletType.bitcoin &&
+          wallet.walletAddresses.addressPageType == bitcoin.AddressType.p2sp) ||
+      wallet.type == WalletType.monero ||
+      wallet.type == WalletType.haven;
 
   BalanceViewModel balanceViewModel;
 

@@ -88,4 +88,9 @@ abstract class HavenWalletAddressesBase extends WalletAddressesWithAccount<Accou
   @override
   bool containsAddress(String address) =>
       addressInfos[account?.id ?? 0]?.any((it) => it.address == address) ?? false;
+
+  @override
+  Future<void> setAddressType(dynamic type) {
+    throw UnimplementedError();
+  }
 }

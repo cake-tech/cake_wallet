@@ -71,6 +71,7 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as btc;
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
@@ -87,12 +88,15 @@ abstract class Bitcoin {
   TransactionPriority deserializeBitcoinTransactionPriority(int raw);
   TransactionPriority deserializeLitecoinTransactionPriority(int raw);
   int getFeeRate(Object wallet, TransactionPriority priority);
-  Future<void> generateNewAddress(Object wallet);
+  Future<void> generateNewAddress(Object wallet, {String? label});
   Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate});
   Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs, {TransactionPriority? priority, required int feeRate});
 
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
+  String getReceiveAddress(Object wallet);
+  btc.SilentPaymentAddress? getSilentAddress(Object wallet);
+	List<BitcoinAddressRecord> getSilentAddresses(Object wallet);
 
   String formatterBitcoinAmountToString({required int amount});
   double formatterBitcoinAmountToDouble({required int amount});

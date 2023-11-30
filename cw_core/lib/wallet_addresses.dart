@@ -3,8 +3,8 @@ import 'package:cw_core/wallet_info.dart';
 
 abstract class WalletAddresses {
   WalletAddresses(this.walletInfo)
-    : addressesMap = {},
-      addressInfos = {};
+      : addressesMap = {},
+        addressInfos = {};
 
   final WalletInfo walletInfo;
 
@@ -38,4 +38,7 @@ abstract class WalletAddresses {
   }
 
   bool containsAddress(String address) => addressesMap.containsKey(address);
+
+  dynamic addressPageType;
+  Future<void> setAddressType(dynamic type);
 }

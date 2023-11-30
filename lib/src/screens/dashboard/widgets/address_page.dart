@@ -28,6 +28,7 @@ import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 
 class AddressPage extends BasePage {
   AddressPage({
@@ -70,7 +71,7 @@ class AddressPage extends BasePage {
       size: 16,
     );
     final _closeButton =
-    currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
+        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -161,10 +162,10 @@ class AddressPage extends BasePage {
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList) {
                   return GestureDetector(
-                    onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled
+                    onTap: () async => !addressListViewModel.hasSilentAddresses &&
+                            dashboardViewModel.isAutoGenerateSubaddressesEnabled
                         ? await showPopUp<void>(
-                        context: context,
-                        builder: (_) => getIt.get<MoneroAccountListPage>())
+                            context: context, builder: (_) => getIt.get<MoneroAccountListPage>())
                         : Navigator.of(context).pushNamed(Routes.receive),
                     child: Container(
                       height: 50,
@@ -184,26 +185,30 @@ class AddressPage extends BasePage {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           Observer(
-                              builder: (_) {
-                                String label = addressListViewModel.hasAccounts
-                                    ? S.of(context).accounts_subaddresses
-                                    : S.of(context).addresses;
+                            builder: (_) {
+                              String label = addressListViewModel.hasSilentAddresses
+                                  ? S.of(context).labeled_silent_addresses
+                                  : addressListViewModel.hasAccounts
+                                      ? S.of(context).accounts_subaddresses
+                                      : S.of(context).addresses;
 
-                                if (dashboardViewModel.isAutoGenerateSubaddressesEnabled) {
-                                  label = addressListViewModel.hasAccounts
-                                      ? S.of(context).accounts
-                                      : S.of(context).account;
-                                }
-                                return Text(
-                                  label,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: Theme.of(context)
-                                            .extension<SyncIndicatorTheme>()!
-                                            .textColor),
-                                );
-                              },),
+                              if (!addressListViewModel.hasSilentAddresses &&
+                                  dashboardViewModel.isAutoGenerateSubaddressesEnabled) {
+                                label = addressListViewModel.hasAccounts
+                                    ? S.of(context).accounts
+                                    : S.of(context).account;
+                              }
+                              return Text(
+                                label,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context)
+                                        .extension<SyncIndicatorTheme>()!
+                                        .textColor),
+                              );
+                            },
+                          ),
                           Icon(
                             Icons.arrow_forward_ios,
                             size: 14,
@@ -213,7 +218,8 @@ class AddressPage extends BasePage {
                       ),
                     ),
                   );
-                } else if (dashboardViewModel.isAutoGenerateSubaddressesEnabled || addressListViewModel.showElectrumAddressDisclaimer) {
+                } else if (dashboardViewModel.isAutoGenerateSubaddressesEnabled ||
+                    addressListViewModel.showElectrumAddressDisclaimer) {
                   return Text(S.of(context).electrum_address_disclaimer,
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -233,7 +239,7 @@ class AddressPage extends BasePage {
       return;
     }
 
-    reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
+    reaction((_) => receiveOptionViewModel.selectedReceiveOption, (dynamic option) async {
       switch (option) {
         case ReceivePageOption.anonPayInvoice:
           Navigator.pushNamed(
@@ -264,6 +270,12 @@ class AddressPage extends BasePage {
               arguments: [addressListViewModel.address.address, option],
             );
           }
+          break;
+        case bitcoin.AddressType.p2pkh:
+        case bitcoin.AddressType.p2wpkh:
+        case bitcoin.AddressType.p2tr:
+        case bitcoin.AddressType.p2sp:
+          await addressListViewModel.setAddressType(option);
           break;
         default:
       }
