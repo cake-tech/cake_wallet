@@ -6,12 +6,11 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_ethereum/ethereum_mnemonics.dart';
-import 'package:bip39/bip39.dart' as bip39;
-import 'package:collection/collection.dart';
 import 'package:cw_polygon/polygon_wallet.dart';
+import 'package:bip39/bip39.dart' as bip39;
 import 'package:hive/hive.dart';
-
 import 'polygon_wallet_creation_credentials.dart';
+import 'package:collection/collection.dart';
 
 class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
     PolygonRestoreWalletFromSeedCredentials, PolygonRestoreWalletFromPrivateKey> {
@@ -21,7 +20,13 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
 
   @override
   Future<PolygonWallet> create(PolygonNewWalletCredentials credentials) async {
-    final mnemonic = bip39.generateMnemonic();
+    final strength = (credentials.seedPhraseLength == 12)
+        ? 128
+        : (credentials.seedPhraseLength == 24)
+            ? 256
+            : 128;
+
+    final mnemonic = bip39.generateMnemonic(strength: strength);
     final wallet = PolygonWallet(
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,

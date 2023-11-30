@@ -39,8 +39,7 @@ part 'send_view_model.g.dart';
 
 class SendViewModel = SendViewModelBase with _$SendViewModel;
 
-abstract class SendViewModelBase extends WalletChangeListenerViewModel
-    with Store {
+abstract class SendViewModelBase extends WalletChangeListenerViewModel with Store {
   @override
   void onWalletChange(wallet) {
     currencies = wallet.balance.keys.toList();
@@ -66,13 +65,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
     final priority = _settingsStore.priority[wallet.type];
     final priorities = priorityForWalletType(wallet.type);
 
-    if (!priorityForWalletType(wallet.type).contains(priority) &&
-        priorities.isNotEmpty) {
+    if (!priorityForWalletType(wallet.type).contains(priority) && priorities.isNotEmpty) {
       _settingsStore.priority[wallet.type] = priorities.first;
     }
 
-    outputs.add(Output(wallet, _settingsStore, _fiatConversationStore,
-        () => selectedCryptoCurrency));
+    outputs
+        .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
   }
 
   @observable
@@ -82,8 +80,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
 
   @action
   void addOutput() {
-    outputs.add(Output(wallet, _settingsStore, _fiatConversationStore,
-        () => selectedCryptoCurrency));
+    outputs
+        .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
   }
 
   @action
@@ -122,9 +120,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
   String get pendingTransactionFeeFiatAmount {
     try {
       if (pendingTransaction != null) {
-        final currency = isEVMCompatibleChain(walletType)
-            ? wallet.currency
-            : selectedCryptoCurrency;
+        final currency =
+            isEVMCompatibleChain(walletType) ? wallet.currency : selectedCryptoCurrency;
         final fiat = calculateFiatAmount(
             price: _fiatConversationStore.prices[currency]!,
             cryptoAmount: pendingTransaction!.feeFormatted);
@@ -156,8 +153,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
 
   Validator<String> get allAmountValidator => AllAmountValidator();
 
-  Validator<String> get addressValidator =>
-      AddressValidator(type: selectedCryptoCurrency);
+  Validator<String> get addressValidator => AddressValidator(type: selectedCryptoCurrency);
 
   Validator<String> get textValidator => TextValidator();
 
@@ -167,8 +163,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
   PendingTransaction? pendingTransaction;
 
   @computed
-  String get balance =>
-      wallet.balance[selectedCryptoCurrency]!.formattedAvailableBalance;
+  String get balance => wallet.balance[selectedCryptoCurrency]!.formattedAvailableBalance;
 
   @computed
   bool get isFiatDisabled => balanceViewModel.isFiatDisabled;
@@ -203,22 +198,19 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
       wallet.type == WalletType.bitcoinCash;
 
   @computed
-  bool get hasFees =>
-      wallet.type != WalletType.nano && wallet.type != WalletType.banano;
+  bool get hasFees => wallet.type != WalletType.nano && wallet.type != WalletType.banano;
 
   @observable
   CryptoCurrency selectedCryptoCurrency;
 
   List<CryptoCurrency> currencies;
 
-  bool get hasYat => outputs.any((out) =>
-      out.isParsedAddress &&
-      out.parsedAddress.parseFrom == ParseFrom.yatRecord);
+  bool get hasYat => outputs
+      .any((out) => out.isParsedAddress && out.parsedAddress.parseFrom == ParseFrom.yatRecord);
 
   WalletType get walletType => wallet.type;
 
-  String? get walletCurrencyName =>
-      wallet.currency.fullName?.toLowerCase() ?? wallet.currency.name;
+  String? get walletCurrencyName => wallet.currency.fullName?.toLowerCase() ?? wallet.currency.name;
 
   bool get hasCurrecyChanger => walletType == WalletType.haven;
 
@@ -241,31 +233,27 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
       .toList();
 
   @computed
-  List<WalletContact> get walletContactsToShow =>
-      contactListViewModel.walletContacts
-          .where((element) => element.type == selectedCryptoCurrency)
-          .toList();
+  List<WalletContact> get walletContactsToShow => contactListViewModel.walletContacts
+      .where((element) => element.type == selectedCryptoCurrency)
+      .toList();
 
   @action
   bool checkIfAddressIsAContact(String address) {
-    final contactList =
-        contactsToShow.where((element) => element.address == address).toList();
+    final contactList = contactsToShow.where((element) => element.address == address).toList();
 
     return contactList.isNotEmpty;
   }
 
   @action
   bool checkIfWalletIsAnInternalWallet(String address) {
-    final walletContactList = walletContactsToShow
-        .where((element) => element.address == address)
-        .toList();
+    final walletContactList =
+        walletContactsToShow.where((element) => element.address == address).toList();
 
     return walletContactList.isNotEmpty;
   }
 
   @computed
-  bool get shouldDisplayTOTP2FAForContact =>
-      _settingsStore.shouldRequireTOTP2FAForSendsToContact;
+  bool get shouldDisplayTOTP2FAForContact => _settingsStore.shouldRequireTOTP2FAForSendsToContact;
 
   @computed
   bool get shouldDisplayTOTP2FAForNonContact =>
@@ -316,8 +304,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
   @action
   Future<void> commitTransaction() async {
     if (pendingTransaction == null) {
-      throw Exception(
-          "Pending transaction doesn't exist. It should not be happened.");
+      throw Exception("Pending transaction doesn't exist. It should not be happened.");
     }
 
     String address = outputs.fold('', (acc, value) {
@@ -345,17 +332,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
       if (pendingTransaction!.id.isNotEmpty) {
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
-                id: pendingTransaction!.id,
-                recipientAddress: address,
-                transactionNote: note))
-            : await transactionDescriptionBox.add(TransactionDescription(
-                id: pendingTransaction!.id, transactionNote: note));
+                id: pendingTransaction!.id, recipientAddress: address, transactionNote: note))
+            : await transactionDescriptionBox
+                .add(TransactionDescription(id: pendingTransaction!.id, transactionNote: note));
       }
 
       state = TransactionCommitted();
     } catch (e) {
-      String translatedError =
-          translateErrorMessage(e.toString(), wallet.type, wallet.currency);
+      String translatedError = translateErrorMessage(e.toString(), wallet.type, wallet.currency);
       state = FailureState(translatedError);
     }
   }
@@ -375,18 +359,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        return bitcoin!
-            .createBitcoinTransactionCredentials(outputs, priority: priority!);
+        return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority!);
 
       case WalletType.monero:
-        return monero!.createMoneroTransactionCreationCredentials(
-            outputs: outputs, priority: priority!);
+        return monero!
+            .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
 
       case WalletType.haven:
         return haven!.createHavenTransactionCreationCredentials(
-            outputs: outputs,
-            priority: priority!,
-            assetType: selectedCryptoCurrency.title);
+            outputs: outputs, priority: priority!, assetType: selectedCryptoCurrency.title);
 
       case WalletType.ethereum:
         return ethereum!.createEthereumTransactionCredentials(outputs,
@@ -412,8 +393,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
     return priority.toString();
   }
 
-  bool _isEqualCurrency(String currency) => wallet.balance.keys
-      .any((e) => currency.toLowerCase() == e.title.toLowerCase());
+  bool _isEqualCurrency(String currency) =>
+      wallet.balance.keys.any((e) => currency.toLowerCase() == e.title.toLowerCase());
 
   @action
   void onClose() => _settingsStore.fiatCurrency = fiatFromSettings;
@@ -424,8 +405,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
   @action
   void setSelectedCryptoCurrency(String cryptoCurrency) {
     try {
-      selectedCryptoCurrency = wallet.balance.keys.firstWhere(
-          (e) => cryptoCurrency.toLowerCase() == e.title.toLowerCase());
+      selectedCryptoCurrency = wallet.balance.keys
+          .firstWhere((e) => cryptoCurrency.toLowerCase() == e.title.toLowerCase());
     } catch (e) {
       selectedCryptoCurrency = wallet.currency;
     }

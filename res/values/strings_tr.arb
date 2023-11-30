@@ -747,5 +747,6 @@
   "seedtype_polyseed": "Polyseed (16 kelime)",
   "seed_language_czech": "Çek",
   "seed_language_korean": "Koreli",
-  "seed_language_chinese_traditional": "Çin geleneği)"
+  "seed_language_chinese_traditional": "Çin geleneği)",
+  "polygonscan_history": "PolygonScan geçmişi"
 }

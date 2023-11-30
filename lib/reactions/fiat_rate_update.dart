@@ -7,6 +7,7 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
@@ -34,26 +35,18 @@ Future<void> startFiatRateUpdate(
                 torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
       }
 
+      Iterable<Erc20Token>? currencies;
       if (appStore.wallet!.type == WalletType.ethereum) {
-        final currencies =
-                ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
-
-        for (final currency in currencies) {
-          () async {
-            fiatConversionStore.prices[currency] =
-                await FiatConversionService.fetchPrice(
-                    crypto: currency,
-                    fiat: settingsStore.fiatCurrency,
-                    torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
-          }.call();
-        }
+        currencies =
+            ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
       }
 
       if (appStore.wallet!.type == WalletType.polygon) {
-        final currencies = polygon!
-            .getERC20Currencies(appStore.wallet!)
-            .where((element) => element.enabled);
+        currencies =
+            polygon!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+      }
 
+      if (currencies != null) {
         for (final currency in currencies) {
           () async {
             fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(

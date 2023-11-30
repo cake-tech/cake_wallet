@@ -11,7 +11,7 @@ class DefaultPolygonErc20Tokens {
       enabled: false,
     ),
     Erc20Token(
-      name: "(PoS) Tether USD",
+      name: "Tether USD (PoS)",
       symbol: "USDT",
       contractAddress: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
       decimal: 6,
@@ -32,14 +32,14 @@ class DefaultPolygonErc20Tokens {
       enabled: true,
     ),
     Erc20Token(
-      name: "(PoS) Wrapped BTC",
+      name: "Wrapped BTC (PoS)",
       symbol: "WBTC",
       contractAddress: "0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6",
       decimal: 8,
       enabled: false,
     ),
     Erc20Token(
-      name: "(PoS) Dai",
+      name: "Dai (PoS)",
       symbol: "DAI",
       contractAddress: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
       decimal: 18,

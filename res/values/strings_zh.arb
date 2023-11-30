@@ -748,5 +748,6 @@
   "seedtype_polyseed": "多种物品（16个单词）",
   "seed_language_czech": "捷克",
   "seed_language_korean": "韩国人",
-  "seed_language_chinese_traditional": "中国传统的）"
+  "seed_language_chinese_traditional": "中国传统的）",
+  "polygonscan_history": "多边形扫描历史"
 }

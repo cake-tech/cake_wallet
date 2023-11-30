@@ -35,14 +35,14 @@ class CWPolygon extends Polygon {
 
   @override
   String getPrivateKey(WalletBase wallet) {
-    final privateKeyHolder = (wallet as PolygonWallet).ethPrivateKey;
+    final privateKeyHolder = (wallet as PolygonWallet).polygonPrivateKey;
     String stringKey = bytesToHex(privateKeyHolder.privateKey);
     return stringKey;
   }
 
   @override
   String getPublicKey(WalletBase wallet) {
-    final privateKeyInUnitInt = (wallet as PolygonWallet).ethPrivateKey;
+    final privateKeyInUnitInt = (wallet as PolygonWallet).polygonPrivateKey;
     final publicKey = privateKeyInUnitInt.address.hex;
     return publicKey;
   }
@@ -145,8 +145,8 @@ class CWPolygon extends Polygon {
   }
 
   @override
-  void updateEtherscanUsageState(WalletBase wallet, bool isEnabled) {
-    (wallet as PolygonWallet).updateEtherscanUsageState(isEnabled);
+  void updatePolygonScanUsageState(WalletBase wallet, bool isEnabled) {
+    (wallet as PolygonWallet).updatePolygonScanUsageState(isEnabled);
   }
 
   @override

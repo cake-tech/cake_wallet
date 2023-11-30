@@ -12,8 +12,7 @@ import 'package:mobx/mobx.dart';
 
 part 'home_settings_view_model.g.dart';
 
-class HomeSettingsViewModel = HomeSettingsViewModelBase
-    with _$HomeSettingsViewModel;
+class HomeSettingsViewModel = HomeSettingsViewModelBase with _$HomeSettingsViewModel;
 
 abstract class HomeSettingsViewModelBase with Store {
   HomeSettingsViewModelBase(this._settingsStore, this._balanceViewModel)
@@ -42,8 +41,7 @@ abstract class HomeSettingsViewModelBase with Store {
   bool get pinNativeToken => _settingsStore.pinNativeTokenAtTop;
 
   @action
-  void setPinNativeToken(bool value) =>
-      _settingsStore.pinNativeTokenAtTop = value;
+  void setPinNativeToken(bool value) => _settingsStore.pinNativeTokenAtTop = value;
 
   Future<void> addErc20Token(Erc20Token token) async {
     if (_balanceViewModel.wallet.type == WalletType.ethereum) {
@@ -57,11 +55,6 @@ abstract class HomeSettingsViewModelBase with Store {
     _updateTokensList();
     _updateFiatPrices(token);
   }
-
-  // _updateData(Erc20Token token) {
-  //   _updateTokensList();
-  //   _updateFiatPrices(token);
-  // }
 
   Future<void> deleteErc20Token(Erc20Token token) async {
     if (_balanceViewModel.wallet.type == WalletType.ethereum) {
@@ -77,13 +70,11 @@ abstract class HomeSettingsViewModelBase with Store {
 
   Future<Erc20Token?> getErc20Token(String contractAddress) async {
     if (_balanceViewModel.wallet.type == WalletType.ethereum) {
-      return await ethereum!
-          .getErc20Token(_balanceViewModel.wallet, contractAddress);
+      return await ethereum!.getErc20Token(_balanceViewModel.wallet, contractAddress);
     }
 
     if (_balanceViewModel.wallet.type == WalletType.polygon) {
-      return await polygon!
-          .getErc20Token(_balanceViewModel.wallet, contractAddress);
+      return await polygon!.getErc20Token(_balanceViewModel.wallet, contractAddress);
     }
 
     return null;
@@ -115,10 +106,8 @@ abstract class HomeSettingsViewModelBase with Store {
   @action
   void _updateTokensList() {
     int _sortFunc(Erc20Token e1, Erc20Token e2) {
-      int index1 = _balanceViewModel.formattedBalances
-          .indexWhere((element) => element.asset == e1);
-      int index2 = _balanceViewModel.formattedBalances
-          .indexWhere((element) => element.asset == e2);
+      int index1 = _balanceViewModel.formattedBalances.indexWhere((element) => element.asset == e1);
+      int index2 = _balanceViewModel.formattedBalances.indexWhere((element) => element.asset == e2);
 
       if (e1.enabled && !e2.enabled) {
         return -1;

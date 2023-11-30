@@ -123,14 +123,13 @@ class EthereumClient {
     );
   }
 
-  int? _getChainIdForCurrency(CryptoCurrency currency) {
+  int _getChainIdForCurrency(CryptoCurrency currency) {
     switch (currency) {
-      case CryptoCurrency.eth:
-        return 1;
       case CryptoCurrency.matic:
         return 137;
+      case CryptoCurrency.eth:
       default:
-        return null;
+        return 1;
     }
   }
 

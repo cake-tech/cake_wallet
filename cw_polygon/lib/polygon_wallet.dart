@@ -26,6 +26,7 @@ import 'package:cw_polygon/polygon_formatter.dart';
 import 'package:cw_polygon/polygon_transaction_credentials.dart';
 import 'package:cw_polygon/polygon_transaction_history.dart';
 import 'package:cw_polygon/polygon_transaction_info.dart';
+import 'package:cw_polygon/polygon_transaction_model.dart';
 import 'package:cw_polygon/polygon_transaction_priority.dart';
 import 'package:cw_polygon/polygon_wallet_addresses.dart';
 import 'package:hive/hive.dart';
@@ -77,9 +78,9 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
 
   late final Box<Erc20Token> polygonErc20TokensBox;
 
-  late final EthPrivateKey _ethPrivateKey;
+  late final EthPrivateKey _polygonPrivateKey;
 
-  EthPrivateKey get ethPrivateKey => _ethPrivateKey;
+  EthPrivateKey get polygonPrivateKey => _polygonPrivateKey;
 
   late PolygonClient _client;
 
@@ -108,12 +109,12 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
         await CakeHive.openBox<Erc20Token>(Erc20Token.polygonBoxName);
     await walletAddresses.init();
     await transactionHistory.init();
-    _ethPrivateKey = await getPrivateKey(
+    _polygonPrivateKey = await getPrivateKey(
       mnemonic: _mnemonic,
       privateKey: _hexPrivateKey,
       password: _password,
     );
-    walletAddresses.address = _ethPrivateKey.address.toString();
+    walletAddresses.address = _polygonPrivateKey.address.toString();
     await save();
   }
 
@@ -155,7 +156,7 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
         throw Exception("Polygon Node connection failed");
       }
 
-      _client.setListeners(_ethPrivateKey.address, _onNewTransaction);
+      _client.setListeners(_polygonPrivateKey.address, _onNewTransaction);
 
       _setTransactionUpdateTimer();
 
@@ -219,7 +220,7 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
     }
 
     final pendingPolygonTransaction = await _client.signTransaction(
-      privateKey: _ethPrivateKey,
+      privateKey: _polygonPrivateKey,
       toAddress: _credentials.outputs.first.isParsedAddress
           ? _credentials.outputs.first.extractedAddress!
           : _credentials.outputs.first.address,
@@ -241,9 +242,8 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
       if (_isTransactionUpdating) {
         return;
       }
-      bool isEtherscanEnabled =
-          (await _sharedPrefs.future).getBool("use_etherscan") ?? true;
-      if (!isEtherscanEnabled) {
+      bool isPolygonScanEnabled = (await _sharedPrefs.future).getBool("use_polygonscan") ?? true;
+      if (!isPolygonScanEnabled) {
         return;
       }
 
@@ -259,22 +259,22 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
 
   @override
   Future<Map<String, PolygonTransactionInfo>> fetchTransactions() async {
-    final address = _ethPrivateKey.address.hex;
+    final address = _polygonPrivateKey.address.hex;
     final transactions = await _client.fetchTransactions(address);
 
-    final List<Future<List<EthereumTransactionModel>>> erc20TokensTransactions =
+    final List<Future<List<PolygonTransactionModel>>> polygonErc20TokensTransactions =
         [];
 
     for (var token in balance.keys) {
       if (token is Erc20Token) {
-        erc20TokensTransactions.add(_client.fetchTransactions(
+        polygonErc20TokensTransactions.add(_client.fetchTransactions(
           address,
           contractAddress: token.contractAddress,
-        ));
+        ) as Future<List<PolygonTransactionModel>>);
       }
     }
 
-    final tokensTransaction = await Future.wait(erc20TokensTransactions);
+    final tokensTransaction = await Future.wait(polygonErc20TokensTransactions);
     transactions.addAll(tokensTransaction.expand((element) => element));
 
     final Map<String, PolygonTransactionInfo> result = {};
@@ -297,7 +297,7 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
         ethFee:
             BigInt.from(transactionModel.gasUsed) * transactionModel.gasPrice,
         exponent: transactionModel.tokenDecimal ?? 18,
-        tokenSymbol: transactionModel.tokenSymbol ?? "ETH",
+        tokenSymbol: transactionModel.tokenSymbol ?? "MATIC",
         to: transactionModel.to,
       );
     }
@@ -325,7 +325,7 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
   String? get seed => _mnemonic;
 
   @override
-  String get privateKey => HEX.encode(_ethPrivateKey.privateKey);
+  String get privateKey => HEX.encode(_polygonPrivateKey.privateKey);
 
   @action
   @override
@@ -387,7 +387,7 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
   }
 
   Future<ERC20Balance> _fetchMaticBalance() async {
-    final balance = await _client.getBalance(_ethPrivateKey.address);
+    final balance = await _client.getBalance(_polygonPrivateKey.address);
     return ERC20Balance(balance.getInWei);
   }
 
@@ -396,7 +396,7 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
       try {
         if (token.enabled) {
           balance[token] = await _client.fetchERC20Balances(
-            _ethPrivateKey.address,
+            _polygonPrivateKey.address,
             token.contractAddress,
           );
         } else {
@@ -452,7 +452,7 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
 
     if (_token.enabled) {
       balance[_token] = await _client.fetchERC20Balances(
-        _ethPrivateKey.address,
+        _polygonPrivateKey.address,
         _token.contractAddress,
       );
     } else {
@@ -523,7 +523,7 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
     });
   }
 
-  void updateEtherscanUsageState(bool isEnabled) {
+  void updatePolygonScanUsageState(bool isEnabled) {
     if (isEnabled) {
       _updateTransactions();
       _setTransactionUpdateTimer();
@@ -534,7 +534,7 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
 
   @override
   String signMessage(String message, {String? address = null}) => bytesToHex(
-      _ethPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
+      _polygonPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
 
   Web3Client? getWeb3Client() => _client.getWeb3Client();
 }

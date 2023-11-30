@@ -642,7 +642,7 @@ abstract class Polygon {
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
   
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
-  void updateEtherscanUsageState(WalletBase wallet, bool isEnabled);
+  void updatePolygonScanUsageState(WalletBase wallet, bool isEnabled);
   Web3Client? getWeb3Client(WalletBase wallet);
 }
   """;
@@ -1008,6 +1008,10 @@ Future<void> generateWalletTypes(
     outputContent += '\tWalletType.bitcoinCash,\n';
   }
 
+  if (hasPolygon) {
+    outputContent += '\tWalletType.polygon,\n';
+  }
+
   if (hasNano) {
     outputContent += '\tWalletType.nano,\n';
   }
@@ -1018,10 +1022,6 @@ Future<void> generateWalletTypes(
 
   if (hasHaven) {
     outputContent += '\tWalletType.haven,\n';
-  }
-
-  if (hasPolygon) {
-    outputContent += '\tWalletType.polygon,\n';
   }
 
   outputContent += '];\n';
