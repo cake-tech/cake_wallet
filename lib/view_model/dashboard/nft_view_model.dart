@@ -49,6 +49,7 @@ abstract class NFTViewModelBase with Store {
     // the [normalizedMetadata] field is a boolean that determines if
     // the response would include a json string of the NFT Metadata that can be decoded
     // and used within the wallet
+    // the [excludeSpam] field is a boolean that determines if spam nfts be excluded from the response.
     final uri = Uri.https(
       'deep-index.moralis.io',
       '/api/v2.2/$walletAddress/nft',
@@ -56,6 +57,7 @@ abstract class NFTViewModelBase with Store {
         "chain": chainName,
         "format": "decimal",
         "media_items": "false",
+        "exclude_spam": "true",
         "normalizeMetadata": "true",
       },
     );
