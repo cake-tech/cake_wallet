@@ -194,7 +194,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                         builder: (BuildContext build) => Padding(
                           padding: EdgeInsets.only(top: 24),
                           child: SelectButton(
-                            text: widget._settingsStore.moneroSeedType.title,
+                            text: widget._settingsStore.moneroSeedType.toString(),
                             onTap: () async {
                               await showPopUp<void>(
                                 context: context,
