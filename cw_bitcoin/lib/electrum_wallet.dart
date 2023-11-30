@@ -465,11 +465,12 @@ abstract class ElectrumWalletBase
         final outputAmount = hasMultiDestination ? item.formattedCryptoAmount : amount;
         final outputAddress = item.isParsedAddress ? item.extractedAddress! : item.address;
 
-        // TODO: silent payments regex
-        if (outputAddress.startsWith('tsp1')) {
+        if (bitcoin.SilentPaymentAddress.REGEX.hasMatch(outputAddress)) {
+          // Add all silent payment destinations to a list and generate outputs later
           silentPaymentDestinations
               .add(bitcoin.SilentPaymentDestination.fromAddress(outputAddress, outputAmount!));
         } else {
+          // Add all non-silent payment destinations to the transaction
           txb.addOutput(addressToOutputScript(outputAddress, networkType), outputAmount!);
         }
       });

@@ -24,8 +24,7 @@ class AddressValidator extends TextValidator {
         return '^[0-9a-zA-Z]{59}\$|^[0-9a-zA-Z]{92}\$|^[0-9a-zA-Z]{104}\$'
             '|^[0-9a-zA-Z]{105}\$|^addr1[0-9a-zA-Z]{98}\$';
       case CryptoCurrency.btc:
-        final silentpayments = '^tsp1[0-9a-zA-Z]{113}\$';
-        return '${bitcoin.P2pkhAddress.REGEX.pattern}|${bitcoin.P2shAddress.REGEX.pattern}|${bitcoin.P2wpkhAddress.REGEX.pattern}|${bitcoin.P2trAddress.REGEX.pattern}|$silentpayments';
+        return '${bitcoin.P2pkhAddress.REGEX.pattern}|${bitcoin.P2shAddress.REGEX.pattern}|${bitcoin.P2wpkhAddress.REGEX.pattern}|${bitcoin.P2trAddress.REGEX.pattern}|${bitcoin.SilentPaymentAddress.REGEX.pattern}';
       case CryptoCurrency.nano:
       case CryptoCurrency.nano:
         return '[0-9a-zA-Z_]';
@@ -286,4 +285,3 @@ class AddressValidator extends TextValidator {
     }
   }
 }
-
