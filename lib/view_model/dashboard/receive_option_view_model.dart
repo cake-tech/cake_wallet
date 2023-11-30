@@ -20,10 +20,10 @@ abstract class ReceiveOptionViewModelBase with Store {
         ? [ReceivePageOption.mainnet]
         : walletType == WalletType.bitcoin
             ? [
-                bitcoin.AddressType.p2pkh,
                 bitcoin.AddressType.p2wpkh,
-                bitcoin.AddressType.p2tr,
                 bitcoin.AddressType.p2sp,
+                bitcoin.AddressType.p2tr,
+                bitcoin.AddressType.p2pkh,
                 ...ReceivePageOption.values.where((element) => element != ReceivePageOption.mainnet)
               ]
             : ReceivePageOption.values;
