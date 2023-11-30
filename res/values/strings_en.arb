@@ -160,7 +160,7 @@
   "seed_title": "Seed",
   "seed_share": "Share seed",
   "copy": "Copy",
-  "seed_language_choose": "Please choose seed language:",
+  "seed_language": "Seed language",
   "seed_choose": "Choose seed language",
   "seed_language_next": "Next",
   "seed_language_english": "English",
