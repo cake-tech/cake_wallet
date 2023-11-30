@@ -56,6 +56,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialDisableSell,
       required BuyProviderType initialDefaultBuyProvider,
       required WalletListOrderType initialWalletListOrder,
+      required bool initialWalletListAscending,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
       required String initialTotpSecretKey,
@@ -124,6 +125,7 @@ abstract class SettingsStoreBase with Store {
         disableSell = initialDisableSell,
         defaultBuyProvider = initialDefaultBuyProvider,
         walletListOrder = initialWalletListOrder,
+        walletListAscending = initialWalletListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
@@ -247,14 +249,19 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.setInt(PreferencesKey.walletListOrder, walletListOrder.index));
 
     reaction(
+        (_) => walletListAscending,
+        (bool walletListAscending) =>
+            sharedPreferences.setBool(PreferencesKey.walletListAscending, walletListAscending));
+
+    reaction(
         (_) => autoGenerateSubaddressStatus,
         (AutoGenerateSubaddressStatus autoGenerateSubaddressStatus) => sharedPreferences.setInt(
             PreferencesKey.autoGenerateSubaddressStatusKey, autoGenerateSubaddressStatus.value));
 
     reaction(
         (_) => moneroSeedType,
-        (SeedType moneroSeedType) => sharedPreferences.setInt(
-            PreferencesKey.moneroSeedType, moneroSeedType.raw));
+        (SeedType moneroSeedType) =>
+            sharedPreferences.setInt(PreferencesKey.moneroSeedType, moneroSeedType.raw));
 
     reaction(
         (_) => fiatApiMode,
@@ -350,9 +357,9 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.setString(PreferencesKey.currentLanguageCode, languageCode));
 
     reaction(
-            (_) => seedPhraseLength,
-            (SeedPhraseLength seedPhraseWordCount) =>
-            sharedPreferences.setInt(PreferencesKey.currentSeedPhraseLength, seedPhraseWordCount.value));
+        (_) => seedPhraseLength,
+        (SeedPhraseLength seedPhraseWordCount) => sharedPreferences.setInt(
+            PreferencesKey.currentSeedPhraseLength, seedPhraseWordCount.value));
 
     reaction(
         (_) => pinTimeOutDuration,
@@ -492,6 +499,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   WalletListOrderType walletListOrder;
+
+  @observable
+  bool walletListAscending;
 
   @observable
   bool allowBiometricalAuthentication;
@@ -698,6 +708,8 @@ abstract class SettingsStoreBase with Store {
         BuyProviderType.values[sharedPreferences.getInt(PreferencesKey.defaultBuyProvider) ?? 0];
     final walletListOrder =
         WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
+    final walletListAscending =
+        sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
             FiatApiMode.enabled.raw);
@@ -853,24 +865,25 @@ abstract class SettingsStoreBase with Store {
     });
     final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
 
-      return SettingsStore(
-          sharedPreferences: sharedPreferences,
-          initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
-          nodes: nodes,
-          powNodes: powNodes,
-          appVersion: packageInfo.version,
-          deviceName: deviceName,
-          isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-          initialFiatCurrency: currentFiatCurrency,
-          initialBalanceDisplayMode: currentBalanceDisplayMode,
-          initialSaveRecipientAddress: shouldSaveRecipientAddress,
-          initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
-          initialMoneroSeedType: moneroSeedType,
+    return SettingsStore(
+        sharedPreferences: sharedPreferences,
+        initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
+        nodes: nodes,
+        powNodes: powNodes,
+        appVersion: packageInfo.version,
+        deviceName: deviceName,
+        isBitcoinBuyEnabled: isBitcoinBuyEnabled,
+        initialFiatCurrency: currentFiatCurrency,
+        initialBalanceDisplayMode: currentBalanceDisplayMode,
+        initialSaveRecipientAddress: shouldSaveRecipientAddress,
+        initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
+        initialMoneroSeedType: moneroSeedType,
         initialAppSecure: isAppSecure,
         initialDisableBuy: disableBuy,
         initialDisableSell: disableSell,
         initialDefaultBuyProvider: defaultBuyProvider,
         initialWalletListOrder: walletListOrder,
+        initialWalletListAscending: walletListAscending,
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialCake2FAPresetOptions: selectedCake2FAPreset,
@@ -882,30 +895,31 @@ abstract class SettingsStoreBase with Store {
         actionlistDisplayMode: actionListDisplayMode,
         initialPinLength: pinLength,
         pinTimeOutDuration: pinCodeTimeOutDuration,
-        seedPhraseLength: seedPhraseWordCount,initialLanguageCode: savedLanguageCode,
+        seedPhraseLength: seedPhraseWordCount,
+        initialLanguageCode: savedLanguageCode,
         sortBalanceBy: sortBalanceBy,
         pinNativeTokenAtTop: pinNativeTokenAtTop,
         useEtherscan: useEtherscan,
         defaultNanoRep: defaultNanoRep,
-          defaultBananoRep: defaultBananoRep,
-          lookupsTwitter: lookupsTwitter,
-          lookupsMastodon: lookupsMastodon,
-          lookupsYatService: lookupsYatService,
-          lookupsUnstoppableDomains: lookupsUnstoppableDomains,
-          lookupsOpenAlias: lookupsOpenAlias,
-          lookupsENS: lookupsENS,
-          initialMoneroTransactionPriority: moneroTransactionPriority,
+        defaultBananoRep: defaultBananoRep,
+        lookupsTwitter: lookupsTwitter,
+        lookupsMastodon: lookupsMastodon,
+        lookupsYatService: lookupsYatService,
+        lookupsUnstoppableDomains: lookupsUnstoppableDomains,
+        lookupsOpenAlias: lookupsOpenAlias,
+        lookupsENS: lookupsENS,
+        initialMoneroTransactionPriority: moneroTransactionPriority,
         initialBitcoinTransactionPriority: bitcoinTransactionPriority,
         initialHavenTransactionPriority: havenTransactionPriority,
         initialLitecoinTransactionPriority: litecoinTransactionPriority,
         initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
-          initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
-          initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
-          initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
-          initialShouldRequireTOTP2FAForSendsToInternalWallets:
-          shouldRequireTOTP2FAForSendsToInternalWallets,
-          initialShouldRequireTOTP2FAForExchangesToInternalWallets:
-          shouldRequireTOTP2FAForExchangesToInternalWallets,
+        initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
+        initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
+        initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
+        initialShouldRequireTOTP2FAForSendsToInternalWallets:
+            shouldRequireTOTP2FAForSendsToInternalWallets,
+        initialShouldRequireTOTP2FAForExchangesToInternalWallets:
+            shouldRequireTOTP2FAForExchangesToInternalWallets,
         initialShouldRequireTOTP2FAForExchangesToExternalWallets:
             shouldRequireTOTP2FAForExchangesToExternalWallets,
         initialShouldRequireTOTP2FAForAddingContacts: shouldRequireTOTP2FAForAddingContacts,
@@ -982,6 +996,7 @@ abstract class SettingsStoreBase with Store {
         BuyProviderType.values[sharedPreferences.getInt(PreferencesKey.defaultBuyProvider) ?? 0];
     walletListOrder =
         WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
+    walletListAscending = sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
     allowBiometricalAuthentication =
         sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
             allowBiometricalAuthentication;
@@ -1156,7 +1171,6 @@ abstract class SettingsStoreBase with Store {
     _sharedPreferences.setBool(providerName, state);
     trocadorProviderStates[providerName] = state;
   }
-
 
   static Future<String?> _getDeviceName() async {
     String? deviceName = '';

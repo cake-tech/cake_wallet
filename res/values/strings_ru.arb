@@ -752,5 +752,6 @@
   "seedtype_polyseed": "Полиса (16 слов)",
   "seed_language_czech": "Чешский",
   "seed_language_korean": "Корейский",
-  "seed_language_chinese_traditional": "Китайский традиционный)"
+  "seed_language_chinese_traditional": "Китайский традиционный)",
+  "ascending": "Восходящий"
 }

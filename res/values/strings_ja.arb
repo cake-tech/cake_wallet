@@ -752,5 +752,6 @@
   "seedtype_polyseed": "ポリシード（16語）",
   "seed_language_czech": "チェコ",
   "seed_language_korean": "韓国語",
-  "seed_language_chinese_traditional": "中国の伝統的な）"
+  "seed_language_chinese_traditional": "中国の伝統的な）",
+  "ascending": "上昇"
 }

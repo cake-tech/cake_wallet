@@ -50,6 +50,8 @@ abstract class WalletListViewModelBase with Store {
 
   WalletListOrderType? get orderType => _appStore.settingsStore.walletListOrder;
 
+  bool get ascending => _appStore.settingsStore.walletListAscending;
+
   @action
   void updateList() {
     wallets.clear();
@@ -106,7 +108,11 @@ abstract class WalletListViewModelBase with Store {
     // sort the wallets alphabetically:
     List<WalletInfo> walletInfoSourceCopy = _walletInfoSource.values.toList();
     await _walletInfoSource.clear();
-    walletInfoSourceCopy.sort((a, b) => a.name.compareTo(b.name));
+    if (ascending) {
+      walletInfoSourceCopy.sort((a, b) => a.name.compareTo(b.name));
+    } else {
+      walletInfoSourceCopy.sort((a, b) => b.name.compareTo(a.name));
+    }
     await _walletInfoSource.addAll(walletInfoSourceCopy);
     updateList();
   }
@@ -115,9 +121,17 @@ abstract class WalletListViewModelBase with Store {
     // sort the wallets by creation date:
     List<WalletInfo> walletInfoSourceCopy = _walletInfoSource.values.toList();
     await _walletInfoSource.clear();
-    walletInfoSourceCopy.sort((a, b) => a.date.compareTo(b.date));
+    if (ascending) {
+      walletInfoSourceCopy.sort((a, b) => a.date.compareTo(b.date));
+    } else {
+      walletInfoSourceCopy.sort((a, b) => b.date.compareTo(a.date));
+    }
     await _walletInfoSource.addAll(walletInfoSourceCopy);
     updateList();
+  }
+
+  void setAscending(bool ascending)  {
+    _appStore.settingsStore.walletListAscending = ascending;
   }
 
   Future<void> setOrderType(WalletListOrderType? type) async {

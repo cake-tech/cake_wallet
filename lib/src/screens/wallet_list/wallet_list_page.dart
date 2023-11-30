@@ -50,13 +50,17 @@ class WalletListPage extends BasePage {
             container: true,
             child: GestureDetector(
               onTap: () async {
-                WalletListOrderType? type = await showPopUp<WalletListOrderType>(
+                // dart doesn't have tuples and I feel like a union type is overkill :/
+                List<dynamic>? choices = await showPopUp<List<dynamic>>(
                   context: context,
-                  builder: (context) =>
-                      FilterListWidget(initialType: walletListViewModel.orderType),
+                  builder: (context) => FilterListWidget(
+                    initalType: walletListViewModel.orderType,
+                    initalAscending: walletListViewModel.ascending,
+                  ),
                 );
-                if (type != null) {
-                  walletListViewModel.setOrderType(type);
+                if (choices != null) {
+                  walletListViewModel.setAscending(choices[1] as bool);
+                  await walletListViewModel.setOrderType(choices[0] as WalletListOrderType);
                 }
               },
               child: Semantics(
