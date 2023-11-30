@@ -6,10 +6,8 @@ import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -26,7 +24,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 
@@ -192,8 +189,7 @@ class AddressPage extends BasePage {
                                       ? S.of(context).accounts_subaddresses
                                       : S.of(context).addresses;
 
-                              if (!addressListViewModel.hasSilentAddresses &&
-                                  dashboardViewModel.isAutoGenerateSubaddressesEnabled) {
+                              if (dashboardViewModel.isAutoGenerateSubaddressesEnabled) {
                                 label = addressListViewModel.hasAccounts
                                     ? S.of(context).accounts
                                     : S.of(context).account;

@@ -64,6 +64,7 @@ class PreferencesKey {
 
   static const exchangeProvidersSelection = 'exchange-providers-selection';
   static const autoGenerateSubaddressStatusKey = 'auto_generate_subaddress_status';
+  static const moneroSeedType = 'monero_seed_type';
   static const clearnetDonationLink = 'clearnet_donation_link';
   static const onionDonationLink = 'onion_donation_link';
   static const lastSeenAppVersion = 'last_seen_app_version';

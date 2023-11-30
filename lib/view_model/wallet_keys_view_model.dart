@@ -107,19 +107,18 @@ abstract class WalletKeysViewModelBase with Store {
       ]);
     }
 
-    if (_appStore.wallet!.type == WalletType.nano || _appStore.wallet!.type == WalletType.banano) {
+    bool nanoBased =
+        _appStore.wallet!.type == WalletType.nano || _appStore.wallet!.type == WalletType.banano;
 
-      // we don't necessarily have the seed phrase for nano / banano:
-      if (_appStore.wallet!.seed != null) {
-        items.addAll([
-          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
-        ]);
-      }
-
-      // we always have the hex version of the seed:
+    if (nanoBased) {
+      // we always have the hex version of the seed and private key:
       items.addAll([
+        if (_appStore.wallet!.seed != null)
+          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+        if (_appStore.wallet!.hexSeed != null)
+          StandartListItem(title: S.current.seed_hex_form, value: _appStore.wallet!.hexSeed!),
         if (_appStore.wallet!.privateKey != null)
-          StandartListItem(title: S.current.spend_key_private, value: _appStore.wallet!.privateKey!),
+          StandartListItem(title: S.current.private_key, value: _appStore.wallet!.privateKey!),
       ]);
     }
   }
@@ -172,7 +171,10 @@ abstract class WalletKeysViewModelBase with Store {
     final restoreHeightResult = await restoreHeight;
     return {
       if (_appStore.wallet!.seed != null) 'seed': _appStore.wallet!.seed!,
-      if (_appStore.wallet!.privateKey != null) 'private_key': _appStore.wallet!.privateKey!,
+      if (_appStore.wallet!.seed == null && _appStore.wallet!.hexSeed != null)
+        'hexSeed': _appStore.wallet!.hexSeed!,
+      if (_appStore.wallet!.seed == null && _appStore.wallet!.privateKey != null)
+        'private_key': _appStore.wallet!.privateKey!,
       if (restoreHeightResult != null) ...{'height': restoreHeightResult}
     };
   }

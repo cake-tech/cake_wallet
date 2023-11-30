@@ -3,8 +3,8 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arro
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/wallet_connect_button.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
@@ -90,7 +90,12 @@ class ConnectionSyncPage extends BasePage {
               onTap: () => Navigator.of(context).pushNamed(Routes.walletConnectConnectionsListing),
             ),
             const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          ]
+          ],
+          if (FeatureFlag.isInAppTorEnabled)
+            SettingsCellWithArrow(
+              title: S.current.tor_connection,
+              handler: (context) => Navigator.of(context).pushNamed(Routes.torPage),
+            ),
         ],
       ),
     );

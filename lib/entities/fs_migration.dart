@@ -147,6 +147,7 @@ Future<void> ios_migrate_pin() async {
 
   final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
   final encodedPassword = encodedPinCode(pin: pinPassword);
+  await flutterSecureStorage.delete(key: key);
   await flutterSecureStorage.write(key: key, value: encodedPassword);
   await prefs.setBool('ios_migration_pin_completed', true);
 }
