@@ -1,5 +1,6 @@
 import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
@@ -82,8 +83,7 @@ Future<void> defaultSettingsMigration(
               sharedPreferences: sharedPreferences, nodes: nodes);
           await changeLitecoinCurrentElectrumServerToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
-          await changeHavenCurrentNodeToDefault(
-              sharedPreferences: sharedPreferences, nodes: nodes);
+          await changeHavenCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
           await changeBitcoinCashCurrentNodeToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
 
@@ -174,6 +174,9 @@ Future<void> defaultSettingsMigration(
           await addBitcoinCashElectrumServerList(nodes: nodes);
           await changeBitcoinCurrentElectrumServerToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
+          break;
+        case 25:
+          await rewriteSecureStoragePin(secureStorage: secureStorage);
           break;
 
         default:
@@ -340,9 +343,9 @@ Node? getNanoDefaultPowNode({required Box<Node> nodes}) {
 }
 
 Node? getBitcoinCashDefaultElectrumServer({required Box<Node> nodes}) {
-  return nodes.values.firstWhereOrNull(
-          (Node node) => node.uriRaw == cakeWalletBitcoinCashDefaultNodeUri)
-      ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoinCash);
+  return nodes.values
+          .firstWhereOrNull((Node node) => node.uriRaw == cakeWalletBitcoinCashDefaultNodeUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoinCash);
 }
 
 Node getMoneroDefaultNode({required Box<Node> nodes}) {
@@ -364,6 +367,37 @@ Node getMoneroDefaultNode({required Box<Node> nodes}) {
   }
 }
 
+Future<void> rewriteSecureStoragePin({required FlutterSecureStorage secureStorage}) async {
+  // the bug only affects ios/mac:
+  if (!Platform.isIOS && !Platform.isMacOS) {
+    return;
+  }
+
+  // first, get the encoded pin:
+  final keyForPinCode = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
+  String? encodedPin;
+  try {
+    encodedPin = await secureStorage.read(key: keyForPinCode);
+  } catch (e) {
+    // either we don't have a pin, or we can't read it (maybe even because of the bug!)
+    // the only option here is to abort the migration or we risk losing the pin and locking the user out
+    return;
+  }
+
+  if (encodedPin == null) {
+    return;
+  }
+
+  // ensure we overwrite by deleting the old key first:
+  await secureStorage.delete(key: keyForPinCode);
+  await secureStorage.write(
+    key: keyForPinCode,
+    value: encodedPin,
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    mOptions: MacOsOptions(accessibility: KeychainAccessibility.first_unlock),
+  );
+}
+
 Future<void> changeBitcoinCurrentElectrumServerToDefault(
     {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
   final server = getBitcoinDefaultElectrumServer(nodes: nodes);
@@ -381,8 +415,7 @@ Future<void> changeLitecoinCurrentElectrumServerToDefault(
 }
 
 Future<void> changeBitcoinCashCurrentNodeToDefault(
-    {required SharedPreferences sharedPreferences,
-      required Box<Node> nodes}) async {
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
   final server = getBitcoinCashDefaultElectrumServer(nodes: nodes);
   final serverId = server?.key as int ?? 0;
 
@@ -538,34 +571,30 @@ Future<void> checkCurrentNodes(
   final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
   final currentBitcoinElectrumSeverId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
-  final currentLitecoinElectrumSeverId = sharedPreferences
-      .getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
-  final currentHavenNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentHavenNodeIdKey);
-  final currentEthereumNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentEthereumNodeIdKey);
-  final currentNanoNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentNanoNodeIdKey);
-  final currentNanoPowNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentNanoPowNodeIdKey);
-  final currentBitcoinCashNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
-  final currentMoneroNode = nodeSource.values.firstWhereOrNull(
-      (node) => node.key == currentMoneroNodeId);
-  final currentBitcoinElectrumServer = nodeSource.values.firstWhereOrNull(
-      (node) => node.key == currentBitcoinElectrumSeverId);
-  final currentLitecoinElectrumServer = nodeSource.values.firstWhereOrNull(
-      (node) => node.key == currentLitecoinElectrumSeverId);
-  final currentHavenNodeServer = nodeSource.values.firstWhereOrNull(
-      (node) => node.key == currentHavenNodeId);
-  final currentEthereumNodeServer = nodeSource.values.firstWhereOrNull(
-      (node) => node.key == currentEthereumNodeId);
+  final currentLitecoinElectrumSeverId =
+      sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
+  final currentHavenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
+  final currentEthereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
+  final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
+  final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
+  final currentBitcoinCashNodeId =
+      sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
+  final currentMoneroNode =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
+  final currentBitcoinElectrumServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinElectrumSeverId);
+  final currentLitecoinElectrumServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentLitecoinElectrumSeverId);
+  final currentHavenNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentHavenNodeId);
+  final currentEthereumNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentEthereumNodeId);
   final currentNanoNodeServer =
-  nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
   final currentNanoPowNodeServer =
-  powNodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
-  final currentBitcoinCashNodeServer = nodeSource.values.firstWhereOrNull(
-          (node) => node.key == currentBitcoinCashNodeId);
+      powNodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
+  final currentBitcoinCashNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinCashNodeId);
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
     await nodeSource.add(newCakeWalletNode);
@@ -617,8 +646,7 @@ Future<void> checkCurrentNodes(
   if (currentBitcoinCashNodeServer == null) {
     final node = Node(uri: cakeWalletBitcoinCashDefaultNodeUri, type: WalletType.bitcoinCash);
     await nodeSource.add(node);
-    await sharedPreferences.setInt(
-        PreferencesKey.currentBitcoinCashNodeIdKey, node.key as int);
+    await sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, node.key as int);
   }
 }
 
