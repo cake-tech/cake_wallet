@@ -79,7 +79,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         value: _explorerDescription(type),
         onTap: () {
           try {
-            print(_explorerUrl(type, tx.id));
+            launch(_explorerUrl(type, tx.id));
           } catch (e) {}
         }));
 
