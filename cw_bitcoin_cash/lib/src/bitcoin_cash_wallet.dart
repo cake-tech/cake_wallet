@@ -9,6 +9,7 @@ import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_wrong_balance_exception.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin_cash/src/pending_bitcoin_cash_transaction.dart';
@@ -27,37 +28,33 @@ part 'bitcoin_cash_wallet.g.dart';
 class BitcoinCashWallet = BitcoinCashWalletBase with _$BitcoinCashWallet;
 
 abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
-  BitcoinCashWalletBase(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required Uint8List seedBytes,
-      List<BitcoinAddressRecord>? initialAddresses,
-      ElectrumBalance? initialBalance,
-      int initialRegularAddressIndex = 0,
-      int initialChangeAddressIndex = 0})
-      : super(
-            mnemonic: mnemonic,
-            password: password,
-            walletInfo: walletInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
+  BitcoinCashWalletBase({
+    required super.mnemonic,
+    required super.password,
+    required super.walletInfo,
+    required super.unspentCoinsInfo,
+    required Uint8List seedBytes,
+    List<BitcoinAddressRecord>? initialAddresses,
+    ElectrumBalance? initialBalance,
+    int initialRegularAddressIndex = 0,
+    int initialChangeAddressIndex = 0,
+  }) : super(
             networkType: bitcoin.bitcoin,
             initialAddresses: initialAddresses,
             initialBalance: initialBalance,
             seedBytes: seedBytes,
-            currency: CryptoCurrency.bch) {
+            currency: CryptoCurrency.btc,
+            transactionHistory:
+                ElectrumTransactionHistory(walletInfo: walletInfo, password: password)) {
     walletAddresses = BitcoinCashWalletAddresses(walletInfo,
-        electrumClient: electrumClient,
+        transactionHistory: super.transactionHistory,
         initialAddresses: initialAddresses,
         initialRegularAddressIndex: initialRegularAddressIndex,
         initialChangeAddressIndex: initialChangeAddressIndex,
         mainHd: hd,
-        sideHd: bitcoin.HDWallet.fromSeed(seedBytes)
-            .derivePath("m/44'/145'/0'/1"),
+        sideHd: bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'/1"),
         networkType: networkType);
   }
-
 
   static Future<BitcoinCashWallet> create(
       {required String mnemonic,
@@ -247,9 +244,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         electrumClient: electrumClient, amount: amount, fee: fee);
   }
 
-  bitbox.ECPair generateKeyPair(
-          {required bitcoin.HDWallet hd,
-          required int index}) =>
+  bitbox.ECPair generateKeyPair({required bitcoin.HDWallet hd, required int index}) =>
       bitbox.ECPair.fromWIF(hd.derive(index).wif!);
 
   @override

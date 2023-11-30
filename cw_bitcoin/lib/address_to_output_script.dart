@@ -11,13 +11,14 @@ Uint8List p2shAddressToOutputScript(String address) {
   return bscript.compile(<dynamic>[OPS['OP_HASH160'], hash, OPS['OP_EQUAL']]);
 }
 
-Uint8List addressToOutputScript(
-    String address, bitcoin.NetworkType networkType) {
+Uint8List addressToOutputScript(String address, bitcoin.NetworkType networkType) {
   try {
     // FIXME: improve validation for p2sh addresses
     // 3 for bitcoin
     // m for litecoin
-    if (address.startsWith('3') || address.toLowerCase().startsWith('m')) {
+    // (note: m is also for bitcoin's testnet. check networkType to make sure)
+    if (address.startsWith('3') ||
+        (address.toLowerCase().startsWith('m') && networkType != bitcoin.testnet)) {
       return p2shAddressToOutputScript(address);
     }
 

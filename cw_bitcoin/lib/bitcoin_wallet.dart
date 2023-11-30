@@ -1,4 +1,5 @@
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
@@ -18,10 +19,10 @@ class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
 abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   BitcoinWalletBase(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      {required super.mnemonic,
+      required super.password,
+      required super.walletInfo,
+      required super.unspentCoinsInfo,
       bitcoin.NetworkType? networkType,
       required Uint8List seedBytes,
       List<BitcoinAddressRecord>? initialAddresses,
@@ -30,18 +31,15 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       int initialChangeAddressIndex = 0,
       bitcoin.SilentPaymentReceiver? silentAddress})
       : super(
-          mnemonic: mnemonic,
-          password: password,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfo,
-          networkType: networkType ?? bitcoin.bitcoin,
-          initialAddresses: initialAddresses,
-          initialBalance: initialBalance,
-          seedBytes: seedBytes,
-          currency: CryptoCurrency.btc,
-        ) {
+            networkType: networkType ?? bitcoin.bitcoin,
+            initialAddresses: initialAddresses,
+            initialBalance: initialBalance,
+            seedBytes: seedBytes,
+            currency: CryptoCurrency.btc,
+            transactionHistory:
+                ElectrumTransactionHistory(walletInfo: walletInfo, password: password)) {
     walletAddresses = BitcoinWalletAddresses(walletInfo,
-        electrumClient: electrumClient,
+        transactionHistory: super.transactionHistory,
         initialAddresses: initialAddresses,
         initialRegularAddressIndex: initialRegularAddressIndex,
         initialChangeAddressIndex: initialChangeAddressIndex,

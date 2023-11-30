@@ -53,6 +53,7 @@ abstract class ElectrumWalletBase
       required this.networkType,
       required this.mnemonic,
       required Uint8List seedBytes,
+      required ElectrumTransactionHistory transactionHistory,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumClient? electrumClient,
       ElectrumBalance? initialBalance,
@@ -76,7 +77,7 @@ abstract class ElectrumWalletBase
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
-    transactionHistory = ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
+    this.transactionHistory = transactionHistory;
   }
 
   static bitcoin.HDWallet bitcoinCashHDWallet(Uint8List seedBytes) =>
@@ -145,7 +146,8 @@ abstract class ElectrumWalletBase
         Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
   }
 
-  void _setListeners(int height, {int? chainTip}) async {
+  @action
+  Future<void> _setListeners(int height, {int? chainTip}) async {
     final currentChainTip = chainTip ?? await electrumClient.getCurrentBlockChainTip() ?? 0;
     syncStatus = AttemptingSyncStatus();
 
@@ -175,12 +177,10 @@ abstract class ElectrumWalletBase
     await for (var message in receivePort) {
       if (message is BitcoinUnspent) {
         unspentCoins.add(message);
-        walletAddresses.addresses.add(message.bitcoinAddressRecord);
+        _addCoinInfo(message);
+        await walletInfo.save();
         await save();
 
-        await updateUnspent();
-        await updateBalance();
-        await updateTransactions();
         _subscribeForUpdates();
       }
 
@@ -246,16 +246,12 @@ abstract class ElectrumWalletBase
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
-      const minAmount = 546;
-      final transactionCredentials = credentials as BitcoinTransactionCredentials;
-      final inputs = <BitcoinUnspent>[];
-      final outputs = transactionCredentials.outputs;
-      final hasMultiDestination = outputs.length > 1;
-      var allInputsAmount = 0;
-
       if (unspentCoins.isEmpty) {
         await updateUnspent();
       }
+
+      final inputs = <BitcoinUnspent>[];
+      var allInputsAmount = 0;
 
       for (int i = 0; i < unspentCoins.length; i++) {
         final utx = unspentCoins[i];
@@ -268,6 +264,11 @@ abstract class ElectrumWalletBase
       if (inputs.isEmpty) {
         throw BitcoinTransactionNoInputsException();
       }
+
+      final minAmount = networkType == bitcoin.testnet ? 0 : 546;
+      final transactionCredentials = credentials as BitcoinTransactionCredentials;
+      final outputs = transactionCredentials.outputs;
+      final hasMultiDestination = outputs.length > 1;
 
       final allAmountFee = transactionCredentials.feeRate != null
           ? feeAmountWithFeeRate(transactionCredentials.feeRate!, inputs.length, outputs.length)
@@ -324,6 +325,11 @@ abstract class ElectrumWalletBase
         throw BitcoinTransactionWrongBalanceException(currency);
       }
 
+      if (networkType == bitcoin.testnet) {
+        fee += 50;
+        amount -= 50;
+      }
+
       final totalAmount = amount + fee;
 
       if ((totalAmount > balance[currency]!.confirmed || totalAmount > allInputsAmount) &&
@@ -340,49 +346,82 @@ abstract class ElectrumWalletBase
       List<bitcoin.PrivateKeyInfo> inputPrivKeys = [];
       List<bitcoin.Outpoint> outpoints = [];
 
+      List<int>? amounts;
+      List<Uint8List>? scriptPubKeys;
+
+      final curve = bitcoin.getSecp256k1();
+
       for (int i = 0; i < inputs.length; i++) {
         final utx = inputs[i];
         leftAmount = leftAmount - utx.value;
         totalInputAmount += utx.value;
 
+        if (amounts == null) {
+          amounts = [];
+        }
+        amounts.add(utx.value);
+
         outpoints.add(bitcoin.Outpoint(txid: utx.hash, index: utx.vout));
 
         if (utx.bitcoinAddressRecord.silentPaymentTweak != null) {
           // https://github.com/bitcoin/bips/blob/c55f80c53c98642357712c1839cfdc0551d531c4/bip-0352.mediawiki#user-content-Spending
-          final d = bitcoin.PrivateKey.fromHex(bitcoin.getSecp256k1(),
-                  walletAddresses.silentAddress!.spendPrivkey.toCompressedHex())
+          final d = bitcoin.PrivateKey.fromHex(
+                  curve, walletAddresses.silentAddress!.spendPrivkey.toCompressedHex())
               .tweakAdd(utx.bitcoinAddressRecord.silentPaymentTweak!.fromHex.bigint)!;
 
-          inputPrivKeys.add(bitcoin.PrivateKeyInfo(d, utx.isTaproot));
+          inputPrivKeys.add(bitcoin.PrivateKeyInfo(d, utx.type == bitcoin.AddressType.p2tr));
 
-          final point = bitcoin.ECPublic.fromHex(d.publicKey.toHex()).toTapPoint();
-          final p2tr = bitcoin.P2trAddress(program: point);
+          final p2tr = bitcoin.P2trAddress(pubkey: d.publicKey.toHex(), network: networkType);
 
           bitcoin.ECPair keyPair = bitcoin.ECPair.fromPrivateKey(d.toCompressedHex().fromHex,
               compressed: true, network: networkType);
 
-          txb.addInput(
-              utx.hash, utx.vout, null, p2tr.toScriptPubKey().toBytes(), keyPair, utx.value);
+          final script = p2tr.toScriptPubKey().toBytes();
+
+          txb.addInput(utx.hash, utx.vout, null, script, keyPair, utx.value);
+
+          if (scriptPubKeys == null) {
+            scriptPubKeys = [];
+          }
+          scriptPubKeys.add(script);
+
           continue;
         }
 
-        inputPrivKeys.add(bitcoin.PrivateKeyInfo(
-            bitcoin.PrivateKey.fromHex(
-                bitcoin.getSecp256k1(),
-                generateKeyPair(
-                        hd: utx.bitcoinAddressRecord.isHidden
-                            ? walletAddresses.sideHd
-                            : walletAddresses.mainHd,
-                        index: utx.bitcoinAddressRecord.index,
-                        network: networkType)
-                    .privateKey!
-                    .hex),
-            utx.isTaproot));
+        if ((utx.type == bitcoin.AddressType.p2tr) ||
+            bitcoin.P2trAddress.REGEX.hasMatch(utx.address)) {
+          bitcoin.ECPair keyPair = generateKeyPair(
+              hd: utx.bitcoinAddressRecord.isHidden
+                  ? walletAddresses.sideHd
+                  : walletAddresses.mainHd,
+              index: utx.bitcoinAddressRecord.index,
+              network: networkType);
+
+          inputPrivKeys.add(bitcoin.PrivateKeyInfo(
+              bitcoin.PrivateKey.fromHex(curve, keyPair.privateKey!.hex),
+              utx.type == bitcoin.AddressType.p2tr));
+
+          final p2tr = bitcoin.P2trAddress(pubkey: keyPair.publicKey.hex, network: networkType);
+          final script = p2tr.toScriptPubKey().toBytes();
+
+          txb.addInput(utx.hash, utx.vout, null, script, keyPair, utx.value);
+
+          if (scriptPubKeys == null) {
+            scriptPubKeys = [];
+          }
+          scriptPubKeys.add(script);
+
+          continue;
+        }
 
         bitcoin.ECPair keyPair = generateKeyPair(
             hd: utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
             index: utx.bitcoinAddressRecord.index,
             network: networkType);
+
+        inputPrivKeys.add(bitcoin.PrivateKeyInfo(
+            bitcoin.PrivateKey.fromHex(curve, keyPair.privateKey!.hex),
+            utx.type == bitcoin.AddressType.p2tr));
 
         if (utx.isP2wpkh) {
           final p2wpkh = bitcoin
@@ -395,7 +434,14 @@ abstract class ElectrumWalletBase
                   network: networkType)
               .data;
 
-          txb.addInput(utx.hash, utx.vout, null, p2wpkh.output, keyPair, utx.value);
+          final script = p2wpkh.output;
+          txb.addInput(utx.hash, utx.vout, null, script, keyPair, utx.value);
+
+          if (scriptPubKeys == null) {
+            scriptPubKeys = [];
+          }
+          if (script != null) scriptPubKeys.add(script);
+
           continue;
         }
 
@@ -410,14 +456,16 @@ abstract class ElectrumWalletBase
         throw BitcoinTransactionNoInputsException();
       }
 
-      if (amount <= 0 || totalInputAmount < totalAmount) {
-        // throw BitcoinTransactionWrongBalanceException(currency);
+      if ((amount <= 0 || totalInputAmount < totalAmount) && networkType == bitcoin.bitcoin) {
+        throw BitcoinTransactionWrongBalanceException(currency);
       }
 
       List<bitcoin.SilentPaymentDestination> silentPaymentDestinations = [];
       outputs.forEach((item) {
         final outputAmount = hasMultiDestination ? item.formattedCryptoAmount : amount;
         final outputAddress = item.isParsedAddress ? item.extractedAddress! : item.address;
+
+        // TODO: silent payments regex
         if (outputAddress.startsWith('tsp1')) {
           silentPaymentDestinations
               .add(bitcoin.SilentPaymentDestination.fromAddress(outputAddress, outputAmount!));
@@ -433,12 +481,13 @@ abstract class ElectrumWalletBase
 
         generatedOutputs.forEach((recipientSilentAddress, generatedOutput) {
           generatedOutput.forEach((output) {
-            final generatedPubkey = output.$1.toHex();
-            // TODO: DRY code: pubkeyToOutputScript (?)
-            final point = bitcoin.ECPublic.fromHex(generatedPubkey).toTapPoint();
-            final p2tr = bitcoin.P2trAddress(program: point);
-            print([p2tr.toScriptPubKey().toBytes(), output.$2]);
-            txb.addOutput(p2tr.toScriptPubKey().toBytes(), output.$2);
+            txb.addOutput(
+                bitcoin.P2trAddress(
+                        program: bitcoin.ECPublic.fromHex(output.$1.toHex()).toTapPoint(),
+                        network: networkType)
+                    .toScriptPubKey()
+                    .toBytes(),
+                output.$2);
           });
         });
       }
@@ -458,8 +507,6 @@ abstract class ElectrumWalletBase
         txb.addOutput(changeAddress, changeValue);
       }
 
-      final amounts = txb.inputs.map((utx) => utx.value!).toList();
-      final scriptPubKeys = txb.inputs.map((utx) => utx.prevOutScript!).toList();
       for (var i = 0; i < inputs.length; i++) {
         txb.sign(vin: i, amounts: amounts, scriptPubKeys: scriptPubKeys, inputs: inputs);
       }
@@ -589,11 +636,6 @@ abstract class ElectrumWalletBase
   @action
   @override
   Future<void> rescan({required int height, int? chainTip, ScanData? scanData}) async {
-    if (height >= walletInfo.restoreHeight) {
-      syncStatus = SyncedSyncStatus();
-      return;
-    }
-
     _setListeners(height);
   }
 
@@ -654,6 +696,7 @@ abstract class ElectrumWalletBase
     await _refreshUnspentCoinsInfo();
   }
 
+  @action
   Future<void> _addCoinInfo(BitcoinUnspent coin) async {
     final newInfo = UnspentCoinsInfo(
       walletId: id,
@@ -782,7 +825,8 @@ abstract class ElectrumWalletBase
     _chainTipUpdateSubject = electrumClient.chainTipUpdate();
     _chainTipUpdateSubject!.listen((event) async {
       try {
-        rescan(height: walletInfo.restoreHeight);
+        print(["NEW HEIGHT!", event]);
+        // _setListeners(walletInfo.restoreHeight, chainTip_setListeners: event);
       } catch (e, s) {
         print(e.toString());
         _onError?.call(FlutterErrorDetails(
@@ -1100,9 +1144,8 @@ Future<void> startRefresh(ScanData scanData) async {
 
                 final pubkey = input["witness"][1] as String;
                 pubkeys.add(pubkey);
-                outpoints.add(bitcoin.Outpoint(
-                    txid: HEX.encode((input["txid"] as String).fromHex.reversed.toList()),
-                    index: input["vout"] as int));
+                outpoints.add(
+                    bitcoin.Outpoint(txid: input["txid"] as String, index: input["vout"] as int));
               }
 
               if (skip) {
@@ -1115,7 +1158,7 @@ Future<void> startRefresh(ScanData scanData) async {
                 final output = tx["vout"][i];
                 if (output["scriptpubkey_type"] != "v1_p2tr") {
                   // print("Skipping, not a v1_p2tr output");
-                  break;
+                  continue;
                 }
 
                 final script = (output["scriptpubkey"] as String).fromHex;
@@ -1130,12 +1173,12 @@ Future<void> startRefresh(ScanData scanData) async {
                 //   break;
                 // }
 
-                final p2tr = bitcoin.P2trAddress(program: script.sublist(2).hex);
-                final address = p2tr.toAddress(scanData.networkType);
+                // final p2tr = bitcoin.P2trAddress(program: script.sublist(2).hex);
+                // final address = p2tr.toAddress(scanData.networkType);
 
                 // print(["Verifying taproot address:", address]);
 
-                outpointsByP2TRpubkey[p2tr.toScriptPubKey().toBytes()] =
+                outpointsByP2TRpubkey[script.sublist(2)] =
                     bitcoin.Outpoint(txid: txid, index: i, value: output["value"] as int);
               }
 
@@ -1146,11 +1189,11 @@ Future<void> startRefresh(ScanData scanData) async {
 
               final outpointHash = bitcoin.SilentPayment.hashOutpoints(outpoints);
 
+              final curve = bitcoin.getSecp256k1();
+
               final result = bitcoin.scanOutputs(
-                  bitcoin.PrivateKey.fromHex(
-                      bitcoin.getSecp256k1(), scanData.scanPrivkeyCompressed.hex),
-                  bitcoin.PublicKey.fromHex(
-                      bitcoin.getSecp256k1(), scanData.spendPubkeyCompressed.hex),
+                  bitcoin.PrivateKey.fromHex(curve, scanData.scanPrivkeyCompressed.hex),
+                  bitcoin.PublicKey.fromHex(curve, scanData.spendPubkeyCompressed.hex),
                   bitcoin.getSumInputPubKeys(pubkeys),
                   outpointHash,
                   outpointsByP2TRpubkey.keys.toList());
@@ -1183,11 +1226,13 @@ Future<void> startRefresh(ScanData scanData) async {
                     isUsed: true,
                     silentAddressLabel: null,
                     silentPaymentTweak: value,
+                    type: bitcoin.AddressType.p2tr,
                   ),
                   outpoint.txid,
                   outpoint.value!,
                   outpoint.index,
                   silentPaymentTweak: value,
+                  type: bitcoin.AddressType.p2tr,
                 ));
               });
             } catch (_) {}

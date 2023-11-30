@@ -1,6 +1,4 @@
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/electrum.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -11,32 +9,24 @@ part 'bitcoin_wallet_addresses.g.dart';
 class BitcoinWalletAddresses = BitcoinWalletAddressesBase with _$BitcoinWalletAddresses;
 
 abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
-  BitcoinWalletAddressesBase(WalletInfo walletInfo,
-      {required bitcoin.HDWallet mainHd,
-      required bitcoin.HDWallet sideHd,
-      required bitcoin.NetworkType networkType,
-      required ElectrumClient electrumClient,
-      List<BitcoinAddressRecord>? initialAddresses,
-      int initialRegularAddressIndex = 0,
-      int initialChangeAddressIndex = 0,
-      bitcoin.SilentPaymentReceiver? silentAddress})
-      : super(walletInfo,
-            initialAddresses: initialAddresses,
-            initialRegularAddressIndex: initialRegularAddressIndex,
-            initialChangeAddressIndex: initialChangeAddressIndex,
-            mainHd: mainHd,
-            sideHd: sideHd,
-            electrumClient: electrumClient,
-            networkType: networkType,
-            silentAddress: silentAddress);
+  BitcoinWalletAddressesBase(
+    WalletInfo walletInfo, {
+    required super.mainHd,
+    required super.sideHd,
+    required super.networkType,
+    required super.transactionHistory,
+    super.initialAddresses,
+    super.initialRegularAddressIndex = 0,
+    super.initialChangeAddressIndex = 0,
+    super.silentAddress,
+  }) : super(walletInfo);
 
   @override
-  String getAddress(
-      {required int index, required bitcoin.HDWallet hd, bitcoin.AddressType? addressType}) {
-    if (addressType == bitcoin.AddressType.p2pkh)
+  String getAddress({required int index, required HDWallet hd, AddressType? addressType}) {
+    if (addressType == AddressType.p2pkh)
       return generateP2PKHAddress(hd: hd, index: index, networkType: networkType);
 
-    if (addressType == bitcoin.AddressType.p2tr)
+    if (addressType == AddressType.p2tr)
       return generateP2TRAddress(hd: hd, index: index, networkType: networkType);
 
     return generateP2WPKHAddress(hd: hd, index: index, networkType: networkType);

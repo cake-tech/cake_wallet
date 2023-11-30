@@ -36,15 +36,13 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   WalletCredentials getCredentials(dynamic options) {
     switch (type) {
       case WalletType.monero:
-        return monero!.createMoneroNewWalletCredentials(
-            name: name, language: options as String);
+        return monero!.createMoneroNewWalletCredentials(name: name, language: options as String);
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name);
       case WalletType.litecoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name);
       case WalletType.haven:
-        return haven!.createHavenNewWalletCredentials(
-            name: name, language: options as String);
+        return haven!.createHavenNewWalletCredentials(name: name, language: options as String);
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(name: name);
       case WalletType.bitcoinCash:
@@ -59,6 +57,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   @override
   Future<WalletBase> process(WalletCredentials credentials) async {
     walletCreationService.changeWalletType(type: type);
-    return walletCreationService.create(credentials);
+    return walletCreationService.create(credentials, isTestnet: useTestnet);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -15,6 +16,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 
 part 'transaction_details_view_model.g.dart';
 
@@ -77,7 +79,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         value: _explorerDescription(type),
         onTap: () {
           try {
-            launch(_explorerUrl(type, tx.id));
+            print(_explorerUrl(type, tx.id));
           } catch (e) {}
         }));
 
@@ -113,7 +115,11 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.monero:
         return 'https://monero.com/tx/${txId}';
       case WalletType.bitcoin:
-        return 'https://mempool.space/tx/${txId}';
+        if (wallet is ElectrumWallet) {
+          final networkType = (wallet as ElectrumWallet).networkType;
+          return 'https://mempool.space/${networkType == bitcoin.testnet ? "testnet/" : ""}tx/${txId}';
+        }
+        return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.litecoin:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.bitcoinCash:
@@ -125,7 +131,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.nano:
         return 'https://nanolooker.com/block/${txId}';
       case WalletType.banano:
-        return 'https://bananolooker.com/block/${txId}';  
+        return 'https://bananolooker.com/block/${txId}';
       default:
         return '';
     }
@@ -236,7 +242,6 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     items.addAll(_items);
   }
-
 
   void _addNanoListItems(TransactionInfo tx, DateFormat dateFormat) {
     final _items = [

@@ -1,7 +1,7 @@
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/electrum.dart';
+import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -17,7 +17,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     WalletInfo walletInfo, {
     required this.mainHd,
     required this.sideHd,
-    required this.electrumClient,
+    required this.transactionHistory,
     required this.networkType,
     List<BitcoinAddressRecord>? initialAddresses,
     int initialRegularAddressIndex = 0,
@@ -48,7 +48,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
   final ObservableList<BitcoinAddressRecord> silentAddresses;
-  final ElectrumClient electrumClient;
+  final ElectrumTransactionHistory transactionHistory;
   final bitcoin.NetworkType networkType;
   final bitcoin.HDWallet mainHd;
   final bitcoin.HDWallet sideHd;
@@ -320,13 +320,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     final addressesSet = this.addresses.toSet();
     addressesSet.addAll(addresses);
     this.addresses.removeRange(0, this.addresses.length);
-    this.addresses.addAll(addresses);
+    this.addresses.addAll(addressesSet);
   }
 
   Future<bool> _hasAddressUsed(String address) async {
-    final sh = scriptHash(address, networkType: networkType);
-    final transactionHistory = await electrumClient.getHistory(sh);
-    return transactionHistory.isNotEmpty;
+    return transactionHistory.transactions.values.any((txInfo) => txInfo.to == address);
   }
 
   @override

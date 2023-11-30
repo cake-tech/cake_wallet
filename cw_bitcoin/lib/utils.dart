@@ -15,14 +15,7 @@ String generateP2WPKHAddress(
         {required bitcoin.HDWallet hd,
         required int index,
         required bitcoin.NetworkType networkType}) =>
-    bitcoin
-        .P2WPKH(
-            data: PaymentData(
-                pubkey:
-                    Uint8List.fromList(HEX.decode(hd.derive(index).pubKey!))),
-            network: networkType)
-        .data
-        .address!;
+    bitcoin.P2wpkhAddress(pubkey: hd.derive(index).pubKey!).toAddress(networkType);
 
 String generateP2PKHAddress(
         {required bitcoin.HDWallet hd,
@@ -39,4 +32,5 @@ String generateP2TRAddress(
         {required bitcoin.HDWallet hd,
         required int index,
         required bitcoin.NetworkType networkType}) =>
-    bitcoin.P2trAddress(program: hd.derive(index).pubKey!).toAddress(networkType);
+    bitcoin.P2trAddress(pubkey: hd.derive(index).pubKey!, network: networkType)
+        .toAddress(networkType);
