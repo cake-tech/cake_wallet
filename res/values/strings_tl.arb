@@ -743,5 +743,6 @@
   "seedtype_polyseed": "Polyseed (16 na salita)",
   "seed_language_czech": "Czech",
   "seed_language_korean": "Korean",
-  "seed_language_chinese_traditional": "Intsik (tradisyonal)"
+  "seed_language_chinese_traditional": "Intsik (tradisyonal)",
+  "dfx_option_description": "Bumili ng crypto gamit ang EUR at CHF. Hanggang 990€ nang walang karagdagang KYC. Para sa retail at corporate na mga customer sa Europe"
 }

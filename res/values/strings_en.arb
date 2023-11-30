@@ -750,5 +750,6 @@
   "seedtype_polyseed": "Polyseed (16 words)",
   "seed_language_czech": "Czech",
   "seed_language_korean": "Korean",
-  "seed_language_chinese_traditional": "Chinese (Traditional)"
+  "seed_language_chinese_traditional": "Chinese (Traditional)",
+  "dfx_option_description": "Buy crypto with EUR & CHF. Up to 990€ without additional KYC. For retail and corporate customers in Europe"
 }
