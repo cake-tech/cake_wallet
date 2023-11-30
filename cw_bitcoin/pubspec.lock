@@ -86,9 +86,11 @@ packages:
   bitcoin_flutter:
     dependency: "direct main"
     description:
-      path: "/home/rafael/Storage/Repositories/bitcoin_flutter"
-      relative: false
-    source: path
+      path: "."
+      ref: silent-payments
+      resolved-ref: "28168b4e678b04bbbe70aa7fb5d2797b0a8e1b71"
+      url: "https://github.com/cake-tech/bitcoin_flutter.git"
+    source: git
     version: "2.0.2"
   boolean_selector:
     dependency: transitive
