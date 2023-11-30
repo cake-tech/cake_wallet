@@ -58,7 +58,7 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
         _client = PolygonClient(),
         walletAddresses = PolygonWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, ERC20Balance>.of({
-          CryptoCurrency.matic: initialBalance ?? ERC20Balance(BigInt.zero)
+          CryptoCurrency.maticpoly: initialBalance ?? ERC20Balance(BigInt.zero)
         }),
         super(walletInfo) {
     this.walletInfo = walletInfo;

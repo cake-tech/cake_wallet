@@ -75,10 +75,10 @@ class EthereumClient {
     String? contractAddress,
   }) async {
     assert(currency == CryptoCurrency.eth ||
-        currency == CryptoCurrency.matic ||
+        currency == CryptoCurrency.maticpoly ||
         contractAddress != null);
 
-    bool _isEVMCompatibleChain = currency == CryptoCurrency.eth || currency == CryptoCurrency.matic;
+    bool _isEVMCompatibleChain = currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
 
     final price = _client!.getGasPrice();
 
@@ -125,7 +125,7 @@ class EthereumClient {
 
   int _getChainIdForCurrency(CryptoCurrency currency) {
     switch (currency) {
-      case CryptoCurrency.matic:
+      case CryptoCurrency.maticpoly:
         return 137;
       case CryptoCurrency.eth:
       default:

@@ -630,7 +630,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.polygon:
-        depositCurrency = CryptoCurrency.matic;
+        depositCurrency = CryptoCurrency.maticpoly;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       default:
