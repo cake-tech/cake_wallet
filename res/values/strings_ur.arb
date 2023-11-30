@@ -736,7 +736,7 @@
   "unspent_change": "تبدیل کریں",
   "Block_remaining": "${status} باقی بلاک",
   "labeled_silent_addresses": "خاموش پتے لیبل لگا",
-  "use_testnet": "ٹیسٹ نیٹ استعمال کریں"
+  "use_testnet": "ٹیسٹ نیٹ استعمال کریں",
   "seed_hex_form": "پرس بیج (ہیکس فارم)",
   "tor_connection": "ﻦﺸﮑﻨﮐ ﺭﻮﭨ",
   "seedtype": "سیڈ ٹائپ",
