@@ -78,8 +78,12 @@ class MoneroWalletService extends WalletService<
         final polyseed = Polyseed.create();
         final lang = PolyseedLang.getByEnglishName(credentials.language);
 
+        final heightOverride =
+            getMoneroHeigthByDate(date: DateTime.now().subtract(Duration(days: 2)));
+
         return _restoreFromPolyseed(
-            path, credentials.password!, polyseed, credentials.walletInfo!, lang);
+            path, credentials.password!, polyseed, credentials.walletInfo!, lang,
+            overrideHeight: heightOverride);
       }
 
       await monero_wallet_manager.createWallet(
@@ -274,8 +278,8 @@ class MoneroWalletService extends WalletService<
 
   Future<MoneroWallet> _restoreFromPolyseed(String path, String password, Polyseed polyseed,
       WalletInfo walletInfo, PolyseedLang lang,
-      {PolyseedCoin coin = PolyseedCoin.POLYSEED_MONERO}) async {
-    final height = getMoneroHeigthByDate(
+      {PolyseedCoin coin = PolyseedCoin.POLYSEED_MONERO, int? overrideHeight}) async {
+    final height = overrideHeight ?? getMoneroHeigthByDate(
         date: DateTime.fromMillisecondsSinceEpoch(polyseed.birthday * 1000));
     final spendKey = keyToHexString(polyseed.generateKey(coin, 32));
     final seed = polyseed.encode(lang, coin);
