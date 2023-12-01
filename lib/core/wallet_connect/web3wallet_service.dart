@@ -235,11 +235,10 @@ abstract class Web3WalletServiceBase with Store {
   @action
   Future<void> _onAuthRequest(AuthRequest? args) async {
     if (args != null) {
-      final chain = getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type);
-      List<ChainKeyModel> chainKeys = walletKeyService.getKeysForChain(chain);
-      // Create the message to be signed
-      final String iss = 'did:pkh:$chain:${chainKeys.first.publicKey}';
       final chaindIdNamespace = getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type);
+      List<ChainKeyModel> chainKeys = walletKeyService.getKeysForChain(chaindIdNamespace);
+      // Create the message to be signed
+      final String iss = 'did:pkh:$chaindIdNamespace:${chainKeys.first.publicKey}';
       final Widget modalWidget = Web3RequestModal(
         child: ConnectionRequestWidget(
           chaindIdNamespace: chaindIdNamespace,
