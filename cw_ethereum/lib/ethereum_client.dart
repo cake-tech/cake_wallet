@@ -102,6 +102,7 @@ class EthereumClient {
       final erc20 = ERC20(
         client: _client!,
         address: EthereumAddress.fromHex(contractAddress!),
+        chainId: chainId,
       );
 
       _sendTransaction = () async {
