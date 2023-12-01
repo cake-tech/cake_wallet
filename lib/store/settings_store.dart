@@ -679,11 +679,11 @@ abstract class SettingsStoreBase with Store {
           sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority) != null) {
-      ethereumTransactionPriority = bitcoin?.deserializeLitecoinTransactionPriority(
+      ethereumTransactionPriority = ethereum?.deserializeEthereumTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority) != null) {
-      polygonTransactionPriority = bitcoin?.deserializeLitecoinTransactionPriority(
+      polygonTransactionPriority = polygon?.deserializePolygonTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
