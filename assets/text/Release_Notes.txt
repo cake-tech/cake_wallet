@@ -1,3 +1,4 @@
-Monero Polyseed support, under Advanced privacy settings, create and restore from a 16 words phrase and without the need to remember the wallet creation date
-Add Ethereum NFTs tab to see all of your purchased NFTs
-Minor bug fixes and enhancements
+Monero Polyseed support, create and restore from a 16 words phrase and without the need to remember the wallet creation date
+Polygon! Store Matic and ERC-20 tokens
+Add NFTs tab to see all of your purchased NFTs on Ethereum and Polygon
+Bug fixes and enhancements

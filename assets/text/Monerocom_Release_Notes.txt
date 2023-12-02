@@ -1,2 +1,2 @@
-Monero Polyseed support, under Advanced privacy settings, create and restore from a 16 words phrase and without the need to remember the wallet creation date
-Minor bug fixes and enhancements
+Monero Polyseed support, create and restore from a 16 words phrase and without the need to remember the wallet creation date
+Bug fixes and enhancements
