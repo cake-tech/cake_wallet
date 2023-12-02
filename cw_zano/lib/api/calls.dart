@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:cw_zano/api/convert_utf8_to_string.dart';
 import 'package:cw_zano/api/model.dart';
+import 'package:cw_zano/api/model/get_recent_txs_and_info_params.dart';
+import 'package:cw_zano/api/model/transfer_params.dart';
 import 'package:cw_zano/api/zano_api.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
@@ -65,6 +67,22 @@ final _closeWalletNative = zanoApi
 typedef _close_wallet = Void Function(Int64);
 typedef _closeWalletStatus = void Function(int hWallet);
 
+// get_current_tx_fee
+final _getCurrentTxFeeNative = zanoApi
+    .lookup<NativeFunction<_get_current_tx_fee>>('get_current_tx_fee')
+    .asFunction<_getCurrentTxFee>();
+typedef _get_current_tx_fee = Int64 Function(Int64);
+typedef _getCurrentTxFee = int Function(int priority);
+
+final _restoreWalletFromSeedNative = zanoApi
+    .lookup<NativeFunction<_restore_wallet_from_seed>>(
+        'restore_wallet_from_seed')
+    .asFunction<_RestoreWalletFromSeed>();
+typedef _restore_wallet_from_seed = Pointer<Utf8> Function(
+    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int32, Int64, Pointer<Utf8>);
+typedef _RestoreWalletFromSeed = Pointer<Utf8> Function(
+    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, int, int, Pointer<Utf8>);
+
 String doAsyncCall(
     {required String methodName,
     required int hWallet,
@@ -73,7 +91,7 @@ String doAsyncCall(
   final paramsPointer = params.toNativeUtf8();
 
   debugPrint(
-      "async_call method_name $methodName hWallet $hWallet params $params");
+      'async_call method_name $methodName hWallet $hWallet params $params');
   final result = convertUTF8ToString(
       pointer: _asyncCallNative(methodNamePointer, hWallet, paramsPointer));
 
@@ -95,31 +113,32 @@ Future<String> invokeMethod(
       }));
   debugPrint('invoke result $invokeResult');
   final map = json.decode(invokeResult);
-  if (map["job_id"] != null) {
-    bool done = false;
-    do {
-      await Future.delayed(Duration(seconds: 3));
-      final result = tryPullResult(map["job_id"] as int);
-      final map2 = json.decode(result);
-      done = map2["result"] == null || map2["result"]["error"] == null;
-    } while (!done);
+  if (map['job_id'] != null) {
+    await Future.delayed(Duration(seconds: 3));
+    final result = tryPullResult(map['job_id'] as int);
+    return result;
   }
-  return "";
+  return invokeResult;
 }
 
 Future<String> store(int hWallet) async {
-  // debugPrint("store hWallet $hWallet");
-  // final result = doAsyncCall(
-  //     methodName: 'invoke',
-  //     hWallet: hWallet,
-  //     params: "{method: 'store', params: {}}");
-  // debugPrint('store result $result');
-  // final map = json.decode(result);
-  // if (map["job_id"] != null) {
-  //   await Future.delayed(Duration(seconds: 1));
-  //   tryPullResult(map["job_id"] as int);
-  // }
   return await invokeMethod(hWallet, 'store', '{}');
+}
+
+Future<String> transfer(int hWallet, TransferParams params) async {
+  final invokeResult = await doAsyncCall(
+    methodName: 'invoke',
+    hWallet: hWallet,
+    params: '{"method": "transfer","params": ${jsonEncode(params)}}',
+  );
+  debugPrint('invoke result $invokeResult');
+  var map = json.decode(invokeResult);
+  if (map['job_id'] != null) {
+    await Future.delayed(Duration(seconds: 3));
+    final result = tryPullResult(map['job_id'] as int);
+    return result;
+  }
+  return invokeResult;
 }
 
 Future<String> getRecentTxsAndInfo(
@@ -140,15 +159,22 @@ Future<String> getRecentTxsAndInfo(
 }
 
 String getWalletStatus(int hWallet) {
-  debugPrint("get_wallet_status hWallet $hWallet");
+  debugPrint('get_wallet_status hWallet $hWallet');
   final result = convertUTF8ToString(pointer: _getWalletStatusNative(hWallet));
   debugPrint('get_wallet_status result $result');
   return result;
 }
 
 void closeWallet(int hWallet) {
-  debugPrint("close_wallet hWallet $hWallet");
+  debugPrint('close_wallet hWallet $hWallet');
   _closeWalletNative(hWallet);
+}
+
+int getCurrentTxFee(int priority) {
+  debugPrint('get_current_tx_fee priority $priority');
+  final result = _getCurrentTxFeeNative(priority);
+  debugPrint('get_current_tx_fee result $result');
+  return result;
 }
 
 String getWalletInfo(int hWallet) {
@@ -170,14 +196,25 @@ String getVersion() {
   return result;
 }
 
+String restoreWalletFromSeed(String path, String password, String seed) {
+  debugPrint('restore_wallet_from_seed path $path password $password seed $seed');
+  final pathPointer = path.toNativeUtf8();
+  final passwordPointer = password.toNativeUtf8();
+  final seedPointer = seed.toNativeUtf8();
+  final errorMessagePointer = ''.toNativeUtf8();
+  final result = convertUTF8ToString(pointer: _restoreWalletFromSeedNative(pathPointer,
+    passwordPointer, seedPointer, 0, 0, errorMessagePointer));
+  return result;
+}
+
 String loadWallet(String path, String password, int nettype) {
-  debugPrint("load_wallet path $path password $password nettype $nettype");
+  debugPrint('load_wallet path $path password $password nettype $nettype');
   final pathPointer = path.toNativeUtf8();
   final passwordPointer = password.toNativeUtf8();
   final result = convertUTF8ToString(
     pointer: _loadWalletNative(pathPointer, passwordPointer, nettype),
   );
-  debugPrint("load_wallet result $result");
+  debugPrint('load_wallet result $result');
   return result;
 }
 
