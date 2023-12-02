@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -77,8 +78,12 @@ class MoneroWalletService extends WalletService<
         final polyseed = Polyseed.create();
         final lang = PolyseedLang.getByEnglishName(credentials.language);
 
+        final heightOverride =
+            getMoneroHeigthByDate(date: DateTime.now().subtract(Duration(days: 2)));
+
         return _restoreFromPolyseed(
-            path, credentials.password!, polyseed, credentials.walletInfo!, lang);
+            path, credentials.password!, polyseed, credentials.walletInfo!, lang,
+            overrideHeight: heightOverride);
       }
 
       await monero_wallet_manager.createWallet(
@@ -129,7 +134,12 @@ class MoneroWalletService extends WalletService<
         return openWallet(name, password);
       }
 
-      await wallet.init();
+      if (wallet.seed.isEmpty) {
+        final seedFallback = await _getSeedBackup(path, password);
+        await wallet.init(seedFallback: seedFallback);
+      } else {
+        await wallet.init();
+      }
 
       return wallet;
     } catch (e) {
@@ -268,10 +278,11 @@ class MoneroWalletService extends WalletService<
 
   Future<MoneroWallet> _restoreFromPolyseed(String path, String password, Polyseed polyseed,
       WalletInfo walletInfo, PolyseedLang lang,
-      {PolyseedCoin coin = PolyseedCoin.POLYSEED_MONERO}) async {
-    final height = getMoneroHeigthByDate(
+      {PolyseedCoin coin = PolyseedCoin.POLYSEED_MONERO, int? overrideHeight}) async {
+    final height = overrideHeight ?? getMoneroHeigthByDate(
         date: DateTime.fromMillisecondsSinceEpoch(polyseed.birthday * 1000));
     final spendKey = keyToHexString(polyseed.generateKey(coin, 32));
+    final seed = polyseed.encode(lang, coin);
 
     walletInfo.isRecovery = true;
     walletInfo.restoreHeight = height;
@@ -279,15 +290,25 @@ class MoneroWalletService extends WalletService<
     await monero_wallet_manager.restoreFromSpendKey(
         path: path,
         password: password,
-        seed: polyseed.encode(lang, coin),
+        seed: seed,
         language: lang.nameEnglish,
         restoreHeight: height,
         spendKey: spendKey);
+
+    await writeData(path: "$path.seed", password: password, data: seed);
+
     final wallet = MoneroWallet(
         walletInfo: walletInfo, unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.init();
 
     return wallet;
+  }
+
+  Future<String> _getSeedBackup(String path, String password) async {
+    final seedFilePath = "$path.seed";
+    final seedFile = File(seedFilePath);
+    if (!seedFile.existsSync()) return "";
+    return read(path: seedFilePath, password: password);
   }
 
   Future<void> repairOldAndroidWallet(String name) async {
