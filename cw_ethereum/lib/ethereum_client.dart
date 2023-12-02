@@ -15,12 +15,12 @@ import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 import 'package:cw_ethereum/.secrets.g.dart' as secrets;
 
 class EthereumClient {
-  final _httpClient = Client();
+  final httpClient = Client();
   Web3Client? _client;
 
   bool connect(Node node) {
     try {
-      _client = Web3Client(node.uri.toString(), _httpClient);
+      _client = Web3Client(node.uri.toString(), httpClient);
 
       return true;
     } catch (e) {
@@ -214,25 +214,7 @@ I/flutter ( 4474): Gas Used: 53000
   Future<List<EthereumTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
-      //! This is the flow to fetch transactions using Moralis
-      // final uri = Uri.https(
-      //   'deep-index.moralis.io',
-      //   '/api/v2.2/$address',
-      //   {
-      //     "chain": chainName,
-      //   },
-      // );
-
-      // final response = await _httpClient.get(
-      //   uri,
-      //   headers: {
-      //     "Accept": "application/json",
-      //     "X-API-Key": secrets.moralisApiKey,
-      //   },
-      // );
-
-      //! This is the flow to fetch transactions using EtherScan (or PolygionScan)
-      final response = await _httpClient.get(Uri.https("api.etherscan.io", "/api", {
+      final response = await httpClient.get(Uri.https("api.etherscan.io", "/api", {
         "module": "account",
         "action": contractAddress != null ? "tokentx" : "txlist",
         if (contractAddress != null) "contractaddress": contractAddress,

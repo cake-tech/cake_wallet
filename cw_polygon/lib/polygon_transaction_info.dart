@@ -43,4 +43,7 @@ class PolygonTransactionInfo extends EthereumTransactionInfo {
       to: data['to'],
     );
   }
+
+  @override
+  String feeFormatted() => '${(ethFee / BigInt.from(10).pow(18)).toString()} MATIC';
 }

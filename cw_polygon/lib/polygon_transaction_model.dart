@@ -42,7 +42,7 @@ class PolygonTransactionModel extends EthereumTransactionModel {
         contractAddress: json["contractAddress"],
         confirmations: int.parse(json["confirmations"]),
         blockNumber: int.parse(json["blockNumber"]),
-        tokenSymbol: json["tokenSymbol"] ?? "ETH",
+        tokenSymbol: json["tokenSymbol"] ?? "MATIC",
         tokenDecimal: int.tryParse(json["tokenDecimal"] ?? ""),
         isError: json["isError"] == "1",
       );

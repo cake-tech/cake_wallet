@@ -21,8 +21,8 @@ class PendingEthereumTransaction with PendingTransaction {
 
   @override
   String get amountFormatted {
-    final _amount = BigInt.parse(amount) / BigInt.from(pow(10, exponent));
-    return _amount.toStringAsFixed(min(15, _amount.toString().length));
+    final _amount = (BigInt.parse(amount) / BigInt.from(pow(10, exponent))).toString();
+    return _amount.substring(0, min(10, _amount.length));
   }
 
   @override
@@ -30,8 +30,8 @@ class PendingEthereumTransaction with PendingTransaction {
 
   @override
   String get feeFormatted {
-    final _fee = fee / BigInt.from(pow(10, 18));
-    return _fee.toStringAsFixed(min(15, _fee.toString().length));
+    final _fee = (fee / BigInt.from(pow(10, 18))).toString();
+    return _fee.substring(0, min(10, _fee.length));
   }
 
   @override
