@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -34,8 +36,10 @@ class EthereumTransactionInfo extends TransactionInfo {
   final String? to;
 
   @override
-  String amountFormatted() =>
-      '${formatAmount((ethAmount / BigInt.from(10).pow(exponent)).toString())} $tokenSymbol';
+  String amountFormatted() {
+    final amount = formatAmount((ethAmount / BigInt.from(10).pow(exponent)).toString());
+    return '${amount.substring(0, min(10, amount.length))} $tokenSymbol';
+  }
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -44,7 +48,10 @@ class EthereumTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
-  String feeFormatted() => '${(ethFee / BigInt.from(10).pow(18)).toString()} ETH';
+  String feeFormatted() {
+    final amount = (ethFee / BigInt.from(10).pow(18)).toString();
+    return '${amount.substring(0, min(10, amount.length))} ETH';
+  }
 
   factory EthereumTransactionInfo.fromJson(Map<String, dynamic> data) {
     return EthereumTransactionInfo(

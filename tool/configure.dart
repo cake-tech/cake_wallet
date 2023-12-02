@@ -6,6 +6,7 @@ const havenOutputPath = 'lib/haven/haven.dart';
 const ethereumOutputPath = 'lib/ethereum/ethereum.dart';
 const bitcoinCashOutputPath = 'lib/bitcoin_cash/bitcoin_cash.dart';
 const nanoOutputPath = 'lib/nano/nano.dart';
+const polygonOutputPath = 'lib/polygon/polygon.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
 const pubspecOutputPath = 'pubspec.yaml';
@@ -19,6 +20,7 @@ Future<void> main(List<String> args) async {
   final hasBitcoinCash = args.contains('${prefix}bitcoinCash');
   final hasNano = args.contains('${prefix}nano');
   final hasBanano = args.contains('${prefix}banano');
+  final hasPolygon = args.contains('${prefix}polygon');
 
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
@@ -26,6 +28,7 @@ Future<void> main(List<String> args) async {
   await generateEthereum(hasEthereum);
   await generateBitcoinCash(hasBitcoinCash);
   await generateNano(hasNano);
+  await generatePolygon(hasPolygon);
   // await generateBanano(hasEthereum);
 
   await generatePubspec(
@@ -36,6 +39,7 @@ Future<void> main(List<String> args) async {
     hasNano: hasNano,
     hasBanano: hasBanano,
     hasBitcoinCash: hasBitcoinCash,
+    hasPolygon: hasPolygon,
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -45,6 +49,7 @@ Future<void> main(List<String> args) async {
     hasNano: hasNano,
     hasBanano: hasBanano,
     hasBitcoinCash: hasBitcoinCash,
+    hasPolygon: hasPolygon,
   );
 }
 
@@ -572,6 +577,93 @@ abstract class Ethereum {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generatePolygon(bool hasImplementation) async {
+  final outputFile = File(polygonOutputPath);
+  const polygonCommonHeaders = """
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_ethereum/ethereum_mnemonics.dart';
+import 'package:eth_sig_util/util/utils.dart';
+import 'package:hive/hive.dart';
+import 'package:web3dart/web3dart.dart';
+""";
+  const polygonCWHeaders = """
+import 'package:cw_polygon/polygon_formatter.dart';
+import 'package:cw_polygon/polygon_transaction_credentials.dart';
+import 'package:cw_polygon/polygon_transaction_info.dart';
+import 'package:cw_polygon/polygon_wallet.dart';
+import 'package:cw_polygon/polygon_wallet_creation_credentials.dart';
+import 'package:cw_polygon/polygon_wallet_service.dart';
+import 'package:cw_polygon/polygon_transaction_priority.dart';
+""";
+  const polygonCwPart = "part 'cw_polygon.dart';";
+  const polygonContent = """
+abstract class Polygon {
+  List<String> getPolygonWordList(String language);
+  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource);
+  WalletCredentials createPolygonNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  WalletCredentials createPolygonRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  WalletCredentials createPolygonRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
+  String getAddress(WalletBase wallet);
+  String getPrivateKey(WalletBase wallet);
+  String getPublicKey(WalletBase wallet);
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getPolygonTransactionPrioritySlow();
+  List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority deserializePolygonTransactionPriority(int raw);
+
+  Object createPolygonTransactionCredentials(
+    List<Output> outputs, {
+    required TransactionPriority priority,
+    required CryptoCurrency currency,
+    int? feeRate,
+  });
+
+  Object createPolygonTransactionCredentialsRaw(
+    List<OutputInfo> outputs, {
+    TransactionPriority? priority,
+    required CryptoCurrency currency,
+    required int feeRate,
+  });
+
+  int formatterPolygonParseAmount(String amount);
+  double formatterPolygonAmountToDouble({TransactionInfo? transaction, BigInt? amount, int exponent = 18});
+  List<Erc20Token> getERC20Currencies(WalletBase wallet);
+  Future<void> addErc20Token(WalletBase wallet, Erc20Token token);
+  Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token);
+  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
+  
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
+  void updatePolygonScanUsageState(WalletBase wallet, bool isEnabled);
+  Web3Client? getWeb3Client(WalletBase wallet);
+}
+  """;
+
+  const polygonEmptyDefinition = 'Polygon? polygon;\n';
+  const polygonCWDefinition = 'Polygon? polygon = CWPolygon();\n';
+
+  final output = '$polygonCommonHeaders\n' +
+      (hasImplementation ? '$polygonCWHeaders\n' : '\n') +
+      (hasImplementation ? '$polygonCwPart\n\n' : '\n') +
+      (hasImplementation ? polygonCWDefinition : polygonEmptyDefinition) +
+      '\n' +
+      polygonContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generateBitcoinCash(bool hasImplementation) async {
   final outputFile = File(bitcoinCashOutputPath);
   const bitcoinCashCommonHeaders = """
@@ -783,7 +875,8 @@ Future<void> generatePubspec(
     required bool hasEthereum,
     required bool hasNano,
     required bool hasBanano,
-    required bool hasBitcoinCash}) async {
+    required bool hasBitcoinCash,
+    required bool hasPolygon}) async {
   const cwCore = """
   cw_core:
     path: ./cw_core
@@ -820,6 +913,10 @@ Future<void> generatePubspec(
   cw_banano:
     path: ./cw_banano
   """;
+  const cwPolygon = """
+  cw_polygon:
+    path: ./cw_polygon
+  """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
@@ -850,6 +947,10 @@ Future<void> generatePubspec(
     output += '\n$cwBitcoinCash';
   }
 
+  if (hasPolygon) {
+    output += '\n$cwPolygon';
+  }
+
   if (hasHaven && !hasMonero) {
     output += '\n$cwSharedExternal\n$cwHaven';
   } else if (hasHaven) {
@@ -875,7 +976,8 @@ Future<void> generateWalletTypes(
     required bool hasEthereum,
     required bool hasNano,
     required bool hasBanano,
-    required bool hasBitcoinCash}) async {
+    required bool hasBitcoinCash,
+    required bool hasPolygon}) async {
   final walletTypesFile = File(walletTypesPath);
 
   if (walletTypesFile.existsSync()) {
@@ -904,6 +1006,10 @@ Future<void> generateWalletTypes(
 
   if (hasBitcoinCash) {
     outputContent += '\tWalletType.bitcoinCash,\n';
+  }
+
+  if (hasPolygon) {
+    outputContent += '\tWalletType.polygon,\n';
   }
 
   if (hasNano) {

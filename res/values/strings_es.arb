@@ -749,5 +749,6 @@
   "seedtype_polyseed": "Polieta (16 palabras)",
   "seed_language_czech": "checo",
   "seed_language_korean": "coreano",
-  "seed_language_chinese_traditional": "Chino (tradicional)"
+  "seed_language_chinese_traditional": "Chino (tradicional)",
+  "polygonscan_history": "Historial de PolygonScan"
 }

@@ -3,6 +3,7 @@ import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -24,6 +25,8 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
     case WalletType.nano:
     case WalletType.banano:
       return [];
+    case WalletType.polygon:
+      return polygon!.getTransactionPriorities();
     default:
       return [];
   }

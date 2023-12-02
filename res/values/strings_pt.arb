@@ -748,5 +748,6 @@
   "seedtype_polyseed": "Polyseed (16 palavras)",
   "seed_language_czech": "Tcheco",
   "seed_language_korean": "coreano",
-  "seed_language_chinese_traditional": "Chinês tradicional)"
+  "seed_language_chinese_traditional": "Chinês tradicional)",
+  "polygonscan_history": "História do PolygonScan"
 }

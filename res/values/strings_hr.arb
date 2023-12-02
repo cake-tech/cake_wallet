@@ -747,5 +747,6 @@
   "seedtype_polyseed": "Poliseed (16 riječi)",
   "seed_language_czech": "češki",
   "seed_language_korean": "korejski",
-  "seed_language_chinese_traditional": "Kinesko (tradicionalno)"
+  "seed_language_chinese_traditional": "Kinesko (tradicionalno)",
+  "polygonscan_history": "Povijest PolygonScan"
 }

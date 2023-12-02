@@ -743,5 +743,6 @@
   "seedtype_polyseed": "Polyseed (16 na salita)",
   "seed_language_czech": "Czech",
   "seed_language_korean": "Korean",
-  "seed_language_chinese_traditional": "Intsik (tradisyonal)"
+  "seed_language_chinese_traditional": "Intsik (tradisyonal)",
+  "polygonscan_history": "Kasaysayan ng PolygonScan"
 }

@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -12,8 +13,7 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 
 part 'privacy_settings_view_model.g.dart';
 
-class
-PrivacySettingsViewModel = PrivacySettingsViewModelBase with _$PrivacySettingsViewModel;
+class PrivacySettingsViewModel = PrivacySettingsViewModelBase with _$PrivacySettingsViewModel;
 
 abstract class PrivacySettingsViewModelBase with Store {
   PrivacySettingsViewModelBase(this._settingsStore, this._wallet);
@@ -59,6 +59,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get useEtherscan => _settingsStore.useEtherscan;
 
   @computed
+  bool get usePolygonScan => _settingsStore.usePolygonScan;
+
+  @computed
   bool get lookupTwitter => _settingsStore.lookupsTwitter;
 
   @computed
@@ -77,6 +80,8 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get looksUpENS => _settingsStore.lookupsENS;
 
   bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
+
+  bool get canUsePolygonScan => _wallet.type == WalletType.polygon;
 
   @action
   void setShouldSaveRecipientAddress(bool value) =>
@@ -119,5 +124,11 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setUseEtherscan(bool value) {
     _settingsStore.useEtherscan = value;
     ethereum!.updateEtherscanUsageState(_wallet, value);
+  }
+
+  @action
+  void setUsePolygonScan(bool value) {
+    _settingsStore.usePolygonScan = value;
+    polygon!.updatePolygonScanUsageState(_wallet, value);
   }
 }

@@ -747,5 +747,6 @@
   "seedtype_polyseed": "polyseed (စကားလုံး 16 လုံး)",
   "seed_language_czech": "ချက်",
   "seed_language_korean": "ကိုးရီးယား",
-  "seed_language_chinese_traditional": "တရုတ်ရိုးရာ)"
+  "seed_language_chinese_traditional": "တရုတ်ရိုးရာ)",
+  "polygonscan_history": "PolygonScan မှတ်တမ်း"
 }
