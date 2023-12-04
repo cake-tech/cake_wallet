@@ -1,4 +1,3 @@
 Monero Polyseed support, create and restore from a 16 words phrase and without the need to remember the wallet creation date
-Polygon! Store Matic and ERC-20 tokens
-Add NFTs tab to see all of your purchased NFTs on Ethereum and Polygon
+Add NFTs tab to see all of your purchased NFTs on Ethereum
 Bug fixes and enhancements
