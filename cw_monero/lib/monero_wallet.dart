@@ -97,8 +97,7 @@ abstract class MoneroWalletBase
   ObservableMap<CryptoCurrency, MoneroBalance> balance;
 
   @override
-  String get seed => _seed;
-  String _seed = monero_wallet.getSeed();
+  String get seed => monero_wallet.getSeed();
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
@@ -114,11 +113,7 @@ abstract class MoneroWalletBase
   Timer? _autoSaveTimer;
   List<MoneroUnspent> unspentCoins;
 
-  Future<void> init({String seedFallback = ""}) async {
-    if (_seed.isEmpty) {
-      _seed = seedFallback;
-    }
-
+  Future<void> init() async {
     await walletAddresses.init();
     balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency, MoneroBalance>{
       currency: MoneroBalance(
