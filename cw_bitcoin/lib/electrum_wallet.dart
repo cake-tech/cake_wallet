@@ -82,7 +82,7 @@ abstract class ElectrumWalletBase
       bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'/0");
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
-      inputsCount * 146 + outputsCounts * 33 + 8;
+      inputsCount * 68 + outputsCounts * 34 + 10;
 
   final bitcoin.HDWallet hd;
   final String mnemonic;
