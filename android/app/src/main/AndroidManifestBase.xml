@@ -62,6 +62,9 @@
                 <data android:scheme="bitcoincash" />
                 <data android:scheme="bitcoincash-wallet" />
                 <data android:scheme="bitcoincash_wallet" />
+                <data android:scheme="polygon" />
+                <data android:scheme="polygon-wallet" />
+                <data android:scheme="polygon_wallet" />
             </intent-filter>
         </activity>
         <meta-data

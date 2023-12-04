@@ -88,6 +88,8 @@ class Node extends HiveObject with Keyable {
         } else {
           return Uri.http(uriRaw, '');
         }
+      case WalletType.polygon:
+        return Uri.https(uriRaw, '');
       default:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -146,6 +148,8 @@ class Node extends HiveObject with Keyable {
         case WalletType.nano:
         case WalletType.banano:
           return requestNanoNode();
+        case WalletType.polygon:
+          return requestElectrumServer();
         default:
           return false;
       }

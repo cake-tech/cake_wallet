@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/balance.dart';
@@ -81,7 +82,7 @@ abstract class BalanceViewModelBase with Store {
   bool get isFiatDisabled => settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   @computed
-  bool get isHomeScreenSettingsEnabled => wallet.type == WalletType.ethereum;
+  bool get isHomeScreenSettingsEnabled => isEVMCompatibleChain(wallet.type);
 
   @computed
   bool get hasAccounts => wallet.type == WalletType.monero;
@@ -123,6 +124,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.monero:
       case WalletType.haven:
       case WalletType.ethereum:
+      case WalletType.polygon:
         return S.current.xmr_available_balance;
       default:
         return S.current.confirmed;
@@ -135,6 +137,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.monero:
       case WalletType.haven:
       case WalletType.ethereum:
+      case WalletType.polygon:
         return S.current.xmr_full_balance;
       default:
         return S.current.unconfirmed;
@@ -272,7 +275,8 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
-  bool get hasAdditionalBalance => wallet.type != WalletType.ethereum;
+  bool get hasAdditionalBalance => !isEVMCompatibleChain(wallet.type);
+   
 
   @computed
   List<BalanceRecord> get formattedBalances {

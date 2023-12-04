@@ -1,9 +1,11 @@
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/core/wallet_connect/models/chain_key_model.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 
 abstract class WalletConnectKeyService {
   /// Returns a list of all the keys.
@@ -32,16 +34,36 @@ class KeyServiceImpl implements WalletConnectKeyService {
               'eip155:42161',
               'eip155:80001',
             ],
-            privateKey: ethereum!.getPrivateKey(wallet),
-            publicKey: ethereum!.getPublicKey(wallet),
+            privateKey: _getPrivateKeyForWallet(wallet),
+            publicKey: _getPublicKeyForWallet(wallet),
           ),
-          
         ];
 
   late final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
   late final List<ChainKeyModel> _keys;
 
+  static String _getPrivateKeyForWallet(WalletBase wallet) {
+    switch (wallet.type) {
+      case WalletType.ethereum:
+        return ethereum!.getPrivateKey(wallet);
+      case WalletType.polygon:
+        return polygon!.getPrivateKey(wallet);
+      default:
+        return '';
+    }
+  }
+
+  static String _getPublicKeyForWallet(WalletBase wallet) {
+    switch (wallet.type) {
+      case WalletType.ethereum:
+        return ethereum!.getPublicKey(wallet);
+      case WalletType.polygon:
+        return polygon!.getPublicKey(wallet);
+      default:
+        return '';
+    }
+  }
   @override
   List<String> getChains() {
     final List<String> chainIds = [];

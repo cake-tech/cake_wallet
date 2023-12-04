@@ -18,6 +18,8 @@ import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_options_page.dart';
@@ -750,7 +752,7 @@ Future<void> setup({
     final wallet = getIt.get<AppStore>().wallet;
     return ConnectionSyncPage(
       getIt.get<DashboardViewModel>(),
-      wallet?.type == WalletType.ethereum ? getIt.get<Web3WalletService>() : null,
+      isEVMCompatibleChain(wallet!.type) ? getIt.get<Web3WalletService>() : null,
     );
   });
 
@@ -847,6 +849,8 @@ Future<void> setup({
             .createBitcoinCashWalletService(_walletInfoSource, _unspentCoinsInfoSource!);
       case WalletType.nano:
         return nano!.createNanoWalletService(_walletInfoSource);
+      case WalletType.polygon:
+        return polygon!.createPolygonWalletService(_walletInfoSource);
       default:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }
