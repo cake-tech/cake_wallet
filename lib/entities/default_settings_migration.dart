@@ -1,13 +1,11 @@
 import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -381,7 +379,7 @@ Node getMoneroDefaultNode({required Box<Node> nodes}) {
   }
 }
 
-Future<void> rewriteSecureStoragePin({required FlutterSecureStorage secureStorage}) async {
+Future<void> rewriteSecureStoragePin({required SecureStorage secureStorage}) async {
   // the bug only affects ios/mac:
   if (!Platform.isIOS && !Platform.isMacOS) {
     return;
@@ -407,8 +405,9 @@ Future<void> rewriteSecureStoragePin({required FlutterSecureStorage secureStorag
   await secureStorage.write(
     key: keyForPinCode,
     value: encodedPin,
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
-    mOptions: MacOsOptions(accessibility: KeychainAccessibility.first_unlock),
+    // TODO: find a way to add those with the generated secure storage
+    // iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    // mOptions: MacOsOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 }
 
@@ -431,7 +430,7 @@ Future<void> changeLitecoinCurrentElectrumServerToDefault(
 Future<void> changeBitcoinCashCurrentNodeToDefault(
     {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
   final server = getBitcoinCashDefaultElectrumServer(nodes: nodes);
-  final serverId = server?.key as int ?? 0;
+  final serverId = server?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, serverId);
 }

@@ -612,8 +612,8 @@ import 'package:cw_ethereum/ethereum_mnemonics.dart';
   const polygonContent = """
 abstract class Polygon {
   List<String> getPolygonWordList(String language);
-  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource);
-  WalletCredentials createPolygonNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletCredentials createPolygonNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password});
   WalletCredentials createPolygonRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createPolygonRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   String getAddress(WalletBase wallet);

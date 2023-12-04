@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:core';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_ethereum/file.dart';
 import 'package:cw_polygon/polygon_transaction_info.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';

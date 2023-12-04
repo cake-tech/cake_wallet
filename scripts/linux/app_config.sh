@@ -13,7 +13,7 @@ CONFIG_ARGS=""
 
 case $APP_LINUX_TYPE in
         $CAKEWALLET)
-		CONFIG_ARGS="--monero --bitcoin --ethereum --nano --excludeFlutterSecureStorage";;
+		CONFIG_ARGS="--monero --bitcoin --ethereum --nano --bitcoinCash --excludeFlutterSecureStorage";;
 esac
 
 cp -rf pubspec_description.yaml pubspec.yaml

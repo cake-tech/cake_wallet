@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:cw_core/file.dart' as file;
+import 'package:cw_core/utils/file.dart' as file;
 import 'package:cake_backup/backup.dart' as cwb;
 
 EncryptionFileUtils encryptionFileUtilsFor(bool direct)

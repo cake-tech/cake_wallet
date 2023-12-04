@@ -11,13 +11,13 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_ethereum/ethereum_formatter.dart';
 import 'package:cw_ethereum/ethereum_transaction_model.dart';
-import 'package:cw_ethereum/file.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_polygon/default_erc20_tokens.dart';
 import 'package:cw_polygon/polygon_client.dart';
@@ -531,6 +531,9 @@ abstract class PolygonWalletBase extends WalletBase<ERC20Balance,
       _transactionsUpdateTimer?.cancel();
     }
   }
+
+  @override
+  String get password => _password;
 
   @override
   String signMessage(String message, {String? address = null}) => bytesToHex(
