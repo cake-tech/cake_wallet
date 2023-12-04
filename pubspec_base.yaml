@@ -98,10 +98,10 @@ dependencies:
       url: https://github.com/cake-tech/bitcoin_flutter.git
       ref: cake-update-v3
   fluttertoast: 8.1.4
-  tor:
-    git:
-      url: https://github.com/cake-tech/tor.git
-      ref: main
+#  tor:
+#    git:
+#      url: https://github.com/cake-tech/tor.git
+#      ref: main
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
   polyseed:
