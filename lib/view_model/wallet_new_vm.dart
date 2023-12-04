@@ -14,6 +14,8 @@ import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
 
+import '../polygon/polygon.dart';
+
 part 'wallet_new_vm.g.dart';
 
 class WalletNewVM = WalletNewVMBase with _$WalletNewVM;
@@ -30,26 +32,30 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
 
   bool get hasLanguageSelector => type == WalletType.monero || type == WalletType.haven;
 
+  bool get hasSeedType => type == WalletType.monero;
+
   @override
   WalletCredentials getCredentials(dynamic _options) {
-    final options = _options as List<dynamic>;
+    final options = _options as List<dynamic>?;
     switch (type) {
       case WalletType.monero:
         return monero!.createMoneroNewWalletCredentials(
-            name: name, language: options.first as String, password: walletPassword, isPolyseed: options.last as bool);
+            name: name, language: options!.first as String, password: walletPassword, isPolyseed: options!.last as bool);
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.litecoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.haven:
         return haven!.createHavenNewWalletCredentials(
-            name: name, language: options.first as String, password: walletPassword);
+            name: name, language: options!.first as String, password: walletPassword);
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.bitcoinCash:
         return bitcoinCash!.createBitcoinCashNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.nano:
         return nano!.createNanoNewWalletCredentials(name: name, password: walletPassword);
+      case WalletType.polygon:
+        return polygon!.createPolygonNewWalletCredentials(name: name, password: walletPassword);
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }

@@ -160,7 +160,7 @@
   "seed_title": "iri",
   "seed_share": "Raba iri",
   "copy": "Kwafi",
-  "seed_language_choose": "Don Allah zaɓi harshen seed:",
+  "seed_language": "Harshen Magani",
   "seed_choose": "Zaɓi harshen seed",
   "seed_language_next": "Na gaba",
   "seed_language_english": "Ingilishi",
@@ -570,7 +570,7 @@
   "always": "Koyaushe",
   "minutes_to_pin_code": "${minute} minti",
   "disable_exchange": "Kashe musanya",
-  "advanced_privacy_settings": "Babban Saitunan Sirri",
+  "advanced_settings": "Saitunan ci gaba",
   "settings_can_be_changed_later": "Ana iya canza waɗannan saitunan daga baya a cikin saitunan app",
   "add_custom_node": "Ƙara Sabon Kulli na Custom",
   "disable_fiat": "Dakatar da fiat",
@@ -733,5 +733,6 @@
   "seedtype_polyseed": "Polyseed (16 kalmomi)",
   "seed_language_czech": "Czech",
   "seed_language_korean": "Yaren Koriya",
-  "seed_language_chinese_traditional": "Sinanci (na gargajiya)"
+  "seed_language_chinese_traditional": "Sinanci (na gargajiya)",
+  "polygonscan_history": "PolygonScan tarihin kowane zamani"
 }

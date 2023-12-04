@@ -197,9 +197,9 @@ abstract class NanoWalletBase
 
       final block = await _client.constructSendBlock(
         amountRaw: amt.toString(),
-        destinationAddress: credentials.outputs.first.isParsedAddress
-            ? credentials.outputs.first.extractedAddress!
-            : credentials.outputs.first.address,
+        destinationAddress: txOut.isParsedAddress
+            ? txOut.extractedAddress!
+            : txOut.address,
         privateKey: _privateKey!,
         balanceAfterTx: runningBalance,
         previousHash: previousHash,

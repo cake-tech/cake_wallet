@@ -9,6 +9,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/wallet_connect/models/auth_request_model.dart';
 import 'package:cake_wallet/core/wallet_connect/models/chain_key_model.dart';
 import 'package:cake_wallet/core/wallet_connect/models/session_request_model.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_request_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
@@ -164,8 +165,10 @@ abstract class Web3WalletServiceBase with Store {
 
   void _onSessionProposal(SessionProposalEvent? args) async {
     if (args != null) {
+      final chaindIdNamespace = getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type);
       final Widget modalWidget = Web3RequestModal(
         child: ConnectionRequestWidget(
+          chaindIdNamespace: chaindIdNamespace,
           wallet: _web3Wallet,
           sessionProposal: SessionRequestModel(request: args.params),
         ),
@@ -232,12 +235,13 @@ abstract class Web3WalletServiceBase with Store {
   @action
   Future<void> _onAuthRequest(AuthRequest? args) async {
     if (args != null) {
-      List<ChainKeyModel> chainKeys = walletKeyService.getKeysForChain('eip155:1');
+      final chaindIdNamespace = getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type);
+      List<ChainKeyModel> chainKeys = walletKeyService.getKeysForChain(chaindIdNamespace);
       // Create the message to be signed
-      final String iss = 'did:pkh:eip155:1:${chainKeys.first.publicKey}';
-
+      final String iss = 'did:pkh:$chaindIdNamespace:${chainKeys.first.publicKey}';
       final Widget modalWidget = Web3RequestModal(
         child: ConnectionRequestWidget(
+          chaindIdNamespace: chaindIdNamespace,
           wallet: _web3Wallet,
           authRequest: AuthRequestModel(iss: iss, request: args),
         ),

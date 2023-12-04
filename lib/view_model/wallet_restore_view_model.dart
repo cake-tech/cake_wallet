@@ -3,6 +3,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -28,7 +29,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       : hasSeedLanguageSelector = type == WalletType.monero || type == WalletType.haven,
         hasBlockchainHeightLanguageSelector = type == WalletType.monero || type == WalletType.haven,
         hasRestoreFromPrivateKey =
-            type == WalletType.ethereum || type == WalletType.nano || type == WalletType.banano,
+            type == WalletType.ethereum ||
+            type == WalletType.polygon ||
+            type == WalletType.nano ||
+            type == WalletType.banano,
         isButtonEnabled = false,
         mode = WalletRestoreMode.seed,
         super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true) {
@@ -36,6 +40,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.monero:
       case WalletType.haven:
       case WalletType.ethereum:
+      case WalletType.polygon:
         availableModes = WalletRestoreMode.values;
         break;
       case WalletType.nano:
@@ -107,6 +112,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
             password: password,
             derivationType: derivationType);
+        case WalletType.polygon:
+          return polygon!.createPolygonRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+          );
         default:
           break;
       }
@@ -153,6 +164,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             password: password,
             seedKey: options['private_key'] as String,
             derivationType: options["derivationType"] as DerivationType);
+        case WalletType.polygon:
+          return polygon!.createPolygonRestoreWalletFromPrivateKey(
+            name: name,
+            password: password,
+            privateKey: options['private_key'] as String,
+          );
         default:
           break;
       }

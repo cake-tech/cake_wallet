@@ -26,6 +26,7 @@ class WalletRestoreFromQRCode {
     'litecoin-wallet': WalletType.litecoin,
     'litecoin_wallet': WalletType.litecoin,
     'ethereum-wallet': WalletType.ethereum,
+    'polygon-wallet': WalletType.polygon,
     'nano-wallet': WalletType.nano,
     'nano_wallet': WalletType.nano,
     'bitcoincash': WalletType.bitcoinCash,
@@ -157,7 +158,16 @@ class WalletRestoreFromQRCode {
       return WalletRestoreMode.keys;
     }
 
-    if ((type == WalletType.nano || type == WalletType.banano) && credentials.containsKey('hexSeed')) {
+    if (type == WalletType.polygon && credentials.containsKey('private_key')) {
+      final privateKey = credentials['private_key'] as String;
+      if (privateKey.isEmpty) {
+        throw Exception('Unexpected restore mode: private_key');
+      }
+      return WalletRestoreMode.keys;
+    }
+
+    if ((type == WalletType.nano || type == WalletType.banano) &&
+        credentials.containsKey('hexSeed')) {
       final hexSeed = credentials['hexSeed'] as String;
       if (hexSeed.isEmpty) {
         throw Exception('Unexpected restore mode: hexSeed');

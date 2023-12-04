@@ -1,3 +1,4 @@
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -19,7 +20,8 @@ abstract class WalletKeysViewModelBase with Store {
       : title = _appStore.wallet!.type == WalletType.bitcoin ||
                 _appStore.wallet!.type == WalletType.litecoin ||
                 _appStore.wallet!.type == WalletType.bitcoinCash ||
-                _appStore.wallet!.type == WalletType.ethereum
+                _appStore.wallet!.type == WalletType.ethereum ||
+                _appStore.wallet!.type == WalletType.polygon
             ? S.current.wallet_seed
             : S.current.wallet_keys,
         _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
@@ -98,7 +100,7 @@ abstract class WalletKeysViewModelBase with Store {
       ]);
     }
 
-    if (_appStore.wallet!.type == WalletType.ethereum) {
+    if (isEVMCompatibleChain(_appStore.wallet!.type)) {
       items.addAll([
         if (_appStore.wallet!.privateKey != null)
           StandartListItem(title: S.current.private_key, value: _appStore.wallet!.privateKey!),
@@ -151,6 +153,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'nano-wallet';
       case WalletType.banano:
         return 'banano-wallet';
+      case WalletType.polygon:
+        return 'polygon-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
     }

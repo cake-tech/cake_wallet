@@ -28,10 +28,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       required this.tradesStore,
       required this.sendViewModel})
       : trade = tradesStore.trade!,
-        isSendable = tradesStore.trade!.from == wallet.currency ||
-            tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
-            (wallet.currency == CryptoCurrency.eth &&
-                tradesStore.trade!.from.tag == CryptoCurrency.eth.title),
+        isSendable = _checkIfCanSend(tradesStore, wallet),
         items = ObservableList<ExchangeTradeItem>() {
     switch (trade.provider) {
       case ExchangeProviderDescription.changeNow:
@@ -154,5 +151,20 @@ abstract class ExchangeTradeViewModelBase with Store {
           data: trade.payoutAddress ?? '',
           isCopied: true),
     ]);
+  }
+
+  static bool _checkIfCanSend(TradesStore tradesStore, WalletBase wallet) {
+    bool _isEthToken() =>
+        wallet.currency == CryptoCurrency.eth &&
+        tradesStore.trade!.from.tag == CryptoCurrency.eth.title;
+
+    bool _isPolygonToken() =>
+        wallet.currency == CryptoCurrency.maticpoly &&
+        tradesStore.trade!.from.tag == CryptoCurrency.maticpoly.tag;
+
+    return tradesStore.trade!.from == wallet.currency ||
+        tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
+        _isEthToken() ||
+        _isPolygonToken();
   }
 }

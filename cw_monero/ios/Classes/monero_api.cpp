@@ -396,6 +396,9 @@ extern "C"
             (uint64_t)restoreHeight,
             std::string(spendKey));
 
+        // Cache Raw to support Polyseed
+        wallet->setCacheAttribute("cakewallet.seed", std::string(seed));
+
         int status;
         std::string errorString;
 
@@ -406,9 +409,6 @@ extern "C"
             error = strdup(errorString.c_str());
             return false;
         }
-
-        // Cache Raw to support Polyseed
-        wallet->setCacheAttribute("cakewallet.seed", std::string(seed));
 
         change_current_wallet(wallet);
         return true;
