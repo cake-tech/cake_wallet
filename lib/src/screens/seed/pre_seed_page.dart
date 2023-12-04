@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
@@ -13,9 +14,9 @@ class PreSeedPage extends BasePage {
   PreSeedPage(this.type, this.advancedPrivacySettingsViewModel)
       : imageLight = Image.asset('assets/images/pre_seed_light.png'),
         imageDark = Image.asset('assets/images/pre_seed_dark.png'),
-        seedPhraseLength =
-            advancedPrivacySettingsViewModel.seedPhraseLength.value {
-    wordsCount = _wordsCount(type, seedPhraseLength);
+        seedPhraseLength = advancedPrivacySettingsViewModel.seedPhraseLength.value,
+        moneroSeedType = advancedPrivacySettingsViewModel.seedType {
+    wordsCount = _wordsCount(type, seedPhraseLength, moneroSeedType);
   }
 
   final Image imageDark;
@@ -23,6 +24,7 @@ class PreSeedPage extends BasePage {
   final WalletType type;
   final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
   final int seedPhraseLength;
+  final SeedType moneroSeedType;
   late final int wordsCount;
 
   @override
@@ -76,9 +78,11 @@ class PreSeedPage extends BasePage {
         ));
   }
 
-  static int _wordsCount(WalletType type, int seedPhraseLength) {
+  static int _wordsCount(WalletType type, int seedPhraseLength, SeedType moneroSeedType) {
     switch (type) {
       case WalletType.monero:
+        if (moneroSeedType == SeedType.polyseed)
+          return 16;
         return 25;
       case WalletType.ethereum:
       case WalletType.bitcoinCash:
