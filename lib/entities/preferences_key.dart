@@ -6,6 +6,7 @@ class PreferencesKey {
   static const currentLitecoinElectrumSererIdKey = 'current_node_id_ltc';
   static const currentHavenNodeIdKey = 'current_node_id_xhv';
   static const currentEthereumNodeIdKey = 'current_node_id_eth';
+  static const currentPolygonNodeIdKey = 'current_node_id_matic';
   static const currentNanoNodeIdKey = 'current_node_id_nano';
   static const currentNanoPowNodeIdKey = 'current_node_id_nano_pow';
   static const currentBananoNodeIdKey = 'current_node_id_banano';
@@ -37,6 +38,7 @@ class PreferencesKey {
   static const havenTransactionPriority = 'current_fee_priority_haven';
   static const litecoinTransactionPriority = 'current_fee_priority_litecoin';
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
+  static const polygonTransactionPriority = 'current_fee_priority_polygon';
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
@@ -50,6 +52,7 @@ class PreferencesKey {
   static const sortBalanceBy = 'sort_balance_by';
   static const pinNativeTokenAtTop = 'pin_native_token_at_top';
   static const useEtherscan = 'use_etherscan';
+  static const usePolygonScan = 'use_polygonscan';
   static const defaultNanoRep = 'default_nano_representative';
   static const defaultBananoRep = 'default_banano_representative';
   static const lookupsTwitter = 'looks_up_twitter';

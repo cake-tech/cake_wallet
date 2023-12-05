@@ -50,7 +50,9 @@ abstract class SendTemplateViewModelBase with Store {
   TemplateValidator get templateValidator => TemplateValidator();
 
   bool get hasMultiRecipient =>
-      _wallet.type != WalletType.haven && _wallet.type != WalletType.ethereum;
+      _wallet.type != WalletType.haven &&
+      _wallet.type != WalletType.ethereum &&
+      _wallet.type != WalletType.polygon;
 
   @computed
   CryptoCurrency get cryptoCurrency => _wallet.currency;

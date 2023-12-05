@@ -19,7 +19,8 @@ class MainActions {
 
   final bool Function(DashboardViewModel viewModel)? isEnabled;
   final bool Function(DashboardViewModel viewModel)? canShow;
-  final Future<void> Function(BuildContext context, DashboardViewModel viewModel) onTap;
+  final Future<void> Function(
+      BuildContext context, DashboardViewModel viewModel) onTap;
 
   MainActions._({
     required this.name,
@@ -52,6 +53,7 @@ class MainActions {
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.ethereum:
+        case WalletType.polygon:
         case WalletType.bitcoinCash:
           switch (defaultBuyProvider) {
             case BuyProviderType.AskEachTime:
@@ -124,6 +126,7 @@ class MainActions {
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.ethereum:
+        case WalletType.polygon:
         case WalletType.bitcoinCash:
           if (viewModel.isEnabledSellAction) {
             final moonPaySellProvider = MoonPaySellProvider();

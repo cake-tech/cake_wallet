@@ -16,7 +16,7 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
 
   final Map<String, String> queryParams = {
     'interval_count': '1',
-    'base': crypto,
+    'base': crypto.split(".").first,
     'quote': fiat,
     'key': secrets.fiatApiKey,
   };

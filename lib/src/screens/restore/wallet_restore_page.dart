@@ -210,7 +210,7 @@ class WalletRestorePage extends BasePage {
                           Navigator.of(context).pushNamed(Routes.advancedPrivacySettings,
                               arguments: walletRestoreViewModel.type);
                         },
-                        child: Text(S.of(context).advanced_privacy_settings),
+                        child: Text(S.of(context).advanced_settings),
                       ),
                     ],
                   ),

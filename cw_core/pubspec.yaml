@@ -20,10 +20,10 @@ dependencies:
   intl: ^0.18.0
   encrypt: ^5.0.1
   socks5_proxy: ^1.0.4
-  tor:
-    git:
-      url: https://github.com/cake-tech/tor.git
-      ref: main
+#  tor:
+#    git:
+#      url: https://github.com/cake-tech/tor.git
+#      ref: main
 
 dev_dependencies:
   flutter_test:
