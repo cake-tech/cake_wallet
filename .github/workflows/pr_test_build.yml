@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: is pr
-        if: github.event_name == "pull_request"
+        if: github.event_name == pull_request
         run: echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> $GITHUB_ENV
 
       - name: is not pr
