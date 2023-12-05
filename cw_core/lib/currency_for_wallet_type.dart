@@ -19,6 +19,8 @@ CryptoCurrency currencyForWalletType(WalletType type) {
       return CryptoCurrency.nano;
     case WalletType.banano:
       return CryptoCurrency.banano;
+    case WalletType.polygon:
+      return CryptoCurrency.maticpoly;
     default:
       throw Exception('Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
   }
