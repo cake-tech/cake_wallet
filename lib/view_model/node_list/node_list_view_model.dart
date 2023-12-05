@@ -72,6 +72,9 @@ abstract class NodeListViewModelBase with Store {
       case WalletType.nano:
         node = getNanoDefaultNode(nodes: _nodeSource)!;
         break;
+      case WalletType.polygon:
+        node = getPolygonDefaultNode(nodes: _nodeSource)!;
+        break;
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.type}');
     }

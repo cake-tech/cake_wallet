@@ -1,10 +1,9 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
@@ -39,23 +38,26 @@ abstract class NFTViewModelBase with Store {
 
   @action
   Future<void> getNFTAssetByWallet() async {
-    if (appStore.wallet!.type != WalletType.ethereum) return;
+    if (!isEVMCompatibleChain(appStore.wallet!.type)) return;
 
     final walletAddress = appStore.wallet!.walletInfo.address;
     log('Fetching wallet NFTs for $walletAddress');
 
+    final chainName = getChainNameBasedOnWalletType(appStore.wallet!.type);
     // the [chain] refers to the chain network that the nft is on
     // the [format] refers to the number format type of the responses
     // the [normalizedMetadata] field is a boolean that determines if
     // the response would include a json string of the NFT Metadata that can be decoded
     // and used within the wallet
+    // the [excludeSpam] field is a boolean that determines if spam nfts be excluded from the response.
     final uri = Uri.https(
       'deep-index.moralis.io',
       '/api/v2.2/$walletAddress/nft',
       {
-        "chain": "eth",
+        "chain": chainName,
         "format": "decimal",
         "media_items": "false",
+        "exclude_spam": "true",
         "normalizeMetadata": "true",
       },
     );
@@ -94,7 +96,7 @@ abstract class NFTViewModelBase with Store {
 
   @action
   Future<void> importNFT(String tokenAddress, String tokenId) async {
-    
+    final chainName = getChainNameBasedOnWalletType(appStore.wallet!.type);
     // the [chain] refers to the chain network that the nft is on
     // the [format] refers to the number format type of the responses
     // the [normalizedMetadata] field is a boolean that determines if
@@ -104,7 +106,7 @@ abstract class NFTViewModelBase with Store {
       'deep-index.moralis.io',
       '/api/v2.2/nft/$tokenAddress/$tokenId',
       {
-        "chain": "eth",
+        "chain": chainName,
         "format": "decimal",
         "media_items": "false",
         "normalizeMetadata": "true",

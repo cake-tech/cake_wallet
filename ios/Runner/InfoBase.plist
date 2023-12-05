@@ -160,6 +160,26 @@
                 <string>bitcoincash-wallet</string>
             </array>
         </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>polygon</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>polygon</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>polygon-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>polygon-wallet</string>
+            </array>
+        </dict>
     </array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
