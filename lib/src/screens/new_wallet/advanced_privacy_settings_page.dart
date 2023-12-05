@@ -59,7 +59,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
             Observer(builder: (_) {
               return SettingsChoicesCell(
                 ChoicesListItem<FiatApiMode>(
-                  title: S.current.disable_fiat,
+                  title: S.current.fiat_api,
                   items: FiatApiMode.all,
                   selectedItem: widget.privacySettingsViewModel.fiatApiMode,
                   onItemSelected: (FiatApiMode mode) =>
