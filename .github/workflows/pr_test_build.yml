@@ -23,7 +23,7 @@ jobs:
         run: echo "BRANCH_NAME=${GITHUB_HEAD_REF}"
 
       - name: is not pr
-        if: github.event_name == 'pull_request'
+        if: github.event_name != 'pull_request'
         run: echo "BRANCH_NAME=${{ github.event.inputs.branch }}"
 
       - name: Free Up GitHub Actions Ubuntu Runner Disk Space
