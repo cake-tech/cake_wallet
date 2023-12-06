@@ -758,5 +758,6 @@
   "trocador_anonpay_donation_link": "Ссылка пожертвования Trocador Anonpay",
   "bitcoin_silent_payments": "Биткойн молчаливые платежи",
   "bitcoin_legacy": "Биткойн наследие",
-  "primary_silent_address": "Основной тихий адрес"
+  "primary_silent_address": "Основной тихий адрес",
+  "polygonscan_history": "История PolygonScan"
 }

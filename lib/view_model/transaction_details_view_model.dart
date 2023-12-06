@@ -53,6 +53,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.nano:
         _addNanoListItems(tx, dateFormat);
         break;
+      case WalletType.polygon:
+        _addPolygonListItems(tx, dateFormat);
+        break;
       default:
         break;
     }
@@ -132,6 +135,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://nanolooker.com/block/${txId}';
       case WalletType.banano:
         return 'https://bananolooker.com/block/${txId}';
+      case WalletType.polygon:
+        return 'https://polygonscan.com/tx/${txId}';
       default:
         return '';
     }
@@ -154,6 +159,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'nanolooker.com';
       case WalletType.banano:
         return S.current.view_transaction_on + 'bananolooker.com';
+      case WalletType.polygon:
+        return S.current.view_transaction_on + 'polygonscan.com';
       default:
         return '';
     }
@@ -251,6 +258,23 @@ abstract class TransactionDetailsViewModelBase with Store {
       StandartListItem(title: S.current.confirmations, value: (tx.confirmations > 0).toString()),
       StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
       StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+    ];
+
+    items.addAll(_items);
+  }
+
+  void _addPolygonListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+      StandartListItem(title: S.current.confirmations, value: tx.confirmations.toString()),
+      StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+      if (showRecipientAddress && tx.to != null)
+        StandartListItem(title: S.current.transaction_details_recipient_address, value: tx.to!),
     ];
 
     items.addAll(_items);

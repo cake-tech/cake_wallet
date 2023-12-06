@@ -750,5 +750,6 @@
   "trocador_anonpay_donation_link": "Трокадорна връзка за дарение на Anonpay",
   "bitcoin_silent_payments": "Биткойн мълчаливи плащания",
   "bitcoin_legacy": "Legacy Bitcoin",
-  "primary_silent_address": "Първичен безшумен адрес"
+  "primary_silent_address": "Първичен безшумен адрес",
+  "polygonscan_history": "История на PolygonScan"
 }

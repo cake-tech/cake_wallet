@@ -758,5 +758,6 @@
   "trocador_anonpay_donation_link": "Trocador Anonpay寄付リンク",
   "bitcoin_silent_payments": "ビットコインサイレント支払い",
   "bitcoin_legacy": "ビットコインレガシー",
-  "primary_silent_address": "主なサイレントアドレス"
+  "primary_silent_address": "主なサイレントアドレス",
+  "polygonscan_history": "ポリゴンスキャン履歴"
 }

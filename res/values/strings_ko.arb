@@ -756,5 +756,6 @@
   "trocador_anonpay_donation_link": "Trocador Anonpay 기부 링크",
   "bitcoin_silent_payments": "비트 코인 사일런트 지불",
   "bitcoin_legacy": "비트 코인 유산",
-  "primary_silent_address": "기본 조용한 주소"
+  "primary_silent_address": "기본 조용한 주소",
+  "polygonscan_history": "다각형 스캔 기록"
 }

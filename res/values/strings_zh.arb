@@ -757,5 +757,6 @@
   "trocador_anonpay_donation_link": "trocador anonpay捐赠链接",
   "bitcoin_silent_payments": "比特币无声付款",
   "bitcoin_legacy": "比特币遗产",
-  "primary_silent_address": "主要无声地址"
+  "primary_silent_address": "主要无声地址",
+  "polygonscan_history": "多边形扫描历史"
 }

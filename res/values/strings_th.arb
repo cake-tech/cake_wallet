@@ -756,5 +756,6 @@
   "trocador_anonpay_donation_link": "ลิงค์บริจาค Trocador Anonpay",
   "bitcoin_silent_payments": "Bitcoin Silent Payments",
   "bitcoin_legacy": "มรดก Bitcoin",
-  "primary_silent_address": "ที่อยู่เงียบหลัก"
+  "primary_silent_address": "ที่อยู่เงียบหลัก",
+  "polygonscan_history": "ประวัติ PolygonScan"
 }

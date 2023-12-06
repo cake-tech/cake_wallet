@@ -746,5 +746,6 @@
   "trocador_anonpay_donation_link": "Tautan donasi trocador anonpay",
   "bitcoin_silent_payments": "Bitcoin pembayaran diam",
   "bitcoin_legacy": "Bitcoin Legacy",
-  "primary_silent_address": "Alamat diam primer"
+  "primary_silent_address": "Alamat diam primer",
+  "polygonscan_history": "Sejarah PolygonScan"
 }

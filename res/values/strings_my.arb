@@ -756,5 +756,6 @@
   "trocador_anonpay_donation_link": "Trocador Anonpay အလှူငွေလင့်ခ်",
   "bitcoin_silent_payments": "Bitcoin အသံတိတ်ငွေပေးချေမှု",
   "bitcoin_legacy": "Bitcoin အမွေ",
-  "primary_silent_address": "မူလအသံတိတ်လိပ်စာ"
+  "primary_silent_address": "မူလအသံတိတ်လိပ်စာ",
+  "polygonscan_history": "PolygonScan မှတ်တမ်း"
 }

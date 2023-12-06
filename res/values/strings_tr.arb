@@ -756,5 +756,6 @@
   "trocador_anonpay_donation_link": "Trocador anonpay bağış bağlantısı",
   "bitcoin_silent_payments": "Bitcoin sessiz ödemeler",
   "bitcoin_legacy": "Bitcoin Mirası",
-  "primary_silent_address": "Birincil sessiz adres"
+  "primary_silent_address": "Birincil sessiz adres",
+  "polygonscan_history": "PolygonScan geçmişi"
 }

@@ -750,5 +750,6 @@
   "trocador_anonpay_donation_link": "Trocador AnonPay Darovací odkaz",
   "bitcoin_silent_payments": "Bitcoinové tiché platby",
   "bitcoin_legacy": "Bitcoin Legacy",
-  "primary_silent_address": "Primární tichá adresa"
+  "primary_silent_address": "Primární tichá adresa",
+  "polygonscan_history": "Historie PolygonScan"
 }

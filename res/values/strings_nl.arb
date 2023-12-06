@@ -758,5 +758,6 @@
   "trocador_anonpay_donation_link": "Trocador anonpay donatielink",
   "bitcoin_silent_payments": "Bitcoin stille betalingen",
   "bitcoin_legacy": "Bitcoin Legacy",
-  "primary_silent_address": "Primair stil adres"
+  "primary_silent_address": "Primair stil adres",
+  "polygonscan_history": "PolygonScan-geschiedenis"
 }

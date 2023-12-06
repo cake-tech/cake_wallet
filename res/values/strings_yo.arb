@@ -752,5 +752,6 @@
   "trocador_anonpay_donation_link": "Ọna asopọ Ẹbun Anontay Anontay",
   "bitcoin_silent_payments": "Awọn sisanwọle bitcoin",
   "bitcoin_legacy": "Olokan Bitcoin",
-  "primary_silent_address": "Adirẹsi ipalọlọ akọkọ"
+  "primary_silent_address": "Adirẹsi ipalọlọ akọkọ",
+  "polygonscan_history": "PolygonScan itan"
 }

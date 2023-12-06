@@ -133,6 +133,22 @@ Future<List<Node>> loadDefaultNanoPowNodes() async {
   return nodes;
 }
 
+Future<List<Node>> loadDefaultPolygonNodes() async {
+  final nodesRaw = await rootBundle.loadString('assets/polygon_node_list.yml');
+  final loadedNodes = loadYaml(nodesRaw) as YamlList;
+  final nodes = <Node>[];
+
+  for (final raw in loadedNodes) {
+    if (raw is Map) {
+      final node = Node.fromMap(Map<String, Object>.from(raw));
+      node.type = WalletType.polygon;
+      nodes.add(node);
+    }
+  }
+
+  return nodes;
+}
+
 Future<void> resetToDefault(Box<Node> nodeSource) async {
   final moneroNodes = await loadDefaultNodes();
   final bitcoinElectrumServerList = await loadBitcoinElectrumServerList();
@@ -141,6 +157,8 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
   final havenNodes = await loadDefaultHavenNodes();
   final ethereumNodes = await loadDefaultEthereumNodes();
   final nanoNodes = await loadDefaultNanoNodes();
+  final polygonNodes = await loadDefaultPolygonNodes();
+
 
   final nodes = moneroNodes +
       bitcoinElectrumServerList +
@@ -148,7 +166,8 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
       havenNodes +
       ethereumNodes +
       bitcoinCashElectrumServerList +
-      nanoNodes;
+      nanoNodes +
+      polygonNodes;
 
   await nodeSource.clear();
   await nodeSource.addAll(nodes);

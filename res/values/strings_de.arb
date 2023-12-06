@@ -758,5 +758,6 @@
   "trocador_anonpay_donation_link": "Trocador Anonpay Spendenlink",
   "bitcoin_silent_payments": "Bitcoin stille Zahlungen",
   "bitcoin_legacy": "Bitcoin -Erbe",
-  "primary_silent_address": "Primäre stille Adresse"
+  "primary_silent_address": "Primäre stille Adresse",
+  "polygonscan_history": "PolygonScan-Verlauf"
 }

@@ -7,4 +7,5 @@ cd cw_haven; flutter pub get; dart run build_runner build --delete-conflicting-o
 cd cw_ethereum; flutter pub get; dart run build_runner build --delete-conflicting-outputs; cd ..
 cd cw_nano; flutter pub get; dart run build_runner build --delete-conflicting-outputs; cd ..
 cd cw_bitcoin_cash; flutter pub get; dart run build_runner build --delete-conflicting-outputs; cd ..
+cd cw_polygon; flutter pub get; flutter packages pub run build_runner build --delete-conflicting-outputs; cd ..
 dart run build_runner build --delete-conflicting-outputs

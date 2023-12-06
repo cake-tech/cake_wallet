@@ -752,5 +752,6 @@
   "trocador_anonpay_donation_link": "Trocador Anonpay Donation Link",
   "bitcoin_silent_payments": "Bitcoin tahimik na pagbabayad",
   "bitcoin_legacy": "Pamana ng Bitcoin",
-  "primary_silent_address": "Pangunahing tahimik na address"
+  "primary_silent_address": "Pangunahing tahimik na address",
+  "polygonscan_history": "Kasaysayan ng PolygonScan"
 }
