@@ -25,6 +25,10 @@ enum BuyProviderType {
     switch (walletType) {
       case WalletType.nano:
       case WalletType.banano:
+        return [
+          BuyProviderType.AskEachTime,
+          BuyProviderType.Onramper
+        ];
       case WalletType.monero:
         return [
           BuyProviderType.AskEachTime,
@@ -32,8 +36,6 @@ enum BuyProviderType {
           BuyProviderType.DFX
         ];
       case WalletType.bitcoin:
-      case WalletType.litecoin:
-      case WalletType.bitcoinCash:
       case WalletType.ethereum:
         return [
           BuyProviderType.AskEachTime,
@@ -41,6 +43,13 @@ enum BuyProviderType {
           BuyProviderType.DFX,
           BuyProviderType.Robinhood
         ];
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+      return [
+        BuyProviderType.AskEachTime,
+        BuyProviderType.Onramper,
+        BuyProviderType.Robinhood
+      ];
       default:
         return [];
     }
