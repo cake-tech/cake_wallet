@@ -57,7 +57,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final bitcoin.HDWallet mainHd;
   final bitcoin.HDWallet sideHd;
 
-  // TODO: labels -> disable edit on receive page
   final bitcoin.SilentPaymentReceiver? primarySilentAddress;
 
   @observable
@@ -179,7 +178,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       final silentAddressRecord = silentAddresses[i];
       final silentAddress =
           bitcoin.SilentPaymentDestination.fromAddress(silentAddressRecord.address, 0)
-              .scanPubkey
+              .spendPubkey
               .toCompressedHex();
 
       if (silentAddressRecord.silentPaymentTweak != null)
