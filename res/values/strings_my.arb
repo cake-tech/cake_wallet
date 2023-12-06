@@ -750,5 +750,10 @@
   "seedtype_polyseed": "polyseed (စကားလုံး 16 လုံး)",
   "seed_language_czech": "ချက်",
   "seed_language_korean": "ကိုးရီးယား",
-  "seed_language_chinese_traditional": "တရုတ်ရိုးရာ)"
+  "seed_language_chinese_traditional": "တရုတ်ရိုးရာ)",
+  "mainnet": "မမက်မ",
+  "trocador_anonpay_invoice": "Trocador Anonpay ငွေတောင်းခံလွှာ",
+  "trocador_anonpay_donation_link": "Trocador Anonpay အလှူငွေလင့်ခ်",
+  "bitcoin_silent_payments": "Bitcoin အသံတိတ်ငွေပေးချေမှု",
+  "bitcoin_legacy": "Bitcoin အမွေ"
 }

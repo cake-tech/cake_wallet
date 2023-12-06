@@ -753,5 +753,10 @@
   "seedtype_polyseed": "Polyseed (16 words)",
   "seed_language_czech": "Czech",
   "seed_language_korean": "Korean",
-  "seed_language_chinese_traditional": "Chinese (Traditional)"
+  "seed_language_chinese_traditional": "Chinese (Traditional)",
+  "mainnet": "Mainnet",
+  "trocador_anonpay_invoice": "Trocador AnonPay Invoice",
+  "trocador_anonpay_donation_link": "Trocador AnonPay Donation Link",
+  "bitcoin_silent_payments": "Bitcoin Silent Payments",
+  "bitcoin_legacy": "Bitcoin Legacy"
 }

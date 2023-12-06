@@ -730,5 +730,10 @@
   "seedtype_polyseed": "Polyseed (16 kalmomi)",
   "seed_language_czech": "Czech",
   "seed_language_korean": "Yaren Koriya",
-  "seed_language_chinese_traditional": "Sinanci (na gargajiya)"
+  "seed_language_chinese_traditional": "Sinanci (na gargajiya)",
+  "mainnet": "Otnet",
+  "trocador_anonpay_invoice": "Atroador Antonpay",
+  "trocador_anonpay_donation_link": "Hanyar bayar da gudummawa na Trorojador",
+  "bitcoin_silent_payments": "Bitcoin Silent biya",
+  "bitcoin_legacy": "Gado bitcoin"
 }

@@ -752,5 +752,10 @@
   "seedtype_polyseed": "Polieta (16 palabras)",
   "seed_language_czech": "checo",
   "seed_language_korean": "coreano",
-  "seed_language_chinese_traditional": "Chino (tradicional)"
+  "seed_language_chinese_traditional": "Chino (tradicional)",
+  "mainnet": "Red",
+  "trocador_anonpay_invoice": "Trocador Anonpay Factura",
+  "trocador_anonpay_donation_link": "Trocador Anonpay Donation Link",
+  "bitcoin_silent_payments": "Pagos silenciosos de Bitcoin",
+  "bitcoin_legacy": "Legado de bitcoin"
 }

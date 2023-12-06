@@ -750,5 +750,10 @@
   "seedtype_polyseed": "다문 (16 단어)",
   "seed_language_czech": "체코 사람",
   "seed_language_korean": "한국인",
-  "seed_language_chinese_traditional": "중국 전통)"
+  "seed_language_chinese_traditional": "중국 전통)",
+  "mainnet": "메인 넷",
+  "trocador_anonpay_invoice": "Trocador Anonpay 송장",
+  "trocador_anonpay_donation_link": "Trocador Anonpay 기부 링크",
+  "bitcoin_silent_payments": "비트 코인 사일런트 지불",
+  "bitcoin_legacy": "비트 코인 유산"
 }

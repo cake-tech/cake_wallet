@@ -752,5 +752,10 @@
   "seedtype_polyseed": "पॉलीसीड (16 शब्द)",
   "seed_language_czech": "चेक",
   "seed_language_korean": "कोरियाई",
-  "seed_language_chinese_traditional": "चीनी पारंपरिक)"
+  "seed_language_chinese_traditional": "चीनी पारंपरिक)",
+  "mainnet": "मेननेट",
+  "trocador_anonpay_invoice": "Trocador anonpay चालान",
+  "trocador_anonpay_donation_link": "Trocador anonpay दान लिंक",
+  "bitcoin_silent_payments": "बिटकॉइन मूक भुगतान",
+  "bitcoin_legacy": "बिटकॉइन विरासत"
 }

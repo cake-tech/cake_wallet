@@ -740,5 +740,10 @@
   "seedtype_polyseed": "Polyseed (16 kata)",
   "seed_language_czech": "Ceko",
   "seed_language_korean": "Korea",
-  "seed_language_chinese_traditional": "Cina (tradisional)"
+  "seed_language_chinese_traditional": "Cina (tradisional)",
+  "mainnet": "Mainnet",
+  "trocador_anonpay_invoice": "Faktur Trocador Anonpay",
+  "trocador_anonpay_donation_link": "Tautan donasi trocador anonpay",
+  "bitcoin_silent_payments": "Bitcoin pembayaran diam",
+  "bitcoin_legacy": "Bitcoin Legacy"
 }

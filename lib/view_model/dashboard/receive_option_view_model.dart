@@ -3,6 +3,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
+import 'package:cake_wallet/generated/i18n.dart';
 
 part 'receive_option_view_model.g.dart';
 
@@ -44,4 +45,23 @@ abstract class ReceiveOptionViewModelBase with Store {
   void selectReceiveOption(dynamic option) {
     selectedReceiveOption = option;
   }
+}
+
+String describeOption(dynamic option) {
+  if (option is ReceivePageOption) {
+    return option.toString();
+  }
+
+  if (option is bitcoin.AddressType) {
+    switch (option) {
+      case bitcoin.AddressType.p2sp:
+        return S.current.bitcoin_silent_payments;
+      case bitcoin.AddressType.p2pkh:
+        return S.current.bitcoin_legacy;
+      default:
+        return option.toString();
+    }
+  }
+
+  return "";
 }

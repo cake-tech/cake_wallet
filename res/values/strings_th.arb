@@ -750,5 +750,10 @@
   "seedtype_polyseed": "โพลีส (16 คำ)",
   "seed_language_czech": "ภาษาเช็ก",
   "seed_language_korean": "เกาหลี",
-  "seed_language_chinese_traditional": "จีน (ดั้งเดิม)"
+  "seed_language_chinese_traditional": "จีน (ดั้งเดิม)",
+  "mainnet": "หลัก",
+  "trocador_anonpay_invoice": "ใบแจ้งหนี้ Trocador Anonpay",
+  "trocador_anonpay_donation_link": "ลิงค์บริจาค Trocador Anonpay",
+  "bitcoin_silent_payments": "Bitcoin Silent Payments",
+  "bitcoin_legacy": "มรดก Bitcoin"
 }

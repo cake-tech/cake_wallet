@@ -750,5 +750,10 @@
   "seedtype_polyseed": "Polyseed (16 kelime)",
   "seed_language_czech": "Çek",
   "seed_language_korean": "Koreli",
-  "seed_language_chinese_traditional": "Çin geleneği)"
+  "seed_language_chinese_traditional": "Çin geleneği)",
+  "mainnet": "Ana ağ",
+  "trocador_anonpay_invoice": "Trocador anonpay faturası",
+  "trocador_anonpay_donation_link": "Trocador anonpay bağış bağlantısı",
+  "bitcoin_silent_payments": "Bitcoin sessiz ödemeler",
+  "bitcoin_legacy": "Bitcoin Mirası"
 }

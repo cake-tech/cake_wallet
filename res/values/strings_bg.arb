@@ -744,5 +744,10 @@
   "seedtype_polyseed": "Поли семе (16 думи)",
   "seed_language_czech": "Чех",
   "seed_language_korean": "Корейски",
-  "seed_language_chinese_traditional": "Традиционен китайски)"
+  "seed_language_chinese_traditional": "Традиционен китайски)",
+  "mainnet": "Mainnet",
+  "trocador_anonpay_invoice": "Трокадор Anonpay Фактура",
+  "trocador_anonpay_donation_link": "Трокадорна връзка за дарение на Anonpay",
+  "bitcoin_silent_payments": "Биткойн мълчаливи плащания",
+  "bitcoin_legacy": "Legacy Bitcoin"
 }

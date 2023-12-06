@@ -750,5 +750,10 @@
   "seedtype_polyseed": "Poliseed (16 riječi)",
   "seed_language_czech": "češki",
   "seed_language_korean": "korejski",
-  "seed_language_chinese_traditional": "Kinesko (tradicionalno)"
+  "seed_language_chinese_traditional": "Kinesko (tradicionalno)",
+  "mainnet": "Mainnet",
+  "trocador_anonpay_invoice": "Trokador anonpay faktura",
+  "trocador_anonpay_donation_link": "Link za donaciju trokadora",
+  "bitcoin_silent_payments": "Bitcoin tiha plaćanja",
+  "bitcoin_legacy": "Nasljeđe bitcoina"
 }

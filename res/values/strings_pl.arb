@@ -752,5 +752,10 @@
   "seedtype_polyseed": "Poliqueed (16 słów)",
   "seed_language_czech": "Czech",
   "seed_language_korean": "koreański",
-  "seed_language_chinese_traditional": "Chiński tradycyjny)"
+  "seed_language_chinese_traditional": "Chiński tradycyjny)",
+  "mainnet": "Mainnet",
+  "trocador_anonpay_invoice": "Trocador anonpay faktura",
+  "trocador_anonpay_donation_link": "Link darowizny Trocador Anonpay",
+  "bitcoin_silent_payments": "Bitcoin ciche płatności",
+  "bitcoin_legacy": "Dziedzictwo bitcoinowe"
 }

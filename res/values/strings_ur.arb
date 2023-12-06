@@ -744,5 +744,10 @@
   "seedtype_polyseed": "پالیسیڈ (16 الفاظ)",
   "seed_language_czech": "چیک",
   "seed_language_korean": "کورین",
-  "seed_language_chinese_traditional": "چینی (روایتی)"
+  "seed_language_chinese_traditional": "چینی (روایتی)",
+  "mainnet": "مینیٹ",
+  "trocador_anonpay_invoice": "ٹروکاڈور انون پے انوائس",
+  "trocador_anonpay_donation_link": "ٹروکاڈور انونپے چندہ کا لنک",
+  "bitcoin_silent_payments": "بٹ کوائن خاموش ادائیگی",
+  "bitcoin_legacy": "بٹ کوائن میراث"
 }

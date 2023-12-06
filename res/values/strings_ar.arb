@@ -748,5 +748,10 @@
   "seedtype_polyseed": "بوليسيد (16 كلمة)",
   "seed_language_czech": "التشيكية",
   "seed_language_korean": "الكورية",
-  "seed_language_chinese_traditional": "تقاليد صينية)"
+  "seed_language_chinese_traditional": "تقاليد صينية)",
+  "mainnet": "mainnet",
+  "trocador_anonpay_invoice": "فاتورة Trocador Anonpay",
+  "trocador_anonpay_donation_link": "رابط التبرع Trocador Anonpay",
+  "bitcoin_silent_payments": "مدفوعات بيتكوين صامتة",
+  "bitcoin_legacy": "إرث البيتكوين"
 }

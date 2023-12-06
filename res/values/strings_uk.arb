@@ -752,5 +752,10 @@
   "seedtype_polyseed": "Полісей (16 слів)",
   "seed_language_czech": "Чеський",
   "seed_language_korean": "Корейський",
-  "seed_language_chinese_traditional": "Китайський (традиційний)"
+  "seed_language_chinese_traditional": "Китайський (традиційний)",
+  "mainnet": "Мейннет",
+  "trocador_anonpay_invoice": "Рахунок -фактура Trocador Anonpay",
+  "trocador_anonpay_donation_link": "Посилання на пожертву Trocador Anonpay",
+  "bitcoin_silent_payments": "Біткойн мовчазні платежі",
+  "bitcoin_legacy": "Bitcoin Legacy"
 }

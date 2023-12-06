@@ -752,5 +752,10 @@
   "seedtype_polyseed": "ポリシード（16語）",
   "seed_language_czech": "チェコ",
   "seed_language_korean": "韓国語",
-  "seed_language_chinese_traditional": "中国の伝統的な）"
+  "seed_language_chinese_traditional": "中国の伝統的な）",
+  "mainnet": "メインネット",
+  "trocador_anonpay_invoice": "Trocador Anonpay請求書",
+  "trocador_anonpay_donation_link": "Trocador Anonpay寄付リンク",
+  "bitcoin_silent_payments": "ビットコインサイレント支払い",
+  "bitcoin_legacy": "ビットコインレガシー"
 }

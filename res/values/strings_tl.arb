@@ -746,5 +746,10 @@
   "seedtype_polyseed": "Polyseed (16 na salita)",
   "seed_language_czech": "Czech",
   "seed_language_korean": "Korean",
-  "seed_language_chinese_traditional": "Intsik (tradisyonal)"
+  "seed_language_chinese_traditional": "Intsik (tradisyonal)",
+  "mainnet": "Mainnet",
+  "trocador_anonpay_invoice": "Trocador Anonpay Invoice",
+  "trocador_anonpay_donation_link": "Trocador Anonpay Donation Link",
+  "bitcoin_silent_payments": "Bitcoin tahimik na pagbabayad",
+  "bitcoin_legacy": "Pamana ng Bitcoin"
 }
