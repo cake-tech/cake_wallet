@@ -590,7 +590,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
-import 'package:cw_ethereum/ethereum_mnemonics.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:hive/hive.dart';
 import 'package:web3dart/web3dart.dart';
@@ -603,6 +602,7 @@ import 'package:cw_polygon/polygon_wallet.dart';
 import 'package:cw_polygon/polygon_wallet_creation_credentials.dart';
 import 'package:cw_polygon/polygon_wallet_service.dart';
 import 'package:cw_polygon/polygon_transaction_priority.dart';
+import 'package:cw_ethereum/ethereum_mnemonics.dart';
 """;
   const polygonCwPart = "part 'cw_polygon.dart';";
   const polygonContent = """

@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -134,12 +133,7 @@ class MoneroWalletService extends WalletService<
         return openWallet(name, password);
       }
 
-      if (wallet.seed.isEmpty) {
-        final seedFallback = await _getSeedBackup(path, password);
-        await wallet.init(seedFallback: seedFallback);
-      } else {
-        await wallet.init();
-      }
+      await wallet.init();
 
       return wallet;
     } catch (e) {
@@ -295,20 +289,11 @@ class MoneroWalletService extends WalletService<
         restoreHeight: height,
         spendKey: spendKey);
 
-    await writeData(path: "$path.seed", password: password, data: seed);
-
     final wallet = MoneroWallet(
         walletInfo: walletInfo, unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.init();
 
     return wallet;
-  }
-
-  Future<String> _getSeedBackup(String path, String password) async {
-    final seedFilePath = "$path.seed";
-    final seedFile = File(seedFilePath);
-    if (!seedFile.existsSync()) return "";
-    return read(path: seedFilePath, password: password);
   }
 
   Future<void> repairOldAndroidWallet(String name) async {
