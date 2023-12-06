@@ -57,7 +57,7 @@ class _TorPageBodyState extends State<TorPageBody> {
     }
     widget.appStore.wallet!.connectToNode(node: node);
 
-    print('Done awaiting; tor should be running');
+    print('Done awaiting; tor should be running: ${Tor.instance.port}}');
   }
 
   Future<void> endTor() async {
