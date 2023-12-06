@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_ethereum/ethereum_transaction_model.dart';
@@ -20,7 +21,8 @@ class EthereumClient {
 
   bool connect(Node node) {
     try {
-      _client = Web3Client(node.uri.toString(), httpClient);
+      final nodeUri = node.uri.toString();
+      _client = Web3Client(nodeUri, httpClient);
 
       return true;
     } catch (e) {
@@ -72,13 +74,15 @@ class EthereumClient {
     required EthereumTransactionPriority priority,
     required CryptoCurrency currency,
     required int exponent,
+    required WalletType walletType,
     String? contractAddress,
   }) async {
     assert(currency == CryptoCurrency.eth ||
         currency == CryptoCurrency.maticpoly ||
         contractAddress != null);
 
-    bool _isEVMCompatibleChain = currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
+    bool _isEVMCompatibleChain =
+        currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
 
     final price = _client!.getGasPrice();
 
@@ -89,7 +93,7 @@ class EthereumClient {
       value: _isEVMCompatibleChain ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
     );
 
-    final chainId = _getChainIdForCurrency(currency);
+    final chainId = _getChainIdForWalletType(walletType);
 
     final signedTransaction =
         await _client!.signTransaction(privateKey, transaction, chainId: chainId);
@@ -124,11 +128,11 @@ class EthereumClient {
     );
   }
 
-  int _getChainIdForCurrency(CryptoCurrency currency) {
-    switch (currency) {
-      case CryptoCurrency.maticpoly:
+  int _getChainIdForWalletType(WalletType type) {
+    switch (type) {
+      case WalletType.polygon:
         return 137;
-      case CryptoCurrency.eth:
+      case WalletType.ethereum:
       default:
         return 1;
     }

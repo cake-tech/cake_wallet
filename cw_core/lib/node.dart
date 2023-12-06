@@ -89,7 +89,11 @@ class Node extends HiveObject with Keyable {
           return Uri.http(uriRaw, '');
         }
       case WalletType.polygon:
-        return Uri.https(uriRaw, '');
+        if (uriRaw.contains('.alchemy')) {
+          return Uri.https(uriRaw, '/v2/4ICJbOh_dFLWDDxlZwlEL1lkONt2SBvt');
+        } else {
+          return Uri.https(uriRaw, '');
+        }
       default:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }

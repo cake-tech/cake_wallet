@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_polygon/polygon_transaction_model.dart';
-import 'package:cw_ethereum/.secrets.g.dart' as secrets;
+import 'package:cw_polygon/.secrets.g.dart' as secrets;
 
 class PolygonClient extends EthereumClient {
   @override

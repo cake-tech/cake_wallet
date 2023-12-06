@@ -1,4 +1,6 @@
 -
+  uri: polygon-mainnet.g.alchemy.com
+-
   uri: polygon-bor.publicnode.com
 -
   uri: polygon-rpc.com

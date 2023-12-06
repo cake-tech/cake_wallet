@@ -72,15 +72,10 @@ class DefaultPolygonErc20Tokens {
         String? iconPath;
         try {
           iconPath = CryptoCurrency.all
-              .firstWhere((element) =>
-                  element.title.toUpperCase() == token.symbol.toUpperCase())
+              .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
               .iconPath;
         } catch (_) {}
 
-        if (iconPath != null) {
-          return Erc20Token.copyWith(token, iconPath);
-        }
-
-        return token;
+        return Erc20Token.copyWith(token, iconPath, 'POLY');
       }).toList();
 }
