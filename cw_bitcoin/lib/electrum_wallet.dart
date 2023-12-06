@@ -181,11 +181,10 @@ abstract class ElectrumWalletBase
     await for (var message in receivePort) {
       if (message is BitcoinUnspent) {
         unspentCoins.add(message);
-        _addCoinInfo(message);
+        await _addCoinInfo(message);
+        balance[currency] = await _fetchBalances();
         await walletInfo.save();
         await save();
-
-        _subscribeForUpdates();
       }
 
       // check if is a SyncStatus type since "is SyncStatus" doesn't work here
@@ -856,20 +855,22 @@ abstract class ElectrumWalletBase
     }
 
     var totalFrozen = 0;
+    var totalConfirmed = 0;
+    var totalUnconfirmed = 0;
+
     unspentCoinsInfo.values.forEach((info) {
       unspentCoins.forEach((element) {
         if (element.hash == info.hash &&
-            info.isFrozen &&
             element.bitcoinAddressRecord.address == info.address &&
             element.value == info.value) {
-          totalFrozen += element.value;
+          if (info.isFrozen) totalFrozen += element.value;
+          if (element.bitcoinAddressRecord.silentPaymentTweak != null)
+            totalConfirmed += element.value;
         }
       });
     });
 
     final balances = await Future.wait(balanceFutures);
-    var totalConfirmed = 0;
-    var totalUnconfirmed = 0;
 
     for (var i = 0; i < balances.length; i++) {
       final addressRecord = addresses[i];
@@ -1160,7 +1161,7 @@ Future<void> startRefresh(ScanData scanData) async {
                 continue;
               }
 
-              Map<Uint8List, bitcoin.Outpoint> outpointsByP2TRpubkey = {};
+              Map<String, bitcoin.Outpoint> outpointsByP2TRpubkey = {};
               for (var i = 0; i < (tx["vout"] as List<dynamic>).length; i++) {
                 final output = tx["vout"][i];
                 if (output["scriptpubkey_type"] != "v1_p2tr") {
@@ -1185,7 +1186,7 @@ Future<void> startRefresh(ScanData scanData) async {
 
                 // print(["Verifying taproot address:", address]);
 
-                outpointsByP2TRpubkey[script.sublist(2)] =
+                outpointsByP2TRpubkey[script.sublist(2).hex] =
                     bitcoin.Outpoint(txid: txid, index: i, value: output["value"] as int);
               }
 
@@ -1203,7 +1204,7 @@ Future<void> startRefresh(ScanData scanData) async {
                 bitcoin.PublicKey.fromHex(curve, scanData.spendPubkeyCompressed.hex),
                 bitcoin.getSumInputPubKeys(pubkeys),
                 outpointHash,
-                outpointsByP2TRpubkey.keys.toList(),
+                outpointsByP2TRpubkey.keys.map((e) => e.fromHex).toList(),
                 labels: scanData.labels,
               );
 
@@ -1220,7 +1221,7 @@ Future<void> startRefresh(ScanData scanData) async {
               print(result);
 
               result.forEach((key, value) {
-                final outpoint = outpointsByP2TRpubkey[key.fromHex];
+                final outpoint = outpointsByP2TRpubkey[key];
 
                 if (outpoint == null) {
                   return;
@@ -1229,7 +1230,8 @@ Future<void> startRefresh(ScanData scanData) async {
                 // found utxo for tx
                 scanData.sendPort.send(BitcoinUnspent(
                   BitcoinAddressRecord(
-                    key,
+                    bitcoin.P2trAddress(program: key, network: scanData.networkType)
+                        .toAddress(scanData.networkType),
                     index: 0,
                     isHidden: false,
                     isUsed: true,
