@@ -23,6 +23,10 @@ import 'package:collection/collection.dart';
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
+const publicBitcoinTestnetElectrumAddress = 'electrum.blockstream.info';
+const publicBitcoinTestnetElectrumPort = '60002';
+const publicBitcoinTestnetElectrumUri =
+    '$publicBitcoinTestnetElectrumAddress:$publicBitcoinTestnetElectrumPort';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
@@ -82,8 +86,7 @@ Future<void> defaultSettingsMigration(
               sharedPreferences: sharedPreferences, nodes: nodes);
           await changeLitecoinCurrentElectrumServerToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
-          await changeHavenCurrentNodeToDefault(
-              sharedPreferences: sharedPreferences, nodes: nodes);
+          await changeHavenCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
           await changeBitcoinCashCurrentNodeToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
 
@@ -313,6 +316,12 @@ Node? getBitcoinDefaultElectrumServer({required Box<Node> nodes}) {
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoin);
 }
 
+Node? getBitcoinTestnetDefaultElectrumServer({required Box<Node> nodes}) {
+  return nodes.values
+          .firstWhereOrNull((Node node) => node.uriRaw == publicBitcoinTestnetElectrumUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoin);
+}
+
 Node? getLitecoinDefaultElectrumServer({required Box<Node> nodes}) {
   return nodes.values
           .firstWhereOrNull((Node node) => node.uriRaw == cakeWalletLitecoinElectrumUri) ??
@@ -340,9 +349,9 @@ Node? getNanoDefaultPowNode({required Box<Node> nodes}) {
 }
 
 Node? getBitcoinCashDefaultElectrumServer({required Box<Node> nodes}) {
-  return nodes.values.firstWhereOrNull(
-          (Node node) => node.uriRaw == cakeWalletBitcoinCashDefaultNodeUri)
-      ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoinCash);
+  return nodes.values
+          .firstWhereOrNull((Node node) => node.uriRaw == cakeWalletBitcoinCashDefaultNodeUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoinCash);
 }
 
 Node getMoneroDefaultNode({required Box<Node> nodes}) {
@@ -365,8 +374,15 @@ Node getMoneroDefaultNode({required Box<Node> nodes}) {
 }
 
 Future<void> changeBitcoinCurrentElectrumServerToDefault(
-    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
-  final server = getBitcoinDefaultElectrumServer(nodes: nodes);
+    {required SharedPreferences sharedPreferences,
+    required Box<Node> nodes,
+    bool? isTestnet}) async {
+  Node? server;
+  if (isTestnet == true) {
+    server = getBitcoinTestnetDefaultElectrumServer(nodes: nodes);
+  } else {
+    server = getBitcoinDefaultElectrumServer(nodes: nodes);
+  }
   final serverId = server?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentBitcoinElectrumSererIdKey, serverId);
@@ -381,8 +397,7 @@ Future<void> changeLitecoinCurrentElectrumServerToDefault(
 }
 
 Future<void> changeBitcoinCashCurrentNodeToDefault(
-    {required SharedPreferences sharedPreferences,
-      required Box<Node> nodes}) async {
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
   final server = getBitcoinCashDefaultElectrumServer(nodes: nodes);
   final serverId = server?.key as int ?? 0;
 
@@ -538,34 +553,30 @@ Future<void> checkCurrentNodes(
   final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
   final currentBitcoinElectrumSeverId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
-  final currentLitecoinElectrumSeverId = sharedPreferences
-      .getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
-  final currentHavenNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentHavenNodeIdKey);
-  final currentEthereumNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentEthereumNodeIdKey);
-  final currentNanoNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentNanoNodeIdKey);
-  final currentNanoPowNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentNanoPowNodeIdKey);
-  final currentBitcoinCashNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
-  final currentMoneroNode = nodeSource.values.firstWhereOrNull(
-      (node) => node.key == currentMoneroNodeId);
-  final currentBitcoinElectrumServer = nodeSource.values.firstWhereOrNull(
-      (node) => node.key == currentBitcoinElectrumSeverId);
-  final currentLitecoinElectrumServer = nodeSource.values.firstWhereOrNull(
-      (node) => node.key == currentLitecoinElectrumSeverId);
-  final currentHavenNodeServer = nodeSource.values.firstWhereOrNull(
-      (node) => node.key == currentHavenNodeId);
-  final currentEthereumNodeServer = nodeSource.values.firstWhereOrNull(
-      (node) => node.key == currentEthereumNodeId);
+  final currentLitecoinElectrumSeverId =
+      sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
+  final currentHavenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
+  final currentEthereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
+  final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
+  final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
+  final currentBitcoinCashNodeId =
+      sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
+  final currentMoneroNode =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
+  final currentBitcoinElectrumServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinElectrumSeverId);
+  final currentLitecoinElectrumServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentLitecoinElectrumSeverId);
+  final currentHavenNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentHavenNodeId);
+  final currentEthereumNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentEthereumNodeId);
   final currentNanoNodeServer =
-  nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
   final currentNanoPowNodeServer =
-  powNodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
-  final currentBitcoinCashNodeServer = nodeSource.values.firstWhereOrNull(
-          (node) => node.key == currentBitcoinCashNodeId);
+      powNodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
+  final currentBitcoinCashNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinCashNodeId);
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
     await nodeSource.add(newCakeWalletNode);
@@ -617,8 +628,7 @@ Future<void> checkCurrentNodes(
   if (currentBitcoinCashNodeServer == null) {
     final node = Node(uri: cakeWalletBitcoinCashDefaultNodeUri, type: WalletType.bitcoinCash);
     await nodeSource.add(node);
-    await sharedPreferences.setInt(
-        PreferencesKey.currentBitcoinCashNodeIdKey, node.key as int);
+    await sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, node.key as int);
   }
 }
 

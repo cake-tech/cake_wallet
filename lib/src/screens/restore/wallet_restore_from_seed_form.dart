@@ -1,6 +1,5 @@
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -9,7 +8,6 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
@@ -25,8 +23,6 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
     this.onHeightOrDateEntered,
     this.onSeedChange,
     this.onLanguageChange,
-    required this.toggleTestnet,
-    required this.isTestnet,
   }) : super(key: key);
 
   final WalletType type;
@@ -36,9 +32,6 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
   final Function(bool)? onHeightOrDateEntered;
   final void Function(String)? onSeedChange;
   final void Function(String)? onLanguageChange;
-
-  bool isTestnet;
-  final Function() toggleTestnet;
 
   @override
   WalletRestoreFromSeedFormState createState() => WalletRestoreFromSeedFormState('English');
@@ -185,12 +178,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 key: blockchainHeightKey,
                 onHeightOrDateEntered: widget.onHeightOrDateEntered,
                 hasDatePicker: widget.type == WalletType.monero),
-          Observer(builder: (_) {
-            return SettingsSwitcherCell(
-                title: S.current.use_testnet,
-                value: widget.isTestnet,
-                onValueChange: (_, __) => widget.toggleTestnet());
-          }),
         ]));
   }
 

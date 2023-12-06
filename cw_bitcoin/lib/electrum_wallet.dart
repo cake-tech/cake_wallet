@@ -74,6 +74,7 @@ abstract class ElectrumWalletBase
               }
             : {}),
         this.unspentCoinsInfo = unspentCoinsInfo,
+        this.isTestnet = networkType == bitcoin.testnet,
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
@@ -121,6 +122,9 @@ abstract class ElectrumWalletBase
   String get password => _password;
 
   bitcoin.NetworkType networkType;
+
+  @override
+  bool? isTestnet;
 
   @override
   BitcoinWalletKeys get keys =>

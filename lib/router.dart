@@ -531,10 +531,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<WebViewPage>(param1: title, param2: url));
 
     case Routes.advancedPrivacySettings:
-      final type = settings.arguments as WalletType;
+      final args = settings.arguments as List<dynamic>;
+      final type = args.first as WalletType;
+      final useTestnet = args[1] as bool?;
+      final toggleTestnet = args[2] as Function(bool? val);
 
       return CupertinoPageRoute<void>(
           builder: (_) => AdvancedPrivacySettingsPage(
+                useTestnet,
+                toggleTestnet,
                 getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
                 getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
               ));

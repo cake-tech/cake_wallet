@@ -37,8 +37,6 @@ class WalletRestorePage extends BasePage {
       switch (mode) {
         case WalletRestoreMode.seed:
           _pages.add(WalletRestoreFromSeedForm(
-              isTestnet: walletRestoreViewModel.useTestnet,
-              toggleTestnet: walletRestoreViewModel.toggleUseTestnet,
               displayBlockHeightSelector:
                   walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
               displayLanguageSelector: walletRestoreViewModel.hasSeedLanguageSelector,
@@ -209,8 +207,12 @@ class WalletRestorePage extends BasePage {
                       const SizedBox(height: 25),
                       GestureDetector(
                         onTap: () {
-                          Navigator.of(context).pushNamed(Routes.advancedPrivacySettings,
-                              arguments: walletRestoreViewModel.type);
+                          Navigator.of(context)
+                              .pushNamed(Routes.advancedPrivacySettings, arguments: [
+                            walletRestoreViewModel.type,
+                            walletRestoreViewModel.useTestnet,
+                            walletRestoreViewModel.toggleUseTestnet
+                          ]);
                         },
                         child: Text(S.of(context).advanced_settings),
                       ),

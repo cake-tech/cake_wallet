@@ -102,7 +102,7 @@ abstract class WalletCreationVMBase with Store {
       throw UnimplementedError();
 
   @action
-  void toggleUseTestnet() {
-    _useTestnet = !_useTestnet;
+  void toggleUseTestnet(bool? value) {
+    _useTestnet = value ?? !_useTestnet;
   }
 }
