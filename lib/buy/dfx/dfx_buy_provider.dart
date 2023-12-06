@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -109,12 +111,16 @@ class DFXBuyProvider {
         }
       }
 
-      final uriString =
-          'https://services.dfx.swiss/buy?session=$accessToken';
+      final uriString = 'https://services.dfx.swiss/buy?session=$accessToken';
       final uri = Uri.parse(uriString);
 
       if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (DeviceInfo.instance.isMobile) {
+          Navigator.of(context).pushNamed(Routes.webViewPage,
+              arguments: [S.of(context).buy, uri]);
+        } else {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
       } else {
         throw Exception('Could not launch URL');
       }
