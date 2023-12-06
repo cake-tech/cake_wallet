@@ -749,5 +749,6 @@
   "trocador_anonpay_invoice": "Трокадор Anonpay Фактура",
   "trocador_anonpay_donation_link": "Трокадорна връзка за дарение на Anonpay",
   "bitcoin_silent_payments": "Биткойн мълчаливи плащания",
-  "bitcoin_legacy": "Legacy Bitcoin"
+  "bitcoin_legacy": "Legacy Bitcoin",
+  "primary_silent_address": "Първичен безшумен адрес"
 }

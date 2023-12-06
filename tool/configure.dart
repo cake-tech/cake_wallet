@@ -95,7 +95,7 @@ abstract class Bitcoin {
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
   String getReceiveAddress(Object wallet);
-  btc.SilentPaymentAddress? getSilentAddress(Object wallet);
+  btc.SilentPaymentAddress? getPrimarySilentAddress(Object wallet);
 	List<BitcoinAddressRecord> getSilentAddresses(Object wallet);
 
   String formatterBitcoinAmountToString({required int amount});

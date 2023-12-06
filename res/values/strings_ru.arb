@@ -757,5 +757,6 @@
   "trocador_anonpay_invoice": "Трокадор Anonpay",
   "trocador_anonpay_donation_link": "Ссылка пожертвования Trocador Anonpay",
   "bitcoin_silent_payments": "Биткойн молчаливые платежи",
-  "bitcoin_legacy": "Биткойн наследие"
+  "bitcoin_legacy": "Биткойн наследие",
+  "primary_silent_address": "Основной тихий адрес"
 }

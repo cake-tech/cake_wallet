@@ -757,5 +757,6 @@
   "trocador_anonpay_invoice": "Trocador anonpay चालान",
   "trocador_anonpay_donation_link": "Trocador anonpay दान लिंक",
   "bitcoin_silent_payments": "बिटकॉइन मूक भुगतान",
-  "bitcoin_legacy": "बिटकॉइन विरासत"
+  "bitcoin_legacy": "बिटकॉइन विरासत",
+  "primary_silent_address": "प्राथमिक मूक पता"
 }

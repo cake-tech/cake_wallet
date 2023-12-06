@@ -110,9 +110,9 @@ class CWBitcoin extends Bitcoin {
 		return bitcoinWallet.walletAddresses.receiveAddress;
 	}
 
-	btc.SilentPaymentAddress? getSilentAddress(Object wallet) {
+	btc.SilentPaymentAddress? getPrimarySilentAddress(Object wallet) {
 		final bitcoinWallet = wallet as ElectrumWallet;
-		return bitcoinWallet.walletAddresses.silentAddress;
+		return bitcoinWallet.walletAddresses.primarySilentAddress;
 	}
 
 	List<BitcoinAddressRecord> getSilentAddresses(Object wallet) {

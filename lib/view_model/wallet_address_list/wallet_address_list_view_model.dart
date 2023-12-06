@@ -16,6 +16,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as btc;
+import 'package:cake_wallet/generated/i18n.dart';
 
 part 'wallet_address_list_view_model.g.dart';
 
@@ -255,13 +256,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (wallet.type == WalletType.bitcoin) {
-      final receiveAddress = bitcoin!.getReceiveAddress(wallet);
-      addressList.add(
-          WalletAddressListItem(isPrimary: true, name: 'Primary address', address: receiveAddress));
-
-      final silentAddress = bitcoin!.getSilentAddress(wallet).toString();
-      addressList.add(
-          WalletAddressListItem(isPrimary: false, name: silentAddress, address: silentAddress));
+      final primarySilentAddress = bitcoin!.getPrimarySilentAddress(wallet).toString();
+      addressList.add(WalletAddressListItem(
+          isPrimary: true, name: S.current.primary_silent_address, address: primarySilentAddress));
 
       final silentAddresses = bitcoin!.getSilentAddresses(wallet);
       silentAddresses.forEach((addr) {

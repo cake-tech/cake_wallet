@@ -165,17 +165,17 @@ abstract class ElectrumWalletBase
         startRefresh,
         ScanData(
           sendPort: receivePort.sendPort,
-          silentAddress: walletAddresses.silentAddress!.toString(),
           scanPrivkeyCompressed:
-              walletAddresses.silentAddress!.scanPrivkey.toCompressedHex().fromHex,
+              walletAddresses.primarySilentAddress!.scanPrivkey.toCompressedHex().fromHex,
           spendPubkeyCompressed:
-              walletAddresses.silentAddress!.spendPubkey.toCompressedHex().fromHex,
+              walletAddresses.primarySilentAddress!.spendPubkey.toCompressedHex().fromHex,
           networkType: networkType,
           height: height,
           chainTip: currentChainTip,
           electrumClient: ElectrumClient(),
           transactionHistoryIds: transactionHistory.transactions.keys.toList(),
           node: electrumClient.uri.toString(),
+          labels: walletAddresses.labels,
         ));
 
     await for (var message in receivePort) {
@@ -370,7 +370,7 @@ abstract class ElectrumWalletBase
         if (utx.bitcoinAddressRecord.silentPaymentTweak != null) {
           // https://github.com/bitcoin/bips/blob/c55f80c53c98642357712c1839cfdc0551d531c4/bip-0352.mediawiki#user-content-Spending
           final d = bitcoin.PrivateKey.fromHex(
-                  curve, walletAddresses.silentAddress!.spendPrivkey.toCompressedHex())
+                  curve, walletAddresses.primarySilentAddress!.spendPrivkey.toCompressedHex())
               .tweakAdd(utx.bitcoinAddressRecord.silentPaymentTweak!.fromHex.bigint)!;
 
           inputPrivKeys.add(bitcoin.PrivateKeyInfo(d, utx.type == bitcoin.AddressType.p2tr));
@@ -983,25 +983,25 @@ class ScanData {
   final SendPort sendPort;
   final Uint8List scanPrivkeyCompressed;
   final Uint8List spendPubkeyCompressed;
-  final String silentAddress;
   final int height;
   final String node;
   final bitcoin.NetworkType networkType;
   final int chainTip;
   final ElectrumClient electrumClient;
   final List<String> transactionHistoryIds;
+  final Map<String, String> labels;
 
   ScanData({
     required this.sendPort,
     required this.scanPrivkeyCompressed,
     required this.spendPubkeyCompressed,
-    required this.silentAddress,
     required this.height,
     required this.node,
     required this.networkType,
     required this.chainTip,
     required this.electrumClient,
     required this.transactionHistoryIds,
+    required this.labels,
   });
 
   factory ScanData.fromHeight(ScanData scanData, int newHeight) {
@@ -1009,13 +1009,13 @@ class ScanData {
       sendPort: scanData.sendPort,
       scanPrivkeyCompressed: scanData.scanPrivkeyCompressed,
       spendPubkeyCompressed: scanData.spendPubkeyCompressed,
-      silentAddress: scanData.silentAddress,
       height: newHeight,
       node: scanData.node,
       networkType: scanData.networkType,
       chainTip: scanData.chainTip,
       transactionHistoryIds: scanData.transactionHistoryIds,
       electrumClient: scanData.electrumClient,
+      labels: scanData.labels,
     );
   }
 }
@@ -1197,11 +1197,13 @@ Future<void> startRefresh(ScanData scanData) async {
               final curve = bitcoin.getSecp256k1();
 
               final result = bitcoin.scanOutputs(
-                  bitcoin.PrivateKey.fromHex(curve, scanData.scanPrivkeyCompressed.hex),
-                  bitcoin.PublicKey.fromHex(curve, scanData.spendPubkeyCompressed.hex),
-                  bitcoin.getSumInputPubKeys(pubkeys),
-                  outpointHash,
-                  outpointsByP2TRpubkey.keys.toList());
+                bitcoin.PrivateKey.fromHex(curve, scanData.scanPrivkeyCompressed.hex),
+                bitcoin.PublicKey.fromHex(curve, scanData.spendPubkeyCompressed.hex),
+                bitcoin.getSumInputPubKeys(pubkeys),
+                outpointHash,
+                outpointsByP2TRpubkey.keys.toList(),
+                labels: scanData.labels,
+              );
 
               if (result.isEmpty) {
                 // no results tx, continue to next tx

@@ -749,5 +749,6 @@
   "trocador_anonpay_invoice": "ٹروکاڈور انون پے انوائس",
   "trocador_anonpay_donation_link": "ٹروکاڈور انونپے چندہ کا لنک",
   "bitcoin_silent_payments": "بٹ کوائن خاموش ادائیگی",
-  "bitcoin_legacy": "بٹ کوائن میراث"
+  "bitcoin_legacy": "بٹ کوائن میراث",
+  "primary_silent_address": "بنیادی خاموش پتہ"
 }

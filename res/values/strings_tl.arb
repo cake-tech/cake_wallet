@@ -751,5 +751,6 @@
   "trocador_anonpay_invoice": "Trocador Anonpay Invoice",
   "trocador_anonpay_donation_link": "Trocador Anonpay Donation Link",
   "bitcoin_silent_payments": "Bitcoin tahimik na pagbabayad",
-  "bitcoin_legacy": "Pamana ng Bitcoin"
+  "bitcoin_legacy": "Pamana ng Bitcoin",
+  "primary_silent_address": "Pangunahing tahimik na address"
 }

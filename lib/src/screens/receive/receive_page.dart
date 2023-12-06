@@ -215,15 +215,16 @@ class ReceivePage extends BasePage {
                                     child: cell,
                                   );
                           })),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
-                    child: Text(S.of(context).electrum_address_disclaimer,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 15,
-                            color:
-                                Theme.of(context).extension<BalancePageTheme>()!.labelTextColor)),
-                  ),
+                  if (!addressListViewModel.hasSilentAddresses)
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
+                      child: Text(S.of(context).electrum_address_disclaimer,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 15,
+                              color:
+                                  Theme.of(context).extension<BalancePageTheme>()!.labelTextColor)),
+                    ),
                 ],
               ),
             ))

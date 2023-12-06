@@ -735,5 +735,6 @@
   "trocador_anonpay_invoice": "Atroador Antonpay",
   "trocador_anonpay_donation_link": "Hanyar bayar da gudummawa na Trorojador",
   "bitcoin_silent_payments": "Bitcoin Silent biya",
-  "bitcoin_legacy": "Gado bitcoin"
+  "bitcoin_legacy": "Gado bitcoin",
+  "primary_silent_address": "Adireshin Silent na farko"
 }

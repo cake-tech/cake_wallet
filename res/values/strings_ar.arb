@@ -753,5 +753,6 @@
   "trocador_anonpay_invoice": "فاتورة Trocador Anonpay",
   "trocador_anonpay_donation_link": "رابط التبرع Trocador Anonpay",
   "bitcoin_silent_payments": "مدفوعات بيتكوين صامتة",
-  "bitcoin_legacy": "إرث البيتكوين"
+  "bitcoin_legacy": "إرث البيتكوين",
+  "primary_silent_address": "العنوان الصامت الأساسي"
 }

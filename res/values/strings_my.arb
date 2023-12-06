@@ -755,5 +755,6 @@
   "trocador_anonpay_invoice": "Trocador Anonpay ငွေတောင်းခံလွှာ",
   "trocador_anonpay_donation_link": "Trocador Anonpay အလှူငွေလင့်ခ်",
   "bitcoin_silent_payments": "Bitcoin အသံတိတ်ငွေပေးချေမှု",
-  "bitcoin_legacy": "Bitcoin အမွေ"
+  "bitcoin_legacy": "Bitcoin အမွေ",
+  "primary_silent_address": "မူလအသံတိတ်လိပ်စာ"
 }

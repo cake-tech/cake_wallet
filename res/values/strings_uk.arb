@@ -757,5 +757,6 @@
   "trocador_anonpay_invoice": "Рахунок -фактура Trocador Anonpay",
   "trocador_anonpay_donation_link": "Посилання на пожертву Trocador Anonpay",
   "bitcoin_silent_payments": "Біткойн мовчазні платежі",
-  "bitcoin_legacy": "Bitcoin Legacy"
+  "bitcoin_legacy": "Bitcoin Legacy",
+  "primary_silent_address": "Первинна мовчазна адреса"
 }

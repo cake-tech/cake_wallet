@@ -757,5 +757,6 @@
   "trocador_anonpay_invoice": "Trocador Anonpay In Rechnung",
   "trocador_anonpay_donation_link": "Trocador Anonpay Spendenlink",
   "bitcoin_silent_payments": "Bitcoin stille Zahlungen",
-  "bitcoin_legacy": "Bitcoin -Erbe"
+  "bitcoin_legacy": "Bitcoin -Erbe",
+  "primary_silent_address": "Primäre stille Adresse"
 }

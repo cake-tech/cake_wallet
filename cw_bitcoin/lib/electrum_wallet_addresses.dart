@@ -2,7 +2,6 @@ import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_transaction_history.dart';
-import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -24,7 +23,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     int initialChangeAddressIndex = 0,
     bitcoin.SilentPaymentReceiver? silentAddress,
   })  : addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
-        silentAddress = silentAddress,
+        primarySilentAddress = silentAddress,
         receiveAddresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? [])
             .where((addressRecord) => !addressRecord.isHidden && !addressRecord.isUsed)
             .toSet()),
@@ -54,7 +53,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final bitcoin.HDWallet sideHd;
 
   // TODO: labels -> disable edit on receive page
-  final bitcoin.SilentPaymentReceiver? silentAddress;
+  final bitcoin.SilentPaymentReceiver? primarySilentAddress;
 
   @observable
   // ignore: prefer_final_fields
@@ -63,7 +62,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   dynamic get addressPageType => _addressPageType;
 
   @observable
-  String? activeAddress;
+  String? activeSilentAddress;
 
   @computed
   String get receiveAddress {
@@ -80,11 +79,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @computed
   String get address {
     if (addressPageType == bitcoin.AddressType.p2sp) {
-      return silentAddress!.toString();
-    }
+      if (activeSilentAddress != null) {
+        return activeSilentAddress!;
+      }
 
-    if (activeAddress != null) {
-      return activeAddress!;
+      return primarySilentAddress!.toString();
     }
 
     if (receiveAddresses.isEmpty) {
@@ -103,10 +102,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @override
-  set address(String addr) => activeAddress = addr;
+  set address(String addr) => activeSilentAddress = addr;
 
   int currentReceiveAddressIndex;
   int currentChangeAddressIndex;
+  int currentSilentAddressIndex = 0;
 
   @computed
   int get totalCountOfReceiveAddresses => addresses.fold(0, (acc, addressRecord) {
@@ -168,21 +168,40 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return address;
   }
 
+  Map<String, String> get labels {
+    final labels = <String, String>{};
+    for (int i = 0; i < silentAddresses.length; i++) {
+      final silentAddressRecord = silentAddresses[i];
+      final silentAddress =
+          bitcoin.SilentPaymentDestination.fromAddress(silentAddressRecord.address, 0)
+              .scanPubkey
+              .toCompressedHex();
+
+      if (silentAddressRecord.silentPaymentTweak != null)
+        labels[silentAddress] = silentAddressRecord.silentPaymentTweak!;
+    }
+    return labels;
+  }
+
   @action
   BitcoinAddressRecord generateNewAddress(
       {bitcoin.HDWallet? hd, bool isHidden = false, String? label}) {
-    if (label != null && silentAddress != null) {
+    if (label != null && primarySilentAddress != null) {
+      currentSilentAddressIndex += 1;
+
+      final tweak = currentSilentAddressIndex.toString();
+
       final address = BitcoinAddressRecord(
-          bitcoin.SilentPaymentAddress.createLabeledSilentPaymentAddress(
-                  silentAddress!.scanPubkey,
-                  silentAddress!.spendPubkey,
-                  '0000000000000000000000000000000000000000000000000000000000000002'.fromHex,
-                  hrp: silentAddress!.hrp,
-                  version: silentAddress!.version)
-              .toString(),
-          index: currentReceiveAddressIndex,
-          isHidden: isHidden,
-          silentAddressLabel: label);
+        bitcoin.SilentPaymentAddress.createLabeledSilentPaymentAddress(
+                primarySilentAddress!.scanPubkey, primarySilentAddress!.spendPubkey, tweak.fromHex,
+                hrp: primarySilentAddress!.hrp, version: primarySilentAddress!.version)
+            .toString(),
+        index: currentSilentAddressIndex,
+        isHidden: isHidden,
+        silentAddressLabel: label,
+        silentPaymentTweak: tweak,
+      );
+
       silentAddresses.add(address);
 
       return address;

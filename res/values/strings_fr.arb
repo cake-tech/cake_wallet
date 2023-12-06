@@ -757,5 +757,6 @@
   "trocador_anonpay_invoice": "Facture anonpay du Trocador",
   "trocador_anonpay_donation_link": "Lien de don du Trocador anonpay",
   "bitcoin_silent_payments": "Bitcoin Paiements silencieux",
-  "bitcoin_legacy": "Bitcoin Legacy"
+  "bitcoin_legacy": "Bitcoin Legacy",
+  "primary_silent_address": "Adresse silencieuse primaire"
 }

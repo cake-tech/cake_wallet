@@ -745,5 +745,6 @@
   "trocador_anonpay_invoice": "Faktur Trocador Anonpay",
   "trocador_anonpay_donation_link": "Tautan donasi trocador anonpay",
   "bitcoin_silent_payments": "Bitcoin pembayaran diam",
-  "bitcoin_legacy": "Bitcoin Legacy"
+  "bitcoin_legacy": "Bitcoin Legacy",
+  "primary_silent_address": "Alamat diam primer"
 }

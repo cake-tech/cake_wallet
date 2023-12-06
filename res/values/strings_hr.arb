@@ -755,5 +755,6 @@
   "trocador_anonpay_invoice": "Trokador anonpay faktura",
   "trocador_anonpay_donation_link": "Link za donaciju trokadora",
   "bitcoin_silent_payments": "Bitcoin tiha plaćanja",
-  "bitcoin_legacy": "Nasljeđe bitcoina"
+  "bitcoin_legacy": "Nasljeđe bitcoina",
+  "primary_silent_address": "Primarna tiha adresa"
 }
