@@ -533,7 +533,9 @@ abstract class ElectrumWalletBase
         'mnemonic': mnemonic,
         'account_index': walletAddresses.currentReceiveAddressIndex.toString(),
         'change_address_index': walletAddresses.currentChangeAddressIndex.toString(),
+        'silent_address_index': walletAddresses.currentSilentAddressIndex.toString(),
         'addresses': walletAddresses.addresses.map((addr) => addr.toJSON()).toList(),
+        'silent_addresses': walletAddresses.silentAddresses.map((addr) => addr.toJSON()).toList(),
         'balance': balance[currency]?.toJSON(),
         'network_type': networkType == bitcoin.bitcoin ? 'mainnet' : 'testnet',
       });

@@ -16,8 +16,10 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     required super.networkType,
     required super.transactionHistory,
     super.initialAddresses,
+    super.initialSilentAddresses,
     super.initialRegularAddressIndex = 0,
     super.initialChangeAddressIndex = 0,
+    super.initialSilentAddressIndex = 0,
     super.silentAddress,
   }) : super(walletInfo);
 

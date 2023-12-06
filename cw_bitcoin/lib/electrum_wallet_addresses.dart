@@ -19,8 +19,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required this.transactionHistory,
     required this.networkType,
     List<BitcoinAddressRecord>? initialAddresses,
+    List<BitcoinAddressRecord>? initialSilentAddresses,
     int initialRegularAddressIndex = 0,
     int initialChangeAddressIndex = 0,
+    int initialSilentAddressIndex = 0,
     bitcoin.SilentPaymentReceiver? silentAddress,
   })  : addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
         primarySilentAddress = silentAddress,
@@ -30,11 +32,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         changeAddresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? [])
             .where((addressRecord) => addressRecord.isHidden && !addressRecord.isUsed)
             .toSet()),
-        silentAddresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? [])
-            .where((addressRecord) => addressRecord.silentAddressLabel != null)
+        silentAddresses = ObservableList<BitcoinAddressRecord>.of((initialSilentAddresses ?? [])
+            .where((addressRecord) =>
+                addressRecord.silentAddressLabel != null &&
+                addressRecord.silentPaymentTweak != null)
             .toSet()),
         currentReceiveAddressIndex = initialRegularAddressIndex,
         currentChangeAddressIndex = initialChangeAddressIndex,
+        currentSilentAddressIndex = initialSilentAddressIndex,
         super(walletInfo);
 
   static const defaultReceiveAddressesCount = 22;
@@ -106,7 +111,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   int currentReceiveAddressIndex;
   int currentChangeAddressIndex;
-  int currentSilentAddressIndex = 0;
+  int currentSilentAddressIndex;
 
   @computed
   int get totalCountOfReceiveAddresses => addresses.fold(0, (acc, addressRecord) {
