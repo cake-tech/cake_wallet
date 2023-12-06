@@ -84,6 +84,7 @@ class DFXBuyProvider {
     switch (_wallet.type) {
       case WalletType.ethereum:
         return _wallet.signMessage(message);
+      case WalletType.monero:
       case WalletType.litecoin:
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:

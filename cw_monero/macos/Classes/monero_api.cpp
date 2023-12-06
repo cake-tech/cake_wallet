@@ -971,6 +971,22 @@ extern "C"
         return result;
     }
 
+    void freeze_coin(int index)
+    {
+        m_coins->setFrozen(index);
+    }
+
+    void thaw_coin(int index)
+    {
+        m_coins->thaw(index);
+    }
+
+    // Sign Messages //
+
+    char *sign_message(char *message, char *address = "")
+    {
+        return strdup(get_current_wallet()->signMessage(std::string(message), std::string(address)).c_str());
+    }
 
 #ifdef __cplusplus
 }
