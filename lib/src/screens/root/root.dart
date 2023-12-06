@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -169,7 +169,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       );
       launchUri = null;
     } else if (isWalletConnectLink) {
-      if (widget.appStore.wallet!.type == WalletType.ethereum) {
+      if (isEVMCompatibleChain(widget.appStore.wallet!.type)) {
         widget.navigatorKey.currentState?.pushNamed(
           Routes.walletConnectConnectionsListing,
           arguments: launchUri,
@@ -179,7 +179,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         _nonETHWalletErrorToast(S.current.switchToETHWallet);
       }
     }
-    
+
     launchUri = null;
     return WillPopScope(
       onWillPop: () async => false,
@@ -205,7 +205,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   String? _getRouteToGo() {
     if (isWalletConnectLink) {
-      if (widget.appStore.wallet!.type != WalletType.ethereum) {
+      if (isEVMCompatibleChain(widget.appStore.wallet!.type)) {
         _nonETHWalletErrorToast(S.current.switchToETHWallet);
         return null;
       }

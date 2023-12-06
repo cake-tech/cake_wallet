@@ -1,4 +1,6 @@
 import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/routes.dart';
@@ -88,6 +90,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
         });
       }
     });
+
+    _setSeedType(SeedType.defaultSeedType);
     super.initState();
   }
 
@@ -183,25 +187,38 @@ class _WalletNameFormState extends State<WalletNameForm> {
                       ),
                     ),
                   ),
+
                   if (_walletNewVM.hasLanguageSelector) ...[
-                    Padding(
-                      padding: EdgeInsets.only(top: 40),
-                      child: Text(
-                        S.of(context).seed_language_choose,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                    if (_walletNewVM.hasSeedType) ...[
+                      Observer(
+                        builder: (BuildContext build) => Padding(
+                          padding: EdgeInsets.only(top: 24),
+                          child: SelectButton(
+                            text: widget._settingsStore.moneroSeedType.title,
+                            onTap: () async {
+                              await showPopUp<void>(
+                                context: context,
+                                builder: (_) => Picker(
+                                  items: SeedType.all,
+                                  selectedAtIndex: isPolyseed ? 1 : 0,
+                                  onItemSelected: _setSeedType,
+                                  isSeparated: false,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                     Observer(
                       builder: (BuildContext build) => Padding(
-                        padding: EdgeInsets.only(top: 24),
+                        padding: EdgeInsets.only(top: 10),
                         child: SeedLanguageSelector(
                           key: _languageSelectorKey,
                           initialSelected: defaultSeedLanguage,
-                          seedType: widget._settingsStore.moneroSeedType,
+                          seedType: _walletNewVM.hasSeedType
+                              ? widget._settingsStore.moneroSeedType
+                              : SeedType.legacy,
                         ),
                       ),
                     )
@@ -231,7 +248,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   Navigator.of(context)
                       .pushNamed(Routes.advancedPrivacySettings, arguments: _walletNewVM.type);
                 },
-                child: Text(S.of(context).advanced_privacy_settings),
+                child: Text(S.of(context).advanced_settings),
               ),
             ],
           )),
@@ -253,11 +270,17 @@ class _WalletNameFormState extends State<WalletNameForm> {
                 buttonAction: () => Navigator.of(context).pop());
           });
     } else {
-      final isPolyseed = widget._settingsStore.moneroSeedType == SeedType.polyseed;
       _walletNewVM.create(
           options: _walletNewVM.hasLanguageSelector
               ? [_languageSelectorKey.currentState!.selected, isPolyseed]
               : null);
     }
+  }
+
+  bool get isPolyseed => widget._settingsStore.moneroSeedType == SeedType.polyseed;
+
+  void _setSeedType(SeedType item) {
+    widget._settingsStore.moneroSeedType = item;
+    _languageSelectorKey.currentState?.selected = defaultSeedLanguage; // Reset Seed language
   }
 }

@@ -4,6 +4,8 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +29,8 @@ const String cryptoNumberPattern = '0.0';
 class Output = OutputBase with _$Output;
 
 abstract class OutputBase with Store {
-  OutputBase(this._wallet, this._settingsStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
+  OutputBase(
+      this._wallet, this._settingsStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
       : _cryptoNumberFormat = NumberFormat(cryptoNumberPattern),
         key = UniqueKey(),
         sendAll = false,
@@ -65,8 +68,7 @@ abstract class OutputBase with Store {
 
   @computed
   bool get isParsedAddress =>
-      parsedAddress.parseFrom != ParseFrom.notParsed &&
-      parsedAddress.name.isNotEmpty;
+      parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
 
   @computed
   int get formattedCryptoAmount {
@@ -83,14 +85,16 @@ abstract class OutputBase with Store {
           case WalletType.bitcoin:
           case WalletType.litecoin:
           case WalletType.bitcoinCash:
-            _amount =
-                bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
+            _amount = bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
             break;
           case WalletType.haven:
             _amount = haven!.formatterMoneroParseAmount(amount: _cryptoAmount);
             break;
           case WalletType.ethereum:
             _amount = ethereum!.formatterEthereumParseAmount(_cryptoAmount);
+            break;
+          case WalletType.polygon:
+            _amount = polygon!.formatterPolygonParseAmount(_cryptoAmount);
             break;
           default:
             break;
@@ -130,6 +134,10 @@ abstract class OutputBase with Store {
       if (_wallet.type == WalletType.ethereum) {
         return ethereum!.formatterEthereumAmountToDouble(amount: BigInt.from(fee));
       }
+
+      if (_wallet.type == WalletType.polygon) {
+        return polygon!.formatterPolygonAmountToDouble(amount: BigInt.from(fee));
+      }
     } catch (e) {
       print(e.toString());
     }
@@ -140,10 +148,11 @@ abstract class OutputBase with Store {
   @computed
   String get estimatedFeeFiatAmount {
     try {
-      final currency = _wallet.type == WalletType.ethereum ? _wallet.currency : cryptoCurrencyHandler();
+      final currency = isEVMCompatibleChain(_wallet.type)
+          ? _wallet.currency
+          : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(
-          price: _fiatConversationStore.prices[currency]!,
-          cryptoAmount: estimatedFee);
+          price: _fiatConversationStore.prices[currency]!, cryptoAmount: estimatedFee);
       return fiat;
     } catch (_) {
       return '0.00';
@@ -240,6 +249,7 @@ abstract class OutputBase with Store {
         maximumFractionDigits = 12;
         break;
       case WalletType.ethereum:
+      case WalletType.polygon:
         maximumFractionDigits = 12;
         break;
       default:

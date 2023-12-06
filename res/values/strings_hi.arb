@@ -160,7 +160,7 @@
   "seed_title": "बीज",
   "seed_share": "बीज साझा करें",
   "copy": "प्रतिलिपि",
-  "seed_language_choose": "कृपया बीज भाषा चुनें:",
+  "seed_language": "बीज",
   "seed_choose": "बीज भाषा चुनें",
   "seed_language_next": "आगामी",
   "seed_language_english": "अंग्रेज़ी",
@@ -571,7 +571,7 @@
   "always": "हमेशा",
   "minutes_to_pin_code": "${minute} मिनट",
   "disable_exchange": "एक्सचेंज अक्षम करें",
-  "advanced_privacy_settings": "उन्नत गोपनीयता सेटिंग्स",
+  "advanced_settings": "एडवांस सेटिंग",
   "settings_can_be_changed_later": "इन सेटिंग्स को बाद में ऐप सेटिंग में बदला जा सकता है",
   "add_custom_node": "नया कस्टम नोड जोड़ें",
   "disable_fiat": "िएट को अक्षम करें",
@@ -750,5 +750,6 @@
   "seed_language_czech": "चेक",
   "seed_language_korean": "कोरियाई",
   "seed_language_chinese_traditional": "चीनी पारंपरिक)",
-  "dfx_option_description": "EUR और CHF के साथ क्रिप्टो खरीदें। अतिरिक्त केवाईसी के बिना 990€ तक। यूरोप में खुदरा और कॉर्पोरेट ग्राहकों के लिए"
+  "dfx_option_description": "EUR और CHF के साथ क्रिप्टो खरीदें। अतिरिक्त केवाईसी के बिना 990€ तक। यूरोप में खुदरा और कॉर्पोरेट ग्राहकों के लिए",
+  "polygonscan_history": "पॉलीगॉनस्कैन इतिहास"
 }
