@@ -21,8 +21,7 @@ class EthereumClient {
 
   bool connect(Node node) {
     try {
-      final nodeUri = node.uri.toString();
-      _client = Web3Client(nodeUri, httpClient);
+      _client = Web3Client(node.uri.toString(), httpClient);
 
       return true;
     } catch (e) {
