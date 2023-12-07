@@ -22,6 +22,38 @@ class DFXBuyProvider {
   static const _signInPath = '/v1/auth/signIn';
   static const walletName = 'CakeWallet';
 
+  String get assetOut {
+    switch (_wallet.type) {
+      case WalletType.bitcoin:
+        return 'BTC';
+      case WalletType.bitcoinCash:
+        return 'BCH';
+      case WalletType.litecoin:
+        return 'LTC';
+      case WalletType.monero:
+        return 'XMR';
+      case WalletType.ethereum:
+        return 'ETH';
+      default:
+        throw Exception("WalletType is not available for DFX ${_wallet.type}");
+    }
+  }
+
+  String get blockchain {
+    switch (_wallet.type) {
+      case WalletType.bitcoin:
+      case WalletType.bitcoinCash:
+      case WalletType.litecoin:
+        return 'Bitcoin';
+      case WalletType.monero:
+        return 'Monero';
+      case WalletType.ethereum:
+        return 'Ethereum';
+      default:
+        throw Exception("WalletType is not available for DFX ${_wallet.type}");
+    }
+  }
+
   Future<String> getSignMessage() async {
     final walletAddress = _wallet.walletAddresses.address;
     final uri = Uri.https(_baseUrl, _authPath, {'address': walletAddress});
@@ -99,6 +131,9 @@ class DFXBuyProvider {
 
   Future<void> launchProvider(BuildContext context) async {
     try {
+      final assetOut = this.assetOut;
+      final blockchain = this.blockchain;
+
       String accessToken;
 
       try {
@@ -111,8 +146,13 @@ class DFXBuyProvider {
         }
       }
 
-      final uriString = 'https://services.dfx.swiss/buy?session=$accessToken';
-      final uri = Uri.parse(uriString);
+      final uri = Uri.https('services.dfx.swiss', '/buy', {
+        'session': accessToken,
+        'lang': 'en',
+        'asset-out': assetOut,
+        'blockchain': blockchain,
+        'asset-in': 'EUR',
+      });
 
       if (await canLaunchUrl(uri)) {
         if (DeviceInfo.instance.isMobile) {
