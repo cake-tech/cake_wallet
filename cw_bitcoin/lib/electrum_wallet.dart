@@ -814,9 +814,6 @@ abstract class ElectrumWalletBase
           await updateUnspent();
           await updateBalance();
           await updateTransactions();
-          final currentHeight = await electrumClient.getCurrentBlockChainTip();
-          if (currentHeight != null) walletInfo.restoreHeight = currentHeight;
-          rescan(height: walletInfo.restoreHeight);
         } catch (e, s) {
           print(e.toString());
           _onError?.call(FlutterErrorDetails(
@@ -829,10 +826,11 @@ abstract class ElectrumWalletBase
     });
     await _chainTipUpdateSubject?.close();
     _chainTipUpdateSubject = electrumClient.chainTipUpdate();
-    _chainTipUpdateSubject!.listen((event) async {
+    _chainTipUpdateSubject?.listen((_) async {
       try {
-        print(["NEW HEIGHT!", event]);
-        // _setListeners(walletInfo.restoreHeight, chainTip_setListeners: event);
+        final currentHeight = await electrumClient.getCurrentBlockChainTip();
+        if (currentHeight != null) walletInfo.restoreHeight = currentHeight;
+        _setListeners(walletInfo.restoreHeight, chainTip: currentHeight);
       } catch (e, s) {
         print(e.toString());
         _onError?.call(FlutterErrorDetails(
