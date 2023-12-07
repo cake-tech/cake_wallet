@@ -50,9 +50,10 @@ Future<void> startFiatRateUpdate(
         for (final currency in currencies) {
           () async {
             fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
-                crypto: currency,
-                fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+              crypto: currency,
+              fiat: settingsStore.fiatCurrency,
+              apiMode: settingsStore.fiatApiMode,
+            );
           }.call();
         }
       }

@@ -61,23 +61,23 @@ class _TorPageBodyState extends State<TorPageBody> {
   }
 
   Future<void> endTor() async {
-  //   // Start the proxy
-  //   Tor.instance.disable();
-  //
-  //   // Toggle started flag.
-  //   setState(() {
-  //     torEnabled = Tor.instance.enabled; // Update flag
-  //   });
-  //
-  //   print('Done awaiting; tor should be stopped');
+    // Start the proxy
+    Tor.instance.disable();
+  
+    // Toggle started flag.
+    setState(() {
+      torEnabled = Tor.instance.enabled; // Update flag
+    });
+  
+    print('Done awaiting; tor should be stopped');
   }
-  //
-  // @override
-  // void initState() {
-  //   super.initState();
-  //
-  //   torEnabled = Tor.instance.enabled;
-  // }
+  
+  @override
+  void initState() {
+    super.initState();
+  
+    torEnabled = Tor.instance.enabled;
+  }
 
   @override
   void dispose() {

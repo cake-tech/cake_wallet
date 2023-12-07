@@ -104,9 +104,10 @@ void startCurrentWalletChangeReaction(
 
       fiatConversionStore.prices[wallet.currency] = 0;
       fiatConversionStore.prices[wallet.currency] = await FiatConversionService.fetchPrice(
-          crypto: wallet.currency,
-          fiat: settingsStore.fiatCurrency,
-          torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+        crypto: wallet.currency,
+        fiat: settingsStore.fiatCurrency,
+        apiMode: settingsStore.fiatApiMode,
+      );
 
       Iterable<Erc20Token>? currencies;
       if (wallet.type == WalletType.ethereum) {
@@ -122,9 +123,10 @@ void startCurrentWalletChangeReaction(
         for (final currency in currencies) {
           () async {
             fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
-                crypto: currency,
-                fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+              crypto: currency,
+              fiat: settingsStore.fiatCurrency,
+              apiMode: settingsStore.fiatApiMode,
+            );
           }.call();
         }
       }

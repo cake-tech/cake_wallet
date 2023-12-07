@@ -1,13 +1,11 @@
 import 'dart:io';
 
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
-import 'package:http/http.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:socks5_proxy/socks_client.dart';
-import 'package:tor/tor.dart';
 
 const _fiatApiClearNetAuthority = 'fiat-api.cakewallet.com';
 const _fiatApiOnionAuthority = 'n4z7bdcmwk2oyddxvzaap3x2peqcplh3pzdy7tpkk5ejz5n4mhfvoxqd.onion';
@@ -16,7 +14,7 @@ const _fiatApiPath = '/v2/rates';
 Future<double> _fetchPrice(Map<String, dynamic> args) async {
   final crypto = args['crypto'] as String;
   final fiat = args['fiat'] as String;
-  final torOnly = args['torOnly'] as bool;
+  final torOnly = args['apiMode'] as String == FiatApiMode.torOnly.toString();
 
   final Map<String, String> queryParams = {
     'interval_count': '1',
@@ -28,50 +26,30 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   num price = 0.0;
 
   try {
-    late final Uri uri;
-    if (torOnly) {
-      uri = Uri.http(_fiatApiOnionAuthority, _fiatApiPath, queryParams);
-    } else {
-      uri = Uri.https(_fiatApiClearNetAuthority, _fiatApiPath, queryParams);
-    }
+    final Uri onionUri = Uri.http(_fiatApiOnionAuthority, _fiatApiPath, queryParams);
+    final Uri clearnetUri = Uri.https(_fiatApiClearNetAuthority, _fiatApiPath, queryParams);
 
-    print("getting price from: $uri");
-    print("tor port: ${Tor.instance.port}");
-
-    // Create HttpClient object
-    final client = HttpClient();
-
-    // Assign connection factory.
-    SocksTCPClient.assignToHttpClient(client, [
-      ProxySettings(
-        InternetAddress.loopbackIPv4,
-        Tor.instance.port,
-        password: null,
-      ),
-    ]);
-
-    // late Response response;
+    HttpClient client = await ProxyWrapper.instance.getProxyInstance();
     late HttpClientResponse response;
-    String responseBody = "";
+    late String responseBody;
+    
     try {
-      // response = await get(uri);
-      // GET request.
-      final request = await client.getUrl(uri);
+      final request = await client.getUrl(onionUri);
       response = await request.close();
       responseBody = await utf8.decodeStream(response);
     } catch (e) {
-      print("error getting price! $e");
+      if (!torOnly) {
+        final request = await client.getUrl(clearnetUri);
+        response = await request.close();
+        responseBody = await utf8.decodeStream(response);
+      }
     }
-
-    print(responseBody);
-
-    // final response = await get(uri);
 
     if (response.statusCode != 200) {
       return 0.0;
     }
 
-    final responseJSON = json.decode(/*response.body*/responseBody) as Map<String, dynamic>;
+    final responseJSON = json.decode(responseBody) as Map<String, dynamic>;
     final results = responseJSON['results'] as Map<String, dynamic>;
 
     if (results.isNotEmpty) {
@@ -84,23 +62,19 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   }
 }
 
-Future<double> _fetchPriceAsync(CryptoCurrency crypto, FiatCurrency fiat, bool torOnly) async =>
-    // compute(_fetchPrice, {
-    //   'fiat': fiat.toString(),
-    //   'crypto': crypto.toString(),
-    //   'torOnly': torOnly,
-    // });
+Future<double> _fetchPriceAsync(
+        CryptoCurrency crypto, FiatCurrency fiat, FiatApiMode apiMode) async =>
     _fetchPrice({
       'fiat': fiat.toString(),
       'crypto': crypto.toString(),
-      'torOnly': torOnly,
+      'apiMode': apiMode.toString(),
     });
 
 class FiatConversionService {
   static Future<double> fetchPrice({
     required CryptoCurrency crypto,
     required FiatCurrency fiat,
-    required bool torOnly,
+    required FiatApiMode apiMode,
   }) async =>
-      await _fetchPriceAsync(crypto, fiat, torOnly);
+      await _fetchPriceAsync(crypto, fiat, apiMode);
 }
