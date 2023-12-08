@@ -743,7 +743,7 @@
   "unspent_change": "Mudar",
   "Block_remaining": "${status} bloco restante",
   "labeled_silent_addresses": "Endereços silenciosos rotulados",
-  "use_testnet": "Use testNet",
+  "use_testnet": "Use Testnet",
   "tor_connection": "Conexão Tor",
   "seed_hex_form": "Semente de carteira (forma hexadecimal)",
   "seedtype": "SeedType",

@@ -3,6 +3,7 @@ import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/format_amount.dart';
@@ -18,6 +19,8 @@ class ElectrumTransactionBundle {
 }
 
 class ElectrumTransactionInfo extends TransactionInfo {
+  BitcoinUnspent? unspent;
+
   ElectrumTransactionInfo(this.type,
       {required String id,
       required int height,
@@ -26,7 +29,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
       required TransactionDirection direction,
       required bool isPending,
       required DateTime date,
-      required int confirmations}) {
+      required int confirmations,
+      String? to,
+      this.unspent}) {
     this.id = id;
     this.height = height;
     this.amount = amount;
@@ -35,6 +40,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.date = date;
     this.isPending = isPending;
     this.confirmations = confirmations;
+    this.to = to;
   }
 
   factory ElectrumTransactionInfo.fromElectrumVerbose(Map<String, Object> obj, WalletType type,
@@ -168,15 +174,21 @@ class ElectrumTransactionInfo extends TransactionInfo {
   }
 
   factory ElectrumTransactionInfo.fromJson(Map<String, dynamic> data, WalletType type) {
-    return ElectrumTransactionInfo(type,
-        id: data['id'] as String,
-        height: data['height'] as int,
-        amount: data['amount'] as int,
-        fee: data['fee'] as int,
-        direction: parseTransactionDirectionFromInt(data['direction'] as int),
-        date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
-        isPending: data['isPending'] as bool,
-        confirmations: data['confirmations'] as int);
+    return ElectrumTransactionInfo(
+      type,
+      id: data['id'] as String,
+      height: data['height'] as int,
+      amount: data['amount'] as int,
+      fee: data['fee'] as int,
+      direction: parseTransactionDirectionFromInt(data['direction'] as int),
+      date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
+      isPending: data['isPending'] as bool,
+      confirmations: data['confirmations'] as int,
+      to: data['to'] as String?,
+      unspent: data['unspent'] != null
+          ? BitcoinUnspent.fromJSON(null, data['unspent'] as Map<String, dynamic>)
+          : null,
+    );
   }
 
   final WalletType type;
@@ -220,6 +232,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['isPending'] = isPending;
     m['confirmations'] = confirmations;
     m['fee'] = fee;
+    m['to'] = to;
+    m['unspent'] = unspent?.toJson() ?? <String, dynamic>{};
     return m;
   }
 }
