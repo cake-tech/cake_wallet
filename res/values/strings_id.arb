@@ -738,5 +738,6 @@
   "seed_language_czech": "Ceko",
   "seed_language_korean": "Korea",
   "seed_language_chinese_traditional": "Cina (tradisional)",
-  "polygonscan_history": "Sejarah PolygonScan"
+  "polygonscan_history": "Sejarah PolygonScan",
+  "wallet_seed_legacy": "Biji dompet warisan"
 }

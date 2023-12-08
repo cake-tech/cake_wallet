@@ -751,5 +751,6 @@
   "seed_language_czech": "Czech",
   "seed_language_korean": "Korean",
   "seed_language_chinese_traditional": "Chinese (Traditional)",
-  "polygonscan_history": "PolygonScan history"
+  "polygonscan_history": "PolygonScan history",
+  "wallet_seed_legacy": "Legacy wallet seed"
 }

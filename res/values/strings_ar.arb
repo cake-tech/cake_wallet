@@ -746,5 +746,6 @@
   "seed_language_czech": "التشيكية",
   "seed_language_korean": "الكورية",
   "seed_language_chinese_traditional": "تقاليد صينية)",
-  "polygonscan_history": "ﻥﺎﻜﺴﻧﻮﺠﻴﻟﻮﺑ ﺦﻳﺭﺎﺗ"
+  "polygonscan_history": "ﻥﺎﻜﺴﻧﻮﺠﻴﻟﻮﺑ ﺦﻳﺭﺎﺗ",
+  "wallet_seed_legacy": "بذرة محفظة قديمة"
 }

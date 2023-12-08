@@ -748,5 +748,6 @@
   "seed_language_czech": "체코 사람",
   "seed_language_korean": "한국인",
   "seed_language_chinese_traditional": "중국 전통)",
-  "polygonscan_history": "다각형 스캔 기록"
+  "polygonscan_history": "다각형 스캔 기록",
+  "wallet_seed_legacy": "레거시 지갑 시드"
 }

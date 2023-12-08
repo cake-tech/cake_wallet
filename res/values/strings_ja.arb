@@ -750,5 +750,6 @@
   "seed_language_czech": "チェコ",
   "seed_language_korean": "韓国語",
   "seed_language_chinese_traditional": "中国の伝統的な）",
-  "polygonscan_history": "ポリゴンスキャン履歴"
+  "polygonscan_history": "ポリゴンスキャン履歴",
+  "wallet_seed_legacy": "レガシーウォレットシード"
 }

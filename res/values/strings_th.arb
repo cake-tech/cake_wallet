@@ -748,5 +748,6 @@
   "seed_language_czech": "ภาษาเช็ก",
   "seed_language_korean": "เกาหลี",
   "seed_language_chinese_traditional": "จีน (ดั้งเดิม)",
-  "polygonscan_history": "ประวัติ PolygonScan"
+  "polygonscan_history": "ประวัติ PolygonScan",
+  "wallet_seed_legacy": "เมล็ดกระเป๋าเงินมรดก"
 }

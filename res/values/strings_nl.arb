@@ -750,5 +750,6 @@
   "seed_language_czech": "Tsjechisch",
   "seed_language_korean": "Koreaans",
   "seed_language_chinese_traditional": "Chinese (traditionele)",
-  "polygonscan_history": "PolygonScan-geschiedenis"
+  "polygonscan_history": "PolygonScan-geschiedenis",
+  "wallet_seed_legacy": "Legacy portemonnee zaad"
 }

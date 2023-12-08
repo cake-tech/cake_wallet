@@ -749,5 +749,6 @@
   "seed_language_czech": "捷克",
   "seed_language_korean": "韩国人",
   "seed_language_chinese_traditional": "中国传统的）",
-  "polygonscan_history": "多边形扫描历史"
+  "polygonscan_history": "多边形扫描历史",
+  "wallet_seed_legacy": "旧的钱包种子"
 }

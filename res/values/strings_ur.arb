@@ -742,5 +742,6 @@
   "seed_language_czech": "چیک",
   "seed_language_korean": "کورین",
   "seed_language_chinese_traditional": "چینی (روایتی)",
-  "polygonscan_history": "ﺦﯾﺭﺎﺗ ﯽﮐ ﻦﯿﮑﺳﺍ ﻥﻮﮔ ﯽﻟﻮﭘ"
+  "polygonscan_history": "ﺦﯾﺭﺎﺗ ﯽﮐ ﻦﯿﮑﺳﺍ ﻥﻮﮔ ﯽﻟﻮﭘ",
+  "wallet_seed_legacy": "میراثی پرس کا بیج"
 }
