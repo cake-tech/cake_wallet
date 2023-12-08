@@ -673,8 +673,7 @@ abstract class ElectrumWalletBase
       if (tx.unspent != null) {
         if (!unspentCoins.any((utx) =>
             utx.hash.contains(tx.unspent!.hash) &&
-            utx.vout == tx.unspent!.vout &&
-            utx.address.contains(tx.to!))) {
+            utx.vout == tx.unspent!.vout)) {
           unspentCoins.add(tx.unspent!);
         }
       }
