@@ -748,13 +748,7 @@ Future<void> setup({
     return PowNodeListViewModel(_powNodeSource, appStore);
   });
 
-  getIt.registerFactory(() {
-    final wallet = getIt.get<AppStore>().wallet;
-    return ConnectionSyncPage(
-      getIt.get<DashboardViewModel>(),
-      isEVMCompatibleChain(wallet!.type) ? getIt.get<Web3WalletService>() : null,
-    );
-  });
+  getIt.registerFactory(() => ConnectionSyncPage(getIt.get<DashboardViewModel>()));
 
   getIt.registerFactory(
       () => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(), getIt.get<AuthService>()));
