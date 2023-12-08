@@ -22,14 +22,14 @@ class DefaultPolygonErc20Tokens {
       symbol: "USDC",
       contractAddress: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
       decimal: 6,
-      enabled: true,
+      enabled: false,
     ),
     Erc20Token(
       name: "USD Coin (POS)",
       symbol: "USDC.e",
       contractAddress: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
       decimal: 6,
-      enabled: false,
+      enabled: true,
     ),
     Erc20Token(
       name: "Avalanche Token",
