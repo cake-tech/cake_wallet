@@ -749,6 +749,7 @@
   "seedtype_polyseed": "Полісей (16 слів)",
   "seed_language_czech": "Чеський",
   "seed_language_korean": "Корейський",
+  "dfx_option_description": "Купуйте криптовалюту за EUR і CHF. До 990 євро без додаткового KYC. Для роздрібних і корпоративних клієнтів у Європі",
   "seed_language_chinese_traditional": "Китайський (традиційний)",
   "polygonscan_history": "Історія PolygonScan"
 }

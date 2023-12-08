@@ -748,5 +748,6 @@
   "seed_language_czech": "ภาษาเช็ก",
   "seed_language_korean": "เกาหลี",
   "seed_language_chinese_traditional": "จีน (ดั้งเดิม)",
+  "dfx_option_description": "ซื้อ crypto ด้วย EUR และ CHF สูงถึง 990€ โดยไม่มี KYC เพิ่มเติม สำหรับลูกค้ารายย่อยและลูกค้าองค์กรในยุโรป",
   "polygonscan_history": "ประวัติ PolygonScan"
 }

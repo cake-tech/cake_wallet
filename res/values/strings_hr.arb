@@ -747,6 +747,8 @@
   "seedtype_polyseed": "Poliseed (16 riječi)",
   "seed_language_czech": "češki",
   "seed_language_korean": "korejski",
+  "seed_language_chinese_traditional": "Kinesko tradicionalno)",
+  "dfx_option_description": "Kupujte kripto s EUR i CHF. Do 990 € bez dodatnog KYC-a. Za maloprodajne i poslovne korisnike u Europi",
   "seed_language_chinese_traditional": "Kinesko (tradicionalno)",
   "polygonscan_history": "Povijest PolygonScan"
 }

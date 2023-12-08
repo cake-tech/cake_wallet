@@ -24,7 +24,7 @@ dependencies:
   bitcoin_flutter:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git
-      ref: cake-update-v3
+      ref: cake-update-v4
   bitbox:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git
