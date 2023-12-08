@@ -13,7 +13,6 @@ import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:polyseed/polyseed.dart';
-import 'package:polyseed/src/utils/key_utils.dart';
 
 class MoneroNewWalletCredentials extends WalletCredentials {
   MoneroNewWalletCredentials({required String name, required this.language, required this.isPolyseed, String? password})
@@ -275,7 +274,7 @@ class MoneroWalletService extends WalletService<
       {PolyseedCoin coin = PolyseedCoin.POLYSEED_MONERO, int? overrideHeight}) async {
     final height = overrideHeight ?? getMoneroHeigthByDate(
         date: DateTime.fromMillisecondsSinceEpoch(polyseed.birthday * 1000));
-    final spendKey = keyToHexString(polyseed.generateKey(coin, 32));
+    final spendKey = polyseed.generateKey(coin, 32).toHexString();
     final seed = polyseed.encode(lang, coin);
 
     walletInfo.isRecovery = true;

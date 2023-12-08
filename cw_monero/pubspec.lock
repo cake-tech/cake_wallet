@@ -266,6 +266,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+  hashlib:
+    dependency: transitive
+    description:
+      name: hashlib
+      sha256: "71bf102329ddb8e50c8a995ee4645ae7f1728bb65e575c17196b4d8262121a96"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.12.0"
+  hashlib_codecs:
+    dependency: transitive
+    description:
+      name: hashlib_codecs
+      sha256: "49e2a471f74b15f1854263e58c2ac11f2b631b5b12c836f9708a35397d36d626"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
   hive:
     dependency: transitive
     description:
@@ -485,12 +501,11 @@ packages:
   polyseed:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "504d58a5b147fccd3bc85a25f2e72fb32771ddd7"
-      url: "https://github.com/cake-tech/polyseed_dart.git"
-    source: git
-    version: "0.0.1"
+      name: polyseed
+      sha256: "9b48ec535b10863f78f6354ec983b4cc0c88ca69ff48fee469d0fd1954b01d4f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   pool:
     dependency: transitive
     description:
@@ -632,15 +647,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
-  tor:
-    dependency: transitive
-    description:
-      path: "."
-      ref: main
-      resolved-ref: "09ba92cb11d4e3cacf97256e57863b805f79f2e5"
-      url: "https://github.com/cake-tech/tor.git"
-    source: git
-    version: "0.0.1"
   typed_data:
     dependency: transitive
     description:
