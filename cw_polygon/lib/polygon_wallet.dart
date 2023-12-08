@@ -50,7 +50,7 @@ abstract class PolygonWalletBase
     String? privateKey,
     required String password,
     ERC20Balance? initialBalance,
-  })  : syncStatus = NotConnectedSyncStatus(),
+  })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
         _hexPrivateKey = privateKey,
