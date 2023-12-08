@@ -751,5 +751,6 @@
   "bitcoin_silent_payments": "Bitcoinové tiché platby",
   "bitcoin_legacy": "Bitcoin Legacy",
   "primary_silent_address": "Primární tichá adresa",
+  "dfx_option_description": "Nakupujte kryptoměny za EUR a CHF. Až 990 € bez dalších KYC. Pro maloobchodní a firemní zákazníky v Evropě",
   "polygonscan_history": "Historie PolygonScan"
 }

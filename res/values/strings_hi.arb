@@ -759,5 +759,6 @@
   "bitcoin_silent_payments": "बिटकॉइन मूक भुगतान",
   "bitcoin_legacy": "बिटकॉइन विरासत",
   "primary_silent_address": "प्राथमिक मूक पता",
+  "dfx_option_description": "EUR और CHF के साथ क्रिप्टो खरीदें। अतिरिक्त केवाईसी के बिना 990€ तक। यूरोप में खुदरा और कॉर्पोरेट ग्राहकों के लिए",
   "polygonscan_history": "पॉलीगॉनस्कैन इतिहास"
 }

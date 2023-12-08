@@ -759,5 +759,6 @@
   "bitcoin_silent_payments": "Bitcoin stille Zahlungen",
   "bitcoin_legacy": "Bitcoin -Erbe",
   "primary_silent_address": "Primäre stille Adresse",
+  "dfx_option_description": "Krypto mit EUR und CHF kaufen. Bis zu 990€ ohne zusätzliches KYC. Für Privat- und Firmenkunden in Europa",
   "polygonscan_history": "PolygonScan-Verlauf"
 }

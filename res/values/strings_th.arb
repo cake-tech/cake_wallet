@@ -757,5 +757,6 @@
   "bitcoin_silent_payments": "Bitcoin Silent Payments",
   "bitcoin_legacy": "มรดก Bitcoin",
   "primary_silent_address": "ที่อยู่เงียบหลัก",
+  "dfx_option_description": "ซื้อ crypto ด้วย EUR และ CHF สูงถึง 990€ โดยไม่มี KYC เพิ่มเติม สำหรับลูกค้ารายย่อยและลูกค้าองค์กรในยุโรป",
   "polygonscan_history": "ประวัติ PolygonScan"
 }

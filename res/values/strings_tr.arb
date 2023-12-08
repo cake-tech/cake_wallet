@@ -757,5 +757,6 @@
   "bitcoin_silent_payments": "Bitcoin sessiz ödemeler",
   "bitcoin_legacy": "Bitcoin Mirası",
   "primary_silent_address": "Birincil sessiz adres",
+  "dfx_option_description": "EUR ve CHF ile kripto satın alın. Ek KYC olmadan 990 €'ya kadar. Avrupa'daki perakende ve kurumsal müşteriler için",
   "polygonscan_history": "PolygonScan geçmişi"
 }

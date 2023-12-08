@@ -760,5 +760,6 @@
   "bitcoin_silent_payments": "Bitcoin Silent Payments",
   "bitcoin_legacy": "Bitcoin Legacy",
   "primary_silent_address": "Primary Silent Address",
+  "dfx_option_description": "Buy crypto with EUR & CHF. Up to 990€ without additional KYC. For retail and corporate customers in Europe",
   "polygonscan_history": "PolygonScan history"
 }

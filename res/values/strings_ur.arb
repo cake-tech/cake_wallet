@@ -751,5 +751,6 @@
   "bitcoin_silent_payments": "بٹ کوائن خاموش ادائیگی",
   "bitcoin_legacy": "بٹ کوائن میراث",
   "primary_silent_address": "بنیادی خاموش پتہ",
+  "dfx_option_description": "EUR ﺭﻭﺍ CHF ﯽﻓﺎﺿﺍ ۔ﮟﯾﺪﯾﺮﺧ ﻮﭩﭘﺮﮐ ﮫﺗﺎﺳ ﮯﮐ KYC ﮯﯿﻟ ﮯﮐ ﻦﯿﻓﺭﺎﺻ ﭧﯾﺭﻮﭘﺭﺎﮐ ﺭﻭﺍ ﮦﺩﺭﻮﺧ ﮟ",
   "polygonscan_history": "ﺦﯾﺭﺎﺗ ﯽﮐ ﻦﯿﮑﺳﺍ ﻥﻮﮔ ﯽﻟﻮﭘ"
 }

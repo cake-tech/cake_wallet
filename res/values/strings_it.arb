@@ -759,5 +759,6 @@
   "bitcoin_silent_payments": "Pagamenti silenziosi bitcoin",
   "bitcoin_legacy": "Bitcoin Legacy",
   "primary_silent_address": "Indirizzo silenzioso primario",
+  "dfx_option_description": "Acquista criptovalute con EUR e CHF. Fino a 990€ senza KYC aggiuntivi. Per clienti al dettaglio e aziendali in Europa",
   "polygonscan_history": "Cronologia PolygonScan"
 }

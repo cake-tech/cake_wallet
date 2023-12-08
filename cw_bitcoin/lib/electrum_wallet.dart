@@ -954,9 +954,8 @@ abstract class ElectrumWalletBase
     final index = address != null
         ? walletAddresses.addresses.firstWhere((element) => element.address == address).index
         : null;
-    return index == null
-        ? base64Encode(hd.sign(message))
-        : base64Encode(hd.derive(index).sign(message));
+    final HD = index == null ? hd : hd.derive(index);
+    return base64Encode(HD.signMessage(message));
   }
 
   Future<void> _setInitialHeight() async {
