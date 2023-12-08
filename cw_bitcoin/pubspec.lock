@@ -87,11 +87,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: silent-payments
-      resolved-ref: "55aae884098aa7ea9031ea6769eebc55f8dacc14"
+      ref: cake-update-v5
+      resolved-ref: "0da7794c32fe495eb3449717793d5d8849fe1eed"
       url: "https://github.com/cake-tech/bitcoin_flutter.git"
     source: git
-    version: "2.0.2"
+    version: "2.1.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -261,7 +261,7 @@ packages:
     source: git
     version: "0.3.10"
   encrypt:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: encrypt
       sha256: "62d9aa4670cc2a8798bab89b39fc71b6dfbacf615de6cf5001fb39f7e4a996a2"
@@ -723,15 +723,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
-  tor:
-    dependency: transitive
-    description:
-      path: "."
-      ref: main
-      resolved-ref: "09ba92cb11d4e3cacf97256e57863b805f79f2e5"
-      url: "https://github.com/cake-tech/tor.git"
-    source: git
-    version: "0.0.1"
   typed_data:
     dependency: transitive
     description:
