@@ -651,4 +651,10 @@ abstract class MoneroWalletBase
 
   @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => _onError = onError;
+
+  @override
+  String signMessage(String message, {String? address}) {
+    final useAddress = address ?? "";
+    return monero_wallet.signMessage(message, address: useAddress);
+  }
 }

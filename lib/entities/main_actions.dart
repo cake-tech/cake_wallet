@@ -1,3 +1,4 @@
+import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
@@ -44,47 +45,53 @@ class MainActions {
     isEnabled: (viewModel) => viewModel.isEnabledBuyAction,
     canShow: (viewModel) => viewModel.hasBuyAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
+      if (!viewModel.isEnabledBuyAction) {
+        await _showErrorDialog(context, S.of(context).unsupported_asset);
+        return;
+      }
+
       final defaultBuyProvider = viewModel.defaultBuyProvider;
-      final walletType = viewModel.type;
-
-      if (!viewModel.isEnabledBuyAction) return;
-
-      switch (walletType) {
-        case WalletType.bitcoin:
-        case WalletType.litecoin:
-        case WalletType.ethereum:
-        case WalletType.polygon:
-        case WalletType.bitcoinCash:
-          switch (defaultBuyProvider) {
-            case BuyProviderType.AskEachTime:
-              Navigator.pushNamed(context, Routes.buy);
-              break;
-            case BuyProviderType.Onramper:
-              await getIt.get<OnRamperBuyProvider>().launchProvider(context);
-              break;
-            case BuyProviderType.Robinhood:
-              await getIt.get<RobinhoodBuyProvider>().launchProvider(context);
-              break;
-          }
-          break;
-        case WalletType.nano:
-        case WalletType.banano:
-        case WalletType.monero:
-          await getIt.get<OnRamperBuyProvider>().launchProvider(context);
-          break;
-        default:
-          await showPopUp<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertWithOneAction(
-                    alertTitle: S.of(context).buy,
-                    alertContent: S.of(context).unsupported_asset,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
-              });
+      try {
+        await _launchProviderByType(context, defaultBuyProvider);
+      } catch (e) {
+        await _showErrorDialog(context, e.toString());
       }
     },
   );
+
+  static Future<void> _launchProviderByType(BuildContext context, BuyProviderType providerType) async {
+    switch (providerType) {
+      case BuyProviderType.AskEachTime:
+        Navigator.pushNamed(context, Routes.buy);
+        break;
+      case BuyProviderType.Onramper:
+        await getIt.get<OnRamperBuyProvider>().launchProvider(context);
+        break;
+      case BuyProviderType.Robinhood:
+        await getIt.get<RobinhoodBuyProvider>().launchProvider(context);
+        break;
+      case BuyProviderType.DFX:
+        await getIt.get<DFXBuyProvider>().launchProvider(context);
+        break;
+      default:
+        throw UnsupportedError('Unsupported buy provider type');
+    }
+  }
+
+
+  static Future<void> _showErrorDialog(BuildContext context, String errorMessage) async {
+    await showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertWithOneAction(
+          alertTitle: S.of(context).buy,
+          alertContent: errorMessage,
+          buttonText: S.of(context).ok,
+          buttonAction: () => Navigator.of(context).pop(),
+        );
+      },
+    );
+  }
 
   static MainActions receiveAction = MainActions._(
     name: (context) => S.of(context).receive,
