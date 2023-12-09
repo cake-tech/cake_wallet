@@ -750,5 +750,6 @@
   "seed_language_korean": "coreano",
   "seed_language_chinese_traditional": "Chinês tradicional)",
   "dfx_option_description": "Compre criptografia com EUR e CHF. Até 990€ sem KYC adicional. Para clientes de varejo e corporativos na Europa",
-  "polygonscan_history": "História do PolygonScan"
+  "polygonscan_history": "História do PolygonScan",
+  "wallet_seed_legacy": "Semente de carteira herdada"
 }

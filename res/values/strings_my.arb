@@ -749,5 +749,6 @@
   "seed_language_korean": "ကိုးရီးယား",
   "seed_language_chinese_traditional": "တရုတ်ရိုးရာ)",
   "dfx_option_description": "EUR & CHF ဖြင့် crypto ကိုဝယ်ပါ။ အပို KYC မပါဘဲ 990€ အထိ။ ဥရောပရှိ လက်လီရောင်းချသူများနှင့် ကော်ပိုရိတ်ဖောက်သည်များအတွက်",
-  "polygonscan_history": "PolygonScan မှတ်တမ်း"
+  "polygonscan_history": "PolygonScan မှတ်တမ်း",
+  "wallet_seed_legacy": "အမွေအနှစ်ပိုက်ဆံအိတ်မျိုးစေ့"
 }

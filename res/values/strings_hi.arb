@@ -751,5 +751,6 @@
   "seed_language_korean": "कोरियाई",
   "seed_language_chinese_traditional": "चीनी पारंपरिक)",
   "dfx_option_description": "EUR और CHF के साथ क्रिप्टो खरीदें। अतिरिक्त केवाईसी के बिना 990€ तक। यूरोप में खुदरा और कॉर्पोरेट ग्राहकों के लिए",
-  "polygonscan_history": "पॉलीगॉनस्कैन इतिहास"
+  "polygonscan_history": "पॉलीगॉनस्कैन इतिहास",
+  "wallet_seed_legacy": "विरासत बटुए बीज"
 }

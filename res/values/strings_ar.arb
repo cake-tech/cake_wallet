@@ -747,5 +747,6 @@
   "seed_language_korean": "الكورية",
   "seed_language_chinese_traditional": "تقاليد صينية)",
   "dfx_option_description": "ﺎﺑﻭﺭﻭﺃ ﻲﻓ ﺕﺎﻛﺮﺸﻟﺍﻭ ﺔﺋﺰﺠﺘﻟﺍ ءﻼ﻿ﻤﻌﻟ .ﻲﻓﺎﺿﺇ KYC ﻥﻭﺪﺑ ﻭﺭﻮﻳ 990 ﻰﻟﺇ ﻞﺼﻳ ﺎﻣ .ﻱﺮﺴﻳﻮﺴﻟﺍ",
-  "polygonscan_history": "ﻥﺎﻜﺴﻧﻮﺠﻴﻟﻮﺑ ﺦﻳﺭﺎﺗ"
+  "polygonscan_history": "ﻥﺎﻜﺴﻧﻮﺠﻴﻟﻮﺑ ﺦﻳﺭﺎﺗ",
+  "wallet_seed_legacy": "بذرة محفظة قديمة"
 }
