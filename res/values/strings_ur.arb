@@ -752,5 +752,6 @@
   "bitcoin_legacy": "بٹ کوائن میراث",
   "primary_silent_address": "بنیادی خاموش پتہ",
   "dfx_option_description": "EUR ﺭﻭﺍ CHF ﯽﻓﺎﺿﺍ ۔ﮟﯾﺪﯾﺮﺧ ﻮﭩﭘﺮﮐ ﮫﺗﺎﺳ ﮯﮐ KYC ﮯﯿﻟ ﮯﮐ ﻦﯿﻓﺭﺎﺻ ﭧﯾﺭﻮﭘﺭﺎﮐ ﺭﻭﺍ ﮦﺩﺭﻮﺧ ﮟ",
-  "polygonscan_history": "ﺦﯾﺭﺎﺗ ﯽﮐ ﻦﯿﮑﺳﺍ ﻥﻮﮔ ﯽﻟﻮﭘ"
+  "polygonscan_history": "ﺦﯾﺭﺎﺗ ﯽﮐ ﻦﯿﮑﺳﺍ ﻥﻮﮔ ﯽﻟﻮﭘ",
+  "wallet_seed_legacy": "میراثی پرس کا بیج"
 }

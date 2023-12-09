@@ -1,6 +1,8 @@
+import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/seed_type_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -10,19 +12,21 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 
 class PreSeedPage extends BasePage {
-  PreSeedPage(this.type, this.advancedPrivacySettingsViewModel)
+  PreSeedPage(this.type, this.advancedPrivacySettingsViewModel, this.seedTypeViewModel)
       : imageLight = Image.asset('assets/images/pre_seed_light.png'),
         imageDark = Image.asset('assets/images/pre_seed_dark.png'),
-        seedPhraseLength =
-            advancedPrivacySettingsViewModel.seedPhraseLength.value {
-    wordsCount = _wordsCount(type, seedPhraseLength);
+        seedPhraseLength = advancedPrivacySettingsViewModel.seedPhraseLength.value,
+        moneroSeedType = seedTypeViewModel.moneroSeedType {
+    wordsCount = _wordsCount(type, seedPhraseLength, moneroSeedType);
   }
 
   final Image imageDark;
   final Image imageLight;
   final WalletType type;
   final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
+  final SeedTypeViewModel seedTypeViewModel;
   final int seedPhraseLength;
+  final SeedType moneroSeedType;
   late final int wordsCount;
 
   @override
@@ -76,9 +80,11 @@ class PreSeedPage extends BasePage {
         ));
   }
 
-  static int _wordsCount(WalletType type, int seedPhraseLength) {
+  static int _wordsCount(WalletType type, int seedPhraseLength, SeedType moneroSeedType) {
     switch (type) {
       case WalletType.monero:
+        if (moneroSeedType == SeedType.polyseed)
+          return 16;
         return 25;
       case WalletType.ethereum:
       case WalletType.bitcoinCash:

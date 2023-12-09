@@ -754,5 +754,6 @@
   "bitcoin_legacy": "Pamana ng Bitcoin",
   "primary_silent_address": "Pangunahing tahimik na address",
   "dfx_option_description": "Bumili ng crypto gamit ang EUR at CHF. Hanggang 990€ nang walang karagdagang KYC. Para sa retail at corporate na mga customer sa Europe",
-  "polygonscan_history": "Kasaysayan ng PolygonScan"
+  "polygonscan_history": "Kasaysayan ng PolygonScan",
+  "wallet_seed_legacy": "Legacy wallet seed"
 }

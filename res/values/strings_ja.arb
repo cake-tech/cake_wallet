@@ -760,5 +760,6 @@
   "bitcoin_legacy": "ビットコインレガシー",
   "primary_silent_address": "主なサイレントアドレス",
   "dfx_option_description": "EUR と CHF で暗号通貨を購入します。追加のKYCなしで最大990ユーロ。ヨーロッパの小売および法人顧客向け",
-  "polygonscan_history": "ポリゴンスキャン履歴"
+  "polygonscan_history": "ポリゴンスキャン履歴",
+  "wallet_seed_legacy": "レガシーウォレットシード"
 }
