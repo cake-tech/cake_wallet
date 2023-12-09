@@ -90,6 +90,7 @@ import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dar
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
+import 'package:cake_wallet/view_model/seed_type_view_model.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
@@ -719,6 +720,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
 
+  getIt.registerFactory<SeedTypeViewModel>(() => SeedTypeViewModel(getIt.get<AppStore>()));
+
   getIt.registerFactoryParam<WalletSeedPage, bool, void>((bool isWalletCreated, _) =>
       WalletSeedPage(getIt.get<WalletSeedViewModel>(), isNewWalletCreated: isWalletCreated));
 
@@ -850,7 +853,7 @@ Future<void> setup({
         return ethereum!.createEthereumWalletService(_walletInfoSource);
       case WalletType.bitcoinCash:
         return bitcoinCash!
-            .createBitcoinCashWalletService(_walletInfoSource, _unspentCoinsInfoSource!);
+            .createBitcoinCashWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.nano:
         return nano!.createNanoWalletService(_walletInfoSource);
       case WalletType.polygon:
@@ -879,8 +882,8 @@ Future<void> setup({
           getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
           type: type));
 
-  getIt.registerFactoryParam<WalletRestorePage, WalletType, void>(
-      (type, _) => WalletRestorePage(getIt.get<WalletRestoreViewModel>(param1: type)));
+  getIt.registerFactoryParam<WalletRestorePage, WalletType, void>((type, _) => WalletRestorePage(
+      getIt.get<WalletRestoreViewModel>(param1: type), getIt.get<SeedTypeViewModel>()));
 
   getIt.registerFactoryParam<WalletRestoreChooseDerivationViewModel, List<DerivationInfo>, void>(
       (derivations, _) => WalletRestoreChooseDerivationViewModel(derivationInfos: derivations));
@@ -911,7 +914,7 @@ Future<void> setup({
 
   getIt.registerFactoryParam<PreSeedPage, WalletType, AdvancedPrivacySettingsViewModel>(
       (WalletType type, AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel) =>
-          PreSeedPage(type, advancedPrivacySettingsViewModel));
+          PreSeedPage(type, advancedPrivacySettingsViewModel, getIt.get<SeedTypeViewModel>()));
 
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
       TradeDetailsViewModel(

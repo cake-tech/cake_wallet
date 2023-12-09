@@ -750,5 +750,6 @@
   "seed_language_korean": "韩国人",
   "seed_language_chinese_traditional": "中国传统的）",
   "dfx_option_description": "用欧元和瑞士法郎购买加密货币。高达 990 欧元，无需额外 KYC。对于欧洲的零售和企业客户",
-  "polygonscan_history": "多边形扫描历史"
+  "polygonscan_history": "多边形扫描历史",
+  "wallet_seed_legacy": "旧的钱包种子"
 }

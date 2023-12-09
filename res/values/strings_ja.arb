@@ -751,5 +751,6 @@
   "seed_language_korean": "韓国語",
   "seed_language_chinese_traditional": "中国の伝統的な）",
   "dfx_option_description": "EUR と CHF で暗号通貨を購入します。追加のKYCなしで最大990ユーロ。ヨーロッパの小売および法人顧客向け",
-  "polygonscan_history": "ポリゴンスキャン履歴"
+  "polygonscan_history": "ポリゴンスキャン履歴",
+  "wallet_seed_legacy": "レガシーウォレットシード"
 }
