@@ -750,5 +750,7 @@
   "seed_language_czech": "Czech",
   "seed_language_korean": "koreański",
   "seed_language_chinese_traditional": "Chiński tradycyjny)",
-  "polygonscan_history": "Historia PolygonScan"
+  "dfx_option_description": "Kupuj kryptowaluty za EUR i CHF. Do 990 € bez dodatkowego KYC. Dla klientów detalicznych i korporacyjnych w Europie",
+  "polygonscan_history": "Historia PolygonScan",
+  "wallet_seed_legacy": "Dziedziczne ziarno portfela"
 }

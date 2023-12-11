@@ -742,5 +742,7 @@
   "seed_language_czech": "čeština",
   "seed_language_korean": "korejština",
   "seed_language_chinese_traditional": "Číňan (tradiční)",
-  "polygonscan_history": "Historie PolygonScan"
+  "dfx_option_description": "Nakupujte kryptoměny za EUR a CHF. Až 990 € bez dalších KYC. Pro maloobchodní a firemní zákazníky v Evropě",
+  "polygonscan_history": "Historie PolygonScan",
+  "wallet_seed_legacy": "Starší semeno peněženky"
 }

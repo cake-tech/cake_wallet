@@ -282,9 +282,13 @@ abstract class DashboardViewModelBase with Store {
 
   Map<String, List<FilterItem>> filterItems;
 
-  BuyProviderType get defaultBuyProvider => settingsStore.defaultBuyProvider;
+  BuyProviderType get defaultBuyProvider =>
+      settingsStore.defaultBuyProviders[wallet.type] ??
+          BuyProviderType.AskEachTime;
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
+
+  List<BuyProviderType> get availableProviders => BuyProviderType.getAvailableProviders(wallet.type);
 
   bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
 
