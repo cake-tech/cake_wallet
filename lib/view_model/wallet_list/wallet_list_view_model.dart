@@ -126,9 +126,9 @@ abstract class WalletListViewModelBase with Store {
     List<WalletInfo> walletInfoSourceCopy = _walletInfoSource.values.toList();
     await _walletInfoSource.clear();
     if (ascending) {
-      walletInfoSourceCopy.sort((a, b) => b.date.compareTo(a.date));
-    } else {
       walletInfoSourceCopy.sort((a, b) => a.date.compareTo(b.date));
+    } else {
+      walletInfoSourceCopy.sort((a, b) => b.date.compareTo(a.date));
     }
     await _walletInfoSource.addAll(walletInfoSourceCopy);
     updateList();
