@@ -135,10 +135,23 @@ class AnonPayApi {
   }) async {
     double fiatRate = 0.0;
     if (fiatCurrency != null) {
+      late FiatApiMode fiatApiMode;
+      switch (apiMode) {
+        case ExchangeApiMode.torOnly:
+          fiatApiMode = FiatApiMode.torOnly;
+          break;
+        case ExchangeApiMode.disabled:
+          fiatApiMode = FiatApiMode.disabled;
+          break;
+        case ExchangeApiMode.enabled:
+        default:
+          fiatApiMode = FiatApiMode.enabled;
+          break;
+      }
       fiatRate = await FiatConversionService.fetchPrice(
         crypto: cryptoCurrency,
         fiat: fiatCurrency,
-        apiMode: apiMode,
+        apiMode: fiatApiMode,
       );
     }
 
