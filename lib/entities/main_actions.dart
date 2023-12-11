@@ -39,44 +39,6 @@ class MainActions {
     sellAction,
   ];
 
-  static final Map<BuyProviderType, Future<void> Function(BuildContext)>
-  _providerLaunchActions = {
-    BuyProviderType.askEachTime: (context) =>
-        Navigator.pushNamed(context, Routes.buy, arguments: S.current.buy),
-    BuyProviderType.onramper: (context) =>
-        getIt.get<OnRamperBuyProvider>().launchProvider(context),
-    BuyProviderType.robinhood: (context) =>
-        getIt.get<RobinhoodBuyProvider>().launchProvider(context),
-    BuyProviderType.dfx: (context) =>
-        getIt.get<DFXBuyProvider>().launchProvider(context),
-    // Add other providers here
-  };
-
-  static Future<void> _launchProviderByType(
-      BuildContext context, BuyProviderType providerType) async {
-    final action = _providerLaunchActions[providerType];
-    if (action != null) {
-      await action(context);
-    } else {
-      throw UnsupportedError('Unsupported buy provider type');
-    }
-  }
-
-  static Future<void> _showErrorDialog(
-      BuildContext context, String errorMessage) async {
-    await showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertWithOneAction(
-          alertTitle: S.of(context).buy,
-          alertContent: errorMessage,
-          buttonText: S.of(context).ok,
-          buttonAction: () => Navigator.of(context).pop(),
-        );
-      },
-    );
-  }
-
   static MainActions buyAction = MainActions._(
     name: (context) => S.of(context).buy,
     image: 'assets/images/buy.png',
@@ -84,20 +46,19 @@ class MainActions {
     canShow: (viewModel) => viewModel.hasBuyAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
       if (!viewModel.isEnabledBuyAction) {
-        await _showErrorDialog(context, S.of(context).unsupported_asset);
+        await _showErrorDialog(
+            context, S.of(context).buy, S.of(context).unsupported_asset);
         return;
       }
 
       final defaultBuyProvider = viewModel.defaultBuyProvider;
       try {
-        await _launchProviderByType(context, defaultBuyProvider);
+        await _launchProviderByType(context, true, defaultBuyProvider);
       } catch (e) {
-        await _showErrorDialog(context, e.toString());
+        await _showErrorDialog(context, defaultBuyProvider.name, e.toString());
       }
     },
   );
-
-
 
   static MainActions receiveAction = MainActions._(
     name: (context) => S.of(context).receive,
@@ -133,42 +94,55 @@ class MainActions {
     isEnabled: (viewModel) => viewModel.isEnabledSellAction,
     canShow: (viewModel) => viewModel.hasSellAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
-      final walletType = viewModel.type;
+      if (!viewModel.isEnabledSellAction) {
+        await _showErrorDialog(
+            context, S.of(context).sell, S.of(context).unsupported_asset);
+        return;
+      }
 
-      switch (walletType) {
-        case WalletType.bitcoin:
-        case WalletType.litecoin:
-        case WalletType.ethereum:
-        case WalletType.polygon:
-        case WalletType.bitcoinCash:
-          if (viewModel.isEnabledSellAction) {
-            final moonPaySellProvider = MoonPaySellProvider();
-            final uri = await moonPaySellProvider.requestUrl(
-              currency: viewModel.wallet.currency,
-              refundWalletAddress: viewModel.wallet.walletAddresses.address,
-              settingsStore: viewModel.settingsStore,
-            );
-            if (DeviceInfo.instance.isMobile) {
-              Navigator.of(context).pushNamed(Routes.webViewPage,
-                  arguments: [S.of(context).sell, uri]);
-            } else {
-              await launchUrl(uri);
-            }
-          }
-
-          break;
-        default:
-          await showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithOneAction(
-                  alertTitle: S.of(context).sell,
-                  alertContent: S.of(context).unsupported_asset,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
-            },
-          );
+      final defaultBuyProvider = viewModel.defaultBuyProvider;
+      try {
+        await _launchProviderByType(context, false, defaultBuyProvider);
+      } catch (e) {
+        await _showErrorDialog(context, defaultBuyProvider.name, e.toString());
       }
     },
   );
+
+  static final Map<BuyProviderType, Future<void> Function(BuildContext, bool)>
+      _providerLaunchActions = {
+    BuyProviderType.askEachTime: (context, isBuyAction) =>
+        Navigator.pushNamed(context, Routes.buySellPage, arguments: isBuyAction),
+    BuyProviderType.onramper: (context, _) =>
+        getIt.get<OnRamperBuyProvider>().launchProvider(context),
+    BuyProviderType.robinhood: (context, _) =>
+        getIt.get<RobinhoodBuyProvider>().launchProvider(context),
+    BuyProviderType.dfx: (context, _) =>
+        getIt.get<DFXBuyProvider>().launchProvider(context),
+  };
+
+  static Future<void> _launchProviderByType(BuildContext context,
+      bool isBuyAction, BuyProviderType providerType) async {
+    final action = _providerLaunchActions[providerType];
+    if (action != null) {
+      await action(context, isBuyAction);
+    } else {
+      throw UnsupportedError('Unsupported buy provider type');
+    }
+  }
+
+  static Future<void> _showErrorDialog(
+      BuildContext context, String title, String errorMessage) async {
+    await showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertWithOneAction(
+          alertTitle: title,
+          alertContent: errorMessage,
+          buttonText: S.of(context).ok,
+          buttonAction: () => Navigator.of(context).pop(),
+        );
+      },
+    );
+  }
 }

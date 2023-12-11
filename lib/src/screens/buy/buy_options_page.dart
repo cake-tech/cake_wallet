@@ -8,13 +8,13 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 
 class BuySellOptionsPage extends BasePage {
-  BuySellOptionsPage(this.dashboardViewModel, this.pageTitle);
+  BuySellOptionsPage(this.dashboardViewModel, this.isBuyAction);
 
   final DashboardViewModel dashboardViewModel;
-  final String pageTitle;
+  final bool isBuyAction;
 
   @override
-  String get title => pageTitle;
+  String get title => isBuyAction ? S.current.buy : S.current.sell;
 
   @override
   AppBarStyle get appBarStyle => AppBarStyle.regular;
@@ -23,6 +23,9 @@ class BuySellOptionsPage extends BasePage {
   Widget body(BuildContext context) {
     final isLightMode =
         Theme.of(context).extension<OptionTileTheme>()?.useDarkImage ?? false;
+    final availableProviders = isBuyAction
+        ? dashboardViewModel.availableBuyProviders
+        : dashboardViewModel.availableSellProviders;
 
     return Container(
       child: Center(
@@ -30,7 +33,7 @@ class BuySellOptionsPage extends BasePage {
           constraints: BoxConstraints(maxWidth: 330),
           child: Column(
             children: [
-              ...dashboardViewModel.availableProviders
+              ...availableProviders
                   .where((provider) => provider.name != BuyProviderType.askEachTime.name)
                   .map((provider) {
                 final icon = Image.asset(

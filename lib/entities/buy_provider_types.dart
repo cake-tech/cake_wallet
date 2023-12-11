@@ -1,9 +1,12 @@
+import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 
 typedef LaunchProviderFunction = Future<void> Function(BuildContext);
 
@@ -47,9 +50,16 @@ class BuyProviderType {
       lightIcon: 'assets/images/dfx_light.png',
       darkIcon: 'assets/images/dfx_dark.png',
       launchProvider: (context) async =>
-          await getIt.get<OnRamperBuyProvider>().launchProvider(context));
+          await getIt.get<DFXBuyProvider>().launchProvider(context));
 
-  static List<BuyProviderType> getAvailableProviders(WalletType walletType) {
+  static BuyProviderType moonPay = BuyProviderType(
+      name: "Moon Pay",
+      lightIcon: 'assets/images/dfx_light.png',
+      darkIcon: 'assets/images/dfx_dark.png',
+      launchProvider: (context) async =>
+      await getIt.get<MoonPaySellProvider>().launchProvider(context));
+
+  static List<BuyProviderType> getAvailableBuyProviders(WalletType walletType) {
     switch (walletType) {
       case WalletType.nano:
       case WalletType.banano:
@@ -62,6 +72,24 @@ class BuyProviderType {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
         return [askEachTime, onramper, robinhood];
+      default:
+        return [];
+    }
+  }
+
+  static List<BuyProviderType> getAvailableSellProviders(WalletType walletType) {
+    switch (walletType) {
+      case WalletType.nano:
+      case WalletType.banano:
+        return [askEachTime];
+      case WalletType.monero:
+        return [askEachTime, dfx, moonPay];
+      case WalletType.bitcoin:
+      case WalletType.ethereum:
+        return [askEachTime, dfx, moonPay];
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+        return [askEachTime, moonPay];
       default:
         return [];
     }

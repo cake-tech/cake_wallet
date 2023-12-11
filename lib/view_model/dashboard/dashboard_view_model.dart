@@ -288,7 +288,9 @@ abstract class DashboardViewModelBase with Store {
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
-  List<BuyProviderType> get availableProviders => BuyProviderType.getAvailableProviders(wallet.type);
+  List<BuyProviderType> get availableBuyProviders => BuyProviderType.getAvailableBuyProviders(wallet.type);
+
+  List<BuyProviderType> get availableSellProviders => BuyProviderType.getAvailableSellProviders(wallet.type);
 
   bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
 
@@ -302,16 +304,15 @@ abstract class DashboardViewModelBase with Store {
   bool hasExchangeAction;
 
   @computed
-  bool get isEnabledBuyAction => !settingsStore.disableBuy && wallet.type != WalletType.haven;
+  bool get isEnabledBuyAction =>
+      !settingsStore.disableBuy && wallet.type != WalletType.haven;
 
   @observable
   bool hasBuyAction;
 
   @computed
   bool get isEnabledSellAction =>
-      !settingsStore.disableSell &&
-      wallet.type != WalletType.haven &&
-      wallet.type != WalletType.monero;
+      !settingsStore.disableSell && wallet.type != WalletType.haven;
 
   @observable
   bool hasSellAction;

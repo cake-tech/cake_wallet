@@ -60,7 +60,7 @@ abstract class OtherSettingsViewModelBase with Store {
       !_settingsStore.disableBuy && _wallet.type != WalletType.haven;
 
   List<BuyProviderType> get availableBuyProviders =>
-      BuyProviderType.getAvailableProviders(walletType);
+      BuyProviderType.getAvailableBuyProviders(walletType);
 
   BuyProviderType get buyProviderType =>
       _settingsStore.defaultBuyProviders[walletType] ??

@@ -157,7 +157,7 @@ class DFXBuyProvider {
       if (await canLaunchUrl(uri)) {
         if (DeviceInfo.instance.isMobile) {
           Navigator.of(context).pushNamed(Routes.webViewPage,
-              arguments: [S.of(context).buy, uri]);
+              arguments: ["DFX Connect", uri]);
         } else {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         }
