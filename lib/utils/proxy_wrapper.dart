@@ -17,8 +17,10 @@ class ProxyWrapper {
   // Factory method to get the singleton instance of TorSingleton
   static ProxyWrapper get instance => _instance;
 
+  static int get port => Tor.instance.port;
+
   // Method to get or create the Tor instance
-  Future<HttpClient> getProxyInstance() async {
+  Future<HttpClient> getProxyInstance({int? portOverride}) async {
     if (!started) {
       started = true;
       _client = HttpClient();
@@ -27,7 +29,7 @@ class ProxyWrapper {
       SocksTCPClient.assignToHttpClient(_client!, [
         ProxySettings(
           InternetAddress.loopbackIPv4,
-          Tor.instance.port,
+          portOverride ?? Tor.instance.port,
           password: null,
         ),
       ]);

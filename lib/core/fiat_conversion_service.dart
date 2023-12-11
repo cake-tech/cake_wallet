@@ -6,6 +6,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'dart:convert';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:flutter/foundation.dart';
 
 const _fiatApiClearNetAuthority = 'fiat-api.cakewallet.com';
 const _fiatApiOnionAuthority = 'n4z7bdcmwk2oyddxvzaap3x2peqcplh3pzdy7tpkk5ejz5n4mhfvoxqd.onion';
@@ -15,6 +16,7 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   final crypto = args['crypto'] as String;
   final fiat = args['fiat'] as String;
   final torOnly = args['apiMode'] as String == FiatApiMode.torOnly.toString();
+  final mainThreadProxyPort = args['port'] as int;
 
   final Map<String, String> queryParams = {
     'interval_count': '1',
@@ -29,10 +31,12 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
     final Uri onionUri = Uri.http(_fiatApiOnionAuthority, _fiatApiPath, queryParams);
     final Uri clearnetUri = Uri.https(_fiatApiClearNetAuthority, _fiatApiPath, queryParams);
 
-    HttpClient client = await ProxyWrapper.instance.getProxyInstance();
+    HttpClient client = await ProxyWrapper.instance.getProxyInstance(
+      portOverride: mainThreadProxyPort,
+    );
     late HttpClientResponse response;
     late String responseBody;
-    
+
     try {
       final request = await client.getUrl(onionUri);
       response = await request.close();
@@ -64,10 +68,11 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
 
 Future<double> _fetchPriceAsync(
         CryptoCurrency crypto, FiatCurrency fiat, FiatApiMode apiMode) async =>
-    _fetchPrice({
+    compute(_fetchPrice, {
       'fiat': fiat.toString(),
       'crypto': crypto.toString(),
       'apiMode': apiMode.toString(),
+      'port': ProxyWrapper.port,
     });
 
 class FiatConversionService {
