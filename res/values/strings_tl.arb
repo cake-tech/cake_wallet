@@ -746,5 +746,6 @@
   "seed_language_chinese_traditional": "Intsik (tradisyonal)",
   "dfx_option_description": "Bumili ng crypto gamit ang EUR at CHF. Hanggang 990€ nang walang karagdagang KYC. Para sa retail at corporate na mga customer sa Europe",
   "polygonscan_history": "Kasaysayan ng PolygonScan",
-  "wallet_seed_legacy": "Legacy wallet seed"
+  "wallet_seed_legacy": "Legacy wallet seed",
+  "switchToEVMCompatibleWallet": "Mangyaring lumipat sa isang EVM compatible na wallet at subukang muli (Ethereum, Polygon)"
 }

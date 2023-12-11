@@ -185,9 +185,6 @@ Future<void> defaultSettingsMigration(
         case 25:
           await rewriteSecureStoragePin(secureStorage: secureStorage);
           break;
-        case 26:
-          await changeDefaultPolygonNode(nodes, sharedPreferences);
-          break;
         default:
           break;
       }
@@ -781,16 +778,4 @@ Future<void> changePolygonCurrentNodeToDefault(
   final nodeId = node?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, nodeId);
-}
-
-
-Future<void> changeDefaultPolygonNode(
-    Box<Node> nodeSource, SharedPreferences sharedPreferences) async {
-  const alchemyPolygonUri = 'polygon-mainnet.g.alchemy.com';
-
-  final alchemyPolygonNode = Node(uri: alchemyPolygonUri, type: WalletType.polygon);
-
-  await nodeSource.add(alchemyPolygonNode);
-
-  await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, alchemyPolygonNode.key as int);
 }
