@@ -87,6 +87,14 @@ class PrivacyPage extends BasePage {
                     onValueChange: (BuildContext _, bool value) {
                       _privacySettingsViewModel.setUseEtherscan(value);
                     }),
+              if (_privacySettingsViewModel.canUsePolygonScan)
+                SettingsSwitcherCell(
+                  title: S.current.polygonscan_history,
+                  value: _privacySettingsViewModel.usePolygonScan,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUsePolygonScan(value);
+                  },
+                ),
               SettingsCellWithArrow(
                 title: S.current.domain_looks_up,
                 handler: (context) => Navigator.of(context).pushNamed(Routes.domainLookupsPage),

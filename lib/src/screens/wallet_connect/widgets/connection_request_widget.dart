@@ -14,12 +14,14 @@ import 'connection_widget.dart';
 class ConnectionRequestWidget extends StatefulWidget {
   const ConnectionRequestWidget({
     required this.wallet,
+    required this.chaindIdNamespace,
     this.authRequest,
     this.sessionProposal,
     Key? key,
   }) : super(key: key);
 
   final Web3Wallet wallet;
+  final String chaindIdNamespace;
   final AuthRequestModel? authRequest;
   final SessionRequestModel? sessionProposal;
 
@@ -52,23 +54,26 @@ class _ConnectionRequestWidgetState extends State<ConnectionRequestWidget> {
 
     return _ConnectionMetadataDisplayWidget(
       metadata: metadata,
+      wallet: widget.wallet,
       authRequest: widget.authRequest,
       sessionProposal: widget.sessionProposal,
-      wallet: widget.wallet,
+      chaindIdNamespace: widget.chaindIdNamespace,
     );
   }
 }
 
 class _ConnectionMetadataDisplayWidget extends StatelessWidget {
   const _ConnectionMetadataDisplayWidget({
-    required this.metadata,
     required this.wallet,
-    this.authRequest,
+    required this.metadata,
     required this.sessionProposal,
+    required this.chaindIdNamespace,
+    this.authRequest,
   });
 
   final ConnectionMetadata? metadata;
   final Web3Wallet wallet;
+  final String chaindIdNamespace;
   final AuthRequestModel? authRequest;
   final SessionRequestModel? sessionProposal;
 
@@ -114,7 +119,11 @@ class _ConnectionMetadataDisplayWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Visibility(
             visible: authRequest != null,
-            child: _AuthRequestWidget(wallet: wallet, authRequest: authRequest),
+            child: _AuthRequestWidget(
+              wallet: wallet,
+              authRequest: authRequest,
+              chaindIdNamespace: chaindIdNamespace,
+            ),
 
             //If authRequest is null, sessionProposal is not null.
             replacement: _SessionProposalWidget(sessionProposal: sessionProposal!),
@@ -126,16 +135,21 @@ class _ConnectionMetadataDisplayWidget extends StatelessWidget {
 }
 
 class _AuthRequestWidget extends StatelessWidget {
-  const _AuthRequestWidget({required this.wallet, this.authRequest});
+  const _AuthRequestWidget({
+    required this.wallet,
+    required this.chaindIdNamespace,
+    this.authRequest,
+  });
 
   final Web3Wallet wallet;
+  final String chaindIdNamespace;
   final AuthRequestModel? authRequest;
 
   @override
   Widget build(BuildContext context) {
     final model = ConnectionModel(
       text: wallet.formatAuthMessage(
-        iss: 'did:pkh:eip155:1:${authRequest!.iss}',
+        iss: 'did:pkh:$chaindIdNamespace:${authRequest!.iss}',
         cacaoPayload: CacaoRequestPayload.fromPayloadParams(
           authRequest!.request.payloadParams,
         ),

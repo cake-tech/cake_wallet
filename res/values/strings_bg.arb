@@ -746,5 +746,8 @@
   "seed_language_korean": "Корейски",
   "seed_language_chinese_traditional": "Традиционен китайски)",
   "ascending": "Възходящ",
-  "descending": "Низходящ"
+  "descending": "Низходящ",
+  "dfx_option_description": "Купете крипто с EUR и CHF. До 990 € без допълнителен KYC. За клиенти на дребно и корпоративни клиенти в Европа",
+  "polygonscan_history": "История на PolygonScan",
+  "wallet_seed_legacy": "Наследено портфейл семе"
 }
