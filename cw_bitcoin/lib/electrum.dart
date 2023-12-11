@@ -228,18 +228,10 @@ class ElectrumClient {
         return [];
       });
 
-  Future<dynamic> getTransactionRaw(
-          {required String hash, required NetworkType networkType}) async =>
-      callWithTimeout(
-              method: 'blockchain.transaction.get',
-              params: networkType.bech32 == bitcoin.bech32 ? [hash, true] : [hash],
-              timeout: 10000)
+  Future<Map<String, dynamic>> getTransactionRaw({required String hash}) async =>
+      callWithTimeout(method: 'blockchain.transaction.get', params: [hash, true], timeout: 10000)
           .then((dynamic result) {
         if (result is Map<String, dynamic>) {
-          return result;
-        }
-
-        if (networkType.bech32 == testnet.bech32 && result is String) {
           return result;
         }
 

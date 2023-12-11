@@ -671,9 +671,8 @@ abstract class ElectrumWalletBase
     // Update unspents stored from scanned silent payment transactions
     transactionHistory.transactions.values.forEach((tx) {
       if (tx.unspent != null) {
-        if (!unspentCoins.any((utx) =>
-            utx.hash.contains(tx.unspent!.hash) &&
-            utx.vout == tx.unspent!.vout)) {
+        if (!unspentCoins
+            .any((utx) => utx.hash.contains(tx.unspent!.hash) && utx.vout == tx.unspent!.vout)) {
           unspentCoins.add(tx.unspent!);
         }
       }
@@ -992,19 +991,24 @@ Future<ElectrumTransactionBundle> getTransactionExpanded(
     required int height,
     required ElectrumClient electrumClient,
     required bitcoin.NetworkType networkType}) async {
-  final verboseTransaction =
-      await electrumClient.getTransactionRaw(hash: hash, networkType: networkType);
-
   String transactionHex;
   int? time;
   int confirmations = 0;
-  if (networkType.bech32 == bitcoin.testnet.bech32) {
+  if (networkType.bech32 == bitcoin.bitcoin.bech32) {
+    final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
+
     transactionHex = verboseTransaction as String;
-    confirmations = 1;
-  } else {
-    transactionHex = verboseTransaction['hex'] as String;
     time = verboseTransaction['time'] as int?;
     confirmations = verboseTransaction['confirmations'] as int? ?? 0;
+  } else {
+    transactionHex = await electrumClient.getTransactionHex(hash: hash);
+
+    final status = json.decode(
+        (await http.get(Uri.parse("https://blockstream.info/testnet/api/tx/$hash/status"))).body);
+
+    time = status["block_time"] as int?;
+    final tip = await electrumClient.getCurrentBlockChainTip() ?? 0;
+    confirmations = tip - (status["block_height"] as int? ?? 0);
   }
 
   final original = bitcoin.Transaction.fromHex(transactionHex);
