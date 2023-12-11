@@ -4,7 +4,9 @@ import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
 
 String addressFromOutput(Uint8List script, bitcoin.NetworkType networkType) {
   try {
-    return bitcoin.P2PKH(data: PaymentData(output: script), network: networkType).data.address!;
+    return bitcoin.P2pkhAddress(
+            scriptPubKey: bitcoin.Script.fromRaw(byteData: script), networkType: networkType)
+        .address;
   } catch (_) {}
 
   try {

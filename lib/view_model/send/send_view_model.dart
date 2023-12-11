@@ -296,7 +296,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       state = IsExecutingState();
       pendingTransaction = await wallet.createTransaction(_credentials());
       state = ExecutedSuccessfullyState();
-    } catch (e) {
+    } catch (e, s) {
+      print(s);
       state = FailureState(e.toString());
     }
   }
@@ -338,7 +339,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       state = TransactionCommitted();
-    } catch (e) {
+    } catch (e, s) {
+      print(s);
       String translatedError = translateErrorMessage(e.toString(), wallet.type, wallet.currency);
       state = FailureState(translatedError);
     }

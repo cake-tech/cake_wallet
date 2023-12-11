@@ -1,5 +1,4 @@
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
@@ -148,9 +147,10 @@ class ElectrumTransactionInfo extends TransactionInfo {
     if (addresses != null) {
       tx.outs.forEach((out) {
         try {
-          final p2pkh =
-              bitcoin.P2PKH(data: PaymentData(output: out.script), network: bitcoin.bitcoin);
-          exist = addresses.contains(p2pkh.data.address);
+          final p2pkh = bitcoin.P2pkhAddress(
+              scriptPubKey: bitcoin.Script.fromRaw(byteData: out.script),
+              networkType: bitcoin.bitcoin);
+          exist = addresses.contains(p2pkh.address);
 
           if (exist) {
             amount += out.value!;
@@ -235,5 +235,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['to'] = to;
     m['unspent'] = unspent?.toJson() ?? <String, dynamic>{};
     return m;
+  }
+
+  String toString() {
+    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, confirmations: $confirmations, to: $to, unspent: $unspent)';
   }
 }

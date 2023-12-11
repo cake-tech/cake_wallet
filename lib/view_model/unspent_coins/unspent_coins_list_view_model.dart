@@ -61,12 +61,11 @@ abstract class UnspentCoinsListViewModelBase with Store {
   UnspentCoinsInfo getUnspentCoinInfo(
           String hash, String address, int value, int vout, String? keyImage) =>
       _unspentCoinsInfo.values.firstWhere((element) {
-      print([ element.address, address ]);
         return element.walletId == wallet.id &&
             element.hash == hash &&
             element.address == address &&
-            // element.value == value &&
-            // element.vout == vout &&
+            element.value == value &&
+            element.vout == vout &&
             element.keyImage == keyImage;
       });
 
