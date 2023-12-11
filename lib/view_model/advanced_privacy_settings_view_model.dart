@@ -29,6 +29,8 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   bool get hasSeedPhraseLengthOption =>
       type == WalletType.bitcoinCash || type == WalletType.ethereum;
 
+  bool get hasSeedTypeOption => type == WalletType.monero;
+
   @computed
   bool get addCustomNode => _addCustomNode;
 

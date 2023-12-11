@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
+import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
@@ -8,6 +9,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/seed_type_view_model.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
@@ -17,25 +19,30 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class AdvancedPrivacySettingsPage extends BasePage {
-  AdvancedPrivacySettingsPage(this.advancedPrivacySettingsViewModel, this.nodeViewModel);
+  AdvancedPrivacySettingsPage(
+      this.advancedPrivacySettingsViewModel, this.nodeViewModel, this.seedTypeViewModel);
 
   final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
+  final SeedTypeViewModel seedTypeViewModel;
 
   @override
   String get title => S.current.privacy_settings;
 
   @override
-  Widget body(BuildContext context) =>
-      AdvancedPrivacySettingsBody(advancedPrivacySettingsViewModel, nodeViewModel);
+  Widget body(BuildContext context) => AdvancedPrivacySettingsBody(
+      advancedPrivacySettingsViewModel, nodeViewModel, seedTypeViewModel);
 }
 
 class AdvancedPrivacySettingsBody extends StatefulWidget {
-  const AdvancedPrivacySettingsBody(this.privacySettingsViewModel, this.nodeViewModel, {Key? key})
+  const AdvancedPrivacySettingsBody(
+      this.privacySettingsViewModel, this.nodeViewModel, this.seedTypeViewModel,
+      {Key? key})
       : super(key: key);
 
   final AdvancedPrivacySettingsViewModel privacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
+  final SeedTypeViewModel seedTypeViewModel;
 
   @override
   _AdvancedPrivacySettingsBodyState createState() => _AdvancedPrivacySettingsBodyState();
@@ -58,7 +65,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
             Observer(builder: (_) {
               return SettingsChoicesCell(
                 ChoicesListItem<FiatApiMode>(
-                  title: S.current.disable_fiat,
+                  title: S.current.fiat_api,
                   items: FiatApiMode.all,
                   selectedItem: widget.privacySettingsViewModel.fiatApiMode,
                   onItemSelected: (FiatApiMode mode) =>
@@ -97,16 +104,27 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
               );
             }),
             if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
-            Observer(builder: (_) {
-              return SettingsPickerCell<SeedPhraseLength>(
-                title: S.current.seed_phrase_length,
-                items: SeedPhraseLength.values,
-                selectedItem: widget.privacySettingsViewModel.seedPhraseLength,
-                onItemSelected: (SeedPhraseLength length) {
-                  widget.privacySettingsViewModel.setSeedPhraseLength(length);
-                },
-              );
-            }),
+              Observer(builder: (_) {
+                return SettingsPickerCell<SeedPhraseLength>(
+                  title: S.current.seed_phrase_length,
+                  items: SeedPhraseLength.values,
+                  selectedItem: widget.privacySettingsViewModel.seedPhraseLength,
+                  onItemSelected: (SeedPhraseLength length) {
+                    widget.privacySettingsViewModel.setSeedPhraseLength(length);
+                  },
+                );
+              }),
+            if (widget.privacySettingsViewModel.hasSeedTypeOption)
+              Observer(builder: (_) {
+                return SettingsChoicesCell(
+                  ChoicesListItem<SeedType>(
+                    title: S.current.seedtype,
+                    items: SeedType.all,
+                    selectedItem: widget.seedTypeViewModel.moneroSeedType,
+                    onItemSelected: widget.seedTypeViewModel.setMoneroSeedType,
+                  ),
+                );
+              }),
           ],
         ),
         bottomSectionPadding: EdgeInsets.all(24),

@@ -1,10 +1,13 @@
 import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/seed_type_view_model.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
@@ -14,17 +17,19 @@ import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
+import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:cake_wallet/entities/seed_type.dart';
 
 class NewWalletPage extends BasePage {
-  NewWalletPage(this._walletNewVM);
+  NewWalletPage(this._walletNewVM, this._seedTypeViewModel);
 
   final WalletNewVM _walletNewVM;
+  final SeedTypeViewModel _seedTypeViewModel;
 
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
 
@@ -35,14 +40,15 @@ class NewWalletPage extends BasePage {
 
   @override
   Widget body(BuildContext context) => WalletNameForm(
-      _walletNewVM, currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage);
+      _walletNewVM, currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage, _seedTypeViewModel);
 }
 
 class WalletNameForm extends StatefulWidget {
-  WalletNameForm(this._walletNewVM, this.walletImage);
+  WalletNameForm(this._walletNewVM, this.walletImage, this._seedTypeViewModel);
 
   final WalletNewVM _walletNewVM;
   final Image walletImage;
+  final SeedTypeViewModel _seedTypeViewModel;
 
   @override
   _WalletNameFormState createState() => _WalletNameFormState(_walletNewVM);
@@ -84,6 +90,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
         });
       }
     });
+
+    _setSeedType(SeedType.defaultSeedType);
     super.initState();
   }
 
@@ -125,15 +133,20 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               hintStyle: TextStyle(
                                   fontSize: 18.0,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor),
+                                  color:
+                                      Theme.of(context).extension<NewWalletTheme>()!.hintTextColor),
                               hintText: S.of(context).wallet_name,
                               focusedBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
+                                      color: Theme.of(context)
+                                          .extension<NewWalletTheme>()!
+                                          .underlineColor,
                                       width: 1.0)),
                               enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
                                     width: 1.0),
                               ),
                               suffixIcon: Semantics(
@@ -160,7 +173,9 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                     height: 34,
                                     child: Image.asset(
                                       'assets/images/refresh_icon.png',
-                                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
+                                      color: Theme.of(context)
+                                          .extension<SendPageTheme>()!
+                                          .textFieldButtonIconColor,
                                     ),
                                   ),
                                 ),
@@ -172,22 +187,40 @@ class _WalletNameFormState extends State<WalletNameForm> {
                       ),
                     ),
                   ),
+
                   if (_walletNewVM.hasLanguageSelector) ...[
-                    Padding(
-                      padding: EdgeInsets.only(top: 40),
-                      child: Text(
-                        S.of(context).seed_language_choose,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                    if (_walletNewVM.hasSeedType) ...[
+                      Observer(
+                        builder: (BuildContext build) => Padding(
+                          padding: EdgeInsets.only(top: 24),
+                          child: SelectButton(
+                            text: widget._seedTypeViewModel.moneroSeedType.title,
+                            onTap: () async {
+                              await showPopUp<void>(
+                                context: context,
+                                builder: (_) => Picker(
+                                  items: SeedType.all,
+                                  selectedAtIndex: isPolyseed ? 1 : 0,
+                                  onItemSelected: _setSeedType,
+                                  isSeparated: false,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 24),
-                      child: SeedLanguageSelector(
-                          key: _languageSelectorKey, initialSelected: defaultSeedLanguage),
+                    ],
+                    Observer(
+                      builder: (BuildContext build) => Padding(
+                        padding: EdgeInsets.only(top: 10),
+                        child: SeedLanguageSelector(
+                          key: _languageSelectorKey,
+                          initialSelected: defaultSeedLanguage,
+                          seedType: _walletNewVM.hasSeedType
+                              ? widget._seedTypeViewModel.moneroSeedType
+                              : SeedType.legacy,
+                        ),
+                      ),
                     )
                   ]
                 ],
@@ -215,7 +248,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   Navigator.of(context)
                       .pushNamed(Routes.advancedPrivacySettings, arguments: _walletNewVM.type);
                 },
-                child: Text(S.of(context).advanced_privacy_settings),
+                child: Text(S.of(context).advanced_settings),
               ),
             ],
           )),
@@ -239,8 +272,15 @@ class _WalletNameFormState extends State<WalletNameForm> {
     } else {
       _walletNewVM.create(
           options: _walletNewVM.hasLanguageSelector
-              ? _languageSelectorKey.currentState!.selected
+              ? [_languageSelectorKey.currentState!.selected, isPolyseed]
               : null);
     }
+  }
+
+  bool get isPolyseed => widget._seedTypeViewModel.moneroSeedType == SeedType.polyseed;
+
+  void _setSeedType(SeedType item) {
+    widget._seedTypeViewModel.setMoneroSeedType(item);
+    _languageSelectorKey.currentState?.selected = defaultSeedLanguage; // Reset Seed language
   }
 }

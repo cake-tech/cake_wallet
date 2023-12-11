@@ -6,7 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/io_client.dart' as ioc;
-import 'package:tor/tor.dart';
+// import 'package:tor/tor.dart';
 
 part 'node.g.dart';
 
@@ -88,6 +88,8 @@ class Node extends HiveObject with Keyable {
         } else {
           return Uri.http(uriRaw, '');
         }
+      case WalletType.polygon:
+        return Uri.https(uriRaw, '');
       default:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -146,6 +148,8 @@ class Node extends HiveObject with Keyable {
         case WalletType.nano:
         case WalletType.banano:
           return requestNanoNode();
+        case WalletType.polygon:
+          return requestElectrumServer();
         default:
           return false;
       }
@@ -210,14 +214,17 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestNodeWithProxy() async {
-    if (!isValidProxyAddress && !Tor.instance.enabled) {
+    if (!isValidProxyAddress/* && !Tor.instance.enabled*/) {
       return false;
     }
 
     String? proxy = socksProxyAddress;
 
-    if ((proxy?.isEmpty ?? true) && Tor.instance.enabled) {
-      proxy = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
+    // if ((proxy?.isEmpty ?? true) && Tor.instance.enabled) {
+    //   proxy = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
+    // }
+    if (proxy == null) {
+      return false;
     }
     final proxyAddress = proxy!.split(':')[0];
     final proxyPort = int.parse(proxy.split(':')[1]);

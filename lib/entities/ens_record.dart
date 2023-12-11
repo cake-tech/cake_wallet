@@ -1,4 +1,5 @@
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:ens_dart/ens_dart.dart';
@@ -11,6 +12,10 @@ class EnsRecord {
 
     if (wallet != null && wallet.type == WalletType.ethereum) {
       _client = ethereum!.getWeb3Client(wallet);
+    }
+    
+    if (wallet != null && wallet.type == WalletType.polygon) {
+      _client = polygon!.getWeb3Client(wallet);
     }
 
     if (_client == null) {
@@ -31,6 +36,7 @@ class EnsRecord {
           case WalletType.haven:
             return await ens.withName(name).getCoinAddress(CoinType.XHV);
           case WalletType.ethereum:
+          case WalletType.polygon:
           default:
             return (await ens.withName(name).getAddress()).hex;
         }

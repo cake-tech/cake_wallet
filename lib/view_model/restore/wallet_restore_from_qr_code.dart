@@ -10,6 +10,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:collection/collection.dart';
+import 'package:polyseed/polyseed.dart';
 
 class WalletRestoreFromQRCode {
   WalletRestoreFromQRCode();
@@ -25,6 +26,7 @@ class WalletRestoreFromQRCode {
     'litecoin-wallet': WalletType.litecoin,
     'litecoin_wallet': WalletType.litecoin,
     'ethereum-wallet': WalletType.ethereum,
+    'polygon-wallet': WalletType.polygon,
     'nano-wallet': WalletType.nano,
     'nano_wallet': WalletType.nano,
     'bitcoincash': WalletType.bitcoinCash,
@@ -51,7 +53,7 @@ class WalletRestoreFromQRCode {
     RegExp _getPattern(int wordCount) =>
         RegExp(r'(?<=\W|^)((?:\w+\s+){' + (wordCount - 1).toString() + r'}\w+)(?=\W|$)');
 
-    List<int> patternCounts = walletType == WalletType.monero ? [25, 14, 13] : [24, 18, 12];
+    List<int> patternCounts = walletType == WalletType.monero ? [25, 16, 14, 13] : [24, 18, 12];
 
     for (final count in patternCounts) {
       final pattern = _getPattern(count);
@@ -123,12 +125,17 @@ class WalletRestoreFromQRCode {
     }
 
     if (credentials['seed'] != null) {
-      final seedValue = credentials['seed'];
+      final seedValue = credentials['seed'] as String;
       final words = SeedValidator.getWordList(type: type, language: 'english');
+
+      if (type == WalletType.monero && Polyseed.isValidSeed(seedValue)) {
+        return WalletRestoreMode.seed;
+      }
+
       seedValue.split(' ').forEach((element) {
         if (!words.contains(element)) {
           throw Exception(
-              'Unexpected restore mode: mnemonic_seed is invalid or does\'t match wallet type');
+              "Unexpected restore mode: mnemonic_seed is invalid or doesn't match wallet type");
         }
       });
       return WalletRestoreMode.seed;
@@ -149,6 +156,23 @@ class WalletRestoreFromQRCode {
         throw Exception('Unexpected restore mode: private_key');
       }
       return WalletRestoreMode.keys;
+    }
+
+    if (type == WalletType.polygon && credentials.containsKey('private_key')) {
+      final privateKey = credentials['private_key'] as String;
+      if (privateKey.isEmpty) {
+        throw Exception('Unexpected restore mode: private_key');
+      }
+      return WalletRestoreMode.keys;
+    }
+
+    if ((type == WalletType.nano || type == WalletType.banano) &&
+        credentials.containsKey('hexSeed')) {
+      final hexSeed = credentials['hexSeed'] as String;
+      if (hexSeed.isEmpty) {
+        throw Exception('Unexpected restore mode: hexSeed');
+      }
+      return WalletRestoreMode.seed;
     }
 
     throw Exception('Unexpected restore mode: restore params are invalid');

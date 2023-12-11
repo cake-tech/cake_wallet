@@ -96,14 +96,15 @@ dependencies:
   bitcoin_flutter:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git
-      ref: cake-update-v3
+      ref: cake-update-v4
   fluttertoast: 8.1.4
-  tor:
-    git:
-      url: https://github.com/cake-tech/tor.git
-      ref: main
+#  tor:
+#    git:
+#      url: https://github.com/cake-tech/tor.git
+#      ref: main
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
+  polyseed: ^0.0.2
 
 dev_dependencies:
   flutter_test:
@@ -144,6 +145,7 @@ flutter:
     - assets/bitcoin_cash_electrum_server_list.yml
     - assets/nano_node_list.yml
     - assets/nano_pow_node_list.yml
+    - assets/polygon_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/

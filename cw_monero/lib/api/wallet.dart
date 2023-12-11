@@ -8,7 +8,6 @@ import 'package:cw_monero/api/types.dart';
 import 'package:cw_monero/api/monero_api.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 
 int _boolToInt(bool value) => value ? 1 : 0;
 
@@ -127,6 +126,10 @@ final setTrustedDaemonNative = moneroApi
 final trustedDaemonNative = moneroApi
     .lookup<NativeFunction<trusted_daemon>>('trusted_daemon')
     .asFunction<TrustedDaemon>();
+
+final signMessageNative = moneroApi
+    .lookup<NativeFunction<sign_message>>('sign_message')
+    .asFunction<SignMessage>();
 
 int getSyncingHeight() => getSyncingHeightNative();
 
@@ -296,7 +299,7 @@ class SyncListener {
 
       final bchHeight = await getNodeHeightOrUpdate(syncHeight);
 
-      if (_lastKnownBlockHeight == syncHeight || syncHeight == null) {
+      if (_lastKnownBlockHeight == syncHeight) {
         return;
       }
 
@@ -311,7 +314,7 @@ class SyncListener {
       }
 
       // 1. Actual new height; 2. Blocks left to finish; 3. Progress in percents;
-      onNewBlock?.call(syncHeight, left, ptc);
+      onNewBlock.call(syncHeight, left, ptc);
     });
   }
 
@@ -383,3 +386,14 @@ String getSubaddressLabel(int accountIndex, int addressIndex) {
 Future setTrustedDaemon(bool trusted) async => setTrustedDaemonNative(_boolToInt(trusted));
 
 Future<bool> trustedDaemon() async => trustedDaemonNative() != 0;
+
+String signMessage(String message, {String address = ""}) {
+  final messagePointer = message.toNativeUtf8();
+  final addressPointer = address.toNativeUtf8();
+
+  final signature = convertUTF8ToString(pointer: signMessageNative(messagePointer, addressPointer));
+  calloc.free(messagePointer);
+  calloc.free(addressPointer);
+
+  return signature;
+}

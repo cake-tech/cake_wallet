@@ -1,7 +1,3 @@
-Coin control fixes and enhancements
-In-app Tor connection
-Accessibility enhancements
-Privacy settings enhancements
-UI enhancements
-Backup flow fixes
-Bug fixes
+Monero Polyseed support, create and restore from a 16 words phrase and without the need to remember the wallet creation date
+Add NFTs tab to see all of your purchased NFTs on Ethereum
+Bug fixes and enhancements

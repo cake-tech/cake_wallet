@@ -14,6 +14,9 @@ typedef RestoreWalletFromSeed = int Function(
 typedef RestoreWalletFromKeys = int Function(Pointer<Utf8>, Pointer<Utf8>,
     Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, int, int, Pointer<Utf8>);
 
+typedef RestoreWalletFromSpendKey = int Function(Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>,
+    Pointer<Utf8>, Pointer<Utf8>, int, int, Pointer<Utf8>);
+
 typedef IsWalletExist = int Function(Pointer<Utf8>);
 
 typedef LoadWallet = int Function(Pointer<Utf8>, Pointer<Utf8>, int);
@@ -146,3 +149,5 @@ typedef GetCoin = Pointer<CoinsInfoRow> Function(int);
 typedef FreezeCoin = void Function(int);
 
 typedef ThawCoin = void Function(int);
+
+typedef SignMessage = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>);

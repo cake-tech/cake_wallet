@@ -22,7 +22,7 @@ dependencies:
   bitcoin_flutter:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git
-      ref: cake-update-v3
+      ref: cake-update-v4
   bitbox:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git
@@ -30,7 +30,6 @@ dependencies:
   rxdart: ^0.27.5
   unorm_dart: ^0.2.0
   cryptography: ^2.0.5
-  encrypt: ^5.0.1
 
 dev_dependencies:
   flutter_test:
