@@ -1125,7 +1125,7 @@ Future<void> setup({
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
 
   getIt.registerFactory(() => AnonPayApi(
-      useTorOnly: getIt.get<SettingsStore>().exchangeStatus == ExchangeApiMode.torOnly,
+      apiMode: getIt.get<SettingsStore>().exchangeStatus,
       wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory(() =>

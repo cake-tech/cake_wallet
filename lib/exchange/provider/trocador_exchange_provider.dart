@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -12,11 +13,11 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:http/http.dart';
 
 class TrocadorExchangeProvider extends ExchangeProvider {
-  TrocadorExchangeProvider({this.useTorOnly = false, this.providerStates = const {}})
+  TrocadorExchangeProvider({this.apiMode = FiatApiMode.enabled, this.providerStates = const {}})
       : _lastUsedRateId = '', _provider = [],
         super(pairList: supportedPairs(_notSupported));
 
-  bool useTorOnly;
+  FiatApiMode apiMode;
   final Map<String, bool> providerStates;
 
   static const List<String> availableProviders = [
@@ -304,7 +305,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   Future<Uri> _getUri(String path, Map<String, String> queryParams) async {
     final uri = Uri.http(onionApiAuthority, path, queryParams);
 
-    if (useTorOnly) return uri;
+    if (apiMode == FiatApiMode.torOnly) return uri;
 
     try {
       await get(uri);

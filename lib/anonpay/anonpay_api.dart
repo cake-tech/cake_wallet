@@ -4,6 +4,8 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anonpay/anonpay_request.dart';
 import 'package:cake_wallet/anonpay/anonpay_status_response.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -13,10 +15,10 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 class AnonPayApi {
   const AnonPayApi({
-    this.useTorOnly = false,
+    this.apiMode = ExchangeApiMode.enabled,
     required this.wallet,
   });
-  final bool useTorOnly;
+  final ExchangeApiMode apiMode;
   final WalletBase wallet;
 
   static const anonpayRef = secrets.anonPayReferralCode;
@@ -136,7 +138,7 @@ class AnonPayApi {
       fiatRate = await FiatConversionService.fetchPrice(
         crypto: cryptoCurrency,
         fiat: fiatCurrency,
-        torOnly: useTorOnly,
+        apiMode: apiMode,
       );
     }
 
@@ -200,7 +202,7 @@ class AnonPayApi {
 
   Future<String> _getAuthority() async {
     try {
-      if (useTorOnly) {
+      if (apiMode == ExchangeApiMode.torOnly) {
         return onionApiAuthority;
       }
       final uri = Uri.https(onionApiAuthority, '/anonpay');
