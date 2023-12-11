@@ -64,7 +64,7 @@ abstract class OtherSettingsViewModelBase with Store {
 
   BuyProviderType get buyProviderType =>
       _settingsStore.defaultBuyProviders[walletType] ??
-      BuyProviderType.AskEachTime;
+      BuyProviderType.askEachTime;
 
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
@@ -88,6 +88,6 @@ abstract class OtherSettingsViewModelBase with Store {
   void onDisplayPrioritySelected(TransactionPriority priority) =>
       _settingsStore.priority[_wallet.type] = priority;
 
-  void onBuyProviderTypeSelected(BuyProviderType buyProviderType) =>
+  BuyProviderType onBuyProviderTypeSelected(BuyProviderType buyProviderType) =>
       _settingsStore.defaultBuyProviders[walletType] = buyProviderType;
 }

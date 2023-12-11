@@ -39,6 +39,44 @@ class MainActions {
     sellAction,
   ];
 
+  static final Map<BuyProviderType, Future<void> Function(BuildContext)>
+  _providerLaunchActions = {
+    BuyProviderType.askEachTime: (context) =>
+        Navigator.pushNamed(context, Routes.buy, arguments: S.current.buy),
+    BuyProviderType.onramper: (context) =>
+        getIt.get<OnRamperBuyProvider>().launchProvider(context),
+    BuyProviderType.robinhood: (context) =>
+        getIt.get<RobinhoodBuyProvider>().launchProvider(context),
+    BuyProviderType.dfx: (context) =>
+        getIt.get<DFXBuyProvider>().launchProvider(context),
+    // Add other providers here
+  };
+
+  static Future<void> _launchProviderByType(
+      BuildContext context, BuyProviderType providerType) async {
+    final action = _providerLaunchActions[providerType];
+    if (action != null) {
+      await action(context);
+    } else {
+      throw UnsupportedError('Unsupported buy provider type');
+    }
+  }
+
+  static Future<void> _showErrorDialog(
+      BuildContext context, String errorMessage) async {
+    await showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertWithOneAction(
+          alertTitle: S.of(context).buy,
+          alertContent: errorMessage,
+          buttonText: S.of(context).ok,
+          buttonAction: () => Navigator.of(context).pop(),
+        );
+      },
+    );
+  }
+
   static MainActions buyAction = MainActions._(
     name: (context) => S.of(context).buy,
     image: 'assets/images/buy.png',
@@ -59,39 +97,7 @@ class MainActions {
     },
   );
 
-  static Future<void> _launchProviderByType(BuildContext context, BuyProviderType providerType) async {
-    switch (providerType) {
-      case BuyProviderType.AskEachTime:
-        Navigator.pushNamed(context, Routes.buy);
-        break;
-      case BuyProviderType.Onramper:
-        await getIt.get<OnRamperBuyProvider>().launchProvider(context);
-        break;
-      case BuyProviderType.Robinhood:
-        await getIt.get<RobinhoodBuyProvider>().launchProvider(context);
-        break;
-      case BuyProviderType.DFX:
-        await getIt.get<DFXBuyProvider>().launchProvider(context);
-        break;
-      default:
-        throw UnsupportedError('Unsupported buy provider type');
-    }
-  }
 
-
-  static Future<void> _showErrorDialog(BuildContext context, String errorMessage) async {
-    await showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertWithOneAction(
-          alertTitle: S.of(context).buy,
-          alertContent: errorMessage,
-          buttonText: S.of(context).ok,
-          buttonAction: () => Navigator.of(context).pop(),
-        );
-      },
-    );
-  }
 
   static MainActions receiveAction = MainActions._(
     name: (context) => S.of(context).receive,

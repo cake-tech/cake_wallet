@@ -143,7 +143,8 @@ abstract class SettingsStoreBase with Store {
             initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
-        priority = ObservableMap<WalletType, TransactionPriority>() {
+        priority = ObservableMap<WalletType, TransactionPriority>(),
+        defaultBuyProviders = ObservableMap<WalletType, BuyProviderType>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
     if (initialMoneroTransactionPriority != null) {
@@ -177,9 +178,14 @@ abstract class SettingsStoreBase with Store {
     initializeTrocadorProviderStates();
 
     WalletType.values.forEach((walletType) {
-      final key = 'defaultBuyProvider_${walletType.toString()}';
-      final providerIndex = sharedPreferences.getInt(key);
-      defaultBuyProviders[walletType] = providerIndex != null ? BuyProviderType.values[providerIndex] : BuyProviderType.AskEachTime;
+      final key = '${walletType.toString()}';
+      final providerName = sharedPreferences.getString(key);
+      if (providerName != null) {
+        defaultBuyProviders[walletType] = BuyProviderType.all()
+            .firstWhere((provider) => provider.name == providerName);
+      } else {
+        defaultBuyProviders[walletType] = BuyProviderType.askEachTime;
+      }
     });
 
     reaction(
@@ -191,6 +197,15 @@ abstract class SettingsStoreBase with Store {
         (_) => shouldShowYatPopup,
         (bool shouldShowYatPopup) =>
             sharedPreferences.setBool(PreferencesKey.shouldShowYatPopup, shouldShowYatPopup));
+
+    defaultBuyProviders.observe((change) {
+      final String key = '${change.key.toString()}';
+      if (change.newValue != null) {
+        sharedPreferences.setString(key, change.newValue!.name);
+      } else {
+        // Handle the removal case if necessary
+      }
+    });
 
     priority.observe((change) {
       final String? key;
@@ -246,16 +261,6 @@ abstract class SettingsStoreBase with Store {
         (_) => disableSell,
         (bool disableSell) =>
             sharedPreferences.setBool(PreferencesKey.disableSellKey, disableSell));
-
-    reaction(
-            (_) => defaultBuyProviders.asObservable(),
-            (ObservableMap<WalletType, BuyProviderType> providers) {
-          providers.forEach((walletType, provider) {
-            final key = 'defaultBuyProvider_${walletType.toString()}';
-            sharedPreferences.setInt(key, provider.index);
-          });
-        }
-    );
 
     reaction(
         (_) => autoGenerateSubaddressStatus,
@@ -574,7 +579,7 @@ abstract class SettingsStoreBase with Store {
   ObservableMap<String, bool> trocadorProviderStates = ObservableMap<String, bool>();
 
   @observable
-  ObservableMap<WalletType, BuyProviderType> defaultBuyProviders = ObservableMap<WalletType, BuyProviderType>();
+  ObservableMap<WalletType, BuyProviderType> defaultBuyProviders;
 
   @observable
   SortBalanceBy sortBalanceBy;
@@ -717,8 +722,12 @@ abstract class SettingsStoreBase with Store {
     final isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
     final disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? false;
     final disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? false;
-    final defaultBuyProvider =
-        BuyProviderType.values[sharedPreferences.getInt(PreferencesKey.defaultBuyProvider) ?? 0];
+    final String? providerName = sharedPreferences.getString(PreferencesKey.defaultBuyProvider);
+    final defaultBuyProvider = providerName != null
+        ? BuyProviderType.all().firstWhere(
+            (provider) => provider.name == providerName,
+        orElse: () => BuyProviderType.askEachTime)
+        : BuyProviderType.askEachTime;
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
             FiatApiMode.enabled.raw);

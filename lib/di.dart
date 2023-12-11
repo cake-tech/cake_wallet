@@ -947,7 +947,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => BuyAmountViewModel());
 
-  getIt.registerFactory(() => BuyOptionsPage(getIt.get<DashboardViewModel>()));
+  getIt.registerFactoryParam<BuySellOptionsPage, String, void>(
+        (param1, _) => BuySellOptionsPage(getIt.get<DashboardViewModel>(), param1));
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;

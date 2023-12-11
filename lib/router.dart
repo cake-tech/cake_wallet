@@ -391,7 +391,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
 
     case Routes.buy:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuyOptionsPage>());
+      final args = settings.arguments as String;
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<BuySellOptionsPage>(param1: args));
 
     case Routes.buyWebView:
       final args = settings.arguments as List;
