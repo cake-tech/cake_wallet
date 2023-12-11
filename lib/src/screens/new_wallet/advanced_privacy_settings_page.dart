@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/seed_type_view_model.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -21,10 +22,11 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class AdvancedPrivacySettingsPage extends BasePage {
   AdvancedPrivacySettingsPage(this.useTestnet, this.toggleUseTestnet,
-      this.advancedPrivacySettingsViewModel, this.nodeViewModel);
+      this.advancedPrivacySettingsViewModel, this.nodeViewModel, this.seedTypeViewModel);
 
   final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
+  final SeedTypeViewModel seedTypeViewModel;
 
   @override
   String get title => S.current.privacy_settings;
@@ -34,17 +36,18 @@ class AdvancedPrivacySettingsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) => AdvancedPrivacySettingsBody(
-      useTestnet, toggleUseTestnet, advancedPrivacySettingsViewModel, nodeViewModel);
+      useTestnet, toggleUseTestnet, advancedPrivacySettingsViewModel, nodeViewModel, seedTypeViewModel);
 }
 
 class AdvancedPrivacySettingsBody extends StatefulWidget {
-  const AdvancedPrivacySettingsBody(
-      this.useTestnet, this.toggleUseTestnet, this.privacySettingsViewModel, this.nodeViewModel,
+  const AdvancedPrivacySettingsBody(this.useTestnet, this.toggleUseTestnet,
+      this.privacySettingsViewModel, this.nodeViewModel, this.seedTypeViewModel,
       {Key? key})
       : super(key: key);
 
   final AdvancedPrivacySettingsViewModel privacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
+  final SeedTypeViewModel seedTypeViewModel;
 
   final bool? useTestnet;
   final Function(bool? val) toggleUseTestnet;
@@ -75,7 +78,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
             Observer(builder: (_) {
               return SettingsChoicesCell(
                 ChoicesListItem<FiatApiMode>(
-                  title: S.current.disable_fiat,
+                  title: S.current.fiat_api,
                   items: FiatApiMode.all,
                   selectedItem: widget.privacySettingsViewModel.fiatApiMode,
                   onItemSelected: (FiatApiMode mode) =>
@@ -130,8 +133,8 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                   ChoicesListItem<SeedType>(
                     title: S.current.seedtype,
                     items: SeedType.all,
-                    selectedItem: widget.privacySettingsViewModel.seedType,
-                    onItemSelected: widget.privacySettingsViewModel.setSeedType,
+                    selectedItem: widget.seedTypeViewModel.moneroSeedType,
+                    onItemSelected: widget.seedTypeViewModel.setMoneroSeedType,
                   ),
                 );
               }),

@@ -760,5 +760,6 @@
   "bitcoin_legacy": "Dziedzictwo bitcoinowe",
   "primary_silent_address": "Podstawowy cichy adres",
   "dfx_option_description": "Kupuj kryptowaluty za EUR i CHF. Do 990 € bez dodatkowego KYC. Dla klientów detalicznych i korporacyjnych w Europie",
-  "polygonscan_history": "Historia PolygonScan"
+  "polygonscan_history": "Historia PolygonScan",
+  "wallet_seed_legacy": "Dziedziczne ziarno portfela"
 }

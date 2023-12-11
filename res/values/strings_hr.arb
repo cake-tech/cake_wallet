@@ -750,7 +750,6 @@
   "seedtype_polyseed": "Poliseed (16 riječi)",
   "seed_language_czech": "češki",
   "seed_language_korean": "korejski",
-  "seed_language_chinese_traditional": "Kinesko tradicionalno)",
   "dfx_option_description": "Kupujte kripto s EUR i CHF. Do 990 € bez dodatnog KYC-a. Za maloprodajne i poslovne korisnike u Europi",
   "seed_language_chinese_traditional": "Kinesko (tradicionalno)",
   "mainnet": "Mainnet",
@@ -759,5 +758,6 @@
   "bitcoin_silent_payments": "Bitcoin tiha plaćanja",
   "bitcoin_legacy": "Nasljeđe bitcoina",
   "primary_silent_address": "Primarna tiha adresa",
-  "polygonscan_history": "Povijest PolygonScan"
+  "polygonscan_history": "Povijest PolygonScan",
+  "wallet_seed_legacy": "Sjeme naslijeđenog novčanika"
 }

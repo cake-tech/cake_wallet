@@ -752,7 +752,6 @@
   "seedtype_polyseed": "Polyseed (16 woorden)",
   "seed_language_czech": "Tsjechisch",
   "seed_language_korean": "Koreaans",
-  "seed_language_chinese_traditional": "Chinese traditionele)",
   "dfx_option_description": "Koop crypto met EUR & CHF. Tot 990€ zonder extra KYC. Voor particuliere en zakelijke klanten in Europa",
   "seed_language_chinese_traditional": "Chinese (traditionele)",
   "mainnet": "Maimet",
@@ -761,5 +760,6 @@
   "bitcoin_silent_payments": "Bitcoin stille betalingen",
   "bitcoin_legacy": "Bitcoin Legacy",
   "primary_silent_address": "Primair stil adres",
-  "polygonscan_history": "PolygonScan-geschiedenis"
+  "polygonscan_history": "PolygonScan-geschiedenis",
+  "wallet_seed_legacy": "Legacy portemonnee zaad"
 }

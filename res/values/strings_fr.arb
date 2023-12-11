@@ -760,5 +760,6 @@
   "bitcoin_legacy": "Bitcoin Legacy",
   "primary_silent_address": "Adresse silencieuse primaire",
   "dfx_option_description": "Achetez des crypto-monnaies avec EUR et CHF. Jusqu'à 990€ sans KYC supplémentaire. Pour les clients particuliers et entreprises en Europe",
-  "polygonscan_history": "Historique de PolygonScan"
+  "polygonscan_history": "Historique de PolygonScan",
+  "wallet_seed_legacy": "Graine de portefeuille hérité"
 }

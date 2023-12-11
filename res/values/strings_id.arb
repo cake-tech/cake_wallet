@@ -740,7 +740,6 @@
   "seedtype_polyseed": "Polyseed (16 kata)",
   "seed_language_czech": "Ceko",
   "seed_language_korean": "Korea",
-  "seed_language_chinese_traditional": "Cina tradisional)",
   "dfx_option_description": "Beli kripto dengan EUR & CHF. Hingga 990€ tanpa KYC tambahan. Untuk pelanggan ritel dan korporat di Eropa",
   "seed_language_chinese_traditional": "Cina (tradisional)",
   "mainnet": "Mainnet",
@@ -749,5 +748,6 @@
   "bitcoin_silent_payments": "Bitcoin pembayaran diam",
   "bitcoin_legacy": "Bitcoin Legacy",
   "primary_silent_address": "Alamat diam primer",
-  "polygonscan_history": "Sejarah PolygonScan"
+  "polygonscan_history": "Sejarah PolygonScan",
+  "wallet_seed_legacy": "Biji dompet warisan"
 }

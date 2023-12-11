@@ -752,7 +752,6 @@
   "seedtype_polyseed": "Polieta (16 palabras)",
   "seed_language_czech": "checo",
   "seed_language_korean": "coreano",
-  "seed_language_chinese_traditional": "Chino tradicional)",
   "dfx_option_description": "Compre criptomonedas con EUR y CHF. Hasta 990€ sin KYC adicional. Para clientes minoristas y corporativos en Europa",
   "seed_language_chinese_traditional": "Chino (tradicional)",
   "mainnet": "Red",
@@ -761,5 +760,6 @@
   "bitcoin_silent_payments": "Pagos silenciosos de Bitcoin",
   "bitcoin_legacy": "Legado de bitcoin",
   "primary_silent_address": "Dirección silenciosa primaria",
-  "polygonscan_history": "Historial de PolygonScan"
+  "polygonscan_history": "Historial de PolygonScan",
+  "wallet_seed_legacy": "Semilla de billetera heredada"
 }
