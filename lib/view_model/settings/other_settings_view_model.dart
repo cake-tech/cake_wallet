@@ -59,12 +59,23 @@ abstract class OtherSettingsViewModelBase with Store {
   bool get isEnabledBuyAction =>
       !_settingsStore.disableBuy && _wallet.type != WalletType.haven;
 
+  @computed
+  bool get isEnabledSellAction =>
+      !_settingsStore.disableSell && _wallet.type != WalletType.haven;
+
   List<BuyProviderType> get availableBuyProviders =>
       BuyProviderType.getAvailableBuyProviders(walletType);
+
+  List<BuyProviderType> get availableSellProviders =>
+      BuyProviderType.getAvailableSellProviders(walletType);
 
   BuyProviderType get buyProviderType =>
       _settingsStore.defaultBuyProviders[walletType] ??
       BuyProviderType.askEachTime;
+
+  BuyProviderType get sellProviderType =>
+      _settingsStore.defaultSellProviders[walletType] ??
+          BuyProviderType.askEachTime;
 
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
@@ -85,9 +96,18 @@ abstract class OtherSettingsViewModelBase with Store {
     return _buyProviderType.toString();
   }
 
+  String getSellProviderType(dynamic sellProviderType) {
+    final _sellProviderType = sellProviderType as BuyProviderType;
+
+    return _sellProviderType.toString();
+  }
+
   void onDisplayPrioritySelected(TransactionPriority priority) =>
       _settingsStore.priority[_wallet.type] = priority;
 
   BuyProviderType onBuyProviderTypeSelected(BuyProviderType buyProviderType) =>
       _settingsStore.defaultBuyProviders[walletType] = buyProviderType;
+
+  BuyProviderType onSellProviderTypeSelected(BuyProviderType buyProviderType) =>
+      _settingsStore.defaultSellProviders[walletType] = buyProviderType;
 }

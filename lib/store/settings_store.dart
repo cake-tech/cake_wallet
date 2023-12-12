@@ -144,7 +144,8 @@ abstract class SettingsStoreBase with Store {
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
         priority = ObservableMap<WalletType, TransactionPriority>(),
-        defaultBuyProviders = ObservableMap<WalletType, BuyProviderType>() {
+        defaultBuyProviders = ObservableMap<WalletType, BuyProviderType>(),
+        defaultSellProviders = ObservableMap<WalletType, BuyProviderType>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
     if (initialMoneroTransactionPriority != null) {
@@ -188,6 +189,17 @@ abstract class SettingsStoreBase with Store {
       }
     });
 
+    WalletType.values.forEach((walletType) {
+      final key = '${walletType.toString()}';
+      final providerName = sharedPreferences.getString(key);
+      if (providerName != null) {
+        defaultSellProviders[walletType] = BuyProviderType.all()
+            .firstWhere((provider) => provider.name == providerName);
+      } else {
+        defaultSellProviders[walletType] = BuyProviderType.askEachTime;
+      }
+    });
+
     reaction(
         (_) => fiatCurrency,
         (FiatCurrency fiatCurrency) => sharedPreferences.setString(
@@ -202,8 +214,13 @@ abstract class SettingsStoreBase with Store {
       final String key = '${change.key.toString()}';
       if (change.newValue != null) {
         sharedPreferences.setString(key, change.newValue!.name);
-      } else {
-        // Handle the removal case if necessary
+      }
+    });
+
+    defaultSellProviders.observe((change) {
+      final String key = '${change.key.toString()}';
+      if (change.newValue != null) {
+        sharedPreferences.setString(key, change.newValue!.name);
       }
     });
 
@@ -580,6 +597,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   ObservableMap<WalletType, BuyProviderType> defaultBuyProviders;
+
+  @observable
+  ObservableMap<WalletType, BuyProviderType> defaultSellProviders;
 
   @observable
   SortBalanceBy sortBalanceBy;

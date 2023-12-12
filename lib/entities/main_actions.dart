@@ -100,11 +100,11 @@ class MainActions {
         return;
       }
 
-      final defaultBuyProvider = viewModel.defaultBuyProvider;
+      final defaultSellProvider = viewModel.defaultSellProvider;
       try {
-        await _launchProviderByType(context, false, defaultBuyProvider);
+        await _launchProviderByType(context, false, defaultSellProvider);
       } catch (e) {
-        await _showErrorDialog(context, defaultBuyProvider.name, e.toString());
+        await _showErrorDialog(context, defaultSellProvider.name, e.toString());
       }
     },
   );

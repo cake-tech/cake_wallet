@@ -286,6 +286,10 @@ abstract class DashboardViewModelBase with Store {
       settingsStore.defaultBuyProviders[wallet.type] ??
           BuyProviderType.askEachTime;
 
+  BuyProviderType get defaultSellProvider =>
+      settingsStore.defaultSellProviders[wallet.type] ??
+          BuyProviderType.askEachTime;
+
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
   List<BuyProviderType> get availableBuyProviders => BuyProviderType.getAvailableBuyProviders(wallet.type);
