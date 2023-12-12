@@ -117,8 +117,8 @@ class MainActions {
         getIt.get<OnRamperBuyProvider>().launchProvider(context),
     BuyProviderType.robinhood: (context, _) =>
         getIt.get<RobinhoodBuyProvider>().launchProvider(context),
-    BuyProviderType.dfx: (context, _) =>
-        getIt.get<DFXBuyProvider>().launchProvider(context),
+    BuyProviderType.dfx: (context, isBuyAction) =>
+        getIt.get<DFXBuyProvider>().launchProvider(context, isBuyAction),
   };
 
   static Future<void> _launchProviderByType(BuildContext context,

@@ -129,10 +129,11 @@ class DFXBuyProvider {
     }
   }
 
-  Future<void> launchProvider(BuildContext context) async {
+  Future<void> launchProvider(BuildContext context, bool isBuyAction) async {
     try {
       final assetOut = this.assetOut;
       final blockchain = this.blockchain;
+      final actionType = isBuyAction ? '/buy' : '/sell';
 
       String accessToken;
 
@@ -146,7 +147,7 @@ class DFXBuyProvider {
         }
       }
 
-      final uri = Uri.https('services.dfx.swiss', '/buy', {
+      final uri = Uri.https('services.dfx.swiss', actionType, {
         'session': accessToken,
         'lang': 'en',
         'asset-out': assetOut,

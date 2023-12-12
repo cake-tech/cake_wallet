@@ -8,7 +8,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
-typedef LaunchProviderFunction = Future<void> Function(BuildContext);
+typedef LaunchProviderFunction = Future<void> Function(BuildContext, bool);
 
 class BuyProviderType {
   final String name;
@@ -36,27 +36,27 @@ class BuyProviderType {
       name: "Robinhood Connect",
       lightIcon: 'assets/images/robinhood_light.png',
       darkIcon: 'assets/images/robinhood_dark.png',
-      launchProvider: (context) async =>
+      launchProvider: (context, isBuyAction) async =>
           await getIt.get<RobinhoodBuyProvider>().launchProvider(context));
   static BuyProviderType onramper = BuyProviderType(
     name: "Onramper",
     lightIcon: 'assets/images/onramper_light.png',
     darkIcon: 'assets/images/onramper_dark.png',
-    launchProvider: (context) async =>
+    launchProvider: (context, isBuyAction) async =>
         await getIt.get<OnRamperBuyProvider>().launchProvider(context),
   );
   static BuyProviderType dfx = BuyProviderType(
       name: "DFX Connect",
       lightIcon: 'assets/images/dfx_light.png',
       darkIcon: 'assets/images/dfx_dark.png',
-      launchProvider: (context) async =>
-          await getIt.get<DFXBuyProvider>().launchProvider(context));
+      launchProvider: (context, isBuyAction) async =>
+          await getIt.get<DFXBuyProvider>().launchProvider(context, isBuyAction));
 
   static BuyProviderType moonPay = BuyProviderType(
       name: "Moon Pay",
-      lightIcon: 'assets/images/dfx_light.png',
-      darkIcon: 'assets/images/dfx_dark.png',
-      launchProvider: (context) async =>
+      lightIcon: 'assets/images/moonpay_light.png',
+      darkIcon: 'assets/images/moonpay_dark.png',
+      launchProvider: (context, isBuyAction) async =>
       await getIt.get<MoonPaySellProvider>().launchProvider(context));
 
   static List<BuyProviderType> getAvailableBuyProviders(WalletType walletType) {
@@ -95,7 +95,7 @@ class BuyProviderType {
     }
   }
 
-  String get description {
+  String get buyOptionDescription {
     switch (name) {
       case "Robinhood Connect":
         return S.current.robinhood_option_description;
@@ -103,6 +103,21 @@ class BuyProviderType {
         return S.current.onramper_option_description;
       case "DFX Connect":
         return S.current.dfx_option_description;
+      default:
+        return "";
+    }
+  }
+
+  String get sellOptionDescription {
+    switch (name) {
+      case "Robinhood Connect":
+        return S.current.robinhood_option_description;
+      case "Onramper":
+        return S.current.onramper_option_description;
+      case "DFX Connect":
+        return S.current.dfx_option_description;
+      case "Moon Pay":
+        return "Sell your crypto for fiat";
       default:
         return "";
     }
