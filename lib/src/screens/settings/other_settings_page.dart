@@ -50,7 +50,7 @@ class OtherSettingsPage extends BasePage {
               ),
               if(_otherSettingsViewModel.isEnabledSellAction)
               SettingsPickerCell(
-                title: 'S.current.default_buy_provider',
+                title: S.current.default_sell_provider,
                 items: _otherSettingsViewModel.availableSellProviders,
                 displayItem: _otherSettingsViewModel.getSellProviderType,
                 selectedItem: _otherSettingsViewModel.sellProviderType,
