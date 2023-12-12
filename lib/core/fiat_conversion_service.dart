@@ -7,6 +7,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'dart:convert';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart';
 
 const _fiatApiClearNetAuthority = 'fiat-api.cakewallet.com';
 const _fiatApiOnionAuthority = 'n4z7bdcmwk2oyddxvzaap3x2peqcplh3pzdy7tpkk5ejz5n4mhfvoxqd.onion';
@@ -34,22 +35,38 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
     HttpClient client = await ProxyWrapper.instance.getProxyInstance(
       portOverride: mainThreadProxyPort,
     );
-    late HttpClientResponse response;
-    late String responseBody;
 
+    late HttpClientResponse httpResponse;
+    late String responseBody;
+    late int statusCode;
+
+    // we might have tor enabled (no way of knowing), so we try to use it first
     try {
-      final request = await client.getUrl(onionUri);
-      response = await request.close();
-      responseBody = await utf8.decodeStream(response);
-    } catch (e) {
-      if (!torOnly) {
-        final request = await client.getUrl(clearnetUri);
-        response = await request.close();
-        responseBody = await utf8.decodeStream(response);
+      try {
+        final request = await client.getUrl(onionUri);
+        httpResponse = await request.close();
+        responseBody = await utf8.decodeStream(httpResponse);
+      } catch (e) {
+        // if the onion url fails, and not set to tor only, try the clearnet url, (still using tor!):
+        if (!torOnly) {
+          final request = await client.getUrl(clearnetUri);
+          httpResponse = await request.close();
+          responseBody = await utf8.decodeStream(httpResponse);
+        }
       }
+      statusCode = httpResponse.statusCode;
+    } catch (e) {
+      // connections all failed / tor is not enabled, so we use the clearnet url directly as normal:
+      if (torOnly) {
+        // we failed to connect through tor
+        return 0.0;
+      }
+      final response = await get(clearnetUri);
+      responseBody = response.body;
+      statusCode = response.statusCode;
     }
 
-    if (response.statusCode != 200) {
+    if (statusCode != 200) {
       return 0.0;
     }
 
@@ -73,6 +90,7 @@ Future<double> _fetchPriceAsync(
       'crypto': crypto.toString(),
       'apiMode': apiMode.toString(),
       'port': ProxyWrapper.port,
+      'torEnabled': ProxyWrapper.enabled,
     });
 
 class FiatConversionService {

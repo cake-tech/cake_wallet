@@ -19,6 +19,9 @@ class ProxyWrapper {
 
   static int get port => Tor.instance.port;
 
+  static bool get enabled => Tor.instance.enabled;
+
+
   // Method to get or create the Tor instance
   Future<HttpClient> getProxyInstance({int? portOverride}) async {
     if (!started) {
