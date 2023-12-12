@@ -72,7 +72,8 @@ class DefaultPolygonErc20Tokens {
         String? iconPath;
         try {
           iconPath = CryptoCurrency.all
-              .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+              .firstWhere((element) =>
+                  element.title.toUpperCase() == token.symbol.split(".").first.toUpperCase())
               .iconPath;
         } catch (_) {}
 
