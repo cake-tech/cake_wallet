@@ -22,7 +22,7 @@ class DefaultPolygonErc20Tokens {
       symbol: "USDC",
       contractAddress: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
       decimal: 6,
-      enabled: false,
+      enabled: true,
     ),
     Erc20Token(
       name: "USD Coin (POS)",
