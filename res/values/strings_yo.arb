@@ -747,5 +747,6 @@
   "dfx_option_description": "Ra crypto pẹlu EUR & CHF. Titi di 990 € laisi afikun KYC. Fun soobu ati awọn onibara ile-iṣẹ ni Yuroopu",
   "polygonscan_history": "PolygonScan itan",
   "wallet_seed_legacy": "Irugbin akole",
-  "default_sell_provider": "Aiyipada Olupese Tita"
+  "default_sell_provider": "Aiyipada Olupese Tita",
+  "select_sell_provider_notice": "Yan olupese ti o ta loke. O le foju iboju yii nipa tito olupese iṣẹ tita aiyipada rẹ ni awọn eto app."
 }

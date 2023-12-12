@@ -751,5 +751,6 @@
   "dfx_option_description": "EUR ve CHF ile kripto satın alın. Ek KYC olmadan 990 €'ya kadar. Avrupa'daki perakende ve kurumsal müşteriler için",
   "polygonscan_history": "PolygonScan geçmişi",
   "wallet_seed_legacy": "Eski cüzdan tohumu",
-  "default_sell_provider": "Varsayılan Satış Sağlayıcısı"
+  "default_sell_provider": "Varsayılan Satış Sağlayıcısı",
+  "select_sell_provider_notice": "Yukarıdan bir satış sağlayıcısı seçin. Uygulama ayarlarında varsayılan satış sağlayıcınızı ayarlayarak bu ekranı atlayabilirsiniz."
 }

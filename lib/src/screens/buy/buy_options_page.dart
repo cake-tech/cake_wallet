@@ -61,7 +61,7 @@ class BuySellOptionsPage extends BasePage {
               Padding(
                 padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
                 child: Text(
-                  S.of(context).select_buy_provider_notice,
+                  isBuyAction ? S.of(context).select_buy_provider_notice : S.of(context).select_sell_provider_notice,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,

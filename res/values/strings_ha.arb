@@ -731,5 +731,6 @@
   "dfx_option_description": "Sayi crypto tare da EUR & CHF. Har zuwa € 990 ba tare da ƙarin KYC ba. Don 'yan kasuwa da abokan ciniki na kamfanoni a Turai",
   "polygonscan_history": "PolygonScan tarihin kowane zamani",
   "wallet_seed_legacy": "Tallarin walat walat",
-  "default_sell_provider": "Tsohuwar Mai Bayar Siyarwa"
+  "default_sell_provider": "Tsohuwar Mai Bayar Siyarwa",
+  "select_sell_provider_notice": "Zaɓi mai bada siyarwa a sama. Kuna iya tsallake wannan allon ta saita mai bada siyar da ku a cikin saitunan app."
 }
