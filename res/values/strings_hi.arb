@@ -731,6 +731,9 @@
   "require_for_exchanges_to_external_wallets": "बाहरी वॉलेट में एक्सचेंज की आवश्यकता है",
   "camera_permission_is_required": "कैमरे की अनुमति आवश्यक है.\nकृपया इसे ऐप सेटिंग से सक्षम करें।",
   "switchToETHWallet": "कृपया एथेरियम वॉलेट पर स्विच करें और पुनः प्रयास करें",
+  "order_by": "द्वारा आदेश",
+  "creation_date": "निर्माण तिथि",
+  "group_by_type": "प्रकार द्वारा समूह",
   "importNFTs": "एनएफटी आयात करें",
   "noNFTYet": "अभी तक कोई एनएफटी नहीं",
   "address": "पता",
@@ -750,8 +753,11 @@
   "seed_language_czech": "चेक",
   "seed_language_korean": "कोरियाई",
   "seed_language_chinese_traditional": "चीनी पारंपरिक)",
+  "ascending": "आरोही",
+  "descending": "अवरोही",
   "dfx_option_description": "EUR और CHF के साथ क्रिप्टो खरीदें। अतिरिक्त केवाईसी के बिना 990€ तक। यूरोप में खुदरा और कॉर्पोरेट ग्राहकों के लिए",
   "polygonscan_history": "पॉलीगॉनस्कैन इतिहास",
   "wallet_seed_legacy": "विरासत बटुए बीज",
+  "custom_drag": "कस्टम (पकड़ और खींचें)",
   "switchToEVMCompatibleWallet": "कृपया ईवीएम संगत वॉलेट पर स्विच करें और पुनः प्रयास करें (एथेरियम, पॉलीगॉन)"
 }

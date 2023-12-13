@@ -723,6 +723,9 @@
   "require_for_exchanges_to_external_wallets": "Vyžadovat pro výměny do externích peněženek",
   "camera_permission_is_required": "Vyžaduje se povolení fotoaparátu.\nPovolte jej v nastavení aplikace.",
   "switchToETHWallet": "Přejděte na peněženku Ethereum a zkuste to znovu",
+  "order_by": "Seřadit podle",
+  "creation_date": "Datum vzniku",
+  "group_by_type": "Skupina podle typu",
   "importNFTs": "Importujte NFT",
   "noNFTYet": "Zatím žádné NFT",
   "address": "Adresa",
@@ -742,8 +745,11 @@
   "seed_language_czech": "čeština",
   "seed_language_korean": "korejština",
   "seed_language_chinese_traditional": "Číňan (tradiční)",
+  "ascending": "Vzestupné",
+  "descending": "Klesající",
   "dfx_option_description": "Nakupujte kryptoměny za EUR a CHF. Až 990 € bez dalších KYC. Pro maloobchodní a firemní zákazníky v Evropě",
   "polygonscan_history": "Historie PolygonScan",
   "wallet_seed_legacy": "Starší semeno peněženky",
+  "custom_drag": "Custom (Hold and Drag)",
   "switchToEVMCompatibleWallet": "Přepněte na peněženku kompatibilní s EVM a zkuste to znovu (Ethereum, Polygon)"
 }

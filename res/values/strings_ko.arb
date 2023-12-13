@@ -729,6 +729,9 @@
   "require_for_exchanges_to_external_wallets": "외부 지갑으로의 교환을 위해 필요",
   "camera_permission_is_required": "카메라 권한이 필요합니다.\n앱 설정에서 활성화해 주세요.",
   "switchToETHWallet": "이더리움 지갑으로 전환한 후 다시 시도해 주세요.",
+  "order_by": "주문",
+  "creation_date": "생산 일",
+  "group_by_type": "유형별 그룹",
   "importNFTs": "NFT 가져오기",
   "noNFTYet": "아직 NFT가 없습니다",
   "address": "주소",
@@ -748,8 +751,11 @@
   "seed_language_czech": "체코 사람",
   "seed_language_korean": "한국인",
   "seed_language_chinese_traditional": "중국 전통)",
+  "ascending": "오름차순",
+  "descending": "내림차순",
   "dfx_option_description": "EUR 및 CHF로 암호화폐를 구매하세요. 추가 KYC 없이 최대 990€. 유럽의 소매 및 기업 고객용",
   "polygonscan_history": "다각형 스캔 기록",
   "wallet_seed_legacy": "레거시 지갑 시드",
+  "custom_drag": "사용자 정의 (홀드 앤 드래그)",
   "switchToEVMCompatibleWallet": "EVM 호환 지갑으로 전환 후 다시 시도해 주세요. (이더리움, 폴리곤)"
 }
