@@ -31,7 +31,7 @@ class WarningPage extends BasePage {
     final image = currentTheme.type == ThemeType.dark ? imageDark : imageLight;
 
     return WillPopScope(
-        onWillPop: () async => false,
+        onWillPop: () async => !isPreSeedPage,
         child: Container(
           alignment: Alignment.center,
           padding: EdgeInsets.all(24),
