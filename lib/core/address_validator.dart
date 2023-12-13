@@ -271,6 +271,8 @@ class AddressValidator extends TextValidator {
             '|([^0-9a-zA-Z]|^)ltc[a-zA-Z0-9]{26,45}([^0-9a-zA-Z]|\$)';
       case CryptoCurrency.eth:
         return '0x[0-9a-zA-Z]{42}';
+      case CryptoCurrency.maticpoly:
+        return '0x[0-9a-zA-Z]{42}';
       case CryptoCurrency.nano:
         return 'nano_[0-9a-zA-Z]{60}';
       case CryptoCurrency.banano:

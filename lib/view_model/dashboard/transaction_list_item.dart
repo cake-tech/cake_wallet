@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -89,6 +90,13 @@ class TransactionListItem extends ActionListItem with Keyable {
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
             cryptoAmount: ethereum!.formatterEthereumAmountToDouble(transaction: transaction),
+            price: price);
+        break;
+      case WalletType.polygon:
+        final asset = polygon!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: polygon!.formatterPolygonAmountToDouble(transaction: transaction),
             price: price);
         break;
       case WalletType.nano:

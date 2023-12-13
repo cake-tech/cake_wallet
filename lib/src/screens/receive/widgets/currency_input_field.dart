@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,6 +23,13 @@ class CurrencyInputField extends StatelessWidget {
   final FocusNode? focusNode;
   final TextEditingController controller;
   final bool isLight;
+
+  String get _currencyName {
+    if (selectedCurrency is CryptoCurrency) {
+      return (selectedCurrency as CryptoCurrency).title.toUpperCase();
+    }
+    return selectedCurrency.name.toUpperCase();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +82,7 @@ class CurrencyInputField extends StatelessWidget {
                             child: arrowBottomPurple,
                           ),
                           Text(
-                            selectedCurrency.name.toUpperCase(),
+                            _currencyName,
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
@@ -83,7 +91,7 @@ class CurrencyInputField extends StatelessWidget {
                           ),
                           if (selectedCurrency.tag != null)
                             Padding(
-                              padding: const EdgeInsets.only(right: 3.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 3.0),
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,

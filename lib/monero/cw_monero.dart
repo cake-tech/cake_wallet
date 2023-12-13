@@ -166,6 +166,10 @@ class CWMonero extends Monero {
 
   @override
   List<String> getMoneroWordList(String language) {
+    if (language.startsWith("POLYSEED_")) {
+      final lang = language.replaceAll("POLYSEED_", "");
+      return PolyseedLang.getByEnglishName(lang).words;
+    }
     switch (language.toLowerCase()) {
       case 'english':
         return EnglishMnemonics.words;
@@ -223,8 +227,10 @@ class CWMonero extends Monero {
   WalletCredentials createMoneroNewWalletCredentials({
     required String name,
     required String language,
+    required bool isPolyseed,
     String? password}) =>
-      MoneroNewWalletCredentials(name: name, password: password, language: language);
+      MoneroNewWalletCredentials(
+        name: name, password: password, language: language, isPolyseed: isPolyseed);
 
   @override
   Map<String, String> getKeys(Object wallet) {

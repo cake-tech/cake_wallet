@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
@@ -13,7 +14,6 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -32,12 +32,12 @@ class BalancePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Observer(
       builder: (context) {
-        final isEthereumWallet = dashboardViewModel.type == WalletType.ethereum;
+        final isEVMCompatible = isEVMCompatibleChain(dashboardViewModel.type);
         return DefaultTabController(
-          length: isEthereumWallet ? 2 : 1,
+          length: isEVMCompatible ? 2 : 1,
           child: Column(
             children: [
-              if (isEthereumWallet)
+              if (isEVMCompatible)
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
@@ -66,7 +66,7 @@ class BalancePage extends StatelessWidget {
                   physics: NeverScrollableScrollPhysics(),
                   children: [
                     CryptoBalanceWidget(dashboardViewModel: dashboardViewModel),
-                    if (isEthereumWallet) NFTListingPage(nftViewModel: nftViewModel)
+                    if (isEVMCompatible) NFTListingPage(nftViewModel: nftViewModel)
                   ],
                 ),
               ),

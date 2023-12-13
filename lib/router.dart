@@ -62,6 +62,7 @@ import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/seed_type_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -87,7 +88,6 @@ import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
 import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
-import 'package:cake_wallet/src/screens/seed_language/seed_language_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
@@ -147,8 +147,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newWallet:
       final type = settings.arguments as WalletType;
       final walletNewVM = getIt.get<WalletNewVM>(param1: type);
+      final seedTypeViewModel = getIt.get<SeedTypeViewModel>();
 
-      return CupertinoPageRoute<void>(builder: (_) => NewWalletPage(walletNewVM));
+      return CupertinoPageRoute<void>(builder: (_) => NewWalletPage(walletNewVM, seedTypeViewModel));
 
     case Routes.setupPin:
       Function(PinCodeState<PinCodeWidget>, String)? callback;
@@ -263,17 +264,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.changeRep:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<NanoChangeRepPage>());
-
-    case Routes.seedLanguage:
-      final args = settings.arguments as List<dynamic>;
-      final type = args.first as WalletType;
-      final redirectRoute = args[1] as String;
-
-      return CupertinoPageRoute<void>(builder: (_) {
-        return SeedLanguage(
-            onConfirm: (context, lang) =>
-                Navigator.of(context).popAndPushNamed(redirectRoute, arguments: [type, lang]));
-      });
 
     case Routes.walletList:
       return MaterialPageRoute<void>(
@@ -543,9 +533,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
       return CupertinoPageRoute<void>(
           builder: (_) => AdvancedPrivacySettingsPage(
-                getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
-                getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
-              ));
+              getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
+              getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
+              getIt.get<SeedTypeViewModel>()));
 
     case Routes.anonPayInvoicePage:
       final args = settings.arguments as List;

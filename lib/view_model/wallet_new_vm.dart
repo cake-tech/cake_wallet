@@ -1,6 +1,4 @@
-import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -16,6 +14,8 @@ import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'advanced_privacy_settings_view_model.dart';
+
+import '../polygon/polygon.dart';
 
 part 'wallet_new_vm.g.dart';
 
@@ -47,25 +47,30 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       }
     }
 
+  bool get hasSeedType => type == WalletType.monero;
+
   @override
-  WalletCredentials getCredentials(dynamic options) {
+  WalletCredentials getCredentials(dynamic _options) {
+    final options = _options as List<dynamic>?;
     switch (type) {
       case WalletType.monero:
         return monero!.createMoneroNewWalletCredentials(
-            name: name, language: options as String);
+            name: name, language: options!.first as String, isPolyseed: options.last as bool);
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name);
       case WalletType.litecoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name);
       case WalletType.haven:
         return haven!.createHavenNewWalletCredentials(
-            name: name, language: options as String);
+            name: name, language: options!.first as String);
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(name: name);
       case WalletType.bitcoinCash:
         return bitcoinCash!.createBitcoinCashNewWalletCredentials(name: name);
       case WalletType.nano:
         return nano!.createNanoNewWalletCredentials(name: name);
+      case WalletType.polygon:
+        return polygon!.createPolygonNewWalletCredentials(name: name);
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }
