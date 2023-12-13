@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_ethereum/ethereum_transaction_model.dart';
@@ -73,7 +72,6 @@ class EthereumClient {
     required EthereumTransactionPriority priority,
     required CryptoCurrency currency,
     required int exponent,
-    required WalletType walletType,
     String? contractAddress,
   }) async {
     assert(currency == CryptoCurrency.eth ||

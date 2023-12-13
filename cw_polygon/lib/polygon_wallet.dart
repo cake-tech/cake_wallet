@@ -14,7 +14,6 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_ethereum/ethereum_formatter.dart';
 import 'package:cw_ethereum/file.dart';
@@ -78,9 +77,9 @@ abstract class PolygonWalletBase
 
   late final EthPrivateKey _polygonPrivateKey;
 
-  EthPrivateKey get polygonPrivateKey => _polygonPrivateKey;
+  late final PolygonClient _client;
 
-  late PolygonClient _client;
+  EthPrivateKey get polygonPrivateKey => _polygonPrivateKey;
 
   int? _gasPrice;
   int? _estimatedGas;
@@ -100,11 +99,11 @@ abstract class PolygonWalletBase
   @observable
   late ObservableMap<CryptoCurrency, ERC20Balance> balance;
 
-  Completer<SharedPreferences> _sharedPrefs = Completer();
+  final Completer<SharedPreferences> _sharedPrefs = Completer();
 
   Future<void> init() async {
     polygonErc20TokensBox = await CakeHive.openBox<Erc20Token>(
-        walletInfo.name.replaceAll(" ", "_") + Erc20Token.polygonBoxName);
+        "${walletInfo.name.replaceAll(" ", "_")}_${Erc20Token.polygonBoxName}");
     await walletAddresses.init();
     await transactionHistory.init();
     _polygonPrivateKey = await getPrivateKey(
@@ -165,14 +164,14 @@ abstract class PolygonWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-    final _credentials = credentials as PolygonTransactionCredentials;
-    final outputs = _credentials.outputs;
+    final credentials0 = credentials as PolygonTransactionCredentials;
+    final outputs = credentials0.outputs;
     final hasMultiDestination = outputs.length > 1;
 
     final CryptoCurrency transactionCurrency =
-        balance.keys.firstWhere((element) => element.title == _credentials.currency.title);
+        balance.keys.firstWhere((element) => element.title == credentials0.currency.title);
 
-    final _erc20Balance = balance[transactionCurrency]!;
+    final erc20Balance = balance[transactionCurrency]!;
     BigInt totalAmount = BigInt.zero;
     int exponent = transactionCurrency is Erc20Token ? transactionCurrency.decimal : 18;
     num amountToPolygonMultiplier = pow(10, exponent);
@@ -187,7 +186,7 @@ abstract class PolygonWalletBase
           outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
       totalAmount = BigInt.from(totalOriginalAmount * amountToPolygonMultiplier);
 
-      if (_erc20Balance.balance < totalAmount) {
+      if (erc20Balance.balance < totalAmount) {
         throw PolygonTransactionCreationException(transactionCurrency);
       }
     } else {
@@ -196,32 +195,31 @@ abstract class PolygonWalletBase
       // then no need to subtract the fees from the amount if send all
       final BigInt allAmount;
       if (transactionCurrency is Erc20Token) {
-        allAmount = _erc20Balance.balance;
+        allAmount = erc20Balance.balance;
       } else {
-        allAmount = _erc20Balance.balance -
-            BigInt.from(calculateEstimatedFee(_credentials.priority!, null));
+        allAmount =
+            erc20Balance.balance - BigInt.from(calculateEstimatedFee(credentials0.priority!, null));
       }
       final totalOriginalAmount =
           EthereumFormatter.parseEthereumAmountToDouble(output.formattedCryptoAmount ?? 0);
       totalAmount =
           output.sendAll ? allAmount : BigInt.from(totalOriginalAmount * amountToPolygonMultiplier);
 
-      if (_erc20Balance.balance < totalAmount) {
+      if (erc20Balance.balance < totalAmount) {
         throw PolygonTransactionCreationException(transactionCurrency);
       }
     }
 
     final pendingPolygonTransaction = await _client.signTransaction(
       privateKey: _polygonPrivateKey,
-      toAddress: _credentials.outputs.first.isParsedAddress
-          ? _credentials.outputs.first.extractedAddress!
-          : _credentials.outputs.first.address,
+      toAddress: credentials0.outputs.first.isParsedAddress
+          ? credentials0.outputs.first.extractedAddress!
+          : credentials0.outputs.first.address,
       amount: totalAmount.toString(),
       gas: _estimatedGas!,
-      priority: _credentials.priority!,
+      priority: credentials0.priority!,
       currency: transactionCurrency,
       exponent: exponent,
-      walletType: WalletType.polygon,
       contractAddress:
           transactionCurrency is Erc20Token ? transactionCurrency.contractAddress : null,
     );
@@ -408,13 +406,14 @@ abstract class PolygonWalletBase
 
     final root = bip32.BIP32.fromSeed(seed);
 
-    const _hdPathPolygon = "m/44'/60'/0'/0";
+    const hdPathPolygon = "m/44'/60'/0'/0";
     const index = 0;
-    final addressAtIndex = root.derivePath("$_hdPathPolygon/$index");
+    final addressAtIndex = root.derivePath("$hdPathPolygon/$index");
 
     return EthPrivateKey.fromHex(HEX.encode(addressAtIndex.privateKey as List<int>));
   }
 
+  @override
   Future<void>? updateBalance() async => await _updateBalance();
 
   List<Erc20Token> get erc20Currencies => polygonErc20TokensBox.values.toList();
@@ -427,25 +426,25 @@ abstract class PolygonWalletBase
           .iconPath;
     } catch (_) {}
 
-    final _token = Erc20Token(
+    final token0 = Erc20Token(
       name: token.name,
       symbol: token.symbol,
       contractAddress: token.contractAddress,
       decimal: token.decimal,
       enabled: token.enabled,
-      tag: token.tag,
+      tag: token.tag ?? "POLY",
       iconPath: iconPath,
     );
 
-    await polygonErc20TokensBox.put(_token.contractAddress, _token);
+    await polygonErc20TokensBox.put(token0.contractAddress, token0);
 
-    if (_token.enabled) {
-      balance[_token] = await _client.fetchERC20Balances(
+    if (token0.enabled) {
+      balance[token0] = await _client.fetchERC20Balances(
         _polygonPrivateKey.address,
-        _token.contractAddress,
+        token0.contractAddress,
       );
     } else {
-      balance.remove(_token);
+      balance.remove(token0);
     }
   }
 
@@ -499,7 +498,7 @@ abstract class PolygonWalletBase
       _transactionsUpdateTimer!.cancel();
     }
 
-    _transactionsUpdateTimer = Timer.periodic(Duration(seconds: 10), (_) {
+    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       _updateTransactions();
       _updateBalance();
     });
@@ -515,7 +514,7 @@ abstract class PolygonWalletBase
   }
 
   @override
-  String signMessage(String message, {String? address = null}) =>
+  String signMessage(String message, {String? address}) =>
       bytesToHex(_polygonPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
 
   Web3Client? getWeb3Client() => _client.getWeb3Client();

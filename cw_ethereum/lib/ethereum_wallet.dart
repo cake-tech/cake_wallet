@@ -14,7 +14,6 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cw_ethereum/default_ethereum_erc20_tokens.dart';
 import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_ethereum/ethereum_client.dart';
@@ -221,7 +220,6 @@ abstract class EthereumWalletBase
       priority: _credentials.priority!,
       currency: transactionCurrency,
       exponent: exponent,
-      walletType: WalletType.ethereum,
       contractAddress:
           transactionCurrency is Erc20Token ? transactionCurrency.contractAddress : null,
     );
@@ -431,6 +429,7 @@ abstract class EthereumWalletBase
       contractAddress: token.contractAddress,
       decimal: token.decimal,
       enabled: token.enabled,
+      tag: token.tag ?? "ETH",
       iconPath: iconPath,
     );
 
@@ -494,7 +493,7 @@ abstract class EthereumWalletBase
       _transactionsUpdateTimer!.cancel();
     }
 
-    _transactionsUpdateTimer = Timer.periodic(Duration(seconds: 10), (_) {
+    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       _updateTransactions();
       _updateBalance();
     });
@@ -510,7 +509,7 @@ abstract class EthereumWalletBase
   }
 
   @override
-  String signMessage(String message, {String? address = null}) =>
+  String signMessage(String message, {String? address}) =>
       bytesToHex(_ethPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
 
   Web3Client? getWeb3Client() => _client.getWeb3Client();
