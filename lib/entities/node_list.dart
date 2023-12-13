@@ -85,8 +85,7 @@ Future<List<Node>> loadDefaultEthereumNodes() async {
 }
 
 Future<List<Node>> loadBitcoinCashElectrumServerList() async {
-  final serverListRaw =
-  await rootBundle.loadString('assets/bitcoin_cash_electrum_server_list.yml');
+  final serverListRaw = await rootBundle.loadString('assets/bitcoin_cash_electrum_server_list.yml');
   final loadedServerList = loadYaml(serverListRaw) as YamlList;
   final serverList = <Node>[];
 
@@ -141,6 +140,7 @@ Future<List<Node>> loadDefaultPolygonNodes() async {
   for (final raw in loadedNodes) {
     if (raw is Map) {
       final node = Node.fromMap(Map<String, Object>.from(raw));
+
       node.type = WalletType.polygon;
       nodes.add(node);
     }
@@ -158,7 +158,6 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
   final ethereumNodes = await loadDefaultEthereumNodes();
   final nanoNodes = await loadDefaultNanoNodes();
   final polygonNodes = await loadDefaultPolygonNodes();
-
 
   final nodes = moneroNodes +
       bitcoinElectrumServerList +

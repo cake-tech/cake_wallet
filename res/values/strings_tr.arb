@@ -750,5 +750,6 @@
   "seed_language_chinese_traditional": "Çin geleneği)",
   "dfx_option_description": "EUR ve CHF ile kripto satın alın. Ek KYC olmadan 990 €'ya kadar. Avrupa'daki perakende ve kurumsal müşteriler için",
   "polygonscan_history": "PolygonScan geçmişi",
-  "wallet_seed_legacy": "Eski cüzdan tohumu"
+  "wallet_seed_legacy": "Eski cüzdan tohumu",
+  "switchToEVMCompatibleWallet": "Lütfen EVM uyumlu bir cüzdana geçin ve tekrar deneyin (Ethereum, Polygon)"
 }

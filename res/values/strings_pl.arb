@@ -752,5 +752,6 @@
   "seed_language_chinese_traditional": "Chiński tradycyjny)",
   "dfx_option_description": "Kupuj kryptowaluty za EUR i CHF. Do 990 € bez dodatkowego KYC. Dla klientów detalicznych i korporacyjnych w Europie",
   "polygonscan_history": "Historia PolygonScan",
-  "wallet_seed_legacy": "Dziedziczne ziarno portfela"
+  "wallet_seed_legacy": "Dziedziczne ziarno portfela",
+  "switchToEVMCompatibleWallet": "Przejdź na portfel zgodny z EVM i spróbuj ponownie (Ethereum, Polygon)"
 }
