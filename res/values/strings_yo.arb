@@ -755,5 +755,6 @@
   "primary_silent_address": "Adirẹsi ipalọlọ akọkọ",
   "dfx_option_description": "Ra crypto pẹlu EUR & CHF. Titi di 990 € laisi afikun KYC. Fun soobu ati awọn onibara ile-iṣẹ ni Yuroopu",
   "polygonscan_history": "PolygonScan itan",
-  "wallet_seed_legacy": "Irugbin akole"
+  "wallet_seed_legacy": "Irugbin akole",
+  "switchToEVMCompatibleWallet": "Jọwọ yipada si apamọwọ ibaramu EVM ki o tun gbiyanju lẹẹkansi (Ethereum, Polygon)"
 }

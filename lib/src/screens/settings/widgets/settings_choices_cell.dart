@@ -31,42 +31,43 @@ class SettingsChoicesCell extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Center(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  color: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: choicesListItem.items.map((dynamic e) {
-                    final isSelected = choicesListItem.selectedItem == e;
-                    return GestureDetector(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: choicesListItem.items.map((dynamic e) {
+                  final isSelected = choicesListItem.selectedItem == e;
+                  return Expanded(
+                    child: GestureDetector(
                       onTap: () {
                         choicesListItem.onItemSelected.call(e);
                       },
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+                        padding: EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(30),
                           color: isSelected
                               ? Theme.of(context).primaryColor
                               : null,
                         ),
-                        child: Text(
-                          choicesListItem.displayItem.call(e),
-                          style: TextStyle(
-                            color: isSelected
-                                ? Colors.white
-                                : Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
+                        child: Center(
+                          child: Text(
+                            choicesListItem.displayItem.call(e),
+                            style: TextStyle(
+                              color: isSelected
+                                  ? Colors.white
+                                  : Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
+                            ),
                           ),
                         ),
                       ),
-                    );
-                  }).toList(),
-                ),
+                    ),
+                  );
+                }).toList(),
               ),
             ),
           ),

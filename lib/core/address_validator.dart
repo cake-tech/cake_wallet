@@ -32,6 +32,8 @@ class AddressValidator extends TextValidator {
         return '[0-9a-zA-Z_]';
       case CryptoCurrency.usdc:
       case CryptoCurrency.usdcpoly:
+      case CryptoCurrency.usdtPoly:
+      case CryptoCurrency.usdcEPoly:
       case CryptoCurrency.ape:
       case CryptoCurrency.avaxc:
       case CryptoCurrency.eth:
@@ -141,6 +143,8 @@ class AddressValidator extends TextValidator {
         return [42];
       case CryptoCurrency.eth:
       case CryptoCurrency.usdcpoly:
+      case CryptoCurrency.usdtPoly:
+      case CryptoCurrency.usdcEPoly:
       case CryptoCurrency.mana:
       case CryptoCurrency.matic:
       case CryptoCurrency.maticpoly:

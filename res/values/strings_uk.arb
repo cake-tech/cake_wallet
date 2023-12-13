@@ -761,5 +761,6 @@
   "bitcoin_legacy": "Bitcoin Legacy",
   "primary_silent_address": "Первинна мовчазна адреса",
   "polygonscan_history": "Історія PolygonScan",
-  "wallet_seed_legacy": "Спадець насіння гаманця"
+  "wallet_seed_legacy": "Спадець насіння гаманця",
+  "switchToEVMCompatibleWallet": "Перейдіть на гаманець, сумісний з EVM, і повторіть спробу (Ethereum, Polygon)"
 }
