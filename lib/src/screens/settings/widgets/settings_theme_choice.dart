@@ -54,57 +54,61 @@ class SettingsThemeChoicesCell extends StatelessWidget {
 
                 return Padding(
                   padding: EdgeInsets.all(5),
-                  child: GestureDetector(
-                    onTap: () {
-                      _displaySettingsViewModel.setTheme(e);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(cellRadius),
-                        border: isSelected
-                            ? Border.all(
-                                color: Theme.of(context).primaryColor)
-                            : null,
-                        color: Theme.of(context)
-                            .extension<CakeTextTheme>()!
-                            .secondaryTextColor
-                            .withOpacity(
-                                currentTheme.brightness == Brightness.light
-                                    ? 0.1
-                                    : 0.3),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: cellWidth, vertical: cellHeight),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(cellRadius),
-                                  bottomLeft: Radius.circular(cellRadius)),
-                              color: e.themeData.primaryColor,
+                  child: Semantics(
+                    label: e.toString(),
+                    selected: isSelected,
+                    child: GestureDetector(
+                      onTap: () {
+                        _displaySettingsViewModel.setTheme(e);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(cellRadius),
+                          border: isSelected
+                              ? Border.all(
+                                  color: Theme.of(context).primaryColor)
+                              : null,
+                          color: Theme.of(context)
+                              .extension<CakeTextTheme>()!
+                              .secondaryTextColor
+                              .withOpacity(
+                                  currentTheme.brightness == Brightness.light
+                                      ? 0.1
+                                      : 0.3),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: cellWidth, vertical: cellHeight),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(cellRadius),
+                                    bottomLeft: Radius.circular(cellRadius)),
+                                color: e.themeData.primaryColor,
+                              ),
                             ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: cellWidth, vertical: cellHeight),
-                            decoration: BoxDecoration(
-                              color: e.themeData.colorScheme.background,
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: cellWidth, vertical: cellHeight),
+                              decoration: BoxDecoration(
+                                color: e.themeData.colorScheme.background,
+                              ),
                             ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: cellWidth, vertical: cellHeight),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(cellRadius),
-                                  bottomRight: Radius.circular(cellRadius)),
-                              color: e.themeData.cardColor,
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: cellWidth, vertical: cellHeight),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(cellRadius),
+                                    bottomRight: Radius.circular(cellRadius)),
+                                color: e.themeData.cardColor,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
