@@ -617,9 +617,9 @@
   "totp_verification_success": "Ověření proběhlo úspěšně!",
   "totp_2fa_failure": "Nesprávný kód. Zkuste prosím jiný kód nebo vygenerujte nový tajný klíč. Použijte kompatibilní aplikaci 2FA, která podporuje 8místné kódy a SHA512.",
   "enter_totp_code": "Zadejte kód TOTP.",
-  "add_secret_code": "Přidejte tento tajný kód do jiného zařízení",
+  "add_secret_code": "Nebo přidejte tento tajný kód do ověřovací aplikace",
   "totp_secret_code": "Tajný kód TOTP",
-  "setup_2fa_text": "Cake 2FA NENÍ tak bezpečný jako skladování v chladu. 2FA chrání před základními typy útoků, jako je váš přítel, který vám poskytne otisk prstu, když spíte.\n\n Cake 2FA nechrání před napadením zařízení sofistikovaným útočníkem.\n\n Pokud ztratíte přístup ke svým kódům 2FA , ZTRÁTÍTE PŘÍSTUP K TÉTO PENĚŽENCE. Budete muset obnovit svou peněženku z mnemotechnického semínka. MUSÍTE TEDY ZÁLOHOVAT SVÉ MNEMONICKÉ SEMÉNKY! Kromě toho někdo s přístupem k vašemu mnemotechnickému semenu bude moci ukrást vaše finanční prostředky a obejít Cake 2FA.\n\n Pracovníci podpory Cake vám nebudou schopni pomoci, pokud ztratíte přístup k vašemu mnemotechnickému semenu, protože Cake je nevazební peněženka.",
+  "setup_2fa_text": "Cake 2FA funguje přes TOTP jako druhý autentizační faktor.\n\nTOTP Cake 2FA vyžaduje SHA-512 a podporu 8 číslic; to poskytuje zvýšenou bezpečnost. Další informace a podporované aplikace naleznete v průvodci zde.",
   "setup_totp_recommended": "Nastavit TOTP (doporučeno)",
   "disable_buy": "Zakázat akci nákupu",
   "disable_sell": "Zakázat akci prodeje",
@@ -733,5 +733,8 @@
   "unavailable_balance": "Nedostupný zůstatek",
   "unavailable_balance_description": "Nedostupný zůstatek: Tento součet zahrnuje prostředky, které jsou uzamčeny v nevyřízených transakcích a ty, které jste aktivně zmrazili v nastavení kontroly mincí. Uzamčené zůstatky budou k dispozici po dokončení příslušných transakcí, zatímco zmrazené zůstatky zůstanou pro transakce nepřístupné, dokud se nerozhodnete je uvolnit.",
   "unspent_change": "Změna",
-  "tor_connection": "Připojení Tor"
+  "tor_connection": "Připojení Tor",
+  "setup_warning_2fa_text": "Cake 2FA je druhá autentizace pro určité akce v peněžence. NENÍ tak bezpečný jako skladování v chladu.\n Pokud ztratíte přístup ke své aplikaci 2FA nebo přístupovým klíčům, ztratíte přístup k této peněžence.\n Budete muset obnovit svou peněženku z mnemotechnického semínka.\n Podpora dortů vám nebude schopna pomoci, pokud ztratíte přístup ke svým 2FA nebo mnemotechnickým semenům. Před použitím Cake 2FA doporučujeme přečíst si průvodce.",
+  "scan_qr_on_device": "Naskenujte tento QR kód na jiném zařízení",
+  "how_to_use": "Jak používat"
 }

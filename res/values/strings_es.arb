@@ -625,9 +625,9 @@
   "totp_verification_success": "¡Verificación exitosa!",
   "totp_2fa_failure": "Código incorrecto. Intente con un código diferente o genere una nueva clave secreta. Use una aplicación 2FA compatible que admita códigos de 8 dígitos y SHA512.",
   "enter_totp_code": "Ingrese el código TOTP.",
-  "add_secret_code": "Agregue este código secreto a otro dispositivo",
+  "add_secret_code": "O agregue este código secreto a una aplicación de autenticación",
   "totp_secret_code": "Código secreto TOTP",
-  "setup_2fa_text": "Cake 2FA NO es tan seguro como el almacenamiento en frío. 2FA protege contra tipos básicos de ataques, como cuando un amigo proporciona su huella digital mientras usted duerme.\n\n Cake 2FA NO protege contra un dispositivo comprometido por un atacante sofisticado.\n\n Si pierde el acceso a sus códigos 2FA , PERDERÁS EL ACCESO A ESTA BILLETERA. Deberá restaurar su billetera desde la semilla mnemotécnica. ¡POR LO TANTO, DEBE HACER UNA COPIA DE SEGURIDAD DE SUS SEMILLAS MNEMÓNICAS! Además, alguien con acceso a sus semillas mnemotécnicas podrá robar sus fondos, sin pasar por Cake 2FA.\n\n El personal de soporte de Cake no podrá ayudarlo si pierde el acceso a su semilla mnemotécnica, ya que Cake es un billetera sin custodia.",
+  "setup_2fa_text": "Cake 2FA funciona a través de TOTP como segundo factor de autenticación.\n\nEl TOTP de Cake 2FA requiere SHA-512 y soporte de 8 dígitos; esto proporciona una mayor seguridad. Puede encontrar más información y aplicaciones compatibles en la guía aquí.",
   "setup_totp_recommended": "Configurar TOTP (Recomendado)",
   "disable_buy": "Desactivar acción de compra",
   "disable_sell": "Desactivar acción de venta",
@@ -741,5 +741,8 @@
   "unavailable_balance": "Saldo no disponible",
   "unavailable_balance_description": "Saldo no disponible: este total incluye fondos que están bloqueados en transacciones pendientes y aquellos que usted ha congelado activamente en su configuración de control de monedas. Los saldos bloqueados estarán disponibles una vez que se completen sus respectivas transacciones, mientras que los saldos congelados permanecerán inaccesibles para las transacciones hasta que usted decida descongelarlos.",
   "unspent_change": "Cambiar",
-  "tor_connection": "conexión tor"
+  "tor_connection": "conexión tor",
+  "setup_warning_2fa_text": "Cake 2FA es una segunda autenticación para ciertas acciones en la billetera. NO es tan seguro como el almacenamiento en frío.\n Si pierde el acceso a su aplicación 2FA o a sus claves de acceso, perderá el acceso a esta billetera.\n Deberá restaurar su billetera a partir de la semilla mnemotécnica.\n El soporte de Cake no podrá ayudarlo si pierde el acceso a su 2FA o a sus semillas mnemotécnicas. Antes de usar Cake 2FA, recomendamos leer la guía.",
+  "scan_qr_on_device": "Escanea este código QR en otro dispositivo",
+  "how_to_use": "Cómo utilizar"
 }

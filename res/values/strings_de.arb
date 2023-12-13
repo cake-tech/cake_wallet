@@ -625,9 +625,9 @@
   "totp_verification_success": "Verifizierung erfolgreich!",
   "totp_2fa_failure": "Falscher Code. Bitte versuchen Sie es mit einem anderen Code oder generieren Sie einen neuen geheimen Schlüssel. Verwenden Sie eine kompatible 2FA-App, die 8-stellige Codes und SHA512 unterstützt.",
   "enter_totp_code": "Bitte geben Sie den TOTP-Code ein.",
-  "add_secret_code": "Fügen Sie diesen Geheimcode einem anderen Gerät hinzu",
+  "add_secret_code": "Oder fügen Sie diesen Geheimcode einer Authentifizierungs-App hinzu",
   "totp_secret_code": "TOTP-Geheimcode",
-  "setup_2fa_text": "Cake 2FA ist NICHT so sicher wie eine Cold Wallet. 2FA schützt vor grundlegenden Arten von Angriffen, z.B. wenn Ihr Freund Ihren Fingerabdruck verwendet, während Sie schlafen.\n\n Cake 2FA schützt NICHT vor einem kompromittierten Gerät durch einen raffinierten Angreifer.\n\n Wenn Sie den Zugriff auf Ihre 2FA-Codes verlieren , VERLIEREN SIE DEN ZUGANG ZU DIESEM WALLET. Sie müssen Ihre Wallet aus mnemonic Seed wiederherstellen. SIE MÜSSEN DESHALB IHRE MNEMONISCHEN SEEDS SICHERN! Außerdem kann jemand mit Zugriff auf Ihre mnemonischen Seed(s) Ihr Geld stehlen und Cake 2FA umgehen.\n\n Cake-Supportmitarbeiter können Ihnen nicht helfen, wenn Sie den Zugriff auf Ihre mnemonischen Seed(s) verlieren, da Cake Wallet eine Wallet ohne treuhänderische Verwahrung ist.",
+  "setup_2fa_text": "Cake 2FA funktioniert über TOTP als zweiten Authentifizierungsfaktor.\n\nDas TOTP von Cake 2FA erfordert SHA-512 und 8-stellige Unterstützung; Dies sorgt für erhöhte Sicherheit. Weitere Informationen und unterstützte Apps finden Sie im Leitfaden hier.",
   "setup_totp_recommended": "TOTP einrichten (empfohlen)",
   "disable_buy": "Kaufaktion deaktivieren",
   "disable_sell": "Verkaufsaktion deaktivieren",
@@ -741,5 +741,8 @@
   "unavailable_balance": "Nicht verfügbares Guthaben",
   "unavailable_balance_description": "Nicht verfügbares Guthaben: Diese Summe umfasst Gelder, die in ausstehenden Transaktionen gesperrt sind, und solche, die Sie in Ihren Münzkontrolleinstellungen aktiv eingefroren haben. Gesperrte Guthaben werden verfügbar, sobald die entsprechenden Transaktionen abgeschlossen sind, während eingefrorene Guthaben für Transaktionen nicht zugänglich bleiben, bis Sie sich dazu entschließen, sie wieder freizugeben.",
   "unspent_change": "Wechselgeld",
-  "tor_connection": "Tor-Verbindung"
+  "tor_connection": "Tor-Verbindung",
+  "setup_warning_2fa_text": "Cake 2FA ist eine zweite Authentifizierung für bestimmte Aktionen im Wallet. Es ist NICHT so sicher wie eine Kühllagerung.\n Wenn Sie den Zugriff auf Ihre 2FA-App oder Ihre Passkeys verlieren, verlieren Sie auch den Zugriff auf dieses Wallet.\n Sie müssen Ihr Wallet aus dem mnemonischen Seed wiederherstellen.\n Der Cake-Support kann Ihnen nicht weiterhelfen, wenn Sie den Zugriff auf Ihre 2FA- oder Mnemonik-Seeds verlieren. Bevor Sie Cake 2FA verwenden, empfehlen wir Ihnen, die Anleitung durchzulesen.",
+  "scan_qr_on_device": "Scannen Sie diesen QR-Code auf einem anderen Gerät",
+  "how_to_use": "Wie benutzt man"
 }

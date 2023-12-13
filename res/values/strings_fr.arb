@@ -625,9 +625,9 @@
   "totp_verification_success": "Vérification réussie !",
   "totp_2fa_failure": "Code incorrect. Veuillez essayer un code différent ou générer un nouveau secret TOTP. Utilisez une application 2FA compatible qui prend en charge les codes à 8 chiffres et SHA512.",
   "enter_totp_code": "Veuillez entrer le code TOTP.",
-  "add_secret_code": "Configurer un autre appareil à l'aide de ce secret TOTP",
+  "add_secret_code": "Ou ajoutez ce code secret à une application d'authentification",
   "totp_secret_code": "Secret TOTP",
-  "setup_2fa_text": "Cake 2FA (Authentification à 2 Facteurs) n'est PAS aussi sûr que le stockage à froid. Cake 2FA protège contre les attaques basiques, comme un ami fournissant votre empreinte digitale pendant que vous dormez.\n\n Cake 2FA ne protège PAS contre un appareil compromis par un attaquant sophistiqué.\n\n Si vous perdez l'accès à vos codes 2FA , VOUS PERDREZ L'ACCÈS À CE PORTEFEUILLE (WALLET). Vous devrez restaurer votre portefeuille à partir de sa phrase secrète (seed). VOUS DEVEZ DONC SAUVEGARDER VOTRE PHRASE SECRÈTE ! De plus, quelqu'un ayant accès à votre phrase secrète pourra voler vos fonds, en contournant Cake 2FA.\n\n Le personnel d'assistance de Cake ne pourra pas vous aider si vous perdez l'accès à votre phrase secrète, puisque Cake est un portefeuille non dépositaire (non custodial).",
+  "setup_2fa_text": "Cake 2FA fonctionne via TOTP comme deuxième facteur d'authentification.\n\nLe TOTP de Cake 2FA nécessite la prise en charge de SHA-512 et de 8 chiffres ; cela offre une sécurité accrue. Plus d’informations et les applications prises en charge peuvent être trouvées dans le guide ici.",
   "setup_totp_recommended": "Configurer TOTP (recommandé)",
   "disable_buy": "Désactiver l'action d'achat",
   "disable_sell": "Désactiver l'action de vente",
@@ -728,7 +728,7 @@
   "exchange_provider_unsupported": "${providerName} n'est plus pris en charge !",
   "domain_looks_up": "Résolution de nom",
   "require_for_exchanges_to_external_wallets": "Exiger pour les échanges vers des portefeuilles externes",
-  "camera_permission_is_required": "L'autorisation de la caméra est requise.\nVeuillez l'activer à partir des paramètres de l'application.",
+  "camera_permission_is_required": "L'autorisation d'accès à la caméra est requise.\nVeuillez l'activer depuis les paramètres de l'application.",
   "switchToETHWallet": "Veuillez passer à un portefeuille (wallet) Ethereum et réessayer",
   "importNFTs": "Importer des NFT",
   "noNFTYet": "Pas encore de NFT",
@@ -740,8 +740,9 @@
   "seed_phrase_length": "Longueur de la phrase de départ",
   "unavailable_balance": "Solde indisponible",
   "unavailable_balance_description": "Solde indisponible : ce total comprend les fonds bloqués dans les transactions en attente et ceux que vous avez activement gelés dans vos paramètres de contrôle des pièces. Les soldes bloqués deviendront disponibles une fois leurs transactions respectives terminées, tandis que les soldes gelés resteront inaccessibles aux transactions jusqu'à ce que vous décidiez de les débloquer.",
-  "camera_permission_is_required": "L'autorisation d'accès à la caméra est requise.\nVeuillez l'activer depuis les paramètres de l'application.",
-  "switchToETHWallet": "Veuillez passer à un portefeuille (wallet) Ethereum et réessayer",
   "unspent_change": "Changement",
-  "tor_connection": "Connexion Tor"
+  "tor_connection": "Connexion Tor",
+  "setup_warning_2fa_text": "Cake 2FA est une seconde authentification pour certaines actions dans le portefeuille. Ce n’est PAS aussi sécurisé que l’entreposage frigorifique.\n Si vous perdez l'accès à votre application 2FA ou à vos mots de passe, vous perdrez l'accès à ce portefeuille.\n Vous devrez restaurer votre portefeuille à partir de la graine mnémonique.\n Le support Cake ne pourra pas vous aider si vous perdez l'accès à vos graines 2FA ou mnémoniques. Avant d'utiliser Cake 2FA, nous vous recommandons de lire le guide.",
+  "scan_qr_on_device": "Scannez ce code QR sur un autre appareil",
+  "how_to_use": "Comment utiliser"
 }

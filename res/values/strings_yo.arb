@@ -619,9 +619,9 @@
   "totp_verification_success": "Ìbẹrẹ dọkita!",
   "totp_2fa_failure": "Koodu ti o daju ko ri. Jọwọ jẹ koodu miiran tabi ṣiṣẹ iwe kiakia. Lo fun 2FA eto ti o ba ṣe ni jẹ 2FA ti o gba idaniloju 8-digits ati SHA512.",
   "enter_totp_code": "Jọwọ pọ koodu TOTP.",
-  "add_secret_code": "Fọya koodu iye yii si eto miiran",
+  "add_secret_code": "Tabi, ṣafikun koodu aṣiri yii si ohun elo onijeri kan",
   "totp_secret_code": "Koodu iye TOTP",
-  "setup_2fa_text": "Cake 2FA kii ṣe nipasẹ aisan tabi ni akoso aisan. 2FA ti ṣe pada ninu awọn iṣẹ pataki, bi atilẹyin ti o fun iṣẹ rẹ ti o ti jẹ saanu.\n\n Cake 2FA kii ṣe pada ninu atilẹyin ti o ti ba alabara kan ti o sise gidi gan.\n\n Ti o ba pọ akosile rẹ 2FA, O YOO RI ATOJU SI IWE IWE NA. O yoo nilo lati yan pẹlu iwe iwe ni o ba ṣe iṣẹ rẹ. O ni aṣẹ iru ki o gba asise akojọ iwe iwe rẹ! Nitori a ko ni aṣẹ pẹlu ohun ti o ba ṣe iṣẹ rẹ lati yan pẹlu akojọ iwe iwe rẹ, nitori Cake ni iwe iwe ti ko se iṣẹ itumọ.",
+  "setup_2fa_text": "Akara oyinbo 2FA ṣiṣẹ nipasẹ TOTP bi ifosiwewe ijẹrisi keji.\n\nAkara oyinbo 2FA's TOTP nilo SHA-512 ati atilẹyin oni-nọmba 8; eyi pese aabo ti o pọ sii. Alaye diẹ sii ati awọn ohun elo atilẹyin ni a le rii ninu itọsọna naa Nibi.",
   "setup_totp_recommended": "Sọ TOTP (Kẹṣọdọ)",
   "disable_buy": "Ko iṣọrọ ọja",
   "disable_sell": "Ko iṣọrọ iṣọrọ",
@@ -735,5 +735,8 @@
   "unavailable_balance": "Iwontunwonsi ti ko si",
   "unavailable_balance_description": "Iwontunws.funfun ti ko si: Lapapọ yii pẹlu awọn owo ti o wa ni titiipa ni awọn iṣowo isunmọ ati awọn ti o ti didi ni itara ninu awọn eto iṣakoso owo rẹ. Awọn iwọntunwọnsi titiipa yoo wa ni kete ti awọn iṣowo oniwun wọn ba ti pari, lakoko ti awọn iwọntunwọnsi tio tutunini ko ni iraye si fun awọn iṣowo titi iwọ o fi pinnu lati mu wọn kuro.",
   "unspent_change": "Yipada",
-  "tor_connection": "Tor asopọ"
+  "tor_connection": "Tor asopọ",
+  "setup_warning_2fa_text": "Akara oyinbo 2FA jẹ ijẹrisi keji fun awọn iṣe kan ninu apamọwọ. Ko ṣe aabo bi ibi ipamọ tutu.\n Ti o ba padanu iraye si ohun elo 2FA tabi awọn bọtini iwọle, iwọ YOO padanu iraye si apamọwọ yii.\n Iwọ yoo nilo lati mu pada apamọwọ rẹ lati inu irugbin mnemonic.\n Atilẹyin akara oyinbo kii yoo ni anfani lati ṣe iranlọwọ fun ọ ti o ba padanu iraye si 2FA tabi awọn irugbin mnemonic rẹ. Ṣaaju lilo akara oyinbo 2FA, a ṣeduro kika nipasẹ itọsọna naa.",
+  "scan_qr_on_device": "Ṣe ayẹwo koodu QR yii lori ẹrọ miiran",
+  "how_to_use": "Bawo ni lati lo"
 }

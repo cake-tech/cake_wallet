@@ -27,7 +27,6 @@ class Setup2FAQRPage extends BasePage {
   Widget body(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_content.png',
         height: 16, width: 16, color: Theme.of(context).extension<CakeTextTheme>()!.titleColor);
-    final cake2FAHowToUseTitle = 'How to use';
     final cake2FAHowToUseUrl = Uri.parse(
         'https://guides.cakewallet.com/docs/advanced-features/authentication/#enabling-cake-2fa');
     return Padding(
@@ -183,7 +182,7 @@ class Setup2FAQRPage extends BasePage {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(cake2FAHowToUseTitle,
+                  Text(S.current.how_to_use,
                       style: TextStyle(
                           decoration: TextDecoration.underline,
                           fontSize: 16,

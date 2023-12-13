@@ -625,9 +625,9 @@
   "totp_verification_success": "Weryfikacja powiodła się!",
   "totp_2fa_failure": "Błędny kod. Spróbuj użyć innego kodu lub wygeneruj nowy tajny klucz. Użyj kompatybilnej aplikacji 2FA, która obsługuje 8-cyfrowe kody i SHA512.",
   "enter_totp_code": "Wprowadź kod TOTP.",
-  "add_secret_code": "Dodaj ten tajny kod do innego urządzenia",
+  "add_secret_code": "Możesz też dodać ten tajny kod do aplikacji uwierzytelniającej",
   "totp_secret_code": "Tajny kod TOTP",
-  "setup_2fa_text": "Cake 2FA NIE jest tak bezpieczny jak przechowywanie w chłodni. 2FA chroni przed podstawowymi typami ataków, takimi jak udostępnienie odcisku palca przez znajomego podczas snu.\n\n Cake 2FA NIE chroni przed zhakowanym urządzeniem przez wyrafinowanego atakującego.\n\n Jeśli utracisz dostęp do swoich kodów 2FA , UTRACISZ DOSTĘP DO TEGO PORTFELA. Będziesz musiał przywrócić swój portfel z mnemonicznego materiału siewnego. DLATEGO MUSISZ ZROBIĆ KOPIĘ SWOICH NASION MNEMONICZNYCH! Co więcej, ktoś z dostępem do twoich mnemonicznych nasion będzie mógł ukraść twoje fundusze, omijając Cake 2FA.\n\n Personel pomocniczy Cake nie będzie mógł ci pomóc, jeśli stracisz dostęp do swojego mnemonicznego seeda, ponieważ Cake jest portfel niezabezpieczony.",
+  "setup_2fa_text": "Cake 2FA działa poprzez TOTP jako drugi czynnik uwierzytelniający.\n\nTOTP Cake 2FA wymaga obsługi SHA-512 i 8 cyfr; zapewnia to większe bezpieczeństwo. Więcej informacji i obsługiwane aplikacje można znaleźć w przewodniku tutaj.",
   "setup_totp_recommended": "Skonfiguruj TOTP (zalecane)",
   "disable_buy": "Wyłącz akcję kupna",
   "disable_sell": "Wyłącz akcję sprzedaży",
@@ -741,5 +741,8 @@
   "unavailable_balance": "Niedostępne saldo",
   "unavailable_balance_description": "Niedostępne saldo: Suma ta obejmuje środki zablokowane w transakcjach oczekujących oraz te, które aktywnie zamroziłeś w ustawieniach kontroli monet. Zablokowane salda staną się dostępne po zakończeniu odpowiednich transakcji, natomiast zamrożone salda pozostaną niedostępne dla transakcji, dopóki nie zdecydujesz się ich odblokować.",
   "unspent_change": "Zmiana",
-  "tor_connection": "Połączenie Torem"
+  "tor_connection": "Połączenie Torem",
+  "setup_warning_2fa_text": "Cake 2FA to drugie uwierzytelnienie niektórych działań w portfelu. NIE jest tak bezpieczne jak przechowywanie w chłodni.\n Jeśli utracisz dostęp do aplikacji 2FA lub kluczy, UTRAcisz dostęp do tego portfela.\n Będziesz musiał przywrócić swój portfel z nasion mnemonicznych.\n Wsparcie Cake nie będzie w stanie Ci pomóc, jeśli utracisz dostęp do swoich nasion 2FA lub mnemoników. Przed użyciem Cake 2FA zalecamy zapoznanie się z instrukcją.",
+  "scan_qr_on_device": "Zeskanuj ten kod QR na innym urządzeniu",
+  "how_to_use": "Jak używać"
 }
