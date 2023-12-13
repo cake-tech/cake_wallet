@@ -19,7 +19,7 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
   final Box<WalletInfo> walletInfoSource;
 
   @override
-  Future<PolygonWallet> create(PolygonNewWalletCredentials credentials) async {
+  Future<PolygonWallet> create(PolygonNewWalletCredentials credentials, {bool? isTestnet}) async {
     final strength = (credentials.seedPhraseLength == 12)
         ? 128
         : (credentials.seedPhraseLength == 24)
@@ -72,7 +72,8 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
   }
 
   @override
-  Future<PolygonWallet> restoreFromKeys(PolygonRestoreWalletFromPrivateKey credentials) async {
+  Future<PolygonWallet> restoreFromKeys(PolygonRestoreWalletFromPrivateKey credentials,
+      {bool? isTestnet}) async {
     final wallet = PolygonWallet(
       password: credentials.password!,
       privateKey: credentials.privateKey,
@@ -87,7 +88,8 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
   }
 
   @override
-  Future<PolygonWallet> restoreFromSeed(PolygonRestoreWalletFromSeedCredentials credentials) async {
+  Future<PolygonWallet> restoreFromSeed(PolygonRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
     if (!bip39.validateMnemonic(credentials.mnemonic)) {
       throw EthereumMnemonicIsIncorrectException();
     }
