@@ -12,7 +12,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 
@@ -39,41 +38,18 @@ class RestoreOptionsPage extends BasePage {
               children: <Widget>[
                 OptionTile(
                     onPressed: () => Navigator.pushNamed(context, Routes.connectDevices),
-                    // onPressed: () {
-                    //   final options = LedgerOptions(
-                    //     maxScanDuration: const Duration(milliseconds: 5000),
-                    //   );
-                    //
-                    //
-                    //   final ledger = Ledger(
-                    //     options: options,
-                    //     onPermissionRequest: (status) async {
-                    //       Map<Permission, PermissionStatus> statuses = await [
-                    //         // Permission.location,
-                    //         Permission.bluetoothScan,
-                    //         Permission.bluetoothConnect,
-                    //         Permission.bluetoothAdvertise,
-                    //       ].request();
-                    //
-                    //       if (status != BleStatus.ready) {
-                    //         return false;
-                    //       }
-                    //
-                    //       return statuses.values.where((status) => status.isDenied).isEmpty;
-                    //     },
-                    //   );
-                    //
-                    //   ledger.scan().listen((device) => print(device.name));
-                    // },
                     image: imageSeedKeys,
                     title: "Ledger",
                     description: S.of(context).restore_description_from_seed_keys),
-                OptionTile(
+                Padding(
+                    padding: EdgeInsets.only(top: 24),
+                    child: OptionTile(
                     onPressed: () => Navigator.pushNamed(context, Routes.restoreWalletFromSeedKeys,
                         arguments: isNewInstall),
                     image: imageSeedKeys,
                     title: S.of(context).restore_title_from_seed_keys,
                     description: S.of(context).restore_description_from_seed_keys),
+                ),
                 if (isNewInstall)
                   Padding(
                     padding: EdgeInsets.only(top: 24),
