@@ -754,5 +754,6 @@
   "seed_language_chinese_traditional": "Китайский традиционный)",
   "dfx_option_description": "Покупайте криптовалюту за EUR и CHF. До 990€ без дополнительного KYC. Для розничных и корпоративных клиентов в Европе",
   "polygonscan_history": "История PolygonScan",
-  "wallet_seed_legacy": "Наследие семя кошелька"
+  "wallet_seed_legacy": "Наследие семя кошелька",
+  "switchToEVMCompatibleWallet": "Пожалуйста, переключитесь на кошелек, совместимый с EVM, и повторите попытку (Ethereum, Polygon)."
 }

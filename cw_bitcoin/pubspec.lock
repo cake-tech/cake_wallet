@@ -79,11 +79,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: cake-update-v3
-      resolved-ref: df9204144011ed9419eff7d9ef3143102a40252d
+      ref: cake-update-v4
+      resolved-ref: e19ffb7e7977278a75b27e0479b3c6f4034223b3
       url: "https://github.com/cake-tech/bitcoin_flutter.git"
     source: git
-    version: "2.0.2"
+    version: "2.1.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -244,7 +244,7 @@ packages:
     source: hosted
     version: "2.2.4"
   encrypt:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: encrypt
       sha256: "4fd4e4fdc21b9d7d4141823e1e6515cd94e7b8d84749504c232999fba25d9bbb"
@@ -698,15 +698,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
-  tor:
-    dependency: transitive
-    description:
-      path: "."
-      ref: main
-      resolved-ref: "09ba92cb11d4e3cacf97256e57863b805f79f2e5"
-      url: "https://github.com/cake-tech/tor.git"
-    source: git
-    version: "0.0.1"
   typed_data:
     dependency: transitive
     description:

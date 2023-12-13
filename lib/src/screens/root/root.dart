@@ -176,7 +176,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         );
         launchUri = null;
       } else {
-        _nonETHWalletErrorToast(S.current.switchToETHWallet);
+        _nonETHWalletErrorToast(S.current.switchToEVMCompatibleWallet);
       }
     }
 
@@ -206,7 +206,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   String? _getRouteToGo() {
     if (isWalletConnectLink) {
       if (isEVMCompatibleChain(widget.appStore.wallet!.type)) {
-        _nonETHWalletErrorToast(S.current.switchToETHWallet);
+        _nonETHWalletErrorToast(S.current.switchToEVMCompatibleWallet);
         return null;
       }
       return Routes.walletConnectConnectionsListing;

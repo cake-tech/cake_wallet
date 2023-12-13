@@ -78,18 +78,17 @@ class EthereumClient {
         currency == CryptoCurrency.maticpoly ||
         contractAddress != null);
 
-    bool _isEVMCompatibleChain = currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
+    bool _isEVMCompatibleChain =
+        currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
 
     final price = _client!.getGasPrice();
 
-    final Transaction transaction = Transaction(
+    final Transaction transaction = createTransaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
-      value: _isEVMCompatibleChain ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
+      amount: _isEVMCompatibleChain ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
     );
-
-    final chainId = _getChainIdForCurrency(currency);
 
     final signedTransaction =
         await _client!.signTransaction(privateKey, transaction, chainId: chainId);
@@ -124,18 +123,27 @@ class EthereumClient {
     );
   }
 
-  int _getChainIdForCurrency(CryptoCurrency currency) {
-    switch (currency) {
-      case CryptoCurrency.maticpoly:
-        return 137;
-      case CryptoCurrency.eth:
-      default:
-        return 1;
-    }
+  int get chainId => 1;
+
+  Transaction createTransaction({
+    required EthereumAddress from,
+    required EthereumAddress to,
+    required EtherAmount amount,
+    EtherAmount? maxPriorityFeePerGas,
+  }) {
+    return Transaction(
+      from: from,
+      to: to,
+      maxPriorityFeePerGas: maxPriorityFeePerGas,
+      value: amount,
+    );
   }
 
   Future<String> sendTransaction(Uint8List signedTransaction) async =>
-      await _client!.sendRawTransaction(prependTransactionType(0x02, signedTransaction));
+      await _client!.sendRawTransaction(prepareSignedTransactionForSending(signedTransaction));
+
+  Uint8List prepareSignedTransactionForSending(Uint8List signedTransaction) =>
+      prependTransactionType(0x02, signedTransaction);
 
   Future getTransactionDetails(String transactionHash) async {
     // Wait for the transaction receipt to become available

@@ -293,17 +293,13 @@ class DefaultErc20Tokens {
   ];
 
   List<Erc20Token> get initialErc20Tokens => _defaultTokens.map((token) {
-      String? iconPath;
-      try {
-        iconPath = CryptoCurrency.all
-            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
-            .iconPath;
-      } catch (_) {}
+        String? iconPath;
+        try {
+          iconPath = CryptoCurrency.all
+              .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+              .iconPath;
+        } catch (_) {}
 
-      if (iconPath != null) {
-        return Erc20Token.copyWith(token, iconPath);
-      }
-
-      return token;
-    }).toList();
+        return Erc20Token.copyWith(token, iconPath, 'ETH');
+      }).toList();
 }

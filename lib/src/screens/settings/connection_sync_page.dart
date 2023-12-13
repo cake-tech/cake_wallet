@@ -1,4 +1,3 @@
-import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
@@ -18,12 +17,11 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class ConnectionSyncPage extends BasePage {
-  ConnectionSyncPage(this.dashboardViewModel, this.web3walletService);
+  ConnectionSyncPage(this.dashboardViewModel);
 
   @override
   String get title => S.current.connection_sync;
 
-  final Web3WalletService? web3walletService;
   final DashboardViewModel dashboardViewModel;
 
   @override

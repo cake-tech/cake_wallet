@@ -754,5 +754,6 @@
   "seed_language_chinese_traditional": "Cinese tradizionale)",
   "dfx_option_description": "Acquista criptovalute con EUR e CHF. Fino a 990€ senza KYC aggiuntivi. Per clienti al dettaglio e aziendali in Europa",
   "polygonscan_history": "Cronologia PolygonScan",
-  "wallet_seed_legacy": "Seme di portafoglio legacy"
+  "wallet_seed_legacy": "Seme di portafoglio legacy",
+  "switchToEVMCompatibleWallet": "Passa a un portafoglio compatibile con EVM e riprova (Ethereum, Polygon)"
 }

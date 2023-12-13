@@ -749,8 +749,9 @@
   "seedtype_polyseed": "Poliseed (16 riječi)",
   "seed_language_czech": "češki",
   "seed_language_korean": "korejski",
-  "dfx_option_description": "Kupujte kripto s EUR i CHF. Do 990 € bez dodatnog KYC-a. Za maloprodajne i poslovne korisnike u Europi",
   "seed_language_chinese_traditional": "Kinesko (tradicionalno)",
+  "dfx_option_description": "Kupujte kripto s EUR i CHF. Do 990 € bez dodatnog KYC-a. Za maloprodajne i poslovne korisnike u Europi",
   "polygonscan_history": "Povijest PolygonScan",
-  "wallet_seed_legacy": "Sjeme naslijeđenog novčanika"
+  "wallet_seed_legacy": "Sjeme naslijeđenog novčanika",
+  "switchToEVMCompatibleWallet": "Prijeđite na novčanik kompatibilan s EVM-om i pokušajte ponovno (Ethereum, Polygon)"
 }

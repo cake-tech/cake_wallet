@@ -750,5 +750,6 @@
   "seed_language_chinese_traditional": "تقاليد صينية)",
   "dfx_option_description": "ﺎﺑﻭﺭﻭﺃ ﻲﻓ ﺕﺎﻛﺮﺸﻟﺍﻭ ﺔﺋﺰﺠﺘﻟﺍ ءﻼ﻿ﻤﻌﻟ .ﻲﻓﺎﺿﺇ KYC ﻥﻭﺪﺑ ﻭﺭﻮﻳ 990 ﻰﻟﺇ ﻞﺼﻳ ﺎﻣ .ﻱﺮﺴﻳﻮﺴﻟﺍ",
   "polygonscan_history": "ﻥﺎﻜﺴﻧﻮﺠﻴﻟﻮﺑ ﺦﻳﺭﺎﺗ",
-  "wallet_seed_legacy": "بذرة محفظة قديمة"
+  "wallet_seed_legacy": "بذرة محفظة قديمة",
+  "switchToEVMCompatibleWallet": "  (Ethereum، Polygon) ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ EVM ﻊﻣ ﺔﻘﻓﺍﻮﺘﻣ ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ"
 }

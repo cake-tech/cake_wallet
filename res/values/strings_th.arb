@@ -752,5 +752,6 @@
   "seed_language_chinese_traditional": "จีน (ดั้งเดิม)",
   "dfx_option_description": "ซื้อ crypto ด้วย EUR และ CHF สูงถึง 990€ โดยไม่มี KYC เพิ่มเติม สำหรับลูกค้ารายย่อยและลูกค้าองค์กรในยุโรป",
   "polygonscan_history": "ประวัติ PolygonScan",
-  "wallet_seed_legacy": "เมล็ดกระเป๋าเงินมรดก"
+  "wallet_seed_legacy": "เมล็ดกระเป๋าเงินมรดก",
+  "switchToEVMCompatibleWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงินที่รองรับ EVM แล้วลองอีกครั้ง (Ethereum, Polygon)"
 }
