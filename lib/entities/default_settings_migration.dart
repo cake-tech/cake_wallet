@@ -185,6 +185,8 @@ Future<void> defaultSettingsMigration(
         case 25:
           await rewriteSecureStoragePin(secureStorage: secureStorage);
           break;
+        case 26:
+          await pinEncryptionMigration(secureStorage: secureStorage);
         default:
           break;
       }
@@ -375,6 +377,31 @@ Node getMoneroDefaultNode({required Box<Node> nodes}) {
     return nodes.values.firstWhere((Node node) => node.uriRaw == nodeUri);
   } catch (_) {
     return nodes.values.first;
+  }
+}
+
+Future<void> pinEncryptionMigration({required FlutterSecureStorage secureStorage}) async {
+  try {
+    // first, get the encoded pin:
+    final keyForPinCode = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
+    String? encodedPin;
+    encodedPin = await secureStorage.read(key: keyForPinCode);
+
+    // if (encodedPin == null) {
+    //   return;
+    // }
+
+    // // ensure we overwrite by deleting the old key first:
+    // await secureStorage.delete(key: keyForPinCode);
+    // await secureStorage.write(
+    //   key: keyForPinCode,
+    //   value: encodedPin,
+    //   iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    //   mOptions: MacOsOptions(accessibility: KeychainAccessibility.first_unlock),
+    // );
+  } catch (e) {
+    // failure isn't really an option since we'll be updating how pins are stored and used
+    print(e);
   }
 }
 
