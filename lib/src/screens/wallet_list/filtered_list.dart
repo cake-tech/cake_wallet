@@ -26,14 +26,12 @@ class FilteredListState extends State<FilteredList> {
         itemBuilder: widget.itemBuilder,
         itemCount: widget.list.length,
         onReorder: (int oldIndex, int newIndex) {
-          setState(() {
-            if (oldIndex < newIndex) {
-              newIndex -= 1;
-            }
-            final dynamic item = widget.list.removeAt(oldIndex);
-            widget.list.insert(newIndex, item);
-            widget.updateFunction();
-          });
+          if (oldIndex < newIndex) {
+            newIndex -= 1;
+          }
+          final dynamic item = widget.list.removeAt(oldIndex);
+          widget.list.insert(newIndex, item);
+          widget.updateFunction();
         },
       ),
     );
