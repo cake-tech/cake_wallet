@@ -5,6 +5,7 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -44,8 +45,11 @@ class FilterListWidgetState extends State<FilterListWidget> {
   Widget build(BuildContext context) {
     const sectionDivider = const HorizontalSectionDivider();
     return PickerWrapperWidget(
-      onClose: () => {
-        Navigator.of(context).pop([type, ascending])
+      onClose: () {
+        Navigator.of(context).pop((WalletListViewModel model) async {
+          model.setAscending(ascending);
+          await model.setOrderType(type);
+        });
       },
       children: [
         Padding(
@@ -97,7 +101,7 @@ class FilterListWidgetState extends State<FilterListWidget> {
                         decoration: TextDecoration.none),
                   ),
                   onChanged: setSelectedOrderType,
-                  activeColor: Theme.of(context).dividerColor,
+                  activeColor: Theme.of(context).primaryColor,
                 ),
                 RadioListTile(
                   value: WalletListOrderType.Alphabetical,
@@ -112,7 +116,7 @@ class FilterListWidgetState extends State<FilterListWidget> {
                         decoration: TextDecoration.none),
                   ),
                   onChanged: setSelectedOrderType,
-                  activeColor: Theme.of(context).dividerColor,
+                  activeColor: Theme.of(context).primaryColor,
                 ),
                 RadioListTile(
                   value: WalletListOrderType.GroupByType,
@@ -127,7 +131,7 @@ class FilterListWidgetState extends State<FilterListWidget> {
                         decoration: TextDecoration.none),
                   ),
                   onChanged: setSelectedOrderType,
-                  activeColor: Theme.of(context).dividerColor,
+                  activeColor: Theme.of(context).primaryColor,
                 ),
                 RadioListTile(
                   value: WalletListOrderType.Custom,
@@ -142,7 +146,7 @@ class FilterListWidgetState extends State<FilterListWidget> {
                         decoration: TextDecoration.none),
                   ),
                   onChanged: setSelectedOrderType,
-                  activeColor: Theme.of(context).dividerColor,
+                  activeColor: Theme.of(context).primaryColor,
                 ),
               ]),
             ),
