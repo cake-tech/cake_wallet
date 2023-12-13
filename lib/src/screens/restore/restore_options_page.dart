@@ -38,32 +38,33 @@ class RestoreOptionsPage extends BasePage {
             child: Column(
               children: <Widget>[
                 OptionTile(
-                    onPressed: () {
-                      final options = LedgerOptions(
-                        maxScanDuration: const Duration(milliseconds: 5000),
-                      );
-
-
-                      final ledger = Ledger(
-                        options: options,
-                        onPermissionRequest: (status) async {
-                          Map<Permission, PermissionStatus> statuses = await [
-                            // Permission.location,
-                            Permission.bluetoothScan,
-                            Permission.bluetoothConnect,
-                            Permission.bluetoothAdvertise,
-                          ].request();
-
-                          if (status != BleStatus.ready) {
-                            return false;
-                          }
-
-                          return statuses.values.where((status) => status.isDenied).isEmpty;
-                        },
-                      );
-
-                      ledger.scan().listen((device) => print(device.name));
-                    },
+                    onPressed: () => Navigator.pushNamed(context, Routes.connectDevices),
+                    // onPressed: () {
+                    //   final options = LedgerOptions(
+                    //     maxScanDuration: const Duration(milliseconds: 5000),
+                    //   );
+                    //
+                    //
+                    //   final ledger = Ledger(
+                    //     options: options,
+                    //     onPermissionRequest: (status) async {
+                    //       Map<Permission, PermissionStatus> statuses = await [
+                    //         // Permission.location,
+                    //         Permission.bluetoothScan,
+                    //         Permission.bluetoothConnect,
+                    //         Permission.bluetoothAdvertise,
+                    //       ].request();
+                    //
+                    //       if (status != BleStatus.ready) {
+                    //         return false;
+                    //       }
+                    //
+                    //       return statuses.values.where((status) => status.isDenied).isEmpty;
+                    //     },
+                    //   );
+                    //
+                    //   ledger.scan().listen((device) => print(device.name));
+                    // },
                     image: imageSeedKeys,
                     title: "Ledger",
                     description: S.of(context).restore_description_from_seed_keys),

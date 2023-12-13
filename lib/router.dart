@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
+import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
@@ -629,6 +630,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.torPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<TorPage>());
+
+    case Routes.connectDevices:
+      return MaterialPageRoute<void>(builder: (_) => ConnectDevicePage());
 
     default:
       return MaterialPageRoute<void>(
