@@ -54,7 +54,6 @@ abstract class SettingsStoreBase with Store {
       required bool initialAppSecure,
       required bool initialDisableBuy,
       required bool initialDisableSell,
-      required BuyProviderType initialDefaultBuyProvider,
       required WalletListOrderType initialWalletListOrder,
       required bool initialWalletListAscending,
       required FiatApiMode initialFiatMode,
@@ -125,7 +124,6 @@ abstract class SettingsStoreBase with Store {
         isAppSecure = initialAppSecure,
         disableBuy = initialDisableBuy,
         disableSell = initialDisableSell,
-        defaultBuyProvider = initialDefaultBuyProvider,
         walletListOrder = initialWalletListOrder,
         walletListAscending = initialWalletListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
@@ -521,9 +519,6 @@ abstract class SettingsStoreBase with Store {
   bool disableSell;
 
   @observable
-  BuyProviderType defaultBuyProvider;
-
-  @observable
   WalletListOrderType walletListOrder;
 
   @observable
@@ -742,8 +737,6 @@ abstract class SettingsStoreBase with Store {
     final isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
     final disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? false;
     final disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? false;
-    final defaultBuyProvider =
-        BuyProviderType.values[sharedPreferences.getInt(PreferencesKey.defaultBuyProvider) ?? 0];
     final walletListOrder =
         WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     final walletListAscending =
@@ -926,7 +919,6 @@ abstract class SettingsStoreBase with Store {
         initialAppSecure: isAppSecure,
         initialDisableBuy: disableBuy,
         initialDisableSell: disableSell,
-        initialDefaultBuyProvider: defaultBuyProvider,
         initialWalletListOrder: walletListOrder,
         initialWalletListAscending: walletListAscending,
         initialFiatMode: currentFiatApiMode,
@@ -1044,8 +1036,6 @@ abstract class SettingsStoreBase with Store {
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? disableBuy;
     disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? disableSell;
-    defaultBuyProvider =
-        BuyProviderType.values[sharedPreferences.getInt(PreferencesKey.defaultBuyProvider) ?? 0];
     walletListOrder =
         WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     walletListAscending = sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
