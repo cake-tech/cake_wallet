@@ -757,5 +757,6 @@
   "descending": "Нисходящий",
   "dfx_option_description": "Покупайте криптовалюту за EUR и CHF. До 990€ без дополнительного KYC. Для розничных и корпоративных клиентов в Европе",
   "polygonscan_history": "История PolygonScan",
-  "wallet_seed_legacy": "Наследие семя кошелька"
+  "wallet_seed_legacy": "Наследие семя кошелька",
+  "custom_drag": "Пользователь (удерживайте и перетаскивайте)"
 }

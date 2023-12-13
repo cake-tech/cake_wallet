@@ -755,5 +755,6 @@
   "dfx_option_description": "Kupujte kripto s EUR i CHF. Do 990 € bez dodatnog KYC-a. Za maloprodajne i poslovne korisnike u Europi",
   "seed_language_chinese_traditional": "Kinesko (tradicionalno)",
   "polygonscan_history": "Povijest PolygonScan",
-  "wallet_seed_legacy": "Sjeme naslijeđenog novčanika"
+  "wallet_seed_legacy": "Sjeme naslijeđenog novčanika",
+  "custom_drag": "Prilagođeni (držite i povucite)"
 }

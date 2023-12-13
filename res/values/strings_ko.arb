@@ -755,5 +755,6 @@
   "descending": "내림차순",
   "dfx_option_description": "EUR 및 CHF로 암호화폐를 구매하세요. 추가 KYC 없이 최대 990€. 유럽의 소매 및 기업 고객용",
   "polygonscan_history": "다각형 스캔 기록",
-  "wallet_seed_legacy": "레거시 지갑 시드"
+  "wallet_seed_legacy": "레거시 지갑 시드",
+  "custom_drag": "사용자 정의 (홀드 앤 드래그)"
 }

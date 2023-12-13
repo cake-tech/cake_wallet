@@ -751,5 +751,6 @@
   "descending": "Pababang",
   "dfx_option_description": "Bumili ng crypto gamit ang EUR at CHF. Hanggang 990€ nang walang karagdagang KYC. Para sa retail at corporate na mga customer sa Europe",
   "polygonscan_history": "Kasaysayan ng PolygonScan",
-  "wallet_seed_legacy": "Legacy wallet seed"
+  "wallet_seed_legacy": "Legacy wallet seed",
+  "custom_drag": "Pasadyang (hawakan at i -drag)"
 }

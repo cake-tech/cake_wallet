@@ -749,5 +749,6 @@
   "descending": "Klesající",
   "dfx_option_description": "Nakupujte kryptoměny za EUR a CHF. Až 990 € bez dalších KYC. Pro maloobchodní a firemní zákazníky v Evropě",
   "polygonscan_history": "Historie PolygonScan",
-  "wallet_seed_legacy": "Starší semeno peněženky"
+  "wallet_seed_legacy": "Starší semeno peněženky",
+  "custom_drag": "Custom (Hold and Drag)"
 }

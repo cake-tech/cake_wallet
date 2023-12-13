@@ -749,5 +749,6 @@
   "descending": "Низходящ",
   "dfx_option_description": "Купете крипто с EUR и CHF. До 990 € без допълнителен KYC. За клиенти на дребно и корпоративни клиенти в Европа",
   "polygonscan_history": "История на PolygonScan",
-  "wallet_seed_legacy": "Наследено портфейл семе"
+  "wallet_seed_legacy": "Наследено портфейл семе",
+  "custom_drag": "Персонализиране (задръжте и плъзнете)"
 }

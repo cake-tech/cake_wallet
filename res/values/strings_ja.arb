@@ -757,5 +757,6 @@
   "descending": "下降",
   "dfx_option_description": "EUR と CHF で暗号通貨を購入します。追加のKYCなしで最大990ユーロ。ヨーロッパの小売および法人顧客向け",
   "polygonscan_history": "ポリゴンスキャン履歴",
-  "wallet_seed_legacy": "レガシーウォレットシード"
+  "wallet_seed_legacy": "レガシーウォレットシード",
+  "custom_drag": "カスタム（ホールドとドラッグ）"
 }

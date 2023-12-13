@@ -757,5 +757,6 @@
   "dfx_option_description": "Koop crypto met EUR & CHF. Tot 990€ zonder extra KYC. Voor particuliere en zakelijke klanten in Europa",
   "seed_language_chinese_traditional": "Chinese (traditionele)",
   "polygonscan_history": "PolygonScan-geschiedenis",
-  "wallet_seed_legacy": "Legacy portemonnee zaad"
+  "wallet_seed_legacy": "Legacy portemonnee zaad",
+  "custom_drag": "Custom (vasthouden en slepen)"
 }

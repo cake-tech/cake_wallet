@@ -16,7 +16,7 @@ enum WalletListOrderType {
       case WalletListOrderType.GroupByType:
         return S.current.group_by_type;
       case WalletListOrderType.Custom:
-        return S.current.custom;
+        return S.current.custom_drag;
     }
   }
 }
