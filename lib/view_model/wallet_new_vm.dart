@@ -38,6 +38,9 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   int get seedPhraseWordsLength {
       switch (type) {
         case WalletType.monero:
+          if(advancedPrivacySettingsViewModel.isPolySeed) {
+            return 16;
+          }
           return 25;
         case WalletType.ethereum:
         case WalletType.bitcoinCash:
