@@ -15,10 +15,12 @@ class FilterListWidget extends StatefulWidget {
   FilterListWidget({
     required this.initalType,
     required this.initalAscending,
+    required this.onClose,
   });
 
   final WalletListOrderType? initalType;
   final bool initalAscending;
+  final Function(bool, WalletListOrderType) onClose;
 
   @override
   FilterListWidgetState createState() => FilterListWidgetState();
@@ -46,10 +48,8 @@ class FilterListWidgetState extends State<FilterListWidget> {
     const sectionDivider = const HorizontalSectionDivider();
     return PickerWrapperWidget(
       onClose: () {
-        Navigator.of(context).pop((WalletListViewModel model) async {
-          model.setAscending(ascending);
-          await model.setOrderType(type);
-        });
+        widget.onClose(ascending, type!);
+        Navigator.of(context).pop();
       },
       children: [
         Padding(
