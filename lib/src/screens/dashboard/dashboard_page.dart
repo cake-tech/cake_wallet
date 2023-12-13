@@ -191,7 +191,10 @@ class _DashboardPageView extends BasePage {
                         radius: 6.0,
                         dotWidth: 6.0,
                         dotHeight: 6.0,
-                        dotColor: Theme.of(context).indicatorColor,
+                        dotColor: Theme.of(context)
+                            .extension<DashboardPageTheme>()!
+                            .indicatorDotTheme
+                            .indicatorColor,
                         activeDotColor: Theme.of(context)
                             .extension<DashboardPageTheme>()!
                             .indicatorDotTheme

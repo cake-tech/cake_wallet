@@ -285,10 +285,12 @@ class EvmChainServiceImpl implements ChainService {
   }
 
   String _convertToReadable(Map<String, dynamic> data) {
+    final tokenName = getTokenNameBasedOnWalletType(appStore.wallet!.type);
     String gas = int.parse((data['gas'] as String).substring(2), radix: 16).toString();
     String value = data['value'] != null
-        ? (int.parse((data['value'] as String).substring(2), radix: 16) / 1e18).toString() + ' ETH'
-        : '0 ETH';
+        ? (int.parse((data['value'] as String).substring(2), radix: 16) / 1e18).toString() +
+            ' $tokenName'
+        : '0 $tokenName';
     String from = data['from'] as String;
     String to = data['to'] as String;
 

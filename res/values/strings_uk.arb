@@ -758,5 +758,6 @@
   "seed_language_chinese_traditional": "Китайський (традиційний)",
   "polygonscan_history": "Історія PolygonScan",
   "wallet_seed_legacy": "Спадець насіння гаманця",
-  "custom_drag": "На замовлення (утримуйте та перетягується)"
+  "custom_drag": "На замовлення (утримуйте та перетягується)",
+  "switchToEVMCompatibleWallet": "Перейдіть на гаманець, сумісний з EVM, і повторіть спробу (Ethereum, Polygon)"
 }

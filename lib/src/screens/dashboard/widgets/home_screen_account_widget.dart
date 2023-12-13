@@ -18,6 +18,7 @@ class HomeScreenAccountWidget extends StatelessWidget {
     context: context,
     builder: (_) => getIt.get<MoneroAccountListPage>());
     },
+      behavior: HitTestBehavior.opaque,
       child: Container(
         height: 100.0,
         child: Row(

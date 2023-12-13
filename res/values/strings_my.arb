@@ -756,5 +756,6 @@
   "dfx_option_description": "EUR & CHF ဖြင့် crypto ကိုဝယ်ပါ။ အပို KYC မပါဘဲ 990€ အထိ။ ဥရောပရှိ လက်လီရောင်းချသူများနှင့် ကော်ပိုရိတ်ဖောက်သည်များအတွက်",
   "polygonscan_history": "PolygonScan မှတ်တမ်း",
   "wallet_seed_legacy": "အမွေအနှစ်ပိုက်ဆံအိတ်မျိုးစေ့",
-  "custom_drag": "စိတ်ကြိုက် (Drag)"
+  "custom_drag": "စိတ်ကြိုက် (Drag)",
+  "switchToEVMCompatibleWallet": "ကျေးဇူးပြု၍ EVM တွဲဖက်သုံးနိုင်သော ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်စမ်းကြည့်ပါ (Ethereum၊ Polygon)"
 }
