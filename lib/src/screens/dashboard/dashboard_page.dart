@@ -361,14 +361,7 @@ class _DashboardPageView extends BasePage {
   }
 
   void _showVulnerableSeedsPopup(BuildContext context) async {
-    final sharedPrefs = await SharedPreferences.getInstance();
-    final checkedPreviously = sharedPrefs.getBool("checkedVulnerableSeeds");
-    if (checkedPreviously == true) {
-      return;
-    }
     final List<String> affectedWalletNames = await dashboardViewModel.checkAffectedWallets();
-
-    sharedPrefs.setBool("checkedVulnerableSeeds", true);
 
     if (affectedWalletNames.isNotEmpty) {
       Future<void>.delayed(
@@ -434,7 +427,7 @@ class _DashboardPageView extends BasePage {
                                             maxHeight: MediaQuery.of(context).size.height * 0.7,
                                           ),
                                           child: Text(
-                                            "Your Bitcoin wallets below use a legacy seed format that is vulnerable, which WILL result in you losing money from these wallets if no action is taken. You MUST immediately create a new wallet in Cake Wallet and transfer the funds to this new wallet. Vulnerable wallet name(s):\n\n[${affectedWalletNames.join(", ")}]\n\nFor assistance, please use the in-app support or email support@cakewallet.com",
+                                            "Your Bitcoin wallet(s) below use a legacy seed format that is vulnerable, which MAY result in you losing money from these wallet(s) if no action is taken.\nWe recommend that you IMMEDIATELY create wallet(s) in Cake Wallet and immediately transfer the funds to these wallet(s).\nVulnerable wallet name(s):\n\n[${affectedWalletNames.join(", ")}]\n\nFor assistance, please use the in-app support or email support@cakewallet.com",
                                             style: TextStyle(
                                               decoration: TextDecoration.none,
                                               fontSize: 16.0,
