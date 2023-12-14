@@ -96,6 +96,8 @@ class AmountConverter {
       case CryptoCurrency.xnzd:
       case CryptoCurrency.xusd:
         return _moneroAmountToString(amount);
+      case CryptoCurrency.zano:
+        return _moneroAmountToString(amount);
       default:
         return '';
     }

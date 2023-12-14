@@ -9,7 +9,7 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_zano/api/calls.dart' as calls;
 import 'package:cw_zano/api/model/balance.dart';
-import 'package:cw_zano/api/model/load_wallet_result.dart';
+import 'package:cw_zano/api/model/create_wallet_result.dart';
 import 'package:cw_zano/api/wallet.dart' as zano_wallet;
 import 'package:cw_zano/api/wallet_manager.dart' as zano_wallet_manager;
 import 'package:cw_zano/zano_wallet_service.dart';
@@ -28,24 +28,21 @@ Future<void> main() async {
     /// A callback that is invoked when an unhandled error occurs in the root
     /// isolate.
     PlatformDispatcher.instance.onError = (error, stack) {
-      ExceptionHandler.onError(
-          FlutterErrorDetails(exception: error, stack: stack));
+      ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
 
       return true;
     };
     await setup();
     runApp(App());
   }, (error, stackTrace) async {
-    ExceptionHandler.onError(
-        FlutterErrorDetails(exception: error, stack: stackTrace));
+    ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }
 
 final getIt = GetIt.instance;
 
 Future<void> setup() async {
-  getIt.registerFactory<KeyService>(
-      () => KeyService(getIt.get<FlutterSecureStorage>()));
+  getIt.registerFactory<KeyService>(() => KeyService(getIt.get<FlutterSecureStorage>()));
 }
 
 class App extends StatefulWidget {
@@ -79,7 +76,7 @@ class _AppState extends State<App> {
 }
 
 int hWallet = 0;
-CreateLoadRestoreWalletResult? lwr;
+CreateWalletResult? lwr;
 List<Balance> balances = [];
 String seed = '', version = '';
 final assetIds = <String, String>{};
@@ -107,11 +104,9 @@ Future<String?> create(String name) async {
   final keyService = KeyService(FlutterSecureStorage());
   final password = generateWalletPassword();
   credentials.password = password;
-  await keyService.saveWalletPassword(
-      password: password, walletName: credentials.name);
+  await keyService.saveWalletPassword(password: password, walletName: credentials.name);
   debugPrint('path $path password $password');
-  final result = zano_wallet_manager.createWalletSync(
-      path: path, password: password, language: '');
+  final result = zano_wallet_manager.createWalletSync(path: path, password: password, language: '');
   debugPrint('create result $result');
   return _parseResult(result);
 }
@@ -122,8 +117,7 @@ Future<String?> connect(String name) async {
   final path = await pathForWallet(name: name, type: WalletType.zano);
   final credentials = ZanoNewWalletCredentials(name: name);
   final keyService = KeyService(FlutterSecureStorage());
-  final password =
-      await keyService.getWalletPassword(walletName: credentials.name);
+  final password = await keyService.getWalletPassword(walletName: credentials.name);
   debugPrint('path $path password $password');
   final result = await calls.loadWallet(path, password, 0);
   return _parseResult(result);
@@ -137,8 +131,7 @@ Future<String?> restore(String name, String seed) async {
   final keyService = KeyService(FlutterSecureStorage());
   final password = generateWalletPassword();
   credentials.password = password;
-  await keyService.saveWalletPassword(
-      password: password, walletName: credentials.name);
+  await keyService.saveWalletPassword(password: password, walletName: credentials.name);
   debugPrint('path $path password $password');
   var result = calls.restoreWalletFromSeed(path, password, seed);
   debugPrint('restore result $result');
@@ -148,8 +141,8 @@ Future<String?> restore(String name, String seed) async {
 
 String? _parseResult(String result) {
   final map = json.decode(result) as Map<String, dynamic>;
-if (map['result'] != null) {
-    lwr = CreateLoadRestoreWalletResult.fromJson(map['result'] as Map<String, dynamic>);
+  if (map['result'] != null) {
+    lwr = CreateWalletResult.fromJson(map['result'] as Map<String, dynamic>);
     balances = lwr!.wi.balances;
     hWallet = lwr!.walletId;
     assetIds.clear();
@@ -204,14 +197,12 @@ class _DisconnectedWidgetState extends State<DisconnectedWidget> {
                 child: Column(
                   children: [
                     TextField(
-                        controller: _name,
-                        decoration: InputDecoration(labelText: 'Wallet name')),
+                        controller: _name, decoration: InputDecoration(labelText: 'Wallet name')),
                     TextButton(
                         child: Text('Connect and Open Wallet'),
                         onPressed: () async {
                           //setState(() => _loading = true);
-                          final preferences =
-                              await SharedPreferences.getInstance();
+                          final preferences = await SharedPreferences.getInstance();
                           await preferences.setString(walletName, _name.text);
                           final result = await connect(_name.text);
                           //setState(() => _loading = false);
@@ -232,8 +223,7 @@ class _DisconnectedWidgetState extends State<DisconnectedWidget> {
                         child: Text('Create and Open Wallet'),
                         onPressed: () async {
                           //setState(() => _loading = true);
-                          final preferences =
-                              await SharedPreferences.getInstance();
+                          final preferences = await SharedPreferences.getInstance();
                           await preferences.setString(walletName, _name.text);
                           final result = await create(_name.text);
                           //setState(() => _loading = false);
@@ -251,13 +241,11 @@ class _DisconnectedWidgetState extends State<DisconnectedWidget> {
                       height: 16,
                     ),
                     TextField(
-                        controller: _seed,
-                        decoration: InputDecoration(labelText: 'Wallet seed')),
+                        controller: _seed, decoration: InputDecoration(labelText: 'Wallet seed')),
                     TextButton(
                         child: Text('Restore from seed'),
                         onPressed: () async {
-                          final preferences =
-                          await SharedPreferences.getInstance();
+                          final preferences = await SharedPreferences.getInstance();
                           await preferences.setString(walletName, _name.text);
                           final result = await restore(_name.text, _seed.text);
                           if (result != null) {

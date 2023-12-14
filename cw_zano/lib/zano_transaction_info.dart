@@ -1,5 +1,6 @@
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/monero_amount_format.dart';
+import 'package:cw_zano/api/model/history.dart';
 import 'package:cw_zano/api/structs/transaction_info_row.dart';
 import 'package:cw_core/parseBoolFromString.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -19,7 +20,22 @@ class ZanoTransactionInfo extends TransactionInfo {
       this.fee,
       this.confirmations);
 
-  ZanoTransactionInfo.fromMap(Map<String, Object> map)
+  ZanoTransactionInfo.fromHistory(History history) 
+    : id = history.txHash, 
+    height = history.height, 
+    direction = history.subtransfers.first.isIncome ? TransactionDirection.incoming :
+      TransactionDirection.outgoing,
+    date = DateTime.fromMillisecondsSinceEpoch(history.timestamp * 1000),
+    isPending = false,
+    amount = history.subtransfers.first.amount,
+    accountIndex = 0,
+    addressIndex = 0,
+    fee = history.fee,
+    confirmations = 1, 
+    assetType = 'ZANO',     // TODO: FIXIT:
+    recipientAddress = history.remoteAddresses.isNotEmpty ? history.remoteAddresses.first : '';
+
+  /*ZanoTransactionInfo.fromMap(Map<String, Object> map)
       : id = (map['hash'] ?? '') as String,
         height = (map['height'] ?? 0) as int,
         direction =
@@ -33,9 +49,9 @@ class ZanoTransactionInfo extends TransactionInfo {
         addressIndex = map['addressIndex'] as int,
         confirmations = map['confirmations'] as int,
         key = getTxKey((map['hash'] ?? '') as String),
-        fee = map['fee'] as int? ?? 0;
+        fee = map['fee'] as int? ?? 0;*/
 
-  ZanoTransactionInfo.fromRow(TransactionInfoRow row)
+  /*ZanoTransactionInfo.fromRow(TransactionInfoRow row)
       : id = row.getHash(),
         height = row.blockHeight,
         direction = parseTransactionDirectionFromInt(row.direction) ??
@@ -48,7 +64,7 @@ class ZanoTransactionInfo extends TransactionInfo {
         confirmations = row.confirmations,
         key = null, //getTxKey(row.getHash()),
         fee = row.fee,
-        assetType = row.getAssetType();
+        assetType = row.getAssetType();*/
 
   final String id;
   final int height;

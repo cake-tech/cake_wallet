@@ -32,9 +32,9 @@ final transactionCreateMultDestNative = zanoApi
         'transaction_create_mult_dest')
     .asFunction<TransactionCreateMultDest>();
 
-final transactionCommitNative = zanoApi
-    .lookup<NativeFunction<transaction_commit>>('transaction_commit')
-    .asFunction<TransactionCommit>();
+// final transactionCommitNative = zanoApi
+//     .lookup<NativeFunction<transaction_commit>>('transaction_commit')
+//     .asFunction<TransactionCommit>();
 
 final getTxKeyNative = zanoApi
     .lookup<NativeFunction<get_tx_key>>('get_tx_key')
@@ -53,11 +53,11 @@ String getTxKey(String txId) {
   return '';
 }
 
-void refreshTransactions() {
-  // TODO: fix it
-  //transactionsRefreshNative();
-  debugPrint("refreshing transactions");
-}
+// void refreshTransactions() {
+//   // TODO: fix it
+//   //transactionsRefreshNative();
+//   debugPrint("refreshing transactions");
+// }
 
 int countOfTransactions() {
   //return transactionsCountNative();
@@ -184,8 +184,9 @@ void commitTransactionFromPointerAddress({required int address}) =>
 void commitTransaction(
     {required Pointer<PendingTransactionRaw> transactionPointer}) {
   final errorMessagePointer = calloc<Utf8Box>();
-  final isCommited =
-      transactionCommitNative(transactionPointer, errorMessagePointer) != 0;
+  print("commit transaction");
+  final isCommited = true;
+      //transactionCommitNative(transactionPointer, errorMessagePointer) != 0;
 
   if (!isCommited) {
     final message = errorMessagePointer.ref.getValue();

@@ -239,6 +239,8 @@ class AddressValidator extends TextValidator {
         return [64];
       case CryptoCurrency.btcln:
         return null;
+      case CryptoCurrency.zano:
+        return [97];
       default:
         return [];
     }

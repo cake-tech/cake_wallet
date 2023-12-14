@@ -200,11 +200,11 @@ Future<void> _openWallet(Map<String, String> args) async => loadWallet(
 
 bool _isWalletExist(String path) => isWalletExistSync(path: path);
 
-void openWallet(
-        {required String path,
-        required String password,
-        int nettype = 0}) async =>
-    loadWallet(path: path, password: password, nettype: nettype);
+// void openWallet(
+//         {required String path,
+//         required String password,
+//         int nettype = 0}) async =>
+//     loadWallet(path: path, password: password, nettype: nettype);
 
 Future<void> openWalletAsync(Map<String, String> args) async =>
     compute(_openWallet, args);

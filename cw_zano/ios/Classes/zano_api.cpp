@@ -419,6 +419,12 @@ extern "C"
         return strdup(plain_wallet::get_wallet_status(hwallet).c_str());
     }
 
+    char* get_address_info(char* address)
+    {
+        return strdup(plain_wallet::get_address_info(address).c_str());
+    }
+
+
     char* async_call(char* method_name, uint64_t instance_id, char* params)
     {
         return strdup(plain_wallet::async_call(method_name, instance_id,  params).c_str());

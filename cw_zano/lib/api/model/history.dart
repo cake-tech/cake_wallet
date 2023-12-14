@@ -62,7 +62,7 @@ class History {
             .map((e) => Subtransfer.fromJson(e as Map<String, dynamic>))
             .toList(),
         timestamp: json['timestamp'] as int,
-        transferInternalIndex: json['transfer_internal_index'] as int,
+        transferInternalIndex: json['transfer_internal_index'] is double ? (json['transfer_internal_index'] as double).toInt() : json['transfer_internal_index'] as int,
         txBlobSize: json['tx_blob_size'] as int,
         txHash: json['tx_hash'] as String,
         txType: json['tx_type'] as int,

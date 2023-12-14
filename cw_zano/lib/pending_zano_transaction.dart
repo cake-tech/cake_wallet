@@ -27,8 +27,10 @@ class PendingZanoTransaction with PendingTransaction {
   String get hex => '';
 
   @override
-  String get amountFormatted => AmountConverter.amountIntToString(
+  String get amountFormatted {
+    return AmountConverter.amountIntToString(
       cryptoCurrency, pendingTransactionDescription.amount);
+  }
 
   @override
   String get feeFormatted => AmountConverter.amountIntToString(

@@ -20,6 +20,9 @@ dependencies:
   cw_core:
     path: ../cw_core
 
+  cw_zano:
+    path: ../cw_zano
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

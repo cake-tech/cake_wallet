@@ -258,8 +258,8 @@ abstract class OutputBase with Store {
         break;
       case WalletType.dummy:
       case WalletType.zano:
-        // TODO: enter correct values
-        throw UnimplementedError();
+        maximumFractionDigits = 12;
+        break;
       default:
         break;
     }

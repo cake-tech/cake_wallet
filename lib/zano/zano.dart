@@ -1,3 +1,4 @@
+import 'package:cw_zano/new_zano_wallet.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_credentials.dart';

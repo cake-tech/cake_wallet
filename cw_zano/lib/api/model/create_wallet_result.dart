@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:cw_zano/api/model/recent_history.dart';
 import 'package:cw_zano/api/model/wi.dart';
 
-class CreateLoadRestoreWalletResult {
+class CreateWalletResult {
   final String name;
   final String pass;
   final RecentHistory recentHistory;
@@ -14,7 +14,7 @@ class CreateLoadRestoreWalletResult {
   final int walletLocalBcSize;
   final Wi wi;
 
-  CreateLoadRestoreWalletResult(
+  CreateWalletResult(
       {required this.name,
       required this.pass,
       required this.recentHistory,
@@ -25,8 +25,8 @@ class CreateLoadRestoreWalletResult {
       required this.walletLocalBcSize,
       required this.wi});
 
-  factory CreateLoadRestoreWalletResult.fromJson(Map<String, dynamic> json) =>
-      CreateLoadRestoreWalletResult(
+  factory CreateWalletResult.fromJson(Map<String, dynamic> json) =>
+      CreateWalletResult(
         name: json['name'] as String,
         pass: json['pass'] as String,
         recentHistory: RecentHistory.fromJson(
