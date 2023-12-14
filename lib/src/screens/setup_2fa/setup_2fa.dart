@@ -29,7 +29,7 @@ class Setup2FAPage extends BasePage {
           child: ConstrainedBox(
             constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
             child:
-                AspectRatio(aspectRatio: 1, child: Image.asset('assets/images/setup_2fa_img.png')),
+                AspectRatio(aspectRatio: 0.6, child: Image.asset('assets/images/setup_2fa_img.png')),
           ),
         ),
         Expanded(
