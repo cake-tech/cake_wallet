@@ -53,7 +53,7 @@ class Setup2FAQRPage extends BasePage {
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 3,
-                    color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   ),
                 ),
                 child: Container(
@@ -212,7 +212,7 @@ class Setup2FAQRPage extends BasePage {
 
   static void _launchUrl(Uri url) async {
     try {
-      await launchUrl(url);
+      await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (e) {}
   }
 }

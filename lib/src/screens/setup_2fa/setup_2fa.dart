@@ -71,7 +71,7 @@ class Setup2FAPage extends BasePage {
 
   static void _launchUrl(Uri url) async {
     try {
-      await launchUrl(url);
+      await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (e) {}
   }
 }
