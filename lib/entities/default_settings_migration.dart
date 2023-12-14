@@ -1,5 +1,6 @@
 import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
@@ -187,6 +188,7 @@ Future<void> defaultSettingsMigration(
           break;
         case 26:
           await pinEncryptionMigration(secureStorage: secureStorage);
+          break;
         default:
           break;
       }
@@ -384,24 +386,32 @@ Future<void> pinEncryptionMigration({required FlutterSecureStorage secureStorage
   try {
     // first, get the encoded pin:
     final keyForPinCode = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    String? encodedPin;
-    encodedPin = await secureStorage.read(key: keyForPinCode);
+    String? encodedPin = await secureStorage.read(key: keyForPinCode);
 
-    // if (encodedPin == null) {
-    //   return;
-    // }
+    // we don't have a pin?!?
+    if (encodedPin == null) {
+      print("pinEncryptionMigration: no pin found in secure storage!");
+      // this should never happen, but just in case let's just set the pin to "0000"
+      // as it's better than permanently locking the user out with an un-decryptable pin
+      encodedPin = encodedPinCode(pin: "0000");
+    }
 
-    // // ensure we overwrite by deleting the old key first:
-    // await secureStorage.delete(key: keyForPinCode);
-    // await secureStorage.write(
-    //   key: keyForPinCode,
-    //   value: encodedPin,
-    //   iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
-    //   mOptions: MacOsOptions(accessibility: KeychainAccessibility.first_unlock),
-    // );
+    // decode & re-encode the pin:
+    final decodedPin = decodedPinCode(pin: encodedPin);
+    final hashedPin = await argon2Hash(password: decodedPin);
+
+    // ensure we overwrite by deleting the old key first:
+    await secureStorage.delete(key: keyForPinCode);
+    // write the new argon2 hashed pin:
+    await secureStorage.write(
+      key: keyForPinCode,
+      value: hashedPin,
+      iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+      mOptions: MacOsOptions(accessibility: KeychainAccessibility.first_unlock),
+    );
   } catch (e) {
     // failure isn't really an option since we'll be updating how pins are stored and used
-    print(e);
+    print("pinEncryptionMigration: $e");
   }
 }
 

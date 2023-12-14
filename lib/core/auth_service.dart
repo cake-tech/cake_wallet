@@ -39,13 +39,13 @@ class AuthService with Store {
 
   Future<void> setPassword(String password) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final encodedPassword = encodedPinCode(pin: password);
+    final hashedPassword = await argon2Hash(password: password);
     // secure storage has a weird bug on macOS, where overwriting a key doesn't work, unless
     // we delete what's there first:
     if (Platform.isMacOS) {
       await secureStorage.delete(key: key);
     }
-    await secureStorage.write(key: key, value: encodedPassword);
+    await secureStorage.write(key: key, value: hashedPassword);
   }
 
   Future<bool> canAuthenticate() async {
@@ -64,10 +64,8 @@ class AuthService with Store {
 
   Future<bool> authenticate(String pin) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final encodedPin = await secureStorage.read(key: key);
-    final decodedPin = decodedPinCode(pin: encodedPin!);
-
-    return decodedPin == pin;
+    final hashedPassword = await secureStorage.read(key: key);
+    return verifyArgon2Hash(password: pin, hash: hashedPassword!);
   }
 
   void saveLastAuthTime() {

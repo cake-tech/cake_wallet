@@ -445,7 +445,7 @@ class BackupService {
     });
 
     await _flutterSecureStorage.delete(key: pinCodeKey);
-    await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
+    await _flutterSecureStorage.write(key: pinCodeKey, value: (await argon2Hash(password: decodedPin)));
 
     keychainDumpFile.deleteSync();
   }
@@ -473,7 +473,7 @@ class BackupService {
     });
 
     await _flutterSecureStorage.delete(key: pinCodeKey);
-    await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
+    await _flutterSecureStorage.write(key: pinCodeKey, value: (await argon2Hash(password: decodedPin)));
 
     keychainDumpFile.deleteSync();
   }
