@@ -374,7 +374,8 @@ Future<void> setup({
       settingsStore: settingsStore,
       yatStore: getIt.get<YatStore>(),
       ordersStore: getIt.get<OrdersStore>(),
-      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>()));
+      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
+      keyService: getIt.get<KeyService>()));
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
@@ -792,8 +793,8 @@ Future<void> setup({
   getIt.registerFactory<RobinhoodBuyProvider>(
       () => RobinhoodBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory<DFXBuyProvider>(
-          () => DFXBuyProvider(wallet: getIt.get<AppStore>().wallet!));
+  getIt
+      .registerFactory<DFXBuyProvider>(() => DFXBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
         settingsStore: getIt.get<AppStore>().settingsStore,
