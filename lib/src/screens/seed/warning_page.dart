@@ -56,11 +56,10 @@ class WarningPage extends BasePage {
                             : S.of(context).setup_warning_2fa_text,
                         textAlign: TextAlign.center,
                         style: TextStyle(
+                          height: 1.7,
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
-                            color: isPreSeedPage
-                                ? Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor
-                                : Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
+                            color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
                   ),
                 ),
                 PrimaryButton(
