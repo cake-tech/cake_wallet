@@ -730,6 +730,9 @@
   "require_for_exchanges_to_external_wallets": "Требовать обмена на внешние кошельки",
   "camera_permission_is_required": "Требуется разрешение камеры.\nПожалуйста, включите его в настройках приложения.",
   "switchToETHWallet": "Пожалуйста, переключитесь на кошелек Ethereum и повторите попытку.",
+  "order_by": "Сортировать по",
+  "creation_date": "Дата создания",
+  "group_by_type": "Группа по типу",
   "importNFTs": "Импортировать NFT",
   "noNFTYet": "NFT пока нет",
   "address": "Адрес",
@@ -752,8 +755,11 @@
   "seed_language_czech": "Чешский",
   "seed_language_korean": "Корейский",
   "seed_language_chinese_traditional": "Китайский традиционный)",
+  "ascending": "Восходящий",
+  "descending": "Нисходящий",
   "dfx_option_description": "Покупайте криптовалюту за EUR и CHF. До 990€ без дополнительного KYC. Для розничных и корпоративных клиентов в Европе",
   "polygonscan_history": "История PolygonScan",
   "wallet_seed_legacy": "Наследие семя кошелька",
+  "custom_drag": "Пользователь (удерживайте и перетаскивайте)",
   "switchToEVMCompatibleWallet": "Пожалуйста, переключитесь на кошелек, совместимый с EVM, и повторите попытку (Ethereum, Polygon)."
 }

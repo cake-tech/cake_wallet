@@ -728,6 +728,9 @@
   "require_for_exchanges_to_external_wallets": "จำเป็นต้องแลกเปลี่ยนกับกระเป๋าเงินภายนอก",
   "camera_permission_is_required": "ต้องได้รับอนุญาตจากกล้อง\nโปรดเปิดใช้งานจากการตั้งค่าแอป",
   "switchToETHWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงิน Ethereum แล้วลองอีกครั้ง",
+  "order_by": "สั่งโดย",
+  "creation_date": "วันที่สร้าง",
+  "group_by_type": "กลุ่มตามประเภท",
   "importNFTs": "นำเข้า NFT",
   "noNFTYet": "ยังไม่มี NFT",
   "address": "ที่อยู่",
@@ -750,8 +753,11 @@
   "seed_language_czech": "ภาษาเช็ก",
   "seed_language_korean": "เกาหลี",
   "seed_language_chinese_traditional": "จีน (ดั้งเดิม)",
+  "ascending": "จากน้อยไปมาก",
+  "descending": "ลงมา",
   "dfx_option_description": "ซื้อ crypto ด้วย EUR และ CHF สูงถึง 990€ โดยไม่มี KYC เพิ่มเติม สำหรับลูกค้ารายย่อยและลูกค้าองค์กรในยุโรป",
   "polygonscan_history": "ประวัติ PolygonScan",
   "wallet_seed_legacy": "เมล็ดกระเป๋าเงินมรดก",
+  "custom_drag": "กำหนดเอง (ค้างและลาก)",
   "switchToEVMCompatibleWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงินที่รองรับ EVM แล้วลองอีกครั้ง (Ethereum, Polygon)"
 }

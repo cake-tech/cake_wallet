@@ -725,6 +725,9 @@
   "require_for_exchanges_to_external_wallets": "Kinakailangan para sa mga palitan sa mga panlabas na wallet",
   "camera_permission_is_required": "Kinakailangan ang pahintulot sa camera.\nMangyaring paganahin ito mula sa mga setting ng app.",
   "switchToETHWallet": "Mangyaring lumipat sa isang Ethereum wallet at subukang muli",
+  "order_by": "Iniutos ni",
+  "creation_date": "Petsa ng paglikha",
+  "group_by_type": "Pangkat ayon sa uri",
   "importNFTs": "Mag-import ng mga NFT",
   "noNFTYet": "Wala pang NFT",
   "address": "Address",
@@ -746,8 +749,11 @@
   "seed_language_czech": "Czech",
   "seed_language_korean": "Korean",
   "seed_language_chinese_traditional": "Intsik (tradisyonal)",
+  "ascending": "Umakyat",
+  "descending": "Pababang",
   "dfx_option_description": "Bumili ng crypto gamit ang EUR at CHF. Hanggang 990€ nang walang karagdagang KYC. Para sa retail at corporate na mga customer sa Europe",
   "polygonscan_history": "Kasaysayan ng PolygonScan",
   "wallet_seed_legacy": "Legacy wallet seed",
+  "custom_drag": "Pasadyang (hawakan at i -drag)",
   "switchToEVMCompatibleWallet": "Mangyaring lumipat sa isang EVM compatible na wallet at subukang muli (Ethereum, Polygon)"
 }

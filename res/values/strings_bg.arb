@@ -722,6 +722,9 @@
   "require_for_exchanges_to_external_wallets": "Изискване за обмен към външни портфейли",
   "camera_permission_is_required": "Изисква се разрешение за камерата.\nМоля, активирайте го от настройките на приложението.",
   "switchToETHWallet": "Моля, преминете към портфейл Ethereum и опитайте отново",
+  "order_by": "Подредени по",
+  "creation_date": "Дата на създаване",
+  "group_by_type": "Група по вид",
   "importNFTs": "Импортирайте NFT",
   "noNFTYet": "Все още няма NFT",
   "address": "Адрес",
@@ -744,8 +747,11 @@
   "seed_language_czech": "Чех",
   "seed_language_korean": "Корейски",
   "seed_language_chinese_traditional": "Традиционен китайски)",
+  "ascending": "Възходящ",
+  "descending": "Низходящ",
   "dfx_option_description": "Купете крипто с EUR и CHF. До 990 € без допълнителен KYC. За клиенти на дребно и корпоративни клиенти в Европа",
   "polygonscan_history": "История на PolygonScan",
   "wallet_seed_legacy": "Наследено портфейл семе",
+  "custom_drag": "Персонализиране (задръжте и плъзнете)",
   "switchToEVMCompatibleWallet": "Моля, превключете към портфейл, съвместим с EVM, и опитайте отново (Ethereum, Polygon)"
 }

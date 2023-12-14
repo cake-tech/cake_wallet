@@ -729,6 +729,9 @@
   "require_for_exchanges_to_external_wallets": "Exigir trocas para carteiras externas",
   "camera_permission_is_required": "É necessária permissão da câmera.\nAtive-o nas configurações do aplicativo.",
   "switchToETHWallet": "Mude para uma carteira Ethereum e tente novamente",
+  "order_by": "Ordenar por",
+  "creation_date": "Data de criação",
+  "group_by_type": "Grupo por tipo",
   "importNFTs": "Importar NFTs",
   "noNFTYet": "Ainda não há NFT",
   "address": "Endereço",
@@ -751,8 +754,11 @@
   "seed_language_czech": "Tcheco",
   "seed_language_korean": "coreano",
   "seed_language_chinese_traditional": "Chinês tradicional)",
+  "ascending": "Ascendente",
+  "descending": "descendente",
   "dfx_option_description": "Compre criptografia com EUR e CHF. Até 990€ sem KYC adicional. Para clientes de varejo e corporativos na Europa",
   "polygonscan_history": "História do PolygonScan",
   "wallet_seed_legacy": "Semente de carteira herdada",
+  "custom_drag": "Personalizado (segure e arraste)",
   "switchToEVMCompatibleWallet": "Mude para uma carteira compatível com EVM e tente novamente (Ethereum, Polygon)"
 }

@@ -724,6 +724,9 @@
   "require_for_exchanges_to_external_wallets": "Beere fun awọn paṣipaarọ si awọn apamọwọ ita",
   "camera_permission_is_required": "A nilo igbanilaaye kamẹra.\nJọwọ jeki o lati app eto.",
   "switchToETHWallet": "Jọwọ yipada si apamọwọ Ethereum ki o tun gbiyanju lẹẹkansi",
+  "order_by": "Bere fun nipasẹ",
+  "creation_date": "Ọjọ ẹda",
+  "group_by_type": "Ẹgbẹ nipasẹ Iru",
   "importNFTs": "Gbe awọn NFT wọle",
   "noNFTYet": "Ko si awọn NFT sibẹsibẹ",
   "address": "Adirẹsi",
@@ -746,8 +749,11 @@
   "seed_language_czech": "Czech",
   "seed_language_korean": "Ara ẹni",
   "seed_language_chinese_traditional": "Kannada (ibile)",
+  "ascending": "Goke",
+  "descending": "Sọkalẹ",
   "dfx_option_description": "Ra crypto pẹlu EUR & CHF. Titi di 990 € laisi afikun KYC. Fun soobu ati awọn onibara ile-iṣẹ ni Yuroopu",
   "polygonscan_history": "PolygonScan itan",
   "wallet_seed_legacy": "Irugbin akole",
+  "custom_drag": "Aṣa (mu ati fa)",
   "switchToEVMCompatibleWallet": "Jọwọ yipada si apamọwọ ibaramu EVM ki o tun gbiyanju lẹẹkansi (Ethereum, Polygon)"
 }

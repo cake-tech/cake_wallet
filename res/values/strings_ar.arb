@@ -726,6 +726,9 @@
   "require_for_exchanges_to_external_wallets": "ﺔﻴﺟﺭﺎﺧ ﻆﻓﺎﺤﻣ ﻰﻟﺇ ﺕﻻ﻿ﺩﺎﺒﺘﻟﺍ ﺐﻠﻄﺘﺗ",
   "camera_permission_is_required": ".ﺍﺮﻴﻣﺎﻜﻟﺍ ﻥﺫﺇ ﺏﻮﻠﻄﻣ",
   "switchToETHWallet": "ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ Ethereum ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ",
+  "order_by": "ترتيب حسب",
+  "creation_date": "تاريخ الإنشاء",
+  "group_by_type": "مجموعة حسب النوع",
   "importNFTs": "NFTs ﺩﺍﺮﻴﺘﺳﺍ",
   "noNFTYet": "ﻥﻵ﻿ﺍ ﻰﺘﺣ NFTs ﺪﺟﻮﻳ ﻻ﻿",
   "address": " ﻥﺍﻮﻨﻋ",
@@ -748,8 +751,11 @@
   "seed_language_czech": "التشيكية",
   "seed_language_korean": "الكورية",
   "seed_language_chinese_traditional": "تقاليد صينية)",
+  "ascending": "تصاعدي",
+  "descending": "النزول",
   "dfx_option_description": "ﺎﺑﻭﺭﻭﺃ ﻲﻓ ﺕﺎﻛﺮﺸﻟﺍﻭ ﺔﺋﺰﺠﺘﻟﺍ ءﻼ﻿ﻤﻌﻟ .ﻲﻓﺎﺿﺇ KYC ﻥﻭﺪﺑ ﻭﺭﻮﻳ 990 ﻰﻟﺇ ﻞﺼﻳ ﺎﻣ .ﻱﺮﺴﻳﻮﺴﻟﺍ",
   "polygonscan_history": "ﻥﺎﻜﺴﻧﻮﺠﻴﻟﻮﺑ ﺦﻳﺭﺎﺗ",
   "wallet_seed_legacy": "بذرة محفظة قديمة",
+  "custom_drag": "مخصص (عقد وسحب)",
   "switchToEVMCompatibleWallet": "  (Ethereum، Polygon) ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ EVM ﻊﻣ ﺔﻘﻓﺍﻮﺘﻣ ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ"
 }

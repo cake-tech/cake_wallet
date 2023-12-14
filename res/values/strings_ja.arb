@@ -730,6 +730,9 @@
   "require_for_exchanges_to_external_wallets": "外部ウォレットへの交換に必要",
   "camera_permission_is_required": "カメラの許可が必要です。\nアプリの設定から有効にしてください。",
   "switchToETHWallet": "イーサリアムウォレットに切り替えてもう一度お試しください",
+  "order_by": "注文",
+  "creation_date": "作成日",
+  "group_by_type": "タイプごとにグループ",
   "importNFTs": "NFTのインポート",
   "noNFTYet": "NFTはまだありません",
   "address": "住所",
@@ -752,8 +755,11 @@
   "seed_language_czech": "チェコ",
   "seed_language_korean": "韓国語",
   "seed_language_chinese_traditional": "中国の伝統的な）",
+  "ascending": "上昇",
+  "descending": "下降",
   "dfx_option_description": "EUR と CHF で暗号通貨を購入します。追加のKYCなしで最大990ユーロ。ヨーロッパの小売および法人顧客向け",
   "polygonscan_history": "ポリゴンスキャン履歴",
   "wallet_seed_legacy": "レガシーウォレットシード",
+  "custom_drag": "カスタム（ホールドとドラッグ）",
   "switchToEVMCompatibleWallet": "EVM 互換のウォレットに切り替えて再試行してください (イーサリアム、ポリゴン)"
 }

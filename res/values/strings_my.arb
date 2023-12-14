@@ -728,6 +728,9 @@
   "require_for_exchanges_to_external_wallets": "ပြင်ပပိုက်ဆံအိတ်များသို့ လဲလှယ်ရန် လိုအပ်သည်။",
   "camera_permission_is_required": "ကင်မရာခွင့်ပြုချက် လိုအပ်ပါသည်။\nအက်ပ်ဆက်တင်များမှ ၎င်းကိုဖွင့်ပါ။",
   "switchToETHWallet": "ကျေးဇူးပြု၍ Ethereum ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်စမ်းကြည့်ပါ။",
+  "order_by": "အမှာစာ",
+  "creation_date": "ဖန်တီးမှုနေ့စွဲ",
+  "group_by_type": "အမျိုးအစားအလိုက်အုပ်စုဖွဲ့",
   "importNFTs": "NFTs များကို တင်သွင်းပါ။",
   "noNFTYet": "NFTs မရှိသေးပါ။",
   "address": "လိပ်စာ",
@@ -750,8 +753,11 @@
   "seed_language_czech": "ချက်",
   "seed_language_korean": "ကိုးရီးယား",
   "seed_language_chinese_traditional": "တရုတ်ရိုးရာ)",
+  "ascending": "တက်",
+  "descending": "ဆင်း",
   "dfx_option_description": "EUR & CHF ဖြင့် crypto ကိုဝယ်ပါ။ အပို KYC မပါဘဲ 990€ အထိ။ ဥရောပရှိ လက်လီရောင်းချသူများနှင့် ကော်ပိုရိတ်ဖောက်သည်များအတွက်",
   "polygonscan_history": "PolygonScan မှတ်တမ်း",
   "wallet_seed_legacy": "အမွေအနှစ်ပိုက်ဆံအိတ်မျိုးစေ့",
+  "custom_drag": "စိတ်ကြိုက် (Drag)",
   "switchToEVMCompatibleWallet": "ကျေးဇူးပြု၍ EVM တွဲဖက်သုံးနိုင်သော ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်စမ်းကြည့်ပါ (Ethereum၊ Polygon)"
 }

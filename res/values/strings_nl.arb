@@ -730,6 +730,9 @@
   "require_for_exchanges_to_external_wallets": "Vereist voor uitwisselingen naar externe portemonnees",
   "camera_permission_is_required": "Cameratoestemming is vereist.\nSchakel dit in via de app-instellingen.",
   "switchToETHWallet": "Schakel over naar een Ethereum-portemonnee en probeer het opnieuw",
+  "order_by": "Bestellen door",
+  "creation_date": "Aanmaakdatum",
+  "group_by_type": "Groep voor type",
   "importNFTs": "NFT's importeren",
   "noNFTYet": "Nog geen NFT's",
   "address": "Adres",
@@ -751,9 +754,12 @@
   "seedtype_polyseed": "Polyseed (16 woorden)",
   "seed_language_czech": "Tsjechisch",
   "seed_language_korean": "Koreaans",
+  "ascending": "Stijgend",
+  "descending": "Aflopend",
   "seed_language_chinese_traditional": "Chinese (traditionele)",
   "dfx_option_description": "Koop crypto met EUR & CHF. Tot 990€ zonder extra KYC. Voor particuliere en zakelijke klanten in Europa",
   "polygonscan_history": "PolygonScan-geschiedenis",
   "wallet_seed_legacy": "Legacy portemonnee zaad",
+  "custom_drag": "Custom (vasthouden en slepen)",
   "switchToEVMCompatibleWallet": "Schakel over naar een EVM-compatibele portemonnee en probeer het opnieuw (Ethereum, Polygon)"
 }

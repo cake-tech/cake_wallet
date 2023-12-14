@@ -729,6 +729,9 @@
   "require_for_exchanges_to_external_wallets": "需要兑换到外部钱包",
   "camera_permission_is_required": "需要相机许可。\n请从应用程序设置中启用它。",
   "switchToETHWallet": "请切换到以太坊钱包并重试",
+  "order_by": "订购",
+  "creation_date": "创建日期",
+  "group_by_type": "按类型组",
   "importNFTs": "导入 NFT",
   "noNFTYet": "还没有 NFT",
   "address": "地址",
@@ -751,8 +754,11 @@
   "seed_language_czech": "捷克",
   "seed_language_korean": "韩国人",
   "seed_language_chinese_traditional": "中国传统的）",
+  "ascending": "上升",
+  "descending": "下降",
   "dfx_option_description": "用欧元和瑞士法郎购买加密货币。高达 990 欧元，无需额外 KYC。对于欧洲的零售和企业客户",
   "polygonscan_history": "多边形扫描历史",
   "wallet_seed_legacy": "旧的钱包种子",
+  "custom_drag": "定制（保持和拖动）",
   "switchToEVMCompatibleWallet": "请切换到 EVM 兼容钱包并重试（以太坊、Polygon）"
 }

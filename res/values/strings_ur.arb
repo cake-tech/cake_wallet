@@ -722,6 +722,9 @@
   "require_for_exchanges_to_external_wallets": "۔ﮯﮨ ﺕﺭﻭﺮﺿ ﯽﮐ ﮯﻟﺩﺎﺒﺗ ﮟﯿﻣ ﮮﻮﭩﺑ ﯽﻧﻭﺮﯿﺑ",
   "camera_permission_is_required": "۔ﮯﮨ ﺭﺎﮐﺭﺩ ﺕﺯﺎﺟﺍ ﯽﮐ ﮮﺮﻤﯿﮐ",
   "switchToETHWallet": "۔ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ Ethereum ﻡﺮﮐ ﮦﺍﺮﺑ",
+  "order_by": "آرڈر بذریعہ",
+  "creation_date": "بنانے کی تاریخ",
+  "group_by_type": "قسم کے لحاظ سے گروپ",
   "importNFTs": "NFTs ۔ﮟﯾﺮﮐ ﺪﻣﺁﺭﺩ",
   "noNFTYet": "۔ﮟﯿﮨ ﮟﯿﮩﻧ NFTs ﯽﺋﻮﮐ ﮏﺗ ﯽﮭﺑﺍ",
   "address": "ﮧﺘﭘ",
@@ -744,8 +747,11 @@
   "seed_language_czech": "چیک",
   "seed_language_korean": "کورین",
   "seed_language_chinese_traditional": "چینی (روایتی)",
+  "ascending": "چڑھنے",
+  "descending": "اترتے ہوئے",
   "dfx_option_description": "EUR ﺭﻭﺍ CHF ﯽﻓﺎﺿﺍ ۔ﮟﯾﺪﯾﺮﺧ ﻮﭩﭘﺮﮐ ﮫﺗﺎﺳ ﮯﮐ KYC ﮯﯿﻟ ﮯﮐ ﻦﯿﻓﺭﺎﺻ ﭧﯾﺭﻮﭘﺭﺎﮐ ﺭﻭﺍ ﮦﺩﺭﻮﺧ ﮟ",
   "polygonscan_history": "ﺦﯾﺭﺎﺗ ﯽﮐ ﻦﯿﮑﺳﺍ ﻥﻮﮔ ﯽﻟﻮﭘ",
   "wallet_seed_legacy": "میراثی پرس کا بیج",
+  "custom_drag": "کسٹم (ہولڈ اینڈ ڈریگ)",
   "switchToEVMCompatibleWallet": "(Ethereum, Polygon) ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ ﮯﻟﺍﻭ ﮯﻨﮭﮐﺭ ﺖﻘﺑﺎﻄﻣ "
 }

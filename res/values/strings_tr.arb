@@ -728,6 +728,9 @@
   "require_for_exchanges_to_external_wallets": "Harici cüzdanlara geçiş yapılmasını zorunlu kılın",
   "camera_permission_is_required": "Kamera izni gereklidir.\nLütfen uygulama ayarlarından etkinleştirin.",
   "switchToETHWallet": "Lütfen bir Ethereum cüzdanına geçin ve tekrar deneyin",
+  "order_by": "Tarafından sipariş",
+  "creation_date": "Oluşturulma tarihi",
+  "group_by_type": "Türüne göre grup",
   "importNFTs": "NFT'leri içe aktar",
   "noNFTYet": "Henüz NFT yok",
   "address": "Adres",
@@ -750,8 +753,11 @@
   "seed_language_czech": "Çek",
   "seed_language_korean": "Koreli",
   "seed_language_chinese_traditional": "Çin geleneği)",
+  "ascending": "Yükselen",
+  "descending": "Azalan",
   "dfx_option_description": "EUR ve CHF ile kripto satın alın. Ek KYC olmadan 990 €'ya kadar. Avrupa'daki perakende ve kurumsal müşteriler için",
   "polygonscan_history": "PolygonScan geçmişi",
   "wallet_seed_legacy": "Eski cüzdan tohumu",
+  "custom_drag": "Özel (Bekle ve Sürükle)",
   "switchToEVMCompatibleWallet": "Lütfen EVM uyumlu bir cüzdana geçin ve tekrar deneyin (Ethereum, Polygon)"
 }
