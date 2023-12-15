@@ -62,7 +62,7 @@ class WalletCreationService {
     if (type == WalletType.bitcoinCash || type == WalletType.ethereum) {
       credentials.seedPhraseLength = settingsStore.seedPhraseLength.value;
     }
-    await keyService.saveWalletPassword(password: password, walletName: credentials.name);
+    await keyService.saveWalletPasswordV2(password: password, walletName: credentials.name);
     final wallet = await _service!.create(credentials);
 
     if (wallet.type == WalletType.monero) {
@@ -77,7 +77,7 @@ class WalletCreationService {
     checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
-    await keyService.saveWalletPassword(password: password, walletName: credentials.name);
+    await keyService.saveWalletPasswordV2(password: password, walletName: credentials.name);
     final wallet = await _service!.restoreFromKeys(credentials);
 
     if (wallet.type == WalletType.monero) {
@@ -92,7 +92,7 @@ class WalletCreationService {
     checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
-    await keyService.saveWalletPassword(password: password, walletName: credentials.name);
+    await keyService.saveWalletPasswordV2(password: password, walletName: credentials.name);
     final wallet = await _service!.restoreFromSeed(credentials);
 
     if (wallet.type == WalletType.monero) {

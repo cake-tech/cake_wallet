@@ -492,7 +492,7 @@ class BackupService {
     final name = info['name'] as String;
     final password = info['password'] as String;
 
-    await _keyService.saveWalletPassword(walletName: name, password: password);
+    await _keyService.saveWalletPasswordV2(walletName: name, password: password);
   }
 
   @Deprecated('Use v2 instead')
