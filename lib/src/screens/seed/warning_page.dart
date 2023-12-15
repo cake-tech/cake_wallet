@@ -72,7 +72,7 @@ class WarningPage extends BasePage {
                         ? Navigator.of(context)
                             .popAndPushNamed(Routes.seed, arguments: true)
                         : Navigator.of(context)
-                            .popAndPushNamed(Routes.setup_2faPage),
+                            .pushNamed(Routes.setup_2faPage),
                     text: isPreSeedPage
                         ? S.of(context).pre_seed_button_text
                         : S.of(context).understand,

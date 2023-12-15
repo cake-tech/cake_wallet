@@ -14,7 +14,7 @@ class Setup2FAPage extends BasePage {
   final Setup2FAViewModel setup2FAViewModel;
 
   @override
-  String get title => 'CAKE 2FA';
+  String get title => 'Cake 2FA';
 
   @override
   Widget body(BuildContext context) {
