@@ -324,11 +324,10 @@ packages:
   polyseed:
     dependency: transitive
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: fbb66bb837b63677c6d7f4b92db08776214d990f
-      url: "https://github.com/cake-tech/polyseed_dart.git"
-    source: git
+      name: polyseed
+      sha256: "9b48ec535b10863f78f6354ec983b4cc0c88ca69ff48fee469d0fd1954b01d4f"
+      url: "https://pub.dev"
+    source: hosted
     version: "0.0.2"
   process:
     dependency: transitive

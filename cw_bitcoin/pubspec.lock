@@ -75,20 +75,12 @@ packages:
       url: "https://github.com/cake-tech/bitbox-flutter.git"
     source: git
     version: "1.0.1"
-  bitcoin_base:
-    dependency: transitive
-    description:
-      name: bitcoin_base
-      sha256: f744eca882f501108639946e1172ab0b2e5553169dffc973cd0bfa78f25986d4
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.0"
   bitcoin_flutter:
     dependency: "direct main"
     description:
       path: "."
       ref: cake-update-v5
-      resolved-ref: "0da7794c32fe495eb3449717793d5d8849fe1eed"
+      resolved-ref: "8e8a801a98f629506ac029071951d00b1911bb15"
       url: "https://github.com/cake-tech/bitcoin_flutter.git"
     source: git
     version: "2.1.0"
@@ -168,10 +160,10 @@ packages:
     dependency: transitive
     description:
       name: built_value
-      sha256: "69acb7007eb2a31dc901512bfe0f7b767168be34cb734835d54c070bfa74c1b2"
+      sha256: c9aabae0718ec394e5bc3c7272e6bb0dc0b32201a08fe185ec1d8401d3e39309
       url: "https://pub.dev"
     source: hosted
-    version: "8.8.0"
+    version: "8.8.1"
   characters:
     dependency: transitive
     description:
@@ -200,10 +192,10 @@ packages:
     dependency: transitive
     description:
       name: code_builder
-      sha256: b2151ce26a06171005b379ecff6e08d34c470180ffe16b8e14b6d52be292b55f
+      sha256: feee43a5c05e7b3199bb375a86430b8ada1b04104f2923d0e03cc01ca87b6d84
       url: "https://pub.dev"
     source: hosted
-    version: "4.8.0"
+    version: "4.9.0"
   collection:
     dependency: transitive
     description:
@@ -309,10 +301,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_mobx
-      sha256: d1d379561fe84675cc099bc42e99456f73a77fff475d0e2e9bda271751a11a91
+      sha256: "0f0463db8a1582ac88670bea6e4f58ab64a16d701bc7d2c27ea50c1dbe5aecdc"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "2.2.0+1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -466,10 +458,10 @@ packages:
     dependency: "direct main"
     description:
       name: mobx
-      sha256: "42ae7277ec5c36fa5ce02aa14551065babce3c38a35947330144ff47bc775c75"
+      sha256: "537bee828f30a971ffd7d29d8e22bbdec5c9f5899ad4b01f3206a21eeb5c75de"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.1"
+    version: "2.2.3"
   mobx_codegen:
     dependency: "direct dev"
     description:
@@ -788,5 +780,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.0.6 <4.0.0"
+  dart: ">=3.0.0 <4.0.0"
   flutter: ">=3.7.0"

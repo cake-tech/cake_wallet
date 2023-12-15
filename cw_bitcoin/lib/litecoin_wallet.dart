@@ -31,11 +31,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     int initialRegularAddressIndex = 0,
     int initialChangeAddressIndex = 0,
   }) : super(
-            networkType: bitcoin.bitcoin,
+            networkType: bitcoin.litecoin,
             initialAddresses: initialAddresses,
             initialBalance: initialBalance,
             seedBytes: seedBytes,
-            currency: CryptoCurrency.btc,
+            currency: CryptoCurrency.ltc,
             transactionHistory:
                 ElectrumTransactionHistory(walletInfo: walletInfo, password: password)) {
     walletAddresses = LitecoinWalletAddresses(
