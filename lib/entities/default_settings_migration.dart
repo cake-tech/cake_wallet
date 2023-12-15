@@ -391,9 +391,7 @@ Future<void> pinEncryptionMigration({required FlutterSecureStorage secureStorage
     // we don't have a pin?!?
     if (encodedPin == null) {
       print("pinEncryptionMigration: no pin found in secure storage!");
-      // this should never happen, but just in case let's just set the pin to "0000"
-      // as it's better than permanently locking the user out with an un-decryptable pin
-      encodedPin = encodedPinCode(pin: "0000");
+      return;
     }
 
     // decode & re-encode the pin:

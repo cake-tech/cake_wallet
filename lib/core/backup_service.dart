@@ -503,8 +503,10 @@ class BackupService {
   Future<Uint8List> _exportKeychainDumpV2(String password,
       {String keychainSalt = secrets.backupKeychainSalt}) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final encodedPin = await _flutterSecureStorage.read(key: key);
-    final decodedPin = decodedPinCode(pin: encodedPin!);
+    String pin = (await _flutterSecureStorage.read(key: key))!;
+    if (!pin.contains("argon2")) {
+      pin = decodedPinCode(pin: pin);
+    }
     final wallets = await Future.wait(_walletInfoSource.values.map((walletInfo) async {
       return {
         'name': walletInfo.name,
@@ -514,8 +516,8 @@ class BackupService {
     }));
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = await _flutterSecureStorage.read(key: backupPasswordKey);
-    final data = utf8.encode(
-        json.encode({'pin': decodedPin, 'wallets': wallets, backupPasswordKey: backupPassword}));
+    final data = utf8
+        .encode(json.encode({'pin': pin, 'wallets': wallets, backupPasswordKey: backupPassword}));
     final encrypted = await _encryptV2(Uint8List.fromList(data), '$keychainSalt$password');
 
     return encrypted;
