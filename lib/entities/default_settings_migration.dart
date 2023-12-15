@@ -1,5 +1,6 @@
 import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -187,7 +188,8 @@ Future<void> defaultSettingsMigration(
           await rewriteSecureStoragePin(secureStorage: secureStorage);
           break;
         case 26:
-          await pinEncryptionMigration(secureStorage: secureStorage);
+          await pinEncryptionMigration(
+              secureStorage: secureStorage, walletInfoSource: walletInfoSource);
           break;
         default:
           break;
@@ -382,7 +384,9 @@ Node getMoneroDefaultNode({required Box<Node> nodes}) {
   }
 }
 
-Future<void> pinEncryptionMigration({required FlutterSecureStorage secureStorage}) async {
+Future<void> pinEncryptionMigration(
+    {required FlutterSecureStorage secureStorage,
+    required Box<WalletInfo> walletInfoSource}) async {
   try {
     // first, get the encoded pin:
     final keyForPinCode = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
@@ -407,6 +411,14 @@ Future<void> pinEncryptionMigration({required FlutterSecureStorage secureStorage
       iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
       mOptions: MacOsOptions(accessibility: KeychainAccessibility.first_unlock),
     );
+
+    KeyService keyService = KeyService(secureStorage);
+    
+    // now do the same for all wallet passwords:
+    await Future.forEach(walletInfoSource.values, (WalletInfo walletInfo) async {
+      String walletPassword = await keyService.getWalletPasswordV1(walletName: walletInfo.name);
+      await keyService.saveWalletPasswordV2(walletName: walletInfo.name, password: walletPassword);
+    });
   } catch (e) {
     // failure isn't really an option since we'll be updating how pins are stored and used
     print("pinEncryptionMigration: $e");

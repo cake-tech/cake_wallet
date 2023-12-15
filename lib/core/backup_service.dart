@@ -511,7 +511,7 @@ class BackupService {
       return {
         'name': walletInfo.name,
         'type': walletInfo.type.toString(),
-        'password': await _keyService.getWalletPassword(walletName: walletInfo.name)
+        'password': await _keyService.getWalletPasswordV2(walletName: walletInfo.name)
       };
     }));
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
