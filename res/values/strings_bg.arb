@@ -751,5 +751,7 @@
   "polygonscan_history": "История на PolygonScan",
   "wallet_seed_legacy": "Наследено портфейл семе",
   "custom_drag": "Персонализиране (задръжте и плъзнете)",
-  "switchToEVMCompatibleWallet": "Моля, превключете към портфейл, съвместим с EVM, и опитайте отново (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Моля, превключете към портфейл, съвместим с EVM, и опитайте отново (Ethereum, Polygon)",
+  "address_list": "списък с адреси",
+  "search_address": "Търсене на адрес"
 }

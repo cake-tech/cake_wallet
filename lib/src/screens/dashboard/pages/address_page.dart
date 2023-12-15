@@ -112,7 +112,7 @@ class AddressPage extends BasePage {
           TextButton(
             onPressed: () => Navigator.of(context).pushNamed(Routes.addressListPage),
             child: Text(
-              'address list',
+              S.of(context).address_list,
               style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,

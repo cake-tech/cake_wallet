@@ -753,5 +753,7 @@
   "polygonscan_history": "Kasaysayan ng PolygonScan",
   "wallet_seed_legacy": "Legacy wallet seed",
   "custom_drag": "Pasadyang (hawakan at i -drag)",
-  "switchToEVMCompatibleWallet": "Mangyaring lumipat sa isang EVM compatible na wallet at subukang muli (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Mangyaring lumipat sa isang EVM compatible na wallet at subukang muli (Ethereum, Polygon)",
+  "address_list": "listahan ng address",
+  "search_address": "Maghanap ng address"
 }

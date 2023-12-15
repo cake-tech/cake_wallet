@@ -747,5 +747,7 @@
   "polygonscan_history": "Sejarah PolygonScan",
   "wallet_seed_legacy": "Biji dompet warisan",
   "custom_drag": "Khusus (tahan dan seret)",
-  "switchToEVMCompatibleWallet": "Silakan beralih ke dompet yang kompatibel dengan EVM dan coba lagi (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Silakan beralih ke dompet yang kompatibel dengan EVM dan coba lagi (Ethereum, Polygon)",
+  "address_list": "daftar alamat",
+  "search_address": "Alamat pencarian"
 }

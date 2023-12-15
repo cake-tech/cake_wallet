@@ -760,5 +760,7 @@
   "polygonscan_history": "PolygonScan history",
   "wallet_seed_legacy": "Legacy wallet seed",
   "custom_drag": "Custom (Hold and Drag)",
-  "switchToEVMCompatibleWallet": "Please switch to an EVM compatible wallet and try again (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Please switch to an EVM compatible wallet and try again (Ethereum, Polygon)",
+  "address_list": "address list",
+  "search_address": "Search address"
 }

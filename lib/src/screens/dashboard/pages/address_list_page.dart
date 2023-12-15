@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/address_list_item.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
@@ -5,12 +6,13 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class AddressListPage extends BasePage {
   AddressListPage({required WalletBase wallet}) : this._wallet = wallet;
 
   @override
-  String get title => 'Address list';
+  String get title => toBeginningOfSentenceCase(S.current.address_list) ?? '';
 
   final WalletBase _wallet;
 
@@ -72,7 +74,7 @@ class _AddressListBodyState extends State<AddressListBody> {
                   searchController: searchController,
                   borderRadius: 12,
                   searchIconColor: Theme.of(context).primaryColor,
-                  hintText: 'Search address'),
+                  hintText: S.of(context).search_address),
             ),
             Expanded(
               child: Padding(

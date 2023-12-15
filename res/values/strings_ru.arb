@@ -759,5 +759,7 @@
   "polygonscan_history": "История PolygonScan",
   "wallet_seed_legacy": "Наследие семя кошелька",
   "custom_drag": "Пользователь (удерживайте и перетаскивайте)",
-  "switchToEVMCompatibleWallet": "Пожалуйста, переключитесь на кошелек, совместимый с EVM, и повторите попытку (Ethereum, Polygon)."
+  "switchToEVMCompatibleWallet": "Пожалуйста, переключитесь на кошелек, совместимый с EVM, и повторите попытку (Ethereum, Polygon).",
+  "address_list": "список адресов",
+  "search_address": "Поиск адреса"
 }

@@ -753,5 +753,7 @@
   "polygonscan_history": "PolygonScan itan",
   "wallet_seed_legacy": "Irugbin akole",
   "custom_drag": "Aṣa (mu ati fa)",
-  "switchToEVMCompatibleWallet": "Jọwọ yipada si apamọwọ ibaramu EVM ki o tun gbiyanju lẹẹkansi (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Jọwọ yipada si apamọwọ ibaramu EVM ki o tun gbiyanju lẹẹkansi (Ethereum, Polygon)",
+  "address_list": "akojọ adirẹsi",
+  "search_address": "Wa adirẹsi"
 }

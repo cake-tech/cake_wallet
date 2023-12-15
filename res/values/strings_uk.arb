@@ -759,5 +759,7 @@
   "polygonscan_history": "Історія PolygonScan",
   "wallet_seed_legacy": "Спадець насіння гаманця",
   "custom_drag": "На замовлення (утримуйте та перетягується)",
-  "switchToEVMCompatibleWallet": "Перейдіть на гаманець, сумісний з EVM, і повторіть спробу (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Перейдіть на гаманець, сумісний з EVM, і повторіть спробу (Ethereum, Polygon)",
+  "address_list": "список адрес",
+  "search_address": "Адреса пошуку"
 }

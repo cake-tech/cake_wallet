@@ -757,5 +757,7 @@
   "polygonscan_history": "ประวัติ PolygonScan",
   "wallet_seed_legacy": "เมล็ดกระเป๋าเงินมรดก",
   "custom_drag": "กำหนดเอง (ค้างและลาก)",
-  "switchToEVMCompatibleWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงินที่รองรับ EVM แล้วลองอีกครั้ง (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงินที่รองรับ EVM แล้วลองอีกครั้ง (Ethereum, Polygon)",
+  "address_list": "รายการที่อยู่",
+  "search_address": "ค้นหาที่อยู่"
 }

@@ -759,5 +759,7 @@
   "polygonscan_history": "ポリゴンスキャン履歴",
   "wallet_seed_legacy": "レガシーウォレットシード",
   "custom_drag": "カスタム（ホールドとドラッグ）",
-  "switchToEVMCompatibleWallet": "EVM 互換のウォレットに切り替えて再試行してください (イーサリアム、ポリゴン)"
+  "switchToEVMCompatibleWallet": "EVM 互換のウォレットに切り替えて再試行してください (イーサリアム、ポリゴン)",
+  "address_list": "アドレスリスト",
+  "search_address": "住所検索"
 }

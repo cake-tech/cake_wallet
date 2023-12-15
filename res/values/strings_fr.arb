@@ -759,5 +759,7 @@
   "polygonscan_history": "Historique de PolygonScan",
   "wallet_seed_legacy": "Graine de portefeuille hérité",
   "custom_drag": "Custom (maintenir et traîner)",
-  "switchToEVMCompatibleWallet": "Veuillez passer à un portefeuille compatible EVM et réessayer (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Veuillez passer à un portefeuille compatible EVM et réessayer (Ethereum, Polygon)",
+  "address_list": "liste d'adresses",
+  "search_address": "Rechercher une adresse"
 }

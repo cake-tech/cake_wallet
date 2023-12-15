@@ -751,5 +751,7 @@
   "polygonscan_history": "ﺦﯾﺭﺎﺗ ﯽﮐ ﻦﯿﮑﺳﺍ ﻥﻮﮔ ﯽﻟﻮﭘ",
   "wallet_seed_legacy": "میراثی پرس کا بیج",
   "custom_drag": "کسٹم (ہولڈ اینڈ ڈریگ)",
-  "switchToEVMCompatibleWallet": "(Ethereum, Polygon) ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ ﮯﻟﺍﻭ ﮯﻨﮭﮐﺭ ﺖﻘﺑﺎﻄﻣ "
+  "switchToEVMCompatibleWallet": "(Ethereum, Polygon) ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ ﮯﻟﺍﻭ ﮯﻨﮭﮐﺭ ﺖﻘﺑﺎﻄﻣ ",
+  "address_list": "                                                               ﺖﺳﺮﮩﻓ ﯽﮐ ﺲﯾﺭﮉﯾﺍ",
+  "search_address": "                                                                 ۔ﮟﯾﺮﮐ ﺵﻼ﻿ﺗ ﮧﺘﭘ"
 }

@@ -757,5 +757,7 @@
   "polygonscan_history": "PolygonScan မှတ်တမ်း",
   "wallet_seed_legacy": "အမွေအနှစ်ပိုက်ဆံအိတ်မျိုးစေ့",
   "custom_drag": "စိတ်ကြိုက် (Drag)",
-  "switchToEVMCompatibleWallet": "ကျေးဇူးပြု၍ EVM တွဲဖက်သုံးနိုင်သော ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်စမ်းကြည့်ပါ (Ethereum၊ Polygon)"
+  "switchToEVMCompatibleWallet": "ကျေးဇူးပြု၍ EVM တွဲဖက်သုံးနိုင်သော ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်စမ်းကြည့်ပါ (Ethereum၊ Polygon)",
+  "address_list": "လိပ်စာစာရင်း",
+  "search_address": "လိပ်စာရှာပါ။"
 }

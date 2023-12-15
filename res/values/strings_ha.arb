@@ -737,5 +737,7 @@
   "polygonscan_history": "PolygonScan tarihin kowane zamani",
   "wallet_seed_legacy": "Tallarin walat walat",
   "custom_drag": "Al'ada (riƙe da ja)",
-  "switchToEVMCompatibleWallet": "Da fatan za a canza zuwa walat ɗin EVM mai jituwa kuma a sake gwadawa (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Da fatan za a canza zuwa walat ɗin EVM mai jituwa kuma a sake gwadawa (Ethereum, Polygon)",
+  "address_list": "jerin adireshi",
+  "search_address": "Bincika adireshin"
 }

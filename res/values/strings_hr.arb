@@ -757,5 +757,7 @@
   "polygonscan_history": "Povijest PolygonScan",
   "wallet_seed_legacy": "Sjeme naslijeđenog novčanika",
   "custom_drag": "Prilagođeni (držite i povucite)",
-  "switchToEVMCompatibleWallet": "Prijeđite na novčanik kompatibilan s EVM-om i pokušajte ponovno (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Prijeđite na novčanik kompatibilan s EVM-om i pokušajte ponovno (Ethereum, Polygon)",
+  "address_list": "popis adresa",
+  "search_address": "Traži adresu"
 }

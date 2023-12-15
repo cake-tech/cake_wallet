@@ -757,5 +757,7 @@
   "polygonscan_history": "다각형 스캔 기록",
   "wallet_seed_legacy": "레거시 지갑 시드",
   "custom_drag": "사용자 정의 (홀드 앤 드래그)",
-  "switchToEVMCompatibleWallet": "EVM 호환 지갑으로 전환 후 다시 시도해 주세요. (이더리움, 폴리곤)"
+  "switchToEVMCompatibleWallet": "EVM 호환 지갑으로 전환 후 다시 시도해 주세요. (이더리움, 폴리곤)",
+  "address_list": "주소 목록",
+  "search_address": "주소 검색"
 }
