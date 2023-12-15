@@ -28,10 +28,11 @@ class BackupService {
       : _cipher = Cryptography.instance.chacha20Poly1305Aead(),
         _correctWallets = <WalletInfo>[];
 
-  static const currentVersion = _v2;
+  static const currentVersion = _v3;
 
   static const _v1 = 1;
   static const _v2 = 2;
+  static const _v3 = 3;
 
   final Cipher _cipher;
   final FlutterSecureStorage _flutterSecureStorage;
@@ -53,6 +54,9 @@ class BackupService {
       case _v2:
         await _importBackupV2(data, password);
         break;
+      case _v3:
+        await _importBackupV3(data, password);
+        break;
       default:
         break;
     }
@@ -65,6 +69,8 @@ class BackupService {
         return await _exportBackupV1(password, nonce: nonce);
       case _v2:
         return await _exportBackupV2(password);
+      case _v3:
+        return await _exportBackupV3(password);
       default:
         throw Exception('Incorrect version: $version for exportBackup');
     }
@@ -74,14 +80,16 @@ class BackupService {
   Future<Uint8List> _exportBackupV1(String password, {String nonce = secrets.backupSalt}) async =>
       throw Exception('Deprecated. Export for backups v1 is deprecated. Please use export v2.');
 
-  Future<Uint8List> _exportBackupV2(String password) async {
+  Future<Uint8List> _exportBackupV2(String password, {bool keychainV3 = false}) async {
     final zipEncoder = ZipFileEncoder();
     final appDir = await getApplicationDocumentsDirectory();
     final now = DateTime.now();
     final tmpDir = Directory('${appDir.path}/~_BACKUP_TMP');
     final archivePath = '${tmpDir.path}/backup_${now.toString()}.zip';
     final fileEntities = appDir.listSync(recursive: false);
-    final keychainDump = await _exportKeychainDumpV2(password);
+    final keychainDump = keychainV3
+        ? (await _exportKeychainDumpV2(password))
+        : (await _exportKeychainDumpV3(password));
     final preferencesDump = await _exportPreferencesJSON();
     final preferencesDumpFile = File('${tmpDir.path}/~_preferences_dump_TMP');
     final keychainDumpFile = File('${tmpDir.path}/~_keychain_dump_TMP');
@@ -115,6 +123,10 @@ class BackupService {
     return await _encryptV2(content, password);
   }
 
+  Future<Uint8List> _exportBackupV3(String password) async {
+    return await _exportBackupV2(password, keychainV3: true);
+  }
+
   Future<void> _importBackupV1(Uint8List data, String password, {required String nonce}) async {
     final appDir = await getApplicationDocumentsDirectory();
     final decryptedData = await _decryptV1(data, password, nonce);
@@ -138,7 +150,7 @@ class BackupService {
     await _importPreferencesDump();
   }
 
-  Future<void> _importBackupV2(Uint8List data, String password) async {
+  Future<void> _importBackupV2(Uint8List data, String password, {bool keychainV3 = false}) async {
     final appDir = await getApplicationDocumentsDirectory();
     final decryptedData = await _decryptV2(data, password);
     final zip = ZipDecoder().decodeBytes(decryptedData);
@@ -157,8 +169,16 @@ class BackupService {
     });
 
     await _verifyWallets();
-    await _importKeychainDumpV2(password);
+    if (keychainV3) {
+      await _importKeychainDumpV3(password);
+    } else {
+      await _importKeychainDumpV2(password);
+    }
     await _importPreferencesDump();
+  }
+
+  Future<void> _importBackupV3(Uint8List data, String password) async {
+    await _importBackupV2(data, password, keychainV3: true);
   }
 
   Future<void> _verifyWallets() async {
@@ -445,7 +465,8 @@ class BackupService {
     });
 
     await _flutterSecureStorage.delete(key: pinCodeKey);
-    await _flutterSecureStorage.write(key: pinCodeKey, value: (await argon2Hash(password: decodedPin)));
+    await _flutterSecureStorage.write(
+        key: pinCodeKey, value: (await argon2Hash(password: decodedPin)));
 
     keychainDumpFile.deleteSync();
   }
@@ -473,7 +494,36 @@ class BackupService {
     });
 
     await _flutterSecureStorage.delete(key: pinCodeKey);
-    await _flutterSecureStorage.write(key: pinCodeKey, value: (await argon2Hash(password: decodedPin)));
+    await _flutterSecureStorage.write(
+        key: pinCodeKey, value: (await argon2Hash(password: decodedPin)));
+
+    keychainDumpFile.deleteSync();
+  }
+
+  Future<void> _importKeychainDumpV3(String password,
+      {String keychainSalt = secrets.backupKeychainSalt}) async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final keychainDumpFile = File('${appDir.path}/~_keychain_dump');
+    final decryptedKeychainDumpFileData =
+        await _decryptV3(keychainDumpFile.readAsBytesSync(), '$keychainSalt$password');
+    final keychainJSON =
+        json.decode(utf8.decode(decryptedKeychainDumpFileData)) as Map<String, dynamic>;
+    final keychainWalletsInfo = keychainJSON['wallets'] as List;
+    final encodedPin = keychainJSON['pin'] as String;
+    final pinCodeKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
+    final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
+    final backupPassword = keychainJSON[backupPasswordKey] as String;
+
+    await _flutterSecureStorage.delete(key: backupPasswordKey);
+    await _flutterSecureStorage.write(key: backupPasswordKey, value: backupPassword);
+
+    keychainWalletsInfo.forEach((dynamic rawInfo) async {
+      final info = rawInfo as Map<String, dynamic>;
+      await importWalletKeychainInfo(info);
+    });
+
+    await _flutterSecureStorage.delete(key: pinCodeKey);
+    await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPin);
 
     keychainDumpFile.deleteSync();
   }
@@ -507,6 +557,26 @@ class BackupService {
     final data = utf8.encode(
         json.encode({'pin': decodedPin, 'wallets': wallets, backupPasswordKey: backupPassword}));
     final encrypted = await _encryptV2(Uint8List.fromList(data), '$keychainSalt$password');
+
+    return encrypted;
+  }
+
+  Future<Uint8List> _exportKeychainDumpV3(String password,
+      {String keychainSalt = secrets.backupKeychainSalt}) async {
+    final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
+    final encodedPin = await _flutterSecureStorage.read(key: key);
+    final wallets = await Future.wait(_walletInfoSource.values.map((walletInfo) async {
+      return {
+        'name': walletInfo.name,
+        'type': walletInfo.type.toString(),
+        'password': await _keyService.getWalletPassword(walletName: walletInfo.name)
+      };
+    }));
+    final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
+    final backupPassword = await _flutterSecureStorage.read(key: backupPasswordKey);
+    final data = utf8.encode(
+        json.encode({'pin': encodedPin, 'wallets': wallets, backupPasswordKey: backupPassword}));
+    final encrypted = await _encryptV3(Uint8List.fromList(data), '$keychainSalt$password');
 
     return encrypted;
   }
@@ -618,5 +688,11 @@ class BackupService {
       cake_backup.encrypt(passphrase, data, version: _v2);
 
   Future<Uint8List> _decryptV2(Uint8List data, String passphrase) async =>
+      cake_backup.decrypt(passphrase, data);
+
+  Future<Uint8List> _encryptV3(Uint8List data, String passphrase) async =>
+      cake_backup.encrypt(passphrase, data, version: _v3);
+
+  Future<Uint8List> _decryptV3(Uint8List data, String passphrase) async =>
       cake_backup.decrypt(passphrase, data);
 }
