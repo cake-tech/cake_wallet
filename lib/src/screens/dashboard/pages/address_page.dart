@@ -15,6 +15,7 @@ import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
@@ -104,22 +105,38 @@ class AddressPage extends BasePage {
   Widget? trailing(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      child: Semantics(
-        label: S.of(context).share,
-        child: IconButton(
-          padding: EdgeInsets.zero,
-          constraints: BoxConstraints(),
-          highlightColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          iconSize: 25,
-          onPressed: () {
-            ShareUtil.share(
-              text: addressListViewModel.uri.toString(),
-              context: context,
-            );
-          },
-          icon: Icon(Icons.share, size: 20, color: pageIconColor(context)),
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if(dashboardViewModel.wallet is ElectrumWallet)
+          TextButton(
+            onPressed: () => Navigator.of(context).pushNamed(Routes.addressListPage),
+            child: Text(
+              'address list',
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: titleColor(context)),
+            ),
+          ),
+          Semantics(
+            label: S.of(context).share,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints(),
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              iconSize: 25,
+              onPressed: () {
+                ShareUtil.share(
+                  text: addressListViewModel.uri.toString(),
+                  context: context,
+                );
+              },
+              icon: Icon(Icons.share, size: 20, color: pageIconColor(context)),
+            ),
+          ),
+        ],
       ),
     );
   }

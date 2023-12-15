@@ -105,4 +105,5 @@ class Routes {
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
   static const torPage = '/tor_page';
+  static const addressListPage = '/address_list_page';
 }

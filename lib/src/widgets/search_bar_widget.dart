@@ -7,11 +7,13 @@ class SearchBarWidget extends StatelessWidget {
     required this.searchController,
     this.hintText,
     this.borderRadius = 14,
+    this.searchIconColor
   });
 
   final TextEditingController searchController;
   final String? hintText;
   final double borderRadius;
+  final Color? searchIconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,7 @@ class SearchBarWidget extends StatelessWidget {
         hintText: hintText ?? S.of(context).search_currency,
         hintStyle: TextStyle(color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),
         prefixIcon: Image.asset("assets/images/search_icon.png",
-            color: Theme.of(context).extension<PickerTheme>()!.searchIconColor),
+            color: searchIconColor ?? Theme.of(context).extension<PickerTheme>()!.searchIconColor),
         filled: true,
         fillColor: Theme.of(context).extension<PickerTheme>()!.searchBackgroundFillColor,
         alignLabelWithHint: false,
