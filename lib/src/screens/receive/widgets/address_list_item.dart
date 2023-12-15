@@ -10,9 +10,11 @@ class AddressListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: 70, minHeight: 50),
-      child: Container(
+    return Align(
+      alignment: Alignment.center,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: 70, maxWidth: 600),
+        child: Container(
           padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -22,13 +24,17 @@ class AddressListItem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                AutoSizeText(
-                  address,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600),
-                  maxLines: 1,
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: Text(
+                      address,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ),
                 if (isChange)
                   Row(
@@ -38,8 +44,7 @@ class AddressListItem extends StatelessWidget {
                         height: 17,
                         padding: EdgeInsets.only(left: 6, right: 6),
                         decoration: BoxDecoration(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(8.5)),
+                            borderRadius: BorderRadius.all(Radius.circular(8.5)),
                             color: Colors.white),
                         alignment: Alignment.center,
                         child: Text(
@@ -53,7 +58,9 @@ class AddressListItem extends StatelessWidget {
                       ),
                     ],
                   ),
-              ])),
+              ]),
+        ),
+      ),
     );
   }
 }
