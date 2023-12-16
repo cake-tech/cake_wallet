@@ -695,10 +695,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.zano:
-        // TODO: !!!
-        // depositCurrency = CryptoCurrency.zano;
-        // receiveCurrency = ???
-        throw UnimplementedError();
+        depositCurrency = CryptoCurrency.zano;
+        receiveCurrency = CryptoCurrency.btc;
+        break;
       case WalletType.dummy:
         // TODO: !!!
         // depositCurrency = CryptoCurrency.dummy;

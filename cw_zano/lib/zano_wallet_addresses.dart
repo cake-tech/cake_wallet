@@ -32,7 +32,12 @@ abstract class ZanoWalletAddressesBase extends WalletAddresses with Store {
     /*accountList.update();
     account = accountList.accounts.first;*/
     /**updateSubaddressList(accountIndex: account?.id ?? 0);*/
-    address = walletInfo.address;
+    //address = walletInfo.address;
+    //await updateAddressesInBox();
+  }
+
+  Future<void> updateAddress(String address) async {
+    this.address = address;
     await updateAddressesInBox();
   }
 

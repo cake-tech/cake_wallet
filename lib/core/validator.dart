@@ -48,7 +48,7 @@ class TextValidator extends Validator<String> {
 
     final valueMatched = match(value);
     final valueValidated = useAdditionalValidation != null
-        ? useAdditionalValidation!(value) || valueMatched
+        ? useAdditionalValidation!(value) && valueMatched
         : valueMatched;
 
     return valueValidated;

@@ -69,10 +69,7 @@ class CWZanoWalletDetails extends ZanoWalletDetails {
   ZanoBalance get balance {
     final zanoWallet = _wallet as ZanoWallet;
     final balance = zanoWallet.balance;
-    throw Exception('Unimplemented');
-    //return ZanoBalance(
-    //	fullBalance: balance.fullBalance,
-    //	unlockedBalance: balance.unlockedBalance);
+    return ZanoBalance(fullBalance: balance[CryptoCurrency.zano]!.total, unlockedBalance: balance[CryptoCurrency.zano]!.unlocked);
   }
 }
 

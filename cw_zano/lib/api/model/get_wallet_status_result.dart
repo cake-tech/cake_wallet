@@ -23,13 +23,4 @@ class GetWalletStatusResult {
         progress: json['progress'] as int,
         walletState: json['wallet_state'] as int,
       );
-  /*
-     "current_daemon_height": 238049,
-   "current_wallet_height": 238038,
-   "is_daemon_connected": true,
-   "is_in_long_refresh": true,
-   "progress": 0,
-   "wallet_state": 1
-
-  */
 }

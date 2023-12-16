@@ -3,6 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_zano/zano_utils.dart';
 
 class AddressValidator extends TextValidator {
   AddressValidator({required CryptoCurrency type})
@@ -10,7 +11,9 @@ class AddressValidator extends TextValidator {
             errorMessage: S.current.error_text_address,
             useAdditionalValidation: type == CryptoCurrency.btc
                 ? bitcoin.Address.validateAddress
-                : null,
+                : type == CryptoCurrency.zano
+                    ? ZanoUtils.validateAddress
+                    : null,
             pattern: getPattern(type),
             length: getLength(type));
 
@@ -240,7 +243,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.btcln:
         return null;
       case CryptoCurrency.zano:
-        return [97];
+        return null;//[97];
       default:
         return [];
     }

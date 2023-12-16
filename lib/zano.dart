@@ -11,7 +11,6 @@ import 'package:cw_zano/api/calls.dart' as calls;
 import 'package:cw_zano/api/model/balance.dart';
 import 'package:cw_zano/api/model/create_wallet_result.dart';
 import 'package:cw_zano/api/wallet.dart' as zano_wallet;
-import 'package:cw_zano/api/wallet_manager.dart' as zano_wallet_manager;
 import 'package:cw_zano/zano_wallet_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -85,7 +84,7 @@ const walletName = 'walletName';
 
 Future<void> init() async {
   version = calls.getVersion();
-  final setupNode = await zano_wallet.setupNode(
+  final setupNode = await calls.setupNode(
       address: '195.201.107.230:33336',
       login: '',
       password: '',

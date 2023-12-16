@@ -131,6 +131,23 @@ bool isWalletExist({required String path}) {
   return isExist;
 }
 
+// char* get_address_info(char* address)
+final _getAddressInfoNative = zanoApi
+  .lookup<NativeFunction<_get_address_info>>('get_address_info')
+  .asFunction<_GetAddressInfo>();
+typedef _get_address_info = Pointer<Utf8> Function(Pointer<Utf8> password);
+typedef _GetAddressInfo = Pointer<Utf8> Function(Pointer<Utf8> address);
+
+String getAddressInfo(String address) {
+  debugPrint('get address info $address');
+  final addressPointer = address.toNativeUtf8();
+  final result =
+      convertUTF8ToString(pointer: _getAddressInfoNative(addressPointer));
+  debugPrint('get address info result $result');
+  calloc.free(addressPointer);
+  return result;
+}
+
 bool setupNode({
   required String address,
   String? login,

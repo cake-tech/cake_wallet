@@ -97,8 +97,9 @@ abstract class ZanoWalletBase
     _hWallet = value;
   }
 
-  Future<void> init() async {
+  Future<void> init(String address) async {
     await walletAddresses.init();
+    await walletAddresses.updateAddress(address);
     ///balance.addAll(getZanoBalance(/**accountIndex: walletAddresses.account?.id ?? 0*/));
     _setListeners();
     await updateTransactions();
