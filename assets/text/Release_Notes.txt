@@ -1,5 +1,4 @@
 Add Polygon (Matic) wallet
-Bitcoin Silent payments
 Polyseed enhancements
 New on-ramp provider DFX
 Usability enhancements
