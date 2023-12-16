@@ -411,10 +411,6 @@ class ExchangePage extends BasePage {
       }
     });
 
-    reaction((_) => exchangeViewModel.isReceiveAddressEnabled, (bool isEnabled) {
-      receiveKey.currentState!.isAddressEditable(isEditable: isEnabled);
-    });
-
     reaction((_) => exchangeViewModel.isReceiveAmountEditable, (bool isReceiveAmountEditable) {
       receiveKey.currentState!.isAmountEditable(isEditable: isReceiveAmountEditable);
     });
@@ -670,7 +666,6 @@ class ExchangePage extends BasePage {
                   ? exchangeViewModel.wallet.walletAddresses.address
                   : exchangeViewModel.receiveAddress,
               initialIsAmountEditable: exchangeViewModel.isReceiveAmountEditable,
-              initialIsAddressEditable: exchangeViewModel.isReceiveAddressEnabled,
               isAmountEstimated: true,
               isMoneroWallet: exchangeViewModel.isMoneroWallet,
               currencies: exchangeViewModel.receiveCurrencies,
