@@ -1,9 +1,5 @@
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/account.dart';
-import 'package:cw_zano/zano_account_list.dart';
-import 'package:cw_zano/zano_subaddress_list.dart';
-import 'package:cw_core/subaddress.dart';
 import 'package:mobx/mobx.dart';
 
 part 'zano_wallet_addresses.g.dart';

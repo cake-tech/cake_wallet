@@ -2,18 +2,24 @@ import 'dart:ffi';
 import 'dart:convert';
 
 import 'package:cw_zano/api/convert_utf8_to_string.dart';
-import 'package:cw_zano/api/model.dart';
 import 'package:cw_zano/api/model/get_recent_txs_and_info_params.dart';
 import 'package:cw_zano/api/model/transfer_params.dart';
 import 'package:cw_zano/api/zano_api.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 
-final _asyncCallNative = zanoApi
-    .lookup<NativeFunction<_async_call>>('async_call')
-    .asFunction<_AsyncCall>();
-typedef _async_call = Pointer<Utf8> Function(
-    Pointer<Utf8>, Int64, Pointer<Utf8>);
+// create_wallet
+final _createWalletNative =
+    zanoApi.lookup<NativeFunction<_create_wallet>>('create_wallet').asFunction<_CreateWallet>();
+typedef _create_wallet = Pointer<Utf8> Function(
+    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int32, Pointer<Utf8>);
+typedef _CreateWallet = Pointer<Utf8> Function(
+    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, int, Pointer<Utf8>);
+
+// async_call
+final _asyncCallNative =
+    zanoApi.lookup<NativeFunction<_async_call>>('async_call').asFunction<_AsyncCall>();
+typedef _async_call = Pointer<Utf8> Function(Pointer<Utf8>, Int64, Pointer<Utf8>);
 typedef _AsyncCall = Pointer<Utf8> Function(
     Pointer<Utf8> methodName, int hWallet, Pointer<Utf8> params);
 
@@ -39,18 +45,15 @@ typedef _get_connectivity_status = Pointer<Utf8> Function();
 typedef _GetConnectivityStatus = Pointer<Utf8> Function();
 
 // get_version
-final _getVersionNative = zanoApi
-    .lookup<NativeFunction<_get_version>>('get_version')
-    .asFunction<_GetVersion>();
+final _getVersionNative =
+    zanoApi.lookup<NativeFunction<_get_version>>('get_version').asFunction<_GetVersion>();
 typedef _get_version = Pointer<Utf8> Function();
 typedef _GetVersion = Pointer<Utf8> Function();
 
 // load_wallet
-final _loadWalletNative = zanoApi
-    .lookup<NativeFunction<_load_wallet>>('load_wallet')
-    .asFunction<_LoadWallet>();
-typedef _load_wallet = Pointer<Utf8> Function(
-    Pointer<Utf8>, Pointer<Utf8>, Int8);
+final _loadWalletNative =
+    zanoApi.lookup<NativeFunction<_load_wallet>>('load_wallet').asFunction<_LoadWallet>();
+typedef _load_wallet = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>, Int8);
 typedef _LoadWallet = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>, int);
 
 // try_pull_result
@@ -61,9 +64,8 @@ typedef _try_pull_result = Pointer<Utf8> Function(Int64);
 typedef _TryPullResult = Pointer<Utf8> Function(int hWallet);
 
 // close_wallet
-final _closeWalletNative = zanoApi
-    .lookup<NativeFunction<_close_wallet>>('close_wallet')
-    .asFunction<_closeWalletStatus>();
+final _closeWalletNative =
+    zanoApi.lookup<NativeFunction<_close_wallet>>('close_wallet').asFunction<_closeWalletStatus>();
 typedef _close_wallet = Void Function(Int64);
 typedef _closeWalletStatus = void Function(int hWallet);
 
@@ -75,25 +77,20 @@ typedef _get_current_tx_fee = Int64 Function(Int64);
 typedef _getCurrentTxFee = int Function(int priority);
 
 final _restoreWalletFromSeedNative = zanoApi
-    .lookup<NativeFunction<_restore_wallet_from_seed>>(
-        'restore_wallet_from_seed')
+    .lookup<NativeFunction<_restore_wallet_from_seed>>('restore_wallet_from_seed')
     .asFunction<_RestoreWalletFromSeed>();
 typedef _restore_wallet_from_seed = Pointer<Utf8> Function(
     Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int32, Int64, Pointer<Utf8>);
 typedef _RestoreWalletFromSeed = Pointer<Utf8> Function(
     Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, int, int, Pointer<Utf8>);
 
-String doAsyncCall(
-    {required String methodName,
-    required int hWallet,
-    required String params}) {
+String doAsyncCall({required String methodName, required int hWallet, required String params}) {
   final methodNamePointer = methodName.toNativeUtf8();
   final paramsPointer = params.toNativeUtf8();
 
-  debugPrint(
-      'async_call method_name $methodName hWallet $hWallet params $params');
-  final result = convertUTF8ToString(
-      pointer: _asyncCallNative(methodNamePointer, hWallet, paramsPointer));
+  debugPrint('async_call method_name $methodName hWallet $hWallet params $params');
+  final result =
+      convertUTF8ToString(pointer: _asyncCallNative(methodNamePointer, hWallet, paramsPointer));
 
   calloc.free(methodNamePointer);
   calloc.free(paramsPointer);
@@ -101,8 +98,25 @@ String doAsyncCall(
   return result;
 }
 
-Future<String> invokeMethod(
-    int hWallet, String methodName, String params) async {
+String createWallet(
+    {required String path, required String password, required String language, int nettype = 0}) {
+  final pathPointer = path.toNativeUtf8();
+  final passwordPointer = password.toNativeUtf8();
+  final languagePointer = language.toNativeUtf8();
+  final errorMessagePointer = ''.toNativeUtf8();
+  debugPrint('create_wallet path $path password $password language $language');
+  final result = convertUTF8ToString(
+      pointer: _createWalletNative(
+          pathPointer, passwordPointer, languagePointer, nettype, errorMessagePointer));
+  debugPrint('create_wallet result $result');
+  calloc.free(pathPointer);
+  calloc.free(passwordPointer);
+  calloc.free(languagePointer);
+
+  return result;
+}
+
+Future<String> invokeMethod(int hWallet, String methodName, String params) async {
   debugPrint('invoke method $methodName params $params');
   final invokeResult = doAsyncCall(
       methodName: 'invoke',
@@ -134,6 +148,7 @@ Future<String> transfer(int hWallet, TransferParams params) async {
   debugPrint('invoke result $invokeResult');
   var map = json.decode(invokeResult);
   if (map['job_id'] != null) {
+    // TODO: fixit
     await Future.delayed(Duration(seconds: 3));
     final result = tryPullResult(map['job_id'] as int);
     return result;
@@ -151,9 +166,7 @@ Future<String> getRecentTxsAndInfo(
     'get_recent_txs_and_info',
     json.encode(
       GetRecentTxsAndInfoParams(
-          offset: offset,
-          count: count,
-          updateProvisionInfo: updateProvisionInfo),
+          offset: offset, count: count, updateProvisionInfo: updateProvisionInfo),
     ),
   );
 }
@@ -202,8 +215,9 @@ String restoreWalletFromSeed(String path, String password, String seed) {
   final passwordPointer = password.toNativeUtf8();
   final seedPointer = seed.toNativeUtf8();
   final errorMessagePointer = ''.toNativeUtf8();
-  final result = convertUTF8ToString(pointer: _restoreWalletFromSeedNative(pathPointer,
-    passwordPointer, seedPointer, 0, 0, errorMessagePointer));
+  final result = convertUTF8ToString(
+      pointer: _restoreWalletFromSeedNative(
+          pathPointer, passwordPointer, seedPointer, 0, 0, errorMessagePointer));
   return result;
 }
 

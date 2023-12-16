@@ -1,54 +1,87 @@
-import 'package:cw_zano/api/structs/pending_transaction.dart';
-import 'package:cw_zano/api/transaction_history.dart'
-    as zano_transaction_history;
+import 'dart:convert';
+
+import 'package:cw_zano/api/model/destination.dart';
+import 'package:cw_zano/api/model/transfer_params.dart';
+import 'package:cw_zano/api/model/transfer_result.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/pending_transaction.dart';
-
-class DoubleSpendException implements Exception {
-  DoubleSpendException();
-
-  @override
-  String toString() =>
-      'This transaction cannot be committed. This can be due to many reasons including the wallet not being synced, there is not enough XMR in your available balance, or previous transactions are not yet fully processed.';
-}
+import 'package:cw_zano/api/calls.dart' as calls;
+import 'package:cw_zano/zano_wallet.dart';
 
 class PendingZanoTransaction with PendingTransaction {
   PendingZanoTransaction(
-      this.pendingTransactionDescription, this.cryptoCurrency);
+      {required this.fee,
+      required this.intAmount,
+      //required this.stringAmount,
+      required this.hWallet,
+      required this.address,
+      required this.assetId,
+      required this.comment});
 
-  final PendingTransactionDescription pendingTransactionDescription;
-  final CryptoCurrency cryptoCurrency;
+  final int hWallet;
+  final int intAmount;
+  //final String stringAmount;
+  final int fee;
+  final String address;
+  final String assetId;
+  final String comment;
+
+  final CryptoCurrency cryptoCurrency = CryptoCurrency.zano;
 
   @override
-  String get id => pendingTransactionDescription.hash;
+  String get id => transferResult != null ? transferResult!.txHash : '';
 
   @override
   String get hex => '';
 
   @override
   String get amountFormatted {
-    return AmountConverter.amountIntToString(
-      cryptoCurrency, pendingTransactionDescription.amount);
+    return AmountConverter.amountIntToString(cryptoCurrency, intAmount);
   }
 
   @override
-  String get feeFormatted => AmountConverter.amountIntToString(
-      cryptoCurrency, pendingTransactionDescription.fee);
+  String get feeFormatted => AmountConverter.amountIntToString(cryptoCurrency, fee);
+
+  TransferResult? transferResult;
 
   @override
   Future<void> commit() async {
-    try {
-      zano_transaction_history.commitTransactionFromPointerAddress(
-          address: pendingTransactionDescription.pointerAddress);
-    } catch (e) {
-      final message = e.toString();
-
-      if (message.contains('Reason: double spend')) {
-        throw DoubleSpendException();
-      }
-
-      rethrow;
+    final result = await calls.transfer(
+        hWallet,
+        TransferParams(
+          destinations: [
+            Destination(
+              amount: intAmount.toString(), //stringAmount,
+              address: address,
+              assetId: assetId,
+            )
+          ],
+          fee: fee,
+          mixin: zanoMixin,
+          paymentId: '',
+          comment: comment,
+          pushPayer: false,
+          hideReceiver: false,
+        ));
+    print('transfer result $result');
+    final map = jsonDecode(result);
+    if (map["result"] != null && map["result"]["result"] != null ) {
+      transferResult = TransferResult.fromJson(
+        map["result"]["result"] as Map<String, dynamic>,
+      );
     }
+    // try {
+    //   zano_transaction_history.commitTransactionFromPointerAddress(
+    //       address: pendingTransactionDescription.pointerAddress);
+    // } catch (e) {
+    //   final message = e.toString();
+
+    //   if (message.contains('Reason: double spend')) {
+    //     throw DoubleSpendException();
+    //   }
+
+    //   rethrow;
+    // }
   }
 }

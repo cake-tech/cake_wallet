@@ -14,12 +14,8 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_zano/api/calls.dart' as calls;
-import 'package:cw_zano/api/model/destination.dart';
 import 'package:cw_zano/api/model/history.dart';
-import 'package:cw_zano/api/model/transfer_params.dart';
 import 'package:cw_zano/api/model/zano_wallet_keys.dart';
-import 'package:cw_zano/api/structs/pending_transaction.dart';
-//import 'package:cw_zano/wallet.dart';
 import 'package:cw_zano/api/wallet.dart' as zano_wallet;
 import 'package:cw_zano/api/zano_api.dart';
 import 'package:cw_zano/pending_zano_transaction.dart';
@@ -175,8 +171,8 @@ abstract class ZanoWalletBase
     final address = output.isParsedAddress && (output.extractedAddress?.isNotEmpty ?? false)
         ? output.extractedAddress!
         : output.address;
-    final amount = output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
-    final int? formattedAmount = output.sendAll ? null : output.formattedCryptoAmount;
+    final stringAmount = output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
+    //final int? formattedAmount = output.sendAll ? null : output.formattedCryptoAmount;
     final fee = calculateEstimatedFee(creds.priority);
     // final result = await calls.transfer(
     //     hWallet,
@@ -195,10 +191,12 @@ abstract class ZanoWalletBase
     //       pushPayer: false,
     //       hideReceiver: false,
     //     ));
-    int iAmount = (double.parse(amount!) * pow(10, 12)).toInt();
-    final description = PendingTransactionDescription(
-        amount: iAmount, fee: fee, hash: 'fade', pointerAddress: 0);
-    final transaction = PendingZanoTransaction(description, CryptoCurrency.zano);
+    final intAmount = (double.parse(stringAmount!) * pow(10, 12)).toInt();
+    // final description = PendingTransactionDescription(
+    //     amount: iAmount, fee: fee, hash: '', pointerAddress: 0);
+    final transaction = PendingZanoTransaction(fee: fee, intAmount: intAmount,
+      hWallet: hWallet, address: address, assetId: assetId,
+      comment: output.note ?? '');
     return transaction;
 
     /*final _credentials = credentials as ZanoTransactionCreationCredentials;

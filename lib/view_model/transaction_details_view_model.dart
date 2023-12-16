@@ -123,7 +123,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.ethereum:
         return 'https://etherscan.io/tx/${txId}';
       case WalletType.zano:
-        return 'https://example.com/${txId}';
+        return 'https://testnet-explorer.zano.org/transaction/${txId}';
       case WalletType.dummy:
         return 'https://example.com/${txId}';
       default:

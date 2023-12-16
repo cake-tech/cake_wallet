@@ -1,4 +1,4 @@
-import 'package:cw_zano/new_zano_wallet.dart';
+import 'package:cake_wallet/utils/language_list.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -22,15 +22,6 @@ import 'package:cw_zano/zano_transaction_history.dart';
 import 'package:cw_core/account.dart' as monero_account;
 import 'package:cw_zano/api/wallet.dart' as monero_wallet_api;
 import 'package:cw_zano/mnemonics/english.dart';
-import 'package:cw_zano/mnemonics/chinese_simplified.dart';
-import 'package:cw_zano/mnemonics/dutch.dart';
-import 'package:cw_zano/mnemonics/german.dart';
-import 'package:cw_zano/mnemonics/japanese.dart';
-import 'package:cw_zano/mnemonics/russian.dart';
-import 'package:cw_zano/mnemonics/spanish.dart';
-import 'package:cw_zano/mnemonics/portuguese.dart';
-import 'package:cw_zano/mnemonics/french.dart';
-import 'package:cw_zano/mnemonics/italian.dart';
 import 'package:cw_zano/zano_transaction_creation_credentials.dart';
 import 'package:cw_zano/api/balance_list.dart';
 
@@ -111,7 +102,7 @@ abstract class Zano {
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority deserializeMoneroTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
-  List<String> getMoneroWordList(String language);
+  List<String> getWordList(String language);
 
   WalletCredentials createZanoRestoreWalletFromKeysCredentials({
       required String name,
@@ -134,7 +125,7 @@ abstract class Zano {
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createZanoWalletService(Box<WalletInfo> walletInfoSource);
   CryptoCurrency assetOfTransaction(TransactionInfo tx);
-  List<AssetRate> getAssetRate();
+  // List<AssetRate> getAssetRate();
 }
 
 // abstract class MoneroSubaddressList {

@@ -106,7 +106,7 @@ Future<String?> create(String name) async {
   credentials.password = password;
   await keyService.saveWalletPassword(password: password, walletName: credentials.name);
   debugPrint('path $path password $password');
-  final result = zano_wallet_manager.createWalletSync(path: path, password: password, language: '');
+  final result = calls.createWallet(path: path, password: password, language: '');
   debugPrint('create result $result');
   return _parseResult(result);
 }

@@ -1,11 +1,8 @@
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/monero_amount_format.dart';
-import 'package:cw_zano/api/model/history.dart';
-import 'package:cw_zano/api/structs/transaction_info_row.dart';
-import 'package:cw_core/parseBoolFromString.dart';
-import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/format_amount.dart';
-import 'package:cw_zano/api/transaction_history.dart';
+import 'package:cw_core/monero_amount_format.dart';
+import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_zano/api/model/history.dart';
 
 class ZanoTransactionInfo extends TransactionInfo {
   ZanoTransactionInfo(

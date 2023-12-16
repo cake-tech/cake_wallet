@@ -14,7 +14,6 @@ import 'package:cw_zano/api/signatures.dart';
 import 'package:cw_zano/api/types.dart';
 import 'package:cw_zano/api/zano_api.dart';
 import 'package:cw_zano/api/calls.dart' as calls;
-import 'package:cw_zano/api/exceptions/setup_wallet_exception.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart' as mobx;
@@ -163,9 +162,9 @@ int getNodeHeightSync(int hWallet) {
 //   return 0;
 // }
 
-int getTxFee(int priority) {
-  return calls.getCurrentTxFee(priority);
-}
+// int getTxFee(int priority) {
+//   return calls.getCurrentTxFee(priority);
+// }
 
 bool isConnectedSync() => isConnectedNative() != 0;
 
@@ -325,7 +324,7 @@ class SyncListener {
       wallet.balance = mobx.ObservableMap.of(
           {CryptoCurrency.zano: ZanoBalance(total: balance.total, unlocked: balance.unlocked)});
 
-      getTxFee(hWallet);
+      ///getTxFee(hWallet);
 
       if (_initialSyncHeight <= 0) {
         _initialSyncHeight = syncHeight;

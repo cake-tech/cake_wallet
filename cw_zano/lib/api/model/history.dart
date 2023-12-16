@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cw_zano/api/model/employed_entries.dart';
 import 'package:cw_zano/api/model/subtransfer.dart';
 

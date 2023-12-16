@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cw_zano/api/model/receive.dart';
 
 class EmployedEntries {

@@ -1,5 +1,4 @@
 import 'dart:ffi';
-import 'package:cw_zano/api/structs/pending_transaction.dart';
 import 'package:cw_zano/api/structs/ut8_box.dart';
 import 'package:ffi/ffi.dart';
 
@@ -22,7 +21,7 @@ typedef RestoreWalletFromKeys = int Function(
 
 typedef IsWalletExist = int Function(Pointer<Utf8>);
 
-typedef LoadWallet = int Function(Pointer<Utf8>, Pointer<Utf8>, int);
+//typedef LoadWallet = int Function(Pointer<Utf8>, Pointer<Utf8>, int);
 
 typedef ErrorString = Pointer<Utf8> Function();
 
@@ -99,27 +98,27 @@ typedef TransactionsCount = int Function();
 
 typedef TransactionsGetAll = Pointer<Int64> Function();
 
-typedef TransactionCreate = int Function(
-    Pointer<Utf8> address,
-    Pointer<Utf8> assetType,
-    Pointer<Utf8> paymentId,
-    Pointer<Utf8> amount,
-    int priorityRaw,
-    Pointer<Utf8Box> error,
-    Pointer<PendingTransactionRaw> pendingTransaction);
+// typedef TransactionCreate = int Function(
+//     Pointer<Utf8> address,
+//     Pointer<Utf8> assetType,
+//     Pointer<Utf8> paymentId,
+//     Pointer<Utf8> amount,
+//     int priorityRaw,
+//     Pointer<Utf8Box> error,
+//     Pointer<PendingTransactionRaw> pendingTransaction);
 
-typedef TransactionCreateMultDest = int Function(
-    Pointer<Pointer<Utf8>> addresses,
-    Pointer<Utf8> assetType,
-    Pointer<Utf8> paymentId,
-    Pointer<Pointer<Utf8>> amounts,
-    int size,
-    int priorityRaw,
-    Pointer<Utf8Box> error,
-    Pointer<PendingTransactionRaw> pendingTransaction);
+// typedef TransactionCreateMultDest = int Function(
+//     Pointer<Pointer<Utf8>> addresses,
+//     Pointer<Utf8> assetType,
+//     Pointer<Utf8> paymentId,
+//     Pointer<Pointer<Utf8>> amounts,
+//     int size,
+//     int priorityRaw,
+//     Pointer<Utf8Box> error,
+//     Pointer<PendingTransactionRaw> pendingTransaction);
 
-typedef TransactionCommit = int Function(
-    Pointer<PendingTransactionRaw>, Pointer<Utf8Box>);
+// typedef TransactionCommit = int Function(
+//     Pointer<PendingTransactionRaw>, Pointer<Utf8Box>);
 
 typedef SecretViewKey = Pointer<Utf8> Function();
 

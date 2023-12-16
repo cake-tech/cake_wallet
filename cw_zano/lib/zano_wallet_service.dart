@@ -1,24 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:collection/collection.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/monero_wallet_utils.dart';
-import 'package:cw_zano/api/model/create_wallet_result.dart';
-import 'package:cw_zano/new_zano_wallet.dart';
-import 'package:cw_zano/zano_balance.dart';
-import 'package:hive/hive.dart';
-import 'package:cw_zano/api/wallet_manager.dart' as zano_wallet_manager;
-import 'package:cw_zano/api/wallet.dart' as zano_wallet;
-import 'package:cw_zano/api/calls.dart' as calls;
-import 'package:cw_zano/api/exceptions/wallet_opening_exception.dart';
-import 'package:cw_zano/zano_wallet.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_zano/api/calls.dart' as calls;
+import 'package:cw_zano/api/model/create_wallet_result.dart';
+import 'package:cw_zano/api/wallet_manager.dart' as zano_wallet_manager;
+import 'package:cw_zano/zano_balance.dart';
+import 'package:cw_zano/zano_wallet.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 class ZanoNewWalletCredentials extends WalletCredentials {
@@ -32,11 +29,6 @@ class ZanoRestoreWalletFromSeedCredentials extends WalletCredentials {
       : super(name: name, password: password, height: height);
 
   final String mnemonic;
-}
-
-class ZanoWalletLoadingException implements Exception {
-  @override
-  String toString() => 'Failure to load the wallet.';
 }
 
 class ZanoRestoreWalletFromKeysCredentials extends WalletCredentials {
@@ -91,9 +83,8 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
       final wallet = ZanoWallet(credentials.walletInfo!);
       await wallet.connectToNode(node: Node());
       final path = await pathForWallet(name: credentials.name, type: getType());
-      final result = await zano_wallet_manager.createWallet(
+      final result = calls.createWallet(
           language: "", path: path, password: credentials.password!);
-      print("create wallet result $result");
       final map = json.decode(result) as Map<String, dynamic>;
       if (map['result'] != null) {
         final createWalletResult =
