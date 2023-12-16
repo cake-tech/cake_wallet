@@ -32,37 +32,6 @@ class ZanoTransactionInfo extends TransactionInfo {
     assetType = 'ZANO',     // TODO: FIXIT:
     recipientAddress = history.remoteAddresses.isNotEmpty ? history.remoteAddresses.first : '';
 
-  /*ZanoTransactionInfo.fromMap(Map<String, Object> map)
-      : id = (map['hash'] ?? '') as String,
-        height = (map['height'] ?? 0) as int,
-        direction =
-            parseTransactionDirectionFromNumber(map['direction'] as String) ??
-                TransactionDirection.incoming,
-        date = DateTime.fromMillisecondsSinceEpoch(
-            int.parse(map['timestamp'] as String? ?? '0') * 1000),
-        isPending = parseBoolFromString(map['isPending'] as String),
-        amount = map['amount'] as int,
-        accountIndex = int.parse(map['accountIndex'] as String),
-        addressIndex = map['addressIndex'] as int,
-        confirmations = map['confirmations'] as int,
-        key = getTxKey((map['hash'] ?? '') as String),
-        fee = map['fee'] as int? ?? 0;*/
-
-  /*ZanoTransactionInfo.fromRow(TransactionInfoRow row)
-      : id = row.getHash(),
-        height = row.blockHeight,
-        direction = parseTransactionDirectionFromInt(row.direction) ??
-            TransactionDirection.incoming,
-        date = DateTime.fromMillisecondsSinceEpoch(row.getDatetime() * 1000),
-        isPending = row.isPending != 0,
-        amount = row.getAmount(),
-        accountIndex = row.subaddrAccount,
-        addressIndex = row.subaddrIndex,
-        confirmations = row.confirmations,
-        key = null, //getTxKey(row.getHash()),
-        fee = row.fee,
-        assetType = row.getAssetType();*/
-
   final String id;
   final int height;
   final TransactionDirection direction;

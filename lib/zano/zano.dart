@@ -19,11 +19,8 @@ import 'package:cw_zano/zano_wallet_service.dart';
 import 'package:cw_zano/zano_wallet.dart';
 import 'package:cw_zano/zano_transaction_info.dart';
 import 'package:cw_zano/zano_transaction_history.dart';
-import 'package:cw_core/account.dart' as monero_account;
-import 'package:cw_zano/api/wallet.dart' as monero_wallet_api;
 import 'package:cw_zano/mnemonics/english.dart';
 import 'package:cw_zano/zano_transaction_creation_credentials.dart';
-import 'package:cw_zano/api/balance_list.dart';
 
 part 'cw_zano.dart';
 
@@ -95,7 +92,7 @@ abstract class Zano {
 
   ZanoWalletDetails getZanoWalletDetails(Object wallet);
 
-  String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
+  // String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
 
   int getHeightByDate({required DateTime date});
   Future<int> getCurrentHeight();

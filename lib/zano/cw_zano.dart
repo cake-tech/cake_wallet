@@ -218,7 +218,7 @@ class CWZano extends Zano {
 
   @override
   void onStartup() {
-    monero_wallet_api.onStartup();
+    debugPrint("onStartup");
   }
 
   @override
@@ -232,11 +232,11 @@ class CWZano extends Zano {
     return ZanoWalletService(walletInfoSource);
   }
 
-  @override
-  String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
-    final zanoWallet = wallet as ZanoWallet;
-    return zanoWallet.getTransactionAddress(accountIndex, addressIndex);
-  }
+  // @override
+  // String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
+  //   final zanoWallet = wallet as ZanoWallet;
+  //   return zanoWallet.getTransactionAddress(accountIndex, addressIndex);
+  // }
 
   @override
   CryptoCurrency assetOfTransaction(TransactionInfo tx) {

@@ -25,6 +25,7 @@ import 'package:cw_zano/zano_transaction_history.dart';
 import 'package:cw_zano/zano_transaction_info.dart';
 import 'package:cw_zano/zano_wallet_addresses.dart';
 import 'package:ffi/ffi.dart';
+import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 
 part 'zano_wallet.g.dart';
@@ -103,10 +104,10 @@ abstract class ZanoWalletBase
     await updateTransactions();
 
     if (walletInfo.isRecovery) {
-      ///zano_wallet.setRecoveringFromSeed(isRecovery: walletInfo.isRecovery);
+      debugPrint('setRecoveringFromSeed isRecovery ${walletInfo.isRecovery}');
 
       if (zano_wallet.getCurrentHeight(hWallet) <= 1) {
-        zano_wallet.setRefreshFromBlockHeight(height: walletInfo.restoreHeight);
+        debugPrint('setRefreshFromBlockHeight height ${walletInfo.restoreHeight}');
       }
     }
 
@@ -128,7 +129,7 @@ abstract class ZanoWalletBase
   Future<void> connectToNode({required Node node}) async {
     try {
       syncStatus = ConnectingSyncStatus();
-      await zano_wallet.setupNode(
+      await calls.setupNode(
         address: "195.201.107.230:33336", // node.uriRaw,
         login: "", // node.login,
         password: "", // node.password,
@@ -153,8 +154,7 @@ abstract class ZanoWalletBase
 
     try {
       syncStatus = AttemptingSyncStatus();
-      //zano_wallet.startRefresh();
-      print("start refresh");
+      debugPrint("startRefresh");
       _setListeners();
       _listener?.start(this, hWallet);
     } catch (e) {
@@ -172,31 +172,11 @@ abstract class ZanoWalletBase
         ? output.extractedAddress!
         : output.address;
     final stringAmount = output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
-    //final int? formattedAmount = output.sendAll ? null : output.formattedCryptoAmount;
     final fee = calculateEstimatedFee(creds.priority);
-    // final result = await calls.transfer(
-    //     hWallet,
-    //     TransferParams(
-    //       destinations: [
-    //         Destination(
-    //           amount: amount!,
-    //           address: address,
-    //           assetId: assetId,
-    //         )
-    //       ],
-    //       fee: fee,
-    //       mixin: zanoMixin,
-    //       paymentId: '', // TODO: fixit
-    //       comment: output.note ?? '',
-    //       pushPayer: false,
-    //       hideReceiver: false,
-    //     ));
     final intAmount = (double.parse(stringAmount!) * pow(10, 12)).toInt();
-    // final description = PendingTransactionDescription(
-    //     amount: iAmount, fee: fee, hash: '', pointerAddress: 0);
     final transaction = PendingZanoTransaction(fee: fee, intAmount: intAmount,
       hWallet: hWallet, address: address, assetId: assetId,
-      comment: output.note ?? '');
+      comment: output.note ?? '', zanoWallet: this);
     return transaction;
 
     /*final _credentials = credentials as ZanoTransactionCreationCredentials;
@@ -277,7 +257,7 @@ abstract class ZanoWalletBase
   Future<void> save() async {
     await walletAddresses.updateAddressesInBox();
     await backupWalletFiles(name);
-    await zano_wallet.store(hWallet);
+    await calls.store(hWallet);
   }
 
   @override
@@ -306,12 +286,8 @@ abstract class ZanoWalletBase
 
   @override
   Future<void> changePassword(String password) async {
-    zano_wallet.setPasswordSync(password);
+    calls.setPassword(hWallet: hWallet, password: password);
   }
-
-  //Future<int> getNodeHeight() async => zano_wallet.getNodeHeight();
-
-  Future<bool> isConnected() async => zano_wallet.isConnected();
 
   Future<void> setAsRecovered() async {
     walletInfo.isRecovery = false;
@@ -322,8 +298,8 @@ abstract class ZanoWalletBase
   Future<void> rescan({required int height}) async {
     walletInfo.restoreHeight = height;
     walletInfo.isRecovery = true;
-    zano_wallet.setRefreshFromBlockHeight(height: height);
-    zano_wallet.rescanBlockchainAsync();
+    debugPrint('setRefreshFromBlockHeight height $height');
+    debugPrint('rescanBlockchainAsync');
     await startSync();
     _askForUpdateBalance();
     /**walletAddresses.accountList.update();*/
@@ -331,9 +307,6 @@ abstract class ZanoWalletBase
     await save();
     await walletInfo.save();
   }
-
-  String getTransactionAddress(int accountIndex, int addressIndex) =>
-      zano_wallet.getAddress(accountIndex: accountIndex, addressIndex: addressIndex);
 
   Future<void> _refreshTransactions() async {
     final result = await calls.getRecentTxsAndInfo(hWallet: hWallet, offset: 0, count: 30);
@@ -403,36 +376,17 @@ abstract class ZanoWalletBase
 
     if (currentHeight <= 1) {
       final height = _getHeightByDate(walletInfo.date);
-      ///zano_wallet.setRecoveringFromSeed(isRecovery: true);
-      zano_wallet.setRefreshFromBlockHeight(height: height);
+      debugPrint('setRecoveringFromSeed isRecovery true');
+      debugPrint('setRefreshFromBlockHeight height $height');
     }
   }
 
-  // int _getHeightDistance(DateTime date) {
-  //   final distance =
-  //       DateTime.now().millisecondsSinceEpoch - date.millisecondsSinceEpoch;
-  //   final daysTmp = (distance / 86400).round();
-  //   final days = daysTmp < 1 ? 1 : daysTmp;
-
-  //   return days * 1000;
-  // }
-
   int _getHeightByDate(DateTime date) {
-    // TODO: !!! 12/10 commented
     return 0;
-    // final nodeHeight = zano_wallet.getNodeHeightSync();
-    // final heightDistance = _getHeightDistance(date);
-
-    // if (nodeHeight <= 0) {
-    //   return 0;
-    // }
-
-    // return nodeHeight - heightDistance;
   }
 
   void _askForUpdateBalance() {
-    print("ask for update balance");
-    //balance.addAll(getZanoBalance());
+    debugPrint('askForUpdateBalance');
   }
 
   Future<void> _askForUpdateTransactionHistory() async => await updateTransactions();

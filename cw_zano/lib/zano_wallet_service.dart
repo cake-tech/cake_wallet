@@ -11,8 +11,11 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_zano/api/calls.dart' as calls;
+import 'package:cw_zano/api/consts.dart';
+import 'package:cw_zano/api/exceptions/already_exists_exception.dart';
+import 'package:cw_zano/api/exceptions/restore_from_seed_exception.dart';
+import 'package:cw_zano/api/exceptions/wrong_seed_exception.dart';
 import 'package:cw_zano/api/model/create_wallet_result.dart';
-import 'package:cw_zano/api/wallet_manager.dart' as zano_wallet_manager;
 import 'package:cw_zano/zano_balance.dart';
 import 'package:cw_zano/zano_wallet.dart';
 import 'package:hive/hive.dart';
@@ -106,7 +109,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
   Future<bool> isWalletExit(String name) async {
     try {
       final path = await pathForWallet(name: name, type: getType());
-      return zano_wallet_manager.isWalletExist(path: path);
+      return calls.isWalletExist(path: path);
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
       print('ZanoWalletsManager Error: $e');
@@ -188,25 +191,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
 
   @override
   Future<ZanoWallet> restoreFromKeys(ZanoRestoreWalletFromKeysCredentials credentials) async {
-    try {
-      final path = await pathForWallet(name: credentials.name, type: getType());
-      await zano_wallet_manager.restoreFromKeys(
-          path: path,
-          password: credentials.password!,
-          language: credentials.language,
-          restoreHeight: credentials.height!,
-          address: credentials.address,
-          viewKey: credentials.viewKey,
-          spendKey: credentials.spendKey);
-      final wallet = ZanoWallet(credentials.walletInfo!);
-      await wallet.init();
-
-      return wallet;
-    } catch (e) {
-      // TODO: Implement Exception for wallet list service.
-      print('ZanoWalletsManager Error: $e');
-      rethrow;
-    }
+    throw UnimplementedError("Restore from keys not implemented");
   }
 
   @override
@@ -216,12 +201,20 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
       await wallet.connectToNode(node: Node());
       final path = await pathForWallet(name: credentials.name, type: getType());
       final result = calls.restoreWalletFromSeed(path, credentials.password!, credentials.mnemonic);
-      print('restore wallet from seed result $result');
-            final map = json.decode(result) as Map<String, dynamic>;
+      final map = json.decode(result) as Map<String, dynamic>;
       if (map['result'] != null) {
         final createWalletResult =
             CreateWalletResult.fromJson(map['result'] as Map<String, dynamic>);
         _parseCreateWalletResult(createWalletResult, wallet);
+      } else if (map['error'] != null) {
+        final code = map['error']['code'] as String;
+        final message = map['error']['message'] as String;
+        if (code == Consts.errorWrongSeed) {
+          throw WrongSeedException(message);
+        } else if (code == Consts.errorAlreadyExists) {
+          throw AlreadyExistsException(message);
+        }
+        throw RestoreFromSeedException(code, message);
       }
       await calls.store(hWallet);
       await wallet.init();
