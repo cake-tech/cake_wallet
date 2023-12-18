@@ -709,6 +709,9 @@
   "require_for_exchanges_to_external_wallets": "Bukatar musanya zuwa wallet na waje",
   "camera_permission_is_required": "Ana buƙatar izinin kyamara.\nDa fatan za a kunna shi daga saitunan app.",
   "switchToETHWallet": "Da fatan za a canza zuwa walat ɗin Ethereum kuma a sake gwadawa",
+  "order_by": "Oda ta",
+  "creation_date": "Ranar halitta",
+  "group_by_type": "Rukuni ta nau'in",
   "importNFTs": "Shigo da NFTs",
   "noNFTYet": "Babu NFTs tukuna",
   "address": "Adireshi",
@@ -728,8 +731,11 @@
   "seed_language_czech": "Czech",
   "seed_language_korean": "Yaren Koriya",
   "seed_language_chinese_traditional": "Sinanci (na gargajiya)",
+  "ascending": "Hau",
+  "descending": "Saukowa",
   "dfx_option_description": "Sayi crypto tare da EUR & CHF. Har zuwa € 990 ba tare da ƙarin KYC ba. Don 'yan kasuwa da abokan ciniki na kamfanoni a Turai",
   "polygonscan_history": "PolygonScan tarihin kowane zamani",
   "wallet_seed_legacy": "Tallarin walat walat",
+  "custom_drag": "Al'ada (riƙe da ja)",
   "switchToEVMCompatibleWallet": "Da fatan za a canza zuwa walat ɗin EVM mai jituwa kuma a sake gwadawa (Ethereum, Polygon)"
 }

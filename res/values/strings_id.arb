@@ -719,6 +719,9 @@
   "require_for_exchanges_to_external_wallets": "Memerlukan pertukaran ke dompet eksternal",
   "camera_permission_is_required": "Izin kamera diperlukan.\nSilakan aktifkan dari pengaturan aplikasi.",
   "switchToETHWallet": "Silakan beralih ke dompet Ethereum dan coba lagi",
+  "order_by": "Dipesan oleh",
+  "creation_date": "Tanggal Pembuatan",
+  "group_by_type": "Grup demi jenis",
   "importNFTs": "Impor NFT",
   "noNFTYet": "Belum ada NFT",
   "address": "Alamat",
@@ -737,9 +740,12 @@
   "seedtype_polyseed": "Polyseed (16 kata)",
   "seed_language_czech": "Ceko",
   "seed_language_korean": "Korea",
+  "ascending": "Naik",
+  "descending": "Menurun",
   "seed_language_chinese_traditional": "Cina (tradisional)",
   "dfx_option_description": "Beli kripto dengan EUR & CHF. Hingga 990€ tanpa KYC tambahan. Untuk pelanggan ritel dan korporat di Eropa",
   "polygonscan_history": "Sejarah PolygonScan",
   "wallet_seed_legacy": "Biji dompet warisan",
+  "custom_drag": "Khusus (tahan dan seret)",
   "switchToEVMCompatibleWallet": "Silakan beralih ke dompet yang kompatibel dengan EVM dan coba lagi (Ethereum, Polygon)"
 }
