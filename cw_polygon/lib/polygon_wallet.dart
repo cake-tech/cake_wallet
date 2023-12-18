@@ -17,7 +17,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_ethereum/ethereum_formatter.dart';
-import 'package:cw_ethereum/file.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_polygon/default_polygon_erc20_tokens.dart';
 import 'package:cw_polygon/polygon_client.dart';

@@ -97,8 +97,16 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
 
   @override
   void dispose() {
-    super.dispose();
     moneroSeedTypeReaction();
+
+    if (passwordListener != null) {
+      passwordTextEditingController?.removeListener(passwordListener!);
+    }
+
+    if (repeatedPasswordListener != null) {
+      repeatedPasswordTextEditingController?.removeListener(repeatedPasswordListener!);
+    }
+    super.dispose();
   }
 
   void onSeedChange(String seed) {
@@ -109,18 +117,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
       _changeLanguage(lang.nameEnglish);
     }
     widget.onSeedChange?.call(seed);
-  }
-
-  @override
-  void dispose() {
-    if (passwordListener != null) {
-      passwordTextEditingController?.removeListener(passwordListener!);
-    }
-
-    if (repeatedPasswordListener != null) {
-      repeatedPasswordTextEditingController?.removeListener(repeatedPasswordListener!);
-    }
-    super.dispose();
   }
 
   @override

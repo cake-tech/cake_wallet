@@ -15,7 +15,6 @@ import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_ethereum/default_ethereum_erc20_tokens.dart';
-import 'package:cw_ethereum/default_erc20_tokens.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_ethereum/ethereum_client.dart';
