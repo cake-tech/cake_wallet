@@ -416,8 +416,14 @@ Future<void> pinEncryptionMigration(
     
     // now do the same for all wallet passwords:
     await Future.forEach(walletInfoSource.values, (WalletInfo walletInfo) async {
-      String walletPassword = await keyService.getWalletPasswordV1(walletName: walletInfo.name);
-      await keyService.saveWalletPasswordV2(walletName: walletInfo.name, password: walletPassword);
+      try {
+
+        String walletPassword = await keyService.getWalletPasswordV1(walletName: walletInfo.name);
+        await keyService.saveWalletPasswordV2(walletName: walletInfo.name, password: walletPassword);
+      } catch (e) {
+        // probably failed to get wallet password
+        print("pinEncryptionMigration: $e");
+      }
     });
   } catch (e) {
     // failure isn't really an option since we'll be updating how pins are stored and used
