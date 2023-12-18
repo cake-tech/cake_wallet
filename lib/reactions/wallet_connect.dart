@@ -44,3 +44,14 @@ String getChainNameBasedOnWalletType(WalletType walletType) {
       return '';
   }
 }
+
+String getTokenNameBasedOnWalletType(WalletType walletType) {
+  switch (walletType) {
+    case WalletType.ethereum:
+      return 'ETH';
+    case WalletType.polygon:
+      return 'MATIC';
+    default:
+      return '';
+  }
+}

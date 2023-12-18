@@ -89,7 +89,7 @@ dependencies:
   bitcoin_flutter:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git
-      ref: cake-update-v3
+      ref: cake-update-v4
   fluttertoast: 8.1.4
 #  tor:
 #    git:
@@ -97,9 +97,7 @@ dependencies:
 #      ref: main
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
-  polyseed:
-    git:
-      url: https://github.com/cake-tech/polyseed_dart.git
+  polyseed: ^0.0.2
 
 dev_dependencies:
   flutter_test:

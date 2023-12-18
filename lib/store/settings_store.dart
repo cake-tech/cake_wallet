@@ -12,6 +12,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
+import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
@@ -36,8 +37,6 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/set_app_secure_native.dart';
-import 'package:cake_wallet/utils/device_info.dart';
-
 part 'settings_store.g.dart';
 
 class SettingsStore = SettingsStoreBase with _$SettingsStore;
@@ -55,7 +54,8 @@ abstract class SettingsStoreBase with Store {
       required bool initialAppSecure,
       required bool initialDisableBuy,
       required bool initialDisableSell,
-      required BuyProviderType initialDefaultBuyProvider,
+      required WalletListOrderType initialWalletListOrder,
+      required bool initialWalletListAscending,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
       required String initialTotpSecretKey,
@@ -124,7 +124,8 @@ abstract class SettingsStoreBase with Store {
         isAppSecure = initialAppSecure,
         disableBuy = initialDisableBuy,
         disableSell = initialDisableSell,
-        defaultBuyProvider = initialDefaultBuyProvider,
+        walletListOrder = initialWalletListOrder,
+        walletListAscending = initialWalletListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
@@ -178,6 +179,12 @@ abstract class SettingsStoreBase with Store {
     }
 
     initializeTrocadorProviderStates();
+
+    WalletType.values.forEach((walletType) {
+      final key = 'defaultBuyProvider_${walletType.toString()}';
+      final providerIndex = sharedPreferences.getInt(key);
+      defaultBuyProviders[walletType] = providerIndex != null ? BuyProviderType.values[providerIndex] : BuyProviderType.AskEachTime;
+    });
 
     reaction(
         (_) => fiatCurrency,
@@ -245,9 +252,24 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.setBool(PreferencesKey.disableSellKey, disableSell));
 
     reaction(
-        (_) => defaultBuyProvider,
-        (BuyProviderType defaultBuyProvider) =>
-            sharedPreferences.setInt(PreferencesKey.defaultBuyProvider, defaultBuyProvider.index));
+            (_) => defaultBuyProviders.asObservable(),
+            (ObservableMap<WalletType, BuyProviderType> providers) {
+          providers.forEach((walletType, provider) {
+            final key = 'defaultBuyProvider_${walletType.toString()}';
+            sharedPreferences.setInt(key, provider.index);
+          });
+        }
+    );
+
+    reaction(
+        (_) => walletListOrder,
+        (WalletListOrderType walletListOrder) =>
+            sharedPreferences.setInt(PreferencesKey.walletListOrder, walletListOrder.index));
+
+    reaction(
+        (_) => walletListAscending,
+        (bool walletListAscending) =>
+            sharedPreferences.setBool(PreferencesKey.walletListAscending, walletListAscending));
 
     reaction(
         (_) => autoGenerateSubaddressStatus,
@@ -334,6 +356,7 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => totpSecretKey,
         (String totpKey) => sharedPreferences.setString(PreferencesKey.totpSecretKey, totpKey));
+
     reaction(
         (_) => numberOfFailedTokenTrials,
         (int failedTokenTrail) =>
@@ -497,7 +520,10 @@ abstract class SettingsStoreBase with Store {
   bool disableSell;
 
   @observable
-  BuyProviderType defaultBuyProvider;
+  WalletListOrderType walletListOrder;
+
+  @observable
+  bool walletListAscending;
 
   @observable
   bool allowBiometricalAuthentication;
@@ -567,6 +593,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   ObservableMap<String, bool> trocadorProviderStates = ObservableMap<String, bool>();
+
+  @observable
+  ObservableMap<WalletType, BuyProviderType> defaultBuyProviders = ObservableMap<WalletType, BuyProviderType>();
 
   @observable
   SortBalanceBy sortBalanceBy;
@@ -709,8 +738,10 @@ abstract class SettingsStoreBase with Store {
     final isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
     final disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? false;
     final disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? false;
-    final defaultBuyProvider =
-        BuyProviderType.values[sharedPreferences.getInt(PreferencesKey.defaultBuyProvider) ?? 0];
+    final walletListOrder =
+        WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
+    final walletListAscending =
+        sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
             FiatApiMode.enabled.raw);
@@ -869,7 +900,7 @@ abstract class SettingsStoreBase with Store {
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
-      return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 1);
+      return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 0);
     });
     final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
 
@@ -889,7 +920,8 @@ abstract class SettingsStoreBase with Store {
         initialAppSecure: isAppSecure,
         initialDisableBuy: disableBuy,
         initialDisableSell: disableSell,
-        initialDefaultBuyProvider: defaultBuyProvider,
+        initialWalletListOrder: walletListOrder,
+        initialWalletListAscending: walletListAscending,
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialCake2FAPresetOptions: selectedCake2FAPreset,
@@ -1005,8 +1037,9 @@ abstract class SettingsStoreBase with Store {
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? disableBuy;
     disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? disableSell;
-    defaultBuyProvider =
-        BuyProviderType.values[sharedPreferences.getInt(PreferencesKey.defaultBuyProvider) ?? 0];
+    walletListOrder =
+        WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
+    walletListAscending = sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
     allowBiometricalAuthentication =
         sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
             allowBiometricalAuthentication;

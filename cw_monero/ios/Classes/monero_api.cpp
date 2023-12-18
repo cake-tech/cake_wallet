@@ -988,6 +988,8 @@ extern "C"
         return m_wallet->trustedDaemon();
     }
 
+    // Coin Control //
+
     FUNCTION_VISABILITY_ATTRIBUTE
     CoinsInfoRow* coin(int index)
     {
@@ -1083,6 +1085,13 @@ extern "C"
     void thaw_coin(int index)
     {
         m_coins->thaw(index);
+    }
+
+    // Sign Messages //
+
+    char *sign_message(char *message, char *address = "")
+    {
+        return strdup(get_current_wallet()->signMessage(std::string(message), std::string(address)).c_str());
     }
 
 #ifdef __cplusplus

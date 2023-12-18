@@ -65,6 +65,7 @@ import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/seed_type_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -158,9 +159,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newWallet:
       final type = settings.arguments as WalletType;
       final walletNewVM = getIt.get<WalletNewVM>(param1: type);
-      final settingsStore = getIt.get<SettingsStore>();
+      final seedTypeViewModel = getIt.get<SeedTypeViewModel>();
 
-      return CupertinoPageRoute<void>(builder: (_) => NewWalletPage(walletNewVM, settingsStore));
+      return CupertinoPageRoute<void>(builder: (_) => NewWalletPage(walletNewVM, seedTypeViewModel));
 
     case Routes.setupPin:
       Function(PinCodeState<PinCodeWidget>, String)? callback;
@@ -579,9 +580,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
       return CupertinoPageRoute<void>(
           builder: (_) => AdvancedPrivacySettingsPage(
-                getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
-                getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
-              ));
+              getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
+              getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
+              getIt.get<SeedTypeViewModel>()));
 
     case Routes.anonPayInvoicePage:
       final args = settings.arguments as List;

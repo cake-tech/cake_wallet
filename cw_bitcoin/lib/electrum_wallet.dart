@@ -88,7 +88,7 @@ abstract class ElectrumWalletBase
       bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'/0");
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
-      inputsCount * 146 + outputsCounts * 33 + 8;
+      inputsCount * 68 + outputsCounts * 34 + 10;
 
   final bitcoin.HDWallet hd;
   final String mnemonic;
@@ -735,8 +735,7 @@ abstract class ElectrumWalletBase
     final index = address != null
         ? walletAddresses.addresses.firstWhere((element) => element.address == address).index
         : null;
-    return index == null
-        ? base64Encode(hd.sign(message))
-        : base64Encode(hd.derive(index).sign(message));
+    final HD = index == null ? hd : hd.derive(index);
+    return base64Encode(HD.signMessage(message));
   }
 }

@@ -149,3 +149,5 @@ typedef coin = Pointer<CoinsInfoRow> Function(Int32 index);
 typedef freeze_coin = Void Function(Int32 index);
 
 typedef thaw_coin = Void Function(Int32 index);
+
+typedef sign_message = Pointer<Utf8> Function(Pointer<Utf8> message, Pointer<Utf8> address);

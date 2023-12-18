@@ -1,13 +1,16 @@
+import 'package:cake_wallet/entities/wallet_list_order_types.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
-import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +36,53 @@ class WalletListPage extends BasePage {
   @override
   Widget body(BuildContext context) =>
       WalletListBody(walletListViewModel: walletListViewModel, authService: authService);
+
+  @override
+  Widget trailing(BuildContext context) {
+    final filterIcon = Image.asset('assets/images/filter_icon.png',
+        color: Theme.of(context).extension<FilterTheme>()!.iconColor);
+    return MergeSemantics(
+      child: SizedBox(
+        height: 37,
+        width: 37,
+        child: ButtonTheme(
+          minWidth: double.minPositive,
+          child: Semantics(
+            container: true,
+            child: GestureDetector(
+              onTap: () async {
+                await showPopUp<void>(
+                  context: context,
+                  builder: (context) => FilterListWidget(
+                    initalType: walletListViewModel.orderType,
+                    initalAscending: walletListViewModel.ascending,
+                    onClose: (bool ascending, WalletListOrderType type) async {
+                      walletListViewModel.setAscending(ascending);
+                      await walletListViewModel.setOrderType(type);
+                    },
+                  ),
+                );
+              },
+              child: Semantics(
+                label: 'Transaction Filter',
+                button: true,
+                enabled: true,
+                child: Container(
+                  height: 36,
+                  width: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Theme.of(context).extension<FilterTheme>()!.buttonColor,
+                  ),
+                  child: filterIcon,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class WalletListBody extends StatefulWidget {
@@ -75,11 +125,9 @@ class WalletListBodyState extends State<WalletListBody> {
           Expanded(
             child: Container(
               child: Observer(
-                builder: (_) => ListView.separated(
-                  physics: const BouncingScrollPhysics(),
-                  separatorBuilder: (_, index) =>
-                      Divider(color: Theme.of(context).colorScheme.background, height: 32),
-                  itemCount: widget.walletListViewModel.wallets.length,
+                builder: (_) => FilteredList(
+                  list: widget.walletListViewModel.wallets,
+                  updateFunction: widget.walletListViewModel.reorderAccordingToWalletList,
                   itemBuilder: (__, index) {
                     final wallet = widget.walletListViewModel.wallets[index];
                     final currentColor = wallet.isCurrent
@@ -88,6 +136,7 @@ class WalletListBodyState extends State<WalletListBody> {
                             .createNewWalletButtonBackgroundColor
                         : Theme.of(context).colorScheme.background;
                     final row = GestureDetector(
+                      key: ValueKey(wallet.name),
                       onTap: () => wallet.isCurrent ? null : _loadWallet(wallet),
                       child: Container(
                         height: tileHeight,
@@ -122,7 +171,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                         maxLines: null,
                                         softWrap: true,
                                         style: TextStyle(
-                                          fontSize: 22,
+                                          fontSize: 20,
                                           fontWeight: FontWeight.w500,
                                           color: Theme.of(context)
                                               .extension<CakeTextTheme>()!
@@ -142,13 +191,15 @@ class WalletListBodyState extends State<WalletListBody> {
                     return wallet.isCurrent
                         ? row
                         : Row(
+                            key: ValueKey(wallet.name),
                             children: [
                               Expanded(child: row),
                               GestureDetector(
                                 onTap: () => Navigator.of(context).pushNamed(Routes.walletEdit,
                                     arguments: [widget.walletListViewModel, wallet]),
                                 child: Container(
-                                  padding: EdgeInsets.only(right: 20),
+                                  padding: EdgeInsets.only(
+                                      right: DeviceInfo.instance.isMobile ? 20 : 40),
                                   child: Center(
                                     child: Container(
                                       height: 40,
