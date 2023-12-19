@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
+import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:flutter/material.dart';
@@ -109,6 +110,26 @@ class DesktopDashboardPage extends StatelessWidget {
       sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
     } else if (isNewInstall!) {
       sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    }
+
+    _showVulnerableSeedsPopup(context);
+  }
+
+  void _showVulnerableSeedsPopup(BuildContext context) async {
+    final List<String> affectedWalletNames = await dashboardViewModel.checkAffectedWallets();
+
+    if (affectedWalletNames.isNotEmpty) {
+      Future<void>.delayed(
+        Duration(seconds: 1),
+            () {
+          showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return VulnerableSeedsPopup(affectedWalletNames);
+            },
+          );
+        },
+      );
     }
   }
 }
