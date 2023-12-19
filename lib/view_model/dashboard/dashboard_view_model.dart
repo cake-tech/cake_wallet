@@ -457,7 +457,7 @@ abstract class DashboardViewModelBase with Store {
     List<String> affectedWallets = [];
     for (var walletInfo in walletInfoSource.values) {
       if (walletInfo.type == WalletType.bitcoin) {
-        final password = await keyService.getWalletPassword(walletName: walletInfo.name);
+        final password = await keyService.getWalletPasswordV2(walletName: walletInfo.name);
         final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
         final jsonSource = await read(path: path, password: password);
         final data = json.decode(jsonSource) as Map;
