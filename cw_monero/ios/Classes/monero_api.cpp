@@ -1089,7 +1089,7 @@ extern "C"
 
     // Sign Messages //
 
-    char *sign_message(char *message, char *address = "")
+    char *sign_message(char *message, char *address)
     {
         return strdup(get_current_wallet()->signMessage(std::string(message), std::string(address)).c_str());
     }
