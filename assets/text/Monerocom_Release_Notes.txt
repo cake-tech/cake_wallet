@@ -1,2 +1,4 @@
-Monero Polyseed support, create and restore from a 16 words phrase and without the need to remember the wallet creation date
-Bug fixes and enhancements
+Polyseed enhancements
+New on-ramp provider DFX
+Usability enhancements
+Bug fixes
