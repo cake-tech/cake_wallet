@@ -135,6 +135,7 @@ class ContactListPage extends BasePage {
           await showBar<void>(context, S.of(context).copied_to_clipboard);
         }
       },
+      behavior: HitTestBehavior.opaque,
       child: Container(
         padding: const EdgeInsets.only(top: 16, bottom: 16, right: 24),
         child: Row(

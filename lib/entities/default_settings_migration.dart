@@ -1,6 +1,5 @@
 import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
@@ -186,7 +185,6 @@ Future<void> defaultSettingsMigration(
         case 25:
           await rewriteSecureStoragePin(secureStorage: secureStorage);
           break;
-
         default:
           break;
       }

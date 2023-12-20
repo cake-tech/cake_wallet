@@ -3,8 +3,30 @@ import 'dart:convert';
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_polygon/polygon_transaction_model.dart';
 import 'package:cw_ethereum/.secrets.g.dart' as secrets;
+import 'package:flutter/foundation.dart';
+import 'package:web3dart/web3dart.dart';
 
 class PolygonClient extends EthereumClient {
+  @override
+  Transaction createTransaction({
+    required EthereumAddress from,
+    required EthereumAddress to,
+    required EtherAmount amount,
+    EtherAmount? maxPriorityFeePerGas,
+  }) {
+    return Transaction(
+      from: from,
+      to: to,
+      value: amount,
+    );
+  }
+
+  @override
+  Uint8List prepareSignedTransactionForSending(Uint8List signedTransaction) => signedTransaction;
+
+  @override
+  int get chainId => 137;
+
   @override
   Future<List<PolygonTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
@@ -27,7 +49,6 @@ class PolygonClient extends EthereumClient {
 
       return [];
     } catch (e) {
-      print(e);
       return [];
     }
   }

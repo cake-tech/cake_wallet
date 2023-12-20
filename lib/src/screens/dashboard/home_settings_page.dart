@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
@@ -91,7 +92,7 @@ class HomeSettingsPage extends BasePage {
                 fillColor: Theme.of(context).cardColor,
                 child: Icon(
                   Icons.add,
-                  color: Theme.of(context).dialogTheme.backgroundColor,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   size: 22.0,
                 ),
                 padding: EdgeInsets.all(12),

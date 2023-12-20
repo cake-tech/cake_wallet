@@ -214,7 +214,7 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestNodeWithProxy() async {
-    if (!isValidProxyAddress/* && !Tor.instance.enabled*/) {
+    if (!isValidProxyAddress /* && !Tor.instance.enabled*/) {
       return false;
     }
 

@@ -19,7 +19,6 @@ import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_options_page.dart';
@@ -382,7 +381,8 @@ Future<void> setup({
       settingsStore: settingsStore,
       yatStore: getIt.get<YatStore>(),
       ordersStore: getIt.get<OrdersStore>(),
-      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>()));
+      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
+      keyService: getIt.get<KeyService>()));
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
@@ -761,13 +761,7 @@ Future<void> setup({
     return PowNodeListViewModel(_powNodeSource, appStore);
   });
 
-  getIt.registerFactory(() {
-    final wallet = getIt.get<AppStore>().wallet;
-    return ConnectionSyncPage(
-      getIt.get<DashboardViewModel>(),
-      isEVMCompatibleChain(wallet!.type) ? getIt.get<Web3WalletService>() : null,
-    );
-  });
+  getIt.registerFactory(() => ConnectionSyncPage(getIt.get<DashboardViewModel>()));
 
   getIt.registerFactory(
       () => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(), getIt.get<AuthService>()));

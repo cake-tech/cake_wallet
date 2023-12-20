@@ -272,6 +272,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       case CryptoCurrency.maticpoly:
         return 'Mainnet';
       case CryptoCurrency.usdcpoly:
+      case CryptoCurrency.usdtPoly:
+      case CryptoCurrency.usdcEPoly:
         return 'MATIC';
       case CryptoCurrency.zec:
         return 'Mainnet';
@@ -284,6 +286,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     switch (currency) {
       case CryptoCurrency.zec:
         return 'zec';
+      case CryptoCurrency.usdcEPoly:
+        return 'usdce';
       default:
         return currency.title.toLowerCase();
     }
