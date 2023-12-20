@@ -21,6 +21,7 @@ class PreferencesKey {
   static const disableSellKey = 'disable_sell';
   static const defaultBuyProvider = 'default_buy_provider';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
+  static const shouldStartTorOnLaunch = 'start_tor_on_launch';
   static const allowBiometricalAuthenticationKey = 'allow_biometrical_authentication';
   static const useTOTP2FA = 'use_totp_2fa';
   static const failedTotpTokenTrials = 'failed_token_trials';

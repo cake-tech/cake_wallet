@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:tor/tor.dart';
 
 class TorPage extends BasePage {
@@ -41,16 +42,16 @@ class _TorPageBodyState extends State<TorPageBody> {
     });
 
     await Tor.init();
-    
+
     // Start the proxy
     await Tor.instance.start();
-    
+
     // Toggle started flag.
     setState(() {
       torEnabled = Tor.instance.enabled;
       connecting = false;
     });
-    
+
     final node = widget.appStore.settingsStore.getCurrentNode(widget.appStore.wallet!.type);
     if (node.socksProxyAddress?.isEmpty ?? true) {
       node.socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
@@ -61,21 +62,17 @@ class _TorPageBodyState extends State<TorPageBody> {
   }
 
   Future<void> endTor() async {
-    // Start the proxy
     Tor.instance.disable();
-  
-    // Toggle started flag.
     setState(() {
-      torEnabled = Tor.instance.enabled; // Update flag
+      torEnabled = Tor.instance.enabled;
     });
-  
     print('Done awaiting; tor should be stopped');
   }
-  
+
   @override
   void initState() {
     super.initState();
-  
+
     torEnabled = Tor.instance.enabled;
   }
 
@@ -86,16 +83,38 @@ class _TorPageBodyState extends State<TorPageBody> {
     super.dispose();
   }
 
+  Future<void> toggleStartup(bool? value) async {
+    if (value == null) {
+      return;
+    }
+    widget.appStore.settingsStore.shouldStartTorOnLaunch = value;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        child: connecting
-            ? ConnectingScreen()
-            : torEnabled
-                ? DisconnectScreen(disconnect: endTor)
-                : ConnectScreen(connect: startTor),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            child: connecting
+                ? ConnectingScreen()
+                : torEnabled
+                    ? DisconnectScreen(disconnect: endTor)
+                    : ConnectScreen(connect: startTor),
+          ),
+          Observer(builder: (_) {
+            return Row(
+              children: [
+                Checkbox(
+                  onChanged: toggleStartup,
+                  value: widget.appStore.settingsStore.shouldStartTorOnLaunch,
+                ),
+                Text("Auto start Tor on app launch"),
+              ],
+            );
+          }),
+        ],
       ),
     );
   }
@@ -159,13 +178,6 @@ class ConnectScreen extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-          ),
-          Text("Auto start Tor on app launch"),
-          Checkbox(
-            onChanged: (bool? value) {
-              print('value: $value');
-            },
-            value: null,
           ),
         ],
       ),
