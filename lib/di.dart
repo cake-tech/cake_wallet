@@ -98,6 +98,7 @@ import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
@@ -227,6 +228,7 @@ import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:tor/tor.dart';
 
 import 'buy/dfx/dfx_buy_provider.dart';
 import 'core/totp_request_details.dart';
@@ -293,6 +295,11 @@ Future<void> setup({
         ? null
         : ThemeList.darkTheme,
   );
+
+  if (settingsStore.shouldStartTorOnLaunch) {
+    await Tor.instance.enable();
+    await Tor.instance.start();
+  }
 
   if (_isSetupFinished) {
     return;
@@ -710,6 +717,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => TrocadorProvidersViewModel(getIt.get<SettingsStore>()));
 
+  getIt.registerFactory(() => TorViewModel(getIt.get<SettingsStore>()));
+
   getIt.registerFactory(() {
     return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
   });
@@ -799,8 +808,8 @@ Future<void> setup({
   getIt.registerFactory<RobinhoodBuyProvider>(
       () => RobinhoodBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory<DFXBuyProvider>(
-          () => DFXBuyProvider(wallet: getIt.get<AppStore>().wallet!));
+  getIt
+      .registerFactory<DFXBuyProvider>(() => DFXBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
         settingsStore: getIt.get<AppStore>().settingsStore,
@@ -1125,8 +1134,7 @@ Future<void> setup({
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
 
   getIt.registerFactory(() => AnonPayApi(
-      apiMode: getIt.get<SettingsStore>().exchangeStatus,
-      wallet: getIt.get<AppStore>().wallet!));
+      apiMode: getIt.get<SettingsStore>().exchangeStatus, wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory(() =>
       DesktopWalletSelectionDropDown(getIt.get<WalletListViewModel>(), getIt.get<AuthService>()));
@@ -1188,7 +1196,7 @@ Future<void> setup({
       () => WalletConnectConnectionsView(web3walletService: getIt.get<Web3WalletService>()));
 
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
-  getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
+  getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>(), getIt.get<TorViewModel>()));
 
   _isSetupFinished = true;
 }

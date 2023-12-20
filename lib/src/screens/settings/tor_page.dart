@@ -3,25 +3,28 @@ import 'dart:io';
 
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:tor/tor.dart';
 
 class TorPage extends BasePage {
   final AppStore appStore;
+  final TorViewModel model;
 
-  TorPage(this.appStore);
+  TorPage(this.appStore, this.model);
 
   @override
   Widget body(BuildContext context) {
-    return TorPageBody(appStore);
+    return TorPageBody(appStore, model);
   }
 }
 
 class TorPageBody extends StatefulWidget {
   final AppStore appStore;
+  final TorViewModel model;
 
-  const TorPageBody(this.appStore, {Key? key}) : super(key: key);
+  const TorPageBody(this.appStore, this.model, {Key? key}) : super(key: key);
 
   @override
   State<TorPageBody> createState() => _TorPageBodyState();
@@ -87,7 +90,7 @@ class _TorPageBodyState extends State<TorPageBody> {
     if (value == null) {
       return;
     }
-    widget.appStore.settingsStore.shouldStartTorOnLaunch = value;
+    widget.model.updateStartOnLaunch(value);
   }
 
   @override
