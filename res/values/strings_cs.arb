@@ -751,5 +751,6 @@
   "polygonscan_history": "Historie PolygonScan",
   "wallet_seed_legacy": "Starší semeno peněženky",
   "custom_drag": "Custom (Hold and Drag)",
-  "switchToEVMCompatibleWallet": "Přepněte na peněženku kompatibilní s EVM a zkuste to znovu (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Přepněte na peněženku kompatibilní s EVM a zkuste to znovu (Ethereum, Polygon)",
+  "start_tor_on_launch": "Začněte tor při spuštění"
 }

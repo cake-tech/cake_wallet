@@ -759,5 +759,6 @@
   "polygonscan_history": "PolygonScan-geschiedenis",
   "wallet_seed_legacy": "Legacy portemonnee zaad",
   "custom_drag": "Custom (vasthouden en slepen)",
-  "switchToEVMCompatibleWallet": "Schakel over naar een EVM-compatibele portemonnee en probeer het opnieuw (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Schakel over naar een EVM-compatibele portemonnee en probeer het opnieuw (Ethereum, Polygon)",
+  "start_tor_on_launch": "Begin met de lancering"
 }

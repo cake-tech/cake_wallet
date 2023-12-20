@@ -48,6 +48,12 @@ class PrivacyPage extends BasePage {
                 ),
               ),
               SettingsSwitcherCell(
+                  title: S.current.start_tor_on_launch,
+                  value: _privacySettingsViewModel.shouldStartTorOnLaunch,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setShouldStartTorOnLaunch(value);
+                  }),
+              SettingsSwitcherCell(
                   title: S.current.settings_save_recipient_address,
                   value: _privacySettingsViewModel.shouldSaveRecipientAddress,
                   onValueChange: (BuildContext _, bool value) {

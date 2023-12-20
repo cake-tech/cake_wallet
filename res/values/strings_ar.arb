@@ -755,5 +755,6 @@
   "polygonscan_history": "ﻥﺎﻜﺴﻧﻮﺠﻴﻟﻮﺑ ﺦﻳﺭﺎﺗ",
   "wallet_seed_legacy": "بذرة محفظة قديمة",
   "custom_drag": "مخصص (عقد وسحب)",
-  "switchToEVMCompatibleWallet": "  (Ethereum، Polygon) ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ EVM ﻊﻣ ﺔﻘﻓﺍﻮﺘﻣ ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ"
+  "switchToEVMCompatibleWallet": "  (Ethereum، Polygon) ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ EVM ﻊﻣ ﺔﻘﻓﺍﻮﺘﻣ ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ",
+  "start_tor_on_launch": "ابدأ في الإطلاق"
 }

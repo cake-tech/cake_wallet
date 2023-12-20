@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:flutter/material.dart';
@@ -107,15 +109,12 @@ class _TorPageBodyState extends State<TorPageBody> {
                     : ConnectScreen(connect: startTor),
           ),
           Observer(builder: (_) {
-            return Row(
-              children: [
-                Checkbox(
-                  onChanged: toggleStartup,
-                  value: widget.appStore.settingsStore.shouldStartTorOnLaunch,
-                ),
-                Text("Auto start Tor on app launch"),
-              ],
-            );
+            return SettingsSwitcherCell(
+                title: S.current.start_tor_on_launch,
+                value: widget.appStore.settingsStore.shouldStartTorOnLaunch,
+                onValueChange: (BuildContext _, bool value) {
+                  toggleStartup(value);
+                });
           }),
         ],
       ),

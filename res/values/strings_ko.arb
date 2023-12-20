@@ -757,5 +757,6 @@
   "polygonscan_history": "다각형 스캔 기록",
   "wallet_seed_legacy": "레거시 지갑 시드",
   "custom_drag": "사용자 정의 (홀드 앤 드래그)",
-  "switchToEVMCompatibleWallet": "EVM 호환 지갑으로 전환 후 다시 시도해 주세요. (이더리움, 폴리곤)"
+  "switchToEVMCompatibleWallet": "EVM 호환 지갑으로 전환 후 다시 시도해 주세요. (이더리움, 폴리곤)",
+  "start_tor_on_launch": "출시시 TOR를 시작하십시오"
 }

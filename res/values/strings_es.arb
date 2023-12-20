@@ -759,5 +759,6 @@
   "polygonscan_history": "Historial de PolygonScan",
   "wallet_seed_legacy": "Semilla de billetera heredada",
   "custom_drag": "Custom (mantenía y arrastre)",
-  "switchToEVMCompatibleWallet": "Cambie a una billetera compatible con EVM e inténtelo nuevamente (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Cambie a una billetera compatible con EVM e inténtelo nuevamente (Ethereum, Polygon)",
+  "start_tor_on_launch": "Iniciar tor en el lanzamiento"
 }

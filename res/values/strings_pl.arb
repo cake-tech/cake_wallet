@@ -759,5 +759,6 @@
   "polygonscan_history": "Historia PolygonScan",
   "wallet_seed_legacy": "Dziedziczne ziarno portfela",
   "custom_drag": "Niestandardowe (trzymaj i przeciągnij)",
-  "switchToEVMCompatibleWallet": "Przejdź na portfel zgodny z EVM i spróbuj ponownie (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Przejdź na portfel zgodny z EVM i spróbuj ponownie (Ethereum, Polygon)",
+  "start_tor_on_launch": "Rozpocznij TOR OD LATH"
 }

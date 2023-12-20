@@ -759,5 +759,6 @@
   "polygonscan_history": "ポリゴンスキャン履歴",
   "wallet_seed_legacy": "レガシーウォレットシード",
   "custom_drag": "カスタム（ホールドとドラッグ）",
-  "switchToEVMCompatibleWallet": "EVM 互換のウォレットに切り替えて再試行してください (イーサリアム、ポリゴン)"
+  "switchToEVMCompatibleWallet": "EVM 互換のウォレットに切り替えて再試行してください (イーサリアム、ポリゴン)",
+  "start_tor_on_launch": "起動時にTORを開始します"
 }
