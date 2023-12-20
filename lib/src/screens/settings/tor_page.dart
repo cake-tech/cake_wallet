@@ -37,7 +37,7 @@ class _TorPageBodyState extends State<TorPageBody> {
 
   Future<void> startTor() async {
     setState(() {
-      connecting = true; // Update flag
+      connecting = true;
     });
 
     await Tor.init();
@@ -47,7 +47,7 @@ class _TorPageBodyState extends State<TorPageBody> {
     
     // Toggle started flag.
     setState(() {
-      torEnabled = Tor.instance.enabled; // Update flag
+      torEnabled = Tor.instance.enabled;
       connecting = false;
     });
     
@@ -159,6 +159,13 @@ class ConnectScreen extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
+          ),
+          Text("Auto start Tor on app launch"),
+          Checkbox(
+            onChanged: (bool? value) {
+              print('value: $value');
+            },
+            value: null,
           ),
         ],
       ),

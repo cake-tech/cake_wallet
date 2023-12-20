@@ -220,6 +220,7 @@ class BackupService {
     final currentLanguageCode = data[PreferencesKey.currentLanguageCode] as String?;
     final displayActionListMode = data[PreferencesKey.displayActionListModeKey] as int?;
     final fiatApiMode = data[PreferencesKey.currentFiatApiModeKey] as int?;
+    final shouldStartTorOnLaunch = data[PreferencesKey.shouldStartTorOnLaunch] as bool?;
     final currentPinLength = data[PreferencesKey.currentPinLength] as int?;
     final currentTheme = data[PreferencesKey.currentTheme] as int?;
     final exchangeStatus = data[PreferencesKey.exchangeStatusKey] as int?;
@@ -315,6 +316,11 @@ class BackupService {
 
     if (fiatApiMode != null)
       await _sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, fiatApiMode);
+
+    if (shouldStartTorOnLaunch != null)
+      await _sharedPreferences.setBool(
+          PreferencesKey.shouldStartTorOnLaunch, shouldStartTorOnLaunch);
+
     if (autoGenerateSubaddressStatus != null)
       await _sharedPreferences.setInt(
           PreferencesKey.autoGenerateSubaddressStatusKey, autoGenerateSubaddressStatus);
@@ -550,6 +556,8 @@ class BackupService {
           _sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority),
       PreferencesKey.currentFiatApiModeKey:
           _sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey),
+      PreferencesKey.shouldStartTorOnLaunch:
+          _sharedPreferences.getBool(PreferencesKey.shouldStartTorOnLaunch),
       PreferencesKey.selectedCake2FAPreset:
           _sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset),
       PreferencesKey.shouldRequireTOTP2FAForAccessingWallet:

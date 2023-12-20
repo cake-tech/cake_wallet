@@ -55,6 +55,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialDisableSell,
       required BuyProviderType initialDefaultBuyProvider,
       required FiatApiMode initialFiatMode,
+      required bool initialShouldStartTorOnLaunch,
       required bool initialAllowBiometricalAuthentication,
       required String initialTotpSecretKey,
       required bool initialUseTOTP2FA,
@@ -114,6 +115,7 @@ abstract class SettingsStoreBase with Store {
         autoGenerateSubaddressStatus = initialAutoGenerateSubaddressStatus,
         moneroSeedType = initialMoneroSeedType,
         fiatApiMode = initialFiatMode,
+        shouldStartTorOnLaunch = initialShouldStartTorOnLaunch,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         selectedCake2FAPreset = initialCake2FAPresetOptions,
         totpSecretKey = initialTotpSecretKey,
@@ -179,7 +181,9 @@ abstract class SettingsStoreBase with Store {
     WalletType.values.forEach((walletType) {
       final key = 'defaultBuyProvider_${walletType.toString()}';
       final providerIndex = sharedPreferences.getInt(key);
-      defaultBuyProviders[walletType] = providerIndex != null ? BuyProviderType.values[providerIndex] : BuyProviderType.AskEachTime;
+      defaultBuyProviders[walletType] = providerIndex != null
+          ? BuyProviderType.values[providerIndex]
+          : BuyProviderType.AskEachTime;
     });
 
     reaction(
@@ -247,15 +251,13 @@ abstract class SettingsStoreBase with Store {
         (bool disableSell) =>
             sharedPreferences.setBool(PreferencesKey.disableSellKey, disableSell));
 
-    reaction(
-            (_) => defaultBuyProviders.asObservable(),
-            (ObservableMap<WalletType, BuyProviderType> providers) {
-          providers.forEach((walletType, provider) {
-            final key = 'defaultBuyProvider_${walletType.toString()}';
-            sharedPreferences.setInt(key, provider.index);
-          });
-        }
-    );
+    reaction((_) => defaultBuyProviders.asObservable(),
+        (ObservableMap<WalletType, BuyProviderType> providers) {
+      providers.forEach((walletType, provider) {
+        final key = 'defaultBuyProvider_${walletType.toString()}';
+        sharedPreferences.setInt(key, provider.index);
+      });
+    });
 
     reaction(
         (_) => autoGenerateSubaddressStatus,
@@ -271,6 +273,11 @@ abstract class SettingsStoreBase with Store {
         (_) => fiatApiMode,
         (FiatApiMode mode) =>
             sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, mode.serialize()));
+
+    reaction(
+        (_) => shouldStartTorOnLaunch,
+        (bool value) =>
+            sharedPreferences.setBool(PreferencesKey.shouldStartTorOnLaunch, value));
 
     reaction((_) => currentTheme,
         (ThemeBase theme) => sharedPreferences.setInt(PreferencesKey.currentTheme, theme.raw));
@@ -487,6 +494,9 @@ abstract class SettingsStoreBase with Store {
   FiatApiMode fiatApiMode;
 
   @observable
+  bool shouldStartTorOnLaunch;
+
+  @observable
   bool shouldSaveRecipientAddress;
 
   @observable
@@ -574,7 +584,8 @@ abstract class SettingsStoreBase with Store {
   ObservableMap<String, bool> trocadorProviderStates = ObservableMap<String, bool>();
 
   @observable
-  ObservableMap<WalletType, BuyProviderType> defaultBuyProviders = ObservableMap<WalletType, BuyProviderType>();
+  ObservableMap<WalletType, BuyProviderType> defaultBuyProviders =
+      ObservableMap<WalletType, BuyProviderType>();
 
   @observable
   SortBalanceBy sortBalanceBy;
@@ -722,6 +733,7 @@ abstract class SettingsStoreBase with Store {
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
             FiatApiMode.enabled.raw);
+    final shouldStartTorOnLaunch = sharedPreferences.getBool(PreferencesKey.shouldStartTorOnLaunch) ?? false;
     final allowBiometricalAuthentication =
         sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ?? false;
     final selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
@@ -899,6 +911,7 @@ abstract class SettingsStoreBase with Store {
         initialDisableSell: disableSell,
         initialDefaultBuyProvider: defaultBuyProvider,
         initialFiatMode: currentFiatApiMode,
+        initialShouldStartTorOnLaunch: shouldStartTorOnLaunch,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialCake2FAPresetOptions: selectedCake2FAPreset,
         initialUseTOTP2FA: useTOTP2FA,
