@@ -297,8 +297,8 @@ Future<void> setup({
   );
 
   if (settingsStore.shouldStartTorOnLaunch) {
-    await Tor.instance.enable();
-    await Tor.instance.start();
+    Tor.instance.enable();
+    Tor.instance.start();
   }
 
   if (_isSetupFinished) {
