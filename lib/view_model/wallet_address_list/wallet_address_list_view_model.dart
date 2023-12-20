@@ -331,6 +331,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           wallet.type == WalletType.litecoin ||
           wallet.type == WalletType.bitcoinCash;
 
+  bool get hasElectrumAddressList =>
+      wallet.type == WalletType.litecoin ||
+      wallet.type == WalletType.bitcoinCash ||
+          wallet.type == WalletType.bitcoin;
+
   List<ListItem> _baseItems;
 
   final YatStore yatStore;

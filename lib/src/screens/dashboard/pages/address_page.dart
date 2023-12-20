@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/receive/widgets/electrum_address_list_page.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -15,6 +16,7 @@ import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
@@ -155,12 +157,29 @@ class AddressPage extends BasePage {
                           amountController: _amountController,
                           isLight: dashboardViewModel.settingsStore.currentTheme.type ==
                               ThemeType.light))),
+              if (dashboardViewModel.isAutoGenerateSubaddressesEnabled ||
+                  addressListViewModel.showElectrumAddressDisclaimer)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(S.of(context).electrum_address_disclaimer,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 15,
+                          color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor)),
+                ),
               Observer(builder: (_) {
-                if (addressListViewModel.hasAddressList) {
+                if (addressListViewModel.hasAddressList || addressListViewModel.hasElectrumAddressList) {
                   return GestureDetector(
-                    onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled
+                    onTap: () async =>
+                    addressListViewModel.hasElectrumAddressList ?
+                      await showPopUp<void>(
+                          context: context,
+                          builder: (_) => getIt.get<ElectrumAddressListPage>())
+                      :
+                    dashboardViewModel.isAutoGenerateSubaddressesEnabled
                         ? await showPopUp<void>(
-                            context: context, builder: (_) => getIt.get<MoneroAccountListPage>())
+                        context: context,
+                        builder: (_) => getIt.get<MoneroAccountListPage>())
                         : Navigator.of(context).pushNamed(Routes.receive),
                     child: Container(
                       height: 50,
@@ -210,14 +229,7 @@ class AddressPage extends BasePage {
                       ),
                     ),
                   );
-                } else if (dashboardViewModel.isAutoGenerateSubaddressesEnabled ||
-                    addressListViewModel.showElectrumAddressDisclaimer) {
-                  return Text(S.of(context).electrum_address_disclaimer,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 15,
-                          color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor));
-                } else {
+                }  else {
                   return const SizedBox();
                 }
               })

@@ -86,6 +86,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       return acc;
     });
 
+  List<BitcoinAddressRecord> get usedAddressList =>
+  addresses.where((element) => element.isUsed).toList();
+
+
   Future<void> discoverAddresses() async {
     await _discoverAddresses(mainHd, false);
     await _discoverAddresses(sideHd, true);

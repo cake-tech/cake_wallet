@@ -35,6 +35,7 @@ import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dar
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/electrum_address_list_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
@@ -659,6 +660,9 @@ Future<void> setup({
 
   getIt.registerFactory(
       () => NanoAccountListPage(accountListViewModel: getIt.get<NanoAccountListViewModel>()));
+
+  getIt.registerFactory(
+          () => ElectrumAddressListPage(wallet: getIt.get<AppStore>().wallet!));
 
   /*getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
