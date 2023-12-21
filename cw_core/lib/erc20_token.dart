@@ -18,6 +18,8 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
   bool _enabled;
   @HiveField(5)
   final String? iconPath;
+  @HiveField(6)
+  final String? tag;
 
   bool get enabled => _enabled;
 
@@ -30,30 +32,31 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
     required this.decimal,
     bool enabled = true,
     this.iconPath,
+    this.tag,
   })  : _enabled = enabled,
         super(
-          name: symbol.toLowerCase(),
-          title: symbol.toUpperCase(),
-          fullName: name,
-          tag: "ETH",
-          iconPath: iconPath,
-          decimals: decimal
-        );
+            name: symbol.toLowerCase(),
+            title: symbol.toUpperCase(),
+            fullName: name,
+            tag: tag,
+            iconPath: iconPath,
+            decimals: decimal);
 
-  Erc20Token.copyWith(Erc20Token other, String? icon)
+  Erc20Token.copyWith(Erc20Token other, String? icon, String? tag)
       : this.name = other.name,
         this.symbol = other.symbol,
         this.contractAddress = other.contractAddress,
         this.decimal = other.decimal,
         this._enabled = other.enabled,
+        this.tag = tag,
         this.iconPath = icon,
         super(
           name: other.name,
           title: other.symbol.toUpperCase(),
           fullName: other.name,
-          tag: "ETH",
+          tag: tag,
           iconPath: icon,
-          decimals: other.decimal
+          decimals: other.decimal,
         );
 
   static const typeId = ERC20_TOKEN_TYPE_ID;
@@ -61,7 +64,8 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
   static const polygonBoxName = ' PolygonErc20Tokens';
 
   @override
-  bool operator ==(other) => (other is Erc20Token && other.contractAddress == contractAddress) ||
+  bool operator ==(other) =>
+      (other is Erc20Token && other.contractAddress == contractAddress) ||
       (other is CryptoCurrency && other.title == title);
 
   @override
