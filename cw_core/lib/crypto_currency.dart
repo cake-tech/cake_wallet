@@ -245,7 +245,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   }
 
   static CryptoCurrency fromFullName(String name) {
-    if (CryptoCurrency._fullNameCurrencyMap[name.toLowerCase()] == null) {
+    if (CryptoCurrency._fullNameCurrencyMap[name.split("(").first.trim().toLowerCase()] == null) {
       final s = 'Unexpected token: $name for CryptoCurrency fromFullName';
       throw  ArgumentError.value(name, 'Fullname', s);
     }
