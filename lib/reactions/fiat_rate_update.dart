@@ -30,9 +30,10 @@ Future<void> startFiatRateUpdate(
       } else {
         fiatConversionStore.prices[appStore.wallet!.currency] =
             await FiatConversionService.fetchPrice(
-                crypto: appStore.wallet!.currency,
-                fiat: settingsStore.fiatCurrency,
-                apiMode: settingsStore.fiatApiMode);
+          crypto: appStore.wallet!.currency,
+          fiat: settingsStore.fiatCurrency,
+          torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+        );
       }
 
       Iterable<Erc20Token>? currencies;
@@ -52,7 +53,7 @@ Future<void> startFiatRateUpdate(
             fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
               crypto: currency,
               fiat: settingsStore.fiatCurrency,
-              apiMode: settingsStore.fiatApiMode,
+              torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
             );
           }.call();
         }

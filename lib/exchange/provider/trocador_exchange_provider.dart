@@ -13,11 +13,11 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:http/http.dart';
 
 class TrocadorExchangeProvider extends ExchangeProvider {
-  TrocadorExchangeProvider({this.apiMode = FiatApiMode.enabled, this.providerStates = const {}})
+  TrocadorExchangeProvider({this.useTorOnly = false, this.providerStates = const {}})
       : _lastUsedRateId = '', _provider = [],
         super(pairList: supportedPairs(_notSupported));
 
-  FiatApiMode apiMode;
+  bool useTorOnly;
   final Map<String, bool> providerStates;
 
   static const List<String> availableProviders = [
@@ -309,7 +309,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   Future<Uri> _getUri(String path, Map<String, String> queryParams) async {
     final uri = Uri.http(onionApiAuthority, path, queryParams);
 
-    if (apiMode == FiatApiMode.torOnly) return uri;
+    if (useTorOnly) return uri;
 
     try {
       await get(uri);

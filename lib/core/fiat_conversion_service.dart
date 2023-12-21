@@ -16,7 +16,7 @@ const _fiatApiPath = '/v2/rates';
 Future<double> _fetchPrice(Map<String, dynamic> args) async {
   final crypto = args['crypto'] as String;
   final fiat = args['fiat'] as String;
-  final torOnly = args['apiMode'] as String == FiatApiMode.torOnly.toString();
+  final torOnly = args['torOnly'] as bool;
   final mainThreadProxyPort = args['port'] as int;
 
   final Map<String, String> queryParams = {
@@ -84,11 +84,11 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
 }
 
 Future<double> _fetchPriceAsync(
-        CryptoCurrency crypto, FiatCurrency fiat, FiatApiMode apiMode) async =>
+        CryptoCurrency crypto, FiatCurrency fiat, bool torOnly) async =>
     compute(_fetchPrice, {
       'fiat': fiat.toString(),
       'crypto': crypto.toString(),
-      'apiMode': apiMode.toString(),
+      'torOnly': torOnly.toString(),
       'port': ProxyWrapper.port,
       'torEnabled': ProxyWrapper.enabled,
     });
@@ -97,7 +97,7 @@ class FiatConversionService {
   static Future<double> fetchPrice({
     required CryptoCurrency crypto,
     required FiatCurrency fiat,
-    required FiatApiMode apiMode,
+    required bool torOnly,
   }) async =>
-      await _fetchPriceAsync(crypto, fiat, apiMode);
+      await _fetchPriceAsync(crypto, fiat, torOnly);
 }

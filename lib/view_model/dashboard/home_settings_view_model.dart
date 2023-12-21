@@ -86,10 +86,9 @@ abstract class HomeSettingsViewModelBase with Store {
     try {
       _balanceViewModel.fiatConvertationStore.prices[token] =
           await FiatConversionService.fetchPrice(
-        crypto: token,
-        fiat: _settingsStore.fiatCurrency,
-        apiMode: _settingsStore.fiatApiMode,
-      );
+              crypto: token,
+              fiat: _settingsStore.fiatCurrency,
+              torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly);
     } catch (_) {}
   }
 
