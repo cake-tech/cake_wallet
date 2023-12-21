@@ -88,7 +88,7 @@ Future<double> _fetchPriceAsync(
     compute(_fetchPrice, {
       'fiat': fiat.toString(),
       'crypto': crypto.toString(),
-      'torOnly': torOnly.toString(),
+      'torOnly': torOnly,
       'port': ProxyWrapper.port,
       'torEnabled': ProxyWrapper.enabled,
     });
