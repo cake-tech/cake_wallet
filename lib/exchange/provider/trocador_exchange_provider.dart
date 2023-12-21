@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
