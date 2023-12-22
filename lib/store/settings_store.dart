@@ -816,6 +816,11 @@ abstract class SettingsStoreBase with Store {
   Node getCurrentNode(WalletType walletType) {
     final node = nodes[walletType];
 
+    // TODO: Implement connecting to a user's preferred node.
+    if (walletType == WalletType.decred) {
+      return Node();
+    }
+
     if (node == null) {
       throw Exception('No node found for wallet type: ${walletType.toString()}');
     }

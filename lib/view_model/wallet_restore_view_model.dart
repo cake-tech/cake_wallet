@@ -11,6 +11,7 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
@@ -161,6 +162,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
             password: password,
             height: height,
+          );
+        case WalletType.decred:
+          return decred!.createDecredRestoreWalletFromSeedCredentials(
+              name: name,
+              mnemonic: seed,
+              password: password,
           );
         case WalletType.none:
           break;

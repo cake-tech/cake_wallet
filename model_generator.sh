@@ -11,6 +11,7 @@ cd cw_bitcoin_cash; flutter pub get; dart run build_runner build --delete-confli
 cd cw_solana; flutter pub get; dart run build_runner build --delete-conflicting-outputs; cd ..
 cd cw_tron; flutter pub get; dart run build_runner build --delete-conflicting-outputs; cd ..
 cd cw_wownero; flutter pub get; dart run build_runner build --delete-conflicting-outputs; cd ..
+cd cw_decred; flutter pub get; dart run build_runner build --delete-conflicting-outputs; cd ..
 cd cw_polygon; flutter pub get; cd ..
 cd cw_ethereum; flutter pub get; cd ..
 cd cw_mweb && flutter pub get && cd ..
