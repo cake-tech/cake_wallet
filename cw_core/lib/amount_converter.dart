@@ -9,6 +9,7 @@ class AmountConverter {
   static const _dashAmountDivider = 100000000;
   static const _bitcoinCashAmountDivider = 100000000;
   static const _bitcoinAmountDivider = 100000000;
+  static const _decredAmountDivider = 100000000;
   static const _bitcoinAmountLength = 8;
   static final _bitcoinAmountFormat = NumberFormat()
     ..maximumFractionDigits = _bitcoinAmountLength
@@ -31,6 +32,8 @@ class AmountConverter {
         return _ethereumAmountToDouble(amount);
       case CryptoCurrency.ltc:
         return _litecoinAmountToDouble(amount);
+      case CryptoCurrency.dcr:
+        return _decredAmountToDouble(amount);
       case CryptoCurrency.xhv:
       case CryptoCurrency.xag:
       case CryptoCurrency.xau:
@@ -136,4 +139,7 @@ class AmountConverter {
 
   static double _litecoinAmountToDouble(int amount) =>
       cryptoAmountToDouble(amount: amount, divider: _litecoinAmountDivider);
+
+  static double _decredAmountToDouble(int amount) =>
+      cryptoAmountToDouble(amount: amount, divider: _decredAmountDivider);
 }

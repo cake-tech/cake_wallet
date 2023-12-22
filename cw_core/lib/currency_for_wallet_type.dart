@@ -23,6 +23,8 @@ CryptoCurrency currencyForWalletType(WalletType type) {
       return CryptoCurrency.maticpoly;
     case WalletType.solana:
       return CryptoCurrency.sol;
+    case WalletType.decred:
+      return CryptoCurrency.dcr;
     default:
       throw Exception('Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
   }

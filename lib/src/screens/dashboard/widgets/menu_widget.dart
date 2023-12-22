@@ -34,7 +34,8 @@ class MenuWidgetState extends State<MenuWidget> {
         this.bananoIcon = Image.asset('assets/images/nano_icon.png'),
         this.bitcoinCashIcon = Image.asset('assets/images/bch_icon.png'),
         this.polygonIcon = Image.asset('assets/images/matic_icon.png'),
-        this.solanaIcon = Image.asset('assets/images/sol_icon.png');
+        this.solanaIcon = Image.asset('assets/images/sol_icon.png'),
+        this.decredIcon = Image.asset('assets/images/decred_menu.png');
 
   final largeScreen = 731;
 
@@ -57,6 +58,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image bananoIcon;
   Image polygonIcon;
   Image solanaIcon;
+  Image decredIcon;
 
   @override
   void initState() {
@@ -226,6 +228,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return polygonIcon;
       case WalletType.solana:
         return solanaIcon;
+      case WalletType.decred:
+        return decredIcon;
       default:
         throw Exception('No icon for ${type.toString()}');
     }

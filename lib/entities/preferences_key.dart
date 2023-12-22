@@ -9,6 +9,7 @@ class PreferencesKey {
   static const currentPolygonNodeIdKey = 'current_node_id_matic';
   static const currentNanoNodeIdKey = 'current_node_id_nano';
   static const currentNanoPowNodeIdKey = 'current_node_id_nano_pow';
+  static const currentDecredNodeIdKey = 'current_node_id_decred';
   static const currentBananoNodeIdKey = 'current_node_id_banano';
   static const currentBananoPowNodeIdKey = 'current_node_id_banano_pow';
   static const currentFiatCurrencyKey = 'current_fiat_currency';

@@ -103,6 +103,7 @@ class ReceivePage extends BasePage {
     return (addressListViewModel.type == WalletType.monero ||
             addressListViewModel.type == WalletType.haven ||
             addressListViewModel.type == WalletType.nano ||
+            addressListViewModel.type == WalletType.decred ||
         isElectrumWallet)
         ? KeyboardActions(
             config: KeyboardActionsConfig(
