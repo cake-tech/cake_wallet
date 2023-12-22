@@ -79,6 +79,7 @@ class ProvidersHelper {
         ];
       case WalletType.none:
       case WalletType.haven:
+      case WalletType.decred:
         return [];
     }
   }
@@ -116,6 +117,7 @@ class ProvidersHelper {
       case WalletType.none:
       case WalletType.haven:
       case WalletType.wownero:
+      case WalletType.decred:
         return [];
     }
   }

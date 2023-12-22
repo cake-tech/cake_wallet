@@ -16,6 +16,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'advanced_privacy_settings_view_model.dart';
 
 import '../polygon/polygon.dart';
@@ -90,6 +91,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.wownero:
         return wownero!.createWowneroNewWalletCredentials(
             name: name, language: options!.first as String, isPolyseed: options.last as bool);
+      case WalletType.decred:
+        return decred!.createDecredNewWalletCredentials(name: name);
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }

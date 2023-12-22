@@ -48,6 +48,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.haven:
       case WalletType.nano:
       case WalletType.banano:
+      case WalletType.decred:
         return false;
     }
   }

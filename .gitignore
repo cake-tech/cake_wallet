@@ -137,6 +137,7 @@ lib/polygon/polygon.dart
 lib/solana/solana.dart
 lib/tron/tron.dart
 lib/wownero/wownero.dart
+lib/decred/decred.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_180.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_120.png

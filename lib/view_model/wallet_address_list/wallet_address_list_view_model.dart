@@ -208,6 +208,22 @@ class WowneroURI extends PaymentURI {
   }
 }
 
+class DecredURI extends PaymentURI {
+  DecredURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'decred:' + address;
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
@@ -312,6 +328,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     if (wallet.type == WalletType.wownero) {
       return WowneroURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.decred) {
+      return DecredURI(amount: amount, address: address.address);
     }
 
     throw Exception('Unexpected type: ${type.toString()}');

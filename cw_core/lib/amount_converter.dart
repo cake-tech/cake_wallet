@@ -27,6 +27,7 @@ class AmountConverter {
       case CryptoCurrency.btc:
       case CryptoCurrency.bch:
       case CryptoCurrency.ltc:
+      case CryptoCurrency.dcr:
         return _bitcoinAmountToString(amount);
       case CryptoCurrency.xhv:
       case CryptoCurrency.xag:

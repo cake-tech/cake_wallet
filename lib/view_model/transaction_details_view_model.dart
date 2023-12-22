@@ -173,6 +173,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://tronscan.org/#/transaction/${txId}';
       case WalletType.wownero:
         return 'https://explore.wownero.com/tx/${txId}';
+      case WalletType.decred:
+        return 'https://dcrdata.decred.org/tx/${txId}';
       case WalletType.none:
         return '';
     }
@@ -203,6 +205,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'tronscan.org';
       case WalletType.wownero:
         return S.current.view_transaction_on + 'Wownero.com';
+      case WalletType.decred:
+        return S.current.view_transaction_on + 'dcrdata.decred.org';
       case WalletType.none:
         return '';
     }

@@ -5,6 +5,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
@@ -501,6 +502,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             .createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);
       case WalletType.tron:
         return tron!.createTronTransactionCredentials(outputs, currency: selectedCryptoCurrency);
+      case WalletType.decred:
+        return decred!.createDecredTransactionCredentials(outputs, priority!);
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }

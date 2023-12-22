@@ -88,6 +88,7 @@ class WalletCreationService {
       case WalletType.haven:
       case WalletType.nano:
       case WalletType.banano:
+      case WalletType.decred:
         return false;
     }
   }
