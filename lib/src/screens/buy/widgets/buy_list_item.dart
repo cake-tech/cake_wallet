@@ -29,10 +29,10 @@ class BuyListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isSelected = selectedProvider?.description == provider.description;
+    final isSelected = selectedProvider?.buyOptionDescription == provider.buyOptionDescription;
     final iconColor = isSelected ? Colors.white : Colors.black;
 
-    final providerIcon = getBuyProviderIcon(provider.description,
+    final providerIcon = getBuyProviderIcon(provider.buyOptionDescription,
           iconColor: iconColor)!;
 
     final backgroundColor = isSelected
@@ -76,7 +76,7 @@ class BuyListItem extends StatelessWidget {
                           padding: EdgeInsets.only(right: 10),
                           child: providerIcon),
                     Text(
-                      provider.description.title,
+                      provider.buyOptionDescription.title,
                       style: TextStyle(
                           color: secondaryTextColor,
                           fontSize: 20,

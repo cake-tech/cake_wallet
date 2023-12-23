@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/buy/buy_amount.dart';
+import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -11,10 +14,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
-class DFXBuyProvider {
-  DFXBuyProvider({required WalletBase wallet}) : this._wallet = wallet;
-
-  final WalletBase _wallet;
+class DFXBuyProvider extends BuyProvider {
+  DFXBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
+      : super(wallet: wallet, isTestEnvironment: isTestEnvironment);
 
   static const _baseUrl = 'api.dfx.swiss';
   static const _authPath = '/v1/auth/signMessage';
@@ -22,8 +24,38 @@ class DFXBuyProvider {
   static const _signInPath = '/v1/auth/signIn';
   static const walletName = 'CakeWallet';
 
+
+  @override
+  String get title => 'DFX Connect';
+
+  @override
+  String get buyOptionDescription => S.current.dfx_option_description;
+
+  @override
+  String get sellOptionDescription => S.current.dfx_option_description;
+
+  @override
+  String get lightIcon => 'assets/images/dfx_light.png';
+
+  @override
+  String get darkIcon => 'assets/images/dfx_dark.png';
+
+  @override
+  bool get isBuyOptionAvailable => [
+        WalletType.bitcoin,
+        WalletType.ethereum,
+        WalletType.monero
+      ].contains(wallet.type);
+
+  @override
+  bool get isSellOptionAvailable => [
+        WalletType.bitcoin,
+        WalletType.ethereum,
+        WalletType.monero
+      ].contains(wallet.type);
+
   String get assetOut {
-    switch (_wallet.type) {
+    switch (wallet.type) {
       case WalletType.bitcoin:
         return 'BTC';
       case WalletType.bitcoinCash:
@@ -35,12 +67,12 @@ class DFXBuyProvider {
       case WalletType.ethereum:
         return 'ETH';
       default:
-        throw Exception("WalletType is not available for DFX ${_wallet.type}");
+        throw Exception("WalletType is not available for DFX ${wallet.type}");
     }
   }
 
   String get blockchain {
-    switch (_wallet.type) {
+    switch (wallet.type) {
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
       case WalletType.litecoin:
@@ -50,12 +82,12 @@ class DFXBuyProvider {
       case WalletType.ethereum:
         return 'Ethereum';
       default:
-        throw Exception("WalletType is not available for DFX ${_wallet.type}");
+        throw Exception("WalletType is not available for DFX ${wallet.type}");
     }
   }
 
   Future<String> getSignMessage() async {
-    final walletAddress = _wallet.walletAddresses.address;
+    final walletAddress = wallet.walletAddresses.address;
     final uri = Uri.https(_baseUrl, _authPath, {'address': walletAddress});
 
     var response = await http.get(uri, headers: {'accept': 'application/json'});
@@ -71,7 +103,7 @@ class DFXBuyProvider {
 
   Future<String> signUp() async {
     final signMessage = getSignature(await getSignMessage());
-    final walletAddress = _wallet.walletAddresses.address;
+    final walletAddress = wallet.walletAddresses.address;
 
     final requestBody = jsonEncode({
       'wallet': walletName,
@@ -94,7 +126,7 @@ class DFXBuyProvider {
 
   Future<String> signIn() async {
     final signMessage = getSignature(await getSignMessage());
-    final walletAddress = _wallet.walletAddresses.address;
+    final walletAddress = wallet.walletAddresses.address;
 
     final requestBody = jsonEncode({
       'address': walletAddress,
@@ -115,25 +147,25 @@ class DFXBuyProvider {
   }
 
   String getSignature(String message) {
-    switch (_wallet.type) {
+    switch (wallet.type) {
       case WalletType.ethereum:
-        return _wallet.signMessage(message);
+        return wallet.signMessage(message);
       case WalletType.monero:
       case WalletType.litecoin:
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
-        return _wallet.signMessage(message,
-            address: _wallet.walletAddresses.address);
+        return wallet.signMessage(message,
+            address: wallet.walletAddresses.address);
       default:
-        throw Exception("WalletType is not available for DFX ${_wallet.type}");
+        throw Exception("WalletType is not available for DFX ${wallet.type}");
     }
   }
 
-  Future<void> launchProvider(BuildContext context, bool isBuyAction) async {
+  Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
     try {
       final assetOut = this.assetOut;
       final blockchain = this.blockchain;
-      final actionType = isBuyAction ? '/buy' : '/sell';
+      final actionType = isBuyAction == true ? '/buy' : '/sell';
 
       String accessToken;
 
@@ -157,8 +189,8 @@ class DFXBuyProvider {
 
       if (await canLaunchUrl(uri)) {
         if (DeviceInfo.instance.isMobile) {
-          Navigator.of(context).pushNamed(Routes.webViewPage,
-              arguments: ["DFX Connect", uri]);
+          Navigator.of(context)
+              .pushNamed(Routes.webViewPage, arguments: ["DFX Connect", uri]);
         } else {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         }
@@ -177,4 +209,26 @@ class DFXBuyProvider {
           });
     }
   }
+
+  @override
+  Future<BuyAmount> calculateAmount(String amount, String sourceCurrency) {
+    // TODO: implement calculateAmount
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Order> findOrderById(String id) {
+    // TODO: implement findOrderById
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String> requestUrl(String amount, String sourceCurrency) {
+    // TODO: implement requestUrl
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement trackUrl
+  String get trackUrl => throw UnimplementedError();
 }

@@ -802,7 +802,7 @@ Future<void> setup({
               wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
-        settingsStore: getIt.get<AppStore>().settingsStore,
+        getIt.get<AppStore>().settingsStore,
         wallet: getIt.get<AppStore>().wallet!,
       ));
 

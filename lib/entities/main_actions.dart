@@ -55,7 +55,7 @@ class MainActions {
       try {
         await _launchProviderByType(context, true, defaultBuyProvider);
       } catch (e) {
-        await _showErrorDialog(context, defaultBuyProvider.name, e.toString());
+        await _showErrorDialog(context, defaultBuyProvider.toString(), e.toString());
       }
     },
   );

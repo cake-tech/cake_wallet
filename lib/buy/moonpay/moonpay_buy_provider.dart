@@ -137,13 +137,19 @@ class MoonPayBuyProvider extends BuyProvider {
   static const _secretKey = secrets.moonPaySecretKey;
 
   @override
-  String get title => 'MoonPay';
+  String get title => 'Moon Pay';
 
   @override
-  BuyProviderDescription get description => BuyProviderDescription.moonPay;
+  String get buyOptionDescription => '';
 
+  @override
+  String get lightIcon => 'assets/images/moonpay_light.png';
+
+  @override
+  String get darkIcon => 'assets/images/moonpay_dark.png';
+  
   String get currencyCode =>
-    walletTypeToCryptoCurrency(walletType).title.toLowerCase();
+    walletTypeToCryptoCurrency(wallet.type).title.toLowerCase();
 
   @override
   String get trackUrl => baseUrl + '/transaction_receipt?transactionId=';
@@ -158,7 +164,7 @@ class MoonPayBuyProvider extends BuyProvider {
 
     final suffix = '?apiKey=' + _apiKey + '&currencyCode=' +
         currencyCode + '&enabledPaymentMethods=' + enabledPaymentMethods +
-        '&walletAddress=' + walletAddress +
+        '&walletAddress=' + wallet.walletAddresses.address +
         '&baseCurrencyCode=' + sourceCurrency.toLowerCase() +
         '&baseCurrencyAmount=' + amount + '&lockAmount=true' +
         '&showAllCurrencies=false' + '&showWalletAddressForm=false';
@@ -176,7 +182,6 @@ class MoonPayBuyProvider extends BuyProvider {
     return isTestEnvironment ? originalUrl : urlWithSignature;
   }
 
-  @override
   Future<BuyAmount> calculateAmount(String amount, String sourceCurrency) async {
     final url = _apiUrl + _currenciesSuffix + '/$currencyCode' +
         _quoteSuffix + '/?apiKey=' + _apiKey +
@@ -187,8 +192,8 @@ class MoonPayBuyProvider extends BuyProvider {
 
     if (response.statusCode != 200) {
       throw BuyException(
-          description: description,
-          text: 'Quote is not found!');
+          title: buyOptionDescription,
+          content: 'Quote is not found!');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -202,7 +207,6 @@ class MoonPayBuyProvider extends BuyProvider {
         minAmount: minSourceAmount);
   }
 
-  @override
   Future<Order> findOrderById(String id) async {
     final url = _apiUrl + _transactionsSuffix + '/$id' +
         '?apiKey=' + _apiKey;
@@ -211,8 +215,8 @@ class MoonPayBuyProvider extends BuyProvider {
 
     if (response.statusCode != 200) {
       throw BuyException(
-          description: description,
-          text: 'Transaction $id is not found!');
+          title: buyOptionDescription,
+          content: 'Transaction $id is not found!');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -224,13 +228,13 @@ class MoonPayBuyProvider extends BuyProvider {
 
     return Order(
         id: id,
-        provider: description,
+        provider: BuyProviderDescription.moonPay,
         transferId: id,
         state: state,
         createdAt: createdAt,
         amount: amount.toString(),
-        receiveAddress: walletAddress,
-        walletId: walletId
+        receiveAddress: wallet.walletAddresses.address,
+        walletId: wallet.id
     );
   }
 
@@ -250,4 +254,22 @@ class MoonPayBuyProvider extends BuyProvider {
 
     return isBuyEnable;
   }
+
+  @override
+  Future<void> launchProvider(BuildContext context, bool? isBuyAction) {
+    // TODO: implement launchProvider
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement sellOptionDescription
+  String get sellOptionDescription => throw UnimplementedError();
+
+  @override
+  // TODO: implement isBuyOptionAvailable
+  bool get isBuyOptionAvailable => throw UnimplementedError();
+
+  @override
+  // TODO: implement isSellOptionAvailable
+  bool get isSellOptionAvailable => throw UnimplementedError();
 }
