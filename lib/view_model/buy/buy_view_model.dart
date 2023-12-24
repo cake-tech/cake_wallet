@@ -61,8 +61,7 @@ abstract class BuyViewModelBase with Store {
     String _url = '';
 
     try {
-      _url = await selectedProvider
-            !.requestUrl(doubleAmount.toString(), fiatCurrency.title);
+      _url = 'await selectedProvider!.requestUrl(doubleAmount.toString(), fiatCurrency.title)';
     } catch (e) {
       print(e.toString());
     }
@@ -71,15 +70,15 @@ abstract class BuyViewModelBase with Store {
   }
 
   Future<void> saveOrder(String orderId) async {
-    try {
-      final order = await selectedProvider!.findOrderById(orderId);
-      order.from = fiatCurrency.title;
-      order.to = cryptoCurrency.title;
-      await ordersSource.add(order);
-      ordersStore.setOrder(order);
-    } catch (e) {
-      print(e.toString());
-    }
+    // try {
+    //   final order = await selectedProvider!.findOrderById(orderId);
+    //   order.from = fiatCurrency.title;
+    //   order.to = cryptoCurrency.title;
+    //   await ordersSource.add(order);
+    //   ordersStore.setOrder(order);
+    // } catch (e) {
+    //   print(e.toString());
+    // }
   }
 
   void reset() {

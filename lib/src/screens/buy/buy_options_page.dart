@@ -34,8 +34,6 @@ class BuySellOptionsPage extends BasePage {
           child: Column(
             children: [
               ...availableProviders
-                  .where((provider) =>
-                      provider.name != BuyProviderType.askEachTime.name)
                   .map((provider) {
                 final icon = Image.asset(
                   isLightMode ? provider.lightIcon! : provider.darkIcon!,
@@ -47,7 +45,7 @@ class BuySellOptionsPage extends BasePage {
                   padding: EdgeInsets.only(top: 24),
                   child: OptionTile(
                     image: icon,
-                    title: provider.name,
+                    title: provider.toString(),
                     description: isBuyAction
                         ? provider.buyOptionDescription
                         : provider.sellOptionDescription,

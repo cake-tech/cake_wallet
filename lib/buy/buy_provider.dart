@@ -14,6 +14,7 @@ abstract class BuyProvider {
   }
 
   final WalletBase wallet;
+
   final bool isTestEnvironment;
 
   String get title;
@@ -31,6 +32,12 @@ abstract class BuyProvider {
   bool get isSellOptionAvailable;
 
   static final List<BuyProvider> allBuyProviders = [];
+
+  static List<BuyProvider> get allBuyOptionAvailableProviders =>
+      allBuyProviders.where((provider) => provider.isBuyOptionAvailable).toList();
+
+  static List<BuyProvider> get allSellOptionAvailableProviders =>
+      allBuyProviders.where((provider) => provider.isSellOptionAvailable).toList();
 
   @override
   String toString() => title;

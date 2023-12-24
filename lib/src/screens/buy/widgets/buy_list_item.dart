@@ -32,8 +32,7 @@ class BuyListItem extends StatelessWidget {
     final isSelected = selectedProvider?.buyOptionDescription == provider.buyOptionDescription;
     final iconColor = isSelected ? Colors.white : Colors.black;
 
-    final providerIcon = getBuyProviderIcon(provider.buyOptionDescription,
-          iconColor: iconColor)!;
+    final providerIcon =  Image.asset('assets/images/wyre-icon.png', width: 36, height: 36);
 
     final backgroundColor = isSelected
           ? Palette.greyBlueCraiola
@@ -76,7 +75,7 @@ class BuyListItem extends StatelessWidget {
                           padding: EdgeInsets.only(right: 10),
                           child: providerIcon),
                     Text(
-                      provider.buyOptionDescription.title,
+                      provider.title,
                       style: TextStyle(
                           color: secondaryTextColor,
                           fontSize: 20,

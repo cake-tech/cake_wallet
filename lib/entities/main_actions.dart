@@ -1,3 +1,4 @@
+import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
@@ -104,25 +105,18 @@ class MainActions {
       try {
         await _launchProviderByType(context, false, defaultSellProvider);
       } catch (e) {
-        await _showErrorDialog(context, defaultSellProvider.name, e.toString());
+        await _showErrorDialog(context, defaultSellProvider.toString(), e.toString());
       }
     },
   );
 
-  static final Map<BuyProviderType, Future<void> Function(BuildContext, bool)>
+  static final Map<BuyProvider, Future<void> Function(BuildContext, bool)>
       _providerLaunchActions = {
-    BuyProviderType.askEachTime: (context, isBuyAction) =>
-        Navigator.pushNamed(context, Routes.buySellPage, arguments: isBuyAction),
-    BuyProviderType.onramper: (context, _) =>
-        getIt.get<OnRamperBuyProvider>().launchProvider(context),
-    BuyProviderType.robinhood: (context, _) =>
-        getIt.get<RobinhoodBuyProvider>().launchProvider(context),
-    BuyProviderType.dfx: (context, isBuyAction) =>
-        getIt.get<DFXBuyProvider>().launchProvider(context, isBuyAction),
+
   };
 
   static Future<void> _launchProviderByType(BuildContext context,
-      bool isBuyAction, BuyProviderType providerType) async {
+      bool isBuyAction, BuyProvider providerType) async {
     final action = _providerLaunchActions[providerType];
     if (action != null) {
       await action(context, isBuyAction);

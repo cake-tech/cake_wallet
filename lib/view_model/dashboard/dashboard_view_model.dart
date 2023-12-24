@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
@@ -295,19 +296,19 @@ abstract class DashboardViewModelBase with Store {
 
   Map<String, List<FilterItem>> filterItems;
 
-  BuyProviderType get defaultBuyProvider =>
+  BuyProvider get defaultBuyProvider =>
       settingsStore.defaultBuyProviders[wallet.type] ??
-          BuyProviderType.askEachTime;
+          BuyProvider.allBuyOptionAvailableProviders.first;
 
-  BuyProviderType get defaultSellProvider =>
-      settingsStore.defaultSellProviders[wallet.type] ??
-          BuyProviderType.askEachTime;
+  BuyProvider get defaultSellProvider =>
+      settingsStore.defaultBuyProviders[wallet.type] ??
+          BuyProvider.allBuyOptionAvailableProviders.first;
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
-  List<BuyProviderType> get availableBuyProviders => BuyProviderType.getAvailableBuyProviders(wallet.type);
+  List<BuyProvider> get availableBuyProviders => BuyProvider.allBuyOptionAvailableProviders;
 
-  List<BuyProviderType> get availableSellProviders => BuyProviderType.getAvailableSellProviders(wallet.type);
+  List<BuyProvider> get availableSellProviders => BuyProvider.allSellOptionAvailableProviders;
 
   bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
 
