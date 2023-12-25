@@ -1,19 +1,9 @@
-import 'package:cake_wallet/buy/buy_provider.dart';
-import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
-import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
-import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
-import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class MainActions {
   final String Function(BuildContext context) name;
@@ -54,7 +44,9 @@ class MainActions {
 
       final defaultBuyProvider = viewModel.defaultBuyProvider;
       try {
-        await _launchProviderByType(context, true, defaultBuyProvider);
+        defaultBuyProvider != null
+            ? await defaultBuyProvider.launchProvider(context, true)
+            : await Navigator.of(context).pushNamed(Routes.buySellPage, arguments: true);
       } catch (e) {
         await _showErrorDialog(context, defaultBuyProvider.toString(), e.toString());
       }
@@ -103,27 +95,14 @@ class MainActions {
 
       final defaultSellProvider = viewModel.defaultSellProvider;
       try {
-        await _launchProviderByType(context, false, defaultSellProvider);
+        defaultSellProvider != null
+            ? await defaultSellProvider.launchProvider(context, false)
+            : await Navigator.of(context).pushNamed(Routes.buySellPage, arguments: false);
       } catch (e) {
         await _showErrorDialog(context, defaultSellProvider.toString(), e.toString());
       }
     },
   );
-
-  static final Map<BuyProvider, Future<void> Function(BuildContext, bool)>
-      _providerLaunchActions = {
-
-  };
-
-  static Future<void> _launchProviderByType(BuildContext context,
-      bool isBuyAction, BuyProvider providerType) async {
-    final action = _providerLaunchActions[providerType];
-    if (action != null) {
-      await action(context, isBuyAction);
-    } else {
-      throw UnsupportedError('Unsupported buy provider type');
-    }
-  }
 
   static Future<void> _showErrorDialog(
       BuildContext context, String title, String errorMessage) async {

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -33,10 +34,9 @@ class BuySellOptionsPage extends BasePage {
           constraints: BoxConstraints(maxWidth: 330),
           child: Column(
             children: [
-              ...availableProviders
-                  .map((provider) {
+              ...availableProviders.map((provider) {
                 final icon = Image.asset(
-                  isLightMode ? provider.lightIcon! : provider.darkIcon!,
+                  isLightMode ? provider.lightIcon : provider.darkIcon,
                   height: 40,
                   width: 40,
                 );
@@ -50,26 +50,28 @@ class BuySellOptionsPage extends BasePage {
                         ? provider.buyOptionDescription
                         : provider.sellOptionDescription,
                     onPressed: () =>
-                        provider.launchProvider!(context, isBuyAction),
+                        provider.launchProvider(context, isBuyAction),
                   ),
                 );
               }).toList(),
               Spacer(),
-              if(isBuyAction)
-              Padding(
-                padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
-                child: Text(
-                  isBuyAction ? S.of(context).select_buy_provider_notice : S.of(context).select_sell_provider_notice,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context)
-                        .extension<TransactionTradeTheme>()!
-                        .detailsTitlesColor,
+              if (isBuyAction)
+                Padding(
+                  padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
+                  child: Text(
+                    isBuyAction
+                        ? S.of(context).select_buy_provider_notice
+                        : S.of(context).select_sell_provider_notice,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context)
+                          .extension<TransactionTradeTheme>()!
+                          .detailsTitlesColor,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

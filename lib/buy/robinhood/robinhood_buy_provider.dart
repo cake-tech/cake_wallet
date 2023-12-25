@@ -37,19 +37,6 @@ class RobinhoodBuyProvider extends BuyProvider{
   @override
   String get darkIcon => 'assets/images/robinhood_dark.png';
 
-  @override
-  bool get isBuyOptionAvailable => [
-        WalletType.bitcoin,
-        WalletType.bitcoinCash,
-        WalletType.litecoin,
-        WalletType.ethereum
-      ].contains(wallet.type);
-
-  @override
-  bool get isSellOptionAvailable => [
-    // Add more wallets here
-      ].contains(wallet.type);
-
   String get _applicationId => secrets.robinhoodApplicationId;
 
   String get _apiSecret => secrets.robinhoodCIdApiSecret;

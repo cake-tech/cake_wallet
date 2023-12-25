@@ -1,8 +1,6 @@
 import 'dart:convert';
 
-import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
-import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -24,7 +22,6 @@ class DFXBuyProvider extends BuyProvider {
   static const _signInPath = '/v1/auth/signIn';
   static const walletName = 'CakeWallet';
 
-
   @override
   String get title => 'DFX Connect';
 
@@ -39,20 +36,6 @@ class DFXBuyProvider extends BuyProvider {
 
   @override
   String get darkIcon => 'assets/images/dfx_dark.png';
-
-  @override
-  bool get isBuyOptionAvailable => [
-        WalletType.bitcoin,
-        WalletType.ethereum,
-        WalletType.monero
-      ].contains(wallet.type);
-
-  @override
-  bool get isSellOptionAvailable => [
-        WalletType.bitcoin,
-        WalletType.ethereum,
-        WalletType.monero
-      ].contains(wallet.type);
 
   String get assetOut {
     switch (wallet.type) {
@@ -209,26 +192,4 @@ class DFXBuyProvider extends BuyProvider {
           });
     }
   }
-
-  @override
-  Future<BuyAmount> calculateAmount(String amount, String sourceCurrency) {
-    // TODO: implement calculateAmount
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<Order> findOrderById(String id) {
-    // TODO: implement findOrderById
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<String> requestUrl(String amount, String sourceCurrency) {
-    // TODO: implement requestUrl
-    throw UnimplementedError();
-  }
-
-  @override
-  // TODO: implement trackUrl
-  String get trackUrl => throw UnimplementedError();
 }

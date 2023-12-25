@@ -42,6 +42,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/entities/buy_provider_types.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -296,19 +297,31 @@ abstract class DashboardViewModelBase with Store {
 
   Map<String, List<FilterItem>> filterItems;
 
-  BuyProvider get defaultBuyProvider =>
-      settingsStore.defaultBuyProviders[wallet.type] ??
-          BuyProvider.allBuyOptionAvailableProviders.first;
+  BuyProvider? get defaultBuyProvider => BuyProviderHelper.getProviderByType(
+      settingsStore.defaultBuyProviders[wallet.type]);
 
-  BuyProvider get defaultSellProvider =>
-      settingsStore.defaultBuyProviders[wallet.type] ??
-          BuyProvider.allBuyOptionAvailableProviders.first;
+  BuyProvider? get defaultSellProvider => BuyProviderHelper.getProviderByType(
+      settingsStore.defaultSellProviders[wallet.type]);
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
-  List<BuyProvider> get availableBuyProviders => BuyProvider.allBuyOptionAvailableProviders;
+  List<BuyProvider> get availableBuyProviders {
+    final providerTypes = BuyProviderHelper.getAvailableBuyProviderTypes(wallet.type);
+    return providerTypes
+        .map((type) => BuyProviderHelper.getProviderByType(type))
+        .where((provider) => provider != null)
+        .cast<BuyProvider>()
+        .toList();
+  }
 
-  List<BuyProvider> get availableSellProviders => BuyProvider.allSellOptionAvailableProviders;
+  List<BuyProvider> get availableSellProviders {
+    final providerTypes = BuyProviderHelper.getAvailableSellProviderTypes(wallet.type);
+    return providerTypes
+        .map((type) => BuyProviderHelper.getProviderByType(type))
+        .where((provider) => provider != null)
+        .cast<BuyProvider>()
+        .toList();
+  }
 
   bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
 
@@ -323,14 +336,14 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get isEnabledBuyAction =>
-      !settingsStore.disableBuy && wallet.type != WalletType.haven;
+      !settingsStore.disableBuy && availableBuyProviders.isNotEmpty;
 
   @observable
   bool hasBuyAction;
 
   @computed
   bool get isEnabledSellAction =>
-      !settingsStore.disableSell && wallet.type != WalletType.haven;
+      !settingsStore.disableSell && availableSellProviders.isNotEmpty;
 
   @observable
   bool hasSellAction;

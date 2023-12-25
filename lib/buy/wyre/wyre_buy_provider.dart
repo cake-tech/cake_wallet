@@ -175,12 +175,4 @@ class WyreBuyProvider extends BuyProvider {
   @override
   // TODO: implement sellOptionDescription
   String get sellOptionDescription => throw UnimplementedError();
-
-  @override
-  // TODO: implement isBuyOptionAvailable
-  bool get isBuyOptionAvailable => throw UnimplementedError();
-
-  @override
-  // TODO: implement isSellOptionAvailable
-  bool get isSellOptionAvailable => throw UnimplementedError();
 }

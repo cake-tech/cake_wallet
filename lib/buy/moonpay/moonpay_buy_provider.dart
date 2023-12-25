@@ -151,12 +151,10 @@ class MoonPayBuyProvider extends BuyProvider {
   String get currencyCode =>
     walletTypeToCryptoCurrency(wallet.type).title.toLowerCase();
 
-  @override
   String get trackUrl => baseUrl + '/transaction_receipt?transactionId=';
 
   String baseUrl;
 
-  @override
   Future<String> requestUrl(String amount, String sourceCurrency) async {
     final enabledPaymentMethods =
         'credit_debit_card%2Capple_pay%2Cgoogle_pay%2Csamsung_pay'
@@ -256,20 +254,12 @@ class MoonPayBuyProvider extends BuyProvider {
   }
 
   @override
-  Future<void> launchProvider(BuildContext context, bool? isBuyAction) {
-    // TODO: implement launchProvider
-    throw UnimplementedError();
-  }
-
-  @override
   // TODO: implement sellOptionDescription
   String get sellOptionDescription => throw UnimplementedError();
 
   @override
-  // TODO: implement isBuyOptionAvailable
-  bool get isBuyOptionAvailable => throw UnimplementedError();
-
-  @override
-  // TODO: implement isSellOptionAvailable
-  bool get isSellOptionAvailable => throw UnimplementedError();
+  Future<void> launchProvider(BuildContext context, bool? isBuyAction) {
+    // TODO: implement launchProvider
+    throw UnimplementedError();
+  }
 }

@@ -4,6 +4,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
+import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -13,6 +14,7 @@ import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -147,8 +149,8 @@ abstract class SettingsStoreBase with Store {
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
         priority = ObservableMap<WalletType, TransactionPriority>(),
-        defaultBuyProviders = ObservableMap<WalletType, BuyProvider>(),
-        defaultSellProviders = ObservableMap<WalletType, BuyProvider>() {
+        defaultBuyProviders = ObservableMap<WalletType, BuyProviderType>(),
+        defaultSellProviders = ObservableMap<WalletType, BuyProviderType>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
     if (initialMoneroTransactionPriority != null) {
@@ -182,24 +184,24 @@ abstract class SettingsStoreBase with Store {
     initializeTrocadorProviderStates();
 
     WalletType.values.forEach((walletType) {
-      final key = '${walletType.toString()}';
+      final key = 'buyProvider_${walletType.toString()}';
       final providerName = sharedPreferences.getString(key);
       if (providerName != null) {
-        defaultBuyProviders[walletType] = BuyProvider.allBuyOptionAvailableProviders
-            .firstWhere((provider) => provider.toString() == providerName);
+        defaultBuyProviders[walletType] = BuyProviderType.values
+            .firstWhere((provider) => provider.name == providerName, orElse: () => BuyProviderType.askEachTime);
       } else {
-        defaultBuyProviders[walletType] = BuyProvider.allBuyOptionAvailableProviders.first;
+        defaultBuyProviders[walletType] = BuyProviderType.askEachTime;
       }
     });
 
     WalletType.values.forEach((walletType) {
-      final key = '${walletType.toString()}';
+      final key = 'sellProvider_${walletType.toString()}';
       final providerName = sharedPreferences.getString(key);
       if (providerName != null) {
-        defaultSellProviders[walletType] = BuyProvider.allSellOptionAvailableProviders
-            .firstWhere((provider) => provider.toString() == providerName);
+        defaultSellProviders[walletType] = BuyProviderType.values
+            .firstWhere((provider) => provider.name == providerName, orElse: () => BuyProviderType.askEachTime);
       } else {
-        defaultSellProviders[walletType] = BuyProvider.allSellOptionAvailableProviders.first;
+        defaultSellProviders[walletType] = BuyProviderType.askEachTime;
       }
     });
 
@@ -213,19 +215,19 @@ abstract class SettingsStoreBase with Store {
         (bool shouldShowYatPopup) =>
             sharedPreferences.setBool(PreferencesKey.shouldShowYatPopup, shouldShowYatPopup));
 
-    // defaultBuyProviders.observe((change) {
-    //   final String key = '${change.key.toString()}';
-    //   if (change.newValue != null) {
-    //     sharedPreferences.setString(key, change.newValue!.name);
-    //   }
-    // });
-    //
-    // defaultSellProviders.observe((change) {
-    //   final String key = '${change.key.toString()}';
-    //   if (change.newValue != null) {
-    //     sharedPreferences.setString(key, change.newValue!.name);
-    //   }
-    // });
+    defaultBuyProviders.observe((change) {
+      final String key = 'buyProvider_${change.key.toString()}';
+      if (change.newValue != null) {
+        sharedPreferences.setString(key, change.newValue!.name);
+      }
+    });
+
+    defaultSellProviders.observe((change) {
+      final String key = 'sellProvider_${change.key.toString()}';
+      if (change.newValue != null) {
+        sharedPreferences.setString(key, change.newValue!.name);
+      }
+    });
 
     priority.observe((change) {
       final String? key;
@@ -615,10 +617,10 @@ abstract class SettingsStoreBase with Store {
   ObservableMap<String, bool> trocadorProviderStates = ObservableMap<String, bool>();
 
   @observable
-  ObservableMap<WalletType, BuyProvider> defaultBuyProviders;
+  ObservableMap<WalletType, BuyProviderType> defaultBuyProviders;
 
   @observable
-  ObservableMap<WalletType, BuyProvider> defaultSellProviders;
+  ObservableMap<WalletType, BuyProviderType> defaultSellProviders;
 
   @observable
   SortBalanceBy sortBalanceBy;
@@ -736,7 +738,10 @@ abstract class SettingsStoreBase with Store {
       ethereumTransactionPriority = ethereum?.deserializeEthereumTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
     }
-
+    if (sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority) != null) {
+      polygonTransactionPriority = polygon?.deserializePolygonTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority)!);
+    }
     if (sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
       bitcoinCashTransactionPriority = bitcoinCash?.deserializeBitcoinCashTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority)!);
@@ -748,6 +753,7 @@ abstract class SettingsStoreBase with Store {
     litecoinTransactionPriority ??= bitcoin?.getLitecoinTransactionPriorityMedium();
     ethereumTransactionPriority ??= ethereum?.getDefaultTransactionPriority();
     bitcoinCashTransactionPriority ??= bitcoinCash?.getDefaultTransactionPriority();
+    polygonTransactionPriority ??= polygon?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
@@ -757,7 +763,6 @@ abstract class SettingsStoreBase with Store {
     final isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
     final disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? false;
     final disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? false;
-    final String? providerName = sharedPreferences.getString(PreferencesKey.defaultBuyProvider);
     final walletListOrder =
         WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     final walletListAscending =
@@ -1020,6 +1025,11 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.ethereum] = ethereum?.deserializeEthereumTransactionPriority(
               sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!) ??
           priority[WalletType.ethereum]!;
+    }
+    if (sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority) != null) {
+      priority[WalletType.polygon] = polygon?.deserializePolygonTransactionPriority(
+              sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority)!) ??
+          priority[WalletType.polygon]!;
     }
     if (sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
       priority[WalletType.bitcoinCash] = bitcoinCash?.deserializeBitcoinCashTransactionPriority(

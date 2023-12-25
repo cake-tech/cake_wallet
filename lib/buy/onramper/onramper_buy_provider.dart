@@ -1,8 +1,5 @@
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
-import 'package:cake_wallet/buy/buy_provider_description.dart';
-import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -10,12 +7,12 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class OnRamperBuyProvider extends BuyProvider{
-  OnRamperBuyProvider(this._settingsStore,{required WalletBase wallet, bool isTestEnvironment = false})
+class OnRamperBuyProvider extends BuyProvider {
+  OnRamperBuyProvider(this._settingsStore,
+      {required WalletBase wallet, bool isTestEnvironment = false})
       : super(wallet: wallet, isTestEnvironment: isTestEnvironment);
 
   static const _baseUrl = 'buy.onramper.com';
@@ -36,23 +33,6 @@ class OnRamperBuyProvider extends BuyProvider{
 
   @override
   String get darkIcon => 'assets/images/onramper_dark.png';
-
-  @override
-  bool get isBuyOptionAvailable => [
-    WalletType.bitcoin,
-    WalletType.bitcoinCash,
-    WalletType.litecoin,
-    WalletType.ethereum,
-    WalletType.monero,
-    WalletType.banano,
-    WalletType.nano,
-      ].contains(wallet.type);
-
-  @override
-  bool get isSellOptionAvailable => [
-    // Add more wallets here
-  ].contains(wallet.type);
-
 
   String get _apiKey => secrets.onramperApiKey;
 
@@ -85,9 +65,10 @@ class OnRamperBuyProvider extends BuyProvider{
 
     primaryColor = getColorStr(Theme.of(context).primaryColor);
     secondaryColor = getColorStr(Theme.of(context).colorScheme.background);
-    primaryTextColor = getColorStr(Theme.of(context).extension<CakeTextTheme>()!.titleColor);
-    secondaryTextColor =
-        getColorStr(Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor);
+    primaryTextColor =
+        getColorStr(Theme.of(context).extension<CakeTextTheme>()!.titleColor);
+    secondaryTextColor = getColorStr(
+        Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor);
     containerColor = getColorStr(Theme.of(context).colorScheme.background);
     cardColor = getColorStr(Theme.of(context).cardColor);
 
@@ -95,7 +76,8 @@ class OnRamperBuyProvider extends BuyProvider{
       cardColor = getColorStr(Colors.white);
     }
 
-    final networkName = wallet.currency.fullName?.toUpperCase().replaceAll(" ", "");
+    final networkName =
+        wallet.currency.fullName?.toUpperCase().replaceAll(" ", "");
 
     return Uri.https(_baseUrl, '', <String, dynamic>{
       'apiKey': _apiKey,
@@ -115,23 +97,10 @@ class OnRamperBuyProvider extends BuyProvider{
   Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
     final uri = requestUrl(context);
     if (DeviceInfo.instance.isMobile) {
-      Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [S.of(context).buy, uri]);
+      Navigator.of(context)
+          .pushNamed(Routes.webViewPage, arguments: [S.of(context).buy, uri]);
     } else {
       await launchUrl(uri);
     }
   }
-
-  Future<BuyAmount> calculateAmount(String amount, String sourceCurrency) {
-    // TODO: implement calculateAmount
-    throw UnimplementedError();
-  }
-
-
-  Future<Order> findOrderById(String id) {
-    // TODO: implement findOrderById
-    throw UnimplementedError();
-  }
-
-  // TODO: implement trackUrl
-  String get trackUrl => throw UnimplementedError();
 }
