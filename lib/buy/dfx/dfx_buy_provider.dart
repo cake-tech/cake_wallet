@@ -101,6 +101,10 @@ class DFXBuyProvider extends BuyProvider {
     if (response.statusCode == 201) {
       final responseBody = jsonDecode(response.body);
       return responseBody['accessToken'] as String;
+    } else if (response.statusCode == 403) {
+      final responseBody = jsonDecode(response.body);
+      final message = responseBody['message'] ?? 'Service unavailable in your country';
+      throw Exception(message);
     } else {
       throw Exception(
           'Failed to sign up. Status: ${response.statusCode} ${response.body}');
@@ -123,6 +127,10 @@ class DFXBuyProvider extends BuyProvider {
     if (response.statusCode == 201) {
       final responseBody = jsonDecode(response.body);
       return responseBody['accessToken'] as String;
+    } else if (response.statusCode == 403) {
+      final responseBody = jsonDecode(response.body);
+      final message = responseBody['message'] ?? 'Service unavailable in your country';
+      throw Exception(message);
     } else {
       throw Exception(
           'Failed to sign in. Status: ${response.statusCode} ${response.body}');
