@@ -46,7 +46,6 @@ class MainActions {
     canShow: (viewModel) => viewModel.hasBuyAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
       if (!viewModel.isEnabledBuyAction) {
-        await _showErrorDialog(context, S.of(context).unsupported_asset);
         return;
       }
 
