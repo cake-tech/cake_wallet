@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -15,6 +16,9 @@ import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
@@ -25,6 +29,7 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:bitbox/bitbox.dart' as bitbox;
 
 class AddressPage extends BasePage {
   AddressPage({
@@ -155,6 +160,25 @@ class AddressPage extends BasePage {
                           amountController: _amountController,
                           isLight: dashboardViewModel.settingsStore.currentTheme.type ==
                               ThemeType.light))),
+              if(addressListViewModel.wallet is ElectrumWallet)
+              PrimaryButton(
+                onPressed: () {
+                  final newAddress = (addressListViewModel.wallet as ElectrumWallet)
+                      .walletAddresses.generateNewAddress();
+
+                  final formattedAddress = addressListViewModel.wallet.type == WalletType.bitcoinCash
+                      ? bitbox.Address.toCashAddress(newAddress.address)
+                      : newAddress.address;
+
+                  addressListViewModel.setAddress(
+                      WalletAddressListItem(address: formattedAddress, isPrimary: false, legacyAddress: newAddress.address));
+                },
+                text: 'Generate new address',
+                color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+                textColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
+              ),
+              SizedBox(height: 16),
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList) {
                   return GestureDetector(
