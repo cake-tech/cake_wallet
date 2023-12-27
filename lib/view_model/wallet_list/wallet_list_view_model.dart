@@ -22,6 +22,7 @@ abstract class WalletListViewModelBase with Store {
   ) : wallets = ObservableList<WalletListItem>() {
     setOrderType(_appStore.settingsStore.walletListOrder);
     reaction((_) => _appStore.wallet, (_) => updateList());
+    updateList();
   }
 
   @observable
