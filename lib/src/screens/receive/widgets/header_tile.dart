@@ -5,12 +5,12 @@ class HeaderTile extends StatelessWidget {
   HeaderTile({
     required this.onTap,
     required this.title,
-    required this.icon
+    this.icon
   });
 
   final VoidCallback onTap;
   final String title;
-  final Icon icon;
+  final Icon? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -35,14 +35,18 @@ class HeaderTile extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor),
             ),
-            Container(
-              height: 32,
-              width: 32,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).extension<ReceivePageTheme>()!.iconsBackgroundColor),
-              child: icon,
+            icon != null
+                ? Container(
+                  height: 32,
+                  width: 32,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context)
+                      .extension<ReceivePageTheme>()!
+                      .iconsBackgroundColor),
+                     child: icon,
             )
+                : Container()
           ],
         ),
       ),

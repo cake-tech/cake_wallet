@@ -12,7 +12,8 @@ class AddressCell extends StatelessWidget {
       required this.backgroundColor,
       required this.textColor,
       this.onTap,
-      this.onEdit});
+      this.onEdit,
+      this.isChange = false});
 
   factory AddressCell.fromItem(WalletAddressListItem item,
           {required bool isCurrent,
@@ -28,7 +29,8 @@ class AddressCell extends StatelessWidget {
           backgroundColor: backgroundColor,
           textColor: textColor,
           onTap: onTap,
-          onEdit: onEdit);
+          onEdit: onEdit,
+          isChange: item.isChange);
 
   final String address;
   final String name;
@@ -38,14 +40,16 @@ class AddressCell extends StatelessWidget {
   final Color textColor;
   final Function(String)? onTap;
   final Function()? onEdit;
+  final bool isChange;
 
   String get label {
+    final formattedAddress = address.replaceAll('bitcoincash:', '');
     if (name.isEmpty){
-      if(address.length<=16){
-        return address;
+      if(formattedAddress.length<=43){
+        return formattedAddress;
       }else{
-        return address.substring(0,8)+'...'+
-            address.substring(address.length-8,address.length);
+        return formattedAddress.substring(0,8)+'...'+
+            formattedAddress.substring(formattedAddress.length-8,formattedAddress.length);
       }
     }else{
       return name;
@@ -60,17 +64,35 @@ class AddressCell extends StatelessWidget {
           width: double.infinity,
           color: backgroundColor,
           padding: EdgeInsets.only(left: 24, right: 24, top: 28, bottom: 28),
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 14,
-              color: textColor,
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: textColor,
+                    ),
+                  ),
+                  if (isChange)
+                    Text(
+                      S.of(context).change,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: textColor,
+                      ),
+                    ),
+                ],
+              ),
+            ],
           ),
         ));
-    return Semantics(
+    return onEdit == null ? cell : Semantics(
       label: S.of(context).slidable,
       selected: isCurrent,
       enabled: !isCurrent,

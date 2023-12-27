@@ -99,10 +99,13 @@ class ReceivePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    final isElectrumWallet = addressListViewModel.type == WalletType.bitcoin ||
+        addressListViewModel.type == WalletType.bitcoinCash ||
+        addressListViewModel.type == WalletType.litecoin;
     return (addressListViewModel.type == WalletType.monero ||
             addressListViewModel.type == WalletType.haven ||
             addressListViewModel.type == WalletType.nano ||
-            addressListViewModel.type == WalletType.banano)
+        isElectrumWallet)
         ? KeyboardActions(
             config: KeyboardActionsConfig(
                 keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
@@ -161,15 +164,23 @@ class ReceivePage extends BasePage {
                             }
 
                             if (item is WalletAddressListHeader) {
-                              cell = HeaderTile(
-                                  onTap: () =>
-                                      Navigator.of(context).pushNamed(Routes.newSubaddress),
-                                  title: S.of(context).addresses,
-                                  icon: Icon(
-                                    Icons.add,
-                                    size: 20,
-                                    color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
-                                  ));
+                              if (isElectrumWallet) {
+                                cell = HeaderTile(
+                                    onTap: () {},
+                                    title: S.of(context).addresses);
+                              } else {
+                                cell = HeaderTile(
+                                    onTap: () => Navigator.of(context)
+                                        .pushNamed(Routes.newSubaddress),
+                                    title: S.of(context).addresses,
+                                    icon: Icon(
+                                      Icons.add,
+                                      size: 20,
+                                      color: Theme.of(context)
+                                          .extension<ReceivePageTheme>()!
+                                          .iconsColor,
+                                    ));
+                              }
                             }
 
                             if (item is WalletAddressListItem) {
@@ -188,7 +199,7 @@ class ReceivePage extends BasePage {
                                     backgroundColor: backgroundColor,
                                     textColor: textColor,
                                     onTap: (_) => addressListViewModel.setAddress(item),
-                                    onEdit: () => Navigator.of(context)
+                                    onEdit: isElectrumWallet ? null : () => Navigator.of(context)
                                         .pushNamed(Routes.newSubaddress, arguments: item));
                               });
                             }

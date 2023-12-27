@@ -63,7 +63,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @override
-  set address(String addr) => null;
+  set address(String addr) {
+    final addressRecord = addresses.firstWhere((addressRecord) => addressRecord.address == addr);
+    receiveAddresses.remove(addressRecord);
+    receiveAddresses.insert(0, addressRecord);
+  }
 
   int currentReceiveAddressIndex;
   int currentChangeAddressIndex;

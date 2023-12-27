@@ -6,13 +6,17 @@ class WalletAddressListItem extends ListItem {
     required this.address,
     required this.isPrimary,
     this.id,
-    this.name})
+    this.name,
+    this.isChange = false,
+    this.legacyAddress = ''})
     : super();
 
   final int? id;
   final bool isPrimary;
   final String address;
   final String? name;
+  final bool isChange;
+  final String? legacyAddress;
 
   @override
   String toString() => name ?? address;

@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/currency.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -12,10 +13,10 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_h
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:bitbox/bitbox.dart' as bitbox;
 
 part 'wallet_address_list_view_model.g.dart';
 
@@ -277,14 +278,22 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       addressList.addAll(addressItems);
     }
 
-    if (wallet.type == WalletType.bitcoin) {
-      final primaryAddress = bitcoin!.getAddress(wallet);
-      final bitcoinAddresses = bitcoin!.getAddresses(wallet).map((addr) {
-        final isPrimary = addr == primaryAddress;
-
-        return WalletAddressListItem(isPrimary: isPrimary, name: null, address: addr);
-      });
-      addressList.addAll(bitcoinAddresses);
+    if (wallet.type == WalletType.bitcoin ||
+        wallet.type == WalletType.litecoin ||
+        wallet.type == WalletType.bitcoinCash) {
+      final bitcoinUsedAddresses = (wallet as ElectrumWallet)
+          .walletAddresses
+          .addresses
+          .where((element) => element.isUsed == true)
+          .map((usedAddresses) => WalletAddressListItem(
+          isPrimary: false,
+          name: null,
+          address: wallet.type == WalletType.bitcoinCash
+              ? bitbox.Address.toCashAddress(usedAddresses.address)
+              : usedAddresses.address,
+          isChange: usedAddresses.isHidden,
+          legacyAddress: usedAddresses.address));
+      addressList.addAll(bitcoinUsedAddresses);
     }
 
     if (wallet.type == WalletType.ethereum) {
@@ -321,9 +330,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   bool get hasAddressList =>
       wallet.type == WalletType.monero ||
-      wallet.type == WalletType.haven;/* ||
-      wallet.type == WalletType.nano ||
-      wallet.type == WalletType.banano;*/// TODO: nano accounts are disabled for now
+      wallet.type == WalletType.haven ||
+      wallet.type == WalletType.bitcoinCash ||
+      wallet.type == WalletType.bitcoin ||
+      wallet.type == WalletType.litecoin;
+      // wallet.type == WalletType.nano ||
+      // wallet.type == WalletType.banano; TODO: nano accounts are disabled for now
 
   @computed
   bool get showElectrumAddressDisclaimer =>
@@ -337,7 +349,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @action
   void setAddress(WalletAddressListItem address) =>
-      wallet.walletAddresses.address = address.address;
+      wallet.walletAddresses.address = wallet.type == WalletType.bitcoinCash
+          ? (address.legacyAddress ?? '')
+          : address.address;
 
   void _init() {
     _baseItems = [];
