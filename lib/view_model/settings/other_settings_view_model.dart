@@ -1,7 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -94,16 +93,12 @@ abstract class OtherSettingsViewModelBase with Store {
 
   String getBuyProviderType(dynamic buyProviderType) {
     final _buyProviderType = buyProviderType as BuyProviderType;
-    return _buyProviderType == BuyProviderType.askEachTime
-        ? S.current.ask_each_time
-        : _buyProviderType.name;
+    return _buyProviderType.name;
   }
 
   String getSellProviderType(dynamic sellProviderType) {
     final _sellProviderType = sellProviderType as BuyProviderType;
-    return _sellProviderType == BuyProviderType.askEachTime
-        ? S.current.ask_each_time
-        : _sellProviderType.name;
+    return _sellProviderType.name;
   }
 
   void onDisplayPrioritySelected(TransactionPriority priority) =>

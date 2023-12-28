@@ -73,7 +73,9 @@ class BuyProviderHelper {
           BuyProviderType.onramper,
           BuyProviderType.robinhood
         ];
-      default:
+      case WalletType.none:
+      case WalletType.haven:
+      case WalletType.polygon:
         return [];
     }
   }
@@ -92,7 +94,9 @@ class BuyProviderHelper {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
         return [BuyProviderType.askEachTime];
-      default:
+      case WalletType.none:
+      case WalletType.haven:
+      case WalletType.polygon:
         return [];
     }
   }
