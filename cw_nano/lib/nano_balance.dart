@@ -1,8 +1,8 @@
 import 'package:cw_core/balance.dart';
-import 'package:cw_nano/nano_util.dart';
+import 'package:nanoutil/nanoutil.dart';
 
 BigInt stringAmountToBigInt(String amount) {
-  return BigInt.parse(NanoUtil.getAmountAsRaw(amount, NanoUtil.rawPerNano));
+  return BigInt.parse(NanoAmounts.getAmountAsRaw(amount, NanoAmounts.rawPerNano));
 }
 
 class NanoBalance extends Balance {
@@ -24,11 +24,11 @@ class NanoBalance extends Balance {
 
   @override
   String get formattedAvailableBalance {
-    return NanoUtil.getRawAsUsableString(currentBalance.toString(), NanoUtil.rawPerNano);
+    return NanoAmounts.getRawAsUsableString(currentBalance.toString(), NanoAmounts.rawPerNano);
   }
 
   @override
   String get formattedAdditionalBalance {
-    return NanoUtil.getRawAsUsableString(receivableBalance.toString(), NanoUtil.rawPerNano);
+    return NanoAmounts.getRawAsUsableString(receivableBalance.toString(), NanoAmounts.rawPerNano);
   }
 }

@@ -2,6 +2,7 @@ import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_nano/nano_util.dart';
+import 'package:nanoutil/nanoutil.dart';
 
 class NanoTransactionInfo extends TransactionInfo {
   NanoTransactionInfo({
@@ -30,8 +31,9 @@ class NanoTransactionInfo extends TransactionInfo {
 
   @override
   String amountFormatted() {
-    final String amt = NanoUtil.getRawAsUsableString(amountRaw.toString(), NanoUtil.rawPerNano);
-    final String acc = NanoUtil.getRawAccuracy(amountRaw.toString(), NanoUtil.rawPerNano);
+    final String amt =
+        NanoAmounts.getRawAsUsableString(amountRaw.toString(), NanoAmounts.rawPerNano);
+    final String acc = NanoAmounts.getRawAccuracy(amountRaw.toString(), NanoAmounts.rawPerNano);
     return "$acc$amt $tokenSymbol";
   }
 

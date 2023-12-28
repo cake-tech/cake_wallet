@@ -4,10 +4,10 @@ import 'dart:convert';
 import 'package:cw_core/nano_account_info_response.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_transaction_model.dart';
-import 'package:cw_nano/nano_util.dart';
 import 'package:http/http.dart' as http;
 import 'package:nanodart/nanodart.dart';
 import 'package:cw_core/node.dart';
+import 'package:nanoutil/nanoutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NanoClient {
@@ -203,7 +203,7 @@ class NanoClient {
     String? previousHash,
   }) async {
     // our address:
-    final String publicAddress = NanoUtil.privateKeyToAddress(privateKey);
+    final String publicAddress = NanoDerivations.privateKeyToAddress(privateKey);
 
     // first get the current account balance:
     if (balanceAfterTx == null) {

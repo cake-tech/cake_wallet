@@ -27,6 +27,7 @@ import 'package:cw_nano/nano_wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:nanodart/nanodart.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:nanoutil/nanoutil.dart';
 
 part 'nano_wallet.g.dart';
 
@@ -102,11 +103,21 @@ abstract class NanoWalletBase
       if (_derivationType == DerivationType.nano) {
         _hexSeed = bip39.mnemonicToEntropy(_mnemonic).toUpperCase();
       } else {
-        _hexSeed = await NanoUtil.hdMnemonicListToSeed(_mnemonic.split(' '));
+        _hexSeed = await NanoDerivations.hdMnemonicListToSeed(_mnemonic.split(' '));
       }
     }
-    _privateKey = await NanoUtil.uniSeedToPrivate(_hexSeed!, 0, type);
-    _publicAddress = await NanoUtil.uniSeedToAddress(_hexSeed!, 0, type);
+    NanoDerivationType derivationType =
+        type == "standard" ? NanoDerivationType.STANDARD : NanoDerivationType.HD;
+    _privateKey = await NanoDerivations.universalSeedToPrivate(
+      _hexSeed!,
+      index: 0,
+      type: derivationType,
+    );
+    _publicAddress = await NanoDerivations.universalSeedToAddress(
+      _hexSeed!,
+      index: 0,
+      type: derivationType,
+    );
     this.walletInfo.address = _publicAddress!;
 
     await walletAddresses.init();
@@ -175,8 +186,8 @@ abstract class NanoWalletBase
       if (txOut.sendAll) {
         amt = balance[currency]?.currentBalance ?? BigInt.zero;
       } else {
-        amt = BigInt.tryParse(NanoUtil.getAmountAsRaw(
-                txOut.cryptoAmount?.replaceAll(',', '.') ?? "0", NanoUtil.rawPerNano)) ??
+        amt = BigInt.tryParse(NanoAmounts.getAmountAsRaw(
+                txOut.cryptoAmount?.replaceAll(',', '.') ?? "0", NanoAmounts.rawPerNano)) ??
             BigInt.zero;
       }
 
@@ -188,9 +199,7 @@ abstract class NanoWalletBase
 
       final block = await _client.constructSendBlock(
         amountRaw: amt.toString(),
-        destinationAddress: txOut.isParsedAddress
-            ? txOut.extractedAddress!
-            : txOut.address,
+        destinationAddress: txOut.isParsedAddress ? txOut.extractedAddress! : txOut.address,
         privateKey: _privateKey!,
         balanceAfterTx: runningBalance,
         previousHash: previousHash,
@@ -396,11 +405,19 @@ abstract class NanoWalletBase
   }
 
   Future<void> regenerateAddress() async {
-    final String type = (_derivationType == DerivationType.nano) ? "standard" : "hd";
-    _privateKey =
-        await NanoUtil.uniSeedToPrivate(_hexSeed!, this.walletAddresses.account!.id, type);
-    _publicAddress =
-        await NanoUtil.uniSeedToAddress(_hexSeed!, this.walletAddresses.account!.id, type);
+    final NanoDerivationType type = (_derivationType == DerivationType.nano)
+        ? NanoDerivationType.STANDARD
+        : NanoDerivationType.HD;
+    _privateKey = await NanoDerivations.universalSeedToPrivate(
+      _hexSeed!,
+      index: this.walletAddresses.account!.id,
+      type: type,
+    );
+    _publicAddress = await NanoDerivations.universalSeedToAddress(
+      _hexSeed!,
+      index: this.walletAddresses.account!.id,
+      type: type,
+    );
 
     this.walletInfo.address = _publicAddress!;
     this.walletAddresses.address = _publicAddress!;
