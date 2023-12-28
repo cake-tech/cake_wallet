@@ -758,6 +758,8 @@
   "dfx_option_description": "Acquista criptovalute con EUR e CHF. Fino a 990€ senza KYC aggiuntivi. Per clienti al dettaglio e aziendali in Europa",
   "polygonscan_history": "Cronologia PolygonScan",
   "wallet_seed_legacy": "Seme di portafoglio legacy",
+  "default_sell_provider": "Fornitore di vendita predefinito",
+  "select_sell_provider_notice": "Seleziona un fornitore di vendita sopra. Puoi saltare questa schermata impostando il tuo fornitore di vendita predefinito nelle impostazioni dell'app.",
   "custom_drag": "Custom (Hold and Drag)",
   "switchToEVMCompatibleWallet": "Passa a un portafoglio compatibile con EVM e riprova (Ethereum, Polygon)"
 }

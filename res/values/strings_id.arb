@@ -746,6 +746,8 @@
   "dfx_option_description": "Beli kripto dengan EUR & CHF. Hingga 990€ tanpa KYC tambahan. Untuk pelanggan ritel dan korporat di Eropa",
   "polygonscan_history": "Sejarah PolygonScan",
   "wallet_seed_legacy": "Biji dompet warisan",
+  "default_sell_provider": "Penyedia Penjualan Default",
+  "select_sell_provider_notice": "Pilih penyedia jual di atas. Anda dapat melewati layar ini dengan mengatur penyedia penjualan default Anda di pengaturan aplikasi.",
   "custom_drag": "Khusus (tahan dan seret)",
   "switchToEVMCompatibleWallet": "Silakan beralih ke dompet yang kompatibel dengan EVM dan coba lagi (Ethereum, Polygon)"
 }

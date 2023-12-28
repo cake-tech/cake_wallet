@@ -758,6 +758,8 @@
   "seed_language_chinese_traditional": "Китайський (традиційний)",
   "polygonscan_history": "Історія PolygonScan",
   "wallet_seed_legacy": "Спадець насіння гаманця",
+  "default_sell_provider": "Постачальник продажу за замовчуванням",
+  "select_sell_provider_notice": "Виберіть вище постачальника послуг продажу. Ви можете пропустити цей екран, встановивши постачальника послуг продажу за умовчанням у налаштуваннях програми.",
   "custom_drag": "На замовлення (утримуйте та перетягується)",
   "switchToEVMCompatibleWallet": "Перейдіть на гаманець, сумісний з EVM, і повторіть спробу (Ethereum, Polygon)"
 }

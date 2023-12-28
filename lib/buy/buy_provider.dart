@@ -1,27 +1,35 @@
 import 'package:cake_wallet/buy/buy_amount.dart';
-import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/material.dart';
 
 abstract class BuyProvider {
-  BuyProvider({required this.wallet, required this.isTestEnvironment});
+  BuyProvider({
+    required this.wallet,
+    required this.isTestEnvironment,
+  });
 
   final WalletBase wallet;
   final bool isTestEnvironment;
 
   String get title;
-  BuyProviderDescription get description;
-  String get trackUrl;
 
-  WalletType get walletType => wallet.type;
-  String get walletAddress => wallet.walletAddresses.address;
-  String get walletId => wallet.id;
+  String get buyOptionDescription;
+
+  String get sellOptionDescription;
+
+  String get lightIcon;
+
+  String get darkIcon;
 
   @override
   String toString() => title;
 
-  Future<String> requestUrl(String amount, String sourceCurrency);
-  Future<Order> findOrderById(String id);
-  Future<BuyAmount> calculateAmount(String amount, String sourceCurrency);
+  Future<void> launchProvider(BuildContext context, bool? isBuyAction);
+
+  Future<String> requestUrl(String amount, String sourceCurrency) => throw UnimplementedError();
+
+  Future<Order> findOrderById(String id) => throw UnimplementedError();
+
+  Future<BuyAmount> calculateAmount(String amount, String sourceCurrency) => throw UnimplementedError();
 }

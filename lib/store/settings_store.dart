@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
@@ -147,7 +148,9 @@ abstract class SettingsStoreBase with Store {
             initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
-        priority = ObservableMap<WalletType, TransactionPriority>() {
+        priority = ObservableMap<WalletType, TransactionPriority>(),
+        defaultBuyProviders = ObservableMap<WalletType, BuyProviderType>(),
+        defaultSellProviders = ObservableMap<WalletType, BuyProviderType>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
     if (initialMoneroTransactionPriority != null) {
@@ -181,9 +184,25 @@ abstract class SettingsStoreBase with Store {
     initializeTrocadorProviderStates();
 
     WalletType.values.forEach((walletType) {
-      final key = 'defaultBuyProvider_${walletType.toString()}';
-      final providerIndex = sharedPreferences.getInt(key);
-      defaultBuyProviders[walletType] = providerIndex != null ? BuyProviderType.values[providerIndex] : BuyProviderType.AskEachTime;
+      final key = 'buyProvider_${walletType.toString()}';
+      final providerId = sharedPreferences.getString(key);
+      if (providerId != null) {
+        defaultBuyProviders[walletType] = BuyProviderType.values
+            .firstWhere((provider) => provider.id == providerId, orElse: () => BuyProviderType.askEachTime);
+      } else {
+        defaultBuyProviders[walletType] = BuyProviderType.askEachTime;
+      }
+    });
+
+    WalletType.values.forEach((walletType) {
+      final key = 'sellProvider_${walletType.toString()}';
+      final providerId = sharedPreferences.getString(key);
+      if (providerId != null) {
+        defaultSellProviders[walletType] = BuyProviderType.values
+            .firstWhere((provider) => provider.id == providerId, orElse: () => BuyProviderType.askEachTime);
+      } else {
+        defaultSellProviders[walletType] = BuyProviderType.askEachTime;
+      }
     });
 
     reaction(
@@ -195,6 +214,20 @@ abstract class SettingsStoreBase with Store {
         (_) => shouldShowYatPopup,
         (bool shouldShowYatPopup) =>
             sharedPreferences.setBool(PreferencesKey.shouldShowYatPopup, shouldShowYatPopup));
+
+    defaultBuyProviders.observe((change) {
+      final String key = 'buyProvider_${change.key.toString()}';
+      if (change.newValue != null) {
+        sharedPreferences.setString(key, change.newValue!.id);
+      }
+    });
+
+    defaultSellProviders.observe((change) {
+      final String key = 'sellProvider_${change.key.toString()}';
+      if (change.newValue != null) {
+        sharedPreferences.setString(key, change.newValue!.id);
+      }
+    });
 
     priority.observe((change) {
       final String? key;
@@ -250,16 +283,6 @@ abstract class SettingsStoreBase with Store {
         (_) => disableSell,
         (bool disableSell) =>
             sharedPreferences.setBool(PreferencesKey.disableSellKey, disableSell));
-
-    reaction(
-            (_) => defaultBuyProviders.asObservable(),
-            (ObservableMap<WalletType, BuyProviderType> providers) {
-          providers.forEach((walletType, provider) {
-            final key = 'defaultBuyProvider_${walletType.toString()}';
-            sharedPreferences.setInt(key, provider.index);
-          });
-        }
-    );
 
     reaction(
         (_) => walletListOrder,
@@ -594,7 +617,10 @@ abstract class SettingsStoreBase with Store {
   ObservableMap<String, bool> trocadorProviderStates = ObservableMap<String, bool>();
 
   @observable
-  ObservableMap<WalletType, BuyProviderType> defaultBuyProviders = ObservableMap<WalletType, BuyProviderType>();
+  ObservableMap<WalletType, BuyProviderType> defaultBuyProviders;
+
+  @observable
+  ObservableMap<WalletType, BuyProviderType> defaultSellProviders;
 
   @observable
   SortBalanceBy sortBalanceBy;

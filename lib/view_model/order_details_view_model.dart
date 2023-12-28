@@ -50,8 +50,10 @@ abstract class OrderDetailsViewModelBase with Store {
   @action
   Future<void> _updateOrder() async {
     try {
-      if (_provider != null) {
-        final updatedOrder = await _provider!.findOrderById(order.id);
+      if (_provider != null && (_provider is MoonPayBuyProvider || _provider is WyreBuyProvider)) {
+        final updatedOrder = _provider is MoonPayBuyProvider
+            ? await (_provider as MoonPayBuyProvider).findOrderById(order.id)
+            : await (_provider as WyreBuyProvider).findOrderById(order.id);
         updatedOrder.from = order.from;
         updatedOrder.to = order.to;
         updatedOrder.receiveAddress = order.receiveAddress;
@@ -87,19 +89,26 @@ abstract class OrderDetailsViewModelBase with Store {
           value: order.provider.title)
     );
 
-    if (_provider?.trackUrl.isNotEmpty ?? false) {
-      final buildURL = _provider!.trackUrl + '${order.transferId}';
-      items.add(
-        TrackTradeListItem(
-            title: 'Track',
-            value: buildURL,
-            onTap: () {
-              try {
-                launch(buildURL);
-              } catch (e) {}
-            }
-        )
-      );
+    if (_provider != null && (_provider is MoonPayBuyProvider || _provider is WyreBuyProvider)) {
+
+      final trackUrl = _provider is MoonPayBuyProvider
+          ? (_provider as MoonPayBuyProvider).trackUrl
+          : (_provider as WyreBuyProvider).trackUrl;
+
+      if (trackUrl.isNotEmpty ?? false) {
+        final buildURL = trackUrl + '${order.transferId}';
+        items.add(
+            TrackTradeListItem(
+                title: 'Track',
+                value: buildURL,
+                onTap: () {
+                  try {
+                    launch(buildURL);
+                  } catch (e) {}
+                }
+            )
+        );
+      }
     }
 
     items.add(
