@@ -474,7 +474,7 @@ Future<void> setup({
 
   final appStore = getIt.get<AppStore>();
 
-  getIt.registerLazySingleton<WalletConnectKeyService>(() => KeyServiceImpl(appStore.wallet!));
+  getIt.registerLazySingleton<WalletConnectKeyService>(() => KeyServiceImpl());
 
   getIt.registerLazySingleton<Web3WalletService>(() {
     final Web3WalletService web3WalletService = Web3WalletService(
