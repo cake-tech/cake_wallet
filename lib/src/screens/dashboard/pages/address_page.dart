@@ -182,7 +182,9 @@ class AddressPage extends BasePage {
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList) {
                   return GestureDetector(
-                    onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled
+                    onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled &&
+                        (WalletType.monero == addressListViewModel.wallet.type ||
+                            WalletType.haven == addressListViewModel.wallet.type)
                         ? await showPopUp<void>(
                             context: context, builder: (_) => getIt.get<MoneroAccountListPage>())
                         : Navigator.of(context).pushNamed(Routes.receive),
