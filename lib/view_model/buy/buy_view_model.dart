@@ -61,8 +61,7 @@ abstract class BuyViewModelBase with Store {
     String _url = '';
 
     try {
-      _url = await selectedProvider
-            !.requestUrl(doubleAmount.toString(), fiatCurrency.title);
+      _url = await selectedProvider!.requestUrl(doubleAmount.toString(), fiatCurrency.title);
     } catch (e) {
       print(e.toString());
     }

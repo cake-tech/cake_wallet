@@ -1,6 +1,7 @@
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
@@ -796,8 +797,12 @@ Future<void> setup({
   getIt
       .registerFactory<DFXBuyProvider>(() => DFXBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 
+  getIt.registerFactory<MoonPaySellProvider>(() => MoonPaySellProvider(
+              settingsStore: getIt.get<AppStore>().settingsStore,
+              wallet: getIt.get<AppStore>().wallet!));
+
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
-        settingsStore: getIt.get<AppStore>().settingsStore,
+        getIt.get<AppStore>().settingsStore,
         wallet: getIt.get<AppStore>().wallet!,
       ));
 
@@ -941,7 +946,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => BuyAmountViewModel());
 
-  getIt.registerFactory(() => BuyOptionsPage(getIt.get<DashboardViewModel>()));
+  getIt.registerFactoryParam<BuySellOptionsPage, bool, void>(
+        (isBuyOption, _) => BuySellOptionsPage(getIt.get<DashboardViewModel>(), isBuyOption));
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;

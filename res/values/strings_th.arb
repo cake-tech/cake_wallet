@@ -756,6 +756,8 @@
   "dfx_option_description": "ซื้อ crypto ด้วย EUR และ CHF สูงถึง 990€ โดยไม่มี KYC เพิ่มเติม สำหรับลูกค้ารายย่อยและลูกค้าองค์กรในยุโรป",
   "polygonscan_history": "ประวัติ PolygonScan",
   "wallet_seed_legacy": "เมล็ดกระเป๋าเงินมรดก",
+  "default_sell_provider": "ผู้ให้บริการการขายเริ่มต้น",
+  "select_sell_provider_notice": "เลือกผู้ให้บริการการขายด้านบน คุณสามารถข้ามหน้าจอนี้ได้โดยการตั้งค่าผู้ให้บริการการขายเริ่มต้นในการตั้งค่าแอป",
   "custom_drag": "กำหนดเอง (ค้างและลาก)",
   "switchToEVMCompatibleWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงินที่รองรับ EVM แล้วลองอีกครั้ง (Ethereum, Polygon)"
 }

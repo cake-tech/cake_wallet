@@ -758,6 +758,8 @@
   "dfx_option_description": "Koop crypto met EUR & CHF. Tot 990€ zonder extra KYC. Voor particuliere en zakelijke klanten in Europa",
   "polygonscan_history": "PolygonScan-geschiedenis",
   "wallet_seed_legacy": "Legacy portemonnee zaad",
+  "default_sell_provider": "Standaard verkoopaanbieder",
+  "select_sell_provider_notice": "Selecteer hierboven een verkoopaanbieder. U kunt dit scherm overslaan door uw standaardverkoopprovider in te stellen in de app-instellingen.",
   "custom_drag": "Custom (vasthouden en slepen)",
   "switchToEVMCompatibleWallet": "Schakel over naar een EVM-compatibele portemonnee en probeer het opnieuw (Ethereum, Polygon)"
 }

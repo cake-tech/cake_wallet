@@ -756,6 +756,8 @@
   "dfx_option_description": "Kupujte kripto s EUR i CHF. Do 990 € bez dodatnog KYC-a. Za maloprodajne i poslovne korisnike u Europi",
   "polygonscan_history": "Povijest PolygonScan",
   "wallet_seed_legacy": "Sjeme naslijeđenog novčanika",
+  "default_sell_provider": "Zadani dobavljač prodaje",
+  "select_sell_provider_notice": "Gore odaberite pružatelja usluga prodaje. Ovaj zaslon možete preskočiti postavljanjem zadanog pružatelja usluga prodaje u postavkama aplikacije.",
   "custom_drag": "Prilagođeni (držite i povucite)",
   "switchToEVMCompatibleWallet": "Prijeđite na novčanik kompatibilan s EVM-om i pokušajte ponovno (Ethereum, Polygon)"
 }

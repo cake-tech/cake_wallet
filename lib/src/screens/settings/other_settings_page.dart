@@ -43,10 +43,18 @@ class OtherSettingsPage extends BasePage {
               if(_otherSettingsViewModel.isEnabledBuyAction)
               SettingsPickerCell(
                 title: S.current.default_buy_provider,
-                items: _otherSettingsViewModel.availableBuyProviders,
+                items: _otherSettingsViewModel.availableBuyProvidersTypes,
                 displayItem: _otherSettingsViewModel.getBuyProviderType,
                 selectedItem: _otherSettingsViewModel.buyProviderType,
-                onItemSelected: _otherSettingsViewModel.onBuyProviderTypeSelected,
+                onItemSelected: _otherSettingsViewModel.onBuyProviderTypeSelected
+              ),
+              if(_otherSettingsViewModel.isEnabledSellAction)
+              SettingsPickerCell(
+                title: S.current.default_sell_provider,
+                items: _otherSettingsViewModel.availableSellProvidersTypes,
+                displayItem: _otherSettingsViewModel.getSellProviderType,
+                selectedItem: _otherSettingsViewModel.sellProviderType,
+                onItemSelected: _otherSettingsViewModel.onSellProviderTypeSelected,
               ),
               SettingsCellWithArrow(
                 title: S.current.settings_terms_and_conditions,

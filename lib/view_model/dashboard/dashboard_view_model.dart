@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
@@ -41,6 +42,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/entities/buy_provider_types.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -295,13 +297,31 @@ abstract class DashboardViewModelBase with Store {
 
   Map<String, List<FilterItem>> filterItems;
 
-  BuyProviderType get defaultBuyProvider =>
-      settingsStore.defaultBuyProviders[wallet.type] ?? BuyProviderType.AskEachTime;
+  BuyProvider? get defaultBuyProvider => BuyProviderHelper.getProviderByType(
+      settingsStore.defaultBuyProviders[wallet.type] ?? BuyProviderType.askEachTime);
+
+  BuyProvider? get defaultSellProvider => BuyProviderHelper.getProviderByType(
+      settingsStore.defaultSellProviders[wallet.type] ?? BuyProviderType.askEachTime);
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
-  List<BuyProviderType> get availableProviders =>
-      BuyProviderType.getAvailableProviders(wallet.type);
+  List<BuyProvider> get availableBuyProviders {
+    final providerTypes = BuyProviderHelper.getAvailableBuyProviderTypes(wallet.type);
+    return providerTypes
+        .map((type) => BuyProviderHelper.getProviderByType(type))
+        .where((provider) => provider != null)
+        .cast<BuyProvider>()
+        .toList();
+  }
+
+  List<BuyProvider> get availableSellProviders {
+    final providerTypes = BuyProviderHelper.getAvailableSellProviderTypes(wallet.type);
+    return providerTypes
+        .map((type) => BuyProviderHelper.getProviderByType(type))
+        .where((provider) => provider != null)
+        .cast<BuyProvider>()
+        .toList();
+  }
 
   bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
 
@@ -315,16 +335,15 @@ abstract class DashboardViewModelBase with Store {
   bool hasExchangeAction;
 
   @computed
-  bool get isEnabledBuyAction => !settingsStore.disableBuy && wallet.type != WalletType.haven;
+  bool get isEnabledBuyAction =>
+      !settingsStore.disableBuy && availableBuyProviders.isNotEmpty;
 
   @observable
   bool hasBuyAction;
 
   @computed
   bool get isEnabledSellAction =>
-      !settingsStore.disableSell &&
-      wallet.type != WalletType.haven &&
-      wallet.type != WalletType.monero;
+      !settingsStore.disableSell && availableSellProviders.isNotEmpty;
 
   @observable
   bool hasSellAction;
