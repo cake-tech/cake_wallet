@@ -1,7 +1,6 @@
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_nano/nano_util.dart';
 import 'package:nanoutil/nanoutil.dart';
 
 class NanoTransactionInfo extends TransactionInfo {

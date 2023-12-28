@@ -18,7 +18,6 @@ import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:cw_nano/nano_transaction_history.dart';
 import 'package:cw_nano/nano_transaction_info.dart';
-import 'package:cw_nano/nano_util.dart';
 import 'package:cw_nano/nano_wallet_keys.dart';
 import 'package:cw_nano/pending_nano_transaction.dart';
 import 'package:mobx/mobx.dart';

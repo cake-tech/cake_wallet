@@ -6,7 +6,6 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_nano/nano_mnemonic.dart' as nm;
-import 'package:cw_nano/nano_util.dart';
 import 'package:cw_nano/nano_wallet.dart';
 import 'package:cw_nano/nano_wallet_creation_credentials.dart';
 import 'package:hive/hive.dart';
