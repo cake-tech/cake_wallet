@@ -26,6 +26,7 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:nanoutil/nanoutil.dart';
 
 class WalletRestorePage extends BasePage {
   WalletRestorePage(this.walletRestoreViewModel, this.seedTypeViewModel)
@@ -345,7 +346,8 @@ class WalletRestorePage extends BasePage {
         if (standardInfo?.balance != null) {
           list.add(DerivationInfo(
             derivationType: DerivationType.nano,
-            balance: nanoUtil!.getRawAsUsableString(standardInfo!.balance, nanoUtil!.rawPerNano),
+            balance:
+                NanoAmounts.getRawAsUsableString(standardInfo!.balance, NanoAmounts.rawPerNano),
             address: standardInfo.address!,
             height: standardInfo.confirmationHeight,
           ));
@@ -354,7 +356,7 @@ class WalletRestorePage extends BasePage {
         if (bip39Info?.balance != null) {
           list.add(DerivationInfo(
             derivationType: DerivationType.bip39,
-            balance: nanoUtil!.getRawAsUsableString(bip39Info!.balance, nanoUtil!.rawPerNano),
+            balance: NanoAmounts.getRawAsUsableString(bip39Info!.balance, NanoAmounts.rawPerNano),
             address: bip39Info.address!,
             height: bip39Info.confirmationHeight,
           ));
