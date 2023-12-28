@@ -61,6 +61,7 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
 
   static const typeId = ERC20_TOKEN_TYPE_ID;
   static const boxName = 'Erc20Tokens';
+  static const ethereumBoxName = ' EthereumErc20Tokens';
   static const polygonBoxName = ' PolygonErc20Tokens';
 
   @override
