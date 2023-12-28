@@ -83,6 +83,8 @@ abstract class NanoWalletBase
   @observable
   late ObservableMap<CryptoCurrency, NanoBalance> balance;
 
+  static const int POLL_INTERVAL_SECONDS = 10;
+
   // initialize the different forms of private / public key we'll need:
   Future<void> init() async {
     if (_derivationType == DerivationType.unknown) {
@@ -316,7 +318,7 @@ abstract class NanoWalletBase
       await updateTransactions();
 
       _receiveTimer?.cancel();
-      _receiveTimer = Timer.periodic(const Duration(seconds: 15), (timer) async {
+      _receiveTimer = Timer.periodic(const Duration(seconds: POLL_INTERVAL_SECONDS), (timer) async {
         // get our balance:
         await _updateBalance();
         // if we have anything to receive, process it:
