@@ -55,7 +55,6 @@ class BuySellOptionsPage extends BasePage {
                 );
               }).toList(),
               Spacer(),
-              if (isBuyAction)
                 Padding(
                   padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
                   child: Text(

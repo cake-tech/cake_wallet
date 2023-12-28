@@ -185,10 +185,10 @@ abstract class SettingsStoreBase with Store {
 
     WalletType.values.forEach((walletType) {
       final key = 'buyProvider_${walletType.toString()}';
-      final providerName = sharedPreferences.getString(key);
-      if (providerName != null) {
+      final providerId = sharedPreferences.getString(key);
+      if (providerId != null) {
         defaultBuyProviders[walletType] = BuyProviderType.values
-            .firstWhere((provider) => provider.name == providerName, orElse: () => BuyProviderType.askEachTime);
+            .firstWhere((provider) => provider.id == providerId, orElse: () => BuyProviderType.askEachTime);
       } else {
         defaultBuyProviders[walletType] = BuyProviderType.askEachTime;
       }
@@ -196,10 +196,10 @@ abstract class SettingsStoreBase with Store {
 
     WalletType.values.forEach((walletType) {
       final key = 'sellProvider_${walletType.toString()}';
-      final providerName = sharedPreferences.getString(key);
-      if (providerName != null) {
+      final providerId = sharedPreferences.getString(key);
+      if (providerId != null) {
         defaultSellProviders[walletType] = BuyProviderType.values
-            .firstWhere((provider) => provider.name == providerName, orElse: () => BuyProviderType.askEachTime);
+            .firstWhere((provider) => provider.id == providerId, orElse: () => BuyProviderType.askEachTime);
       } else {
         defaultSellProviders[walletType] = BuyProviderType.askEachTime;
       }
@@ -218,14 +218,14 @@ abstract class SettingsStoreBase with Store {
     defaultBuyProviders.observe((change) {
       final String key = 'buyProvider_${change.key.toString()}';
       if (change.newValue != null) {
-        sharedPreferences.setString(key, change.newValue!.name);
+        sharedPreferences.setString(key, change.newValue!.id);
       }
     });
 
     defaultSellProviders.observe((change) {
       final String key = 'sellProvider_${change.key.toString()}';
       if (change.newValue != null) {
-        sharedPreferences.setString(key, change.newValue!.name);
+        sharedPreferences.setString(key, change.newValue!.id);
       }
     });
 

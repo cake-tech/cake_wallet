@@ -298,10 +298,10 @@ abstract class DashboardViewModelBase with Store {
   Map<String, List<FilterItem>> filterItems;
 
   BuyProvider? get defaultBuyProvider => BuyProviderHelper.getProviderByType(
-      settingsStore.defaultBuyProviders[wallet.type]);
+      settingsStore.defaultBuyProviders[wallet.type] ?? BuyProviderType.askEachTime);
 
   BuyProvider? get defaultSellProvider => BuyProviderHelper.getProviderByType(
-      settingsStore.defaultSellProviders[wallet.type]);
+      settingsStore.defaultSellProviders[wallet.type] ?? BuyProviderType.askEachTime);
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 

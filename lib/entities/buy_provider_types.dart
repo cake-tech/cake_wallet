@@ -27,6 +27,22 @@ extension BuyProviderTypeName on BuyProviderType {
         return this.toString().split('.').last;
     }
   }
+
+  String get id {
+    switch (this) {
+      case BuyProviderType.askEachTime:
+        return 'ask_each_time_provider';
+      case BuyProviderType.robinhood:
+        return 'robinhood_connect_provider';
+      case BuyProviderType.dfx:
+        return 'dfx_connect_provider';
+      case BuyProviderType.onramper:
+        return 'onramper_provider';
+      default:
+        return this.toString().split('.').last.replaceAll('.', '_')
+            .toLowerCase() + '_provider';
+    }
+  }
 }
 
 class BuyProviderHelper {
@@ -81,7 +97,7 @@ class BuyProviderHelper {
     }
   }
 
-  static BuyProvider? getProviderByType(BuyProviderType? type) {
+  static BuyProvider? getProviderByType(BuyProviderType type) {
     switch (type) {
       case BuyProviderType.robinhood:
         return getIt.get<RobinhoodBuyProvider>();
@@ -89,7 +105,7 @@ class BuyProviderHelper {
         return getIt.get<DFXBuyProvider>();
       case BuyProviderType.onramper:
         return getIt.get<OnRamperBuyProvider>();
-      default:
+      case BuyProviderType.askEachTime:
         return null;
     }
   }

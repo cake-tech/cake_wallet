@@ -109,9 +109,11 @@ abstract class OtherSettingsViewModelBase with Store {
   void onDisplayPrioritySelected(TransactionPriority priority) =>
       _settingsStore.priority[_wallet.type] = priority;
 
+  @action
   BuyProviderType onBuyProviderTypeSelected(BuyProviderType buyProviderType) =>
       _settingsStore.defaultBuyProviders[walletType] = buyProviderType;
 
+  @action
   BuyProviderType onSellProviderTypeSelected(
           BuyProviderType sellProviderType) =>
       _settingsStore.defaultSellProviders[walletType] = sellProviderType;

@@ -55,7 +55,7 @@ class OnRamperBuyProvider extends BuyProvider {
     return color.value.toRadixString(16).replaceAll(RegExp(r'^ff'), "");
   }
 
-  Uri requestUrl(BuildContext context) {
+  Uri requestOnramperUrl(BuildContext context) {
     String primaryColor,
         secondaryColor,
         primaryTextColor,
@@ -95,7 +95,7 @@ class OnRamperBuyProvider extends BuyProvider {
   }
 
   Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
-    final uri = requestUrl(context);
+    final uri = requestOnramperUrl(context);
     if (DeviceInfo.instance.isMobile) {
       Navigator.of(context)
           .pushNamed(Routes.webViewPage, arguments: [S.of(context).buy, uri]);

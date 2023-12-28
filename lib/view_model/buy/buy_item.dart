@@ -15,14 +15,14 @@ class BuyItem {
 
   Future<BuyAmount> get buyAmount async {
     BuyAmount _buyAmount;
-    //
-    // try {
-    //   _buyAmount = await provider
-    //       .calculateAmount(amount?.toString() ?? '', fiatCurrency.title);
-    // } catch (e) {
+
+    try {
+      _buyAmount = await provider
+          .calculateAmount(amount?.toString() ?? '', fiatCurrency.title);
+    } catch (e) {
       _buyAmount = BuyAmount(sourceAmount: 0.0, destAmount: 0.0);
-      // print(e.toString());
-    // }
+      print(e.toString());
+    }
 
     return _buyAmount;
   }
