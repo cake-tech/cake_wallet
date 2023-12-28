@@ -216,6 +216,9 @@ class AddressPage extends BasePage {
                                     ? S.of(context).accounts
                                     : S.of(context).account;
                               }
+                              if (addressListViewModel.wallet is ElectrumWallet) {
+                                label = S.of(context).addresses;
+                              }
                               return Text(
                                 label,
                                 style: TextStyle(
