@@ -1,10 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
-import 'package:cake_wallet/buy/buy_provider_description.dart';
-import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -14,22 +11,18 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
-class RobinhoodBuyProvider extends BuyProvider{
+class RobinhoodBuyProvider extends BuyProvider {
   RobinhoodBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
       : super(wallet: wallet, isTestEnvironment: isTestEnvironment);
 
   static const _baseUrl = 'applink.robinhood.com';
   static const _cIdBaseUrl = 'exchange-helper.cakewallet.com';
 
-
   @override
   String get title => 'Robinhood Connect';
 
   @override
-  String get buyOptionDescription => S.current.robinhood_option_description;
-
-  @override
-  String get sellOptionDescription => S.current.robinhood_option_description;
+  String get providerDescription => S.current.robinhood_option_description;
 
   @override
   String get lightIcon => 'assets/images/robinhood_light.png';
@@ -105,5 +98,4 @@ class RobinhoodBuyProvider extends BuyProvider{
           });
     }
   }
-
 }

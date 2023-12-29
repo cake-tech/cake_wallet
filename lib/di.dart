@@ -1,7 +1,7 @@
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
-import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';

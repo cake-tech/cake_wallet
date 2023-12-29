@@ -23,10 +23,7 @@ class OnRamperBuyProvider extends BuyProvider {
   String get title => 'Onramper';
 
   @override
-  String get buyOptionDescription => S.current.onramper_option_description;
-
-  @override
-  String get sellOptionDescription => S.current.onramper_option_description;
+  String get providerDescription => S.current.onramper_option_description;
 
   @override
   String get lightIcon => 'assets/images/onramper_light.png';
