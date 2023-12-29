@@ -87,9 +87,13 @@ class BuyProviderHelper {
       case WalletType.monero:
         return [BuyProviderType.askEachTime, BuyProviderType.dfx];
       case WalletType.bitcoin:
+        return [BuyProviderType.askEachTime, BuyProviderType.onramper,
+          BuyProviderType.dfx];
       case WalletType.ethereum:
-        return [BuyProviderType.askEachTime, BuyProviderType.dfx];
+        return [BuyProviderType.askEachTime, BuyProviderType.onramper,
+          BuyProviderType.dfx];
       case WalletType.litecoin:
+        return [BuyProviderType.askEachTime];
       case WalletType.bitcoinCash:
         return [BuyProviderType.askEachTime];
       default:
