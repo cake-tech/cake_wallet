@@ -123,21 +123,25 @@ abstract class EthereumWalletBase
     ethereumErc20TokensBox = await CakeHive.openBox<Erc20Token>(
         "${walletInfo.name.replaceAll(" ", "_")}_${Erc20Token.ethereumBoxName}");
 
-    // Check if the box is not empty, if it's not empty, it means this flow has been run once.
-    // If it is empty, means it's a totally new box and we can proceed
-    if (ethereumErc20TokensBox.isNotEmpty) return;
-
     //Open the previous token configs box
     erc20TokensBox = await CakeHive.openBox<Erc20Token>(Erc20Token.boxName);
 
     // Check if it's empty, if it is, we stop the flow and return.
-    if (erc20TokensBox.isEmpty) return;
+    if (erc20TokensBox.isEmpty) {
+      // If it's empty, but the new wallet specific box is also empty,
+      // we load the initial tokens to the new box.
+      if (ethereumErc20TokensBox.isEmpty) addInitialTokens();
+      return;
+    }
+
+    final allValues = erc20TokensBox.values.toList();
+
+    // Clear and delete the old token box
+    await erc20TokensBox.clear();
+    await erc20TokensBox.deleteFromDisk();
 
     // Add all the previous tokens with configs to the new box
-    await ethereumErc20TokensBox.addAll(erc20TokensBox.values);
-
-    // Clear the old token box
-    await erc20TokensBox.clear();
+    ethereumErc20TokensBox.addAll(allValues);
   }
 
   @override
