@@ -761,6 +761,8 @@
   "dfx_option_description": "Buy crypto with EUR & CHF. Up to 990€ without additional KYC. For retail and corporate customers in Europe",
   "polygonscan_history": "PolygonScan history",
   "wallet_seed_legacy": "Legacy wallet seed",
+  "default_sell_provider": "Default Sell Provider",
+  "select_sell_provider_notice": "Select a sell provider above. You can skip this screen by setting your default sell provider in app settings.",
   "custom_drag": "Custom (Hold and Drag)",
   "switchToEVMCompatibleWallet": "Please switch to an EVM compatible wallet and try again (Ethereum, Polygon)"
 }

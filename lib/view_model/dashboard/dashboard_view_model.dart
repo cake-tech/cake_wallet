@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/buy_provider_types.dart';
@@ -24,13 +28,21 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:eth_sig_util/util/utils.dart';
+import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/entities/buy_provider_types.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -46,7 +58,8 @@ abstract class DashboardViewModelBase with Store {
       required this.settingsStore,
       required this.yatStore,
       required this.ordersStore,
-      required this.anonpayTransactionsStore})
+      required this.anonpayTransactionsStore,
+      required this.keyService})
       : hasSellAction = false,
         hasBuyAction = false,
         hasExchangeAction = false,
@@ -262,6 +275,8 @@ abstract class DashboardViewModelBase with Store {
 
   bool get hasRescan => wallet.type == WalletType.monero || wallet.type == WalletType.haven;
 
+  final KeyService keyService;
+
   BalanceViewModel balanceViewModel;
 
   AppStore appStore;
@@ -282,13 +297,31 @@ abstract class DashboardViewModelBase with Store {
 
   Map<String, List<FilterItem>> filterItems;
 
-  BuyProviderType get defaultBuyProvider =>
-      settingsStore.defaultBuyProviders[wallet.type] ??
-          BuyProviderType.AskEachTime;
+  BuyProvider? get defaultBuyProvider => BuyProviderHelper.getProviderByType(
+      settingsStore.defaultBuyProviders[wallet.type] ?? BuyProviderType.askEachTime);
+
+  BuyProvider? get defaultSellProvider => BuyProviderHelper.getProviderByType(
+      settingsStore.defaultSellProviders[wallet.type] ?? BuyProviderType.askEachTime);
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
-  List<BuyProviderType> get availableProviders => BuyProviderType.getAvailableProviders(wallet.type);
+  List<BuyProvider> get availableBuyProviders {
+    final providerTypes = BuyProviderHelper.getAvailableBuyProviderTypes(wallet.type);
+    return providerTypes
+        .map((type) => BuyProviderHelper.getProviderByType(type))
+        .where((provider) => provider != null)
+        .cast<BuyProvider>()
+        .toList();
+  }
+
+  List<BuyProvider> get availableSellProviders {
+    final providerTypes = BuyProviderHelper.getAvailableSellProviderTypes(wallet.type);
+    return providerTypes
+        .map((type) => BuyProviderHelper.getProviderByType(type))
+        .where((provider) => provider != null)
+        .cast<BuyProvider>()
+        .toList();
+  }
 
   bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
 
@@ -302,16 +335,15 @@ abstract class DashboardViewModelBase with Store {
   bool hasExchangeAction;
 
   @computed
-  bool get isEnabledBuyAction => !settingsStore.disableBuy && wallet.type != WalletType.haven;
+  bool get isEnabledBuyAction =>
+      !settingsStore.disableBuy && availableBuyProviders.isNotEmpty;
 
   @observable
   bool hasBuyAction;
 
   @computed
   bool get isEnabledSellAction =>
-      !settingsStore.disableSell &&
-      wallet.type != WalletType.haven &&
-      wallet.type != WalletType.monero;
+      !settingsStore.disableSell && availableSellProviders.isNotEmpty;
 
   @observable
   bool hasSellAction;
@@ -433,4 +465,32 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
+
+  Future<List<String>> checkAffectedWallets() async {
+    // await load file
+    final vulnerableSeedsString = await rootBundle.loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
+    final vulnerableSeeds = vulnerableSeedsString.split("\n");
+
+    final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+
+    List<String> affectedWallets = [];
+    for (var walletInfo in walletInfoSource.values) {
+      if (walletInfo.type == WalletType.bitcoin) {
+        final password = await keyService.getWalletPassword(walletName: walletInfo.name);
+        final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
+        final jsonSource = await read(path: path, password: password);
+        final data = json.decode(jsonSource) as Map;
+        final mnemonic = data['mnemonic'] as String;
+
+        final hash = await Cryptography.instance.sha256().hash(utf8.encode(mnemonic));
+        final seedSha = bytesToHex(hash.bytes);
+
+        if (vulnerableSeeds.contains(seedSha)) {
+          affectedWallets.add(walletInfo.name);
+        }
+      }
+    }
+
+    return affectedWallets;
+  }
 }

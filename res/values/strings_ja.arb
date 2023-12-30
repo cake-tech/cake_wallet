@@ -760,6 +760,8 @@
   "dfx_option_description": "EUR と CHF で暗号通貨を購入します。追加のKYCなしで最大990ユーロ。ヨーロッパの小売および法人顧客向け",
   "polygonscan_history": "ポリゴンスキャン履歴",
   "wallet_seed_legacy": "レガシーウォレットシード",
+  "default_sell_provider": "デフォルトの販売プロバイダー",
+  "select_sell_provider_notice": "上記の販売プロバイダーを選択してください。アプリ設定でデフォルトの販売プロバイダーを設定することで、この画面をスキップできます。",
   "custom_drag": "カスタム（ホールドとドラッグ）",
   "switchToEVMCompatibleWallet": "EVM 互換のウォレットに切り替えて再試行してください (イーサリアム、ポリゴン)"
 }

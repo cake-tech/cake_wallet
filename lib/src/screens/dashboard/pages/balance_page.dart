@@ -54,6 +54,24 @@ class BalancePage extends StatelessWidget {
                             Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                         height: 1,
                       ),
+                      unselectedLabelStyle: TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w600,
+                        color:
+                            Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                        height: 1,
+                      ),
+                      labelColor:
+                          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                      dividerColor:
+                          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                      indicatorColor:
+                          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                      unselectedLabelColor: Theme.of(context)
+                          .extension<DashboardPageTheme>()!
+                          .pageTitleTextColor
+                          .withOpacity(0.5),
                       tabs: [
                         Tab(text: 'My Crypto'),
                         Tab(text: 'My NFTs'),

@@ -45,7 +45,7 @@ abstract class WalletListViewModelBase with Store {
   @action
   Future<void> loadWallet(WalletListItem walletItem) async {
     final wallet = await _walletLoadingService.load(walletItem.type, walletItem.name);
-    _appStore.changeCurrentWallet(wallet);
+    await _appStore.changeCurrentWallet(wallet);
   }
 
   WalletListOrderType? get orderType => _appStore.settingsStore.walletListOrder;

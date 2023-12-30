@@ -752,6 +752,8 @@
   "dfx_option_description": "EUR ﺭﻭﺍ CHF ﯽﻓﺎﺿﺍ ۔ﮟﯾﺪﯾﺮﺧ ﻮﭩﭘﺮﮐ ﮫﺗﺎﺳ ﮯﮐ KYC ﮯﯿﻟ ﮯﮐ ﻦﯿﻓﺭﺎﺻ ﭧﯾﺭﻮﭘﺭﺎﮐ ﺭﻭﺍ ﮦﺩﺭﻮﺧ ﮟ",
   "polygonscan_history": "ﺦﯾﺭﺎﺗ ﯽﮐ ﻦﯿﮑﺳﺍ ﻥﻮﮔ ﯽﻟﻮﭘ",
   "wallet_seed_legacy": "میراثی پرس کا بیج",
+  "default_sell_provider": "                                                        ﮦﺪﻨﻨﮐ ﻢﮨﺍﺮﻓ ﻞﯿﺳ ﭧﻟﺎﻔﯾﮈ",
+  "select_sell_provider_notice": "۔ﮟﯿﮨ ﮯﺘﮑﺳ ﮌﻮﮭﭼ ﻮﮐ ﻦﯾﺮﮑﺳﺍ ﺱﺍ ﺮﮐ ﮮﺩ ﺐﯿﺗﺮﺗ ﻮﮐ ﮦﺪﻨﻨﮐ ﻢﮨﺍﺮﻓ ﻞﯿﺳ ﭧﻟﺎﻔﯾﮈ ﮯﻨﭘﺍ ﮟﯿﻣ ﺕﺎﺒ",
   "custom_drag": "کسٹم (ہولڈ اینڈ ڈریگ)",
   "switchToEVMCompatibleWallet": "(Ethereum, Polygon) ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ ﮯﻟﺍﻭ ﮯﻨﮭﮐﺭ ﺖﻘﺑﺎﻄﻣ "
 }
