@@ -47,7 +47,7 @@ class Routes {
   static const exchangeTemplate = '/exchange_template';
   static const restoreWalletType = '/restore_wallet_type';
   static const restoreWallet = '/restore_wallet';
-  static const warningPage = '/warning_page';
+  static const preSeedPage = '/pre_seed_page';
   static const backup = '/backup';
   static const editBackupPassword = '/edit_backup_passowrd';
   static const restoreFromBackup = '/restore_from_backup';
@@ -96,6 +96,7 @@ class Routes {
   static const setup_2faQRPage = '/setup_2fa_qr_page';
   static const totpAuthCodePage = '/totp_auth_code_page';
   static const modify2FAPage = '/modify_2fa_page';
+  static const setup2faInfoPage = '/setup_2fa_info_page';
   static const homeSettings = '/home_settings';
   static const editToken = '/edit_token';
   static const manageNodes = '/manage_nodes';

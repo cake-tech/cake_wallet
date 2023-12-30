@@ -50,6 +50,7 @@ import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_info_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
@@ -133,7 +134,7 @@ import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
-import 'package:cake_wallet/src/screens/seed/warning_page.dart';
+import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
@@ -523,6 +524,8 @@ Future<void> setup({
 
   getIt.registerFactory<TransactionsPage>(
       () => TransactionsPage(dashboardViewModel: getIt.get<DashboardViewModel>()));
+
+  getIt.registerFactory<Setup2FAInfoPage>(() => Setup2FAInfoPage());
 
   getIt.registerFactory<Setup2FAPage>(
       () => Setup2FAPage(setup2FAViewModel: getIt.get<Setup2FAViewModel>()));
@@ -915,9 +918,9 @@ Future<void> setup({
   getIt.registerFactoryParam<NewWalletTypePage, void Function(BuildContext, WalletType), bool?>(
       (param1, isCreate) => NewWalletTypePage(onTypeSelected: param1, isCreate: isCreate ?? true));
 
-  getIt.registerFactoryParam<WarningPage, int?, void>(
+  getIt.registerFactoryParam<PreSeedPage, int, void>(
       (seedPhraseLength, _)
-      => WarningPage(seedPhraseLength));
+      => PreSeedPage(seedPhraseLength));
 
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
       TradeDetailsViewModel(

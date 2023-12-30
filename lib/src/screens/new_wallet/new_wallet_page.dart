@@ -73,7 +73,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
     _stateReaction ??= reaction((_) => _walletNewVM.state, (ExecutionState state) async {
       if (state is ExecutedSuccessfullyState) {
         Navigator.of(navigatorKey.currentContext!)
-            .pushNamed(Routes.warningPage, arguments: _walletNewVM.seedPhraseWordsLength);
+            .pushNamed(Routes.preSeedPage, arguments: _walletNewVM.seedPhraseWordsLength);
       }
 
       if (state is FailureState) {
