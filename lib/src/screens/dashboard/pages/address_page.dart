@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/di.dart';
@@ -173,7 +174,7 @@ class AddressPage extends BasePage {
                   addressListViewModel.setAddress(
                       WalletAddressListItem(address: formattedAddress, isPrimary: false, legacyAddress: newAddress.address));
                 },
-                text: 'Generate new address',
+                text: 'Genera te new address',
                 color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                 borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
                 textColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
@@ -181,63 +182,29 @@ class AddressPage extends BasePage {
               SizedBox(height: 16),
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList) {
-                  return GestureDetector(
+                  return SelectButton(
+                    text: addressListViewModel.wallet is ElectrumWallet
+                        ? S.of(context).addresses
+                        : dashboardViewModel.isAutoGenerateSubaddressesEnabled
+                        ? addressListViewModel.hasAccounts
+                        ? S.of(context).accounts
+                        : S.of(context).account
+                        : addressListViewModel.hasAccounts
+                        ? S.of(context).accounts_subaddresses
+                        : S.of(context).addresses,
                     onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled &&
                         (WalletType.monero == addressListViewModel.wallet.type ||
                             WalletType.haven == addressListViewModel.wallet.type)
                         ? await showPopUp<void>(
-                            context: context, builder: (_) => getIt.get<MoneroAccountListPage>())
+                        context: context,
+                        builder: (_) => getIt.get<MoneroAccountListPage>())
                         : Navigator.of(context).pushNamed(Routes.receive),
-                    child: Container(
-                      height: 50,
-                      padding: EdgeInsets.only(left: 24, right: 12),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(25)),
-                          border: Border.all(
-                              color:
-                                  Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
-                              width: 1),
-                          color: Theme.of(context)
-                              .extension<SyncIndicatorTheme>()!
-                              .syncedBackgroundColor),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Observer(
-                            builder: (_) {
-                              String label = addressListViewModel.hasAccounts
-                                  ? S.of(context).accounts_subaddresses
-                                  : S.of(context).addresses;
-
-                              if (dashboardViewModel.isAutoGenerateSubaddressesEnabled) {
-                                label = addressListViewModel.hasAccounts
-                                    ? S.of(context).accounts
-                                    : S.of(context).account;
-                              }
-                              if (addressListViewModel.wallet is ElectrumWallet) {
-                                label = S.of(context).addresses;
-                              }
-                              return Text(
-                                label,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context)
-                                        .extension<SyncIndicatorTheme>()!
-                                        .textColor),
-                              );
-                            },
-                          ),
-                          Icon(
-                            Icons.arrow_forward_ios,
-                            size: 14,
-                            color: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
-                          )
-                        ],
-                      ),
-                    ),
+                    textColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
+                    color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                    borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+                    arrowColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
+                    textSize: 14,
+                    height: 50,
                   );
                 } else if (dashboardViewModel.isAutoGenerateSubaddressesEnabled ||
                     addressListViewModel.showElectrumAddressDisclaimer) {
