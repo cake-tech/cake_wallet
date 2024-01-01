@@ -1,5 +1,3 @@
-import 'package:cake_wallet/buy/buy_provider.dart';
-import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
@@ -22,8 +20,7 @@ class BuySellOptionsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final isLightMode =
-        Theme.of(context).extension<OptionTileTheme>()?.useDarkImage ?? false;
+    final isLightMode = Theme.of(context).extension<OptionTileTheme>()?.useDarkImage ?? false;
     final availableProviders = isBuyAction
         ? dashboardViewModel.availableBuyProviders
         : dashboardViewModel.availableSellProviders;
@@ -46,31 +43,26 @@ class BuySellOptionsPage extends BasePage {
                   child: OptionTile(
                     image: icon,
                     title: provider.toString(),
-                    description: isBuyAction
-                        ? provider.buyOptionDescription
-                        : provider.sellOptionDescription,
-                    onPressed: () =>
-                        provider.launchProvider(context, isBuyAction),
+                    description: provider.providerDescription,
+                    onPressed: () => provider.launchProvider(context, isBuyAction),
                   ),
                 );
               }).toList(),
               Spacer(),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
-                  child: Text(
-                    isBuyAction
-                        ? S.of(context).select_buy_provider_notice
-                        : S.of(context).select_sell_provider_notice,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: Theme.of(context)
-                          .extension<TransactionTradeTheme>()!
-                          .detailsTitlesColor,
-                    ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
+                child: Text(
+                  isBuyAction
+                      ? S.of(context).select_buy_provider_notice
+                      : S.of(context).select_sell_provider_notice,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
                   ),
                 ),
+              ),
             ],
           ),
         ),

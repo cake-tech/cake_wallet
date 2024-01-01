@@ -14,9 +14,7 @@ abstract class BuyProvider {
 
   String get title;
 
-  String get buyOptionDescription;
-
-  String get sellOptionDescription;
+  String get providerDescription;
 
   String get lightIcon;
 

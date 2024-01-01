@@ -29,7 +29,7 @@ class BuyListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isSelected = selectedProvider?.buyOptionDescription == provider.buyOptionDescription;
+    final isSelected = selectedProvider?.providerDescription == provider.providerDescription;
     final iconColor = isSelected ? Colors.white : Colors.black;
 
     final providerIcon =  Image.asset('assets/images/wyre-icon.png', width: 36, height: 36);
