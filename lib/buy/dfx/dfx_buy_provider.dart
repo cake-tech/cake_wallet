@@ -26,10 +26,7 @@ class DFXBuyProvider extends BuyProvider {
   String get title => 'DFX Connect';
 
   @override
-  String get buyOptionDescription => S.current.dfx_option_description;
-
-  @override
-  String get sellOptionDescription => S.current.dfx_option_description;
+  String get providerDescription => S.current.dfx_option_description;
 
   @override
   String get lightIcon => 'assets/images/dfx_light.png';
@@ -152,6 +149,7 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
+  @override
   Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
     try {
       final assetOut = this.assetOut;

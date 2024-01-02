@@ -37,8 +37,6 @@ class MainActions {
     canShow: (viewModel) => viewModel.hasBuyAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
       if (!viewModel.isEnabledBuyAction) {
-        await _showErrorDialog(
-            context, S.of(context).buy, S.of(context).unsupported_asset);
         return;
       }
 
@@ -88,8 +86,6 @@ class MainActions {
     canShow: (viewModel) => viewModel.hasSellAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
       if (!viewModel.isEnabledSellAction) {
-        await _showErrorDialog(
-            context, S.of(context).sell, S.of(context).unsupported_asset);
         return;
       }
 

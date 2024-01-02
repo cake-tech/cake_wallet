@@ -4,7 +4,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
-import 'package:cake_wallet/entities/buy_provider_types.dart';
+import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -149,8 +149,8 @@ abstract class SettingsStoreBase with Store {
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
         priority = ObservableMap<WalletType, TransactionPriority>(),
-        defaultBuyProviders = ObservableMap<WalletType, BuyProviderType>(),
-        defaultSellProviders = ObservableMap<WalletType, BuyProviderType>() {
+        defaultBuyProviders = ObservableMap<WalletType, ProviderType>(),
+        defaultSellProviders = ObservableMap<WalletType, ProviderType>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
     if (initialMoneroTransactionPriority != null) {
@@ -187,10 +187,10 @@ abstract class SettingsStoreBase with Store {
       final key = 'buyProvider_${walletType.toString()}';
       final providerId = sharedPreferences.getString(key);
       if (providerId != null) {
-        defaultBuyProviders[walletType] = BuyProviderType.values
-            .firstWhere((provider) => provider.id == providerId, orElse: () => BuyProviderType.askEachTime);
+        defaultBuyProviders[walletType] = ProviderType.values
+            .firstWhere((provider) => provider.id == providerId, orElse: () => ProviderType.askEachTime);
       } else {
-        defaultBuyProviders[walletType] = BuyProviderType.askEachTime;
+        defaultBuyProviders[walletType] = ProviderType.askEachTime;
       }
     });
 
@@ -198,10 +198,10 @@ abstract class SettingsStoreBase with Store {
       final key = 'sellProvider_${walletType.toString()}';
       final providerId = sharedPreferences.getString(key);
       if (providerId != null) {
-        defaultSellProviders[walletType] = BuyProviderType.values
-            .firstWhere((provider) => provider.id == providerId, orElse: () => BuyProviderType.askEachTime);
+        defaultSellProviders[walletType] = ProviderType.values
+            .firstWhere((provider) => provider.id == providerId, orElse: () => ProviderType.askEachTime);
       } else {
-        defaultSellProviders[walletType] = BuyProviderType.askEachTime;
+        defaultSellProviders[walletType] = ProviderType.askEachTime;
       }
     });
 
@@ -617,10 +617,10 @@ abstract class SettingsStoreBase with Store {
   ObservableMap<String, bool> trocadorProviderStates = ObservableMap<String, bool>();
 
   @observable
-  ObservableMap<WalletType, BuyProviderType> defaultBuyProviders;
+  ObservableMap<WalletType, ProviderType> defaultBuyProviders;
 
   @observable
-  ObservableMap<WalletType, BuyProviderType> defaultSellProviders;
+  ObservableMap<WalletType, ProviderType> defaultSellProviders;
 
   @observable
   SortBalanceBy sortBalanceBy;

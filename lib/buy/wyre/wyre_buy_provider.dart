@@ -13,10 +13,8 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 class WyreBuyProvider extends BuyProvider {
   WyreBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
-    : baseApiUrl = isTestEnvironment
-        ? _baseTestApiUrl
-        : _baseProductApiUrl,
-     super(wallet: wallet, isTestEnvironment: isTestEnvironment);
+      : baseApiUrl = isTestEnvironment ? _baseTestApiUrl : _baseProductApiUrl,
+        super(wallet: wallet, isTestEnvironment: isTestEnvironment);
 
   static const _baseTestApiUrl = 'https://api.testwyre.com';
   static const _baseProductApiUrl = 'https://api.sendwyre.com';
@@ -36,7 +34,7 @@ class WyreBuyProvider extends BuyProvider {
   String get title => 'Wyre';
 
   @override
-  String get buyOptionDescription => '';
+  String get providerDescription => '';
 
   @override
   String get lightIcon => 'assets/images/robinhood_light.png';
@@ -44,16 +42,13 @@ class WyreBuyProvider extends BuyProvider {
   @override
   String get darkIcon => 'assets/images/robinhood_dark.png';
 
-  String get trackUrl => isTestEnvironment
-      ? _trackTestUrl
-      : _trackProductUrl;
+  String get trackUrl => isTestEnvironment ? _trackTestUrl : _trackProductUrl;
 
   String baseApiUrl;
 
   Future<String> requestUrl(String amount, String sourceCurrency) async {
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    final url = baseApiUrl + _ordersSuffix + _reserveSuffix +
-        _timeStampSuffix + timestamp;
+    final url = baseApiUrl + _ordersSuffix + _reserveSuffix + _timeStampSuffix + timestamp;
     final uri = Uri.parse(url);
     final body = {
       'amount': amount,
@@ -72,9 +67,7 @@ class WyreBuyProvider extends BuyProvider {
         body: json.encode(body));
 
     if (response.statusCode != 200) {
-      throw BuyException(
-          title: buyOptionDescription,
-          content: 'Url $url is not found!');
+      throw BuyException(title: providerDescription, content: 'Url $url is not found!');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -102,9 +95,7 @@ class WyreBuyProvider extends BuyProvider {
         body: json.encode(body));
 
     if (response.statusCode != 200) {
-      throw BuyException(
-          title: buyOptionDescription,
-          content: 'Quote is not found!');
+      throw BuyException(title: providerDescription, content: 'Quote is not found!');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -112,7 +103,8 @@ class WyreBuyProvider extends BuyProvider {
     final destAmount = responseJSON['destAmount'] as double;
     final achAmount = responseJSON['sourceAmountWithoutFees'] as double;
 
-    return BuyAmount(sourceAmount: sourceAmount, destAmount: destAmount, achSourceAmount: achAmount);
+    return BuyAmount(
+        sourceAmount: sourceAmount, destAmount: destAmount, achSourceAmount: achAmount);
   }
 
   Future<Order> findOrderById(String id) async {
@@ -121,35 +113,27 @@ class WyreBuyProvider extends BuyProvider {
     final orderResponse = await get(orderUri);
 
     if (orderResponse.statusCode != 200) {
-      throw BuyException(
-          title: buyOptionDescription,
-          content: 'Order $id is not found!');
+      throw BuyException(title: providerDescription, content: 'Order $id is not found!');
     }
 
-    final orderResponseJSON =
-    json.decode(orderResponse.body) as Map<String, dynamic>;
+    final orderResponseJSON = json.decode(orderResponse.body) as Map<String, dynamic>;
     final transferId = orderResponseJSON['transferId'] as String;
     final from = orderResponseJSON['sourceCurrency'] as String;
     final to = orderResponseJSON['destCurrency'] as String;
     final status = orderResponseJSON['status'] as String;
     final state = TradeState.deserialize(raw: status.toLowerCase());
     final createdAtRaw = orderResponseJSON['createdAt'] as int;
-    final createdAt =
-    DateTime.fromMillisecondsSinceEpoch(createdAtRaw).toLocal();
+    final createdAt = DateTime.fromMillisecondsSinceEpoch(createdAtRaw).toLocal();
 
-    final transferUrl =
-        baseApiUrl + _transferSuffix + transferId + _trackSuffix;
+    final transferUrl = baseApiUrl + _transferSuffix + transferId + _trackSuffix;
     final transferUri = Uri.parse(transferUrl);
     final transferResponse = await get(transferUri);
 
     if (transferResponse.statusCode != 200) {
-      throw BuyException(
-          title: buyOptionDescription,
-          content: 'Transfer $transferId is not found!');
+      throw BuyException(title: providerDescription, content: 'Transfer $transferId is not found!');
     }
 
-    final transferResponseJSON =
-    json.decode(transferResponse.body) as Map<String, dynamic>;
+    final transferResponseJSON = json.decode(transferResponse.body) as Map<String, dynamic>;
     final amount = transferResponseJSON['destAmount'] as double;
 
     return Order(
@@ -162,8 +146,7 @@ class WyreBuyProvider extends BuyProvider {
         createdAt: createdAt,
         amount: amount.toString(),
         receiveAddress: wallet.walletAddresses.address,
-        walletId: wallet.id
-    );
+        walletId: wallet.id);
   }
 
   @override
@@ -171,8 +154,4 @@ class WyreBuyProvider extends BuyProvider {
     // TODO: implement launchProvider
     throw UnimplementedError();
   }
-
-  @override
-  // TODO: implement sellOptionDescription
-  String get sellOptionDescription => throw UnimplementedError();
 }

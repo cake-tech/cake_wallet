@@ -21,18 +21,32 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cw_core/crypto_currency.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class MoonPaySellProvider {
-  MoonPaySellProvider({required SettingsStore settingsStore,
-    required WalletBase wallet, this.isTest = false})
-      : baseUrl = isTest ? _baseTestUrl : _baseProductUrl,
+class MoonPaySellProvider extends BuyProvider {
+  MoonPaySellProvider({
+    required SettingsStore settingsStore,
+    required WalletBase wallet,
+    bool isTestEnvironment = false,
+  })  : baseUrl = isTestEnvironment ? _baseTestUrl : _baseProductUrl,
         this._settingsStore = settingsStore,
-        this._wallet = wallet;
+        super(wallet: wallet, isTestEnvironment: isTestEnvironment);
 
   final SettingsStore _settingsStore;
-  final WalletBase _wallet;
 
   static const _baseTestUrl = 'sell-sandbox.moonpay.com';
   static const _baseProductUrl = 'sell.moonpay.com';
+
+  @override
+  String get providerDescription =>
+      'MoonPay offers a fast and simple way to buy and sell cryptocurrencies';
+
+  @override
+  String get title => 'MoonPay';
+
+  @override
+  String get lightIcon => 'assets/images/moonpay_light.png';
+
+  @override
+  String get darkIcon => 'assets/images/moonpay_dark.png';
 
   static String themeToMoonPayTheme(ThemeBase theme) {
     switch (theme.type) {
@@ -45,11 +59,11 @@ class MoonPaySellProvider {
   }
 
   static String get _apiKey => secrets.moonPayApiKey;
+
   static String get _secretKey => secrets.moonPaySecretKey;
-  final bool isTest;
   final String baseUrl;
 
-  Future<Uri> requestUrl({
+  Future<Uri> requestMoonPayUrl({
     required CryptoCurrency currency,
     required String refundWalletAddress,
     required SettingsStore settingsStore,
@@ -78,7 +92,7 @@ class MoonPaySellProvider {
     final digest = hmac.convert(messageBytes);
     final signature = base64.encode(digest.bytes);
 
-    if (isTest) {
+    if (isTestEnvironment) {
       return originalUri;
     }
 
@@ -88,11 +102,12 @@ class MoonPaySellProvider {
     return signedUri;
   }
 
-  Future<void> launchProvider(BuildContext context) async {
+  @override
+  Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
     try {
-      final uri = await requestUrl(
-        currency: _wallet.currency,
-        refundWalletAddress: _wallet.walletAddresses.address,
+      final uri = await requestMoonPayUrl(
+        currency: wallet.currency,
+        refundWalletAddress: wallet.walletAddresses.address,
         settingsStore: _settingsStore,
       );
 
@@ -137,35 +152,43 @@ class MoonPayBuyProvider extends BuyProvider {
   static const _secretKey = secrets.moonPaySecretKey;
 
   @override
-  String get title => 'Moon Pay';
+  String get title => 'MoonPay';
 
   @override
-  String get buyOptionDescription => '';
+  String get providerDescription =>
+      'MoonPay offers a fast and simple way to buy and sell cryptocurrencies';
 
   @override
   String get lightIcon => 'assets/images/moonpay_light.png';
 
   @override
   String get darkIcon => 'assets/images/moonpay_dark.png';
-  
-  String get currencyCode =>
-    walletTypeToCryptoCurrency(wallet.type).title.toLowerCase();
+
+  String get currencyCode => walletTypeToCryptoCurrency(wallet.type).title.toLowerCase();
 
   String get trackUrl => baseUrl + '/transaction_receipt?transactionId=';
 
   String baseUrl;
 
   Future<String> requestUrl(String amount, String sourceCurrency) async {
-    final enabledPaymentMethods =
-        'credit_debit_card%2Capple_pay%2Cgoogle_pay%2Csamsung_pay'
+    final enabledPaymentMethods = 'credit_debit_card%2Capple_pay%2Cgoogle_pay%2Csamsung_pay'
         '%2Csepa_bank_transfer%2Cgbp_bank_transfer%2Cgbp_open_banking_payment';
 
-    final suffix = '?apiKey=' + _apiKey + '&currencyCode=' +
-        currencyCode + '&enabledPaymentMethods=' + enabledPaymentMethods +
-        '&walletAddress=' + wallet.walletAddresses.address +
-        '&baseCurrencyCode=' + sourceCurrency.toLowerCase() +
-        '&baseCurrencyAmount=' + amount + '&lockAmount=true' +
-        '&showAllCurrencies=false' + '&showWalletAddressForm=false';
+    final suffix = '?apiKey=' +
+        _apiKey +
+        '&currencyCode=' +
+        currencyCode +
+        '&enabledPaymentMethods=' +
+        enabledPaymentMethods +
+        '&walletAddress=' +
+        wallet.walletAddresses.address +
+        '&baseCurrencyCode=' +
+        sourceCurrency.toLowerCase() +
+        '&baseCurrencyAmount=' +
+        amount +
+        '&lockAmount=true' +
+        '&showAllCurrencies=false' +
+        '&showWalletAddressForm=false';
 
     final originalUrl = baseUrl + suffix;
 
@@ -174,24 +197,27 @@ class MoonPayBuyProvider extends BuyProvider {
     final hmac = Hmac(sha256, key);
     final digest = hmac.convert(messageBytes);
     final signature = base64.encode(digest.bytes);
-    final urlWithSignature = originalUrl +
-          '&signature=${Uri.encodeComponent(signature)}';
+    final urlWithSignature = originalUrl + '&signature=${Uri.encodeComponent(signature)}';
 
     return isTestEnvironment ? originalUrl : urlWithSignature;
   }
 
   Future<BuyAmount> calculateAmount(String amount, String sourceCurrency) async {
-    final url = _apiUrl + _currenciesSuffix + '/$currencyCode' +
-        _quoteSuffix + '/?apiKey=' + _apiKey +
-        '&baseCurrencyAmount=' + amount +
-        '&baseCurrencyCode=' + sourceCurrency.toLowerCase();
+    final url = _apiUrl +
+        _currenciesSuffix +
+        '/$currencyCode' +
+        _quoteSuffix +
+        '/?apiKey=' +
+        _apiKey +
+        '&baseCurrencyAmount=' +
+        amount +
+        '&baseCurrencyCode=' +
+        sourceCurrency.toLowerCase();
     final uri = Uri.parse(url);
     final response = await get(uri);
 
     if (response.statusCode != 200) {
-      throw BuyException(
-          title: buyOptionDescription,
-          content: 'Quote is not found!');
+      throw BuyException(title: providerDescription, content: 'Quote is not found!');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -200,21 +226,16 @@ class MoonPayBuyProvider extends BuyProvider {
     final minSourceAmount = responseJSON['baseCurrency']['minAmount'] as int;
 
     return BuyAmount(
-        sourceAmount: sourceAmount,
-        destAmount: destAmount,
-        minAmount: minSourceAmount);
+        sourceAmount: sourceAmount, destAmount: destAmount, minAmount: minSourceAmount);
   }
 
   Future<Order> findOrderById(String id) async {
-    final url = _apiUrl + _transactionsSuffix + '/$id' +
-        '?apiKey=' + _apiKey;
+    final url = _apiUrl + _transactionsSuffix + '/$id' + '?apiKey=' + _apiKey;
     final uri = Uri.parse(url);
     final response = await get(uri);
 
     if (response.statusCode != 200) {
-      throw BuyException(
-          title: buyOptionDescription,
-          content: 'Transaction $id is not found!');
+      throw BuyException(title: providerDescription, content: 'Transaction $id is not found!');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -232,8 +253,7 @@ class MoonPayBuyProvider extends BuyProvider {
         createdAt: createdAt,
         amount: amount.toString(),
         receiveAddress: wallet.walletAddresses.address,
-        walletId: wallet.id
-    );
+        walletId: wallet.id);
   }
 
   static Future<bool> onEnabled() async {
@@ -254,12 +274,6 @@ class MoonPayBuyProvider extends BuyProvider {
   }
 
   @override
-  // TODO: implement sellOptionDescription
-  String get sellOptionDescription => throw UnimplementedError();
-
-  @override
-  Future<void> launchProvider(BuildContext context, bool? isBuyAction) {
-    // TODO: implement launchProvider
-    throw UnimplementedError();
-  }
+  Future<void> launchProvider(BuildContext context, bool? isBuyAction) =>
+      throw UnimplementedError();
 }
