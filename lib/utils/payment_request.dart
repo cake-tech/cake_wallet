@@ -1,5 +1,4 @@
 import 'package:cake_wallet/nano/nano.dart';
-import 'package:nanoutil/nanoutil.dart';
 
 class PaymentRequest {
   PaymentRequest(this.address, this.amount, this.note, this.scheme);
@@ -20,9 +19,9 @@ class PaymentRequest {
     if (nano != null) {
       if (amount.isNotEmpty) {
         if (address.contains("nano")) {
-          amount = NanoAmounts.getRawAsUsableString(amount, NanoAmounts.rawPerNano);
+          amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerNano);
         } else if (address.contains("ban")) {
-          amount = NanoAmounts.getRawAsUsableString(amount, NanoAmounts.rawPerBanano);
+          amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerBanano);
         }
       }
     }

@@ -15,7 +15,6 @@ import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/keyable.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:nanoutil/nanoutil.dart';
 
 class TransactionListItem extends ActionListItem with Keyable {
   TransactionListItem(
@@ -102,9 +101,8 @@ class TransactionListItem extends ActionListItem with Keyable {
         break;
       case WalletType.nano:
         amount = calculateFiatAmountRaw(
-            cryptoAmount: double.parse(NanoAmounts.getRawAsDecimal(
-                    nano!.getTransactionAmountRaw(transaction).toString(), NanoAmounts.rawPerNano)
-                .toString()),
+            cryptoAmount: double.parse(nanoUtil!.getRawAsDecimalString(
+                nano!.getTransactionAmountRaw(transaction).toString(), nanoUtil!.rawPerNano)),
             price: price);
         break;
       default:

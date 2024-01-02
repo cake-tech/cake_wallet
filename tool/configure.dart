@@ -758,6 +758,7 @@ import 'dart:typed_data';
 import 'package:convert/convert.dart';
 import "package:ed25519_hd_key/ed25519_hd_key.dart";
 import 'package:libcrypto/libcrypto.dart';
+import 'package:nanodart/nanodart.dart' as ND;
 import 'package:decimal/decimal.dart';
 import 'package:nanoutil/nanoutil.dart';
 """;
@@ -810,6 +811,18 @@ abstract class NanoAccountList {
 }
 
 abstract class NanoUtil {
+  bool isValidBip39Seed(String seed);
+  static const int maxDecimalDigits = 6; // Max digits after decimal
+  BigInt rawPerNano = BigInt.parse("1000000000000000000000000000000");
+  BigInt rawPerNyano = BigInt.parse("1000000000000000000000000");
+  BigInt rawPerBanano = BigInt.parse("100000000000000000000000000000");
+  BigInt rawPerXMR = BigInt.parse("1000000000000");
+  BigInt convertXMRtoNano = BigInt.parse("1000000000000000000");
+  String getRawAsDecimalString(String? raw, BigInt? rawPerCur);
+  String getRawAsUsableString(String? raw, BigInt rawPerCur);
+  String getRawAccuracy(String? raw, BigInt rawPerCur);
+  String getAmountAsRaw(String amount, BigInt rawPerCur);
+
   // derivationInfo:
   Future<AccountInfoResponse?> getInfoFromSeedOrMnemonic(
     DerivationType derivationType, {
