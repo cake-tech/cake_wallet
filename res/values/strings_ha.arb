@@ -746,5 +746,8 @@
   "select_sell_provider_notice": "Zaɓi mai bada siyarwa a sama. Kuna iya tsallake wannan allon ta saita mai bada siyar da ku a cikin saitunan app.",
   "custom_drag": "Al'ada (riƙe da ja)",
   "switchToEVMCompatibleWallet": "Da fatan za a canza zuwa walat ɗin EVM mai jituwa kuma a sake gwadawa (Ethereum, Polygon)",
-  "start_tor_on_launch": "Fara tor a kan shimfiɗa"
+  "start_tor_on_launch": "Fara tor a kan shimfiɗa",
+  "tor_status": "State State",
+  "connected": "Wanda aka haɗa",
+  "disconnected": "Katse"
 }

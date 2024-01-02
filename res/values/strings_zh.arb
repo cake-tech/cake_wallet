@@ -763,5 +763,8 @@
   "select_sell_provider_notice": "选择上面的销售提供商。您可以通过在应用程序设置中设置默认销售提供商来跳过此屏幕。",
   "custom_drag": "定制（保持和拖动）",
   "switchToEVMCompatibleWallet": "请切换到 EVM 兼容钱包并重试（以太坊、Polygon）",
-  "start_tor_on_launch": "启动TOR发射"
+  "start_tor_on_launch": "启动TOR发射",
+  "tor_status": "TOR状态",
+  "connected": "连接的",
+  "disconnected": "断开连接"
 }

@@ -2,6 +2,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_tor_status.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/wallet_connect_button.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -92,22 +93,29 @@ class ConnectionSyncPage extends BasePage {
           ],
           if (FeatureFlag.isInAppTorEnabled) ...[
             Container(
-              color: Colors.amber, // TODO: CW-519 change
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-              
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               child: Column(children: [
                 Observer(builder: (context) {
                   return SettingsPickerCell<TorConnection>(
-                    title: S.current.background_sync_mode,
+                    title: S.current.tor_connection,
                     items: TorConnection.all,
                     displayItem: (TorConnection torConnection) => torConnection.name,
                     selectedItem: dashboardViewModel.torConnection,
                     onItemSelected: dashboardViewModel.setTorConnection,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25)),
+                      color: const Color.fromARGB(255, 236, 244, 255),
+                    ),
                   );
                 }),
-                SettingsCellWithArrow(
-                  title: S.current.tor_connection,
-                  handler: (context) => Navigator.of(context).pushNamed(Routes.torPage),
+                TorListRow(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(25), bottomRight: Radius.circular(25)),
+                    color: const Color.fromARGB(255, 236, 244, 255),
+                  ),
+                  title: S.current.tor_status,
+                  isSelected: false,
+                  onTap: (context) {},
                 ),
               ]),
             ),

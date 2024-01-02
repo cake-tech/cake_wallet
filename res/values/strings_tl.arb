@@ -758,5 +758,8 @@
   "select_sell_provider_notice": "Pumili ng provider ng nagbebenta sa itaas. Maaari mong laktawan ang screen na ito sa pamamagitan ng pagtatakda ng iyong default na sell provider sa mga setting ng app.",
   "custom_drag": "Pasadyang (hawakan at i -drag)",
   "switchToEVMCompatibleWallet": "Mangyaring lumipat sa isang EVM compatible na wallet at subukang muli (Ethereum, Polygon)",
-  "start_tor_on_launch": "Simulan ang tor sa paglulunsad"
+  "start_tor_on_launch": "Simulan ang tor sa paglulunsad",
+  "tor_status": "Katayuan ng tor",
+  "connected": "Konektado",
+  "disconnected": "Naka -disconnect"
 }

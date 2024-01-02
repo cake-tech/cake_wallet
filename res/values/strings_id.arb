@@ -752,5 +752,8 @@
   "select_sell_provider_notice": "Pilih penyedia jual di atas. Anda dapat melewati layar ini dengan mengatur penyedia penjualan default Anda di pengaturan aplikasi.",
   "custom_drag": "Khusus (tahan dan seret)",
   "switchToEVMCompatibleWallet": "Silakan beralih ke dompet yang kompatibel dengan EVM dan coba lagi (Ethereum, Polygon)",
-  "start_tor_on_launch": "Mulailah untuk peluncuran"
+  "start_tor_on_launch": "Mulailah untuk peluncuran",
+  "tor_status": "Status Tor",
+  "connected": "Terhubung",
+  "disconnected": "Terputus"
 }

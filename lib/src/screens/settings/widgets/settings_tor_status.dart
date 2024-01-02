@@ -5,51 +5,44 @@ import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cw_core/node.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
+import 'package:tor/tor.dart';
 
-class NodeListRow extends StandardListRow {
-  NodeListRow(
+class TorListRow extends StandardListRow {
+  TorListRow(
       {required String title,
-      required this.node,
       required void Function(BuildContext context) onTap,
       required bool isSelected,
-      required this.isPow})
-      : super(title: title, onTap: onTap, isSelected: isSelected);
+      BoxDecoration? decoration})
+      : super(title: title, onTap: onTap, isSelected: isSelected, decoration: decoration);
 
-  final Node node;
-  final bool isPow;
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return FutureBuilder(
-        future: node.requestNode(),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              return NodeIndicator(isLive: (snapshot.data as bool?) ?? false);
-            default:
-              return NodeIndicator(isLive: false);
-          }
-        });
-  }
 
   @override
   Widget buildTrailing(BuildContext context) {
-    return GestureDetector(
-        onTap: () => Navigator.of(context).pushNamed(isPow ? Routes.newPowNode : Routes.newNode,
-            arguments: {'editingNode': node, 'isSelected': isSelected}),
-        child: Container(
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Theme.of(context)
-                                  .extension<ReceivePageTheme>()!
-                                  .iconsBackgroundColor),
-            child: Icon(Icons.edit,
-                size: 14,
-                color: Theme.of(context)
-                                  .extension<ReceivePageTheme>()!
-                                  .iconsColor)));
+    // return FutureBuilder(
+    //     future: node.requestNode(),
+    //     builder: (context, snapshot) {
+    //       switch (snapshot.connectionState) {
+    //         case ConnectionState.done:
+    //           return NodeIndicator(isLive: (snapshot.data as bool?) ?? false);
+    //         default:
+    //           return NodeIndicator(isLive: false);
+    //       }
+    //     });
+    return NodeIndicator(isLive: Tor.instance.started);
   }
+
+  // @override
+  // Widget buildTrailing(BuildContext context) {
+  //   return GestureDetector(
+  //       onTap: () {},
+  //       child: Container(
+  //           padding: EdgeInsets.all(10),
+  //           decoration: BoxDecoration(
+  //               shape: BoxShape.circle,
+  //               color: Theme.of(context).extension<ReceivePageTheme>()!.iconsBackgroundColor),
+  //           child: Icon(Icons.edit,
+  //               size: 14, color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor)));
+  // }
 }
 
 class NodeHeaderListRow extends StandardListRow {
@@ -61,7 +54,7 @@ class NodeHeaderListRow extends StandardListRow {
     return SizedBox(
       width: 20,
       child: Icon(Icons.add,
-          color: Theme.of(context).extension<FilterTheme>()!.titlesColor,size: 24.0),
+          color: Theme.of(context).extension<FilterTheme>()!.titlesColor, size: 24.0),
     );
   }
 }

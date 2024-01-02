@@ -39,6 +39,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/set_app_secure_native.dart';
+import 'package:tor/tor.dart';
 part 'settings_store.g.dart';
 
 class SettingsStore = SettingsStoreBase with _$SettingsStore;
@@ -192,8 +193,9 @@ abstract class SettingsStoreBase with Store {
       final key = 'buyProvider_${walletType.toString()}';
       final providerId = sharedPreferences.getString(key);
       if (providerId != null) {
-        defaultBuyProviders[walletType] = ProviderType.values
-            .firstWhere((provider) => provider.id == providerId, orElse: () => ProviderType.askEachTime);
+        defaultBuyProviders[walletType] = ProviderType.values.firstWhere(
+            (provider) => provider.id == providerId,
+            orElse: () => ProviderType.askEachTime);
       } else {
         defaultBuyProviders[walletType] = ProviderType.askEachTime;
       }
@@ -203,8 +205,9 @@ abstract class SettingsStoreBase with Store {
       final key = 'sellProvider_${walletType.toString()}';
       final providerId = sharedPreferences.getString(key);
       if (providerId != null) {
-        defaultSellProviders[walletType] = ProviderType.values
-            .firstWhere((provider) => provider.id == providerId, orElse: () => ProviderType.askEachTime);
+        defaultSellProviders[walletType] = ProviderType.values.firstWhere(
+            (provider) => provider.id == providerId,
+            orElse: () => ProviderType.askEachTime);
       } else {
         defaultSellProviders[walletType] = ProviderType.askEachTime;
       }
@@ -314,10 +317,8 @@ abstract class SettingsStoreBase with Store {
         (FiatApiMode mode) =>
             sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, mode.serialize()));
 
-    reaction(
-        (_) => shouldStartTorOnLaunch,
-        (bool value) =>
-            sharedPreferences.setBool(PreferencesKey.shouldStartTorOnLaunch, value));
+    reaction((_) => shouldStartTorOnLaunch,
+        (bool value) => sharedPreferences.setBool(PreferencesKey.shouldStartTorOnLaunch, value));
 
     reaction((_) => currentTheme,
         (ThemeBase theme) => sharedPreferences.setInt(PreferencesKey.currentTheme, theme.raw));
@@ -433,6 +434,21 @@ abstract class SettingsStoreBase with Store {
       sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
 
       _backgroundTasks.registerSyncTask(changeExisting: true);
+    });
+
+    reaction((_) => currentTorConnection, (TorConnection torConnection) async {
+      sharedPreferences.setInt(PreferencesKey.torConnectionKey, torConnection.type.index);
+
+      if (torConnection.type == TorConnectionType.enabled) {
+        // Start the proxy
+        await Tor.init();
+        await Tor.instance.start();
+
+        shouldStartTorOnLaunch = true;
+      } else {
+        Tor.instance.disable();
+        shouldStartTorOnLaunch = false;
+      }
     });
 
     reaction(
@@ -786,7 +802,8 @@ abstract class SettingsStoreBase with Store {
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
             FiatApiMode.enabled.raw);
-    final shouldStartTorOnLaunch = sharedPreferences.getBool(PreferencesKey.shouldStartTorOnLaunch) ?? false;
+    final shouldStartTorOnLaunch =
+        sharedPreferences.getBool(PreferencesKey.shouldStartTorOnLaunch) ?? false;
     final allowBiometricalAuthentication =
         sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ?? false;
     final selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(

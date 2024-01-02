@@ -764,5 +764,8 @@
   "select_sell_provider_notice": "上記の販売プロバイダーを選択してください。アプリ設定でデフォルトの販売プロバイダーを設定することで、この画面をスキップできます。",
   "custom_drag": "カスタム（ホールドとドラッグ）",
   "switchToEVMCompatibleWallet": "EVM 互換のウォレットに切り替えて再試行してください (イーサリアム、ポリゴン)",
-  "start_tor_on_launch": "起動時にTORを開始します"
+  "start_tor_on_launch": "起動時にTORを開始します",
+  "tor_status": "TORステータス",
+  "connected": "接続",
+  "disconnected": "切断された"
 }

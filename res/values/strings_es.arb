@@ -764,5 +764,8 @@
   "select_sell_provider_notice": "Seleccione un proveedor de venta arriba. Puede omitir esta pantalla configurando su proveedor de venta predeterminado en la configuración de la aplicación.",
   "custom_drag": "Custom (mantenía y arrastre)",
   "switchToEVMCompatibleWallet": "Cambie a una billetera compatible con EVM e inténtelo nuevamente (Ethereum, Polygon)",
-  "start_tor_on_launch": "Iniciar tor en el lanzamiento"
+  "start_tor_on_launch": "Iniciar tor en el lanzamiento",
+  "tor_status": "Estado de Tor",
+  "connected": "Conectado",
+  "disconnected": "Desconectado"
 }

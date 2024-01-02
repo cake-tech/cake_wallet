@@ -764,5 +764,8 @@
   "select_sell_provider_notice": "Selecteer hierboven een verkoopaanbieder. U kunt dit scherm overslaan door uw standaardverkoopprovider in te stellen in de app-instellingen.",
   "custom_drag": "Custom (vasthouden en slepen)",
   "switchToEVMCompatibleWallet": "Schakel over naar een EVM-compatibele portemonnee en probeer het opnieuw (Ethereum, Polygon)",
-  "start_tor_on_launch": "Begin met de lancering"
+  "start_tor_on_launch": "Begin met de lancering",
+  "tor_status": "Tor Status",
+  "connected": "Verbonden",
+  "disconnected": "Losgekoppeld"
 }

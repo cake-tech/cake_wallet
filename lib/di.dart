@@ -297,7 +297,7 @@ Future<void> setup({
         : ThemeList.darkTheme,
   );
 
-  if (settingsStore.shouldStartTorOnLaunch) {
+  if (DeviceInfo.instance.isMobile && settingsStore.shouldStartTorOnLaunch) {
     Tor.instance.enable();
     Tor.instance.start();
   }

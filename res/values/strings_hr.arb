@@ -762,5 +762,8 @@
   "select_sell_provider_notice": "Gore odaberite pružatelja usluga prodaje. Ovaj zaslon možete preskočiti postavljanjem zadanog pružatelja usluga prodaje u postavkama aplikacije.",
   "custom_drag": "Prilagođeni (držite i povucite)",
   "switchToEVMCompatibleWallet": "Prijeđite na novčanik kompatibilan s EVM-om i pokušajte ponovno (Ethereum, Polygon)",
-  "start_tor_on_launch": "Započnite s lansiranjem"
+  "start_tor_on_launch": "Započnite s lansiranjem",
+  "tor_status": "Status tor",
+  "connected": "Povezan",
+  "disconnected": "Isključen"
 }

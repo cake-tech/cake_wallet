@@ -756,5 +756,8 @@
   "select_sell_provider_notice": "۔ﮟﯿﮨ ﮯﺘﮑﺳ ﮌﻮﮭﭼ ﻮﮐ ﻦﯾﺮﮑﺳﺍ ﺱﺍ ﺮﮐ ﮮﺩ ﺐﯿﺗﺮﺗ ﻮﮐ ﮦﺪﻨﻨﮐ ﻢﮨﺍﺮﻓ ﻞﯿﺳ ﭧﻟﺎﻔﯾﮈ ﮯﻨﭘﺍ ﮟﯿﻣ ﺕﺎﺒ",
   "custom_drag": "کسٹم (ہولڈ اینڈ ڈریگ)",
   "switchToEVMCompatibleWallet": "(Ethereum, Polygon) ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ ﮯﻟﺍﻭ ﮯﻨﮭﮐﺭ ﺖﻘﺑﺎﻄﻣ ",
-  "start_tor_on_launch": "لانچ پر ٹور شروع کریں"
+  "start_tor_on_launch": "لانچ پر ٹور شروع کریں",
+  "tor_status": "ٹور کی حیثیت",
+  "connected": "منسلک",
+  "disconnected": "منقطع"
 }

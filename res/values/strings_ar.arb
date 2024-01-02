@@ -760,5 +760,8 @@
   "select_sell_provider_notice": ".ﻖﻴﺒﻄﺘﻟﺍ ﺕﺍﺩﺍﺪﻋﺇ ﻲﻓ ﻚﺑ ﺹﺎﺨﻟﺍ ﻲﺿﺍﺮﺘﻓﻻ﻿ﺍ ﻊﻴﺒﻟﺍ ﺩﻭﺰﻣ ﻦﻴﻴﻌﺗ ﻖﻳﺮﻃ ﻦﻋ ﺔﺷﺎﺸﻟﺍ ﻩﺬﻫ ﻲﻄﺨﺗ",
   "custom_drag": "مخصص (عقد وسحب)",
   "switchToEVMCompatibleWallet": "  (Ethereum، Polygon) ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ EVM ﻊﻣ ﺔﻘﻓﺍﻮﺘﻣ ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ",
-  "start_tor_on_launch": "ابدأ في الإطلاق"
+  "start_tor_on_launch": "ابدأ في الإطلاق",
+  "tor_status": "وضع تور",
+  "connected": "متصل",
+  "disconnected": "انقطع الاتصال"
 }
