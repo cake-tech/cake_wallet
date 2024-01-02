@@ -19,10 +19,6 @@ class NanoBalance extends Balance {
 
   @override
   String get formattedAvailableBalance {
-    print("1");
-    print(currentBalance.toString());
-    print(NanoAmounts.getRawAsUsableString(currentBalance.toString(), NanoAmounts.rawPerNano));
-    print("2");
     return NanoAmounts.getRawAsUsableString(currentBalance.toString(), NanoAmounts.rawPerNano);
   }
 
