@@ -8,22 +8,21 @@ BigInt stringAmountToBigInt(String amount) {
 class NanoBalance extends Balance {
   final BigInt currentBalance;
   final BigInt receivableBalance;
-  late String formattedCurrentBalance;
-  late String formattedReceivableBalance;
 
-  NanoBalance({required this.currentBalance, required this.receivableBalance}) : super(0, 0) {
-    this.formattedCurrentBalance = "";
-    this.formattedReceivableBalance = "";
-  }
+  NanoBalance({required this.currentBalance, required this.receivableBalance}) : super(0, 0);
 
   NanoBalance.fromString(
-      {required this.formattedCurrentBalance, required this.formattedReceivableBalance})
+      {required String formattedCurrentBalance, required String formattedReceivableBalance})
       : currentBalance = stringAmountToBigInt(formattedCurrentBalance),
         receivableBalance = stringAmountToBigInt(formattedReceivableBalance),
         super(0, 0);
 
   @override
   String get formattedAvailableBalance {
+    print("1");
+    print(currentBalance.toString());
+    print(NanoAmounts.getRawAsUsableString(currentBalance.toString(), NanoAmounts.rawPerNano));
+    print("2");
     return NanoAmounts.getRawAsUsableString(currentBalance.toString(), NanoAmounts.rawPerNano);
   }
 

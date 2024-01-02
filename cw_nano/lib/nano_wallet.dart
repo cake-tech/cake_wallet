@@ -388,6 +388,12 @@ abstract class NanoWalletBase
       balance[currency] = await _client.getBalance(_publicAddress!);
     } catch (e) {
       print("Failed to get balance $e");
+      // if we don't have a balance, we should at least create one, since it's a late binding
+      // otherwise, it's better to just leave it as whatever it was before:
+      if (balance[currency] == null) {
+        balance[currency] =
+            NanoBalance(currentBalance: BigInt.zero, receivableBalance: BigInt.zero);
+      }
     }
     await save();
   }

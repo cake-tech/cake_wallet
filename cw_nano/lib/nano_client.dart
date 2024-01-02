@@ -61,6 +61,12 @@ class NanoClient {
       ),
     );
     final data = await jsonDecode(response.body);
+    if (response.statusCode != 200 ||
+        data["error"] != null ||
+        data["balance"] == null ||
+        data["receivable"] == null) {
+      throw Exception("Error while trying to get balance! ${data["error"]}");
+    }
     final String currentBalance = data["balance"] as String;
     final String receivableBalance = data["receivable"] as String;
     final BigInt cur = BigInt.parse(currentBalance);

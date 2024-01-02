@@ -125,6 +125,8 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.nano:
+      case WalletType.banano:
         return S.current.xmr_available_balance;
       default:
         return S.current.confirmed;
