@@ -27,6 +27,7 @@ import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
@@ -459,6 +460,12 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void setSyncMode(SyncMode syncMode) => settingsStore.currentSyncMode = syncMode;
+
+  @computed
+  TorConnection get torConnection => settingsStore.currentTorConnection;
+
+  @action
+  void setTorConnection(TorConnection torConnection) => settingsStore.currentTorConnection = torConnection;
 
   @computed
   bool get syncAll => settingsStore.currentSyncAll;

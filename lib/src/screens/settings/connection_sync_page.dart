@@ -8,6 +8,7 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -89,16 +90,30 @@ class ConnectionSyncPage extends BasePage {
             ),
             const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           ],
-          if (FeatureFlag.isInAppTorEnabled)
-            SettingsCellWithArrow(
-              title: S.current.tor_connection,
-              handler: (context) => Navigator.of(context).pushNamed(Routes.torPage),
+          if (FeatureFlag.isInAppTorEnabled) ...[
+            Observer(builder: (context) {
+              return SettingsPickerCell<TorConnection>(
+                title: S.current.background_sync_mode,
+                items: TorConnection.all,
+                displayItem: (TorConnection torConnection) => torConnection.name,
+                selectedItem: dashboardViewModel.torConnection,
+                onItemSelected: dashboardViewModel.setTorConnection,
+              );
+            }),
+            Container(
+              color: Colors.amber, // TODO: CW-519 change
+              child: Column(children: [
+                SettingsCellWithArrow(
+                  title: S.current.tor_connection,
+                  handler: (context) => Navigator.of(context).pushNamed(Routes.torPage),
+                ),
+              ]),
             ),
+          ],
         ],
       ),
     );
   }
-
 
   Future<void> _presentReconnectAlert(BuildContext context) async {
     await showPopUp<void>(

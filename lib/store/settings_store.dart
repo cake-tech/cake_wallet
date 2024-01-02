@@ -19,6 +19,7 @@ import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
@@ -670,6 +671,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   SyncMode currentSyncMode;
+
+  @observable
+  TorConnection currentTorConnection;
 
   @observable
   bool currentSyncAll;
