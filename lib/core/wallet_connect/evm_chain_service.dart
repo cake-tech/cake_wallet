@@ -138,7 +138,7 @@ class EvmChainServiceImpl implements ChainService {
     try {
       // Load the private key
       final List<ChainKeyModel> keys = wcKeyService
-          .getKeysForChain(getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type));
+          .getKeysForChain(appStore.wallet!);
 
       final Credentials credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
@@ -177,7 +177,7 @@ class EvmChainServiceImpl implements ChainService {
     try {
       // Load the private key
       final List<ChainKeyModel> keys = wcKeyService
-          .getKeysForChain(getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type));
+          .getKeysForChain(appStore.wallet!);
 
       final EthPrivateKey credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
@@ -215,7 +215,7 @@ class EvmChainServiceImpl implements ChainService {
 
     // Load the private key
     final List<ChainKeyModel> keys = wcKeyService
-        .getKeysForChain(getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type));
+        .getKeysForChain(appStore.wallet!);
 
     final Credentials credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
@@ -275,7 +275,7 @@ class EvmChainServiceImpl implements ChainService {
     }
 
     final List<ChainKeyModel> keys = wcKeyService
-        .getKeysForChain(getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type));
+        .getKeysForChain(appStore.wallet!);
 
     return EthSigUtil.signTypedData(
       privateKey: keys[0].privateKey,

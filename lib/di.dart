@@ -1,6 +1,7 @@
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
@@ -49,6 +50,7 @@ import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_info_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
@@ -348,14 +350,18 @@ Future<void> setup({
           settingsStore: getIt.get<SettingsStore>(),
           walletInfoSource: _walletInfoSource));
 
+  getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
+          (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
+
   getIt.registerFactory<WalletLoadingService>(() => WalletLoadingService(
       getIt.get<SharedPreferences>(),
       getIt.get<KeyService>(),
       (WalletType type) => getIt.get<WalletService>(param1: type)));
-
-  getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) => WalletNewVM(
-      getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
-      type: type));
+  
+  getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) =>
+      WalletNewVM(getIt.get<AppStore>(),
+          getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
+          getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),type: type));
 
   getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
@@ -481,7 +487,7 @@ Future<void> setup({
 
   final appStore = getIt.get<AppStore>();
 
-  getIt.registerLazySingleton<WalletConnectKeyService>(() => KeyServiceImpl(appStore.wallet!));
+  getIt.registerLazySingleton<WalletConnectKeyService>(() => KeyServiceImpl());
 
   getIt.registerLazySingleton<Web3WalletService>(() {
     final Web3WalletService web3WalletService = Web3WalletService(
@@ -525,6 +531,8 @@ Future<void> setup({
 
   getIt.registerFactory<TransactionsPage>(
       () => TransactionsPage(dashboardViewModel: getIt.get<DashboardViewModel>()));
+
+  getIt.registerFactory<Setup2FAInfoPage>(() => Setup2FAInfoPage());
 
   getIt.registerFactory<Setup2FAPage>(
       () => Setup2FAPage(setup2FAViewModel: getIt.get<Setup2FAViewModel>()));
@@ -805,8 +813,12 @@ Future<void> setup({
   getIt
       .registerFactory<DFXBuyProvider>(() => DFXBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 
+  getIt.registerFactory<MoonPaySellProvider>(() => MoonPaySellProvider(
+              settingsStore: getIt.get<AppStore>().settingsStore,
+              wallet: getIt.get<AppStore>().wallet!));
+
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
-        settingsStore: getIt.get<AppStore>().settingsStore,
+        getIt.get<AppStore>().settingsStore,
         wallet: getIt.get<AppStore>().wallet!,
       ));
 
@@ -915,9 +927,9 @@ Future<void> setup({
   getIt.registerFactoryParam<NewWalletTypePage, void Function(BuildContext, WalletType), bool?>(
       (param1, isCreate) => NewWalletTypePage(onTypeSelected: param1, isCreate: isCreate ?? true));
 
-  getIt.registerFactoryParam<PreSeedPage, WalletType, AdvancedPrivacySettingsViewModel>(
-      (WalletType type, AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel) =>
-          PreSeedPage(type, advancedPrivacySettingsViewModel, getIt.get<SeedTypeViewModel>()));
+  getIt.registerFactoryParam<PreSeedPage, int, void>(
+      (seedPhraseLength, _)
+      => PreSeedPage(seedPhraseLength));
 
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
       TradeDetailsViewModel(
@@ -950,7 +962,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => BuyAmountViewModel());
 
-  getIt.registerFactory(() => BuyOptionsPage(getIt.get<DashboardViewModel>()));
+  getIt.registerFactoryParam<BuySellOptionsPage, bool, void>(
+        (isBuyOption, _) => BuySellOptionsPage(getIt.get<DashboardViewModel>(), isBuyOption));
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
@@ -1162,9 +1175,6 @@ Future<void> setup({
       (IoniaAnyPayPaymentInfo paymentInfo, AnyPayPaymentCommittedInfo committedInfo) =>
           IoniaPaymentStatusPage(
               getIt.get<IoniaPaymentStatusViewModel>(param1: paymentInfo, param2: committedInfo)));
-
-  getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
-      (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<HomeSettingsPage, BalanceViewModel, void>((balanceViewModel, _) =>
       HomeSettingsPage(getIt.get<HomeSettingsViewModel>(param1: balanceViewModel)));

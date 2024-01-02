@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bitbox/bitbox.dart' as bitbox;
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
@@ -210,9 +211,28 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       txb.addInput(input.hash, input.vout);
     });
 
+    final String bchPrefix = "bitcoincash:";
+
     outputs.forEach((item) {
       final outputAmount = hasMultiDestination ? item.formattedCryptoAmount : amount;
-      final outputAddress = item.isParsedAddress ? item.extractedAddress! : item.address;
+      String outputAddress = item.isParsedAddress ? item.extractedAddress! : item.address;
+
+      if (!outputAddress.startsWith(bchPrefix)) {
+        outputAddress = "$bchPrefix$outputAddress";
+      }
+
+      bool isP2sh = outputAddress.startsWith("p", bchPrefix.length);
+
+      if (isP2sh) {
+        final p2sh = P2shAddress.fromAddress(
+          address: outputAddress,
+          network: BitcoinCashNetwork.mainnet,
+        );
+
+        txb.addOutput(Uint8List.fromList(p2sh.toScriptPubKey().toBytes()), outputAmount!);
+        return;
+      }
+
       txb.addOutput(outputAddress, outputAmount!);
     });
 

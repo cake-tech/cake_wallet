@@ -1,6 +1,2 @@
-Add Polygon (Matic) wallet
-Polyseed enhancements
-New on-ramp provider DFX
-Usability enhancements
-Bitcoin enhancements
+Support multiple address types for Bitcoin Cash
 Bug fixes
