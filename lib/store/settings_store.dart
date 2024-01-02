@@ -70,6 +70,7 @@ abstract class SettingsStoreBase with Store {
       required String initialLanguageCode,
       required SyncMode initialSyncMode,
       required bool initialSyncAll,
+      required TorConnection initialTorConnection,
       // required String initialCurrentLocale,
       required this.appVersion,
       required this.deviceName,
@@ -151,6 +152,7 @@ abstract class SettingsStoreBase with Store {
             initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
+        currentTorConnection = initialTorConnection,
         priority = ObservableMap<WalletType, TransactionPriority>(),
         defaultBuyProviders = ObservableMap<WalletType, ProviderType>(),
         defaultSellProviders = ObservableMap<WalletType, ProviderType>() {
@@ -944,6 +946,10 @@ abstract class SettingsStoreBase with Store {
     });
     final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
 
+    final savedTorConnection = TorConnection.all.firstWhere((element) {
+      return element.type.index == (sharedPreferences.getInt(PreferencesKey.torConnectionKey) ?? 0);
+    });
+
     return SettingsStore(
         sharedPreferences: sharedPreferences,
         initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
@@ -1011,6 +1017,7 @@ abstract class SettingsStoreBase with Store {
         backgroundTasks: backgroundTasks,
         initialSyncMode: savedSyncMode,
         initialSyncAll: savedSyncAll,
+        initialTorConnection: savedTorConnection,
         shouldShowYatPopup: shouldShowYatPopup);
   }
 
