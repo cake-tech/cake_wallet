@@ -56,14 +56,16 @@ class SyncIndicator extends StatelessWidget {
                       : Offstage(),
                   Row(
                     children: [
-                      Container(
-                        width: 15,
-                        margin: EdgeInsets.only(left: 12, bottom: 2),
-                        child: Image.asset(
-                          'assets/images/tor_icon.png',
-                          color: dashboardViewModel.isTorConnected ? null : Colors.white,
-                        ),
-                      ),
+                      Observer(builder: (_) {
+                        return Container(
+                          width: 15,
+                          margin: EdgeInsets.only(left: 12, bottom: 2),
+                          child: Image.asset(
+                            'assets/images/tor_icon.png',
+                            color: dashboardViewModel.isTorConnected ? null : Colors.white,
+                          ),
+                        );
+                      }),
                     ],
                   ),
                   Padding(
