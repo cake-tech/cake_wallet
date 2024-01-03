@@ -21,7 +21,7 @@ void startCurrentFiatApiModeChangeReaction(
       crypto: appStore.wallet!.currency,
       fiat: settingsStore.fiatCurrency,
       torOnly: fiatApiMode == FiatApiMode.torOnly,
-      onionOnly: settingsStore.currentTorConnection == TorConnectionType.onionOnly,
+      onionOnly: settingsStore.torConnectionMode == TorConnectionMode.onionOnly,
     );
   });
 }

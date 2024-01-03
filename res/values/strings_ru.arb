@@ -767,5 +767,6 @@
   "start_tor_on_launch": "Запустить",
   "tor_status": "ТОР Статус",
   "connected": "Связанный",
-  "disconnected": "Отключен"
+  "disconnected": "Отключен",
+  "onion_only": "Только лук"
 }

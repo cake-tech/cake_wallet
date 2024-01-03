@@ -767,5 +767,6 @@
   "start_tor_on_launch": "Starten Sie den Start",
   "tor_status": "Torstatus",
   "connected": "In Verbindung gebracht",
-  "disconnected": "Getrennt"
+  "disconnected": "Getrennt",
+  "onion_only": "Nur Zwiebel"
 }

@@ -767,5 +767,6 @@
   "start_tor_on_launch": "Démarrez Tor sur le lancement",
   "tor_status": "Statut",
   "connected": "Connecté",
-  "disconnected": "Débranché"
+  "disconnected": "Débranché",
+  "onion_only": "Oignon seulement"
 }

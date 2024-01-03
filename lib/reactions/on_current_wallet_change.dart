@@ -96,7 +96,7 @@ void startCurrentWalletChangeReaction(
         crypto: wallet.currency,
         fiat: settingsStore.fiatCurrency,
         torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
-        onionOnly: settingsStore.currentTorConnection == TorConnectionType.onionOnly,
+        onionOnly: settingsStore.torConnectionMode == TorConnectionMode.onionOnly,
       );
 
       Iterable<Erc20Token>? currencies;
@@ -115,7 +115,7 @@ void startCurrentWalletChangeReaction(
               crypto: currency,
               fiat: settingsStore.fiatCurrency,
               torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
-              onionOnly: settingsStore.currentTorConnection == TorConnectionType.onionOnly,
+              onionOnly: settingsStore.torConnectionMode == TorConnectionMode.onionOnly,
             );
           }.call();
         }

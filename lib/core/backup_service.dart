@@ -220,6 +220,7 @@ class BackupService {
     final currentLanguageCode = data[PreferencesKey.currentLanguageCode] as String?;
     final displayActionListMode = data[PreferencesKey.displayActionListModeKey] as int?;
     final fiatApiMode = data[PreferencesKey.currentFiatApiModeKey] as int?;
+    final torConnectionMode = data[PreferencesKey.currentTorConnectionModeKey] as int?;
     final shouldStartTorOnLaunch = data[PreferencesKey.shouldStartTorOnLaunch] as bool?;
     final currentPinLength = data[PreferencesKey.currentPinLength] as int?;
     final currentTheme = data[PreferencesKey.currentTheme] as int?;
@@ -316,6 +317,9 @@ class BackupService {
 
     if (fiatApiMode != null)
       await _sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, fiatApiMode);
+
+    if (torConnectionMode != null)
+      await _sharedPreferences.setInt(PreferencesKey.currentTorConnectionModeKey, torConnectionMode);
 
     if (shouldStartTorOnLaunch != null)
       await _sharedPreferences.setBool(
@@ -556,6 +560,8 @@ class BackupService {
           _sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority),
       PreferencesKey.currentFiatApiModeKey:
           _sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey),
+      PreferencesKey.currentTorConnectionModeKey:
+          _sharedPreferences.getInt(PreferencesKey.currentTorConnectionModeKey),
       PreferencesKey.shouldStartTorOnLaunch:
           _sharedPreferences.getBool(PreferencesKey.shouldStartTorOnLaunch),
       PreferencesKey.selectedCake2FAPreset:

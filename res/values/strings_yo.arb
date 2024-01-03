@@ -761,5 +761,6 @@
   "start_tor_on_launch": "Bẹrẹ tor lori ifilole",
   "tor_status": "Ipo Tor",
   "connected": "Sopọ",
-  "disconnected": "Ge asopọ"
+  "disconnected": "Ge asopọ",
+  "onion_only": "Alubosa nikan"
 }

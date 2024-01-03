@@ -298,8 +298,9 @@ Future<void> setup({
   );
 
   if (DeviceInfo.instance.isMobile && settingsStore.shouldStartTorOnLaunch) {
-    Tor.instance.enable();
-    Tor.instance.start();
+    await Tor.init();
+    await Tor.instance.enable();
+    await Tor.instance.start();
   }
 
   if (_isSetupFinished) {

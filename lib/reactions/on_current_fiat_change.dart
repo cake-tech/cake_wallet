@@ -23,7 +23,7 @@ void startCurrentFiatChangeReaction(
       crypto: cryptoCurrency,
       fiat: fiatCurrency,
       torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
-      onionOnly: settingsStore.currentTorConnection == TorConnectionType.onionOnly,
+      onionOnly: settingsStore.torConnectionMode == TorConnectionMode.onionOnly,
     );
   });
 }

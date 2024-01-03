@@ -767,5 +767,6 @@
   "start_tor_on_launch": "Begin met de lancering",
   "tor_status": "Tor Status",
   "connected": "Verbonden",
-  "disconnected": "Losgekoppeld"
+  "disconnected": "Losgekoppeld",
+  "onion_only": "Alleen ui"
 }

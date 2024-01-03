@@ -44,6 +44,7 @@ import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
+import 'package:tor/tor.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -336,15 +337,13 @@ abstract class DashboardViewModelBase with Store {
   bool hasExchangeAction;
 
   @computed
-  bool get isEnabledBuyAction =>
-      !settingsStore.disableBuy && availableBuyProviders.isNotEmpty;
+  bool get isEnabledBuyAction => !settingsStore.disableBuy && availableBuyProviders.isNotEmpty;
 
   @observable
   bool hasBuyAction;
 
   @computed
-  bool get isEnabledSellAction =>
-      !settingsStore.disableSell && availableSellProviders.isNotEmpty;
+  bool get isEnabledSellAction => !settingsStore.disableSell && availableSellProviders.isNotEmpty;
 
   @observable
   bool hasSellAction;
@@ -462,10 +461,16 @@ abstract class DashboardViewModelBase with Store {
   void setSyncMode(SyncMode syncMode) => settingsStore.currentSyncMode = syncMode;
 
   @computed
-  TorConnection get torConnection => settingsStore.currentTorConnection;
+  TorConnectionMode get torConnectionMode => settingsStore.torConnectionMode;
 
   @action
-  void setTorConnection(TorConnection torConnection) => settingsStore.currentTorConnection = torConnection;
+  void setTorConnectionMode(TorConnectionMode mode) => settingsStore.torConnectionMode = mode;
+
+  @computed
+  bool get isTorConnected =>
+      (settingsStore.torConnectionMode == TorConnectionMode.enabled ||
+          settingsStore.torConnectionMode == TorConnectionMode.onionOnly) &&
+      (Tor.instance.port != -1);
 
   @computed
   bool get syncAll => settingsStore.currentSyncAll;
@@ -475,7 +480,8 @@ abstract class DashboardViewModelBase with Store {
 
   Future<List<String>> checkAffectedWallets() async {
     // await load file
-    final vulnerableSeedsString = await rootBundle.loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
+    final vulnerableSeedsString = await rootBundle
+        .loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
     final vulnerableSeeds = vulnerableSeedsString.split("\n");
 
     final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);

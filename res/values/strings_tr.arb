@@ -765,5 +765,6 @@
   "start_tor_on_launch": "Lansmanda Tor'a Başla",
   "tor_status": "Tor Durumu",
   "connected": "Bağlı",
-  "disconnected": "Bağlantı kesildi"
+  "disconnected": "Bağlantı kesildi",
+  "onion_only": "Sadece soğan"
 }

@@ -60,6 +60,7 @@ abstract class SettingsStoreBase with Store {
       required WalletListOrderType initialWalletListOrder,
       required bool initialWalletListAscending,
       required FiatApiMode initialFiatMode,
+      required TorConnectionMode initialTorConnectionMode,
       required bool initialShouldStartTorOnLaunch,
       required bool initialAllowBiometricalAuthentication,
       required String initialTotpSecretKey,
@@ -71,7 +72,6 @@ abstract class SettingsStoreBase with Store {
       required String initialLanguageCode,
       required SyncMode initialSyncMode,
       required bool initialSyncAll,
-      required TorConnection initialTorConnection,
       // required String initialCurrentLocale,
       required this.appVersion,
       required this.deviceName,
@@ -121,6 +121,7 @@ abstract class SettingsStoreBase with Store {
         autoGenerateSubaddressStatus = initialAutoGenerateSubaddressStatus,
         moneroSeedType = initialMoneroSeedType,
         fiatApiMode = initialFiatMode,
+        torConnectionMode = initialTorConnectionMode,
         shouldStartTorOnLaunch = initialShouldStartTorOnLaunch,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         selectedCake2FAPreset = initialCake2FAPresetOptions,
@@ -153,7 +154,6 @@ abstract class SettingsStoreBase with Store {
             initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
-        currentTorConnection = initialTorConnection,
         priority = ObservableMap<WalletType, TransactionPriority>(),
         defaultBuyProviders = ObservableMap<WalletType, ProviderType>(),
         defaultSellProviders = ObservableMap<WalletType, ProviderType>() {
@@ -317,6 +317,21 @@ abstract class SettingsStoreBase with Store {
         (FiatApiMode mode) =>
             sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, mode.serialize()));
 
+    reaction((_) => torConnectionMode, (TorConnectionMode mode) async {
+      await sharedPreferences.setInt(PreferencesKey.currentTorConnectionModeKey, mode.serialize());
+
+      if (mode == TorConnectionMode.enabled || mode == TorConnectionMode.onionOnly) {
+        // init and start the proxy
+        await Tor.init();
+        await Tor.instance.enable();
+
+        shouldStartTorOnLaunch = true;
+      } else {
+        Tor.instance.disable();
+        shouldStartTorOnLaunch = false;
+      }
+    });
+
     reaction((_) => shouldStartTorOnLaunch,
         (bool value) => sharedPreferences.setBool(PreferencesKey.shouldStartTorOnLaunch, value));
 
@@ -436,21 +451,6 @@ abstract class SettingsStoreBase with Store {
       _backgroundTasks.registerSyncTask(changeExisting: true);
     });
 
-    reaction((_) => currentTorConnection, (TorConnection torConnection) async {
-      sharedPreferences.setInt(PreferencesKey.torConnectionKey, torConnection.type.index);
-
-      if (torConnection.type == TorConnectionType.enabled) {
-        // Start the proxy
-        await Tor.init();
-        await Tor.instance.start();
-
-        shouldStartTorOnLaunch = true;
-      } else {
-        Tor.instance.disable();
-        shouldStartTorOnLaunch = false;
-      }
-    });
-
     reaction(
         (_) => exchangeStatus,
         (ExchangeApiMode mode) =>
@@ -548,6 +548,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   FiatApiMode fiatApiMode;
+
+  @observable
+  TorConnectionMode torConnectionMode;
 
   @observable
   bool shouldStartTorOnLaunch;
@@ -691,9 +694,6 @@ abstract class SettingsStoreBase with Store {
   SyncMode currentSyncMode;
 
   @observable
-  TorConnection currentTorConnection;
-
-  @observable
   bool currentSyncAll;
 
   String appVersion;
@@ -801,6 +801,9 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
+            FiatApiMode.enabled.raw);
+    final currentTorConnectionMode = TorConnectionMode.deserialize(
+        raw: sharedPreferences.getInt(PreferencesKey.currentTorConnectionModeKey) ??
             FiatApiMode.enabled.raw);
     final shouldStartTorOnLaunch =
         sharedPreferences.getBool(PreferencesKey.shouldStartTorOnLaunch) ?? false;
@@ -963,10 +966,6 @@ abstract class SettingsStoreBase with Store {
     });
     final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
 
-    final savedTorConnection = TorConnection.all.firstWhere((element) {
-      return element.type.index == (sharedPreferences.getInt(PreferencesKey.torConnectionKey) ?? 0);
-    });
-
     return SettingsStore(
         sharedPreferences: sharedPreferences,
         initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
@@ -986,6 +985,7 @@ abstract class SettingsStoreBase with Store {
         initialWalletListOrder: walletListOrder,
         initialWalletListAscending: walletListAscending,
         initialFiatMode: currentFiatApiMode,
+        initialTorConnectionMode: currentTorConnectionMode,
         initialShouldStartTorOnLaunch: shouldStartTorOnLaunch,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialCake2FAPresetOptions: selectedCake2FAPreset,

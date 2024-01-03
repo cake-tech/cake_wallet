@@ -763,5 +763,6 @@
   "start_tor_on_launch": "ابدأ في الإطلاق",
   "tor_status": "وضع تور",
   "connected": "متصل",
-  "disconnected": "انقطع الاتصال"
+  "disconnected": "انقطع الاتصال",
+  "onion_only": "البصل فقط"
 }

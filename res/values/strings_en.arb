@@ -768,5 +768,6 @@
   "start_tor_on_launch": "Start Tor on launch",
   "tor_status": "Tor status",
   "connected": "Connected",
-  "disconnected": "Disconnected"
+  "disconnected": "Disconnected",
+  "onion_only": "Onion only"
 }

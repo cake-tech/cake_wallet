@@ -90,7 +90,7 @@ abstract class HomeSettingsViewModelBase with Store {
         crypto: token,
         fiat: _settingsStore.fiatCurrency,
         torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly,
-        onionOnly: _settingsStore.currentTorConnection == TorConnectionType.onionOnly,
+        onionOnly: _settingsStore.torConnectionMode == TorConnectionMode.onionOnly,
       );
     } catch (_) {}
   }

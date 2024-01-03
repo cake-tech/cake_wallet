@@ -765,5 +765,6 @@
   "start_tor_on_launch": "Tor ကိုဖွင့်ပါ",
   "tor_status": "Tor Status",
   "connected": "ချိတ်ဆက်ထားသော",
-  "disconnected": "ချို့ယွင်းချက်"
+  "disconnected": "ချို့ယွင်းချက်",
+  "onion_only": "သာကြက်သွန်"
 }

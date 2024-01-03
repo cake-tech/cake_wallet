@@ -767,5 +767,6 @@
   "start_tor_on_launch": "Rozpocznij TOR OD LATH",
   "tor_status": "Status TOR",
   "connected": "Połączony",
-  "disconnected": "Bezładny"
+  "disconnected": "Bezładny",
+  "onion_only": "Tylko cebula"
 }

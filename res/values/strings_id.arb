@@ -755,5 +755,6 @@
   "start_tor_on_launch": "Mulailah untuk peluncuran",
   "tor_status": "Status Tor",
   "connected": "Terhubung",
-  "disconnected": "Terputus"
+  "disconnected": "Terputus",
+  "onion_only": "Bawang saja"
 }

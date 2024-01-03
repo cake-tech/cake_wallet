@@ -765,5 +765,6 @@
   "start_tor_on_launch": "출시시 TOR를 시작하십시오",
   "tor_status": "Tor 상태",
   "connected": "연결",
-  "disconnected": "연결이 끊어졌습니다"
+  "disconnected": "연결이 끊어졌습니다",
+  "onion_only": "양파 만"
 }

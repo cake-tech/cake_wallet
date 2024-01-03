@@ -761,5 +761,6 @@
   "start_tor_on_launch": "Simulan ang tor sa paglulunsad",
   "tor_status": "Katayuan ng tor",
   "connected": "Konektado",
-  "disconnected": "Naka -disconnect"
+  "disconnected": "Naka -disconnect",
+  "onion_only": "Onion lamang"
 }

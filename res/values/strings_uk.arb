@@ -767,5 +767,6 @@
   "start_tor_on_launch": "Почніть Тор на запуску",
   "tor_status": "Статус Tor",
   "connected": "З'єднаний",
-  "disconnected": "Роз'єднаний"
+  "disconnected": "Роз'єднаний",
+  "onion_only": "Тільки цибуля"
 }

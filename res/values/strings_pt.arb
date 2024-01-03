@@ -766,5 +766,6 @@
   "start_tor_on_launch": "Inicie o TOR no lançamento",
   "tor_status": "Status de tor",
   "connected": "Conectado",
-  "disconnected": "Desconectado"
+  "disconnected": "Desconectado",
+  "onion_only": "Apenas cebola"
 }

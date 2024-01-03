@@ -765,5 +765,6 @@
   "start_tor_on_launch": "Započnite s lansiranjem",
   "tor_status": "Status tor",
   "connected": "Povezan",
-  "disconnected": "Isključen"
+  "disconnected": "Isključen",
+  "onion_only": "Samo luk"
 }

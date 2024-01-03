@@ -767,5 +767,6 @@
   "start_tor_on_launch": "लॉन्च पर टोर शुरू करें",
   "tor_status": "टोर की स्थिति",
   "connected": "जुड़े हुए",
-  "disconnected": "डिस्कनेक्ट किया गया"
+  "disconnected": "डिस्कनेक्ट किया गया",
+  "onion_only": "केवल प्याज"
 }

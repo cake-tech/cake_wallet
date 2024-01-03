@@ -767,5 +767,6 @@
   "start_tor_on_launch": "起動時にTORを開始します",
   "tor_status": "TORステータス",
   "connected": "接続",
-  "disconnected": "切断された"
+  "disconnected": "切断された",
+  "onion_only": "オニオンのみ"
 }

@@ -759,5 +759,6 @@
   "start_tor_on_launch": "Začněte tor při spuštění",
   "tor_status": "TOR status",
   "connected": "Připojeno",
-  "disconnected": "Odpojené"
+  "disconnected": "Odpojené",
+  "onion_only": "Pouze cibule"
 }

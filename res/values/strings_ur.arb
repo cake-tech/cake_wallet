@@ -759,5 +759,6 @@
   "start_tor_on_launch": "لانچ پر ٹور شروع کریں",
   "tor_status": "ٹور کی حیثیت",
   "connected": "منسلک",
-  "disconnected": "منقطع"
+  "disconnected": "منقطع",
+  "onion_only": "صرف پیاز"
 }

@@ -103,20 +103,25 @@ class ConnectionSyncPage extends BasePage {
                     selectedItem: dashboardViewModel.torConnection,
                     onItemSelected: dashboardViewModel.setTorConnection,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25)),
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(25), topRight: Radius.circular(25)),
                       color: const Color.fromARGB(255, 236, 244, 255),
                     ),
                   );
                 }),
-                TorStatus(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(25), bottomRight: Radius.circular(25)),
-                    color: const Color.fromARGB(255, 236, 244, 255),
-                  ),
-                  title: S.current.tor_status,
-                  isSelected: false,
-                  onTap: (context) {},
-                ),
+                Observer(builder: (context) {
+                  return TorStatus(
+                    connected: dashboardViewModel.isTorConnected,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(25), bottomRight: Radius.circular(25)),
+                      color: const Color.fromARGB(255, 236, 244, 255),
+                    ),
+                    title: S.current.tor_status,
+                    isSelected: false,
+                    onTap: (context) {},
+                  );
+                }),
               ]),
             ),
           ],

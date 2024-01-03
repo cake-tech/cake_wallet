@@ -34,7 +34,7 @@ Future<void> startFiatRateUpdate(
           crypto: appStore.wallet!.currency,
           fiat: settingsStore.fiatCurrency,
           torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
-          onionOnly: settingsStore.currentTorConnection == TorConnectionType.onionOnly,
+          onionOnly: settingsStore.torConnectionMode == TorConnectionMode.onionOnly,
         );
       }
 
@@ -56,7 +56,7 @@ Future<void> startFiatRateUpdate(
               crypto: currency,
               fiat: settingsStore.fiatCurrency,
               torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
-              onionOnly: settingsStore.currentTorConnection == TorConnectionType.onionOnly,
+              onionOnly: settingsStore.torConnectionMode == TorConnectionMode.onionOnly,
             );
           }.call();
         }

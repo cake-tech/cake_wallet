@@ -766,5 +766,6 @@
   "start_tor_on_launch": "启动TOR发射",
   "tor_status": "TOR状态",
   "connected": "连接的",
-  "disconnected": "断开连接"
+  "disconnected": "断开连接",
+  "onion_only": "仅洋葱"
 }

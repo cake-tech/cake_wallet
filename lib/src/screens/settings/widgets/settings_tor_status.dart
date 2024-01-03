@@ -9,29 +9,19 @@ class TorStatus extends StandardListRow {
       {required String title,
       required void Function(BuildContext context) onTap,
       required bool isSelected,
+      required this.connected,
       BoxDecoration? decoration})
       : super(title: title, onTap: onTap, isSelected: isSelected, decoration: decoration);
+
+  final bool connected;
 
   @override
   Widget buildTrailing(BuildContext context) {
     return NodeIndicator(
-      isLive: Tor.instance.started && Tor.instance.enabled,
+      isLive: connected,
       showText: true,
     );
   }
-
-  // @override
-  // Widget buildTrailing(BuildContext context) {
-  //   return GestureDetector(
-  //       onTap: () {},
-  //       child: Container(
-  //           padding: EdgeInsets.all(10),
-  //           decoration: BoxDecoration(
-  //               shape: BoxShape.circle,
-  //               color: Theme.of(context).extension<ReceivePageTheme>()!.iconsBackgroundColor),
-  //           child: Icon(Icons.edit,
-  //               size: 14, color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor)));
-  // }
 }
 
 class NodeHeaderListRow extends StandardListRow {
