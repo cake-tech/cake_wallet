@@ -1034,7 +1034,6 @@ abstract class SettingsStoreBase with Store {
         backgroundTasks: backgroundTasks,
         initialSyncMode: savedSyncMode,
         initialSyncAll: savedSyncAll,
-        initialTorConnection: savedTorConnection,
         shouldShowYatPopup: shouldShowYatPopup);
   }
 
