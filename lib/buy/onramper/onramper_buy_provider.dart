@@ -79,8 +79,8 @@ class OnRamperBuyProvider extends BuyProvider {
     return Uri.https(_baseUrl, '', <String, dynamic>{
       'apiKey': _apiKey,
       'defaultCrypto': _normalizeCryptoCurrency,
+      'sell_defaultCrypto': _normalizeCryptoCurrency,
       'networkWallets': '${networkName}:${wallet.walletAddresses.address}',
-      'supportSell': "false",
       'supportSwap': "false",
       'primaryColor': primaryColor,
       'secondaryColor': secondaryColor,
