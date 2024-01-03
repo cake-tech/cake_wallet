@@ -3,6 +3,12 @@ name: PR Test Build
 on:
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch name to build'
+        required: true
+        default: 'main'
 
 jobs:
   PR_test_build:
@@ -12,6 +18,14 @@ jobs:
       KEY_PASS: test@cake_wallet
 
     steps:
+      - name: is pr
+        if: github.event_name == 'pull_request'
+        run: echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> $GITHUB_ENV
+
+      - name: is not pr
+        if: github.event_name != 'pull_request'
+        run: echo "BRANCH_NAME=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
+
       - name: Free Up GitHub Actions Ubuntu Runner Disk Space
         run: |
           sudo rm -rf /usr/share/dotnet
@@ -40,7 +54,7 @@ jobs:
           cd /opt/android
           -y curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
           cargo install cargo-ndk
-          git clone https://github.com/cake-tech/cake_wallet.git --branch $GITHUB_HEAD_REF
+          git clone https://github.com/cake-tech/cake_wallet.git --branch ${{ env.BRANCH_NAME }}
           cd cake_wallet/scripts/android/
           ./install_ndk.sh
           source ./app_env.sh cakewallet
@@ -97,6 +111,7 @@ jobs:
           cd cw_ethereum && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           cd cw_bitcoin_cash && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           cd cw_nano && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
+          cd cw_polygon && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           flutter packages pub run build_runner build --delete-conflicting-outputs
 
       - name: Add secrets
@@ -104,6 +119,7 @@ jobs:
           cd /opt/android/cake_wallet
           touch lib/.secrets.g.dart
           touch cw_ethereum/lib/.secrets.g.dart
+          touch cw_polygon/lib/.secrets.g.dart
           echo "const salt = '${{ secrets.SALT }}';" > lib/.secrets.g.dart
           echo "const keychainSalt = '${{ secrets.KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
           echo "const key = '${{ secrets.KEY }}';" >> lib/.secrets.g.dart
@@ -137,9 +153,10 @@ jobs:
           echo "const robinhoodCIdApiSecret = '${{ secrets.ROBINHOOD_CID_CLIENT_SECRET }}';" >> lib/.secrets.g.dart
           echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_ethereum/lib/.secrets.g.dart
 
       - name: Rename app
-        run: echo -e "id=com.cakewallet.test\nname=$GITHUB_HEAD_REF" > /opt/android/cake_wallet/android/app.properties
+        run: echo -e "id=com.cakewallet.test\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
 
       - name: Build
         run: |
@@ -154,7 +171,7 @@ jobs:
 #                appcenter distribute release \
 #                    --group "Testers" \
 #                    --file "/opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk" \
-#                    --release-notes ${GITHUB_HEAD_REF} \
+#                    --release-notes ${{ env.BRANCH_NAME }} \
 #                    --app Cake-Labs/Cake-Wallet \
 #                    --token ${{ secrets.APP_CENTER_TOKEN }} \
 #                    --quiet
@@ -163,7 +180,7 @@ jobs:
         run: |
           cd /opt/android/cake_wallet/build/app/outputs/apk/release
           mkdir test-apk
-          cp app-release.apk test-apk/$GITHUB_HEAD_REF.apk
+          cp app-release.apk test-apk/${{env.BRANCH_NAME}}.apk
 
       - name: Upload Artifact
         uses: kittaakos/upload-artifact-as-is@v0
@@ -177,6 +194,6 @@ jobs:
           token: ${{ secrets.SLACK_APP_TOKEN }}
           path: /opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk
           channel: ${{ secrets.SLACK_APK_CHANNEL }}
-          title: "${{github.head_ref}}.apk"
-          filename: ${{github.head_ref}}.apk
+          title: "${{ env.BRANCH_NAME }}.apk"
+          filename: ${{ env.BRANCH_NAME }}.apk
           initial_comment: ${{ github.event.head_commit.message }}

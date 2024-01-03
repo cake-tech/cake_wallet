@@ -6,6 +6,7 @@ import 'package:cake_wallet/core/wallet_connect/eth_transaction_model.dart';
 import 'package:cake_wallet/core/wallet_connect/evm_chain_id.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/core/wallet_connect/models/chain_key_model.dart';
@@ -14,7 +15,6 @@ import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_widget
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
 import 'package:convert/convert.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:http/http.dart' as http;
@@ -46,13 +46,12 @@ class EvmChainServiceImpl implements ChainService {
     required this.wcKeyService,
     required this.bottomSheetService,
     required this.wallet,
-    Web3Client? ethClient,
-  }) : ethClient = ethClient ??
+    Web3Client? web3Client,
+  }) : ethClient = web3Client ??
             Web3Client(
-              appStore.settingsStore.getCurrentNode(WalletType.ethereum).uri.toString(),
+              appStore.settingsStore.getCurrentNode(appStore.wallet!.type).uri.toString(),
               http.Client(),
             ) {
- 
     for (final String event in getEvents()) {
       wallet.registerEventEmitter(chainId: getChainId(), event: event);
     }
@@ -138,7 +137,8 @@ class EvmChainServiceImpl implements ChainService {
 
     try {
       // Load the private key
-      final List<ChainKeyModel> keys = wcKeyService.getKeysForChain(getChainId());
+      final List<ChainKeyModel> keys = wcKeyService
+          .getKeysForChain(appStore.wallet!);
 
       final Credentials credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
@@ -176,13 +176,15 @@ class EvmChainServiceImpl implements ChainService {
 
     try {
       // Load the private key
-      final List<ChainKeyModel> keys = wcKeyService.getKeysForChain(getChainId());
+      final List<ChainKeyModel> keys = wcKeyService
+          .getKeysForChain(appStore.wallet!);
 
       final EthPrivateKey credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
       final String signature = hex.encode(
         credentials.signPersonalMessageToUint8List(
           Uint8List.fromList(utf8.encode(message)),
+          chainId: getChainIdBasedOnWalletType(appStore.wallet!.type),
         ),
       );
       log(signature);
@@ -212,7 +214,8 @@ class EvmChainServiceImpl implements ChainService {
     }
 
     // Load the private key
-    final List<ChainKeyModel> keys = wcKeyService.getKeysForChain(getChainId());
+    final List<ChainKeyModel> keys = wcKeyService
+        .getKeysForChain(appStore.wallet!);
 
     final Credentials credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
@@ -232,7 +235,11 @@ class EvmChainServiceImpl implements ChainService {
     );
 
     try {
-      final result = await ethClient.sendTransaction(credentials, transaction);
+      final result = await ethClient.sendTransaction(
+        credentials,
+        transaction,
+        chainId: getChainIdBasedOnWalletType(appStore.wallet!.type),
+      );
 
       log('Result: $result');
 
@@ -267,7 +274,8 @@ class EvmChainServiceImpl implements ChainService {
       return authError;
     }
 
-    final List<ChainKeyModel> keys = wcKeyService.getKeysForChain(getChainId());
+    final List<ChainKeyModel> keys = wcKeyService
+        .getKeysForChain(appStore.wallet!);
 
     return EthSigUtil.signTypedData(
       privateKey: keys[0].privateKey,
@@ -277,10 +285,12 @@ class EvmChainServiceImpl implements ChainService {
   }
 
   String _convertToReadable(Map<String, dynamic> data) {
+    final tokenName = getTokenNameBasedOnWalletType(appStore.wallet!.type);
     String gas = int.parse((data['gas'] as String).substring(2), radix: 16).toString();
     String value = data['value'] != null
-        ? (int.parse((data['value'] as String).substring(2), radix: 16) / 1e18).toString() + ' ETH'
-        : '0 ETH';
+        ? (int.parse((data['value'] as String).substring(2), radix: 16) / 1e18).toString() +
+            ' $tokenName'
+        : '0 $tokenName';
     String from = data['from'] as String;
     String to = data['to'] as String;
 

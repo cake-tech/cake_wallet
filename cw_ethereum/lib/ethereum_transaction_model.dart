@@ -1,3 +1,4 @@
+//! Model used for in parsing transactions fetched using etherscan
 class EthereumTransactionModel {
   final DateTime date;
   final String hash;

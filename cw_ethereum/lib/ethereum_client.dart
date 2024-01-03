@@ -15,12 +15,12 @@ import 'package:cw_ethereum/ethereum_transaction_priority.dart';
 import 'package:cw_ethereum/.secrets.g.dart' as secrets;
 
 class EthereumClient {
-  final _httpClient = Client();
+  final httpClient = Client();
   Web3Client? _client;
 
   bool connect(Node node) {
     try {
-      _client = Web3Client(node.uri.toString(), _httpClient);
+      _client = Web3Client(node.uri.toString(), httpClient);
 
       return true;
     } catch (e) {
@@ -74,29 +74,34 @@ class EthereumClient {
     required int exponent,
     String? contractAddress,
   }) async {
-    assert(currency == CryptoCurrency.eth || contractAddress != null);
+    assert(currency == CryptoCurrency.eth ||
+        currency == CryptoCurrency.maticpoly ||
+        contractAddress != null);
 
-    bool _isEthereum = currency == CryptoCurrency.eth;
+    bool _isEVMCompatibleChain =
+        currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
 
     final price = _client!.getGasPrice();
 
-    final Transaction transaction = Transaction(
+    final Transaction transaction = createTransaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
-      value: _isEthereum ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
+      amount: _isEVMCompatibleChain ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
     );
 
-    final signedTransaction = await _client!.signTransaction(privateKey, transaction);
+    final signedTransaction =
+        await _client!.signTransaction(privateKey, transaction, chainId: chainId);
 
     final Function _sendTransaction;
 
-    if (_isEthereum) {
+    if (_isEVMCompatibleChain) {
       _sendTransaction = () async => await sendTransaction(signedTransaction);
     } else {
       final erc20 = ERC20(
         client: _client!,
         address: EthereumAddress.fromHex(contractAddress!),
+        chainId: chainId,
       );
 
       _sendTransaction = () async {
@@ -118,8 +123,27 @@ class EthereumClient {
     );
   }
 
+  int get chainId => 1;
+
+  Transaction createTransaction({
+    required EthereumAddress from,
+    required EthereumAddress to,
+    required EtherAmount amount,
+    EtherAmount? maxPriorityFeePerGas,
+  }) {
+    return Transaction(
+      from: from,
+      to: to,
+      maxPriorityFeePerGas: maxPriorityFeePerGas,
+      value: amount,
+    );
+  }
+
   Future<String> sendTransaction(Uint8List signedTransaction) async =>
-      await _client!.sendRawTransaction(prependTransactionType(0x02, signedTransaction));
+      await _client!.sendRawTransaction(prepareSignedTransactionForSending(signedTransaction));
+
+  Uint8List prepareSignedTransactionForSending(Uint8List signedTransaction) =>
+      prependTransactionType(0x02, signedTransaction);
 
   Future getTransactionDetails(String transactionHash) async {
     // Wait for the transaction receipt to become available
@@ -198,7 +222,7 @@ I/flutter ( 4474): Gas Used: 53000
   Future<List<EthereumTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
-      final response = await _httpClient.get(Uri.https("api.etherscan.io", "/api", {
+      final response = await httpClient.get(Uri.https("api.etherscan.io", "/api", {
         "module": "account",
         "action": contractAddress != null ? "tokentx" : "txlist",
         if (contractAddress != null) "contractaddress": contractAddress,

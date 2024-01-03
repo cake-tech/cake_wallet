@@ -23,6 +23,7 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -65,7 +66,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         receiveAddress = '',
         depositAddress = '',
         isDepositAddressEnabled = false,
-        isReceiveAddressEnabled = false,
         isReceiveAmountEditable = false,
         _useTorOnly = false,
         receiveCurrencies = <CryptoCurrency>[],
@@ -107,7 +107,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     bestRateSync = Timer.periodic(Duration(seconds: 10), (timer) => _calculateBestRate());
 
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
-    isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
     depositAmount = '';
     receiveAmount = '';
     receiveAddress = '';
@@ -201,9 +200,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   bool isDepositAddressEnabled;
 
   @observable
-  bool isReceiveAddressEnabled;
-
-  @observable
   bool isReceiveAmountEntered;
 
   @observable
@@ -287,6 +283,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         return transactionPriority == ethereum!.getEthereumTransactionPrioritySlow();
       case WalletType.bitcoinCash:
         return transactionPriority == bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
+      case WalletType.polygon:
+        return transactionPriority == polygon!.getPolygonTransactionPrioritySlow();
       default:
         return false;
     }
@@ -312,7 +310,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     isFixedRateMode = false;
     _onPairChange();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
-    isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
   }
 
   @action
@@ -321,7 +318,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     isFixedRateMode = false;
     _onPairChange();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
-    isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
   }
 
   @action
@@ -532,7 +528,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.address : '';
     receiveAddress = receiveCurrency == wallet.currency ? wallet.walletAddresses.address : '';
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
-    isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
     isFixedRateMode = false;
     _onPairChange();
   }
@@ -626,6 +621,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency = CryptoCurrency.nano;
         receiveCurrency = CryptoCurrency.xmr;
         break;
+      case WalletType.polygon:
+        depositCurrency = CryptoCurrency.maticpoly;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
       default:
         break;
     }
@@ -712,6 +711,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.bitcoinCash:
         _settingsStore.priority[wallet.type] = bitcoinCash!.getDefaultTransactionPriority();
+        break;
+      case WalletType.polygon:
+        _settingsStore.priority[wallet.type] = polygon!.getDefaultTransactionPriority();
         break;
       default:
         break;

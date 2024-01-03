@@ -41,6 +41,7 @@ class SecretKey {
 
   static final ethereumSecrets = [
     SecretKey('etherScanApiKey', () => ''),
+    SecretKey('polygonScanApiKey', () => ''),
   ];
 
   final String name;

@@ -18,7 +18,6 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
-import 'package:cw_bitcoin/file.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_bitcoin/utils.dart';
@@ -30,6 +29,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/foundation.dart';
@@ -82,7 +82,7 @@ abstract class ElectrumWalletBase
       bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'/0");
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
-      inputsCount * 146 + outputsCounts * 33 + 8;
+      inputsCount * 68 + outputsCounts * 34 + 10;
 
   final bitcoin.HDWallet hd;
   final String mnemonic;
@@ -725,8 +725,7 @@ abstract class ElectrumWalletBase
     final index = address != null
         ? walletAddresses.addresses.firstWhere((element) => element.address == address).index
         : null;
-    return index == null
-        ? base64Encode(hd.sign(message))
-        : base64Encode(hd.derive(index).sign(message));
+    final HD = index == null ? hd : hd.derive(index);
+    return base64Encode(HD.signMessage(message));
   }
 }

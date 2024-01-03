@@ -12,6 +12,7 @@ import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
+import 'package:cake_wallet/view_model/seed_type_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -23,7 +24,7 @@ import 'package:polyseed/polyseed.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class WalletRestorePage extends BasePage {
-  WalletRestorePage(this.walletRestoreViewModel)
+  WalletRestorePage(this.walletRestoreViewModel, this.seedTypeViewModel)
       : walletRestoreFromSeedFormKey = GlobalKey<WalletRestoreFromSeedFormState>(),
         walletRestoreFromKeysFormKey = GlobalKey<WalletRestoreFromKeysFromState>(),
         _pages = [],
@@ -33,6 +34,7 @@ class WalletRestorePage extends BasePage {
       switch (mode) {
         case WalletRestoreMode.seed:
           _pages.add(WalletRestoreFromSeedForm(
+              seedTypeViewModel: seedTypeViewModel,
               displayBlockHeightSelector:
                   walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
               displayLanguageSelector: walletRestoreViewModel.hasSeedLanguageSelector,
@@ -87,6 +89,7 @@ class WalletRestorePage extends BasePage {
           ));
 
   final WalletRestoreViewModel walletRestoreViewModel;
+  final SeedTypeViewModel seedTypeViewModel;
   final PageController _controller;
   final List<Widget> _pages;
   final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
@@ -207,7 +210,7 @@ class WalletRestorePage extends BasePage {
                           Navigator.of(context).pushNamed(Routes.advancedPrivacySettings,
                               arguments: walletRestoreViewModel.type);
                         },
-                        child: Text(S.of(context).advanced_privacy_settings),
+                        child: Text(S.of(context).advanced_settings),
                       ),
                     ],
                   ),

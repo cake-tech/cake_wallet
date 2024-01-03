@@ -20,12 +20,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
 
   @override
   Future<EthereumWallet> create(EthereumNewWalletCredentials credentials) async {
-
-    final strength = (credentials.seedPhraseLength == 12)
-        ? 128
-        : (credentials.seedPhraseLength == 24)
-        ? 256
-        : 128;
+    final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
     final mnemonic = bip39.generateMnemonic(strength: strength);
     final wallet = EthereumWallet(
@@ -67,8 +62,8 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
   @override
   Future<void> remove(String wallet) async {
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = walletInfoSource.values.firstWhereOrNull(
-            (info) => info.id == WalletBase.idFor(wallet, getType()))!;
+    final walletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
   }
 

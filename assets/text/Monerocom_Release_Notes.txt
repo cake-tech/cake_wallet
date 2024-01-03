@@ -1,7 +1,4 @@
-Coin control fixes and enhancements
-In-app Tor connection
-Accessibility enhancements
-Privacy settings enhancements
-UI enhancements
-Backup flow fixes
+Polyseed enhancements
+New on-ramp provider DFX
+Usability enhancements
 Bug fixes

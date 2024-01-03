@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sideba
 import 'package:cake_wallet/src/screens/dashboard/pages/market_place_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
+import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
@@ -60,7 +61,8 @@ class DashboardPage extends StatelessWidget {
           );
 
           if (DeviceInfo.instance.isDesktop) {
-            if (responsiveLayoutUtil.screenWidth > ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
+            if (responsiveLayoutUtil.screenWidth >
+                ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
               return getIt.get<DesktopSidebarWrapper>();
             } else {
               return dashboardPageView;
@@ -295,6 +297,8 @@ class _DashboardPageView extends BasePage {
 
     _showReleaseNotesPopup(context);
 
+    _showVulnerableSeedsPopup(context);
+
     var needToPresentYat = false;
     var isInactive = false;
 
@@ -352,6 +356,24 @@ class _DashboardPageView extends BasePage {
       sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
     } else if (isNewInstall!) {
       sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    }
+  }
+
+  void _showVulnerableSeedsPopup(BuildContext context) async {
+    final List<String> affectedWalletNames = await dashboardViewModel.checkAffectedWallets();
+
+    if (affectedWalletNames.isNotEmpty) {
+      Future<void>.delayed(
+        Duration(seconds: 1),
+        () {
+          showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return VulnerableSeedsPopup(affectedWalletNames);
+            },
+          );
+        },
+      );
     }
   }
 }

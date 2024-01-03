@@ -47,6 +47,7 @@ import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_info_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
@@ -56,13 +57,13 @@ import 'package:cake_wallet/src/screens/support_other_links/support_other_links_
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/seed_type_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -147,9 +148,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newWallet:
       final type = settings.arguments as WalletType;
       final walletNewVM = getIt.get<WalletNewVM>(param1: type);
-      final settingsStore = getIt.get<SettingsStore>();
+      final seedTypeViewModel = getIt.get<SeedTypeViewModel>();
 
-      return CupertinoPageRoute<void>(builder: (_) => NewWalletPage(walletNewVM, settingsStore));
+      return CupertinoPageRoute<void>(builder: (_) => NewWalletPage(walletNewVM, seedTypeViewModel));
 
     case Routes.setupPin:
       Function(PinCodeState<PinCodeWidget>, String)? callback;
@@ -390,8 +391,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
 
-    case Routes.buy:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuyOptionsPage>());
+    case Routes.buySellPage:
+      final args = settings.arguments as bool;
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<BuySellOptionsPage>(param1: args));
 
     case Routes.buyWebView:
       final args = settings.arguments as List;
@@ -412,12 +415,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.faq:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<FaqPage>());
 
-    case Routes.preSeed:
+    case Routes.preSeedPage:
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<PreSeedPage>(
-              param1: settings.arguments as WalletType,
-              param2: getIt.get<AdvancedPrivacySettingsViewModel>(
-                  param1: settings.arguments as WalletType)));
+              param1: settings.arguments as int));
 
     case Routes.backup:
       return CupertinoPageRoute<void>(
@@ -535,9 +536,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
       return CupertinoPageRoute<void>(
           builder: (_) => AdvancedPrivacySettingsPage(
-                getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
-                getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
-              ));
+              getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
+              getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
+              getIt.get<SeedTypeViewModel>()));
 
     case Routes.anonPayInvoicePage:
       final args = settings.arguments as List;
@@ -579,6 +580,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.modify2FAPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<Modify2FAPage>());
+
+    case Routes.setup2faInfoPage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAInfoPage>());
 
     case Routes.homeSettings:
       return CupertinoPageRoute<void>(

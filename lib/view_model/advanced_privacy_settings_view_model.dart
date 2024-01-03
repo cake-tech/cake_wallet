@@ -20,9 +20,6 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   @computed
   FiatApiMode get fiatApiMode => _settingsStore.fiatApiMode;
 
-  @computed
-  SeedType get seedType => _settingsStore.moneroSeedType;
-
   @observable
   bool _addCustomNode = false;
 
@@ -41,11 +38,11 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   @computed
   SeedPhraseLength get seedPhraseLength => _settingsStore.seedPhraseLength;
 
-  @action
-  void setFiatApiMode(FiatApiMode fiatApiMode) => _settingsStore.fiatApiMode = fiatApiMode;
+  @computed
+  bool get isPolySeed => _settingsStore.moneroSeedType == SeedType.polyseed;
 
   @action
-  void setSeedType(SeedType seedType) => _settingsStore.moneroSeedType = seedType;
+  void setFiatApiMode(FiatApiMode fiatApiMode) => _settingsStore.fiatApiMode = fiatApiMode;
 
   @action
   void setExchangeApiMode(ExchangeApiMode value) => _settingsStore.exchangeStatus = value;

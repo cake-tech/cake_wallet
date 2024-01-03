@@ -1,8 +1,8 @@
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -26,8 +26,7 @@ abstract class AppStoreBase with Store {
   AuthenticationStore authenticationStore;
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
-      wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet;
 
   WalletListStore walletList;
 
@@ -36,16 +35,16 @@ abstract class AppStoreBase with Store {
   NodeListStore nodeListStore;
 
   @action
-  void changeCurrentWallet(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-              TransactionInfo>
-          wallet) {
+  Future<void> changeCurrentWallet(
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) async {
     this.wallet?.close();
     this.wallet = wallet;
     this.wallet!.setExceptionHandler(ExceptionHandler.onError);
 
-    if (wallet.type == WalletType.ethereum) {
-      getIt.get<Web3WalletService>().init();
+    if (isEVMCompatibleChain(wallet.type)) {
+      await getIt.get<Web3WalletService>().onDispose();
+      getIt.get<Web3WalletService>().create();
+      await getIt.get<Web3WalletService>().init();
     }
   }
 }

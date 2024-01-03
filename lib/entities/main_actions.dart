@@ -1,17 +1,9 @@
-import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
-import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
-import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class MainActions {
   final String Function(BuildContext context) name;
@@ -19,7 +11,8 @@ class MainActions {
 
   final bool Function(DashboardViewModel viewModel)? isEnabled;
   final bool Function(DashboardViewModel viewModel)? canShow;
-  final Future<void> Function(BuildContext context, DashboardViewModel viewModel) onTap;
+  final Future<void> Function(
+      BuildContext context, DashboardViewModel viewModel) onTap;
 
   MainActions._({
     required this.name,
@@ -43,43 +36,17 @@ class MainActions {
     isEnabled: (viewModel) => viewModel.isEnabledBuyAction,
     canShow: (viewModel) => viewModel.hasBuyAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
+      if (!viewModel.isEnabledBuyAction) {
+        return;
+      }
+
       final defaultBuyProvider = viewModel.defaultBuyProvider;
-      final walletType = viewModel.type;
-
-      if (!viewModel.isEnabledBuyAction) return;
-
-      switch (walletType) {
-        case WalletType.bitcoin:
-        case WalletType.litecoin:
-        case WalletType.ethereum:
-        case WalletType.bitcoinCash:
-          switch (defaultBuyProvider) {
-            case BuyProviderType.AskEachTime:
-              Navigator.pushNamed(context, Routes.buy);
-              break;
-            case BuyProviderType.Onramper:
-              await getIt.get<OnRamperBuyProvider>().launchProvider(context);
-              break;
-            case BuyProviderType.Robinhood:
-              await getIt.get<RobinhoodBuyProvider>().launchProvider(context);
-              break;
-          }
-          break;
-        case WalletType.nano:
-        case WalletType.banano:
-        case WalletType.monero:
-          await getIt.get<OnRamperBuyProvider>().launchProvider(context);
-          break;
-        default:
-          await showPopUp<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertWithOneAction(
-                    alertTitle: S.of(context).buy,
-                    alertContent: S.of(context).unsupported_asset,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
-              });
+      try {
+        defaultBuyProvider != null
+            ? await defaultBuyProvider.launchProvider(context, true)
+            : await Navigator.of(context).pushNamed(Routes.buySellPage, arguments: true);
+      } catch (e) {
+        await _showErrorDialog(context, defaultBuyProvider.toString(), e.toString());
       }
     },
   );
@@ -118,41 +85,33 @@ class MainActions {
     isEnabled: (viewModel) => viewModel.isEnabledSellAction,
     canShow: (viewModel) => viewModel.hasSellAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
-      final walletType = viewModel.type;
+      if (!viewModel.isEnabledSellAction) {
+        return;
+      }
 
-      switch (walletType) {
-        case WalletType.bitcoin:
-        case WalletType.litecoin:
-        case WalletType.ethereum:
-        case WalletType.bitcoinCash:
-          if (viewModel.isEnabledSellAction) {
-            final moonPaySellProvider = MoonPaySellProvider();
-            final uri = await moonPaySellProvider.requestUrl(
-              currency: viewModel.wallet.currency,
-              refundWalletAddress: viewModel.wallet.walletAddresses.address,
-              settingsStore: viewModel.settingsStore,
-            );
-            if (DeviceInfo.instance.isMobile) {
-              Navigator.of(context).pushNamed(Routes.webViewPage,
-                  arguments: [S.of(context).sell, uri]);
-            } else {
-              await launchUrl(uri);
-            }
-          }
-
-          break;
-        default:
-          await showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithOneAction(
-                  alertTitle: S.of(context).sell,
-                  alertContent: S.of(context).unsupported_asset,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
-            },
-          );
+      final defaultSellProvider = viewModel.defaultSellProvider;
+      try {
+        defaultSellProvider != null
+            ? await defaultSellProvider.launchProvider(context, false)
+            : await Navigator.of(context).pushNamed(Routes.buySellPage, arguments: false);
+      } catch (e) {
+        await _showErrorDialog(context, defaultSellProvider.toString(), e.toString());
       }
     },
   );
+
+  static Future<void> _showErrorDialog(
+      BuildContext context, String title, String errorMessage) async {
+    await showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertWithOneAction(
+          alertTitle: title,
+          alertContent: errorMessage,
+          buttonText: S.of(context).ok,
+          buttonAction: () => Navigator.of(context).pop(),
+        );
+      },
+    );
+  }
 }

@@ -26,6 +26,7 @@ const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
+const polygonDefaultNodeUri = 'polygon-bor.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
@@ -64,6 +65,8 @@ Future<void> defaultSettingsMigration(
   final migrationVersions =
       List<int>.generate(migrationVersionsLength, (i) => currentVersion + (i + 1));
 
+  /// When you add a new case, increase the initialMigrationVersion parameter in the main.dart file.
+  /// This ensures that this switch case runs the newly added case.
   await Future.forEach(migrationVersions, (int version) async {
     try {
       switch (version) {
@@ -175,9 +178,16 @@ Future<void> defaultSettingsMigration(
               sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         case 24:
+          await addPolygonNodeList(nodes: nodes);
+          await changePolygonCurrentNodeToDefault(
+              sharedPreferences: sharedPreferences, nodes: nodes);
+          break;
+        case 25:
+          await rewriteSecureStoragePin(secureStorage: secureStorage);
+          break;
+        case 26:
           await updateBtcNanoWalletInfos(walletInfoSource);
           break;
-
         default:
           break;
       }
@@ -331,6 +341,11 @@ Node? getEthereumDefaultNode({required Box<Node> nodes}) {
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.ethereum);
 }
 
+Node? getPolygonDefaultNode({required Box<Node> nodes}) {
+  return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == polygonDefaultNodeUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.polygon);
+}
+
 Node? getNanoDefaultNode({required Box<Node> nodes}) {
   return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == nanoDefaultNodeUri) ??
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.nano);
@@ -364,6 +379,37 @@ Node getMoneroDefaultNode({required Box<Node> nodes}) {
   } catch (_) {
     return nodes.values.first;
   }
+}
+
+Future<void> rewriteSecureStoragePin({required FlutterSecureStorage secureStorage}) async {
+  // the bug only affects ios/mac:
+  if (!Platform.isIOS && !Platform.isMacOS) {
+    return;
+  }
+
+  // first, get the encoded pin:
+  final keyForPinCode = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
+  String? encodedPin;
+  try {
+    encodedPin = await secureStorage.read(key: keyForPinCode);
+  } catch (e) {
+    // either we don't have a pin, or we can't read it (maybe even because of the bug!)
+    // the only option here is to abort the migration or we risk losing the pin and locking the user out
+    return;
+  }
+
+  if (encodedPin == null) {
+    return;
+  }
+
+  // ensure we overwrite by deleting the old key first:
+  await secureStorage.delete(key: keyForPinCode);
+  await secureStorage.write(
+    key: keyForPinCode,
+    value: encodedPin,
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    mOptions: MacOsOptions(accessibility: KeychainAccessibility.first_unlock),
+  );
 }
 
 Future<void> changeBitcoinCurrentElectrumServerToDefault(
@@ -557,6 +603,7 @@ Future<void> checkCurrentNodes(
       sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
   final currentHavenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
   final currentEthereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
+  final currentPolygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
   final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
   final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
   final currentBitcoinCashNodeId =
@@ -571,6 +618,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentHavenNodeId);
   final currentEthereumNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentEthereumNodeId);
+  final currentPolygonNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentPolygonNodeId);
   final currentNanoNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
   final currentNanoPowNodeServer =
@@ -629,6 +678,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: cakeWalletBitcoinCashDefaultNodeUri, type: WalletType.bitcoinCash);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, node.key as int);
+  }
+
+  if (currentPolygonNodeServer == null) {
+    final node = Node(uri: polygonDefaultNodeUri, type: WalletType.polygon);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.key as int);
   }
 }
 
@@ -723,4 +778,21 @@ Future<void> changeNanoCurrentPowNodeToDefault(
   final node = getNanoDefaultPowNode(nodes: nodes);
   final nodeId = node?.key as int? ?? 0;
   await sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, nodeId);
+}
+
+Future<void> addPolygonNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultPolygonNodes();
+  for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
+}
+
+Future<void> changePolygonCurrentNodeToDefault(
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+  final node = getPolygonDefaultNode(nodes: nodes);
+  final nodeId = node?.key as int? ?? 0;
+
+  await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, nodeId);
 }

@@ -1,7 +1,2 @@
-Coin control fixes and enhancements
-In-app Tor connection
-Accessibility enhancements
-Privacy settings enhancements
-UI enhancements
-Backup flow fixes
+Support multiple address types for Bitcoin Cash
 Bug fixes

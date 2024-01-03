@@ -299,7 +299,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
   }
 
   void transactionStatePopup() {
-    showPopUp<void>(
+    if (this.mounted) {
+      showPopUp<void>(
         context: context,
         builder: (BuildContext popupContext) {
           return Observer(builder: (_) {
@@ -344,7 +345,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                           onPressed: () {
                             Navigator.of(popupContext).pop();
                             RequestReviewHandler.requestReview();
-                          },  
+                          },
                           text: S.of(popupContext).got_it,
                           color: Theme.of(popupContext).primaryColor,
                           textColor: Colors.white))
@@ -391,5 +392,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             );
           });
         });
+    }
   }
 }

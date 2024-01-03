@@ -2,6 +2,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:hive/hive.dart';
@@ -76,6 +77,9 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
           case WalletType.ethereum:
             return ethereum!.createEthereumRestoreWalletFromPrivateKey(
                 name: name, password: password, privateKey: restoreWallet.privateKey!);
+          case WalletType.polygon:
+            return polygon!.createPolygonRestoreWalletFromPrivateKey(
+                name: name, password: password, privateKey: restoreWallet.privateKey!);
           default:
             throw Exception('Unexpected type: ${restoreWallet.type.toString()}');
         }
@@ -108,6 +112,9 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
                 mnemonic: restoreWallet.mnemonicSeed ?? '',
                 password: password,
                 derivationType: derivationInfo.derivationType!);
+          case WalletType.polygon:
+            return polygon!.createPolygonRestoreWalletFromSeedCredentials(
+                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
           default:
             throw Exception('Unexpected type: ${type.toString()}');
         }

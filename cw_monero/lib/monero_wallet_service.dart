@@ -13,7 +13,6 @@ import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:polyseed/polyseed.dart';
-import 'package:polyseed/src/utils/key_utils.dart';
 
 class MoneroNewWalletCredentials extends WalletCredentials {
   MoneroNewWalletCredentials({required String name, required this.language, required this.isPolyseed, String? password})
@@ -77,8 +76,12 @@ class MoneroWalletService extends WalletService<
         final polyseed = Polyseed.create();
         final lang = PolyseedLang.getByEnglishName(credentials.language);
 
+        final heightOverride =
+            getMoneroHeigthByDate(date: DateTime.now().subtract(Duration(days: 2)));
+
         return _restoreFromPolyseed(
-            path, credentials.password!, polyseed, credentials.walletInfo!, lang);
+            path, credentials.password!, polyseed, credentials.walletInfo!, lang,
+            overrideHeight: heightOverride);
       }
 
       await monero_wallet_manager.createWallet(
@@ -268,18 +271,23 @@ class MoneroWalletService extends WalletService<
 
   Future<MoneroWallet> _restoreFromPolyseed(String path, String password, Polyseed polyseed,
       WalletInfo walletInfo, PolyseedLang lang,
-      {PolyseedCoin coin = PolyseedCoin.POLYSEED_MONERO}) async {
-    final height = getMoneroHeigthByDate(
+      {PolyseedCoin coin = PolyseedCoin.POLYSEED_MONERO, int? overrideHeight}) async {
+    final height = overrideHeight ?? getMoneroHeigthByDate(
         date: DateTime.fromMillisecondsSinceEpoch(polyseed.birthday * 1000));
-    final spendKey = keyToHexString(polyseed.generateKey(coin, 32));
+    final spendKey = polyseed.generateKey(coin, 32).toHexString();
+    final seed = polyseed.encode(lang, coin);
+
+    walletInfo.isRecovery = true;
+    walletInfo.restoreHeight = height;
 
     await monero_wallet_manager.restoreFromSpendKey(
         path: path,
         password: password,
-        seed: polyseed.encode(lang, coin),
+        seed: seed,
         language: lang.nameEnglish,
         restoreHeight: height,
         spendKey: spendKey);
+
     final wallet = MoneroWallet(
         walletInfo: walletInfo, unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.init();
