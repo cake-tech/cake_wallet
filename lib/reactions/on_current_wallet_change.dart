@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
@@ -92,9 +93,11 @@ void startCurrentWalletChangeReaction(
 
       fiatConversionStore.prices[wallet.currency] = 0;
       fiatConversionStore.prices[wallet.currency] = await FiatConversionService.fetchPrice(
-          crypto: wallet.currency,
-          fiat: settingsStore.fiatCurrency,
-          torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+        crypto: wallet.currency,
+        fiat: settingsStore.fiatCurrency,
+        torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+        onionOnly: settingsStore.currentTorConnection == TorConnectionType.onionOnly,
+      );
 
       Iterable<Erc20Token>? currencies;
       if (wallet.type == WalletType.ethereum) {
@@ -109,9 +112,11 @@ void startCurrentWalletChangeReaction(
         for (final currency in currencies) {
           () async {
             fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
-                crypto: currency,
-                fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+              crypto: currency,
+              fiat: settingsStore.fiatCurrency,
+              torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+              onionOnly: settingsStore.currentTorConnection == TorConnectionType.onionOnly,
+            );
           }.call();
         }
       }

@@ -137,6 +137,7 @@ class AnonPayApi {
         crypto: cryptoCurrency,
         fiat: fiatCurrency,
         torOnly: useTorOnly,
+        onionOnly: false,// TODO: CW-519
       );
     }
 

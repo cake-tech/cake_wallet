@@ -7,6 +7,7 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -33,6 +34,7 @@ Future<void> startFiatRateUpdate(
           crypto: appStore.wallet!.currency,
           fiat: settingsStore.fiatCurrency,
           torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+          onionOnly: settingsStore.currentTorConnection == TorConnectionType.onionOnly,
         );
       }
 
@@ -54,6 +56,7 @@ Future<void> startFiatRateUpdate(
               crypto: currency,
               fiat: settingsStore.fiatCurrency,
               torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+              onionOnly: settingsStore.currentTorConnection == TorConnectionType.onionOnly,
             );
           }.call();
         }

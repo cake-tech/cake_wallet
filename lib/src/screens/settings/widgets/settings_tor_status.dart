@@ -1,34 +1,23 @@
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_indicator.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
-import 'package:cw_core/node.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:tor/tor.dart';
 
-class TorListRow extends StandardListRow {
-  TorListRow(
+class TorStatus extends StandardListRow {
+  TorStatus(
       {required String title,
       required void Function(BuildContext context) onTap,
       required bool isSelected,
       BoxDecoration? decoration})
       : super(title: title, onTap: onTap, isSelected: isSelected, decoration: decoration);
 
-
   @override
   Widget buildTrailing(BuildContext context) {
-    // return FutureBuilder(
-    //     future: node.requestNode(),
-    //     builder: (context, snapshot) {
-    //       switch (snapshot.connectionState) {
-    //         case ConnectionState.done:
-    //           return NodeIndicator(isLive: (snapshot.data as bool?) ?? false);
-    //         default:
-    //           return NodeIndicator(isLive: false);
-    //       }
-    //     });
-    return NodeIndicator(isLive: Tor.instance.started);
+    return NodeIndicator(
+      isLive: Tor.instance.started && Tor.instance.enabled,
+      showText: true,
+    );
   }
 
   // @override

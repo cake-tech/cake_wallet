@@ -17,6 +17,7 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   final crypto = args['crypto'] as String;
   final fiat = args['fiat'] as String;
   final torOnly = args['torOnly'] as bool;
+  final onionOnly = args['onionOnly'] as bool;
   final mainThreadProxyPort = args['port'] as int;
 
   final Map<String, String> queryParams = {
@@ -42,30 +43,36 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
 
     // we might have tor enabled (no way of knowing), so we try to use it first
     try {
+      // connect through onion url first:
       try {
         final request = await client.getUrl(onionUri);
         httpResponse = await request.close();
         responseBody = await utf8.decodeStream(httpResponse);
       } catch (e) {
-        // if the onion url fails, and not set to tor only, try the clearnet url, (still using tor!):
-        if (!torOnly) {
+        // if the onion url fails, try the clearnet url, (still using tor!):
+        // only do this if we are not onionOnly, otherwise we will fail
+        if (!onionOnly) {
           final request = await client.getUrl(clearnetUri);
           httpResponse = await request.close();
           responseBody = await utf8.decodeStream(httpResponse);
+        } else {
+          // we failed to connect through onionOnly
+          return 0.0;
         }
       }
       statusCode = httpResponse.statusCode;
     } catch (e) {
-      // connections all failed / tor is not enabled, so we use the clearnet url directly as normal:
       if (torOnly) {
-        // we failed to connect through tor
+        // we failed to connect through torOnly
         return 0.0;
       }
+
+      // connections all failed / tor is not enabled, so we use the clearnet url directly as normal:
       final response = await get(clearnetUri);
       responseBody = response.body;
       statusCode = response.statusCode;
     }
-
+    
     if (statusCode != 200) {
       return 0.0;
     }
@@ -83,12 +90,12 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   }
 }
 
-Future<double> _fetchPriceAsync(
-        CryptoCurrency crypto, FiatCurrency fiat, bool torOnly) async =>
+Future<double> _fetchPriceAsync(CryptoCurrency crypto, FiatCurrency fiat, bool torOnly, bool onionOnly) async =>
     compute(_fetchPrice, {
       'fiat': fiat.toString(),
       'crypto': crypto.toString(),
       'torOnly': torOnly,
+      'onionOnly': onionOnly,
       'port': ProxyWrapper.port,
       'torEnabled': ProxyWrapper.enabled,
     });
@@ -98,6 +105,7 @@ class FiatConversionService {
     required CryptoCurrency crypto,
     required FiatCurrency fiat,
     required bool torOnly,
+    required bool onionOnly,
   }) async =>
-      await _fetchPriceAsync(crypto, fiat, torOnly);
+      await _fetchPriceAsync(crypto, fiat, torOnly, onionOnly);
 }
