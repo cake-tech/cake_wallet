@@ -1,3 +1,5 @@
+// ignore_for_file: annotate_overrides, overridden_fields
+
 import 'dart:math';
 
 import 'package:cw_core/format_amount.dart';
@@ -17,8 +19,8 @@ class EVMChainTransactionInfo extends TransactionInfo {
     required this.date,
     required this.confirmations,
     required this.to,
-  })  : this.amount = ethAmount.toInt(),
-        this.fee = ethFee.toInt();
+  })  : amount = ethAmount.toInt(),
+        fee = ethFee.toInt();
 
   final String id;
   final int height;

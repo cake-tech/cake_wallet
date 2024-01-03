@@ -1,4 +1,3 @@
-//! Model used for in parsing transactions fetched using etherscan
 class EVMChainTransactionModel {
   final DateTime date;
   final String hash;

@@ -22,6 +22,7 @@ dependencies:
   shared_preferences: ^2.0.15
   cw_core:
     path: ../cw_core
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:

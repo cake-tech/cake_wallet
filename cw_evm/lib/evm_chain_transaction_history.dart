@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:core';
+import 'dart:developer';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_ethereum/file.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_evm/evm_chain_transaction_info.dart';
+import 'package:cw_evm/file.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
-import 'package:cw_ethereum/ethereum_transaction_info.dart';
 
 part 'evm_chain_transaction_history.g.dart';
 
@@ -29,12 +31,22 @@ abstract class EVMChainTransactionHistoryBase
   Future<void> save() async {
     try {
       final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
-      final path = '$dirPath/$transactionsHistoryFileName';
+
+      // For backward compatibility
+      // Ethereum transactions is currently saved in [transactions.json]
+      // Polygon transactions is currently saved in [polygon_transactions.json]
+      String path;
+      if (walletInfo.type == WalletType.ethereum) {
+        path = '$dirPath/$transactionsHistoryFileName';
+      } else {
+        path = '$dirPath/${walletInfo.type.name}_$transactionsHistoryFileName';
+      }
+
       final data = json.encode({'transactions': transactions});
       await writeData(path: path, password: _password, data: data);
     } catch (e, s) {
-      print('Error while save ethereum transaction history: ${e.toString()}');
-      print(s);
+      log('Error while saving ${walletInfo.type.name} transaction history: ${e.toString()}');
+      log(s.toString());
     }
   }
 
@@ -47,7 +59,17 @@ abstract class EVMChainTransactionHistoryBase
 
   Future<Map<String, dynamic>> _read() async {
     final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
-    final path = '$dirPath/$transactionsHistoryFileName';
+
+    // For backward compatibility
+    // Ethereum transactions is currently saved in  [transactions.json]
+    // Polygon transactions is currently saved in [polygon_transactions.json]
+    String path;
+    if (walletInfo.type == WalletType.ethereum) {
+      path = '$dirPath/$transactionsHistoryFileName';
+    } else {
+      path = '$dirPath/${walletInfo.type.name}_$transactionsHistoryFileName';
+    }
+
     final content = await read(path: path, password: _password);
     if (content.isEmpty) {
       return {};
@@ -60,16 +82,16 @@ abstract class EVMChainTransactionHistoryBase
       final content = await _read();
       final txs = content['transactions'] as Map<String, dynamic>? ?? {};
 
-      txs.entries.forEach((entry) {
+      for (var entry in txs.entries) {
         final val = entry.value;
 
         if (val is Map<String, dynamic>) {
           final tx = EVMChainTransactionInfo.fromJson(val);
           _update(tx);
         }
-      });
+      }
     } catch (e) {
-      print(e);
+      log(e.toString());
     }
   }
 

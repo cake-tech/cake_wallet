@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
@@ -27,7 +29,7 @@ abstract class EVMChainWalletAddressesBase extends WalletAddresses with Store {
       addressesMap[address] = '';
       await saveAddressesInBox();
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
     }
   }
 }

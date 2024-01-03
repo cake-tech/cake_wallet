@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -14,19 +15,18 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_ethereum/default_ethereum_erc20_tokens.dart';
-import 'package:cw_ethereum/erc20_balance.dart';
-import 'package:cw_ethereum/ethereum_client.dart';
-import 'package:cw_ethereum/ethereum_exceptions.dart';
-import 'package:cw_ethereum/ethereum_formatter.dart';
-import 'package:cw_ethereum/ethereum_transaction_credentials.dart';
-import 'package:cw_ethereum/ethereum_transaction_history.dart';
-import 'package:cw_ethereum/ethereum_transaction_info.dart';
-import 'package:cw_ethereum/ethereum_transaction_model.dart';
-import 'package:cw_ethereum/ethereum_transaction_priority.dart';
-import 'package:cw_ethereum/ethereum_wallet_addresses.dart';
-import 'package:cw_ethereum/file.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_evm/default_evm_chain_erc20_tokens.dart';
+import 'package:cw_evm/evm_chain_client.dart';
+import 'package:cw_evm/evm_chain_exceptions.dart';
+import 'package:cw_evm/evm_chain_formatter.dart';
+import 'package:cw_evm/evm_chain_transaction_credentials.dart';
+import 'package:cw_evm/evm_chain_transaction_history.dart';
+import 'package:cw_evm/evm_chain_transaction_model.dart';
+import 'package:cw_evm/evm_chain_transaction_priority.dart';
+import 'package:cw_evm/evm_chain_wallet_addresses.dart';
+import 'package:cw_evm/file.dart';
 import 'package:hive/hive.dart';
 import 'package:hex/hex.dart';
 import 'package:mobx/mobx.dart';
@@ -35,6 +35,9 @@ import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bip32/bip32.dart' as bip32;
+
+import 'erc20_balance.dart';
+import 'evm_chain_transaction_info.dart';
 
 part 'evm_chain_wallet.g.dart';
 
@@ -45,19 +48,24 @@ abstract class EVMChainWalletBase
     with Store {
   EVMChainWalletBase({
     required WalletInfo walletInfo,
+    required CryptoCurrency nativeCurrency,
     String? mnemonic,
     String? privateKey,
     required String password,
     ERC20Balance? initialBalance,
-  })  : syncStatus = NotConnectedSyncStatus(),
+  })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
         _hexPrivateKey = privateKey,
         _isTransactionUpdating = false,
-        _client = EthereumClient(),
-        walletAddresses = EthereumWalletAddresses(walletInfo),
+        _client = EVMChainClient(),
+        walletAddresses = EVMChainWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, ERC20Balance>.of(
-            {CryptoCurrency.eth: initialBalance ?? ERC20Balance(BigInt.zero)}),
+          {
+            // Not sure of this yet, will it work? will it not?
+            nativeCurrency: initialBalance ?? ERC20Balance(BigInt.zero),
+          },
+        ),
         super(walletInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = EVMChainTransactionHistory(walletInfo: walletInfo, password: password);
@@ -75,13 +83,13 @@ abstract class EVMChainWalletBase
 
   late final Box<Erc20Token> erc20TokensBox;
 
-  late final Box<Erc20Token> ethereumErc20TokensBox;
+  late final Box<Erc20Token> evmChainErc20TokensBox;
 
-  late final EthPrivateKey _ethPrivateKey;
+  late final EthPrivateKey _evmChainPrivateKey;
 
-  EthPrivateKey get ethPrivateKey => _ethPrivateKey;
+  EthPrivateKey get ethPrivateKey => _evmChainPrivateKey;
 
-  late EthereumClient _client;
+  late EVMChainClient _client;
 
   int? _gasPrice;
   int? _estimatedGas;
@@ -104,23 +112,29 @@ abstract class EVMChainWalletBase
   Completer<SharedPreferences> _sharedPrefs = Completer();
 
   Future<void> init() async {
-    await movePreviousErc20BoxConfigsToNewBox();
+    if (walletInfo.type == WalletType.ethereum) {
+      await movePreviousErc20BoxConfigsToNewBox();
+    } else {
+      evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(
+        "${walletInfo.name.replaceAll(" ", "_")}_${Erc20Token.getBoxNameForChain(walletInfo.type)}",
+      );
+    }
 
     await walletAddresses.init();
     await transactionHistory.init();
-    _ethPrivateKey = await getPrivateKey(
+    _evmChainPrivateKey = await getPrivateKey(
       mnemonic: _mnemonic,
       privateKey: _hexPrivateKey,
       password: _password,
     );
-    walletAddresses.address = _ethPrivateKey.address.toString();
+    walletAddresses.address = _evmChainPrivateKey.address.toString();
     await save();
   }
 
   /// Majorly for backward compatibility for previous configs that have been set.
   Future<void> movePreviousErc20BoxConfigsToNewBox() async {
     // Opens a box specific to this wallet
-    ethereumErc20TokensBox = await CakeHive.openBox<Erc20Token>(
+    evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(
         "${walletInfo.name.replaceAll(" ", "_")}_${Erc20Token.ethereumBoxName}");
 
     //Open the previous token configs box
@@ -130,7 +144,7 @@ abstract class EVMChainWalletBase
     if (erc20TokensBox.isEmpty) {
       // If it's empty, but the new wallet specific box is also empty,
       // we load the initial tokens to the new box.
-      if (ethereumErc20TokensBox.isEmpty) addInitialTokens();
+      if (evmChainErc20TokensBox.isEmpty) addInitialTokens();
       return;
     }
 
@@ -141,13 +155,13 @@ abstract class EVMChainWalletBase
     await erc20TokensBox.deleteFromDisk();
 
     // Add all the previous tokens with configs to the new box
-    ethereumErc20TokensBox.addAll(allValues);
+    evmChainErc20TokensBox.addAll(allValues);
   }
 
   @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
     try {
-      if (priority is EthereumTransactionPriority) {
+      if (priority is EVMChainTransactionPriority) {
         final priorityFee = EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
         return (_gasPrice! + priorityFee) * (_estimatedGas ?? 0);
       }
@@ -178,10 +192,10 @@ abstract class EVMChainWalletBase
       final isConnected = _client.connect(node);
 
       if (!isConnected) {
-        throw Exception("Ethereum Node connection failed");
+        throw Exception("${walletInfo.type.name.toUpperCase()} Node connection failed");
       }
 
-      _client.setListeners(_ethPrivateKey.address, _onNewTransaction);
+      _client.setListeners(_evmChainPrivateKey.address, _onNewTransaction);
 
       _setTransactionUpdateTimer();
 
@@ -193,7 +207,7 @@ abstract class EVMChainWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-    final _credentials = credentials as EthereumTransactionCredentials;
+    final _credentials = credentials as EVMChainTransactionCredentials;
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
 
@@ -203,20 +217,20 @@ abstract class EVMChainWalletBase
     final _erc20Balance = balance[transactionCurrency]!;
     BigInt totalAmount = BigInt.zero;
     int exponent = transactionCurrency is Erc20Token ? transactionCurrency.decimal : 18;
-    num amountToEthereumMultiplier = pow(10, exponent);
+    num amountToEVMChainMultiplier = pow(10, exponent);
 
     // so far this can not be made with Ethereum as Ethereum does not support multiple recipients
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
-        throw EthereumTransactionCreationException(transactionCurrency);
+        throw EVMChainTransactionCreationException(transactionCurrency);
       }
 
-      final totalOriginalAmount = EthereumFormatter.parseEthereumAmountToDouble(
+      final totalOriginalAmount = EVMChainFormatter.parseEVMChainAmountToDouble(
           outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
-      totalAmount = BigInt.from(totalOriginalAmount * amountToEthereumMultiplier);
+      totalAmount = BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
 
       if (_erc20Balance.balance < totalAmount) {
-        throw EthereumTransactionCreationException(transactionCurrency);
+        throw EVMChainTransactionCreationException(transactionCurrency);
       }
     } else {
       final output = outputs.first;
@@ -230,18 +244,18 @@ abstract class EVMChainWalletBase
             BigInt.from(calculateEstimatedFee(_credentials.priority!, null));
       }
       final totalOriginalAmount =
-          EthereumFormatter.parseEthereumAmountToDouble(output.formattedCryptoAmount ?? 0);
+          EVMChainFormatter.parseEVMChainAmountToDouble(output.formattedCryptoAmount ?? 0);
       totalAmount = output.sendAll
           ? allAmount
-          : BigInt.from(totalOriginalAmount * amountToEthereumMultiplier);
+          : BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
 
       if (_erc20Balance.balance < totalAmount) {
-        throw EthereumTransactionCreationException(transactionCurrency);
+        throw EVMChainTransactionCreationException(transactionCurrency);
       }
     }
 
-    final pendingEthereumTransaction = await _client.signTransaction(
-      privateKey: _ethPrivateKey,
+    final pendingEVMChainTransaction = await _client.signTransaction(
+      privateKey: _evmChainPrivateKey,
       toAddress: _credentials.outputs.first.isParsedAddress
           ? _credentials.outputs.first.extractedAddress!
           : _credentials.outputs.first.address,
@@ -254,7 +268,7 @@ abstract class EVMChainWalletBase
           transactionCurrency is Erc20Token ? transactionCurrency.contractAddress : null,
     );
 
-    return pendingEthereumTransaction;
+    return pendingEVMChainTransaction;
   }
 
   Future<void> _updateTransactions() async {
@@ -262,8 +276,10 @@ abstract class EVMChainWalletBase
       if (_isTransactionUpdating) {
         return;
       }
-      bool isEtherscanEnabled = (await _sharedPrefs.future).getBool("use_etherscan") ?? true;
-      if (!isEtherscanEnabled) {
+
+      final isProviderEnabled = await checkIfScanProviderIsEnabled();
+
+      if (!isProviderEnabled) {
         return;
       }
 
@@ -277,12 +293,17 @@ abstract class EVMChainWalletBase
     }
   }
 
+  Future<bool> checkIfScanProviderIsEnabled() async {
+    bool isEtherscanEnabled = (await _sharedPrefs.future).getBool("use_etherscan") ?? true;
+    return isEtherscanEnabled;
+  }
+
   @override
   Future<Map<String, EVMChainTransactionInfo>> fetchTransactions() async {
-    final address = _ethPrivateKey.address.hex;
+    final address = _evmChainPrivateKey.address.hex;
     final transactions = await _client.fetchTransactions(address);
 
-    final List<Future<List<EthereumTransactionModel>>> erc20TokensTransactions = [];
+    final List<Future<List<EVMChainTransactionModel>>> erc20TokensTransactions = [];
 
     for (var token in balance.keys) {
       if (token is Erc20Token) {
@@ -343,7 +364,7 @@ abstract class EVMChainWalletBase
   String? get seed => _mnemonic;
 
   @override
-  String get privateKey => HEX.encode(_ethPrivateKey.privateKey);
+  String get privateKey => HEX.encode(_evmChainPrivateKey.privateKey);
 
   @action
   @override
@@ -374,7 +395,7 @@ abstract class EVMChainWalletBase
         'balance': balance[currency]!.toJSON(),
       });
 
-  static Future<EthereumWallet> open({
+  static Future<EVMChainWallet> open({
     required String name,
     required String password,
     required WalletInfo walletInfo,
@@ -386,33 +407,36 @@ abstract class EVMChainWalletBase
     final privateKey = data['private_key'] as String?;
     final balance = ERC20Balance.fromJSON(data['balance'] as String) ?? ERC20Balance(BigInt.zero);
 
-    return EthereumWallet(
+    final nativeCurrency = currencyForWalletType(walletInfo.type);
+
+    return EVMChainWallet(
       walletInfo: walletInfo,
       password: password,
       mnemonic: mnemonic,
       privateKey: privateKey,
       initialBalance: balance,
+      nativeCurrency: nativeCurrency,
     );
   }
 
   Future<void> _updateBalance() async {
-    balance[currency] = await _fetchEthBalance();
+    balance[currency] = await _fetchEVMChainBalance();
 
     await _fetchErc20Balances();
     await save();
   }
 
-  Future<ERC20Balance> _fetchEthBalance() async {
-    final balance = await _client.getBalance(_ethPrivateKey.address);
+  Future<ERC20Balance> _fetchEVMChainBalance() async {
+    final balance = await _client.getBalance(_evmChainPrivateKey.address);
     return ERC20Balance(balance.getInWei);
   }
 
   Future<void> _fetchErc20Balances() async {
-    for (var token in ethereumErc20TokensBox.values) {
+    for (var token in evmChainErc20TokensBox.values) {
       try {
         if (token.enabled) {
           balance[token] = await _client.fetchERC20Balances(
-            _ethPrivateKey.address,
+            _evmChainPrivateKey.address,
             token.contractAddress,
           );
         } else {
@@ -434,16 +458,16 @@ abstract class EVMChainWalletBase
 
     final root = bip32.BIP32.fromSeed(seed);
 
-    const _hdPathEthereum = "m/44'/60'/0'/0";
+    const hdPathEVMChain = "m/44'/60'/0'/0";
     const index = 0;
-    final addressAtIndex = root.derivePath("$_hdPathEthereum/$index");
+    final addressAtIndex = root.derivePath("$hdPathEVMChain/$index");
 
     return EthPrivateKey.fromHex(HEX.encode(addressAtIndex.privateKey as List<int>));
   }
 
   Future<void>? updateBalance() async => await _updateBalance();
 
-  List<Erc20Token> get erc20Currencies => ethereumErc20TokensBox.values.toList();
+  List<Erc20Token> get erc20Currencies => evmChainErc20TokensBox.values.toList();
 
   Future<void> addErc20Token(Erc20Token token) async {
     String? iconPath;
@@ -463,11 +487,11 @@ abstract class EVMChainWalletBase
       iconPath: iconPath,
     );
 
-    await ethereumErc20TokensBox.put(_token.contractAddress, _token);
+    await evmChainErc20TokensBox.put(_token.contractAddress, _token);
 
     if (_token.enabled) {
       balance[_token] = await _client.fetchERC20Balances(
-        _ethPrivateKey.address,
+        _evmChainPrivateKey.address,
         _token.contractAddress,
       );
     } else {
@@ -491,9 +515,11 @@ abstract class EVMChainWalletBase
   }
 
   void addInitialTokens() {
-    final initialErc20Tokens = DefaultErc20Tokens().initialErc20Tokens;
+    final initialErc20Tokens = DefaultEVMChainErc20Tokens().initialErc20Tokens;
 
-    initialErc20Tokens.forEach((token) => ethereumErc20TokensBox.put(token.contractAddress, token));
+    for (var token in initialErc20Tokens) {
+      evmChainErc20TokensBox.put(token.contractAddress, token);
+    }
   }
 
   @override
@@ -540,7 +566,7 @@ abstract class EVMChainWalletBase
 
   @override
   String signMessage(String message, {String? address}) =>
-      bytesToHex(_ethPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
+      bytesToHex(_evmChainPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
 
   Web3Client? getWeb3Client() => _client.getWeb3Client();
 }
