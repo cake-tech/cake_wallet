@@ -96,12 +96,12 @@ class ConnectionSyncPage extends BasePage {
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               child: Column(children: [
                 Observer(builder: (context) {
-                  return SettingsPickerCell<TorConnection>(
+                  return SettingsPickerCell<TorConnectionMode>(
                     title: S.current.tor_connection,
-                    items: TorConnection.all,
-                    displayItem: (TorConnection torConnection) => torConnection.name,
-                    selectedItem: dashboardViewModel.torConnection,
-                    onItemSelected: dashboardViewModel.setTorConnection,
+                    items: TorConnectionMode.all,
+                    displayItem: (TorConnectionMode mode) => mode.title,
+                    selectedItem: dashboardViewModel.torConnectionMode,
+                    onItemSelected: dashboardViewModel.setTorConnectionMode,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(25), topRight: Radius.circular(25)),
