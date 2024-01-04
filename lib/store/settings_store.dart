@@ -813,7 +813,7 @@ abstract class SettingsStoreBase with Store {
             FiatApiMode.enabled.raw);
     final currentTorConnectionMode = TorConnectionMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentTorConnectionModeKey) ??
-            FiatApiMode.enabled.raw);
+            TorConnectionMode.disabled.raw);
     final shouldStartTorOnLaunch =
         sharedPreferences.getBool(PreferencesKey.shouldStartTorOnLaunch) ?? false;
     final allowBiometricalAuthentication =
