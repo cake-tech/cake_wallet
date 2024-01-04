@@ -296,12 +296,6 @@ Future<void> setup({
         : ThemeList.darkTheme,
   );
 
-  if (DeviceInfo.instance.isMobile && settingsStore.shouldStartTorOnLaunch) {
-    await Tor.init();
-    await Tor.instance.enable();
-    await Tor.instance.start();
-  }
-
   if (_isSetupFinished) {
     return;
   }
@@ -358,6 +352,7 @@ Future<void> setup({
         getIt.get<KeyService>(),
         (WalletType type) => getIt.get<WalletService>(param1: type),
         getIt.get<SettingsStore>(),
+        getIt.get<TorViewModel>(),
       ));
 
   getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) => WalletNewVM(
@@ -730,7 +725,11 @@ Future<void> setup({
 
   getIt.registerFactory(() => TrocadorProvidersViewModel(getIt.get<SettingsStore>()));
 
-  getIt.registerFactory(() => TorViewModel(getIt.get<SettingsStore>()));
+  getIt.registerSingleton(TorViewModel(getIt.get<SettingsStore>()));
+  
+  if (DeviceInfo.instance.isMobile && settingsStore.shouldStartTorOnLaunch) {
+    getIt.get<TorViewModel>().startTor();
+  }
 
   getIt.registerFactory(() {
     return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);

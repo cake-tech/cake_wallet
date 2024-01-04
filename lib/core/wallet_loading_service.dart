@@ -6,6 +6,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/settings/tor_connection.dart';
+import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -18,12 +19,14 @@ class WalletLoadingService {
     this.keyService,
     this.walletServiceFactory,
     this.settingsStore,
+    this.torViewModel,
   );
 
   final SharedPreferences sharedPreferences;
   final KeyService keyService;
   final WalletService Function(WalletType type) walletServiceFactory;
   final SettingsStore settingsStore;
+  final TorViewModel torViewModel;
 
   Future<void> renameWallet(WalletType type, String name, String newName) async {
     final walletService = walletServiceFactory.call(type);
@@ -55,13 +58,9 @@ class WalletLoadingService {
       await updateMoneroWalletPassword(wallet);
     }
 
-    final mode = settingsStore.torConnectionMode;
-    if (mode == TorConnectionMode.enabled || mode == TorConnectionMode.onionOnly && (Tor.instance.port != -1)) {
-      final node = settingsStore.getCurrentNode(wallet.type);
-      if (node.socksProxyAddress?.isEmpty ?? true) {
-        node.socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
-      }
-      wallet.connectToNode(node: node);
+    final status = torViewModel.torConnectionStatus;
+    if (status == TorConnectionStatus.connected) {
+      await torViewModel.startTor();
     }
 
     return wallet;

@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:mobx/mobx.dart';
@@ -10,7 +14,15 @@ class TorViewModel = TorViewModelBase with _$TorViewModel;
 enum TorConnectionStatus { connecting, connected, disconnected }
 
 abstract class TorViewModelBase with Store {
-  TorViewModelBase(this._settingsStore);
+  TorViewModelBase(this._settingsStore) {
+    reaction((_) => torConnectionMode, (TorConnectionMode mode) async {
+      if (mode == TorConnectionMode.enabled || mode == TorConnectionMode.onionOnly) {
+        startTor();
+      } else {
+        stopTor();
+      }
+    });
+  }
 
   final SettingsStore _settingsStore;
 
@@ -22,25 +34,41 @@ abstract class TorViewModelBase with Store {
   @computed
   TorConnectionMode get torConnectionMode => _settingsStore.torConnectionMode;
 
+  @observable
+  TorConnectionStatus torConnectionStatus = TorConnectionStatus.disconnected;
+
   @action
   void setTorConnectionMode(TorConnectionMode mode) => _settingsStore.torConnectionMode = mode;
 
-  @computed
-  TorConnectionStatus get torConnectionStatus {
+  @action
+  Future<void> startTor() async {
+    try {
+      torConnectionStatus = TorConnectionStatus.connecting;
+      await Tor.init();
+      await Tor.instance.enable();
 
-    if (_settingsStore.torConnectionMode == TorConnectionMode.disabled) {
-      return TorConnectionStatus.disconnected;
-    }
-    
-    if (Tor.instance.port == -1 && Tor.instance.started) {
-      return TorConnectionStatus.connecting;
-    }
+      _settingsStore.shouldStartTorOnLaunch = true;
 
-    if (Tor.instance.port != -1) {
-      return TorConnectionStatus.connected;
-    }
+      torConnectionStatus = TorConnectionStatus.connected;
 
-    return TorConnectionStatus.disconnected;
+      // connect to node through the proxy:
+      final appStore = getIt.get<AppStore>();
+      if (appStore.wallet != null) {
+        final node = _settingsStore.getCurrentNode(appStore.wallet!.type);
+        if (node.socksProxyAddress?.isEmpty ?? true) {
+          node.socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
+        }
+        appStore.wallet!.connectToNode(node: node);
+      }
+    } catch (e) {
+      torConnectionStatus = TorConnectionStatus.disconnected;
+    }
   }
-  
+
+  @action
+  Future<void> stopTor() async {
+    Tor.instance.disable();
+    _settingsStore.shouldStartTorOnLaunch = false;
+    torConnectionStatus = TorConnectionStatus.disconnected;
+  }
 }

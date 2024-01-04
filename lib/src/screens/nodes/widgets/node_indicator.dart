@@ -1,4 +1,3 @@
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 

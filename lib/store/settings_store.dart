@@ -320,25 +320,6 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => torConnectionMode, (TorConnectionMode mode) async {
       await sharedPreferences.setInt(PreferencesKey.currentTorConnectionModeKey, mode.serialize());
-
-      if (mode == TorConnectionMode.enabled || mode == TorConnectionMode.onionOnly) {
-        // init and start the proxy
-        await Tor.init();
-        await Tor.instance.enable();
-
-        // connect to node through the proxy:
-        final appStore = getIt.get<AppStore>();
-        final node = getCurrentNode(appStore.wallet!.type);
-        if (node.socksProxyAddress?.isEmpty ?? true) {
-          node.socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
-        }
-        appStore.wallet!.connectToNode(node: node);
-
-        shouldStartTorOnLaunch = true;
-      } else {
-        Tor.instance.disable();
-        shouldStartTorOnLaunch = false;
-      }
     });
 
     reaction((_) => shouldStartTorOnLaunch,
