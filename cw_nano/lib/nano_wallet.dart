@@ -137,6 +137,7 @@ abstract class NanoWalletBase
   @override
   void close() {
     _client.stop();
+    _receiveTimer?.cancel();
   }
 
   @action
@@ -384,6 +385,7 @@ abstract class NanoWalletBase
   }
 
   Future<void> _updateBalance() async {
+    var oldBalance = balance[currency];
     try {
       balance[currency] = await _client.getBalance(_publicAddress!);
     } catch (e) {
@@ -395,7 +397,14 @@ abstract class NanoWalletBase
             NanoBalance(currentBalance: BigInt.zero, receivableBalance: BigInt.zero);
       }
     }
-    await save();
+    // don't save unnecessarily:
+    // trying to save too frequently can cause problems with the file system
+    // since nano is updated frequently this can be a problem, so we only save if there is a change:
+    if (oldBalance == null ||
+        balance[currency]!.currentBalance != oldBalance.currentBalance ||
+        balance[currency]!.receivableBalance != oldBalance.receivableBalance) {
+      await save();
+    }
   }
 
   Future<void> _updateRep() async {
