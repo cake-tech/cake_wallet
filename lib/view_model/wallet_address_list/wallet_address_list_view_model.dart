@@ -283,16 +283,14 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         wallet.type == WalletType.bitcoinCash) {
       final bitcoinUsedAddresses = (wallet as ElectrumWallet)
           .walletAddresses
-          .addresses
-          .where((element) => element.isUsed == true)
-          .map((usedAddresses) => WalletAddressListItem(
+          .addresses.map((element) => WalletAddressListItem(
           isPrimary: false,
           name: null,
           address: wallet.type == WalletType.bitcoinCash
-              ? bitbox.Address.toCashAddress(usedAddresses.address)
-              : usedAddresses.address,
-          isChange: usedAddresses.isHidden,
-          legacyAddress: usedAddresses.address));
+              ? bitbox.Address.toCashAddress(element.address)
+              : element.address,
+          isChange: element.isHidden,
+          legacyAddress: element.address));
       addressList.addAll(bitcoinUsedAddresses);
     }
 
