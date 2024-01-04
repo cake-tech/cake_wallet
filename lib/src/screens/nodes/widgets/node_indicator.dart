@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
 class NodeIndicator extends StatelessWidget {
-  NodeIndicator({this.isLive = false, this.showText = false});
+  NodeIndicator({
+    this.color = Palette.red,
+    this.text = "",
+  });
 
-  final bool isLive;
-  final bool showText;
+  final Color? color;
+  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -15,13 +18,15 @@ class NodeIndicator extends StatelessWidget {
         Container(
           width: 12.0,
           height: 12.0,
-          decoration:
-              BoxDecoration(shape: BoxShape.circle, color: isLive ? Palette.green : Palette.red),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: color,
+          ),
         ),
-        if (showText) ...[
+        if (text.isNotEmpty) ...[
           const SizedBox(width: 8.0),
           Text(
-            isLive ? S.current.connected : S.current.disconnected,
+            text,
             style: TextStyle(fontSize: 14.0),
           )
         ],

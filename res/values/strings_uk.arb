@@ -768,5 +768,6 @@
   "tor_status": "Статус Tor",
   "connected": "З'єднаний",
   "disconnected": "Роз'єднаний",
-  "onion_only": "Тільки цибуля"
+  "onion_only": "Тільки цибуля",
+  "connecting": "З'єднання"
 }

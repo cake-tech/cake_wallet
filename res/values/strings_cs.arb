@@ -760,5 +760,6 @@
   "tor_status": "TOR status",
   "connected": "Připojeno",
   "disconnected": "Odpojené",
-  "onion_only": "Pouze cibule"
+  "onion_only": "Pouze cibule",
+  "connecting": "Spojovací"
 }

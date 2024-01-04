@@ -28,6 +28,7 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/settings/tor_connection.dart';
+import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
@@ -61,7 +62,8 @@ abstract class DashboardViewModelBase with Store {
       required this.yatStore,
       required this.ordersStore,
       required this.anonpayTransactionsStore,
-      required this.keyService})
+      required this.keyService,
+      required this.torViewModel})
       : hasSellAction = false,
         hasBuyAction = false,
         hasExchangeAction = false,
@@ -281,6 +283,8 @@ abstract class DashboardViewModelBase with Store {
 
   BalanceViewModel balanceViewModel;
 
+  TorViewModel torViewModel;
+
   AppStore appStore;
 
   SettingsStore settingsStore;
@@ -459,18 +463,6 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void setSyncMode(SyncMode syncMode) => settingsStore.currentSyncMode = syncMode;
-
-  @computed
-  TorConnectionMode get torConnectionMode => settingsStore.torConnectionMode;
-
-  @action
-  void setTorConnectionMode(TorConnectionMode mode) => settingsStore.torConnectionMode = mode;
-
-  @computed
-  bool get isTorConnected =>
-      (settingsStore.torConnectionMode == TorConnectionMode.enabled ||
-          settingsStore.torConnectionMode == TorConnectionMode.onionOnly) &&
-      (Tor.instance.port != -1);
 
   @computed
   bool get syncAll => settingsStore.currentSyncAll;

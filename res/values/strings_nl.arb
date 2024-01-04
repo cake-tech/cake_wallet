@@ -768,5 +768,6 @@
   "tor_status": "Tor Status",
   "connected": "Verbonden",
   "disconnected": "Losgekoppeld",
-  "onion_only": "Alleen ui"
+  "onion_only": "Alleen ui",
+  "connecting": "Verbinden"
 }

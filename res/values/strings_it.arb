@@ -768,5 +768,6 @@
   "tor_status": "Stato di tor",
   "connected": "Collegato",
   "disconnected": "Disconnesso",
-  "onion_only": "Solo cipolla"
+  "onion_only": "Solo cipolla",
+  "connecting": "Connessione"
 }

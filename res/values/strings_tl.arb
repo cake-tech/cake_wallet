@@ -762,5 +762,6 @@
   "tor_status": "Katayuan ng tor",
   "connected": "Konektado",
   "disconnected": "Naka -disconnect",
-  "onion_only": "Onion lamang"
+  "onion_only": "Onion lamang",
+  "connecting": "Pagkonekta"
 }

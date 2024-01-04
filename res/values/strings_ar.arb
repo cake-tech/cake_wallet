@@ -764,5 +764,6 @@
   "tor_status": "وضع تور",
   "connected": "متصل",
   "disconnected": "انقطع الاتصال",
-  "onion_only": "البصل فقط"
+  "onion_only": "البصل فقط",
+  "connecting": "توصيل"
 }

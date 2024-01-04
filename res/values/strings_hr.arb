@@ -766,5 +766,6 @@
   "tor_status": "Status tor",
   "connected": "Povezan",
   "disconnected": "Isključen",
-  "onion_only": "Samo luk"
+  "onion_only": "Samo luk",
+  "connecting": "Spoj"
 }

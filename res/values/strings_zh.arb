@@ -767,5 +767,6 @@
   "tor_status": "TOR状态",
   "connected": "连接的",
   "disconnected": "断开连接",
-  "onion_only": "仅洋葱"
+  "onion_only": "仅洋葱",
+  "connecting": "连接"
 }

@@ -768,5 +768,6 @@
   "tor_status": "Torstatus",
   "connected": "In Verbindung gebracht",
   "disconnected": "Getrennt",
-  "onion_only": "Nur Zwiebel"
+  "onion_only": "Nur Zwiebel",
+  "connecting": "Verbinden"
 }

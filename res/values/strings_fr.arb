@@ -768,5 +768,6 @@
   "tor_status": "Statut",
   "connected": "Connecté",
   "disconnected": "Débranché",
-  "onion_only": "Oignon seulement"
+  "onion_only": "Oignon seulement",
+  "connecting": "De liaison"
 }

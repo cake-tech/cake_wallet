@@ -766,5 +766,6 @@
   "tor_status": "Tor Status",
   "connected": "ချိတ်ဆက်ထားသော",
   "disconnected": "ချို့ယွင်းချက်",
-  "onion_only": "သာကြက်သွန်"
+  "onion_only": "သာကြက်သွန်",
+  "connecting": "ချိတ်ဆက်"
 }

@@ -750,5 +750,6 @@
   "tor_status": "State State",
   "connected": "Wanda aka haɗa",
   "disconnected": "Katse",
-  "onion_only": "Albasa kawai"
+  "onion_only": "Albasa kawai",
+  "connecting": "Haɗa"
 }

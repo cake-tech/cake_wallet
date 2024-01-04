@@ -766,5 +766,6 @@
   "tor_status": "Tor Durumu",
   "connected": "Bağlı",
   "disconnected": "Bağlantı kesildi",
-  "onion_only": "Sadece soğan"
+  "onion_only": "Sadece soğan",
+  "connecting": "Bağlanıyor"
 }

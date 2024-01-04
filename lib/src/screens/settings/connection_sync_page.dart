@@ -101,8 +101,8 @@ class ConnectionSyncPage extends BasePage {
                     title: S.current.tor_connection,
                     items: TorConnectionMode.all,
                     displayItem: (TorConnectionMode mode) => mode.title,
-                    selectedItem: dashboardViewModel.torConnectionMode,
-                    onItemSelected: dashboardViewModel.setTorConnectionMode,
+                    selectedItem: dashboardViewModel.torViewModel.torConnectionMode,
+                    onItemSelected: dashboardViewModel.torViewModel.setTorConnectionMode,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(25), topRight: Radius.circular(25)),
@@ -112,7 +112,7 @@ class ConnectionSyncPage extends BasePage {
                 }),
                 Observer(builder: (context) {
                   return TorStatus(
-                    connected: dashboardViewModel.isTorConnected,
+                    torViewModel: dashboardViewModel.torViewModel,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.only(
                           bottomLeft: Radius.circular(25), bottomRight: Radius.circular(25)),

@@ -760,5 +760,6 @@
   "tor_status": "TOR статус",
   "connected": "Свързани",
   "disconnected": "Изключен",
-  "onion_only": "Само лук"
+  "onion_only": "Само лук",
+  "connecting": "Свързване"
 }

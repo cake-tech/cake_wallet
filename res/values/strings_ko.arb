@@ -766,5 +766,6 @@
   "tor_status": "Tor 상태",
   "connected": "연결",
   "disconnected": "연결이 끊어졌습니다",
-  "onion_only": "양파 만"
+  "onion_only": "양파 만",
+  "connecting": "연결"
 }

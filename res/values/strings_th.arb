@@ -766,5 +766,6 @@
   "tor_status": "สถานะ tor",
   "connected": "ซึ่งเชื่อมต่อกัน",
   "disconnected": "ตัดการเชื่อมต่อ",
-  "onion_only": "หัวหอมเท่านั้น"
+  "onion_only": "หัวหอมเท่านั้น",
+  "connecting": "การเชื่อมต่อ"
 }

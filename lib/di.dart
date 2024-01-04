@@ -392,7 +392,8 @@ Future<void> setup({
       yatStore: getIt.get<YatStore>(),
       ordersStore: getIt.get<OrdersStore>(),
       anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
-      keyService: getIt.get<KeyService>()));
+      keyService: getIt.get<KeyService>(),
+      torViewModel: getIt.get<TorViewModel>()));
 
   getIt.registerFactory<AuthService>(
     () => AuthService(

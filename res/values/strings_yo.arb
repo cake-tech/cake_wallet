@@ -762,5 +762,6 @@
   "tor_status": "Ipo Tor",
   "connected": "Sopọ",
   "disconnected": "Ge asopọ",
-  "onion_only": "Alubosa nikan"
+  "onion_only": "Alubosa nikan",
+  "connecting": "Asopọ"
 }

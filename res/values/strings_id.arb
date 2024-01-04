@@ -756,5 +756,6 @@
   "tor_status": "Status Tor",
   "connected": "Terhubung",
   "disconnected": "Terputus",
-  "onion_only": "Bawang saja"
+  "onion_only": "Bawang saja",
+  "connecting": "Menghubungkan"
 }

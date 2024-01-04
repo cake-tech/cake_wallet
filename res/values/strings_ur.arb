@@ -760,5 +760,6 @@
   "tor_status": "ٹور کی حیثیت",
   "connected": "منسلک",
   "disconnected": "منقطع",
-  "onion_only": "صرف پیاز"
+  "onion_only": "صرف پیاز",
+  "connecting": "رابطہ قائم کرنا"
 }

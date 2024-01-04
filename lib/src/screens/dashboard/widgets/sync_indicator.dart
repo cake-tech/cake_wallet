@@ -1,17 +1,15 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/view_model/settings/tor_connection.dart';
+import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/core/sync_status_title.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
-import 'package:tor/tor.dart';
 
 class SyncIndicator extends StatelessWidget {
-  SyncIndicator({required this.dashboardViewModel, required this.onTap});
+  SyncIndicator(
+      {required this.dashboardViewModel, required this.onTap});
 
   final DashboardViewModel dashboardViewModel;
   final Function() onTap;
@@ -57,12 +55,23 @@ class SyncIndicator extends StatelessWidget {
                   Row(
                     children: [
                       Observer(builder: (_) {
+                        Widget torImage;
+                        switch (dashboardViewModel.torViewModel.torConnectionStatus) {
+                          case TorConnectionStatus.connected:
+                            torImage = Image.asset('assets/images/tor_icon.png');
+                            break;
+                          case TorConnectionStatus.connecting:
+                            torImage =
+                                Image.asset('assets/images/tor_icon.png', color: Colors.amber);
+                            break;
+                          case TorConnectionStatus.disconnected:
+                            torImage = Image.asset('assets/images/tor_icon_disabled.png');
+                            break;
+                        }
                         return Container(
                           width: 15,
                           margin: EdgeInsets.only(left: 12, bottom: 2),
-                          child: dashboardViewModel.isTorConnected
-                              ? Image.asset('assets/images/tor_icon.png')
-                              : Image.asset('assets/images/tor_icon_disabled.png'),
+                          child: torImage,
                         );
                       }),
                     ],

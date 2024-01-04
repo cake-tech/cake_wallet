@@ -768,5 +768,6 @@
   "tor_status": "Status TOR",
   "connected": "Połączony",
   "disconnected": "Bezładny",
-  "onion_only": "Tylko cebula"
+  "onion_only": "Tylko cebula",
+  "connecting": "Złączony"
 }

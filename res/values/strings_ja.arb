@@ -768,5 +768,6 @@
   "tor_status": "TORステータス",
   "connected": "接続",
   "disconnected": "切断された",
-  "onion_only": "オニオンのみ"
+  "onion_only": "オニオンのみ",
+  "connecting": "接続"
 }
