@@ -39,7 +39,7 @@ class SecretKey {
     SecretKey('moralisApiKey', () => '')
   ];
 
-  static final ethereumSecrets = [
+  static final evmChainsSecrets = [
     SecretKey('etherScanApiKey', () => ''),
     SecretKey('polygonScanApiKey', () => ''),
   ];

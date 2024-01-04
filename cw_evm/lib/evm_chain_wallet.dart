@@ -16,7 +16,6 @@ import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/erc20_token.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cw_evm/default_evm_chain_erc20_tokens.dart';
 import 'package:cw_evm/evm_chain_client.dart';
 import 'package:cw_evm/evm_chain_exceptions.dart';

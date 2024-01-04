@@ -505,6 +505,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_evm/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_mnemonics.dart';
+import 'package:cw_evm/evm_chain_wallet.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:hive/hive.dart';
@@ -514,7 +515,6 @@ import 'package:web3dart/web3dart.dart';
   const ethereumCWHeaders = """
 import 'package:cw_ethereum/ethereum_transaction_credentials.dart';
 import 'package:cw_ethereum/ethereum_transaction_info.dart';
-import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_ethereum/ethereum_wallet_creation_credentials.dart';
 import 'package:cw_ethereum/ethereum_wallet_service.dart';
 """;
