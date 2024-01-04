@@ -101,24 +101,6 @@ class _DashboardPageView extends BasePage {
   @override
   Widget get endDrawer => MenuWidget(dashboardViewModel);
 
-  // @override
-  // Widget leading(BuildContext context) {
-  //   final torButton = Image.asset(
-  //     'assets/images/tor_icon.png',
-  //     // color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-  //   );
-
-  //   return Container(
-  //     alignment: Alignment.centerRight,
-  //     width: 40,
-  //     child: TextButton(
-
-  //       onPressed: () => Navigator.of(context, rootNavigator: true).pushNamed(Routes.connectionSync),
-  //       child: Semantics(label: S.of(context).tor_connection, child: torButton),
-  //     ),
-  //   );
-  // }
-
   @override
   Widget middle(BuildContext context) {
     return SyncIndicator(
