@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class TorStatus extends StandardListRow {
   TorStatus(
@@ -19,23 +20,25 @@ class TorStatus extends StandardListRow {
 
   @override
   Widget buildTrailing(BuildContext context) {
-    Color? color;
-    String? text;
-    switch (torViewModel.torConnectionStatus) {
-      case TorConnectionStatus.connected:
-        color = Palette.green;
-        text = S.current.connected;
-        break;
-      case TorConnectionStatus.connecting:
-        color = Colors.amber;
-        text = S.current.connecting;
-        break;
-      case TorConnectionStatus.disconnected:
-        color = Palette.red;
-        text = S.current.disconnected;
-        break;
-    }
-    return NodeIndicator(color: color, text: text);
+    return Observer(builder: (context) {
+      Color? color;
+      String? text;
+      switch (torViewModel.torConnectionStatus) {
+        case TorConnectionStatus.connected:
+          color = Palette.green;
+          text = S.current.connected;
+          break;
+        case TorConnectionStatus.connecting:
+          color = Colors.amber;
+          text = S.current.connecting;
+          break;
+        case TorConnectionStatus.disconnected:
+          color = Palette.red;
+          text = S.current.disconnected;
+          break;
+      }
+      return NodeIndicator(color: color, text: text);
+    });
   }
 }
 

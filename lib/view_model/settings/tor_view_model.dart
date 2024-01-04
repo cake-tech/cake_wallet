@@ -25,12 +25,6 @@ abstract class TorViewModelBase with Store {
   @action
   void setTorConnectionMode(TorConnectionMode mode) => _settingsStore.torConnectionMode = mode;
 
-  // @computed
-  // bool get isTorConnected =>
-  //     (_settingsStore.torConnectionMode == TorConnectionMode.enabled ||
-  //         _settingsStore.torConnectionMode == TorConnectionMode.onionOnly) &&
-  //     (Tor.instance.port != -1);
-
   @computed
   TorConnectionStatus get torConnectionStatus {
 
