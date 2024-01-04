@@ -4,7 +4,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.da
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_tor_status.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/wallet_connect_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -106,7 +106,7 @@ class ConnectionSyncPage extends BasePage {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(25), topRight: Radius.circular(25)),
-                      color: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor,
+                      color: Theme.of(context).extension<SyncIndicatorTheme>()!.notSyncedBackgroundColor,
                     ),
                   );
                 }),
@@ -116,7 +116,7 @@ class ConnectionSyncPage extends BasePage {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.only(
                           bottomLeft: Radius.circular(25), bottomRight: Radius.circular(25)),
-                      color: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor,
+                      color: Theme.of(context).extension<SyncIndicatorTheme>()!.notSyncedBackgroundColor,
                     ),
                     title: S.current.tor_status,
                     isSelected: false,
