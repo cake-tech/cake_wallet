@@ -16,6 +16,7 @@ import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -324,6 +325,14 @@ abstract class SettingsStoreBase with Store {
         // init and start the proxy
         await Tor.init();
         await Tor.instance.enable();
+
+        // connect to node through the proxy:
+        final appStore = getIt.get<AppStore>();
+        final node = getCurrentNode(appStore.wallet!.type);
+        if (node.socksProxyAddress?.isEmpty ?? true) {
+          node.socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
+        }
+        appStore.wallet!.connectToNode(node: node);
 
         shouldStartTorOnLaunch = true;
       } else {

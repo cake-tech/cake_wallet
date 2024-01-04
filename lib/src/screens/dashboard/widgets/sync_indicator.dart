@@ -60,10 +60,9 @@ class SyncIndicator extends StatelessWidget {
                         return Container(
                           width: 15,
                           margin: EdgeInsets.only(left: 12, bottom: 2),
-                          child: Image.asset(
-                            'assets/images/tor_icon.png',
-                            color: dashboardViewModel.isTorConnected ? null : Colors.white,
-                          ),
+                          child: dashboardViewModel.isTorConnected
+                              ? Image.asset('assets/images/tor_icon.png')
+                              : Image.asset('assets/images/tor_icon_disabled.png'),
                         );
                       }),
                     ],
