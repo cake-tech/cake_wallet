@@ -631,9 +631,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
         ),
       );
 
-    case Routes.torPage:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<TorPage>());
-
     default:
       return MaterialPageRoute<void>(
           builder: (_) => Scaffold(

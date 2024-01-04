@@ -1204,7 +1204,6 @@ Future<void> setup({
       () => WalletConnectConnectionsView(web3walletService: getIt.get<Web3WalletService>()));
 
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
-  getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>(), getIt.get<TorViewModel>()));
 
   _isSetupFinished = true;
 }
