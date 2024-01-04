@@ -1,7 +1,7 @@
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_ethereum/ethereum_transaction_info.dart';
+import 'package:cw_evm/evm_chain_transaction_info.dart';
 
-class PolygonTransactionInfo extends EthereumTransactionInfo {
+class PolygonTransactionInfo extends EVMChainTransactionInfo {
   PolygonTransactionInfo({
     required String id,
     required int height,

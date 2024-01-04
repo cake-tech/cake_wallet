@@ -6,7 +6,7 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/crypto_currency.dart';
 
-import 'package:cw_evm/erc20_balance.dart';
+import 'package:cw_evm/evm_erc20_balance.dart';
 import 'package:cw_evm/.secrets.g.dart' as secrets;
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/pending_evm_chain_transaction.dart';
@@ -190,14 +190,14 @@ class EVMChainClient {
     */
   }
 
-  Future<ERC20Balance> fetchERC20Balances(
+  Future<EVMChainERC20Balance> fetchERC20Balances(
       EthereumAddress userAddress, String contractAddress) async {
     final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
     final balance = await erc20.balanceOf(userAddress);
 
     int exponent = (await erc20.decimals()).toInt();
 
-    return ERC20Balance(balance, exponent: exponent);
+    return EVMChainERC20Balance(balance, exponent: exponent);
   }
 
   Future<Erc20Token?> getErc20Token(String contractAddress) async {

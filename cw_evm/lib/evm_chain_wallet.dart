@@ -36,7 +36,7 @@ import 'package:web3dart/web3dart.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bip32/bip32.dart' as bip32;
 
-import 'erc20_balance.dart';
+import 'evm_erc20_balance.dart';
 import 'evm_chain_transaction_info.dart';
 
 part 'evm_chain_wallet.g.dart';
@@ -44,7 +44,7 @@ part 'evm_chain_wallet.g.dart';
 class EVMChainWallet = EVMChainWalletBase with _$EVMChainWallet;
 
 abstract class EVMChainWalletBase
-    extends WalletBase<ERC20Balance, EVMChainTransactionHistory, EVMChainTransactionInfo>
+    extends WalletBase<EVMChainERC20Balance, EVMChainTransactionHistory, EVMChainTransactionInfo>
     with Store {
   EVMChainWalletBase({
     required WalletInfo walletInfo,
@@ -52,7 +52,7 @@ abstract class EVMChainWalletBase
     String? mnemonic,
     String? privateKey,
     required String password,
-    ERC20Balance? initialBalance,
+    EVMChainERC20Balance? initialBalance,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -60,10 +60,10 @@ abstract class EVMChainWalletBase
         _isTransactionUpdating = false,
         _client = EVMChainClient(),
         walletAddresses = EVMChainWalletAddresses(walletInfo),
-        balance = ObservableMap<CryptoCurrency, ERC20Balance>.of(
+        balance = ObservableMap<CryptoCurrency, EVMChainERC20Balance>.of(
           {
             // Not sure of this yet, will it work? will it not?
-            nativeCurrency: initialBalance ?? ERC20Balance(BigInt.zero),
+            nativeCurrency: initialBalance ?? EVMChainERC20Balance(BigInt.zero),
           },
         ),
         super(walletInfo) {
@@ -74,7 +74,7 @@ abstract class EVMChainWalletBase
       CakeHive.registerAdapter(Erc20TokenAdapter());
     }
 
-    _sharedPrefs.complete(SharedPreferences.getInstance());
+    sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
   final String? _mnemonic;
@@ -87,7 +87,7 @@ abstract class EVMChainWalletBase
 
   late final EthPrivateKey _evmChainPrivateKey;
 
-  EthPrivateKey get ethPrivateKey => _evmChainPrivateKey;
+  EthPrivateKey get evmChainPrivateKey => _evmChainPrivateKey;
 
   late EVMChainClient _client;
 
@@ -107,18 +107,12 @@ abstract class EVMChainWalletBase
 
   @override
   @observable
-  late ObservableMap<CryptoCurrency, ERC20Balance> balance;
+  late ObservableMap<CryptoCurrency, EVMChainERC20Balance> balance;
 
-  Completer<SharedPreferences> _sharedPrefs = Completer();
+  Completer<SharedPreferences> sharedPrefs = Completer();
 
   Future<void> init() async {
-    if (walletInfo.type == WalletType.ethereum) {
-      await movePreviousErc20BoxConfigsToNewBox();
-    } else {
-      evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(
-        "${walletInfo.name.replaceAll(" ", "_")}_${Erc20Token.getBoxNameForChain(walletInfo.type)}",
-      );
-    }
+    await initErc20TokensBox();
 
     await walletAddresses.init();
     await transactionHistory.init();
@@ -129,6 +123,12 @@ abstract class EVMChainWalletBase
     );
     walletAddresses.address = _evmChainPrivateKey.address.toString();
     await save();
+  }
+
+  Future<void> initErc20TokensBox() async {
+    // This is for ethereum wallets,
+    // Other wallets would override and initialize their respective boxes with their boxNames.
+    await movePreviousErc20BoxConfigsToNewBox();
   }
 
   /// Majorly for backward compatibility for previous configs that have been set.
@@ -294,7 +294,7 @@ abstract class EVMChainWalletBase
   }
 
   Future<bool> checkIfScanProviderIsEnabled() async {
-    bool isEtherscanEnabled = (await _sharedPrefs.future).getBool("use_etherscan") ?? true;
+    bool isEtherscanEnabled = (await sharedPrefs.future).getBool("use_etherscan") ?? true;
     return isEtherscanEnabled;
   }
 
@@ -405,7 +405,8 @@ abstract class EVMChainWalletBase
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String?;
     final privateKey = data['private_key'] as String?;
-    final balance = ERC20Balance.fromJSON(data['balance'] as String) ?? ERC20Balance(BigInt.zero);
+    final balance = EVMChainERC20Balance.fromJSON(data['balance'] as String) ??
+        EVMChainERC20Balance(BigInt.zero);
 
     final nativeCurrency = currencyForWalletType(walletInfo.type);
 
@@ -426,9 +427,9 @@ abstract class EVMChainWalletBase
     await save();
   }
 
-  Future<ERC20Balance> _fetchEVMChainBalance() async {
+  Future<EVMChainERC20Balance> _fetchEVMChainBalance() async {
     final balance = await _client.getBalance(_evmChainPrivateKey.address);
-    return ERC20Balance(balance.getInWei);
+    return EVMChainERC20Balance(balance.getInWei);
   }
 
   Future<void> _fetchErc20Balances() async {
@@ -522,13 +523,20 @@ abstract class EVMChainWalletBase
     }
   }
 
+  /// Returns the transaction history file name.
+  ///
+  /// Each wallet would override this to provide the path to it's own transaction history file.
+  String getTransactionHistoryFileName() => 'transactions.json';
+
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
+    final transactionHistoryFileNameForWallet = getTransactionHistoryFileName();
+
     final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
     final currentWalletFile = File(currentWalletPath);
 
     final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-    final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
+    final currentTransactionsFile = File('$currentDirPath/$transactionHistoryFileNameForWallet');
 
     // Copies current wallet files into new wallet name's dir and files
     if (currentWalletFile.existsSync()) {
@@ -537,7 +545,7 @@ abstract class EVMChainWalletBase
     }
     if (currentTransactionsFile.existsSync()) {
       final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-      await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
+      await currentTransactionsFile.copy('$newDirPath/$transactionHistoryFileNameForWallet');
     }
 
     // Delete old name's dir and files
@@ -555,7 +563,12 @@ abstract class EVMChainWalletBase
     });
   }
 
-  void updateEtherscanUsageState(bool isEnabled) {
+  /// Scan Providers:
+  ///
+  /// EtherScan for Ethereum.
+  ///
+  /// PolygonScan for Polygon.
+  void updateScanProviderUsageState(bool isEnabled) {
     if (isEnabled) {
       _updateTransactions();
       _setTransactionUpdateTimer();

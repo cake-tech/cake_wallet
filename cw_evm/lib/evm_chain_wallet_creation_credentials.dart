@@ -11,7 +11,8 @@ class EVMChainRestoreWalletFromSeedCredentials extends WalletCredentials {
       {required String name,
       required String password,
       required this.mnemonic,
-      WalletInfo? walletInfo})
+    WalletInfo? walletInfo,
+  })
       : super(name: name, password: password, walletInfo: walletInfo);
 
   final String mnemonic;
@@ -22,7 +23,8 @@ class EVMChainRestoreWalletFromPrivateKey extends WalletCredentials {
       {required String name,
       required String password,
       required this.privateKey,
-      WalletInfo? walletInfo})
+    WalletInfo? walletInfo,
+  })
       : super(name: name, password: password, walletInfo: walletInfo);
 
   final String privateKey;

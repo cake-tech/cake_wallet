@@ -1,8 +1,7 @@
 import 'dart:typed_data';
+import 'package:cw_evm/pending_evm_chain_transaction.dart';
 
-import 'package:cw_ethereum/pending_ethereum_transaction.dart';
-
-class PendingPolygonTransaction extends PendingEthereumTransaction {
+class PendingPolygonTransaction extends PendingEVMChainTransaction {
   PendingPolygonTransaction({
     required Function sendTransaction,
     required Uint8List signedTransaction,

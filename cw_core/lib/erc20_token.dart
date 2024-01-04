@@ -72,15 +72,4 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
 
   @override
   int get hashCode => contractAddress.hashCode;
-
-static String getBoxNameForChain(WalletType type) {
-    switch (type) {
-      case WalletType.ethereum:
-        return ethereumBoxName;
-      case WalletType.polygon:
-        return polygonBoxName;
-      default:
-        return '';
-    }
-  }
 }

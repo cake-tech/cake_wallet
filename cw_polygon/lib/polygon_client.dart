@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:cw_ethereum/ethereum_client.dart';
+import 'package:cw_evm/evm_chain_client.dart';
 import 'package:cw_polygon/polygon_transaction_model.dart';
-import 'package:cw_ethereum/.secrets.g.dart' as secrets;
+import 'package:cw_evm/.secrets.g.dart' as secrets;
 import 'package:flutter/foundation.dart';
 import 'package:web3dart/web3dart.dart';
 
-class PolygonClient extends EthereumClient {
+class PolygonClient extends EVMChainClient {
   @override
   Transaction createTransaction({
     required EthereumAddress from,

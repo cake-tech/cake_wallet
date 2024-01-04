@@ -1,29 +1,23 @@
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
+import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 
-class EthereumNewWalletCredentials extends WalletCredentials {
-  EthereumNewWalletCredentials({required String name, WalletInfo? walletInfo})
-      : super(name: name, walletInfo: walletInfo);
+class EthereumNewWalletCredentials extends EVMChainNewWalletCredentials {
+  EthereumNewWalletCredentials({required super.name, super.walletInfo});
 }
 
-class EthereumRestoreWalletFromSeedCredentials extends WalletCredentials {
-  EthereumRestoreWalletFromSeedCredentials(
-      {required String name,
-      required String password,
-      required this.mnemonic,
-      WalletInfo? walletInfo})
-      : super(name: name, password: password, walletInfo: walletInfo);
-
-  final String mnemonic;
+class EthereumRestoreWalletFromSeedCredentials extends EVMChainRestoreWalletFromSeedCredentials {
+  EthereumRestoreWalletFromSeedCredentials({
+    required super.name,
+    required super.password,
+    required super.mnemonic,
+    super.walletInfo,
+  });
 }
 
-class EthereumRestoreWalletFromPrivateKey extends WalletCredentials {
-  EthereumRestoreWalletFromPrivateKey(
-      {required String name,
-      required String password,
-      required this.privateKey,
-      WalletInfo? walletInfo})
-      : super(name: name, password: password, walletInfo: walletInfo);
-
-  final String privateKey;
+class EthereumRestoreWalletFromPrivateKey extends EVMChainRestoreWalletFromPrivateKey {
+  EthereumRestoreWalletFromPrivateKey({
+    required super.name,
+    required super.password,
+    required super.privateKey,
+    super.walletInfo,
+  });
 }

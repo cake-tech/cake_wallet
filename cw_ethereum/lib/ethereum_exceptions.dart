@@ -1,11 +1,5 @@
-import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_evm/evm_chain_exceptions.dart';
 
-class EthereumTransactionCreationException implements Exception {
-  final String exceptionMessage;
-
-  EthereumTransactionCreationException(CryptoCurrency currency) :
-    this.exceptionMessage = 'Wrong balance. Not enough ${currency.title} on your balance.';
-
-  @override
-  String toString() => exceptionMessage;
+class EthereumTransactionCreationException extends EVMChainTransactionCreationException {
+  EthereumTransactionCreationException(super.currency);
 }

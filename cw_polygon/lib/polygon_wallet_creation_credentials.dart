@@ -1,28 +1,27 @@
-import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
-class PolygonNewWalletCredentials extends WalletCredentials {
-  PolygonNewWalletCredentials({required String name, WalletInfo? walletInfo})
-      : super(name: name, walletInfo: walletInfo);
+import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
+
+class PolygonNewWalletCredentials extends EVMChainNewWalletCredentials {
+  PolygonNewWalletCredentials({
+    required String name,
+    WalletInfo? walletInfo,
+  }) : super(name: name, walletInfo: walletInfo);
 }
 
-class PolygonRestoreWalletFromSeedCredentials extends WalletCredentials {
-  PolygonRestoreWalletFromSeedCredentials(
-      {required String name,
-      required String password,
-      required this.mnemonic,
-      WalletInfo? walletInfo})
-      : super(name: name, password: password, walletInfo: walletInfo);
-
-  final String mnemonic;
+class PolygonRestoreWalletFromSeedCredentials extends EVMChainRestoreWalletFromSeedCredentials {
+  PolygonRestoreWalletFromSeedCredentials({
+    required super.name,
+    required super.password,
+    required super.mnemonic,
+    super.walletInfo,
+  });
 }
 
-class PolygonRestoreWalletFromPrivateKey extends WalletCredentials {
-  PolygonRestoreWalletFromPrivateKey(
-      {required String name,
-      required String password,
-      required this.privateKey,
-      WalletInfo? walletInfo})
-      : super(name: name, password: password, walletInfo: walletInfo);
-
-  final String privateKey;
+class PolygonRestoreWalletFromPrivateKey extends EVMChainRestoreWalletFromPrivateKey {
+  PolygonRestoreWalletFromPrivateKey({
+    required super.name,
+    required super.password,
+    required super.privateKey,
+    super.walletInfo,
+  });
 }

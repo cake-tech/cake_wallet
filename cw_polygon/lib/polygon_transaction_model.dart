@@ -1,6 +1,6 @@
-import 'package:cw_ethereum/ethereum_transaction_model.dart';
+import 'package:cw_evm/evm_chain_transaction_model.dart';
 
-class PolygonTransactionModel extends EthereumTransactionModel {
+class PolygonTransactionModel extends EVMChainTransactionModel {
   PolygonTransactionModel({
     required DateTime date,
     required String hash,

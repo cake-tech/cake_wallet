@@ -2,7 +2,7 @@ part of 'ethereum.dart';
 
 class CWEthereum extends Ethereum {
   @override
-  List<String> getEthereumWordList(String language) => EthereumMnemonics.englishWordlist;
+  List<String> getEthereumWordList(String language) => EVMChainMnemonics.englishWordlist;
 
   WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource) =>
       EthereumWalletService(walletInfoSource);
@@ -31,34 +31,34 @@ class CWEthereum extends Ethereum {
       EthereumRestoreWalletFromPrivateKey(name: name, password: password, privateKey: privateKey);
 
   @override
-  String getAddress(WalletBase wallet) => (wallet as EthereumWallet).walletAddresses.address;
+  String getAddress(WalletBase wallet) => (wallet as EVMChainWallet).walletAddresses.address;
 
   @override
   String getPrivateKey(WalletBase wallet) {
-    final privateKeyHolder = (wallet as EthereumWallet).ethPrivateKey;
+    final privateKeyHolder = (wallet as EVMChainWallet).evmChainPrivateKey;
     String stringKey = bytesToHex(privateKeyHolder.privateKey);
     return stringKey;
   }
 
   @override
   String getPublicKey(WalletBase wallet) {
-    final privateKeyInUnitInt = (wallet as EthereumWallet).ethPrivateKey;
+    final privateKeyInUnitInt = (wallet as EVMChainWallet).evmChainPrivateKey;
     final publicKey = privateKeyInUnitInt.address.hex;
     return publicKey;
   }
 
   @override
-  TransactionPriority getDefaultTransactionPriority() => EthereumTransactionPriority.medium;
+  TransactionPriority getDefaultTransactionPriority() => EVMChainTransactionPriority.medium;
 
   @override
-  TransactionPriority getEthereumTransactionPrioritySlow() => EthereumTransactionPriority.slow;
+  TransactionPriority getEthereumTransactionPrioritySlow() => EVMChainTransactionPriority.slow;
 
   @override
-  List<TransactionPriority> getTransactionPriorities() => EthereumTransactionPriority.all;
+  List<TransactionPriority> getTransactionPriorities() => EVMChainTransactionPriority.all;
 
   @override
   TransactionPriority deserializeEthereumTransactionPriority(int raw) =>
-      EthereumTransactionPriority.deserialize(raw: raw);
+      EVMChainTransactionPriority.deserialize(raw: raw);
 
   Object createEthereumTransactionCredentials(
     List<Output> outputs, {
@@ -78,7 +78,7 @@ class CWEthereum extends Ethereum {
                 isParsedAddress: out.isParsedAddress,
                 formattedCryptoAmount: out.formattedCryptoAmount))
             .toList(),
-        priority: priority as EthereumTransactionPriority,
+        priority: priority as EVMChainTransactionPriority,
         currency: currency,
         feeRate: feeRate,
       );
@@ -91,13 +91,13 @@ class CWEthereum extends Ethereum {
   }) =>
       EthereumTransactionCredentials(
         outputs,
-        priority: priority as EthereumTransactionPriority?,
+        priority: priority as EVMChainTransactionPriority?,
         currency: currency,
         feeRate: feeRate,
       );
 
   @override
-  int formatterEthereumParseAmount(String amount) => EthereumFormatter.parseEthereumAmount(amount);
+  int formatterEthereumParseAmount(String amount) => EVMChainFormatter.parseEVMChainAmount(amount);
 
   @override
   double formatterEthereumAmountToDouble(
@@ -114,21 +114,21 @@ class CWEthereum extends Ethereum {
 
   @override
   List<Erc20Token> getERC20Currencies(WalletBase wallet) {
-    final ethereumWallet = wallet as EthereumWallet;
+    final ethereumWallet = wallet as EVMChainWallet;
     return ethereumWallet.erc20Currencies;
   }
 
   @override
   Future<void> addErc20Token(WalletBase wallet, Erc20Token token) async =>
-      await (wallet as EthereumWallet).addErc20Token(token);
+      await (wallet as EVMChainWallet).addErc20Token(token);
 
   @override
   Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token) async =>
-      await (wallet as EthereumWallet).deleteErc20Token(token);
+      await (wallet as EVMChainWallet).deleteErc20Token(token);
 
   @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {
-    final ethereumWallet = wallet as EthereumWallet;
+    final ethereumWallet = wallet as EVMChainWallet;
     return await ethereumWallet.getErc20Token(contractAddress);
   }
 
@@ -139,18 +139,18 @@ class CWEthereum extends Ethereum {
       return CryptoCurrency.eth;
     }
 
-    wallet as EthereumWallet;
+    wallet as EVMChainWallet;
     return wallet.erc20Currencies
         .firstWhere((element) => transaction.tokenSymbol == element.symbol);
   }
 
   @override
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled) {
-    (wallet as EthereumWallet).updateEtherscanUsageState(isEnabled);
+    (wallet as EVMChainWallet).updateScanProviderUsageState(isEnabled);
   }
 
   @override
   Web3Client? getWeb3Client(WalletBase wallet) {
-    return (wallet as EthereumWallet).getWeb3Client();
+    return (wallet as EVMChainWallet).getWeb3Client();
   }
 }
