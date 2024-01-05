@@ -271,7 +271,7 @@ class BalanceRowWidget extends StatelessWidget {
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
@@ -328,42 +328,47 @@ class BalanceRowWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                Column(
-                  children: [
-                    currency.iconPath != null
-                        ? Container(
-                            child: Image.asset(
-                              currency.iconPath!,
-                              height: 30.0,
-                              width: 30.0,
-                            ),
-                          )
-                        : Container(
-                            height: 30.0,
-                            width: 30.0,
-                            child: Center(
-                              child: Text(
-                                currency.title.substring(0, min(currency.title.length, 2)),
-                                style: TextStyle(fontSize: 11),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.18,
+                  child: Center(
+                    child: Column(
+                      children: [
+                        currency.iconPath != null
+                            ? Container(
+                                child: Image.asset(
+                                  currency.iconPath!,
+                                  height: 30.0,
+                                  width: 30.0,
+                                ),
+                              )
+                            : Container(
+                                height: 30.0,
+                                width: 30.0,
+                                child: Center(
+                                  child: Text(
+                                    currency.title.substring(0, min(currency.title.length, 2)),
+                                    style: TextStyle(fontSize: 11),
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey.shade400,
+                                ),
                               ),
-                            ),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.grey.shade400,
-                            ),
+                        const SizedBox(height: 10),
+                        Text(
+                          currency.title,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w800,
+                            color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
+                            height: 1,
                           ),
-                    const SizedBox(height: 10),
-                    Text(
-                      currency.title,
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w800,
-                        color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
-                        height: 1,
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
