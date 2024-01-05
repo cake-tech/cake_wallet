@@ -1,11 +1,7 @@
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 
 class PolygonNewWalletCredentials extends EVMChainNewWalletCredentials {
-  PolygonNewWalletCredentials({
-    required String name,
-    WalletInfo? walletInfo,
-  }) : super(name: name, walletInfo: walletInfo);
+  PolygonNewWalletCredentials({required super.name, super.walletInfo});
 }
 
 class PolygonRestoreWalletFromSeedCredentials extends EVMChainRestoreWalletFromSeedCredentials {

@@ -1,6 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/hive_type_ids.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 
 part 'erc20_token.g.dart';
