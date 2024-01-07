@@ -161,20 +161,13 @@ class AddressPage extends BasePage {
                           amountController: _amountController,
                           isLight: dashboardViewModel.settingsStore.currentTheme.type ==
                               ThemeType.light))),
-              if(addressListViewModel.wallet is ElectrumWallet)
               PrimaryButton(
                 onPressed: () {
-                  final newAddress = (addressListViewModel.wallet as ElectrumWallet)
-                      .walletAddresses.generateNewAddress();
-
-                  final formattedAddress = addressListViewModel.wallet.type == WalletType.bitcoinCash
-                      ? bitbox.Address.toCashAddress(newAddress.address)
-                      : newAddress.address;
-
-                  addressListViewModel.setAddress(
-                      WalletAddressListItem(address: formattedAddress, isPrimary: false, legacyAddress: newAddress.address));
+                  if (addressListViewModel.isElectrumWallet) {
+                    addressListViewModel.generateElectrumAddress();
+                  }
                 },
-                text: 'Genera te new address',
+                text: 'Generate new address',
                 color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                 borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
                 textColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
@@ -207,7 +200,7 @@ class AddressPage extends BasePage {
                     height: 50,
                   );
                 } else if (dashboardViewModel.isAutoGenerateSubaddressesEnabled ||
-                    addressListViewModel.showElectrumAddressDisclaimer) {
+                    addressListViewModel.isElectrumWallet) {
                   return Text(S.of(context).electrum_address_disclaimer,
                       textAlign: TextAlign.center,
                       style: TextStyle(

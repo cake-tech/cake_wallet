@@ -136,12 +136,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return address;
   }
 
-  BitcoinAddressRecord generateNewAddress(
-      {bitcoin.HDWallet? hd, bool isHidden = false}) {
+  BitcoinAddressRecord generateNewAddress({bitcoin.HDWallet? hd, int? newAddressIndex,
+    bool isHidden = false}) {
     currentReceiveAddressIndex += 1;
     // FIX-ME: Check logic for whichi HD should be used here  ???
     final address = BitcoinAddressRecord(
-        getAddress(index: currentReceiveAddressIndex, hd: hd ?? sideHd),
+        getAddress(index: newAddressIndex ?? currentReceiveAddressIndex, hd: hd ?? sideHd),
         index: currentReceiveAddressIndex,
         isHidden: isHidden);
     addresses.add(address);

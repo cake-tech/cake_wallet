@@ -7,6 +7,8 @@ class WalletAddressListItem extends ListItem {
     required this.isPrimary,
     this.id,
     this.name,
+    this.txCount,
+    this.balance,
     this.isChange = false,
     this.legacyAddress = ''})
     : super();
@@ -15,6 +17,8 @@ class WalletAddressListItem extends ListItem {
   final bool isPrimary;
   final String address;
   final String? name;
+  final int? txCount;
+  final String? balance;
   final bool isChange;
   final String? legacyAddress;
 

@@ -13,6 +13,8 @@ class AddressCell extends StatelessWidget {
       required this.textColor,
       this.onTap,
       this.onEdit,
+      this.txCount,
+      this.balance,
       this.isChange = false});
 
   factory AddressCell.fromItem(WalletAddressListItem item,
@@ -30,6 +32,8 @@ class AddressCell extends StatelessWidget {
           textColor: textColor,
           onTap: onTap,
           onEdit: onEdit,
+          txCount: item.txCount,
+          balance: item.balance,
           isChange: item.isChange);
 
   final String address;
@@ -40,6 +44,8 @@ class AddressCell extends StatelessWidget {
   final Color textColor;
   final Function(String)? onTap;
   final Function()? onEdit;
+  final int? txCount;
+  final String? balance;
   final bool isChange;
 
   String get label {
@@ -79,6 +85,22 @@ class AddressCell extends StatelessWidget {
                       color: textColor,
                     ),
                   ),
+                  if (txCount != null)
+                  Text(
+                    '$txCount ${S.of(context).transactions}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: textColor,
+                    ),
+                  ),
+                  if (balance != null)
+                    Text(
+                      '$balance ${S.of(context).transactions}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: textColor,
+                      ),
+                    ),
                   if (isChange)
                     Text(
                       S.of(context).change,
