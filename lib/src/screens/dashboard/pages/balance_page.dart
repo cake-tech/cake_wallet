@@ -412,7 +412,9 @@ class BalanceRowWidget extends StatelessWidget {
                         fontSize: 20,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                        color: Theme.of(context)
+                            .extension<BalancePageTheme>()!
+                            .balanceAmountColor,
                         height: 1,
                       ),
                       maxLines: 1,
@@ -426,7 +428,7 @@ class BalanceRowWidget extends StatelessWidget {
                         fontSize: 12,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                        color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                         height: 1,
                       ),
                     ),
