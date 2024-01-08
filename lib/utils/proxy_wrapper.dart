@@ -6,18 +6,22 @@ import 'package:socks5_proxy/socks.dart';
 import 'package:tor/tor.dart';
 
 class ProxyWrapper {
-  // Private constructor
-  ProxyWrapper._privateConstructor(this.settingsStore);
+
+  ProxyWrapper({
+    required this.settingsStore,
+  });
+
+  // ProxyWrapper._privateConstructor();
 
   // Static private instance of Tor
-  static final ProxyWrapper _instance = ProxyWrapper._privateConstructor();
+  // static final ProxyWrapper _instance = ProxyWrapper._privateConstructor();
 
-  final SettingsStore settingsStore;
+  late SettingsStore settingsStore;
 
   HttpClient? _torClient;
 
   // Factory method to get the singleton instance of TorSingleton
-  static ProxyWrapper get instance => _instance;
+  // static ProxyWrapper get instance => _instance;
 
   static int get port => Tor.instance.port;
 
@@ -27,7 +31,7 @@ class ProxyWrapper {
   bool torEnabled = false;
   bool torOnly = false;
 
-  // Method to get or create the Tor instance
+  // Method to get or create the Tor proxy instance
   Future<HttpClient> getProxyInstance({int? portOverride}) async {
     if (!started) {
       started = true;
