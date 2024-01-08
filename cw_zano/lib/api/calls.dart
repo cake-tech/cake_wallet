@@ -158,7 +158,6 @@ bool setupNode({
 }) {
   final addressPointer = address.toNativeUtf8();
   Pointer<Utf8>? loginPointer;
-  Pointer<Utf8>? socksProxyAddressPointer;
   Pointer<Utf8>? passwordPointer;
 
   if (login != null) {
