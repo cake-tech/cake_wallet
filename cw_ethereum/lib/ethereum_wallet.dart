@@ -75,6 +75,8 @@ abstract class EthereumWalletBase
 
   late final Box<Erc20Token> erc20TokensBox;
 
+  late final Box<Erc20Token> ethereumErc20TokensBox;
+
   late final EthPrivateKey _ethPrivateKey;
 
   EthPrivateKey get ethPrivateKey => _ethPrivateKey;
@@ -102,7 +104,8 @@ abstract class EthereumWalletBase
   Completer<SharedPreferences> _sharedPrefs = Completer();
 
   Future<void> init() async {
-    erc20TokensBox = await CakeHive.openBox<Erc20Token>(Erc20Token.boxName);
+    await movePreviousErc20BoxConfigsToNewBox();
+
     await walletAddresses.init();
     await transactionHistory.init();
     _ethPrivateKey = await getPrivateKey(
@@ -112,6 +115,33 @@ abstract class EthereumWalletBase
     );
     walletAddresses.address = _ethPrivateKey.address.toString();
     await save();
+  }
+
+  /// Majorly for backward compatibility for previous configs that have been set.
+  Future<void> movePreviousErc20BoxConfigsToNewBox() async {
+    // Opens a box specific to this wallet
+    ethereumErc20TokensBox = await CakeHive.openBox<Erc20Token>(
+        "${walletInfo.name.replaceAll(" ", "_")}_${Erc20Token.ethereumBoxName}");
+
+    //Open the previous token configs box
+    erc20TokensBox = await CakeHive.openBox<Erc20Token>(Erc20Token.boxName);
+
+    // Check if it's empty, if it is, we stop the flow and return.
+    if (erc20TokensBox.isEmpty) {
+      // If it's empty, but the new wallet specific box is also empty,
+      // we load the initial tokens to the new box.
+      if (ethereumErc20TokensBox.isEmpty) addInitialTokens();
+      return;
+    }
+
+    final allValues = erc20TokensBox.values.toList();
+
+    // Clear and delete the old token box
+    await erc20TokensBox.clear();
+    await erc20TokensBox.deleteFromDisk();
+
+    // Add all the previous tokens with configs to the new box
+    ethereumErc20TokensBox.addAll(allValues);
   }
 
   @override
@@ -378,7 +408,7 @@ abstract class EthereumWalletBase
   }
 
   Future<void> _fetchErc20Balances() async {
-    for (var token in erc20TokensBox.values) {
+    for (var token in ethereumErc20TokensBox.values) {
       try {
         if (token.enabled) {
           balance[token] = await _client.fetchERC20Balances(
@@ -413,7 +443,7 @@ abstract class EthereumWalletBase
 
   Future<void>? updateBalance() async => await _updateBalance();
 
-  List<Erc20Token> get erc20Currencies => erc20TokensBox.values.toList();
+  List<Erc20Token> get erc20Currencies => ethereumErc20TokensBox.values.toList();
 
   Future<void> addErc20Token(Erc20Token token) async {
     String? iconPath;
@@ -433,7 +463,7 @@ abstract class EthereumWalletBase
       iconPath: iconPath,
     );
 
-    await erc20TokensBox.put(_token.contractAddress, _token);
+    await ethereumErc20TokensBox.put(_token.contractAddress, _token);
 
     if (_token.enabled) {
       balance[_token] = await _client.fetchERC20Balances(
@@ -463,7 +493,7 @@ abstract class EthereumWalletBase
   void addInitialTokens() {
     final initialErc20Tokens = DefaultErc20Tokens().initialErc20Tokens;
 
-    initialErc20Tokens.forEach((token) => erc20TokensBox.put(token.contractAddress, token));
+    initialErc20Tokens.forEach((token) => ethereumErc20TokensBox.put(token.contractAddress, token));
   }
 
   @override

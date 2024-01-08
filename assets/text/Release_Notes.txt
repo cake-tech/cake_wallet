@@ -1,3 +1,2 @@
-Monero Polyseed support, create and restore from a 16 words phrase and without the need to remember the wallet creation date
-Add NFTs tab to see all of your purchased NFTs on Ethereum
-Bug fixes and enhancements
+Support multiple address types for Bitcoin Cash
+Bug fixes

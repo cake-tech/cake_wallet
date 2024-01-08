@@ -68,7 +68,7 @@ abstract class Web3WalletServiceBase with Store {
     );
 
     // Setup our accounts
-    List<ChainKeyModel> chainKeys = walletKeyService.getKeys();
+    List<ChainKeyModel> chainKeys = walletKeyService.getKeys(appStore.wallet!);
     for (final chainKey in chainKeys) {
       for (final chainId in chainKey.chains) {
         _web3Wallet.registerAccount(
@@ -136,6 +136,7 @@ abstract class Web3WalletServiceBase with Store {
     _web3Wallet.onAuthRequest.unsubscribe(_onAuthRequest);
     _web3Wallet.core.pairing.onPairingDelete.unsubscribe(_onPairingDelete);
     _web3Wallet.core.pairing.onPairingExpire.unsubscribe(_onPairingDelete);
+    isInitialized = false;
   }
 
   Web3Wallet getWeb3Wallet() {
@@ -236,7 +237,7 @@ abstract class Web3WalletServiceBase with Store {
   Future<void> _onAuthRequest(AuthRequest? args) async {
     if (args != null) {
       final chaindIdNamespace = getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type);
-      List<ChainKeyModel> chainKeys = walletKeyService.getKeysForChain(chaindIdNamespace);
+      List<ChainKeyModel> chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
       // Create the message to be signed
       final String iss = 'did:pkh:$chaindIdNamespace:${chainKeys.first.publicKey}';
       final Widget modalWidget = Web3RequestModal(
