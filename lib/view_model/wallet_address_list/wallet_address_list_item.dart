@@ -9,8 +9,7 @@ class WalletAddressListItem extends ListItem {
     this.name,
     this.txCount,
     this.balance,
-    this.isChange = false,
-    this.legacyAddress = ''})
+    this.isChange = false})
     : super();
 
   final int? id;
@@ -20,7 +19,6 @@ class WalletAddressListItem extends ListItem {
   final int? txCount;
   final String? balance;
   final bool isChange;
-  final String? legacyAddress;
 
   @override
   String toString() => name ?? address;

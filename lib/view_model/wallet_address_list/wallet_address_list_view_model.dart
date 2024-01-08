@@ -1,4 +1,3 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -18,7 +17,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
-import 'package:bitbox/bitbox.dart' as bitbox;
 
 part 'wallet_address_list_view_model.g.dart';
 
@@ -285,14 +283,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
               (element) => WalletAddressListItem(
               isPrimary: false,
               name: null,
-              address: wallet.type == WalletType.bitcoinCash
-                  ? bitbox.Address.toCashAddress(element.address)
-                  : element.address,
+              address: element.address,
               txCount: element.txCount,
               balance: AmountConverter.amountIntToString(
                   walletTypeToCryptoCurrency(type), element.balance),
-              isChange: element.isHidden,
-              legacyAddress: element.address));
+              isChange: element.isHidden));
       addressList.addAll(bitcoinUsedAddresses);
     }
 
@@ -349,9 +344,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @action
   void setAddress(WalletAddressListItem address) =>
-      wallet.walletAddresses.address = wallet.type == WalletType.bitcoinCash
-          ? (address.legacyAddress ?? '')
-          : address.address;
+      wallet.walletAddresses.address = address.address;
 
   void _init() {
     _baseItems = [];
