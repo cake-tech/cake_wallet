@@ -205,12 +205,6 @@ class CWNanoUtil extends NanoUtil {
   BigInt convertXMRtoNano = BigInt.parse("1000000000000000000");
 
   @override
-  String getRawAsDecimalString(String? raw, BigInt? rawPerCur) {
-    final Decimal result = NanoAmounts.getRawAsDecimal(raw, rawPerCur);
-    return result.toString();
-  }
-
-  @override
   String getRawAsUsableString(String? raw, BigInt rawPerCur) {
     return NanoAmounts.getRawAsUsableString(raw, rawPerCur);
   }

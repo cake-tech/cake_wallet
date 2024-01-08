@@ -759,7 +759,6 @@ import 'package:convert/convert.dart';
 import "package:ed25519_hd_key/ed25519_hd_key.dart";
 import 'package:libcrypto/libcrypto.dart';
 import 'package:nanodart/nanodart.dart' as ND;
-import 'package:decimal/decimal.dart';
 import 'package:nanoutil/nanoutil.dart';
 """;
   const nanoCwPart = "part 'cw_nano.dart';";
@@ -818,7 +817,6 @@ abstract class NanoUtil {
   BigInt rawPerBanano = BigInt.parse("100000000000000000000000000000");
   BigInt rawPerXMR = BigInt.parse("1000000000000");
   BigInt convertXMRtoNano = BigInt.parse("1000000000000000000");
-  String getRawAsDecimalString(String? raw, BigInt? rawPerCur);
   String getRawAsUsableString(String? raw, BigInt rawPerCur);
   String getRawAccuracy(String? raw, BigInt rawPerCur);
   String getAmountAsRaw(String amount, BigInt rawPerCur);
