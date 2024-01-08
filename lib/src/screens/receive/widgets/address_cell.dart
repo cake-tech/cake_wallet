@@ -15,13 +15,15 @@ class AddressCell extends StatelessWidget {
       this.onEdit,
       this.txCount,
       this.balance,
-      this.isChange = false});
+      this.isChange = false,
+      this.hasBalance = false});
 
   factory AddressCell.fromItem(WalletAddressListItem item,
           {required bool isCurrent,
           required Color backgroundColor,
           required Color textColor,
           Function(String)? onTap,
+          bool hasBalance = false,
           Function()? onEdit}) =>
       AddressCell(
           address: item.address,
@@ -34,7 +36,8 @@ class AddressCell extends StatelessWidget {
           onEdit: onEdit,
           txCount: item.txCount,
           balance: item.balance,
-          isChange: item.isChange);
+          isChange: item.isChange,
+          hasBalance: hasBalance);
 
   final String address;
   final String name;
@@ -47,17 +50,19 @@ class AddressCell extends StatelessWidget {
   final int? txCount;
   final String? balance;
   final bool isChange;
+  final bool hasBalance;
 
   String get label {
     final formattedAddress = address.replaceAll('bitcoincash:', '');
-    if (name.isEmpty){
-      if(formattedAddress.length<=43){
+    if (name.isEmpty) {
+      if (formattedAddress.length <= 43) {
         return formattedAddress;
-      }else{
-        return formattedAddress.substring(0,8)+'...'+
-            formattedAddress.substring(formattedAddress.length-8,formattedAddress.length);
+      } else {
+        return formattedAddress.substring(0, 8) +
+            '...' +
+            formattedAddress.substring(formattedAddress.length - 8, formattedAddress.length);
       }
-    }else{
+    } else {
       return name;
     }
   }
@@ -71,10 +76,10 @@ class AddressCell extends StatelessWidget {
           color: backgroundColor,
           padding: EdgeInsets.only(left: 24, right: 24, top: 28, bottom: 28),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     label,
@@ -85,59 +90,70 @@ class AddressCell extends StatelessWidget {
                       color: textColor,
                     ),
                   ),
-                  if (txCount != null)
-                  Text(
-                    '$txCount ${S.of(context).transactions}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: textColor,
-                    ),
+                  if(hasBalance)
+                  Row(
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'tx: $txCount',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: textColor,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'balance: $balance',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: textColor,
+                            ),
+                          ),
+                          SizedBox(width: 8)
+                        ],
+                      ),
+                      if (isChange)
+                        Text(
+                          S.of(context).change,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: textColor,
+                          ),
+                        ),
+                    ],
                   ),
-                  if (balance != null)
-                    Text(
-                      '$balance ${S.of(context).transactions}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: textColor,
-                      ),
-                    ),
-                  if (isChange)
-                    Text(
-                      S.of(context).change,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: textColor,
-                      ),
-                    ),
                 ],
               ),
             ],
           ),
         ));
-    return onEdit == null ? cell : Semantics(
-      label: S.of(context).slidable,
-      selected: isCurrent,
-      enabled: !isCurrent,
-      child: Slidable(
-        key: Key(address),
-        startActionPane: _actionPane(context),
-        endActionPane: _actionPane(context),
-        child: cell,
-      ),
-    );
+    return onEdit == null
+        ? cell
+        : Semantics(
+            label: S.of(context).slidable,
+            selected: isCurrent,
+            enabled: !isCurrent,
+            child: Slidable(
+              key: Key(address),
+              startActionPane: _actionPane(context),
+              endActionPane: _actionPane(context),
+              child: cell,
+            ),
+          );
   }
 
   ActionPane _actionPane(BuildContext context) => ActionPane(
-    motion: const ScrollMotion(),
-    extentRatio: 0.3,
-    children: [
-      SlidableAction(
-        onPressed: (_) => onEdit?.call(),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        icon: Icons.edit,
-        label: S.of(context).edit,
-      ),
-    ],
-  );
+        motion: const ScrollMotion(),
+        extentRatio: 0.3,
+        children: [
+          SlidableAction(
+            onPressed: (_) => onEdit?.call(),
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            icon: Icons.edit,
+            label: S.of(context).edit,
+          ),
+        ],
+      );
 }

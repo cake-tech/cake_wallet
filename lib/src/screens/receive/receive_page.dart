@@ -196,6 +196,7 @@ class ReceivePage extends BasePage {
 
                                 return AddressCell.fromItem(item,
                                     isCurrent: isCurrent,
+                                    hasBalance: addressListViewModel.isElectrumWallet,
                                     backgroundColor: backgroundColor,
                                     textColor: textColor,
                                     onTap: (_) => addressListViewModel.setAddress(item),
