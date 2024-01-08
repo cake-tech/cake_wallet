@@ -78,7 +78,8 @@ class ProvidersHelper {
         return [ProviderType.askEachTime, ProviderType.dfx];
       case WalletType.bitcoin:
       case WalletType.ethereum:
-        return [ProviderType.askEachTime, ProviderType.moonpaySell, ProviderType.dfx];
+        return [ProviderType.askEachTime, ProviderType.onramper,
+          ProviderType.moonpaySell, ProviderType.dfx];
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
         return [ProviderType.askEachTime, ProviderType.moonpaySell];
