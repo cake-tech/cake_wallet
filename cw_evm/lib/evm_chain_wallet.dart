@@ -36,10 +36,14 @@ import 'package:web3dart/web3dart.dart';
 import 'evm_chain_transaction_info.dart';
 import 'evm_erc20_balance.dart';
 
-abstract class EVMChainWallet
+part 'evm_chain_wallet.g.dart';
+
+abstract class EVMChainWallet = EVMChainWalletBase with _$EVMChainWallet;
+
+abstract class EVMChainWalletBase
     extends WalletBase<EVMChainERC20Balance, EVMChainTransactionHistory, EVMChainTransactionInfo>
     with Store {
-  EVMChainWallet({
+  EVMChainWalletBase({
     required WalletInfo walletInfo,
     required EVMChainClient client,
     required CryptoCurrency nativeCurrency,

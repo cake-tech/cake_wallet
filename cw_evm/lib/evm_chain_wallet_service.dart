@@ -25,7 +25,7 @@ abstract class EVMChainWalletService<T extends EVMChainWallet> extends WalletSer
   Future<T> create(EVMChainNewWalletCredentials credentials);
 
   @override
-  Future<EVMChainWallet> openWallet(String name, String password);
+  Future<T> openWallet(String name, String password);
 
   @override
   Future<void> rename(String currentName, String password, String newName);

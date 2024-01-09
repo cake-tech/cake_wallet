@@ -26,7 +26,7 @@ class EthereumWallet extends EVMChainWallet {
     super.initialBalance,
     super.privateKey,
     super.nativeCurrency = CryptoCurrency.eth,
-  });
+  });  
 
   @override
   void addInitialTokens() {

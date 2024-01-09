@@ -5,7 +5,7 @@ class CWEthereum extends Ethereum {
   List<String> getEthereumWordList(String language) => EVMChainMnemonics.englishWordlist;
 
   WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource) =>
-      EthereumWalletService(walletInfoSource);
+      EthereumWalletService(walletInfoSource, client: EthereumClient());
 
   @override
   WalletCredentials createEthereumNewWalletCredentials({
