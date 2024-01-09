@@ -1,9 +1,3 @@
-class EVMChainMnemonicIsIncorrectException implements Exception {
-  @override
-  String toString() =>
-      'Mnemonic has incorrect format. It should contain 12 or 24 words separated by space.';
-}
-
 class EVMChainMnemonics {
   static const englishWordlist = <String>[
     'abandon',

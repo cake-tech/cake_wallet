@@ -6,4 +6,8 @@ class EthereumTransactionHistory extends EVMChainTransactionHistory {
     required super.walletInfo,
     required super.password,
   });
+
+  @override
+  String getTransactionHistoryFileName() => 'transactions.json';
+
 }

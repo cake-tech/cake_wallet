@@ -29,7 +29,8 @@ class EVMChainTransactionModel {
     required this.isError,
   });
 
-  factory EVMChainTransactionModel.fromJson(Map<String, dynamic> json) => EVMChainTransactionModel(
+  factory EVMChainTransactionModel.fromJson(Map<String, dynamic> json, String defaultSymbol) =>
+      EVMChainTransactionModel(
         date: DateTime.fromMillisecondsSinceEpoch(int.parse(json["timeStamp"]) * 1000),
         hash: json["hash"],
         from: json["from"],
@@ -40,7 +41,7 @@ class EVMChainTransactionModel {
         contractAddress: json["contractAddress"],
         confirmations: int.parse(json["confirmations"]),
         blockNumber: int.parse(json["blockNumber"]),
-        tokenSymbol: json["tokenSymbol"] ?? "ETH",
+        tokenSymbol: json["tokenSymbol"] ?? defaultSymbol,
         tokenDecimal: int.tryParse(json["tokenDecimal"] ?? ""),
         isError: json["isError"] == "1",
       );

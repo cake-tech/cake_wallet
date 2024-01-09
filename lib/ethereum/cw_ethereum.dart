@@ -12,7 +12,7 @@ class CWEthereum extends Ethereum {
     required String name,
     WalletInfo? walletInfo,
   }) =>
-      EthereumNewWalletCredentials(name: name, walletInfo: walletInfo);
+      EVMChainNewWalletCredentials(name: name, walletInfo: walletInfo);
 
   @override
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({
@@ -20,7 +20,7 @@ class CWEthereum extends Ethereum {
     required String mnemonic,
     required String password,
   }) =>
-      EthereumRestoreWalletFromSeedCredentials(name: name, password: password, mnemonic: mnemonic);
+      EVMChainRestoreWalletFromSeedCredentials(name: name, password: password, mnemonic: mnemonic);
 
   @override
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({
@@ -28,7 +28,7 @@ class CWEthereum extends Ethereum {
     required String privateKey,
     required String password,
   }) =>
-      EthereumRestoreWalletFromPrivateKey(name: name, password: password, privateKey: privateKey);
+      EVMChainRestoreWalletFromPrivateKey(name: name, password: password, privateKey: privateKey);
 
   @override
   String getAddress(WalletBase wallet) => (wallet as EVMChainWallet).walletAddresses.address;
@@ -66,7 +66,7 @@ class CWEthereum extends Ethereum {
     required CryptoCurrency currency,
     int? feeRate,
   }) =>
-      EthereumTransactionCredentials(
+      EVMChainTransactionCredentials(
         outputs
             .map((out) => OutputInfo(
                 fiatAmount: out.fiatAmount,
@@ -89,7 +89,7 @@ class CWEthereum extends Ethereum {
     required CryptoCurrency currency,
     required int feeRate,
   }) =>
-      EthereumTransactionCredentials(
+      EVMChainTransactionCredentials(
         outputs,
         priority: priority as EVMChainTransactionPriority?,
         currency: currency,
@@ -105,7 +105,7 @@ class CWEthereum extends Ethereum {
     assert(transaction != null || amount != null);
 
     if (transaction != null) {
-      transaction as EthereumTransactionInfo;
+      transaction as EVMChainTransactionInfo;
       return transaction.ethAmount / BigInt.from(10).pow(transaction.exponent);
     } else {
       return (amount!) / BigInt.from(10).pow(exponent);
@@ -134,7 +134,7 @@ class CWEthereum extends Ethereum {
 
   @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
-    transaction as EthereumTransactionInfo;
+    transaction as EVMChainTransactionInfo;
     if (transaction.tokenSymbol == CryptoCurrency.eth.title) {
       return CryptoCurrency.eth;
     }

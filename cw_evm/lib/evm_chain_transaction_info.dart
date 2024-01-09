@@ -12,7 +12,7 @@ class EVMChainTransactionInfo extends TransactionInfo {
     required this.height,
     required this.ethAmount,
     required this.ethFee,
-    this.tokenSymbol = "ETH",
+    required this.tokenSymbol,
     this.exponent = 18,
     required this.direction,
     required this.isPending,
@@ -52,7 +52,7 @@ class EVMChainTransactionInfo extends TransactionInfo {
   @override
   String feeFormatted() {
     final amount = (ethFee / BigInt.from(10).pow(18)).toString();
-    return '${amount.substring(0, min(10, amount.length))} ETH';
+    return '${amount.substring(0, min(10, amount.length))} $tokenSymbol';
   }
 
   factory EVMChainTransactionInfo.fromJson(Map<String, dynamic> data) {

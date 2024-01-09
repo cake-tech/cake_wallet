@@ -8,26 +8,24 @@ import 'package:cw_evm/file.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
 
-part 'evm_chain_transaction_history.g.dart';
-
-class EVMChainTransactionHistory = EVMChainTransactionHistoryBase with _$EVMChainTransactionHistory;
-
-abstract class EVMChainTransactionHistoryBase
-    extends TransactionHistoryBase<EVMChainTransactionInfo> with Store {
-  EVMChainTransactionHistoryBase({required this.walletInfo, required String password})
+abstract class EVMChainTransactionHistory extends TransactionHistoryBase<EVMChainTransactionInfo>
+    with Store {
+  EVMChainTransactionHistory({required this.walletInfo, required String password})
       : _password = password {
     transactions = ObservableMap<String, EVMChainTransactionInfo>();
   }
 
-  final WalletInfo walletInfo;
   String _password;
 
-  Future<void> init() async => await _load();
+  final WalletInfo walletInfo;
 
-  /// Returns the transaction history file name.
-  ///
-  /// Each wallet would override this to provide the path to it's own transaction history file.
-  String getTransactionHistoryFileName() => 'transactions.json';
+  //! Method to be overridden by all child classes
+
+  String getTransactionHistoryFileName();
+
+  //! Common methods across all child classes
+
+  Future<void> init() async => await _load();
 
   @override
   Future<void> save() async {

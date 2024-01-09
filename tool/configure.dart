@@ -601,7 +601,7 @@ import 'package:web3dart/web3dart.dart';
 
 """;
   const polygonCWHeaders = """
-import 'package:cw_polygon/polygon_transaction_credentials.dart';
+import 'package`:cw_polygon/polygon_transaction_credentials.dart';
 import 'package:cw_polygon/polygon_transaction_info.dart';
 import 'package:cw_polygon/polygon_wallet_creation_credentials.dart';
 import 'package:cw_polygon/polygon_wallet_service.dart';

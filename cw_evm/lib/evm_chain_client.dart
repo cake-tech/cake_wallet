@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cw_core/node.dart';
@@ -7,7 +6,6 @@ import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 import 'package:cw_evm/evm_erc20_balance.dart';
-import 'package:cw_evm/.secrets.g.dart' as secrets;
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
@@ -17,9 +15,20 @@ import 'package:http/http.dart';
 import 'package:erc20/erc20.dart';
 import 'package:web3dart/web3dart.dart';
 
-class EVMChainClient {
+abstract class EVMChainClient {
   final httpClient = Client();
   Web3Client? _client;
+
+  //! To be overridden by all child classes
+
+  int get chainId;
+
+  Future<List<EVMChainTransactionModel>> fetchTransactions(String address,
+      {String? contractAddress});
+
+  Uint8List prepareSignedTransactionForSending(Uint8List signedTransaction);
+
+  //! Common methods across all child classes
 
   bool connect(Node node) {
     try {
@@ -126,8 +135,6 @@ class EVMChainClient {
     );
   }
 
-  int get chainId => 1;
-
   Transaction createTransaction({
     required EthereumAddress from,
     required EthereumAddress to,
@@ -144,9 +151,6 @@ class EVMChainClient {
 
   Future<String> sendTransaction(Uint8List signedTransaction) async =>
       await _client!.sendRawTransaction(prepareSignedTransactionForSending(signedTransaction));
-
-  Uint8List prepareSignedTransactionForSending(Uint8List signedTransaction) =>
-      prependTransactionType(0x02, signedTransaction);
 
   Future getTransactionDetails(String transactionHash) async {
     // Wait for the transaction receipt to become available
@@ -220,32 +224,6 @@ class EVMChainClient {
 
   void stop() {
     _client?.dispose();
-  }
-
-  Future<List<EVMChainTransactionModel>> fetchTransactions(String address,
-      {String? contractAddress}) async {
-    try {
-      final response = await httpClient.get(Uri.https("api.etherscan.io", "/api", {
-        "module": "account",
-        "action": contractAddress != null ? "tokentx" : "txlist",
-        if (contractAddress != null) "contractaddress": contractAddress,
-        "address": address,
-        "apikey": secrets.etherScanApiKey,
-      }));
-
-      final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
-
-      if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
-        return (jsonResponse['result'] as List)
-            .map((e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>))
-            .toList();
-      }
-
-      return [];
-    } catch (e) {
-      log(e.toString());
-      return [];
-    }
   }
 
   Web3Client? getWeb3Client() {
