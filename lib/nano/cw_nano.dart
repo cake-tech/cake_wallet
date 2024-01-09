@@ -173,7 +173,7 @@ class CWNano extends Nano {
   }
 
   @override
-  Future<void> updateTransactions(Object wallet) async {
+  Future<bool> updateTransactions(Object wallet) async {
     return (wallet as NanoWallet).updateTransactions();
   }
 
