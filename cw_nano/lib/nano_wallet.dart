@@ -247,10 +247,10 @@ abstract class NanoWalletBase
     }
   }
 
-  Future<void> updateTransactions() async {
+  Future<bool> updateTransactions() async {
     try {
       if (_isTransactionUpdating) {
-        return;
+        return false;
       }
 
       _isTransactionUpdating = true;
@@ -258,8 +258,10 @@ abstract class NanoWalletBase
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
       _isTransactionUpdating = false;
+      return true;
     } catch (_) {
       _isTransactionUpdating = false;
+      return false;
     }
   }
 
@@ -323,9 +325,8 @@ abstract class NanoWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
-      await _updateBalance();
-      await updateTransactions();
 
+      // setup a timer to receive transactions periodically:
       _receiveTimer?.cancel();
       _receiveTimer = Timer.periodic(const Duration(seconds: POLL_INTERVAL_SECONDS), (timer) async {
         // get our balance:
@@ -335,6 +336,14 @@ abstract class NanoWalletBase
           await _receiveAll();
         }
       });
+
+      // also run once, immediately:
+      await _updateBalance();
+      bool updateSuccess = await updateTransactions();
+      if (!updateSuccess) {
+        syncStatus = FailedSyncStatus();
+        return;
+      }
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {
