@@ -374,9 +374,11 @@ abstract class NanoWalletBase
 
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String;
-    final balance = NanoBalance.fromString(
-        formattedCurrentBalance: data['currentBalance'] as String? ?? "0",
-        formattedReceivableBalance: data['receivableBalance'] as String? ?? "0");
+    
+    final balance = NanoBalance.fromRawString(
+      currentBalance: data['currentBalance'] as String? ?? "0",
+      receivableBalance: data['receivableBalance'] as String? ?? "0",
+    );
 
     DerivationType derivationType = DerivationType.nano;
     if (data['derivationType'] == "DerivationType.bip39") {

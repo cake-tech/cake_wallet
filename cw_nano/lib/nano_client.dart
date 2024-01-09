@@ -65,7 +65,8 @@ class NanoClient {
         data["error"] != null ||
         data["balance"] == null ||
         data["receivable"] == null) {
-      throw Exception("Error while trying to get balance! ${data["error"]}");
+      throw Exception(
+          "Error while trying to get balance! ${data["error"] != null ? data["error"] : ""}");
     }
     final String currentBalance = data["balance"] as String;
     final String receivableBalance = data["receivable"] as String;
