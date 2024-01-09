@@ -152,6 +152,7 @@ abstract class NanoWalletBase
 
       try {
         await _updateBalance();
+        await updateTransactions();
         await _updateRep();
         await _receiveAll();
       } catch (e) {
@@ -274,16 +275,16 @@ abstract class NanoWalletBase
     final Map<String, NanoTransactionInfo> result = {};
 
     for (var transactionModel in transactions) {
+      final bool isSend = transactionModel.type == "send";
       result[transactionModel.hash] = NanoTransactionInfo(
         id: transactionModel.hash,
         amountRaw: transactionModel.amount,
         height: transactionModel.height,
-        direction: transactionModel.type == "send"
-            ? TransactionDirection.outgoing
-            : TransactionDirection.incoming,
+        direction: isSend ? TransactionDirection.outgoing : TransactionDirection.incoming,
         confirmed: transactionModel.confirmed,
         date: transactionModel.date ?? DateTime.now(),
         confirmations: transactionModel.confirmed ? 1 : 0,
+        to: isSend ? transactionModel.account : address,
       );
     }
 

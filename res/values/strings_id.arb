@@ -752,5 +752,6 @@
   "select_sell_provider_notice": "Pilih penyedia jual di atas. Anda dapat melewati layar ini dengan mengatur penyedia penjualan default Anda di pengaturan aplikasi.",
   "custom_drag": "Khusus (tahan dan seret)",
   "switchToEVMCompatibleWallet": "Silakan beralih ke dompet yang kompatibel dengan EVM dan coba lagi (Ethereum, Polygon)",
-  "receivable_balance": "Saldo piutang"
+  "receivable_balance": "Saldo piutang",
+  "confirmed_tx": "Dikonfirmasi"
 }

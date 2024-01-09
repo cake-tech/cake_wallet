@@ -763,5 +763,6 @@
   "select_sell_provider_notice": "Selecione um fornecedor de venda acima. Você pode pular esta tela definindo seu provedor de venda padrão nas configurações do aplicativo.",
   "custom_drag": "Personalizado (segure e arraste)",
   "switchToEVMCompatibleWallet": "Mude para uma carteira compatível com EVM e tente novamente (Ethereum, Polygon)",
-  "receivable_balance": "Saldo a receber"
+  "receivable_balance": "Saldo a receber",
+  "confirmed_tx": "Confirmado"
 }

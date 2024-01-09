@@ -764,5 +764,6 @@
   "select_sell_provider_notice": "Wybierz dostawcę sprzedaży powyżej. Możesz pominąć ten ekran, ustawiając domyślnego dostawcę sprzedaży w ustawieniach aplikacji.",
   "custom_drag": "Niestandardowe (trzymaj i przeciągnij)",
   "switchToEVMCompatibleWallet": "Przejdź na portfel zgodny z EVM i spróbuj ponownie (Ethereum, Polygon)",
-  "receivable_balance": "Saldo należności"
+  "receivable_balance": "Saldo należności",
+  "confirmed_tx": "Potwierdzony"
 }

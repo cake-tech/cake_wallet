@@ -13,6 +13,7 @@ class NanoTransactionInfo extends TransactionInfo {
     required this.confirmed,
     required this.date,
     required this.confirmations,
+    required this.to,
   }) : this.amount = amountRaw.toInt();
 
   final String id;
@@ -24,6 +25,7 @@ class NanoTransactionInfo extends TransactionInfo {
   final bool confirmed;
   final int confirmations;
   final String tokenSymbol;
+  final String? to;
   String? _fiatAmount;
 
   bool get isPending => !this.confirmed;
@@ -55,6 +57,7 @@ class NanoTransactionInfo extends TransactionInfo {
       confirmed: data['confirmed'] as bool,
       confirmations: data['confirmations'] as int,
       tokenSymbol: data['tokenSymbol'] as String,
+      to: data['to'] as String,
     );
   }
 
@@ -67,5 +70,6 @@ class NanoTransactionInfo extends TransactionInfo {
         'confirmed': confirmed,
         'confirmations': confirmations,
         'tokenSymbol': tokenSymbol,
+        'to': to,
       };
 }
