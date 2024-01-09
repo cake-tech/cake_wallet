@@ -392,19 +392,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (isElectrumWallet) {
       final wallet = this.wallet as ElectrumWallet;
       final currentReceiveAddress = wallet.walletAddresses.address;
-      final countOfReceiveAddresses = wallet.walletAddresses.totalCountOfReceiveAddresses;
       wallet.walletAddresses.updateReceiveAddresses();
       wallet.walletAddresses.addresses
-          .firstWhere((element) => element.address == currentReceiveAddress)
-          .setAsUsed();
-
+          .firstWhere((element) => element.address == currentReceiveAddress).setAsUsed();
       wallet.walletAddresses.updateReceiveAddresses();
-
-      if (wallet.walletAddresses.receiveAddresses.length < 2) {
-        await wallet.walletAddresses.generateNewAddress(
-            hd: wallet.walletAddresses.mainHd, newAddressIndex: countOfReceiveAddresses + 1);
-      }
-
       await wallet.save();
     }
   }
