@@ -765,5 +765,6 @@
   "custom_drag": "Custom (mantenía y arrastre)",
   "switchToEVMCompatibleWallet": "Cambie a una billetera compatible con EVM e inténtelo nuevamente (Ethereum, Polygon)",
   "receivable_balance": "Saldo de cuentas por cobrar",
-  "confirmed_tx": "Confirmado"
+  "confirmed_tx": "Confirmado",
+  "transaction_details_source_address": "Dirección de la fuente"
 }

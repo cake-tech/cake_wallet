@@ -765,5 +765,6 @@
   "custom_drag": "Custom (Hold and Drag)",
   "switchToEVMCompatibleWallet": "Passa a un portafoglio compatibile con EVM e riprova (Ethereum, Polygon)",
   "receivable_balance": "Bilanciamento creditizio",
-  "confirmed_tx": "Confermato"
+  "confirmed_tx": "Confermato",
+  "transaction_details_source_address": "Indirizzo di partenza"
 }

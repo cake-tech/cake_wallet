@@ -285,6 +285,7 @@ abstract class NanoWalletBase
         date: transactionModel.date ?? DateTime.now(),
         confirmations: transactionModel.confirmed ? 1 : 0,
         to: isSend ? transactionModel.account : address,
+        from: isSend ? null : transactionModel.account,
       );
     }
 

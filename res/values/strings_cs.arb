@@ -757,5 +757,6 @@
   "custom_drag": "Custom (Hold and Drag)",
   "switchToEVMCompatibleWallet": "Přepněte na peněženku kompatibilní s EVM a zkuste to znovu (Ethereum, Polygon)",
   "receivable_balance": "Zůstatek pohledávek",
-  "confirmed_tx": "Potvrzeno"
+  "confirmed_tx": "Potvrzeno",
+  "transaction_details_source_address": "Zdrojová adresa"
 }

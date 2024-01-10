@@ -765,5 +765,6 @@
   "custom_drag": "На замовлення (утримуйте та перетягується)",
   "switchToEVMCompatibleWallet": "Перейдіть на гаманець, сумісний з EVM, і повторіть спробу (Ethereum, Polygon)",
   "receivable_balance": "Баланс дебіторської заборгованості",
-  "confirmed_tx": "Підтверджений"
+  "confirmed_tx": "Підтверджений",
+  "transaction_details_source_address": "Адреса джерела"
 }

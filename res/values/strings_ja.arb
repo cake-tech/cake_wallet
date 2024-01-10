@@ -765,5 +765,6 @@
   "custom_drag": "カスタム（ホールドとドラッグ）",
   "switchToEVMCompatibleWallet": "EVM 互換のウォレットに切り替えて再試行してください (イーサリアム、ポリゴン)",
   "receivable_balance": "売掛金残高",
-  "confirmed_tx": "確認済み"
+  "confirmed_tx": "確認済み",
+  "transaction_details_source_address": "ソースアドレス"
 }

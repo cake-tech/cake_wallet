@@ -761,5 +761,6 @@
   "custom_drag": "مخصص (عقد وسحب)",
   "switchToEVMCompatibleWallet": "  (Ethereum، Polygon) ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ EVM ﻊﻣ ﺔﻘﻓﺍﻮﺘﻣ ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ",
   "receivable_balance": "التوازن القادم",
-  "confirmed_tx": "مؤكد"
+  "confirmed_tx": "مؤكد",
+  "transaction_details_source_address": "عنوان المصدر"
 }

@@ -764,5 +764,6 @@
   "custom_drag": "Personalizado (segure e arraste)",
   "switchToEVMCompatibleWallet": "Mude para uma carteira compatível com EVM e tente novamente (Ethereum, Polygon)",
   "receivable_balance": "Saldo a receber",
-  "confirmed_tx": "Confirmado"
+  "confirmed_tx": "Confirmado",
+  "transaction_details_source_address": "Endereço de Origem"
 }

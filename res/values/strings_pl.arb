@@ -765,5 +765,6 @@
   "custom_drag": "Niestandardowe (trzymaj i przeciągnij)",
   "switchToEVMCompatibleWallet": "Przejdź na portfel zgodny z EVM i spróbuj ponownie (Ethereum, Polygon)",
   "receivable_balance": "Saldo należności",
-  "confirmed_tx": "Potwierdzony"
+  "confirmed_tx": "Potwierdzony",
+  "transaction_details_source_address": "Adres źródłowy"
 }

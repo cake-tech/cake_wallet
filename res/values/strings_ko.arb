@@ -763,5 +763,6 @@
   "custom_drag": "사용자 정의 (홀드 앤 드래그)",
   "switchToEVMCompatibleWallet": "EVM 호환 지갑으로 전환 후 다시 시도해 주세요. (이더리움, 폴리곤)",
   "receivable_balance": "채권 잔액",
-  "confirmed_tx": "확인"
+  "confirmed_tx": "확인",
+  "transaction_details_source_address": "소스 주소"
 }
