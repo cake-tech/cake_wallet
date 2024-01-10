@@ -7,6 +7,7 @@ const ethereumOutputPath = 'lib/ethereum/ethereum.dart';
 const bitcoinCashOutputPath = 'lib/bitcoin_cash/bitcoin_cash.dart';
 const nanoOutputPath = 'lib/nano/nano.dart';
 const polygonOutputPath = 'lib/polygon/polygon.dart';
+const FiroOutputPath = 'lib/firo/firo.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
 const pubspecOutputPath = 'pubspec.yaml';
@@ -21,6 +22,7 @@ Future<void> main(List<String> args) async {
   final hasNano = args.contains('${prefix}nano');
   final hasBanano = args.contains('${prefix}banano');
   final hasPolygon = args.contains('${prefix}polygon');
+  final hasFiro = args.contains('${prefix}firo');
 
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
@@ -29,6 +31,7 @@ Future<void> main(List<String> args) async {
   await generateBitcoinCash(hasBitcoinCash);
   await generateNano(hasNano);
   await generatePolygon(hasPolygon);
+  await generateFiro(hasFiro);
   // await generateBanano(hasEthereum);
 
   await generatePubspec(
@@ -40,6 +43,7 @@ Future<void> main(List<String> args) async {
     hasBanano: hasBanano,
     hasBitcoinCash: hasBitcoinCash,
     hasPolygon: hasPolygon,
+    hasFiro: hasFiro,
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -50,6 +54,7 @@ Future<void> main(List<String> args) async {
     hasBanano: hasBanano,
     hasBitcoinCash: hasBitcoinCash,
     hasPolygon: hasPolygon,
+    hasFiro: hasFiro,
   );
 }
 
@@ -726,6 +731,57 @@ abstract class BitcoinCash {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateFiro(bool hasImplementation) async {
+  final outputFile = File(FiroOutputPath);
+  const firoCommonHeaders = """
+""";
+  const firoCWHeaders = """
+""";
+  const firoCwPart = "part 'cw_firo.dart';";
+  const firoContent = """
+abstract class Firo {
+  String getMnemonic(int? strength);
+
+  Uint8List getSeedFromMnemonic(String seed);
+
+  String getCashAddrFormat(String address);
+
+  WalletService createFiroWalletService(
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+
+  WalletCredentials createFiroNewWalletCredentials(
+      {required String name, WalletInfo? walletInfo});
+
+  WalletCredentials createFiroRestoreWalletFromSeedCredentials(
+      {required String name, required String mnemonic, required String password});
+
+  TransactionPriority deserializeFiroTransactionPriority(int raw);
+
+  TransactionPriority getDefaultTransactionPriority();
+
+  List<TransactionPriority> getTransactionPriorities();
+  
+  TransactionPriority getFiroTransactionPrioritySlow();
+}
+  """;
+
+  const firoEmptyDefinition = 'Firo? firo;\n';
+  const firoCWDefinition = 'Firo? firo = CWFiro();\n';
+
+  final output = '$firoCommonHeaders\n' +
+      (hasImplementation ? '$firoCWHeaders\n' : '\n') +
+      (hasImplementation ? '$firoCwPart\n\n' : '\n') +
+      (hasImplementation ? firoCWDefinition : firoEmptyDefinition) +
+      '\n' +
+      firoContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generateNano(bool hasImplementation) async {
   final outputFile = File(nanoOutputPath);
   const nanoCommonHeaders = """
@@ -876,7 +932,8 @@ Future<void> generatePubspec(
     required bool hasNano,
     required bool hasBanano,
     required bool hasBitcoinCash,
-    required bool hasPolygon}) async {
+    required bool hasPolygon,
+    required bool hasFiro}) async {
   const cwCore = """
   cw_core:
     path: ./cw_core
@@ -917,6 +974,15 @@ Future<void> generatePubspec(
   cw_polygon:
     path: ./cw_polygon
   """;
+  const cwFiro = """
+  cw_firo:
+    path: ./cw_firo
+
+  flutter_libsparkmobile:
+    git:
+      url: https://github.com/cypherstack/flutter_libsparkmobile.git
+      ref: ac6424658191047b14cbd95bee61388397ae94a7
+  """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
@@ -951,6 +1017,10 @@ Future<void> generatePubspec(
     output += '\n$cwPolygon';
   }
 
+  if (hasFiro) {
+    output += '\n$cwFiro';
+  }
+
   if (hasHaven && !hasMonero) {
     output += '\n$cwSharedExternal\n$cwHaven';
   } else if (hasHaven) {
@@ -977,7 +1047,8 @@ Future<void> generateWalletTypes(
     required bool hasNano,
     required bool hasBanano,
     required bool hasBitcoinCash,
-    required bool hasPolygon}) async {
+    required bool hasPolygon,
+    required bool hasFiro}) async {
   final walletTypesFile = File(walletTypesPath);
 
   if (walletTypesFile.existsSync()) {
@@ -1018,6 +1089,10 @@ Future<void> generateWalletTypes(
 
   if (hasBanano) {
     outputContent += '\tWalletType.banano,\n';
+  }
+
+  if (hasFiro) {
+    outputContent += '\tWalletType.firo,\n';
   }
 
   if (hasHaven) {

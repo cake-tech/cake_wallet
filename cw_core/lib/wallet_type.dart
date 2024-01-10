@@ -4,18 +4,6 @@ import 'package:hive/hive.dart';
 
 part 'wallet_type.g.dart';
 
-const walletTypes = [
-  WalletType.monero,
-  WalletType.bitcoin,
-  WalletType.litecoin,
-  WalletType.haven,
-  WalletType.ethereum,
-  WalletType.bitcoinCash,
-  WalletType.nano,
-  WalletType.banano,
-  WalletType.polygon,
-];
-
 @HiveType(typeId: WALLET_TYPE_TYPE_ID)
 enum WalletType {
   @HiveField(0)
@@ -46,7 +34,10 @@ enum WalletType {
   bitcoinCash,
 
   @HiveField(9)
-  polygon
+  polygon,
+
+  @HiveField(10)
+  firo,
 }
 
 int serializeToInt(WalletType type) {
@@ -69,6 +60,8 @@ int serializeToInt(WalletType type) {
       return 7;
     case WalletType.polygon:
       return 8;
+    case WalletType.firo:
+      return 9;
     default:
       return -1;
   }
@@ -94,6 +87,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.bitcoinCash;
     case 8:
       return WalletType.polygon;
+    case 9:
+      return WalletType.firo;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
@@ -119,6 +114,8 @@ String walletTypeToString(WalletType type) {
       return 'Banano';
     case WalletType.polygon:
       return 'Polygon';
+    case WalletType.firo:
+      return 'Firo';
     default:
       return '';
   }
@@ -144,6 +141,8 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Banano (BAN)';
     case WalletType.polygon:
       return 'Polygon (MATIC)';
+    case WalletType.firo:
+      return 'Firo';
     default:
       return '';
   }
@@ -169,6 +168,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.banano;
     case WalletType.polygon:
       return CryptoCurrency.maticpoly;
+    case WalletType.firo:
+      return CryptoCurrency.firo;
     default:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
