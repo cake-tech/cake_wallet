@@ -1,4 +1,3 @@
-
 enum ReceivePageOption {
   mainnet,
   anonPayInvoice,
@@ -9,13 +8,13 @@ enum ReceivePageOption {
     String label = '';
     switch (this) {
       case ReceivePageOption.mainnet:
-        label = 'Mainnet';
+        label = S.current.mainnet;
         break;
       case ReceivePageOption.anonPayInvoice:
-        label = 'Trocador AnonPay Invoice';
+        label = S.current.trocador_anonpay_invoice;
         break;
       case ReceivePageOption.anonPayDonationLink:
-        label = 'Trocador AnonPay Donation Link';
+        label = S.current.trocador_anonpay_donation_link;
         break;
     }
     return label;

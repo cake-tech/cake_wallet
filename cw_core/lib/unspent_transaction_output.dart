@@ -1,3 +1,5 @@
+import 'package:bitcoin_base/bitcoin_base.dart';
+
 class Unspent {
   Unspent(this.address, this.hash, this.value, this.vout, this.keyImage)
       : isSending = true,
@@ -16,5 +18,5 @@ class Unspent {
   bool isFrozen;
   String note;
 
-  bool get isP2wpkh => address.startsWith('bc') || address.startsWith('ltc');
+  bool get isP2wpkh => P2wpkhAddress.REGEX.hasMatch(address) || address.startsWith('ltc');
 }
