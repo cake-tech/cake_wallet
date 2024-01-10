@@ -22,6 +22,7 @@ class RestoreOptionsPage extends BasePage {
   String get title => S.current.restore_restore_wallet;
 
   final bool isNewInstall;
+  final imageLedger = Image.asset('assets/images/ledger_icon_black.png', width: 40);
   final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png');
   final imageBackup = Image.asset('assets/images/backup.png');
   final qrCode = Image.asset('assets/images/restore_qr.png');
@@ -38,7 +39,7 @@ class RestoreOptionsPage extends BasePage {
               children: <Widget>[
                 OptionTile(
                     onPressed: () => Navigator.pushNamed(context, Routes.connectDevices),
-                    image: imageSeedKeys,
+                    image: imageLedger,
                     title: "Ledger",
                     description: S.of(context).restore_description_from_seed_keys),
                 Padding(
