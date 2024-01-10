@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -17,7 +18,6 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   final crypto = args['crypto'] as String;
   final fiat = args['fiat'] as String;
   final torOnly = args['torOnly'] as bool;
-  final onionOnly = args['onionOnly'] as bool;
   final mainThreadProxyPort = args['port'] as int;
 
   final Map<String, String> queryParams = {
@@ -33,46 +33,27 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
     final Uri onionUri = Uri.http(_fiatApiOnionAuthority, _fiatApiPath, queryParams);
     final Uri clearnetUri = Uri.https(_fiatApiClearNetAuthority, _fiatApiPath, queryParams);
 
-    HttpClient client = await ProxyWrapper.instance.getProxyInstance(
-      portOverride: mainThreadProxyPort,
-    );
+    ProxyWrapper proxy = await getIt.get<ProxyWrapper>();
 
     late HttpClientResponse httpResponse;
     late String responseBody;
     late int statusCode;
 
-    // we might have tor enabled (no way of knowing), so we try to use it first
+    // the proxywrapper class wraps all of the complexity of retrying on clearnet / settings handling:
     try {
-      // connect through onion url first:
-      try {
-        final request = await client.getUrl(onionUri);
-        httpResponse = await request.close();
-        responseBody = await utf8.decodeStream(httpResponse);
-      } catch (e) {
-        // if the onion url fails, try the clearnet url, (still using tor!):
-        // only do this if we are not onionOnly, otherwise we will fail
-        if (!onionOnly) {
-          final request = await client.getUrl(clearnetUri);
-          httpResponse = await request.close();
-          responseBody = await utf8.decodeStream(httpResponse);
-        } else {
-          // we failed to connect through onionOnly
-          return 0.0;
-        }
-      }
+      httpResponse = await proxy.get(
+        onionUri,
+        portOverride: mainThreadProxyPort,
+        torOnly: torOnly,
+        clearnetUri: clearnetUri,
+      );
+      responseBody = await utf8.decodeStream(httpResponse);
       statusCode = httpResponse.statusCode;
     } catch (e) {
-      if (torOnly) {
-        // we failed to connect through torOnly
-        return 0.0;
-      }
-
-      // connections all failed / tor is not enabled, so we use the clearnet url directly as normal:
-      final response = await get(clearnetUri);
-      responseBody = response.body;
-      statusCode = response.statusCode;
+      // we weren't able to get a response with these settings:
+      return 0.0;
     }
-    
+
     if (statusCode != 200) {
       return 0.0;
     }
@@ -90,7 +71,8 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   }
 }
 
-Future<double> _fetchPriceAsync(CryptoCurrency crypto, FiatCurrency fiat, bool torOnly, bool onionOnly) async =>
+Future<double> _fetchPriceAsync(
+        CryptoCurrency crypto, FiatCurrency fiat, bool torOnly, bool onionOnly) async =>
     compute(_fetchPrice, {
       'fiat': fiat.toString(),
       'crypto': crypto.toString(),

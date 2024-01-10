@@ -6,15 +6,9 @@ import 'package:socks5_proxy/socks.dart';
 import 'package:tor/tor.dart';
 
 class ProxyWrapper {
-
   ProxyWrapper({
     required this.settingsStore,
   });
-
-  // ProxyWrapper._privateConstructor();
-
-  // Static private instance of Tor
-  // static final ProxyWrapper _instance = ProxyWrapper._privateConstructor();
 
   late SettingsStore settingsStore;
 
@@ -28,11 +22,11 @@ class ProxyWrapper {
   static bool get enabled => Tor.instance.enabled;
 
   bool started = false;
-  bool torEnabled = false;
-  bool torOnly = false;
+  // bool torEnabled = false;
+  // bool torOnly = false;
 
   // Method to get or create the Tor proxy instance
-  Future<HttpClient> getProxyInstance({int? portOverride}) async {
+  Future<HttpClient> getProxyHttpClient({int? portOverride}) async {
     if (!started) {
       started = true;
       _torClient = HttpClient();
@@ -50,13 +44,22 @@ class ProxyWrapper {
     return _torClient!;
   }
 
-  Future<HttpClientResponse> get(Uri uri, {Map<String, String>? headers, int? portOverride}) async {
+  Future<HttpClientResponse> get(
+    Uri uri, {
+    Map<String, String>? headers,
+    int? portOverride,
+    bool torOnly = false,
+    Uri? clearnetUri,
+  }) async {
     HttpClient? client;
+    late bool torEnabled;
     if (settingsStore.torConnectionMode == TorConnectionMode.onionOnly ||
         settingsStore.torConnectionMode == TorConnectionMode.enabled) {
-      client = await getProxyInstance(portOverride: portOverride);
+      client = await getProxyHttpClient(portOverride: portOverride);
+      torEnabled = true;
     } else {
       client = HttpClient();
+      torEnabled = false;
     }
 
     if (settingsStore.torConnectionMode == TorConnectionMode.onionOnly) {
@@ -76,30 +79,42 @@ class ProxyWrapper {
       }
       response = await request.close();
     } catch (e) {
-      if (!torOnly && torEnabled) {
+      if (!torOnly &&
+          torEnabled &&
+          settingsStore.torConnectionMode != TorConnectionMode.onionOnly) {
         // try again without tor:
         client = HttpClient();
-        final request = await client.getUrl(uri);
+        final request = await client.getUrl(clearnetUri ?? uri);
         if (headers != null) {
           headers.forEach((key, value) {
             request.headers.add(key, value);
           });
         }
         response = await request.close();
+      } else {
+        throw e;
       }
     }
 
-    return response!;
+    return response;
   }
 
-  Future<HttpClientResponse> post(Uri uri,
-      {Map<String, String>? headers, int? portOverride}) async {
+  Future<HttpClientResponse> post(
+    Uri uri, {
+    Map<String, String>? headers,
+    int? portOverride,
+    bool torOnly = false,
+    Uri? clearnetUri,
+  }) async {
     HttpClient? client;
+    late bool torEnabled;
     if (settingsStore.torConnectionMode == TorConnectionMode.onionOnly ||
         settingsStore.torConnectionMode == TorConnectionMode.enabled) {
-      client = await getProxyInstance(portOverride: portOverride);
+      client = await getProxyHttpClient(portOverride: portOverride);
+      torEnabled = true;
     } else {
       client = HttpClient();
+      torEnabled = false;
     }
 
     if (settingsStore.torConnectionMode == TorConnectionMode.onionOnly) {
@@ -119,19 +134,23 @@ class ProxyWrapper {
       }
       response = await request.close();
     } catch (e) {
-      if (!torOnly && torEnabled) {
+      if (!torOnly &&
+          torEnabled &&
+          settingsStore.torConnectionMode != TorConnectionMode.onionOnly) {
         // try again without tor:
         client = HttpClient();
-        final request = await client.postUrl(uri);
+        final request = await client.postUrl(clearnetUri ?? uri);
         if (headers != null) {
           headers.forEach((key, value) {
             request.headers.add(key, value);
           });
         }
         response = await request.close();
+      } else {
+        throw e;
       }
     }
 
-    return response!;
+    return response;
   }
 }
