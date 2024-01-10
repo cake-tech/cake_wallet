@@ -5,8 +5,7 @@ import 'package:cw_core/balance.dart';
 
 class EVMChainERC20Balance extends Balance {
   EVMChainERC20Balance(this.balance, {this.exponent = 18})
-      : super(balance.toInt(),
-            balance.toInt());
+      : super(balance.toInt(), balance.toInt());
 
   final BigInt balance;
   final int exponent;

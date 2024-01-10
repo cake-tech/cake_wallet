@@ -1,5 +1,4 @@
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
@@ -25,13 +24,10 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
 
     final mnemonic = bip39.generateMnemonic(strength: strength);
 
-    final nativeCurrency = currencyForWalletType(credentials.walletInfo!.type);
-
     final wallet = PolygonWallet(
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
       password: credentials.password!,
-      nativeCurrency: nativeCurrency,
       client: client,
     );
 
@@ -60,13 +56,11 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
 
   @override
   Future<PolygonWallet> restoreFromKeys(EVMChainRestoreWalletFromPrivateKey credentials) async {
-    final nativeCurrency = currencyForWalletType(credentials.walletInfo!.type);
 
     final wallet = PolygonWallet(
       password: credentials.password!,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
-      nativeCurrency: nativeCurrency,
       client: client,
     );
 
@@ -84,13 +78,10 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
       throw PolygonMnemonicIsIncorrectException();
     }
 
-    final nativeCurrency = currencyForWalletType(credentials.walletInfo!.type);
-
     final wallet = PolygonWallet(
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
-      nativeCurrency: nativeCurrency,
       client: client,
     );
 

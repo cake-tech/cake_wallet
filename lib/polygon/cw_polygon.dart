@@ -31,18 +31,18 @@ class CWPolygon extends Polygon {
       EVMChainRestoreWalletFromPrivateKey(name: name, password: password, privateKey: privateKey);
 
   @override
-  String getAddress(WalletBase wallet) => (wallet as EVMChainWallet).walletAddresses.address;
+  String getAddress(WalletBase wallet) => (wallet as PolygonWallet).walletAddresses.address;
 
   @override
   String getPrivateKey(WalletBase wallet) {
-    final privateKeyHolder = (wallet as EVMChainWallet).evmChainPrivateKey;
+    final privateKeyHolder = (wallet as PolygonWallet).evmChainPrivateKey;
     String stringKey = bytesToHex(privateKeyHolder.privateKey);
     return stringKey;
   }
 
   @override
   String getPublicKey(WalletBase wallet) {
-    final privateKeyInUnitInt = (wallet as EVMChainWallet).evmChainPrivateKey;
+    final privateKeyInUnitInt = (wallet as PolygonWallet).evmChainPrivateKey;
     final publicKey = privateKeyInUnitInt.address.hex;
     return publicKey;
   }
@@ -114,21 +114,21 @@ class CWPolygon extends Polygon {
 
   @override
   List<Erc20Token> getERC20Currencies(WalletBase wallet) {
-    final polygonWallet = wallet as EVMChainWallet;
+    final polygonWallet = wallet as PolygonWallet;
     return polygonWallet.erc20Currencies;
   }
 
   @override
   Future<void> addErc20Token(WalletBase wallet, Erc20Token token) async =>
-      await (wallet as EVMChainWallet).addErc20Token(token);
+      await (wallet as PolygonWallet).addErc20Token(token);
 
   @override
   Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token) async =>
-      await (wallet as EVMChainWallet).deleteErc20Token(token);
+      await (wallet as PolygonWallet).deleteErc20Token(token);
 
   @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {
-    final polygonWallet = wallet as EVMChainWallet;
+    final polygonWallet = wallet as PolygonWallet;
     return await polygonWallet.getErc20Token(contractAddress);
   }
 
@@ -139,18 +139,18 @@ class CWPolygon extends Polygon {
       return CryptoCurrency.maticpoly;
     }
 
-    wallet as EVMChainWallet;
+    wallet as PolygonWallet;
     return wallet.erc20Currencies.firstWhere(
         (element) => transaction.tokenSymbol.toLowerCase() == element.symbol.toLowerCase());
   }
 
   @override
   void updatePolygonScanUsageState(WalletBase wallet, bool isEnabled) {
-    (wallet as EVMChainWallet).updateScanProviderUsageState(isEnabled);
+    (wallet as PolygonWallet).updateScanProviderUsageState(isEnabled);
   }
 
   @override
   Web3Client? getWeb3Client(WalletBase wallet) {
-    return (wallet as EVMChainWallet).getWeb3Client();
+    return (wallet as PolygonWallet).getWeb3Client();
   }
 }

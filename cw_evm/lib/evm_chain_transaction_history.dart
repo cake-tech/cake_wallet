@@ -8,9 +8,14 @@ import 'package:cw_evm/file.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
 
-abstract class EVMChainTransactionHistory extends TransactionHistoryBase<EVMChainTransactionInfo>
-    with Store {
-  EVMChainTransactionHistory({required this.walletInfo, required String password})
+part 'evm_chain_transaction_history.g.dart';
+
+abstract class EVMChainTransactionHistory = EVMChainTransactionHistoryBase
+    with _$EVMChainTransactionHistory;
+
+abstract class EVMChainTransactionHistoryBase
+    extends TransactionHistoryBase<EVMChainTransactionInfo> with Store {
+  EVMChainTransactionHistoryBase({required this.walletInfo, required String password})
       : _password = password {
     transactions = ObservableMap<String, EVMChainTransactionInfo>();
   }
@@ -22,6 +27,8 @@ abstract class EVMChainTransactionHistory extends TransactionHistoryBase<EVMChai
   //! Method to be overridden by all child classes
 
   String getTransactionHistoryFileName();
+
+  EVMChainTransactionInfo getTransactionInfo(Map<String, dynamic> val);
 
   //! Common methods across all child classes
 
@@ -68,7 +75,7 @@ abstract class EVMChainTransactionHistory extends TransactionHistoryBase<EVMChai
         final val = entry.value;
 
         if (val is Map<String, dynamic>) {
-          final tx = EVMChainTransactionInfo.fromJson(val);
+          final tx = getTransactionInfo(val);
           _update(tx);
         }
       }

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -10,6 +9,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_ethereum/default_ethereum_erc20_tokens.dart';
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_transaction_history.dart';
+import 'package:cw_ethereum/ethereum_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
@@ -25,8 +25,7 @@ class EthereumWallet extends EVMChainWallet {
     super.mnemonic,
     super.initialBalance,
     super.privateKey,
-    super.nativeCurrency = CryptoCurrency.eth,
-  });  
+  }) : super(nativeCurrency: CryptoCurrency.eth);
 
   @override
   void addInitialTokens() {
@@ -80,7 +79,7 @@ class EthereumWallet extends EVMChainWallet {
   @override
   EVMChainTransactionInfo getTransactionInfo(
       EVMChainTransactionModel transactionModel, String address) {
-    final model = EVMChainTransactionInfo(
+    final model = EthereumTransactionInfo(
       id: transactionModel.hash,
       height: transactionModel.blockNumber,
       ethAmount: transactionModel.amount,
@@ -129,15 +128,12 @@ class EthereumWallet extends EVMChainWallet {
     final balance = EVMChainERC20Balance.fromJSON(data['balance'] as String) ??
         EVMChainERC20Balance(BigInt.zero);
 
-    final nativeCurrency = currencyForWalletType(walletInfo.type);
-
     return EthereumWallet(
       walletInfo: walletInfo,
       password: password,
       mnemonic: mnemonic,
       privateKey: privateKey,
       initialBalance: balance,
-      nativeCurrency: nativeCurrency,
       client: EthereumClient(),
     );
   }

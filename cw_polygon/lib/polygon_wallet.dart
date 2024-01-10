@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/cake_hive.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -14,6 +13,7 @@ import 'package:cw_evm/evm_chain_wallet.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
 import 'package:cw_evm/file.dart';
 import 'package:cw_polygon/default_polygon_erc20_tokens.dart';
+import 'package:cw_polygon/polygon_transaction_info.dart';
 import 'package:cw_polygon/polygon_client.dart';
 import 'package:cw_polygon/polygon_transaction_history.dart';
 
@@ -24,9 +24,8 @@ class PolygonWallet extends EVMChainWallet {
     super.mnemonic,
     super.initialBalance,
     super.privateKey,
-    super.nativeCurrency = CryptoCurrency.maticpoly,
     required super.client,
-  });
+  }) : super(nativeCurrency: CryptoCurrency.maticpoly);
 
   @override
   Future<void> initErc20TokensBox() async {
@@ -69,7 +68,7 @@ class PolygonWallet extends EVMChainWallet {
   @override
   EVMChainTransactionInfo getTransactionInfo(
       EVMChainTransactionModel transactionModel, String address) {
-    final model = EVMChainTransactionInfo(
+    final model = PolygonTransactionInfo(
       id: transactionModel.hash,
       height: transactionModel.blockNumber,
       ethAmount: transactionModel.amount,
@@ -102,15 +101,12 @@ class PolygonWallet extends EVMChainWallet {
     final balance = EVMChainERC20Balance.fromJSON(data['balance'] as String) ??
         EVMChainERC20Balance(BigInt.zero);
 
-    final nativeCurrency = currencyForWalletType(walletInfo.type);
-
     return PolygonWallet(
       walletInfo: walletInfo,
       password: password,
       mnemonic: mnemonic,
       privateKey: privateKey,
       initialBalance: balance,
-      nativeCurrency: nativeCurrency,
       client: PolygonClient(),
     );
   }

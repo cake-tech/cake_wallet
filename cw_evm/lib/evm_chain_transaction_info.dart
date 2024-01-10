@@ -1,4 +1,4 @@
-// ignore_for_file: annotate_overrides, overridden_fields
+// ignore_for_file: overridden_fields, annotate_overrides
 
 import 'dart:math';
 
@@ -6,7 +6,7 @@ import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 
-class EVMChainTransactionInfo extends TransactionInfo {
+abstract class EVMChainTransactionInfo extends TransactionInfo {
   EVMChainTransactionInfo({
     required this.id,
     required this.height,
@@ -37,6 +37,9 @@ class EVMChainTransactionInfo extends TransactionInfo {
   String? _fiatAmount;
   final String? to;
 
+  //! Getter to be overridden in child classes
+  String get feeCurrency;
+
   @override
   String amountFormatted() {
     final amount = formatAmount((ethAmount / BigInt.from(10).pow(exponent)).toString());
@@ -52,23 +55,7 @@ class EVMChainTransactionInfo extends TransactionInfo {
   @override
   String feeFormatted() {
     final amount = (ethFee / BigInt.from(10).pow(18)).toString();
-    return '${amount.substring(0, min(10, amount.length))} $tokenSymbol';
-  }
-
-  factory EVMChainTransactionInfo.fromJson(Map<String, dynamic> data) {
-    return EVMChainTransactionInfo(
-      id: data['id'] as String,
-      height: data['height'] as int,
-      ethAmount: BigInt.parse(data['amount']),
-      exponent: data['exponent'] as int,
-      ethFee: BigInt.parse(data['fee']),
-      direction: parseTransactionDirectionFromInt(data['direction'] as int),
-      date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
-      isPending: data['isPending'] as bool,
-      confirmations: data['confirmations'] as int,
-      tokenSymbol: data['tokenSymbol'] as String,
-      to: data['to'],
-    );
+    return '${amount.substring(0, min(10, amount.length))} $feeCurrency';
   }
 
   Map<String, dynamic> toJson() => {

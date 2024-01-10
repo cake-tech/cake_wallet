@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -8,7 +9,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_evm/evm_chain_wallet.dart';
 import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 import 'package:hive/hive.dart';
-import 'package:collection/collection.dart';
 
 abstract class EVMChainWalletService<T extends EVMChainWallet> extends WalletService<
     EVMChainNewWalletCredentials,

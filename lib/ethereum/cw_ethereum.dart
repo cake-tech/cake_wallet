@@ -31,18 +31,18 @@ class CWEthereum extends Ethereum {
       EVMChainRestoreWalletFromPrivateKey(name: name, password: password, privateKey: privateKey);
 
   @override
-  String getAddress(WalletBase wallet) => (wallet as EVMChainWallet).walletAddresses.address;
+  String getAddress(WalletBase wallet) => (wallet as EthereumWallet).walletAddresses.address;
 
   @override
   String getPrivateKey(WalletBase wallet) {
-    final privateKeyHolder = (wallet as EVMChainWallet).evmChainPrivateKey;
+    final privateKeyHolder = (wallet as EthereumWallet).evmChainPrivateKey;
     String stringKey = bytesToHex(privateKeyHolder.privateKey);
     return stringKey;
   }
 
   @override
   String getPublicKey(WalletBase wallet) {
-    final privateKeyInUnitInt = (wallet as EVMChainWallet).evmChainPrivateKey;
+    final privateKeyInUnitInt = (wallet as EthereumWallet).evmChainPrivateKey;
     final publicKey = privateKeyInUnitInt.address.hex;
     return publicKey;
   }
@@ -114,21 +114,21 @@ class CWEthereum extends Ethereum {
 
   @override
   List<Erc20Token> getERC20Currencies(WalletBase wallet) {
-    final ethereumWallet = wallet as EVMChainWallet;
+    final ethereumWallet = wallet as EthereumWallet;
     return ethereumWallet.erc20Currencies;
   }
 
   @override
   Future<void> addErc20Token(WalletBase wallet, Erc20Token token) async =>
-      await (wallet as EVMChainWallet).addErc20Token(token);
+      await (wallet as EthereumWallet).addErc20Token(token);
 
   @override
   Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token) async =>
-      await (wallet as EVMChainWallet).deleteErc20Token(token);
+      await (wallet as EthereumWallet).deleteErc20Token(token);
 
   @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {
-    final ethereumWallet = wallet as EVMChainWallet;
+    final ethereumWallet = wallet as EthereumWallet;
     return await ethereumWallet.getErc20Token(contractAddress);
   }
 
@@ -139,18 +139,18 @@ class CWEthereum extends Ethereum {
       return CryptoCurrency.eth;
     }
 
-    wallet as EVMChainWallet;
+    wallet as EthereumWallet;
     return wallet.erc20Currencies
         .firstWhere((element) => transaction.tokenSymbol == element.symbol);
   }
 
   @override
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled) {
-    (wallet as EVMChainWallet).updateScanProviderUsageState(isEnabled);
+    (wallet as EthereumWallet).updateScanProviderUsageState(isEnabled);
   }
 
   @override
   Web3Client? getWeb3Client(WalletBase wallet) {
-    return (wallet as EVMChainWallet).getWeb3Client();
+    return (wallet as EthereumWallet).getWeb3Client();
   }
 }
