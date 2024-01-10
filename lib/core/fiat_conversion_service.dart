@@ -1,14 +1,12 @@
 import 'dart:io';
 
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'dart:convert';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart';
 
 const _fiatApiClearNetAuthority = 'fiat-api.cakewallet.com';
 const _fiatApiOnionAuthority = 'n4z7bdcmwk2oyddxvzaap3x2peqcplh3pzdy7tpkk5ejz5n4mhfvoxqd.onion';
