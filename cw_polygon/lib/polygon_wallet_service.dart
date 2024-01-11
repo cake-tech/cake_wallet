@@ -20,11 +20,7 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
 
   @override
   Future<PolygonWallet> create(PolygonNewWalletCredentials credentials) async {
-    final strength = (credentials.seedPhraseLength == 12)
-        ? 128
-        : (credentials.seedPhraseLength == 24)
-            ? 256
-            : 128;
+    final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
     final mnemonic = bip39.generateMnemonic(strength: strength);
     final wallet = PolygonWallet(

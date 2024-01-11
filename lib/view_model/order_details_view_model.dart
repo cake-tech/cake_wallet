@@ -9,7 +9,7 @@ import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.d
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/wyre/wyre_buy_provider.dart';
 
 part 'order_details_view_model.g.dart';
@@ -50,8 +50,10 @@ abstract class OrderDetailsViewModelBase with Store {
   @action
   Future<void> _updateOrder() async {
     try {
-      if (_provider != null) {
-        final updatedOrder = await _provider!.findOrderById(order.id);
+      if (_provider != null && (_provider is MoonPayBuyProvider || _provider is WyreBuyProvider)) {
+        final updatedOrder = _provider is MoonPayBuyProvider
+            ? await (_provider as MoonPayBuyProvider).findOrderById(order.id)
+            : await (_provider as WyreBuyProvider).findOrderById(order.id);
         updatedOrder.from = order.from;
         updatedOrder.to = order.to;
         updatedOrder.receiveAddress = order.receiveAddress;
@@ -87,19 +89,26 @@ abstract class OrderDetailsViewModelBase with Store {
           value: order.provider.title)
     );
 
-    if (_provider?.trackUrl.isNotEmpty ?? false) {
-      final buildURL = _provider!.trackUrl + '${order.transferId}';
-      items.add(
-        TrackTradeListItem(
-            title: 'Track',
-            value: buildURL,
-            onTap: () {
-              try {
-                launch(buildURL);
-              } catch (e) {}
-            }
-        )
-      );
+    if (_provider != null && (_provider is MoonPayBuyProvider || _provider is WyreBuyProvider)) {
+
+      final trackUrl = _provider is MoonPayBuyProvider
+          ? (_provider as MoonPayBuyProvider).trackUrl
+          : (_provider as WyreBuyProvider).trackUrl;
+
+      if (trackUrl.isNotEmpty ?? false) {
+        final buildURL = trackUrl + '${order.transferId}';
+        items.add(
+            TrackTradeListItem(
+                title: 'Track',
+                value: buildURL,
+                onTap: () {
+                  try {
+                    launch(buildURL);
+                  } catch (e) {}
+                }
+            )
+        );
+      }
     }
 
     items.add(

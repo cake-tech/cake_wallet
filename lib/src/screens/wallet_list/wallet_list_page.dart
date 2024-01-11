@@ -1,6 +1,5 @@
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
@@ -335,7 +334,9 @@ class WalletListBodyState extends State<WalletListBody> {
           // in desktop platforms the navigation tree is different
           if (responsiveLayoutUtil.shouldRenderMobileUI) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pop();
+              if (this.mounted) {
+                Navigator.of(context).pop();
+              }
             });
           }
         } catch (e) {
