@@ -52,31 +52,45 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @computed
   String get address {
     if (!isEnabledAutoGenerateSubaddress) {
-      final firstWalletAddress = addresses.first.address;
-      return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(firstWalletAddress) : firstWalletAddress;
-    }
-    if (receiveAddresses.isEmpty) {
-      final newAddress = generateNewAddress().address;
-      return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(newAddress) : newAddress;
-    }
-    final receiveAddress = receiveAddresses.first.address;
+      if (receiveAddresses.isEmpty) {
+        final newAddress = generateNewAddress().address;
+        return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(newAddress) : newAddress;
+      }
+      final receiveAddress = receiveAddresses.first.address;
 
-    return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(receiveAddress) : receiveAddress;
+      return walletInfo.type == WalletType.bitcoinCash
+          ? toCashAddr(receiveAddress)
+          : receiveAddress;
+    } else {
+      final receiveAddress = (receiveAddresses.first.address != addresses.first.address &&
+              previousAddressRecord != null)
+          ? previousAddressRecord!.address
+          : addresses.first.address;
+
+      return walletInfo.type == WalletType.bitcoinCash
+          ? toCashAddr(receiveAddress)
+          : receiveAddress;
+    }
   }
 
   @observable
-  bool isEnabledAutoGenerateSubaddress = false;
+  bool isEnabledAutoGenerateSubaddress = true;
 
   @override
   set address(String addr) {
     final address = walletInfo.type == WalletType.bitcoinCash ? toLegacy(addr) : addr;
     final addressRecord = addresses.firstWhere((addressRecord) => addressRecord.address == address);
+
+    previousAddressRecord = addressRecord;
     receiveAddresses.remove(addressRecord);
     receiveAddresses.insert(0, addressRecord);
   }
 
   int currentReceiveAddressIndex;
   int currentChangeAddressIndex;
+
+  @observable
+  BitcoinAddressRecord? previousAddressRecord;
 
   @computed
   int get totalCountOfReceiveAddresses => addresses.fold(0, (acc, addressRecord) {
@@ -141,8 +155,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   BitcoinAddressRecord generateNewAddress({bitcoin.HDWallet? hd}) {
     final isHidden = hd == sideHd;
 
-    final newAddressIndex = addresses.fold(0, (int acc, addressRecord) =>
-    isHidden == addressRecord.isHidden ? acc + 1 : acc);
+    final newAddressIndex = addresses.fold(
+        0, (int acc, addressRecord) => isHidden == addressRecord.isHidden ? acc + 1 : acc);
 
     final address = BitcoinAddressRecord(getAddress(index: newAddressIndex, hd: hd ?? sideHd),
         index: newAddressIndex, isHidden: isHidden);

@@ -162,7 +162,7 @@ class AddressPage extends BasePage {
                           isLight: dashboardViewModel.settingsStore.currentTheme.type ==
                               ThemeType.light))),
               if(addressListViewModel.isElectrumWallet
-                  && dashboardViewModel.isAutoGenerateSubaddressesEnabled)
+                  && !dashboardViewModel.isAutoGenerateSubaddressesEnabled)
               PrimaryButton(
                 onPressed: () => addressListViewModel.generateElectrumAddress(),
                 text: 'Generate new address',
