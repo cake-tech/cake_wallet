@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:collection/collection.dart';
-import 'package:cw_bitcoin/address_to_output_script.dart';
+import 'package:cw_bitcoin/address_to_output_script.dart' as address_to_output_script;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_no_inputs_exception.dart';
@@ -18,6 +19,7 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:cw_bitcoin/litecoin_network.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_bitcoin/utils.dart';
@@ -72,6 +74,11 @@ abstract class ElectrumWalletBase
               }
             : {}),
         this.unspentCoinsInfo = unspentCoinsInfo,
+        this.network = networkType == bitcoin.bitcoin
+            ? BitcoinNetwork.mainnet
+            : networkType == litecoinNetwork
+                ? LitecoinNetwork.mainnet
+                : BitcoinNetwork.testnet,
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
@@ -101,13 +108,12 @@ abstract class ElectrumWalletBase
   @observable
   SyncStatus syncStatus;
 
-  List<String> get scriptHashes => walletAddresses.addresses
-      .map((addr) => scriptHash(addr.address, networkType: networkType))
-      .toList();
+  List<String> get scriptHashes =>
+      walletAddresses.addresses.map((addr) => scriptHash(addr.address, network: network)).toList();
 
   List<String> get publicScriptHashes => walletAddresses.addresses
       .where((addr) => !addr.isHidden)
-      .map((addr) => scriptHash(addr.address, networkType: networkType))
+      .map((addr) => scriptHash(addr.address, network: network))
       .toList();
 
   String get xpub => hd.base58!;
@@ -116,6 +122,7 @@ abstract class ElectrumWalletBase
   String get seed => mnemonic;
 
   bitcoin.NetworkType networkType;
+  BasedUtxoNetwork network;
 
   @override
   BitcoinWalletKeys get keys =>
@@ -310,7 +317,8 @@ abstract class ElectrumWalletBase
     outputs.forEach((item) {
       final outputAmount = hasMultiDestination ? item.formattedCryptoAmount : amount;
       final outputAddress = item.isParsedAddress ? item.extractedAddress! : item.address;
-      txb.addOutput(addressToOutputScript(outputAddress, networkType), outputAmount!);
+      txb.addOutput(
+          address_to_output_script.addressToOutputScript(outputAddress, network), outputAmount!);
     });
 
     final estimatedSize = estimatedTransactionSize(inputs.length, outputs.length + 1);
@@ -333,7 +341,7 @@ abstract class ElectrumWalletBase
       final keyPair = generateKeyPair(
           hd: input.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
           index: input.bitcoinAddressRecord.index,
-          network: networkType);
+          network: network);
       final witnessValue = input.isP2wpkh ? input.value : null;
 
       txb.sign(vin: i, keyPair: keyPair, witnessValue: witnessValue);
@@ -453,7 +461,7 @@ abstract class ElectrumWalletBase
   }
 
   bitcoin.ECPair keyPairFor({required int index}) =>
-      generateKeyPair(hd: hd, index: index, network: networkType);
+      generateKeyPair(hd: hd, index: index, network: network);
 
   @override
   Future<void> rescan({required int height}) async => throw UnimplementedError();
@@ -469,7 +477,7 @@ abstract class ElectrumWalletBase
 
   Future<void> updateUnspent() async {
     final unspent = await Future.wait(walletAddresses.addresses.map((address) => electrumClient
-        .getListUnspentWithAddress(address.address, networkType)
+        .getListUnspentWithAddress(address.address, network)
         .then((unspent) => unspent.map((unspent) {
               try {
                 return BitcoinUnspent.fromJSON(address, unspent);
@@ -572,7 +580,7 @@ abstract class ElectrumWalletBase
     try {
       final tx = await getTransactionExpanded(hash: hash, height: height);
       final addresses = walletAddresses.addresses.map((addr) => addr.address).toSet();
-      return ElectrumTransactionInfo.fromElectrumBundle(tx, walletInfo.type, networkType,
+      return ElectrumTransactionInfo.fromElectrumBundle(tx, walletInfo.type, network,
           addresses: addresses, height: height);
     } catch (_) {
       return null;
@@ -584,7 +592,7 @@ abstract class ElectrumWalletBase
     final addressHashes = <String, BitcoinAddressRecord>{};
     final normalizedHistories = <Map<String, dynamic>>[];
     walletAddresses.addresses.forEach((addressRecord) {
-      final sh = scriptHash(addressRecord.address, networkType: networkType);
+      final sh = scriptHash(addressRecord.address, network: network);
       addressHashes[sh] = addressRecord;
     });
     final histories = addressHashes.keys.map((scriptHash) =>
@@ -662,7 +670,7 @@ abstract class ElectrumWalletBase
     final balanceFutures = <Future<Map<String, dynamic>>>[];
     for (var i = 0; i < addresses.length; i++) {
       final addressRecord = addresses[i];
-      final sh = scriptHash(addressRecord.address, networkType: networkType);
+      final sh = scriptHash(addressRecord.address, network: network);
       final balanceFuture = electrumClient.getBalance(sh);
       balanceFutures.add(balanceFuture);
     }

@@ -65,6 +65,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @override
+  set address(String addr) => null;
+
+  @override
   @computed
   String get address {
     if (receiveAddresses.isEmpty) {
@@ -72,11 +75,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     try {
-      return receiveAddresses
-          .firstWhere((address) => addressPageType == BitcoinAddressType.p2wpkh
-              ? address.type == null || address.type == addressPageType
-              : address.type == addressPageType)
-          .address;
+      return receiveAddresses.firstWhere((address) {
+        print([1, address.address, address.type]);
+        return addressPageType == BitcoinAddressType.p2wpkh
+            ? address.type == null || address.type == addressPageType
+            : address.type == addressPageType;
+      }).address;
     } catch (_) {}
 
     return receiveAddresses.first.address;
@@ -156,8 +160,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         isHidden: isHidden);
     addresses.add(address);
     return address;
-
-    currentReceiveAddressIndex += 1;
   }
 
   String getAddress(
@@ -177,10 +179,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   void updateReceiveAddresses() {
+    print(addresses.length);
     receiveAddresses.removeRange(0, receiveAddresses.length);
     final newAdresses =
         addresses.where((addressRecord) => !addressRecord.isHidden && !addressRecord.isUsed);
-    receiveAddresses.addAll(newAdresses);
+    receiveAddresses.addAll(addresses);
+    print(receiveAddresses.length);
   }
 
   @action
@@ -223,9 +227,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       addrs.addAll(batch);
     }
 
-    if (addresses.length < addrs.length) {
-      addAddresses(addrs);
-    }
+    addAddresses(addrs);
   }
 
   Future<void> _generateInitialAddresses() async {
@@ -281,15 +283,15 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   Future<bool> _hasAddressUsed(String address) async {
-    final sh = scriptHash(address, networkType: network);
+    final sh = scriptHash(address, network: network);
     final transactionHistory = await electrumClient.getHistory(sh);
     return transactionHistory.isNotEmpty;
   }
 
   @override
   @action
-  Future<void> setAddressType(dynamic type) async {
-    _addressPageType = type as BitcoinAddressType;
+  Future<void> setAddressType(BitcoinAddressType type) async {
+    _addressPageType = type;
 
     await _discoverAddresses(mainHd, false, addressType: addressPageType);
     updateReceiveAddresses();

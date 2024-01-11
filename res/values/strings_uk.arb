@@ -763,5 +763,8 @@
   "default_sell_provider": "Постачальник продажу за замовчуванням",
   "select_sell_provider_notice": "Виберіть вище постачальника послуг продажу. Ви можете пропустити цей екран, встановивши постачальника послуг продажу за умовчанням у налаштуваннях програми.",
   "custom_drag": "На замовлення (утримуйте та перетягується)",
-  "switchToEVMCompatibleWallet": "Перейдіть на гаманець, сумісний з EVM, і повторіть спробу (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Перейдіть на гаманець, сумісний з EVM, і повторіть спробу (Ethereum, Polygon)",
+  "mainnet": "Мейннет",
+  "trocador_anonpay_donation_link": "Посилання на пожертву Trocador Anonpay",
+  "trocador_anonpay_invoice": "Рахунок -фактура Trocador Anonpay"
 }

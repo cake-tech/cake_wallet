@@ -763,5 +763,8 @@
   "default_sell_provider": "Fornitore di vendita predefinito",
   "select_sell_provider_notice": "Seleziona un fornitore di vendita sopra. Puoi saltare questa schermata impostando il tuo fornitore di vendita predefinito nelle impostazioni dell'app.",
   "custom_drag": "Custom (Hold and Drag)",
-  "switchToEVMCompatibleWallet": "Passa a un portafoglio compatibile con EVM e riprova (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Passa a un portafoglio compatibile con EVM e riprova (Ethereum, Polygon)",
+  "mainnet": "Mainnet",
+  "trocador_anonpay_donation_link": "Link di donazione di Trocador Anonpay",
+  "trocador_anonpay_invoice": "Trocador Anonpay fattura"
 }

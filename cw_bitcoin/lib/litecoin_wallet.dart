@@ -41,28 +41,26 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             seedBytes: seedBytes,
             currency: CryptoCurrency.ltc) {
     walletAddresses = LitecoinWalletAddresses(
-        walletInfo,
-        electrumClient: electrumClient,
-        initialAddresses: initialAddresses,
-        initialRegularAddressIndex: initialRegularAddressIndex,
-        initialChangeAddressIndex: initialChangeAddressIndex,
-        mainHd: hd,
-        sideHd: bitcoin.HDWallet
-                .fromSeed(seedBytes, network: networkType)
-                .derivePath("m/0'/1"),
-        networkType: networkType,);
+      walletInfo,
+      electrumClient: electrumClient,
+      initialAddresses: initialAddresses,
+      initialRegularAddressIndex: initialRegularAddressIndex,
+      initialChangeAddressIndex: initialChangeAddressIndex,
+      mainHd: hd,
+      sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
+      network: network,
+    );
   }
 
-  static Future<LitecoinWallet> create({
-    required String mnemonic,
-    required String password,
-    required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    List<BitcoinAddressRecord>? initialAddresses,
-    ElectrumBalance? initialBalance,
-    int initialRegularAddressIndex = 0,
-    int initialChangeAddressIndex = 0
-  }) async {
+  static Future<LitecoinWallet> create(
+      {required String mnemonic,
+      required String password,
+      required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      List<BitcoinAddressRecord>? initialAddresses,
+      ElectrumBalance? initialBalance,
+      int initialRegularAddressIndex = 0,
+      int initialChangeAddressIndex = 0}) async {
     return LitecoinWallet(
         mnemonic: mnemonic,
         password: password,
@@ -81,7 +79,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
-    final snp = await ElectrumWallletSnapshot.load (name, walletInfo.type, password);
+    final snp = await ElectrumWallletSnapshot.load(name, walletInfo.type, password);
     return LitecoinWallet(
         mnemonic: snp.mnemonic,
         password: password,

@@ -37,28 +37,25 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             initialBalance: initialBalance,
             seedBytes: seedBytes,
             currency: CryptoCurrency.btc) {
-    walletAddresses = BitcoinWalletAddresses(
-        walletInfo,
+    walletAddresses = BitcoinWalletAddresses(walletInfo,
         electrumClient: electrumClient,
         initialAddresses: initialAddresses,
         initialRegularAddressIndex: initialRegularAddressIndex,
         initialChangeAddressIndex: initialChangeAddressIndex,
         mainHd: hd,
-        sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-              .derivePath("m/0'/1"),
-        networkType: networkType);
+        sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
+        network: network);
   }
 
-  static Future<BitcoinWallet> create({
-    required String mnemonic,
-    required String password,
-    required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    List<BitcoinAddressRecord>? initialAddresses,
-    ElectrumBalance? initialBalance,
-    int initialRegularAddressIndex = 0,
-    int initialChangeAddressIndex = 0
-  }) async {
+  static Future<BitcoinWallet> create(
+      {required String mnemonic,
+      required String password,
+      required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      List<BitcoinAddressRecord>? initialAddresses,
+      ElectrumBalance? initialBalance,
+      int initialRegularAddressIndex = 0,
+      int initialChangeAddressIndex = 0}) async {
     return BitcoinWallet(
         mnemonic: mnemonic,
         password: password,
@@ -90,3 +87,4 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         initialChangeAddressIndex: snp.changeAddressIndex);
   }
 }
+

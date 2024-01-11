@@ -54,11 +54,9 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         initialRegularAddressIndex: initialRegularAddressIndex,
         initialChangeAddressIndex: initialChangeAddressIndex,
         mainHd: hd,
-        sideHd: bitcoin.HDWallet.fromSeed(seedBytes)
-            .derivePath("m/44'/145'/0'/1"),
-        networkType: networkType);
+        sideHd: bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'/1"),
+        network: network);
   }
-
 
   static Future<BitcoinCashWallet> create(
       {required String mnemonic,
@@ -267,9 +265,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         electrumClient: electrumClient, amount: amount, fee: fee);
   }
 
-  bitbox.ECPair generateKeyPair(
-          {required bitcoin.HDWallet hd,
-          required int index}) =>
+  bitbox.ECPair generateKeyPair({required bitcoin.HDWallet hd, required int index}) =>
       bitbox.ECPair.fromWIF(hd.derive(index).wif!);
 
   @override
@@ -322,7 +318,8 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     final index = address != null
         ? walletAddresses.addresses
             .firstWhere((element) => element.address == AddressUtils.toLegacyAddress(address))
-            .index : null;
+            .index
+        : null;
     final HD = index == null ? hd : hd.derive(index);
     return base64Encode(HD.signMessage(message));
   }

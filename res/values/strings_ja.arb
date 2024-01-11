@@ -763,5 +763,8 @@
   "default_sell_provider": "デフォルトの販売プロバイダー",
   "select_sell_provider_notice": "上記の販売プロバイダーを選択してください。アプリ設定でデフォルトの販売プロバイダーを設定することで、この画面をスキップできます。",
   "custom_drag": "カスタム（ホールドとドラッグ）",
-  "switchToEVMCompatibleWallet": "EVM 互換のウォレットに切り替えて再試行してください (イーサリアム、ポリゴン)"
+  "switchToEVMCompatibleWallet": "EVM 互換のウォレットに切り替えて再試行してください (イーサリアム、ポリゴン)",
+  "mainnet": "メインネット",
+  "trocador_anonpay_donation_link": "Trocador Anonpay寄付リンク",
+  "trocador_anonpay_invoice": "Trocador Anonpay Invoice"
 }

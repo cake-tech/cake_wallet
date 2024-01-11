@@ -41,6 +41,23 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
+  bitcoin_base:
+    dependency: transitive
+    description:
+      path: "."
+      ref: cake-update-v1
+      resolved-ref: cf04ecee73316431230083a236392d1a87697b43
+      url: "https://github.com/cake-tech/bitcoin_base.git"
+    source: git
+    version: "3.0.1"
+  blockchain_utils:
+    dependency: transitive
+    description:
+      name: blockchain_utils
+      sha256: "345706b5cbfd7e2daea5d210504a4d6ec589e40bf40b5b4946e1fdd9bf59320d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.0"
   boolean_selector:
     dependency: transitive
     description:

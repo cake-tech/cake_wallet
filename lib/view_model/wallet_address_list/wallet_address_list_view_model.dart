@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/currency.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -110,7 +111,7 @@ class EthereumURI extends PaymentURI {
 
 class BitcoinCashURI extends PaymentURI {
   BitcoinCashURI({required String amount, required String address})
-    : super(amount: amount, address: address);
+      : super(amount: amount, address: address);
   @override
   String toString() {
     var base = address;
@@ -121,9 +122,7 @@ class BitcoinCashURI extends PaymentURI {
 
     return base;
   }
-  }
-
-
+}
 
 class NanoURI extends PaymentURI {
   NanoURI({required String amount, required String address})
@@ -321,15 +320,17 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   bool get hasAddressList =>
       wallet.type == WalletType.monero ||
-      wallet.type == WalletType.haven;/* ||
+      wallet.type ==
+          WalletType
+              .haven; /* ||
       wallet.type == WalletType.nano ||
-      wallet.type == WalletType.banano;*/// TODO: nano accounts are disabled for now
+      wallet.type == WalletType.banano;*/ // TODO: nano accounts are disabled for now
 
   @computed
   bool get showElectrumAddressDisclaimer =>
       wallet.type == WalletType.bitcoin ||
-          wallet.type == WalletType.litecoin ||
-          wallet.type == WalletType.bitcoinCash;
+      wallet.type == WalletType.litecoin ||
+      wallet.type == WalletType.bitcoinCash;
 
   List<ListItem> _baseItems;
 
@@ -339,13 +340,23 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void setAddress(WalletAddressListItem address) =>
       wallet.walletAddresses.address = address.address;
 
+  @action
+  Future<void> setAddressType(dynamic option) async {
+    if (wallet.type == WalletType.bitcoin) {
+      await (wallet.walletAddresses as ElectrumWalletAddresses).setAddressType(option);
+    }
+  }
+
   void _init() {
     _baseItems = [];
 
     if (wallet.type == WalletType.monero ||
-        wallet.type == WalletType.haven /*||
+            wallet.type ==
+                WalletType
+                    .haven /*||
         wallet.type == WalletType.nano ||
-        wallet.type == WalletType.banano*/) {
+        wallet.type == WalletType.banano*/
+        ) {
       _baseItems.add(WalletAccountListHeader());
     }
 

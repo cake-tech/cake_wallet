@@ -761,5 +761,8 @@
   "default_sell_provider": "Varsayılan Satış Sağlayıcısı",
   "select_sell_provider_notice": "Yukarıdan bir satış sağlayıcısı seçin. Uygulama ayarlarında varsayılan satış sağlayıcınızı ayarlayarak bu ekranı atlayabilirsiniz.",
   "custom_drag": "Özel (Bekle ve Sürükle)",
-  "switchToEVMCompatibleWallet": "Lütfen EVM uyumlu bir cüzdana geçin ve tekrar deneyin (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Lütfen EVM uyumlu bir cüzdana geçin ve tekrar deneyin (Ethereum, Polygon)",
+  "mainnet": "Ana ağ",
+  "trocador_anonpay_donation_link": "Trocador anonpay bağış bağlantısı",
+  "trocador_anonpay_invoice": "Trocador anonpay faturası"
 }

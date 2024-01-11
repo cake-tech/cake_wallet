@@ -23,12 +23,14 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   @override
   String getAddress({required int index, required HDWallet hd, BitcoinAddressType? addressType}) {
-    generateP2WPKHAddress(hd: hd, index: index, network: network);
     if (addressType == BitcoinAddressType.p2pkh)
       return generateP2PKHAddress(hd: hd, index: index, network: network);
 
     if (addressType == BitcoinAddressType.p2tr)
       return generateP2TRAddress(hd: hd, index: index, network: network);
+
+    if (addressType == BitcoinAddressType.p2wsh)
+      return generateP2WSHAddress(hd: hd, index: index, network: network);
 
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/receive_page_option.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -9,11 +10,21 @@ class ReceiveOptionViewModel = ReceiveOptionViewModelBase with _$ReceiveOptionVi
 
 abstract class ReceiveOptionViewModelBase with Store {
   ReceiveOptionViewModelBase(this._wallet, this.initialPageOption)
-      : selectedReceiveOption = initialPageOption ?? ReceivePageOption.mainnet,
+      : selectedReceiveOption = initialPageOption ??
+            (_wallet.type == WalletType.bitcoin
+                ? BitcoinReceivePageOption.fromType(
+                    (_wallet.walletAddresses as ElectrumWalletAddresses).addressPageType)
+                : ReceivePageOption.mainnet),
         _options = [] {
     final walletType = _wallet.type;
-    _options =
-        walletType == WalletType.haven ? [ReceivePageOption.mainnet] : ReceivePageOption.values;
+    _options = walletType == WalletType.haven
+        ? [ReceivePageOption.mainnet]
+        : walletType == WalletType.bitcoin
+            ? [
+                ...BitcoinReceivePageOptions,
+                ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+              ]
+            : ReceivePageOptions;
   }
 
   final WalletBase _wallet;

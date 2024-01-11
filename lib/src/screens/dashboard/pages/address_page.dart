@@ -25,6 +25,8 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
+import 'package:bitcoin_base/bitcoin_base.dart';
 
 class AddressPage extends BasePage {
   AddressPage({
@@ -67,7 +69,7 @@ class AddressPage extends BasePage {
       size: 16,
     );
     final _closeButton =
-    currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
+        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -262,6 +264,18 @@ class AddressPage extends BasePage {
               arguments: [addressListViewModel.address.address, option],
             );
           }
+          break;
+        case BitcoinReceivePageOption.p2pkh:
+          addressListViewModel.setAddressType(BitcoinAddressType.p2pkh);
+          break;
+        case BitcoinReceivePageOption.p2wpkh:
+          addressListViewModel.setAddressType(BitcoinAddressType.p2wpkh);
+          break;
+        case BitcoinReceivePageOption.p2tr:
+          addressListViewModel.setAddressType(BitcoinAddressType.p2tr);
+          break;
+        case BitcoinReceivePageOption.p2wsh:
+          addressListViewModel.setAddressType(BitcoinAddressType.p2wsh);
           break;
         default:
       }

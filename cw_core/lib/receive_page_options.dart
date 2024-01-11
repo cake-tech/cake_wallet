@@ -1,36 +1,22 @@
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 
-class ReceivePageOption {
-  static const mainnet = ReceivePageOption._('mainnet');
-  static const anonPayInvoice = ReceivePageOption._('anonPayInvoice');
-  static const anonPayDonationLink = ReceivePageOption._('anonPayDonationLink');
+class CoreReceivePageOption {
+  static const mainnet = CoreReceivePageOption._('mainnet');
+  static const anonPayInvoice = CoreReceivePageOption._('anonPayInvoice');
+  static const anonPayDonationLink = CoreReceivePageOption._('anonPayDonationLink');
 
-  const ReceivePageOption._(this._value);
+  const CoreReceivePageOption._(this._value);
 
   final String _value;
-
-  @override
-  String toString() {
-    switch (this) {
-      case ReceivePageOption.mainnet:
-        return S.current.mainnet;
-      case ReceivePageOption.anonPayInvoice:
-        return S.current.trocador_anonpay_invoice;
-      case ReceivePageOption.anonPayDonationLink:
-        return S.current.trocador_anonpay_donation_link;
-    }
-    return "";
-  }
 }
 
 const ReceivePageOptions = [
-  ReceivePageOption.mainnet,
-  ReceivePageOption.anonPayInvoice,
-  ReceivePageOption.anonPayDonationLink
+  CoreReceivePageOption.mainnet,
+  CoreReceivePageOption.anonPayInvoice,
+  CoreReceivePageOption.anonPayDonationLink
 ];
 
-class BitcoinReceivePageOption extends ReceivePageOption {
+class BitcoinReceivePageOption extends CoreReceivePageOption {
   static const p2wpkh = BitcoinReceivePageOption._('Segwit (P2WPKH)');
   static const p2tr = BitcoinReceivePageOption._('Taproot (P2TR)');
   static const p2wsh = BitcoinReceivePageOption._('Segwit (P2WSH)');
