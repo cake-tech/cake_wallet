@@ -27,7 +27,7 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
       StandartListItem(title: S.current.transaction_details_amount, value: unspentCoinsItem.amount),
       StandartListItem(
           title: S.current.transaction_details_transaction_id, value: unspentCoinsItem.hash),
-      StandartListItem(title: S.current.widgets_address, value: unspentCoinsItem.address),
+      StandartListItem(title: S.current.widgets_address, value: formattedAddress),
       TextFieldListItem(
           title: S.current.note_tap_to_change,
           value: note,
@@ -99,4 +99,8 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
   final UnspentCoinsListViewModel unspentCoinsListViewModel;
   final WalletType _type;
   List<TransactionDetailsListItem> items;
+
+  String get formattedAddress => WalletType.bitcoinCash == _type
+      ? bitcoinCash!.getCashAddrFormat(unspentCoinsItem.address)
+      : unspentCoinsItem.address;
 }

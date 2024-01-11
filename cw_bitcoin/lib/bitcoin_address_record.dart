@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bitbox/bitbox.dart' as bitbox;
 
 class BitcoinAddressRecord {
   BitcoinAddressRecord(
@@ -47,6 +48,8 @@ class BitcoinAddressRecord {
 
   @override
   int get hashCode => address.hashCode;
+
+  String get cashAddr => bitbox.Address.toCashAddress(address);
 
   String toJSON() => json.encode({
         'address': address,

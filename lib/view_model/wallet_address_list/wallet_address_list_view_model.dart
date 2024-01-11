@@ -283,7 +283,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
               (element) => WalletAddressListItem(
               isPrimary: false,
               name: null,
-              address: element.address,
+              address: type == WalletType.bitcoinCash ? element.cashAddr : element.address,
               txCount: element.txCount,
               balance: AmountConverter.amountIntToString(
                   walletTypeToCryptoCurrency(type), element.balance),
@@ -394,7 +394,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       final currentReceiveAddress = wallet.walletAddresses.address;
       wallet.walletAddresses.updateReceiveAddresses();
       wallet.walletAddresses.addresses
-          .firstWhere((element) => element.address == currentReceiveAddress).setAsUsed();
+          .firstWhere((element) =>
+      (type == WalletType.bitcoinCash ? element.cashAddr : element.address) ==
+          currentReceiveAddress)
+          .setAsUsed();
       wallet.walletAddresses.updateReceiveAddresses();
       await wallet.save();
     }

@@ -1,9 +1,11 @@
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
+import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
 part 'electrum_wallet_addresses.g.dart';
@@ -34,6 +36,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static const defaultChangeAddressesCount = 17;
   static const gap = 20;
 
+  static String toCashAddr(String address) => bitbox.Address.toCashAddress(address);
+
+  static String toLegacy(String address) => bitbox.Address.toLegacyAddress(address);
+
   final ObservableList<BitcoinAddressRecord> addresses;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
@@ -46,15 +52,16 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @computed
   String get address {
     if (!isEnabledAutoGenerateSubaddress) {
-      return addresses.first.address;
+      final firstWalletAddress = addresses.first.address;
+      return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(firstWalletAddress) : firstWalletAddress;
     }
     if (receiveAddresses.isEmpty) {
-      final address = generateNewAddress(hd: mainHd).address;
-      return address;
+      final newAddress = generateNewAddress().address;
+      return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(newAddress) : newAddress;
     }
     final receiveAddress = receiveAddresses.first.address;
 
-    return receiveAddress;
+    return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(receiveAddress) : receiveAddress;
   }
 
   @observable
@@ -62,7 +69,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   set address(String addr) {
-    final addressRecord = addresses.firstWhere((addressRecord) => addressRecord.address == addr);
+    final address = walletInfo.type == WalletType.bitcoinCash ? toLegacy(addr) : addr;
+    final addressRecord = addresses.firstWhere((addressRecord) => addressRecord.address == address);
     receiveAddresses.remove(addressRecord);
     receiveAddresses.insert(0, addressRecord);
   }
