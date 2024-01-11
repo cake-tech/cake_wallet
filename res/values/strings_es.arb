@@ -763,5 +763,8 @@
   "default_sell_provider": "Proveedor de venta predeterminado",
   "select_sell_provider_notice": "Seleccione un proveedor de venta arriba. Puede omitir esta pantalla configurando su proveedor de venta predeterminado en la configuración de la aplicación.",
   "custom_drag": "Custom (mantenía y arrastre)",
-  "switchToEVMCompatibleWallet": "Cambie a una billetera compatible con EVM e inténtelo nuevamente (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Cambie a una billetera compatible con EVM e inténtelo nuevamente (Ethereum, Polygon)",
+  "receivable_balance": "Saldo de cuentas por cobrar",
+  "confirmed_tx": "Confirmado",
+  "transaction_details_source_address": "Dirección de la fuente"
 }

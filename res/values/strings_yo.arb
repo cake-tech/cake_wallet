@@ -757,5 +757,8 @@
   "default_sell_provider": "Aiyipada Olupese Tita",
   "select_sell_provider_notice": "Yan olupese ti o ta loke. O le foju iboju yii nipa tito olupese iṣẹ tita aiyipada rẹ ni awọn eto app.",
   "custom_drag": "Aṣa (mu ati fa)",
-  "switchToEVMCompatibleWallet": "Jọwọ yipada si apamọwọ ibaramu EVM ki o tun gbiyanju lẹẹkansi (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Jọwọ yipada si apamọwọ ibaramu EVM ki o tun gbiyanju lẹẹkansi (Ethereum, Polygon)",
+  "receivable_balance": "Iwontunws.funfun ti o gba",
+  "confirmed_tx": "Jẹrisi",
+  "transaction_details_source_address": "Adirẹsi orisun"
 }

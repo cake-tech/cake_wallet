@@ -762,5 +762,8 @@
   "default_sell_provider": "默认销售提供商",
   "select_sell_provider_notice": "选择上面的销售提供商。您可以通过在应用程序设置中设置默认销售提供商来跳过此屏幕。",
   "custom_drag": "定制（保持和拖动）",
-  "switchToEVMCompatibleWallet": "请切换到 EVM 兼容钱包并重试（以太坊、Polygon）"
+  "switchToEVMCompatibleWallet": "请切换到 EVM 兼容钱包并重试（以太坊、Polygon）",
+  "receivable_balance": "应收余额",
+  "confirmed_tx": "确认的",
+  "transaction_details_source_address": "源地址"
 }

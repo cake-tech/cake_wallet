@@ -764,5 +764,8 @@
   "default_sell_provider": "Default Sell Provider",
   "select_sell_provider_notice": "Select a sell provider above. You can skip this screen by setting your default sell provider in app settings.",
   "custom_drag": "Custom (Hold and Drag)",
-  "switchToEVMCompatibleWallet": "Please switch to an EVM compatible wallet and try again (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Please switch to an EVM compatible wallet and try again (Ethereum, Polygon)",
+  "receivable_balance": "Receivable Balance",
+  "confirmed_tx": "Confirmed",
+  "transaction_details_source_address": "Source address"
 }
