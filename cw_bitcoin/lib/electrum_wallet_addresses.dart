@@ -45,6 +45,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @override
   @computed
   String get address {
+    if (!isEnabledAutoGenerateSubaddress) {
+      return addresses.first.address;
+    }
     if (receiveAddresses.isEmpty) {
       final address = generateNewAddress(hd: mainHd).address;
       return address;
@@ -53,6 +56,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     return receiveAddress;
   }
+
+  @observable
+  bool isEnabledAutoGenerateSubaddress = false;
 
   @override
   set address(String addr) {

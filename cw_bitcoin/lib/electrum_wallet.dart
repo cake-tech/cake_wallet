@@ -63,6 +63,7 @@ abstract class ElectrumWalletBase
         _password = password,
         _feeRates = <int>[],
         _isTransactionUpdating = false,
+        isEnabledAutoGenerateSubaddress = true,
         unspentCoins = [],
         _scripthashesUpdateSubject = {},
         balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of(currency != null
@@ -86,6 +87,10 @@ abstract class ElectrumWalletBase
 
   final bitcoin.HDWallet hd;
   final String mnemonic;
+
+  @override
+  @observable
+  bool isEnabledAutoGenerateSubaddress;
 
   late ElectrumClient electrumClient;
   Box<UnspentCoinsInfo> unspentCoinsInfo;
