@@ -1,48 +1,22 @@
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/core/wallet_connect/models/chain_key_model.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
-import 'package:cw_core/balance.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/transaction_info.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
 abstract class WalletConnectKeyService {
   /// Returns a list of all the keys.
-  List<ChainKeyModel> getKeys();
-
-  /// Returns a list of all the chain ids.
-  List<String> getChains();
+  List<ChainKeyModel> getKeys(WalletBase wallet);
 
   /// Returns a list of all the keys for a given chain id.
   /// If the chain is not found, returns an empty list.
   ///  - [chain]: The chain to get the keys for.
-  List<ChainKeyModel> getKeysForChain(String chain);
+  List<ChainKeyModel> getKeysForChain(WalletBase wallet);
 
-  /// Returns a list of all the accounts in namespace:chainId:address format.
-  List<String> getAllAccounts();
 }
 
 class KeyServiceImpl implements WalletConnectKeyService {
-  KeyServiceImpl(this.wallet)
-      : _keys = [
-          ChainKeyModel(
-            chains: [
-              'eip155:1',
-              'eip155:5',
-              'eip155:137',
-              'eip155:42161',
-              'eip155:80001',
-            ],
-            privateKey: _getPrivateKeyForWallet(wallet),
-            publicKey: _getPublicKeyForWallet(wallet),
-          ),
-        ];
-
-  late final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
-
-  late final List<ChainKeyModel> _keys;
-
   static String _getPrivateKeyForWallet(WalletBase wallet) {
     switch (wallet.type) {
       case WalletType.ethereum:
@@ -64,31 +38,31 @@ class KeyServiceImpl implements WalletConnectKeyService {
         return '';
     }
   }
+
   @override
-  List<String> getChains() {
-    final List<String> chainIds = [];
-    for (final ChainKeyModel key in _keys) {
-      chainIds.addAll(key.chains);
-    }
-    return chainIds;
+  List<ChainKeyModel> getKeys(WalletBase wallet) {
+    final keys = [
+      ChainKeyModel(
+        chains: [
+          'eip155:1',
+          'eip155:5',
+          'eip155:137',
+          'eip155:42161',
+          'eip155:80001',
+        ],
+        privateKey: _getPrivateKeyForWallet(wallet),
+        publicKey: _getPublicKeyForWallet(wallet),
+      ),
+    ];
+    return keys;
   }
 
   @override
-  List<ChainKeyModel> getKeys() => _keys;
+  List<ChainKeyModel> getKeysForChain(WalletBase wallet) {
+    final chain = getChainNameSpaceAndIdBasedOnWalletType(wallet.type);
 
-  @override
-  List<ChainKeyModel> getKeysForChain(String chain) {
-    return _keys.where((e) => e.chains.contains(chain)).toList();
-  }
+    final keys = getKeys(wallet);
 
-  @override
-  List<String> getAllAccounts() {
-    final List<String> accounts = [];
-    for (final ChainKeyModel key in _keys) {
-      for (final String chain in key.chains) {
-        accounts.add('$chain:${key.publicKey}');
-      }
-    }
-    return accounts;
+    return keys.where((e) => e.chains.contains(chain)).toList();
   }
 }

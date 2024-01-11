@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
+import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -36,6 +37,9 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   @computed
   SeedPhraseLength get seedPhraseLength => _settingsStore.seedPhraseLength;
+
+  @computed
+  bool get isPolySeed => _settingsStore.moneroSeedType == SeedType.polyseed;
 
   @action
   void setFiatApiMode(FiatApiMode fiatApiMode) => _settingsStore.fiatApiMode = fiatApiMode;

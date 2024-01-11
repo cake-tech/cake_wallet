@@ -29,7 +29,7 @@ class DefaultPolygonErc20Tokens {
       symbol: "USDC.e",
       contractAddress: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
       decimal: 6,
-      enabled: false,
+      enabled: true,
     ),
     Erc20Token(
       name: "Avalanche Token",
@@ -73,14 +73,10 @@ class DefaultPolygonErc20Tokens {
         try {
           iconPath = CryptoCurrency.all
               .firstWhere((element) =>
-                  element.title.toUpperCase() == token.symbol.toUpperCase())
+                  element.title.toUpperCase() == token.symbol.split(".").first.toUpperCase())
               .iconPath;
         } catch (_) {}
 
-        if (iconPath != null) {
-          return Erc20Token.copyWith(token, iconPath);
-        }
-
-        return token;
+        return Erc20Token.copyWith(token, iconPath, 'POLY');
       }).toList();
 }

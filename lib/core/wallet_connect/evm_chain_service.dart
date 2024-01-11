@@ -138,7 +138,7 @@ class EvmChainServiceImpl implements ChainService {
     try {
       // Load the private key
       final List<ChainKeyModel> keys = wcKeyService
-          .getKeysForChain(getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type));
+          .getKeysForChain(appStore.wallet!);
 
       final Credentials credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
@@ -177,7 +177,7 @@ class EvmChainServiceImpl implements ChainService {
     try {
       // Load the private key
       final List<ChainKeyModel> keys = wcKeyService
-          .getKeysForChain(getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type));
+          .getKeysForChain(appStore.wallet!);
 
       final EthPrivateKey credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
@@ -215,7 +215,7 @@ class EvmChainServiceImpl implements ChainService {
 
     // Load the private key
     final List<ChainKeyModel> keys = wcKeyService
-        .getKeysForChain(getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type));
+        .getKeysForChain(appStore.wallet!);
 
     final Credentials credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
@@ -275,7 +275,7 @@ class EvmChainServiceImpl implements ChainService {
     }
 
     final List<ChainKeyModel> keys = wcKeyService
-        .getKeysForChain(getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type));
+        .getKeysForChain(appStore.wallet!);
 
     return EthSigUtil.signTypedData(
       privateKey: keys[0].privateKey,
@@ -285,10 +285,12 @@ class EvmChainServiceImpl implements ChainService {
   }
 
   String _convertToReadable(Map<String, dynamic> data) {
+    final tokenName = getTokenNameBasedOnWalletType(appStore.wallet!.type);
     String gas = int.parse((data['gas'] as String).substring(2), radix: 16).toString();
     String value = data['value'] != null
-        ? (int.parse((data['value'] as String).substring(2), radix: 16) / 1e18).toString() + ' ETH'
-        : '0 ETH';
+        ? (int.parse((data['value'] as String).substring(2), radix: 16) / 1e18).toString() +
+            ' $tokenName'
+        : '0 $tokenName';
     String from = data['from'] as String;
     String to = data['to'] as String;
 

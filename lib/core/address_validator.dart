@@ -32,6 +32,8 @@ class AddressValidator extends TextValidator {
         return '[0-9a-zA-Z_]';
       case CryptoCurrency.usdc:
       case CryptoCurrency.usdcpoly:
+      case CryptoCurrency.usdtPoly:
+      case CryptoCurrency.usdcEPoly:
       case CryptoCurrency.ape:
       case CryptoCurrency.avaxc:
       case CryptoCurrency.eth:
@@ -90,7 +92,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.eos:
       return '[0-9a-zA-Z]';
       case CryptoCurrency.bch:
-        return '^(?!bitcoincash:)[0-9a-zA-Z]*\$|^(?!bitcoincash:)q[0-9a-zA-Z]{41}\$|^(?!bitcoincash:)q[0-9a-zA-Z]{42}\$|^bitcoincash:q[0-9a-zA-Z]{41}\$|^bitcoincash:q[0-9a-zA-Z]{42}\$';
+        return '^(?!bitcoincash:)[0-9a-zA-Z]*\$|^(?!bitcoincash:)q|p[0-9a-zA-Z]{41}\$|^(?!bitcoincash:)q|p[0-9a-zA-Z]{42}\$|^bitcoincash:q|p[0-9a-zA-Z]{41}\$|^bitcoincash:q|p[0-9a-zA-Z]{42}\$';
       case CryptoCurrency.bnb:
         return '[0-9a-zA-Z]';
       case CryptoCurrency.ltc:
@@ -141,6 +143,8 @@ class AddressValidator extends TextValidator {
         return [42];
       case CryptoCurrency.eth:
       case CryptoCurrency.usdcpoly:
+      case CryptoCurrency.usdtPoly:
+      case CryptoCurrency.usdcEPoly:
       case CryptoCurrency.mana:
       case CryptoCurrency.matic:
       case CryptoCurrency.maticpoly:

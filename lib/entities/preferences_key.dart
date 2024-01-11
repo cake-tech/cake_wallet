@@ -20,6 +20,8 @@ class PreferencesKey {
   static const disableBuyKey = 'disable_buy';
   static const disableSellKey = 'disable_sell';
   static const defaultBuyProvider = 'default_buy_provider';
+  static const walletListOrder = 'wallet_list_order';
+  static const walletListAscending = 'wallet_list_ascending';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
   static const allowBiometricalAuthenticationKey = 'allow_biometrical_authentication';
   static const useTOTP2FA = 'use_totp_2fa';
