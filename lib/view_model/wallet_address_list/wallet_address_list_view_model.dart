@@ -4,7 +4,6 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/currency.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -112,6 +111,7 @@ class EthereumURI extends PaymentURI {
 class BitcoinCashURI extends PaymentURI {
   BitcoinCashURI({required String amount, required String address})
       : super(amount: amount, address: address);
+
   @override
   String toString() {
     var base = address;
@@ -318,13 +318,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   @computed
-  bool get hasAddressList =>
-      wallet.type == WalletType.monero ||
-      wallet.type ==
-          WalletType
-              .haven; /* ||
-      wallet.type == WalletType.nano ||
-      wallet.type == WalletType.banano;*/ // TODO: nano accounts are disabled for now
+  bool get hasAddressList => wallet.type == WalletType.monero || wallet.type == WalletType.haven;
 
   @computed
   bool get showElectrumAddressDisclaimer =>
@@ -343,20 +337,14 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @action
   Future<void> setAddressType(dynamic option) async {
     if (wallet.type == WalletType.bitcoin) {
-      await (wallet.walletAddresses as ElectrumWalletAddresses).setAddressType(option);
+      await bitcoin!.setAddressType(wallet, option);
     }
   }
 
   void _init() {
     _baseItems = [];
 
-    if (wallet.type == WalletType.monero ||
-            wallet.type ==
-                WalletType
-                    .haven /*||
-        wallet.type == WalletType.nano ||
-        wallet.type == WalletType.banano*/
-        ) {
+    if (wallet.type == WalletType.monero || wallet.type == WalletType.haven) {
       _baseItems.add(WalletAccountListHeader());
     }
 

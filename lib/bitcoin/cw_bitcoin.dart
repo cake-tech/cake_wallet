@@ -155,4 +155,10 @@ class CWBitcoin extends Bitcoin {
   @override
   TransactionPriority getLitecoinTransactionPrioritySlow()
     => LitecoinTransactionPriority.slow;
+
+	@override
+	Future<void> setAddressType(Object wallet, dynamic option) async {
+		final bitcoinWallet = wallet as ElectrumWallet;
+		await bitcoinWallet.walletAddresses.setAddressType(option as BitcoinAddressType);
+	}
 }

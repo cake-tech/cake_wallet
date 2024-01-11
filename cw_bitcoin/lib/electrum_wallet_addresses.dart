@@ -179,12 +179,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   void updateReceiveAddresses() {
-    print(addresses.length);
     receiveAddresses.removeRange(0, receiveAddresses.length);
     final newAdresses =
         addresses.where((addressRecord) => !addressRecord.isHidden && !addressRecord.isUsed);
-    receiveAddresses.addAll(addresses);
-    print(receiveAddresses.length);
+    receiveAddresses.addAll(newAdresses);
   }
 
   @action
@@ -288,7 +286,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return transactionHistory.isNotEmpty;
   }
 
-  @override
   @action
   Future<void> setAddressType(BitcoinAddressType type) async {
     _addressPageType = type;
