@@ -328,8 +328,8 @@ class BalanceRowWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.18,
+                SizedBox(
+                  width: min(MediaQuery.of(context).size.width * 0.18, 100),
                   child: Center(
                     child: Column(
                       children: [

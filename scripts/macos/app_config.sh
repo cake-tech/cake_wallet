@@ -1,5 +1,6 @@
 #!/bin/bash
 
+MONERO_COM="monero.com"
 CAKEWALLET="cakewallet"
 DIR=`pwd`
 
@@ -10,6 +11,8 @@ fi
 
 cd ../.. # go to root
 cp -rf ./macos/Runner/InfoBase.plist ./macos/Runner/Info.plist
+/usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName ${APP_MACOS_NAME}" ./macos/Runner/Info.plist
+/usr/libexec/PlistBuddy -c "Set :CFBundleName ${APP_MACOS_NAME}" ./macos/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier ${APP_MACOS_BUNDLE_ID}" ./macos/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${APP_MACOS_VERSION}" ./macos/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${APP_MACOS_BUILD_NUMBER}" ./macos/Runner/Info.plist
@@ -22,6 +25,8 @@ sed -i '' "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/Release.enti
 CONFIG_ARGS=""
 
 case $APP_MACOS_TYPE in
+        $MONERO_COM)
+		CONFIG_ARGS="--monero";;
         $CAKEWALLET)
 		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash";; #--haven
 esac
@@ -32,3 +37,4 @@ flutter pub run tool/generate_pubspec.dart
 flutter pub get
 flutter packages pub run tool/configure.dart $CONFIG_ARGS
 cd $DIR
+$DIR/app_icon.sh
