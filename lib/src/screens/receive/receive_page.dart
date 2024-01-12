@@ -171,7 +171,7 @@ class ReceivePage extends BasePage {
                                     showTrailingButton: !addressListViewModel.isAutoGenerateSubaddressEnabled,
                                     showSearchButton: true,
                                     trailingButtonTap: () => isElectrumWallet
-                                        ? addressListViewModel.generateElectrumAddress
+                                        ? addressListViewModel.generateElectrumAddress()
                                         : Navigator.of(context).pushNamed(Routes.newSubaddress),
                                     trailingIcon: Icon(
                                       Icons.add,
