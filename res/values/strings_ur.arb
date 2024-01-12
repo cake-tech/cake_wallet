@@ -755,5 +755,8 @@
   "default_sell_provider": "                                                        ﮦﺪﻨﻨﮐ ﻢﮨﺍﺮﻓ ﻞﯿﺳ ﭧﻟﺎﻔﯾﮈ",
   "select_sell_provider_notice": "۔ﮟﯿﮨ ﮯﺘﮑﺳ ﮌﻮﮭﭼ ﻮﮐ ﻦﯾﺮﮑﺳﺍ ﺱﺍ ﺮﮐ ﮮﺩ ﺐﯿﺗﺮﺗ ﻮﮐ ﮦﺪﻨﻨﮐ ﻢﮨﺍﺮﻓ ﻞﯿﺳ ﭧﻟﺎﻔﯾﮈ ﮯﻨﭘﺍ ﮟﯿﻣ ﺕﺎﺒ",
   "custom_drag": "کسٹم (ہولڈ اینڈ ڈریگ)",
-  "switchToEVMCompatibleWallet": "(Ethereum, Polygon) ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ ﮯﻟﺍﻭ ﮯﻨﮭﮐﺭ ﺖﻘﺑﺎﻄﻣ "
+  "switchToEVMCompatibleWallet": "(Ethereum, Polygon) ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ ﮯﻟﺍﻭ ﮯﻨﮭﮐﺭ ﺖﻘﺑﺎﻄﻣ ",
+  "receivable_balance": "قابل وصول توازن",
+  "confirmed_tx": "تصدیق",
+  "transaction_details_source_address": "ماخذ ایڈریس"
 }

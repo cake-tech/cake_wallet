@@ -759,5 +759,8 @@
   "default_sell_provider": "                                                           ﻲﺿﺍﺮﺘﻓﻻ﻿ﺍ ﻊﻴﺒﻟﺍ ﺩﻭﺰﻣ",
   "select_sell_provider_notice": ".ﻖﻴﺒﻄﺘﻟﺍ ﺕﺍﺩﺍﺪﻋﺇ ﻲﻓ ﻚﺑ ﺹﺎﺨﻟﺍ ﻲﺿﺍﺮﺘﻓﻻ﻿ﺍ ﻊﻴﺒﻟﺍ ﺩﻭﺰﻣ ﻦﻴﻴﻌﺗ ﻖﻳﺮﻃ ﻦﻋ ﺔﺷﺎﺸﻟﺍ ﻩﺬﻫ ﻲﻄﺨﺗ",
   "custom_drag": "مخصص (عقد وسحب)",
-  "switchToEVMCompatibleWallet": "  (Ethereum، Polygon) ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ EVM ﻊﻣ ﺔﻘﻓﺍﻮﺘﻣ ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ"
+  "switchToEVMCompatibleWallet": "  (Ethereum، Polygon) ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ EVM ﻊﻣ ﺔﻘﻓﺍﻮﺘﻣ ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ",
+  "receivable_balance": "التوازن القادم",
+  "confirmed_tx": "مؤكد",
+  "transaction_details_source_address": "عنوان المصدر"
 }

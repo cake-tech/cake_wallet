@@ -745,5 +745,8 @@
   "default_sell_provider": "Tsohuwar Mai Bayar Siyarwa",
   "select_sell_provider_notice": "Zaɓi mai bada siyarwa a sama. Kuna iya tsallake wannan allon ta saita mai bada siyar da ku a cikin saitunan app.",
   "custom_drag": "Al'ada (riƙe da ja)",
-  "switchToEVMCompatibleWallet": "Da fatan za a canza zuwa walat ɗin EVM mai jituwa kuma a sake gwadawa (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Da fatan za a canza zuwa walat ɗin EVM mai jituwa kuma a sake gwadawa (Ethereum, Polygon)",
+  "receivable_balance": "Daidaituwa da daidaituwa",
+  "confirmed_tx": "Tabbatar",
+  "transaction_details_source_address": "Adireshin Incord"
 }

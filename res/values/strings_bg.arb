@@ -755,5 +755,8 @@
   "default_sell_provider": "Доставчик за продажба по подразбиране",
   "select_sell_provider_notice": "Изберете доставчик на продажба по-горе. Можете да пропуснете този екран, като зададете своя доставчик на продажба по подразбиране в настройките на приложението.",
   "custom_drag": "Персонализиране (задръжте и плъзнете)",
-  "switchToEVMCompatibleWallet": "Моля, превключете към портфейл, съвместим с EVM, и опитайте отново (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Моля, превключете към портфейл, съвместим с EVM, и опитайте отново (Ethereum, Polygon)",
+  "receivable_balance": "Баланс за вземания",
+  "confirmed_tx": "Потвърдено",
+  "transaction_details_source_address": "Адрес на източника"
 }

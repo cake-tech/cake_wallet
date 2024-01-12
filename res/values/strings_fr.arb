@@ -763,5 +763,8 @@
   "default_sell_provider": "Fournisseur de vente par défaut",
   "select_sell_provider_notice": "Sélectionnez un fournisseur de vente ci-dessus. Vous pouvez ignorer cet écran en définissant votre fournisseur de vente par défaut dans les paramètres de l'application.",
   "custom_drag": "Custom (maintenir et traîner)",
-  "switchToEVMCompatibleWallet": "Veuillez passer à un portefeuille compatible EVM et réessayer (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Veuillez passer à un portefeuille compatible EVM et réessayer (Ethereum, Polygon)",
+  "receivable_balance": "Solde de créances",
+  "confirmed_tx": "Confirmé",
+  "transaction_details_source_address": "Adresse source"
 }
