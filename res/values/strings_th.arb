@@ -761,8 +761,5 @@
   "default_sell_provider": "ผู้ให้บริการการขายเริ่มต้น",
   "select_sell_provider_notice": "เลือกผู้ให้บริการการขายด้านบน คุณสามารถข้ามหน้าจอนี้ได้โดยการตั้งค่าผู้ให้บริการการขายเริ่มต้นในการตั้งค่าแอป",
   "custom_drag": "กำหนดเอง (ค้างและลาก)",
-  "switchToEVMCompatibleWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงินที่รองรับ EVM แล้วลองอีกครั้ง (Ethereum, Polygon)",
-  "mainnet": "หลัก",
-  "trocador_anonpay_donation_link": "ลิงค์บริจาค Trocador Anonpay",
-  "trocador_anonpay_invoice": "ใบแจ้งหนี้ Trocador Anonpay"
+  "switchToEVMCompatibleWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงินที่รองรับ EVM แล้วลองอีกครั้ง (Ethereum, Polygon)"
 }

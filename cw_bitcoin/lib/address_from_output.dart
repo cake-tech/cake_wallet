@@ -12,5 +12,15 @@ String addressFromOutput(Uint8List script, BasedUtxoNetwork network) {
         .toAddress(network);
   } catch (_) {}
 
+  try {
+    return P2wshAddress.fromScriptPubkey(script: Script.fromRaw(byteData: script))
+        .toAddress(network);
+  } catch (_) {}
+
+  try {
+    return P2trAddress.fromScriptPubkey(script: Script.fromRaw(byteData: script))
+        .toAddress(network);
+  } catch (_) {}
+
   return '';
 }

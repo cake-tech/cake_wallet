@@ -1,4 +1,3 @@
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 
 class ReceivePageOption {
@@ -12,15 +11,7 @@ class ReceivePageOption {
 
   @override
   String toString() {
-    switch (this) {
-      case ReceivePageOption.mainnet:
-        return S.current.mainnet;
-      case ReceivePageOption.anonPayInvoice:
-        return S.current.trocador_anonpay_invoice;
-      case ReceivePageOption.anonPayDonationLink:
-        return S.current.trocador_anonpay_donation_link;
-    }
-    return "";
+    return _value;
   }
 }
 
@@ -50,11 +41,6 @@ class BitcoinReceivePageOption extends ReceivePageOption {
       default:
         return BitcoinReceivePageOption.p2wpkh;
     }
-  }
-
-  @override
-  String toString() {
-    return _value;
   }
 }
 

@@ -755,8 +755,5 @@
   "default_sell_provider": "Доставчик за продажба по подразбиране",
   "select_sell_provider_notice": "Изберете доставчик на продажба по-горе. Можете да пропуснете този екран, като зададете своя доставчик на продажба по подразбиране в настройките на приложението.",
   "custom_drag": "Персонализиране (задръжте и плъзнете)",
-  "switchToEVMCompatibleWallet": "Моля, превключете към портфейл, съвместим с EVM, и опитайте отново (Ethereum, Polygon)",
-  "mainnet": "Mainnet",
-  "trocador_anonpay_donation_link": "Трокадорна връзка за дарение на Anonpay",
-  "trocador_anonpay_invoice": "Трокадорна фактура Anonpay"
+  "switchToEVMCompatibleWallet": "Моля, превключете към портфейл, съвместим с EVM, и опитайте отново (Ethereum, Polygon)"
 }

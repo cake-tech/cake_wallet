@@ -25,7 +25,7 @@ class AddressValidator extends TextValidator {
         return '^[0-9a-zA-Z]{59}\$|^[0-9a-zA-Z]{92}\$|^[0-9a-zA-Z]{104}\$'
             '|^[0-9a-zA-Z]{105}\$|^addr1[0-9a-zA-Z]{98}\$';
       case CryptoCurrency.btc:
-        return '^${P2pkhAddress.REGEX.pattern}\$|^${P2shAddress.REGEX.pattern}\$|^${P2wpkhAddress.REGEX.pattern}\$|${P2trAddress.REGEX.pattern}\$';
+        return '^${P2pkhAddress.REGEX.pattern}\$|^${P2shAddress.REGEX.pattern}\$|^${P2wpkhAddress.REGEX.pattern}\$|${P2trAddress.REGEX.pattern}\$|^${P2wshAddress.REGEX.pattern}\$';
       case CryptoCurrency.nano:
         return '[0-9a-zA-Z_]';
       case CryptoCurrency.banano:
@@ -266,6 +266,7 @@ class AddressValidator extends TextValidator {
         return '([^0-9a-zA-Z]|^)${P2pkAddress.REGEX.pattern}|\$)'
             '([^0-9a-zA-Z]|^)${P2shAddress.REGEX.pattern}|\$)'
             '([^0-9a-zA-Z]|^)${P2wpkhAddress.REGEX.pattern}|\$)'
+            '([^0-9a-zA-Z]|^)${P2wshAddress.REGEX.pattern}|\$)'
             '([^0-9a-zA-Z]|^)${P2trAddress.REGEX.pattern}|\$)';
       case CryptoCurrency.ltc:
         return '([^0-9a-zA-Z]|^)^L[a-zA-Z0-9]{26,33}([^0-9a-zA-Z]|\$)'

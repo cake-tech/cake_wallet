@@ -762,8 +762,5 @@
   "default_sell_provider": "默认销售提供商",
   "select_sell_provider_notice": "选择上面的销售提供商。您可以通过在应用程序设置中设置默认销售提供商来跳过此屏幕。",
   "custom_drag": "定制（保持和拖动）",
-  "switchToEVMCompatibleWallet": "请切换到 EVM 兼容钱包并重试（以太坊、Polygon）",
-  "mainnet": "主网",
-  "trocador_anonpay_donation_link": "trocador anonpay捐赠链接",
-  "trocador_anonpay_invoice": "Trocador Anonpay发票"
+  "switchToEVMCompatibleWallet": "请切换到 EVM 兼容钱包并重试（以太坊、Polygon）"
 }
