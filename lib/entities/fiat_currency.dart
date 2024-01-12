@@ -10,7 +10,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   static List<FiatCurrency> get all => _all.values.toList();
 
   static List<FiatCurrency> get currenciesAvailableToBuyWith =>
-      [aud, bgn, brl, cad, chf, clp, cop, czk, dkk, egp, eur, gbp, gtq, hkd, hrk, huf, idr, ils, inr, isk, jpy, krw, mad, mxn, myr, ngn, nok, nzd, php, pkr, pln, ron, sek, sgd, thb, twd, usd, vnd, zar];
+      [aud, bgn, brl, cad, chf, clp, cop, czk, dkk, egp, eur, gbp, gtq, hkd, hrk, huf, idr, ils, inr, isk, jpy, krw, mad, mxn, myr, ngn, nok, nzd, php, pkr, pln, ron, sek, sgd, thb, twd, usd, vnd, zar, tur];
 
   static const ars = FiatCurrency(symbol: 'ARS', countryCode: "arg", fullName: "Argentine Peso");
   static const aud = FiatCurrency(symbol: 'AUD', countryCode: "aus", fullName: "Australian Dollar");
@@ -60,6 +60,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   static const vef = FiatCurrency(symbol: 'VEF', countryCode: "ven", fullName: "Venezuelan Bolivar Bolívar");
   static const vnd = FiatCurrency(symbol: 'VND', countryCode: "vnm", fullName: "Vietnamese Dong đồng");
   static const zar = FiatCurrency(symbol: 'ZAR', countryCode: "saf", fullName: "South African Rand");
+  static const tur = FiatCurrency(symbol: 'TRY', countryCode: "tur", fullName: "Turkish Lira");
 
   static final _all = {
     FiatCurrency.ars.raw: FiatCurrency.ars,
@@ -109,7 +110,8 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
     FiatCurrency.usd.raw: FiatCurrency.usd,
     FiatCurrency.vef.raw: FiatCurrency.vef,
     FiatCurrency.vnd.raw: FiatCurrency.vnd,
-    FiatCurrency.zar.raw: FiatCurrency.zar
+    FiatCurrency.zar.raw: FiatCurrency.zar,
+    FiatCurrency.tur.raw: FiatCurrency.tur,
   };
 
   static FiatCurrency deserialize({required String raw}) => _all[raw]!;

@@ -108,7 +108,7 @@ class SecurityBackupPage extends BasePage {
               context,
               route: _securitySettingsViewModel.useTotp2FA
                   ? Routes.modify2FAPage
-                  : Routes.setup_2faPage,
+                  : Routes.setup2faInfoPage,
                   conditionToDetermineIfToUse2FA: _securitySettingsViewModel
                       .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
                 ),

@@ -247,11 +247,15 @@ abstract class TransactionDetailsViewModelBase with Store {
   void _addNanoListItems(TransactionInfo tx, DateFormat dateFormat) {
     final _items = [
       StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      if (showRecipientAddress && tx.to != null)
+        StandartListItem(title: S.current.transaction_details_recipient_address, value: tx.to!),
+      if (showRecipientAddress && tx.from != null)
+        StandartListItem(title: S.current.transaction_details_source_address, value: tx.from!),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
       StandartListItem(
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
-      StandartListItem(title: S.current.confirmations, value: (tx.confirmations > 0).toString()),
+      StandartListItem(title: S.current.confirmed_tx, value: (tx.confirmations > 0).toString()),
       StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
-      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
     ];
 
     items.addAll(_items);

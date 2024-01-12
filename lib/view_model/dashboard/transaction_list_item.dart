@@ -101,7 +101,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         break;
       case WalletType.nano:
         amount = calculateFiatAmountRaw(
-            cryptoAmount: double.parse(nanoUtil!.getRawAsDecimalString(
+            cryptoAmount: double.parse(nanoUtil!.getRawAsUsableString(
                 nano!.getTransactionAmountRaw(transaction).toString(), nanoUtil!.rawPerNano)),
             price: price);
         break;
