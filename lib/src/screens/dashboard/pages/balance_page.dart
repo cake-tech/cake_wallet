@@ -265,7 +265,7 @@ class BalanceRowWidget extends StatelessWidget {
         color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
       ),
       child: Container(
-        margin: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 24),
+        margin: const EdgeInsets.only(top: 16, left: 24, right: 8, bottom: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -328,7 +328,7 @@ class BalanceRowWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(
+                Container(
                   width: MediaQuery.of(context).size.width * 0.18,
                   child: Center(
                     child: Column(
@@ -337,8 +337,8 @@ class BalanceRowWidget extends StatelessWidget {
                             ? Container(
                                 child: Image.asset(
                                   currency.iconPath!,
-                                  height: 30.0,
-                                  width: 30.0,
+                                  height: 40.0,
+                                  width: 40.0,
                                 ),
                               )
                             : Container(
