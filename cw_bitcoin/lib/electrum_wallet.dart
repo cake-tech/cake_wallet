@@ -357,10 +357,10 @@ abstract class ElectrumWalletBase
 
   String toJSON() => json.encode({
         'mnemonic': mnemonic,
-        'account_index': walletAddresses.currentChangeAddressIndexByType.toString(),
-        'change_address_index': walletAddresses.currentChangeAddressIndexByType.toString(),
+        'account_index': walletAddresses.currentChangeAddressIndexByType,
+        'change_address_index': walletAddresses.currentChangeAddressIndexByType,
         'addresses': walletAddresses.addresses.map((addr) => addr.toJSON()).toList(),
-        'address_page_type': walletAddresses.addressPageType,
+        'address_page_type': walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON()
       });
 

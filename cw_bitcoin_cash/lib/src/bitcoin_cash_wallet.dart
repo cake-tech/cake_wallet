@@ -28,17 +28,18 @@ part 'bitcoin_cash_wallet.g.dart';
 class BitcoinCashWallet = BitcoinCashWalletBase with _$BitcoinCashWallet;
 
 abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
-  BitcoinCashWalletBase(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required Uint8List seedBytes,
-      List<BitcoinAddressRecord>? initialAddresses,
-      ElectrumBalance? initialBalance,
-      Map<String, int> initialRegularAddressIndex = const {},
-      Map<String, int> initialChangeAddressIndex = const {}})
-      : super(
+  BitcoinCashWalletBase({
+    required String mnemonic,
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required Uint8List seedBytes,
+    String? addressPageType,
+    List<BitcoinAddressRecord>? initialAddresses,
+    ElectrumBalance? initialBalance,
+    Map<String, int> initialRegularAddressIndex = const {},
+    Map<String, int> initialChangeAddressIndex = const {},
+  }) : super(
             mnemonic: mnemonic,
             password: password,
             walletInfo: walletInfo,
@@ -48,14 +49,17 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             initialBalance: initialBalance,
             seedBytes: seedBytes,
             currency: CryptoCurrency.bch) {
-    walletAddresses = BitcoinCashWalletAddresses(walletInfo,
-        electrumClient: electrumClient,
-        initialAddresses: initialAddresses,
-        initialRegularAddressIndex: initialRegularAddressIndex,
-        initialChangeAddressIndex: initialChangeAddressIndex,
-        mainHd: hd,
-        sideHd: bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'/1"),
-        network: network);
+    walletAddresses = BitcoinCashWalletAddresses(
+      walletInfo,
+      electrumClient: electrumClient,
+      initialAddresses: initialAddresses,
+      initialRegularAddressIndex: initialRegularAddressIndex,
+      initialChangeAddressIndex: initialChangeAddressIndex,
+      mainHd: hd,
+      sideHd: bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'/1"),
+      network: network,
+      initialAddressPageType: addressPageType,
+    );
   }
 
   static Future<BitcoinCashWallet> create(
@@ -63,20 +67,23 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       required String password,
       required WalletInfo walletInfo,
       required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      String? addressPageType,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumBalance? initialBalance,
       Map<String, int> initialRegularAddressIndex = const {},
       Map<String, int> initialChangeAddressIndex = const {}}) async {
     return BitcoinCashWallet(
-        mnemonic: mnemonic,
-        password: password,
-        walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfo,
-        initialAddresses: initialAddresses,
-        initialBalance: initialBalance,
-        seedBytes: await Mnemonic.toSeed(mnemonic),
-        initialRegularAddressIndex: initialRegularAddressIndex,
-        initialChangeAddressIndex: initialChangeAddressIndex);
+      mnemonic: mnemonic,
+      password: password,
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfo,
+      initialAddresses: initialAddresses,
+      initialBalance: initialBalance,
+      seedBytes: await Mnemonic.toSeed(mnemonic),
+      initialRegularAddressIndex: initialRegularAddressIndex,
+      initialChangeAddressIndex: initialChangeAddressIndex,
+      addressPageType: addressPageType,
+    );
   }
 
   static Future<BitcoinCashWallet> open({
@@ -87,15 +94,17 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   }) async {
     final snp = await ElectrumWallletSnapshot.load(name, walletInfo.type, password);
     return BitcoinCashWallet(
-        mnemonic: snp.mnemonic,
-        password: password,
-        walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfo,
-        initialAddresses: snp.addresses,
-        initialBalance: snp.balance,
-        seedBytes: await Mnemonic.toSeed(snp.mnemonic),
-        initialRegularAddressIndex: snp.regularAddressIndex,
-        initialChangeAddressIndex: snp.changeAddressIndex);
+      mnemonic: snp.mnemonic,
+      password: password,
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfo,
+      initialAddresses: snp.addresses,
+      initialBalance: snp.balance,
+      seedBytes: await Mnemonic.toSeed(snp.mnemonic),
+      initialRegularAddressIndex: snp.regularAddressIndex,
+      initialChangeAddressIndex: snp.changeAddressIndex,
+      addressPageType: snp.addressPageType,
+    );
   }
 
   @override

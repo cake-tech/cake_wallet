@@ -16,6 +16,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required super.sideHd,
     required super.network,
     required super.electrumClient,
+    super.initialAddressPageType,
     super.initialAddresses,
     super.initialRegularAddressIndex = const {},
     super.initialChangeAddressIndex = const {},

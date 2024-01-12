@@ -20,17 +20,18 @@ part 'litecoin_wallet.g.dart';
 class LitecoinWallet = LitecoinWalletBase with _$LitecoinWallet;
 
 abstract class LitecoinWalletBase extends ElectrumWallet with Store {
-  LitecoinWalletBase(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required Uint8List seedBytes,
-      List<BitcoinAddressRecord>? initialAddresses,
-      ElectrumBalance? initialBalance,
-      Map<String, int> initialRegularAddressIndex = const {},
-      Map<String, int> initialChangeAddressIndex = const {}})
-      : super(
+  LitecoinWalletBase({
+    required String mnemonic,
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required Uint8List seedBytes,
+    String? addressPageType,
+    List<BitcoinAddressRecord>? initialAddresses,
+    ElectrumBalance? initialBalance,
+    Map<String, int> initialRegularAddressIndex = const {},
+    Map<String, int> initialChangeAddressIndex = const {},
+  }) : super(
             mnemonic: mnemonic,
             password: password,
             walletInfo: walletInfo,
@@ -49,6 +50,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       mainHd: hd,
       sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
       network: network,
+      initialAddressPageType: addressPageType,
     );
   }
 
@@ -57,20 +59,23 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       required String password,
       required WalletInfo walletInfo,
       required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      String? addressPageType,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumBalance? initialBalance,
       Map<String, int> initialRegularAddressIndex = const {},
       Map<String, int> initialChangeAddressIndex = const {}}) async {
     return LitecoinWallet(
-        mnemonic: mnemonic,
-        password: password,
-        walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfo,
-        initialAddresses: initialAddresses,
-        initialBalance: initialBalance,
-        seedBytes: await mnemonicToSeedBytes(mnemonic),
-        initialRegularAddressIndex: initialRegularAddressIndex,
-        initialChangeAddressIndex: initialChangeAddressIndex);
+      mnemonic: mnemonic,
+      password: password,
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfo,
+      initialAddresses: initialAddresses,
+      initialBalance: initialBalance,
+      seedBytes: await mnemonicToSeedBytes(mnemonic),
+      initialRegularAddressIndex: initialRegularAddressIndex,
+      initialChangeAddressIndex: initialChangeAddressIndex,
+      addressPageType: addressPageType,
+    );
   }
 
   static Future<LitecoinWallet> open({
@@ -81,15 +86,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }) async {
     final snp = await ElectrumWallletSnapshot.load(name, walletInfo.type, password);
     return LitecoinWallet(
-        mnemonic: snp.mnemonic,
-        password: password,
-        walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfo,
-        initialAddresses: snp.addresses,
-        initialBalance: snp.balance,
-        seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
-        initialRegularAddressIndex: snp.regularAddressIndex,
-        initialChangeAddressIndex: snp.changeAddressIndex);
+      mnemonic: snp.mnemonic,
+      password: password,
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfo,
+      initialAddresses: snp.addresses,
+      initialBalance: snp.balance,
+      seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
+      initialRegularAddressIndex: snp.regularAddressIndex,
+      initialChangeAddressIndex: snp.changeAddressIndex,
+      addressPageType: snp.addressPageType,
+    );
   }
 
   @override

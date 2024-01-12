@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -6,19 +7,22 @@ import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class ElectrumWallletSnapshot {
-  ElectrumWallletSnapshot(
-      {required this.name,
-      required this.type,
-      required this.password,
-      required this.mnemonic,
-      required this.addresses,
-      required this.balance,
-      required this.regularAddressIndex,
-      required this.changeAddressIndex});
+  ElectrumWallletSnapshot({
+    required this.name,
+    required this.type,
+    required this.password,
+    required this.mnemonic,
+    required this.addresses,
+    required this.balance,
+    required this.regularAddressIndex,
+    required this.changeAddressIndex,
+    required this.addressPageType,
+  });
 
   final String name;
   final String password;
   final WalletType type;
+  final String addressPageType;
 
   String mnemonic;
   List<BitcoinAddressRecord> addresses;
@@ -38,17 +42,34 @@ class ElectrumWallletSnapshot {
         .toList();
     final balance = ElectrumBalance.fromJSON(data['balance'] as String) ??
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
-    final regularAddressIndexByType = data["account_index"] as Map<String, int>? ?? {};
-    final changeAddressIndexByType = data["change_address_index"] as Map<String, int>? ?? {};
+    var regularAddressIndexByType = {BitcoinAddressType.p2wpkh.toString(): 0};
+    var changeAddressIndexByType = {BitcoinAddressType.p2wpkh.toString(): 0};
+
+    try {
+      regularAddressIndexByType = {
+        BitcoinAddressType.p2wpkh.toString(): int.parse(data['account_index'] as String? ?? '0')
+      };
+      changeAddressIndexByType = {
+        BitcoinAddressType.p2wpkh.toString():
+            int.parse(data['change_address_index'] as String? ?? '0')
+      };
+    } catch (_) {
+      try {
+        regularAddressIndexByType = data["account_index"] as Map<String, int>? ?? {};
+        changeAddressIndexByType = data["change_address_index"] as Map<String, int>? ?? {};
+      } catch (_) {}
+    }
 
     return ElectrumWallletSnapshot(
-        name: name,
-        type: type,
-        password: password,
-        mnemonic: mnemonic,
-        addresses: addresses,
-        balance: balance,
-        regularAddressIndex: regularAddressIndexByType,
-        changeAddressIndex: changeAddressIndexByType);
+      name: name,
+      type: type,
+      password: password,
+      mnemonic: mnemonic,
+      addresses: addresses,
+      balance: balance,
+      regularAddressIndex: regularAddressIndexByType,
+      changeAddressIndex: changeAddressIndexByType,
+      addressPageType: data['address_page_type'] as String? ?? BitcoinAddressType.p2wpkh.toString(),
+    );
   }
 }

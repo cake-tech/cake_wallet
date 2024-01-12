@@ -20,6 +20,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required this.sideHd,
     required this.electrumClient,
     required this.network,
+    String? initialAddressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
     Map<String, int> initialRegularAddressIndex = const {},
     Map<String, int> initialChangeAddressIndex = const {},
@@ -32,6 +33,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
             .toSet()),
         currentReceiveAddressIndexByType = initialRegularAddressIndex,
         currentChangeAddressIndexByType = initialChangeAddressIndex,
+        _addressPageType = walletInfo.addressPageType != null
+            ? BitcoinAddressType.fromValue(
+                walletInfo.addressPageType ?? BitcoinAddressType.p2wpkh.toString())
+            : BitcoinAddressType.p2wpkh,
         super(walletInfo);
 
   static const defaultReceiveAddressesCount = 22;
@@ -52,6 +57,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   BitcoinAddressType _addressPageType = BitcoinAddressType.p2wpkh;
   @computed
   BitcoinAddressType get addressPageType => _addressPageType;
+  @computed
+  @override
+  String get addressPageTypeStr => addressPageType.toString();
 
   @computed
   String get receiveAddress {
@@ -302,5 +310,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     await _discoverAddresses(mainHd, false, addressType: addressPageType);
     updateReceiveAddresses();
+    await saveAddressesInBox();
   }
 }
