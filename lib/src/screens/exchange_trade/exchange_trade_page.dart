@@ -261,7 +261,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     fee: S.of(popupContext).send_fee,
                     feeValue: widget.exchangeTradeViewModel.sendViewModel
                         .pendingTransaction!.feeFormatted,
-                    rightButtonText: S.of(popupContext).ok,
+                    rightButtonText: S.of(popupContext).send,
                     leftButtonText: S.of(popupContext).cancel,
                     actionRightButton: () async {
                       Navigator.of(popupContext).pop();

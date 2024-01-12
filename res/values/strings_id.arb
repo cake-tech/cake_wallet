@@ -757,5 +757,8 @@
   "connected": "Terhubung",
   "disconnected": "Terputus",
   "onion_only": "Bawang saja",
-  "connecting": "Menghubungkan"
+  "connecting": "Menghubungkan",
+  "receivable_balance": "Saldo piutang",
+  "confirmed_tx": "Dikonfirmasi",
+  "transaction_details_source_address": "Alamat sumber"
 }

@@ -767,5 +767,8 @@
   "connected": "Povezan",
   "disconnected": "Isključen",
   "onion_only": "Samo luk",
-  "connecting": "Spoj"
+  "connecting": "Spoj",
+  "receivable_balance": "Stanje potraživanja",
+  "confirmed_tx": "Potvrđen",
+  "transaction_details_source_address": "Adresa izvora"
 }

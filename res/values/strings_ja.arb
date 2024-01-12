@@ -769,5 +769,8 @@
   "connected": "接続",
   "disconnected": "切断された",
   "onion_only": "オニオンのみ",
-  "connecting": "接続"
+  "connecting": "接続",
+  "receivable_balance": "売掛金残高",
+  "confirmed_tx": "確認済み",
+  "transaction_details_source_address": "ソースアドレス"
 }

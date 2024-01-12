@@ -769,5 +769,8 @@
   "connected": "जुड़े हुए",
   "disconnected": "डिस्कनेक्ट किया गया",
   "onion_only": "केवल प्याज",
-  "connecting": "कनेक्ट"
+  "connecting": "कनेक्ट",
+  "receivable_balance": "प्राप्य शेष",
+  "confirmed_tx": "की पुष्टि",
+  "transaction_details_source_address": "स्रोत पता"
 }

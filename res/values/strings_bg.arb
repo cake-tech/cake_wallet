@@ -761,5 +761,8 @@
   "connected": "Свързани",
   "disconnected": "Изключен",
   "onion_only": "Само лук",
-  "connecting": "Свързване"
+  "connecting": "Свързване",
+  "receivable_balance": "Баланс за вземания",
+  "confirmed_tx": "Потвърдено",
+  "transaction_details_source_address": "Адрес на източника"
 }

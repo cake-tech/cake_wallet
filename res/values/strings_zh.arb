@@ -768,5 +768,8 @@
   "connected": "连接的",
   "disconnected": "断开连接",
   "onion_only": "仅洋葱",
-  "connecting": "连接"
+  "connecting": "连接",
+  "receivable_balance": "应收余额",
+  "confirmed_tx": "确认的",
+  "transaction_details_source_address": "源地址"
 }

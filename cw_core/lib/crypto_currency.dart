@@ -95,6 +95,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.banano,
     CryptoCurrency.usdtPoly,
     CryptoCurrency.usdcEPoly,
+    CryptoCurrency.kaspa,
   ];
 
   static const havenCurrencies = [
@@ -206,6 +207,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const banano = CryptoCurrency(title: 'BAN', fullName: 'Banano', raw: 86, name: 'banano', iconPath: 'assets/images/nano_icon.png', decimals: 29);
   static const usdtPoly = CryptoCurrency(title: 'USDT', tag: 'POLY', fullName: 'Tether USD (PoS)', raw: 87, name: 'usdtpoly', iconPath: 'assets/images/usdt_icon.png', decimals: 6);
   static const usdcEPoly = CryptoCurrency(title: 'USDC.E', tag: 'POLY', fullName: 'USD Coin (PoS)', raw: 88, name: 'usdcepoly', iconPath: 'assets/images/usdc_icon.png', decimals: 6);
+  static const kaspa = CryptoCurrency(title: 'KAS', fullName: 'Kaspa', raw: 89, name: 'kaspa', iconPath: 'assets/images/kaspa_icon.png', decimals: 8);
 
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =

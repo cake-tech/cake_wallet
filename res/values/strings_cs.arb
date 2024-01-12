@@ -761,5 +761,8 @@
   "connected": "Připojeno",
   "disconnected": "Odpojené",
   "onion_only": "Pouze cibule",
-  "connecting": "Spojovací"
+  "connecting": "Spojovací",
+  "receivable_balance": "Zůstatek pohledávek",
+  "confirmed_tx": "Potvrzeno",
+  "transaction_details_source_address": "Zdrojová adresa"
 }

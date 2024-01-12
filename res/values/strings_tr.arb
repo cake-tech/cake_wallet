@@ -767,5 +767,8 @@
   "connected": "Bağlı",
   "disconnected": "Bağlantı kesildi",
   "onion_only": "Sadece soğan",
-  "connecting": "Bağlanıyor"
+  "connecting": "Bağlanıyor",
+  "receivable_balance": "Alacak bakiyesi",
+  "confirmed_tx": "Onaylanmış",
+  "transaction_details_source_address": "Kaynak adresi"
 }

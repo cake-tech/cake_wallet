@@ -751,5 +751,8 @@
   "connected": "Wanda aka haɗa",
   "disconnected": "Katse",
   "onion_only": "Albasa kawai",
-  "connecting": "Haɗa"
+  "connecting": "Haɗa",
+  "receivable_balance": "Daidaituwa da daidaituwa",
+  "confirmed_tx": "Tabbatar",
+  "transaction_details_source_address": "Adireshin Incord"
 }

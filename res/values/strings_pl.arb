@@ -769,5 +769,8 @@
   "connected": "Połączony",
   "disconnected": "Bezładny",
   "onion_only": "Tylko cebula",
-  "connecting": "Złączony"
+  "connecting": "Złączony",
+  "receivable_balance": "Saldo należności",
+  "confirmed_tx": "Potwierdzony",
+  "transaction_details_source_address": "Adres źródłowy"
 }

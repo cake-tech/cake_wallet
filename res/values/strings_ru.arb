@@ -769,5 +769,8 @@
   "connected": "Связанный",
   "disconnected": "Отключен",
   "onion_only": "Только лук",
-  "connecting": "Соединение"
+  "connecting": "Соединение",
+  "receivable_balance": "Баланс дебиторской задолженности",
+  "confirmed_tx": "Подтвержденный",
+  "transaction_details_source_address": "Адрес источника"
 }

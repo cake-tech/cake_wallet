@@ -765,5 +765,8 @@
   "connected": "متصل",
   "disconnected": "انقطع الاتصال",
   "onion_only": "البصل فقط",
-  "connecting": "توصيل"
+  "connecting": "توصيل",
+  "receivable_balance": "التوازن القادم",
+  "confirmed_tx": "مؤكد",
+  "transaction_details_source_address": "عنوان المصدر"
 }

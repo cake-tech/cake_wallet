@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Not sure where to start?
+    url: https://guides.cakewallet.com
+    about: Start by reading checking out the guides!
+  - name: Need help?
+    url: https://cakewallet.com/#contact
+    about: Use our live chat or send a support email!

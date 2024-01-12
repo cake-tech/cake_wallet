@@ -769,5 +769,8 @@
   "connected": "Conectado",
   "disconnected": "Desconectado",
   "onion_only": "Solo cebolla",
-  "connecting": "Conexión"
+  "connecting": "Conexión",
+  "receivable_balance": "Saldo de cuentas por cobrar",
+  "confirmed_tx": "Confirmado",
+  "transaction_details_source_address": "Dirección de la fuente"
 }

@@ -763,5 +763,8 @@
   "connected": "Sopọ",
   "disconnected": "Ge asopọ",
   "onion_only": "Alubosa nikan",
-  "connecting": "Asopọ"
+  "connecting": "Asopọ",
+  "receivable_balance": "Iwontunws.funfun ti o gba",
+  "confirmed_tx": "Jẹrisi",
+  "transaction_details_source_address": "Adirẹsi orisun"
 }

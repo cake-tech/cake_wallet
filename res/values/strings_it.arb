@@ -769,5 +769,8 @@
   "connected": "Collegato",
   "disconnected": "Disconnesso",
   "onion_only": "Solo cipolla",
-  "connecting": "Connessione"
+  "connecting": "Connessione",
+  "receivable_balance": "Bilanciamento creditizio",
+  "confirmed_tx": "Confermato",
+  "transaction_details_source_address": "Indirizzo di partenza"
 }

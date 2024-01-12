@@ -761,5 +761,8 @@
   "connected": "منسلک",
   "disconnected": "منقطع",
   "onion_only": "صرف پیاز",
-  "connecting": "رابطہ قائم کرنا"
+  "connecting": "رابطہ قائم کرنا",
+  "receivable_balance": "قابل وصول توازن",
+  "confirmed_tx": "تصدیق",
+  "transaction_details_source_address": "ماخذ ایڈریس"
 }

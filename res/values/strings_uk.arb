@@ -769,5 +769,8 @@
   "connected": "З'єднаний",
   "disconnected": "Роз'єднаний",
   "onion_only": "Тільки цибуля",
-  "connecting": "З'єднання"
+  "connecting": "З'єднання",
+  "receivable_balance": "Баланс дебіторської заборгованості",
+  "confirmed_tx": "Підтверджений",
+  "transaction_details_source_address": "Адреса джерела"
 }

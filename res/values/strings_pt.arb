@@ -768,5 +768,8 @@
   "connected": "Conectado",
   "disconnected": "Desconectado",
   "onion_only": "Apenas cebola",
-  "connecting": "Conectando"
+  "connecting": "Conectando",
+  "receivable_balance": "Saldo a receber",
+  "confirmed_tx": "Confirmado",
+  "transaction_details_source_address": "Endereço de Origem"
 }

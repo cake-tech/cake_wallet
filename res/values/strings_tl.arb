@@ -763,5 +763,8 @@
   "connected": "Konektado",
   "disconnected": "Naka -disconnect",
   "onion_only": "Onion lamang",
-  "connecting": "Pagkonekta"
+  "connecting": "Pagkonekta",
+  "receivable_balance": "Natatanggap na balanse",
+  "confirmed_tx": "Nakumpirma",
+  "transaction_details_source_address": "SOURCE ADDRESS"
 }

@@ -423,7 +423,7 @@ class SendPage extends BasePage {
                       feeValue: sendViewModel.pendingTransaction!.feeFormatted,
                       feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                       outputs: sendViewModel.outputs,
-                      rightButtonText: S.of(_dialogContext).ok,
+                      rightButtonText: S.of(_dialogContext).send,
                       leftButtonText: S.of(_dialogContext).cancel,
                       actionRightButton: () {
                         Navigator.of(_dialogContext).pop();

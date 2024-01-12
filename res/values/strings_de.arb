@@ -769,5 +769,8 @@
   "connected": "In Verbindung gebracht",
   "disconnected": "Getrennt",
   "onion_only": "Nur Zwiebel",
-  "connecting": "Verbinden"
+  "connecting": "Verbinden",
+  "receivable_balance": "Forderungsbilanz",
+  "confirmed_tx": "Bestätigt",
+  "transaction_details_source_address": "Quelladresse"
 }

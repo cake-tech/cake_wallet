@@ -49,7 +49,7 @@ class TransactionsPage extends StatelessWidget {
                     onTap: () => Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [
                       '',
                       Uri.parse(
-                          'https://guides.cakewallet.com/docs/bugs-service-status/why_are_my_funds_not_appearing/')
+                          'https://guides.cakewallet.com/docs/FAQ/why_are_my_funds_not_appearing/')
                     ]),
                     title: S.of(context).syncing_wallet_alert_title,
                     subTitle: S.of(context).syncing_wallet_alert_content,

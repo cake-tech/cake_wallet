@@ -767,5 +767,8 @@
   "connected": "연결",
   "disconnected": "연결이 끊어졌습니다",
   "onion_only": "양파 만",
-  "connecting": "연결"
+  "connecting": "연결",
+  "receivable_balance": "채권 잔액",
+  "confirmed_tx": "확인",
+  "transaction_details_source_address": "소스 주소"
 }

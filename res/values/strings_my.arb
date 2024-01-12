@@ -767,5 +767,8 @@
   "connected": "ချိတ်ဆက်ထားသော",
   "disconnected": "ချို့ယွင်းချက်",
   "onion_only": "သာကြက်သွန်",
-  "connecting": "ချိတ်ဆက်"
+  "connecting": "ချိတ်ဆက်",
+  "receivable_balance": "လက်ကျန်ငွေ",
+  "confirmed_tx": "အတည်ပြုသည်",
+  "transaction_details_source_address": "အရင်းအမြစ်လိပ်စာ"
 }

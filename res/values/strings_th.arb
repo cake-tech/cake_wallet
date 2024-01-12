@@ -767,5 +767,8 @@
   "connected": "ซึ่งเชื่อมต่อกัน",
   "disconnected": "ตัดการเชื่อมต่อ",
   "onion_only": "หัวหอมเท่านั้น",
-  "connecting": "การเชื่อมต่อ"
+  "connecting": "การเชื่อมต่อ",
+  "receivable_balance": "ยอดลูกหนี้",
+  "confirmed_tx": "ซึ่งยืนยันแล้ว",
+  "transaction_details_source_address": "ที่อยู่แหล่งกำเนิด"
 }

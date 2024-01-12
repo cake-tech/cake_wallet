@@ -769,5 +769,8 @@
   "connected": "Verbonden",
   "disconnected": "Losgekoppeld",
   "onion_only": "Alleen ui",
-  "connecting": "Verbinden"
+  "connecting": "Verbinden",
+  "receivable_balance": "Het saldo",
+  "confirmed_tx": "Bevestigd",
+  "transaction_details_source_address": "Bron adres"
 }

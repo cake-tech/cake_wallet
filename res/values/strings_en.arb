@@ -770,5 +770,8 @@
   "connected": "Connected",
   "disconnected": "Disconnected",
   "onion_only": "Onion only",
-  "connecting": "Connecting"
+  "connecting": "Connecting",
+  "receivable_balance": "Receivable Balance",
+  "confirmed_tx": "Confirmed",
+  "transaction_details_source_address": "Source address"
 }
