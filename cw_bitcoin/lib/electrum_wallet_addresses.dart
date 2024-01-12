@@ -66,13 +66,18 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @override
   @computed
   String get address {
-    if (receiveAddresses.isEmpty) {
+    final typeMatchingAddresses = receiveAddresses.where((address) {
+      return addressPageType == BitcoinAddressType.p2wpkh
+          ? address.type == null || address.type == addressPageType
+          : address.type == addressPageType;
+    });
+
+    if (typeMatchingAddresses.isEmpty) {
       final address = generateNewAddress().address;
       return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(address) : address;
     }
 
-    try {
-      final receiveAddress = receiveAddresses.firstWhere((address) {
+    final receiveAddress = receiveAddresses.firstWhere((address) {
         return addressPageType == BitcoinAddressType.p2wpkh
             ? address.type == null || address.type == addressPageType
             : address.type == addressPageType;
@@ -81,9 +86,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       return walletInfo.type == WalletType.bitcoinCash
           ? toCashAddr(receiveAddress)
           : receiveAddress;
-    } catch (_) {}
-
-    return receiveAddresses.first.address;
   }
 
   @override
