@@ -32,11 +32,11 @@ class AdvancedPrivacySettingsPage extends BasePage {
   String get title => S.current.privacy_settings;
 
   final bool? useTestnet;
-  final Function(bool? val) toggleUseTestnet;
+  final Function(bool? val)? toggleUseTestnet;
 
   @override
-  Widget body(BuildContext context) => AdvancedPrivacySettingsBody(
-      useTestnet, toggleUseTestnet, advancedPrivacySettingsViewModel, nodeViewModel, seedTypeViewModel);
+  Widget body(BuildContext context) => AdvancedPrivacySettingsBody(useTestnet, toggleUseTestnet,
+      advancedPrivacySettingsViewModel, nodeViewModel, seedTypeViewModel);
 }
 
 class AdvancedPrivacySettingsBody extends StatefulWidget {
@@ -50,7 +50,7 @@ class AdvancedPrivacySettingsBody extends StatefulWidget {
   final SeedTypeViewModel seedTypeViewModel;
 
   final bool? useTestnet;
-  final Function(bool? val) toggleUseTestnet;
+  final Function(bool? val)? toggleUseTestnet;
 
   @override
   _AdvancedPrivacySettingsBodyState createState() => _AdvancedPrivacySettingsBodyState();
@@ -138,7 +138,8 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                   ),
                 );
               }),
-            if (widget.privacySettingsViewModel.type == WalletType.bitcoin)
+            if (widget.privacySettingsViewModel.type == WalletType.bitcoin &&
+                widget.toggleUseTestnet != null)
               Builder(builder: (_) {
                 final val = testnetValue!;
                 return SettingsSwitcherCell(
@@ -148,7 +149,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                       setState(() {
                         testnetValue = !val;
                       });
-                      widget.toggleUseTestnet(testnetValue);
+                      widget.toggleUseTestnet!.call(testnetValue);
                     });
               }),
           ],
@@ -166,7 +167,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                   widget.nodeViewModel.save();
                 } else if (testnetValue == true) {
                   // TODO: add type (mainnet/testnet) to Node class so when switching wallets the node can be switched to a matching type
-                    // Currently this is so you can create a working testnet wallet but you need to keep switching back the node if you use multiple wallets at once
+                  // Currently this is so you can create a working testnet wallet but you need to keep switching back the node if you use multiple wallets at once
                   widget.nodeViewModel.address = publicBitcoinTestnetElectrumAddress;
                   widget.nodeViewModel.port = publicBitcoinTestnetElectrumPort;
 
