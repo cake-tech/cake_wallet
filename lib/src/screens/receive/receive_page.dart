@@ -49,7 +49,7 @@ class ReceivePage extends BasePage {
   bool get gradientBackground => true;
 
   @override
-  bool get resizeToAvoidBottomInset => false;
+  bool get resizeToAvoidBottomInset => true;
 
   final FocusNode _cryptoAmountFocus;
 
@@ -99,8 +99,7 @@ class ReceivePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final isElectrumWallet = addressListViewModel.type == WalletType.bitcoin ||
-        addressListViewModel.type == WalletType.bitcoinCash ||
+    final isElectrumWallet = addressListViewModel.isElectrumWallet;
         addressListViewModel.type == WalletType.litecoin;
     return (addressListViewModel.type == WalletType.monero ||
             addressListViewModel.type == WalletType.haven ||
@@ -143,7 +142,9 @@ class ReceivePage extends BasePage {
 
                             if (item is WalletAccountListHeader) {
                               cell = HeaderTile(
-                                  onTap: () async {
+                                  showTrailingButton: true,
+                                  walletAddressListViewModel: addressListViewModel,
+                                  trailingButtonTap: () async {
                                     if (addressListViewModel.type == WalletType.monero ||
                                         addressListViewModel.type == WalletType.haven) {
                                       await showPopUp<void>(
@@ -156,7 +157,7 @@ class ReceivePage extends BasePage {
                                     }
                                   },
                                   title: S.of(context).accounts,
-                                  icon: Icon(
+                                  trailingIcon: Icon(
                                     Icons.arrow_forward_ios,
                                     size: 14,
                                     color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
@@ -164,16 +165,15 @@ class ReceivePage extends BasePage {
                             }
 
                             if (item is WalletAddressListHeader) {
-                              if (isElectrumWallet) {
                                 cell = HeaderTile(
-                                    onTap: () {},
-                                    title: S.of(context).addresses);
-                              } else {
-                                cell = HeaderTile(
-                                    onTap: () => Navigator.of(context)
-                                        .pushNamed(Routes.newSubaddress),
                                     title: S.of(context).addresses,
-                                    icon: Icon(
+                                    walletAddressListViewModel: addressListViewModel,
+                                    showTrailingButton: !addressListViewModel.isAutoGenerateSubaddressEnabled,
+                                    showSearchButton: true,
+                                    trailingButtonTap: () => isElectrumWallet
+                                        ? addressListViewModel.generateElectrumAddress
+                                        : Navigator.of(context).pushNamed(Routes.newSubaddress),
+                                    trailingIcon: Icon(
                                       Icons.add,
                                       size: 20,
                                       color: Theme.of(context)
@@ -181,7 +181,6 @@ class ReceivePage extends BasePage {
                                           .iconsColor,
                                     ));
                               }
-                            }
 
                             if (item is WalletAddressListItem) {
                               cell = Observer(builder: (_) {

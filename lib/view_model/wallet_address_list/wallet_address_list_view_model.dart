@@ -1,8 +1,10 @@
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
+import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/amount_converter.dart';
@@ -168,6 +170,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         hasAccounts =
             appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven,
         amount = '',
+        _settingsStore = appStore.settingsStore,
         super(appStore: appStore) {
     _init();
   }
@@ -185,11 +188,15 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   final NumberFormat _cryptoNumberFormat;
 
   final FiatConversionStore fiatConversionStore;
+  final SettingsStore _settingsStore;
 
   List<Currency> get currencies => [walletTypeToCryptoCurrency(wallet.type), ...FiatCurrency.all];
 
   @observable
   Currency selectedCurrency;
+
+  @observable
+  String searchText = '';
 
   @computed
   int get selectedCurrencyIndex => currencies.indexOf(selectedCurrency);
@@ -303,6 +310,15 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }
 
+    if (searchText.isNotEmpty) {
+      return ObservableList.of(addressList.where((item) {
+        if (item is WalletAddressListItem) {
+          return item.address.toLowerCase().contains(searchText.toLowerCase());
+        }
+        return false;
+      }));
+    }
+
     return addressList;
   }
 
@@ -338,6 +354,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           wallet.type == WalletType.litecoin ||
           wallet.type == WalletType.bitcoinCash;
 
+  @computed
+  bool get isAutoGenerateSubaddressEnabled =>
+      _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
+
   List<ListItem> _baseItems;
 
   final YatStore yatStore;
@@ -372,6 +392,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (selectedCurrency is FiatCurrency) {
       _convertAmountToCrypto();
     }
+  }
+
+  @action
+  void updateSearchText(String text) {
+    searchText = text;
   }
 
   void _convertAmountToCrypto() {

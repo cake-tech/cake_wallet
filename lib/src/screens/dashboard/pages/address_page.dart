@@ -161,15 +161,6 @@ class AddressPage extends BasePage {
                           amountController: _amountController,
                           isLight: dashboardViewModel.settingsStore.currentTheme.type ==
                               ThemeType.light))),
-              if(addressListViewModel.isElectrumWallet
-                  && !dashboardViewModel.isAutoGenerateSubaddressesEnabled)
-              PrimaryButton(
-                onPressed: () => addressListViewModel.generateElectrumAddress(),
-                text: 'Generate new address',
-                color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-                borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
-                textColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
-              ),
               SizedBox(height: 16),
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList) {
