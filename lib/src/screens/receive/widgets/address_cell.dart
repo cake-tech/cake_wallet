@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class AddressCell extends StatelessWidget {
   AddressCell(
@@ -74,56 +75,75 @@ class AddressCell extends StatelessWidget {
         child: Container(
           width: double.infinity,
           color: backgroundColor,
-          padding: EdgeInsets.only(left: 24, right: 24, top: 28, bottom: 28),
+          padding: EdgeInsets.only(left: 24, right: 24, top: 20, bottom: 20),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: textColor,
-                    ),
-                  ),
-                  if(hasBalance)
-                  Row(
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            'tx: $txCount',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: textColor,
+              Expanded(
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        if (isChange)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Container(
+                              height: 20,
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(8.5)),
+                                  color: textColor),
+                              alignment: Alignment.center,
+                              child: Text(
+                                S.of(context).unspent_change,
+                                style: TextStyle(
+                                  color: backgroundColor,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
                           ),
-                          SizedBox(width: 8),
-                          Text(
-                            'balance: $balance',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: textColor,
-                            ),
-                          ),
-                          SizedBox(width: 8)
-                        ],
-                      ),
-                      if (isChange)
-                        Text(
-                          S.of(context).change,
+                        AutoSizeText(
+                          label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: isChange ? 10 : null,
                             color: textColor,
                           ),
                         ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                    if (hasBalance)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Text(
+                              'Balance: $balance',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: textColor,
+                              ),
+                            ),
+                            Text(
+                              '${S.of(context).transactions.toLowerCase()}: $txCount',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: textColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ],
           ),
