@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
@@ -40,7 +41,9 @@ class NewWalletPage extends BasePage {
 
   @override
   Widget body(BuildContext context) => WalletNameForm(
-      _walletNewVM, currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage, _seedTypeViewModel);
+      _walletNewVM,
+      currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage,
+      _seedTypeViewModel);
 }
 
 class WalletNameForm extends StatefulWidget {
@@ -187,7 +190,6 @@ class _WalletNameFormState extends State<WalletNameForm> {
                       ),
                     ),
                   ),
-
                   if (_walletNewVM.hasLanguageSelector) ...[
                     if (_walletNewVM.hasSeedType) ...[
                       Observer(
@@ -222,7 +224,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                         ),
                       ),
                     )
-                  ]
+                  ],
                 ],
               ),
             ),
@@ -245,8 +247,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
               const SizedBox(height: 25),
               GestureDetector(
                 onTap: () {
-                  Navigator.of(context)
-                      .pushNamed(Routes.advancedPrivacySettings, arguments: _walletNewVM.type);
+                  Navigator.of(context).pushNamed(Routes.advancedPrivacySettings, arguments: [
+                    _walletNewVM.type,
+                    _walletNewVM.useTestnet,
+                    _walletNewVM.toggleUseTestnet
+                  ]);
                 },
                 child: Text(S.of(context).advanced_settings),
               ),

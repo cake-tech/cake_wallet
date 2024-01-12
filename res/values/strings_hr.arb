@@ -761,5 +761,6 @@
   "default_sell_provider": "Zadani dobavljač prodaje",
   "select_sell_provider_notice": "Gore odaberite pružatelja usluga prodaje. Ovaj zaslon možete preskočiti postavljanjem zadanog pružatelja usluga prodaje u postavkama aplikacije.",
   "custom_drag": "Prilagođeni (držite i povucite)",
-  "switchToEVMCompatibleWallet": "Prijeđite na novčanik kompatibilan s EVM-om i pokušajte ponovno (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Prijeđite na novčanik kompatibilan s EVM-om i pokušajte ponovno (Ethereum, Polygon)",
+  "use_testnet": "Koristite TestNet"
 }

@@ -1,3 +1,4 @@
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -24,6 +25,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Uint8List seedBytes,
     String? addressPageType,
+    BasedUtxoNetwork? networkParam,
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
     Map<String, int> initialRegularAddressIndex = const {},
@@ -46,7 +48,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       mainHd: hd,
       sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
-      network: network,
+      network: networkParam ?? network,
       initialAddressPageType: addressPageType,
     );
   }
@@ -57,6 +59,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     String? addressPageType,
+    BasedUtxoNetwork? network,
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
     Map<String, int> initialRegularAddressIndex = const {},
@@ -73,6 +76,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
+      networkParam: network,
     );
   }
 
@@ -82,8 +86,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
-    final snp = await ElectrumWallletSnapshot.load(name, walletInfo.type, password);
-    print([ "SNP", snp.addressPageType ]);
+    final snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password);
     return BitcoinWallet(
       mnemonic: snp.mnemonic,
       password: password,
@@ -95,6 +98,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,
+      networkParam: snp.network,
     );
   }
 }

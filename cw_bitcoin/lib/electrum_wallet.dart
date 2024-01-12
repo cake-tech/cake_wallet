@@ -79,6 +79,7 @@ abstract class ElectrumWalletBase
             : networkType == litecoinNetwork
                 ? LitecoinNetwork.mainnet
                 : BitcoinNetwork.testnet,
+        this.isTestnet = networkType == bitcoin.testnet,
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
@@ -123,6 +124,9 @@ abstract class ElectrumWalletBase
 
   bitcoin.NetworkType networkType;
   BasedUtxoNetwork network;
+
+  @override
+  bool? isTestnet;
 
   @override
   BitcoinWalletKeys get keys =>
@@ -361,7 +365,8 @@ abstract class ElectrumWalletBase
         'change_address_index': walletAddresses.currentChangeAddressIndexByType,
         'addresses': walletAddresses.addresses.map((addr) => addr.toJSON()).toList(),
         'address_page_type': walletInfo.addressPageType.toString(),
-        'balance': balance[currency]?.toJSON()
+        'balance': balance[currency]?.toJSON(),
+        'network_type': network == BitcoinNetwork.mainnet ? 'mainnet' : 'testnet',
       });
 
   int feeRate(TransactionPriority priority) {

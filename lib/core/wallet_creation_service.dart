@@ -55,7 +55,7 @@ class WalletCreationService {
     }
   }
 
-  Future<WalletBase> create(WalletCredentials credentials) async {
+  Future<WalletBase> create(WalletCredentials credentials, {bool? isTestnet}) async {
     checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
@@ -63,7 +63,7 @@ class WalletCreationService {
       credentials.seedPhraseLength = settingsStore.seedPhraseLength.value;
     }
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);
-    final wallet = await _service!.create(credentials);
+    final wallet = await _service!.create(credentials, isTestnet: isTestnet);
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
@@ -73,12 +73,12 @@ class WalletCreationService {
     return wallet;
   }
 
-  Future<WalletBase> restoreFromKeys(WalletCredentials credentials) async {
+  Future<WalletBase> restoreFromKeys(WalletCredentials credentials, {bool? isTestnet}) async {
     checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);
-    final wallet = await _service!.restoreFromKeys(credentials);
+    final wallet = await _service!.restoreFromKeys(credentials, isTestnet: isTestnet);
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
@@ -88,12 +88,12 @@ class WalletCreationService {
     return wallet;
   }
 
-  Future<WalletBase> restoreFromSeed(WalletCredentials credentials) async {
+  Future<WalletBase> restoreFromSeed(WalletCredentials credentials, {bool? isTestnet}) async {
     checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);
-    final wallet = await _service!.restoreFromSeed(credentials);
+    final wallet = await _service!.restoreFromSeed(credentials, isTestnet: isTestnet);
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(

@@ -7,6 +7,7 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:http/http.dart' as http;
 
 String jsonrpcparams(List<Object> params) {
   final _params = params?.map((val) => '"${val.toString()}"')?.join(',');
@@ -241,15 +242,32 @@ class ElectrumClient {
         return '';
       });
 
-  Future<String> broadcastTransaction({required String transactionRaw}) async =>
-      call(method: 'blockchain.transaction.broadcast', params: [transactionRaw])
-          .then((dynamic result) {
-        if (result is String) {
-          return result;
+  Future<String> broadcastTransaction(
+      {required String transactionRaw, BasedUtxoNetwork? network}) async {
+    if (network != null && network == BitcoinNetwork.testnet) {
+      return http
+          .post(Uri(scheme: 'https', host: 'blockstream.info', path: '/testnet/api/tx'),
+              headers: <String, String>{'Content-Type': 'application/json; charset=utf-8'},
+              body: transactionRaw)
+          .then((http.Response response) {
+        print(response.body);
+        if (response.statusCode == 200) {
+          return response.body;
         }
 
         return '';
       });
+    }
+
+    return call(method: 'blockchain.transaction.broadcast', params: [transactionRaw])
+        .then((dynamic result) {
+      if (result is String) {
+        return result;
+      }
+
+      return '';
+    });
+  }
 
   Future<Map<String, dynamic>> getMerkle({required String hash, required int height}) async =>
       await call(method: 'blockchain.transaction.get_merkle', params: [hash, height])

@@ -31,7 +31,7 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
 
   @override
   Future<BitcoinCashWallet> create(
-      credentials) async {
+      credentials, {bool? isTestnet}) async {
     final strength = (credentials.seedPhraseLength == 12)
         ? 128
         : (credentials.seedPhraseLength == 24)
@@ -88,14 +88,14 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
 
   @override
   Future<BitcoinCashWallet>
-  restoreFromKeys(credentials) {
+  restoreFromKeys(credentials, {bool? isTestnet}) {
     // TODO: implement restoreFromKeys
     throw UnimplementedError('restoreFromKeys() is not implemented');
   }
 
   @override
   Future<BitcoinCashWallet> restoreFromSeed(
-      BitcoinCashRestoreWalletFromSeedCredentials credentials) async {
+      BitcoinCashRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
     if (!validateMnemonic(credentials.mnemonic)) {
       throw BitcoinCashMnemonicIsIncorrectException();
     }

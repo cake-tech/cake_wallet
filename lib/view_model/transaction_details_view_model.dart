@@ -1,3 +1,4 @@
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -15,6 +16,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 
 part 'transaction_details_view_model.g.dart';
 
@@ -116,7 +118,11 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.monero:
         return 'https://monero.com/tx/${txId}';
       case WalletType.bitcoin:
-        return 'https://mempool.space/tx/${txId}';
+        if (wallet is ElectrumWallet) {
+          final networkType = (wallet as ElectrumWallet).networkType;
+          return 'https://mempool.space/${networkType == bitcoin.testnet ? "testnet/" : ""}tx/${txId}';
+        }
+        return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.litecoin:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.bitcoinCash:

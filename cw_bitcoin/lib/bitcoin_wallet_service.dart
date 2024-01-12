@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
@@ -25,12 +26,14 @@ class BitcoinWalletService extends WalletService<
   WalletType getType() => WalletType.bitcoin;
 
   @override
-  Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials) async {
+  Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
     final wallet = await BitcoinWalletBase.create(
-        mnemonic: await generateMnemonic(),
-        password: credentials.password!,
-        walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+      mnemonic: await generateMnemonic(),
+      password: credentials.password!,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      network: (isTestnet ?? false) ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet,
+    );
     await wallet.save();
     await wallet.init();
     return wallet;
@@ -81,12 +84,12 @@ class BitcoinWalletService extends WalletService<
 
   @override
   Future<BitcoinWallet> restoreFromKeys(
-          BitcoinRestoreWalletFromWIFCredentials credentials) async =>
+          BitcoinRestoreWalletFromWIFCredentials credentials, {bool? isTestnet}) async =>
       throw UnimplementedError();
 
   @override
   Future<BitcoinWallet> restoreFromSeed(
-      BitcoinRestoreWalletFromSeedCredentials credentials) async {
+      BitcoinRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
     if (!validateMnemonic(credentials.mnemonic)) {
       throw BitcoinMnemonicIsIncorrectException();
     }

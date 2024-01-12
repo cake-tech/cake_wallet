@@ -6,8 +6,8 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_type.dart';
 
-class ElectrumWallletSnapshot {
-  ElectrumWallletSnapshot({
+class ElectrumWalletSnapshot {
+  ElectrumWalletSnapshot({
     required this.name,
     required this.type,
     required this.password,
@@ -17,12 +17,14 @@ class ElectrumWallletSnapshot {
     required this.regularAddressIndex,
     required this.changeAddressIndex,
     required this.addressPageType,
+    required this.network,
   });
 
   final String name;
   final String password;
   final WalletType type;
   final String addressPageType;
+  final BasedUtxoNetwork network;
 
   String mnemonic;
   List<BitcoinAddressRecord> addresses;
@@ -30,7 +32,7 @@ class ElectrumWallletSnapshot {
   Map<String, int> regularAddressIndex;
   Map<String, int> changeAddressIndex;
 
-  static Future<ElectrumWallletSnapshot> load(String name, WalletType type, String password) async {
+  static Future<ElectrumWalletSnapshot> load(String name, WalletType type, String password) async {
     final path = await pathForWallet(name: name, type: type);
     final jsonSource = await read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
@@ -60,7 +62,7 @@ class ElectrumWallletSnapshot {
       } catch (_) {}
     }
 
-    return ElectrumWallletSnapshot(
+    return ElectrumWalletSnapshot(
       name: name,
       type: type,
       password: password,
@@ -70,6 +72,7 @@ class ElectrumWallletSnapshot {
       regularAddressIndex: regularAddressIndexByType,
       changeAddressIndex: changeAddressIndexByType,
       addressPageType: data['address_page_type'] as String? ?? BitcoinAddressType.p2wpkh.toString(),
+      network: data['network_type'] == 'testnet' ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet,
     );
   }
 }
