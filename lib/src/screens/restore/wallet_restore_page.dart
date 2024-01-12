@@ -211,7 +211,7 @@ class WalletRestorePage extends BasePage {
                       GestureDetector(
                         onTap: () {
                           Navigator.of(context).pushNamed(Routes.advancedPrivacySettings,
-                              arguments: walletRestoreViewModel.type);
+                              arguments: {'type': walletRestoreViewModel.type});
                         },
                         child: Text(S.of(context).advanced_settings),
                       ),
