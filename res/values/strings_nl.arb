@@ -764,5 +764,8 @@
   "select_sell_provider_notice": "Selecteer hierboven een verkoopaanbieder. U kunt dit scherm overslaan door uw standaardverkoopprovider in te stellen in de app-instellingen.",
   "custom_drag": "Custom (vasthouden en slepen)",
   "switchToEVMCompatibleWallet": "Schakel over naar een EVM-compatibele portemonnee en probeer het opnieuw (Ethereum, Polygon)",
-  "use_testnet": "Gebruik testnet"
+  "use_testnet": "Gebruik testnet",
+  "receivable_balance": "Het saldo",
+  "confirmed_tx": "Bevestigd",
+  "transaction_details_source_address": "Bron adres"
 }

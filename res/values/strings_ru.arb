@@ -764,5 +764,8 @@
   "select_sell_provider_notice": "Выберите поставщика услуг продажи выше. Вы можете пропустить этот экран, установив поставщика услуг продаж по умолчанию в настройках приложения.",
   "custom_drag": "Пользователь (удерживайте и перетаскивайте)",
   "switchToEVMCompatibleWallet": "Пожалуйста, переключитесь на кошелек, совместимый с EVM, и повторите попытку (Ethereum, Polygon).",
-  "use_testnet": "Используйте Testnet"
+  "use_testnet": "Используйте Testnet",
+  "receivable_balance": "Баланс дебиторской задолженности",
+  "confirmed_tx": "Подтвержденный",
+  "transaction_details_source_address": "Адрес источника"
 }

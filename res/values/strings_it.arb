@@ -764,5 +764,8 @@
   "select_sell_provider_notice": "Seleziona un fornitore di vendita sopra. Puoi saltare questa schermata impostando il tuo fornitore di vendita predefinito nelle impostazioni dell'app.",
   "custom_drag": "Custom (Hold and Drag)",
   "switchToEVMCompatibleWallet": "Passa a un portafoglio compatibile con EVM e riprova (Ethereum, Polygon)",
-  "use_testnet": "Usa TestNet"
+  "use_testnet": "Usa TestNet",
+  "receivable_balance": "Bilanciamento creditizio",
+  "confirmed_tx": "Confermato",
+  "transaction_details_source_address": "Indirizzo di partenza"
 }

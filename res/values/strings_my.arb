@@ -762,5 +762,8 @@
   "select_sell_provider_notice": "အထက်ဖော်ပြပါ အရောင်းဝန်ဆောင်မှုပေးသူကို ရွေးပါ။ အက်ပ်ဆက်တင်များတွင် သင်၏မူလရောင်းချပေးသူကို သတ်မှတ်ခြင်းဖြင့် ဤစခရင်ကို ကျော်နိုင်သည်။",
   "custom_drag": "စိတ်ကြိုက် (Drag)",
   "switchToEVMCompatibleWallet": "ကျေးဇူးပြု၍ EVM တွဲဖက်သုံးနိုင်သော ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်စမ်းကြည့်ပါ (Ethereum၊ Polygon)",
-  "use_testnet": "testnet ကိုသုံးပါ"
+  "use_testnet": "testnet ကိုသုံးပါ",
+  "receivable_balance": "လက်ကျန်ငွေ",
+  "confirmed_tx": "အတည်ပြုသည်",
+  "transaction_details_source_address": "အရင်းအမြစ်လိပ်စာ"
 }

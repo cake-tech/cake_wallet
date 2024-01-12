@@ -764,5 +764,8 @@
   "select_sell_provider_notice": "Wählen Sie oben einen Verkaufsanbieter aus. Sie können diesen Bildschirm überspringen, indem Sie in den App-Einstellungen Ihren Standard-Verkaufsanbieter festlegen.",
   "custom_drag": "Custom (Hold and Drag)",
   "switchToEVMCompatibleWallet": "Bitte wechseln Sie zu einem EVM-kompatiblen Wallet und versuchen Sie es erneut (Ethereum, Polygon)",
-  "use_testnet": "TESTNET verwenden"
+  "use_testnet": "TESTNET verwenden",
+  "receivable_balance": "Forderungsbilanz",
+  "confirmed_tx": "Bestätigt",
+  "transaction_details_source_address": "Quelladresse"
 }

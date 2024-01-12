@@ -756,5 +756,8 @@
   "select_sell_provider_notice": "Výše vyberte poskytovatele prodeje. Tuto obrazovku můžete přeskočit nastavením výchozího poskytovatele prodeje v nastavení aplikace.",
   "custom_drag": "Custom (Hold and Drag)",
   "switchToEVMCompatibleWallet": "Přepněte na peněženku kompatibilní s EVM a zkuste to znovu (Ethereum, Polygon)",
-  "use_testnet": "Použijte testNet"
+  "use_testnet": "Použijte testNet",
+  "receivable_balance": "Zůstatek pohledávek",
+  "confirmed_tx": "Potvrzeno",
+  "transaction_details_source_address": "Zdrojová adresa"
 }

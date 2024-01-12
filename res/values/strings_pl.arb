@@ -764,5 +764,8 @@
   "select_sell_provider_notice": "Wybierz dostawcę sprzedaży powyżej. Możesz pominąć ten ekran, ustawiając domyślnego dostawcę sprzedaży w ustawieniach aplikacji.",
   "custom_drag": "Niestandardowe (trzymaj i przeciągnij)",
   "switchToEVMCompatibleWallet": "Przejdź na portfel zgodny z EVM i spróbuj ponownie (Ethereum, Polygon)",
-  "use_testnet": "Użyj testne"
+  "use_testnet": "Użyj testne",
+  "receivable_balance": "Saldo należności",
+  "confirmed_tx": "Potwierdzony",
+  "transaction_details_source_address": "Adres źródłowy"
 }

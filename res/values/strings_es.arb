@@ -764,5 +764,8 @@
   "select_sell_provider_notice": "Seleccione un proveedor de venta arriba. Puede omitir esta pantalla configurando su proveedor de venta predeterminado en la configuración de la aplicación.",
   "custom_drag": "Custom (mantenía y arrastre)",
   "switchToEVMCompatibleWallet": "Cambie a una billetera compatible con EVM e inténtelo nuevamente (Ethereum, Polygon)",
-  "use_testnet": "Use TestNet"
+  "use_testnet": "Use TestNet",
+  "receivable_balance": "Saldo de cuentas por cobrar",
+  "confirmed_tx": "Confirmado",
+  "transaction_details_source_address": "Dirección de la fuente"
 }
