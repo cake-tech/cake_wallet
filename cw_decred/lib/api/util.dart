@@ -1,13 +1,35 @@
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
+import 'dart:convert';
 
-void handleErrorAndPointers({
+class PayloadResult {
+  final String payload;
+  final String err;
+  final int errCode;
+
+  const PayloadResult(this.payload, this.err, this.errCode);
+}
+
+// Executes the provided fn and converts the string response to a PayloadReult.
+// Returns payload, error code, and error.
+PayloadResult executePayloadFn({
   required Pointer<Char> fn(),
   required List<Pointer> ptrsToFree,
+  bool skipErrorCheck = false,
 }) {
-  final err = fn();
+  final jsonStr = fn().toDartString();
   freePointers(ptrsToFree);
-  checkError(err);
+  if (jsonStr == null) throw Exception("no json return from wallet library");
+  final decoded = json.decode(jsonStr);
+
+  final err = decoded["error"] ?? "";
+  if (!skipErrorCheck) {
+    checkErr(err);
+  }
+
+  final payload = decoded["payload"] ?? "";
+  final errCode = decoded["errorcode"] ?? -1;
+  return new PayloadResult(payload, err, errCode);
 }
 
 void freePointers(List<Pointer> ptrsToFree) {
@@ -16,9 +38,9 @@ void freePointers(List<Pointer> ptrsToFree) {
   }
 }
 
-void checkError(Pointer<Char> error) {
-  if (error.isNull) return;
-  throw Exception(error.toDartString());
+void checkErr(String err) {
+  if (err == "") return;
+  throw Exception(err);
 }
 
 extension StringUtil on String {
