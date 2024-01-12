@@ -50,7 +50,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       mainHd: hd,
       sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
       network: network,
-      initialAddressPageType: addressPageType,
     );
   }
 

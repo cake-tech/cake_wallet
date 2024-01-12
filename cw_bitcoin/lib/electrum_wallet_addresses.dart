@@ -20,7 +20,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required this.sideHd,
     required this.electrumClient,
     required this.network,
-    String? initialAddressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
     Map<String, int> initialRegularAddressIndex = const {},
     Map<String, int> initialChangeAddressIndex = const {},

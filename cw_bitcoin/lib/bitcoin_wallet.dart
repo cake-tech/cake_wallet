@@ -49,7 +49,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       mainHd: hd,
       sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
       network: networkParam ?? network,
-      initialAddressPageType: addressPageType,
     );
   }
 
