@@ -21,8 +21,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required this.electrumClient,
     required this.network,
     List<BitcoinAddressRecord>? initialAddresses,
-    int initialRegularAddressIndex = 0,
-    int initialChangeAddressIndex = 0,
+    Map<String, int> initialRegularAddressIndex = const {},
+    Map<String, int> initialChangeAddressIndex = const {},
   })  : addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
         receiveAddresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? [])
             .where((addressRecord) => !addressRecord.isHidden && !addressRecord.isUsed)
@@ -30,8 +30,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         changeAddresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? [])
             .where((addressRecord) => addressRecord.isHidden && !addressRecord.isUsed)
             .toSet()),
-        currentReceiveAddressIndex = initialRegularAddressIndex,
-        currentChangeAddressIndex = initialChangeAddressIndex,
+        currentReceiveAddressIndexByType = initialRegularAddressIndex,
+        currentChangeAddressIndexByType = initialChangeAddressIndex,
         super(walletInfo);
 
   static const defaultReceiveAddressesCount = 22;
@@ -71,12 +71,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @computed
   String get address {
     if (receiveAddresses.isEmpty) {
-      return generateNewAddress().address;
+      final address = generateNewAddress().address;
+      return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(address) : address;
     }
 
     try {
       return receiveAddresses.firstWhere((address) {
-        print([1, address.address, address.type]);
         return addressPageType == BitcoinAddressType.p2wpkh
             ? address.type == null || address.type == addressPageType
             : address.type == addressPageType;
@@ -86,8 +86,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return receiveAddresses.first.address;
   }
 
-  int currentReceiveAddressIndex;
-  int currentChangeAddressIndex;
+  Map<String, int> currentReceiveAddressIndexByType = {};
+  int get currentReceiveAddressIndex =>
+      currentReceiveAddressIndexByType[_addressPageType.toString()] ?? 0;
+  void set currentReceiveAddressIndex(int index) =>
+      currentReceiveAddressIndexByType[_addressPageType.toString()] = index;
+
+  Map<String, int> currentChangeAddressIndexByType = {};
+  int get currentChangeAddressIndex =>
+      currentChangeAddressIndexByType[_addressPageType.toString()] ?? 0;
+  void set currentChangeAddressIndex(int index) =>
+      currentChangeAddressIndexByType[_addressPageType.toString()] = index;
 
   @computed
   int get totalCountOfReceiveAddresses => addresses.fold(0, (acc, addressRecord) {
@@ -152,6 +161,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @action
   BitcoinAddressRecord generateNewAddress(
       {bitcoin.HDWallet? hd, bool isHidden = false, String? label}) {
+    currentReceiveAddressIndex += 1;
     // FIX-ME: Check logic for whichi HD should be used here  ???
     final address = BitcoinAddressRecord(
         getAddress(

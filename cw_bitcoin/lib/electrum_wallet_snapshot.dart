@@ -6,15 +6,15 @@ import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class ElectrumWallletSnapshot {
-  ElectrumWallletSnapshot({
-    required this.name,
-    required this.type,
-    required this.password,
-    required this.mnemonic,
-    required this.addresses,
-    required this.balance,
-    required this.regularAddressIndex,
-    required this.changeAddressIndex});
+  ElectrumWallletSnapshot(
+      {required this.name,
+      required this.type,
+      required this.password,
+      required this.mnemonic,
+      required this.addresses,
+      required this.balance,
+      required this.regularAddressIndex,
+      required this.changeAddressIndex});
 
   final String name;
   final String password;
@@ -23,8 +23,8 @@ class ElectrumWallletSnapshot {
   String mnemonic;
   List<BitcoinAddressRecord> addresses;
   ElectrumBalance balance;
-  int regularAddressIndex;
-  int changeAddressIndex;
+  Map<String, int> regularAddressIndex;
+  Map<String, int> changeAddressIndex;
 
   static Future<ElectrumWallletSnapshot> load(String name, WalletType type, String password) async {
     final path = await pathForWallet(name: name, type: type);
@@ -38,22 +38,17 @@ class ElectrumWallletSnapshot {
         .toList();
     final balance = ElectrumBalance.fromJSON(data['balance'] as String) ??
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
-    var regularAddressIndex = 0;
-    var changeAddressIndex = 0;
-
-    try {
-      regularAddressIndex = int.parse(data['account_index'] as String? ?? '0');
-      changeAddressIndex = int.parse(data['change_address_index'] as String? ?? '0');
-    } catch (_) {}
+    final regularAddressIndexByType = data["account_index"] as Map<String, int>? ?? {};
+    final changeAddressIndexByType = data["change_address_index"] as Map<String, int>? ?? {};
 
     return ElectrumWallletSnapshot(
-      name: name,
-      type: type,
-      password: password,
-      mnemonic: mnemonic,
-      addresses: addresses,
-      balance: balance,
-      regularAddressIndex: regularAddressIndex,
-      changeAddressIndex: changeAddressIndex);
+        name: name,
+        type: type,
+        password: password,
+        mnemonic: mnemonic,
+        addresses: addresses,
+        balance: balance,
+        regularAddressIndex: regularAddressIndexByType,
+        changeAddressIndex: changeAddressIndexByType);
   }
 }
