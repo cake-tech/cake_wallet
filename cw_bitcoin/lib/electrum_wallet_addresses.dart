@@ -55,28 +55,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @observable
   BitcoinAddressType _addressPageType = BitcoinAddressType.p2wpkh;
+
   @computed
   BitcoinAddressType get addressPageType => _addressPageType;
+
   @computed
   @override
   String get addressPageTypeStr => addressPageType.toString();
-
-  @computed
-  String get receiveAddress {
-    if (receiveAddresses.isEmpty) {
-      final address = generateNewAddress().address;
-      return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(address) : address;
-    }
-    final receiveAddress = receiveAddresses.first.address;
-
-    return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(receiveAddress) : receiveAddress;
-  }
-
-  @override
-  String get primaryAddress => getAddress(index: 0, hd: mainHd);
-
-  @override
-  set address(String addr) => null;
 
   @override
   @computed
@@ -87,25 +72,39 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     try {
-      return receiveAddresses.firstWhere((address) {
+      final receiveAddress = receiveAddresses.firstWhere((address) {
         return addressPageType == BitcoinAddressType.p2wpkh
             ? address.type == null || address.type == addressPageType
             : address.type == addressPageType;
       }).address;
+
+      return walletInfo.type == WalletType.bitcoinCash
+          ? toCashAddr(receiveAddress)
+          : receiveAddress;
     } catch (_) {}
 
     return receiveAddresses.first.address;
   }
 
+  @override
+  String get primaryAddress => getAddress(index: 0, hd: mainHd);
+
+  @override
+  set address(String addr) => null;
+
   Map<String, int> currentReceiveAddressIndexByType = {};
+
   int get currentReceiveAddressIndex =>
       currentReceiveAddressIndexByType[_addressPageType.toString()] ?? 0;
+
   void set currentReceiveAddressIndex(int index) =>
       currentReceiveAddressIndexByType[_addressPageType.toString()] = index;
 
   Map<String, int> currentChangeAddressIndexByType = {};
+
   int get currentChangeAddressIndex =>
       currentChangeAddressIndexByType[_addressPageType.toString()] ?? 0;
+
   void set currentChangeAddressIndex(int index) =>
       currentChangeAddressIndexByType[_addressPageType.toString()] = index;
 
@@ -265,14 +264,20 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (countOfReceiveAddresses < defaultReceiveAddressesCount) {
       final addressesCount = defaultReceiveAddressesCount - countOfReceiveAddresses;
       final newAddresses = await _createNewAddresses(addressesCount,
-          startIndex: countOfReceiveAddresses, hd: mainHd, isHidden: false);
+          startIndex: countOfReceiveAddresses,
+          hd: mainHd,
+          isHidden: false,
+          addressType: addressPageType);
       addresses.addAll(newAddresses);
     }
 
     if (countOfHiddenAddresses < defaultChangeAddressesCount) {
       final addressesCount = defaultChangeAddressesCount - countOfHiddenAddresses;
       final newAddresses = await _createNewAddresses(addressesCount,
-          startIndex: countOfHiddenAddresses, hd: sideHd, isHidden: true);
+          startIndex: countOfHiddenAddresses,
+          hd: sideHd,
+          isHidden: true,
+          addressType: addressPageType);
       addresses.addAll(newAddresses);
     }
   }

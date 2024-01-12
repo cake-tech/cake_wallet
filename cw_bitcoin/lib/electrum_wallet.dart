@@ -361,7 +361,7 @@ abstract class ElectrumWalletBase
 
   String toJSON() => json.encode({
         'mnemonic': mnemonic,
-        'account_index': walletAddresses.currentChangeAddressIndexByType,
+        'account_index': walletAddresses.currentReceiveAddressIndexByType,
         'change_address_index': walletAddresses.currentChangeAddressIndexByType,
         'addresses': walletAddresses.addresses.map((addr) => addr.toJSON()).toList(),
         'address_page_type': walletInfo.addressPageType.toString(),

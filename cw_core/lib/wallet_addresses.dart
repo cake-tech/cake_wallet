@@ -1,4 +1,3 @@
-import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/wallet_info.dart';
 
@@ -21,7 +20,7 @@ abstract class WalletAddresses {
 
   Set<String> usedAddresses = {};
 
-  String addressPageTypeStr = BitcoinAddressType.p2wpkh.toString();
+  String? addressPageTypeStr;
 
   Future<void> init();
 
