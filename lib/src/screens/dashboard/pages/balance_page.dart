@@ -265,7 +265,7 @@ class BalanceRowWidget extends StatelessWidget {
         color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
       ),
       child: Container(
-        margin: const EdgeInsets.only(top: 16, left: 24, right: 8, bottom: 24),
+        margin: const EdgeInsets.only(top: 16, left: 24, right: 8, bottom: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
