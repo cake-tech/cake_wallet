@@ -1,17 +1,13 @@
-import 'dart:io';
 
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tor/tor.dart';
 
 class WalletLoadingService {
   WalletLoadingService(

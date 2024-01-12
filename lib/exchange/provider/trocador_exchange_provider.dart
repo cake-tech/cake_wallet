@@ -309,6 +309,10 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     ProxyWrapper proxy = await getIt.get<ProxyWrapper>();
     Uri onionUri = Uri.http(onionApiAuthority, path, queryParams);
     Uri clearnetUri = Uri.http(onionApiAuthority, path, queryParams);
-    return await proxy.get(onionUri, torOnly: useTorOnly, clearnetUri: clearnetUri);
+    return await proxy.get(
+      onionUri: onionUri,
+      clearnetUri: clearnetUri,
+      torOnly: useTorOnly,
+    );
   }
 }

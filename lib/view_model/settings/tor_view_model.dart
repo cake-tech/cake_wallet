@@ -5,6 +5,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:mobx/mobx.dart';
+import 'package:socks5_proxy/socks_client.dart';
 import 'package:tor/tor.dart';
 
 part 'tor_view_model.g.dart';
@@ -44,12 +45,25 @@ abstract class TorViewModelBase with Store {
   Future<void> startTor() async {
     try {
       torConnectionStatus = TorConnectionStatus.connecting;
+
       await Tor.init();
-      await Tor.instance.enable();
+
+      // start only if not already running:
+      if (Tor.instance.port == -1) {
+        await Tor.instance.enable();
+      }
 
       _settingsStore.shouldStartTorOnLaunch = true;
 
       torConnectionStatus = TorConnectionStatus.connected;
+
+      SocksTCPClient.setProxy(proxies: [
+        ProxySettings(
+          InternetAddress.loopbackIPv4,
+          Tor.instance.port,
+          password: null,
+        ),
+      ]);
 
       // connect to node through the proxy:
       final appStore = getIt.get<AppStore>();
@@ -70,5 +84,6 @@ abstract class TorViewModelBase with Store {
     Tor.instance.disable();
     _settingsStore.shouldStartTorOnLaunch = false;
     torConnectionStatus = TorConnectionStatus.disconnected;
+    SocksTCPClient.setProxy(proxies: null);
   }
 }

@@ -40,10 +40,10 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
     // the proxywrapper class wraps all of the complexity of retrying on clearnet / settings handling:
     try {
       httpResponse = await proxy.get(
-        onionUri,
+        onionUri: onionUri,
+        clearnetUri: clearnetUri,
         portOverride: mainThreadProxyPort,
         torOnly: torOnly,
-        clearnetUri: clearnetUri,
       );
       responseBody = await utf8.decodeStream(httpResponse);
       statusCode = httpResponse.statusCode;
@@ -71,7 +71,15 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
 
 Future<double> _fetchPriceAsync(
         CryptoCurrency crypto, FiatCurrency fiat, bool torOnly, bool onionOnly) async =>
-    compute(_fetchPrice, {
+    // compute(_fetchPrice, {
+    //   'fiat': fiat.toString(),
+    //   'crypto': crypto.toString(),
+    //   'torOnly': torOnly,
+    //   'onionOnly': onionOnly,
+    //   'port': ProxyWrapper.port,
+    //   'torEnabled': ProxyWrapper.enabled,
+    // });
+    _fetchPrice({
       'fiat': fiat.toString(),
       'crypto': crypto.toString(),
       'torOnly': torOnly,

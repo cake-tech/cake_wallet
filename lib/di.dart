@@ -61,6 +61,7 @@ import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
@@ -726,6 +727,7 @@ Future<void> setup({
   getIt.registerFactory(() => TrocadorProvidersViewModel(getIt.get<SettingsStore>()));
 
   getIt.registerSingleton(TorViewModel(getIt.get<SettingsStore>()));
+  getIt.registerSingleton(ProxyWrapper(settingsStore: getIt.get<SettingsStore>()));
   
   if (DeviceInfo.instance.isMobile && settingsStore.shouldStartTorOnLaunch) {
     getIt.get<TorViewModel>().startTor();
