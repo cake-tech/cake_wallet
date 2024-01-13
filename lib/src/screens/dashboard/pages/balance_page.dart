@@ -329,7 +329,7 @@ class BalanceRowWidget extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  width: min(MediaQuery.of(context).size.width * 0.18, 100),
+                  width: min(MediaQuery.of(context).size.width * 0.2, 100),
                   child: Center(
                     child: Column(
                       children: [
@@ -359,7 +359,7 @@ class BalanceRowWidget extends StatelessWidget {
                         Text(
                           currency.title,
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 15,
                             fontFamily: 'Lato',
                             fontWeight: FontWeight.w800,
                             color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
