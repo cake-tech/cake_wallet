@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -19,6 +20,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:collection/collection.dart';
 
 part 'wallet_address_list_view_model.g.dart';
 
@@ -113,7 +115,8 @@ class EthereumURI extends PaymentURI {
 
 class BitcoinCashURI extends PaymentURI {
   BitcoinCashURI({required String amount, required String address})
-    : super(amount: amount, address: address);
+      : super(amount: amount, address: address);
+
   @override
   String toString() {
     var base = address;
@@ -124,9 +127,7 @@ class BitcoinCashURI extends PaymentURI {
 
     return base;
   }
-  }
-
-
+}
 
 class NanoURI extends PaymentURI {
   NanoURI({required String amount, required String address})
@@ -287,9 +288,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     if (isElectrumWallet) {
       final bitcoinUsedAddresses = (wallet as ElectrumWallet).walletAddresses.addresses.map(
-              (element) => WalletAddressListItem(
+          (element) => WalletAddressListItem(
               isPrimary: false,
-              name: null,
+              name: element.name,
               address: type == WalletType.bitcoinCash ? element.cashAddr : element.address,
               txCount: element.txCount,
               balance: AmountConverter.amountIntToString(
@@ -345,14 +346,15 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.type == WalletType.bitcoinCash ||
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.litecoin;
-      // wallet.type == WalletType.nano ||
-      // wallet.type == WalletType.banano; TODO: nano accounts are disabled for now
+
+  // wallet.type == WalletType.nano ||
+  // wallet.type == WalletType.banano; TODO: nano accounts are disabled for now
 
   @computed
   bool get isElectrumWallet =>
       wallet.type == WalletType.bitcoin ||
-          wallet.type == WalletType.litecoin ||
-          wallet.type == WalletType.bitcoinCash;
+      wallet.type == WalletType.litecoin ||
+      wallet.type == WalletType.bitcoinCash;
 
   @computed
   bool get isAutoGenerateSubaddressEnabled =>
@@ -370,9 +372,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     _baseItems = [];
 
     if (wallet.type == WalletType.monero ||
-        wallet.type == WalletType.haven /*||
+            wallet.type ==
+                WalletType
+                    .haven /*||
         wallet.type == WalletType.nano ||
-        wallet.type == WalletType.banano*/) {
+        wallet.type == WalletType.banano*/
+        ) {
       _baseItems.add(WalletAccountListHeader());
     }
 
@@ -416,14 +421,19 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void generateElectrumAddress() async {
     if (isElectrumWallet) {
       final wallet = this.wallet as ElectrumWallet;
-      final currentReceiveAddress = wallet.walletAddresses.address;
-      wallet.walletAddresses.updateReceiveAddresses();
-      wallet.walletAddresses.addresses
-          .firstWhere((element) =>
-      (type == WalletType.bitcoinCash ? element.cashAddr : element.address) ==
-          currentReceiveAddress)
-          .setAsUsed();
-      wallet.walletAddresses.updateReceiveAddresses();
+      final currentAddressRecord = wallet.walletAddresses.addresses.firstWhere((element) =>
+          (wallet.type == WalletType.bitcoinCash ? element.cashAddr : element.address) ==
+          wallet.walletAddresses.address);
+      currentAddressRecord.setAsUsed();
+
+      final nextAddressRecord = wallet.walletAddresses.addresses.firstWhereOrNull(
+          (element) => !element.isHidden && !element.isUsed && element != currentAddressRecord);
+      if (nextAddressRecord == null) {
+        wallet.walletAddresses.address = wallet.walletAddresses.generateNewAddress().address;
+      } else {
+        wallet.walletAddresses.address = nextAddressRecord.address;
+      }
+
       await wallet.save();
     }
   }

@@ -53,18 +53,17 @@ class AddressCell extends StatelessWidget {
   final bool isChange;
   final bool hasBalance;
 
-  String get label {
-    final formattedAddress = address.replaceAll('bitcoincash:', '');
-    if (name.isEmpty) {
-      if (formattedAddress.length <= 43) {
-        return formattedAddress;
-      } else {
-        return formattedAddress.substring(0, 8) +
-            '...' +
-            formattedAddress.substring(formattedAddress.length - 8, formattedAddress.length);
-      }
+  static const int addressPreviewLength = 8;
+
+  String get formattedAddress {
+    final formatIfCashAddr = address.replaceAll('bitcoincash:', '');
+
+    if (formatIfCashAddr.length <= (name.isNotEmpty ? 16 : 43)) {
+      return formatIfCashAddr;
     } else {
-      return name;
+      return formatIfCashAddr.substring(0, addressPreviewLength) +
+          '...' +
+          formatIfCashAddr.substring(formatIfCashAddr.length - addressPreviewLength, formatIfCashAddr.length);
     }
   }
 
@@ -105,12 +104,21 @@ class AddressCell extends StatelessWidget {
                               ),
                             ),
                           ),
+                        if (name.isNotEmpty)
+                          Text(
+                            '$name - ',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                            ),
+                          ),
                         AutoSizeText(
-                          label,
+                          formattedAddress,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: isChange ? 10 : null,
+                            fontSize: isChange ? 10 : 14,
                             color: textColor,
                           ),
                         ),

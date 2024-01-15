@@ -8,9 +8,11 @@ class BitcoinAddressRecord {
     this.isHidden = false,
     int txCount = 0,
     int balance = 0,
+    String name = '',
     bool isUsed = false,
   })  : _txCount = txCount,
         _balance = balance,
+        _name = name,
         _isUsed = isUsed;
 
   factory BitcoinAddressRecord.fromJSON(String jsonSource) {
@@ -21,6 +23,7 @@ class BitcoinAddressRecord {
         isHidden: decoded['isHidden'] as bool? ?? false,
         isUsed: decoded['isUsed'] as bool? ?? false,
         txCount: decoded['txCount'] as int? ?? 0,
+        name: decoded['name'] as String? ?? '',
         balance: decoded['balance'] as int? ?? 0);
   }
 
@@ -29,9 +32,12 @@ class BitcoinAddressRecord {
   final int index;
   int _txCount;
   int _balance;
+  String _name;
   bool _isUsed;
 
   int get txCount => _txCount;
+
+  String get name => _name;
 
   int get balance => _balance;
 
@@ -42,6 +48,7 @@ class BitcoinAddressRecord {
   bool get isUsed => _isUsed;
 
   void setAsUsed() => _isUsed = true;
+  void setNewName(String label) => _name = label;
 
   @override
   bool operator ==(Object o) => o is BitcoinAddressRecord && address == o.address;
@@ -56,6 +63,7 @@ class BitcoinAddressRecord {
         'index': index,
         'isHidden': isHidden,
         'txCount': txCount,
+        'name': name,
         'isUsed': isUsed,
         'balance': balance,
       });

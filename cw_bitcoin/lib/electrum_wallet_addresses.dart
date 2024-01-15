@@ -78,7 +78,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   set address(String addr) {
-    final address = walletInfo.type == WalletType.bitcoinCash ? toLegacy(addr) : addr;
+
+    String address;
+    if (addr.startsWith('bitcoincash:')) {
+      address = toLegacy(addr);
+    } else {
+      address = addr;
+    }
     final addressRecord = addresses.firstWhere((addressRecord) => addressRecord.address == address);
 
     previousAddressRecord = addressRecord;

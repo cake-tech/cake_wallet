@@ -199,7 +199,7 @@ class ReceivePage extends BasePage {
                                     backgroundColor: backgroundColor,
                                     textColor: textColor,
                                     onTap: (_) => addressListViewModel.setAddress(item),
-                                    onEdit: isElectrumWallet ? null : () => Navigator.of(context)
+                                    onEdit: () => Navigator.of(context)
                                         .pushNamed(Routes.newSubaddress, arguments: item));
                               });
                             }
