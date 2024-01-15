@@ -253,7 +253,7 @@ class EvmChainServiceImpl implements ChainService {
 
       return result;
     } catch (e) {
-      log('An error has occured while signing transaction: ${e.toString()}');
+      log('An error has occurred while signing transaction: ${e.toString()}');
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
         widget: BottomSheetMessageDisplayWidget(
