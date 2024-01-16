@@ -1,2 +1,6 @@
-Support multiple address types for Bitcoin Cash
-Bug fixes
+Add new Off-ramp providers (DFX, OnRamper)
+On-ramp flow fixes and enhancements
+Ethereum and WalletConnect fixes and improvements
+Nano enhancements
+UI enhancements
+Generic enhancements and bug fixes

@@ -1,4 +1,3 @@
-Polyseed enhancements
-New on-ramp provider DFX
-Usability enhancements
-Bug fixes
+On-ramp flow fixes and enhancements
+UI enhancements
+Generic enhancements and bug fixes
