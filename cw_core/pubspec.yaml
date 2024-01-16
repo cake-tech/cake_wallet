@@ -22,7 +22,7 @@ dependencies:
   socks5_proxy:
     git:
       url: https://github.com/perishllc/socks_dart.git
-      ref: main
+      ref: d304fcfcc97cb7212bcd347aeb5d96792c128ff3
   tor:
     git:
       url: https://github.com/cake-tech/tor.git
