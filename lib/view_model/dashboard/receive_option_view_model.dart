@@ -1,5 +1,6 @@
-import 'package:cake_wallet/entities/receive_page_option.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';

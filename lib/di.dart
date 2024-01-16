@@ -13,7 +13,7 @@ import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
-import 'package:cake_wallet/entities/receive_page_option.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';

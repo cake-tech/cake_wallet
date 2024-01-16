@@ -1,33 +1,19 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_core/receive_page_option.dart';
 
-class ReceivePageOption {
-  static const mainnet = ReceivePageOption._('mainnet');
-  static const anonPayInvoice = ReceivePageOption._('anonPayInvoice');
-  static const anonPayDonationLink = ReceivePageOption._('anonPayDonationLink');
-
-  const ReceivePageOption._(this._value);
-
-  final String _value;
-
-  @override
-  String toString() {
-    return _value;
-  }
-}
-
-const ReceivePageOptions = [
-  ReceivePageOption.mainnet,
-  ReceivePageOption.anonPayInvoice,
-  ReceivePageOption.anonPayDonationLink
-];
-
-class BitcoinReceivePageOption extends ReceivePageOption {
+class BitcoinReceivePageOption implements ReceivePageOption {
   static const p2wpkh = BitcoinReceivePageOption._('Segwit (P2WPKH)');
   static const p2tr = BitcoinReceivePageOption._('Taproot (P2TR)');
   static const p2wsh = BitcoinReceivePageOption._('Segwit (P2WSH)');
   static const p2pkh = BitcoinReceivePageOption._('Legacy (P2PKH)');
 
-  const BitcoinReceivePageOption._(String value) : super._(value);
+  const BitcoinReceivePageOption._(this.value);
+
+  final String value;
+
+  String toString() {
+    return value;
+  }
 
   factory BitcoinReceivePageOption.fromType(BitcoinAddressType type) {
     switch (type) {
