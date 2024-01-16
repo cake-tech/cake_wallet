@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_decred/pending_transaction.dart';
@@ -38,9 +40,10 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
   // password is currently only used for seed display, but would likely also be
   // required to sign inputs when creating transactions.
   final String _password;
+  bool connecting = false;
+  String persistantPeer = "";
+  Timer? syncTimer;
 
-  // TODO: Set up a way to change the balance and sync status when dcrlibwallet
-  // changes. Long polling probably?
   @override
   @observable
   SyncStatus syncStatus;
@@ -65,19 +68,138 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
 
   Future<void> init() async {
     updateBalance();
-    // TODO: update other wallet properties such as syncStatus, walletAddresses
-    // and transactionHistory with data from libdcrwallet.
   }
 
+  void performBackgroundTasks() {
+    if (!checkSync()) {
+      return;
+    }
+    updateBalance();
+  }
+
+  bool checkSync() {
+    final syncStatusJSON = libdcrwallet.syncStatus(walletInfo.name);
+    final decoded = json.decode(syncStatusJSON);
+
+    final syncStatusCode = decoded["syncstatuscode"] ?? 0;
+    final syncStatusStr = decoded["syncstatus"] ?? "";
+    final targetHeight = decoded["targetheight"] ?? 1;
+    final numPeers = decoded["numpeers"] ?? 0;
+    // final cFiltersHeight = decoded["cfiltersheight"] ?? 0;
+    final headersHeight = decoded["headersheight"] ?? 0;
+    final rescanHeight = decoded["rescanheight"] ?? 0;
+
+    if (numPeers == 0) {
+      syncStatus = NotConnectedSyncStatus();
+      return false;
+    }
+
+    // Sync codes:
+    // NotStarted = 0
+    // FetchingCFilters = 1
+    // FetchingHeaders = 2
+    // DiscoveringAddrs = 3
+    // Rescanning = 4
+    // Complete = 5
+
+    if (syncStatusCode > 4) {
+      syncStatus = SyncedSyncStatus();
+      return true;
+    }
+
+    if (syncStatusCode == 0) {
+      syncStatus = ConnectedSyncStatus();
+      return false;
+    }
+
+    if (syncStatusCode == 1) {
+      syncStatus = SyncingSyncStatus(targetHeight, 0.0);
+      return false;
+    }
+
+    if (syncStatusCode == 2) {
+      final headersProg = headersHeight / targetHeight;
+      // Only allow headers progress to go up half way.
+      syncStatus =
+          SyncingSyncStatus(targetHeight - headersHeight, headersProg / 2);
+      return false;
+    }
+
+    // TODO: This step takes a while so should really get more info to the UI
+    // that we are discovering addresses.
+    if (syncStatusCode == 3) {
+      // Hover at half.
+      syncStatus = SyncingSyncStatus(0, .5);
+      return false;
+    }
+
+    if (syncStatusCode == 4) {
+      // Start at 75%.
+      final rescanProg = rescanHeight / targetHeight / 4;
+      syncStatus =
+          SyncingSyncStatus(targetHeight - rescanHeight, .75 + rescanProg);
+      return false;
+    }
+    return false;
+  }
+
+  @action
   @override
   Future<void> connectToNode({required Node node}) async {
-    //throw UnimplementedError();
+    if (connecting) {
+      throw "decred already connecting";
+    }
+    connecting = true;
+    String addr = "";
+    if (node.uri.host != "") {
+      addr = node.uri.host;
+      if (node.uri.port != "") {
+        addr += ":" + node.uri.port.toString();
+      }
+    }
+    if (addr != persistantPeer) {
+      if (syncTimer != null) {
+        syncTimer!.cancel();
+        syncTimer = null;
+      }
+      persistantPeer = addr;
+      libdcrwallet.closeWallet(walletInfo.name);
+      libdcrwallet.loadWalletSync({
+        "name": walletInfo.name,
+        "dataDir": walletInfo.dirPath,
+      });
+    }
+    await this._startSync();
+    connecting = false;
   }
 
   @action
   @override
   Future<void> startSync() async {
-    // TODO: call libdcrwallet.spvSync() and update syncStatus.
+    if (connecting) {
+      throw "decred already connecting";
+    }
+    connecting = true;
+    await this._startSync();
+    connecting = false;
+  }
+
+  Future<void> _startSync() async {
+    if (syncTimer != null) {
+      return;
+    }
+    try {
+      syncStatus = ConnectingSyncStatus();
+      libdcrwallet.startSyncAsync(
+        name: walletInfo.name,
+        peers: persistantPeer,
+      );
+      syncTimer = Timer.periodic(
+          Duration(seconds: 5), (Timer t) => performBackgroundTasks());
+    } catch (e) {
+      print(e.toString());
+      syncStatus = FailedSyncStatus();
+    }
   }
 
   @override
@@ -134,6 +256,10 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
 
   @override
   void close() {
+    if (syncTimer != null) {
+      syncTimer!.cancel();
+      syncTimer = null;
+    }
     libdcrwallet.closeWallet(walletInfo.name);
   }
 

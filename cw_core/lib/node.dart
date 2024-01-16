@@ -260,8 +260,20 @@ class Node extends HiveObject with Keyable {
       return false;
     }
   }
-}
 
   Future<bool> requestDecredNode() async {
+  final decredMainnetPort = 9108;
+  if (uri.host == "" && uri.port == decredMainnetPort) {
+    // Just show default port as ok. The wallet will connect to a list of known
+    // nodes automatically.
     return true;
+  }
+  try {
+    final socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
+      socket.destroy();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 }

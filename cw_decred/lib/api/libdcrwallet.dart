@@ -19,11 +19,10 @@ final dcrwalletApi = libdcrwallet(DynamicLibrary.open(libraryName));
 /// a wallet.
 void initLibdcrwallet(String logDir) {
   final cLogDir = logDir.toCString();
-  final res = executePayloadFn(
+  executePayloadFn(
     fn: () => dcrwalletApi.initialize(cLogDir),
     ptrsToFree: [cLogDir],
   );
-  print(res.payload);
 }
 
 /// createWalletAsync calls the libdcrwallet's createWallet function
@@ -46,11 +45,10 @@ void createWalletSync(Map<String, String> args) {
   final password = args["password"]!.toCString();
   final network = "testnet".toCString();
 
-  final res = executePayloadFn(
+  executePayloadFn(
     fn: () => dcrwalletApi.createWallet(name, dataDir, network, password),
     ptrsToFree: [name, dataDir, network, password],
   );
-  print(res.payload);
 }
 
 /// loadWalletAsync calls the libdcrwallet's loadWallet function asynchronously.
@@ -67,15 +65,35 @@ void loadWalletSync(Map<String, String> args) {
   final name = args["name"]!.toCString();
   final dataDir = args["dataDir"]!.toCString();
   final network = "testnet".toCString();
-  final res = executePayloadFn(
+  executePayloadFn(
     fn: () => dcrwalletApi.loadWallet(name, dataDir, network),
     ptrsToFree: [name, dataDir, network],
   );
-  print(res.payload);
+}
+
+Future<void> startSyncAsync({required String name, required String peers}) {
+  final args = <String, String>{
+    "name": name,
+    "peers": peers,
+  };
+  return compute(startSync, args);
+}
+
+void startSync(Map<String, String> args) {
+  final name = args["name"]!.toCString();
+  final peers = args["peers"]!.toCString();
+  executePayloadFn(
+    fn: () => dcrwalletApi.syncWallet(name, peers),
+    ptrsToFree: [name, peers],
+  );
 }
 
 void closeWallet(String walletName) {
-  // TODO.
+  final name = walletName.toCString();
+  executePayloadFn(
+    fn: () => dcrwalletApi.closeWallet(name),
+    ptrsToFree: [name],
+  );
 }
 
 Future<void> changeWalletPassword(
@@ -107,6 +125,15 @@ String? currentReceiveAddress(String walletName) {
     return null;
   }
   checkErr(res.err);
+  return res.payload;
+}
+
+String syncStatus(String walletName) {
+  final cName = walletName.toCString();
+  final res = executePayloadFn(
+    fn: () => dcrwalletApi.syncWalletStatus(cName),
+    ptrsToFree: [cName],
+  );
   return res.payload;
 }
 
