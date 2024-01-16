@@ -147,3 +147,12 @@ assets/images/app_logo.png
 macos/Runner/Info.plist
 macos/Runner/DebugProfile.entitlements
 macos/Runner/Release.entitlements
+
+macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_16.png
+macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_32.png
+macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_64.png
+macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_128.png
+macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png
+macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png
+macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png
+macos/Runner/Configs/AppInfo.xcconfig

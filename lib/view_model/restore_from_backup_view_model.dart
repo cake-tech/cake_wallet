@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/main.dart';
@@ -60,11 +62,17 @@ abstract class RestoreFromBackupViewModelBase with Store {
       });
 
       state = ExecutedSuccessfullyState();
-    } catch (e) {
+    } catch (e, s) {
       var msg = e.toString();
 
       if (msg.toLowerCase().contains("message authentication code (mac)")) {
         msg = 'Incorrect backup password';
+      } else {
+        ExceptionHandler.onError(FlutterErrorDetails(
+          exception: e,
+          stack: s,
+          library: this.toString(),
+        ));
       }
 
       state = FailureState(msg);
