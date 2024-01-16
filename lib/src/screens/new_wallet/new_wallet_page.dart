@@ -249,7 +249,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   Navigator.of(context).pushNamed(Routes.advancedPrivacySettings, arguments: {
                     "type": _walletNewVM.type,
                     "useTestnet": _walletNewVM.useTestnet,
-                    "toggleUseTestnet": _walletNewVM.toggleUseTestnet
+                    "toggleTestnet": _walletNewVM.toggleUseTestnet
                   });
                 },
                 child: Text(S.of(context).advanced_settings),

@@ -31,8 +31,8 @@ class AdvancedPrivacySettingsPage extends BasePage {
   @override
   String get title => S.current.privacy_settings;
 
-  final bool? useTestnet;
-  final Function(bool? val)? toggleUseTestnet;
+  final bool useTestnet;
+  final Function(bool? val) toggleUseTestnet;
 
   @override
   Widget body(BuildContext context) => AdvancedPrivacySettingsBody(useTestnet, toggleUseTestnet,
@@ -49,8 +49,8 @@ class AdvancedPrivacySettingsBody extends StatefulWidget {
   final NodeCreateOrEditViewModel nodeViewModel;
   final SeedTypeViewModel seedTypeViewModel;
 
-  final bool? useTestnet;
-  final Function(bool? val)? toggleUseTestnet;
+  final bool useTestnet;
+  final Function(bool? val) toggleUseTestnet;
 
   @override
   _AdvancedPrivacySettingsBodyState createState() => _AdvancedPrivacySettingsBodyState();
@@ -138,8 +138,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                   ),
                 );
               }),
-            if (widget.privacySettingsViewModel.type == WalletType.bitcoin &&
-                widget.toggleUseTestnet != null)
+            if (widget.privacySettingsViewModel.type == WalletType.bitcoin)
               Builder(builder: (_) {
                 final val = testnetValue!;
                 return SettingsSwitcherCell(

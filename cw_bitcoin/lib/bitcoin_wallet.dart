@@ -35,7 +35,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             password: password,
             walletInfo: walletInfo,
             unspentCoinsInfo: unspentCoinsInfo,
-            networkType: bitcoin.bitcoin,
+            networkType: networkParam == null
+                ? bitcoin.bitcoin
+                : networkParam == BitcoinNetwork.mainnet
+                    ? bitcoin.bitcoin
+                    : bitcoin.testnet,
             initialAddresses: initialAddresses,
             initialBalance: initialBalance,
             seedBytes: seedBytes,

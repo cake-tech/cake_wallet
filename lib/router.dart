@@ -534,8 +534,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.advancedPrivacySettings:
       final args = settings.arguments as Map<String, dynamic>;
       final type = args['type'] as WalletType;
-      final useTestnet = args['useTestnet'] as bool?;
-      final toggleTestnet = args['toggleTestnet'] as Function(bool? val)?;
+      final useTestnet = args['useTestnet'] as bool;
+      final toggleTestnet = args['toggleTestnet'] as Function(bool? val);
 
       return CupertinoPageRoute<void>(
           builder: (_) => AdvancedPrivacySettingsPage(
