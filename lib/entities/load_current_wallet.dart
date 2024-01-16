@@ -25,7 +25,7 @@ Future<void> loadCurrentWallet({String? password}) async {
     type,
     name,
     password: password);
-  appStore.changeCurrentWallet(wallet);
+  await appStore.changeCurrentWallet(wallet);
 
   getIt.get<BackgroundTasks>().registerSyncTask();
 }

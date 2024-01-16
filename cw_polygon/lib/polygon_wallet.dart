@@ -102,8 +102,12 @@ abstract class PolygonWalletBase
   final Completer<SharedPreferences> _sharedPrefs = Completer();
 
   Future<void> init() async {
-    polygonErc20TokensBox = await CakeHive.openBox<Erc20Token>(
-        "${walletInfo.name.replaceAll(" ", "_")}_${Erc20Token.polygonBoxName}");
+    final boxName = "${walletInfo.name.replaceAll(" ", "_")}_ ${Erc20Token.polygonBoxName}";
+    if (await CakeHive.boxExists(boxName)) {
+      polygonErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName);
+    } else {
+      polygonErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName.replaceAll(" ", ""));
+    }
     await walletAddresses.init();
     await transactionHistory.init();
     _polygonPrivateKey = await getPrivateKey(

@@ -22,17 +22,17 @@ class ChatwootWidgetState extends State<ChatwootWidget> {
   @override
   Widget build(BuildContext context) => InAppWebView(
         key: _webViewkey,
-        initialOptions: InAppWebViewGroupOptions(
-          crossPlatform: InAppWebViewOptions(transparentBackground: true),
-        ),
-        initialUrlRequest: URLRequest(url: Uri.tryParse(widget.supportUrl)),
+    initialSettings: InAppWebViewSettings(
+      transparentBackground: true,
+    ),
+        initialUrlRequest: URLRequest(url: WebUri(widget.supportUrl)),
         onWebViewCreated: (InAppWebViewController controller) {
           controller.addWebMessageListener(
             WebMessageListener(
               jsObjectName: 'ReactNativeWebView',
-              onPostMessage: (String? message, Uri? sourceOrigin, bool isMainFrame,
-                  JavaScriptReplyProxy replyProxy) {
-                final shortenedMessage = message?.substring(16);
+              onPostMessage: (WebMessage? message, WebUri? sourceOrigin, bool isMainFrame,
+                  PlatformJavaScriptReplyProxy replyProxy) {
+                final shortenedMessage = message?.data.toString().substring(16);
                 if (shortenedMessage != null && isJsonString(shortenedMessage)) {
                   final parsedMessage = jsonDecode(shortenedMessage);
                   final eventType = parsedMessage["event"];

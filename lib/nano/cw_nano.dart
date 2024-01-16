@@ -173,7 +173,7 @@ class CWNano extends Nano {
   }
 
   @override
-  Future<void> updateTransactions(Object wallet) async {
+  Future<bool> updateTransactions(Object wallet) async {
     return (wallet as NanoWallet).updateTransactions();
   }
 
@@ -189,116 +189,10 @@ class CWNano extends Nano {
 }
 
 class CWNanoUtil extends NanoUtil {
-  // standard:
-  @override
-  String seedToPrivate(String seed, int index) {
-    return ND.NanoKeys.seedToPrivate(seed, index);
-  }
-
-  @override
-  String seedToAddress(String seed, int index) {
-    return ND.NanoAccounts.createAccount(
-        ND.NanoAccountType.NANO, privateKeyToPublic(seedToPrivate(seed, index)));
-  }
-
-  @override
-  String seedToMnemonic(String seed) {
-    return NanoMnemomics.seedToMnemonic(seed).join(" ");
-  }
-
-  @override
-  Future<String> mnemonicToSeed(String mnemonic) async {
-    return NanoMnemomics.mnemonicListToSeed(mnemonic.split(' '));
-  }
-
-  @override
-  String privateKeyToPublic(String privateKey) {
-    // return NanoHelpers.byteToHex(Ed25519Blake2b.getPubkey(NanoHelpers.hexToBytes(privateKey))!);
-    return ND.NanoKeys.createPublicKey(privateKey);
-  }
-
-  @override
-  String addressToPublicKey(String publicAddress) {
-    return ND.NanoAccounts.extractPublicKey(publicAddress);
-  }
-
-  // universal:
-  @override
-  String privateKeyToAddress(String privateKey) {
-    return ND.NanoAccounts.createAccount(ND.NanoAccountType.NANO, privateKeyToPublic(privateKey));
-  }
-
-  @override
-  String publicKeyToAddress(String publicKey) {
-    return ND.NanoAccounts.createAccount(ND.NanoAccountType.NANO, publicKey);
-  }
-
-  // standard + hd:
-  @override
-  bool isValidSeed(String seed) {
-    // Ensure seed is 64 or 128 characters long
-    if (seed.length != 64 && seed.length != 128) {
-      return false;
-    }
-    // Ensure seed only contains hex characters, 0-9;A-F
-    return ND.NanoHelpers.isHexString(seed);
-  }
-
-  // hd:
-  @override
-  Future<String> hdMnemonicListToSeed(List<String> words) async {
-    // if (words.length != 24) {
-    //   throw Exception('Expected a 24-word list, got a ${words.length} list');
-    // }
-    final Uint8List salt = Uint8List.fromList(utf8.encode('mnemonic'));
-    final Pbkdf2 hasher = Pbkdf2(iterations: 2048);
-    final String seed = await hasher.sha512(words.join(' '), salt);
-    return seed;
-  }
-
-  @override
-  Future<String> hdSeedToPrivate(String seed, int index) async {
-    List<int> seedBytes = hex.decode(seed);
-    KeyData data = await ED25519_HD_KEY.derivePath("m/44'/165'/$index'", seedBytes);
-    return hex.encode(data.key);
-  }
-
-  @override
-  Future<String> hdSeedToAddress(String seed, int index) async {
-    return ND.NanoAccounts.createAccount(
-        ND.NanoAccountType.NANO, privateKeyToPublic(await hdSeedToPrivate(seed, index)));
-  }
-
-  @override
-  Future<String> uniSeedToAddress(String seed, int index, String type) {
-    if (type == "standard") {
-      return Future<String>.value(seedToAddress(seed, index));
-    } else if (type == "hd") {
-      return hdSeedToAddress(seed, index);
-    } else {
-      throw Exception('Unknown seed type');
-    }
-  }
-
-  @override
-  Future<String> uniSeedToPrivate(String seed, int index, String type) {
-    if (type == "standard") {
-      return Future<String>.value(seedToPrivate(seed, index));
-    } else if (type == "hd") {
-      return hdSeedToPrivate(seed, index);
-    } else {
-      throw Exception('Unknown seed type');
-    }
-  }
 
   @override
   bool isValidBip39Seed(String seed) {
-    // Ensure seed is 128 characters long
-    if (seed.length != 128) {
-      return false;
-    }
-    // Ensure seed only contains hex characters, 0-9;A-F
-    return ND.NanoHelpers.isHexString(seed);
+    return NanoDerivations.isValidBip39Seed(seed);
   }
 
   // number util:
@@ -309,92 +203,20 @@ class CWNanoUtil extends NanoUtil {
   BigInt rawPerBanano = BigInt.parse("100000000000000000000000000000");
   BigInt rawPerXMR = BigInt.parse("1000000000000");
   BigInt convertXMRtoNano = BigInt.parse("1000000000000000000");
-  // static BigInt convertXMRtoNano = BigInt.parse("1000000000000000000000000000");
 
-  /// Convert raw to ban and return as BigDecimal
-  ///
-  /// @param raw 100000000000000000000000000000
-  /// @return Decimal value 1.000000000000000000000000000000
-  ///
-  Decimal _getRawAsDecimal(String? raw, BigInt? rawPerCur) {
-    rawPerCur ??= rawPerNano;
-    final Decimal amount = Decimal.parse(raw.toString());
-    final Decimal result = (amount / Decimal.parse(rawPerCur.toString())).toDecimal();
-    return result;
-  }
-
-  @override
-  String getRawAsDecimalString(String? raw, BigInt? rawPerCur) {
-    final Decimal result = _getRawAsDecimal(raw, rawPerCur);
-    return result.toString();
-  }
-
-  @override
-  String truncateDecimal(Decimal input, {int digits = maxDecimalDigits}) {
-    Decimal bigger = input.shift(digits);
-    bigger = bigger.floor(); // chop off the decimal: 1.059 -> 1.05
-    bigger = bigger.shift(-digits);
-    return bigger.toString();
-  }
-
-  /// Return raw as a NANO amount.
-  ///
-  /// @param raw 100000000000000000000000000000
-  /// @returns 1
-  ///
   @override
   String getRawAsUsableString(String? raw, BigInt rawPerCur) {
-    final String res =
-        truncateDecimal(_getRawAsDecimal(raw, rawPerCur), digits: maxDecimalDigits + 9);
-
-    if (raw == null || raw == "0" || raw == "00000000000000000000000000000000") {
-      return "0";
-    }
-
-    if (!res.contains(".")) {
-      return res;
-    }
-
-    final String numAmount = res.split(".")[0];
-    String decAmount = res.split(".")[1];
-
-    // truncate:
-    if (decAmount.length > maxDecimalDigits) {
-      decAmount = decAmount.substring(0, maxDecimalDigits);
-      // remove trailing zeros:
-      decAmount = decAmount.replaceAllMapped(RegExp(r'0+$'), (Match match) => '');
-      if (decAmount.isEmpty) {
-        return numAmount;
-      }
-    }
-
-    return "$numAmount.$decAmount";
+    return NanoAmounts.getRawAsUsableString(raw, rawPerCur);
   }
 
   @override
   String getRawAccuracy(String? raw, BigInt rawPerCur) {
-    final String rawString = getRawAsUsableString(raw, rawPerCur);
-    final String rawDecimalString = _getRawAsDecimal(raw, rawPerCur).toString();
-
-    if (raw == null || raw.isEmpty || raw == "0") {
-      return "";
-    }
-
-    if (rawString != rawDecimalString) {
-      return "~";
-    }
-    return "";
+    return NanoAmounts.getRawAccuracy(raw, rawPerCur);
   }
 
-  /// Return readable string amount as raw string
-  /// @param amount 1.01
-  /// @returns  101000000000000000000000000000
-  ///
   @override
   String getAmountAsRaw(String amount, BigInt rawPerCur) {
-    final Decimal asDecimal = Decimal.parse(amount);
-    final Decimal rawDecimal = Decimal.parse(rawPerCur.toString());
-    return (asDecimal * rawDecimal).toString();
+    return NanoAmounts.getAmountAsRaw(amount, rawPerCur);
   }
 
   @override
@@ -411,29 +233,29 @@ class CWNanoUtil extends NanoUtil {
     if (seedKey != null) {
       if (seedKey.length == 64) {
         try {
-          mnemonic = nanoUtil!.seedToMnemonic(seedKey);
+          mnemonic = NanoDerivations.standardSeedToMnemonic(seedKey);
         } catch (e) {
           print("not a valid 'nano' seed key");
         }
       }
       if (derivationType == DerivationType.bip39) {
-        publicAddress = await hdSeedToAddress(seedKey, 0);
+        publicAddress = await NanoDerivations.hdSeedToAddress(seedKey, index: 0);
       } else if (derivationType == DerivationType.nano) {
-        publicAddress = await seedToAddress(seedKey, 0);
+        publicAddress = await NanoDerivations.standardSeedToAddress(seedKey, index: 0);
       }
     }
 
     if (derivationType == DerivationType.bip39) {
       if (mnemonic != null) {
-        seedKey = await hdMnemonicListToSeed(mnemonic.split(' '));
-        publicAddress = await hdSeedToAddress(seedKey, 0);
+        seedKey = await NanoDerivations.hdMnemonicListToSeed(mnemonic.split(' '));
+        publicAddress = await NanoDerivations.hdSeedToAddress(seedKey, index: 0);
       }
     }
 
     if (derivationType == DerivationType.nano) {
       if (mnemonic != null) {
-        seedKey = await mnemonicToSeed(mnemonic);
-        publicAddress = await seedToAddress(seedKey, 0);
+        seedKey = await NanoDerivations.standardMnemonicToSeed(mnemonic);
+        publicAddress = await NanoDerivations.standardSeedToAddress(seedKey, index: 0);
       }
     }
 
@@ -461,7 +283,7 @@ class CWNanoUtil extends NanoUtil {
       return [DerivationType.bip39];
     } else if (seedKey?.length == 64) {
       try {
-        mnemonic = nanoUtil!.seedToMnemonic(seedKey!);
+        mnemonic = NanoDerivations.standardSeedToMnemonic(seedKey!);
       } catch (e) {
         print("not a valid 'nano' seed key");
       }
@@ -475,19 +297,19 @@ class CWNanoUtil extends NanoUtil {
       nanoClient.connect(node);
 
       if (mnemonic != null) {
-        seedKey = await hdMnemonicListToSeed(mnemonic.split(' '));
-        publicAddressBip39 = await hdSeedToAddress(seedKey, 0);
+        seedKey = await NanoDerivations.hdMnemonicListToSeed(mnemonic.split(' '));
+        publicAddressBip39 = await NanoDerivations.hdSeedToAddress(seedKey, index: 0);
 
-        seedKey = await mnemonicToSeed(mnemonic);
-        publicAddressStandard = await seedToAddress(seedKey, 0);
+        seedKey = await NanoDerivations.standardMnemonicToSeed(mnemonic);
+        publicAddressStandard = await NanoDerivations.standardSeedToAddress(seedKey, index: 0);
       } else if (seedKey != null) {
         try {
-          publicAddressBip39 = await hdSeedToAddress(seedKey, 0);
+          publicAddressBip39 = await NanoDerivations.hdSeedToAddress(seedKey, index: 0);
         } catch (e) {
           return [DerivationType.nano];
         }
         try {
-          publicAddressStandard = await seedToAddress(seedKey, 0);
+          publicAddressStandard = await NanoDerivations.standardSeedToAddress(seedKey, index: 0);
         } catch (e) {
           return [DerivationType.bip39];
         }

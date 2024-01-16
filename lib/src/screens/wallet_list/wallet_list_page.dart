@@ -351,7 +351,9 @@ class WalletListBodyState extends State<WalletListBody> {
           // in desktop platforms the navigation tree is different
           if (responsiveLayoutUtil.shouldRenderMobileUI) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pop();
+              if (this.mounted) {
+                Navigator.of(context).pop();
+              }
             });
           }
         } catch (e) {

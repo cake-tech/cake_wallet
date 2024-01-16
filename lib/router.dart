@@ -47,6 +47,7 @@ import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_info_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
@@ -433,8 +434,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
 
-    case Routes.buy:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuyOptionsPage>());
+    case Routes.buySellPage:
+      final args = settings.arguments as bool;
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<BuySellOptionsPage>(param1: args));
 
     case Routes.buyWebView:
       final args = settings.arguments as List;
@@ -455,12 +458,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.faq:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<FaqPage>());
 
-    case Routes.preSeed:
+    case Routes.preSeedPage:
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<PreSeedPage>(
-              param1: settings.arguments as WalletType,
-              param2: getIt.get<AdvancedPrivacySettingsViewModel>(
-                  param1: settings.arguments as WalletType)));
+              param1: settings.arguments as int));
 
     case Routes.backup:
       return CupertinoPageRoute<void>(
@@ -624,6 +625,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.modify2FAPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<Modify2FAPage>());
+
+    case Routes.setup2faInfoPage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAInfoPage>());
 
     case Routes.homeSettings:
       return CupertinoPageRoute<void>(

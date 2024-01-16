@@ -63,6 +63,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @override
+  String get primaryAddress => getAddress(index: 0, hd: mainHd);
+
+  @override
   set address(String addr) => null;
 
   int currentReceiveAddressIndex;
