@@ -84,6 +84,6 @@ abstract class TorViewModelBase with Store {
     Tor.instance.disable();
     _settingsStore.shouldStartTorOnLaunch = false;
     torConnectionStatus = TorConnectionStatus.disconnected;
-    SocksTCPClient.setProxy(proxies: null);
+    SocksTCPClient.removeProxy();
   }
 }

@@ -105,7 +105,7 @@ dependencies:
   socks5_proxy:
     git:
       url: https://github.com/perishllc/socks_dart.git
-      ref: main
+      ref: d304fcfcc97cb7212bcd347aeb5d96792c128ff3
   flutter_svg: ^2.0.9
   polyseed: ^0.0.2
 
