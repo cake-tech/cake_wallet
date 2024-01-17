@@ -185,6 +185,9 @@ Future<void> defaultSettingsMigration(
         case 25:
           await rewriteSecureStoragePin(secureStorage: secureStorage);
           break;
+        case 26:
+          await insecureStorageMigration(secureStorage: secureStorage);
+          break;
         default:
           break;
       }
@@ -376,6 +379,37 @@ Node getMoneroDefaultNode({required Box<Node> nodes}) {
   } catch (_) {
     return nodes.values.first;
   }
+}
+
+Future<void> insecureStorageMigration({required FlutterSecureStorage secureStorage}) async {
+  // the bug only affects ios/mac:
+  if (!Platform.isIOS && !Platform.isMacOS) {
+    return;
+  }
+
+  // first, get the encoded pin:
+  final keyForPinCode = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
+  String? encodedPin;
+  try {
+    encodedPin = await secureStorage.read(key: keyForPinCode);
+  } catch (e) {
+    // either we don't have a pin, or we can't read it (maybe even because of the bug!)
+    // the only option here is to abort the migration or we risk losing the pin and locking the user out
+    return;
+  }
+
+  if (encodedPin == null) {
+    return;
+  }
+
+  // ensure we overwrite by deleting the old key first:
+  await secureStorage.delete(key: keyForPinCode);
+  await secureStorage.write(
+    key: keyForPinCode,
+    value: encodedPin,
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    mOptions: MacOsOptions(accessibility: KeychainAccessibility.first_unlock),
+  );
 }
 
 Future<void> rewriteSecureStoragePin({required FlutterSecureStorage secureStorage}) async {
