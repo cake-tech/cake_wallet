@@ -122,7 +122,6 @@ class ConnectionSyncPage extends BasePage {
                   ),
                   title: S.current.tor_status,
                   isSelected: false,
-                  onTap: (context) {},
                 ),
               ]),
             ),

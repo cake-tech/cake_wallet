@@ -10,11 +10,10 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 class TorStatus extends StandardListRow {
   TorStatus(
       {required String title,
-      required void Function(BuildContext context) onTap,
       required bool isSelected,
       required this.torViewModel,
       BoxDecoration? decoration})
-      : super(title: title, onTap: onTap, isSelected: isSelected, decoration: decoration);
+      : super(title: title, onTap: null, isSelected: isSelected, decoration: decoration);
 
   final TorViewModel torViewModel;
 
