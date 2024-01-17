@@ -10,6 +10,7 @@ import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
@@ -24,6 +25,7 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
@@ -44,7 +46,8 @@ class SettingsStore = SettingsStoreBase with _$SettingsStore;
 
 abstract class SettingsStoreBase with Store {
   SettingsStoreBase(
-      {required BackgroundTasks backgroundTasks,
+      {required FlutterSecureStorage secureStorage,
+      required BackgroundTasks backgroundTasks,
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
       required FiatCurrency initialFiatCurrency,
@@ -109,6 +112,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialBitcoinCashTransactionPriority})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
+        _secureStorage = secureStorage,
         _sharedPreferences = sharedPreferences,
         _backgroundTasks = backgroundTasks,
         fiatCurrency = initialFiatCurrency,
@@ -187,8 +191,9 @@ abstract class SettingsStoreBase with Store {
       final key = 'buyProvider_${walletType.toString()}';
       final providerId = sharedPreferences.getString(key);
       if (providerId != null) {
-        defaultBuyProviders[walletType] = ProviderType.values
-            .firstWhere((provider) => provider.id == providerId, orElse: () => ProviderType.askEachTime);
+        defaultBuyProviders[walletType] = ProviderType.values.firstWhere(
+            (provider) => provider.id == providerId,
+            orElse: () => ProviderType.askEachTime);
       } else {
         defaultBuyProviders[walletType] = ProviderType.askEachTime;
       }
@@ -198,8 +203,9 @@ abstract class SettingsStoreBase with Store {
       final key = 'sellProvider_${walletType.toString()}';
       final providerId = sharedPreferences.getString(key);
       if (providerId != null) {
-        defaultSellProviders[walletType] = ProviderType.values
-            .firstWhere((provider) => provider.id == providerId, orElse: () => ProviderType.askEachTime);
+        defaultSellProviders[walletType] = ProviderType.values.firstWhere(
+            (provider) => provider.id == providerId,
+            orElse: () => ProviderType.askEachTime);
       } else {
         defaultSellProviders[walletType] = ProviderType.askEachTime;
       }
@@ -668,6 +674,7 @@ abstract class SettingsStoreBase with Store {
 
   String deviceName;
 
+  final FlutterSecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
   final BackgroundTasks _backgroundTasks;
 
@@ -710,6 +717,7 @@ abstract class SettingsStoreBase with Store {
       BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance,
       ThemeBase? initialTheme}) async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
+    final secureStorage = await getIt.getAsync<FlutterSecureStorage>();
     final backgroundTasks = getIt.get<BackgroundTasks>();
     final currentFiatCurrency = FiatCurrency.deserialize(
         raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
@@ -770,36 +778,6 @@ abstract class SettingsStoreBase with Store {
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
             FiatApiMode.enabled.raw);
-    final allowBiometricalAuthentication =
-        sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ?? false;
-    final selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
-        raw: sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset) ??
-            Cake2FAPresetsOptions.normal.raw);
-    final shouldRequireTOTP2FAForAccessingWallet =
-        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAccessingWallet) ?? false;
-    final shouldRequireTOTP2FAForSendsToContact =
-        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToContact) ?? false;
-    final shouldRequireTOTP2FAForSendsToNonContact =
-        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToNonContact) ?? false;
-    final shouldRequireTOTP2FAForSendsToInternalWallets =
-        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets) ??
-            false;
-    final shouldRequireTOTP2FAForExchangesToInternalWallets = sharedPreferences
-            .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets) ??
-        false;
-    final shouldRequireTOTP2FAForExchangesToExternalWallets = sharedPreferences
-            .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToExternalWallets) ??
-        false;
-    final shouldRequireTOTP2FAForAddingContacts =
-        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAddingContacts) ?? false;
-    final shouldRequireTOTP2FAForCreatingNewWallets =
-        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets) ??
-            false;
-    final shouldRequireTOTP2FAForAllSecurityAndBackupSettings = sharedPreferences
-            .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings) ??
-        false;
-    final useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? false;
-    final totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? '';
     final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
@@ -816,18 +794,14 @@ abstract class SettingsStoreBase with Store {
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
     var pinLength = sharedPreferences.getInt(PreferencesKey.currentPinLength);
-    final timeOutDuration = sharedPreferences.getInt(PreferencesKey.pinTimeOutDuration);
-    final seedPhraseCount = sharedPreferences.getInt(PreferencesKey.currentSeedPhraseLength);
-    final pinCodeTimeOutDuration = timeOutDuration != null
-        ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
-        : defaultPinCodeTimeOutDuration;
-    final seedPhraseWordCount = seedPhraseCount != null
-        ? SeedPhraseLength.deserialize(raw: seedPhraseCount)
-        : defaultSeedPhraseLength;
     final sortBalanceBy =
         SortBalanceBy.values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? 0];
     final pinNativeTokenAtTop =
         sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
+    final seedPhraseCount = sharedPreferences.getInt(PreferencesKey.currentSeedPhraseLength);
+    final seedPhraseWordCount = seedPhraseCount != null
+        ? SeedPhraseLength.deserialize(raw: seedPhraseCount)
+        : defaultSeedPhraseLength;
     final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
     final usePolygonScan = sharedPreferences.getBool(PreferencesKey.usePolygonScan) ?? true;
     final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
@@ -929,7 +903,71 @@ abstract class SettingsStoreBase with Store {
     });
     final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
 
+    // migrated to secure:
+    final timeOutDuration =
+        ((await secureStorage.read(key: SecureKey.pinTimeOutDuration)) as int?) ??
+            sharedPreferences.getInt(PreferencesKey.pinTimeOutDuration);
+
+    final pinCodeTimeOutDuration = timeOutDuration != null
+        ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
+        : defaultPinCodeTimeOutDuration;
+
+    final allowBiometricalAuthentication =
+        ((await secureStorage.read(key: SecureKey.allowBiometricalAuthenticationKey)) as bool?) ??
+            sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
+            false;
+    final selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
+        raw: ((await secureStorage.read(key: SecureKey.selectedCake2FAPreset)) as int?) ??
+            sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset) ??
+            Cake2FAPresetsOptions.normal.raw);
+    final shouldRequireTOTP2FAForAccessingWallet = ((await secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForAccessingWallet)) as bool?) ??
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAccessingWallet) ??
+        false;
+    final shouldRequireTOTP2FAForSendsToContact = ((await secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForSendsToContact)) as bool?) ??
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToContact) ??
+        false;
+    final shouldRequireTOTP2FAForSendsToNonContact = ((await secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForSendsToNonContact)) as bool?) ??
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToNonContact) ??
+        false;
+    final shouldRequireTOTP2FAForSendsToInternalWallets = ((await secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets)) as bool?) ??
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets) ??
+        false;
+    final shouldRequireTOTP2FAForExchangesToInternalWallets = ((await secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets)) as bool?) ??
+        sharedPreferences
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets) ??
+        false;
+    final shouldRequireTOTP2FAForExchangesToExternalWallets = ((await secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets)) as bool?) ??
+        sharedPreferences
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToExternalWallets) ??
+        false;
+    final shouldRequireTOTP2FAForAddingContacts = ((await secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForAddingContacts)) as bool?) ??
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAddingContacts) ??
+        false;
+    final shouldRequireTOTP2FAForCreatingNewWallets = ((await secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForCreatingNewWallets)) as bool?) ??
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets) ??
+        false;
+    final shouldRequireTOTP2FAForAllSecurityAndBackupSettings = ((await secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings)) as bool?) ??
+        sharedPreferences
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings) ??
+        false;
+    final useTOTP2FA = ((await secureStorage.read(key: SecureKey.useTOTP2FA)) as bool?) ??
+        sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ??
+        false;
+    final totpSecretKey = ((await secureStorage.read(key: SecureKey.totpSecretKey))) ??
+        sharedPreferences.getString(PreferencesKey.totpSecretKey) ??
+        '';
+
     return SettingsStore(
+        secureStorage: secureStorage,
         sharedPreferences: sharedPreferences,
         initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
         nodes: nodes,
@@ -1055,8 +1093,6 @@ abstract class SettingsStoreBase with Store {
     shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ??
             shouldSaveRecipientAddress;
-    useTOTP2FA = sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ?? useTOTP2FA;
-    totpSecretKey = sharedPreferences.getString(PreferencesKey.totpSecretKey) ?? totpSecretKey;
     numberOfFailedTokenTrials =
         sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? numberOfFailedTokenTrials;
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
@@ -1065,41 +1101,10 @@ abstract class SettingsStoreBase with Store {
     walletListOrder =
         WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     walletListAscending = sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
-    allowBiometricalAuthentication =
-        sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
-            allowBiometricalAuthentication;
-    selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
-        raw: sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset) ??
-            Cake2FAPresetsOptions.normal.raw);
-    shouldRequireTOTP2FAForAccessingWallet =
-        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAccessingWallet) ?? false;
-    shouldRequireTOTP2FAForSendsToContact =
-        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToContact) ?? false;
-    shouldRequireTOTP2FAForSendsToNonContact =
-        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToNonContact) ?? false;
-    shouldRequireTOTP2FAForSendsToInternalWallets =
-        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets) ??
-            false;
-    shouldRequireTOTP2FAForExchangesToInternalWallets = sharedPreferences
-            .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets) ??
-        false;
-    shouldRequireTOTP2FAForExchangesToExternalWallets = sharedPreferences
-            .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToExternalWallets) ??
-        false;
-    shouldRequireTOTP2FAForAddingContacts =
-        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAddingContacts) ?? false;
-    shouldRequireTOTP2FAForCreatingNewWallets =
-        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets) ??
-            false;
-    shouldRequireTOTP2FAForAllSecurityAndBackupSettings = sharedPreferences
-            .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings) ??
-        false;
+
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;
-    selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
-        raw: sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset) ??
-            Cake2FAPresetsOptions.narrow.raw);
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
@@ -1188,6 +1193,66 @@ abstract class SettingsStoreBase with Store {
     if (nanoNode != null) {
       nodes[WalletType.nano] = nanoNode;
     }
+
+    // MIGRATED:
+    useTOTP2FA = ((await _secureStorage.read(key: SecureKey.useTOTP2FA)) as bool?) ??
+        sharedPreferences.getBool(PreferencesKey.useTOTP2FA) ??
+        useTOTP2FA;
+    totpSecretKey = ((await _secureStorage.read(key: SecureKey.totpSecretKey))) ??
+        sharedPreferences.getString(PreferencesKey.totpSecretKey) ??
+        totpSecretKey;
+    allowBiometricalAuthentication =
+        ((await _secureStorage.read(key: SecureKey.allowBiometricalAuthenticationKey)) as bool?) ??
+            sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
+            allowBiometricalAuthentication;
+    selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
+        raw: ((await _secureStorage.read(key: SecureKey.selectedCake2FAPreset)) as int?) ??
+            sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset) ??
+            Cake2FAPresetsOptions.normal.raw);
+    shouldRequireTOTP2FAForAccessingWallet = ((await _secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForAccessingWallet)) as bool?) ??
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAccessingWallet) ??
+        false;
+    shouldRequireTOTP2FAForSendsToContact = ((await _secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForSendsToContact)) as bool?) ??
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToContact) ??
+        false;
+    shouldRequireTOTP2FAForSendsToNonContact = ((await _secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForSendsToNonContact)) as bool?) ??
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToNonContact) ??
+        false;
+    shouldRequireTOTP2FAForSendsToInternalWallets = ((await _secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets)) as bool?) ??
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets) ??
+        false;
+    shouldRequireTOTP2FAForExchangesToInternalWallets = ((await _secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets)) as bool?) ??
+        sharedPreferences
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets) ??
+        false;
+    shouldRequireTOTP2FAForExchangesToExternalWallets = ((await _secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets)) as bool?) ??
+        sharedPreferences
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToExternalWallets) ??
+        false;
+    shouldRequireTOTP2FAForAddingContacts = ((await _secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForAddingContacts)) as bool?) ??
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAddingContacts) ??
+        false;
+    shouldRequireTOTP2FAForCreatingNewWallets = ((await _secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForCreatingNewWallets)) as bool?) ??
+        sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets) ??
+        false;
+    shouldRequireTOTP2FAForAllSecurityAndBackupSettings = ((await _secureStorage.read(
+            key: SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings)) as bool?) ??
+        sharedPreferences
+            .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings) ??
+        false;
+
+    selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
+        raw: ((await _secureStorage.read(key: SecureKey.selectedCake2FAPreset)) as int?) ??
+            sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset) ??
+            Cake2FAPresetsOptions.narrow.raw);
   }
 
   Future<void> _saveCurrentNode(Node node, WalletType walletType) async {

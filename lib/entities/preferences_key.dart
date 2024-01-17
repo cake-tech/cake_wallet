@@ -31,6 +31,7 @@ class PreferencesKey {
   static const displayActionListModeKey = 'display_list_mode';
   static const currentPinLength = 'current_pin_length';
   static const currentLanguageCode = 'language_code';
+  static const currentSeedPhraseLength = 'current_seed_phrase_length';
   static const currentDefaultSettingsMigrationVersion =
       'current_default_settings_migration_version';
   static const moneroTransactionPriority = 'current_fee_priority_monero';
@@ -95,7 +96,6 @@ class PreferencesKey {
       'should_require_totp_2fa_for_all_security_and_backup_settings';
   static const selectedCake2FAPreset = 'selected_cake_2fa_preset';
   static const totpSecretKey = 'totp_secret_key';
-  static const currentSeedPhraseLength = 'current_seed_phrase_length';
   static const pinTimeOutDuration = 'pin_timeout_duration';
   static const lastAuthTimeMilliseconds = 'last_auth_time_milliseconds';
 }
