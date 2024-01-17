@@ -40,17 +40,3 @@ class TorStatus extends StandardListRow {
     });
   }
 }
-
-class NodeHeaderListRow extends StandardListRow {
-  NodeHeaderListRow({required String title, required void Function(BuildContext context) onTap})
-      : super(title: title, onTap: onTap, isSelected: false);
-
-  @override
-  Widget buildTrailing(BuildContext context) {
-    return SizedBox(
-      width: 20,
-      child: Icon(Icons.add,
-          color: Theme.of(context).extension<FilterTheme>()!.titlesColor, size: 24.0),
-    );
-  }
-}
