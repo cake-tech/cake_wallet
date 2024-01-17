@@ -161,4 +161,13 @@ class CWBitcoin extends Bitcoin {
 		final bitcoinWallet = wallet as ElectrumWallet;
 		await bitcoinWallet.walletAddresses.setAddressType(option as BitcoinAddressType);
 	}
+
+	@override
+	BitcoinReceivePageOption getSelectedAddressType(Object wallet) {
+		final bitcoinWallet = wallet as ElectrumWallet;
+		return BitcoinReceivePageOption.fromType(bitcoinWallet.walletAddresses.addressPageType);
+	}
+
+	@override
+	List<BitcoinReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
 }

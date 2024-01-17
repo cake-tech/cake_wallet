@@ -66,6 +66,7 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:hive/hive.dart';""";
   const bitcoinCWHeaders = """
+import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
@@ -115,6 +116,8 @@ abstract class Bitcoin {
   TransactionPriority getLitecoinTransactionPrioritySlow();
 
   Future<void> setAddressType(Object wallet, dynamic option);
+  BitcoinReceivePageOption getSelectedAddressType(Object wallet);
+  List<BitcoinReceivePageOption> getBitcoinReceivePageOptions();
 }
   """;
 

@@ -15,6 +15,13 @@ class BitcoinReceivePageOption implements ReceivePageOption {
     return value;
   }
 
+  static const all = [
+    BitcoinReceivePageOption.p2wpkh,
+    BitcoinReceivePageOption.p2tr,
+    BitcoinReceivePageOption.p2wsh,
+    BitcoinReceivePageOption.p2pkh
+  ];
+
   factory BitcoinReceivePageOption.fromType(BitcoinAddressType type) {
     switch (type) {
       case BitcoinAddressType.p2tr:
@@ -29,10 +36,3 @@ class BitcoinReceivePageOption implements ReceivePageOption {
     }
   }
 }
-
-const BitcoinReceivePageOptions = [
-  BitcoinReceivePageOption.p2wpkh,
-  BitcoinReceivePageOption.p2tr,
-  BitcoinReceivePageOption.p2wsh,
-  BitcoinReceivePageOption.p2pkh
-];

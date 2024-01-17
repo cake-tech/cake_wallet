@@ -33,8 +33,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         currentReceiveAddressIndexByType = initialRegularAddressIndex,
         currentChangeAddressIndexByType = initialChangeAddressIndex,
         _addressPageType = walletInfo.addressPageType != null
-            ? BitcoinAddressType.fromValue(
-                walletInfo.addressPageType ?? BitcoinAddressType.p2wpkh.toString())
+            ? BitcoinAddressType.fromValue(walletInfo.addressPageType!)
             : BitcoinAddressType.p2wpkh,
         super(walletInfo);
 
