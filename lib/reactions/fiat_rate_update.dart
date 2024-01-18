@@ -33,8 +33,6 @@ Future<void> startFiatRateUpdate(
             await FiatConversionService.fetchPrice(
           crypto: appStore.wallet!.currency,
           fiat: settingsStore.fiatCurrency,
-          torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
-          onionOnly: settingsStore.torConnectionMode == TorConnectionMode.onionOnly,
         );
       }
 
@@ -55,8 +53,6 @@ Future<void> startFiatRateUpdate(
             fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
               crypto: currency,
               fiat: settingsStore.fiatCurrency,
-              torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
-              onionOnly: settingsStore.torConnectionMode == TorConnectionMode.onionOnly,
             );
           }.call();
         }

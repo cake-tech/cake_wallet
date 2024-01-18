@@ -22,8 +22,6 @@ void startCurrentFiatChangeReaction(
     fiatConversionStore.prices[cryptoCurrency] = await FiatConversionService.fetchPrice(
       crypto: cryptoCurrency,
       fiat: fiatCurrency,
-      torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
-      onionOnly: settingsStore.torConnectionMode == TorConnectionMode.onionOnly,
     );
   });
 }

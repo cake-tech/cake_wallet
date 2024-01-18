@@ -14,14 +14,12 @@ class WalletLoadingService {
     this.sharedPreferences,
     this.keyService,
     this.walletServiceFactory,
-    this.settingsStore,
     this.torViewModel,
   );
 
   final SharedPreferences sharedPreferences;
   final KeyService keyService;
   final WalletService Function(WalletType type) walletServiceFactory;
-  final SettingsStore settingsStore;
   final TorViewModel torViewModel;
 
   Future<void> renameWallet(WalletType type, String name, String newName) async {

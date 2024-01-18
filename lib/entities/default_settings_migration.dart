@@ -185,6 +185,9 @@ Future<void> defaultSettingsMigration(
         case 25:
           await rewriteSecureStoragePin(secureStorage: secureStorage);
           break;
+        case 26:
+          await migrateTorPreferences(sharedPreferences: sharedPreferences);
+          break;
         default:
           break;
       }
@@ -376,6 +379,18 @@ Node getMoneroDefaultNode({required Box<Node> nodes}) {
   } catch (_) {
     return nodes.values.first;
   }
+}
+
+Future<void> migrateTorPreferences({required SharedPreferences sharedPreferences}) async {
+
+  if (sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) == 1) {
+    await sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, 0);
+  }
+
+  if (sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) == 1) {
+    await sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, 0);
+  }
+
 }
 
 Future<void> rewriteSecureStoragePin({required FlutterSecureStorage secureStorage}) async {

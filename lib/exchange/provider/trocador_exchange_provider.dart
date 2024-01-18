@@ -14,12 +14,11 @@ import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 class TrocadorExchangeProvider extends ExchangeProvider {
-  TrocadorExchangeProvider({this.useTorOnly = false, this.providerStates = const {}})
+  TrocadorExchangeProvider({this.providerStates = const {}})
       : _lastUsedRateId = '',
         _provider = [],
         super(pairList: supportedPairs(_notSupported));
 
-  bool useTorOnly;
   final Map<String, bool> providerStates;
 
   static const List<String> availableProviders = [
@@ -308,11 +307,11 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   Future<HttpClientResponse> proxyGet(String path, Map<String, String> queryParams) async {
     ProxyWrapper proxy = await getIt.get<ProxyWrapper>();
     Uri onionUri = Uri.http(onionApiAuthority, path, queryParams);
-    Uri clearnetUri = Uri.http(onionApiAuthority, path, queryParams);
+    Uri clearnetUri = Uri.http(clearNetAuthority, path, queryParams);
     return await proxy.get(
       onionUri: onionUri,
       clearnetUri: clearnetUri,
-      torOnly: useTorOnly,
+      torOnly: false,
     );
   }
 }

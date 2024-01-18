@@ -352,7 +352,6 @@ Future<void> setup({
         getIt.get<SharedPreferences>(),
         getIt.get<KeyService>(),
         (WalletType type) => getIt.get<WalletService>(param1: type),
-        getIt.get<SettingsStore>(),
         getIt.get<TorViewModel>(),
       ));
 
@@ -1144,9 +1143,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
 
-  getIt.registerFactory(() => AnonPayApi(
-      useTorOnly: getIt.get<SettingsStore>().exchangeStatus == ExchangeApiMode.torOnly,
-      wallet: getIt.get<AppStore>().wallet!));
+  getIt.registerFactory(() => AnonPayApi(wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory(() =>
       DesktopWalletSelectionDropDown(getIt.get<WalletListViewModel>(), getIt.get<AuthService>()));

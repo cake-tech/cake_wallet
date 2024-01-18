@@ -15,7 +15,6 @@ const _fiatApiPath = '/v2/rates';
 Future<double> _fetchPrice(Map<String, dynamic> args) async {
   final crypto = args['crypto'] as String;
   final fiat = args['fiat'] as String;
-  final torOnly = args['torOnly'] as bool;
   final mainThreadProxyPort = args['port'] as int;
 
   final Map<String, String> queryParams = {
@@ -43,7 +42,7 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
         onionUri: onionUri,
         clearnetUri: clearnetUri,
         portOverride: mainThreadProxyPort,
-        torOnly: torOnly,
+        torOnly: false,
       );
       responseBody = await utf8.decodeStream(httpResponse);
       statusCode = httpResponse.statusCode;
@@ -70,30 +69,17 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
 }
 
 Future<double> _fetchPriceAsync(
-        CryptoCurrency crypto, FiatCurrency fiat, bool torOnly, bool onionOnly) async =>
-    // compute(_fetchPrice, {
-    //   'fiat': fiat.toString(),
-    //   'crypto': crypto.toString(),
-    //   'torOnly': torOnly,
-    //   'onionOnly': onionOnly,
-    //   'port': ProxyWrapper.port,
-    //   'torEnabled': ProxyWrapper.enabled,
-    // });
-    _fetchPrice({
+        CryptoCurrency crypto, FiatCurrency fiat) async =>
+    compute(_fetchPrice, {
       'fiat': fiat.toString(),
       'crypto': crypto.toString(),
-      'torOnly': torOnly,
-      'onionOnly': onionOnly,
       'port': ProxyWrapper.port,
-      'torEnabled': ProxyWrapper.enabled,
     });
 
 class FiatConversionService {
   static Future<double> fetchPrice({
     required CryptoCurrency crypto,
     required FiatCurrency fiat,
-    required bool torOnly,
-    required bool onionOnly,
   }) async =>
-      await _fetchPriceAsync(crypto, fiat, torOnly, onionOnly);
+      await _fetchPriceAsync(crypto, fiat);
 }

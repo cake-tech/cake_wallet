@@ -92,7 +92,7 @@ class ConnectionSyncPage extends BasePage {
             ),
             const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           ],
-          if (FeatureFlag.isInAppTorEnabled) ...[
+          if (FeatureFlag.isInAppTorEnabled && !DeviceInfo.instance.isMobile) ...[
             Container(
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               child: Column(children: [

@@ -30,6 +30,8 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
+import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -67,7 +69,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositAddress = '',
         isDepositAddressEnabled = false,
         isReceiveAmountEditable = false,
-        _useTorOnly = false,
         receiveCurrencies = <CryptoCurrency>[],
         depositCurrencies = <CryptoCurrency>[],
         limits = Limits(min: 0, max: 0),
@@ -78,7 +79,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         providerList = [],
         selectedProviders = ObservableList<ExchangeProvider>(),
         super(appStore: appStore) {
-    _useTorOnly = _settingsStore.exchangeStatus == ExchangeApiMode.torOnly;
     _setProviders();
     const excludeDepositCurrencies = [CryptoCurrency.btt];
     const excludeReceiveCurrencies = [
@@ -135,7 +135,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     });
   }
 
-  bool _useTorOnly;
   final Box<Trade> trades;
   final ExchangeTemplateStore _exchangeTemplateStore;
   final TradesStore tradesStore;
@@ -145,8 +144,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         ChangeNowExchangeProvider(settingsStore: _settingsStore),
         SideShiftExchangeProvider(),
         SimpleSwapExchangeProvider(),
-        TrocadorExchangeProvider(
-            useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
+        TrocadorExchangeProvider(providerStates: _settingsStore.trocadorProviderStates),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
       ];
 
@@ -721,7 +719,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   void _setProviders() {
-    if (_settingsStore.exchangeStatus == ExchangeApiMode.torOnly)
+    if (_settingsStore.torConnectionMode == TorConnectionMode.onionOnly)
       providerList = _allProviders.where((provider) => provider.supportsOnionAddress).toList();
     else
       providerList = _allProviders;

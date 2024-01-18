@@ -20,8 +20,6 @@ void startCurrentFiatApiModeChangeReaction(
     fiatConversionStore.prices[appStore.wallet!.currency] = await FiatConversionService.fetchPrice(
       crypto: appStore.wallet!.currency,
       fiat: settingsStore.fiatCurrency,
-      torOnly: fiatApiMode == FiatApiMode.torOnly,
-      onionOnly: settingsStore.torConnectionMode == TorConnectionMode.onionOnly,
     );
   });
 }

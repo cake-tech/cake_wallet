@@ -95,8 +95,6 @@ void startCurrentWalletChangeReaction(
       fiatConversionStore.prices[wallet.currency] = await FiatConversionService.fetchPrice(
         crypto: wallet.currency,
         fiat: settingsStore.fiatCurrency,
-        torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
-        onionOnly: settingsStore.torConnectionMode == TorConnectionMode.onionOnly,
       );
 
       Iterable<Erc20Token>? currencies;
@@ -114,8 +112,6 @@ void startCurrentWalletChangeReaction(
             fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
               crypto: currency,
               fiat: settingsStore.fiatCurrency,
-              torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
-              onionOnly: settingsStore.torConnectionMode == TorConnectionMode.onionOnly,
             );
           }.call();
         }
