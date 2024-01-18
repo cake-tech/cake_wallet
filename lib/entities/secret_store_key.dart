@@ -59,7 +59,6 @@ class SecureKey {
       'should_require_totp_2fa_for_all_security_and_backup_settings';
   static const selectedCake2FAPreset = 'selected_cake_2fa_preset';
   static const totpSecretKey = 'totp_secret_key';
-  static const currentSeedPhraseLength = 'current_seed_phrase_length';
   static const pinTimeOutDuration = 'pin_timeout_duration';
   static const lastAuthTimeMilliseconds = 'last_auth_time_milliseconds';
 }
