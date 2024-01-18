@@ -277,14 +277,14 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       bitbox.ECPair.fromWIF(hd.derive(index).wif!);
 
   @override
-  int feeAmountForPriority(
-          BitcoinTransactionPriority priority, int inputsCount, int outputsCount) =>
+  int feeAmountForPriority(BitcoinTransactionPriority priority, int inputsCount, int outputsCount,
+          {int? size}) =>
       feeRate(priority) * bitbox.BitcoinCash.getByteCount(inputsCount, outputsCount);
 
-  int feeAmountWithFeeRate(int feeRate, int inputsCount, int outputsCount) =>
+  int feeAmountWithFeeRate(int feeRate, int inputsCount, int outputsCount, {int? size}) =>
       feeRate * bitbox.BitcoinCash.getByteCount(inputsCount, outputsCount);
 
-  int calculateEstimatedFeeWithFeeRate(int feeRate, int? amount, {int? outputsCount}) {
+  int calculateEstimatedFeeWithFeeRate(int feeRate, int? amount, {int? outputsCount, int? size}) {
     int inputsCount = 0;
     int totalValue = 0;
 

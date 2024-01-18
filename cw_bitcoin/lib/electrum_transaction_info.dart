@@ -1,5 +1,6 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
+import 'package:bitcoin_base/bitcoin_base.dart' as bitcoin_base;
 import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -12,8 +13,8 @@ import 'package:cw_core/wallet_type.dart';
 class ElectrumTransactionBundle {
   ElectrumTransactionBundle(this.originalTransaction,
       {required this.ins, required this.confirmations, this.time});
-  final bitcoin.Transaction originalTransaction;
-  final List<bitcoin.Transaction> ins;
+  final bitcoin_base.BtcTransaction originalTransaction;
+  final List<bitcoin_base.BtcTransaction> ins;
   final int? time;
   final int confirmations;
 }
@@ -100,31 +101,28 @@ class ElectrumTransactionInfo extends TransactionInfo {
     var inputAmount = 0;
     var totalOutAmount = 0;
 
-    for (var i = 0; i < bundle.originalTransaction.ins.length; i++) {
-      final input = bundle.originalTransaction.ins[i];
+    for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
+      final input = bundle.originalTransaction.inputs[i];
       final inputTransaction = bundle.ins[i];
-      final vout = input.index;
-      final outTransaction = inputTransaction.outs[vout!];
-      final address = addressFromOutput(outTransaction.script!, network);
-      inputAmount += outTransaction.value!;
-      if (addresses.contains(address)) {
+      final outTransaction = inputTransaction.outputs[input.txIndex];
+      inputAmount += outTransaction.amount.toInt();
+      if (addresses.contains(addressFromOutputScript(outTransaction.scriptPubKey, network))) {
         direction = TransactionDirection.outgoing;
       }
     }
 
-    for (final out in bundle.originalTransaction.outs) {
-      totalOutAmount += out.value!;
-      final address = addressFromOutput(out.script!, network);
-      final addressExists = addresses.contains(address);
+    for (final out in bundle.originalTransaction.outputs) {
+      totalOutAmount += out.amount.toInt();
+      final addressExists = addresses.contains(addressFromOutputScript(out.scriptPubKey, network));
       if ((direction == TransactionDirection.incoming && addressExists) ||
           (direction == TransactionDirection.outgoing && !addressExists)) {
-        amount += out.value!;
+        amount += out.amount.toInt();
       }
     }
 
     final fee = inputAmount - totalOutAmount;
     return ElectrumTransactionInfo(type,
-        id: bundle.originalTransaction.getId(),
+        id: bundle.originalTransaction.txId(),
         height: height,
         isPending: bundle.confirmations == 0,
         fee: fee,

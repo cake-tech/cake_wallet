@@ -244,7 +244,7 @@ class ElectrumClient {
 
   Future<String> broadcastTransaction(
       {required String transactionRaw, BasedUtxoNetwork? network}) async {
-    if (network != null && network == BitcoinNetwork.testnet) {
+    if (network == BitcoinNetwork.testnet) {
       return http
           .post(Uri(scheme: 'https', host: 'blockstream.info', path: '/testnet/api/tx'),
               headers: <String, String>{'Content-Type': 'application/json; charset=utf-8'},
