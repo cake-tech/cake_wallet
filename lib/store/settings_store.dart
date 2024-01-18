@@ -722,7 +722,7 @@ abstract class SettingsStoreBase with Store {
       BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance,
       ThemeBase? initialTheme}) async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
-    final secureStorage = await getIt.getAsync<FlutterSecureStorage>();
+    final secureStorage = await getIt.get<FlutterSecureStorage>();
     final backgroundTasks = getIt.get<BackgroundTasks>();
     final currentFiatCurrency = FiatCurrency.deserialize(
         raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);

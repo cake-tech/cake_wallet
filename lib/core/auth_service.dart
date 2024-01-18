@@ -76,7 +76,7 @@ class AuthService with Store {
   }
 
   Future<bool> requireAuth() async {
-    final timestamp = int.tryParse(await secureStorage.read(key: SecureKey.lastAuthTimeMilliseconds) as String);
+    final timestamp = int.tryParse(await secureStorage.read(key: SecureKey.lastAuthTimeMilliseconds) ?? '0');
     final duration = _durationToRequireAuth(timestamp ?? 0);
     final requiredPinInterval = settingsStore.pinTimeOutDuration;
 

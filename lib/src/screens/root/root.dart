@@ -52,8 +52,12 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   Uri? launchUri;
 
   @override
-  void initState() async {
-    _requestAuth = await widget.authService.requireAuth();
+  void initState() {
+    widget.authService.requireAuth().then((value) {
+      setState(() {
+        _requestAuth = value;
+      });
+    });
     _isInactiveController = StreamController<bool>.broadcast();
     _isInactive = false;
     _postFrameCallback = false;
@@ -105,8 +109,10 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
         break;
       case AppLifecycleState.resumed:
-        setState(() async {
-          _requestAuth = await widget.authService.requireAuth();
+        widget.authService.requireAuth().then((value) {
+          setState(() {
+            _requestAuth = value;
+          });
         });
         break;
       default:
