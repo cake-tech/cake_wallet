@@ -81,7 +81,7 @@ abstract class TorViewModelBase with Store {
 
   @action
   Future<void> stopTor() async {
-    Tor.instance.disable();
+    // Tor.instance.disable();
     _settingsStore.shouldStartTorOnLaunch = false;
     torConnectionStatus = TorConnectionStatus.disconnected;
     SocksTCPClient.removeProxy();

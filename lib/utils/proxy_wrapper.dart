@@ -17,10 +17,10 @@ class NullOverrides extends HttpOverrides {
 
 class ProxyWrapper {
   ProxyWrapper({
-    required this.settingsStore,
+    this.settingsStore,
   });
 
-  late SettingsStore settingsStore;
+  SettingsStore? settingsStore;
 
   HttpClient? _torClient;
 
@@ -32,6 +32,8 @@ class ProxyWrapper {
 
   // Method to get or create the Tor proxy instance
   Future<HttpClient> getProxyHttpClient({int? portOverride}) async {
+    portOverride = (portOverride == -1 || portOverride == null) ? Tor.instance.port : portOverride;
+
     if (!started) {
       started = true;
       _torClient = HttpClient();
@@ -40,7 +42,7 @@ class ProxyWrapper {
       SocksTCPClient.assignToHttpClient(_torClient!, [
         ProxySettings(
           InternetAddress.loopbackIPv4,
-          portOverride ?? Tor.instance.port,
+          portOverride,
           password: null,
         ),
       ]);
@@ -81,27 +83,30 @@ class ProxyWrapper {
     Map<String, String>? headers,
     int? portOverride,
     bool torOnly = false,
+    TorConnectionMode? torConnectionMode,
     Uri? clearnetUri,
     Uri? onionUri,
   }) async {
     HttpClient? torClient;
     late bool torEnabled;
-    if (settingsStore.torConnectionMode == TorConnectionMode.onionOnly ||
-        settingsStore.torConnectionMode == TorConnectionMode.enabled) {
-      torClient = await getProxyHttpClient(portOverride: portOverride);
+    torConnectionMode ??= settingsStore?.torConnectionMode ?? TorConnectionMode.disabled;
+    if (torConnectionMode == TorConnectionMode.onionOnly ||
+        torConnectionMode == TorConnectionMode.enabled) {
       torEnabled = true;
     } else {
       torEnabled = false;
     }
 
-    if (settingsStore.torConnectionMode == TorConnectionMode.onionOnly) {
-      if (onionUri == null) {
-        throw Exception("Cannot connect to clearnet");
-      }
+    if (torConnectionMode == TorConnectionMode.onionOnly && onionUri == null) {
+      throw Exception("Cannot connect to clearnet");
     }
 
     // if tor is enabled, try to connect to the onion url first:
     if (torEnabled) {
+      try {
+        torClient = await getProxyHttpClient(portOverride: portOverride);
+      } catch (_) {}
+
       if (onionUri != null) {
         try {
           return makeGet(
@@ -112,7 +117,7 @@ class ProxyWrapper {
         } catch (_) {}
       }
 
-      if (clearnetUri != null && settingsStore.torConnectionMode != TorConnectionMode.onionOnly) {
+      if (clearnetUri != null && torConnectionMode != TorConnectionMode.onionOnly) {
         try {
           return makeGet(
             client: torClient!,
@@ -123,7 +128,7 @@ class ProxyWrapper {
       }
     }
 
-    if (!torOnly && clearnetUri != null) {
+    if (clearnetUri != null && !torOnly && torConnectionMode != TorConnectionMode.onionOnly) {
       try {
         return HttpOverrides.runZoned(
           () {
@@ -148,28 +153,31 @@ class ProxyWrapper {
     Map<String, String>? headers,
     int? portOverride,
     bool torOnly = false,
+    TorConnectionMode? torConnectionMode,
     Uri? clearnetUri,
     Uri? onionUri,
   }) async {
     HttpClient? torClient;
     late bool torEnabled;
-    if (settingsStore.torConnectionMode == TorConnectionMode.onionOnly ||
-        settingsStore.torConnectionMode == TorConnectionMode.enabled) {
-      torClient = await getProxyHttpClient(portOverride: portOverride);
+    torConnectionMode ??= settingsStore?.torConnectionMode ?? TorConnectionMode.disabled;
+    if (torConnectionMode == TorConnectionMode.onionOnly ||
+        torConnectionMode == TorConnectionMode.enabled) {
       torEnabled = true;
     } else {
       torEnabled = false;
     }
 
-    if (settingsStore.torConnectionMode == TorConnectionMode.onionOnly) {
-      if (onionUri == null) {
-        throw Exception("Cannot connect to clearnet");
-      }
+    if (torConnectionMode == TorConnectionMode.onionOnly && onionUri == null) {
+      throw Exception("Cannot connect to clearnet");
     }
 
     // if tor is enabled, try to connect to the onion url first:
 
     if (torEnabled) {
+      try {
+        torClient = await getProxyHttpClient(portOverride: portOverride);
+      } catch (_) {}
+
       if (onionUri != null) {
         try {
           return makePost(
@@ -180,7 +188,7 @@ class ProxyWrapper {
         } catch (_) {}
       }
 
-      if (clearnetUri != null && settingsStore.torConnectionMode != TorConnectionMode.onionOnly) {
+      if (clearnetUri != null && torConnectionMode != TorConnectionMode.onionOnly) {
         try {
           return makePost(
             client: torClient!,
@@ -191,7 +199,7 @@ class ProxyWrapper {
       }
     }
 
-    if (!torOnly && clearnetUri != null) {
+    if (clearnetUri != null && !torOnly && torConnectionMode != TorConnectionMode.onionOnly) {
       try {
         return HttpOverrides.runZoned(
           () {

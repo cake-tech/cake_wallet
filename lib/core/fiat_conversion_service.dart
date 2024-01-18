@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'dart:convert';
@@ -16,6 +18,7 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   final crypto = args['crypto'] as String;
   final fiat = args['fiat'] as String;
   final mainThreadProxyPort = args['port'] as int;
+  final torConnectionMode = args['torConnectionMode'] as TorConnectionMode;
 
   final Map<String, String> queryParams = {
     'interval_count': '1',
@@ -30,7 +33,7 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
     final Uri onionUri = Uri.http(_fiatApiOnionAuthority, _fiatApiPath, queryParams);
     final Uri clearnetUri = Uri.https(_fiatApiClearNetAuthority, _fiatApiPath, queryParams);
 
-    ProxyWrapper proxy = await getIt.get<ProxyWrapper>();
+    ProxyWrapper proxy = ProxyWrapper();
 
     late HttpClientResponse httpResponse;
     late String responseBody;
@@ -43,7 +46,9 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
         clearnetUri: clearnetUri,
         portOverride: mainThreadProxyPort,
         torOnly: false,
+        torConnectionMode: torConnectionMode,
       );
+
       responseBody = await utf8.decodeStream(httpResponse);
       statusCode = httpResponse.statusCode;
     } catch (e) {
@@ -68,12 +73,12 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   }
 }
 
-Future<double> _fetchPriceAsync(
-        CryptoCurrency crypto, FiatCurrency fiat) async =>
+Future<double> _fetchPriceAsync(CryptoCurrency crypto, FiatCurrency fiat) async =>
     compute(_fetchPrice, {
       'fiat': fiat.toString(),
       'crypto': crypto.toString(),
       'port': ProxyWrapper.port,
+      'torConnectionMode': getIt.get<SettingsStore>().torConnectionMode,
     });
 
 class FiatConversionService {
