@@ -403,10 +403,10 @@ class AssetRate {
 }
 
 abstract class HavenWalletDetails {
-  // FIX-ME: it's abstruct class
+  // FIX-ME: it's abstract class
   @observable
   late Account account;
-  // FIX-ME: it's abstruct class
+  // FIX-ME: it's abstract class
   @observable
   late HavenBalance balance;
 }
