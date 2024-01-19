@@ -123,8 +123,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
                   alertContent: S.of(context).change_wallet_alert_content(selectedWallet.name),
                   leftButtonText: S.of(context).cancel,
                   rightButtonText: S.of(context).change,
-                  actionLeftButton: () => Navigator.of(context).pop(false),
-                  actionRightButton: () => Navigator.of(context).pop(true));
+                  actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+                  actionRightButton: () => Navigator.of(dialogContext).pop(true));
             }) ??
         false;
 
