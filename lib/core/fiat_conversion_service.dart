@@ -18,7 +18,7 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   final crypto = args['crypto'] as String;
   final fiat = args['fiat'] as String;
   final mainThreadProxyPort = args['port'] as int;
-  final torConnectionMode = args['torConnectionMode'] as TorConnectionMode;
+  final torConnectionMode = TorConnectionMode.deserialize(raw: ['torConnectionMode'] as int);
 
   final Map<String, String> queryParams = {
     'interval_count': '1',
@@ -78,7 +78,7 @@ Future<double> _fetchPriceAsync(CryptoCurrency crypto, FiatCurrency fiat) async 
       'fiat': fiat.toString(),
       'crypto': crypto.toString(),
       'port': ProxyWrapper.port,
-      'torConnectionMode': getIt.get<SettingsStore>().torConnectionMode,
+      'torConnectionMode': getIt.get<SettingsStore>().torConnectionMode.raw,
     });
 
 class FiatConversionService {
