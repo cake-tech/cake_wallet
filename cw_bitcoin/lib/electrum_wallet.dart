@@ -390,7 +390,7 @@ abstract class ElectrumWalletBase
         }
 
         if (utxo.utxo.isP2tr()) {
-          return key.signTapRoot(txDigest);
+          return key.signTapRoot(txDigest, sighash: sighash, tweak: false);
         } else {
           return key.signInput(txDigest, sigHash: sighash);
         }
@@ -599,7 +599,8 @@ abstract class ElectrumWalletBase
 
       if (currentWalletUnspentCoins.isNotEmpty) {
         currentWalletUnspentCoins.forEach((element) {
-          final existUnspentCoins = unspentCoins.where((coin) => element.hash.contains(coin.hash));
+          final existUnspentCoins = unspentCoins
+              .where((coin) => element.hash.contains(coin.hash) && element.vout == coin.vout);
 
           if (existUnspentCoins.isEmpty) {
             keys.add(element.key);
@@ -797,3 +798,5 @@ abstract class ElectrumWalletBase
     return base64Encode(HD.signMessage(message));
   }
 }
+// TODO: contact addresses
+// TODO: select change address

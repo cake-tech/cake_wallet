@@ -35,6 +35,7 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
+    print(["HEX", hex]);
     final result = await electrumClient.broadcastTransaction(transactionRaw: hex, network: network);
 
     if (result.isEmpty) {
