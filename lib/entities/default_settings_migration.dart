@@ -388,7 +388,7 @@ Future<void> migrateTorPreferences({required SharedPreferences sharedPreferences
   }
 
   if (sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) == 1) {
-    await sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, 0);
+    await sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, 0);
   }
 
 }
