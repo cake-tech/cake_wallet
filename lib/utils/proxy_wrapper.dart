@@ -109,7 +109,7 @@ class ProxyWrapper {
 
       if (onionUri != null) {
         try {
-          return makeGet(
+          return await makeGet(
             client: torClient!,
             uri: onionUri,
             headers: headers,
@@ -119,7 +119,7 @@ class ProxyWrapper {
 
       if (clearnetUri != null && torConnectionMode != TorConnectionMode.onionOnly) {
         try {
-          return makeGet(
+          return await makeGet(
             client: torClient!,
             uri: clearnetUri,
             headers: headers,
@@ -131,8 +131,8 @@ class ProxyWrapper {
     if (clearnetUri != null && !torOnly && torConnectionMode != TorConnectionMode.onionOnly) {
       try {
         return HttpOverrides.runZoned(
-          () {
-            return makeGet(
+          () async {
+            return await makeGet(
               client: HttpClient(),
               uri: clearnetUri,
               headers: headers,
@@ -180,7 +180,7 @@ class ProxyWrapper {
 
       if (onionUri != null) {
         try {
-          return makePost(
+          return await makePost(
             client: torClient!,
             uri: onionUri,
             headers: headers,
@@ -190,7 +190,7 @@ class ProxyWrapper {
 
       if (clearnetUri != null && torConnectionMode != TorConnectionMode.onionOnly) {
         try {
-          return makePost(
+          return await makePost(
             client: torClient!,
             uri: clearnetUri,
             headers: headers,
@@ -202,8 +202,8 @@ class ProxyWrapper {
     if (clearnetUri != null && !torOnly && torConnectionMode != TorConnectionMode.onionOnly) {
       try {
         return HttpOverrides.runZoned(
-          () {
-            return makePost(
+          () async {
+            return await makePost(
               client: HttpClient(),
               uri: clearnetUri,
               headers: headers,
