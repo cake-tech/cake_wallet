@@ -41,6 +41,19 @@ abstract class TorViewModelBase with Store {
   @action
   void setTorConnectionMode(TorConnectionMode mode) => _settingsStore.torConnectionMode = mode;
 
+  Future<void> connectOrDisconnectNodeToProxy({required bool connect}) async {
+    final appStore = getIt.get<AppStore>();
+    if (appStore.wallet != null) {
+      final node = _settingsStore.getCurrentNode(appStore.wallet!.type);
+      if (connect && (node.socksProxyAddress?.isEmpty ?? true)) {
+        node.socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
+      } else if (!connect) {
+        node.socksProxyAddress = null;
+      }
+      await appStore.wallet!.connectToNode(node: node);
+    }
+  }
+
   @action
   Future<void> startTor() async {
     try {
@@ -66,14 +79,7 @@ abstract class TorViewModelBase with Store {
       ]);
 
       // connect to node through the proxy:
-      final appStore = getIt.get<AppStore>();
-      if (appStore.wallet != null) {
-        final node = _settingsStore.getCurrentNode(appStore.wallet!.type);
-        if (node.socksProxyAddress?.isEmpty ?? true) {
-          node.socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
-        }
-        appStore.wallet!.connectToNode(node: node);
-      }
+      await connectOrDisconnectNodeToProxy(connect: true);
     } catch (e) {
       torConnectionStatus = TorConnectionStatus.disconnected;
     }
@@ -81,9 +87,11 @@ abstract class TorViewModelBase with Store {
 
   @action
   Future<void> stopTor() async {
-    // Tor.instance.disable();
+    // Tor.instance.disable();// removed because we don't want to have to start tor again
+    // setting the torConnectionMode to disabled will prevent anything from actually using the proxy
     _settingsStore.shouldStartTorOnLaunch = false;
     torConnectionStatus = TorConnectionStatus.disconnected;
+    await connectOrDisconnectNodeToProxy(connect: false);
     SocksTCPClient.removeProxy();
   }
 }
