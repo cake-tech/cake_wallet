@@ -1,5 +1,6 @@
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -36,19 +37,21 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   bool get hasLanguageSelector => type == WalletType.monero || type == WalletType.haven;
 
   int get seedPhraseWordsLength {
-      switch (type) {
-        case WalletType.monero:
-          if(advancedPrivacySettingsViewModel.isPolySeed) {
-            return 16;
-          }
-          return 25;
-        case WalletType.ethereum:
-        case WalletType.bitcoinCash:
-          return advancedPrivacySettingsViewModel.seedPhraseLength.value;
-        default:
-          return 24;
-      }
+    switch (type) {
+      case WalletType.monero:
+        if (advancedPrivacySettingsViewModel.isPolySeed) {
+          return 16;
+        }
+        return 25;
+      case WalletType.solana:
+      case WalletType.polygon:
+      case WalletType.ethereum:
+      case WalletType.bitcoinCash:
+        return advancedPrivacySettingsViewModel.seedPhraseLength.value;
+      default:
+        return 24;
     }
+  }
 
   bool get hasSeedType => type == WalletType.monero;
 
@@ -64,8 +67,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.litecoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name);
       case WalletType.haven:
-        return haven!.createHavenNewWalletCredentials(
-            name: name, language: options!.first as String);
+        return haven!
+            .createHavenNewWalletCredentials(name: name, language: options!.first as String);
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(name: name);
       case WalletType.bitcoinCash:
@@ -74,6 +77,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return nano!.createNanoNewWalletCredentials(name: name);
       case WalletType.polygon:
         return polygon!.createPolygonNewWalletCredentials(name: name);
+      case WalletType.solana:
+        return solana!.createSolanaNewWalletCredentials(name: name);
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }

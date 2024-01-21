@@ -117,7 +117,7 @@ class HomeSettingsPage extends BasePage {
 
                         return SettingsSwitcherCell(
                           title: "${token.name} "
-                              "(${token.symbol})",
+                              "(${token.title})",
                           value: token.enabled,
                           onValueChange: (_, bool value) {
                             _homeSettingsViewModel.changeTokenAvailability(token, value);
@@ -141,7 +141,7 @@ class HomeSettingsPage extends BasePage {
                                   width: 30.0,
                                   child: Center(
                                     child: Text(
-                                      token.symbol.substring(0, min(token.symbol.length, 2)),
+                                      token.title.substring(0, min(token.title.length, 2)),
                                       style: TextStyle(fontSize: 11),
                                     ),
                                   ),

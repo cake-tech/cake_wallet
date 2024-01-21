@@ -286,6 +286,8 @@ class AddressValidator extends TextValidator {
             '|bitcoincash:q[0-9a-zA-Z]{42}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)q[0-9a-zA-Z]{41}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)q[0-9a-zA-Z]{42}([^0-9a-zA-Z]|\$)';
+      case CryptoCurrency.sol:
+        return '([^0-9a-zA-Z]|^)[1-9A-HJ-NP-Za-km-z]{43,44}([^0-9a-zA-Z]|\$)';
       default:
         return null;
     }

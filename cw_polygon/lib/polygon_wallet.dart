@@ -108,6 +108,7 @@ abstract class PolygonWalletBase
     } else {
       polygonErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName.replaceAll(" ", ""));
     }
+    
     await walletAddresses.init();
     await transactionHistory.init();
     _polygonPrivateKey = await getPrivateKey(

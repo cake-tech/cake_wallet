@@ -108,6 +108,7 @@ abstract class EthereumWalletBase
 
     await walletAddresses.init();
     await transactionHistory.init();
+    
     _ethPrivateKey = await getPrivateKey(
       mnemonic: _mnemonic,
       privateKey: _hexPrivateKey,

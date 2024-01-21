@@ -173,7 +173,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                   child: PrimaryButton(
                     onPressed: () async {
                       if (widget.erc20token != null) {
-                        await widget.homeSettingsViewModel.deleteErc20Token(widget.erc20token!);
+                        await widget.homeSettingsViewModel.deleteToken(widget.erc20token!);
                       }
                       Navigator.pop(context);
                     },
@@ -188,7 +188,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate() &&
                           (!_showDisclaimer || _disclaimerChecked)) {
-                        await widget.homeSettingsViewModel.addErc20Token(Erc20Token(
+                        await widget.homeSettingsViewModel.addToken(Erc20Token(
                           name: _tokenNameController.text,
                           symbol: _tokenSymbolController.text,
                           contractAddress: _contractAddressController.text,
@@ -215,13 +215,13 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
   void _getTokenInfo() async {
     if (_contractAddressController.text.isNotEmpty) {
       final token =
-          await widget.homeSettingsViewModel.getErc20Token(_contractAddressController.text);
+          await widget.homeSettingsViewModel.getToken(_contractAddressController.text);
 
       if (token != null) {
         if (_tokenNameController.text.isEmpty) _tokenNameController.text = token.name;
-        if (_tokenSymbolController.text.isEmpty) _tokenSymbolController.text = token.symbol;
+        if (_tokenSymbolController.text.isEmpty) _tokenSymbolController.text = token.title;
         if (_tokenDecimalController.text.isEmpty)
-          _tokenDecimalController.text = token.decimal.toString();
+          _tokenDecimalController.text = token.decimals.toString();
       }
     }
   }

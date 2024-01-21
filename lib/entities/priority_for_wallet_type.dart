@@ -27,6 +27,8 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return [];
     case WalletType.polygon:
       return polygon!.getTransactionPriorities();
+    case WalletType.solana:
+      return [];
     default:
       return [];
   }

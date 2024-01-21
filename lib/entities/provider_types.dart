@@ -68,6 +68,7 @@ class ProvidersHelper {
       case WalletType.none:
       case WalletType.haven:
       case WalletType.polygon:
+      case WalletType.solana:
         return [];
     }
   }
@@ -87,6 +88,7 @@ class ProvidersHelper {
       case WalletType.none:
       case WalletType.haven:
       case WalletType.polygon:
+      case WalletType.solana:
         return [];
     }
   }

@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_i
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cw_solana/solana_transaction_info.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/src/intl/date_format.dart';
 import 'package:mobx/mobx.dart';
@@ -53,6 +54,9 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
       case WalletType.polygon:
         _addPolygonListItems(tx, dateFormat);
+        break;
+      case WalletType.solana:
+        _addSolanaListItems(tx, dateFormat);
         break;
       default:
         break;
@@ -131,6 +135,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://bananolooker.com/block/${txId}';
       case WalletType.polygon:
         return 'https://polygonscan.com/tx/${txId}';
+      case WalletType.solana:
+        return 'https://solscan.io/tx/${txId}';
       default:
         return '';
     }
@@ -155,6 +161,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'bananolooker.com';
       case WalletType.polygon:
         return S.current.view_transaction_on + 'polygonscan.com';
+      case WalletType.solana:
+        return S.current.view_transaction_on + 'solscan.io';
       default:
         return '';
     }
@@ -271,6 +279,20 @@ abstract class TransactionDetailsViewModelBase with Store {
       StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
       if (tx.feeFormatted()?.isNotEmpty ?? false)
         StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+      if (showRecipientAddress && tx.to != null)
+        StandartListItem(title: S.current.transaction_details_recipient_address, value: tx.to!),
+    ];
+
+    items.addAll(_items);
+  }
+
+  void _addSolanaListItems(TransactionInfo txInfo, DateFormat dateFormat) {
+    final tx = txInfo as SolanaTransactionInfo;
+    final _items = [
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.blockTime)),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
       if (showRecipientAddress && tx.to != null)
         StandartListItem(title: S.current.transaction_details_recipient_address, value: tx.to!),
     ];

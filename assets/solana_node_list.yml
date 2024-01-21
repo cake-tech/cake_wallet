@@ -1,0 +1,4 @@
+-
+  uri: api.testnet.solana.com
+  is_default: true
+  useSSL: true
