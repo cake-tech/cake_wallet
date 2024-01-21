@@ -82,9 +82,6 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
 
   set enabled(bool value) => _enabled = value;
 
-  // // USD equivalent of the balance
-  // final double usdBalance = 0;
-
   static const typeId = SPL_TOKEN_TYPE_ID;
   static const boxName = 'SPLTokens';
 

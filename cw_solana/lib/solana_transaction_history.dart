@@ -9,7 +9,7 @@ import 'package:cw_core/transaction_history.dart';
 
 part 'solana_transaction_history.g.dart';
 
-const transactionsHistoryFileName = 'transactions.json';
+const transactionsHistoryFileName = 'solana_transactions.json';
 
 class SolanaTransactionHistory = SolanaTransactionHistoryBase with _$SolanaTransactionHistory;
 
