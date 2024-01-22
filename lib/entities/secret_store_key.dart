@@ -1,3 +1,6 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 enum SecretStoreKey { moneroWalletPassword, pinCodePassword, backupPassword }
 
 const moneroWalletPassword = "MONERO_WALLET_PASSWORD";
@@ -61,4 +64,39 @@ class SecureKey {
   static const totpSecretKey = 'totp_secret_key';
   static const pinTimeOutDuration = 'pin_timeout_duration';
   static const lastAuthTimeMilliseconds = 'last_auth_time_milliseconds';
+
+  static Future<int?> getInt({
+    required FlutterSecureStorage secureStorage,
+    required SharedPreferences sharedPreferences,
+    required String key,
+  }) async {
+    int? value = int.tryParse((await secureStorage.read(key: key) ?? ''));
+    value ??= sharedPreferences.getInt(key);
+    return value;
+  }
+
+  static Future<bool?> getBool({
+    required FlutterSecureStorage secureStorage,
+    required SharedPreferences sharedPreferences,
+    required String key,
+  }) async {
+    String? value = (await secureStorage.read(key: key) ?? '');
+    if (value.toLowerCase() == "true") {
+      return true;
+    } else if (value.toLowerCase() == "false") {
+      return false;
+    } else {
+      return sharedPreferences.getBool(key);
+    }
+  }
+
+  static Future<String?> getString({
+    required FlutterSecureStorage secureStorage,
+    required SharedPreferences sharedPreferences,
+    required String key,
+  }) async {
+    String? value = await secureStorage.read(key: key);
+    value ??= sharedPreferences.getString(key);
+    return value;
+  }
 }
