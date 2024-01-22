@@ -53,7 +53,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    widget.authService.requireAuth().then((value) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      bool value = await widget.authService.requireAuth();
       setState(() {
         _requestAuth = value;
       });
@@ -63,7 +64,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     _postFrameCallback = false;
     WidgetsBinding.instance.addObserver(this);
     super.initState();
-
     if (DeviceInfo.instance.isMobile) {
       initUniLinks();
     }
