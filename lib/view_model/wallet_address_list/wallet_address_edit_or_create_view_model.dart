@@ -1,7 +1,5 @@
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:mobx/mobx.dart';
-import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -47,6 +45,10 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
   final WalletAddressListItem? _item;
   final WalletBase _wallet;
 
+  bool get isElectrum => _wallet.type == WalletType.bitcoin ||
+      _wallet.type == WalletType.bitcoinCash ||
+      _wallet.type == WalletType.litecoin;
+
   Future<void> save() async {
     try {
       state = AddressIsSaving();
@@ -55,12 +57,6 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
         await _update();
       } else {
         await _createNew();
-      }
-
-      final wallet = _wallet;
-
-      if (wallet is ElectrumWallet) {
-
       }
 
       state = AddressSavedSuccessfully();
@@ -72,17 +68,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
   Future<void> _createNew() async {
     final wallet = _wallet;
 
-    if (wallet is ElectrumWallet) {
-      await bitcoin!.generateNewAddress(wallet);
-      final address = wallet.walletAddresses.addresses.firstWhere((element) =>
-      (wallet.type == WalletType.bitcoinCash ? element.cashAddr : element.address) ==
-          _item?.address);
-      final index = wallet.walletAddresses.addresses.indexOf(address);
-      address.setNewName(label);
-      wallet.walletAddresses.addresses.remove(address);
-      wallet.walletAddresses.addresses.insert(index, address);
-      await wallet.save();
-    }
+    if (isElectrum) await bitcoin!.generateNewAddress(wallet, label);
 
     if (wallet.type == WalletType.monero) {
       await monero
@@ -108,16 +94,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
   Future<void> _update() async {
     final wallet = _wallet;
 
-    if (wallet is ElectrumWallet) {
-      final address = wallet.walletAddresses.addresses.firstWhere((element) =>
-      (wallet.type == WalletType.bitcoinCash ? element.cashAddr : element.address) ==
-          _item?.address);
-      final index = wallet.walletAddresses.addresses.indexOf(address);
-      address.setNewName(label);
-      wallet.walletAddresses.addresses.remove(address);
-      wallet.walletAddresses.addresses.insert(index, address);
-      await wallet.save();
-    }
+    if (isElectrum) await bitcoin!.updateAddress(wallet, _item!.address, label);
 
     final index = _item?.id;
     if (index != null) {

@@ -100,7 +100,6 @@ class ReceivePage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final isElectrumWallet = addressListViewModel.isElectrumWallet;
-        addressListViewModel.type == WalletType.litecoin;
     return (addressListViewModel.type == WalletType.monero ||
             addressListViewModel.type == WalletType.haven ||
             addressListViewModel.type == WalletType.nano ||
@@ -170,9 +169,8 @@ class ReceivePage extends BasePage {
                                     walletAddressListViewModel: addressListViewModel,
                                     showTrailingButton: !addressListViewModel.isAutoGenerateSubaddressEnabled,
                                     showSearchButton: true,
-                                    trailingButtonTap: () => isElectrumWallet
-                                        ? addressListViewModel.generateElectrumAddress()
-                                        : Navigator.of(context).pushNamed(Routes.newSubaddress),
+                                    trailingButtonTap: () =>
+                                        Navigator.of(context).pushNamed(Routes.newSubaddress),
                                     trailingIcon: Icon(
                                       Icons.add,
                                       size: 20,

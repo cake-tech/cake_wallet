@@ -1,5 +1,5 @@
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitbox/bitbox.dart' as bitbox;
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/script_hash.dart';
@@ -51,7 +51,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @override
   @computed
   String get address {
-    if (!isEnabledAutoGenerateSubaddress) {
+    if (isEnabledAutoGenerateSubaddress) {
       if (receiveAddresses.isEmpty) {
         final newAddress = generateNewAddress().address;
         return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(newAddress) : newAddress;
@@ -78,14 +78,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   set address(String addr) {
-
-    String address;
     if (addr.startsWith('bitcoincash:')) {
-      address = toLegacy(addr);
-    } else {
-      address = addr;
+      addr = toLegacy(addr);
     }
-    final addressRecord = addresses.firstWhere((addressRecord) => addressRecord.address == address);
+    final addressRecord = addresses.firstWhere((addressRecord) => addressRecord.address == addr);
 
     previousAddressRecord = addressRecord;
     receiveAddresses.remove(addressRecord);
@@ -161,14 +157,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return address;
   }
 
-  BitcoinAddressRecord generateNewAddress({bitcoin.HDWallet? hd}) {
+  BitcoinAddressRecord generateNewAddress({bitcoin.HDWallet? hd, String? label}) {
     final isHidden = hd == sideHd;
 
     final newAddressIndex = addresses.fold(
         0, (int acc, addressRecord) => isHidden == addressRecord.isHidden ? acc + 1 : acc);
 
     final address = BitcoinAddressRecord(getAddress(index: newAddressIndex, hd: hd ?? sideHd),
-        index: newAddressIndex, isHidden: isHidden);
+        index: newAddressIndex, isHidden: isHidden, name: label ?? '');
     addresses.add(address);
     return address;
   }
@@ -187,19 +183,31 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
+  void updateAddress(String address, String label) {
+    if (address.startsWith('bitcoincash:')) {
+      address = toLegacy(address);
+    }
+    final addressRecord = addresses.firstWhere((addressRecord) => addressRecord.address == address);
+    addressRecord.setNewName(label);
+    final index = addresses.indexOf(addressRecord);
+    addresses.remove(addressRecord);
+    addresses.insert(index, addressRecord);
+  }
+
+  @action
   void updateReceiveAddresses() {
     receiveAddresses.removeRange(0, receiveAddresses.length);
-    final newAdresses =
+    final newAddresses =
         addresses.where((addressRecord) => !addressRecord.isHidden && !addressRecord.isUsed);
-    receiveAddresses.addAll(newAdresses);
+    receiveAddresses.addAll(newAddresses);
   }
 
   @action
   void updateChangeAddresses() {
     changeAddresses.removeRange(0, changeAddresses.length);
-    final newAdresses =
+    final newAddresses =
         addresses.where((addressRecord) => addressRecord.isHidden && !addressRecord.isUsed);
-    changeAddresses.addAll(newAdresses);
+    changeAddresses.addAll(newAddresses);
   }
 
   Future<void> _discoverAddresses(bitcoin.HDWallet hd, bool isHidden) async {

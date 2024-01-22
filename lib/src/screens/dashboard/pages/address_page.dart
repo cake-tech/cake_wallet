@@ -1,5 +1,4 @@
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -17,8 +16,6 @@ import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
@@ -30,7 +27,6 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:bitbox/bitbox.dart' as bitbox;
 
 class AddressPage extends BasePage {
   AddressPage({
@@ -165,15 +161,7 @@ class AddressPage extends BasePage {
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList) {
                   return SelectButton(
-                    text: addressListViewModel.wallet is ElectrumWallet
-                        ? S.of(context).addresses
-                        : dashboardViewModel.isAutoGenerateSubaddressesEnabled
-                        ? addressListViewModel.hasAccounts
-                        ? S.of(context).accounts
-                        : S.of(context).account
-                        : addressListViewModel.hasAccounts
-                        ? S.of(context).accounts_subaddresses
-                        : S.of(context).addresses,
+                    text: addressListViewModel.buttonTitle,
                     onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled &&
                         (WalletType.monero == addressListViewModel.wallet.type ||
                             WalletType.haven == addressListViewModel.wallet.type)

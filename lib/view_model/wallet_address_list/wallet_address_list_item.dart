@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 
 class WalletAddressListItem extends ListItem {

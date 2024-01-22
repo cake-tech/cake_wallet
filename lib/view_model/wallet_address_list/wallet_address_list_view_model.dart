@@ -1,26 +1,25 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_core/amount_converter.dart';
-import 'package:cw_core/currency.dart';
-import 'package:intl/intl.dart';
-import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:cw_core/amount_converter.dart';
+import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/haven/haven.dart';
-import 'package:collection/collection.dart';
+import 'package:intl/intl.dart';
+import 'package:mobx/mobx.dart';
 
 part 'wallet_address_list_view_model.g.dart';
 
@@ -193,6 +192,18 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   List<Currency> get currencies => [walletTypeToCryptoCurrency(wallet.type), ...FiatCurrency.all];
 
+  String get buttonTitle {
+    if (isElectrumWallet) {
+      return S.current.addresses;
+    }
+
+    if (isAutoGenerateSubaddressEnabled) {
+      return hasAccounts ? S.current.accounts : S.current.account;
+    }
+
+    return hasAccounts ? S.current.accounts_subaddresses : S.current.addresses;
+  }
+
   @observable
   Currency selectedCurrency;
 
@@ -287,16 +298,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (isElectrumWallet) {
-      final bitcoinUsedAddresses = (wallet as ElectrumWallet).walletAddresses.addresses.map(
-          (element) => WalletAddressListItem(
-              isPrimary: false,
-              name: element.name,
-              address: type == WalletType.bitcoinCash ? element.cashAddr : element.address,
-              txCount: element.txCount,
-              balance: AmountConverter.amountIntToString(
-                  walletTypeToCryptoCurrency(type), element.balance),
-              isChange: element.isHidden));
-      addressList.addAll(bitcoinUsedAddresses);
+      final addressItems = bitcoin!.getSubAddresses(wallet).map((subaddress) {
+        final isPrimary = subaddress.id == 0;
+
+        return WalletAddressListItem(
+            id: subaddress.id,
+            isPrimary: isPrimary,
+            name: subaddress.name,
+            address: subaddress.address,
+            txCount: subaddress.txCount,
+            balance: AmountConverter.amountIntToString(
+                walletTypeToCryptoCurrency(type), subaddress.balance),
+            isChange: subaddress.isChange);
+      });
+      addressList.addAll(addressItems);
     }
 
     if (wallet.type == WalletType.ethereum) {
@@ -415,26 +430,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       }
     } catch (e) {
       amount = '';
-    }
-  }
-
-  void generateElectrumAddress() async {
-    if (isElectrumWallet) {
-      final wallet = this.wallet as ElectrumWallet;
-      final currentAddressRecord = wallet.walletAddresses.addresses.firstWhere((element) =>
-          (wallet.type == WalletType.bitcoinCash ? element.cashAddr : element.address) ==
-          wallet.walletAddresses.address);
-      currentAddressRecord.setAsUsed();
-
-      final nextAddressRecord = wallet.walletAddresses.addresses.firstWhereOrNull(
-          (element) => !element.isHidden && !element.isUsed && element != currentAddressRecord);
-      if (nextAddressRecord == null) {
-        wallet.walletAddresses.address = wallet.walletAddresses.generateNewAddress().address;
-      } else {
-        wallet.walletAddresses.address = nextAddressRecord.address;
-      }
-
-      await wallet.save();
     }
   }
 }
