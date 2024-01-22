@@ -18,7 +18,7 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   final crypto = args['crypto'] as String;
   final fiat = args['fiat'] as String;
   final mainThreadProxyPort = args['port'] as int;
-  final torConnectionMode = TorConnectionMode.deserialize(raw: ['torConnectionMode'] as int);
+  final torConnectionMode = TorConnectionMode.deserialize(raw: args['torConnectionMode'] as int);
 
   final Map<String, String> queryParams = {
     'interval_count': '1',
