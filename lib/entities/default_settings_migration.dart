@@ -1,5 +1,7 @@
 import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
@@ -184,6 +186,10 @@ Future<void> defaultSettingsMigration(
           break;
         case 25:
           await rewriteSecureStoragePin(secureStorage: secureStorage);
+          break;
+        case 26:
+          await pinEncryptionMigration(
+              secureStorage: secureStorage, walletInfoSource: walletInfoSource);
           break;
         default:
           break;
@@ -375,6 +381,53 @@ Node getMoneroDefaultNode({required Box<Node> nodes}) {
     return nodes.values.firstWhere((Node node) => node.uriRaw == nodeUri);
   } catch (_) {
     return nodes.values.first;
+  }
+}
+
+Future<void> pinEncryptionMigration(
+    {required FlutterSecureStorage secureStorage,
+    required Box<WalletInfo> walletInfoSource}) async {
+  try {
+    // first, get the encoded pin:
+    final keyForPinCode = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
+    String? encodedPin = await secureStorage.read(key: keyForPinCode);
+
+    // we don't have a pin?!?
+    if (encodedPin == null) {
+      print("pinEncryptionMigration: no pin found in secure storage!");
+      return;
+    }
+
+    // decode & re-encode the pin:
+    final decodedPin = decodedPinCode(pin: encodedPin);
+    final hashedPin = await argon2Hash(password: decodedPin);
+
+    // ensure we overwrite by deleting the old key first:
+    await secureStorage.delete(key: keyForPinCode);
+    // write the new argon2 hashed pin:
+    await secureStorage.write(
+      key: keyForPinCode,
+      value: hashedPin,
+      iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+      mOptions: MacOsOptions(accessibility: KeychainAccessibility.first_unlock),
+    );
+
+    KeyService keyService = KeyService(secureStorage);
+    
+    // now do the same for all wallet passwords:
+    await Future.forEach(walletInfoSource.values, (WalletInfo walletInfo) async {
+      try {
+
+        String walletPassword = await keyService.getWalletPasswordV1(walletName: walletInfo.name);
+        await keyService.saveWalletPasswordV2(walletName: walletInfo.name, password: walletPassword);
+      } catch (e) {
+        // probably failed to get wallet password
+        print("pinEncryptionMigration: $e");
+      }
+    });
+  } catch (e) {
+    // failure isn't really an option since we'll be updating how pins are stored and used
+    print("pinEncryptionMigration: $e");
   }
 }
 

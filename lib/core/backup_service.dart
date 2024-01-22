@@ -445,7 +445,9 @@ class BackupService {
     });
 
     await _flutterSecureStorage.delete(key: pinCodeKey);
-    await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
+    // we know it's the old pin format since it's a v1 import:
+    await _flutterSecureStorage.write(
+        key: pinCodeKey, value: (await argon2Hash(password: decodedPin)));
 
     keychainDumpFile.deleteSync();
   }
@@ -459,7 +461,7 @@ class BackupService {
     final keychainJSON =
         json.decode(utf8.decode(decryptedKeychainDumpFileData)) as Map<String, dynamic>;
     final keychainWalletsInfo = keychainJSON['wallets'] as List;
-    final decodedPin = keychainJSON['pin'] as String;
+    final potentiallyDecodedPin = keychainJSON['pin'] as String;
     final pinCodeKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
@@ -472,8 +474,16 @@ class BackupService {
       await importWalletKeychainInfo(info);
     });
 
+    late String encodedPin;
+    // not a formal check but an argon2 hash is always going to be > 10 characters long (and decoded pins either 4 or 6)
+    if (potentiallyDecodedPin.length < 10) {
+      encodedPin = await argon2Hash(password: potentiallyDecodedPin);
+    } else {
+      encodedPin = potentiallyDecodedPin;
+    }
+
     await _flutterSecureStorage.delete(key: pinCodeKey);
-    await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
+    await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPin);
 
     keychainDumpFile.deleteSync();
   }
@@ -482,7 +492,7 @@ class BackupService {
     final name = info['name'] as String;
     final password = info['password'] as String;
 
-    await _keyService.saveWalletPassword(walletName: name, password: password);
+    await _keyService.saveWalletPasswordV2(walletName: name, password: password);
   }
 
   @Deprecated('Use v2 instead')
@@ -493,19 +503,21 @@ class BackupService {
   Future<Uint8List> _exportKeychainDumpV2(String password,
       {String keychainSalt = secrets.backupKeychainSalt}) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final encodedPin = await _flutterSecureStorage.read(key: key);
-    final decodedPin = decodedPinCode(pin: encodedPin!);
+    String pin = (await _flutterSecureStorage.read(key: key))!;
+    if (!pin.contains("argon2")) {
+      pin = decodedPinCode(pin: pin);
+    }
     final wallets = await Future.wait(_walletInfoSource.values.map((walletInfo) async {
       return {
         'name': walletInfo.name,
         'type': walletInfo.type.toString(),
-        'password': await _keyService.getWalletPassword(walletName: walletInfo.name)
+        'password': await _keyService.getWalletPasswordV2(walletName: walletInfo.name)
       };
     }));
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = await _flutterSecureStorage.read(key: backupPasswordKey);
-    final data = utf8.encode(
-        json.encode({'pin': decodedPin, 'wallets': wallets, backupPasswordKey: backupPassword}));
+    final data = utf8
+        .encode(json.encode({'pin': pin, 'wallets': wallets, backupPasswordKey: backupPassword}));
     final encrypted = await _encryptV2(Uint8List.fromList(data), '$keychainSalt$password');
 
     return encrypted;

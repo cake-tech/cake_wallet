@@ -177,7 +177,7 @@ Future<void> ios_migrate_wallet_passwords() async {
         final oldKey = 'wallet_monero_' + name + '_password';
         final password = await flutterSecureStorage.read(
             key: oldKey, iOptions: IOSOptions());
-        await keyService.saveWalletPassword(
+        await keyService.saveWalletPasswordV2(
             walletName: name, password: password!);
       }
     } catch (e) {

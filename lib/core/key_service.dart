@@ -7,25 +7,41 @@ class KeyService {
 
   final FlutterSecureStorage _secureStorage;
 
-  Future<String> getWalletPassword({required String walletName}) async {
-    final key = generateStoreKeyFor(
-        key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
+  Future<String> getWalletPasswordV2({required String walletName}) async {
+    final key =
+        generateStoreKeyFor(key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
     final encodedPassword = await _secureStorage.read(key: key);
-    return decodeWalletPassword(password: encodedPassword!);
+    return decodeWalletPasswordV2(password: encodedPassword!);
   }
 
-  Future<void> saveWalletPassword({required String walletName, required String password}) async {
-    final key = generateStoreKeyFor(
-        key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
-    final encodedPassword = encodeWalletPassword(password: password);
+  Future<void> saveWalletPasswordV2({required String walletName, required String password}) async {
+    final key =
+        generateStoreKeyFor(key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
+    final encodedPassword = await encodeWalletPasswordV2(password: password);
+
+    await _secureStorage.delete(key: key);
+    await _secureStorage.write(key: key, value: encodedPassword);
+  }
+
+  Future<String> getWalletPasswordV1({required String walletName}) async {
+    final key =
+        generateStoreKeyFor(key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
+    final encodedPassword = await _secureStorage.read(key: key);
+    return decodeWalletPasswordV1(password: encodedPassword!);
+  }
+
+  Future<void> saveWalletPasswordV1({required String walletName, required String password}) async {
+    final key =
+        generateStoreKeyFor(key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
+    final encodedPassword = encodeWalletPasswordV1(password: password);
 
     await _secureStorage.delete(key: key);
     await _secureStorage.write(key: key, value: encodedPassword);
   }
 
   Future<void> deleteWalletPassword({required String walletName}) async {
-    final key = generateStoreKeyFor(
-        key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
+    final key =
+        generateStoreKeyFor(key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
 
     await _secureStorage.delete(key: key);
   }
