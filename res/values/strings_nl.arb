@@ -766,5 +766,6 @@
   "switchToEVMCompatibleWallet": "Schakel over naar een EVM-compatibele portemonnee en probeer het opnieuw (Ethereum, Polygon)",
   "receivable_balance": "Het saldo",
   "confirmed_tx": "Bevestigd",
-  "transaction_details_source_address": "Bron adres"
+  "transaction_details_source_address": "Bron adres",
+  "pause_wallet_creation": "De mogelijkheid om Haven Wallet te maken is momenteel onderbroken."
 }

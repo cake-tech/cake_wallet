@@ -748,5 +748,6 @@
   "switchToEVMCompatibleWallet": "Da fatan za a canza zuwa walat ɗin EVM mai jituwa kuma a sake gwadawa (Ethereum, Polygon)",
   "receivable_balance": "Daidaituwa da daidaituwa",
   "confirmed_tx": "Tabbatar",
-  "transaction_details_source_address": "Adireshin Incord"
+  "transaction_details_source_address": "Adireshin Incord",
+  "pause_wallet_creation": "A halin yanzu an dakatar da ikon ƙirƙirar Haven Wallet."
 }
