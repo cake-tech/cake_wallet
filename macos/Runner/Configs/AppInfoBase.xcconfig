@@ -5,10 +5,10 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = Cake Wallet
+PRODUCT_NAME = ${PRODUCT_NAME}
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.fotolockr.cakewallet
+PRODUCT_BUNDLE_IDENTIFIER = ${PRODUCT_BUNDLE_IDENTIFIER}
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2022 com.fotolockr. All rights reserved.
