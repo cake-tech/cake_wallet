@@ -1,4 +1,4 @@
 -
-  uri: api.testnet.solana.com
+  uri: api.mainnet-beta.solana.com
   is_default: true
   useSSL: true

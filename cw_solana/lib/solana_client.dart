@@ -169,40 +169,6 @@ class SolanaWalletClient {
   }
 
   SolanaClient? getSolanaClient() => _client;
-
-  /// Fetch the USD value of a token using the Coingecko API
-  Future<Map<String, double>> getTokenUsdValue(List<String> tokens) async {
-    try {
-      Map<String, String> headers = {};
-      headers['Accept'] = 'application/json';
-      headers['Access-Control-Allow-Origin'] = '*';
-      http.Response response = await http.get(
-        Uri.http(
-          'api.coingecko.com',
-          '/api/v3/simple/price',
-          {
-            'ids': tokens.join(','),
-            'vs_currencies': 'USD',
-          },
-        ),
-        headers: headers,
-      );
-
-      final body = json.decode(response.body) as Map;
-      Map<String, double> values = {};
-      for (final token in body.keys) {
-        double? usdTokenValue = body[token]['usd'];
-        if (usdTokenValue != null) {
-          values[token] = usdTokenValue;
-        }
-      }
-
-      return values;
-    } catch (err) {
-      return {tokens[0]: 0};
-    }
-  }
-
   /// Send SOLs to an adress
   Future<String> sendLamportsTo(
     String destinationAddress,

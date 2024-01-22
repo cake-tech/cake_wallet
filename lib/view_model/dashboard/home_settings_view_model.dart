@@ -18,7 +18,7 @@ class HomeSettingsViewModel = HomeSettingsViewModelBase with _$HomeSettingsViewM
 
 abstract class HomeSettingsViewModelBase with Store {
   HomeSettingsViewModelBase(this._settingsStore, this._balanceViewModel)
-      : tokens = ObservableSet<Erc20Token>() {
+      : tokens = ObservableSet<CryptoCurrency>() {
     _updateTokensList();
   }
 

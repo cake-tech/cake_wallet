@@ -1179,7 +1179,7 @@ Future<void> setup({
   getIt.registerFactoryParam<EditTokenPage, HomeSettingsViewModel, Map<String, dynamic>>(
     (homeSettingsViewModel, arguments) => EditTokenPage(
       homeSettingsViewModel: homeSettingsViewModel,
-      erc20token: arguments['token'] as Erc20Token?,
+      token: arguments['token'] as CryptoCurrency?,
       initialContractAddress: arguments['contractAddress'] as String?,
     ),
   );
