@@ -46,6 +46,8 @@ class DFXBuyProvider extends BuyProvider {
         return 'XMR';
       case WalletType.ethereum:
         return 'ETH';
+      case WalletType.polygon:
+        return 'MATIC';
       default:
         throw Exception("WalletType is not available for DFX ${wallet.type}");
     }
@@ -61,6 +63,8 @@ class DFXBuyProvider extends BuyProvider {
         return 'Monero';
       case WalletType.ethereum:
         return 'Ethereum';
+      case WalletType.polygon:
+        return 'Polygon';
       default:
         throw Exception("WalletType is not available for DFX ${wallet.type}");
     }
@@ -141,6 +145,7 @@ class DFXBuyProvider extends BuyProvider {
   String getSignature(String message) {
     switch (wallet.type) {
       case WalletType.ethereum:
+      case WalletType.polygon:
         return wallet.signMessage(message);
       case WalletType.monero:
       case WalletType.litecoin:
