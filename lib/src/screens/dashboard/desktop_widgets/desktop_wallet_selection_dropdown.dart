@@ -166,12 +166,16 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
       }
 
       try {
-        changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
+        if (context.mounted) {
+          changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
+        }
         await widget.walletListViewModel.loadWallet(wallet);
         hideProgressText();
         setState(() {});
       } catch (e) {
-        changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+        if (context.mounted) {
+          changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+        }
       }
       },
       conditionToDetermineIfToUse2FA:
