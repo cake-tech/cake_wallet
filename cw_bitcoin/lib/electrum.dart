@@ -250,12 +250,11 @@ class ElectrumClient {
               headers: <String, String>{'Content-Type': 'application/json; charset=utf-8'},
               body: transactionRaw)
           .then((http.Response response) {
-        print(response.body);
         if (response.statusCode == 200) {
           return response.body;
         }
 
-        return '';
+        throw Exception('Failed to broadcast transaction: ${response.body}');
       });
     }
 
