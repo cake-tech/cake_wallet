@@ -161,7 +161,7 @@ abstract class WalletListViewModelBase with Store {
     }
   }
 
-  bool checkIfAuthRequired() {
+  Future<bool> checkIfAuthRequired() async {
     return _authService.requireAuth();
   }
 }
