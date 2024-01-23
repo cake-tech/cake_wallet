@@ -446,7 +446,6 @@ class SendPage extends BasePage {
                                       buttonText: S.of(_dialogContext).ok,
                                       buttonAction: () {
                                         Navigator.of(_dialogContext).pop();
-                                        Navigator.of(context).pop();
                                         RequestReviewHandler.requestReview();
                                       });
                                 }
