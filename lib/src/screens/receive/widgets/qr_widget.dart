@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/routes.dart';
@@ -6,6 +7,7 @@ import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dar
 import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -144,9 +146,10 @@ class QRWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Expanded(
-                          child: Text(
+                          child: AutoSizeText(
                             addressListViewModel.address.address,
                             textAlign: TextAlign.center,
+                            maxLines: addressListViewModel.wallet.type == WalletType.monero ? 2 : 1,
                             style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,

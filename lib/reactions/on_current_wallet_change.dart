@@ -3,7 +3,6 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
-import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
@@ -62,7 +61,9 @@ void startCurrentWalletChangeReaction(
       await getIt
           .get<SharedPreferences>()
           .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
-      if (wallet.type == WalletType.monero) {
+
+      if (wallet.type == WalletType.monero || wallet.type == WalletType.bitcoin ||
+          wallet.type == WalletType.litecoin || wallet.type == WalletType.bitcoinCash ) {
         _setAutoGenerateSubaddressStatus(wallet, settingsStore);
       }
       await wallet.connectToNode(node: node);
