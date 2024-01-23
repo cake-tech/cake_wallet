@@ -719,10 +719,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   void _setProviders() {
-    if (_settingsStore.torConnectionMode == TorConnectionMode.onionOnly)
-      providerList = _allProviders.where((provider) => provider.supportsOnionAddress).toList();
-    else
-      providerList = _allProviders;
+    providerList = _allProviders;
   }
 
   int get depositMaxDigits => depositCurrency.decimals;

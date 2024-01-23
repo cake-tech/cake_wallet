@@ -311,7 +311,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     return await proxy.get(
       onionUri: onionUri,
       clearnetUri: clearnetUri,
-      torOnly: false,
     );
   }
 }

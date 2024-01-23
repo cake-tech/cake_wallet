@@ -201,7 +201,6 @@ class AnonPayApi {
     return await proxy.get(
       onionUri: onionUri,
       clearnetUri: clearnetUri,
-      torOnly: false,
     );
   }
 }

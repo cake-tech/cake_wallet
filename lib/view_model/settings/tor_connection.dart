@@ -4,11 +4,11 @@ import 'package:cw_core/enumerable_item.dart';
 class TorConnectionMode extends EnumerableItem<int> with Serializable<int> {
   const TorConnectionMode({required String title, required int raw}) : super(title: title, raw: raw);
 
-  static const all = [TorConnectionMode.enabled, TorConnectionMode.disabled, TorConnectionMode.onionOnly];
+  static const all = [TorConnectionMode.enabled, TorConnectionMode.disabled, TorConnectionMode.torOnly];
 
   static const enabled = TorConnectionMode(raw: 0, title: 'Enabled');
   static const disabled = TorConnectionMode(raw: 1, title: 'Disabled');
-  static const onionOnly = TorConnectionMode(raw: 2, title: 'Onion only');
+  static const torOnly = TorConnectionMode(raw: 2, title: 'Tor only');
 
   static TorConnectionMode deserialize({required int raw}) {
     switch (raw) {
@@ -17,7 +17,7 @@ class TorConnectionMode extends EnumerableItem<int> with Serializable<int> {
       case 1:
         return disabled;
       case 2:
-        return onionOnly;
+        return torOnly;
       default:
         throw Exception('Unexpected token: $raw for TorConnectionMode deserialize');
     }
@@ -30,8 +30,8 @@ class TorConnectionMode extends EnumerableItem<int> with Serializable<int> {
         return S.current.enabled;
       case TorConnectionMode.disabled:
         return S.current.disabled;
-      case TorConnectionMode.onionOnly:
-        return S.current.onion_only;
+      case TorConnectionMode.torOnly:
+        return S.current.tor_only;
       default:
         return '';
     }

@@ -17,7 +17,7 @@ enum TorConnectionStatus { connecting, connected, disconnected }
 abstract class TorViewModelBase with Store {
   TorViewModelBase(this._settingsStore) {
     reaction((_) => torConnectionMode, (TorConnectionMode mode) async {
-      if (mode == TorConnectionMode.enabled || mode == TorConnectionMode.onionOnly) {
+      if (mode == TorConnectionMode.enabled || mode == TorConnectionMode.torOnly) {
         startTor();
       } else {
         stopTor();
@@ -50,6 +50,7 @@ abstract class TorViewModelBase with Store {
       } else if (!connect) {
         node.socksProxyAddress = null;
       }
+      node.connectOverTorOnly = _settingsStore.torConnectionMode == TorConnectionMode.torOnly;
       await appStore.wallet!.connectToNode(node: node);
     }
   }

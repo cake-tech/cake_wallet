@@ -45,7 +45,6 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
         onionUri: onionUri,
         clearnetUri: clearnetUri,
         portOverride: mainThreadProxyPort,
-        torOnly: false,
         torConnectionMode: torConnectionMode,
       );
 

@@ -167,6 +167,12 @@ abstract class ElectrumWalletBase
   @override
   Future<void> connectToNode({required Node node}) async {
     try {
+      // we can't connect over tor in this wallet type (yet):
+      if (node.connectOverTorOnly) {
+        syncStatus = FailedSyncStatus();
+        return;
+      }
+      
       syncStatus = ConnectingSyncStatus();
       await electrumClient.connectToUri(node.uri);
       electrumClient.onConnectionStatusChange = (bool isConnected) {
