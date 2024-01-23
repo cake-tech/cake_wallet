@@ -766,5 +766,6 @@
   "switchToEVMCompatibleWallet": "Passa a un portafoglio compatibile con EVM e riprova (Ethereum, Polygon)",
   "receivable_balance": "Bilanciamento creditizio",
   "confirmed_tx": "Confermato",
-  "transaction_details_source_address": "Indirizzo di partenza"
+  "transaction_details_source_address": "Indirizzo di partenza",
+  "pause_wallet_creation": "La possibilità di creare Haven Wallet è attualmente sospesa."
 }

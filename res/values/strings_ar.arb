@@ -756,11 +756,12 @@
   "dfx_option_description": "ﺎﺑﻭﺭﻭﺃ ﻲﻓ ﺕﺎﻛﺮﺸﻟﺍﻭ ﺔﺋﺰﺠﺘﻟﺍ ءﻼ﻿ﻤﻌﻟ .ﻲﻓﺎﺿﺇ KYC ﻥﻭﺪﺑ ﻭﺭﻮﻳ 990 ﻰﻟﺇ ﻞﺼﻳ ﺎﻣ .ﻱﺮﺴﻳﻮﺴﻟﺍ",
   "polygonscan_history": "ﻥﺎﻜﺴﻧﻮﺠﻴﻟﻮﺑ ﺦﻳﺭﺎﺗ",
   "wallet_seed_legacy": "بذرة محفظة قديمة",
-  "default_sell_provider": "                                                           ﻲﺿﺍﺮﺘﻓﻻ﻿ﺍ ﻊﻴﺒﻟﺍ ﺩﻭﺰﻣ",
+  "default_sell_provider": "ﻲﺿﺍﺮﺘﻓﻻ﻿ﺍ ﻊﻴﺒﻟﺍ ﺩﻭﺰﻣ",
   "select_sell_provider_notice": ".ﻖﻴﺒﻄﺘﻟﺍ ﺕﺍﺩﺍﺪﻋﺇ ﻲﻓ ﻚﺑ ﺹﺎﺨﻟﺍ ﻲﺿﺍﺮﺘﻓﻻ﻿ﺍ ﻊﻴﺒﻟﺍ ﺩﻭﺰﻣ ﻦﻴﻴﻌﺗ ﻖﻳﺮﻃ ﻦﻋ ﺔﺷﺎﺸﻟﺍ ﻩﺬﻫ ﻲﻄﺨﺗ",
   "custom_drag": "مخصص (عقد وسحب)",
   "switchToEVMCompatibleWallet": "  (Ethereum، Polygon) ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ EVM ﻊﻣ ﺔﻘﻓﺍﻮﺘﻣ ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ",
   "receivable_balance": "التوازن القادم",
   "confirmed_tx": "مؤكد",
-  "transaction_details_source_address": "عنوان المصدر"
+  "transaction_details_source_address": "عنوان المصدر",
+  "pause_wallet_creation": ".ﺎﻴًﻟﺎﺣ ﺎﺘًﻗﺆﻣ ﺔﻔﻗﻮﺘﻣ Haven Wallet ءﺎﺸﻧﺇ ﻰﻠﻋ ﺓﺭﺪﻘﻟﺍ"
 }
