@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
@@ -61,6 +62,11 @@ abstract class NFTViewModelBase with Store {
         "normalizeMetadata": "true",
       },
     );
+
+    if (appStore.settingsStore.torConnectionMode != TorConnectionMode.disabled) {
+      print("Can't load nfts with tor enabled (cloudflare blocks tor)");
+      return;
+    }
 
     try {
       isLoading = true;
