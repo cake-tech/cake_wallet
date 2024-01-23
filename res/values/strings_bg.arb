@@ -764,5 +764,6 @@
   "connecting": "Свързване",
   "receivable_balance": "Баланс за вземания",
   "confirmed_tx": "Потвърдено",
-  "transaction_details_source_address": "Адрес на източника"
+  "transaction_details_source_address": "Адрес на източника",
+  "pause_wallet_creation": "Възможността за създаване на Haven Wallet в момента е на пауза."
 }

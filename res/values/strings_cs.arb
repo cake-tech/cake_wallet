@@ -764,5 +764,6 @@
   "connecting": "Spojovací",
   "receivable_balance": "Zůstatek pohledávek",
   "confirmed_tx": "Potvrzeno",
-  "transaction_details_source_address": "Zdrojová adresa"
+  "transaction_details_source_address": "Zdrojová adresa",
+  "pause_wallet_creation": "Možnost vytvářet Haven Wallet je momentálně pozastavena."
 }

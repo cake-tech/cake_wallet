@@ -278,6 +278,7 @@ Future<void> setup({
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
+    getIt.registerSingleton<FlutterSecureStorage>(secureStorage);
   }
   if (!_isSetupFinished) {
     getIt.registerFactory(() => BackgroundTasks());
@@ -304,7 +305,6 @@ Future<void> setup({
   getIt.registerFactory<Box<Node>>(() => _nodeSource);
   getIt.registerFactory<Box<Node>>(() => _powNodeSource, instanceName: Node.boxName + "pow");
 
-  getIt.registerSingleton<FlutterSecureStorage>(secureStorage);
   getIt.registerSingleton(AuthenticationStore());
   getIt.registerSingleton<WalletListStore>(WalletListStore());
   getIt.registerSingleton(NodeListStoreBase.instance);
@@ -727,7 +727,7 @@ Future<void> setup({
 
   getIt.registerSingleton(TorViewModel(getIt.get<SettingsStore>()));
   getIt.registerSingleton(ProxyWrapper(settingsStore: getIt.get<SettingsStore>()));
-  
+
   if (DeviceInfo.instance.isMobile && settingsStore.shouldStartTorOnLaunch) {
     getIt.get<TorViewModel>().startTor();
   }

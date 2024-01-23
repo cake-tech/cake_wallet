@@ -770,5 +770,6 @@
   "connecting": "ချိတ်ဆက်",
   "receivable_balance": "လက်ကျန်ငွေ",
   "confirmed_tx": "အတည်ပြုသည်",
-  "transaction_details_source_address": "အရင်းအမြစ်လိပ်စာ"
+  "transaction_details_source_address": "အရင်းအမြစ်လိပ်စာ",
+  "pause_wallet_creation": "Haven Wallet ဖန်တီးနိုင်မှုကို လောလောဆယ် ခေတ္တရပ်ထားသည်။"
 }

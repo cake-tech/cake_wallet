@@ -770,5 +770,6 @@
   "connecting": "Bağlanıyor",
   "receivable_balance": "Alacak bakiyesi",
   "confirmed_tx": "Onaylanmış",
-  "transaction_details_source_address": "Kaynak adresi"
+  "transaction_details_source_address": "Kaynak adresi",
+  "pause_wallet_creation": "Haven Cüzdanı oluşturma yeteneği şu anda duraklatıldı."
 }

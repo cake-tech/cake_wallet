@@ -772,5 +772,6 @@
   "connecting": "Соединение",
   "receivable_balance": "Баланс дебиторской задолженности",
   "confirmed_tx": "Подтвержденный",
-  "transaction_details_source_address": "Адрес источника"
+  "transaction_details_source_address": "Адрес источника",
+  "pause_wallet_creation": "Возможность создания Haven Wallet в настоящее время приостановлена."
 }
