@@ -771,5 +771,7 @@
   "receivable_balance": "Alacak bakiyesi",
   "confirmed_tx": "Onaylanmış",
   "transaction_details_source_address": "Kaynak adresi",
-  "pause_wallet_creation": "Haven Cüzdanı oluşturma yeteneği şu anda duraklatıldı."
+  "pause_wallet_creation": "Haven Cüzdanı oluşturma yeteneği şu anda duraklatıldı.",
+  "tor_feature_disabled": "Bu özellik, gizliliğinizi korumak için yalnızca TOR modu etkinleştirilirken bu özellik devre dışı bırakılır, çünkü bu özellik TOR üzerinden bağlanmaz",
+  "tor_only_warning": "Yalnızca TOR modu kullanırken gizliliğinizi korumak için bazı özellikler devre dışı bırakılabilir"
 }

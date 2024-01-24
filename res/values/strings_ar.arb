@@ -769,5 +769,7 @@
   "receivable_balance": "التوازن القادم",
   "confirmed_tx": "مؤكد",
   "transaction_details_source_address": "عنوان المصدر",
-  "pause_wallet_creation": ".ﺎﻴًﻟﺎﺣ ﺎﺘًﻗﺆﻣ ﺔﻔﻗﻮﺘﻣ Haven Wallet ءﺎﺸﻧﺇ ﻰﻠﻋ ﺓﺭﺪﻘﻟﺍ"
+  "pause_wallet_creation": ".ﺎﻴًﻟﺎﺣ ﺎﺘًﻗﺆﻣ ﺔﻔﻗﻮﺘﻣ Haven Wallet ءﺎﺸﻧﺇ ﻰﻠﻋ ﺓﺭﺪﻘﻟﺍ",
+  "tor_feature_disabled": "يتم تعطيل هذه الميزة بينما يتم تمكين وضع TOR فقط لحماية خصوصيتك لأن هذه الميزة لا تتصل عبر Tor",
+  "tor_only_warning": "قد يتم تعطيل بعض الميزات لحماية خصوصيتك عند استخدام وضع TOR فقط"
 }

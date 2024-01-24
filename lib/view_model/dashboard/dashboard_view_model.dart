@@ -347,6 +347,9 @@ abstract class DashboardViewModelBase with Store {
   bool hasBuyAction;
 
   @computed
+  bool get isTorOnly => settingsStore.torConnectionMode == TorConnectionMode.torOnly;
+
+  @computed
   bool get isEnabledSellAction => !settingsStore.disableSell && availableSellProviders.isNotEmpty;
 
   @observable

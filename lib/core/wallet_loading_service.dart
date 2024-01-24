@@ -1,8 +1,9 @@
-
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -50,6 +51,14 @@ class WalletLoadingService {
 
     if (type == WalletType.monero) {
       await updateMoneroWalletPassword(wallet);
+    }
+
+    TorConnectionMode mode = TorConnectionMode.deserialize(
+      raw: sharedPreferences.getInt(PreferencesKey.currentTorConnectionModeKey) ?? 0,
+    );
+
+    if ([WalletType.bitcoin, WalletType.litecoin].contains(type)) {
+      bitcoin!.setTorOnly(wallet, mode == TorConnectionMode.torOnly);
     }
 
     final status = torViewModel.torConnectionStatus;

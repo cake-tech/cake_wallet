@@ -771,5 +771,7 @@
   "receivable_balance": "Stanje potraživanja",
   "confirmed_tx": "Potvrđen",
   "transaction_details_source_address": "Adresa izvora",
-  "pause_wallet_creation": "Mogućnost stvaranja novčanika Haven trenutno je pauzirana."
+  "pause_wallet_creation": "Mogućnost stvaranja novčanika Haven trenutno je pauzirana.",
+  "tor_feature_disabled": "Ova je značajka onemogućena dok je način samo TOR omogućen kako bi zaštitio vašu privatnost jer se ova značajka ne povezuje preko Tor -a",
+  "tor_only_warning": "Neke značajke mogu biti onemogućene za zaštitu vaše privatnosti kada koristite TOR način"
 }

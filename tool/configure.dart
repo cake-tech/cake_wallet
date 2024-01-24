@@ -134,6 +134,7 @@ abstract class Bitcoin {
   TransactionPriority getLitecoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPrioritySlow();
   TransactionPriority getLitecoinTransactionPrioritySlow();
+  void setTorOnly(Object wallet, bool torOnly);
 }
   """;
 

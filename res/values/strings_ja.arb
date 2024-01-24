@@ -773,5 +773,7 @@
   "receivable_balance": "売掛金残高",
   "confirmed_tx": "確認済み",
   "transaction_details_source_address": "ソースアドレス",
-  "pause_wallet_creation": "Haven Wallet を作成する機能は現在一時停止されています。"
+  "pause_wallet_creation": "Haven Wallet を作成する機能は現在一時停止されています。",
+  "tor_feature_disabled": "この機能はプライバシーを保護するためにTORのみモードが有効になっている間、この機能は無効になります。この機能はTORに接続していないため",
+  "tor_only_warning": "TORのみのモードを使用する場合、プライバシーを保護するためにいくつかの機能が無効になる場合があります"
 }

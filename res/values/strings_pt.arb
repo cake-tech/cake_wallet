@@ -772,5 +772,7 @@
   "receivable_balance": "Saldo a receber",
   "confirmed_tx": "Confirmado",
   "transaction_details_source_address": "Endereço de Origem",
-  "pause_wallet_creation": "A capacidade de criar a Haven Wallet está atualmente pausada."
+  "pause_wallet_creation": "A capacidade de criar a Haven Wallet está atualmente pausada.",
+  "tor_feature_disabled": "Esse recurso está desativado, enquanto o modo apenas Tor está habilitado para proteger sua privacidade, pois esse recurso não se conecta",
+  "tor_only_warning": "Alguns recursos podem ser desativados para proteger sua privacidade ao usar apenas o modo Tor"
 }

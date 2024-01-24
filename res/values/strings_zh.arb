@@ -772,5 +772,7 @@
   "receivable_balance": "应收余额",
   "confirmed_tx": "确认的",
   "transaction_details_source_address": "源地址",
-  "pause_wallet_creation": "创建 Haven 钱包的功能当前已暂停。"
+  "pause_wallet_creation": "创建 Haven 钱包的功能当前已暂停。",
+  "tor_feature_disabled": "此功能在启用仅TOR模式的同时被禁用，以保护您的隐私，因为此功能无法通过TOR连接",
+  "tor_only_warning": "某些功能可能会被禁用以保护您的隐私时仅使用TOR模式"
 }

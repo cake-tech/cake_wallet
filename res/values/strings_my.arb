@@ -771,5 +771,7 @@
   "receivable_balance": "လက်ကျန်ငွေ",
   "confirmed_tx": "အတည်ပြုသည်",
   "transaction_details_source_address": "အရင်းအမြစ်လိပ်စာ",
-  "pause_wallet_creation": "Haven Wallet ဖန်တီးနိုင်မှုကို လောလောဆယ် ခေတ္တရပ်ထားသည်။"
+  "pause_wallet_creation": "Haven Wallet ဖန်တီးနိုင်မှုကို လောလောဆယ် ခေတ္တရပ်ထားသည်။",
+  "tor_feature_disabled": "ဤအင်္ဂါရပ်ကိုမသန်မစွမ်းဖြစ်သော်လည်း Tor တစ်ခုတည်းသော mode ကိုသင်၏ privacy ကိုကာကွယ်ရန်အတွက်ဤအင်္ဂါရပ်သည် Tor ကိုမချိတ်ဆက်ပါကကာကွယ်နိုင်သည်",
+  "tor_only_warning": "Tor တစ်ခုတည်းသော mode ကိုသုံးသောအခါသင်၏ privacy ကိုကာကွယ်ရန်အချို့သောအင်္ဂါရပ်များကိုပိတ်ထားနိုင်သည်"
 }

@@ -773,5 +773,7 @@
   "receivable_balance": "Bilanciamento creditizio",
   "confirmed_tx": "Confermato",
   "transaction_details_source_address": "Indirizzo di partenza",
-  "pause_wallet_creation": "La possibilità di creare Haven Wallet è attualmente sospesa."
+  "pause_wallet_creation": "La possibilità di creare Haven Wallet è attualmente sospesa.",
+  "tor_feature_disabled": "Questa funzione è disabilitata mentre la modalità solo TOR è abilitata per proteggere la tua privacy in quanto questa funzione non si collega a Tor",
+  "tor_only_warning": "Alcune funzionalità possono essere disabilitate per proteggere la tua privacy quando si utilizzano solo la modalità Tor"
 }

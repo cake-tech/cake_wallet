@@ -773,5 +773,7 @@
   "receivable_balance": "Solde de créances",
   "confirmed_tx": "Confirmé",
   "transaction_details_source_address": "Adresse source",
-  "pause_wallet_creation": "La possibilité de créer Haven Wallet est actuellement suspendue."
+  "pause_wallet_creation": "La possibilité de créer Haven Wallet est actuellement suspendue.",
+  "tor_feature_disabled": "Cette fonction est désactivée tandis que le mode Tor unique",
+  "tor_only_warning": "Certaines fonctionnalités peuvent être désactivées pour protéger votre vie privée lorsque vous utilisez le mode Tor uniquement"
 }

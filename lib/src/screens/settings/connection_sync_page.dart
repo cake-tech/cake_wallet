@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.da
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_tor_status.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/wallet_connect_button.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -102,7 +103,22 @@ class ConnectionSyncPage extends BasePage {
                     items: TorConnectionMode.all,
                     displayItem: (TorConnectionMode mode) => mode.title,
                     selectedItem: dashboardViewModel.torViewModel.torConnectionMode,
-                    onItemSelected: dashboardViewModel.torViewModel.setTorConnectionMode,
+                    onItemSelected: (TorConnectionMode mode) async {
+                      if (mode == TorConnectionMode.torOnly) {
+                        await showPopUp<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertWithOneAction(
+                              alertTitle: S.of(context).warning,
+                              alertContent: S.of(context).tor_only_warning,
+                              buttonText: S.of(context).ok,
+                              buttonAction: () => Navigator.of(context).pop(),
+                            );
+                          },
+                        );
+                      }
+                      dashboardViewModel.torViewModel.setTorConnectionMode(mode);
+                    },
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(25), topRight: Radius.circular(25)),

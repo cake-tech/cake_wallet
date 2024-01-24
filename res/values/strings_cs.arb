@@ -765,5 +765,7 @@
   "receivable_balance": "Zůstatek pohledávek",
   "confirmed_tx": "Potvrzeno",
   "transaction_details_source_address": "Zdrojová adresa",
-  "pause_wallet_creation": "Možnost vytvářet Haven Wallet je momentálně pozastavena."
+  "pause_wallet_creation": "Možnost vytvářet Haven Wallet je momentálně pozastavena.",
+  "tor_feature_disabled": "Tato funkce je zakázána, zatímco režim pouze TOR je povolen k ochraně vašeho soukromí, protože tato funkce se nepřipojuje přes tor",
+  "tor_only_warning": "Některé funkce mohou být deaktivovány k ochraně vašeho soukromí při používání režimu pouze TOR"
 }

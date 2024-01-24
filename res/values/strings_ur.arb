@@ -765,5 +765,7 @@
   "receivable_balance": "قابل وصول توازن",
   "confirmed_tx": "تصدیق",
   "transaction_details_source_address": "ماخذ ایڈریس",
-  "pause_wallet_creation": "Haven Wallet ۔ﮯﮨ ﻑﻮﻗﻮﻣ ﻝﺎﺤﻟﺍ ﯽﻓ ﺖﯿﻠﮨﺍ ﯽﮐ ﮯﻧﺎﻨﺑ"
+  "pause_wallet_creation": "Haven Wallet ۔ﮯﮨ ﻑﻮﻗﻮﻣ ﻝﺎﺤﻟﺍ ﯽﻓ ﺖﯿﻠﮨﺍ ﯽﮐ ﮯﻧﺎﻨﺑ",
+  "tor_feature_disabled": "یہ خصوصیت غیر فعال ہے جبکہ ٹور صرف موڈ آپ کی رازداری کے تحفظ کے لئے اہل ہے کیونکہ یہ خصوصیت ٹور سے زیادہ متصل نہیں ہے",
+  "tor_only_warning": "جب صرف ٹور صرف ٹور استعمال کرتے ہو تو آپ کی رازداری کے تحفظ کے لئے کچھ خصوصیات کو غیر فعال کیا جاسکتا ہے"
 }

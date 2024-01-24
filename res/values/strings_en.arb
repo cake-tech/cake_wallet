@@ -774,5 +774,7 @@
   "receivable_balance": "Receivable Balance",
   "confirmed_tx": "Confirmed",
   "transaction_details_source_address": "Source address",
-  "pause_wallet_creation": "Ability to create Haven Wallet is currently paused."
+  "pause_wallet_creation": "Ability to create Haven Wallet is currently paused.",
+  "tor_feature_disabled": "This feature is disabled while Tor Only mode is enabled to protect your privacy as this feature doesn't connect over Tor",
+  "tor_only_warning": "Some features may be disabled to protect your privacy when using Tor only mode"
 }

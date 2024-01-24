@@ -178,4 +178,10 @@ class CWBitcoin extends Bitcoin {
   @override
   TransactionPriority getLitecoinTransactionPrioritySlow()
     => LitecoinTransactionPriority.slow;
+
+  @override
+	void setTorOnly(Object wallet, bool torOnly) {
+		final electrumWallet = wallet as ElectrumWallet;
+		electrumWallet.setTorOnly(torOnly);
+	}
 }

@@ -767,5 +767,7 @@
   "receivable_balance": "Natatanggap na balanse",
   "confirmed_tx": "Nakumpirma",
   "transaction_details_source_address": "SOURCE ADDRESS",
-  "pause_wallet_creation": "Kasalukuyang naka-pause ang kakayahang gumawa ng Haven Wallet."
+  "pause_wallet_creation": "Kasalukuyang naka-pause ang kakayahang gumawa ng Haven Wallet.",
+  "tor_feature_disabled": "Ang tampok na ito ay hindi pinagana habang ang mode lamang ay pinagana upang maprotektahan ang iyong privacy dahil ang tampok na ito ay hindi kumonekta sa tor",
+  "tor_only_warning": "Ang ilang mga tampok ay maaaring hindi pinagana upang maprotektahan ang iyong privacy kapag gumagamit lamang ng mode ng tor"
 }

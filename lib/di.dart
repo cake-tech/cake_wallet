@@ -1201,7 +1201,8 @@ Future<void> setup({
   getIt.registerFactory(
       () => WalletConnectConnectionsView(web3walletService: getIt.get<Web3WalletService>()));
 
-  getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
+  getIt.registerFactory(
+      () => NFTViewModel(appStore, getIt.get<BottomSheetService>(), getIt.get<ProxyWrapper>()));
 
   _isSetupFinished = true;
 }

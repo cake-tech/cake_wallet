@@ -11,8 +11,7 @@ class MainActions {
 
   final bool Function(DashboardViewModel viewModel)? isEnabled;
   final bool Function(DashboardViewModel viewModel)? canShow;
-  final Future<void> Function(
-      BuildContext context, DashboardViewModel viewModel) onTap;
+  final Future<void> Function(BuildContext context, DashboardViewModel viewModel) onTap;
 
   MainActions._({
     required this.name,
@@ -37,6 +36,11 @@ class MainActions {
     canShow: (viewModel) => viewModel.hasBuyAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
       if (!viewModel.isEnabledBuyAction) {
+        return;
+      }
+
+      if (viewModel.isTorOnly) {
+        _showErrorDialog(context, S.of(context).error, S.of(context).tor_feature_disabled);
         return;
       }
 
@@ -86,6 +90,11 @@ class MainActions {
     canShow: (viewModel) => viewModel.hasSellAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
       if (!viewModel.isEnabledSellAction) {
+        return;
+      }
+
+      if (viewModel.isTorOnly) {
+        _showErrorDialog(context, S.of(context).error, S.of(context).tor_feature_disabled);
         return;
       }
 

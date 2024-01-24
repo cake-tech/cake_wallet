@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/settings/tor_connection.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:socks5_proxy/socks_client.dart';
 import 'package:tor/tor.dart';
@@ -50,7 +52,12 @@ abstract class TorViewModelBase with Store {
       } else if (!connect) {
         node.socksProxyAddress = null;
       }
-      node.connectOverTorOnly = _settingsStore.torConnectionMode == TorConnectionMode.torOnly;
+
+      bool torOnly = _settingsStore.torConnectionMode == TorConnectionMode.torOnly;
+      if ([WalletType.bitcoin, WalletType.litecoin].contains(appStore.wallet!.type)) {
+        bitcoin!.setTorOnly(appStore.wallet!, torOnly);
+      }
+      
       await appStore.wallet!.connectToNode(node: node);
     }
   }
