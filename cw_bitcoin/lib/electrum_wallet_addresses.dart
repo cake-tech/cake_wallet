@@ -47,6 +47,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @observable
   final List<BitcoinAddressRecord> _addresses;
+
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
   final ElectrumClient electrumClient;
@@ -67,7 +68,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @computed
   List<BitcoinAddressRecord> get addresses => _addresses.where(_isAddressTypeMatch).toList();
 
-  @action
   void set addresses(List<BitcoinAddressRecord> addresses) {
     _addresses.clear();
     _addresses.addAll(addresses);
