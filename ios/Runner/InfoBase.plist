@@ -132,6 +132,16 @@
         </dict>
         <dict>
             <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>nanoauth</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>nanoauth</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
             <string>Viewer</string>
             <key>CFBundleURLName</key>
             <string>nano-wallet</string>

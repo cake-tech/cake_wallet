@@ -209,6 +209,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   bool get isWalletConnectLink => launchUri?.authority == 'wc';
 
+  bool get isNanoLink => launchUri?.authority == 'nanoauth';
+
   String? _getRouteToGo() {
     if (isWalletConnectLink) {
       if (isEVMCompatibleChain(widget.appStore.wallet!.type)) {

@@ -57,6 +57,7 @@
                 <data android:scheme="ethereum-wallet" />
                 <data android:scheme="ethereum_wallet" />
                 <data android:scheme="nano" />
+                <data android:scheme="nanoauth" />
                 <data android:scheme="nano-wallet" />
                 <data android:scheme="nano_wallet" />
                 <data android:scheme="bitcoincash" />
