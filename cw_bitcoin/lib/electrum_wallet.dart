@@ -134,6 +134,8 @@ abstract class ElectrumWalletBase
 
   void Function(FlutterErrorDetails)? _onError;
 
+  bool torOnly = false;
+
   Future<void> init() async {
     await walletAddresses.init();
     await transactionHistory.init();
@@ -163,16 +165,20 @@ abstract class ElectrumWalletBase
     }
   }
 
+  void setTorOnly(bool value) {
+    torOnly = value;
+  }
+
   @action
   @override
   Future<void> connectToNode({required Node node}) async {
     try {
       // we can't connect over tor in this wallet type (yet):
-      if (node.connectOverTorOnly) {
+      if (torOnly) {
         syncStatus = FailedSyncStatus();
         return;
       }
-      
+
       syncStatus = ConnectingSyncStatus();
       await electrumClient.connectToUri(node.uri);
       electrumClient.onConnectionStatusChange = (bool isConnected) {
@@ -607,8 +613,6 @@ abstract class ElectrumWalletBase
           electrumClient.getHistory(scriptHash).then((history) => {scriptHash: history}));
       final historyResults = await Future.wait(histories);
 
-
-
       historyResults.forEach((history) {
         history.entries.forEach((historyItem) {
           if (historyItem.value.isNotEmpty) {
@@ -627,7 +631,6 @@ abstract class ElectrumWalletBase
           addressRecord.balance = balanceData['confirmed'] as int? ?? 0;
         }
       }
-
 
       addressHashes.forEach((sh, addressRecord) {
         addressRecord.txCount = newTxCounts[sh] ?? 0;

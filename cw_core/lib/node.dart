@@ -62,9 +62,7 @@ class Node extends HiveObject with Keyable {
 
   @HiveField(6)
   String? socksProxyAddress;
-
-  bool connectOverTorOnly = false;
-
+  
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
