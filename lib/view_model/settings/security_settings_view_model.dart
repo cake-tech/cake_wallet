@@ -44,5 +44,5 @@ abstract class SecuritySettingsViewModelBase with Store {
   setPinCodeRequiredDuration(PinCodeRequiredDuration duration) =>
       _settingsStore.pinTimeOutDuration = duration;
 
-  bool checkPinCodeRiquired() => _authService.requireAuth();
+  Future<bool> checkPinCodeRiquired() => _authService.requireAuth();
 }

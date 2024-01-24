@@ -767,5 +767,6 @@
   "use_testnet": "Use TestNet",
   "receivable_balance": "Saldo de cuentas por cobrar",
   "confirmed_tx": "Confirmado",
-  "transaction_details_source_address": "Dirección de la fuente"
+  "transaction_details_source_address": "Dirección de la fuente",
+  "pause_wallet_creation": "La capacidad para crear Haven Wallet está actualmente pausada."
 }

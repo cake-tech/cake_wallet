@@ -767,5 +767,6 @@
   "use_testnet": "テストネットを使用します",
   "receivable_balance": "売掛金残高",
   "confirmed_tx": "確認済み",
-  "transaction_details_source_address": "ソースアドレス"
+  "transaction_details_source_address": "ソースアドレス",
+  "pause_wallet_creation": "Haven Wallet を作成する機能は現在一時停止されています。"
 }

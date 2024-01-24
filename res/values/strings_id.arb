@@ -755,5 +755,6 @@
   "use_testnet": "Gunakan TestNet",
   "receivable_balance": "Saldo piutang",
   "confirmed_tx": "Dikonfirmasi",
-  "transaction_details_source_address": "Alamat sumber"
+  "transaction_details_source_address": "Alamat sumber",
+  "pause_wallet_creation": "Kemampuan untuk membuat Haven Wallet saat ini dijeda."
 }

@@ -767,5 +767,6 @@
   "use_testnet": "Використовуйте тестову мережу",
   "receivable_balance": "Баланс дебіторської заборгованості",
   "confirmed_tx": "Підтверджений",
-  "transaction_details_source_address": "Адреса джерела"
+  "transaction_details_source_address": "Адреса джерела",
+  "pause_wallet_creation": "Можливість створення гаманця Haven зараз призупинено."
 }

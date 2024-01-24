@@ -765,5 +765,6 @@
   "use_testnet": "Koristite TestNet",
   "receivable_balance": "Stanje potraživanja",
   "confirmed_tx": "Potvrđen",
-  "transaction_details_source_address": "Adresa izvora"
+  "transaction_details_source_address": "Adresa izvora",
+  "pause_wallet_creation": "Mogućnost stvaranja novčanika Haven trenutno je pauzirana."
 }

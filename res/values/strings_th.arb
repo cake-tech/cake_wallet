@@ -765,5 +765,6 @@
   "use_testnet": "ใช้ testnet",
   "receivable_balance": "ยอดลูกหนี้",
   "confirmed_tx": "ซึ่งยืนยันแล้ว",
-  "transaction_details_source_address": "ที่อยู่แหล่งกำเนิด"
+  "transaction_details_source_address": "ที่อยู่แหล่งกำเนิด",
+  "pause_wallet_creation": "ขณะนี้ความสามารถในการสร้าง Haven Wallet ถูกหยุดชั่วคราว"
 }

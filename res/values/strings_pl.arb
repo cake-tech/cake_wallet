@@ -767,5 +767,6 @@
   "use_testnet": "Użyj testne",
   "receivable_balance": "Saldo należności",
   "confirmed_tx": "Potwierdzony",
-  "transaction_details_source_address": "Adres źródłowy"
+  "transaction_details_source_address": "Adres źródłowy",
+  "pause_wallet_creation": "Możliwość utworzenia Portfela Haven jest obecnie wstrzymana."
 }

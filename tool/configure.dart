@@ -64,6 +64,7 @@ import 'package:cw_core/output_info.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';""";
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
@@ -78,9 +79,27 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:mobx/mobx.dart';
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
+  
+  class ElectrumSubAddress {
+  ElectrumSubAddress({
+    required this.id,
+    required this.name,
+    required this.address,
+    required this.txCount,
+    required this.balance,
+    required this.isChange});
+  final int id;
+  final String name;
+  final String address;
+  final int txCount;
+  final int balance;
+  final bool isChange;
+}
+
 abstract class Bitcoin {
   TransactionPriority getMediumTransactionPriority();
 
@@ -94,12 +113,15 @@ abstract class Bitcoin {
   TransactionPriority deserializeBitcoinTransactionPriority(int raw);
   TransactionPriority deserializeLitecoinTransactionPriority(int raw);
   int getFeeRate(Object wallet, TransactionPriority priority);
-  Future<void> generateNewAddress(Object wallet);
+  Future<void> generateNewAddress(Object wallet, String label);
+  Future<void> updateAddress(Object wallet,String address, String label);
   Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate});
   Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs, {TransactionPriority? priority, required int feeRate});
 
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
+
+  List<ElectrumSubAddress> getSubAddresses(Object wallet);
 
   String formatterBitcoinAmountToString({required int amount});
   double formatterBitcoinAmountToDouble({required int amount});
@@ -409,10 +431,10 @@ class AssetRate {
 }
 
 abstract class HavenWalletDetails {
-  // FIX-ME: it's abstruct class
+  // FIX-ME: it's abstract class
   @observable
   late Account account;
-  // FIX-ME: it's abstruct class
+  // FIX-ME: it's abstract class
   @observable
   late HavenBalance balance;
 }
