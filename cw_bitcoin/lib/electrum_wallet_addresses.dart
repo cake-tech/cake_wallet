@@ -21,17 +21,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required this.electrumClient,
     required this.network,
     List<BitcoinAddressRecord>? initialAddresses,
-    Map<String, int> initialRegularAddressIndex = const {},
-    Map<String, int> initialChangeAddressIndex = const {},
-  })  : addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
+    Map<String, int>? initialRegularAddressIndex,
+    Map<String, int>? initialChangeAddressIndex,
+  })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
         receiveAddresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? [])
             .where((addressRecord) => !addressRecord.isHidden && !addressRecord.isUsed)
             .toSet()),
         changeAddresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? [])
             .where((addressRecord) => addressRecord.isHidden && !addressRecord.isUsed)
             .toSet()),
-        currentReceiveAddressIndexByType = initialRegularAddressIndex,
-        currentChangeAddressIndexByType = initialChangeAddressIndex,
+        currentReceiveAddressIndexByType = initialRegularAddressIndex ?? {},
+        currentChangeAddressIndexByType = initialChangeAddressIndex ?? {},
         _addressPageType = walletInfo.addressPageType != null
             ? BitcoinAddressType.fromValue(walletInfo.addressPageType!)
             : BitcoinAddressType.p2wpkh,
@@ -45,7 +45,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   static String toLegacy(String address) => bitbox.Address.toLegacyAddress(address);
 
-  final ObservableList<BitcoinAddressRecord> addresses;
+  @observable
+  final List<BitcoinAddressRecord> _addresses;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
   final ElectrumClient electrumClient;
@@ -63,6 +64,15 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @override
   String get addressPageTypeStr => addressPageType.toString();
 
+  @computed
+  List<BitcoinAddressRecord> get addresses => _addresses.where(_isAddressTypeMatch).toList();
+
+  @action
+  void set addresses(List<BitcoinAddressRecord> addresses) {
+    _addresses.clear();
+    _addresses.addAll(addresses);
+  }
+
   @override
   @computed
   String get address {
@@ -74,12 +84,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         typeMatchingReceiveAddresses.isEmpty) {
       receiveAddress = generateNewAddress().address;
     } else {
-      final typeMatchingAddresses = addresses.where(_isAddressTypeMatch);
-      receiveAddress =
-          (typeMatchingReceiveAddresses.first.address != typeMatchingAddresses.first.address &&
-                  previousAddressRecord != null)
-              ? previousAddressRecord!.address
-              : typeMatchingReceiveAddresses.first.address;
+      if (previousAddressRecord != null && previousAddressRecord!.type == addressPageType) {
+        receiveAddress = (typeMatchingReceiveAddresses.first.address != addresses.first.address)
+            ? previousAddressRecord!.address
+            : typeMatchingReceiveAddresses.first.address;
+      } else {
+        receiveAddress = typeMatchingReceiveAddresses.first.address;
+      }
     }
 
     return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(receiveAddress) : receiveAddress;
@@ -93,7 +104,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (addr.startsWith('bitcoincash:')) {
       addr = toLegacy(addr);
     }
-    final addressRecord = addresses.firstWhere((addressRecord) => addressRecord.address == addr);
+    final addressRecord = _addresses.firstWhere((addressRecord) => addressRecord.address == addr);
 
     previousAddressRecord = addressRecord;
     receiveAddresses.remove(addressRecord);
@@ -101,9 +112,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @override
-  String get primaryAddress => getAddress(index: 0, hd: mainHd);
+  String get primaryAddress => getAddress(index: 0, hd: mainHd, addressType: addressPageType);
 
-  Map<String, int> currentReceiveAddressIndexByType = {};
+  Map<String, int> currentReceiveAddressIndexByType;
 
   int get currentReceiveAddressIndex =>
       currentReceiveAddressIndexByType[_addressPageType.toString()] ?? 0;
@@ -111,7 +122,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   void set currentReceiveAddressIndex(int index) =>
       currentReceiveAddressIndexByType[_addressPageType.toString()] = index;
 
-  Map<String, int> currentChangeAddressIndexByType = {};
+  Map<String, int> currentChangeAddressIndexByType;
 
   int get currentChangeAddressIndex =>
       currentChangeAddressIndexByType[_addressPageType.toString()] ?? 0;
@@ -185,9 +196,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   BitcoinAddressRecord generateNewAddress({bitcoin.HDWallet? hd, String label = ''}) {
     final isHidden = hd == sideHd;
 
-    final newAddressIndex = addresses
-        .where((addressRecord) => addressRecord == addressPageType)
-        .fold(0, (int acc, addressRecord) => isHidden == addressRecord.isHidden ? acc + 1 : acc);
+    final newAddressIndex = addresses.fold(
+        0, (int acc, addressRecord) => isHidden == addressRecord.isHidden ? acc + 1 : acc);
 
     final address = BitcoinAddressRecord(
       getAddress(index: newAddressIndex, hd: hd ?? sideHd, addressType: addressPageType),
@@ -195,7 +205,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       isHidden: isHidden,
       name: label,
     );
-    addresses.add(address);
+    _addresses.add(address);
     return address;
   }
 
@@ -219,11 +229,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (address.startsWith('bitcoincash:')) {
       address = toLegacy(address);
     }
-    final addressRecord = addresses.firstWhere((addressRecord) => addressRecord.address == address);
+    final addressRecord =
+        _addresses.firstWhere((addressRecord) => addressRecord.address == address);
     addressRecord.setNewName(label);
-    final index = addresses.indexOf(addressRecord);
-    addresses.remove(addressRecord);
-    addresses.insert(index, addressRecord);
+    final index = _addresses.indexOf(addressRecord);
+    _addresses.remove(addressRecord);
+    _addresses.insert(index, addressRecord);
   }
 
   @action
@@ -247,15 +258,15 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     var hasAddrUse = true;
     List<BitcoinAddressRecord> addrs;
 
-    if (addresses.isNotEmpty) {
+    if (addresses.where((addr) => addr.isHidden == isHidden).isNotEmpty) {
       addrs = addresses.where((addr) => addr.isHidden == isHidden).toList();
     } else {
       addrs = await _createNewAddresses(
-          isHidden ? defaultChangeAddressesCount : defaultReceiveAddressesCount,
-          startIndex: 0,
-          hd: hd,
-          isHidden: isHidden,
-          addressType: addressPageType);
+        isHidden ? defaultChangeAddressesCount : defaultReceiveAddressesCount,
+        startIndex: 0,
+        hd: hd,
+        isHidden: isHidden,
+      );
     }
 
     while (hasAddrUse) {
@@ -268,8 +279,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
       final start = addrs.length;
       final count = start + gap;
-      final batch = await _createNewAddresses(count,
-          startIndex: start, hd: hd, isHidden: isHidden, addressType: addressPageType);
+      final batch = await _createNewAddresses(count, startIndex: start, hd: hd, isHidden: isHidden);
       addrs.addAll(batch);
     }
 
@@ -291,39 +301,30 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     if (countOfReceiveAddresses < defaultReceiveAddressesCount) {
       final addressesCount = defaultReceiveAddressesCount - countOfReceiveAddresses;
-      final newAddresses = await _createNewAddresses(
-        addressesCount,
-        startIndex: countOfReceiveAddresses,
-        hd: mainHd,
-        isHidden: false,
-        addressType: addressPageType,
-      );
+      final newAddresses = await _createNewAddresses(addressesCount,
+          startIndex: countOfReceiveAddresses, hd: mainHd, isHidden: false);
       addresses.addAll(newAddresses);
     }
 
     if (countOfHiddenAddresses < defaultChangeAddressesCount) {
       final addressesCount = defaultChangeAddressesCount - countOfHiddenAddresses;
-      final newAddresses = await _createNewAddresses(
-        addressesCount,
-        startIndex: countOfHiddenAddresses,
-        hd: sideHd,
-        isHidden: true,
-        addressType: addressPageType,
-      );
+      final newAddresses = await _createNewAddresses(addressesCount,
+          startIndex: countOfHiddenAddresses, hd: sideHd, isHidden: true);
       addresses.addAll(newAddresses);
     }
   }
 
-  Future<List<BitcoinAddressRecord>> _createNewAddresses(int count,
-      {required bitcoin.HDWallet hd,
-      int startIndex = 0,
-      bool isHidden = false,
-      BitcoinAddressType? addressType}) async {
+  Future<List<BitcoinAddressRecord>> _createNewAddresses(
+    int count, {
+    required bitcoin.HDWallet hd,
+    int startIndex = 0,
+    bool isHidden = false,
+  }) async {
     final list = <BitcoinAddressRecord>[];
 
     for (var i = startIndex; i < count + startIndex; i++) {
       final address = BitcoinAddressRecord(
-        getAddress(index: i, hd: hd),
+        getAddress(index: i, hd: hd, addressType: addressPageType),
         index: i,
         isHidden: isHidden,
         type: addressPageType,
@@ -336,10 +337,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   void addAddresses(Iterable<BitcoinAddressRecord> addresses) {
-    final addressesSet = this.addresses.toSet();
+    final addressesSet = this._addresses.toSet();
     addressesSet.addAll(addresses);
-    this.addresses.clear();
-    this.addresses.addAll(addressesSet);
+    this._addresses.clear();
+    this._addresses.addAll(addressesSet);
   }
 
   Future<bool> _hasAddressUsed(String address) async {

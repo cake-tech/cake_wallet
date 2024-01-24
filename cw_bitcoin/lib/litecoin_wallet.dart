@@ -29,8 +29,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     String? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
-    Map<String, int> initialRegularAddressIndex = const {},
-    Map<String, int> initialChangeAddressIndex = const {},
+    Map<String, int>? initialRegularAddressIndex,
+    Map<String, int>? initialChangeAddressIndex,
   }) : super(
             mnemonic: mnemonic,
             password: password,
@@ -64,8 +64,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       String? addressPageType,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumBalance? initialBalance,
-      Map<String, int> initialRegularAddressIndex = const {},
-      Map<String, int> initialChangeAddressIndex = const {}}) async {
+      Map<String, int>? initialRegularAddressIndex,
+      Map<String, int>? initialChangeAddressIndex}) async {
     return LitecoinWallet(
       mnemonic: mnemonic,
       password: password,

@@ -28,8 +28,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     BasedUtxoNetwork? networkParam,
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
-    Map<String, int> initialRegularAddressIndex = const {},
-    Map<String, int> initialChangeAddressIndex = const {},
+    Map<String, int>? initialRegularAddressIndex,
+    Map<String, int>? initialChangeAddressIndex,
   }) : super(
             mnemonic: mnemonic,
             password: password,
@@ -68,8 +68,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     BasedUtxoNetwork? network,
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
-    Map<String, int> initialRegularAddressIndex = const {},
-    Map<String, int> initialChangeAddressIndex = const {},
+    Map<String, int>? initialRegularAddressIndex,
+    Map<String, int>? initialChangeAddressIndex,
   }) async {
     return BitcoinWallet(
       mnemonic: mnemonic,
