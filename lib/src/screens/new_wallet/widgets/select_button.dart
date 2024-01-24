@@ -11,29 +11,37 @@ class SelectButton extends StatelessWidget {
     this.isSelected = false,
     this.showTrailingIcon = true,
     this.height = 60,
+    this.textSize = 18,
+    this.color,
+    this.textColor,
+    this.arrowColor,
+    this.borderColor,
   });
 
   final Image? image;
   final String text;
+  final double textSize;
   final bool isSelected;
   final VoidCallback onTap;
   final bool showTrailingIcon;
   final double height;
+  final Color? color;
+  final Color? textColor;
+  final Color? arrowColor;
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
-    final color = isSelected
-        ? Colors.green
-        : Theme.of(context).cardColor;
-    final textColor = isSelected
+    final backgroundColor = color ?? (isSelected ? Colors.green : Theme.of(context).cardColor);
+    final effectiveTextColor = textColor ?? (isSelected
         ? Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor
-        : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor;
-    final arrowColor = isSelected
+        : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor);
+    final effectiveArrowColor = arrowColor ?? (isSelected
         ? Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor
-        : Theme.of(context).extension<FilterTheme>()!.titlesColor;
+        : Theme.of(context).extension<FilterTheme>()!.titlesColor);
 
     final selectArrowImage = Image.asset('assets/images/select_arrow.png',
-          color: arrowColor);
+        color: effectiveArrowColor);
 
     return GestureDetector(
       onTap: onTap,
@@ -44,7 +52,9 @@ class SelectButton extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(30)),
-          color: color
+          color: backgroundColor,
+          border: borderColor != null ? Border.all(color: borderColor!) : null,
+
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -63,9 +73,9 @@ class SelectButton extends StatelessWidget {
                   child: Text(
                     text,
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: textSize,
                       fontWeight: FontWeight.w500,
-                      color: textColor
+                      color: effectiveTextColor,
                     ),
                   ),
                 )

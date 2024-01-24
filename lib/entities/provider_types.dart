@@ -65,28 +65,34 @@ class ProvidersHelper {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
         return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.robinhood];
+      case WalletType.polygon:
+        return [ProviderType.askEachTime, ProviderType.dfx];
       case WalletType.none:
       case WalletType.haven:
-      case WalletType.polygon:
         return [];
     }
   }
 
   static List<ProviderType> getAvailableSellProviderTypes(WalletType walletType) {
     switch (walletType) {
-      case WalletType.monero:
-        return [ProviderType.askEachTime, ProviderType.dfx];
       case WalletType.bitcoin:
       case WalletType.ethereum:
-        return [ProviderType.askEachTime, ProviderType.moonpaySell, ProviderType.dfx];
+        return [
+          ProviderType.askEachTime,
+          ProviderType.onramper,
+          ProviderType.moonpaySell,
+          ProviderType.dfx,
+        ];
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
         return [ProviderType.askEachTime, ProviderType.moonpaySell];
+      case WalletType.polygon:
+        return [ProviderType.askEachTime, ProviderType.dfx];
+      case WalletType.monero:
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.none:
       case WalletType.haven:
-      case WalletType.polygon:
         return [];
     }
   }

@@ -23,8 +23,6 @@ class PreferencesKey {
   static const walletListOrder = 'wallet_list_order';
   static const walletListAscending = 'wallet_list_ascending';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
-  static const allowBiometricalAuthenticationKey = 'allow_biometrical_authentication';
-  static const useTOTP2FA = 'use_totp_2fa';
   static const failedTotpTokenTrials = 'failed_token_trials';
   static const disableExchangeKey = 'disable_exchange';
   static const exchangeStatusKey = 'exchange_status';
@@ -33,6 +31,7 @@ class PreferencesKey {
   static const displayActionListModeKey = 'display_list_mode';
   static const currentPinLength = 'current_pin_length';
   static const currentLanguageCode = 'language_code';
+  static const currentSeedPhraseLength = 'current_seed_phrase_length';
   static const currentDefaultSettingsMigrationVersion =
       'current_default_settings_migration_version';
   static const moneroTransactionPriority = 'current_fee_priority_monero';
@@ -47,8 +46,6 @@ class PreferencesKey {
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
   static const syncModeKey = 'sync_mode';
   static const syncAllKey = 'sync_all';
-  static const pinTimeOutDuration = 'pin_timeout_duration';
-  static const lastAuthTimeMilliseconds = 'last_auth_time_milliseconds';
   static const lastPopupDate = 'last_popup_date';
   static const lastAppReviewDate = 'last_app_review_date';
   static const sortBalanceBy = 'sort_balance_by';
@@ -75,25 +72,4 @@ class PreferencesKey {
   static const lastSeenAppVersion = 'last_seen_app_version';
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';
-  static const shouldRequireTOTP2FAForAccessingWallet =
-      'should_require_totp_2fa_for_accessing_wallets';
-  static const shouldRequireTOTP2FAForSendsToContact =
-      'should_require_totp_2fa_for_sends_to_contact';
-  static const shouldRequireTOTP2FAForSendsToNonContact =
-      'should_require_totp_2fa_for_sends_to_non_contact';
-  static const shouldRequireTOTP2FAForSendsToInternalWallets =
-      'should_require_totp_2fa_for_sends_to_internal_wallets';
-  static const shouldRequireTOTP2FAForExchangesToInternalWallets =
-      'should_require_totp_2fa_for_exchanges_to_internal_wallets';
-  static const shouldRequireTOTP2FAForExchangesToExternalWallets =
-      'should_require_totp_2fa_for_exchanges_to_external_wallets';
-  static const shouldRequireTOTP2FAForAddingContacts =
-      'should_require_totp_2fa_for_adding_contacts';
-  static const shouldRequireTOTP2FAForCreatingNewWallets =
-      'should_require_totp_2fa_for_creating_new_wallets';
-  static const shouldRequireTOTP2FAForAllSecurityAndBackupSettings =
-      'should_require_totp_2fa_for_all_security_and_backup_settings';
-  static const selectedCake2FAPreset = 'selected_cake_2fa_preset';
-  static const totpSecretKey = 'totp_secret_key';
-  static const currentSeedPhraseLength = 'current_seed_phrase_length';
 }

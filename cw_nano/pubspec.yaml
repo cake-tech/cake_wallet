@@ -22,6 +22,10 @@ dependencies:
   hex: ^0.2.0
   http: ^1.1.0
   shared_preferences: ^2.0.15
+  nanoutil:
+    git:
+      url: https://github.com/perishllc/nanoutil.git
+      ref: c37e72817cf0a28162f43124f79661d6c8e0098f
   cw_core:
     path: ../cw_core
 
