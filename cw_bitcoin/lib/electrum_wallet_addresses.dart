@@ -46,7 +46,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static String toLegacy(String address) => bitbox.Address.toLegacyAddress(address);
 
   @observable
-  final List<BitcoinAddressRecord> _addresses;
+  List<BitcoinAddressRecord> _addresses;
 
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
