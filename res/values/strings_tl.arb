@@ -760,5 +760,6 @@
   "switchToEVMCompatibleWallet": "Mangyaring lumipat sa isang EVM compatible na wallet at subukang muli (Ethereum, Polygon)",
   "receivable_balance": "Natatanggap na balanse",
   "confirmed_tx": "Nakumpirma",
-  "transaction_details_source_address": "SOURCE ADDRESS"
+  "transaction_details_source_address": "SOURCE ADDRESS",
+  "pause_wallet_creation": "Kasalukuyang naka-pause ang kakayahang gumawa ng Haven Wallet."
 }

@@ -277,6 +277,7 @@ Future<void> setup({
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
+    getIt.registerSingleton<FlutterSecureStorage>(secureStorage);
   }
   if (!_isSetupFinished) {
     getIt.registerFactory(() => BackgroundTasks());
@@ -303,7 +304,6 @@ Future<void> setup({
   getIt.registerFactory<Box<Node>>(() => _nodeSource);
   getIt.registerFactory<Box<Node>>(() => _powNodeSource, instanceName: Node.boxName + "pow");
 
-  getIt.registerSingleton<FlutterSecureStorage>(secureStorage);
   getIt.registerSingleton(AuthenticationStore());
   getIt.registerSingleton<WalletListStore>(WalletListStore());
   getIt.registerSingleton(NodeListStoreBase.instance);
@@ -345,17 +345,19 @@ Future<void> setup({
           walletInfoSource: _walletInfoSource));
 
   getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
-          (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
+      (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
 
   getIt.registerFactory<WalletLoadingService>(() => WalletLoadingService(
       getIt.get<SharedPreferences>(),
       getIt.get<KeyService>(),
       (WalletType type) => getIt.get<WalletService>(param1: type)));
-  
-  getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) =>
-      WalletNewVM(getIt.get<AppStore>(),
-          getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
-          getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),type: type));
+
+  getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) => WalletNewVM(
+      getIt.get<AppStore>(),
+      getIt.get<WalletCreationService>(param1: type),
+      _walletInfoSource,
+      getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
+      type: type));
 
   getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
@@ -806,8 +808,7 @@ Future<void> setup({
       .registerFactory<DFXBuyProvider>(() => DFXBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory<MoonPaySellProvider>(() => MoonPaySellProvider(
-              settingsStore: getIt.get<AppStore>().settingsStore,
-              wallet: getIt.get<AppStore>().wallet!));
+      settingsStore: getIt.get<AppStore>().settingsStore, wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
         getIt.get<AppStore>().settingsStore,
@@ -922,8 +923,7 @@ Future<void> setup({
       (param1, isCreate) => NewWalletTypePage(onTypeSelected: param1, isCreate: isCreate ?? true));
 
   getIt.registerFactoryParam<PreSeedPage, int, void>(
-      (seedPhraseLength, _)
-      => PreSeedPage(seedPhraseLength));
+      (seedPhraseLength, _) => PreSeedPage(seedPhraseLength));
 
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
       TradeDetailsViewModel(
@@ -957,7 +957,7 @@ Future<void> setup({
   getIt.registerFactory(() => BuyAmountViewModel());
 
   getIt.registerFactoryParam<BuySellOptionsPage, bool, void>(
-        (isBuyOption, _) => BuySellOptionsPage(getIt.get<DashboardViewModel>(), isBuyOption));
+      (isBuyOption, _) => BuySellOptionsPage(getIt.get<DashboardViewModel>(), isBuyOption));
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;

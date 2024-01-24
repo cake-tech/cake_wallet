@@ -764,5 +764,6 @@
   "switchToEVMCompatibleWallet": "EVM 호환 지갑으로 전환 후 다시 시도해 주세요. (이더리움, 폴리곤)",
   "receivable_balance": "채권 잔액",
   "confirmed_tx": "확인",
-  "transaction_details_source_address": "소스 주소"
+  "transaction_details_source_address": "소스 주소",
+  "pause_wallet_creation": "Haven Wallet 생성 기능이 현재 일시 중지되었습니다."
 }

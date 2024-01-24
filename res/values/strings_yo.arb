@@ -760,5 +760,6 @@
   "switchToEVMCompatibleWallet": "Jọwọ yipada si apamọwọ ibaramu EVM ki o tun gbiyanju lẹẹkansi (Ethereum, Polygon)",
   "receivable_balance": "Iwontunws.funfun ti o gba",
   "confirmed_tx": "Jẹrisi",
-  "transaction_details_source_address": "Adirẹsi orisun"
+  "transaction_details_source_address": "Adirẹsi orisun",
+  "pause_wallet_creation": "Agbara lati ṣẹda Haven Wallet ti wa ni idaduro lọwọlọwọ."
 }

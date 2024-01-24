@@ -10,7 +10,7 @@ OPEN_SSL_ARM_DIR_PATH="${EXTERNAL_MACOS_SOURCE_DIR}/${OPEN_SSL_ARM_DIR_NAME}"
 
 build_openssl_init_common() {
 	DIR=$1
-	# Use 1.1.1s becasue of https://github.com/openssl/openssl/issues/18720
+	# Use 1.1.1s because of https://github.com/openssl/openssl/issues/18720
 	OPENSSL_VERSION="1.1.1s"
 
 	echo "============================ OpenSSL ============================"

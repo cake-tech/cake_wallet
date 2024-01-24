@@ -754,5 +754,6 @@
   "switchToEVMCompatibleWallet": "Silakan beralih ke dompet yang kompatibel dengan EVM dan coba lagi (Ethereum, Polygon)",
   "receivable_balance": "Saldo piutang",
   "confirmed_tx": "Dikonfirmasi",
-  "transaction_details_source_address": "Alamat sumber"
+  "transaction_details_source_address": "Alamat sumber",
+  "pause_wallet_creation": "Kemampuan untuk membuat Haven Wallet saat ini dijeda."
 }
