@@ -13,22 +13,15 @@ class NFTTileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.pushNamed(context, Routes.nftDetailsPage,
-          arguments: nftAsset),
+      onTap: () => Navigator.pushNamed(context, Routes.nftDetailsPage, arguments: nftAsset),
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.only(left: 16, right: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30.0),
           border: Border.all(
-            color: Theme.of(context)
-                .extension<BalancePageTheme>()!
-                .cardBorderColor,
-            width: 1,
-          ),
-          color: Theme.of(context)
-              .extension<SyncIndicatorTheme>()!
-              .syncedBackgroundColor,
+              color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor, width: 1),
+          color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
         ),
         child: Row(
           children: [
@@ -40,14 +33,10 @@ class NFTTileWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16.0),
                 border: Border.all(
-                  color: Theme.of(context)
-                      .extension<BalancePageTheme>()!
-                      .cardBorderColor,
+                  color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
                   width: 1,
                 ),
-                color: Theme.of(context)
-                    .extension<SyncIndicatorTheme>()!
-                    .syncedBackgroundColor,
+                color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
               ),
               child: NFTImageWidget(
                 imageUrl: nftAsset.normalizedMetadata?.imageUrl,
@@ -64,9 +53,7 @@ class NFTTileWidget extends StatelessWidget {
                       fontSize: 12,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context)
-                          .extension<BalancePageTheme>()!
-                          .labelTextColor,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
                       height: 1,
                     ),
                   ),
@@ -77,9 +64,7 @@ class NFTTileWidget extends StatelessWidget {
                       fontSize: 20,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w900,
-                      color: Theme.of(context)
-                          .extension<BalancePageTheme>()!
-                          .assetTitleColor,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
                       height: 1,
                     ),
                   ),
@@ -92,4 +77,3 @@ class NFTTileWidget extends StatelessWidget {
     );
   }
 }
-

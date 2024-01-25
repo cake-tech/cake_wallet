@@ -82,6 +82,7 @@ class PolygonWallet extends EVMChainWallet {
       exponent: transactionModel.tokenDecimal ?? 18,
       tokenSymbol: transactionModel.tokenSymbol ?? "MATIC",
       to: transactionModel.to,
+      from: transactionModel.from,
     );
     return model;
   }

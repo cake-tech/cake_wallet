@@ -93,6 +93,7 @@ class EthereumWallet extends EVMChainWallet {
       exponent: transactionModel.tokenDecimal ?? 18,
       tokenSymbol: transactionModel.tokenSymbol ?? "ETH",
       to: transactionModel.to,
+      from: transactionModel.from,
     );
     return model;
   }
