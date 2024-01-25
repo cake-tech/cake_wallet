@@ -117,7 +117,7 @@ abstract class ElectrumWalletBase
   List<String> get scriptHashes =>
       walletAddresses.addresses.map((addr) => scriptHash(addr.address, network: network)).toList();
 
-  List<String> get publicScriptHashes => walletAddresses.addresses
+  List<String> get publicScriptHashes => walletAddresses.allAddresses
       .where((addr) => !addr.isHidden)
       .map((addr) => scriptHash(addr.address, network: network))
       .toList();
@@ -265,30 +265,60 @@ abstract class ElectrumWalletBase
 
           BitcoinAddress address;
           BitcoinAddressType scriptType;
+
+          ECPrivate privkey;
+          ECPrivate mainPrivkey = generateECPrivate(
+              hd: walletAddresses.mainHd, index: utx.bitcoinAddressRecord.index, network: network);
+          ECPrivate sidePrivkey = generateECPrivate(
+              hd: walletAddresses.sideHd, index: utx.bitcoinAddressRecord.index, network: network);
+
           if (P2pkhAddress.REGEX.hasMatch(utx.address)) {
             address = P2pkhAddress.fromAddress(address: utx.address, network: network);
             minAmount += P2pkhAddress.inputSizeVB;
             scriptType = BitcoinAddressType.p2pkh;
+            if (P2pkhAddress.fromPubkey(pubkey: mainPrivkey.getPublic().toHex())
+                    .toAddress(network) ==
+                utx.address) {
+              privkey = mainPrivkey;
+            } else {
+              privkey = sidePrivkey;
+            }
           } else if (P2wshAddress.REGEX.hasMatch(utx.address)) {
             address = P2wshAddress.fromAddress(address: utx.address, network: network);
             minAmount += P2wshAddress.inputSizeVB;
             scriptType = BitcoinAddressType.p2wsh;
+            if (P2wshAddress.fromPubkey(pubkey: mainPrivkey.getPublic().toHex())
+                    .toAddress(network) ==
+                utx.address) {
+              privkey = mainPrivkey;
+            } else {
+              privkey = sidePrivkey;
+            }
           } else if (P2trAddress.REGEX.hasMatch(utx.address)) {
             address = P2trAddress.fromAddress(address: utx.address, network: network);
             minAmount += P2trAddress.inputSizeVB;
             scriptType = BitcoinAddressType.p2tr;
+            if (P2trAddress.fromPubkey(pubkey: mainPrivkey.getPublic().toHex())
+                    .toAddress(network) ==
+                utx.address) {
+              privkey = mainPrivkey;
+            } else {
+              privkey = sidePrivkey;
+            }
           } else {
             address = P2wpkhAddress.fromAddress(address: utx.address, network: network);
             minAmount += P2wpkhAddress.inputSizeVB;
             scriptType = BitcoinAddressType.p2wpkh;
+            if (P2wpkhAddress.fromPubkey(pubkey: mainPrivkey.getPublic().toHex())
+                    .toAddress(network) ==
+                utx.address) {
+              privkey = mainPrivkey;
+            } else {
+              privkey = sidePrivkey;
+            }
           }
 
-          privateKeys.add(generateECPrivate(
-              hd: utx.bitcoinAddressRecord.isHidden
-                  ? walletAddresses.sideHd
-                  : walletAddresses.mainHd,
-              index: utx.bitcoinAddressRecord.index,
-              network: network));
+          privateKeys.add(privkey);
 
           if (utx.bitcoinAddressRecord.type == BitcoinAddressType.p2pkh) {
             overheadSizeVB = P2pkhAddress.overheadSizeVB;
@@ -304,14 +334,8 @@ abstract class ElectrumWalletBase
                 vout: utx.vout,
                 scriptType: scriptType,
               ),
-              ownerDetails: UtxoAddressDetails(
-                publicKey: (utx.bitcoinAddressRecord.isHidden
-                        ? walletAddresses.sideHd
-                        : walletAddresses.mainHd)
-                    .derive(utx.bitcoinAddressRecord.index)
-                    .pubKey!,
-                address: address,
-              ),
+              ownerDetails:
+                  UtxoAddressDetails(publicKey: privkey.getPublic().toHex(), address: address),
             ),
           );
 
@@ -373,8 +397,6 @@ abstract class ElectrumWalletBase
             BitcoinOutput(address: lastOutput.address, value: BigInt.from(amount));
       }
 
-      outputs.forEach((element) => print(["ELEMENT", element.value]));
-
       final totalAmount = amount + fee;
 
       if (totalAmount > balance[currency]!.confirmed ||
@@ -417,7 +439,7 @@ abstract class ElectrumWalletBase
         'mnemonic': mnemonic,
         'account_index': walletAddresses.currentReceiveAddressIndexByType,
         'change_address_index': walletAddresses.currentChangeAddressIndexByType,
-        'addresses': walletAddresses.addresses.map((addr) => addr.toJSON()).toList(),
+        'addresses': walletAddresses.allAddresses.map((addr) => addr.toJSON()).toList(),
         'address_page_type': walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON(),
         'network_type': network == BitcoinNetwork.mainnet ? 'mainnet' : 'testnet',
@@ -538,7 +560,7 @@ abstract class ElectrumWalletBase
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
   Future<void> updateUnspent() async {
-    final unspent = await Future.wait(walletAddresses.addresses.map((address) => electrumClient
+    final unspent = await Future.wait(walletAddresses.allAddresses.map((address) => electrumClient
         .getListUnspentWithAddress(address.address, network)
         .then((unspent) => unspent.map((unspent) {
               try {
@@ -644,7 +666,7 @@ abstract class ElectrumWalletBase
       {required String hash, required int height}) async {
     try {
       final tx = await getTransactionExpanded(hash: hash, height: height);
-      final addresses = walletAddresses.addresses.map((addr) => addr.address).toSet();
+      final addresses = walletAddresses.allAddresses.map((addr) => addr.address).toSet();
       return ElectrumTransactionInfo.fromElectrumBundle(tx, walletInfo.type, network,
           addresses: addresses, height: height);
     } catch (_) {
@@ -658,7 +680,7 @@ abstract class ElectrumWalletBase
     final normalizedHistories = <Map<String, dynamic>>[];
     final newTxCounts = <String, int>{};
 
-    walletAddresses.addresses.forEach((addressRecord) {
+    walletAddresses.allAddresses.forEach((addressRecord) {
       final sh = scriptHash(addressRecord.address, network: network);
       addressHashes[sh] = addressRecord;
       newTxCounts[sh] = 0;
@@ -756,7 +778,7 @@ abstract class ElectrumWalletBase
   }
 
   Future<ElectrumBalance> _fetchBalances() async {
-    final addresses = walletAddresses.addresses.toList();
+    final addresses = walletAddresses.allAddresses.toList();
     final balanceFutures = <Future<Map<String, dynamic>>>[];
     for (var i = 0; i < addresses.length; i++) {
       final addressRecord = addresses[i];
@@ -807,10 +829,10 @@ abstract class ElectrumWalletBase
   String getChangeAddress() {
     const minCountOfHiddenAddresses = 5;
     final random = Random();
-    var addresses = walletAddresses.addresses.where((addr) => addr.isHidden).toList();
+    var addresses = walletAddresses.allAddresses.where((addr) => addr.isHidden).toList();
 
     if (addresses.length < minCountOfHiddenAddresses) {
-      addresses = walletAddresses.addresses.toList();
+      addresses = walletAddresses.allAddresses.toList();
     }
 
     return addresses[random.nextInt(addresses.length)].address;
@@ -822,7 +844,7 @@ abstract class ElectrumWalletBase
   @override
   String signMessage(String message, {String? address = null}) {
     final index = address != null
-        ? walletAddresses.addresses.firstWhere((element) => element.address == address).index
+        ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
         : null;
     final HD = index == null ? hd : hd.derive(index);
     return base64Encode(HD.signMessage(message));

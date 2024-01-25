@@ -67,6 +67,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @computed
   List<BitcoinAddressRecord> get addresses => _addresses.where(_isAddressTypeMatch).toList();
 
+  @computed
+  List<BitcoinAddressRecord> get allAddresses => _addresses;
+
   void set addresses(List<BitcoinAddressRecord> addresses) {
     _addresses.clear();
     _addresses.addAll(addresses);
