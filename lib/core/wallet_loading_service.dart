@@ -57,14 +57,14 @@ class WalletLoadingService {
       raw: sharedPreferences.getInt(PreferencesKey.currentTorConnectionModeKey) ?? 0,
     );
 
-    if ([WalletType.bitcoin, WalletType.litecoin].contains(type)) {
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(type)) {
       bitcoin!.setTorOnly(wallet, mode == TorConnectionMode.torOnly);
     }
 
     final status = torViewModel.torConnectionStatus;
     if (status == TorConnectionStatus.connected || status == TorConnectionStatus.connecting) {
       // connect the node to the tor proxy:
-      await torViewModel.startTor();
+      await torViewModel.connectOrDisconnectNodeToProxy(connect: true);
     }
 
     return wallet;

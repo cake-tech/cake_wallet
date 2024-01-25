@@ -54,7 +54,7 @@ abstract class TorViewModelBase with Store {
       }
 
       bool torOnly = _settingsStore.torConnectionMode == TorConnectionMode.torOnly;
-      if ([WalletType.bitcoin, WalletType.litecoin].contains(appStore.wallet!.type)) {
+      if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(appStore.wallet!.type)) {
         bitcoin!.setTorOnly(appStore.wallet!, torOnly);
       }
       
