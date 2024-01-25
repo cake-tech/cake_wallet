@@ -185,6 +185,8 @@ abstract class ElectrumWalletBase
     final hasMultiDestination = outputs.length > 1;
     var allInputsAmount = 0;
 
+    final String opReturnMemo = '=:ETH.ETH:0x2cd098e5662a01947d61ded62cc74782f51ac6f4';
+
     if (unspentCoins.isEmpty) {
       await updateUnspent();
     }
@@ -327,6 +329,8 @@ abstract class ElectrumWalletBase
     if (changeValue > minAmount) {
       txb.addOutput(changeAddress, changeValue);
     }
+
+    txb.addOutputData(opReturnMemo);
 
     for (var i = 0; i < inputs.length; i++) {
       final input = inputs[i];

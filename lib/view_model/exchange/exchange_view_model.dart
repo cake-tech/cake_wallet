@@ -18,6 +18,7 @@ import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
@@ -147,6 +148,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         SimpleSwapExchangeProvider(),
         TrocadorExchangeProvider(useTorOnly: _useTorOnly,
             providerStates: _settingsStore.trocadorProviderStates),
+        ThorChainExchangeProvider(settingsStore: _settingsStore),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
       ];
 

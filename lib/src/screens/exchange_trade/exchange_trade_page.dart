@@ -208,6 +208,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
           bottomSectionPadding: EdgeInsets.fromLTRB(24, 0, 24, 24),
           bottomSection: Observer(builder: (_) {
             final trade = widget.exchangeTradeViewModel.trade;
+            print('trade.amount: ${trade.amount}');
             final sendingState =
                 widget.exchangeTradeViewModel.sendViewModel.state;
 
