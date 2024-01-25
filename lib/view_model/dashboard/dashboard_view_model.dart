@@ -279,6 +279,10 @@ abstract class DashboardViewModelBase with Store {
 
   bool get hasRescan => wallet.type == WalletType.monero || wallet.type == WalletType.haven;
 
+  @computed
+  bool get isElectrumBased =>
+      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type);
+
   final KeyService keyService;
 
   BalanceViewModel balanceViewModel;

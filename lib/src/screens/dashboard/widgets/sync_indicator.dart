@@ -8,8 +8,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 
 class SyncIndicator extends StatelessWidget {
-  SyncIndicator(
-      {required this.dashboardViewModel, required this.onTap});
+  SyncIndicator({required this.dashboardViewModel, required this.onTap});
 
   final DashboardViewModel dashboardViewModel;
   final Function() onTap;
@@ -55,6 +54,11 @@ class SyncIndicator extends StatelessWidget {
                   Row(
                     children: [
                       Observer(builder: (_) {
+                        if (dashboardViewModel.isElectrumBased) {
+                          return Container(
+                            width: 15,
+                          );
+                        }
                         Widget torImage;
                         switch (dashboardViewModel.torViewModel.torConnectionStatus) {
                           case TorConnectionStatus.connected:

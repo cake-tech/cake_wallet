@@ -191,6 +191,7 @@ Future<void> defaultSettingsMigration(
           break;
         case 27:
           await migrateTorPreferences(sharedPreferences: sharedPreferences);
+          await addOnionNode(nodes);
           break;
         default:
           break;
@@ -287,10 +288,15 @@ Future<void> validateBitcoinSavedTransactionPriority(SharedPreferences sharedPre
 
 Future<void> addOnionNode(Box<Node> nodes) async {
   final onionNodeUri = "cakexmrl7bonq7ovjka5kuwuyd3f7qnkz6z6s6dmsy3uckwra7bvggyd.onion:18081";
+  final onionNodeUri2 = "sfprpc5klzs5vyitq2mrooicgk2wcs5ho2nm3niqduvzn5o6ylaslaqd.onion:18089";
 
   // check if the user has this node before (added it manually)
   if (nodes.values.firstWhereOrNull((element) => element.uriRaw == onionNodeUri) == null) {
     await nodes.add(Node(uri: onionNodeUri, type: WalletType.monero));
+  }
+
+  if (nodes.values.firstWhereOrNull((element) => element.uriRaw == onionNodeUri2) == null) {
+    await nodes.add(Node(uri: onionNodeUri2, type: WalletType.monero));
   }
 }
 
