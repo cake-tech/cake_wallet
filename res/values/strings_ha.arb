@@ -749,5 +749,6 @@
   "receivable_balance": "Daidaituwa da daidaituwa",
   "confirmed_tx": "Tabbatar",
   "transaction_details_source_address": "Adireshin Incord",
-  "pause_wallet_creation": "A halin yanzu an dakatar da ikon ƙirƙirar Haven Wallet."
+  "pause_wallet_creation": "A halin yanzu an dakatar da ikon ƙirƙirar Haven Wallet.",
+  "camera_consent": "Za a yi amfani da kyamarar ku don ɗaukar hoto don dalilai na tantancewa ta ${provider}. Da fatan za a duba Manufar Sirri don cikakkun bayanai."
 }

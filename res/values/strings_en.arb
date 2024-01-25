@@ -768,5 +768,6 @@
   "receivable_balance": "Receivable Balance",
   "confirmed_tx": "Confirmed",
   "transaction_details_source_address": "Source address",
-  "pause_wallet_creation": "Ability to create Haven Wallet is currently paused."
+  "pause_wallet_creation": "Ability to create Haven Wallet is currently paused.",
+  "camera_consent": "Your camera will be used to capture an image for identification purposes by ${provider}.  Please check their Privacy Policy for details."
 }

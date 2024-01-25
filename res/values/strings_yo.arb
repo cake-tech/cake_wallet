@@ -761,5 +761,6 @@
   "receivable_balance": "Iwontunws.funfun ti o gba",
   "confirmed_tx": "Jẹrisi",
   "transaction_details_source_address": "Adirẹsi orisun",
-  "pause_wallet_creation": "Agbara lati ṣẹda Haven Wallet ti wa ni idaduro lọwọlọwọ."
+  "pause_wallet_creation": "Agbara lati ṣẹda Haven Wallet ti wa ni idaduro lọwọlọwọ.",
+  "camera_consent": "Kamẹra rẹ yoo ṣee lo lati ya aworan kan fun awọn idi idanimọ nipasẹ ${provider}. Jọwọ ṣayẹwo Ilana Aṣiri wọn fun awọn alaye."
 }
