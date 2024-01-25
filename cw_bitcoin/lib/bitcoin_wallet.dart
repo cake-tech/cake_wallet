@@ -47,6 +47,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
               .derivePath("m/0'/1"),
         networkType: networkType);
+    autorun((_) {
+      this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
+    });
   }
 
   static Future<BitcoinWallet> create({
