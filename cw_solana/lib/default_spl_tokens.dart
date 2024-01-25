@@ -10,6 +10,7 @@ class DefaultSPLTokens {
       mint: 'usdt',
       logoUrl:
           "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB/logo.svg",
+      enabled: true,
     ),
     SPLToken(
       name: 'USD Coin',
@@ -19,14 +20,7 @@ class DefaultSPLTokens {
       mint: 'usdc',
       logoUrl:
           "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/CpMah17kQEL2wqyMKt3mZBdTnZbkbfx4nqmQMFDP5vwp/logo.png",
-    ),
-    SPLToken(
-      name: 'AvocadoCoin',
-      symbol: 'AVDO',
-      mintAddress: 'EE5L8cMU4itTsCSuor7NLK6RZx6JhsBe8GGV3oaAHm3P',
-      decimal: 8,
-      mint: 'avdo',
-      logoUrl: "http://avocadocoin.com/public/AvocadoCoin-logo-128.png",
+      enabled: true,
     ),
     SPLToken(
       name: 'Wrapped Ethereum (Sollet)',
@@ -36,6 +30,17 @@ class DefaultSPLTokens {
       mint: 'soEth',
       logoUrl:
           "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk/logo.png",
+      enabled: true,
+    ),
+    SPLToken(
+      name: 'Wrapped SOL',
+      symbol: 'WSOL',
+      mintAddress: 'So11111111111111111111111111111111111111112',
+      decimal: 9,
+      mint: 'WSOL',
+      logoUrl:
+          "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
+      enabled: true,
     ),
     SPLToken(
       name: 'Wrapped Bitcoin (Sollet)',
@@ -46,15 +51,7 @@ class DefaultSPLTokens {
       logoUrl:
           "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E/logo.png",
     ),
-    SPLToken(
-      name: 'Wrapped SOL',
-      symbol: 'WSOL',
-      mintAddress: 'So11111111111111111111111111111111111111112',
-      decimal: 9,
-      mint: 'WSOL',
-      logoUrl:
-          "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
-    ),
+
     SPLToken(
       name: 'Bonk',
       symbol: 'Bonk',
@@ -96,7 +93,15 @@ class DefaultSPLTokens {
       decimal: 6,
       mint: 'ray',
       logoUrl:
-          "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R/logo.png",
+          "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx/logo.png",
+    ),
+    SPLToken(
+      name: 'AvocadoCoin',
+      symbol: 'AVDO',
+      mintAddress: 'EE5L8cMU4itTsCSuor7NLK6RZx6JhsBe8GGV3oaAHm3P',
+      decimal: 8,
+      mint: 'avdo',
+      logoUrl: "http://avocadocoin.com/public/AvocadoCoin-logo-128.png",
     ),
   ];
 }
