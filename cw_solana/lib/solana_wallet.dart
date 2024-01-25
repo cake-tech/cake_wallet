@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-// api.mainnet-beta.solana.com
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
@@ -397,15 +396,19 @@ abstract class SolanaWalletBase
     _updateBalance();
   }
 
-  Future<SPLToken> getSPLToken(String mintAddress) async {
+  Future<SPLToken?> getSPLToken(String mintAddress) async {
     // Convert SPL token mint address to public key
     final mintPublicKey = Ed25519HDPublicKey.fromBase58(mintAddress);
 
     // Fetch token's metadata account
     final token = await solanaClient!.rpcClient.getMetadata(mint: mintPublicKey);
 
+    if (token == null) {
+      return null;
+    }
+
     return SPLToken.fromMetadata(
-      name: token!.name,
+      name: token.name,
       mint: token.mint,
       symbol: token.symbol,
       mintAddress: mintAddress,

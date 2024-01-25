@@ -8,16 +8,12 @@ class SolanaBalance extends Balance {
   final double balance;
 
   @override
-  String get formattedAdditionalBalance {
-    String stringBalance = balance.toString();
-    if (stringBalance.toString().length >= 6) {
-      stringBalance = stringBalance.substring(0, 6);
-    }
-    return stringBalance;
-  }
+  String get formattedAdditionalBalance => _balanceFormatted();
 
   @override
-  String get formattedAvailableBalance {
+  String get formattedAvailableBalance => _balanceFormatted();
+
+  String _balanceFormatted() {
     String stringBalance = balance.toString();
     if (stringBalance.toString().length >= 6) {
       stringBalance = stringBalance.substring(0, 6);

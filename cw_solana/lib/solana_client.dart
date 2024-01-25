@@ -46,7 +46,7 @@ class SolanaWalletClient {
   }
 
   Future<SolanaBalance> getSplTokenBalance(String mintAddress, String publicKey) async {
-    // Fetch the token
+    // Fetch the token accounts (a token can have multiple accounts for various uses)
     final tokenAccounts = await getSPLTokenAccounts(mintAddress, publicKey);
 
     // Handle scenario where there is no token account
@@ -164,12 +164,11 @@ class SolanaWalletClient {
 
   Future getTransactionDetails(String transactionHash) async {}
 
-  void stop() {
-    // _client?.rpcClient .dispose();
-  }
+  void stop() {}
 
   SolanaClient? getSolanaClient() => _client;
-  /// Send SOLs to an adress
+  
+  /// Send SOL to a Solana Wallet adress
   Future<String> sendLamportsTo(
     String destinationAddress,
     int amount,
