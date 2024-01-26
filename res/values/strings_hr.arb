@@ -765,5 +765,6 @@
   "receivable_balance": "Stanje potraživanja",
   "confirmed_tx": "Potvrđen",
   "transaction_details_source_address": "Adresa izvora",
-  "pause_wallet_creation": "Mogućnost stvaranja novčanika Haven trenutno je pauzirana."
+  "pause_wallet_creation": "Mogućnost stvaranja novčanika Haven trenutno je pauzirana.",
+  "enable_replace_by_fee": "Omogući Zamjenu po naknadi"
 }

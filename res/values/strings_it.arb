@@ -767,5 +767,6 @@
   "receivable_balance": "Bilanciamento creditizio",
   "confirmed_tx": "Confermato",
   "transaction_details_source_address": "Indirizzo di partenza",
-  "pause_wallet_creation": "La possibilità di creare Haven Wallet è attualmente sospesa."
+  "pause_wallet_creation": "La possibilità di creare Haven Wallet è attualmente sospesa.",
+  "enable_replace_by_fee": "Abilita sostituzione con tariffa"
 }

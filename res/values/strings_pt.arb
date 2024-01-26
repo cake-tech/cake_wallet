@@ -766,5 +766,6 @@
   "receivable_balance": "Saldo a receber",
   "confirmed_tx": "Confirmado",
   "transaction_details_source_address": "Endereço de Origem",
-  "pause_wallet_creation": "A capacidade de criar a Haven Wallet está atualmente pausada."
+  "pause_wallet_creation": "A capacidade de criar a Haven Wallet está atualmente pausada.",
+  "enable_replace_by_fee": "Ativar substituição por taxa"
 }

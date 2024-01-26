@@ -2,7 +2,7 @@ part of 'bitcoin.dart';
 
 class CWBitcoin extends Bitcoin {
 	@override
-	TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;	
+	TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;
 
 	@override
 	WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({
@@ -10,7 +10,7 @@ class CWBitcoin extends Bitcoin {
     required String mnemonic,
     required String password})
 		=> BitcoinRestoreWalletFromSeedCredentials(name: name, mnemonic: mnemonic, password: password);
-	
+
 	@override
 	WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({
     required String name,
@@ -18,7 +18,7 @@ class CWBitcoin extends Bitcoin {
     required String wif,
     WalletInfo? walletInfo})
 		=> BitcoinRestoreWalletFromWIFCredentials(name: name, password: password, wif: wif, walletInfo: walletInfo);
-	
+
 	@override
 	WalletCredentials createBitcoinNewWalletCredentials({
     required String name,
@@ -32,16 +32,16 @@ class CWBitcoin extends Bitcoin {
 	Map<String, String> getWalletKeys(Object wallet) {
 		final bitcoinWallet = wallet as ElectrumWallet;
 		final keys = bitcoinWallet.keys;
-		
+
 		return <String, String>{
 			'wif': keys.wif,
 			'privateKey': keys.privateKey,
-			'publicKey': keys.publicKey	
+			'publicKey': keys.publicKey
 		};
 	}
-	
+
 	@override
-	List<TransactionPriority> getTransactionPriorities() 
+	List<TransactionPriority> getTransactionPriorities()
 		=> BitcoinTransactionPriority.all;
 
 	@override
@@ -75,9 +75,9 @@ class CWBitcoin extends Bitcoin {
 		bitcoinWallet.walletAddresses.updateAddress(address, label);
 		await wallet.save();
 	}
-	
+
 	@override
-	Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate})
+	Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, bool useReplaceByFee = false})
 		=> BitcoinTransactionCredentials(
 			outputs.map((out) => OutputInfo(
 					fiatAmount: out.fiatAmount,
@@ -90,7 +90,8 @@ class CWBitcoin extends Bitcoin {
 					formattedCryptoAmount: out.formattedCryptoAmount))
 			.toList(),
 			priority: priority as BitcoinTransactionPriority,
-			feeRate: feeRate);
+			feeRate: feeRate,
+		  useReplaceByFee: useReplaceByFee);
 
 	@override
 	Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs, {TransactionPriority? priority, required int feeRate})
@@ -132,11 +133,11 @@ class CWBitcoin extends Bitcoin {
 	String formatterBitcoinAmountToString({required int amount})
 		=> bitcoinAmountToString(amount: amount);
 
-	@override	
+	@override
 	double formatterBitcoinAmountToDouble({required int amount})
 		=> bitcoinAmountToDouble(amount: amount);
 
-	@override	
+	@override
 	int formatterStringDoubleToBitcoinAmount(String amount)
 		=> stringDoubleToBitcoinAmount(amount);
 
@@ -162,7 +163,7 @@ class CWBitcoin extends Bitcoin {
 	WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
 		return LitecoinWalletService(walletInfoSource, unspentCoinSource);
 	}
-  
+
   @override
   TransactionPriority getBitcoinTransactionPriorityMedium()
     => BitcoinTransactionPriority.medium;
@@ -174,7 +175,7 @@ class CWBitcoin extends Bitcoin {
   @override
   TransactionPriority getBitcoinTransactionPrioritySlow()
     => BitcoinTransactionPriority.slow;
-  
+
   @override
   TransactionPriority getLitecoinTransactionPrioritySlow()
     => LitecoinTransactionPriority.slow;

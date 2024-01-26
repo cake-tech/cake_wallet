@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.da
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/checkbox_widget.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
@@ -96,7 +97,13 @@ class SendPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   double _sendCardHeight(BuildContext context) {
-    final double initialHeight = sendViewModel.hasCoinControl ? 500 : 465;
+    double initialHeight = 435;
+    if (sendViewModel.hasCoinControl) {
+      initialHeight += 35;
+    }
+    if (sendViewModel.isElectrumWallet) {
+      initialHeight += 35;
+    }
 
     if (!responsiveLayoutUtil.shouldRenderMobileUI) {
       return initialHeight - 66;
@@ -185,8 +192,19 @@ class SendPage extends BasePage {
                               });
                         },
                       )),
+                  if (sendViewModel.isElectrumWallet)
+                    Padding(
+                      padding: EdgeInsets.only(left: 24),
+                      child: CheckboxWidget(
+                        value: sendViewModel.useReplaceByFee,
+                        caption: S.of(context).enable_replace_by_fee,
+                        onChanged: (value) {
+                          sendViewModel.useReplaceByFee = value;
+                        },
+                      ),
+                    ),
                   Padding(
-                    padding: EdgeInsets.only(top: 10, left: 24, right: 24, bottom: 10),
+                    padding: EdgeInsets.only(left: 24, right: 24, bottom: 10),
                     child: Container(
                       height: 10,
                       child: Observer(

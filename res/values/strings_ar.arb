@@ -763,5 +763,6 @@
   "receivable_balance": "التوازن القادم",
   "confirmed_tx": "مؤكد",
   "transaction_details_source_address": "عنوان المصدر",
-  "pause_wallet_creation": ".ﺎﻴًﻟﺎﺣ ﺎﺘًﻗﺆﻣ ﺔﻔﻗﻮﺘﻣ Haven Wallet ءﺎﺸﻧﺇ ﻰﻠﻋ ﺓﺭﺪﻘﻟﺍ"
+  "pause_wallet_creation": ".ﺎﻴًﻟﺎﺣ ﺎﺘًﻗﺆﻣ ﺔﻔﻗﻮﺘﻣ Haven Wallet ءﺎﺸﻧﺇ ﻰﻠﻋ ﺓﺭﺪﻘﻟﺍ",
+  "enable_replace_by_fee": "                                                        ﻡﻮﺳﺮﻟﺎﺑ ﻝﺍﺪﺒﺘﺳﻻ﻿ﺍ ﻦﻴﻜﻤﺗ"
 }

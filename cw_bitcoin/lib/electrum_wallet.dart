@@ -306,9 +306,14 @@ abstract class ElectrumWalletBase
                 network: networkType)
             .data;
 
-        txb.addInput(input.hash, input.vout, null, p2wpkh.output);
+        txb.addInput(
+          input.hash,
+          input.vout,
+          credentials.useReplaceByFee ? 0 : null,
+          p2wpkh.output,
+        );
       } else {
-        txb.addInput(input.hash, input.vout);
+        txb.addInput(input.hash, input.vout, credentials.useReplaceByFee ? 0 : null);
       }
     });
 

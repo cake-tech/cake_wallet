@@ -749,5 +749,6 @@
   "receivable_balance": "Daidaituwa da daidaituwa",
   "confirmed_tx": "Tabbatar",
   "transaction_details_source_address": "Adireshin Incord",
-  "pause_wallet_creation": "A halin yanzu an dakatar da ikon ƙirƙirar Haven Wallet."
+  "pause_wallet_creation": "A halin yanzu an dakatar da ikon ƙirƙirar Haven Wallet.",
+  "enable_replace_by_fee": "Kunna Sauya-Ta-Kudi"
 }

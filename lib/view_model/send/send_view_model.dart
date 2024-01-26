@@ -76,6 +76,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @observable
   ExecutionState state;
 
+  @observable
+  bool useReplaceByFee = false;
+
   ObservableList<Output> outputs;
 
   @action
@@ -359,7 +362,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority!);
+        return bitcoin!.createBitcoinTransactionCredentials(outputs,
+            priority: priority!, useReplaceByFee: useReplaceByFee);
 
       case WalletType.monero:
         return monero!

@@ -767,5 +767,6 @@
   "receivable_balance": "売掛金残高",
   "confirmed_tx": "確認済み",
   "transaction_details_source_address": "ソースアドレス",
-  "pause_wallet_creation": "Haven Wallet を作成する機能は現在一時停止されています。"
+  "pause_wallet_creation": "Haven Wallet を作成する機能は現在一時停止されています。",
+  "enable_replace_by_fee": "手数料による交換を有効にする"
 }

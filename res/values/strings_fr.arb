@@ -767,5 +767,6 @@
   "receivable_balance": "Solde de créances",
   "confirmed_tx": "Confirmé",
   "transaction_details_source_address": "Adresse source",
-  "pause_wallet_creation": "La possibilité de créer Haven Wallet est actuellement suspendue."
+  "pause_wallet_creation": "La possibilité de créer Haven Wallet est actuellement suspendue.",
+  "enable_replace_by_fee": "Activer le remplacement par frais"
 }
