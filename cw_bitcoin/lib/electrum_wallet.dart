@@ -162,7 +162,7 @@ abstract class ElectrumWalletBase
       _subscribeForUpdates();
       await updateUnspent();
       await updateBalance();
-      _feeRates = await electrumClient.feeRates();
+      _feeRates = await electrumClient.feeRates(network: network);
 
       Timer.periodic(
           const Duration(minutes: 1), (timer) async => _feeRates = await electrumClient.feeRates());

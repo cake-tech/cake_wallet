@@ -316,7 +316,10 @@ class ElectrumClient {
         return [];
       });
 
-  Future<List<int>> feeRates() async {
+  Future<List<int>> feeRates({BasedUtxoNetwork? network}) async {
+    if (network == BitcoinNetwork.testnet) {
+      return [1, 1, 1];
+    }
     try {
       final topDoubleString = await estimatefee(p: 1);
       final middleDoubleString = await estimatefee(p: 5);
