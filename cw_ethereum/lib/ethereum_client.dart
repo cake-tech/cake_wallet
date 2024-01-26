@@ -190,11 +190,15 @@ I/flutter ( 4474): Gas Used: 53000
   Future<ERC20Balance> fetchERC20Balances(
       EthereumAddress userAddress, String contractAddress) async {
     final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
-    final balance = await erc20.balanceOf(userAddress);
+    try {
+      final balance = await erc20.balanceOf(userAddress);
 
-    int exponent = (await erc20.decimals()).toInt();
+      int exponent = (await erc20.decimals()).toInt();
 
-    return ERC20Balance(balance, exponent: exponent);
+      return ERC20Balance(balance, exponent: exponent);
+    } catch (_) {
+      return ERC20Balance(BigInt.zero);
+    }
   }
 
   Future<Erc20Token?> getErc20Token(String contractAddress) async {

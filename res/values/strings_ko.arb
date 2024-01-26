@@ -765,5 +765,6 @@
   "receivable_balance": "채권 잔액",
   "confirmed_tx": "확인",
   "transaction_details_source_address": "소스 주소",
-  "pause_wallet_creation": "Haven Wallet 생성 기능이 현재 일시 중지되었습니다."
+  "pause_wallet_creation": "Haven Wallet 생성 기능이 현재 일시 중지되었습니다.",
+  "camera_consent": "귀하의 카메라는 ${provider}의 식별 목적으로 이미지를 캡처하는 데 사용됩니다. 자세한 내용은 해당 개인정보 보호정책을 확인하세요."
 }

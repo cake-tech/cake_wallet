@@ -767,5 +767,6 @@
   "receivable_balance": "Forderungsbilanz",
   "confirmed_tx": "Bestätigt",
   "transaction_details_source_address": "Quelladresse",
-  "pause_wallet_creation": "Die Möglichkeit, Haven Wallet zu erstellen, ist derzeit pausiert."
+  "pause_wallet_creation": "Die Möglichkeit, Haven Wallet zu erstellen, ist derzeit pausiert.",
+  "camera_consent": "Mit Ihrer Kamera wird bis zum ${provider} ein Bild zur Identifizierung aufgenommen. Weitere Informationen finden Sie in deren Datenschutzbestimmungen."
 }

@@ -755,5 +755,6 @@
   "receivable_balance": "Saldo piutang",
   "confirmed_tx": "Dikonfirmasi",
   "transaction_details_source_address": "Alamat sumber",
-  "pause_wallet_creation": "Kemampuan untuk membuat Haven Wallet saat ini dijeda."
+  "pause_wallet_creation": "Kemampuan untuk membuat Haven Wallet saat ini dijeda.",
+  "camera_consent": "Kamera Anda akan digunakan untuk mengambil gambar untuk tujuan identifikasi oleh ${provider}. Silakan periksa Kebijakan Privasi mereka untuk detailnya."
 }

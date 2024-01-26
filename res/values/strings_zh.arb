@@ -766,5 +766,6 @@
   "receivable_balance": "应收余额",
   "confirmed_tx": "确认的",
   "transaction_details_source_address": "源地址",
-  "pause_wallet_creation": "创建 Haven 钱包的功能当前已暂停。"
+  "pause_wallet_creation": "创建 Haven 钱包的功能当前已暂停。",
+  "camera_consent": "${provider} 将使用您的相机拍摄图像以供识别之用。请查看他们的隐私政策了解详情。"
 }

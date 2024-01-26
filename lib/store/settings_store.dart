@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
-import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
@@ -40,6 +39,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/set_app_secure_native.dart';
+
 part 'settings_store.g.dart';
 
 class SettingsStore = SettingsStoreBase with _$SettingsStore;
@@ -1080,34 +1080,37 @@ abstract class SettingsStoreBase with Store {
     priority[WalletType.monero] = monero?.deserializeMoneroTransactionPriority(
             raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
         priority[WalletType.monero]!;
-    priority[WalletType.bitcoin] = bitcoin?.deserializeBitcoinTransactionPriority(
-            sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
-        priority[WalletType.bitcoin]!;
 
-    if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
-      priority[WalletType.haven] = monero?.deserializeMoneroTransactionPriority(
-              raw: sharedPreferences.getInt(PreferencesKey.havenTransactionPriority)!) ??
-          priority[WalletType.haven]!;
+    if (bitcoin != null &&
+        sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority) != null) {
+      priority[WalletType.bitcoin] = bitcoin!.deserializeBitcoinTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority)!);
     }
-    if (sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority) != null) {
-      priority[WalletType.litecoin] = bitcoin?.deserializeLitecoinTransactionPriority(
-              sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority)!) ??
-          priority[WalletType.litecoin]!;
+
+    if (monero != null &&
+        sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
+      priority[WalletType.haven] = monero!.deserializeMoneroTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.havenTransactionPriority)!);
     }
-    if (sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority) != null) {
-      priority[WalletType.ethereum] = ethereum?.deserializeEthereumTransactionPriority(
-              sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!) ??
-          priority[WalletType.ethereum]!;
+    if (bitcoin != null &&
+        sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority) != null) {
+      priority[WalletType.litecoin] = bitcoin!.deserializeLitecoinTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority)!);
     }
-    if (sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority) != null) {
-      priority[WalletType.polygon] = polygon?.deserializePolygonTransactionPriority(
-              sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority)!) ??
-          priority[WalletType.polygon]!;
+    if (ethereum != null &&
+        sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority) != null) {
+      priority[WalletType.ethereum] = ethereum!.deserializeEthereumTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
     }
-    if (sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
-      priority[WalletType.bitcoinCash] = bitcoinCash?.deserializeBitcoinCashTransactionPriority(
-              sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority)!) ??
-          priority[WalletType.bitcoinCash]!;
+    if (polygon != null &&
+        sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority) != null) {
+      priority[WalletType.polygon] = polygon!.deserializePolygonTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority)!);
+    }
+    if (bitcoinCash != null &&
+        sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
+      priority[WalletType.bitcoinCash] = bitcoinCash!.deserializeBitcoinCashTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority)!);
     }
 
     final generateSubaddresses =
@@ -1187,7 +1190,6 @@ abstract class SettingsStoreBase with Store {
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
-    final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);

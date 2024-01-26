@@ -761,5 +761,6 @@
   "receivable_balance": "Natatanggap na balanse",
   "confirmed_tx": "Nakumpirma",
   "transaction_details_source_address": "SOURCE ADDRESS",
-  "pause_wallet_creation": "Kasalukuyang naka-pause ang kakayahang gumawa ng Haven Wallet."
+  "pause_wallet_creation": "Kasalukuyang naka-pause ang kakayahang gumawa ng Haven Wallet.",
+  "camera_consent": "Gagamitin ang iyong camera upang kumuha ng larawan para sa mga layunin ng pagkakakilanlan sa pamamagitan ng ${provider}. Pakisuri ang kanilang Patakaran sa Privacy para sa mga detalye."
 }

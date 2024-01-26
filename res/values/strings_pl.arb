@@ -767,5 +767,6 @@
   "receivable_balance": "Saldo należności",
   "confirmed_tx": "Potwierdzony",
   "transaction_details_source_address": "Adres źródłowy",
-  "pause_wallet_creation": "Możliwość utworzenia Portfela Haven jest obecnie wstrzymana."
+  "pause_wallet_creation": "Możliwość utworzenia Portfela Haven jest obecnie wstrzymana.",
+  "camera_consent": "Twój aparat zostanie użyty do przechwycenia obrazu w celach identyfikacyjnych przez ${provider}. Aby uzyskać szczegółowe informacje, sprawdź ich Politykę prywatności."
 }

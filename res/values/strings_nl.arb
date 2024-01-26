@@ -767,5 +767,6 @@
   "receivable_balance": "Het saldo",
   "confirmed_tx": "Bevestigd",
   "transaction_details_source_address": "Bron adres",
-  "pause_wallet_creation": "De mogelijkheid om Haven Wallet te maken is momenteel onderbroken."
+  "pause_wallet_creation": "De mogelijkheid om Haven Wallet te maken is momenteel onderbroken.",
+  "camera_consent": "Uw camera wordt gebruikt om vóór ${provider} een beeld vast te leggen voor identificatiedoeleinden. Raadpleeg hun privacybeleid voor meer informatie."
 }
