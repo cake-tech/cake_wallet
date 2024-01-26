@@ -144,14 +144,10 @@ abstract class SolanaWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
-    return 0;
-  }
+  int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
 
   @override
-  Future<void> changePassword(String password) {
-    throw UnimplementedError("changePassword");
-  }
+  Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
 
   @override
   void close() {
@@ -274,6 +270,7 @@ abstract class SolanaWalletBase
       result[transactionModel.id] = SolanaTransactionInfo(
         id: transactionModel.id,
         to: transactionModel.to,
+        from: transactionModel.from,
         blockTime: transactionModel.blockTime,
         direction: transactionModel.isIncomingTransaction
             ? TransactionDirection.incoming
@@ -287,9 +284,7 @@ abstract class SolanaWalletBase
   }
 
   @override
-  Future<void> rescan({required int height}) {
-    throw UnimplementedError("rescan");
-  }
+  Future<void> rescan({required int height}) => throw UnimplementedError("rescan");
 
   @override
   Future<void> save() async {
@@ -415,11 +410,6 @@ abstract class SolanaWalletBase
     );
   }
 
-  void _onNewTransaction() {
-    _updateBalance();
-    _updateTransactions();
-  }
-
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
     final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
@@ -462,8 +452,9 @@ abstract class SolanaWalletBase
 
     // Convert the signature to a hexadecimal string
     final hex = bytesToHex(signature.bytes);
+    
     return hex;
   }
 
-  SolanaClient? get solanaClient => _client.getSolanaClient();
+  SolanaClient? get solanaClient => _client.getSolanaClient;
 }

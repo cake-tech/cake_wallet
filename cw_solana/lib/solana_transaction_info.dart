@@ -7,6 +7,7 @@ class SolanaTransactionInfo extends TransactionInfo {
     required this.id,
     required this.blockTime,
     required this.to,
+    required this.from,
     required this.direction,
     required this.solAmount,
     this.tokenSymbol = "SOL",
@@ -15,6 +16,7 @@ class SolanaTransactionInfo extends TransactionInfo {
 
   final String id;
   final String? to;
+  final String? from;
   final int amount;
   final bool isPending;
   final double solAmount;
@@ -55,6 +57,7 @@ class SolanaTransactionInfo extends TransactionInfo {
       isPending: data['isPending'] as bool,
       tokenSymbol: data['tokenSymbol'] as String,
       to: data['to'],
+      from: data['from'],
     );
   }
 
@@ -66,5 +69,6 @@ class SolanaTransactionInfo extends TransactionInfo {
         'isPending': isPending,
         'tokenSymbol': tokenSymbol,
         'to': to,
+        'from': from,
       };
 }

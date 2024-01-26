@@ -160,14 +160,10 @@ class SolanaWalletClient {
     }
   }
 
-  int get chainId => 1;
-
-  Future getTransactionDetails(String transactionHash) async {}
-
   void stop() {}
 
-  SolanaClient? getSolanaClient() => _client;
-  
+  SolanaClient? get getSolanaClient => _client;
+
   /// Send SOL to a Solana Wallet adress
   Future<String> sendLamportsTo(
     String destinationAddress,

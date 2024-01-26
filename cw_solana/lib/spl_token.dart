@@ -19,7 +19,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
   @HiveField(3)
   final int decimal;
 
-  @HiveField(4, defaultValue: true)
+  @HiveField(4, defaultValue: false)
   bool _enabled;
 
   @HiveField(5)
