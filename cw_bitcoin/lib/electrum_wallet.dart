@@ -417,7 +417,7 @@ abstract class ElectrumWalletBase
         }
 
         if (utxo.utxo.isP2tr()) {
-          return key.signTapRoot(txDigest, sighash: sighash, tweak: false);
+          return key.signTapRoot(txDigest, sighash: sighash);
         } else {
           return key.signInput(txDigest, sigHash: sighash);
         }
