@@ -79,7 +79,7 @@ abstract class MoneroWalletBase
 
   Box<UnspentCoinsInfo> unspentCoinsInfo;
 
-  void Function(FlutterErrorDetails)? _onError;
+  void Function(FlutterErrorDetails)? onError;
 
   @override
   late MoneroWalletAddresses walletAddresses;
@@ -438,7 +438,7 @@ abstract class MoneroWalletBase
       _askForUpdateBalance();
     } catch (e, s) {
       print(e.toString());
-      _onError?.call(FlutterErrorDetails(
+      onError?.call(FlutterErrorDetails(
         exception: e,
         stack: s,
         library: this.runtimeType.toString(),

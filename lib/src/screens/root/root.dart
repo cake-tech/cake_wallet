@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:isolate';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/entities/wallet_backup.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -67,6 +69,10 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     if (DeviceInfo.instance.isMobile) {
       initUniLinks();
     }
+    // backup service:
+    Isolate.run<void>(() {
+      WalletBackupService().init();
+    });
   }
 
   @override
