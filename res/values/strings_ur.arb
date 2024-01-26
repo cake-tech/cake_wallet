@@ -758,5 +758,7 @@
   "switchToEVMCompatibleWallet": "(Ethereum, Polygon) ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ ﮯﻟﺍﻭ ﮯﻨﮭﮐﺭ ﺖﻘﺑﺎﻄﻣ ",
   "receivable_balance": "قابل وصول توازن",
   "confirmed_tx": "تصدیق",
-  "transaction_details_source_address": "ماخذ ایڈریس"
+  "transaction_details_source_address": "ماخذ ایڈریس",
+  "pause_wallet_creation": "Haven Wallet ۔ﮯﮨ ﻑﻮﻗﻮﻣ ﻝﺎﺤﻟﺍ ﯽﻓ ﺖﯿﻠﮨﺍ ﯽﮐ ﮯﻧﺎﻨﺑ",
+  "camera_consent": "۔ﮟﯿﮭﮑﯾﺩ ﯽﺴﯿﻟﺎﭘ ﯽﺴﯾﻮﯿﺋﺍﺮﭘ ﯽﮐ ﻥﺍ ﻡﺮﮐ ﮦﺍﺮﺑ ﮯﯿﻟ ﮯﮐ ﺕﻼ${provider}ﯿﺼﻔﺗ ۔ﺎﮔ ﮯﺋﺎﺟ ﺎﯿﮐ ﻝﺎﻤﻌﺘﺳﺍ ﮯﯿﻟ"
 }

@@ -764,5 +764,7 @@
   "switchToEVMCompatibleWallet": "ကျေးဇူးပြု၍ EVM တွဲဖက်သုံးနိုင်သော ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်စမ်းကြည့်ပါ (Ethereum၊ Polygon)",
   "receivable_balance": "လက်ကျန်ငွေ",
   "confirmed_tx": "အတည်ပြုသည်",
-  "transaction_details_source_address": "အရင်းအမြစ်လိပ်စာ"
+  "transaction_details_source_address": "အရင်းအမြစ်လိပ်စာ",
+  "pause_wallet_creation": "Haven Wallet ဖန်တီးနိုင်မှုကို လောလောဆယ် ခေတ္တရပ်ထားသည်။",
+  "camera_consent": "မှတ်ပုံတင်ခြင်းရည်ရွယ်ချက်များအတွက် ${provider} တွင် သင့်ကင်မရာကို အသုံးပြုပါမည်။ အသေးစိတ်အတွက် ၎င်းတို့၏ ကိုယ်ရေးကိုယ်တာမူဝါဒကို စစ်ဆေးပါ။"
 }

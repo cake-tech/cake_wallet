@@ -764,5 +764,7 @@
   "switchToEVMCompatibleWallet": "Lütfen EVM uyumlu bir cüzdana geçin ve tekrar deneyin (Ethereum, Polygon)",
   "receivable_balance": "Alacak bakiyesi",
   "confirmed_tx": "Onaylanmış",
-  "transaction_details_source_address": "Kaynak adresi"
+  "transaction_details_source_address": "Kaynak adresi",
+  "pause_wallet_creation": "Haven Cüzdanı oluşturma yeteneği şu anda duraklatıldı.",
+  "camera_consent": "Kameranız ${provider} tarihine kadar tanımlama amacıyla bir görüntü yakalamak için kullanılacaktır. Ayrıntılar için lütfen Gizlilik Politikalarını kontrol edin."
 }

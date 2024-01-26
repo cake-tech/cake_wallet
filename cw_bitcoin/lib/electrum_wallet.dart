@@ -63,6 +63,7 @@ abstract class ElectrumWalletBase
         _password = password,
         _feeRates = <int>[],
         _isTransactionUpdating = false,
+        isEnabledAutoGenerateSubaddress = true,
         unspentCoins = [],
         _scripthashesUpdateSubject = {},
         balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of(currency != null
@@ -86,6 +87,10 @@ abstract class ElectrumWalletBase
 
   final bitcoin.HDWallet hd;
   final String mnemonic;
+
+  @override
+  @observable
+  bool isEnabledAutoGenerateSubaddress;
 
   late ElectrumClient electrumClient;
   Box<UnspentCoinsInfo> unspentCoinsInfo;
@@ -583,38 +588,66 @@ abstract class ElectrumWalletBase
   Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
     final addressHashes = <String, BitcoinAddressRecord>{};
     final normalizedHistories = <Map<String, dynamic>>[];
+    final newTxCounts = <String, int>{};
+
     walletAddresses.addresses.forEach((addressRecord) {
       final sh = scriptHash(addressRecord.address, networkType: networkType);
       addressHashes[sh] = addressRecord;
+      newTxCounts[sh] = 0;
     });
-    final histories = addressHashes.keys.map((scriptHash) =>
-        electrumClient.getHistory(scriptHash).then((history) => {scriptHash: history}));
-    final historyResults = await Future.wait(histories);
-    historyResults.forEach((history) {
-      history.entries.forEach((historyItem) {
-        if (historyItem.value.isNotEmpty) {
-          final address = addressHashes[historyItem.key];
-          address?.setAsUsed();
-          normalizedHistories.addAll(historyItem.value);
-        }
+
+    try {
+      final histories = addressHashes.keys.map((scriptHash) =>
+          electrumClient.getHistory(scriptHash).then((history) => {scriptHash: history}));
+      final historyResults = await Future.wait(histories);
+
+
+
+      historyResults.forEach((history) {
+        history.entries.forEach((historyItem) {
+          if (historyItem.value.isNotEmpty) {
+            final address = addressHashes[historyItem.key];
+            address?.setAsUsed();
+            newTxCounts[historyItem.key] = historyItem.value.length;
+            normalizedHistories.addAll(historyItem.value);
+          }
+        });
       });
-    });
-    final historiesWithDetails = await Future.wait(normalizedHistories.map((transaction) {
-      try {
-        return fetchTransactionInfo(
-            hash: transaction['tx_hash'] as String, height: transaction['height'] as int);
-      } catch (_) {
-        return Future.value(null);
+
+      for (var sh in addressHashes.keys) {
+        var balanceData = await electrumClient.getBalance(sh);
+        var addressRecord = addressHashes[sh];
+        if (addressRecord != null) {
+          addressRecord.balance = balanceData['confirmed'] as int? ?? 0;
+        }
       }
-    }));
-    return historiesWithDetails
-        .fold<Map<String, ElectrumTransactionInfo>>(<String, ElectrumTransactionInfo>{}, (acc, tx) {
-      if (tx == null) {
+
+
+      addressHashes.forEach((sh, addressRecord) {
+        addressRecord.txCount = newTxCounts[sh] ?? 0;
+      });
+
+      final historiesWithDetails = await Future.wait(normalizedHistories.map((transaction) {
+        try {
+          return fetchTransactionInfo(
+              hash: transaction['tx_hash'] as String, height: transaction['height'] as int);
+        } catch (_) {
+          return Future.value(null);
+        }
+      }));
+
+      return historiesWithDetails.fold<Map<String, ElectrumTransactionInfo>>(
+          <String, ElectrumTransactionInfo>{}, (acc, tx) {
+        if (tx == null) {
+          return acc;
+        }
+        acc[tx.id] = acc[tx.id]?.updated(tx) ?? tx;
         return acc;
-      }
-      acc[tx.id] = acc[tx.id]?.updated(tx) ?? tx;
-      return acc;
-    });
+      });
+    } catch (e) {
+      print(e.toString());
+      return {};
+    }
   }
 
   Future<void> updateTransactions() async {

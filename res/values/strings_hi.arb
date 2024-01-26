@@ -766,5 +766,7 @@
   "switchToEVMCompatibleWallet": "कृपया ईवीएम संगत वॉलेट पर स्विच करें और पुनः प्रयास करें (एथेरियम, पॉलीगॉन)",
   "receivable_balance": "प्राप्य शेष",
   "confirmed_tx": "की पुष्टि",
-  "transaction_details_source_address": "स्रोत पता"
+  "transaction_details_source_address": "स्रोत पता",
+  "pause_wallet_creation": "हेवन वॉलेट बनाने की क्षमता फिलहाल रुकी हुई है।",
+  "camera_consent": "आपके कैमरे का उपयोग ${provider} द्वारा पहचान उद्देश्यों के लिए एक छवि कैप्चर करने के लिए किया जाएगा। विवरण के लिए कृपया उनकी गोपनीयता नीति जांचें।"
 }

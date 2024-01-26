@@ -478,7 +478,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                           Text(
                                             output.estimatedFee.toString() +
                                                 ' ' +
-                                                sendViewModel.selectedCryptoCurrency.toString(),
+                                                sendViewModel.currency.toString(),
                                             style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.w600,

@@ -766,5 +766,7 @@
   "switchToEVMCompatibleWallet": "Перейдіть на гаманець, сумісний з EVM, і повторіть спробу (Ethereum, Polygon)",
   "receivable_balance": "Баланс дебіторської заборгованості",
   "confirmed_tx": "Підтверджений",
-  "transaction_details_source_address": "Адреса джерела"
+  "transaction_details_source_address": "Адреса джерела",
+  "pause_wallet_creation": "Можливість створення гаманця Haven зараз призупинено.",
+  "camera_consent": "Ваша камера використовуватиметься для зйомки зображення з метою ідентифікації ${provider}. Будь ласка, ознайомтеся з їхньою політикою конфіденційності, щоб дізнатися більше."
 }
