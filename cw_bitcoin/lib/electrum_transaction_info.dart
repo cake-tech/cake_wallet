@@ -114,7 +114,12 @@ class ElectrumTransactionInfo extends TransactionInfo {
     for (final out in bundle.originalTransaction.outputs) {
       totalOutAmount += out.amount.toInt();
       final addressExists = addresses.contains(addressFromOutputScript(out.scriptPubKey, network));
-      if ((direction == TransactionDirection.incoming && addressExists) ||
+
+      if (addressExists && direction == TransactionDirection.outgoing) {
+        // Self-send
+        direction = TransactionDirection.incoming;
+        amount += out.amount.toInt();
+      } else if ((direction == TransactionDirection.incoming && addressExists) ||
           (direction == TransactionDirection.outgoing && !addressExists)) {
         amount += out.amount.toInt();
       }
