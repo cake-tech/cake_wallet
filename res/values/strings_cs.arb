@@ -760,5 +760,9 @@
   "confirmed_tx": "Potvrzeno",
   "transaction_details_source_address": "Zdrojová adresa",
   "pause_wallet_creation": "Možnost vytvářet Haven Wallet je momentálně pozastavena.",
-  "camera_consent": "Váš fotoaparát použije k pořízení snímku pro účely identifikace ${provider}. Podrobnosti najdete v jejich Zásadách ochrany osobních údajů."
+  "camera_consent": "Váš fotoaparát použije k pořízení snímku pro účely identifikace ${provider}. Podrobnosti najdete v jejich Zásadách ochrany osobních údajů.",
+  "no_relays": "Žádná relé",
+  "choose_relay": "Vyberte relé, které chcete použít",
+  "no_relays_message": "Pro tohoto uživatele jsme našli záznam Nostr NIP-05, který však neobsahuje žádná relé. Požádejte příjemce, aby přidal přenosy do svého záznamu Nostr.",
+  "no_relay_on_domain": "Pro doménu uživatele neexistuje přenos nebo je přenos nedostupný. Vyberte relé, které chcete použít."
 }

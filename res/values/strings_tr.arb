@@ -766,5 +766,9 @@
   "confirmed_tx": "Onaylanmış",
   "transaction_details_source_address": "Kaynak adresi",
   "pause_wallet_creation": "Haven Cüzdanı oluşturma yeteneği şu anda duraklatıldı.",
-  "camera_consent": "Kameranız ${provider} tarihine kadar tanımlama amacıyla bir görüntü yakalamak için kullanılacaktır. Ayrıntılar için lütfen Gizlilik Politikalarını kontrol edin."
+  "camera_consent": "Kameranız ${provider} tarihine kadar tanımlama amacıyla bir görüntü yakalamak için kullanılacaktır. Ayrıntılar için lütfen Gizlilik Politikalarını kontrol edin.",
+  "no_relays": "Röle yok",
+  "choose_relay": "Lütfen kullanmak için bir röle seçin",
+  "no_relays_message": "Bu kullanıcı için bir Nostr NIP-05 kaydı bulduk ancak bu kayıt herhangi bir aktarma içermiyor. Lütfen alıcıya Nostr kayıtlarına aktarma eklemesi talimatını verin.",
+  "no_relay_on_domain": "Kullanıcının alanı için bir geçiş yok veya geçiş kullanılamıyor. Lütfen kullanmak için bir röle seçin."
 }

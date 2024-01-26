@@ -13,21 +13,15 @@ class NostrProfileHandler {
     'relay.snort.social': 'snort.social',
   };
 
-  static Nip05 nip05 = Nip05();
-  static final noRelaysTitle = 'No relays';
-  static final pickRelayTitle = 'Please choose a relay to use';
-  static final noRelaysMessage =
-      'We found a Nostr NIP-05 record for this user, but it does not contain any relays. Please instruct the recipient to add relays to their Nostr record.';
-  static final noUsersDomainRelay =
-      'There isn\'t a relay for user\'s domain or the relay is unavailable. Please choose a relay to use.';
+  static Nip05 _nip05 = Nip05();
 
   static Future<ProfilePointer?> queryProfile(BuildContext context, String nip05Address) async {
-    var profile = await nip05.queryProfile(nip05Address);
+    var profile = await _nip05.queryProfile(nip05Address);
     if (profile?.pubkey != null) {
       if (profile?.relays?.isNotEmpty == true) {
         return profile;
       } else {
-        await _showErrorDialog(context, noRelaysTitle, noRelaysMessage);
+        await _showErrorDialog(context, S.of(context).no_relays, S.of(context).no_relays_message);
       }
     }
     return null;
@@ -48,7 +42,7 @@ class NostrProfileHandler {
         }
       }
     }
-    await _showErrorDialog(context, noRelaysTitle, noUsersDomainRelay);
+    await _showErrorDialog(context, S.of(context).no_relays, S.of(context).no_relay_on_domain);
 
     String? chosenRelayUrl = await _showRelayChoiceDialog(context, profile.relays ?? []);
     if (chosenRelayUrl != null) {
@@ -96,17 +90,19 @@ class NostrProfileHandler {
 
   static Future<void> _showErrorDialog(
       BuildContext context, String title, String errorMessage) async {
-    await showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertWithOneAction(
-          alertTitle: title,
-          alertContent: errorMessage,
-          buttonText: S.of(context).ok,
-          buttonAction: () => Navigator.of(context).pop(),
-        );
-      },
-    );
+    if (context.mounted) {
+      await showPopUp<void>(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return AlertWithOneAction(
+            alertTitle: title,
+            alertContent: errorMessage,
+            buttonText: S.of(dialogContext).ok,
+            buttonAction: () => Navigator.of(dialogContext).pop(),
+          );
+        },
+      );
+    }
   }
 
   static String _extractDomain(String nip05Address) {
@@ -126,20 +122,21 @@ class NostrProfileHandler {
 
   static Future<String?> _showRelayChoiceDialog(BuildContext context, List<String> relays) async {
     String? selectedRelay;
-    relays.insert(0, 'Skip unrelated relays');
 
-    await showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return Picker<String>(
-          selectedAtIndex: 0,
-          title: pickRelayTitle,
-          items: relays,
-          onItemSelected: (String relay) => selectedRelay = relay,
-        );
-      },
-    );
+    if (context.mounted) {
+      await showPopUp<void>(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return Picker<String>(
+            selectedAtIndex: 0,
+            title: S.of(dialogContext).choose_relay,
+            items: relays,
+            onItemSelected: (String relay) => selectedRelay = relay,
+          );
+        },
+      );
+    }
 
-    return selectedRelay == relays.first ? null : selectedRelay;
+    return selectedRelay;
   }
 }

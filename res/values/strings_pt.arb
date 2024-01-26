@@ -767,5 +767,9 @@
   "confirmed_tx": "Confirmado",
   "transaction_details_source_address": "Endereço de Origem",
   "pause_wallet_creation": "A capacidade de criar a Haven Wallet está atualmente pausada.",
-  "camera_consent": "Sua câmera será usada para capturar uma imagem para fins de identificação por ${provider}. Por favor, verifique a Política de Privacidade para obter detalhes."
+  "camera_consent": "Sua câmera será usada para capturar uma imagem para fins de identificação por ${provider}. Por favor, verifique a Política de Privacidade para obter detalhes.",
+  "no_relays": "Sem relés",
+  "choose_relay": "Escolha um relé para usar",
+  "no_relays_message": "Encontramos um registro Nostr NIP-05 para este usuário, mas ele não contém nenhum relé. Instrua o destinatário a adicionar retransmissões ao seu registro Nostr.",
+  "no_relay_on_domain": "Não há uma retransmissão para o domínio do usuário ou a retransmissão está indisponível. Escolha um relé para usar."
 }

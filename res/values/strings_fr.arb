@@ -768,5 +768,9 @@
   "confirmed_tx": "Confirmé",
   "transaction_details_source_address": "Adresse source",
   "pause_wallet_creation": "La possibilité de créer Haven Wallet est actuellement suspendue.",
-  "camera_consent": "Votre appareil photo sera utilisé pour capturer une image à des fins d'identification par ${provider}. Veuillez consulter leur politique de confidentialité pour plus de détails."
+  "camera_consent": "Votre appareil photo sera utilisé pour capturer une image à des fins d'identification par ${provider}. Veuillez consulter leur politique de confidentialité pour plus de détails.",
+  "no_relays": "Pas de relais",
+  "choose_relay": "Veuillez choisir un relais à utiliser",
+  "no_relays_message": "Nous avons trouvé un enregistrement Nostr NIP-05 pour cet utilisateur, mais il ne contient aucun relais. Veuillez demander au destinataire d'ajouter des relais à son enregistrement Nostr.",
+  "no_relay_on_domain": "Il n'existe pas de relais pour le domaine de l'utilisateur ou le relais n'est pas disponible. Veuillez choisir un relais à utiliser."
 }

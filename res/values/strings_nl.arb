@@ -768,5 +768,9 @@
   "confirmed_tx": "Bevestigd",
   "transaction_details_source_address": "Bron adres",
   "pause_wallet_creation": "De mogelijkheid om Haven Wallet te maken is momenteel onderbroken.",
-  "camera_consent": "Uw camera wordt gebruikt om vóór ${provider} een beeld vast te leggen voor identificatiedoeleinden. Raadpleeg hun privacybeleid voor meer informatie."
+  "camera_consent": "Uw camera wordt gebruikt om vóór ${provider} een beeld vast te leggen voor identificatiedoeleinden. Raadpleeg hun privacybeleid voor meer informatie.",
+  "no_relays": "Geen relais",
+  "choose_relay": "Kies een relais dat u wilt gebruiken",
+  "no_relays_message": "We hebben een Nostr NIP-05-record voor deze gebruiker gevonden, maar deze bevat geen relays. Instrueer de ontvanger om relays toe te voegen aan zijn Nostr-record.",
+  "no_relay_on_domain": "Er is geen relay voor het domein van de gebruiker of de relay is niet beschikbaar. Kies een relais dat u wilt gebruiken."
 }

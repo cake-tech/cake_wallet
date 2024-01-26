@@ -176,18 +176,19 @@ class AddressResolver {
           }
         }
       }
-      if(isEmailFormat(text)) {
+      if (isEmailFormat(text)) {
         final nostrProfile = await NostrProfileHandler.queryProfile(context, text);
-        if(nostrProfile?.relays != null) {
-      final nostrUserData = await NostrProfileHandler.processRelays(context, nostrProfile!, text);
+        if (nostrProfile?.relays != null) {
+          final nostrUserData =
+              await NostrProfileHandler.processRelays(context, nostrProfile!, text);
 
-      if(nostrUserData != null) {
-        String? addressFromBio =
-        extractAddressByType(raw: nostrUserData.about, type: CryptoCurrency.fromString(ticker));
-        if (addressFromBio != null) {
-          return ParsedAddress.nostrAddress(address: addressFromBio, name: text);
-        }
-      }
+          if (nostrUserData != null) {
+            String? addressFromBio = extractAddressByType(
+                raw: nostrUserData.about, type: CryptoCurrency.fromString(ticker));
+            if (addressFromBio != null) {
+              return ParsedAddress.nostrAddress(address: addressFromBio, name: text);
+            }
+          }
         }
       }
     } catch (e) {
