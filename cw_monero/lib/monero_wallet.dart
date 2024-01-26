@@ -171,7 +171,12 @@ abstract class MoneroWalletBase
   Future<void> startSync() async {
     try {
       _setInitialHeight();
-    } catch (_) {}
+    } catch (_) {
+      try {
+        resetCache(name);
+        _setInitialHeight();
+      } catch (_) {}
+    }
 
     try {
       syncStatus = AttemptingSyncStatus();
@@ -402,9 +407,7 @@ abstract class MoneroWalletBase
         if (coin.spent == 0) {
           final unspent = MoneroUnspent.fromCoinsInfoRow(coin);
           if (unspent.hash.isNotEmpty) {
-            unspent.isChange = transaction_history
-                .getTransaction(unspent.hash)
-                .direction == 1;
+            unspent.isChange = transaction_history.getTransaction(unspent.hash).direction == 1;
           }
           unspentCoins.add(unspent);
         }
@@ -418,7 +421,7 @@ abstract class MoneroWalletBase
       if (unspentCoins.isNotEmpty) {
         unspentCoins.forEach((coin) {
           final coinInfoList = unspentCoinsInfo.values.where((element) =>
-          element.walletId.contains(id) &&
+              element.walletId.contains(id) &&
               element.accountIndex == walletAddresses.account!.id &&
               element.keyImage!.contains(coin.keyImage!));
 
@@ -538,13 +541,17 @@ abstract class MoneroWalletBase
     if (walletInfo.isRecovery) {
       return;
     }
-
+    
     final currentHeight = monero_wallet.getCurrentHeight();
 
     if (currentHeight <= 1) {
       final height = _getHeightByDate(walletInfo.date);
-      monero_wallet.setRecoveringFromSeed(isRecovery: true);
-      monero_wallet.setRefreshFromBlockHeight(height: height);
+      if (height > 1) {
+        monero_wallet.setRecoveringFromSeed(isRecovery: true);
+        monero_wallet.setRefreshFromBlockHeight(height: height);
+        return;
+      }
+      throw Exception("Restore height isn't > 0!");
     }
   }
 
@@ -650,7 +657,7 @@ abstract class MoneroWalletBase
   }
 
   @override
-  void setExceptionHandler(void Function(FlutterErrorDetails) onError) => _onError = onError;
+  void setExceptionHandler(void Function(FlutterErrorDetails) e) => onError = e;
 
   @override
   String signMessage(String message, {String? address}) {
