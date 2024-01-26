@@ -39,6 +39,7 @@ import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:http/http.dart' as http;
 
 part 'electrum_wallet.g.dart';
 
@@ -645,18 +646,41 @@ abstract class ElectrumWalletBase
 
   Future<ElectrumTransactionBundle> getTransactionExpanded(
       {required String hash, required int height}) async {
-    final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
-    final transactionHex = verboseTransaction['hex'] as String;
+    String transactionHex;
+    int? time;
+    int confirmations = 0;
+    if (network == BitcoinNetwork.mainnet) {
+      final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
+
+      transactionHex = verboseTransaction as String;
+      time = verboseTransaction['time'] as int?;
+      confirmations = verboseTransaction['confirmations'] as int? ?? 0;
+    } else {
+      // Testnet public electrum server does not support verbose transaction fetching
+      transactionHex = await electrumClient.getTransactionHex(hash: hash);
+
+      final status = json.decode(
+          (await http.get(Uri.parse("https://blockstream.info/testnet/api/tx/$hash/status"))).body);
+
+      time = status["block_time"] as int?;
+      final tip = await electrumClient.getCurrentBlockChainTip() ?? 0;
+      confirmations = tip - (status["block_height"] as int? ?? 0);
+    }
+
     final original = bitcoin_base.BtcTransaction.fromRaw(transactionHex);
     final ins = <bitcoin_base.BtcTransaction>[];
-    final time = verboseTransaction['time'] as int?;
-    final confirmations = verboseTransaction['confirmations'] as int? ?? 0;
 
     for (final vin in original.inputs) {
-      final id = HEX.encode(HEX.decode(vin.txId).reversed.toList());
-      final txHex = await electrumClient.getTransactionHex(hash: id);
-      final tx = bitcoin_base.BtcTransaction.fromRaw(txHex);
-      ins.add(tx);
+      try {
+        final id = HEX.encode(HEX.decode(vin.txId).reversed.toList());
+        final txHex = await electrumClient.getTransactionHex(hash: id);
+        final tx = bitcoin_base.BtcTransaction.fromRaw(txHex);
+        ins.add(tx);
+      } catch (_) {
+        ins.add(bitcoin_base.BtcTransaction.fromRaw(
+          await electrumClient.getTransactionHex(hash: vin.txId),
+        ));
+      }
     }
 
     return ElectrumTransactionBundle(original, ins: ins, time: time, confirmations: confirmations);
