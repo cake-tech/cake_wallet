@@ -159,6 +159,9 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestMoneroNode() async {
+    if (uri.toString().contains(".onion") || useSocksProxy) {
+      return await requestNodeWithProxy();
+    }
     final path = '/json_rpc';
     final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
     final realm = 'monero-rpc';
@@ -176,13 +179,17 @@ class Node extends HiveObject with Keyable {
         HttpClientDigestCredentials(login ?? '', password ?? ''),
       );
 
-      final request = await authenticatingClient.postUrl(rpcUri);
-      request.headers.add("'Content-Type'", "application/json");
-      request.add(utf8.encode(json.encode(body)));
-      final response = await request.close();
-      final responseBody = await utf8.decodeStream(response);
+      final http.Client client = ioc.IOClient(authenticatingClient);
 
-      final resBody = json.decode(responseBody) as Map<String, dynamic>;
+      final response = await client.post(
+        rpcUri,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(body),
+      );
+
+      client.close();
+
+      final resBody = json.decode(response.body) as Map<String, dynamic>;
       return !(resBody['result']['offline'] as bool);
     } catch (_) {
       return false;
@@ -207,19 +214,26 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestNodeWithProxy() async {
-    if (!isValidProxyAddress /* && !Tor.instance.enabled*/) {
+    if (!isValidProxyAddress) {
       return false;
     }
 
     String? proxy = socksProxyAddress;
 
-    if ((proxy?.isEmpty ?? true) && Tor.instance.enabled) {
+    // we have to be careful here because if Tor.instance.port is called and Tor isn't enabled
+    // we'll create a new tor instance that just eats up memory
+    // we initialize tor in the tor view model first so that this doesn't happen
+    if (!Tor.instance.enabled || Tor.instance.port == -1) {
+      return false;
+    }
+
+    if ((proxy?.isEmpty ?? true)) {
       proxy = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
     }
     if (proxy == null) {
       return false;
     }
-    final proxyAddress = proxy!.split(':')[0];
+    final proxyAddress = proxy.split(':')[0];
     final proxyPort = int.parse(proxy.split(':')[1]);
     try {
       final socket = await Socket.connect(proxyAddress, proxyPort, timeout: Duration(seconds: 5));

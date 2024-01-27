@@ -24,9 +24,23 @@ class ProxyWrapper {
 
   HttpClient? _torClient;
 
-  static int get port => Tor.instance.port;
+  // static int get port {
+  //   if (settingsStore?.torConnectionMode == TorConnectionMode.disabled) {
+  //     return -1;
+  //   }
+  //     return Tor.instance.port;
+  //   }
+  // }
 
-  static bool get enabled => Tor.instance.enabled;
+  int getPort() {
+    TorConnectionMode mode = settingsStore?.torConnectionMode ?? TorConnectionMode.disabled;
+    if (mode == TorConnectionMode.disabled) {
+      return -1;
+    }
+    return Tor.instance.port;
+  }
+
+  // static bool get enabled => Tor.instance.enabled;
 
   bool started = false;
 

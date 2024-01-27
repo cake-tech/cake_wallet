@@ -72,13 +72,17 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   }
 }
 
-Future<double> _fetchPriceAsync(CryptoCurrency crypto, FiatCurrency fiat) async =>
-    compute(_fetchPrice, {
-      'fiat': fiat.toString(),
-      'crypto': crypto.toString(),
-      'port': ProxyWrapper.port,
-      'torConnectionMode': getIt.get<SettingsStore>().torConnectionMode.raw,
-    });
+Future<double> _fetchPriceAsync(CryptoCurrency crypto, FiatCurrency fiat) async {
+  final settingsStore = getIt.get<SettingsStore>();
+  final mode = settingsStore.torConnectionMode;
+  ProxyWrapper proxy = await getIt.get<ProxyWrapper>();
+  return compute(_fetchPrice, {
+    'fiat': fiat.toString(),
+    'crypto': crypto.toString(),
+    'port': proxy.getPort(),
+    'torConnectionMode': mode.raw,
+  });
+}
 
 class FiatConversionService {
   static Future<double> fetchPrice({

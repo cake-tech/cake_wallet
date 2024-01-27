@@ -13,7 +13,7 @@ class ExchangeApiMode extends EnumerableItem<int> with Serializable<int> {
     switch (raw) {
       case 0:
         return enabled;
-      case 2:
+      case 1:
         return disabled;
       default:
         throw Exception('Unexpected token: $raw for ExchangeApiMode deserialize');

@@ -28,8 +28,8 @@ abstract class TorViewModelBase with Store {
   }
 
   bool torStarted = false;
-
   final SettingsStore _settingsStore;
+  final Tor tor = Tor.instance;
 
   @action
   Future<void> updateStartOnLaunch(bool value) async {
@@ -73,6 +73,7 @@ abstract class TorViewModelBase with Store {
       if (!torStarted) {
         torStarted = true;
         await Tor.init();
+        await Tor.instance.enable();
       }
 
       _settingsStore.shouldStartTorOnLaunch = true;
