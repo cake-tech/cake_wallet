@@ -27,6 +27,8 @@ abstract class TorViewModelBase with Store {
     });
   }
 
+  bool torStarted = false;
+
   final SettingsStore _settingsStore;
 
   @action
@@ -54,10 +56,11 @@ abstract class TorViewModelBase with Store {
       }
 
       bool torOnly = _settingsStore.torConnectionMode == TorConnectionMode.torOnly;
-      if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(appStore.wallet!.type)) {
+      if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash]
+          .contains(appStore.wallet!.type)) {
         bitcoin!.setTorOnly(appStore.wallet!, torOnly);
       }
-      
+
       await appStore.wallet!.connectToNode(node: node);
     }
   }
@@ -67,16 +70,12 @@ abstract class TorViewModelBase with Store {
     try {
       torConnectionStatus = TorConnectionStatus.connecting;
 
-      await Tor.init();
-
-      // start only if not already running:
-      if (Tor.instance.port == -1) {
-        await Tor.instance.enable();
+      if (!torStarted) {
+        torStarted = true;
+        await Tor.init();
       }
 
       _settingsStore.shouldStartTorOnLaunch = true;
-
-      torConnectionStatus = TorConnectionStatus.connected;
 
       SocksTCPClient.setProxy(proxies: [
         ProxySettings(
@@ -85,6 +84,8 @@ abstract class TorViewModelBase with Store {
           password: null,
         ),
       ]);
+
+      torConnectionStatus = TorConnectionStatus.connected;
 
       // connect to node through the proxy:
       await connectOrDisconnectNodeToProxy(connect: true);

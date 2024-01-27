@@ -62,7 +62,7 @@ class Node extends HiveObject with Keyable {
 
   @HiveField(6)
   String? socksProxyAddress;
-  
+
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
@@ -159,9 +159,6 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestMoneroNode() async {
-    if (uri.toString().contains(".onion") || useSocksProxy) {
-      return await requestNodeWithProxy();
-    }
     final path = '/json_rpc';
     final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
     final realm = 'monero-rpc';
@@ -179,17 +176,13 @@ class Node extends HiveObject with Keyable {
         HttpClientDigestCredentials(login ?? '', password ?? ''),
       );
 
-      final http.Client client = ioc.IOClient(authenticatingClient);
+      final request = await authenticatingClient.postUrl(rpcUri);
+      request.headers.add("'Content-Type'", "application/json");
+      request.add(utf8.encode(json.encode(body)));
+      final response = await request.close();
+      final responseBody = await utf8.decodeStream(response);
 
-      final response = await client.post(
-        rpcUri,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(body),
-      );
-
-      client.close();
-
-      final resBody = json.decode(response.body) as Map<String, dynamic>;
+      final resBody = json.decode(responseBody) as Map<String, dynamic>;
       return !(resBody['result']['offline'] as bool);
     } catch (_) {
       return false;
