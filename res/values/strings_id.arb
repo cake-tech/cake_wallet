@@ -763,5 +763,6 @@
   "transaction_details_source_address": "Alamat sumber",
   "pause_wallet_creation": "Kemampuan untuk membuat Haven Wallet saat ini dijeda.",
   "tor_feature_disabled": "Fitur ini dinonaktifkan sementara mode Tor Only diaktifkan untuk melindungi privasi Anda karena fitur ini tidak terhubung melalui Tor",
-  "tor_only_warning": "Beberapa fitur mungkin dinonaktifkan untuk melindungi privasi Anda saat menggunakan mode tor saja"
+  "tor_only_warning": "Beberapa fitur mungkin dinonaktifkan untuk melindungi privasi Anda saat menggunakan mode tor saja",
+  "camera_consent": "Kamera Anda akan digunakan untuk mengambil gambar untuk tujuan identifikasi oleh ${provider}. Silakan periksa Kebijakan Privasi mereka untuk detailnya."
 }

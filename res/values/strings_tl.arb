@@ -769,5 +769,6 @@
   "transaction_details_source_address": "SOURCE ADDRESS",
   "pause_wallet_creation": "Kasalukuyang naka-pause ang kakayahang gumawa ng Haven Wallet.",
   "tor_feature_disabled": "Ang tampok na ito ay hindi pinagana habang ang mode lamang ay pinagana upang maprotektahan ang iyong privacy dahil ang tampok na ito ay hindi kumonekta sa tor",
-  "tor_only_warning": "Ang ilang mga tampok ay maaaring hindi pinagana upang maprotektahan ang iyong privacy kapag gumagamit lamang ng mode ng tor"
+  "tor_only_warning": "Ang ilang mga tampok ay maaaring hindi pinagana upang maprotektahan ang iyong privacy kapag gumagamit lamang ng mode ng tor",
+  "camera_consent": "Gagamitin ang iyong camera upang kumuha ng larawan para sa mga layunin ng pagkakakilanlan sa pamamagitan ng ${provider}. Pakisuri ang kanilang Patakaran sa Privacy para sa mga detalye."
 }

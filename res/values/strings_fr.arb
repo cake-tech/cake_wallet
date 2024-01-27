@@ -775,5 +775,6 @@
   "transaction_details_source_address": "Adresse source",
   "pause_wallet_creation": "La possibilité de créer Haven Wallet est actuellement suspendue.",
   "tor_feature_disabled": "Cette fonction est désactivée tandis que le mode Tor unique",
-  "tor_only_warning": "Certaines fonctionnalités peuvent être désactivées pour protéger votre vie privée lorsque vous utilisez le mode Tor uniquement"
+  "tor_only_warning": "Certaines fonctionnalités peuvent être désactivées pour protéger votre vie privée lorsque vous utilisez le mode Tor uniquement",
+  "camera_consent": "Votre appareil photo sera utilisé pour capturer une image à des fins d'identification par ${provider}. Veuillez consulter leur politique de confidentialité pour plus de détails."
 }

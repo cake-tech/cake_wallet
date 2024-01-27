@@ -773,5 +773,6 @@
   "transaction_details_source_address": "소스 주소",
   "pause_wallet_creation": "Haven Wallet 생성 기능이 현재 일시 중지되었습니다.",
   "tor_feature_disabled": "이 기능은 TOR 전용 모드가 사용되지 않으므로이 기능은 TOR에 연결되지 않으므로 개인 정보를 보호 할 수 있습니다.",
-  "tor_only_warning": "Tor 전용 모드를 사용할 때 개인 정보를 보호하기 위해 일부 기능이 비활성화 될 수 있습니다."
+  "tor_only_warning": "Tor 전용 모드를 사용할 때 개인 정보를 보호하기 위해 일부 기능이 비활성화 될 수 있습니다.",
+  "camera_consent": "귀하의 카메라는 ${provider}의 식별 목적으로 이미지를 캡처하는 데 사용됩니다. 자세한 내용은 해당 개인정보 보호정책을 확인하세요."
 }

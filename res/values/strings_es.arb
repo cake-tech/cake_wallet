@@ -775,5 +775,6 @@
   "transaction_details_source_address": "Dirección de la fuente",
   "pause_wallet_creation": "La capacidad para crear Haven Wallet está actualmente pausada.",
   "tor_feature_disabled": "Esta característica está deshabilitada, mientras que el modo de solo tor está habilitado para proteger su privacidad, ya que esta función no se conecta a través de Tor",
-  "tor_only_warning": "Algunas características pueden desactivarse para proteger su privacidad cuando se usa solo el modo Tor"
+  "tor_only_warning": "Algunas características pueden desactivarse para proteger su privacidad cuando se usa solo el modo Tor",
+  "camera_consent": "Su cámara será utilizada para capturar una imagen con fines de identificación por ${provider}. Consulte su Política de privacidad para obtener más detalles."
 }

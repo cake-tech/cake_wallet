@@ -769,5 +769,6 @@
   "transaction_details_source_address": "Adirẹsi orisun",
   "pause_wallet_creation": "Agbara lati ṣẹda Haven Wallet ti wa ni idaduro lọwọlọwọ.",
   "tor_feature_disabled": "Ẹya yii jẹ alaabo lakoko ti o ba jẹ pe o ṣiṣẹ nikan lati daabobo aṣiri rẹ bi ẹya yii ko sopọ mọra",
-  "tor_only_warning": "Diẹ ninu awọn ẹya le jẹ alaabo lati daabobo aṣiri rẹ nigbati o ba ni ọna to"
+  "tor_only_warning": "Diẹ ninu awọn ẹya le jẹ alaabo lati daabobo aṣiri rẹ nigbati o ba ni ọna to",
+  "camera_consent": "Kamẹra rẹ yoo ṣee lo lati ya aworan kan fun awọn idi idanimọ nipasẹ ${provider}. Jọwọ ṣayẹwo Ilana Aṣiri wọn fun awọn alaye."
 }

@@ -1,4 +1,3 @@
-import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:hive/hive.dart';
@@ -18,7 +17,6 @@ abstract class WalletListViewModelBase with Store {
     this._walletInfoSource,
     this._appStore,
     this._walletLoadingService,
-    this._authService,
   ) : wallets = ObservableList<WalletListItem>() {
     setOrderType(_appStore.settingsStore.walletListOrder);
     reaction((_) => _appStore.wallet, (_) => updateList());
@@ -39,7 +37,6 @@ abstract class WalletListViewModelBase with Store {
   final AppStore _appStore;
   final Box<WalletInfo> _walletInfoSource;
   final WalletLoadingService _walletLoadingService;
-  final AuthService _authService;
 
   WalletType get currentWalletType => _appStore.wallet!.type;
 
@@ -159,9 +156,5 @@ abstract class WalletListViewModelBase with Store {
         await reorderAccordingToWalletList();
         break;
     }
-  }
-
-  Future<bool> checkIfAuthRequired() async {
-    return _authService.requireAuth();
   }
 }
