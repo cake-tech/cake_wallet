@@ -756,5 +756,9 @@
   "confirmed_tx": "Dikonfirmasi",
   "transaction_details_source_address": "Alamat sumber",
   "pause_wallet_creation": "Kemampuan untuk membuat Haven Wallet saat ini dijeda.",
-  "camera_consent": "Kamera Anda akan digunakan untuk mengambil gambar untuk tujuan identifikasi oleh ${provider}. Silakan periksa Kebijakan Privasi mereka untuk detailnya."
+  "camera_consent": "Kamera Anda akan digunakan untuk mengambil gambar untuk tujuan identifikasi oleh ${provider}. Silakan periksa Kebijakan Privasi mereka untuk detailnya.",
+  "no_relays": "Tidak ada relay",
+  "choose_relay": "Silakan pilih relai yang akan digunakan",
+  "no_relays_message": "Kami menemukan catatan Nostr NIP-05 untuk pengguna ini, tetapi tidak berisi relay apa pun. Harap instruksikan penerima untuk menambahkan relay ke catatan Nostr mereka.",
+  "no_relay_on_domain": "Tidak ada relai untuk domain pengguna atau relai tidak tersedia. Silakan pilih relai yang akan digunakan."
 }

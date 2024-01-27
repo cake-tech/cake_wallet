@@ -766,5 +766,9 @@
   "confirmed_tx": "Potvrđen",
   "transaction_details_source_address": "Adresa izvora",
   "pause_wallet_creation": "Mogućnost stvaranja novčanika Haven trenutno je pauzirana.",
-  "camera_consent": "Vaš će fotoaparat koristiti za snimanje slike u svrhu identifikacije od strane ${provider}. Pojedinosti potražite u njihovoj politici privatnosti."
+  "camera_consent": "Vaš će fotoaparat koristiti za snimanje slike u svrhu identifikacije od strane ${provider}. Pojedinosti potražite u njihovoj politici privatnosti.",
+  "no_relays": "Nema releja",
+  "choose_relay": "Odaberite relej za korištenje",
+  "no_relays_message": "Pronašli smo zapis Nostr NIP-05 za ovog korisnika, ali on ne sadrži nikakve releje. Uputite primatelja da doda releje u svoj Nostr zapis.",
+  "no_relay_on_domain": "Ne postoji relej za korisničku domenu ili je relej nedostupan. Odaberite relej za korištenje."
 }

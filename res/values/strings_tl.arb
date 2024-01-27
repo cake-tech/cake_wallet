@@ -762,5 +762,9 @@
   "confirmed_tx": "Nakumpirma",
   "transaction_details_source_address": "SOURCE ADDRESS",
   "pause_wallet_creation": "Kasalukuyang naka-pause ang kakayahang gumawa ng Haven Wallet.",
-  "camera_consent": "Gagamitin ang iyong camera upang kumuha ng larawan para sa mga layunin ng pagkakakilanlan sa pamamagitan ng ${provider}. Pakisuri ang kanilang Patakaran sa Privacy para sa mga detalye."
+  "camera_consent": "Gagamitin ang iyong camera upang kumuha ng larawan para sa mga layunin ng pagkakakilanlan sa pamamagitan ng ${provider}. Pakisuri ang kanilang Patakaran sa Privacy para sa mga detalye.",
+  "no_relays": "Walang mga relay",
+  "choose_relay": "Mangyaring pumili ng relay na gagamitin",
+  "no_relays_message": "Nakakita kami ng Nostr NIP-05 record para sa user na ito, ngunit hindi ito naglalaman ng anumang mga relay. Mangyaring atasan ang tatanggap na magdagdag ng mga relay sa kanilang Nostr record.",
+  "no_relay_on_domain": "Walang relay para sa domain ng user o hindi available ang relay. Mangyaring pumili ng relay na gagamitin."
 }

@@ -750,5 +750,9 @@
   "confirmed_tx": "Tabbatar",
   "transaction_details_source_address": "Adireshin Incord",
   "pause_wallet_creation": "A halin yanzu an dakatar da ikon ƙirƙirar Haven Wallet.",
-  "camera_consent": "Za a yi amfani da kyamarar ku don ɗaukar hoto don dalilai na tantancewa ta ${provider}. Da fatan za a duba Manufar Sirri don cikakkun bayanai."
+  "camera_consent": "Za a yi amfani da kyamarar ku don ɗaukar hoto don dalilai na tantancewa ta ${provider}. Da fatan za a duba Manufar Sirri don cikakkun bayanai.",
+  "no_relays": "Babu relays",
+  "choose_relay": "Da fatan za a zaɓi gudun ba da sanda don amfani",
+  "no_relays_message": "Mun sami rikodin Nostr NIP-05 don wannan mai amfani, amma ba ya ƙunshe da kowane relays. Da fatan za a umurci mai karɓa ya ƙara relays zuwa rikodin su na Nostr.",
+  "no_relay_on_domain": "Babu gudun ba da sanda ga yankin mai amfani ko kuma ba a samu ba. Da fatan za a zaɓi gudun ba da sanda don amfani."
 }

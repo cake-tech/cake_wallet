@@ -762,5 +762,9 @@
   "confirmed_tx": "Jẹrisi",
   "transaction_details_source_address": "Adirẹsi orisun",
   "pause_wallet_creation": "Agbara lati ṣẹda Haven Wallet ti wa ni idaduro lọwọlọwọ.",
-  "camera_consent": "Kamẹra rẹ yoo ṣee lo lati ya aworan kan fun awọn idi idanimọ nipasẹ ${provider}. Jọwọ ṣayẹwo Ilana Aṣiri wọn fun awọn alaye."
+  "camera_consent": "Kamẹra rẹ yoo ṣee lo lati ya aworan kan fun awọn idi idanimọ nipasẹ ${provider}. Jọwọ ṣayẹwo Ilana Aṣiri wọn fun awọn alaye.",
+  "no_relays": "Ko si relays",
+  "choose_relay": "Jọwọ yan yii lati lo",
+  "no_relays_message": "A ri igbasilẹ Nostr NIP-05 fun olumulo yii, ṣugbọn ko ni eyikeyi awọn iṣipopada ninu. Jọwọ sọ fun olugba lati ṣafikun awọn isunmọ si igbasilẹ Nostr wọn.",
+  "no_relay_on_domain": "Ko si iṣipopada fun agbegbe olumulo tabi yiyi ko si. Jọwọ yan yii lati lo."
 }

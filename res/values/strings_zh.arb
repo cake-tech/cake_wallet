@@ -767,5 +767,9 @@
   "confirmed_tx": "确认的",
   "transaction_details_source_address": "源地址",
   "pause_wallet_creation": "创建 Haven 钱包的功能当前已暂停。",
-  "camera_consent": "${provider} 将使用您的相机拍摄图像以供识别之用。请查看他们的隐私政策了解详情。"
+  "camera_consent": "${provider} 将使用您的相机拍摄图像以供识别之用。请查看他们的隐私政策了解详情。",
+  "no_relays": "无继电器",
+  "choose_relay": "请选择要使用的继电器",
+  "no_relays_message": "我们找到了该用户的 Nostr NIP-05 记录，但它不包含任何中继。请指示收件人将中继添加到他们的 Nostr 记录中。",
+  "no_relay_on_domain": "用户域没有中继或中继不可用。请选择要使用的继电器。"
 }
