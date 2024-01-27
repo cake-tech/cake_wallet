@@ -1,6 +1,4 @@
-Add new Off-ramp providers (DFX, OnRamper)
-On-ramp flow fixes and enhancements
-Ethereum and WalletConnect fixes and improvements
-Nano enhancements
-UI enhancements
-Generic enhancements and bug fixes
+List previously used Bitcoin addresses
+Security and Privacy enhancements
+Usability enhancements
+Bug fixes

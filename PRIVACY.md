@@ -1,6 +1,6 @@
 Privacy Policy
 
-Last modified: August 9, 2023
+Last modified: January 24, 2024
 
 Introduction
 ============
@@ -112,12 +112,12 @@ Data Security
 	
 	In any situation, Cake Labs takes no responsibility for interception of personal data by any outside individual, group, corporation, or institution. You should understand this and take any and all appropriate actions to secure your own data.
 
-Links to Other Websites
------------------------
+Other Websites and Third-Party Services
+---------------------------------------
 
 	The App may contain links to other websites that are not operated by us. If you click on a Third-Party Service link, you will be directed to that third party's site. We strongly advise you to review the Privacy Policy of every site you visit. We have no control over and assume no responsibility for the content, privacy policies or practices of any third-party sites or services.
 
-	The App includes several optional Third-Party Services, which may not be available to all users. If you use Third-Party Services, you must agree to their respective Privacy Policies.
+	The App includes several optional Third-Party Services, which may not be available to all users. If you use Third-Party Services, you must agree to their respective Privacy Policies. When using certain optional features in the app such as buying and selling, you may be asked to provide information to a Third-Party Service. You will need to read and accept the privacy policy for that third party. This Third-Party Service may ask for your name, your photo ID, your social security number or other similar number, mailing address, cryptocurrency address, or other information. They may ask you to take a selfie image. Information shared with a Third-Party Service is subject to their respective Privacy Policies.
 
 Changes to Our Privacy Policy
 -----------------------------
