@@ -997,7 +997,7 @@ abstract class SettingsStoreBase with Store {
     final totpSecretKey = await SecureKey.getString(
           secureStorage: secureStorage,
           sharedPreferences: sharedPreferences,
-          key: SecureKey.useTOTP2FA,
+          key: SecureKey.totpSecretKey,
         ) ??
         '';
 
@@ -1243,7 +1243,7 @@ abstract class SettingsStoreBase with Store {
     totpSecretKey = await SecureKey.getString(
           secureStorage: _secureStorage,
           sharedPreferences: sharedPreferences,
-          key: SecureKey.useTOTP2FA,
+          key: SecureKey.totpSecretKey,
         ) ??
         totpSecretKey;
 
