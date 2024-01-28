@@ -185,6 +185,9 @@ Future<void> defaultSettingsMigration(
         case 25:
           await rewriteSecureStoragePin(secureStorage: secureStorage);
           break;
+        case 26:
+          await insecureStorageMigration(secureStorage: secureStorage, sharedPreferences: sharedPreferences);
+          break;
         default:
           break;
       }
@@ -375,6 +378,82 @@ Node getMoneroDefaultNode({required Box<Node> nodes}) {
     return nodes.values.firstWhere((Node node) => node.uriRaw == nodeUri);
   } catch (_) {
     return nodes.values.first;
+  }
+}
+
+Future<void> insecureStorageMigration({
+  required SharedPreferences sharedPreferences,
+  required FlutterSecureStorage secureStorage,
+}) async {
+  bool? allowBiometricalAuthentication =
+      sharedPreferences.getBool(SecureKey.allowBiometricalAuthenticationKey);
+  bool? useTOTP2FA = sharedPreferences.getBool(SecureKey.useTOTP2FA);
+  bool? shouldRequireTOTP2FAForAccessingWallet =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForAccessingWallet);
+  bool? shouldRequireTOTP2FAForSendsToContact =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForSendsToContact);
+  bool? shouldRequireTOTP2FAForSendsToNonContact =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForSendsToNonContact);
+  bool? shouldRequireTOTP2FAForSendsToInternalWallets =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets);
+  bool? shouldRequireTOTP2FAForExchangesToInternalWallets =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets);
+  bool? shouldRequireTOTP2FAForExchangesToExternalWallets =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets);
+  bool? shouldRequireTOTP2FAForAddingContacts =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForAddingContacts);
+  bool? shouldRequireTOTP2FAForCreatingNewWallets =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForCreatingNewWallets);
+  bool? shouldRequireTOTP2FAForAllSecurityAndBackupSettings =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings);
+  int? selectedCake2FAPreset = sharedPreferences.getInt(SecureKey.selectedCake2FAPreset);
+  String? totpSecretKey = sharedPreferences.getString(SecureKey.totpSecretKey);
+  int? pinTimeOutDuration = sharedPreferences.getInt(SecureKey.pinTimeOutDuration);
+  int? lastAuthTimeMilliseconds = sharedPreferences.getInt(SecureKey.lastAuthTimeMilliseconds);
+
+  try {
+    await secureStorage.write(
+        key: SecureKey.allowBiometricalAuthenticationKey,
+        value: allowBiometricalAuthentication.toString());
+    await secureStorage.write(key: SecureKey.useTOTP2FA, value: useTOTP2FA.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForAccessingWallet,
+        value: shouldRequireTOTP2FAForAccessingWallet.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForSendsToContact,
+        value: shouldRequireTOTP2FAForSendsToContact.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForSendsToNonContact,
+        value: shouldRequireTOTP2FAForSendsToNonContact.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets,
+        value: shouldRequireTOTP2FAForSendsToInternalWallets.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets,
+        value: shouldRequireTOTP2FAForExchangesToInternalWallets.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets,
+        value: shouldRequireTOTP2FAForExchangesToExternalWallets.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForAddingContacts,
+        value: shouldRequireTOTP2FAForAddingContacts.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForCreatingNewWallets,
+        value: shouldRequireTOTP2FAForCreatingNewWallets.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+        value: shouldRequireTOTP2FAForAllSecurityAndBackupSettings.toString());
+    await secureStorage.write(
+        key: SecureKey.selectedCake2FAPreset, value: selectedCake2FAPreset.toString());
+    await secureStorage.write(key: SecureKey.totpSecretKey, value: totpSecretKey.toString());
+    await secureStorage.write(
+        key: SecureKey.pinTimeOutDuration, value: pinTimeOutDuration.toString());
+    await secureStorage.write(
+        key: SecureKey.lastAuthTimeMilliseconds, value: lastAuthTimeMilliseconds.toString());
+  } catch (e) {
+    print("Error migrating shared preferences to secure storage!: $e");
+    // this actually shouldn't be that big of a problem since we don't delete the old keys in this update
+    // and we read and write to the new locations when loading storage, the migration is just for extra safety
   }
 }
 

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'dart:ui';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
@@ -343,7 +344,11 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       bottom: 24,
                       child: PrimaryButton(
                           onPressed: () {
-                            Navigator.of(popupContext).pop();
+                              Navigator.pushNamedAndRemoveUntil(
+                                popupContext,
+                                Routes.dashboard,
+                                (route) => false,
+                              );
                             RequestReviewHandler.requestReview();
                           },
                           text: S.of(popupContext).got_it,
