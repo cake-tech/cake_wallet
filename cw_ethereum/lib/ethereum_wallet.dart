@@ -197,6 +197,8 @@ abstract class EthereumWalletBase
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
 
+    final String? opReturnMemo = outputs.first.memo;
+
     final CryptoCurrency transactionCurrency =
         balance.keys.firstWhere((element) => element.title == _credentials.currency.title);
 
@@ -240,6 +242,11 @@ abstract class EthereumWalletBase
       }
     }
 
+    String? hexOpReturnMemo;
+    if (opReturnMemo != null) {
+      hexOpReturnMemo = '0x' + opReturnMemo.codeUnits.map((char) => char.toRadixString(16).padLeft(2, '0')).join();
+    }
+
     final pendingEthereumTransaction = await _client.signTransaction(
       privateKey: _ethPrivateKey,
       toAddress: _credentials.outputs.first.isParsedAddress
@@ -252,6 +259,7 @@ abstract class EthereumWalletBase
       exponent: exponent,
       contractAddress:
           transactionCurrency is Erc20Token ? transactionCurrency.contractAddress : null,
+      data: hexOpReturnMemo,
     );
 
     return pendingEthereumTransaction;

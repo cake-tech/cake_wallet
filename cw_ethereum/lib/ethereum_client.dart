@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cw_core/crypto_currency.dart';
+import 'package:hex/hex.dart' as hex;
 import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_ethereum/ethereum_transaction_model.dart';
@@ -73,6 +74,7 @@ class EthereumClient {
     required CryptoCurrency currency,
     required int exponent,
     String? contractAddress,
+    String? data,
   }) async {
     assert(currency == CryptoCurrency.eth ||
         currency == CryptoCurrency.maticpoly ||
@@ -88,6 +90,7 @@ class EthereumClient {
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
       amount: _isEVMCompatibleChain ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
+      data: data != null ? hexToBytes(data) : null,
     );
 
     final signedTransaction =
@@ -123,6 +126,13 @@ class EthereumClient {
     );
   }
 
+  Uint8List hexToBytes(String hexString) {
+    if (hexString.startsWith('0x')) {
+      hexString = hexString.substring(2);
+    }
+    return Uint8List.fromList(hex.HEX.decode(hexString));
+  }
+
   int get chainId => 1;
 
   Transaction createTransaction({
@@ -130,12 +140,14 @@ class EthereumClient {
     required EthereumAddress to,
     required EtherAmount amount,
     EtherAmount? maxPriorityFeePerGas,
+    Uint8List? data,
   }) {
     return Transaction(
       from: from,
       to: to,
       maxPriorityFeePerGas: maxPriorityFeePerGas,
       value: amount,
+      data: data,
     );
   }
 

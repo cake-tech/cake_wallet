@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bitbox/bitbox.dart' as bitbox;
+import 'package:bitbox/src/utils/opcodes.dart' as bitboxOPCodes;
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -109,6 +110,8 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     final hasMultiDestination = outputs.length > 1;
 
     var allInputsAmount = 0;
+
+    final String? opReturnMemo = outputs.first.memo;
 
     if (unspentCoins.isEmpty) await updateUnspent();
 
@@ -252,6 +255,8 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       txb.addOutput(changeAddress, changeValue);
     }
 
+    if (opReturnMemo != null) txb.addOutput(createOpReturnScript(opReturnMemo), 0);
+
     for (var i = 0; i < inputs.length; i++) {
       final input = inputs[i];
       final keyPair = generateKeyPair(
@@ -260,7 +265,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       txb.sign(i, keyPair, input.value);
     }
 
-    // Build the transaction
     final tx = txb.build();
 
     return PendingBitcoinCashTransaction(tx, type,
@@ -325,5 +329,12 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             .index : null;
     final HD = index == null ? hd : hd.derive(index);
     return base64Encode(HD.signMessage(message));
+  }
+
+  Uint8List createOpReturnScript(String data) {
+    List<int> script = [];
+    script.add(bitboxOPCodes.Opcodes.OP_RETURN);
+    script.addAll(utf8.encode(data));
+    return Uint8List.fromList(script);
   }
 }

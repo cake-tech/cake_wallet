@@ -49,7 +49,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         _provider = ExolixExchangeProvider();
         break;
       case ExchangeProviderDescription.thorChain:
-        _provider = ThorChainExchangeProvider(settingsStore: sendViewModel.balanceViewModel.settingsStore);
+        _provider = ThorChainExchangeProvider();
         break;
     }
 
@@ -104,6 +104,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     final output = sendViewModel.outputs.first;
     output.address = trade.inputAddress ?? '';
     output.setCryptoAmount(trade.amount);
+    if (_provider is ThorChainExchangeProvider) output.memo = trade.memo;
     sendViewModel.selectedCryptoCurrency = trade.from;
     await sendViewModel.createTransaction();
   }

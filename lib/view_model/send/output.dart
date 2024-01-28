@@ -66,6 +66,8 @@ abstract class OutputBase with Store {
   @observable
   String extractedAddress;
 
+  String? memo;
+
   @computed
   bool get isParsedAddress =>
       parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
@@ -176,6 +178,7 @@ abstract class OutputBase with Store {
     fiatAmount = '';
     address = '';
     note = '';
+    memo = null;
     resetParsedAddress();
   }
 

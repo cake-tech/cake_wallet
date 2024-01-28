@@ -7,25 +7,28 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
-import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:http/http.dart' as http;
 
 class ThorChainExchangeProvider extends ExchangeProvider {
-  ThorChainExchangeProvider({required SettingsStore settingsStore})
-      : _settingsStore = settingsStore,
-        super(pairList: supportedPairs(_notSupported));
+  ThorChainExchangeProvider() : super(pairList: supportedPairs(_notSupported));
 
   static final List<CryptoCurrency> _notSupported = [
     ...(CryptoCurrency.all
-        .where((element) => ![CryptoCurrency.btc, CryptoCurrency.eth].contains(element))
+        .where((element) => ![
+              CryptoCurrency.btc,
+              CryptoCurrency.eth,
+              CryptoCurrency.ltc,
+              CryptoCurrency.bch
+            ].contains(element))
         .toList())
   ];
 
   static const _baseURL = 'https://thornode.ninerealms.com';
   static const _quotePath = '/thorchain/quote/swap';
-
-  final SettingsStore _settingsStore;
+  static const _affiliateName = 'cakewallet';
+  static const _affiliateBps = '0';
 
   @override
   String get title => 'ThorChain';
@@ -45,6 +48,21 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   @override
   Future<bool> checkIsAvailable() async => true;
 
+  Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
+    final uri = Uri.parse('$_baseURL$_quotePath${Uri(queryParameters: params)}');
+    final response = await http.get(uri);
+
+    if (response.statusCode != 200) {
+      throw Exception('Unexpected HTTP status: ${response.statusCode}');
+    }
+
+    if (response.body.contains('error')) {
+      throw Exception('Unexpected response: ${response.body}');
+    }
+
+    return json.decode(response.body) as Map<String, dynamic>;
+  }
+
   @override
   Future<Limits> fetchLimits(
       {required CryptoCurrency from,
@@ -53,18 +71,14 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final params = {
       'from_asset': _normalizeCurrency(from),
       'to_asset': _normalizeCurrency(to),
-      'amount': '100000000',
+      'amount': AmountConverter.amountToSmallestUnit(cryptoCurrency: from, amount: 1).toString(),
+      'affiliate': _affiliateName,
+      'affiliate_bps': _affiliateBps,
     };
 
-    final url = Uri.parse('$_baseURL$_quotePath${Uri(queryParameters: params)}');
-    final response = await http.get(url);
-
-    if (response.statusCode != 200)
-      throw Exception('Unexpected http status: ${response.statusCode}');
-
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final responseJSON = await _getSwapQuote(params);
     final minAmountIn = responseJSON['recommended_min_amount_in'] as String?;
-    final formattedMinAmountIn = minAmountIn != null ? double.parse(minAmountIn) / 100000000 : 0.0;
+    final formattedMinAmountIn = minAmountIn != null ? int.parse(minAmountIn) / 1e8 : 0.0;
 
     return Limits(min: formattedMinAmountIn);
   }
@@ -72,23 +86,23 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   @override
   Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
     double amountBTC = double.parse(request.fromAmount);
-    int amountSatoshi = (amountBTC * 100000000).toInt();
-    String formattedAmount = amountSatoshi.toString();
+    String formattedAmount = AmountConverter.amountToSmallestUnit(
+            cryptoCurrency: request.fromCurrency, amount: amountBTC)
+        .toString();
 
     final params = {
       'from_asset': _normalizeCurrency(request.fromCurrency),
       'to_asset': _normalizeCurrency(request.toCurrency),
       'amount': formattedAmount,
       'destination': request.toAddress,
-    };
-    final url = Uri.parse('$_baseURL$_quotePath${Uri(queryParameters: params)}');
-    final response = await http.get(url);
+      'affiliate': _affiliateName,
+      'affiliate_bps': _affiliateBps};
 
-    if (response.statusCode != 200)
-      throw Exception('Unexpected http status: ${response.statusCode}');
+    final responseJSON = await _getSwapQuote(params);
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    print('createTrade _ responseJSON________: $responseJSON');
     final inputAddress = responseJSON['inbound_address'] as String?;
+    final memo = responseJSON['memo'] as String?;
 
     return Trade(
         id: 'id',
@@ -101,7 +115,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
         createdAt: DateTime.now(),
         amount: request.fromAmount,
         state: TradeState.created,
-        payoutAddress: request.toAddress);
+        payoutAddress: request.toAddress,
+        memo: memo);
   }
 
   @override
@@ -117,23 +132,22 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       final params = {
         'from_asset': _normalizeCurrency(from),
         'to_asset': _normalizeCurrency(to),
-        'amount': (amount * 100000000).toInt().toString(),
+        'amount':
+            AmountConverter.amountToSmallestUnit(cryptoCurrency: from, amount: amount).toString(),
       };
 
-      final url = Uri.parse('$_baseURL$_quotePath${Uri(queryParameters: params)}');
-      final response = await http.get(url);
-
-      if (response.statusCode != 200) {
-        throw Exception('Unexpected http status: ${response.statusCode}');
-      }
-
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      print(responseJSON.toString());
+      final responseJSON = await _getSwapQuote(params);
+      print(responseJSON);
 
       final expectedAmountOutString = responseJSON['expected_amount_out'] as String? ?? '0';
       final expectedAmountOut = double.parse(expectedAmountOutString);
+      double formattedAmountOut = 0.0;
 
-      double formattedAmountOut = expectedAmountOut / 1e9;
+      if (to == CryptoCurrency.eth) {
+        formattedAmountOut = expectedAmountOut / 1e9;
+      } else {
+        formattedAmountOut = AmountConverter.amountIntToDouble(to, expectedAmountOut.toInt());
+      }
 
       return formattedAmountOut;
     } catch (e) {
@@ -153,6 +167,10 @@ class ThorChainExchangeProvider extends ExchangeProvider {
         return 'BTC.BTC';
       case CryptoCurrency.eth:
         return 'ETH.ETH';
+      case CryptoCurrency.ltc:
+        return 'LTC.LTC';
+      case CryptoCurrency.bch:
+        return 'BCH.BCH';
       default:
         return currency.title.toLowerCase();
     }
