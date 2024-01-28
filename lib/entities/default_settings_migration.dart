@@ -383,7 +383,7 @@ Node getMoneroDefaultNode({required Box<Node> nodes}) {
 
 Future<void> insecureStorageMigration({
   required SharedPreferences sharedPreferences,
-  required FlutterSecureStorage secureStorage,
+  required SecureStorage secureStorage,
 }) async {
   bool? allowBiometricalAuthentication =
       sharedPreferences.getBool(SecureKey.allowBiometricalAuthenticationKey);
