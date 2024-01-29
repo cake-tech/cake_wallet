@@ -29,9 +29,12 @@ class PolygonWallet extends EVMChainWallet {
 
   @override
   Future<void> initErc20TokensBox() async {
-    evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(
-      "${walletInfo.name.replaceAll(" ", "_")}_${Erc20Token.polygonBoxName}",
-    );
+    final boxName = "${walletInfo.name.replaceAll(" ", "_")}_ ${Erc20Token.polygonBoxName}";
+    if (await CakeHive.boxExists(boxName)) {
+      evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName);
+    } else {
+      evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName.replaceAll(" ", ""));
+    }
   }
 
   @override
