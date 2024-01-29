@@ -36,6 +36,8 @@ import 'package:mobx/mobx.dart';
 part 'monero_wallet.g.dart';
 
 const moneroBlockSize = 1000;
+// not sure if this should just be 0 but setting it higher feels safer / should catch more cases:
+const MIN_RESTORE_HEIGHT = 1000;
 
 class MoneroWallet = MoneroWalletBase with _$MoneroWallet;
 
@@ -172,10 +174,20 @@ abstract class MoneroWalletBase
     try {
       _setInitialHeight();
     } catch (_) {
+      // our restore height wasn't correct, so lets see if using the backup works:
       try {
-        resetCache(name);
+        await resetCache(name);
         _setInitialHeight();
-      } catch (_) {}
+      } catch (e) {
+        // we still couldn't get a valid height from the backup?!:
+        // try to use the date instead:
+        try {
+          _setHeightFromDate();
+        } catch (e) {
+          // we still couldn't get a valid sync height :/
+          print("couldn't sync!: $e");
+        }
+      }
     }
 
     try {
@@ -537,22 +549,36 @@ abstract class MoneroWalletBase
     _listener = monero_wallet.setListeners(_onNewBlock, _onNewTransaction);
   }
 
+  // check if the height is correct:
   void _setInitialHeight() {
     if (walletInfo.isRecovery) {
       return;
     }
-    
-    final currentHeight = monero_wallet.getCurrentHeight();
 
-    if (currentHeight <= 1) {
-      final height = _getHeightByDate(walletInfo.date);
-      if (height > 1) {
-        monero_wallet.setRecoveringFromSeed(isRecovery: true);
-        monero_wallet.setRefreshFromBlockHeight(height: height);
-        return;
-      }
-      throw Exception("Restore height isn't > 0!");
+    final height = monero_wallet.getCurrentHeight();
+
+    if (height > MIN_RESTORE_HEIGHT) {
+      // the restore height is probably correct, so we do nothing:
+      return;
     }
+
+    throw Exception("height isn't > $MIN_RESTORE_HEIGHT!");
+  }
+
+  void _setHeightFromDate() {
+    if (walletInfo.isRecovery) {
+      return;
+    }
+
+    final height = _getHeightByDate(walletInfo.date);
+
+    if (height > MIN_RESTORE_HEIGHT) {
+      monero_wallet.setRecoveringFromSeed(isRecovery: true);
+      monero_wallet.setRefreshFromBlockHeight(height: height);
+      return;
+    }
+
+    throw Exception("height isn't > $MIN_RESTORE_HEIGHT!");
   }
 
   int _getHeightDistance(DateTime date) {
@@ -568,7 +594,8 @@ abstract class MoneroWalletBase
     final heightDistance = _getHeightDistance(date);
 
     if (nodeHeight <= 0) {
-      return 0;
+      // the node returned 0 (an error state), so lets just restore from cache:
+      throw Exception("nodeHeight is <= 0!");
     }
 
     return nodeHeight - heightDistance;
