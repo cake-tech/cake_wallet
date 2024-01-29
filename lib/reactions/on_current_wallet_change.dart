@@ -68,7 +68,8 @@ void startCurrentWalletChangeReaction(
           .get<SharedPreferences>()
           .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
 
-      if (wallet.type == WalletType.monero) {
+      if (wallet.type == WalletType.monero || wallet.type == WalletType.bitcoin ||
+          wallet.type == WalletType.litecoin || wallet.type == WalletType.bitcoinCash ) {
         _setAutoGenerateSubaddressStatus(wallet, settingsStore);
       }
 

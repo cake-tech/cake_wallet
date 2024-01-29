@@ -6,12 +6,14 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
 import 'package:cake_wallet/mastodon/mastodon_api.dart';
+import 'package:cake_wallet/nostr/nostr_api.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
+import 'package:flutter/cupertino.dart';
 
 class AddressResolver {
   AddressResolver({required this.yatService, required this.wallet, required this.settingsStore})
@@ -58,7 +60,16 @@ class AddressResolver {
     });
   }
 
-  Future<ParsedAddress> resolve(String text, String ticker) async {
+  bool isEmailFormat(String address) {
+    final RegExp emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+      caseSensitive: false,
+    );
+    return emailRegex.hasMatch(address);
+  }
+
+
+    Future<ParsedAddress> resolve(BuildContext context, String text, String ticker) async {
     try {
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
         if(settingsStore.lookupsTwitter) {
@@ -162,6 +173,21 @@ class AddressResolver {
             final record = await OpenaliasRecord.fetchAddressAndName(
                 formattedName: formattedName, ticker: ticker, txtRecord: txtRecord);
             return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
+          }
+        }
+      }
+      if (isEmailFormat(text)) {
+        final nostrProfile = await NostrProfileHandler.queryProfile(context, text);
+        if (nostrProfile?.relays != null) {
+          final nostrUserData =
+              await NostrProfileHandler.processRelays(context, nostrProfile!, text);
+
+          if (nostrUserData != null) {
+            String? addressFromBio = extractAddressByType(
+                raw: nostrUserData.about, type: CryptoCurrency.fromString(ticker));
+            if (addressFromBio != null) {
+              return ParsedAddress.nostrAddress(address: addressFromBio, name: text);
+            }
           }
         }
       }
