@@ -223,7 +223,7 @@ class Node extends HiveObject with Keyable {
     // we have to be careful here because if Tor.instance.port is called and Tor isn't enabled
     // we'll create a new tor instance that just eats up memory
     // we initialize tor in the tor view model first so that this doesn't happen
-    if (!Tor.instance.enabled || Tor.instance.port == -1) {
+    if (Tor.instance.port == -1) {
       return false;
     }
 
