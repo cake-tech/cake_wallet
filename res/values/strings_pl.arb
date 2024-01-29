@@ -776,5 +776,9 @@
   "pause_wallet_creation": "Możliwość utworzenia Portfela Haven jest obecnie wstrzymana.",
   "tor_feature_disabled": "Ta funkcja jest wyłączona, podczas gdy tryb TOR jest włączony do ochrony prywatności, ponieważ ta funkcja nie łączy się z Tor",
   "tor_only_warning": "Niektóre funkcje mogą być wyłączone w celu ochrony prywatności podczas korzystania z trybu TOR",
-  "camera_consent": "Twój aparat zostanie użyty do przechwycenia obrazu w celach identyfikacyjnych przez ${provider}. Aby uzyskać szczegółowe informacje, sprawdź ich Politykę prywatności."
+  "camera_consent": "Twój aparat zostanie użyty do przechwycenia obrazu w celach identyfikacyjnych przez ${provider}. Aby uzyskać szczegółowe informacje, sprawdź ich Politykę prywatności.",
+  "no_relays": "Żadnych przekaźników",
+  "choose_relay": "Wybierz przekaźnik, którego chcesz użyć",
+  "no_relays_message": "Znaleźliśmy rekord Nostr NIP-05 dla tego użytkownika, ale nie zawiera on żadnych przekaźników. Poinstruuj odbiorcę, aby dodał przekaźniki do swojego rekordu Nostr.",
+  "no_relay_on_domain": "Brak przekaźnika dla domeny użytkownika lub przekaźnik jest niedostępny. Wybierz przekaźnik, którego chcesz użyć."
 }

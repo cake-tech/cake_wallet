@@ -27,7 +27,9 @@ abstract class Setup2FAViewModelBase with Store {
         unhighlightTabs = false,
         selected2FASettings = ObservableList<VerboseControlSettings>(),
         state = InitialExecutionState() {
-    selectCakePreset(selectedCake2FAPreset);
+    if (selectedCake2FAPreset != Cake2FAPresetsOptions.none) {
+      selectCakePreset(selectedCake2FAPreset);
+    }
     reaction((_) => state, _saveLastAuthTime);
   }
 

@@ -774,5 +774,9 @@
   "pause_wallet_creation": "Mogućnost stvaranja novčanika Haven trenutno je pauzirana.",
   "tor_feature_disabled": "Ova je značajka onemogućena dok je način samo TOR omogućen kako bi zaštitio vašu privatnost jer se ova značajka ne povezuje preko Tor -a",
   "tor_only_warning": "Neke značajke mogu biti onemogućene za zaštitu vaše privatnosti kada koristite TOR način",
-  "camera_consent": "Vaš će fotoaparat koristiti za snimanje slike u svrhu identifikacije od strane ${provider}. Pojedinosti potražite u njihovoj politici privatnosti."
+  "camera_consent": "Vaš će fotoaparat koristiti za snimanje slike u svrhu identifikacije od strane ${provider}. Pojedinosti potražite u njihovoj politici privatnosti.",
+  "no_relays": "Nema releja",
+  "choose_relay": "Odaberite relej za korištenje",
+  "no_relays_message": "Pronašli smo zapis Nostr NIP-05 za ovog korisnika, ali on ne sadrži nikakve releje. Uputite primatelja da doda releje u svoj Nostr zapis.",
+  "no_relay_on_domain": "Ne postoji relej za korisničku domenu ili je relej nedostupan. Odaberite relej za korištenje."
 }

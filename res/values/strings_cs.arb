@@ -768,5 +768,9 @@
   "pause_wallet_creation": "Možnost vytvářet Haven Wallet je momentálně pozastavena.",
   "tor_feature_disabled": "Tato funkce je zakázána, zatímco režim pouze TOR je povolen k ochraně vašeho soukromí, protože tato funkce se nepřipojuje přes tor",
   "tor_only_warning": "Některé funkce mohou být deaktivovány k ochraně vašeho soukromí při používání režimu pouze TOR",
-  "camera_consent": "Váš fotoaparát použije k pořízení snímku pro účely identifikace ${provider}. Podrobnosti najdete v jejich Zásadách ochrany osobních údajů."
+  "camera_consent": "Váš fotoaparát použije k pořízení snímku pro účely identifikace ${provider}. Podrobnosti najdete v jejich Zásadách ochrany osobních údajů.",
+  "no_relays": "Žádná relé",
+  "choose_relay": "Vyberte relé, které chcete použít",
+  "no_relays_message": "Pro tohoto uživatele jsme našli záznam Nostr NIP-05, který však neobsahuje žádná relé. Požádejte příjemce, aby přidal přenosy do svého záznamu Nostr.",
+  "no_relay_on_domain": "Pro doménu uživatele neexistuje přenos nebo je přenos nedostupný. Vyberte relé, které chcete použít."
 }

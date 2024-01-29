@@ -777,5 +777,9 @@
   "pause_wallet_creation": "Ability to create Haven Wallet is currently paused.",
   "tor_feature_disabled": "This feature is disabled while Tor Only mode is enabled to protect your privacy as this feature doesn't connect over Tor",
   "tor_only_warning": "Some features may be disabled to protect your privacy when using Tor only mode",
-  "camera_consent": "Your camera will be used to capture an image for identification purposes by ${provider}.  Please check their Privacy Policy for details."
+  "camera_consent": "Your camera will be used to capture an image for identification purposes by ${provider}.  Please check their Privacy Policy for details.",
+  "no_relays": "No relays",
+  "choose_relay": "Please choose a relay to use",
+  "no_relays_message": "We found a Nostr NIP-05 record for this user, but it does not contain any relays. Please instruct the recipient to add relays to their Nostr record.",
+  "no_relay_on_domain": "There isn't a relay for user's domain or the relay is unavailable. Please choose a relay to use."
 }
