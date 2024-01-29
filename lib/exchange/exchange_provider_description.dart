@@ -23,7 +23,7 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
   static const exolix =
       ExchangeProviderDescription(title: 'Exolix', raw: 6, image: 'assets/images/exolix.png');
   static const thorChain =
-  ExchangeProviderDescription(title: 'ThorChain', raw: 7, image: 'assets/images/exolix.png');
+  ExchangeProviderDescription(title: 'ThorChain' , raw: 7, image: 'assets/images/thorchain.png');
 
   static const all = ExchangeProviderDescription(title: 'All trades', raw: 8, image: '');
 

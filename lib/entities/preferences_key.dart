@@ -96,4 +96,5 @@ class PreferencesKey {
   static const selectedCake2FAPreset = 'selected_cake_2fa_preset';
   static const totpSecretKey = 'totp_secret_key';
   static const currentSeedPhraseLength = 'current_seed_phrase_length';
+  static const thorChainTradeCounter = 'thor_chain_trade_counter';
 }

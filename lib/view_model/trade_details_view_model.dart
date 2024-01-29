@@ -54,7 +54,7 @@ abstract class TradeDetailsViewModelBase with Store {
         _provider = ExolixExchangeProvider();
         break;
       case ExchangeProviderDescription.thorChain:
-        _provider = ThorChainExchangeProvider();
+        _provider = ThorChainExchangeProvider(tradesStore: trades);
         break;
     }
 
@@ -64,6 +64,24 @@ abstract class TradeDetailsViewModelBase with Store {
       _updateTrade();
       timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
     }
+  }
+
+  static String? getTrackUrl(ExchangeProviderDescription provider, Trade trade) {
+    switch (provider) {
+      case ExchangeProviderDescription.changeNow:
+        return 'https://changenow.io/exchange/txs/${trade.id}';
+      case ExchangeProviderDescription.sideShift:
+        return 'https://sideshift.ai/orders/${trade.id}';
+      case ExchangeProviderDescription.simpleSwap:
+        return 'https://simpleswap.io/exchange?id=${trade.id}';
+      case ExchangeProviderDescription.trocador:
+        return 'https://trocador.app/en/checkout/${trade.id}';
+      case ExchangeProviderDescription.exolix:
+        return 'https://exolix.com/transaction/${trade.id}';
+      case ExchangeProviderDescription.thorChain:
+        return 'https://track.ninerealms.com/${trade.id}';
+    }
+    return null;
   }
 
   final Box<Trade> trades;
@@ -129,46 +147,22 @@ abstract class TradeDetailsViewModelBase with Store {
     items.add(StandartListItem(
         title: S.current.trade_details_provider, value: trade.provider.toString()));
 
-    if (trade.provider == ExchangeProviderDescription.changeNow) {
-      final buildURL = 'https://changenow.io/exchange/txs/${trade.id.toString()}';
-      items.add(TrackTradeListItem(
-          title: 'Track',
-          value: buildURL,
-          onTap: () {
-            _launchUrl(buildURL);
-          }));
-    }
-
-    if (trade.provider == ExchangeProviderDescription.sideShift) {
-      final buildURL = 'https://sideshift.ai/orders/${trade.id.toString()}';
+    final trackUrl = TradeDetailsViewModelBase.getTrackUrl(trade.provider, trade);
+    if (trackUrl != null) {
       items.add(
-          TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => _launchUrl(buildURL)));
-    }
-
-    if (trade.provider == ExchangeProviderDescription.simpleSwap) {
-      final buildURL = 'https://simpleswap.io/exchange?id=${trade.id.toString()}';
-      items.add(
-          TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => _launchUrl(buildURL)));
+          TrackTradeListItem(title: 'Track', value: trackUrl,onTap: () => _launchUrl(trackUrl)));
     }
 
     if (trade.provider == ExchangeProviderDescription.trocador) {
-      final buildURL = 'https://trocador.app/en/checkout/${trade.id.toString()}';
-      items.add(
-          TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => _launchUrl(buildURL)));
-
       items.add(StandartListItem(
           title: '${trade.providerName} ${S.current.id.toUpperCase()}',
           value: trade.providerId ?? ''));
 
-      if (trade.password != null && trade.password!.isNotEmpty)
+      if (trade.password != null && trade.password!.isNotEmpty) {
         items.add(StandartListItem(
-            title: '${trade.providerName} ${S.current.password}', value: trade.password ?? ''));
-    }
-
-    if (trade.provider == ExchangeProviderDescription.exolix) {
-      final buildURL = 'https://exolix.com/transaction/${trade.id.toString()}';
-      items.add(
-          TrackTradeListItem(title: 'Track', value: buildURL, onTap: () => _launchUrl(buildURL)));
+            title: '${trade.providerName} ${S.current.password}',
+            value: trade.password ?? ''));
+      }
     }
   }
 

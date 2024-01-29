@@ -1,3 +1,4 @@
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
@@ -431,7 +432,9 @@ class ExchangePage extends BasePage {
       }
       if (state is TradeIsCreatedSuccessfully) {
         exchangeViewModel.reset();
-        Navigator.of(context).pushNamed(Routes.exchangeConfirm);
+        (exchangeViewModel.tradesStore.trade?.provider == ExchangeProviderDescription.thorChain)
+            ? Navigator.of(context).pushReplacementNamed(Routes.exchangeTrade)
+            : Navigator.of(context).pushReplacementNamed(Routes.exchangeConfirm);
       }
     });
 

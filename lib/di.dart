@@ -231,6 +231,7 @@ import 'package:cake_wallet/entities/qr_view_data.dart';
 
 import 'buy/dfx/dfx_buy_provider.dart';
 import 'core/totp_request_details.dart';
+import 'exchange/provider/thorchain_exchange.provider.dart';
 import 'src/screens/settings/desktop_settings/desktop_settings_page.dart';
 
 final getIt = GetIt.instance;
@@ -1193,6 +1194,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
+
+  getIt.registerFactory(() => ThorChainExchangeProvider(tradesStore: tradesSource));
 
   _isSetupFinished = true;
 }

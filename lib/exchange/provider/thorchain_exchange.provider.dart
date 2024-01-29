@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -7,12 +8,17 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collection/collection.dart';
 
 class ThorChainExchangeProvider extends ExchangeProvider {
-  ThorChainExchangeProvider() : super(pairList: supportedPairs(_notSupported));
+  ThorChainExchangeProvider({required this.tradesStore})
+      : super(pairList: supportedPairs(_notSupported));
 
   static final List<CryptoCurrency> _notSupported = [
     ...(CryptoCurrency.all
@@ -29,6 +35,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   static const _quotePath = '/thorchain/quote/swap';
   static const _affiliateName = 'cakewallet';
   static const _affiliateBps = '0';
+
+  final Box<Trade> tradesStore;
 
   @override
   String get title => 'ThorChain';
@@ -96,22 +104,22 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       'amount': formattedAmount,
       'destination': request.toAddress,
       'affiliate': _affiliateName,
-      'affiliate_bps': _affiliateBps};
+      'affiliate_bps': _affiliateBps
+    };
 
     final responseJSON = await _getSwapQuote(params);
 
     print('createTrade _ responseJSON________: $responseJSON');
     final inputAddress = responseJSON['inbound_address'] as String?;
     final memo = responseJSON['memo'] as String?;
+    final tradeId = await getNextTradeCounter();
 
     return Trade(
-        id: 'id',
+        id: tradeId.toString(),
         from: request.fromCurrency,
         to: request.toCurrency,
         provider: description,
         inputAddress: inputAddress,
-        refundAddress: 'refundAddress',
-        extraId: 'extraId',
         createdAt: DateTime.now(),
         amount: request.fromAmount,
         state: TradeState.created,
@@ -156,9 +164,12 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     }
   }
 
-  @override
-  Future<Trade> findTradeById({required String id}) {
-    throw UnimplementedError('findTradeById');
+  Future<Trade> findTradeById({required String id}) async {
+    final foundTrade = tradesStore.values.firstWhereOrNull((element) => element.id == id);
+    if (foundTrade == null) {
+      throw Exception('Trade with id $id not found');
+    }
+    return foundTrade;
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {
@@ -174,5 +185,13 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       default:
         return currency.title.toLowerCase();
     }
+  }
+
+  Future<int> getNextTradeCounter() async {
+    final prefs = await SharedPreferences.getInstance();
+    int currentCounter = prefs.getInt(PreferencesKey.thorChainTradeCounter) ?? 0;
+    currentCounter++;
+    await prefs.setInt(PreferencesKey.thorChainTradeCounter, currentCounter);
+    return currentCounter;
   }
 }

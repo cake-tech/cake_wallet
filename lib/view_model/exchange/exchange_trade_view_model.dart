@@ -49,7 +49,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         _provider = ExolixExchangeProvider();
         break;
       case ExchangeProviderDescription.thorChain:
-        _provider = ThorChainExchangeProvider();
+        _provider = ThorChainExchangeProvider(tradesStore: trades);
         break;
     }
 
