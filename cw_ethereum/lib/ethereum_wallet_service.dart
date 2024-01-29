@@ -47,17 +47,32 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
   Future<EthereumWallet> openWallet(String name, String password) async {
     final walletInfo =
         walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-    final wallet = await EthereumWalletBase.open(
-      name: name,
-      password: password,
-      walletInfo: walletInfo,
-    );
 
-    await wallet.init();
-    await wallet.save();
+    try {
+      final wallet = await EthereumWalletBase.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
 
-    return wallet;
+      await wallet.init();
+      await wallet.save();
+      await saveBackup();
+      return wallet;
+    } catch (_) {
+      // try and load from backup:
+      final wallet = await EthereumWalletBase.open(
+        name: name + ".backup",
+        password: password,
+        walletInfo: walletInfo,
+      );
+      await wallet.init();
+      await wallet.save();
+      return wallet;
+    }
   }
+
+  Future<void> saveBackup() async {}
 
   @override
   Future<void> remove(String wallet) async {
@@ -116,5 +131,15 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
     newWalletInfo.name = newName;
 
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+  }
+
+  Future<void> restoreWalletFilesFromBackup(String name) async {
+    final backupWalletDirPath = await pathForWalletDir(name: "$name.backup", type: WalletType.ethereum);
+    final walletDirPath = await pathForWalletDir(name: name, type: WalletType.ethereum);
+
+    // copy backup to wallet:
+    if (File(backupWalletDirPath).existsSync()) {
+      await File(backupWalletDirPath).copy(walletDirPath);
+    }
   }
 }

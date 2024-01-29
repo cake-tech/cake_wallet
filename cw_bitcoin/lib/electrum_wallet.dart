@@ -138,6 +138,7 @@ abstract class ElectrumWalletBase
     await walletAddresses.init();
     await transactionHistory.init();
     await save();
+    await saveBackup();
   }
 
   @action
@@ -428,6 +429,12 @@ abstract class ElectrumWalletBase
     await transactionHistory.save();
   }
 
+  Future<void> saveBackup() async {
+    final path = await makePath() + '.backup';
+    await write(path: path, password: _password, data: toJSON());
+    await transactionHistory.save();
+  }
+
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
     final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
@@ -601,8 +608,6 @@ abstract class ElectrumWalletBase
           electrumClient.getHistory(scriptHash).then((history) => {scriptHash: history}));
       final historyResults = await Future.wait(histories);
 
-
-
       historyResults.forEach((history) {
         history.entries.forEach((historyItem) {
           if (historyItem.value.isNotEmpty) {
@@ -621,7 +626,6 @@ abstract class ElectrumWalletBase
           addressRecord.balance = balanceData['confirmed'] as int? ?? 0;
         }
       }
-
 
       addressHashes.forEach((sh, addressRecord) {
         addressRecord.txCount = newTxCounts[sh] ?? 0;
