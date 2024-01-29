@@ -443,7 +443,7 @@ abstract class ElectrumWalletBase
         'addresses': walletAddresses.allAddresses.map((addr) => addr.toJSON()).toList(),
         'address_page_type': walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON(),
-        'network_type': network == BitcoinNetwork.mainnet ? 'mainnet' : 'testnet',
+        'network_type': network == BitcoinNetwork.testnet ? 'testnet' : 'mainnet',
       });
 
   int feeRate(TransactionPriority priority) {
@@ -649,13 +649,7 @@ abstract class ElectrumWalletBase
     String transactionHex;
     int? time;
     int confirmations = 0;
-    if (network == BitcoinNetwork.mainnet) {
-      final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
-
-      transactionHex = verboseTransaction['hex'] as String;
-      time = verboseTransaction['time'] as int?;
-      confirmations = verboseTransaction['confirmations'] as int? ?? 0;
-    } else {
+    if (network == BitcoinNetwork.testnet) {
       // Testnet public electrum server does not support verbose transaction fetching
       transactionHex = await electrumClient.getTransactionHex(hash: hash);
 
@@ -665,6 +659,12 @@ abstract class ElectrumWalletBase
       time = status["block_time"] as int?;
       final tip = await electrumClient.getCurrentBlockChainTip() ?? 0;
       confirmations = tip - (status["block_height"] as int? ?? 0);
+    } else {
+      final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
+
+      transactionHex = verboseTransaction['hex'] as String;
+      time = verboseTransaction['time'] as int?;
+      confirmations = verboseTransaction['confirmations'] as int? ?? 0;
     }
 
     final original = bitcoin_base.BtcTransaction.fromRaw(transactionHex);
