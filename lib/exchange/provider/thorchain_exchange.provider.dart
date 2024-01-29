@@ -8,13 +8,12 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
-import 'package:cake_wallet/store/dashboard/trades_store.dart';
+import 'package:collection/collection.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:collection/collection.dart';
 
 class ThorChainExchangeProvider extends ExchangeProvider {
   ThorChainExchangeProvider({required this.tradesStore})
@@ -26,7 +25,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
               CryptoCurrency.btc,
               CryptoCurrency.eth,
               CryptoCurrency.ltc,
-              CryptoCurrency.bch
             ].contains(element))
         .toList())
   ];
@@ -34,7 +32,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   static const _baseURL = 'https://thornode.ninerealms.com';
   static const _quotePath = '/thorchain/quote/swap';
   static const _affiliateName = 'cakewallet';
-  static const _affiliateBps = '0';
+  static const _affiliateBps = '10';
 
   final Box<Trade> tradesStore;
 
@@ -80,8 +78,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       'from_asset': _normalizeCurrency(from),
       'to_asset': _normalizeCurrency(to),
       'amount': AmountConverter.amountToSmallestUnit(cryptoCurrency: from, amount: 1).toString(),
-      'affiliate': _affiliateName,
-      'affiliate_bps': _affiliateBps,
     };
 
     final responseJSON = await _getSwapQuote(params);
@@ -109,7 +105,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
     final responseJSON = await _getSwapQuote(params);
 
-    print('createTrade _ responseJSON________: $responseJSON');
     final inputAddress = responseJSON['inbound_address'] as String?;
     final memo = responseJSON['memo'] as String?;
     final tradeId = await getNextTradeCounter();
