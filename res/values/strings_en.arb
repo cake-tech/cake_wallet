@@ -768,5 +768,8 @@
   "receivable_balance": "Receivable Balance",
   "confirmed_tx": "Confirmed",
   "transaction_details_source_address": "Source address",
-  "pause_wallet_creation": "Ability to create Haven Wallet is currently paused."
+  "pause_wallet_creation": "Ability to create Haven Wallet is currently paused.",
+  "contractName": "Contract Name",
+  "contractSymbol": "Contract Symbol",
+  "description": "Description"
 }

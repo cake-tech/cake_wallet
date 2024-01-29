@@ -767,5 +767,8 @@
   "receivable_balance": "Saldo de cuentas por cobrar",
   "confirmed_tx": "Confirmado",
   "transaction_details_source_address": "Dirección de la fuente",
-  "pause_wallet_creation": "La capacidad para crear Haven Wallet está actualmente pausada."
+  "pause_wallet_creation": "La capacidad para crear Haven Wallet está actualmente pausada.",
+  "contractName": "Nombre del contrato",
+  "contractSymbol": "Símbolo de contrato",
+  "description": "Descripción"
 }

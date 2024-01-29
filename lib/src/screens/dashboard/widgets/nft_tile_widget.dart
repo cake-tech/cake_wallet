@@ -48,7 +48,7 @@ class NFTTileWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${nftAsset.name ?? ''} - ${nftAsset.symbol ?? ''}',
+                    '${nftAsset.name ?? '---'} - ${nftAsset.symbol ?? '---'}',
                     style: TextStyle(
                       fontSize: 12,
                       fontFamily: 'Lato',
@@ -59,7 +59,7 @@ class NFTTileWidget extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    nftAsset.normalizedMetadata?.name ?? nftAsset.name ?? "",
+                    nftAsset.normalizedMetadata?.name ?? nftAsset.name ?? "---",
                     style: TextStyle(
                       fontSize: 20,
                       fontFamily: 'Lato',

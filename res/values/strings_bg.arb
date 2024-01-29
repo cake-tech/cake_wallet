@@ -759,5 +759,8 @@
   "receivable_balance": "Баланс за вземания",
   "confirmed_tx": "Потвърдено",
   "transaction_details_source_address": "Адрес на източника",
-  "pause_wallet_creation": "Възможността за създаване на Haven Wallet в момента е на пауза."
+  "pause_wallet_creation": "Възможността за създаване на Haven Wallet в момента е на пауза.",
+  "contractName": "Име на договора",
+  "contractSymbol": "Договор Символ",
+  "description": "Описание"
 }

@@ -759,5 +759,8 @@
   "receivable_balance": "قابل وصول توازن",
   "confirmed_tx": "تصدیق",
   "transaction_details_source_address": "ماخذ ایڈریس",
-  "pause_wallet_creation": "Haven Wallet ۔ﮯﮨ ﻑﻮﻗﻮﻣ ﻝﺎﺤﻟﺍ ﯽﻓ ﺖﯿﻠﮨﺍ ﯽﮐ ﮯﻧﺎﻨﺑ"
+  "pause_wallet_creation": "Haven Wallet ۔ﮯﮨ ﻑﻮﻗﻮﻣ ﻝﺎﺤﻟﺍ ﯽﻓ ﺖﯿﻠﮨﺍ ﯽﮐ ﮯﻧﺎﻨﺑ",
+  "contractName": "                                                                 ﻡﺎﻧ ﺎﮐ ﮦﺪﮨﺎﻌﻣ",
+  "contractSymbol": "                                                                ﺖﻣﻼ﻿ﻋ ﯽﮐ ﮦﺪﮨﺎﻌﻣ",
+  "description": "                                                                         ﻞﯿﺼﻔﺗ"
 }
