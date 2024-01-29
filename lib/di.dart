@@ -613,7 +613,6 @@ Future<void> setup({
         _walletInfoSource,
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
-        getIt.get<AuthService>(),
       ),
     );
   } else {
@@ -624,7 +623,6 @@ Future<void> setup({
         _walletInfoSource,
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
-        getIt.get<AuthService>(),
       ),
     );
   }
@@ -726,7 +724,7 @@ Future<void> setup({
   });
 
   getIt.registerFactory(() {
-    return SecuritySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AuthService>());
+    return SecuritySettingsViewModel(getIt.get<SettingsStore>());
   });
 
   getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
