@@ -765,5 +765,6 @@
   "switchToEVMCompatibleWallet": "请切换到 EVM 兼容钱包并重试（以太坊、Polygon）",
   "receivable_balance": "应收余额",
   "confirmed_tx": "确认的",
-  "transaction_details_source_address": "源地址"
+  "transaction_details_source_address": "源地址",
+  "track": "追踪"
 }

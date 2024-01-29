@@ -99,7 +99,7 @@ abstract class OrderDetailsViewModelBase with Store {
         final buildURL = trackUrl + '${order.transferId}';
         items.add(
             TrackTradeListItem(
-                title: 'Track',
+                title: S.current.track,
                 value: buildURL,
                 onTap: () {
                   try {

@@ -149,8 +149,8 @@ abstract class TradeDetailsViewModelBase with Store {
 
     final trackUrl = TradeDetailsViewModelBase.getTrackUrl(trade.provider, trade);
     if (trackUrl != null) {
-      items.add(
-          TrackTradeListItem(title: 'Track', value: trackUrl,onTap: () => _launchUrl(trackUrl)));
+      items.add(TrackTradeListItem(
+          title: S.current.track, value: trackUrl, onTap: () => _launchUrl(trackUrl)));
     }
 
     if (trade.provider == ExchangeProviderDescription.trocador) {
@@ -160,8 +160,7 @@ abstract class TradeDetailsViewModelBase with Store {
 
       if (trade.password != null && trade.password!.isNotEmpty) {
         items.add(StandartListItem(
-            title: '${trade.providerName} ${S.current.password}',
-            value: trade.password ?? ''));
+            title: '${trade.providerName} ${S.current.password}', value: trade.password ?? ''));
       }
     }
   }
