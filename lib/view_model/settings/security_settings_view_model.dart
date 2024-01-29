@@ -1,4 +1,3 @@
-import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -9,14 +8,10 @@ part 'security_settings_view_model.g.dart';
 class SecuritySettingsViewModel = SecuritySettingsViewModelBase with _$SecuritySettingsViewModel;
 
 abstract class SecuritySettingsViewModelBase with Store {
-  SecuritySettingsViewModelBase(
-    this._settingsStore,
-    this._authService,
-  ) : _biometricAuth = BiometricAuth();
+  SecuritySettingsViewModelBase(this._settingsStore) : _biometricAuth = BiometricAuth();
 
   final BiometricAuth _biometricAuth;
   final SettingsStore _settingsStore;
-  final AuthService _authService;
 
   @computed
   bool get allowBiometricalAuthentication => _settingsStore.allowBiometricalAuthentication;
@@ -41,8 +36,6 @@ abstract class SecuritySettingsViewModelBase with Store {
       _settingsStore.allowBiometricalAuthentication = value;
 
   @action
-  setPinCodeRequiredDuration(PinCodeRequiredDuration duration) =>
+  void setPinCodeRequiredDuration(PinCodeRequiredDuration duration) =>
       _settingsStore.pinTimeOutDuration = duration;
-
-  Future<bool> checkPinCodeRiquired() => _authService.requireAuth();
 }
