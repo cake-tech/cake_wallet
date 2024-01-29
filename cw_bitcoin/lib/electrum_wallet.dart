@@ -652,7 +652,7 @@ abstract class ElectrumWalletBase
     if (network == BitcoinNetwork.mainnet) {
       final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
 
-      transactionHex = verboseTransaction as String;
+      transactionHex = verboseTransaction['hex'] as String;
       time = verboseTransaction['time'] as int?;
       confirmations = verboseTransaction['confirmations'] as int? ?? 0;
     } else {
