@@ -152,8 +152,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       });
 
   Future<void> discoverAddresses() async {
-    await _discoverAddresses(mainHd, false);
-    await _discoverAddresses(sideHd, true);
+    await _discoverAddresses(false);
+    await _discoverAddresses(true);
     await updateAddressesInBox();
   }
 
@@ -179,7 +179,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     if (changeAddresses.isEmpty) {
       final newAddresses = await _createNewAddresses(gap,
-          hd: sideHd,
           startIndex: totalCountOfChangeAddresses > 0 ? totalCountOfChangeAddresses - 1 : 0,
           isHidden: true);
       addAddresses(newAddresses);
@@ -195,16 +194,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return address;
   }
 
-  BitcoinAddressRecord generateNewAddress({bitcoin.HDWallet? hd, String label = ''}) {
-    final isHidden = hd == sideHd;
-
+  BitcoinAddressRecord generateNewAddress({String label = ''}) {
     final newAddressIndex = addresses.fold(
-        0, (int acc, addressRecord) => isHidden == addressRecord.isHidden ? acc + 1 : acc);
+        0, (int acc, addressRecord) => addressRecord.isHidden == false ? acc + 1 : acc);
 
     final address = BitcoinAddressRecord(
-      getAddress(index: newAddressIndex, hd: hd ?? sideHd, addressType: addressPageType),
+      getAddress(index: newAddressIndex, hd: mainHd, addressType: addressPageType),
       index: newAddressIndex,
-      isHidden: isHidden,
+      isHidden: false,
       name: label,
     );
     addresses.add(address);
@@ -256,7 +253,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  Future<void> _discoverAddresses(bitcoin.HDWallet hd, bool isHidden) async {
+  Future<void> _discoverAddresses(bool isHidden) async {
     var hasAddrUse = true;
     List<BitcoinAddressRecord> addrs;
 
@@ -266,7 +263,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       addrs = await _createNewAddresses(
         isHidden ? defaultChangeAddressesCount : defaultReceiveAddressesCount,
         startIndex: 0,
-        hd: hd,
         isHidden: isHidden,
       );
     }
@@ -281,7 +277,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
       final start = addrs.length;
       final count = start + gap;
-      final batch = await _createNewAddresses(count, startIndex: start, hd: hd, isHidden: isHidden);
+      final batch = await _createNewAddresses(count, startIndex: start, isHidden: isHidden);
       addrs.addAll(batch);
     }
 
@@ -304,29 +300,25 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (countOfReceiveAddresses < defaultReceiveAddressesCount) {
       final addressesCount = defaultReceiveAddressesCount - countOfReceiveAddresses;
       final newAddresses = await _createNewAddresses(addressesCount,
-          startIndex: countOfReceiveAddresses, hd: mainHd, isHidden: false);
+          startIndex: countOfReceiveAddresses, isHidden: false);
       addresses.addAll(newAddresses);
     }
 
     if (countOfHiddenAddresses < defaultChangeAddressesCount) {
       final addressesCount = defaultChangeAddressesCount - countOfHiddenAddresses;
       final newAddresses = await _createNewAddresses(addressesCount,
-          startIndex: countOfHiddenAddresses, hd: sideHd, isHidden: true);
+          startIndex: countOfHiddenAddresses, isHidden: true);
       addresses.addAll(newAddresses);
     }
   }
 
-  Future<List<BitcoinAddressRecord>> _createNewAddresses(
-    int count, {
-    required bitcoin.HDWallet hd,
-    int startIndex = 0,
-    bool isHidden = false,
-  }) async {
+  Future<List<BitcoinAddressRecord>> _createNewAddresses(int count,
+      {int startIndex = 0, bool isHidden = false}) async {
     final list = <BitcoinAddressRecord>[];
 
     for (var i = startIndex; i < count + startIndex; i++) {
       final address = BitcoinAddressRecord(
-        getAddress(index: i, hd: hd, addressType: addressPageType),
+        getAddress(index: i, hd: _getHd(isHidden), addressType: addressPageType),
         index: i,
         isHidden: isHidden,
         type: addressPageType,
@@ -355,7 +347,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   Future<void> setAddressType(BitcoinAddressType type) async {
     _addressPageType = type;
 
-    await _discoverAddresses(mainHd, false);
+    await _discoverAddresses(false);
     updateReceiveAddresses();
     await saveAddressesInBox();
   }
@@ -366,4 +358,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         ? addressRecord.type == null || addressRecord.type == addressPageType
         : addressRecord.type == addressPageType;
   }
+
+  bitcoin.HDWallet _getHd(bool isHidden) => isHidden ? sideHd : mainHd;
 }
