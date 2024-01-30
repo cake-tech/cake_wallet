@@ -724,7 +724,10 @@ Future<void> setup({
   getIt.registerFactory(() => TrocadorProvidersViewModel(getIt.get<SettingsStore>()));
 
   getIt.registerSingleton(TorViewModel(getIt.get<SettingsStore>()));
-  getIt.registerSingleton(ProxyWrapper(settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerSingleton(ProxyWrapper(
+    settingsStore: getIt.get<SettingsStore>(),
+    torViewModel: getIt.get<TorViewModel>(),
+  ));
 
   if (DeviceInfo.instance.isMobile && settingsStore.shouldStartTorOnLaunch) {
     getIt.get<TorViewModel>().startTor();

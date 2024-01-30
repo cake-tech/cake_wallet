@@ -6,7 +6,6 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/io_client.dart' as ioc;
-import 'package:tor/tor.dart';
 
 part 'node.g.dart';
 
@@ -220,16 +219,6 @@ class Node extends HiveObject with Keyable {
 
     String? proxy = socksProxyAddress;
 
-    // we have to be careful here because if Tor.instance.port is called and Tor isn't enabled
-    // we'll create a new tor instance that just eats up memory
-    // we initialize tor in the tor view model first so that this doesn't happen
-    if (Tor.instance.port == -1) {
-      return false;
-    }
-
-    if ((proxy?.isEmpty ?? true)) {
-      proxy = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
-    }
     if (proxy == null) {
       return false;
     }

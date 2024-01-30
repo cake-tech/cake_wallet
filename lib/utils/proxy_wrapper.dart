@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/settings/tor_connection.dart';
+import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:socks5_proxy/socks.dart';
 import 'package:tor/tor.dart';
 
@@ -18,35 +19,28 @@ class NullOverrides extends HttpOverrides {
 class ProxyWrapper {
   ProxyWrapper({
     this.settingsStore,
+    this.torViewModel,
   });
 
   SettingsStore? settingsStore;
+  TorViewModel? torViewModel;
 
   HttpClient? _torClient;
-
-  // static int get port {
-  //   if (settingsStore?.torConnectionMode == TorConnectionMode.disabled) {
-  //     return -1;
-  //   }
-  //     return Tor.instance.port;
-  //   }
-  // }
 
   int getPort() {
     TorConnectionMode mode = settingsStore?.torConnectionMode ?? TorConnectionMode.disabled;
     if (mode == TorConnectionMode.disabled) {
       return -1;
     }
-    return Tor.instance.port;
+    return torViewModel?.torInstance.port ?? -1;
   }
-
-  // static bool get enabled => Tor.instance.enabled;
 
   bool started = false;
 
-  // Method to get or create the Tor proxy instance
   Future<HttpClient> getProxyHttpClient({int? portOverride}) async {
-    portOverride = (portOverride == -1 || portOverride == null) ? Tor.instance.port : portOverride;
+    if (portOverride == -1 || portOverride == null) {
+      portOverride = torViewModel?.torInstance.port ?? -1;
+    }
 
     if (!started) {
       started = true;
