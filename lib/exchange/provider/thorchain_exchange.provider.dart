@@ -25,6 +25,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
               CryptoCurrency.btc,
               CryptoCurrency.eth,
               CryptoCurrency.ltc,
+              CryptoCurrency.bch,
             ].contains(element))
         .toList())
   ];
@@ -46,7 +47,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   bool get isEnabled => true;
 
   @override
-  bool get supportsFixedRate => true;
+  bool get supportsFixedRate => false;
 
   @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.thorChain;
