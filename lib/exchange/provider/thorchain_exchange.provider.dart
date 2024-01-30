@@ -25,7 +25,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
               CryptoCurrency.btc,
               CryptoCurrency.eth,
               CryptoCurrency.ltc,
-              CryptoCurrency.bch,
             ].contains(element))
         .toList())
   ];
@@ -79,6 +78,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       'from_asset': _normalizeCurrency(from),
       'to_asset': _normalizeCurrency(to),
       'amount': AmountConverter.amountToSmallestUnit(cryptoCurrency: from, amount: 1).toString(),
+      'affiliate': _affiliateName,
+      'affiliate_bps': _affiliateBps
     };
 
     final responseJSON = await _getSwapQuote(params);
@@ -141,7 +142,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       };
 
       final responseJSON = await _getSwapQuote(params);
-      print(responseJSON);
 
       final expectedAmountOutString = responseJSON['expected_amount_out'] as String? ?? '0';
       final expectedAmountOut = double.parse(expectedAmountOutString);
