@@ -111,18 +111,25 @@ class ElectrumTransactionInfo extends TransactionInfo {
       }
     }
 
+    final receivedAmounts = <int>[];
     for (final out in bundle.originalTransaction.outputs) {
       totalOutAmount += out.amount.toInt();
       final addressExists = addresses.contains(addressFromOutputScript(out.scriptPubKey, network));
 
-      if (addressExists && direction == TransactionDirection.outgoing) {
-        // Self-send
-        direction = TransactionDirection.incoming;
-        amount += out.amount.toInt();
-      } else if ((direction == TransactionDirection.incoming && addressExists) ||
+      if (addressExists) {
+        receivedAmounts.add(out.amount.toInt());
+      }
+
+      if ((direction == TransactionDirection.incoming && addressExists) ||
           (direction == TransactionDirection.outgoing && !addressExists)) {
         amount += out.amount.toInt();
       }
+    }
+
+    if (receivedAmounts.length == bundle.originalTransaction.outputs.length) {
+      // Self-send
+      direction = TransactionDirection.incoming;
+      amount = receivedAmounts.reduce((a, b) => a + b);
     }
 
     final fee = inputAmount - totalOutAmount;
