@@ -40,6 +40,7 @@ abstract class NanoWalletBase
     required String password,
     NanoBalance? initialBalance,
     required EncryptionFileUtils encryptionFileUtils,
+    required this.isFlatpak,
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -63,6 +64,8 @@ abstract class NanoWalletBase
       CakeHive.registerAdapter(NanoAccountAdapter());
     }
   }
+
+  final bool isFlatpak;
 
   String _mnemonic;
   final String _password;
@@ -366,7 +369,8 @@ abstract class NanoWalletBase
     }
   }
 
-  Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
+  Future<String> makePath() async =>
+      pathForWallet(name: walletInfo.name, type: walletInfo.type, isFlatpak: isFlatpak);
 
   String toJSON() => json.encode({
         'seedKey': _hexSeed,
@@ -376,13 +380,13 @@ abstract class NanoWalletBase
         'derivationType': _derivationType.toString()
       });
 
-  static Future<NanoWallet> open({
-    required String name,
-    required String password,
-    required WalletInfo walletInfo,
-    required EncryptionFileUtils encryptionFileUtils,
-  }) async {
-    final path = await pathForWallet(name: name, type: walletInfo.type);
+  static Future<NanoWallet> open(
+      {required String name,
+      required String password,
+      required WalletInfo walletInfo,
+      required EncryptionFileUtils encryptionFileUtils,
+      required bool isFlatpak}) async {
+    final path = await pathForWallet(name: name, type: walletInfo.type, isFlatpak: isFlatpak);
     final jsonSource = await encryptionFileUtils.read(path: path, password: password);
 
     final data = json.decode(jsonSource) as Map;
@@ -482,19 +486,23 @@ abstract class NanoWalletBase
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
+    final currentWalletPath =
+        await pathForWallet(name: walletInfo.name, type: type, isFlatpak: isFlatpak);
     final currentWalletFile = File(currentWalletPath);
 
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
+    final currentDirPath =
+        await pathForWalletDir(name: walletInfo.name, type: type, isFlatpak: isFlatpak);
     final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
 
     // Copies current wallet files into new wallet name's dir and files
     if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+      final newWalletPath =
+          await pathForWallet(name: newWalletName, type: type, isFlatpak: isFlatpak);
       await currentWalletFile.copy(newWalletPath);
     }
     if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
+      final newDirPath =
+          await pathForWalletDir(name: newWalletName, type: type, isFlatpak: isFlatpak);
       await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
     }
 

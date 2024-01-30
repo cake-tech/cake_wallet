@@ -49,6 +49,7 @@ abstract class PolygonWalletBase
     String? privateKey,
     required String password,
     ERC20Balance? initialBalance,
+    required this.isFlatpak,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -68,6 +69,8 @@ abstract class PolygonWalletBase
 
     _sharedPrefs.complete(SharedPreferences.getInstance());
   }
+
+  final bool isFlatpak;
 
   final String? _mnemonic;
   final String? _hexPrivateKey;
@@ -342,7 +345,8 @@ abstract class PolygonWalletBase
     }
   }
 
-  Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
+  Future<String> makePath() async =>
+      pathForWallet(name: walletInfo.name, type: walletInfo.type, isFlatpak: isFlatpak);
 
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
@@ -350,12 +354,12 @@ abstract class PolygonWalletBase
         'balance': balance[currency]!.toJSON(),
       });
 
-  static Future<PolygonWallet> open({
-    required String name,
-    required String password,
-    required WalletInfo walletInfo,
-  }) async {
-    final path = await pathForWallet(name: name, type: walletInfo.type);
+  static Future<PolygonWallet> open(
+      {required String name,
+      required String password,
+      required WalletInfo walletInfo,
+      required bool isFlatpak}) async {
+    final path = await pathForWallet(name: name, type: walletInfo.type, isFlatpak: isFlatpak);
     final jsonSource = await read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String?;
@@ -477,19 +481,23 @@ abstract class PolygonWalletBase
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
+    final currentWalletPath =
+        await pathForWallet(name: walletInfo.name, type: type, isFlatpak: isFlatpak);
     final currentWalletFile = File(currentWalletPath);
 
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
+    final currentDirPath =
+        await pathForWalletDir(name: walletInfo.name, type: type, isFlatpak: isFlatpak);
     final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
 
     // Copies current wallet files into new wallet name's dir and files
     if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+      final newWalletPath =
+          await pathForWallet(name: newWalletName, type: type, isFlatpak: isFlatpak);
       await currentWalletFile.copy(newWalletPath);
     }
     if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
+      final newDirPath =
+          await pathForWalletDir(name: newWalletName, type: type, isFlatpak: isFlatpak);
       await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
     }
 
