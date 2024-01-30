@@ -138,7 +138,6 @@ abstract class ElectrumWalletBase
     await walletAddresses.init();
     await transactionHistory.init();
     await save();
-    await saveBackup();
   }
 
   @action
@@ -425,12 +424,6 @@ abstract class ElectrumWalletBase
   @override
   Future<void> save() async {
     final path = await makePath();
-    await write(path: path, password: _password, data: toJSON());
-    await transactionHistory.save();
-  }
-
-  Future<void> saveBackup() async {
-    final path = await makePath() + '.backup';
     await write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
   }

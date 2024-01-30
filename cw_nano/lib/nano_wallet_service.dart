@@ -150,14 +150,29 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   Future<NanoWallet> openWallet(String name, String password) async {
     final walletInfo =
         walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-    final wallet = await NanoWalletBase.open(
-      name: name,
-      password: password,
-      walletInfo: walletInfo,
-    );
 
-    await wallet.init();
-    await wallet.save();
-    return wallet;
+    try {
+      final wallet = await NanoWalletBase.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
+
+      await wallet.init();
+      await wallet.save();
+      await saveBackup(name);
+      return wallet;
+    } catch (_) {
+      await restoreWalletFilesFromBackup(name);
+      final wallet = await NanoWalletBase.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
+
+      await wallet.init();
+      await wallet.save();
+      return wallet;
+    }
   }
 }

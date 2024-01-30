@@ -47,16 +47,31 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
   Future<PolygonWallet> openWallet(String name, String password) async {
     final walletInfo =
         walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-    final wallet = await PolygonWalletBase.open(
-      name: name,
-      password: password,
-      walletInfo: walletInfo,
-    );
 
-    await wallet.init();
-    await wallet.save();
+    try {
+      final wallet = await PolygonWalletBase.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
 
-    return wallet;
+      await wallet.init();
+      await wallet.save();
+      await saveBackup(name);
+      return wallet;
+    } catch (_) {
+      await restoreWalletFilesFromBackup(name);
+
+      final wallet = await PolygonWalletBase.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
+      
+      await wallet.init();
+      await wallet.save();
+      return wallet;
+    }
   }
 
   @override
