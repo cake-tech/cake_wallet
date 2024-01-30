@@ -224,13 +224,13 @@ class CWMonero extends Monero {
           name: name, password: password, height: height, mnemonic: mnemonic);
 
   @override
-  WalletCredentials createMoneroNewWalletCredentials(
-          {required String name,
-          required String language,
-          required bool isPolyseed,
-          String? password}) =>
+  WalletCredentials createMoneroNewWalletCredentials({
+    required String name,
+    required String language,
+    required bool isPolyseed,
+    String? password}) =>
       MoneroNewWalletCredentials(
-          name: name, password: password, language: language, isPolyseed: isPolyseed);
+        name: name, password: password, language: language, isPolyseed: isPolyseed);
 
   @override
   Map<String, String> getKeys(Object wallet) {
