@@ -525,19 +525,24 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+
+""";
+  const ethereumCWHeaders = """
+import 'package:cw_evm/evm_chain_formatter.dart';
+import 'package:cw_evm/evm_chain_mnemonics.dart';
+import 'package:cw_evm/evm_chain_transaction_credentials.dart';
+import 'package:cw_evm/evm_chain_transaction_info.dart';
+import 'package:cw_evm/evm_chain_transaction_priority.dart';
+import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
+
+import 'package:cw_ethereum/ethereum_client.dart';
+import 'package:cw_ethereum/ethereum_wallet.dart';
+import 'package:cw_ethereum/ethereum_wallet_service.dart';
+
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:hive/hive.dart';
 import 'package:web3dart/web3dart.dart';
-""";
-  const ethereumCWHeaders = """
-import 'package:cw_ethereum/ethereum_formatter.dart';
-import 'package:cw_ethereum/ethereum_mnemonics.dart';
-import 'package:cw_ethereum/ethereum_transaction_credentials.dart';
-import 'package:cw_ethereum/ethereum_transaction_info.dart';
-import 'package:cw_ethereum/ethereum_wallet.dart';
-import 'package:cw_ethereum/ethereum_wallet_creation_credentials.dart';
-import 'package:cw_ethereum/ethereum_wallet_service.dart';
-import 'package:cw_ethereum/ethereum_transaction_priority.dart';
+
 """;
   const ethereumCwPart = "part 'cw_ethereum.dart';";
   const ethereumContent = """
@@ -612,19 +617,24 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
-import 'package:eth_sig_util/util/utils.dart';
-import 'package:hive/hive.dart';
-import 'package:web3dart/web3dart.dart';
+
 """;
   const polygonCWHeaders = """
-import 'package:cw_polygon/polygon_formatter.dart';
-import 'package:cw_polygon/polygon_transaction_credentials.dart';
-import 'package:cw_polygon/polygon_transaction_info.dart';
+import 'package:cw_evm/evm_chain_formatter.dart';
+import 'package:cw_evm/evm_chain_mnemonics.dart';
+import 'package:cw_evm/evm_chain_transaction_info.dart';
+import 'package:cw_evm/evm_chain_transaction_priority.dart';
+import 'package:cw_evm/evm_chain_transaction_credentials.dart';
+import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
+
+import 'package:cw_polygon/polygon_client.dart';
 import 'package:cw_polygon/polygon_wallet.dart';
-import 'package:cw_polygon/polygon_wallet_creation_credentials.dart';
 import 'package:cw_polygon/polygon_wallet_service.dart';
-import 'package:cw_polygon/polygon_transaction_priority.dart';
-import 'package:cw_ethereum/ethereum_mnemonics.dart';
+
+import 'package:hive/hive.dart';
+import 'package:web3dart/web3dart.dart';
+import 'package:eth_sig_util/util/utils.dart';
+
 """;
   const polygonCwPart = "part 'cw_polygon.dart';";
   const polygonContent = """
@@ -924,6 +934,10 @@ Future<void> generatePubspec(
   cw_polygon:
     path: ./cw_polygon
   """;
+  const cwEVM = """
+  cw_evm:
+    path: ./cw_evm
+    """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
@@ -962,6 +976,10 @@ Future<void> generatePubspec(
     output += '\n$cwSharedExternal\n$cwHaven';
   } else if (hasHaven) {
     output += '\n$cwHaven';
+  }
+
+  if (hasEthereum || hasPolygon) {
+    output += '\n$cwEVM';
   }
 
   final outputLines = output.split('\n');
