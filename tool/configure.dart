@@ -127,7 +127,7 @@ abstract class Bitcoin {
   String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate);
 
   List<Unspent> getUnspents(Object wallet);
-  void updateUnspents(Object wallet);
+  Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   TransactionPriority getBitcoinTransactionPriorityMedium();
@@ -270,7 +270,7 @@ abstract class Monero {
   List<String> getMoneroWordList(String language);
   
   List<Unspent> getUnspents(Object wallet);
-  void updateUnspents(Object wallet);
+  Future<void> updateUnspents(Object wallet);
 
   WalletCredentials createMoneroRestoreWalletFromKeysCredentials({
     required String name,

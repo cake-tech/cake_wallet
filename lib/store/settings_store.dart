@@ -922,7 +922,7 @@ abstract class SettingsStoreBase with Store {
     final allowBiometricalAuthentication = await SecureKey.getBool(
           secureStorage: secureStorage,
           sharedPreferences: sharedPreferences,
-          key: SecureKey.pinTimeOutDuration,
+          key: SecureKey.allowBiometricalAuthenticationKey,
         ) ??
         false;
 
@@ -1246,6 +1246,16 @@ abstract class SettingsStoreBase with Store {
           key: SecureKey.totpSecretKey,
         ) ??
         totpSecretKey;
+
+    final timeOutDuration = await SecureKey.getInt(
+      secureStorage: _secureStorage,
+      sharedPreferences: sharedPreferences,
+      key: SecureKey.pinTimeOutDuration,
+    );
+
+    pinTimeOutDuration = timeOutDuration != null
+        ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
+        : defaultPinCodeTimeOutDuration;
 
     allowBiometricalAuthentication = await SecureKey.getBool(
           secureStorage: _secureStorage,
