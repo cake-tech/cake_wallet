@@ -59,6 +59,7 @@ abstract class NanoWalletBase
       walletInfo: walletInfo,
       password: password,
       encryptionFileUtils: encryptionFileUtils,
+      isFlatpak: isFlatpak,
     );
     if (!CakeHive.isAdapterRegistered(NanoAccount.typeId)) {
       CakeHive.registerAdapter(NanoAccountAdapter());
@@ -410,6 +411,7 @@ abstract class NanoWalletBase
       mnemonic: mnemonic,
       initialBalance: balance,
       encryptionFileUtils: encryptionFileUtils,
+      isFlatpak: isFlatpak,
     );
     // init() should always be run after this!
   }

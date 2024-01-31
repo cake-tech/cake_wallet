@@ -5,8 +5,8 @@ class CWPolygon extends Polygon {
   List<String> getPolygonWordList(String language) => EthereumMnemonics.englishWordlist;
 
   WalletService createPolygonWalletService(
-          Box<WalletInfo> walletInfoSource, bool isDirec, bool isFlatpak) =>
-      PolygonWalletService(walletInfoSource, isFlatpak);
+          Box<WalletInfo> walletInfoSource, bool isDirect, bool isFlatpak) =>
+      PolygonWalletService(walletInfoSource, isDirect, isFlatpak);
 
   @override
   WalletCredentials createPolygonNewWalletCredentials(

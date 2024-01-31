@@ -67,6 +67,7 @@ abstract class EthereumWalletBase
       walletInfo: walletInfo,
       password: password,
       encryptionFileUtils: encryptionFileUtils,
+      isFlatpak: isFlatpak,
     );
 
     if (!CakeHive.isAdapterRegistered(Erc20Token.typeId)) {
@@ -407,6 +408,7 @@ abstract class EthereumWalletBase
       privateKey: privateKey,
       initialBalance: balance,
       encryptionFileUtils: encryptionFileUtils,
+      isFlatpak: isFlatpak,
     );
   }
 

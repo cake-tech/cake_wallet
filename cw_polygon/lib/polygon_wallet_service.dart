@@ -5,6 +5,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_ethereum/ethereum_mnemonics.dart';
 import 'package:cw_polygon/polygon_wallet.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -14,9 +15,10 @@ import 'package:collection/collection.dart';
 
 class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
     PolygonRestoreWalletFromSeedCredentials, PolygonRestoreWalletFromPrivateKey> {
-  PolygonWalletService(this.walletInfoSource, this.isFlatpak);
+  PolygonWalletService(this.walletInfoSource, this.isDirect, this.isFlatpak);
 
   final Box<WalletInfo> walletInfoSource;
+  final bool isDirect;
   final bool isFlatpak;
 
   @override
@@ -28,6 +30,7 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
       password: credentials.password!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       isFlatpak: isFlatpak,
     );
 
@@ -53,6 +56,7 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
       name: name,
       password: password,
       walletInfo: walletInfo,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       isFlatpak: isFlatpak,
     );
 
@@ -77,6 +81,7 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
       password: credentials.password!,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       isFlatpak: isFlatpak,
     );
 
@@ -97,6 +102,7 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       isFlatpak: isFlatpak,
     );
 
@@ -115,6 +121,7 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
       password: password,
       name: currentName,
       walletInfo: currentWalletInfo,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       isFlatpak: isFlatpak,
     );
 
