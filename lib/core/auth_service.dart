@@ -72,11 +72,11 @@ class AuthService with Store {
 
   void saveLastAuthTime() {
     int timestamp = DateTime.now().millisecondsSinceEpoch;
-    sharedPreferences.setInt(PreferencesKey.lastAuthTimeMilliseconds, timestamp);
+    secureStorage.write(key: SecureKey.lastAuthTimeMilliseconds, value: timestamp.toString());
   }
 
-  bool requireAuth() {
-    final timestamp = sharedPreferences.getInt(PreferencesKey.lastAuthTimeMilliseconds);
+  Future<bool> requireAuth() async {
+    final timestamp = int.tryParse(await secureStorage.read(key: SecureKey.lastAuthTimeMilliseconds) ?? '0');
     final duration = _durationToRequireAuth(timestamp ?? 0);
     final requiredPinInterval = settingsStore.pinTimeOutDuration;
 
@@ -100,7 +100,7 @@ class AuthService with Store {
         'Either route or onAuthSuccess param must be passed.');
 
     if (!conditionToDetermineIfToUse2FA) {
-      if (!requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
+      if (!(await requireAuth()) && !_alwaysAuthenticateRoutes.contains(route)) {
         if (onAuthSuccess != null) {
           onAuthSuccess(true);
         } else {

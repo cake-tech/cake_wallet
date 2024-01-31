@@ -1,2 +1,4 @@
-Support multiple address types for Bitcoin Cash
+List previously used Bitcoin addresses
+Security and Privacy enhancements
+Usability enhancements
 Bug fixes

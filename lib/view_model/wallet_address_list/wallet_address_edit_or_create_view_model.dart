@@ -1,6 +1,5 @@
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:mobx/mobx.dart';
-import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -33,7 +32,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
         state = AddressEditOrCreateStateInitial(),
         label = item?.name ?? '',
         _item = item,
-        _wallet = wallet;
+         _wallet = wallet;
 
   @observable
   AddressEditOrCreateState state;
@@ -45,6 +44,10 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
 
   final WalletAddressListItem? _item;
   final WalletBase _wallet;
+
+  bool get isElectrum => _wallet.type == WalletType.bitcoin ||
+      _wallet.type == WalletType.bitcoinCash ||
+      _wallet.type == WalletType.litecoin;
 
   Future<void> save() async {
     try {
@@ -65,12 +68,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
   Future<void> _createNew() async {
     final wallet = _wallet;
 
-    if (wallet.type == WalletType.bitcoin
-        || wallet.type == WalletType.litecoin
-        || wallet.type == WalletType.bitcoinCash) {
-      await bitcoin!.generateNewAddress(wallet);
-      await wallet.save();
-    }
+    if (isElectrum) await bitcoin!.generateNewAddress(wallet, label);
 
     if (wallet.type == WalletType.monero) {
       await monero
@@ -96,10 +94,8 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
   Future<void> _update() async {
     final wallet = _wallet;
 
-    /*if (wallet is BitcoinWallet) {
-      await wallet.walletAddresses.updateAddress(_item.address as String);
-      await wallet.save();
-    }*/
+    if (isElectrum) await bitcoin!.updateAddress(wallet, _item!.address, label);
+
     final index = _item?.id;
     if (index != null) {
       if (wallet.type == WalletType.monero) {

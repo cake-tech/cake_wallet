@@ -1,5 +1,5 @@
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitbox/bitbox.dart' as bitbox;
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/script_hash.dart';
@@ -10,8 +10,7 @@ import 'package:mobx/mobx.dart';
 
 part 'electrum_wallet_addresses.g.dart';
 
-class ElectrumWalletAddresses = ElectrumWalletAddressesBase
-    with _$ElectrumWalletAddresses;
+class ElectrumWalletAddresses = ElectrumWalletAddressesBase with _$ElectrumWalletAddresses;
 
 abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   ElectrumWalletAddressesBase(WalletInfo walletInfo,
@@ -22,25 +21,24 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       List<BitcoinAddressRecord>? initialAddresses,
       int initialRegularAddressIndex = 0,
       int initialChangeAddressIndex = 0})
-      : addresses = ObservableList<BitcoinAddressRecord>.of(
-          (initialAddresses ?? []).toSet()),
-        receiveAddresses = ObservableList<BitcoinAddressRecord>.of(
-          (initialAddresses ?? [])
+      : addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
+        receiveAddresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? [])
             .where((addressRecord) => !addressRecord.isHidden && !addressRecord.isUsed)
-        .toSet()),
-        changeAddresses = ObservableList<BitcoinAddressRecord>.of(
-          (initialAddresses ?? [])
+            .toSet()),
+        changeAddresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? [])
             .where((addressRecord) => addressRecord.isHidden && !addressRecord.isUsed)
-        .toSet()),
+            .toSet()),
         currentReceiveAddressIndex = initialRegularAddressIndex,
         currentChangeAddressIndex = initialChangeAddressIndex,
-      super(walletInfo);
+        super(walletInfo);
 
   static const defaultReceiveAddressesCount = 22;
   static const defaultChangeAddressesCount = 17;
   static const gap = 20;
 
   static String toCashAddr(String address) => bitbox.Address.toCashAddress(address);
+
+  static String toLegacy(String address) => bitbox.Address.toLegacyAddress(address);
 
   final ObservableList<BitcoinAddressRecord> addresses;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
@@ -53,41 +51,67 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @override
   @computed
   String get address {
-    if (receiveAddresses.isEmpty) {
-      final address = generateNewAddress().address;
-      return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(address) : address;
-    }
-    final receiveAddress = receiveAddresses.first.address;
+    if (isEnabledAutoGenerateSubaddress) {
+      if (receiveAddresses.isEmpty) {
+        final newAddress = generateNewAddress().address;
+        return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(newAddress) : newAddress;
+      }
+      final receiveAddress = receiveAddresses.first.address;
 
-    return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(receiveAddress) : receiveAddress;
+      return walletInfo.type == WalletType.bitcoinCash
+          ? toCashAddr(receiveAddress)
+          : receiveAddress;
+    } else {
+      final receiveAddress = (receiveAddresses.first.address != addresses.first.address &&
+              previousAddressRecord != null)
+          ? previousAddressRecord!.address
+          : addresses.first.address;
+
+      return walletInfo.type == WalletType.bitcoinCash
+          ? toCashAddr(receiveAddress)
+          : receiveAddress;
+    }
+  }
+
+  @observable
+  bool isEnabledAutoGenerateSubaddress = true;
+
+  @override
+  set address(String addr) {
+    if (addr.startsWith('bitcoincash:')) {
+      addr = toLegacy(addr);
+    }
+    final addressRecord = addresses.firstWhere((addressRecord) => addressRecord.address == addr);
+
+    previousAddressRecord = addressRecord;
+    receiveAddresses.remove(addressRecord);
+    receiveAddresses.insert(0, addressRecord);
   }
 
   @override
   String get primaryAddress => getAddress(index: 0, hd: mainHd);
 
-  @override
-  set address(String addr) => null;
-
   int currentReceiveAddressIndex;
   int currentChangeAddressIndex;
 
-  @computed
-  int get totalCountOfReceiveAddresses =>
-    addresses.fold(0, (acc, addressRecord) {
-      if (!addressRecord.isHidden) {
-        return acc + 1;
-      }
-      return acc;
-    });
+  @observable
+  BitcoinAddressRecord? previousAddressRecord;
 
   @computed
-  int get totalCountOfChangeAddresses =>
-    addresses.fold(0, (acc, addressRecord) {
-      if (addressRecord.isHidden) {
-        return acc + 1;
-      }
-      return acc;
-    });
+  int get totalCountOfReceiveAddresses => addresses.fold(0, (acc, addressRecord) {
+        if (!addressRecord.isHidden) {
+          return acc + 1;
+        }
+        return acc;
+      });
+
+  @computed
+  int get totalCountOfChangeAddresses => addresses.fold(0, (acc, addressRecord) {
+        if (addressRecord.isHidden) {
+          return acc + 1;
+        }
+        return acc;
+      });
 
   Future<void> discoverAddresses() async {
     await _discoverAddresses(mainHd, false);
@@ -117,11 +141,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     if (changeAddresses.isEmpty) {
       final newAddresses = await _createNewAddresses(gap,
-        hd: sideHd,
-        startIndex: totalCountOfChangeAddresses > 0
-          ? totalCountOfChangeAddresses -  1
-          : 0,
-        isHidden: true);
+          hd: sideHd,
+          startIndex: totalCountOfChangeAddresses > 0 ? totalCountOfChangeAddresses - 1 : 0,
+          isHidden: true);
       _addAddresses(newAddresses);
     }
 
@@ -135,14 +157,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return address;
   }
 
-  BitcoinAddressRecord generateNewAddress(
-      {bitcoin.HDWallet? hd, bool isHidden = false}) {
-    currentReceiveAddressIndex += 1;
-    // FIX-ME: Check logic for whichi HD should be used here  ???
-    final address = BitcoinAddressRecord(
-        getAddress(index: currentReceiveAddressIndex, hd: hd ?? sideHd),
-        index: currentReceiveAddressIndex,
-        isHidden: isHidden);
+  BitcoinAddressRecord generateNewAddress({bitcoin.HDWallet? hd, String? label}) {
+    final isHidden = hd == sideHd;
+
+    final newAddressIndex = addresses.fold(
+        0, (int acc, addressRecord) => isHidden == addressRecord.isHidden ? acc + 1 : acc);
+
+    final address = BitcoinAddressRecord(getAddress(index: newAddressIndex, hd: hd ?? sideHd),
+        index: newAddressIndex, isHidden: isHidden, name: label ?? '');
     addresses.add(address);
     return address;
   }
@@ -161,19 +183,31 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
+  void updateAddress(String address, String label) {
+    if (address.startsWith('bitcoincash:')) {
+      address = toLegacy(address);
+    }
+    final addressRecord = addresses.firstWhere((addressRecord) => addressRecord.address == address);
+    addressRecord.setNewName(label);
+    final index = addresses.indexOf(addressRecord);
+    addresses.remove(addressRecord);
+    addresses.insert(index, addressRecord);
+  }
+
+  @action
   void updateReceiveAddresses() {
     receiveAddresses.removeRange(0, receiveAddresses.length);
-    final newAdresses = addresses
-          .where((addressRecord) => !addressRecord.isHidden && !addressRecord.isUsed);
-    receiveAddresses.addAll(newAdresses);
+    final newAddresses =
+        addresses.where((addressRecord) => !addressRecord.isHidden && !addressRecord.isUsed);
+    receiveAddresses.addAll(newAddresses);
   }
 
   @action
   void updateChangeAddresses() {
     changeAddresses.removeRange(0, changeAddresses.length);
-    final newAdresses = addresses
-          .where((addressRecord) => addressRecord.isHidden && !addressRecord.isUsed);
-    changeAddresses.addAll(newAdresses);
+    final newAddresses =
+        addresses.where((addressRecord) => addressRecord.isHidden && !addressRecord.isUsed);
+    changeAddresses.addAll(newAddresses);
   }
 
   Future<void> _discoverAddresses(bitcoin.HDWallet hd, bool isHidden) async {
@@ -181,20 +215,16 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     List<BitcoinAddressRecord> addrs;
 
     if (addresses.isNotEmpty) {
-      addrs = addresses
-        .where((addr) => addr.isHidden == isHidden)
-        .toList();
+      addrs = addresses.where((addr) => addr.isHidden == isHidden).toList();
     } else {
       addrs = await _createNewAddresses(
-          isHidden
-            ?  defaultChangeAddressesCount
-            : defaultReceiveAddressesCount,
+          isHidden ? defaultChangeAddressesCount : defaultReceiveAddressesCount,
           startIndex: 0,
           hd: hd,
           isHidden: isHidden);
     }
 
-    while(hasAddrUse) {
+    while (hasAddrUse) {
       final addr = addrs.last.address;
       hasAddrUse = await _hasAddressUsed(addr);
 
@@ -204,11 +234,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
       final start = addrs.length;
       final count = start + gap;
-      final batch = await _createNewAddresses(
-        count,
-        startIndex: start,
-        hd: hd,
-        isHidden: isHidden);
+      final batch = await _createNewAddresses(count, startIndex: start, hd: hd, isHidden: isHidden);
       addrs.addAll(batch);
     }
 
@@ -232,21 +258,15 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     if (countOfReceiveAddresses < defaultReceiveAddressesCount) {
       final addressesCount = defaultReceiveAddressesCount - countOfReceiveAddresses;
-      final newAddresses = await _createNewAddresses(
-          addressesCount,
-          startIndex: countOfReceiveAddresses,
-          hd: mainHd,
-          isHidden: false);
+      final newAddresses = await _createNewAddresses(addressesCount,
+          startIndex: countOfReceiveAddresses, hd: mainHd, isHidden: false);
       addresses.addAll(newAddresses);
     }
 
     if (countOfHiddenAddresses < defaultChangeAddressesCount) {
       final addressesCount = defaultChangeAddressesCount - countOfHiddenAddresses;
-      final newAddresses = await _createNewAddresses(
-          addressesCount,
-          startIndex: countOfHiddenAddresses,
-          hd: sideHd,
-          isHidden: true);
+      final newAddresses = await _createNewAddresses(addressesCount,
+          startIndex: countOfHiddenAddresses, hd: sideHd, isHidden: true);
       addresses.addAll(newAddresses);
     }
   }
@@ -256,10 +276,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     final list = <BitcoinAddressRecord>[];
 
     for (var i = startIndex; i < count + startIndex; i++) {
-      final address = BitcoinAddressRecord(
-          getAddress(index: i, hd: hd),
-          index: i,
-          isHidden: isHidden);
+      final address =
+          BitcoinAddressRecord(getAddress(index: i, hd: hd), index: i, isHidden: isHidden);
       list.add(address);
     }
 
