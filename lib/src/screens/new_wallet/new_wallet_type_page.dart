@@ -28,15 +28,18 @@ class NewWalletTypePage extends BasePage {
 
   @override
   Widget body(BuildContext context) => WalletTypeForm(
-      onTypeSelected: onTypeSelected,
-      walletImage: currentTheme.type == ThemeType.dark ? walletTypeImage : walletTypeLightImage);
+        onTypeSelected: onTypeSelected,
+        walletImage: currentTheme.type == ThemeType.dark ? walletTypeImage : walletTypeLightImage,
+        isCreate: isCreate,
+      );
 }
 
 class WalletTypeForm extends StatefulWidget {
-  WalletTypeForm({required this.onTypeSelected, required this.walletImage});
+  WalletTypeForm({required this.onTypeSelected, required this.walletImage, required this.isCreate});
 
   final void Function(BuildContext, WalletType) onTypeSelected;
   final Image walletImage;
+  final bool isCreate;
 
   @override
   WalletTypeFormState createState() => WalletTypeFormState();
@@ -131,7 +134,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       throw Exception('Wallet Type is not selected yet.');
     }
 
-    if (selected == WalletType.haven) {
+    if (selected == WalletType.haven && widget.isCreate) {
       return await showPopUp<void>(
         context: context,
         builder: (BuildContext context) {

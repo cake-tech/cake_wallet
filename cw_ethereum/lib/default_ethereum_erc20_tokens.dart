@@ -1,7 +1,7 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 
-class DefaultErc20Tokens {
+class DefaultEthereumErc20Tokens {
   final List<Erc20Token> _defaultTokens = [
     Erc20Token(
       name: "USD Coin",
