@@ -557,7 +557,7 @@ class ExchangePage extends BasePage {
   }
 
   Future<String> fetchParsedAddress(BuildContext context, String domain, String ticker) async {
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(domain, ticker);
+    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, ticker);
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
   }

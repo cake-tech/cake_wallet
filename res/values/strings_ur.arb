@@ -755,5 +755,17 @@
   "default_sell_provider": "                                                        ﮦﺪﻨﻨﮐ ﻢﮨﺍﺮﻓ ﻞﯿﺳ ﭧﻟﺎﻔﯾﮈ",
   "select_sell_provider_notice": "۔ﮟﯿﮨ ﮯﺘﮑﺳ ﮌﻮﮭﭼ ﻮﮐ ﻦﯾﺮﮑﺳﺍ ﺱﺍ ﺮﮐ ﮮﺩ ﺐﯿﺗﺮﺗ ﻮﮐ ﮦﺪﻨﻨﮐ ﻢﮨﺍﺮﻓ ﻞﯿﺳ ﭧﻟﺎﻔﯾﮈ ﮯﻨﭘﺍ ﮟﯿﻣ ﺕﺎﺒ",
   "custom_drag": "کسٹم (ہولڈ اینڈ ڈریگ)",
-  "switchToEVMCompatibleWallet": "(Ethereum, Polygon) ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ ﮯﻟﺍﻭ ﮯﻨﮭﮐﺭ ﺖﻘﺑﺎﻄﻣ "
+  "switchToEVMCompatibleWallet": "(Ethereum, Polygon) ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ ﮯﻟﺍﻭ ﮯﻨﮭﮐﺭ ﺖﻘﺑﺎﻄﻣ ",
+  "receivable_balance": "قابل وصول توازن",
+  "confirmed_tx": "تصدیق",
+  "transaction_details_source_address": "ماخذ ایڈریس",
+  "pause_wallet_creation": "Haven Wallet ۔ﮯﮨ ﻑﻮﻗﻮﻣ ﻝﺎﺤﻟﺍ ﯽﻓ ﺖﯿﻠﮨﺍ ﯽﮐ ﮯﻧﺎﻨﺑ",
+  "contractName": "ﻡﺎﻧ ﺎﮐ ﮦﺪﮨﺎﻌﻣ",
+  "contractSymbol": "ﺖﻣﻼ﻿ﻋ ﯽﮐ ﮦﺪﮨﺎﻌﻣ",
+  "description": "ﻞﯿﺼﻔﺗ",
+  "camera_consent": "۔ﮟﯿﮭﮑﯾﺩ ﯽﺴﯿﻟﺎﭘ ﯽﺴﯾﻮﯿﺋﺍﺮﭘ ﯽﮐ ﻥﺍ ﻡﺮﮐ ﮦﺍﺮﺑ ﮯﯿﻟ ﮯﮐ ﺕﻼ${provider}ﯿﺼﻔﺗ ۔ﺎﮔ ﮯﺋﺎﺟ ﺎﯿﮐ ﻝﺎﻤﻌﺘﺳﺍ ﮯﯿﻟ",
+  "no_relays": "۔ﮟﯿﮩﻧ ﮯﻠﯾﺭ ﯽﺋﻮﮐ",
+  "choose_relay": "۔ﮟﯾﺮﮐ ﺏﺎﺨﺘﻧﺍ ﺎﮐ ﮯﻠﯾﺭ ﮯﯿﻟ ﮯﮐ ﮯﻧﺮﮐ ﻝﺎﻤﻌﺘﺳﺍ ﻡﺮﮐ ﮦﺍﺮﺑ",
+  "no_relays_message": "۔ﮟﯾﺮﮐ ﻞﻣﺎﺷ ﮯﻠﯾﺭ ﮟﯿﻣ ﮈﺭﺎﮑﯾﺭ ﺮﭩﺳﻮﻧ ﮯﻨﭘﺍ ﮦﻭ ﮧﮐ ﮟﯾﺩ ﺖﯾﺍﺪﮨ ﻮﮐ ﮦﺪﻨﻨﮐ ﻝﻮﺻﻭ ﻡﺮﮐ ﮦﺍﺮﺑ ۔",
+  "no_relay_on_domain": "۔ﮟﯾﺮﮐ ﺏﺎﺨﺘﻧﺍ ﺎﮐ ﮯﻠﯾﺭ ﮯﯿﻟ ﮯﮐ ﮯﻧﺮﮐ ﻝﺎﻤﻌﺘﺳﺍ ﻡﺮﮐ ﮦﺍﺮﺑ ۔ﮯﮨ ﮟﯿﮩﻧ ﺏﺎﯿﺘﺳﺩ ﮯﻠﯾﺭ ﺎﯾ ﮯﮨ ﮟ"
 }

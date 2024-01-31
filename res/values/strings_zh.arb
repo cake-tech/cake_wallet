@@ -762,5 +762,17 @@
   "default_sell_provider": "默认销售提供商",
   "select_sell_provider_notice": "选择上面的销售提供商。您可以通过在应用程序设置中设置默认销售提供商来跳过此屏幕。",
   "custom_drag": "定制（保持和拖动）",
-  "switchToEVMCompatibleWallet": "请切换到 EVM 兼容钱包并重试（以太坊、Polygon）"
+  "switchToEVMCompatibleWallet": "请切换到 EVM 兼容钱包并重试（以太坊、Polygon）",
+  "receivable_balance": "应收余额",
+  "confirmed_tx": "确认的",
+  "transaction_details_source_address": "源地址",
+  "pause_wallet_creation": "创建 Haven 钱包的功能当前已暂停。",
+  "contractName": "合约名称",
+  "contractSymbol": "合约符号",
+  "description": "描述",
+  "camera_consent": "${provider} 将使用您的相机拍摄图像以供识别之用。请查看他们的隐私政策了解详情。",
+  "no_relays": "无继电器",
+  "choose_relay": "请选择要使用的继电器",
+  "no_relays_message": "我们找到了该用户的 Nostr NIP-05 记录，但它不包含任何中继。请指示收件人将中继添加到他们的 Nostr 记录中。",
+  "no_relay_on_domain": "用户域没有中继或中继不可用。请选择要使用的继电器。"
 }

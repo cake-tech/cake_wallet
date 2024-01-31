@@ -755,5 +755,17 @@
   "default_sell_provider": "Výchozí poskytovatel prodeje",
   "select_sell_provider_notice": "Výše vyberte poskytovatele prodeje. Tuto obrazovku můžete přeskočit nastavením výchozího poskytovatele prodeje v nastavení aplikace.",
   "custom_drag": "Custom (Hold and Drag)",
-  "switchToEVMCompatibleWallet": "Přepněte na peněženku kompatibilní s EVM a zkuste to znovu (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Přepněte na peněženku kompatibilní s EVM a zkuste to znovu (Ethereum, Polygon)",
+  "receivable_balance": "Zůstatek pohledávek",
+  "confirmed_tx": "Potvrzeno",
+  "transaction_details_source_address": "Zdrojová adresa",
+  "pause_wallet_creation": "Možnost vytvářet Haven Wallet je momentálně pozastavena.",
+  "contractName": "Název smlouvy",
+  "contractSymbol": "Symbol smlouvy",
+  "description": "Popis",
+  "camera_consent": "Váš fotoaparát použije k pořízení snímku pro účely identifikace ${provider}. Podrobnosti najdete v jejich Zásadách ochrany osobních údajů.",
+  "no_relays": "Žádná relé",
+  "choose_relay": "Vyberte relé, které chcete použít",
+  "no_relays_message": "Pro tohoto uživatele jsme našli záznam Nostr NIP-05, který však neobsahuje žádná relé. Požádejte příjemce, aby přidal přenosy do svého záznamu Nostr.",
+  "no_relay_on_domain": "Pro doménu uživatele neexistuje přenos nebo je přenos nedostupný. Vyberte relé, které chcete použít."
 }

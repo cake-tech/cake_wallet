@@ -105,21 +105,19 @@ jobs:
         run: |
           cd /opt/android/cake_wallet
           cd cw_core && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
+          cd cw_evm && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           cd cw_monero && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           cd cw_bitcoin && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           cd cw_haven && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
-          cd cw_ethereum && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           cd cw_bitcoin_cash && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           cd cw_nano && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
-          cd cw_polygon && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           flutter packages pub run build_runner build --delete-conflicting-outputs
 
       - name: Add secrets
         run: |
           cd /opt/android/cake_wallet
           touch lib/.secrets.g.dart
-          touch cw_ethereum/lib/.secrets.g.dart
-          touch cw_polygon/lib/.secrets.g.dart
+          touch cw_evm/lib/.secrets.g.dart
           echo "const salt = '${{ secrets.SALT }}';" > lib/.secrets.g.dart
           echo "const keychainSalt = '${{ secrets.KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
           echo "const key = '${{ secrets.KEY }}';" >> lib/.secrets.g.dart
@@ -146,14 +144,14 @@ jobs:
           echo "const anonPayReferralCode = '${{ secrets.ANON_PAY_REFERRAL_CODE }}';" >> lib/.secrets.g.dart
           echo "const fiatApiKey = '${{ secrets.FIAT_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const payfuraApiKey = '${{ secrets.PAYFURA_API_KEY }}';" >> lib/.secrets.g.dart
-          echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_ethereum/lib/.secrets.g.dart
+          echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const chatwootWebsiteToken = '${{ secrets.CHATWOOT_WEBSITE_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const exolixApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const robinhoodApplicationId = '${{ secrets.ROBINHOOD_APPLICATION_ID }}';" >> lib/.secrets.g.dart
           echo "const robinhoodCIdApiSecret = '${{ secrets.ROBINHOOD_CID_CLIENT_SECRET }}';" >> lib/.secrets.g.dart
           echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> lib/.secrets.g.dart
-          echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_ethereum/lib/.secrets.g.dart
+          echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
 
       - name: Rename app
         run: echo -e "id=com.cakewallet.test\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties

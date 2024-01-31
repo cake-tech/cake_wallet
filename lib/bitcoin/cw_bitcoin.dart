@@ -63,9 +63,17 @@ class CWBitcoin extends Bitcoin {
 	}
 
 	@override
-	Future<void> generateNewAddress(Object wallet) async {
+	Future<void> generateNewAddress(Object wallet, String label) async {
 		final bitcoinWallet = wallet as ElectrumWallet;
-		await bitcoinWallet.walletAddresses.generateNewAddress();
+		await bitcoinWallet.walletAddresses.generateNewAddress(label: label);
+		await wallet.save();
+	}
+
+	@override
+	Future<void> updateAddress(Object wallet,String address, String label) async {
+		final bitcoinWallet = wallet as ElectrumWallet;
+		bitcoinWallet.walletAddresses.updateAddress(address, label);
+		await wallet.save();
 	}
 	
 	@override
@@ -100,6 +108,21 @@ class CWBitcoin extends Bitcoin {
 	}
 
 	@override
+	@computed
+	List<ElectrumSubAddress> getSubAddresses(Object wallet) {
+		final electrumWallet = wallet as ElectrumWallet;
+		return electrumWallet.walletAddresses.addresses
+			.map((BitcoinAddressRecord addr) => ElectrumSubAddress(
+				id: addr.index,
+				name: addr.name,
+				address: electrumWallet.type == WalletType.bitcoinCash ? addr.cashAddr : addr.address,
+				txCount: addr.txCount,
+				balance: addr.balance,
+				isChange: addr.isHidden))
+			.toList();
+	}
+
+	@override
 	String getAddress(Object wallet) {
 		final bitcoinWallet = wallet as ElectrumWallet;
 		return bitcoinWallet.walletAddresses.address;
@@ -127,7 +150,7 @@ class CWBitcoin extends Bitcoin {
 		return bitcoinWallet.unspentCoins;
 	}
 
-	void updateUnspents(Object wallet) async {
+	Future<void> updateUnspents(Object wallet) async {
 		final bitcoinWallet = wallet as ElectrumWallet;
 		await bitcoinWallet.updateUnspent();
 	}

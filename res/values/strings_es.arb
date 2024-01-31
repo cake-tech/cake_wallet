@@ -763,5 +763,17 @@
   "default_sell_provider": "Proveedor de venta predeterminado",
   "select_sell_provider_notice": "Seleccione un proveedor de venta arriba. Puede omitir esta pantalla configurando su proveedor de venta predeterminado en la configuración de la aplicación.",
   "custom_drag": "Custom (mantenía y arrastre)",
-  "switchToEVMCompatibleWallet": "Cambie a una billetera compatible con EVM e inténtelo nuevamente (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Cambie a una billetera compatible con EVM e inténtelo nuevamente (Ethereum, Polygon)",
+  "receivable_balance": "Saldo de cuentas por cobrar",
+  "confirmed_tx": "Confirmado",
+  "transaction_details_source_address": "Dirección de la fuente",
+  "pause_wallet_creation": "La capacidad para crear Haven Wallet está actualmente pausada.",
+  "contractName": "Nombre del contrato",
+  "contractSymbol": "Símbolo de contrato",
+  "description": "Descripción",
+  "camera_consent": "Su cámara será utilizada para capturar una imagen con fines de identificación por ${provider}. Consulte su Política de privacidad para obtener más detalles.",
+  "no_relays": "Sin relevos",
+  "choose_relay": "Por favor elija un relé para usar",
+  "no_relays_message": "Encontramos un registro Nostr NIP-05 para este usuario, pero no contiene ningún relé. Indique al destinatario que agregue retransmisiones a su registro Nostr.",
+  "no_relay_on_domain": "No hay una retransmisión para el dominio del usuario o la retransmisión no está disponible. Elija un relé para usar."
 }

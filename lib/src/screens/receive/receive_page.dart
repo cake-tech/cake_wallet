@@ -49,7 +49,7 @@ class ReceivePage extends BasePage {
   bool get gradientBackground => true;
 
   @override
-  bool get resizeToAvoidBottomInset => false;
+  bool get resizeToAvoidBottomInset => true;
 
   final FocusNode _cryptoAmountFocus;
 
@@ -99,10 +99,11 @@ class ReceivePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    final isElectrumWallet = addressListViewModel.isElectrumWallet;
     return (addressListViewModel.type == WalletType.monero ||
             addressListViewModel.type == WalletType.haven ||
             addressListViewModel.type == WalletType.nano ||
-            addressListViewModel.type == WalletType.banano)
+        isElectrumWallet)
         ? KeyboardActions(
             config: KeyboardActionsConfig(
                 keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
@@ -140,7 +141,9 @@ class ReceivePage extends BasePage {
 
                             if (item is WalletAccountListHeader) {
                               cell = HeaderTile(
-                                  onTap: () async {
+                                  showTrailingButton: true,
+                                  walletAddressListViewModel: addressListViewModel,
+                                  trailingButtonTap: () async {
                                     if (addressListViewModel.type == WalletType.monero ||
                                         addressListViewModel.type == WalletType.haven) {
                                       await showPopUp<void>(
@@ -153,7 +156,7 @@ class ReceivePage extends BasePage {
                                     }
                                   },
                                   title: S.of(context).accounts,
-                                  icon: Icon(
+                                  trailingIcon: Icon(
                                     Icons.arrow_forward_ios,
                                     size: 14,
                                     color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
@@ -161,16 +164,21 @@ class ReceivePage extends BasePage {
                             }
 
                             if (item is WalletAddressListHeader) {
-                              cell = HeaderTile(
-                                  onTap: () =>
-                                      Navigator.of(context).pushNamed(Routes.newSubaddress),
-                                  title: S.of(context).addresses,
-                                  icon: Icon(
-                                    Icons.add,
-                                    size: 20,
-                                    color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
-                                  ));
-                            }
+                                cell = HeaderTile(
+                                    title: S.of(context).addresses,
+                                    walletAddressListViewModel: addressListViewModel,
+                                    showTrailingButton: !addressListViewModel.isAutoGenerateSubaddressEnabled,
+                                    showSearchButton: true,
+                                    trailingButtonTap: () =>
+                                        Navigator.of(context).pushNamed(Routes.newSubaddress),
+                                    trailingIcon: Icon(
+                                      Icons.add,
+                                      size: 20,
+                                      color: Theme.of(context)
+                                          .extension<ReceivePageTheme>()!
+                                          .iconsColor,
+                                    ));
+                              }
 
                             if (item is WalletAddressListItem) {
                               cell = Observer(builder: (_) {
@@ -185,6 +193,7 @@ class ReceivePage extends BasePage {
 
                                 return AddressCell.fromItem(item,
                                     isCurrent: isCurrent,
+                                    hasBalance: addressListViewModel.isElectrumWallet,
                                     backgroundColor: backgroundColor,
                                     textColor: textColor,
                                     onTap: (_) => addressListViewModel.setAddress(item),

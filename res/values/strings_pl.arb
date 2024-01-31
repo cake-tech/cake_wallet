@@ -763,5 +763,17 @@
   "default_sell_provider": "Domyślny dostawca sprzedaży",
   "select_sell_provider_notice": "Wybierz dostawcę sprzedaży powyżej. Możesz pominąć ten ekran, ustawiając domyślnego dostawcę sprzedaży w ustawieniach aplikacji.",
   "custom_drag": "Niestandardowe (trzymaj i przeciągnij)",
-  "switchToEVMCompatibleWallet": "Przejdź na portfel zgodny z EVM i spróbuj ponownie (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Przejdź na portfel zgodny z EVM i spróbuj ponownie (Ethereum, Polygon)",
+  "receivable_balance": "Saldo należności",
+  "confirmed_tx": "Potwierdzony",
+  "transaction_details_source_address": "Adres źródłowy",
+  "pause_wallet_creation": "Możliwość utworzenia Portfela Haven jest obecnie wstrzymana.",
+  "contractName": "Nazwa umowy",
+  "contractSymbol": "Symbol kontraktu",
+  "description": "Opis",
+  "camera_consent": "Twój aparat zostanie użyty do przechwycenia obrazu w celach identyfikacyjnych przez ${provider}. Aby uzyskać szczegółowe informacje, sprawdź ich Politykę prywatności.",
+  "no_relays": "Żadnych przekaźników",
+  "choose_relay": "Wybierz przekaźnik, którego chcesz użyć",
+  "no_relays_message": "Znaleźliśmy rekord Nostr NIP-05 dla tego użytkownika, ale nie zawiera on żadnych przekaźników. Poinstruuj odbiorcę, aby dodał przekaźniki do swojego rekordu Nostr.",
+  "no_relay_on_domain": "Brak przekaźnika dla domeny użytkownika lub przekaźnik jest niedostępny. Wybierz przekaźnik, którego chcesz użyć."
 }

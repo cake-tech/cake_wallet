@@ -751,5 +751,17 @@
   "default_sell_provider": "Penyedia Penjualan Default",
   "select_sell_provider_notice": "Pilih penyedia jual di atas. Anda dapat melewati layar ini dengan mengatur penyedia penjualan default Anda di pengaturan aplikasi.",
   "custom_drag": "Khusus (tahan dan seret)",
-  "switchToEVMCompatibleWallet": "Silakan beralih ke dompet yang kompatibel dengan EVM dan coba lagi (Ethereum, Polygon)"
+  "switchToEVMCompatibleWallet": "Silakan beralih ke dompet yang kompatibel dengan EVM dan coba lagi (Ethereum, Polygon)",
+  "receivable_balance": "Saldo piutang",
+  "confirmed_tx": "Dikonfirmasi",
+  "transaction_details_source_address": "Alamat sumber",
+  "pause_wallet_creation": "Kemampuan untuk membuat Haven Wallet saat ini dijeda.",
+  "contractName": "Nama Kontrak",
+  "contractSymbol": "Simbol Kontrak",
+  "description": "Keterangan",
+  "camera_consent": "Kamera Anda akan digunakan untuk mengambil gambar untuk tujuan identifikasi oleh ${provider}. Silakan periksa Kebijakan Privasi mereka untuk detailnya.",
+  "no_relays": "Tidak ada relay",
+  "choose_relay": "Silakan pilih relai yang akan digunakan",
+  "no_relays_message": "Kami menemukan catatan Nostr NIP-05 untuk pengguna ini, tetapi tidak berisi relay apa pun. Harap instruksikan penerima untuk menambahkan relay ke catatan Nostr mereka.",
+  "no_relay_on_domain": "Tidak ada relai untuk domain pengguna atau relai tidak tersedia. Silakan pilih relai yang akan digunakan."
 }

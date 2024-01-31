@@ -46,6 +46,8 @@ class DFXBuyProvider extends BuyProvider {
         return 'XMR';
       case WalletType.ethereum:
         return 'ETH';
+      case WalletType.polygon:
+        return 'MATIC';
       default:
         throw Exception("WalletType is not available for DFX ${wallet.type}");
     }
@@ -61,13 +63,17 @@ class DFXBuyProvider extends BuyProvider {
         return 'Monero';
       case WalletType.ethereum:
         return 'Ethereum';
+      case WalletType.polygon:
+        return 'Polygon';
       default:
         throw Exception("WalletType is not available for DFX ${wallet.type}");
     }
   }
 
+  String get walletAddress =>
+      wallet.walletAddresses.primaryAddress ?? wallet.walletAddresses.address;
+
   Future<String> getSignMessage() async {
-    final walletAddress = wallet.walletAddresses.address;
     final uri = Uri.https(_baseUrl, _authPath, {'address': walletAddress});
 
     var response = await http.get(uri, headers: {'accept': 'application/json'});
@@ -83,7 +89,6 @@ class DFXBuyProvider extends BuyProvider {
 
   Future<String> signUp() async {
     final signMessage = getSignature(await getSignMessage());
-    final walletAddress = wallet.walletAddresses.address;
 
     final requestBody = jsonEncode({
       'wallet': walletName,
@@ -92,8 +97,11 @@ class DFXBuyProvider extends BuyProvider {
     });
 
     final uri = Uri.https(_baseUrl, _signUpPath);
-    var response = await http.post(uri,
-        headers: {'Content-Type': 'application/json'}, body: requestBody);
+    var response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: requestBody,
+    );
 
     if (response.statusCode == 201) {
       final responseBody = jsonDecode(response.body);
@@ -103,14 +111,12 @@ class DFXBuyProvider extends BuyProvider {
       final message = responseBody['message'] ?? 'Service unavailable in your country';
       throw Exception(message);
     } else {
-      throw Exception(
-          'Failed to sign up. Status: ${response.statusCode} ${response.body}');
+      throw Exception('Failed to sign up. Status: ${response.statusCode} ${response.body}');
     }
   }
 
   Future<String> signIn() async {
     final signMessage = getSignature(await getSignMessage());
-    final walletAddress = wallet.walletAddresses.address;
 
     final requestBody = jsonEncode({
       'address': walletAddress,
@@ -118,8 +124,11 @@ class DFXBuyProvider extends BuyProvider {
     });
 
     final uri = Uri.https(_baseUrl, _signInPath);
-    var response = await http.post(uri,
-        headers: {'Content-Type': 'application/json'}, body: requestBody);
+    var response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: requestBody,
+    );
 
     if (response.statusCode == 201) {
       final responseBody = jsonDecode(response.body);
@@ -129,21 +138,20 @@ class DFXBuyProvider extends BuyProvider {
       final message = responseBody['message'] ?? 'Service unavailable in your country';
       throw Exception(message);
     } else {
-      throw Exception(
-          'Failed to sign in. Status: ${response.statusCode} ${response.body}');
+      throw Exception('Failed to sign in. Status: ${response.statusCode} ${response.body}');
     }
   }
 
   String getSignature(String message) {
     switch (wallet.type) {
       case WalletType.ethereum:
+      case WalletType.polygon:
         return wallet.signMessage(message);
       case WalletType.monero:
       case WalletType.litecoin:
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
-        return wallet.signMessage(message,
-            address: wallet.walletAddresses.address);
+        return wallet.signMessage(message, address: walletAddress);
       default:
         throw Exception("WalletType is not available for DFX ${wallet.type}");
     }
@@ -178,8 +186,7 @@ class DFXBuyProvider extends BuyProvider {
 
       if (await canLaunchUrl(uri)) {
         if (DeviceInfo.instance.isMobile) {
-          Navigator.of(context)
-              .pushNamed(Routes.webViewPage, arguments: ["DFX Connect", uri]);
+          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
         } else {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         }
