@@ -774,5 +774,7 @@
   "no_relays": "无继电器",
   "choose_relay": "请选择要使用的继电器",
   "no_relays_message": "我们找到了该用户的 Nostr NIP-05 记录，但它不包含任何中继。请指示收件人将中继添加到他们的 Nostr 记录中。",
-  "no_relay_on_domain": "用户域没有中继或中继不可用。请选择要使用的继电器。"
+  "no_relay_on_domain": "用户域没有中继或中继不可用。请选择要使用的继电器。",
+  "disableBatteryOptimization": "禁用电池优化",
+  "disableBatteryOptimizationDescription": "您想禁用电池优化以使后台同步运行更自由、更流畅吗？"
 }

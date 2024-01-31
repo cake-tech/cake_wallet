@@ -774,5 +774,7 @@
   "no_relays": "Sem relés",
   "choose_relay": "Escolha um relé para usar",
   "no_relays_message": "Encontramos um registro Nostr NIP-05 para este usuário, mas ele não contém nenhum relé. Instrua o destinatário a adicionar retransmissões ao seu registro Nostr.",
-  "no_relay_on_domain": "Não há uma retransmissão para o domínio do usuário ou a retransmissão está indisponível. Escolha um relé para usar."
+  "no_relay_on_domain": "Não há uma retransmissão para o domínio do usuário ou a retransmissão está indisponível. Escolha um relé para usar.",
+  "disableBatteryOptimization": "Desative a otimização da bateria",
+  "disableBatteryOptimizationDescription": "Deseja desativar a otimização da bateria para que a sincronização em segundo plano seja executada de maneira mais livre e suave?"
 }

@@ -767,5 +767,7 @@
   "no_relays": "Žádná relé",
   "choose_relay": "Vyberte relé, které chcete použít",
   "no_relays_message": "Pro tohoto uživatele jsme našli záznam Nostr NIP-05, který však neobsahuje žádná relé. Požádejte příjemce, aby přidal přenosy do svého záznamu Nostr.",
-  "no_relay_on_domain": "Pro doménu uživatele neexistuje přenos nebo je přenos nedostupný. Vyberte relé, které chcete použít."
+  "no_relay_on_domain": "Pro doménu uživatele neexistuje přenos nebo je přenos nedostupný. Vyberte relé, které chcete použít.",
+  "disableBatteryOptimization": "Zakázat optimalizaci baterie",
+  "disableBatteryOptimizationDescription": "Chcete deaktivovat optimalizaci baterie, aby synchronizace na pozadí probíhala volněji a plynuleji?"
 }

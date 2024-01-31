@@ -776,5 +776,7 @@
   "no_relays": "No relays",
   "choose_relay": "Please choose a relay to use",
   "no_relays_message": "We found a Nostr NIP-05 record for this user, but it does not contain any relays. Please instruct the recipient to add relays to their Nostr record.",
-  "no_relay_on_domain": "There isn't a relay for user's domain or the relay is unavailable. Please choose a relay to use."
+  "no_relay_on_domain": "There isn't a relay for user's domain or the relay is unavailable. Please choose a relay to use.",
+  "disableBatteryOptimization": "Disable Battery Optimization",
+  "disableBatteryOptimizationDescription": "Do you want to disable battery optimization in order to make background sync run more freely and smoothly?"
 }

@@ -763,5 +763,7 @@
   "no_relays": "Tidak ada relay",
   "choose_relay": "Silakan pilih relai yang akan digunakan",
   "no_relays_message": "Kami menemukan catatan Nostr NIP-05 untuk pengguna ini, tetapi tidak berisi relay apa pun. Harap instruksikan penerima untuk menambahkan relay ke catatan Nostr mereka.",
-  "no_relay_on_domain": "Tidak ada relai untuk domain pengguna atau relai tidak tersedia. Silakan pilih relai yang akan digunakan."
+  "no_relay_on_domain": "Tidak ada relai untuk domain pengguna atau relai tidak tersedia. Silakan pilih relai yang akan digunakan.",
+  "disableBatteryOptimization": "Nonaktifkan Pengoptimalan Baterai",
+  "disableBatteryOptimizationDescription": "Apakah Anda ingin menonaktifkan pengoptimalan baterai agar sinkronisasi latar belakang berjalan lebih leluasa dan lancar?"
 }

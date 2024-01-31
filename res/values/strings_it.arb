@@ -775,5 +775,7 @@
   "no_relays": "Nessun relè",
   "choose_relay": "Scegli un relè da utilizzare",
   "no_relays_message": "Abbiamo trovato un record Nostr NIP-05 per questo utente, ma non contiene alcun relè. Si prega di indicare al destinatario di aggiungere inoltri al proprio record Nostr.",
-  "no_relay_on_domain": "Non esiste un inoltro per il dominio dell'utente oppure l'inoltro non è disponibile. Scegli un relè da utilizzare."
+  "no_relay_on_domain": "Non esiste un inoltro per il dominio dell'utente oppure l'inoltro non è disponibile. Scegli un relè da utilizzare.",
+  "disableBatteryOptimization": "Disabilita l'ottimizzazione della batteria",
+  "disableBatteryOptimizationDescription": "Vuoi disabilitare l'ottimizzazione della batteria per rendere la sincronizzazione in background più libera e fluida?"
 }

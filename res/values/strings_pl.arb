@@ -775,5 +775,7 @@
   "no_relays": "Żadnych przekaźników",
   "choose_relay": "Wybierz przekaźnik, którego chcesz użyć",
   "no_relays_message": "Znaleźliśmy rekord Nostr NIP-05 dla tego użytkownika, ale nie zawiera on żadnych przekaźników. Poinstruuj odbiorcę, aby dodał przekaźniki do swojego rekordu Nostr.",
-  "no_relay_on_domain": "Brak przekaźnika dla domeny użytkownika lub przekaźnik jest niedostępny. Wybierz przekaźnik, którego chcesz użyć."
+  "no_relay_on_domain": "Brak przekaźnika dla domeny użytkownika lub przekaźnik jest niedostępny. Wybierz przekaźnik, którego chcesz użyć.",
+  "disableBatteryOptimization": "Wyłącz optymalizację baterii",
+  "disableBatteryOptimizationDescription": "Czy chcesz wyłączyć optymalizację baterii, aby synchronizacja w tle działała swobodniej i płynniej?"
 }

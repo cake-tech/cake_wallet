@@ -773,5 +773,7 @@
   "no_relays": "Röle yok",
   "choose_relay": "Lütfen kullanmak için bir röle seçin",
   "no_relays_message": "Bu kullanıcı için bir Nostr NIP-05 kaydı bulduk ancak bu kayıt herhangi bir aktarma içermiyor. Lütfen alıcıya Nostr kayıtlarına aktarma eklemesi talimatını verin.",
-  "no_relay_on_domain": "Kullanıcının alanı için bir geçiş yok veya geçiş kullanılamıyor. Lütfen kullanmak için bir röle seçin."
+  "no_relay_on_domain": "Kullanıcının alanı için bir geçiş yok veya geçiş kullanılamıyor. Lütfen kullanmak için bir röle seçin.",
+  "disableBatteryOptimization": "Pil Optimizasyonunu Devre Dışı Bırak",
+  "disableBatteryOptimizationDescription": "Arka planda senkronizasyonun daha özgür ve sorunsuz çalışmasını sağlamak için pil optimizasyonunu devre dışı bırakmak istiyor musunuz?"
 }

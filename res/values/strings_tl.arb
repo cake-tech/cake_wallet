@@ -769,5 +769,7 @@
   "no_relays": "Walang mga relay",
   "choose_relay": "Mangyaring pumili ng relay na gagamitin",
   "no_relays_message": "Nakakita kami ng Nostr NIP-05 record para sa user na ito, ngunit hindi ito naglalaman ng anumang mga relay. Mangyaring atasan ang tatanggap na magdagdag ng mga relay sa kanilang Nostr record.",
-  "no_relay_on_domain": "Walang relay para sa domain ng user o hindi available ang relay. Mangyaring pumili ng relay na gagamitin."
+  "no_relay_on_domain": "Walang relay para sa domain ng user o hindi available ang relay. Mangyaring pumili ng relay na gagamitin.",
+  "disableBatteryOptimization": "Huwag paganahin ang Pag-optimize ng Baterya",
+  "disableBatteryOptimizationDescription": "Gusto mo bang huwag paganahin ang pag-optimize ng baterya upang gawing mas malaya at maayos ang pag-sync sa background?"
 }

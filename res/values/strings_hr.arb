@@ -773,5 +773,7 @@
   "no_relays": "Nema releja",
   "choose_relay": "Odaberite relej za korištenje",
   "no_relays_message": "Pronašli smo zapis Nostr NIP-05 za ovog korisnika, ali on ne sadrži nikakve releje. Uputite primatelja da doda releje u svoj Nostr zapis.",
-  "no_relay_on_domain": "Ne postoji relej za korisničku domenu ili je relej nedostupan. Odaberite relej za korištenje."
+  "no_relay_on_domain": "Ne postoji relej za korisničku domenu ili je relej nedostupan. Odaberite relej za korištenje.",
+  "disableBatteryOptimization": "Onemogući optimizaciju baterije",
+  "disableBatteryOptimizationDescription": "Želite li onemogućiti optimizaciju baterije kako bi sinkronizacija u pozadini radila slobodnije i glatko?"
 }

@@ -775,5 +775,7 @@
   "no_relays": "リレーなし",
   "choose_relay": "使用するリレーを選択してください",
   "no_relays_message": "このユーザーの Nostr NIP-05 レコードが見つかりましたが、リレーは含まれていません。受信者に Nostr レコードにリレーを追加するよう指示してください。",
-  "no_relay_on_domain": "ユーザーのドメインのリレーが存在しないか、リレーが使用できません。使用するリレーを選択してください。"
+  "no_relay_on_domain": "ユーザーのドメインのリレーが存在しないか、リレーが使用できません。使用するリレーを選択してください。",
+  "disableBatteryOptimization": "バッテリーの最適化を無効にする",
+  "disableBatteryOptimizationDescription": "バックグラウンド同期をより自由かつスムーズに実行するために、バッテリーの最適化を無効にしますか?"
 }
