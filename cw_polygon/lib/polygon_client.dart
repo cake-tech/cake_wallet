@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:cw_ethereum/ethereum_client.dart';
-import 'package:cw_polygon/polygon_transaction_model.dart';
-import 'package:cw_ethereum/.secrets.g.dart' as secrets;
+import 'package:cw_evm/evm_chain_client.dart';
+import 'package:cw_evm/.secrets.g.dart' as secrets;
+import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web3dart/web3dart.dart';
 
-class PolygonClient extends EthereumClient {
+class PolygonClient extends EVMChainClient {
   @override
   Transaction createTransaction({
     required EthereumAddress from,
@@ -28,7 +28,7 @@ class PolygonClient extends EthereumClient {
   int get chainId => 137;
 
   @override
-  Future<List<PolygonTransactionModel>> fetchTransactions(String address,
+  Future<List<EVMChainTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
       final response = await httpClient.get(Uri.https("api.polygonscan.com", "/api", {
@@ -43,7 +43,9 @@ class PolygonClient extends EthereumClient {
 
       if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
         return (jsonResponse['result'] as List)
-            .map((e) => PolygonTransactionModel.fromJson(e as Map<String, dynamic>))
+            .map(
+              (e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'MATIC'),
+            )
             .toList();
       }
 

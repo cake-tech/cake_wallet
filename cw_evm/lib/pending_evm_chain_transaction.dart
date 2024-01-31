@@ -4,14 +4,14 @@ import 'dart:typed_data';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:web3dart/crypto.dart';
 
-class PendingEthereumTransaction with PendingTransaction {
+class PendingEVMChainTransaction with PendingTransaction {
   final Function sendTransaction;
   final Uint8List signedTransaction;
   final BigInt fee;
   final String amount;
   final int exponent;
 
-  PendingEthereumTransaction({
+  PendingEVMChainTransaction({
     required this.sendTransaction,
     required this.signedTransaction,
     required this.fee,
