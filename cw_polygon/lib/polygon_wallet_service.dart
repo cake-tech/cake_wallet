@@ -57,7 +57,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
 
-      final wallet = await PolygonWalletBase.open(
+      final wallet = await PolygonWallet.open(
         name: name,
         password: password,
         walletInfo: walletInfo,

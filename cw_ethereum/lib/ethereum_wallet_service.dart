@@ -55,7 +55,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
       
       await restoreWalletFilesFromBackup(name);
 
-      final wallet = await EthereumWalletBase.open(
+      final wallet = await EthereumWallet.open(
         name: name,
         password: password,
         walletInfo: walletInfo,
