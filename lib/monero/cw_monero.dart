@@ -331,7 +331,7 @@ class CWMonero extends Monero {
   }
 
   @override
-  void updateUnspents(Object wallet) async {
+  Future<void> updateUnspents(Object wallet) async {
     final moneroWallet = wallet as MoneroWallet;
     await moneroWallet.updateUnspent();
   }

@@ -113,13 +113,15 @@ class AddressCell extends StatelessWidget {
                               color: textColor,
                             ),
                           ),
-                        AutoSizeText(
-                          formattedAddress,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: isChange ? 10 : 14,
-                            color: textColor,
+                        Flexible(
+                          child: AutoSizeText(
+                            formattedAddress,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: isChange ? 10 : 14,
+                              color: textColor,
+                            ),
                           ),
                         ),
                       ],

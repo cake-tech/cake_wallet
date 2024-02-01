@@ -16,30 +16,17 @@ abstract class UnspentCoinsListViewModelBase with Store {
   UnspentCoinsListViewModelBase(
       {required this.wallet, required Box<UnspentCoinsInfo> unspentCoinsInfo})
       : _unspentCoinsInfo = unspentCoinsInfo {
+    _updateUnspentCoinsInfo();
     _updateUnspents();
   }
 
   WalletBase wallet;
   final Box<UnspentCoinsInfo> _unspentCoinsInfo;
 
-  @computed
-  ObservableList<UnspentCoinsItem> get items => ObservableList.of(_getUnspents().map((elem) {
-        final info =
-            getUnspentCoinInfo(elem.hash, elem.address, elem.value, elem.vout, elem.keyImage);
+  final ObservableList<UnspentCoinsItem> _items = ObservableList();
 
-        return UnspentCoinsItem(
-            address: elem.address,
-            amount: '${formatAmountToString(elem.value)} ${wallet.currency.title}',
-            hash: elem.hash,
-            isFrozen: info.isFrozen,
-            note: info.note,
-            isSending: info.isSending,
-            amountRaw: elem.value,
-            vout: elem.vout,
-            keyImage: elem.keyImage,
-            isChange: elem.isChange,
-        );
-      }));
+  @computed
+  ObservableList<UnspentCoinsItem> get items => _items;
 
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
     try {
@@ -77,9 +64,14 @@ abstract class UnspentCoinsListViewModelBase with Store {
   }
 
   Future<void> _updateUnspents() async {
-    if (wallet.type == WalletType.monero) return monero!.updateUnspents(wallet);
-    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type))
-      return bitcoin!.updateUnspents(wallet);
+    if (wallet.type == WalletType.monero) {
+      await monero!.updateUnspents(wallet);
+    }
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type)) {
+      await bitcoin!.updateUnspents(wallet);
+    }
+
+    _updateUnspentCoinsInfo();
   }
 
   List<Unspent> _getUnspents() {
@@ -87,5 +79,27 @@ abstract class UnspentCoinsListViewModelBase with Store {
     if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type))
       return bitcoin!.getUnspents(wallet);
     return List.empty();
+  }
+
+  @action
+  void _updateUnspentCoinsInfo() {
+    _items.clear();
+    _items.addAll(_getUnspents().map((elem) {
+      final info =
+          getUnspentCoinInfo(elem.hash, elem.address, elem.value, elem.vout, elem.keyImage);
+
+      return UnspentCoinsItem(
+        address: elem.address,
+        amount: '${formatAmountToString(elem.value)} ${wallet.currency.title}',
+        hash: elem.hash,
+        isFrozen: info.isFrozen,
+        note: info.note,
+        isSending: info.isSending,
+        amountRaw: elem.value,
+        vout: elem.vout,
+        keyImage: elem.keyImage,
+        isChange: elem.isChange,
+      );
+    }));
   }
 }

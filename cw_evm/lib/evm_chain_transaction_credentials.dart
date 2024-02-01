@@ -1,9 +1,9 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/output_info.dart';
-import 'package:cw_ethereum/ethereum_transaction_priority.dart';
+import 'package:cw_evm/evm_chain_transaction_priority.dart';
 
-class EthereumTransactionCredentials {
-  EthereumTransactionCredentials(
+class EVMChainTransactionCredentials {
+  EVMChainTransactionCredentials(
     this.outputs, {
     required this.priority,
     required this.currency,
@@ -11,7 +11,7 @@ class EthereumTransactionCredentials {
   });
 
   final List<OutputInfo> outputs;
-  final EthereumTransactionPriority? priority;
+  final EVMChainTransactionPriority? priority;
   final int? feeRate;
   final CryptoCurrency currency;
 }

@@ -101,26 +101,26 @@ class NFTDetailsPage extends BasePage {
                 SizedBox(height: 16),
                 _NFTSingleInfoTile(
                   infoType: S.current.name,
-                  infoValue: nftAsset.normalizedMetadata?.name ?? '',
+                  infoValue: nftAsset.normalizedMetadata?.name ?? '---',
                 ),
 
                 if (nftAsset.normalizedMetadata?.description != null) ...[
                   SizedBox(height: 16),
                   _NFTSingleInfoTile(
-                    infoType: 'Description',
-                    infoValue: nftAsset.normalizedMetadata?.description ?? '',
+                    infoType: S.current.description,
+                    infoValue: nftAsset.normalizedMetadata?.description ?? '---',
                   ),
                 ],
 
                 SizedBox(height: 16),
                 _NFTSingleInfoTile(
-                  infoType: 'Contract Name',
-                  infoValue: nftAsset.name ?? '',
+                  infoType: S.current.contractName,
+                  infoValue: nftAsset.name ?? '---',
                 ),
                 SizedBox(height: 8),
                 _NFTSingleInfoTile(
-                  infoType: 'Contract Symbol',
-                  infoValue: nftAsset.symbol ?? '',
+                  infoType: S.current.contractSymbol,
+                  infoValue: nftAsset.symbol ?? '---',
                 ),
               ],
             ),

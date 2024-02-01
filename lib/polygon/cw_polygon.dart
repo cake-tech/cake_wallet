@@ -2,17 +2,17 @@ part of 'polygon.dart';
 
 class CWPolygon extends Polygon {
   @override
-  List<String> getPolygonWordList(String language) => EthereumMnemonics.englishWordlist;
+  List<String> getPolygonWordList(String language) => EVMChainMnemonics.englishWordlist;
 
   WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource) =>
-      PolygonWalletService(walletInfoSource);
+      PolygonWalletService(walletInfoSource, client: PolygonClient());
 
   @override
   WalletCredentials createPolygonNewWalletCredentials({
     required String name,
     WalletInfo? walletInfo,
   }) =>
-      PolygonNewWalletCredentials(name: name, walletInfo: walletInfo);
+      EVMChainNewWalletCredentials(name: name, walletInfo: walletInfo);
 
   @override
   WalletCredentials createPolygonRestoreWalletFromSeedCredentials({
@@ -20,7 +20,7 @@ class CWPolygon extends Polygon {
     required String mnemonic,
     required String password,
   }) =>
-      PolygonRestoreWalletFromSeedCredentials(name: name, password: password, mnemonic: mnemonic);
+      EVMChainRestoreWalletFromSeedCredentials(name: name, password: password, mnemonic: mnemonic);
 
   @override
   WalletCredentials createPolygonRestoreWalletFromPrivateKey({
@@ -28,37 +28,37 @@ class CWPolygon extends Polygon {
     required String privateKey,
     required String password,
   }) =>
-      PolygonRestoreWalletFromPrivateKey(name: name, password: password, privateKey: privateKey);
+      EVMChainRestoreWalletFromPrivateKey(name: name, password: password, privateKey: privateKey);
 
   @override
   String getAddress(WalletBase wallet) => (wallet as PolygonWallet).walletAddresses.address;
 
   @override
   String getPrivateKey(WalletBase wallet) {
-    final privateKeyHolder = (wallet as PolygonWallet).polygonPrivateKey;
+    final privateKeyHolder = (wallet as PolygonWallet).evmChainPrivateKey;
     String stringKey = bytesToHex(privateKeyHolder.privateKey);
     return stringKey;
   }
 
   @override
   String getPublicKey(WalletBase wallet) {
-    final privateKeyInUnitInt = (wallet as PolygonWallet).polygonPrivateKey;
+    final privateKeyInUnitInt = (wallet as PolygonWallet).evmChainPrivateKey;
     final publicKey = privateKeyInUnitInt.address.hex;
     return publicKey;
   }
 
   @override
-  TransactionPriority getDefaultTransactionPriority() => PolygonTransactionPriority.medium;
+  TransactionPriority getDefaultTransactionPriority() => EVMChainTransactionPriority.medium;
 
   @override
-  TransactionPriority getPolygonTransactionPrioritySlow() => PolygonTransactionPriority.slow;
+  TransactionPriority getPolygonTransactionPrioritySlow() => EVMChainTransactionPriority.slow;
 
   @override
-  List<TransactionPriority> getTransactionPriorities() => PolygonTransactionPriority.all;
+  List<TransactionPriority> getTransactionPriorities() => EVMChainTransactionPriority.all;
 
   @override
   TransactionPriority deserializePolygonTransactionPriority(int raw) =>
-      PolygonTransactionPriority.deserialize(raw: raw);
+      EVMChainTransactionPriority.deserialize(raw: raw);
 
   Object createPolygonTransactionCredentials(
     List<Output> outputs, {
@@ -66,7 +66,7 @@ class CWPolygon extends Polygon {
     required CryptoCurrency currency,
     int? feeRate,
   }) =>
-      PolygonTransactionCredentials(
+      EVMChainTransactionCredentials(
         outputs
             .map((out) => OutputInfo(
                 fiatAmount: out.fiatAmount,
@@ -78,7 +78,7 @@ class CWPolygon extends Polygon {
                 isParsedAddress: out.isParsedAddress,
                 formattedCryptoAmount: out.formattedCryptoAmount))
             .toList(),
-        priority: priority as PolygonTransactionPriority,
+        priority: priority as EVMChainTransactionPriority,
         currency: currency,
         feeRate: feeRate,
       );
@@ -89,15 +89,15 @@ class CWPolygon extends Polygon {
     required CryptoCurrency currency,
     required int feeRate,
   }) =>
-      PolygonTransactionCredentials(
+      EVMChainTransactionCredentials(
         outputs,
-        priority: priority as PolygonTransactionPriority?,
+        priority: priority as EVMChainTransactionPriority?,
         currency: currency,
         feeRate: feeRate,
       );
 
   @override
-  int formatterPolygonParseAmount(String amount) => PolygonFormatter.parsePolygonAmount(amount);
+  int formatterPolygonParseAmount(String amount) => EVMChainFormatter.parseEVMChainAmount(amount);
 
   @override
   double formatterPolygonAmountToDouble(
@@ -105,7 +105,7 @@ class CWPolygon extends Polygon {
     assert(transaction != null || amount != null);
 
     if (transaction != null) {
-      transaction as PolygonTransactionInfo;
+      transaction as EVMChainTransactionInfo;
       return transaction.ethAmount / BigInt.from(10).pow(transaction.exponent);
     } else {
       return (amount!) / BigInt.from(10).pow(exponent);
@@ -134,7 +134,7 @@ class CWPolygon extends Polygon {
 
   @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
-    transaction as PolygonTransactionInfo;
+    transaction as EVMChainTransactionInfo;
     if (transaction.tokenSymbol == CryptoCurrency.maticpoly.title) {
       return CryptoCurrency.maticpoly;
     }
@@ -146,7 +146,7 @@ class CWPolygon extends Polygon {
 
   @override
   void updatePolygonScanUsageState(WalletBase wallet, bool isEnabled) {
-    (wallet as PolygonWallet).updatePolygonScanUsageState(isEnabled);
+    (wallet as PolygonWallet).updateScanProviderUsageState(isEnabled);
   }
 
   @override
