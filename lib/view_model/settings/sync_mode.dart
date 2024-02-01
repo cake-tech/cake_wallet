@@ -10,6 +10,6 @@ class SyncMode {
   static final all = [
     SyncMode("Disabled", SyncType.disabled, Duration.zero),
     SyncMode("Unobtrusive", SyncType.unobtrusive, Duration(days: 1)),
-    SyncMode("Aggressive", SyncType.aggressive, Duration(minutes: 15)),
+    SyncMode("Aggressive", SyncType.aggressive, Duration(hours: 6)),
   ];
 }
