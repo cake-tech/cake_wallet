@@ -50,7 +50,7 @@ abstract class TorViewModelBase with Store {
     if (appStore.wallet != null) {
       final node = _settingsStore.getCurrentNode(appStore.wallet!.type);
       if (connect && (node.socksProxyAddress?.isEmpty ?? true)) {
-        node.socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
+        node.socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${torInstance.port}";
       } else if (!connect) {
         node.socksProxyAddress = null;
       }
@@ -72,7 +72,7 @@ abstract class TorViewModelBase with Store {
 
       if (!torStarted) {
         torStarted = true;
-        torInstance = await Tor.init(); 
+        torInstance = await Tor.init();
       }
       
       await torInstance.enable();
