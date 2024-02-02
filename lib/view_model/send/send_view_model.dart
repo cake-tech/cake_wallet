@@ -298,6 +298,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       pendingTransaction = await wallet.createTransaction(_credentials());
       state = ExecutedSuccessfullyState();
     } catch (e) {
+      print('Failed with ${e.toString()}');
       state = FailureState(e.toString());
     }
   }

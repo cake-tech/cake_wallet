@@ -18,15 +18,15 @@ import 'package:mobx/mobx.dart';
 part 'balance_view_model.g.dart';
 
 class BalanceRecord {
-  const BalanceRecord({
-    required this.availableBalance,
-    required this.additionalBalance,
-    required this.frozenBalance,
-    required this.fiatAvailableBalance,
-    required this.fiatAdditionalBalance,
-    required this.fiatFrozenBalance,
-    required this.asset,
-    required this.formattedAssetTitle});
+  const BalanceRecord(
+      {required this.availableBalance,
+      required this.additionalBalance,
+      required this.frozenBalance,
+      required this.fiatAvailableBalance,
+      required this.fiatAdditionalBalance,
+      required this.fiatFrozenBalance,
+      required this.asset,
+      required this.formattedAssetTitle});
   final String fiatAdditionalBalance;
   final String fiatAvailableBalance;
   final String fiatFrozenBalance;
@@ -41,12 +41,10 @@ class BalanceViewModel = BalanceViewModelBase with _$BalanceViewModel;
 
 abstract class BalanceViewModelBase with Store {
   BalanceViewModelBase(
-      {required this.appStore,
-      required this.settingsStore,
-      required this.fiatConvertationStore})
-    : isReversing = false,
-      isShowCard = appStore.wallet!.walletInfo.isShowIntroCakePayCard,
-      wallet = appStore.wallet! {
+      {required this.appStore, required this.settingsStore, required this.fiatConvertationStore})
+      : isReversing = false,
+        isShowCard = appStore.wallet!.walletInfo.isShowIntroCakePayCard,
+        wallet = appStore.wallet! {
     reaction((_) => appStore.wallet, _onWalletChange);
   }
 
@@ -60,8 +58,7 @@ abstract class BalanceViewModelBase with Store {
   bool isReversing;
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
-      wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
   @computed
   double get price {
@@ -98,7 +95,7 @@ abstract class BalanceViewModelBase with Store {
   String get asset {
     final typeFormatted = walletTypeToString(appStore.wallet!.type);
 
-    switch(wallet.type) {
+    switch (wallet.type) {
       case WalletType.haven:
         return '$typeFormatted Assets';
       default:
@@ -121,7 +118,7 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   String get availableBalanceLabel {
-    switch(wallet.type) {
+    switch (wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
       case WalletType.ethereum:
@@ -137,7 +134,7 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   String get additionalBalanceLabel {
-    switch(wallet.type) {
+    switch (wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
       case WalletType.ethereum:
@@ -231,15 +228,17 @@ abstract class BalanceViewModelBase with Store {
   Map<CryptoCurrency, BalanceRecord> get balances {
     return wallet.balance.map((key, value) {
       if (displayMode == BalanceDisplayMode.hiddenBalance) {
-        return MapEntry(key, BalanceRecord(
-          availableBalance: '---',
-          additionalBalance: '---',
-          frozenBalance: '---',
-          fiatAdditionalBalance: isFiatDisabled ? '' : '---',
-          fiatAvailableBalance: isFiatDisabled ? '' : '---',
-          fiatFrozenBalance: isFiatDisabled ? '' : '---',
-          asset: key,
-          formattedAssetTitle: _formatterAsset(key)));
+        return MapEntry(
+            key,
+            BalanceRecord(
+                availableBalance: '---',
+                additionalBalance: '---',
+                frozenBalance: '---',
+                fiatAdditionalBalance: isFiatDisabled ? '' : '---',
+                fiatAvailableBalance: isFiatDisabled ? '' : '---',
+                fiatFrozenBalance: isFiatDisabled ? '' : '---',
+                asset: key,
+                formattedAssetTitle: _formatterAsset(key)));
       }
       final fiatCurrency = settingsStore.fiatCurrency;
       final price = fiatConvertationStore.prices[key] ?? 0;
@@ -248,25 +247,23 @@ abstract class BalanceViewModelBase with Store {
       //   throw Exception('Price is null for: $key');
       // }
 
-      final additionalFiatBalance = isFiatDisabled ? '' : (fiatCurrency.toString()
-        + ' '
-        + _getFiatBalance(
-            price: price,
-            cryptoAmount: value.formattedAdditionalBalance));
+      final additionalFiatBalance = isFiatDisabled
+          ? ''
+          : (fiatCurrency.toString() +
+              ' ' +
+              _getFiatBalance(price: price, cryptoAmount: value.formattedAdditionalBalance));
 
-      final availableFiatBalance = isFiatDisabled ? '' : (fiatCurrency.toString()
-        + ' '
-        + _getFiatBalance(
-            price: price,
-            cryptoAmount: value.formattedAvailableBalance));
+      final availableFiatBalance = isFiatDisabled
+          ? ''
+          : (fiatCurrency.toString() +
+              ' ' +
+              _getFiatBalance(price: price, cryptoAmount: value.formattedAvailableBalance));
 
-
-      final frozenFiatBalance = isFiatDisabled ? '' : (fiatCurrency.toString()
-          + ' '
-          + _getFiatBalance(
-              price: price,
-              cryptoAmount: getFormattedFrozenBalance(value)));
-
+      final frozenFiatBalance = isFiatDisabled
+          ? ''
+          : (fiatCurrency.toString() +
+              ' ' +
+              _getFiatBalance(price: price, cryptoAmount: getFormattedFrozenBalance(value)));
 
       return MapEntry(
           key,
@@ -279,12 +276,22 @@ abstract class BalanceViewModelBase with Store {
               fiatFrozenBalance: frozenFiatBalance,
               asset: key,
               formattedAssetTitle: _formatterAsset(key)));
-      });
+    });
   }
 
   @computed
-  bool get hasAdditionalBalance => !isEVMCompatibleChain(wallet.type);
-   
+  bool get hasAdditionalBalance => _hasAdditionBalanceForWalletType(wallet.type);
+
+  bool _hasAdditionBalanceForWalletType(WalletType type) {
+    switch (type) {
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.solana:
+        return false;
+      default:
+        return true;
+    }
+  }
 
   @computed
   List<BalanceRecord> get formattedBalances {
@@ -361,9 +368,7 @@ abstract class BalanceViewModelBase with Store {
 
   @action
   void _onWalletChange(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-              TransactionInfo>?
-          wallet) {
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet) {
     if (wallet == null) {
       return;
     }
@@ -374,7 +379,7 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @action
-  Future<void> disableIntroCakePayCard () async {
+  Future<void> disableIntroCakePayCard() async {
     const cardDisplayStatus = false;
     wallet.walletInfo.showIntroCakePayCard = cardDisplayStatus;
     await wallet.walletInfo.save();
@@ -404,6 +409,6 @@ abstract class BalanceViewModelBase with Store {
     }
   }
 
-  String getFormattedFrozenBalance(Balance walletBalance) => walletBalance.formattedUnAvailableBalance;
+  String getFormattedFrozenBalance(Balance walletBalance) =>
+      walletBalance.formattedUnAvailableBalance;
 }
-

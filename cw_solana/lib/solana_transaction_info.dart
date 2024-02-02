@@ -46,12 +46,12 @@ class SolanaTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
-  String feeFormatted() => '';
+  String feeFormatted() => throw UnimplementedError();
 
   factory SolanaTransactionInfo.fromJson(Map<String, dynamic> data) {
     return SolanaTransactionInfo(
       id: data['id'] as String,
-      solAmount: data['amount'],
+      solAmount: data['solAmount'],
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       blockTime: DateTime.fromMillisecondsSinceEpoch(data['blockTime'] as int),
       isPending: data['isPending'] as bool,
@@ -63,7 +63,7 @@ class SolanaTransactionInfo extends TransactionInfo {
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'amount': solAmount.toString(),
+        'solAmount': solAmount,
         'direction': direction.index,
         'blockTime': blockTime.millisecondsSinceEpoch,
         'isPending': isPending,

@@ -1,14 +1,17 @@
 import 'package:cw_core/pending_transaction.dart';
+import 'package:solana/encoder.dart';
 
 class PendingSolanaTransaction with PendingTransaction {
   final double amount;
-  final String signature;
+  final SignedTx signedTransaction;
   final String destinationAddress;
+  final Function sendTransaction;
 
   PendingSolanaTransaction({
     required this.amount,
-    required this.signature,
+    required this.signedTransaction,
     required this.destinationAddress,
+    required this.sendTransaction,
   });
 
   @override
@@ -23,15 +26,16 @@ class PendingSolanaTransaction with PendingTransaction {
   }
 
   @override
-  Future<void> commit() async {}
-
-  @override
-  String get feeFormatted {
-    return '';
+  Future<void> commit() async {
+    print('Inside commit function for solana');
+    return await sendTransaction();
   }
 
   @override
-  String get hex => signature;
+  String get feeFormatted => '';
+
+  @override
+  String get hex => signedTransaction.encode();
 
   @override
   String get id => '';

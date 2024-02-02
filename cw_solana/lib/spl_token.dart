@@ -26,24 +26,29 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
   final String mint;
 
   @HiveField(6)
-  final String logoUrl;
+  final String? iconPath;
+
+  @HiveField(7)
+  final String? tag;
 
   SPLToken({
     required this.name,
     required this.symbol,
     required this.mintAddress,
     required this.decimal,
-    bool enabled = true,
     required this.mint,
-    required this.logoUrl,
+     this.iconPath,
+    this.tag = 'SOL',
+    bool enabled = false,
   })  : _enabled = enabled,
         super(
-            name: symbol.toLowerCase(),
-            title: symbol.toUpperCase(),
-            fullName: name,
-            tag: 'SOL',
-            iconPath: logoUrl,
-            decimals: decimal);
+          name: symbol.toLowerCase(),
+          title: symbol.toUpperCase(),
+          fullName: name,
+          tag: tag,
+          iconPath: iconPath,
+          decimals: decimal,
+        );
 
   factory SPLToken.fromMetadata({
     required String name,
@@ -57,7 +62,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
       mintAddress: mintAddress,
       decimal: 0,
       mint: mint,
-      logoUrl: '',
+      iconPath: '',
     );
   }
 
@@ -65,7 +70,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
     required String name,
     required String symbol,
     required int decimals,
-    required String logoUrl,
+    required String iconPath,
     required String mint,
   }) {
     return SPLToken(
@@ -73,7 +78,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
       symbol: symbol,
       decimal: decimals,
       mint: mint,
-      logoUrl: logoUrl,
+      iconPath: iconPath,
       mintAddress: '',
     );
   }
@@ -81,6 +86,24 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
   bool get enabled => _enabled;
 
   set enabled(bool value) => _enabled = value;
+
+  SPLToken.copyWith(SPLToken other, String? icon, String? tag)
+      : name = other.name,
+        symbol = other.symbol,
+        mintAddress = other.mintAddress,
+        decimal = other.decimal,
+        _enabled = other.enabled,
+        mint = other.mint,
+        tag = other.tag,
+        iconPath = icon,
+        super(
+          title: other.symbol.toUpperCase(),
+          name: other.symbol.toLowerCase(),
+          decimals: other.decimal,
+          fullName: other.name,
+          tag: other.tag,
+          iconPath: icon,
+        );
 
   static const typeId = SPL_TOKEN_TYPE_ID;
   static const boxName = 'SPLTokens';
@@ -103,7 +126,7 @@ class NFT extends SPLToken {
     String symbol,
     String mintAddress,
     int decimal,
-    String logoUrl,
+    String iconPath,
     this.imageInfo,
   ) : super(
           name: name,
@@ -111,7 +134,7 @@ class NFT extends SPLToken {
           mintAddress: mintAddress,
           decimal: decimal,
           mint: mint,
-          logoUrl: logoUrl,
+          iconPath: iconPath,
         );
 }
 

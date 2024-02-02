@@ -184,16 +184,16 @@ abstract class SolanaWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-    final _credentials = credentials as SolanaTransactionCredentials;
+    final solCredentials = credentials as SolanaTransactionCredentials;
 
-    final outputs = _credentials.outputs;
+    final outputs = solCredentials.outputs;
 
     final hasMultiDestination = outputs.length > 1;
 
     await _updateBalance();
 
     final CryptoCurrency transactionCurrency =
-        balance.keys.firstWhere((element) => element.title == _credentials.currency.title);
+        balance.keys.firstWhere((element) => element.title == solCredentials.currency.title);
 
     final currentBalance = balance[currency]?.balance ?? 0.0;
 
@@ -224,15 +224,15 @@ abstract class SolanaWalletBase
       }
     }
 
-    final pendingSolanaTransaction = await _client.sendTransaction(
+    final pendingSolanaTransaction = await _client.signTransaction(
       tokenMint: transactionCurrency.name,
       tokenTitle: transactionCurrency.title,
       inputAmount: totalAmount,
       ownerKeypair: _wallet!,
       tokenDecimals: transactionCurrency.decimals,
-      destinationAddress: _credentials.outputs.first.isParsedAddress
-          ? _credentials.outputs.first.extractedAddress!
-          : _credentials.outputs.first.address,
+      destinationAddress: solCredentials.outputs.first.isParsedAddress
+          ? solCredentials.outputs.first.extractedAddress!
+          : solCredentials.outputs.first.address,
     );
 
     return pendingSolanaTransaction;
@@ -452,7 +452,7 @@ abstract class SolanaWalletBase
 
     // Convert the signature to a hexadecimal string
     final hex = bytesToHex(signature.bytes);
-    
+
     return hex;
   }
 

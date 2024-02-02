@@ -8,7 +8,6 @@ import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_i
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cw_solana/solana_transaction_info.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/src/intl/date_format.dart';
 import 'package:mobx/mobx.dart';
@@ -290,12 +289,11 @@ abstract class TransactionDetailsViewModelBase with Store {
     items.addAll(_items);
   }
 
-  void _addSolanaListItems(TransactionInfo txInfo, DateFormat dateFormat) {
-    final tx = txInfo as SolanaTransactionInfo;
+  void _addSolanaListItems(TransactionInfo tx, DateFormat dateFormat) {
     final _items = [
       StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
       StandartListItem(
-          title: S.current.transaction_details_date, value: dateFormat.format(tx.blockTime)),
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
       if (showRecipientAddress && tx.to != null)
         StandartListItem(title: S.current.transaction_details_recipient_address, value: tx.to!),

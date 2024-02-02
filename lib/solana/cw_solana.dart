@@ -71,12 +71,12 @@ class CWSolana extends Solana {
   }
 
   @override
-  Future<void> addSPLToken(WalletBase wallet, SPLToken token) async =>
-      await (wallet as SolanaWallet).addSPLToken(token);
+  Future<void> addSPLToken(WalletBase wallet, CryptoCurrency token) async =>
+      await (wallet as SolanaWallet).addSPLToken(token as SPLToken);
 
   @override
-  Future<void> deleteSPLToken(WalletBase wallet, SPLToken token) async =>
-      await (wallet as SolanaWallet).deleteSPLToken(token);
+  Future<void> deleteSPLToken(WalletBase wallet, CryptoCurrency token) async =>
+      await (wallet as SolanaWallet).deleteSPLToken(token as SPLToken);
 
   @override
   Future<SPLToken?> getSPLToken(WalletBase wallet, String mintAddress) async {
@@ -100,4 +100,6 @@ class CWSolana extends Solana {
   double getTransactionAmountRaw(TransactionInfo transactionInfo) {
     return (transactionInfo as SolanaTransactionInfo).amount.toDouble();
   }
+
+  String getTokenAddress(CryptoCurrency asset) => ( asset as SPLToken).mintAddress;
 }

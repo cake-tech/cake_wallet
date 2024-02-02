@@ -582,13 +582,14 @@ abstract class Ethereum {
   int formatterEthereumParseAmount(String amount);
   double formatterEthereumAmountToDouble({TransactionInfo? transaction, BigInt? amount, int exponent = 18});
   List<Erc20Token> getERC20Currencies(WalletBase wallet);
-  Future<void> addErc20Token(WalletBase wallet, Erc20Token token);
-  Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token);
+  Future<void> addErc20Token(WalletBase wallet, CryptoCurrency token);
+  Future<void> deleteErc20Token(WalletBase wallet, CryptoCurrency token);
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
   
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled);
   Web3Client? getWeb3Client(WalletBase wallet);
+  String getTokenAddress(CryptoCurrency asset);
 }
   """;
 
@@ -674,13 +675,14 @@ abstract class Polygon {
   int formatterPolygonParseAmount(String amount);
   double formatterPolygonAmountToDouble({TransactionInfo? transaction, BigInt? amount, int exponent = 18});
   List<Erc20Token> getERC20Currencies(WalletBase wallet);
-  Future<void> addErc20Token(WalletBase wallet, Erc20Token token);
-  Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token);
+  Future<void> addErc20Token(WalletBase wallet, CryptoCurrency token);
+  Future<void> deleteErc20Token(WalletBase wallet, CryptoCurrency token);
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
   
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   void updatePolygonScanUsageState(WalletBase wallet, bool isEnabled);
   Web3Client? getWeb3Client(WalletBase wallet);
+  String getTokenAddress(CryptoCurrency asset);
 }
   """;
 
@@ -938,12 +940,13 @@ abstract class Solana {
     required CryptoCurrency currency,
   });
   List<SPLToken> getSPLTokenCurrencies(WalletBase wallet);
-  Future<void> addSPLToken(WalletBase wallet, SPLToken token);
-  Future<void> deleteSPLToken(WalletBase wallet, SPLToken token);
+  Future<void> addSPLToken(WalletBase wallet, CryptoCurrency token);
+  Future<void> deleteSPLToken(WalletBase wallet, CryptoCurrency token);
   Future<SPLToken?> getSPLToken(WalletBase wallet, String contractAddress);
 
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   double getTransactionAmountRaw(TransactionInfo transactionInfo);
+  String getTokenAddress(CryptoCurrency asset);
 }
 
   """;
@@ -1127,6 +1130,10 @@ Future<void> generateWalletTypes(
     outputContent += '\tWalletType.polygon,\n';
   }
 
+  if (hasSolana) {
+    outputContent += '\tWalletType.solana,\n';
+  }
+
   if (hasNano) {
     outputContent += '\tWalletType.nano,\n';
   }
@@ -1137,10 +1144,6 @@ Future<void> generateWalletTypes(
 
   if (hasHaven) {
     outputContent += '\tWalletType.haven,\n';
-  }
-
-  if (hasSolana) {
-    outputContent += '\tWalletType.solana,\n';
   }
 
   outputContent += '];\n';

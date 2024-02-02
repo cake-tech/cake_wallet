@@ -10,7 +10,6 @@ import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
-import 'package:cw_solana/spl_token.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -78,12 +77,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
     String? address;
 
     if (widget.token != null) {
-      if (widget.token is Erc20Token) {
-        address = (widget.token as Erc20Token).contractAddress;
-      } else if (widget.token is SPLToken) {
-        address = (widget.token as SPLToken).mintAddress;
-      }
-
+      address = widget.homeSettingsViewModel.getTokenAddressBasedOnWallet(widget.token!);
+      
       _contractAddressController.text = address ?? '';
       _tokenNameController.text = widget.token!.name;
       _tokenSymbolController.text = widget.token!.title;

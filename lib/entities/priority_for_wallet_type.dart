@@ -27,6 +27,7 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return [];
     case WalletType.polygon:
       return polygon!.getTransactionPriorities();
+      // no such thing for nano/banano:
     case WalletType.solana:
       return [];
     default:
