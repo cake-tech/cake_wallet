@@ -201,6 +201,10 @@ bool setupNodeSync(
     calloc.free(passwordPointer);
   }
 
+  if (socksProxyAddressPointer != null) {
+    calloc.free(socksProxyAddressPointer);
+  }
+
   if (!isSetupNode) {
     throw SetupWalletException(
         message: convertUTF8ToString(pointer: errorMessagePointer));
