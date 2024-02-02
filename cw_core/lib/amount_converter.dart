@@ -81,7 +81,6 @@ class AmountConverter {
         return _moneroAmountToString(amount);
       case CryptoCurrency.btc:
       case CryptoCurrency.bch:
-      case CryptoCurrency.ltc:
         return _bitcoinAmountToString(amount);
       case CryptoCurrency.xhv:
       case CryptoCurrency.xag:
@@ -103,44 +102,27 @@ class AmountConverter {
     }
   }
 
-  static int amountToSmallestUnit(
-      {required CryptoCurrency cryptoCurrency, required double amount}) {
-    switch (cryptoCurrency) {
-      case CryptoCurrency.btc:
-        return (amount * _bitcoinAmountDivider).toInt();
-      case CryptoCurrency.eth:
-        return (amount * _ethereumAmountDivider).toInt();
-      case CryptoCurrency.bch:
-        return (amount * _bitcoinCashAmountDivider).toInt();
-      case CryptoCurrency.ltc:
-        return (amount * _litecoinAmountDivider).toInt();
-      case CryptoCurrency.dash:
-        return (amount * _dashAmountDivider).toInt();
-      case CryptoCurrency.xmr:
-        return (amount * _moneroAmountDivider).toInt();
-      default:
-        return 0;
-    }
-  }
-
   static double cryptoAmountToDouble({required num amount, required num divider}) =>
       amount / divider;
 
-  static String _moneroAmountToString(int amount) => _moneroAmountFormat
-      .format(cryptoAmountToDouble(amount: amount, divider: _moneroAmountDivider));
+  static String _moneroAmountToString(int amount) => _moneroAmountFormat.format(
+      cryptoAmountToDouble(amount: amount, divider: _moneroAmountDivider));
 
   static double _moneroAmountToDouble(int amount) =>
       cryptoAmountToDouble(amount: amount, divider: _moneroAmountDivider);
 
-  static int _moneroParseAmount(String amount) => _moneroAmountFormat.parse(amount).toInt();
+  static int _moneroParseAmount(String amount) =>
+      _moneroAmountFormat.parse(amount).toInt();
 
-  static String _bitcoinAmountToString(int amount) => _bitcoinAmountFormat
-      .format(cryptoAmountToDouble(amount: amount, divider: _bitcoinAmountDivider));
+  static String _bitcoinAmountToString(int amount) =>
+      _bitcoinAmountFormat.format(
+          cryptoAmountToDouble(amount: amount, divider: _bitcoinAmountDivider));
 
   static double _bitcoinAmountToDouble(int amount) =>
       cryptoAmountToDouble(amount: amount, divider: _bitcoinAmountDivider);
 
-  static int _doubleToBitcoinAmount(double amount) => (amount * _bitcoinAmountDivider).toInt();
+  static int _doubleToBitcoinAmount(double amount) =>
+      (amount * _bitcoinAmountDivider).toInt();
 
   static double _bitcoinCashAmountToDouble(int amount) =>
       cryptoAmountToDouble(amount: amount, divider: _bitcoinCashAmountDivider);
