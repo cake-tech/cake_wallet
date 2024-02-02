@@ -118,6 +118,9 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
 
       if (name == "corrupted-test") {
         throw Exception('Corrupted wallet');
+      // prevent infinite loop:
+      } else if (name == "corrupted-test-2") {
+        name = "corrupted-test";
       }
 
       if (walletFilesExist(path)) {
@@ -171,6 +174,10 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
       }
 
       await restoreOrResetWalletFiles(name);
+      // prevent infinite loop:
+      if (name == "corrupted-test") {
+        name = "corrupted-test-2";
+      }
       return openWallet(name, password);
     }
   }

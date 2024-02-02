@@ -41,6 +41,14 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
         walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
 
     try {
+
+      if (name == "corrupted-test") {
+        throw Exception('Corrupted wallet');
+      // prevent infinite loop:
+      } else if (name == "corrupted-test-2") {
+        name = "corrupted-test";
+      }
+      
       final wallet = await EthereumWallet.open(
         name: name,
         password: password,

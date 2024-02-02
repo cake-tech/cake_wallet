@@ -47,6 +47,12 @@ class LitecoinWalletService extends WalletService<
         (info) => info.id == WalletBase.idFor(name, getType()))!;
 
     try {
+      if (name == "corrupted-test") {
+        throw Exception('Corrupted wallet');
+      // prevent infinite loop:
+      } else if (name == "corrupted-test-2") {
+        name = "corrupted-test";
+      }
       final wallet = await LitecoinWalletBase.open(
           password: password, name: name, walletInfo: walletInfo,
           unspentCoinsInfo: unspentCoinsInfoSource);

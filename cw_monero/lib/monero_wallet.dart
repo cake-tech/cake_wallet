@@ -356,6 +356,8 @@ abstract class MoneroWalletBase
       if (currentAddressListFile.existsSync()) {
         await currentAddressListFile.rename('$newWalletPath.address.txt');
       }
+
+      await backupWalletFiles(newWalletName);
     } catch (e) {
       final currentWalletPath = await pathForWallet(name: name, type: type);
 
