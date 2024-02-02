@@ -46,7 +46,7 @@ class SolanaTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
-  String feeFormatted() => throw UnimplementedError();
+  String feeFormatted() =>'';
 
   factory SolanaTransactionInfo.fromJson(Map<String, dynamic> data) {
     return SolanaTransactionInfo(
