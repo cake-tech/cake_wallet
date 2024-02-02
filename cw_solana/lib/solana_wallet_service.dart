@@ -31,6 +31,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
     );
 
     await wallet.init();
+    wallet.addInitialTokens();
     return wallet;
   }
 
