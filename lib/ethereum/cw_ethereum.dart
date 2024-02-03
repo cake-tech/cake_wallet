@@ -2,10 +2,10 @@ part of 'ethereum.dart';
 
 class CWEthereum extends Ethereum {
   @override
-  List<String> getEthereumWordList(String language) => EthereumMnemonics.englishWordlist;
+  List<String> getEthereumWordList(String language) => EVMChainMnemonics.englishWordlist;
 
   WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
-      EthereumWalletService(walletInfoSource, isDirect);
+      EthereumWalletService(walletInfoSource, isDirect, client: EthereumClient());
 
   @override
   WalletCredentials createEthereumNewWalletCredentials({
@@ -13,7 +13,7 @@ class CWEthereum extends Ethereum {
     WalletInfo? walletInfo,
     String? password,
   }) =>
-      EthereumNewWalletCredentials(name: name, walletInfo: walletInfo, password: password);
+      EVMChainNewWalletCredentials(name: name, walletInfo: walletInfo, password: password);
 
   @override
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({
@@ -21,7 +21,7 @@ class CWEthereum extends Ethereum {
     required String mnemonic,
     required String password,
   }) =>
-      EthereumRestoreWalletFromSeedCredentials(name: name, password: password, mnemonic: mnemonic);
+      EVMChainRestoreWalletFromSeedCredentials(name: name, password: password, mnemonic: mnemonic);
 
   @override
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({
@@ -29,37 +29,37 @@ class CWEthereum extends Ethereum {
     required String privateKey,
     required String password,
   }) =>
-      EthereumRestoreWalletFromPrivateKey(name: name, password: password, privateKey: privateKey);
+      EVMChainRestoreWalletFromPrivateKey(name: name, password: password, privateKey: privateKey);
 
   @override
   String getAddress(WalletBase wallet) => (wallet as EthereumWallet).walletAddresses.address;
 
   @override
   String getPrivateKey(WalletBase wallet) {
-    final privateKeyHolder = (wallet as EthereumWallet).ethPrivateKey;
+    final privateKeyHolder = (wallet as EthereumWallet).evmChainPrivateKey;
     String stringKey = bytesToHex(privateKeyHolder.privateKey);
     return stringKey;
   }
 
   @override
   String getPublicKey(WalletBase wallet) {
-    final privateKeyInUnitInt = (wallet as EthereumWallet).ethPrivateKey;
+    final privateKeyInUnitInt = (wallet as EthereumWallet).evmChainPrivateKey;
     final publicKey = privateKeyInUnitInt.address.hex;
     return publicKey;
   }
 
   @override
-  TransactionPriority getDefaultTransactionPriority() => EthereumTransactionPriority.medium;
+  TransactionPriority getDefaultTransactionPriority() => EVMChainTransactionPriority.medium;
 
   @override
-  TransactionPriority getEthereumTransactionPrioritySlow() => EthereumTransactionPriority.slow;
+  TransactionPriority getEthereumTransactionPrioritySlow() => EVMChainTransactionPriority.slow;
 
   @override
-  List<TransactionPriority> getTransactionPriorities() => EthereumTransactionPriority.all;
+  List<TransactionPriority> getTransactionPriorities() => EVMChainTransactionPriority.all;
 
   @override
   TransactionPriority deserializeEthereumTransactionPriority(int raw) =>
-      EthereumTransactionPriority.deserialize(raw: raw);
+      EVMChainTransactionPriority.deserialize(raw: raw);
 
   Object createEthereumTransactionCredentials(
     List<Output> outputs, {
@@ -67,7 +67,7 @@ class CWEthereum extends Ethereum {
     required CryptoCurrency currency,
     int? feeRate,
   }) =>
-      EthereumTransactionCredentials(
+      EVMChainTransactionCredentials(
         outputs
             .map((out) => OutputInfo(
                 fiatAmount: out.fiatAmount,
@@ -79,7 +79,7 @@ class CWEthereum extends Ethereum {
                 isParsedAddress: out.isParsedAddress,
                 formattedCryptoAmount: out.formattedCryptoAmount))
             .toList(),
-        priority: priority as EthereumTransactionPriority,
+        priority: priority as EVMChainTransactionPriority,
         currency: currency,
         feeRate: feeRate,
       );
@@ -90,15 +90,15 @@ class CWEthereum extends Ethereum {
     required CryptoCurrency currency,
     required int feeRate,
   }) =>
-      EthereumTransactionCredentials(
+      EVMChainTransactionCredentials(
         outputs,
-        priority: priority as EthereumTransactionPriority?,
+        priority: priority as EVMChainTransactionPriority?,
         currency: currency,
         feeRate: feeRate,
       );
 
   @override
-  int formatterEthereumParseAmount(String amount) => EthereumFormatter.parseEthereumAmount(amount);
+  int formatterEthereumParseAmount(String amount) => EVMChainFormatter.parseEVMChainAmount(amount);
 
   @override
   double formatterEthereumAmountToDouble(
@@ -106,7 +106,7 @@ class CWEthereum extends Ethereum {
     assert(transaction != null || amount != null);
 
     if (transaction != null) {
-      transaction as EthereumTransactionInfo;
+      transaction as EVMChainTransactionInfo;
       return transaction.ethAmount / BigInt.from(10).pow(transaction.exponent);
     } else {
       return (amount!) / BigInt.from(10).pow(exponent);
@@ -135,7 +135,7 @@ class CWEthereum extends Ethereum {
 
   @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
-    transaction as EthereumTransactionInfo;
+    transaction as EVMChainTransactionInfo;
     if (transaction.tokenSymbol == CryptoCurrency.eth.title) {
       return CryptoCurrency.eth;
     }
@@ -147,7 +147,7 @@ class CWEthereum extends Ethereum {
 
   @override
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled) {
-    (wallet as EthereumWallet).updateEtherscanUsageState(isEnabled);
+    (wallet as EthereumWallet).updateScanProviderUsageState(isEnabled);
   }
 
   @override

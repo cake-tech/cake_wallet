@@ -283,15 +283,17 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (BuildContext popupContext) {
-                return AlertWithOneAction(
-                    alertTitle: S.of(popupContext).sending,
-                    alertContent: S.of(popupContext).transaction_sent,
-                    buttonText: S.of(popupContext).ok,
-                    buttonAction: () => Navigator.of(popupContext).pop());
-              });
+          if (context.mounted) {
+            showPopUp<void>(
+                context: context,
+                builder: (BuildContext popupContext) {
+                  return AlertWithOneAction(
+                      alertTitle: S.of(popupContext).sending,
+                      alertContent: S.of(popupContext).transaction_sent,
+                      buttonText: S.of(popupContext).ok,
+                      buttonAction: () => Navigator.of(popupContext).pop());
+                });
+          }
         });
       }
     });

@@ -1,32 +1,21 @@
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_ethereum/ethereum_transaction_info.dart';
+import 'package:cw_evm/evm_chain_transaction_info.dart';
 
-class PolygonTransactionInfo extends EthereumTransactionInfo {
+class PolygonTransactionInfo extends EVMChainTransactionInfo {
   PolygonTransactionInfo({
-    required String id,
-    required int height,
-    required BigInt ethAmount,
-    int exponent = 18,
-    required TransactionDirection direction,
-    required DateTime date,
-    required bool isPending,
-    required BigInt ethFee,
-    required int confirmations,
-    String tokenSymbol = "MATIC",
-    required String? to,
-  }) : super(
-          confirmations: confirmations,
-          id: id,
-          height: height,
-          ethAmount: ethAmount,
-          exponent: exponent,
-          direction: direction,
-          date: date,
-          isPending: isPending,
-          ethFee: ethFee,
-          to: to,
-          tokenSymbol: tokenSymbol,
-        );
+    required super.id,
+    required super.height,
+    required super.ethAmount,
+    required super.ethFee,
+    required super.tokenSymbol,
+    required super.direction,
+    required super.isPending,
+    required super.date,
+    required super.confirmations,
+    required super.to,
+    required super.from,
+    super.exponent,
+  });
 
   factory PolygonTransactionInfo.fromJson(Map<String, dynamic> data) {
     return PolygonTransactionInfo(
@@ -41,9 +30,10 @@ class PolygonTransactionInfo extends EthereumTransactionInfo {
       confirmations: data['confirmations'] as int,
       tokenSymbol: data['tokenSymbol'] as String,
       to: data['to'],
+      from: data['from'],
     );
   }
 
   @override
-  String feeFormatted() => '${(ethFee / BigInt.from(10).pow(18)).toString()} MATIC';
+  String get feeCurrency => 'MATIC';
 }
