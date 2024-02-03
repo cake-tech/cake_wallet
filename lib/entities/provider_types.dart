@@ -102,8 +102,6 @@ class ProvidersHelper {
       case WalletType.banano:
       case WalletType.none:
       case WalletType.haven:
-      case WalletType.polygon:
-      case WalletType.solana:
         return [];
     }
   }
