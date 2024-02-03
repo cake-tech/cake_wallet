@@ -2,7 +2,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 
 class EVMChainNewWalletCredentials extends WalletCredentials {
-  EVMChainNewWalletCredentials({required String name, WalletInfo? walletInfo})
+  EVMChainNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password})
       : super(name: name, walletInfo: walletInfo);
 }
 

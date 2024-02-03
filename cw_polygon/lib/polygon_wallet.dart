@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -11,7 +12,6 @@ import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_wallet.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
-import 'package:cw_evm/file.dart';
 import 'package:cw_polygon/default_polygon_erc20_tokens.dart';
 import 'package:cw_polygon/polygon_transaction_info.dart';
 import 'package:cw_polygon/polygon_client.dart';
@@ -25,6 +25,7 @@ class PolygonWallet extends EVMChainWallet {
     super.initialBalance,
     super.privateKey,
     required super.client,
+    required super.encryptionFileUtils,
   }) : super(nativeCurrency: CryptoCurrency.maticpoly);
 
   @override
@@ -91,14 +92,19 @@ class PolygonWallet extends EVMChainWallet {
   }
 
   @override
-  EVMChainTransactionHistory setUpTransactionHistory(WalletInfo walletInfo, String password) {
-    return PolygonTransactionHistory(walletInfo: walletInfo, password: password);
+  EVMChainTransactionHistory setUpTransactionHistory(
+      WalletInfo walletInfo, String password, EncryptionFileUtils encryptionFileUtils) {
+    return PolygonTransactionHistory(
+        walletInfo: walletInfo, password: password, encryptionFileUtils: encryptionFileUtils);
   }
 
   static Future<PolygonWallet> open(
-      {required String name, required String password, required WalletInfo walletInfo}) async {
+      {required String name,
+      required String password,
+      required WalletInfo walletInfo,
+      required EncryptionFileUtils encryptionFileUtils}) async {
     final path = await pathForWallet(name: name, type: walletInfo.type);
-    final jsonSource = await read(path: path, password: password);
+    final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String?;
     final privateKey = data['private_key'] as String?;
@@ -112,6 +118,7 @@ class PolygonWallet extends EVMChainWallet {
       privateKey: privateKey,
       initialBalance: balance,
       client: PolygonClient(),
+      encryptionFileUtils: encryptionFileUtils,
     );
   }
 }

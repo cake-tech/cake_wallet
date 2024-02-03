@@ -5,7 +5,7 @@ class CWPolygon extends Polygon {
   List<String> getPolygonWordList(String language) => EVMChainMnemonics.englishWordlist;
 
   WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
-      PolygonWalletService(walletInfoSource, client: PolygonClient());
+      PolygonWalletService(walletInfoSource, isDirect, client: PolygonClient());
 
   @override
   WalletCredentials createPolygonNewWalletCredentials({
