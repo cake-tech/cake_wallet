@@ -186,7 +186,10 @@ Future<void> defaultSettingsMigration(
           await rewriteSecureStoragePin(secureStorage: secureStorage);
           break;
         case 26:
-          await insecureStorageMigration(secureStorage: secureStorage, sharedPreferences: sharedPreferences);
+          /// commented out as it was a probable cause for some users to have white screen issues
+          /// maybe due to multiple access on Secure Storage at once
+          /// or long await time on start of the app
+          // await insecureStorageMigration(secureStorage: secureStorage, sharedPreferences: sharedPreferences);
           break;
         default:
           break;
@@ -507,7 +510,7 @@ Future<void> changeLitecoinCurrentElectrumServerToDefault(
 Future<void> changeBitcoinCashCurrentNodeToDefault(
     {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
   final server = getBitcoinCashDefaultElectrumServer(nodes: nodes);
-  final serverId = server?.key as int ?? 0;
+  final serverId = server?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, serverId);
 }

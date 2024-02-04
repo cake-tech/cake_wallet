@@ -3,10 +3,9 @@ import 'dart:math';
 
 import 'package:cw_core/balance.dart';
 
-class ERC20Balance extends Balance {
-  ERC20Balance(this.balance, {this.exponent = 18})
-      : super(balance.toInt(),
-            balance.toInt());
+class EVMChainERC20Balance extends Balance {
+  EVMChainERC20Balance(this.balance, {this.exponent = 18})
+      : super(balance.toInt(), balance.toInt());
 
   final BigInt balance;
   final int exponent;
@@ -28,7 +27,7 @@ class ERC20Balance extends Balance {
         'exponent': exponent,
       });
 
-  static ERC20Balance? fromJSON(String? jsonSource) {
+  static EVMChainERC20Balance? fromJSON(String? jsonSource) {
     if (jsonSource == null) {
       return null;
     }
@@ -36,12 +35,12 @@ class ERC20Balance extends Balance {
     final decoded = json.decode(jsonSource) as Map;
 
     try {
-      return ERC20Balance(
+      return EVMChainERC20Balance(
         BigInt.parse(decoded['balanceInWei']),
         exponent: decoded['exponent'],
       );
     } catch (e) {
-      return ERC20Balance(BigInt.zero);
+      return EVMChainERC20Balance(BigInt.zero);
     }
   }
 }
