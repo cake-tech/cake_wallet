@@ -9,6 +9,7 @@ import 'package:cw_evm/evm_erc20_balance.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
+import 'package:cw_evm/.secrets.g.dart' as secrets;
 import 'package:flutter/services.dart';
 
 import 'package:http/http.dart';
@@ -32,13 +33,22 @@ abstract class EVMChainClient {
 
   bool connect(Node node) {
     try {
-      _client = Web3Client(node.uri.toString(), httpClient);
+      String url = node.uri.toString();
+      if (node.usesApiKey == true) {
+        url += getApiKey();
+      }
+      print("@@@@@@@@@@@@");
+      print(node.usesApiKey);
+      print(url);
+      _client = Web3Client(url, httpClient);
 
       return true;
     } catch (e) {
       return false;
     }
   }
+
+  String getApiKey() => "/${secrets.nodesAPIKey}";
 
   void setListeners(EthereumAddress userAddress, Function() onNewTransaction) async {
     // _client?.pendingTransactions().listen((transactionHash) async {

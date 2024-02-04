@@ -8,3 +8,6 @@
   uri: eth-mainnet.public.blastapi.io
 -
   uri: ethereum.publicnode.com
+-
+  uri: eth.nownodes.io
+  usesApiKey: true
