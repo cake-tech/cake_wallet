@@ -98,6 +98,7 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       case 'sending':
         return sending;
       case 'success':
+      case 'done':
         return success;
       default:
         throw Exception('Unexpected token: $raw in TradeState deserialize');

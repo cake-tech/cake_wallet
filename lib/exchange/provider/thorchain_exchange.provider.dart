@@ -31,8 +31,9 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
   static const _baseURL = 'https://thornode.ninerealms.com';
   static const _quotePath = '/thorchain/quote/swap';
+  static const _txInfoPath = '/thorchain/tx/';
   static const _affiliateName = 'cakewallet';
-  static const _affiliateBps = '10';
+  static const _affiliateBps = '0';
 
   final Box<Trade> tradesStore;
 
@@ -68,6 +69,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
         'from_asset': _normalizeCurrency(from),
         'to_asset': _normalizeCurrency(to),
         'amount': _doubleToThorChainString(amount),
+        'affiliate': _affiliateName,
+        'affiliate_bps': _affiliateBps
       };
 
       final responseJSON = await _getSwapQuote(params);
@@ -95,7 +98,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     };
 
     final responseJSON = await _getSwapQuote(params);
-    final minAmountIn = responseJSON['recommended_min_amount_in'] as String?;
+    final minAmountIn = responseJSON['recommended_min_amount_in'] as String? ?? '0.0';
 
     return Limits(min: _thorChainAmountToDouble(minAmountIn));
   }
@@ -121,27 +124,58 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
     final inputAddress = responseJSON['inbound_address'] as String?;
     final memo = responseJSON['memo'] as String?;
-    final tradeId = await getNextTradeCounter();
 
     return Trade(
-        id: tradeId.toString(),
+        id: '',
         from: request.fromCurrency,
         to: request.toCurrency,
         provider: description,
         inputAddress: inputAddress,
         createdAt: DateTime.now(),
         amount: request.fromAmount,
-        state: TradeState.created,
+        state: TradeState.pending,
         payoutAddress: request.toAddress,
         memo: memo);
   }
 
+  @override
   Future<Trade> findTradeById({required String id}) async {
-    final foundTrade = tradesStore.values.firstWhereOrNull((element) => element.id == id);
-    if (foundTrade == null) {
-      throw Exception('Trade with id $id not found');
+    if (id.isEmpty) throw Exception('Trade id is empty');
+    final uri = Uri.parse('$_baseURL$_txInfoPath$id');
+    final response = await http.get(uri);
+
+    if (response.statusCode == 404) {
+      throw Exception('Trade not found for id: $id');
+    } else if (response.statusCode != 200) {
+      throw Exception('Unexpected HTTP status: ${response.statusCode}');
     }
-    return foundTrade;
+
+    final responseJSON = json.decode(response.body);
+    final observedTx = responseJSON['observed_tx'];
+    if (observedTx == null) {
+      throw Exception('No observed transaction found for id: $id');
+    }
+
+    final tx = observedTx['tx'];
+    final String fromAddress = tx['from_address'] as String? ?? '';
+    final String toAddress = tx['to_address'] as String? ?? '';
+    final List<dynamic> coins = tx['coins'] as List<dynamic>;
+    final String? memo = tx['memo'] as String?;
+    final String toAsset = memo != null ? (memo.split(':')[1]).split('.')[0] : '';
+    final status = observedTx['status'] as String?;
+    final formattedStatus = status ?? 'pending';
+
+    return Trade(
+      id: id,
+      from: CryptoCurrency.fromString(tx['chain'] as String? ?? ''),
+      to: CryptoCurrency.fromString(toAsset),
+      provider: description,
+      inputAddress: fromAddress,
+      payoutAddress: toAddress,
+      amount: coins.first['amount'] as String? ?? '0.0',
+      state: TradeState.deserialize(raw: formattedStatus),
+      memo: memo,
+    );
   }
 
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
@@ -160,31 +194,9 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     return json.decode(response.body) as Map<String, dynamic>;
   }
 
-  String _normalizeCurrency(CryptoCurrency currency) {
-    switch (currency) {
-      case CryptoCurrency.btc:
-        return 'BTC.BTC';
-      case CryptoCurrency.eth:
-        return 'ETH.ETH';
-      case CryptoCurrency.ltc:
-        return 'LTC.LTC';
-      case CryptoCurrency.bch:
-        return 'BCH.BCH';
-      default:
-        return currency.title.toLowerCase();
-    }
-  }
+  String _normalizeCurrency(CryptoCurrency currency) => '${currency.title}.${currency.title}';
 
   String _doubleToThorChainString(double amount) => (amount * 1e8).toInt().toString();
 
-  double _thorChainAmountToDouble(String? amount) =>
-      amount == null ? 0.0 : double.parse(amount) / 1e8;
-
-  Future<int> getNextTradeCounter() async {
-    final prefs = await SharedPreferences.getInstance();
-    int currentCounter = prefs.getInt(PreferencesKey.thorChainTradeCounter) ?? 0;
-    currentCounter++;
-    await prefs.setInt(PreferencesKey.thorChainTradeCounter, currentCounter);
-    return currentCounter;
-  }
+  double _thorChainAmountToDouble(String amount) => double.parse(amount) / 1e8;
 }

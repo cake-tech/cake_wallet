@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:bitbox/bitbox.dart' as bitbox;
-import 'package:bitbox/src/utils/opcodes.dart' as bitboxOPCodes;
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -258,7 +257,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       txb.addOutput(changeAddress, changeValue);
     }
 
-    if (opReturnMemo != null) txb.addOutput(createOpReturnScript(opReturnMemo), 0);
+    if (opReturnMemo != null) txb.addOutputData(opReturnMemo);
 
     for (var i = 0; i < inputs.length; i++) {
       final input = inputs[i];
@@ -332,12 +331,5 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             .index : null;
     final HD = index == null ? hd : hd.derive(index);
     return base64Encode(HD.signMessage(message));
-  }
-
-  Uint8List createOpReturnScript(String data) {
-    List<int> script = [];
-    script.add(bitboxOPCodes.Opcodes.OP_RETURN);
-    script.addAll(utf8.encode(data));
-    return Uint8List.fromList(script);
   }
 }

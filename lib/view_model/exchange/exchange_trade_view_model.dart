@@ -106,7 +106,11 @@ abstract class ExchangeTradeViewModelBase with Store {
     output.setCryptoAmount(trade.amount);
     if (_provider is ThorChainExchangeProvider) output.memo = trade.memo;
     sendViewModel.selectedCryptoCurrency = trade.from;
-    await sendViewModel.createTransaction();
+    final pendingTransaction = await sendViewModel.createTransaction();
+    if (_provider is ThorChainExchangeProvider) {
+      trade.id = pendingTransaction?.id ?? '';
+      trades.add(trade);
+    }
   }
 
   @action

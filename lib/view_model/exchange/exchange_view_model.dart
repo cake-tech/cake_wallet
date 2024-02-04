@@ -9,6 +9,7 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/exchange/limits.dart';
@@ -495,7 +496,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               trade.walletId = wallet.id;
               trade.fromWalletAddress = wallet.walletAddresses.address;
               tradesStore.setTrade(trade);
-              await trades.add(trade);
+              if(trade.provider != ExchangeProviderDescription.thorChain) await trades.add(trade);
               tradeState = TradeIsCreatedSuccessfully(trade: trade);
 
               /// return after the first successful trade
