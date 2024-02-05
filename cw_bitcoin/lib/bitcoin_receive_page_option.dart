@@ -24,13 +24,13 @@ class BitcoinReceivePageOption implements ReceivePageOption {
 
   factory BitcoinReceivePageOption.fromType(BitcoinAddressType type) {
     switch (type) {
-      case BitcoinAddressType.p2tr:
+      case SegwitAddresType.p2tr:
         return BitcoinReceivePageOption.p2tr;
-      case BitcoinAddressType.p2wsh:
+      case SegwitAddresType.p2wsh:
         return BitcoinReceivePageOption.p2wsh;
-      case BitcoinAddressType.p2pkh:
+      case P2pkhAddressType.p2pkh:
         return BitcoinReceivePageOption.p2pkh;
-      case BitcoinAddressType.p2wpkh:
+      case SegwitAddresType.p2wpkh:
       default:
         return BitcoinReceivePageOption.p2wpkh;
     }

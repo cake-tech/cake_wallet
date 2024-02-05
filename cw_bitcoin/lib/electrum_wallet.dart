@@ -195,9 +195,8 @@ abstract class ElectrumWalletBase
 
   Future<EstimatedTxResult> _estimateTxFeeAndInputsToUse(
       int credentialsAmount,
-      double minAmount,
       bool sendAll,
-      List<BitcoinAddress> outputAddresses,
+      List<BitcoinBaseAddress> outputAddresses,
       List<BitcoinOutput> outputs,
       BitcoinTransactionCredentials transactionCredentials,
       {int? inputsCount}) async {
@@ -205,7 +204,6 @@ abstract class ElectrumWalletBase
     List<ECPrivate> privateKeys = [];
 
     var leftAmount = credentialsAmount;
-    var overheadSizeVB = 0.0;
     var allInputsAmount = 0;
 
     for (int i = 0; i < unspentCoins.length; i++) {
@@ -216,19 +214,12 @@ abstract class ElectrumWalletBase
         leftAmount = leftAmount - utx.value;
 
         final address = _addressTypeFromStr(utx.address, network);
-        minAmount += _getInputSizeVB(address);
         final privkey = generateECPrivate(
             hd: utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
             index: utx.bitcoinAddressRecord.index,
             network: network);
 
         privateKeys.add(privkey);
-
-        if (utx.bitcoinAddressRecord.type is LegacyAddress) {
-          overheadSizeVB = LegacyAddress.overheadSizeVB;
-        } else {
-          overheadSizeVB = SegwitAddress.overheadSizeVB;
-        }
 
         utxos.add(
           UtxoWithAddress(
@@ -253,8 +244,6 @@ abstract class ElectrumWalletBase
       throw BitcoinTransactionNoInputsException();
     }
 
-    minAmount += overheadSizeVB;
-
     var changeValue = allInputsAmount - credentialsAmount;
 
     if (!sendAll) {
@@ -267,7 +256,7 @@ abstract class ElectrumWalletBase
     }
 
     final estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
-        utxos: utxos, outputs: outputAddresses, network: network);
+        utxos: utxos, outputs: outputs, network: network);
 
     final fee = transactionCredentials.feeRate != null
         ? feeAmountWithFeeRate(transactionCredentials.feeRate!, 0, 0, size: estimatedSize)
@@ -295,7 +284,7 @@ abstract class ElectrumWalletBase
 
     final totalAmount = amount + fee;
 
-    if (totalAmount > balance[currency]!.confirmed || amount < minAmount) {
+    if (totalAmount > balance[currency]!.confirmed) {
       throw BitcoinTransactionWrongBalanceException(currency);
     }
 
@@ -309,7 +298,7 @@ abstract class ElectrumWalletBase
         }
 
         return _estimateTxFeeAndInputsToUse(
-            credentialsAmount, minAmount, sendAll, outputAddresses, outputs, transactionCredentials,
+            credentialsAmount, sendAll, outputAddresses, outputs, transactionCredentials,
             inputsCount: utxos.length + 1);
       }
     }
@@ -321,18 +310,16 @@ abstract class ElectrumWalletBase
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
       final outputs = <BitcoinOutput>[];
-      final outputAddresses = <BitcoinAddress>[];
+      final outputAddresses = <BitcoinBaseAddress>[];
       final transactionCredentials = credentials as BitcoinTransactionCredentials;
       final hasMultiDestination = transactionCredentials.outputs.length > 1;
       final sendAll = !hasMultiDestination && transactionCredentials.outputs.first.sendAll;
 
       var credentialsAmount = 0;
-      var minAmount = 0.0;
 
       for (final out in transactionCredentials.outputs) {
         final outputAddress = out.isParsedAddress ? out.extractedAddress! : out.address;
         final address = _addressTypeFromStr(outputAddress, network);
-        minAmount += _getOutputSizeVB(address);
 
         outputAddresses.add(address);
 
@@ -358,7 +345,7 @@ abstract class ElectrumWalletBase
       }
 
       final estimatedTx = await _estimateTxFeeAndInputsToUse(
-          credentialsAmount, minAmount, sendAll, outputAddresses, outputs, transactionCredentials);
+          credentialsAmount, sendAll, outputAddresses, outputs, transactionCredentials);
 
       final txb = BitcoinTransactionBuilder(
           utxos: estimatedTx.utxos,
@@ -859,50 +846,26 @@ class EstimatedTxResult {
   final int amount;
 }
 
-BitcoinAddress _addressTypeFromStr(String address, BasedUtxoNetwork network) {
-  if (P2pkhAddress.REGEX.hasMatch(address)) {
+BitcoinBaseAddress _addressTypeFromStr(String address, BasedUtxoNetwork network) {
+  if (P2pkhAddress.regex.hasMatch(address)) {
     return P2pkhAddress.fromAddress(address: address, network: network);
-  } else if (P2wshAddress.REGEX.hasMatch(address)) {
+  } else if (P2wshAddress.regex.hasMatch(address)) {
     return P2wshAddress.fromAddress(address: address, network: network);
-  } else if (P2trAddress.REGEX.hasMatch(address)) {
+  } else if (P2trAddress.regex.hasMatch(address)) {
     return P2trAddress.fromAddress(address: address, network: network);
   } else {
     return P2wpkhAddress.fromAddress(address: address, network: network);
   }
 }
 
-int _getOutputSizeVB(BitcoinAddress type) {
+BitcoinAddressType _getScriptType(BitcoinBaseAddress type) {
   if (type is P2pkhAddress) {
-    return P2pkhAddress.outputSizeVB;
+    return P2pkhAddressType.p2pkh;
   } else if (type is P2wshAddress) {
-    return P2wshAddress.outputSizeVB;
+    return SegwitAddresType.p2wsh;
   } else if (type is P2trAddress) {
-    return P2trAddress.outputSizeVB;
+    return SegwitAddresType.p2tr;
   } else {
-    return P2wpkhAddress.outputSizeVB;
-  }
-}
-
-double _getInputSizeVB(BitcoinAddress type) {
-  if (type is P2pkhAddress) {
-    return P2pkhAddress.inputSizeVB + 0.0;
-  } else if (type is P2wshAddress) {
-    return P2wshAddress.inputSizeVB;
-  } else if (type is P2trAddress) {
-    return P2trAddress.inputSizeVB;
-  } else {
-    return P2wpkhAddress.inputSizeVB + 0.0;
-  }
-}
-
-BitcoinAddressType _getScriptType(BitcoinAddress type) {
-  if (type is P2pkhAddress) {
-    return BitcoinAddressType.p2pkh;
-  } else if (type is P2wshAddress) {
-    return BitcoinAddressType.p2wsh;
-  } else if (type is P2trAddress) {
-    return BitcoinAddressType.p2tr;
-  } else {
-    return BitcoinAddressType.p2wpkh;
+    return SegwitAddresType.p2wpkh;
   }
 }

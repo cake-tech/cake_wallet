@@ -29,10 +29,10 @@ packages:
     dependency: transitive
     description:
       name: asn1lib
-      sha256: "21afe4333076c02877d14f4a89df111e658a6d466cbfc802eb705eb91bd5adfd"
+      sha256: c9c85fedbe2188b95133cbe960e16f5f448860f7133330e272edbbca5893ddc6
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.0"
+    version: "1.5.2"
   async:
     dependency: transitive
     description:
@@ -80,10 +80,10 @@ packages:
     description:
       path: "."
       ref: cake-update-v1
-      resolved-ref: a5cfb6da084abef3e6daa25a4a204e2bd8ca8644
+      resolved-ref: "318986da9cb03e4c18da2e6c0daf3e62aef7eb72"
       url: "https://github.com/cake-tech/bitcoin_base.git"
     source: git
-    version: "3.0.1"
+    version: "4.0.0"
   bitcoin_flutter:
     dependency: "direct main"
     description:

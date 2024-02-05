@@ -1,6 +1,5 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:bitcoin_base/bitcoin_base.dart' as bitcoin_base;
 import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -13,8 +12,8 @@ import 'package:cw_core/wallet_type.dart';
 class ElectrumTransactionBundle {
   ElectrumTransactionBundle(this.originalTransaction,
       {required this.ins, required this.confirmations, this.time});
-  final bitcoin_base.BtcTransaction originalTransaction;
-  final List<bitcoin_base.BtcTransaction> ins;
+  final BtcTransaction originalTransaction;
+  final List<BtcTransaction> ins;
   final int? time;
   final int confirmations;
 }

@@ -2,18 +2,18 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 
 String addressFromOutputScript(Script script, BasedUtxoNetwork network) {
   try {
-    switch (script.getType()) {
-      case ScriptType.P2PK:
+    switch (script.getAddressType()) {
+      case PubKeyAddressType.p2pk:
         return P2pkAddress.fromScriptPubkey(script: script).toAddress(network);
-      case ScriptType.P2PKH:
+      case P2pkhAddressType.p2pkh:
         return P2pkhAddress.fromScriptPubkey(script: script).toAddress(network);
-      case ScriptType.P2SH:
+      case P2shAddressType.p2pkInP2sh:
         return P2shAddress.fromScriptPubkey(script: script).toAddress(network);
-      case ScriptType.P2WPKH:
+      case SegwitAddresType.p2wpkh:
         return P2wpkhAddress.fromScriptPubkey(script: script).toAddress(network);
-      case ScriptType.P2WSH:
+      case SegwitAddresType.p2wsh:
         return P2wshAddress.fromScriptPubkey(script: script).toAddress(network);
-      case ScriptType.P2TR:
+      case SegwitAddresType.p2tr:
         return P2trAddress.fromScriptPubkey(script: script).toAddress(network);
       default:
     }

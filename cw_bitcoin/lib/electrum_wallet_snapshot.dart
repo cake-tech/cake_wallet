@@ -44,15 +44,15 @@ class ElectrumWalletSnapshot {
         .toList();
     final balance = ElectrumBalance.fromJSON(data['balance'] as String) ??
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
-    var regularAddressIndexByType = {BitcoinAddressType.p2wpkh.toString(): 0};
-    var changeAddressIndexByType = {BitcoinAddressType.p2wpkh.toString(): 0};
+    var regularAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
+    var changeAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
 
     try {
       regularAddressIndexByType = {
-        BitcoinAddressType.p2wpkh.toString(): int.parse(data['account_index'] as String? ?? '0')
+        SegwitAddresType.p2wpkh.toString(): int.parse(data['account_index'] as String? ?? '0')
       };
       changeAddressIndexByType = {
-        BitcoinAddressType.p2wpkh.toString():
+        SegwitAddresType.p2wpkh.toString():
             int.parse(data['change_address_index'] as String? ?? '0')
       };
     } catch (_) {
@@ -71,7 +71,7 @@ class ElectrumWalletSnapshot {
       balance: balance,
       regularAddressIndex: regularAddressIndexByType,
       changeAddressIndex: changeAddressIndexByType,
-      addressPageType: data['address_page_type'] as String? ?? BitcoinAddressType.p2wpkh.toString(),
+      addressPageType: data['address_page_type'] as String? ?? SegwitAddresType.p2wpkh.toString(),
       network: data['network_type'] == 'testnet' ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet,
     );
   }

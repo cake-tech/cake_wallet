@@ -34,7 +34,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         currentChangeAddressIndexByType = initialChangeAddressIndex ?? {},
         _addressPageType = walletInfo.addressPageType != null
             ? BitcoinAddressType.fromValue(walletInfo.addressPageType!)
-            : BitcoinAddressType.p2wpkh,
+            : SegwitAddresType.p2wpkh,
         super(walletInfo);
 
   static const defaultReceiveAddressesCount = 22;
@@ -55,7 +55,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final bitcoin.HDWallet sideHd;
 
   @observable
-  BitcoinAddressType _addressPageType = BitcoinAddressType.p2wpkh;
+  BitcoinAddressType _addressPageType = SegwitAddresType.p2wpkh;
 
   @computed
   BitcoinAddressType get addressPageType => _addressPageType;
@@ -347,14 +347,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   Future<void> setAddressType(BitcoinAddressType type) async {
     _addressPageType = type;
 
-    await _discoverAddresses(false);
-    updateReceiveAddresses();
+    await discoverAddresses();
     await saveAddressesInBox();
   }
 
   bool _isAddressTypeMatch(BitcoinAddressRecord addressRecord) {
     // Old wallets before address types were introduced will have an empty address record type
-    return addressPageType == BitcoinAddressType.p2wpkh
+    return addressPageType == SegwitAddresType.p2wpkh
         ? addressRecord.type == null || addressRecord.type == addressPageType
         : addressRecord.type == addressPageType;
   }

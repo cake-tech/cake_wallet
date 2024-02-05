@@ -165,11 +165,10 @@ class AddressPage extends BasePage {
                   return SelectButton(
                     text: addressListViewModel.buttonTitle,
                     onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled &&
-                        (WalletType.monero == addressListViewModel.wallet.type ||
-                            WalletType.haven == addressListViewModel.wallet.type)
+                            (WalletType.monero == addressListViewModel.wallet.type ||
+                                WalletType.haven == addressListViewModel.wallet.type)
                         ? await showPopUp<void>(
-                        context: context,
-                        builder: (_) => getIt.get<MoneroAccountListPage>())
+                            context: context, builder: (_) => getIt.get<MoneroAccountListPage>())
                         : Navigator.of(context).pushNamed(Routes.receive),
                     textColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
                     color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
@@ -232,16 +231,16 @@ class AddressPage extends BasePage {
           }
           break;
         case BitcoinReceivePageOption.p2pkh:
-          addressListViewModel.setAddressType(BitcoinAddressType.p2pkh);
+          addressListViewModel.setAddressType(P2pkhAddressType.p2pkh);
           break;
         case BitcoinReceivePageOption.p2wpkh:
-          addressListViewModel.setAddressType(BitcoinAddressType.p2wpkh);
+          addressListViewModel.setAddressType(SegwitAddresType.p2wpkh);
           break;
         case BitcoinReceivePageOption.p2tr:
-          addressListViewModel.setAddressType(BitcoinAddressType.p2tr);
+          addressListViewModel.setAddressType(SegwitAddresType.p2tr);
           break;
         case BitcoinReceivePageOption.p2wsh:
-          addressListViewModel.setAddressType(BitcoinAddressType.p2wsh);
+          addressListViewModel.setAddressType(SegwitAddresType.p2wsh);
           break;
         default:
       }

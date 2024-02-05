@@ -14,16 +14,16 @@ ECPrivate generateECPrivate(
 
 String generateP2WPKHAddress(
         {required bitcoin.HDWallet hd, required int index, required BasedUtxoNetwork network}) =>
-    P2wpkhAddress.fromPubkey(pubkey: hd.derive(index).pubKey!).toAddress(network);
+    ECPublic.fromHex(hd.derive(index).pubKey!).toP2wpkhAddress().toAddress(network);
 
 String generateP2WSHAddress(
         {required bitcoin.HDWallet hd, required int index, required BasedUtxoNetwork network}) =>
-    P2wshAddress.fromPubkey(pubkey: hd.derive(index).pubKey!).toAddress(network);
+    ECPublic.fromHex(hd.derive(index).pubKey!).toP2wshAddress().toAddress(network);
 
 String generateP2PKHAddress(
         {required bitcoin.HDWallet hd, required int index, required BasedUtxoNetwork network}) =>
-    P2pkhAddress.fromPubkey(pubkey: hd.derive(index).pubKey!).toAddress(network);
+    ECPublic.fromHex(hd.derive(index).pubKey!).toP2pkhAddress().toAddress(network);
 
 String generateP2TRAddress(
         {required bitcoin.HDWallet hd, required int index, required BasedUtxoNetwork network}) =>
-    P2trAddress.fromPubkey(pubkey: hd.derive(index).pubKey!).toAddress(network);
+    ECPublic.fromHex(hd.derive(index).pubKey!).toTaprootAddress().toAddress(network);
