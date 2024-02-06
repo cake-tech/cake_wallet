@@ -11,6 +11,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:collection/collection.dart';
+import 'package:breez_sdk/breez_sdk.dart';
 
 class BitcoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
@@ -44,6 +45,10 @@ class BitcoinWalletService extends WalletService<
   Future<BitcoinWallet> openWallet(String name, String password) async {
     final walletInfo = walletInfoSource.values.firstWhereOrNull(
         (info) => info.id == WalletBase.idFor(name, getType()))!;
+
+    // Initialize SDK logs listener
+    BreezSDK().initialize();
+
     final wallet = await BitcoinWalletBase.open(
         password: password, name: name, walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource);

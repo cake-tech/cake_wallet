@@ -1,3 +1,5 @@
+import 'package:breez_sdk/breez_sdk.dart';
+import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -37,31 +39,51 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             initialBalance: initialBalance,
             seedBytes: seedBytes,
             currency: CryptoCurrency.btc) {
-    walletAddresses = BitcoinWalletAddresses(
-        walletInfo,
+    walletAddresses = BitcoinWalletAddresses(walletInfo,
         electrumClient: electrumClient,
         initialAddresses: initialAddresses,
         initialRegularAddressIndex: initialRegularAddressIndex,
         initialChangeAddressIndex: initialChangeAddressIndex,
         mainHd: hd,
-        sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-              .derivePath("m/0'/1"),
+        sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
         networkType: networkType);
+
+    // initialize breeze:
+    String inviteCode = "<invite code>";
+    String apiKey = "<api key>";
+    NodeConfig breezNodeConfig = NodeConfig.greenlight(
+      config: GreenlightNodeConfig(
+        partnerCredentials: null,
+        inviteCode: inviteCode,
+      ),
+    );
+    BreezSDK()
+        .defaultConfig(
+      envType: EnvironmentType.Production,
+      apiKey: apiKey,
+      nodeConfig: breezNodeConfig,
+    )
+        .then((value) {
+      Config breezConfig = value;
+      // Customize the config object according to your needs
+      breezConfig = breezConfig.copyWith(workingDir: "/breez/${walletInfo.name}");
+      BreezSDK().connect(config: breezConfig, seed: seedBytes);
+    });
+
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
   }
 
-  static Future<BitcoinWallet> create({
-    required String mnemonic,
-    required String password,
-    required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    List<BitcoinAddressRecord>? initialAddresses,
-    ElectrumBalance? initialBalance,
-    int initialRegularAddressIndex = 0,
-    int initialChangeAddressIndex = 0
-  }) async {
+  static Future<BitcoinWallet> create(
+      {required String mnemonic,
+      required String password,
+      required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      List<BitcoinAddressRecord>? initialAddresses,
+      ElectrumBalance? initialBalance,
+      int initialRegularAddressIndex = 0,
+      int initialChangeAddressIndex = 0}) async {
     return BitcoinWallet(
         mnemonic: mnemonic,
         password: password,

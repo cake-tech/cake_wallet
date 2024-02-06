@@ -41,6 +41,8 @@ import 'package:uni_links/uni_links.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cw_core/cake_hive.dart';
+import 'package:breez_sdk/breez_sdk.dart';
+import 'package:breez_sdk/bridge_generated.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -63,6 +65,11 @@ Future<void> main() async {
     await CakeHive.close();
 
     await initializeAppConfigs();
+
+    // breez:
+    //  BreezDateUtils.setupLocales();
+    // BreezLogger();
+
 
     runApp(App());
   }, (error, stackTrace) async {

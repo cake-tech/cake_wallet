@@ -1,3 +1,5 @@
+import 'package:breez_sdk/breez_sdk.dart';
+import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/di.dart';
@@ -69,7 +71,7 @@ class AddressPage extends BasePage {
       size: 16,
     );
     final _closeButton =
-    currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
+        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -158,16 +160,52 @@ class AddressPage extends BasePage {
                           isLight: dashboardViewModel.settingsStore.currentTheme.type ==
                               ThemeType.light))),
               SizedBox(height: 16),
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints(),
+                highlightColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                iconSize: 25,
+                onPressed: () async {
+                  // ReceivePaymentRequest req = const ReceivePaymentRequest(
+                  //   amountMsat: 3000000,
+                  //   description: "Invoice for 3000 sats",
+                  // );
+                  // ReceivePaymentResponse receivePaymentResponse =
+                //     await BreezSDK().receivePayment(req: req);
+
+                  // print(receivePaymentResponse.lnInvoice);
+
+                  ServiceHealthCheckResponse healthCheck = await BreezSDK().serviceHealthCheck();
+                  print("Current service status is: ${healthCheck.status}");
+
+                  ReceiveOnchainRequest req = const ReceiveOnchainRequest();
+                  SwapInfo swapInfo = await BreezSDK().receiveOnchain(req: req);
+
+// Send your funds to the below bitcoin address
+                  String address = swapInfo.bitcoinAddress;
+                  print(address);
+                  print("Minimum amount allowed to deposit in sats: ${swapInfo.minAllowedDeposit}");
+                  print("Maximum amount allowed to deposit in sats: ${swapInfo.maxAllowedDeposit}");
+                },
+                icon: Icon(
+                  Icons.lightbulb_outline_rounded,
+                  size: 48,
+                  color: pageIconColor(context),
+                ),
+              ),
+              SizedBox(
+                height: 40,
+              ),
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList) {
                   return SelectButton(
                     text: addressListViewModel.buttonTitle,
                     onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled &&
-                        (WalletType.monero == addressListViewModel.wallet.type ||
-                            WalletType.haven == addressListViewModel.wallet.type)
+                            (WalletType.monero == addressListViewModel.wallet.type ||
+                                WalletType.haven == addressListViewModel.wallet.type)
                         ? await showPopUp<void>(
-                        context: context,
-                        builder: (_) => getIt.get<MoneroAccountListPage>())
+                            context: context, builder: (_) => getIt.get<MoneroAccountListPage>())
                         : Navigator.of(context).pushNamed(Routes.receive),
                     textColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
                     color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
