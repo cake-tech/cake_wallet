@@ -52,7 +52,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
 
       await wallet.init();
       await wallet.save();
-      await saveBackup(name);
+      saveBackup(name);
       return wallet;
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
@@ -115,6 +115,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
         password: password, name: currentName, walletInfo: currentWalletInfo);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());

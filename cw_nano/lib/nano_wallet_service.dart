@@ -69,6 +69,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
         NanoWallet(walletInfo: currentWalletInfo, password: password, mnemonic: randomWords);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
@@ -160,7 +161,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
       await wallet.init();
       await wallet.save();
-      await saveBackup(name);
+      saveBackup(name);
       return wallet;
     } catch (_) {
       await restoreWalletFilesFromBackup(name);

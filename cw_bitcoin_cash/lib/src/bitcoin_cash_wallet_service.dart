@@ -57,7 +57,7 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
           password: password, name: name, walletInfo: walletInfo,
           unspentCoinsInfo: unspentCoinsInfoSource);
       await wallet.init();
-      await saveBackup(name);
+      saveBackup(name);
       return wallet;
     } catch(_) {
       await restoreWalletFilesFromBackup(name);
@@ -89,6 +89,7 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
         unspentCoinsInfo: unspentCoinsInfoSource);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());

@@ -51,7 +51,7 @@ class LitecoinWalletService extends WalletService<
           password: password, name: name, walletInfo: walletInfo,
           unspentCoinsInfo: unspentCoinsInfoSource);
       await wallet.init();
-      await saveBackup(name);
+      saveBackup(name);
       return wallet;
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
@@ -83,6 +83,7 @@ class LitecoinWalletService extends WalletService<
         unspentCoinsInfo: unspentCoinsInfoSource);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());

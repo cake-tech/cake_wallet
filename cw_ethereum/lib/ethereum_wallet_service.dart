@@ -49,7 +49,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
 
       await wallet.init();
       await wallet.save();
-      await saveBackup(name);
+      saveBackup(name);
       return wallet;
     } catch (_) {
       
@@ -74,6 +74,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
         password: password, name: currentName, walletInfo: currentWalletInfo);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
