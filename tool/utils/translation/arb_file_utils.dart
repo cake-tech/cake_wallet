@@ -80,7 +80,7 @@ void alphabetizeArbFile(String fileName) {
       .encode(sortedArbObj)
       .replaceAll('","', '",\n  "')
       .replaceAll('{"', '{\n  "')
-      .replaceAll('"}', '",\n}')// adjusted to keep the trailing comma
+      .replaceAll('"}', '"\n}')
       .replaceAll('":"', '": "')
       .replaceAll('\$ {', '\${');
 
