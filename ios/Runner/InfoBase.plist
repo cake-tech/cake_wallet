@@ -191,7 +191,7 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Used for scan QR code</string>
+	<string>Used for scanning QR code and can be used to capture images for identification purposes by third-party providers.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>We need access to documents folder for getting access to open/save backup file</string>
 	<key>NSFaceIDUsageDescription</key>
