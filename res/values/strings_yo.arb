@@ -189,6 +189,8 @@
   "disable_exchange": "Pa ilé pàṣípààrọ̀",
   "disable_fiat": "Pa owó tí ìjọba pàṣẹ wa lò",
   "disable_sell": "Ko iṣọrọ iṣọrọ",
+  "disableBatteryOptimization": "Mu Ifasi batiri",
+  "disableBatteryOptimizationDescription": "Ṣe o fẹ lati mu iṣapelo batiri si lati le ṣiṣe ayẹwo ẹhin ati laisiyonu?",
   "disabled": "Wọ́n tí a ti pa",
   "discount": "Pamọ́ ${value}%",
   "display_settings": "Fihàn àwọn ààtò",
