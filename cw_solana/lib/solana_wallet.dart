@@ -224,7 +224,7 @@ abstract class SolanaWalletBase
       }
     }
 
-    final pendingSolanaTransaction = await _client.signTransaction(
+    final pendingSolanaTransaction = await _client.signSolanaTransaction(
       tokenMint: transactionCurrency.name,
       tokenTitle: transactionCurrency.title,
       inputAmount: totalAmount,

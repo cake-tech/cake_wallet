@@ -6,8 +6,10 @@ class PendingSolanaTransaction with PendingTransaction {
   final SignedTx signedTransaction;
   final String destinationAddress;
   final Function sendTransaction;
+  final double fee;
 
   PendingSolanaTransaction({
+    required this.fee,
     required this.amount,
     required this.signedTransaction,
     required this.destinationAddress,
@@ -32,7 +34,7 @@ class PendingSolanaTransaction with PendingTransaction {
   }
 
   @override
-  String get feeFormatted => '';
+  String get feeFormatted => fee.toString();
 
   @override
   String get hex => signedTransaction.encode();

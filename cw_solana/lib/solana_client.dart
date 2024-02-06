@@ -17,7 +17,11 @@ class SolanaWalletClient {
 
   bool connect(Node node) {
     try {
-      _client = SolanaClient(rpcUrl: node.uri, websocketUrl: node.uri);
+      _client = SolanaClient(
+        rpcUrl: node.uri,
+        websocketUrl: Uri.parse('wss://${node.uriRaw}'),
+        timeout: const Duration(minutes: 2),
+      );
       return true;
     } catch (e) {
       return false;
@@ -36,14 +40,18 @@ class SolanaWalletClient {
     }
   }
 
-  Future<ProgramAccountsResult> getSPLTokenAccounts(String mintAddress, String publicKey) async {
-    final tokenAccounts = await _client!.rpcClient.getTokenAccountsByOwner(
-      publicKey,
-      TokenAccountsFilter.byMint(mintAddress),
-      commitment: Commitment.confirmed,
-      encoding: Encoding.jsonParsed,
-    );
-    return tokenAccounts;
+  Future<ProgramAccountsResult?> getSPLTokenAccounts(String mintAddress, String publicKey) async {
+    try {
+      final tokenAccounts = await _client!.rpcClient.getTokenAccountsByOwner(
+        publicKey,
+        TokenAccountsFilter.byMint(mintAddress),
+        commitment: Commitment.confirmed,
+        encoding: Encoding.jsonParsed,
+      );
+      return tokenAccounts;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<SolanaBalance> getSplTokenBalance(String mintAddress, String publicKey) async {
@@ -51,7 +59,7 @@ class SolanaWalletClient {
     final tokenAccounts = await getSPLTokenAccounts(mintAddress, publicKey);
 
     // Handle scenario where there is no token account
-    if (tokenAccounts.value.isEmpty) {
+    if (tokenAccounts == null || tokenAccounts.value.isEmpty) {
       return SolanaBalance(0.0);
     }
 
@@ -59,11 +67,14 @@ class SolanaWalletClient {
     double totalBalance = 0.0;
 
     for (var programAccount in tokenAccounts.value) {
-      final lamports = programAccount.account.lamports;
+      final tokenAmountResult =
+          await _client!.rpcClient.getTokenAccountBalance(programAccount.pubkey);
 
-      final solBalance = lamports / lamportsPerSol;
+      final balance = tokenAmountResult.value.uiAmountString;
 
-      totalBalance += solBalance;
+      final balanceAsDouble = double.tryParse(balance ?? '0.0') ?? 0.0;
+
+      totalBalance += balanceAsDouble;
     }
 
     return SolanaBalance(totalBalance);
@@ -118,9 +129,7 @@ class SolanaWalletClient {
                       );
                     },
                     transferChecked: (_) {},
-                    unsupported: (_) {
-                      transactions.add(UnsupportedTransaction(tx.blockTime!));
-                    },
+                    unsupported: (_) {},
                   );
                 },
                 splToken: (data) {
@@ -146,9 +155,7 @@ class SolanaWalletClient {
                   );
                 },
                 memo: (_) {},
-                unsupported: (a) {
-                  transactions.add(UnsupportedTransaction(tx.blockTime!));
-                },
+                unsupported: (a) {},
               );
             }
           }
@@ -165,7 +172,7 @@ class SolanaWalletClient {
 
   SolanaClient? get getSolanaClient => _client;
 
-  Future<PendingSolanaTransaction> signTransaction({
+  Future<PendingSolanaTransaction> signSolanaTransaction({
     required String tokenTitle,
     required int tokenDecimals,
     required String tokenMint,
@@ -174,11 +181,17 @@ class SolanaWalletClient {
     required Ed25519HDKeyPair ownerKeypair,
     List<String> references = const [],
   }) async {
-    print('Insdide swigned transaction function');
     const commitment = Commitment.finalized;
 
     final latestBlockhash =
         await _client!.rpcClient.getLatestBlockhash(commitment: commitment).value;
+
+    final recentBlockhash = RecentBlockhash(
+      blockhash: latestBlockhash.blockhash,
+      feeCalculator: const FeeCalculator(
+        lamportsPerSignature: 500,
+      ),
+    );
 
     if (tokenTitle == CryptoCurrency.sol.title) {
       final pendingNativeTokenTransaction = await _signNativeTokenTransaction(
@@ -188,7 +201,7 @@ class SolanaWalletClient {
         inputAmount: inputAmount,
         destinationAddress: destinationAddress,
         ownerKeypair: ownerKeypair,
-        latestBlockhash: latestBlockhash,
+        recentBlockhash: recentBlockhash,
         commitment: commitment,
       );
       return pendingNativeTokenTransaction;
@@ -200,11 +213,19 @@ class SolanaWalletClient {
         inputAmount: inputAmount,
         destinationAddress: destinationAddress,
         ownerKeypair: ownerKeypair,
-        latestBlockhash: latestBlockhash,
+        recentBlockhash: recentBlockhash,
         commitment: commitment,
       );
       return pendingSPLTokenTransaction;
     }
+  }
+
+  Future<int> getMinimumBalanceForRentExemption(String publicKey) async {
+    final rent = _client!.rpcClient.getMinimumBalanceForRentExemption(
+      TokenProgram.neededAccountSpace,
+    );
+
+    return rent;
   }
 
   Future<PendingSolanaTransaction> _signNativeTokenTransaction({
@@ -214,10 +235,9 @@ class SolanaWalletClient {
     required double inputAmount,
     required String destinationAddress,
     required Ed25519HDKeyPair ownerKeypair,
-    required LatestBlockhash latestBlockhash,
+    required RecentBlockhash recentBlockhash,
     required Commitment commitment,
   }) async {
-    print('Inside Sign Native Token Transaction Function');
     // Convert SOL to lamport
     int lamports = (inputAmount * lamportsPerSol).toInt();
 
@@ -236,23 +256,29 @@ class SolanaWalletClient {
       message: message,
       signers: signers,
       commitment: commitment,
-      latestBlockhash: latestBlockhash,
+      recentBlockhash: recentBlockhash,
     );
 
-    print('SignedTx: ${signedTx.encode()}');
+    final compile = message.compile(
+      recentBlockhash: recentBlockhash.blockhash,
+      feePayer: signers.first.publicKey,
+    );
+
+    final base64Message = base64Encode(compile.toByteArray().toList());
+
+    final fee = await getGasForMessage(base64Message);
 
     sendTx() async => await sendTransaction(
           signedTransaction: signedTx,
           commitment: commitment,
         );
 
-    print('SendTx compiled');
-
     final pendingTransaction = PendingSolanaTransaction(
       amount: inputAmount,
       signedTransaction: signedTx,
       destinationAddress: destinationAddress,
       sendTransaction: sendTx,
+      fee: fee,
     );
 
     return pendingTransaction;
@@ -265,7 +291,7 @@ class SolanaWalletClient {
     required double inputAmount,
     required String destinationAddress,
     required Ed25519HDKeyPair ownerKeypair,
-    required LatestBlockhash latestBlockhash,
+    required RecentBlockhash recentBlockhash,
     required Commitment commitment,
   }) async {
     final destinationOwner = Ed25519HDPublicKey.fromBase58(destinationAddress);
@@ -316,14 +342,23 @@ class SolanaWalletClient {
       message: message,
       signers: signers,
       commitment: commitment,
-      latestBlockhash: latestBlockhash,
+      recentBlockhash: recentBlockhash,
     );
+    final compile = message.compile(
+      recentBlockhash: recentBlockhash.blockhash,
+      feePayer: signers.first.publicKey,
+    );
+
+    final base64Message = base64Encode(compile.toByteArray().toList());
+
+    final fee = await getGasForMessage(base64Message);
 
     final pendingTransaction = PendingSolanaTransaction(
       amount: inputAmount,
       signedTransaction: signedTx,
       destinationAddress: destinationAddress,
       sendTransaction: sendTransaction,
+      fee: fee,
     );
     return pendingTransaction;
   }
@@ -332,33 +367,12 @@ class SolanaWalletClient {
     required Message message,
     required List<Ed25519HDKeyPair> signers,
     required Commitment commitment,
-    required LatestBlockhash latestBlockhash,
+    required RecentBlockhash recentBlockhash,
   }) async {
-    print('Inside Sign Ternasaction internal Function');
-    if (signers.isEmpty) {
-      throw const FormatException('you must specify at least on signer');
-    }
-
-    final CompiledMessage compiledMessage = message.compile(
-      recentBlockhash: latestBlockhash.blockhash,
-      feePayer: signers.first.publicKey,
-    );
-
-    final int requiredSignaturesCount = compiledMessage.requiredSignatureCount;
-    if (signers.length != requiredSignaturesCount) {
-      throw FormatException(
-        'your message requires $requiredSignaturesCount signatures but '
-        'you provided ${signers.length}',
-      );
-    }
-
-    final List<Signature> signatures = await Future.wait(
-      signers.map((signer) => signer.sign(compiledMessage.toByteArray())),
-    );
-
-    final signedTx = SignedTx(
-      compiledMessage: compiledMessage,
-      signatures: signatures,
+    final signedTx = await signTransaction(
+      recentBlockhash,
+      message,
+      signers,
     );
 
     return signedTx;

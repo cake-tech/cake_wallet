@@ -148,9 +148,8 @@ abstract class OutputBase with Store {
   @computed
   String get estimatedFeeFiatAmount {
     try {
-      final currency = isEVMCompatibleChain(_wallet.type)
-          ? _wallet.currency
-          : cryptoCurrencyHandler();
+      final currency =
+          isEVMCompatibleChain(_wallet.type) ? _wallet.currency : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(
           price: _fiatConversationStore.prices[currency]!, cryptoAmount: estimatedFee);
       return fiat;
@@ -219,10 +218,15 @@ abstract class OutputBase with Store {
     try {
       final crypto = double.parse(fiatAmount.replaceAll(',', '.')) /
           _fiatConversationStore.prices[cryptoCurrencyHandler()]!;
-      final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
 
-      if (cryptoAmount != cryptoAmountTmp) {
-        cryptoAmount = cryptoAmountTmp;
+      //TODO(David): Dive deeper into this and see if the switch can be removed.
+      if (walletType != WalletType.solana) {
+        final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
+        if (cryptoAmount != cryptoAmountTmp) {
+          cryptoAmount = cryptoAmountTmp;
+        }
+      } else {
+        cryptoAmount = crypto.toStringAsFixed(10);
       }
     } catch (e) {
       cryptoAmount = '';

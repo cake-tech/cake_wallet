@@ -295,7 +295,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       StandartListItem(
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
-      if (showRecipientAddress && tx.to != null)
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+      if (showRecipientAddress && tx.to != null && tx.direction == TransactionDirection.outgoing)
         StandartListItem(title: S.current.transaction_details_recipient_address, value: tx.to!),
       if (tx.direction == TransactionDirection.incoming && tx.from != null)
         StandartListItem(title: S.current.transaction_details_source_address, value: tx.from!),

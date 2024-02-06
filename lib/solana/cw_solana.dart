@@ -98,7 +98,7 @@ class CWSolana extends Solana {
 
   @override
   double getTransactionAmountRaw(TransactionInfo transactionInfo) {
-    return (transactionInfo as SolanaTransactionInfo).amount.toDouble();
+    return (transactionInfo as SolanaTransactionInfo).solAmount.toDouble();
   }
 
   String getTokenAddress(CryptoCurrency asset) => ( asset as SPLToken).mintAddress;

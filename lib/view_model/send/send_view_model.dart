@@ -101,6 +101,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get isBatchSending => outputs.length > 1;
 
+  bool get shouldDisplaySendALL => walletType != WalletType.solana;
+
   @computed
   String get pendingTransactionFiatAmount {
     if (pendingTransaction == null) {

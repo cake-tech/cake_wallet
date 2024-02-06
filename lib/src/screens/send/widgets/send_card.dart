@@ -321,7 +321,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                           ? sendViewModel.allAmountValidator
                                           : sendViewModel.amountValidator,
                                     ),
-                                    if (!sendViewModel.isBatchSending)
+                                    if (!sendViewModel.isBatchSending && sendViewModel.shouldDisplaySendALL)
                                       Positioned(
                                         top: 2,
                                         right: 0,
