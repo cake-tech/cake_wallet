@@ -150,7 +150,7 @@ class CWBitcoin extends Bitcoin {
 		return bitcoinWallet.unspentCoins;
 	}
 
-	void updateUnspents(Object wallet) async {
+	Future<void> updateUnspents(Object wallet) async {
 		final bitcoinWallet = wallet as ElectrumWallet;
 		await bitcoinWallet.updateUnspent();
 	}

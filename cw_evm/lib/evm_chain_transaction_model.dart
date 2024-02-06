@@ -1,5 +1,4 @@
-//! Model used for in parsing transactions fetched using etherscan
-class EthereumTransactionModel {
+class EVMChainTransactionModel {
   final DateTime date;
   final String hash;
   final String from;
@@ -14,7 +13,7 @@ class EthereumTransactionModel {
   final int? tokenDecimal;
   final bool isError;
 
-  EthereumTransactionModel({
+  EVMChainTransactionModel({
     required this.date,
     required this.hash,
     required this.from,
@@ -30,7 +29,8 @@ class EthereumTransactionModel {
     required this.isError,
   });
 
-  factory EthereumTransactionModel.fromJson(Map<String, dynamic> json) => EthereumTransactionModel(
+  factory EVMChainTransactionModel.fromJson(Map<String, dynamic> json, String defaultSymbol) =>
+      EVMChainTransactionModel(
         date: DateTime.fromMillisecondsSinceEpoch(int.parse(json["timeStamp"]) * 1000),
         hash: json["hash"],
         from: json["from"],
@@ -41,7 +41,7 @@ class EthereumTransactionModel {
         contractAddress: json["contractAddress"],
         confirmations: int.parse(json["confirmations"]),
         blockNumber: int.parse(json["blockNumber"]),
-        tokenSymbol: json["tokenSymbol"] ?? "ETH",
+        tokenSymbol: json["tokenSymbol"] ?? defaultSymbol,
         tokenDecimal: int.tryParse(json["tokenDecimal"] ?? ""),
         isError: json["isError"] == "1",
       );
