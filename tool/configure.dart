@@ -1361,6 +1361,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
+import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:hive/hive.dart';
 """;
@@ -1376,18 +1377,24 @@ import 'package:cw_decred/transaction_credentials.dart';
   const decredContent = """
 
 abstract class Decred {
-  WalletCredentials createDecredNewWalletCredentials({required String name, WalletInfo? walletInfo});
-  WalletCredentials createDecredRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
-  WalletService createDecredWalletService(Box<WalletInfo> walletInfoSource);
+  WalletCredentials createDecredNewWalletCredentials(
+      {required String name, WalletInfo? walletInfo});
+  WalletCredentials createDecredRestoreWalletFromSeedCredentials(
+      {required String name,
+      required String mnemonic,
+      required String password});
+  WalletService createDecredWalletService(Box<WalletInfo> walletInfoSource,
+      Box<UnspentCoinsInfo> unspentCoinSource);
 
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority getMediumTransactionPriority();
   TransactionPriority getDecredTransactionPriorityMedium();
   TransactionPriority getDecredTransactionPrioritySlow();
   TransactionPriority deserializeDecredTransactionPriority(int raw);
-  
+
   int getFeeRate(Object wallet, TransactionPriority priority);
-  Object createDecredTransactionCredentials(List<Output> outputs, TransactionPriority priority);
+  Object createDecredTransactionCredentials(
+      List<Output> outputs, TransactionPriority priority);
 
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);

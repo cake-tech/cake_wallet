@@ -151,3 +151,54 @@ int calculateEstimatedFeeWithFeeRate(int feeRate, int amount) {
   // the fee we get back. TODO.
   return 123000;
 }
+
+String createSignedTransaction(
+    String walletName, String createSignedTransactionReq) {
+  final cName = walletName.toCString();
+  final cCreateSignedTransactionReq = createSignedTransactionReq.toCString();
+  final res = executePayloadFn(
+    fn: () => dcrwalletApi.createSignedTransaction(
+        cName, cCreateSignedTransactionReq),
+    ptrsToFree: [cName, cCreateSignedTransactionReq],
+  );
+  return res.payload;
+}
+
+String sendRawTransaction(String walletName, String txHex) {
+  final cName = walletName.toCString();
+  final cTxHex = txHex.toCString();
+  final res = executePayloadFn(
+    fn: () => dcrwalletApi.sendRawTransaction(cName, cTxHex),
+    ptrsToFree: [cName, cTxHex],
+  );
+  return res.payload;
+}
+
+String listTransactions(String walletName, String from, String count) {
+  final cName = walletName.toCString();
+  final cFrom = from.toCString();
+  final cCount = count.toCString();
+  final res = executePayloadFn(
+    fn: () => dcrwalletApi.listTransactions(cName, cFrom, cCount),
+    ptrsToFree: [cName, cFrom, cCount],
+  );
+  return res.payload;
+}
+
+String bestBlock(String walletName) {
+  final cName = walletName.toCString();
+  final res = executePayloadFn(
+    fn: () => dcrwalletApi.bestBlock(cName),
+    ptrsToFree: [cName],
+  );
+  return res.payload;
+}
+
+String listUnspents(String walletName) {
+  final cName = walletName.toCString();
+  final res = executePayloadFn(
+    fn: () => dcrwalletApi.listUnspents(cName),
+    ptrsToFree: [cName],
+  );
+  return res.payload;
+}

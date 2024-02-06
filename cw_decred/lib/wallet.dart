@@ -1,10 +1,13 @@
+import 'dart:developer';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_decred/pending_transaction.dart';
+import 'package:cw_decred/transaction_credentials.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
+import 'package:hive/hive.dart';
 
 import 'package:cw_decred/api/libdcrwallet.dart' as libdcrwallet;
 import 'package:cw_decred/transaction_history.dart';
@@ -20,6 +23,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 
 part 'wallet.g.dart';
@@ -28,21 +32,25 @@ class DecredWallet = DecredWalletBase with _$DecredWallet;
 
 abstract class DecredWalletBase extends WalletBase<DecredBalance,
     DecredTransactionHistory, DecredTransactionInfo> with Store {
-  DecredWalletBase(WalletInfo walletInfo, String password)
+  DecredWalletBase(WalletInfo walletInfo, String password,
+      Box<UnspentCoinsInfo> unspentCoinsInfo)
       : _password = password,
-        syncStatus = NotConnectedSyncStatus(),
-        balance = ObservableMap.of({CryptoCurrency.dcr: DecredBalance.zero()}),
+        this.syncStatus = NotConnectedSyncStatus(),
+        this.unspentCoinsInfo = unspentCoinsInfo,
+        this.balance =
+            ObservableMap.of({CryptoCurrency.dcr: DecredBalance.zero()}),
         super(walletInfo) {
     walletAddresses = DecredWalletAddresses(walletInfo);
     transactionHistory = DecredTransactionHistory();
   }
 
-  // password is currently only used for seed display, but would likely also be
-  // required to sign inputs when creating transactions.
+  final defaultFeeRate = 10000;
   final String _password;
+  final idPrefix = "decred_";
   bool connecting = false;
   String persistantPeer = "";
   Timer? syncTimer;
+  Box<UnspentCoinsInfo> unspentCoinsInfo;
 
   @override
   @observable
@@ -204,12 +212,55 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
+    final inputs = [];
+    this.unspentCoinsInfo.values.forEach((unspent) {
+      if (unspent.isSending) {
+        final input = {"txid": unspent.hash, "vout": unspent.vout};
+        inputs.add(input);
+      }
+    });
+    final ignoreInputs = [];
+    this.unspentCoinsInfo.values.forEach((unspent) {
+      if (unspent.isFrozen) {
+        final input = {"txid": unspent.hash, "vout": unspent.vout};
+        ignoreInputs.add(input);
+      }
+    });
+    final creds = credentials as DecredTransactionCredentials;
+    var totalAmt = 0;
+    final outputs = [];
+    for (final out in creds.outputs) {
+      var amt = 0;
+      if (out.cryptoAmount != null) {
+        final coins = double.parse(out.cryptoAmount!);
+        amt = (coins * 1e8).toInt();
+      }
+      totalAmt += amt;
+      final o = {"address": out.address, "amount": amt};
+      outputs.add(o);
+    }
+    ;
+    // TODO: Fix fee rate.
+    final signReq = {
+      "inputs": inputs,
+      "ignoreInputs": ignoreInputs,
+      "outputs": outputs,
+      "feerate": creds.feeRate ?? defaultFeeRate,
+      "password": _password,
+    };
+    final res = libdcrwallet.createSignedTransaction(
+        walletInfo.name, jsonEncode(signReq));
+    final decoded = json.decode(res);
+    final signedHex = decoded["signedhex"];
+    final send = () async {
+      libdcrwallet.sendRawTransaction(walletInfo.name, signedHex);
+    };
     return DecredPendingTransaction(
-        txid:
-            "3cbf3eb9523fd04e96dbaf98cdbd21779222cc8855ece8700494662ae7578e02",
-        amount: 12345678,
-        fee: 1234,
-        rawHex: "baadbeef");
+        txid: decoded["txid"] ?? "",
+        amount: totalAmt,
+        fee: decoded["fee"] ?? 0,
+        rawHex: signedHex,
+        send: send);
   }
 
   int feeRate(TransactionPriority priority) {
@@ -302,13 +353,79 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
   }
 
   List<Unspent> unspents() {
-    return [
-      Unspent(
-          "DsT4qJPPaYEuQRimfgvSKxKH3paysn1x3Nt",
-          "3cbf3eb9523fd04e96dbaf98cdbd21779222cc8855ece8700494662ae7578e02",
-          1234567,
-          0,
-          null)
-    ];
+    final res = libdcrwallet.listUnspents(walletInfo.name);
+    final decoded = json.decode(res);
+    var unspents = <Unspent>[];
+    for (final d in decoded) {
+      final spendable = d["spendable"] ?? false;
+      if (!spendable) {
+        continue;
+      }
+      final amountDouble = d["amount"] ?? 0.0;
+      final amount = (amountDouble * 1e8).toInt().abs();
+      final utxo = Unspent(
+          d["address"] ?? "", d["txid"] ?? "", amount, d["vout"] ?? 0, null);
+      utxo.isChange = d["ischange"] ?? false;
+      unspents.add(utxo);
+    }
+    this.updateUnspents(unspents);
+    return unspents;
+  }
+
+  void updateUnspents(List<Unspent> unspentCoins) {
+    if (this.unspentCoinsInfo.isEmpty) {
+      unspentCoins.forEach((coin) => this.addCoinInfo(coin));
+      return;
+    }
+
+    if (unspentCoins.isEmpty) {
+      this.unspentCoinsInfo.clear();
+      return;
+    }
+
+    final walletID = idPrefix + walletInfo.name;
+    if (unspentCoins.isNotEmpty) {
+      unspentCoins.forEach((coin) {
+        final coinInfoList = this.unspentCoinsInfo.values.where((element) =>
+            element.walletId == walletID &&
+            element.hash == coin.hash &&
+            element.vout == coin.vout);
+
+        if (coinInfoList.isEmpty) {
+          this.addCoinInfo(coin);
+        }
+      });
+    }
+
+    final List<dynamic> keys = <dynamic>[];
+    this.unspentCoinsInfo.values.forEach((element) {
+      final existUnspentCoins =
+          unspentCoins.where((coin) => element.hash.contains(coin.hash));
+
+      if (existUnspentCoins.isEmpty) {
+        keys.add(element.key);
+      }
+    });
+
+    if (keys.isNotEmpty) {
+      unspentCoinsInfo.deleteAll(keys);
+    }
+  }
+
+  void addCoinInfo(Unspent coin) {
+    final newInfo = UnspentCoinsInfo(
+      walletId: idPrefix + walletInfo.name,
+      hash: coin.hash,
+      isFrozen: false,
+      isSending: false,
+      noteRaw: "",
+      address: coin.address,
+      value: coin.value,
+      vout: coin.vout,
+      isChange: coin.isChange,
+      keyImage: coin.keyImage,
+    );
+
+    unspentCoinsInfo.add(newInfo);
   }
 }

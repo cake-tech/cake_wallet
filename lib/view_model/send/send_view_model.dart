@@ -247,6 +247,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.monero ||
       wallet.type == WalletType.wownero ||
+      wallet.type == WalletType.decred ||
       wallet.type == WalletType.bitcoinCash;
 
   @computed

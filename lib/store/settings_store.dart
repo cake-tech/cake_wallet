@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -117,7 +118,8 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialLitecoinTransactionPriority,
       TransactionPriority? initialEthereumTransactionPriority,
       TransactionPriority? initialPolygonTransactionPriority,
-      TransactionPriority? initialBitcoinCashTransactionPriority})
+      TransactionPriority? initialBitcoinCashTransactionPriority,
+      TransactionPriority? initialDecredTransactionPriority})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
         _secureStorage = secureStorage,
@@ -198,6 +200,10 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.bitcoinCash] = initialBitcoinCashTransactionPriority;
     }
 
+    if (initialDecredTransactionPriority != null) {
+      priority[WalletType.decred] = initialDecredTransactionPriority;
+    }
+
     initializeTrocadorProviderStates();
 
     WalletType.values.forEach((walletType) {
@@ -275,6 +281,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.polygon:
           key = PreferencesKey.polygonTransactionPriority;
+          break;
+        case WalletType.decred:
+          key = PreferencesKey.decredTransactionPriority;
           break;
         default:
           key = null;
@@ -797,6 +806,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? polygonTransactionPriority;
     TransactionPriority? bitcoinCashTransactionPriority;
     TransactionPriority? wowneroTransactionPriority;
+    TransactionPriority? decredTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -822,6 +832,10 @@ abstract class SettingsStoreBase with Store {
       wowneroTransactionPriority = wownero?.deserializeWowneroTransactionPriority(
           raw: sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.decredTransactionPriority) != null) {
+      decredTransactionPriority = decred?.deserializeDecredTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.decredTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
@@ -830,6 +844,7 @@ abstract class SettingsStoreBase with Store {
     ethereumTransactionPriority ??= ethereum?.getDefaultTransactionPriority();
     bitcoinCashTransactionPriority ??= bitcoinCash?.getDefaultTransactionPriority();
     wowneroTransactionPriority ??= wownero?.getDefaultTransactionPriority();
+    decredTransactionPriority ??= decred?.getDecredTransactionPriorityMedium();
     polygonTransactionPriority ??= polygon?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
@@ -1157,6 +1172,7 @@ abstract class SettingsStoreBase with Store {
       initialHavenTransactionPriority: havenTransactionPriority,
       initialLitecoinTransactionPriority: litecoinTransactionPriority,
       initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
+      initialDecredTransactionPriority: decredTransactionPriority,
       initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
       initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
       initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,

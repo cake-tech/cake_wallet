@@ -6,12 +6,14 @@ class DecredPendingTransaction with PendingTransaction {
       {required this.txid,
       required this.amount,
       required this.fee,
-      required this.rawHex});
+      required this.rawHex,
+      required this.send});
 
   final int amount;
   final int fee;
   final String txid;
   final String rawHex;
+  final Future<void> Function() send;
 
   @override
   String get id => txid;
@@ -27,6 +29,6 @@ class DecredPendingTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    // TODO: Submit rawHex using libdcrwallet.
+    return send();
   }
 }
