@@ -21,11 +21,12 @@ void main(List<String> args) async {
     appendStringToArbFile(fileName, name, translation);
   }
 
-  // alphabetize all files:
+  print('Alphabetizing all files...');
+  
   for (var lang in langs) {
     final fileName = getArbFileName(lang);
-
     alphabetizeArbFile(fileName);
   }
 
+  print('Done!');
 }
