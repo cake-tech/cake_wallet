@@ -485,6 +485,7 @@
   "restore_wallet": "Restaurer un Portefeuille (Wallet)",
   "restore_wallet_name": "Nom du portefeuille (wallet)",
   "restore_wallet_restore_description": "Description de la restauration de portefeuille (wallet)",
+  "robinhood_option_description": "Achetez et transférez instantanément à l'aide de votre carte de débit, de votre compte bancaire ou de votre solde Robinhood. États-Unis seulement.",
   "router_no_route": "Aucune route définie pour ${name}",
   "save": "Sauvegarder",
   "save_backup_password": "Merci de vous assurer d'avoir bien sauvegardé votre mot de passe de sauvegarde.  Vous ne pourrez pas restaurer vos fichiers de sauvegarde sans ce dernier.",

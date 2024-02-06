@@ -485,6 +485,7 @@
   "restore_wallet": "Przywróć portfel",
   "restore_wallet_name": "Nazwa portfela",
   "restore_wallet_restore_description": "Przywracanie portfela",
+  "robinhood_option_description": "Kup i przenieś natychmiast za pomocą karty debetowej, konta bankowego lub salda Robinhood. Tylko USA.",
   "router_no_route": "Brak zdefiniowanej trasy dla ${name}",
   "save": "Zapisz",
   "save_backup_password": "Upewnij się, że zapisałeś swoje hasło kopii zapasowej. Bez tego nie będziesz mógł zaimportować pliku kopii zapasowej.",

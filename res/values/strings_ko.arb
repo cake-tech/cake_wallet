@@ -108,6 +108,8 @@
   "change_language": "언어 변경",
   "change_language_to": "언어를로 변경 ${language}?",
   "change_password": "비밀번호 변경",
+  "change_rep": "대표를 변경하십시오",
+  "change_rep_message": "대표를 바꾸고 싶습니까?",
   "change_rep_successful": "대리인이 성공적으로 변경되었습니다",
   "change_wallet_alert_content": "현재 지갑을 다음으로 변경 하시겠습니까 ${wallet_name}?",
   "change_wallet_alert_title": "현재 지갑 변경",
@@ -406,6 +408,7 @@
   "please_fill_totp": "다른 기기에 있는 8자리 코드를 입력하세요.",
   "please_make_selection": "아래에서 선택하십시오 지갑 만들기 또는 복구.",
   "Please_reference_document": "자세한 내용은 아래 문서를 참조하십시오.",
+  "please_reference_document": "자세한 내용은 아래 문서를 참조하십시오.",
   "please_select": "선택 해주세요:",
   "please_select_backup_file": "백업 파일을 선택하고 백업 암호를 입력하십시오.",
   "please_try_to_connect_to_another_node": "다른 노드에 연결을 시도하십시오",
@@ -483,6 +486,7 @@
   "restore_wallet": "월렛 복원",
   "restore_wallet_name": "지갑 이름",
   "restore_wallet_restore_description": "월렛 복원 설명",
+  "robinhood_option_description": "직불 카드, 은행 계좌 또는 Robinhood 잔액을 사용하여 즉시 구매 및 양도하십시오. 미국 만.",
   "router_no_route": "에 정의 된 경로가 없습니다 ${name}",
   "save": "구하다",
   "save_backup_password": "백업 암호를 저장했는지 확인하십시오. 그것 없이는 백업 파일을 가져올 수 없습니다.",
@@ -774,5 +778,6 @@
   "you_will_get": "로 변환하다",
   "you_will_send": "다음에서 변환",
   "YY": "YY",
+  "yy": "YY",
   "zzzz": "zzzz"
 }
