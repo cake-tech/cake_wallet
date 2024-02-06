@@ -41,5 +41,5 @@ Future<String> getTranslation(String text, String lang) async {
         translation.replaceRange(translatedPlaceholder.start, translatedPlaceholder.end, value);
   });
 
-  return translation;
+  return translation + ",";
 }

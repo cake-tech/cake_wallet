@@ -66,3 +66,12 @@ List<String> getMissingKeysInArbFile(String fileName, Iterable<String> langKeys)
 
   return results;
 }
+
+
+
+void alphabetizeArbFile(String fileName) {
+  final file = File(fileName);
+  final arbObj = readArbFile(file);
+
+  
+}
