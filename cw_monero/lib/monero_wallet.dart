@@ -183,9 +183,13 @@ abstract class MoneroWalletBase
         // try to use the date instead:
         try {
           _setHeightFromDate();
-        } catch (e) {
+        } catch (e, s) {
           // we still couldn't get a valid sync height :/
-          print("couldn't sync!: $e");
+          onError?.call(FlutterErrorDetails(
+            exception: e,
+            stack: s,
+            library: this.runtimeType.toString(),
+          ));
         }
       }
     }

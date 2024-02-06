@@ -53,12 +53,6 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
             (info) => info.id == WalletBase.idFor(name, getType()))!;
 
     try {
-      if (name == "corrupted-test") {
-        throw Exception('Corrupted wallet');
-      // prevent infinite loop:
-      } else if (name == "corrupted-test-2") {
-        name = "corrupted-test";
-      }
       final wallet = await BitcoinCashWalletBase.open(
           password: password, name: name, walletInfo: walletInfo,
           unspentCoinsInfo: unspentCoinsInfoSource);

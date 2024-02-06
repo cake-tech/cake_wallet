@@ -114,13 +114,6 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
   Future<MoneroWallet> openWallet(String name, String password) async {
     MoneroWallet? wallet;
     try {
-      if (name == "corrupted-test") {
-        throw Exception('Corrupted wallet');
-        // prevent infinite loop:
-      } else if (name == "corrupted-test-2") {
-        name = "corrupted-test";
-      }
-
       final path = await pathForWallet(name: name, type: getType());
 
       if (walletFilesExist(path)) {
@@ -174,10 +167,6 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
       }
 
       await restoreOrResetWalletFiles(name);
-      // prevent infinite loop:
-      if (name == "corrupted-test") {
-        name = "corrupted-test-2";
-      }
       return openWallet(name, password);
     }
   }
