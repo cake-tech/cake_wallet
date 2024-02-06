@@ -19,8 +19,9 @@ class CWDecred extends Decred {
       DecredRestoreWalletFromSeedCredentials(
           name: name, mnemonic: mnemonic, password: password);
 
-  WalletService createDecredWalletService(Box<WalletInfo> walletInfoSource) {
-    return DecredWalletService(walletInfoSource);
+  WalletService createDecredWalletService(Box<WalletInfo> walletInfoSource,
+      Box<UnspentCoinsInfo> unspentCoinSource) {
+    return DecredWalletService(walletInfoSource, unspentCoinSource);
   }
 
   @override
