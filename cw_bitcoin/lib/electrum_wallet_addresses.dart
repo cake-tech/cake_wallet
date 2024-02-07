@@ -53,7 +53,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   String get address {
     if (isEnabledAutoGenerateSubaddress) {
       if (receiveAddresses.isEmpty) {
-        final newAddress = generateNewAddress().address;
+        final newAddress = generateNewAddress(hd: mainHd).address;
         return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(newAddress) : newAddress;
       }
       final receiveAddress = receiveAddresses.first.address;
@@ -215,6 +215,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     List<BitcoinAddressRecord> addrs;
 
     if (addresses.isNotEmpty) {
+
+
+      if(!isHidden) {
+        final receiveAddressesList = addresses.where((addr) => !addr.isHidden).toList();
+        validateSideHdAddresses(receiveAddressesList);
+      }
+
       addrs = addresses.where((addr) => addr.isHidden == isHidden).toList();
     } else {
       addrs = await _createNewAddresses(
@@ -295,5 +302,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     final sh = scriptHash(address, networkType: networkType);
     final transactionHistory = await electrumClient.getHistory(sh);
     return transactionHistory.isNotEmpty;
+  }
+
+  void validateSideHdAddresses(List<BitcoinAddressRecord> addrWithTransactions) {
+    addrWithTransactions.forEach((element) {
+      if (element.address != getAddress(index: element.index, hd: mainHd)) element.isHidden = true;
+    });
   }
 }
