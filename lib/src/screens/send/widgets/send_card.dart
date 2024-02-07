@@ -189,7 +189,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                           output.loadContact(contact);
                         },
                         validator: validator,
-                        selectedCurrency: sendViewModel.currency,
+                        selectedCurrency: sendViewModel.selectedCryptoCurrency,
                       );
                     }),
                     if (output.isParsedAddress)
