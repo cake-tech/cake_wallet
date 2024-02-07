@@ -110,6 +110,7 @@ dependencies:
   breez_sdk:
     git:
       url: https://github.com/breez/breez-sdk-flutter.git
+      ref: v0.2.12
 
 
 dev_dependencies:
@@ -133,7 +134,8 @@ dependency_overrides:
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
-  flutter_rust_bridge: ^1.82.1
+  flutter_rust_bridge: ^1.82.6
+  uuid: ^4.1.0
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:breez_sdk/breez_sdk.dart';
 import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
@@ -13,6 +15,8 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:cw_bitcoin/.secrets.g.dart' as secrets;
 
 part 'bitcoin_wallet.g.dart';
 
@@ -49,26 +53,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         networkType: networkType);
 
     // initialize breeze:
-    String inviteCode = "<invite code>";
-    String apiKey = "<api key>";
-    NodeConfig breezNodeConfig = NodeConfig.greenlight(
-      config: GreenlightNodeConfig(
-        partnerCredentials: null,
-        inviteCode: inviteCode,
-      ),
-    );
-    BreezSDK()
-        .defaultConfig(
-      envType: EnvironmentType.Production,
-      apiKey: apiKey,
-      nodeConfig: breezNodeConfig,
-    )
-        .then((value) {
-      Config breezConfig = value;
-      // Customize the config object according to your needs
-      breezConfig = breezConfig.copyWith(workingDir: "/breez/${walletInfo.name}");
-      BreezSDK().connect(config: breezConfig, seed: seedBytes);
-    });
+    setupBreeze(seedBytes);
 
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
@@ -113,5 +98,56 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
         initialRegularAddressIndex: snp.regularAddressIndex,
         initialChangeAddressIndex: snp.changeAddressIndex);
+  }
+
+  void printDirectoryTree(Directory directory, {String prefix = ''}) {
+    try {
+      final files = directory.listSync();
+      for (var i = 0; i < files.length; i++) {
+        final isLast = i == files.length - 1;
+        if (files[i] is File) {
+          print(
+              '${prefix}${isLast ? '└─' : '├─'} ${files[i].path.split(Platform.pathSeparator).last}');
+        } else if (files[i] is Directory) {
+          print(
+              '${prefix}${isLast ? '└─' : '├─'} ${files[i].path.split(Platform.pathSeparator).last}');
+          printDirectoryTree(files[i] as Directory, prefix: '${prefix}${isLast ? '   ' : '│  '}');
+        }
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> setupBreeze(Uint8List seedBytes) async {
+    // Initialize SDK logs listener
+    final sdk = BreezSDK();
+    sdk.initialize();
+
+    NodeConfig breezNodeConfig = NodeConfig.greenlight(
+      config: GreenlightNodeConfig(
+        partnerCredentials: null,
+        inviteCode: secrets.breezInviteCode,
+      ),
+    );
+    Config breezConfig = await sdk.defaultConfig(
+      envType: EnvironmentType.Production,
+      apiKey: secrets.breezApiKey,
+      nodeConfig: breezNodeConfig,
+    );
+
+    printDirectoryTree(Directory((await getApplicationDocumentsDirectory()).path));
+    // Customize the config object according to your needs
+    String workingDir = (await getApplicationDocumentsDirectory()).path;
+    workingDir = "$workingDir/wallets/bitcoin/${walletInfo.name}/breez/";
+    new Directory(workingDir).createSync(recursive: true);
+    breezConfig = breezConfig.copyWith(workingDir: workingDir);
+
+    print(workingDir);
+
+    // await sdk.connect(config: breezConfig, seed: seedBytes);
+
+    print(await sdk.isInitialized());
+    print(await sdk.listLsps());
   }
 }

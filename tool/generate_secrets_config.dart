@@ -5,6 +5,7 @@ import 'utils/utils.dart';
 
 const configPath = 'tool/.secrets-config.json';
 const evmChainsConfigPath = 'tool/.evm-secrets-config.json';
+const bitcoinConfigPath = 'tool/.bitcoin-secrets-config.json';
 
 Future<void> main(List<String> args) async => generateSecretsConfig(args);
 
@@ -18,6 +19,8 @@ Future<void> generateSecretsConfig(List<String> args) async {
 
   final configFile = File(configPath);
   final evmChainsConfigFile = File(evmChainsConfigPath);
+  final bitcoinConfigFile = File(bitcoinConfigPath);
+
   final secrets = <String, dynamic>{};
 
   secrets.addAll(extraInfo);
@@ -56,8 +59,16 @@ Future<void> generateSecretsConfig(List<String> args) async {
 
     secrets[sec.name] = sec.generate();
   });
-
   secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
-
   await evmChainsConfigFile.writeAsString(secretsJson);
+
+  secrets.clear();
+  SecretKey.bitcoinSecrets.forEach((sec) {
+    if (secrets[sec.name] != null) {
+      return;
+    }
+    secrets[sec.name] = sec.generate();
+  });
+  secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
+  await bitcoinConfigFile.writeAsString(secretsJson);
 }

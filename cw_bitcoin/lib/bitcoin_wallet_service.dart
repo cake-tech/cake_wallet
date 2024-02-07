@@ -46,9 +46,6 @@ class BitcoinWalletService extends WalletService<
     final walletInfo = walletInfoSource.values.firstWhereOrNull(
         (info) => info.id == WalletBase.idFor(name, getType()))!;
 
-    // Initialize SDK logs listener
-    BreezSDK().initialize();
-
     final wallet = await BitcoinWalletBase.open(
         password: password, name: name, walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource);

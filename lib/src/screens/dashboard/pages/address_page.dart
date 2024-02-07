@@ -182,7 +182,7 @@ class AddressPage extends BasePage {
                   ReceiveOnchainRequest req = const ReceiveOnchainRequest();
                   SwapInfo swapInfo = await BreezSDK().receiveOnchain(req: req);
 
-// Send your funds to the below bitcoin address
+                  // Send your funds to the below bitcoin address
                   String address = swapInfo.bitcoinAddress;
                   print(address);
                   print("Minimum amount allowed to deposit in sats: ${swapInfo.minAllowedDeposit}");

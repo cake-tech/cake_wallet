@@ -152,6 +152,8 @@ jobs:
           echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_bitcoin/lib/.secrets.g.dart
+          echo "const breezInviteCode = '${{ secrets.BREEZ_INVITE_CODE }}';" >> cw_bitcoin/lib/.secrets.g.dart
 
       - name: Rename app
         run: echo -e "id=com.cakewallet.test\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
