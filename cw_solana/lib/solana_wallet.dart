@@ -110,7 +110,7 @@ abstract class SolanaWalletBase
   String get privateKey => HEX.encode(_keyPair!.bytes);
 
   Future<void> init() async {
-    final boxName = "${walletInfo.name.replaceAll(" ", "_")}_ ${SPLToken.boxName}";
+    final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${SPLToken.boxName}";
 
     splTokensBox = await CakeHive.openBox<SPLToken>(boxName);
 
