@@ -16,6 +16,9 @@ class SolanaTransactionModel {
   // The DateTime from the UNIX timestamp of the block where the transaction was included
   final DateTime blockTime;
 
+// The Transaction fee
+  final double fee;
+
   SolanaTransactionModel({
     required this.id,
     required this.to,
@@ -24,7 +27,8 @@ class SolanaTransactionModel {
     required this.programId,
     required int blockTimeInInt,
     this.isIncomingTransaction = false,
-  }) : blockTime = DateTime.fromMillisecondsSinceEpoch(blockTimeInInt * 1000);
+    required this.fee,
+  }) : blockTime = DateTime.fromMillisecondsSinceEpoch(blockTimeInInt);
 
   factory SolanaTransactionModel.fromJson(Map<String, dynamic> json) => SolanaTransactionModel(
         id: json['id'],
@@ -33,18 +37,6 @@ class SolanaTransactionModel {
         to: json["to"],
         amount: double.parse(json["value"]),
         programId: json["programId"],
+        fee: json['fee'],
       );
-}
-
-class UnsupportedTransaction extends SolanaTransactionModel {
-  UnsupportedTransaction(int blockTime)
-      : super(
-          id: "",
-          from: "Unknown",
-          to: "Unknown",
-          amount: 0.0,
-          isIncomingTransaction: false,
-          programId: "Unknown",
-          blockTimeInInt: blockTime,
-        );
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
@@ -103,8 +104,8 @@ class SolanaWalletClient {
       for (final tx in response) {
         if (tx.transaction is ParsedTransaction) {
           final parsedTx = (tx.transaction as ParsedTransaction);
-
           final message = parsedTx.message;
+          final fee = (tx.meta?.fee ?? 0) / lamportsPerSol;
 
           for (final instruction in message.instructions) {
             if (instruction is ParsedInstruction) {
@@ -125,6 +126,7 @@ class SolanaWalletClient {
                           isIncomingTransaction: receivedOrNot,
                           programId: SystemProgram.programId,
                           blockTimeInInt: tx.blockTime!,
+                          fee: fee,
                         ),
                       );
                     },
@@ -140,6 +142,7 @@ class SolanaWalletClient {
                       double amount = double.tryParse(transfer.amount) ?? 0.0;
                       transactions.add(
                         SolanaTransactionModel(
+                          fee: fee,
                           id: parsedTx.signatures.first,
                           from: transfer.source,
                           to: transfer.destination,
@@ -324,9 +327,7 @@ class SolanaWalletClient {
     }
 
     // Input by the user
-    int userAmount = inputAmount.toInt();
-
-    int amount = int.parse('$userAmount${'0' * tokenDecimals}');
+    final amount = (inputAmount * pow(10, tokenDecimals)).toInt();
 
     final instruction = TokenInstruction.transfer(
       source: Ed25519HDPublicKey.fromBase58(associatedSenderAccount.pubkey),
@@ -353,11 +354,16 @@ class SolanaWalletClient {
 
     final fee = await getGasForMessage(base64Message);
 
+    sendTx() async => await sendTransaction(
+          signedTransaction: signedTx,
+          commitment: commitment,
+        );
+
     final pendingTransaction = PendingSolanaTransaction(
       amount: inputAmount,
       signedTransaction: signedTx,
       destinationAddress: destinationAddress,
-      sendTransaction: sendTransaction,
+      sendTransaction: sendTx,
       fee: fee,
     );
     return pendingTransaction;

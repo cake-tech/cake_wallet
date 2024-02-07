@@ -277,6 +277,7 @@ abstract class SolanaWalletBase
             : TransactionDirection.outgoing,
         solAmount: transactionModel.amount,
         isPending: false,
+        txFee: transactionModel.fee,
       );
     }
 

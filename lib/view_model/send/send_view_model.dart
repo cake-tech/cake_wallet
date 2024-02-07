@@ -45,7 +45,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void onWalletChange(wallet) {
     currencies = wallet.balance.keys.toList();
     selectedCryptoCurrency = wallet.currency;
-    hasMultipleTokens = isEVMCompatibleChain(wallet.type);
+    hasMultipleTokens = isEVMCompatibleChain(wallet.type) || wallet.type == WalletType.solana;
   }
 
   SendViewModelBase(
@@ -58,7 +58,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   )   : state = InitialExecutionState(),
         currencies = appStore.wallet!.balance.keys.toList(),
         selectedCryptoCurrency = appStore.wallet!.currency,
-        hasMultipleTokens = isEVMCompatibleChain(appStore.wallet!.type),
+        hasMultipleTokens = isEVMCompatibleChain(appStore.wallet!.type) ||
+            appStore.wallet!.type == WalletType.solana,
         outputs = ObservableList<Output>(),
         _settingsStore = appStore.settingsStore,
         fiatFromSettings = appStore.settingsStore.fiatCurrency,

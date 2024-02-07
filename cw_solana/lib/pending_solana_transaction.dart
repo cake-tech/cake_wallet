@@ -29,7 +29,6 @@ class PendingSolanaTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    print('Inside commit function for solana');
     return await sendTransaction();
   }
 

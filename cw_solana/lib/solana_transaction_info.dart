@@ -12,6 +12,7 @@ class SolanaTransactionInfo extends TransactionInfo {
     required this.solAmount,
     this.tokenSymbol = "SOL",
     required this.isPending,
+    required this.txFee,
   }) : amount = solAmount.toInt();
 
   final String id;
@@ -22,6 +23,7 @@ class SolanaTransactionInfo extends TransactionInfo {
   final double solAmount;
   final String tokenSymbol;
   final DateTime blockTime;
+  final double txFee;
   final TransactionDirection direction;
 
   String? _fiatAmount;
@@ -46,7 +48,7 @@ class SolanaTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
-  String feeFormatted() => '';
+  String feeFormatted() => '${txFee.toString()} SOL';
 
   factory SolanaTransactionInfo.fromJson(Map<String, dynamic> data) {
     return SolanaTransactionInfo(
@@ -58,6 +60,7 @@ class SolanaTransactionInfo extends TransactionInfo {
       tokenSymbol: data['tokenSymbol'] as String,
       to: data['to'],
       from: data['from'],
+      txFee: data['txFee'],
     );
   }
 
@@ -70,5 +73,6 @@ class SolanaTransactionInfo extends TransactionInfo {
         'tokenSymbol': tokenSymbol,
         'to': to,
         'from': from,
+        'txFee': txFee,
       };
 }
