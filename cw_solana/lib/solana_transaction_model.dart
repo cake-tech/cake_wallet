@@ -28,7 +28,7 @@ class SolanaTransactionModel {
     required int blockTimeInInt,
     this.isIncomingTransaction = false,
     required this.fee,
-  }) : blockTime = DateTime.fromMillisecondsSinceEpoch(blockTimeInInt);
+  }) : blockTime = DateTime.fromMillisecondsSinceEpoch(blockTimeInInt * 1000);
 
   factory SolanaTransactionModel.fromJson(Map<String, dynamic> json) => SolanaTransactionModel(
         id: json['id'],
