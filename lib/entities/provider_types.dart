@@ -70,6 +70,9 @@ class ProvidersHelper {
       case WalletType.none:
       case WalletType.haven:
         return [];
+
+      default:
+        return [];
     }
   }
 
@@ -93,6 +96,9 @@ class ProvidersHelper {
       case WalletType.banano:
       case WalletType.none:
       case WalletType.haven:
+        return [];
+
+      default:
         return [];
     }
   }
