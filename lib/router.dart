@@ -202,6 +202,18 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 param2: false));
       }
 
+    case Routes.restoreWalletFromHardwareWallet:
+      if (isSingleCoin) {
+        return MaterialPageRoute<void>(
+            builder: (_) => getIt.get<WalletRestorePage>(param1: availableWalletTypes.first));
+      } else {
+        return CupertinoPageRoute<void>(
+            builder: (_) => getIt.get<NewWalletTypePage>(
+                param1: (BuildContext context, WalletType type) =>
+                    Navigator.of(context).pushNamed(Routes.connectDevices, arguments: type),
+                param2: false));
+      }
+
     case Routes.restoreWalletTypeFromQR:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<NewWalletTypePage>(
@@ -636,7 +648,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(builder: (_) => getIt.get<TorPage>());
 
     case Routes.connectDevices:
-      return MaterialPageRoute<void>(builder: (_) => ConnectDevicePage());
+      final type = settings.arguments as WalletType;
+      return MaterialPageRoute<void>(builder: (_) => ConnectDevicePage(type));
 
     default:
       return MaterialPageRoute<void>(

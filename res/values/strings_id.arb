@@ -763,5 +763,8 @@
   "no_relays": "Tidak ada relay",
   "choose_relay": "Silakan pilih relai yang akan digunakan",
   "no_relays_message": "Kami menemukan catatan Nostr NIP-05 untuk pengguna ini, tetapi tidak berisi relay apa pun. Harap instruksikan penerima untuk menambahkan relay ke catatan Nostr mereka.",
-  "no_relay_on_domain": "Tidak ada relai untuk domain pengguna atau relai tidak tersedia. Silakan pilih relai yang akan digunakan."
+  "no_relay_on_domain": "Tidak ada relai untuk domain pengguna atau relai tidak tersedia. Silakan pilih relai yang akan digunakan.",
+  "restore_title_from_hardware_wallet": "Kembalikan dari dompet perangkat keras",
+  "restore_description_from_hardware_wallet": "Kembalikan dari dompet perangkat keras Ledger",
+  "connect_your_hardware_wallet": "Hubungkan dompet perangkat keras Anda menggunakan Bluetooth atau USB"
 }

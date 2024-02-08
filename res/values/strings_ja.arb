@@ -775,5 +775,8 @@
   "no_relays": "リレーなし",
   "choose_relay": "使用するリレーを選択してください",
   "no_relays_message": "このユーザーの Nostr NIP-05 レコードが見つかりましたが、リレーは含まれていません。受信者に Nostr レコードにリレーを追加するよう指示してください。",
-  "no_relay_on_domain": "ユーザーのドメインのリレーが存在しないか、リレーが使用できません。使用するリレーを選択してください。"
+  "no_relay_on_domain": "ユーザーのドメインのリレーが存在しないか、リレーが使用できません。使用するリレーを選択してください。",
+  "restore_title_from_hardware_wallet": "ハードウェアウォレットから復元します",
+  "restore_description_from_hardware_wallet": "元帳ハードウェアウォレットから復元します",
+  "connect_your_hardware_wallet": "BluetoothまたはUSBを使用してハードウェアウォレットを接続します"
 }

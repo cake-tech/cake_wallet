@@ -775,5 +775,8 @@
   "no_relays": "Sin relevos",
   "choose_relay": "Por favor elija un relé para usar",
   "no_relays_message": "Encontramos un registro Nostr NIP-05 para este usuario, pero no contiene ningún relé. Indique al destinatario que agregue retransmisiones a su registro Nostr.",
-  "no_relay_on_domain": "No hay una retransmisión para el dominio del usuario o la retransmisión no está disponible. Elija un relé para usar."
+  "no_relay_on_domain": "No hay una retransmisión para el dominio del usuario o la retransmisión no está disponible. Elija un relé para usar.",
+  "restore_title_from_hardware_wallet": "Restaurar desde la billetera de hardware",
+  "restore_description_from_hardware_wallet": "Restaurar desde una billetera de hardware Ledger",
+  "connect_your_hardware_wallet": "Conecte su billetera de hardware con Bluetooth o USB"
 }

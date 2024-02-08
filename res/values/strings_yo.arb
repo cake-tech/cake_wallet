@@ -769,5 +769,8 @@
   "no_relays": "Ko si relays",
   "choose_relay": "Jọwọ yan yii lati lo",
   "no_relays_message": "A ri igbasilẹ Nostr NIP-05 fun olumulo yii, ṣugbọn ko ni eyikeyi awọn iṣipopada ninu. Jọwọ sọ fun olugba lati ṣafikun awọn isunmọ si igbasilẹ Nostr wọn.",
-  "no_relay_on_domain": "Ko si iṣipopada fun agbegbe olumulo tabi yiyi ko si. Jọwọ yan yii lati lo."
+  "no_relay_on_domain": "Ko si iṣipopada fun agbegbe olumulo tabi yiyi ko si. Jọwọ yan yii lati lo.",
+  "restore_title_from_hardware_wallet": "Mu pada kuro ninu apamọwọ ohun elo",
+  "restore_description_from_hardware_wallet": "Mu pada kuro ninu apamọwọ ohun elo ti o yanilenu",
+  "connect_your_hardware_wallet": "So apamọwọ irinṣẹ rẹ nipa lilo Bluetooth tabi USB"
 }

@@ -775,5 +775,8 @@
   "no_relays": "Keine Relais",
   "choose_relay": "Bitte wählen Sie ein zu verwendendes Relais aus",
   "no_relays_message": "Wir haben einen Nostr NIP-05-Eintrag für diesen Benutzer gefunden, der jedoch keine Relays enthält. Bitte weisen Sie den Empfänger an, Relays zu seinem Nostr-Datensatz hinzuzufügen.",
-  "no_relay_on_domain": "Es gibt kein Relay für die Domäne des Benutzers oder das Relay ist nicht verfügbar. Bitte wählen Sie ein zu verwendendes Relais aus."
+  "no_relay_on_domain": "Es gibt kein Relay für die Domäne des Benutzers oder das Relay ist nicht verfügbar. Bitte wählen Sie ein zu verwendendes Relais aus.",
+  "restore_title_from_hardware_wallet": "Von Hardware-Wallet wiederherstellen",
+  "restore_description_from_hardware_wallet": "Stellen Sie eine Wallet von Ledger wieder her",
+  "connect_your_hardware_wallet": "Verbinden Sie Ihr Hardware-Wallet mit Bluetooth oder USB"
 }

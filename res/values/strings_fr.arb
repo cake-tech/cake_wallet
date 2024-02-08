@@ -775,5 +775,8 @@
   "no_relays": "Pas de relais",
   "choose_relay": "Veuillez choisir un relais à utiliser",
   "no_relays_message": "Nous avons trouvé un enregistrement Nostr NIP-05 pour cet utilisateur, mais il ne contient aucun relais. Veuillez demander au destinataire d'ajouter des relais à son enregistrement Nostr.",
-  "no_relay_on_domain": "Il n'existe pas de relais pour le domaine de l'utilisateur ou le relais n'est pas disponible. Veuillez choisir un relais à utiliser."
+  "no_relay_on_domain": "Il n'existe pas de relais pour le domaine de l'utilisateur ou le relais n'est pas disponible. Veuillez choisir un relais à utiliser.",
+  "restore_title_from_hardware_wallet": "Restaurer à partir du portefeuille matériel",
+  "restore_description_from_hardware_wallet": "Restaurer à partir d'un portefeuille matériel de grand livre",
+  "connect_your_hardware_wallet": "Connectez votre portefeuille matériel à l'aide de Bluetooth ou USB"
 }
