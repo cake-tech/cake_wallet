@@ -142,12 +142,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     workingDir = "$workingDir/wallets/bitcoin/${walletInfo.name}/breez/";
     new Directory(workingDir).createSync(recursive: true);
     breezConfig = breezConfig.copyWith(workingDir: workingDir);
+    await sdk.connect(config: breezConfig, seed: seedBytes);
 
-    print(workingDir);
-
-    // await sdk.connect(config: breezConfig, seed: seedBytes);
-
-    print(await sdk.isInitialized());
-    print(await sdk.listLsps());
+    print("initialized: ${(await sdk.isInitialized())}");
   }
 }
