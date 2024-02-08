@@ -146,10 +146,14 @@ Map balance(String walletName) {
   return jsonDecode(res.payload);
 }
 
-int calculateEstimatedFeeWithFeeRate(int feeRate, int amount) {
-  // Ideally we create a tx with wallet going to this amount and just return
-  // the fee we get back. TODO.
-  return 123000;
+String estimateFee(String walletName, int numBlocks) {
+  final cName = walletName.toCString();
+  final cNumBlocks = numBlocks.toString().toCString();
+  final res = executePayloadFn(
+    fn: () => dcrwalletApi.estimateFee(cName, cNumBlocks),
+    ptrsToFree: [cName, cNumBlocks],
+  );
+  return res.payload;
 }
 
 String createSignedTransaction(

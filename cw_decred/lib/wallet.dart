@@ -44,11 +44,17 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
     transactionHistory = DecredTransactionHistory();
   }
 
-  final defaultFeeRate = 10000;
+  // NOTE: Hitting this max fee would be unexpected with current on chain use
+  // but this may need to be updated in the future.
+  final maxFeeRate = 100000;
+  static final defaultFeeRate = 10000;
   final String _password;
   final idPrefix = "decred_";
   bool connecting = false;
   String persistantPeer = "";
+  FeeCache feeRateFast = FeeCache(defaultFeeRate);
+  FeeCache feeRateMedium = FeeCache(defaultFeeRate);
+  FeeCache feeRateSlow = FeeCache(defaultFeeRate);
   Timer? syncTimer;
   Box<UnspentCoinsInfo> unspentCoinsInfo;
 
@@ -240,7 +246,6 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
       outputs.add(o);
     }
     ;
-    // TODO: Fix fee rate.
     final signReq = {
       "inputs": inputs,
       "ignoreInputs": ignoreInputs,
@@ -264,17 +269,67 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
   }
 
   int feeRate(TransactionPriority priority) {
-    // TODO
-    return 1000;
+    if (!(priority is DecredTransactionPriority)) {
+      return defaultFeeRate;
+    }
+    int Function(int nb) feeForNb = (int nb) {
+      try {
+        final feeStr = libdcrwallet.estimateFee(walletInfo.name, nb);
+        var fee = int.parse(feeStr);
+        if (fee > maxFeeRate) {
+          throw "dcr fee returned from estimate fee was over max";
+        } else if (fee <= 0) {
+          throw "dcr fee returned from estimate fee was zero";
+        }
+        return fee;
+      } catch (e) {
+        print(e);
+        return defaultFeeRate;
+      }
+    };
+    final p = priority as DecredTransactionPriority;
+    switch (p) {
+      case DecredTransactionPriority.slow:
+        if (feeRateSlow.isOld()) {
+          feeRateSlow.update(feeForNb(4));
+        }
+        return feeRateSlow.feeRate();
+      case DecredTransactionPriority.medium:
+        if (feeRateMedium.isOld()) {
+          feeRateMedium.update(feeForNb(2));
+        }
+        return feeRateMedium.feeRate();
+      case DecredTransactionPriority.fast:
+        if (feeRateFast.isOld()) {
+          feeRateFast.update(feeForNb(1));
+        }
+        return feeRateFast.feeRate();
+    }
+    return defaultFeeRate;
   }
 
   @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
     if (priority is DecredTransactionPriority) {
-      return libdcrwallet.calculateEstimatedFeeWithFeeRate(
-          this.feeRate(priority), amount ?? 0);
-    }
+      final P2PKHOutputSize =
+          36; // 8 bytes value + 2 bytes version + at least 1 byte varint script size + P2PKHPkScriptSize
+      // MsgTxOverhead is 4 bytes version (lower 2 bytes for the real transaction
+      // version and upper 2 bytes for the serialization type) + 4 bytes locktime
+      // + 4 bytes expiry + 3 bytes of varints for the number of transaction
+      // inputs (x2 for witness and prefix) and outputs
+      final MsgTxOverhead = 15;
+      // TxInOverhead is the overhead for a wire.TxIn with a scriptSig length <
+      // 254. prefix (41 bytes) + ValueIn (8 bytes) + BlockHeight (4 bytes) +
+      // BlockIndex (4 bytes) + sig script var int (at least 1 byte)
+      final TxInOverhead = 57;
+      final P2PKHInputSize = TxInOverhead +
+          109; // TxInOverhead (57) + var int (1) + P2PKHSigScriptSize (108)
 
+      // Estimate using a transaction consuming three inputs and paying to one
+      // address with change.
+      return this.feeRate(priority) *
+          (MsgTxOverhead + P2PKHInputSize * 3 + P2PKHOutputSize * 2);
+    }
     return 0;
   }
 

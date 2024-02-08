@@ -52,3 +52,22 @@ class DecredTransactionPriority extends TransactionPriority {
 
   String labelWithRate(int rate) => '${toString()} ($rate ${units}/byte)';
 }
+
+class FeeCache {
+  int _feeRate;
+  DateTime stamp;
+  FeeCache(this._feeRate) : this.stamp = DateTime(0, 0, 0, 0, 0, 0, 0, 0);
+
+  bool isOld() {
+    return this.stamp.add(const Duration(minutes: 30)).isBefore(DateTime.now());
+  }
+
+  void update(int feeRate) {
+    this._feeRate = feeRate;
+    this.stamp = DateTime.now();
+  }
+
+  int feeRate() {
+    return this._feeRate;
+  }
+}
