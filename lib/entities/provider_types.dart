@@ -55,6 +55,7 @@ class ProvidersHelper {
       case WalletType.monero:
         return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.dfx];
       case WalletType.bitcoin:
+      case WalletType.lightning:
       case WalletType.ethereum:
         return [
           ProviderType.askEachTime,
@@ -76,6 +77,7 @@ class ProvidersHelper {
   static List<ProviderType> getAvailableSellProviderTypes(WalletType walletType) {
     switch (walletType) {
       case WalletType.bitcoin:
+      case WalletType.lightning:
       case WalletType.ethereum:
         return [
           ProviderType.askEachTime,

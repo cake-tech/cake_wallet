@@ -1,18 +1,19 @@
 import 'dart:io';
-import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonic_is_incorrect_exception.dart';
-import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
+import 'package:cw_lightning/bitcoin_mnemonic.dart';
+import 'package:cw_lightning/bitcoin_mnemonic_is_incorrect_exception.dart';
+import 'package:cw_lightning/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import 'package:cw_bitcoin/lightning_wallet.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:collection/collection.dart';
+import 'package:breez_sdk/breez_sdk.dart';
 
-class BitcoinWalletService extends WalletService<
+class LightningWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials> {
@@ -25,8 +26,8 @@ class BitcoinWalletService extends WalletService<
   WalletType getType() => WalletType.bitcoin;
 
   @override
-  Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials) async {
-    final wallet = await BitcoinWalletBase.create(
+  Future<LightningWallet> create(BitcoinNewWalletCredentials credentials) async {
+    final wallet = await LightningWalletBase.create(
         mnemonic: await generateMnemonic(),
         password: credentials.password!,
         walletInfo: credentials.walletInfo!,

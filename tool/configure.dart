@@ -7,6 +7,7 @@ const ethereumOutputPath = 'lib/ethereum/ethereum.dart';
 const bitcoinCashOutputPath = 'lib/bitcoin_cash/bitcoin_cash.dart';
 const nanoOutputPath = 'lib/nano/nano.dart';
 const polygonOutputPath = 'lib/polygon/polygon.dart';
+const lightningOutputPath = 'lib/lightning/lightning.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
 const pubspecOutputPath = 'pubspec.yaml';
@@ -21,6 +22,7 @@ Future<void> main(List<String> args) async {
   final hasNano = args.contains('${prefix}nano');
   final hasBanano = args.contains('${prefix}banano');
   final hasPolygon = args.contains('${prefix}polygon');
+  final hasLightning = args.contains('${prefix}lightning');
 
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
@@ -29,6 +31,7 @@ Future<void> main(List<String> args) async {
   await generateBitcoinCash(hasBitcoinCash);
   await generateNano(hasNano);
   await generatePolygon(hasPolygon);
+  await generateLightning(hasLightning);
   // await generateBanano(hasEthereum);
 
   await generatePubspec(
@@ -40,6 +43,7 @@ Future<void> main(List<String> args) async {
     hasBanano: hasBanano,
     hasBitcoinCash: hasBitcoinCash,
     hasPolygon: hasPolygon,
+    hasLightning: hasLightning,
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -696,6 +700,49 @@ abstract class Polygon {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateLightning(bool hasImplementation) async {
+  final outputFile = File(lightningOutputPath);
+  const lightningCommonHeaders = """
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+
+""";
+  const lightningCWHeaders = """
+
+
+""";
+  const lightningCwPart = "part 'cw_lightning.dart';";
+  const lightningContent = """
+abstract class Lightning {
+
+}
+  """;
+
+  const lightningEmptyDefinition = 'Lightning? lightning;\n';
+  const lightningCWDefinition = 'Lightning? lightning = CWLightning();\n';
+
+  final output = '$lightningCommonHeaders\n' +
+      (hasImplementation ? '$lightningCWHeaders\n' : '\n') +
+      (hasImplementation ? '$lightningCwPart\n\n' : '\n') +
+      (hasImplementation ? lightningCWDefinition : lightningEmptyDefinition) +
+      '\n' +
+      lightningContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generateBitcoinCash(bool hasImplementation) async {
   final outputFile = File(bitcoinCashOutputPath);
   const bitcoinCashCommonHeaders = """
@@ -893,7 +940,8 @@ Future<void> generatePubspec(
     required bool hasNano,
     required bool hasBanano,
     required bool hasBitcoinCash,
-    required bool hasPolygon}) async {
+    required bool hasPolygon,
+    required bool hasLightning}) async {
   const cwCore = """
   cw_core:
     path: ./cw_core
@@ -938,6 +986,10 @@ Future<void> generatePubspec(
   cw_evm:
     path: ./cw_evm
     """;
+  const cwLightning = """
+  cw_lightning:
+    path: ./cw_lightning
+    """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
@@ -980,6 +1032,10 @@ Future<void> generatePubspec(
 
   if (hasEthereum || hasPolygon) {
     output += '\n$cwEVM';
+  }
+
+  if (hasLightning) {
+    output += '\n$cwLightning';
   }
 
   final outputLines = output.split('\n');

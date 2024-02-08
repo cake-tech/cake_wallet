@@ -46,7 +46,10 @@ enum WalletType {
   bitcoinCash,
 
   @HiveField(9)
-  polygon
+  polygon,
+
+  @HiveField(10)
+  lightning
 }
 
 int serializeToInt(WalletType type) {
@@ -69,6 +72,8 @@ int serializeToInt(WalletType type) {
       return 7;
     case WalletType.polygon:
       return 8;
+    case WalletType.lightning:
+      return 9;
     default:
       return -1;
   }
@@ -94,6 +99,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.bitcoinCash;
     case 8:
       return WalletType.polygon;
+    case 9:
+      return WalletType.lightning;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
@@ -119,6 +126,8 @@ String walletTypeToString(WalletType type) {
       return 'Banano';
     case WalletType.polygon:
       return 'Polygon';
+    case WalletType.lightning:
+      return 'Lightning';
     default:
       return '';
   }
@@ -144,6 +153,8 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Banano (BAN)';
     case WalletType.polygon:
       return 'Polygon (MATIC)';
+    case WalletType.lightning:
+      return 'Bitcoin (Lightning)';
     default:
       return '';
   }
@@ -169,6 +180,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.banano;
     case WalletType.polygon:
       return CryptoCurrency.maticpoly;
+    case WalletType.lightning:
+      return CryptoCurrency.btc;
     default:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');

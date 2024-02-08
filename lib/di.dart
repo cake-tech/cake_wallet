@@ -863,6 +863,8 @@ Future<void> setup({
         return nano!.createNanoWalletService(_walletInfoSource);
       case WalletType.polygon:
         return polygon!.createPolygonWalletService(_walletInfoSource);
+      case WalletType.lightning:
+        return lightning!.createLightningWalletService(_walletInfoSource);
       default:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }
