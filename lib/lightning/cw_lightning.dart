@@ -158,10 +158,6 @@ class CWLightning extends Lightning {
 	WalletService createLightningWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
 		return LightningWalletService(walletInfoSource, unspentCoinSource);
 	}
-
-	WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
-		return LitecoinWalletService(walletInfoSource, unspentCoinSource);
-	}
   
   @override
   TransactionPriority getLightningTransactionPriorityMedium()

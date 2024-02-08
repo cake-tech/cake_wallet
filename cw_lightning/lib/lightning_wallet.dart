@@ -10,15 +10,15 @@ import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
-import 'package:cw_lightning/electrum_wallet.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_lightning/bitcoin_address_record.dart';
-import 'package:cw_lightning/electrum_balance.dart';
-import 'package:cw_lightning/bitcoin_wallet_addresses.dart';
+import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cw_lightning/.secrets.g.dart' as secrets;
 
-part 'bitcoin_wallet.g.dart';
+part 'lightning_wallet.g.dart';
 
 class LightningWallet = LightningWalletBase with _$LightningWallet;
 
@@ -60,7 +60,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     });
   }
 
-  static Future<BitcoinWallet> create(
+  static Future<LightningWallet> create(
       {required String mnemonic,
       required String password,
       required WalletInfo walletInfo,
@@ -69,7 +69,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       ElectrumBalance? initialBalance,
       int initialRegularAddressIndex = 0,
       int initialChangeAddressIndex = 0}) async {
-    return BitcoinWallet(
+    return LightningWallet(
         mnemonic: mnemonic,
         password: password,
         walletInfo: walletInfo,
@@ -81,14 +81,14 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         initialChangeAddressIndex: initialChangeAddressIndex);
   }
 
-  static Future<BitcoinWallet> open({
+  static Future<LightningWallet> open({
     required String name,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
     final snp = await ElectrumWallletSnapshot.load(name, walletInfo.type, password);
-    return BitcoinWallet(
+    return LightningWallet(
         mnemonic: snp.mnemonic,
         password: password,
         walletInfo: walletInfo,
@@ -98,25 +98,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
         initialRegularAddressIndex: snp.regularAddressIndex,
         initialChangeAddressIndex: snp.changeAddressIndex);
-  }
-
-  void printDirectoryTree(Directory directory, {String prefix = ''}) {
-    try {
-      final files = directory.listSync();
-      for (var i = 0; i < files.length; i++) {
-        final isLast = i == files.length - 1;
-        if (files[i] is File) {
-          print(
-              '${prefix}${isLast ? '└─' : '├─'} ${files[i].path.split(Platform.pathSeparator).last}');
-        } else if (files[i] is Directory) {
-          print(
-              '${prefix}${isLast ? '└─' : '├─'} ${files[i].path.split(Platform.pathSeparator).last}');
-          printDirectoryTree(files[i] as Directory, prefix: '${prefix}${isLast ? '   ' : '│  '}');
-        }
-      }
-    } catch (e) {
-      print('Error: $e');
-    }
   }
 
   Future<void> setupBreeze(Uint8List seedBytes) async {
@@ -135,8 +116,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       apiKey: secrets.breezApiKey,
       nodeConfig: breezNodeConfig,
     );
-
-    printDirectoryTree(Directory((await getApplicationDocumentsDirectory()).path));
+    
     // Customize the config object according to your needs
     String workingDir = (await getApplicationDocumentsDirectory()).path;
     workingDir = "$workingDir/wallets/bitcoin/${walletInfo.name}/breez/";

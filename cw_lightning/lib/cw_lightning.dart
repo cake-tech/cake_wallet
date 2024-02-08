@@ -1,4 +1,4 @@
-library cw_bitcoin;
+library cw_lightning;
 
 /// A Calculator.
 class Calculator {

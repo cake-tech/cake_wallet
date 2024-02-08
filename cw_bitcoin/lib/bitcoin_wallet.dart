@@ -52,9 +52,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
         networkType: networkType);
 
-    // initialize breeze:
-    setupBreeze(seedBytes);
-
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
@@ -98,52 +95,5 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
         initialRegularAddressIndex: snp.regularAddressIndex,
         initialChangeAddressIndex: snp.changeAddressIndex);
-  }
-
-  void printDirectoryTree(Directory directory, {String prefix = ''}) {
-    try {
-      final files = directory.listSync();
-      for (var i = 0; i < files.length; i++) {
-        final isLast = i == files.length - 1;
-        if (files[i] is File) {
-          print(
-              '${prefix}${isLast ? '└─' : '├─'} ${files[i].path.split(Platform.pathSeparator).last}');
-        } else if (files[i] is Directory) {
-          print(
-              '${prefix}${isLast ? '└─' : '├─'} ${files[i].path.split(Platform.pathSeparator).last}');
-          printDirectoryTree(files[i] as Directory, prefix: '${prefix}${isLast ? '   ' : '│  '}');
-        }
-      }
-    } catch (e) {
-      print('Error: $e');
-    }
-  }
-
-  Future<void> setupBreeze(Uint8List seedBytes) async {
-    // Initialize SDK logs listener
-    final sdk = BreezSDK();
-    sdk.initialize();
-
-    NodeConfig breezNodeConfig = NodeConfig.greenlight(
-      config: GreenlightNodeConfig(
-        partnerCredentials: null,
-        inviteCode: secrets.breezInviteCode,
-      ),
-    );
-    Config breezConfig = await sdk.defaultConfig(
-      envType: EnvironmentType.Production,
-      apiKey: secrets.breezApiKey,
-      nodeConfig: breezNodeConfig,
-    );
-
-    printDirectoryTree(Directory((await getApplicationDocumentsDirectory()).path));
-    // Customize the config object according to your needs
-    String workingDir = (await getApplicationDocumentsDirectory()).path;
-    workingDir = "$workingDir/wallets/bitcoin/${walletInfo.name}/breez/";
-    new Directory(workingDir).createSync(recursive: true);
-    breezConfig = breezConfig.copyWith(workingDir: workingDir);
-    await sdk.connect(config: breezConfig, seed: seedBytes);
-
-    print("initialized: ${(await sdk.isInitialized())}");
   }
 }

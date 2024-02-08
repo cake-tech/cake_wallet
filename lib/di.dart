@@ -15,6 +15,7 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
@@ -864,7 +865,7 @@ Future<void> setup({
       case WalletType.polygon:
         return polygon!.createPolygonWalletService(_walletInfoSource);
       case WalletType.lightning:
-        return lightning!.createLightningWalletService(_walletInfoSource);
+        return lightning!.createLightningWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       default:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }
