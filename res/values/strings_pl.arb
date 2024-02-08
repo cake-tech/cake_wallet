@@ -206,6 +206,7 @@
   "edit_token": "Edytuj token",
   "electrum_address_disclaimer": "Za każdym razem, gdy wykorzystasz adres, dla wiekszej prywatności generujemy nowy, ale poprzednie adresy nadal działają, i moga odbierać środki",
   "email_address": "Adres e-mail",
+  "enable_replace_by_fee": "Włącz wymianę po lewej",
   "enabled": "Włączone",
   "enter_amount": "Wprowadź kwotę",
   "enter_backup_password": "Wprowadź tutaj hasło kopii zapasowej",

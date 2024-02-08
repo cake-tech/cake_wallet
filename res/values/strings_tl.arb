@@ -206,6 +206,7 @@
   "edit_token": "I -edit ang token",
   "electrum_address_disclaimer": "Bumubuo kami ng mga bagong address sa tuwing gumagamit ka ng isa, ngunit ang mga nakaraang address ay patuloy na gumagana",
   "email_address": "Email address",
+  "enable_replace_by_fee": "Paganahin ang palitan-by-fee",
   "enabled": "Pinagana",
   "enter_amount": "Ipasok ang halaga",
   "enter_backup_password": "Ipasok ang backup password dito",

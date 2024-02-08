@@ -206,6 +206,7 @@
   "edit_token": "Editar símbolo",
   "electrum_address_disclaimer": "Geramos novos endereços cada vez que você usa um, mas os endereços anteriores continuam funcionando",
   "email_address": "Endereço de e-mail",
+  "enable_replace_by_fee": "Habilite substituir por taxa",
   "enabled": "Habilitado",
   "enter_amount": "Digite o valor",
   "enter_backup_password": "Digite a senha de backup aqui",

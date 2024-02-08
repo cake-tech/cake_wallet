@@ -206,6 +206,7 @@
   "edit_token": "Edit token",
   "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work",
   "email_address": "Email Address",
+  "enable_replace_by_fee": "Enable Replace-By-Fee",
   "enabled": "Enabled",
   "enter_amount": "Enter Amount",
   "enter_backup_password": "Enter backup password here",

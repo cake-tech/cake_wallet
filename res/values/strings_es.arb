@@ -206,6 +206,7 @@
   "edit_token": "Editar token",
   "electrum_address_disclaimer": "Generamos nuevas direcciones cada vez que usa una, pero las direcciones anteriores siguen funcionando",
   "email_address": "Dirección de correo electrónico",
+  "enable_replace_by_fee": "Habilitar reemplazar por tarea",
   "enabled": "Activado",
   "enter_amount": "Ingrese la cantidad",
   "enter_backup_password": "Ingrese la contraseña de respaldo aquí",

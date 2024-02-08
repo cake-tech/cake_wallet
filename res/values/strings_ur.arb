@@ -206,6 +206,7 @@
   "edit_token": "ٹوکن میں ترمیم کریں۔",
   "electrum_address_disclaimer": "جب بھی آپ ایک کا استعمال کرتے ہیں تو ہم نئے پتے تیار کرتے ہیں، لیکن پچھلے پتے کام کرتے رہتے ہیں۔",
   "email_address": "ای میل اڈریس",
+  "enable_replace_by_fee": "فی فیس کو تبدیل کریں",
   "enabled": "فعال",
   "enter_amount": "رقم درج کریں۔",
   "enter_backup_password": "یہاں بیک اپ پاس ورڈ درج کریں۔",

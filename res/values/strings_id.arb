@@ -206,6 +206,7 @@
   "edit_token": "Mengedit token",
   "electrum_address_disclaimer": "Kami menghasilkan alamat baru setiap kali Anda menggunakan satu, tetapi alamat sebelumnya tetap berfungsi",
   "email_address": "Alamat Email",
+  "enable_replace_by_fee": "Aktifkan ganti-by-fee",
   "enabled": "Diaktifkan",
   "enter_amount": "Masukkan Jumlah",
   "enter_backup_password": "Masukkan kata sandi cadangan di sini",

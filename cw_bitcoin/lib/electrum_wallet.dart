@@ -558,6 +558,42 @@ abstract class ElectrumWalletBase
     }
   }
 
+  Future<void> replaceByFee(String hash, int newFee) async {
+    final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
+    final transactionHex = verboseTransaction['hex'] as String;
+    final original = bitcoin.Transaction.fromHex(transactionHex);
+
+    print("@@@@@@@@@@@@@@@");
+    print(transactionHex);
+    print(original.toHex());
+
+    int remainingFee = newFee;
+
+    for (int i = original.outs.length - 1; i >= 0; i--) {
+      if (original.outs[i].value == null) {
+        continue;
+      }
+
+      // check if the amount is larger than the new fee
+      // TODO: currently it deducts the new fee while the old fee is still there
+      // TODO: remove the old fee and deduct the new fee
+      if (original.outs[i].value! >= remainingFee) {
+        original.outs[i].value = original.outs[i].value! - remainingFee;
+      } else {
+        original.outs[i].value = 0;
+      }
+
+      remainingFee -= original.outs[i].value!;
+
+      if (remainingFee <= 0) {
+        break;
+      }
+    }
+
+    print("@@@@@@@@@@@@@@@");
+    print(original.toHex());
+  }
+
   Future<ElectrumTransactionBundle> getTransactionExpanded(
       {required String hash, required int height}) async {
     final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);

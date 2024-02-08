@@ -206,6 +206,7 @@
   "edit_token": "Gyara alamar",
   "electrum_address_disclaimer": "Muna samar da sababbin adireshi duk lokacin da kuka yi amfani da ɗaya, amma adiresoshin da suka gabata suna ci gaba da aiki",
   "email_address": "Adireshin i-mel",
+  "enable_replace_by_fee": "Ba da damar maye gurbin-by-kudin",
   "enabled": "An kunna",
   "enter_amount": "Shigar da Adadi",
   "enter_backup_password": "Shigar da kalmar wucewa ta madadin nan",
