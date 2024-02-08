@@ -65,7 +65,7 @@ class CWBitcoin extends Bitcoin {
 	@override
 	Future<void> generateNewAddress(Object wallet, String label) async {
 		final bitcoinWallet = wallet as ElectrumWallet;
-		await bitcoinWallet.walletAddresses.generateNewAddress(label: label);
+		await bitcoinWallet.walletAddresses.generateNewAddress(label: label, hd: bitcoinWallet.hd);
 		await wallet.save();
 	}
 

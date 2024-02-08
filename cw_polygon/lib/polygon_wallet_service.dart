@@ -42,16 +42,31 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
   Future<PolygonWallet> openWallet(String name, String password) async {
     final walletInfo =
         walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-    final wallet = await PolygonWallet.open(
-      name: name,
-      password: password,
-      walletInfo: walletInfo,
-    );
 
-    await wallet.init();
-    await wallet.save();
+    try {
+      final wallet = await PolygonWallet.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
 
-    return wallet;
+      await wallet.init();
+      await wallet.save();
+      saveBackup(name);
+      return wallet;
+    } catch (_) {
+      await restoreWalletFilesFromBackup(name);
+
+      final wallet = await PolygonWallet.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
+      
+      await wallet.init();
+      await wallet.save();
+      return wallet;
+    }
   }
 
   @override
@@ -100,6 +115,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
         password: password, name: currentName, walletInfo: currentWalletInfo);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
