@@ -507,20 +507,20 @@ abstract class ElectrumWalletBase
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
   Future<void> updateUnspent() async {
-    final unspent = await Future.wait(walletAddresses.allAddresses.map((address) => electrumClient
+    List<BitcoinUnspent> updatedUnspentCoins = [];
+
+    await Future.wait(walletAddresses.allAddresses.map((address) => electrumClient
         .getListUnspentWithAddress(address.address, network)
-        .then((unspent) => unspent.map((unspent) {
+        .then((unspent) => Future.forEach<Map<String, dynamic>>(unspent, (unspent) async {
               try {
-                return BitcoinUnspent.fromJSON(address, unspent);
-              } catch (_) {
-                return null;
-              }
-            }).whereNotNull())));
-    unspentCoins = unspent.expand((e) => e).toList();
-    unspentCoins.forEach((coin) async {
-      final tx = await fetchTransactionInfo(hash: coin.hash, height: 0);
-      coin.isChange = tx?.direction == TransactionDirection.outgoing;
-    });
+                final coin = BitcoinUnspent.fromJSON(address, unspent);
+                final tx = await fetchTransactionInfo(hash: coin.hash, height: 0);
+                coin.isChange = tx?.direction == TransactionDirection.outgoing;
+                updatedUnspentCoins.add(coin);
+              } catch (_) {}
+            }))));
+
+    unspentCoins = updatedUnspentCoins;
 
     if (unspentCoinsInfo.isEmpty) {
       unspentCoins.forEach((coin) => _addCoinInfo(coin));
