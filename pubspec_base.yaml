@@ -105,6 +105,7 @@ dependencies:
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
   polyseed: ^0.0.2
+  nostr_tools: ^1.0.9
 
 dev_dependencies:
   flutter_test:
@@ -122,6 +123,11 @@ dev_dependencies:
     git:
       url: https://github.com/cake-tech/google-translator.git
       version: 1.0.0
+
+dependency_overrides:
+  bech32:
+    git:
+      url: https://github.com/cake-tech/bech32.git
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

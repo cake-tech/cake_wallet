@@ -1,13 +1,15 @@
+import 'dart:developer';
+
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
 
-part 'ethereum_wallet_addresses.g.dart';
+part 'evm_chain_wallet_addresses.g.dart';
 
-class EthereumWalletAddresses = EthereumWalletAddressesBase with _$EthereumWalletAddresses;
+class EVMChainWalletAddresses = EVMChainWalletAddressesBase with _$EVMChainWalletAddresses;
 
-abstract class EthereumWalletAddressesBase extends WalletAddresses with Store {
-  EthereumWalletAddressesBase(WalletInfo walletInfo)
+abstract class EVMChainWalletAddressesBase extends WalletAddresses with Store {
+  EVMChainWalletAddressesBase(WalletInfo walletInfo)
       : address = '',
         super(walletInfo);
 
@@ -27,7 +29,7 @@ abstract class EthereumWalletAddressesBase extends WalletAddresses with Store {
       addressesMap[address] = '';
       await saveAddressesInBox();
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
     }
   }
 }
