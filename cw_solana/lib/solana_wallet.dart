@@ -272,12 +272,13 @@ abstract class SolanaWalletBase
         to: transactionModel.to,
         from: transactionModel.from,
         blockTime: transactionModel.blockTime,
-        direction: transactionModel.isIncomingTransaction
-            ? TransactionDirection.incoming
-            : TransactionDirection.outgoing,
+        direction: transactionModel.isOutgoingTx
+            ? TransactionDirection.outgoing
+            : TransactionDirection.incoming,
         solAmount: transactionModel.amount,
         isPending: false,
         txFee: transactionModel.fee,
+        tokenSymbol: transactionModel.tokenSymbol,
       );
     }
 
@@ -340,7 +341,6 @@ abstract class SolanaWalletBase
 
   Future<void> _updateBalance() async {
     balance[currency] = await _fetchSOLBalance();
-
     await _fetchSPLTokensBalances();
     await save();
   }
@@ -353,13 +353,19 @@ abstract class SolanaWalletBase
 
   Future<void> _fetchSPLTokensBalances() async {
     for (var token in splTokensBox.values) {
-      try {
-        if (token.enabled) {
-          balance[token] = await _client.getSplTokenBalance(token.mintAddress, _wallet!.address);
-        } else {
-          balance.remove(token);
+      if (token.enabled) {
+        try {
+          final tokenBalance =
+              await _client.getSplTokenBalance(token.mintAddress, _wallet!.address) ??
+                  balance[token] ??
+                  SolanaBalance(0.0);
+          balance[token] = tokenBalance;
+        } catch (e) {
+          print('Error fetching spl token (${token.symbol}) balance ${e.toString()}');
         }
-      } catch (_) {}
+      } else {
+        balance.remove(token);
+      }
     }
   }
 
@@ -379,7 +385,11 @@ abstract class SolanaWalletBase
     await splTokensBox.put(token.mintAddress, token);
 
     if (token.enabled) {
-      balance[token] = await _client.getSplTokenBalance(token.mintAddress, _wallet!.address);
+      final tokenBalance = await _client.getSplTokenBalance(token.mintAddress, _wallet!.address) ??
+          balance[token] ??
+          SolanaBalance(0.0);
+
+      balance[token] = tokenBalance;
     } else {
       balance.remove(token);
     }

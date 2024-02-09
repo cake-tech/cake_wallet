@@ -38,7 +38,7 @@ class SolanaTransactionInfo extends TransactionInfo {
     if (stringBalance.toString().length >= 6) {
       stringBalance = stringBalance.substring(0, 6);
     }
-    return stringBalance;
+    return '$stringBalance $tokenSymbol';
   }
 
   @override

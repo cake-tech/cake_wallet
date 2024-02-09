@@ -7,8 +7,8 @@ class SolanaTransactionModel {
 
   final double amount;
 
-  // Was the account of this transaction the same as the destination
-  final bool isIncomingTransaction;
+  // If this is an outgoing transaction
+  final bool isOutgoingTx;
 
   // The Program ID of this transaction, e.g, System Program, Token Program...
   final String programId;
@@ -16,8 +16,11 @@ class SolanaTransactionModel {
   // The DateTime from the UNIX timestamp of the block where the transaction was included
   final DateTime blockTime;
 
-// The Transaction fee
+  // The Transaction fee
   final double fee;
+
+  // The token symbol
+  final String tokenSymbol;
 
   SolanaTransactionModel({
     required this.id,
@@ -26,7 +29,8 @@ class SolanaTransactionModel {
     required this.amount,
     required this.programId,
     required int blockTimeInInt,
-    this.isIncomingTransaction = false,
+    this.isOutgoingTx = false,
+    required this.tokenSymbol,
     required this.fee,
   }) : blockTime = DateTime.fromMillisecondsSinceEpoch(blockTimeInInt * 1000);
 
@@ -38,5 +42,6 @@ class SolanaTransactionModel {
         amount: double.parse(json["value"]),
         programId: json["programId"],
         fee: json['fee'],
+        tokenSymbol: json['tokenSymbol'],
       );
 }

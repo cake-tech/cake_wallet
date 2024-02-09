@@ -218,15 +218,9 @@ abstract class OutputBase with Store {
     try {
       final crypto = double.parse(fiatAmount.replaceAll(',', '.')) /
           _fiatConversationStore.prices[cryptoCurrencyHandler()]!;
-
-      //TODO(David): Dive deeper into this and see if the switch can be removed.
-      if (walletType != WalletType.solana) {
-        final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
-        if (cryptoAmount != cryptoAmountTmp) {
-          cryptoAmount = cryptoAmountTmp;
-        }
-      } else {
-        cryptoAmount = crypto.toStringAsFixed(10);
+      final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
+      if (cryptoAmount != cryptoAmountTmp) {
+        cryptoAmount = cryptoAmountTmp;
       }
     } catch (e) {
       cryptoAmount = '';
@@ -254,6 +248,9 @@ abstract class OutputBase with Store {
         break;
       case WalletType.ethereum:
       case WalletType.polygon:
+        maximumFractionDigits = 12;
+        break;
+      case WalletType.solana:
         maximumFractionDigits = 12;
         break;
       default:

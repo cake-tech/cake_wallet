@@ -107,6 +107,8 @@ class TransactionListItem extends ActionListItem with Keyable {
             price: price);
         break;
       case WalletType.solana:
+        final asset = solana!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
           cryptoAmount: solana!.getTransactionAmountRaw(transaction),
           price: price,

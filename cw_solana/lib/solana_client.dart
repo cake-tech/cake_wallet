@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_solana/default_spl_tokens.dart';
 import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
@@ -55,13 +56,13 @@ class SolanaWalletClient {
     }
   }
 
-  Future<SolanaBalance> getSplTokenBalance(String mintAddress, String publicKey) async {
+  Future<SolanaBalance?> getSplTokenBalance(String mintAddress, String publicKey) async {
     // Fetch the token accounts (a token can have multiple accounts for various uses)
     final tokenAccounts = await getSPLTokenAccounts(mintAddress, publicKey);
 
     // Handle scenario where there is no token account
     if (tokenAccounts == null || tokenAccounts.value.isEmpty) {
-      return SolanaBalance(0.0);
+      return null;
     }
 
     // Sum the balances of all accounts with the specified mint address
@@ -77,7 +78,7 @@ class SolanaWalletClient {
 
       totalBalance += balanceAsDouble;
     }
-
+    
     return SolanaBalance(totalBalance);
   }
 
@@ -105,6 +106,7 @@ class SolanaWalletClient {
         if (tx.transaction is ParsedTransaction) {
           final parsedTx = (tx.transaction as ParsedTransaction);
           final message = parsedTx.message;
+
           final fee = (tx.meta?.fee ?? 0) / lamportsPerSol;
 
           for (final instruction in message.instructions) {
@@ -114,7 +116,7 @@ class SolanaWalletClient {
                   data.parsed.map(
                     transfer: (data) {
                       ParsedSystemTransferInformation transfer = data.info;
-                      bool receivedOrNot = transfer.destination == address.toBase58();
+                      bool isOutgoingTx = transfer.source == address.toBase58();
                       double amount = transfer.lamports.toDouble() / lamportsPerSol;
 
                       transactions.add(
@@ -123,10 +125,11 @@ class SolanaWalletClient {
                           from: transfer.source,
                           to: transfer.destination,
                           amount: amount,
-                          isIncomingTransaction: receivedOrNot,
-                          programId: SystemProgram.programId,
+                          isOutgoingTx: isOutgoingTx,
                           blockTimeInInt: tx.blockTime!,
                           fee: fee,
+                          programId: SystemProgram.programId,
+                          tokenSymbol: 'SOL',
                         ),
                       );
                     },
@@ -136,24 +139,32 @@ class SolanaWalletClient {
                 },
                 splToken: (data) {
                   data.parsed.map(
-                    transfer: (data) {
-                      SplTokenTransferInfo transfer = data.info;
-                      bool receivedOrNot = transfer.destination == address.toBase58();
-                      double amount = double.tryParse(transfer.amount) ?? 0.0;
+                    transfer: (data) {},
+                    transferChecked: (data) {
+                      final mintAddress = tx.meta?.postTokenBalances.first.mint ?? '';
+                      final tokens = DefaultSPLTokens().initialSPLTokens;
+                      final tokenSymbol =
+                          tokens.firstWhere((token) => token.mintAddress == mintAddress).symbol;
+
+                      SplTokenTransferCheckedInfo transfer = data.info;
+                      bool outgoingTx = transfer.source == address.toBase58();
+                      double amount =
+                          double.tryParse(transfer.tokenAmount.uiAmountString ?? '0.0') ?? 0.0;
+
                       transactions.add(
                         SolanaTransactionModel(
-                          fee: fee,
                           id: parsedTx.signatures.first,
+                          fee: fee,
                           from: transfer.source,
                           to: transfer.destination,
                           amount: amount,
-                          isIncomingTransaction: receivedOrNot,
+                          isOutgoingTx: outgoingTx,
                           programId: TokenProgram.programId,
                           blockTimeInInt: tx.blockTime!,
+                          tokenSymbol: tokenSymbol,
                         ),
                       );
                     },
-                    transferChecked: (data) {},
                     generic: (data) {},
                   );
                 },
