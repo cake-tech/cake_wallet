@@ -1,4 +1,5 @@
-List previously used Bitcoin addresses
-Security and Privacy enhancements
-Usability enhancements
+Bitcoin transactions fixes and enhancements
+EVM wallets enhancements (Ethereum and Polygon)
+Improve wallet recovery and error tolerance
+Enhance Background sync for Monero wallets
 Bug fixes
