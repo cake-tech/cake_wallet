@@ -45,13 +45,25 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
   Future<BitcoinWallet> openWallet(String name, String password) async {
     final walletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
-    final wallet = await BitcoinWalletBase.open(
-        password: password,
-        name: name,
-        walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource);
-    await wallet.init();
-    return wallet;
+    try {
+      final wallet = await BitcoinWalletBase.open(
+          password: password,
+          name: name,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfoSource);
+      await wallet.init();
+      saveBackup(name);
+      return wallet;
+    } catch (_) {
+      await restoreWalletFilesFromBackup(name);
+      final wallet = await BitcoinWalletBase.open(
+          password: password,
+          name: name,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfoSource);
+      await wallet.init();
+      return wallet;
+    }
   }
 
   @override
@@ -73,6 +85,7 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
         unspentCoinsInfo: unspentCoinsInfoSource);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());

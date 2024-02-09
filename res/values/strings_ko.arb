@@ -189,6 +189,8 @@
   "disable_exchange": "교환 비활성화",
   "disable_fiat": "법정화폐 비활성화",
   "disable_sell": "판매 조치 비활성화",
+  "disableBatteryOptimization": "배터리 최적화를 비활성화합니다",
+  "disableBatteryOptimizationDescription": "백그라운드 동기화를보다 자유롭고 매끄럽게 실행하기 위해 배터리 최적화를 비활성화하고 싶습니까?",
   "disabled": "장애가 있는",
   "discount": "${value}% 절약",
   "display_settings": "디스플레이 설정",

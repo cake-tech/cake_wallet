@@ -163,6 +163,7 @@ class HavenWalletService extends WalletService<
     final currentWallet = HavenWallet(walletInfo: currentWalletInfo);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());

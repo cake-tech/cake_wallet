@@ -189,6 +189,8 @@
   "disable_exchange": "交換を無効にする",
   "disable_fiat": "フィアットを無効にする",
   "disable_sell": "販売アクションを無効にする",
+  "disableBatteryOptimization": "バッテリーの最適化を無効にします",
+  "disableBatteryOptimizationDescription": "バックグラウンドシンクをより自由かつスムーズに実行するために、バッテリーの最適化を無効にしたいですか？",
   "disabled": "無効",
   "discount": "${value}％を節約",
   "display_settings": "表示設定",

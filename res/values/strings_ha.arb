@@ -189,6 +189,8 @@
   "disable_exchange": "Kashe musanya",
   "disable_fiat": "Dakatar da fiat",
   "disable_sell": "Kashe karbuwa",
+  "disableBatteryOptimization": "Kashe ingantawa baturi",
+  "disableBatteryOptimizationDescription": "Shin kana son kashe ingantawa baturi don yin setnc bankwali gudu da yar kyauta da kyau?",
   "disabled": "tsaya",
   "discount": "Ajiye ${value}%",
   "display_settings": "Nuni saituna",

@@ -189,6 +189,8 @@
   "disable_exchange": "Zakázat směnárny",
   "disable_fiat": "Zakázat fiat",
   "disable_sell": "Zakázat akci prodeje",
+  "disableBatteryOptimization": "Zakázat optimalizaci baterie",
+  "disableBatteryOptimizationDescription": "Chcete deaktivovat optimalizaci baterie, aby se synchronizovala pozadí volně a hladce?",
   "disabled": "Zakázáno",
   "discount": "Ušetříte ${value}%",
   "display_settings": "Nastavení zobrazení",

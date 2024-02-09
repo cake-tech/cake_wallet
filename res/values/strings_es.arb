@@ -189,6 +189,8 @@
   "disable_exchange": "Deshabilitar intercambio",
   "disable_fiat": "Deshabilitar fiat",
   "disable_sell": "Desactivar acción de venta",
+  "disableBatteryOptimization": "Deshabilitar la optimización de la batería",
+  "disableBatteryOptimizationDescription": "¿Desea deshabilitar la optimización de la batería para que la sincronización de fondo se ejecute más libremente y sin problemas?",
   "disabled": "Desactivado",
   "discount": "Ahorra ${value}%",
   "display_settings": "Configuración de pantalla",

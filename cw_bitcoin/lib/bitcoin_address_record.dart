@@ -40,7 +40,7 @@ class BitcoinAddressRecord {
   bool operator ==(Object o) => o is BitcoinAddressRecord && address == o.address;
 
   final String address;
-  final bool isHidden;
+  bool isHidden;
   final int index;
   int _txCount;
   int _balance;

@@ -189,6 +189,8 @@
   "disable_exchange": "Wyłącz wymianę",
   "disable_fiat": "Wyłącz waluty FIAT",
   "disable_sell": "Wyłącz akcję sprzedaży",
+  "disableBatteryOptimization": "Wyłącz optymalizację baterii",
+  "disableBatteryOptimizationDescription": "Czy chcesz wyłączyć optymalizację baterii, aby synchronizacja tła działała swobodniej i płynnie?",
   "disabled": "Wyłączone",
   "discount": "Zaoszczędź ${value}%",
   "display_settings": "Ustawienia wyświetlania",
