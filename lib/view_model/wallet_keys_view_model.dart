@@ -165,6 +165,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'banano-wallet';
       case WalletType.polygon:
         return 'polygon-wallet';
+      case WalletType.lightning:
+        return 'lightning-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
     }

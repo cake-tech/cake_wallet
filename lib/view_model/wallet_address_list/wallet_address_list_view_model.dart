@@ -237,6 +237,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       return BitcoinURI(amount: amount, address: address.address);
     }
 
+    if (wallet.type == WalletType.lightning) {
+      // TODO: CW-563
+      return BitcoinURI(amount: amount, address: address.address);
+    }
+
     if (wallet.type == WalletType.litecoin) {
       return LitecoinURI(amount: amount, address: address.address);
     }

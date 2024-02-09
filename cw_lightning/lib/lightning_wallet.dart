@@ -101,29 +101,29 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> setupBreeze(Uint8List seedBytes) async {
-    // Initialize SDK logs listener
-    final sdk = BreezSDK();
-    sdk.initialize();
+    // // Initialize SDK logs listener
+    // final sdk = BreezSDK();
+    // sdk.initialize();
 
-    NodeConfig breezNodeConfig = NodeConfig.greenlight(
-      config: GreenlightNodeConfig(
-        partnerCredentials: null,
-        inviteCode: secrets.breezInviteCode,
-      ),
-    );
-    Config breezConfig = await sdk.defaultConfig(
-      envType: EnvironmentType.Production,
-      apiKey: secrets.breezApiKey,
-      nodeConfig: breezNodeConfig,
-    );
+    // NodeConfig breezNodeConfig = NodeConfig.greenlight(
+    //   config: GreenlightNodeConfig(
+    //     partnerCredentials: null,
+    //     inviteCode: secrets.breezInviteCode,
+    //   ),
+    // );
+    // Config breezConfig = await sdk.defaultConfig(
+    //   envType: EnvironmentType.Production,
+    //   apiKey: secrets.breezApiKey,
+    //   nodeConfig: breezNodeConfig,
+    // );
     
-    // Customize the config object according to your needs
-    String workingDir = (await getApplicationDocumentsDirectory()).path;
-    workingDir = "$workingDir/wallets/bitcoin/${walletInfo.name}/breez/";
-    new Directory(workingDir).createSync(recursive: true);
-    breezConfig = breezConfig.copyWith(workingDir: workingDir);
-    await sdk.connect(config: breezConfig, seed: seedBytes);
+    // // Customize the config object according to your needs
+    // String workingDir = (await getApplicationDocumentsDirectory()).path;
+    // workingDir = "$workingDir/wallets/lightning/${walletInfo.name}/breez/";
+    // new Directory(workingDir).createSync(recursive: true);
+    // breezConfig = breezConfig.copyWith(workingDir: workingDir);
+    // await sdk.connect(config: breezConfig, seed: seedBytes);
 
-    print("initialized: ${(await sdk.isInitialized())}");
+    // print("initialized: ${(await sdk.isInitialized())}");
   }
 }
