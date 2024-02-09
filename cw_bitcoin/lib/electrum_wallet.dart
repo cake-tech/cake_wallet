@@ -157,7 +157,7 @@ abstract class ElectrumWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
-      await walletAddresses.discoverAddresses();
+      await walletAddresses.discoverAddressesAll();
       await updateTransactions();
       _subscribeForUpdates();
       await updateUnspent();
@@ -849,6 +849,8 @@ class EstimatedTxResult {
 BitcoinBaseAddress _addressTypeFromStr(String address, BasedUtxoNetwork network) {
   if (P2pkhAddress.regex.hasMatch(address)) {
     return P2pkhAddress.fromAddress(address: address, network: network);
+  } else if (P2shAddress.regex.hasMatch(address)) {
+    return P2shAddress.fromAddress(address: address, network: network);
   } else if (P2wshAddress.regex.hasMatch(address)) {
     return P2wshAddress.fromAddress(address: address, network: network);
   } else if (P2trAddress.regex.hasMatch(address)) {
@@ -861,6 +863,8 @@ BitcoinBaseAddress _addressTypeFromStr(String address, BasedUtxoNetwork network)
 BitcoinAddressType _getScriptType(BitcoinBaseAddress type) {
   if (type is P2pkhAddress) {
     return P2pkhAddressType.p2pkh;
+  } else if (type is P2shAddress) {
+    return P2shAddressType.p2wpkhInP2sh;
   } else if (type is P2wshAddress) {
     return SegwitAddresType.p2wsh;
   } else if (type is P2trAddress) {

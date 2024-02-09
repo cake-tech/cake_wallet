@@ -11,6 +11,8 @@ String addressFromOutputScript(Script script, BasedUtxoNetwork network) {
         return P2shAddress.fromScriptPubkey(script: script).toAddress(network);
       case SegwitAddresType.p2wpkh:
         return P2wpkhAddress.fromScriptPubkey(script: script).toAddress(network);
+      case P2shAddressType.p2pkhInP2sh:
+        return P2shAddress.fromScriptPubkey(script: script).toAddress(network);
       case SegwitAddresType.p2wsh:
         return P2wshAddress.fromScriptPubkey(script: script).toAddress(network);
       case SegwitAddresType.p2tr:

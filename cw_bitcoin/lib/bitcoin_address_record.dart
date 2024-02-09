@@ -12,7 +12,7 @@ class BitcoinAddressRecord {
     int balance = 0,
     String name = '',
     bool isUsed = false,
-    this.type,
+    required this.type,
   })  : _txCount = txCount,
         _balance = balance,
         _name = name,
@@ -32,7 +32,7 @@ class BitcoinAddressRecord {
       type: decoded['type'] != null && decoded['type'] != ''
           ? BitcoinAddressType.values
               .firstWhere((type) => type.toString() == decoded['type'] as String)
-          : null,
+          : SegwitAddresType.p2wpkh,
     );
   }
 
@@ -67,7 +67,7 @@ class BitcoinAddressRecord {
 
   String get cashAddr => bitbox.Address.toCashAddress(address);
 
-  BitcoinAddressType? type;
+  BitcoinAddressType type;
 
   String toJSON() => json.encode({
         'address': address,
@@ -77,6 +77,6 @@ class BitcoinAddressRecord {
         'txCount': txCount,
         'name': name,
         'balance': balance,
-        'type': type?.toString() ?? '',
+        'type': type.toString(),
       });
 }

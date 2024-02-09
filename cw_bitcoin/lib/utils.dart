@@ -16,6 +16,10 @@ String generateP2WPKHAddress(
         {required bitcoin.HDWallet hd, required int index, required BasedUtxoNetwork network}) =>
     ECPublic.fromHex(hd.derive(index).pubKey!).toP2wpkhAddress().toAddress(network);
 
+String generateP2SHAddress(
+        {required bitcoin.HDWallet hd, required int index, required BasedUtxoNetwork network}) =>
+    ECPublic.fromHex(hd.derive(index).pubKey!).toP2wpkhInP2sh().toAddress(network);
+
 String generateP2WSHAddress(
         {required bitcoin.HDWallet hd, required int index, required BasedUtxoNetwork network}) =>
     ECPublic.fromHex(hd.derive(index).pubKey!).toP2wshAddress().toAddress(network);

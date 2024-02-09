@@ -233,6 +233,9 @@ class AddressPage extends BasePage {
         case BitcoinReceivePageOption.p2pkh:
           addressListViewModel.setAddressType(P2pkhAddressType.p2pkh);
           break;
+        case BitcoinReceivePageOption.p2sh:
+          addressListViewModel.setAddressType(P2shAddressType.p2wpkhInP2sh);
+          break;
         case BitcoinReceivePageOption.p2wpkh:
           addressListViewModel.setAddressType(SegwitAddresType.p2wpkh);
           break;
