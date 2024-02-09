@@ -100,43 +100,68 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                 child: Text(
                   S.of(context).connect_your_hardware_wallet,
                   style: TextStyle(
-                    fontSize: 16,
+                      fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor
-                  ),
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                   textAlign: TextAlign.center,
                 ),
               ),
-              ...bleDevices
-                  .map(
-                    (device) => Padding(
-                      padding: EdgeInsets.only(bottom: 20),
-                      child: DeviceTile(
-                        onPressed: () => _connectToDevice(device),
-                        title: device.name,
-                        leading: imageLedger,
-                        connectionType: device.connectionType,
-                      ),
+              if (bleDevices.length > 0) ...[
+                Padding(
+                  padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                  child: Container(
+                    width: double.infinity,
+                    child: Text(
+                      "Bluetooth",
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                     ),
-                  )
-                  .toList(),
-              Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Text(""),
-              ),
-              ...usbDevices
-                  .map(
-                    (device) => Padding(
-                      padding: EdgeInsets.only(bottom: 20),
-                      child: DeviceTile(
-                        onPressed: () => _connectToDevice(device),
-                        title: device.name,
-                        leading: imageLedger,
-                        connectionType: device.connectionType,
+                  ),
+                ),
+                ...bleDevices
+                    .map(
+                      (device) => Padding(
+                        padding: EdgeInsets.only(bottom: 20),
+                        child: DeviceTile(
+                          onPressed: () => _connectToDevice(device),
+                          title: device.name,
+                          leading: imageLedger,
+                          connectionType: device.connectionType,
+                        ),
                       ),
+                    )
+                    .toList()
+              ],
+              if (usbDevices.length > 0) ...[
+                Padding(
+                  padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                  child: Container(
+                    width: double.infinity,
+                    child: Text(
+                      "USB",
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                     ),
-                  )
-                  .toList(),
+                  ),
+                ),
+                ...usbDevices
+                    .map(
+                      (device) => Padding(
+                        padding: EdgeInsets.only(bottom: 20),
+                        child: DeviceTile(
+                          onPressed: () => _connectToDevice(device),
+                          title: device.name,
+                          leading: imageLedger,
+                          connectionType: device.connectionType,
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ]
             ],
           ),
         ),
