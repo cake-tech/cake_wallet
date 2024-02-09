@@ -33,7 +33,7 @@ class BitcoinReceivePageOption implements ReceivePageOption {
       case P2pkhAddressType.p2pkh:
         return BitcoinReceivePageOption.p2pkh;
       case P2shAddressType.p2wpkhInP2sh:
-        return BitcoinReceivePageOption.p2pkh;
+        return BitcoinReceivePageOption.p2sh;
       case SegwitAddresType.p2wpkh:
       default:
         return BitcoinReceivePageOption.p2wpkh;
