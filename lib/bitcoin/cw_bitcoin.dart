@@ -180,9 +180,16 @@ class CWBitcoin extends Bitcoin {
   TransactionPriority getLitecoinTransactionPrioritySlow()
     => LitecoinTransactionPriority.slow;
 
+	@override
 	Future<void> replaceByFee(Object wallet, String transactionHash, String fee) async {
 		final bitcoinWallet = wallet as ElectrumWallet;
 		final formattedFee = stringDoubleToBitcoinAmount(fee);
 		await bitcoinWallet.replaceByFee(transactionHash, formattedFee);
+	}
+
+	@override
+	Future<bool> canReplaceByFee(Object wallet, String transactionHash) async {
+		final bitcoinWallet = wallet as ElectrumWallet;
+		return bitcoinWallet.canReplaceByFee(transactionHash);
 	}
 }

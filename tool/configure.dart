@@ -134,6 +134,9 @@ abstract class Bitcoin {
   TransactionPriority getLitecoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPrioritySlow();
   TransactionPriority getLitecoinTransactionPrioritySlow();
+
+  Future<void> replaceByFee(Object wallet, String transactionHash, String fee);
+  Future<bool> canReplaceByFee(Object wallet, String transactionHash);
 }
   """;
 

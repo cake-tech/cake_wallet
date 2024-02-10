@@ -294,6 +294,8 @@ abstract class ElectrumWalletBase
     }
 
     txb.setVersion(1);
+
+    int i = 0;
     inputs.forEach((input) {
       if (input.isP2wpkh) {
         final p2wpkh = bitcoin
@@ -309,12 +311,14 @@ abstract class ElectrumWalletBase
         txb.addInput(
           input.hash,
           input.vout,
-          credentials.useReplaceByFee ? 0 : null,
+          credentials.useReplaceByFee ? i : null,
           p2wpkh.output,
         );
       } else {
-        txb.addInput(input.hash, input.vout, credentials.useReplaceByFee ? 0 : null);
+        txb.addInput(input.hash, input.vout, credentials.useReplaceByFee ? i : null);
       }
+
+      i++;
     });
 
     outputs.forEach((item) {
@@ -558,6 +562,15 @@ abstract class ElectrumWalletBase
     }
   }
 
+  Future<bool> canReplaceByFee(String hash) async {
+    final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
+    final transactionHex = verboseTransaction['hex'] as String;
+    final original = bitcoin.Transaction.fromHex(transactionHex);
+
+    return original.ins
+        .every((element) => element.sequence != null && element.sequence! < 4294967);
+  }
+
   Future<void> replaceByFee(String hash, int newFee) async {
     final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
     final transactionHex = verboseTransaction['hex'] as String;
@@ -588,6 +601,10 @@ abstract class ElectrumWalletBase
       if (remainingFee <= 0) {
         break;
       }
+    }
+
+    if (remainingFee > 0) {
+      throw "Fee is larger than amount sent";
     }
 
     print("@@@@@@@@@@@@@@@");

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -210,6 +211,11 @@ abstract class TransactionDetailsViewModelBase with Store {
       StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
       if (tx.feeFormatted()?.isNotEmpty ?? false)
         StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+      // if (wallet.type == WalletType.bitcoin) {
+      //   if (await bitcoin!.canReplaceByFee(tx)) {
+      //
+      //   }
+      // }
     ];
 
     items.addAll(_items);
