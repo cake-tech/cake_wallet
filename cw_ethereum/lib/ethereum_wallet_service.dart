@@ -41,17 +41,32 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
   Future<EthereumWallet> openWallet(String name, String password) async {
     final walletInfo =
         walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-    final wallet = await EthereumWallet.open(
-      name: name,
-      password: password,
-      walletInfo: walletInfo,
-      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-    );
 
-    await wallet.init();
-    await wallet.save();
+    try {
+      final wallet = await EthereumWallet.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      );
 
-    return wallet;
+      await wallet.init();
+      await wallet.save();
+      saveBackup(name);
+      return wallet;
+    } catch (_) {
+
+      await restoreWalletFilesFromBackup(name);
+
+      final wallet = await EthereumWallet.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
+      await wallet.init();
+      await wallet.save();
+      return wallet;
+    }
   }
 
   @override
@@ -66,6 +81,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
     );
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
