@@ -451,6 +451,7 @@
   "remove_node": "Cire node",
   "remove_node_message": "Kuna tabbatar kuna so ku cire wannan node?",
   "rename": "Sake suna",
+  "replace_by_fee": "Sauya-by-kudin",
   "require_for_adding_contacts": "Bukatar ƙara lambobin sadarwa",
   "require_for_all_security_and_backup_settings": "Bukatar duk tsaro da saitunan wariyar ajiya",
   "require_for_assessing_wallet": "Bukatar samun damar walat",

@@ -451,6 +451,7 @@
   "remove_node": "Hapus node",
   "remove_node_message": "Apakah Anda yakin ingin menghapus node yang dipilih?",
   "rename": "Ganti nama",
+  "replace_by_fee": "Ganti-by-fee",
   "require_for_adding_contacts": "Membutuhkan untuk menambahkan kontak",
   "require_for_all_security_and_backup_settings": "Memerlukan untuk semua pengaturan keamanan dan pencadangan",
   "require_for_assessing_wallet": "Diperlukan untuk mengakses dompet",

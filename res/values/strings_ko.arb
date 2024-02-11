@@ -450,6 +450,7 @@
   "remove_node": "노드 제거",
   "remove_node_message": "선택한 노드를 제거 하시겠습니까?",
   "rename": "이름 바꾸기",
+  "replace_by_fee": "부담으로 바꾸십시오",
   "require_for_adding_contacts": "연락처 추가에 필요",
   "require_for_all_security_and_backup_settings": "모든 보안 및 백업 설정에 필요",
   "require_for_assessing_wallet": "지갑 접근을 위해 필요",

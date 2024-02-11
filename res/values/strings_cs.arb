@@ -449,6 +449,7 @@
   "remove_node": "Odstranit uzel",
   "remove_node_message": "Opravdu chcete odstranit označený uzel?",
   "rename": "Přejmenovat",
+  "replace_by_fee": "Vyměňte",
   "require_for_adding_contacts": "Vyžadovat pro přidání kontaktů",
   "require_for_all_security_and_backup_settings": "Vyžadovat všechna nastavení zabezpečení a zálohování",
   "require_for_assessing_wallet": "Vyžadovat pro přístup k peněžence",

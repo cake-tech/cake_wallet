@@ -449,6 +449,7 @@
   "remove_node": "နှာခေါင်း ကို ဖယ်ရှားပါ။",
   "remove_node_message": "ရွေးချယ်ထားသော ကုဒ်ကို ဖယ်ရှားလိုသည်မှာ သေချာပါသလား။",
   "rename": "အမည်ပြောင်းပါ။",
+  "replace_by_fee": "အစားထိုး - by- အခကြေးငွေ",
   "require_for_adding_contacts": "အဆက်အသွယ်များထည့်ရန် လိုအပ်သည်။",
   "require_for_all_security_and_backup_settings": "လုံခြုံရေးနှင့် အရန်ဆက်တင်များအားလုံးအတွက် လိုအပ်ပါသည်။",
   "require_for_assessing_wallet": "ပိုက်ဆံအိတ်ကို ဝင်သုံးရန် လိုအပ်သည်။",

@@ -450,6 +450,7 @@
   "remove_node": "ノードを削除",
   "remove_node_message": "選択したノードを削除してもよろしいですか？",
   "rename": "リネーム",
+  "replace_by_fee": "feeごとに交換します",
   "require_for_adding_contacts": "連絡先の追加に必要",
   "require_for_all_security_and_backup_settings": "すべてのセキュリティおよびバックアップ設定に必須",
   "require_for_assessing_wallet": "ウォレットにアクセスするために必要です",

@@ -449,6 +449,7 @@
   "remove_node": "Remove node",
   "remove_node_message": "Are you sure that you want to remove selected node?",
   "rename": "Rename",
+  "replace_by_fee": "Replace-By-Fee",
   "require_for_adding_contacts": "Require for adding contacts",
   "require_for_all_security_and_backup_settings": "Require for all security and backup settings",
   "require_for_assessing_wallet": "Require for accessing wallet",

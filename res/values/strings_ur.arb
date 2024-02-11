@@ -451,6 +451,7 @@
   "remove_node": "نوڈ کو ہٹا دیں۔",
   "remove_node_message": "کیا آپ واقعی منتخب نوڈ کو ہٹانا چاہتے ہیں؟",
   "rename": "نام تبدیل کریں۔",
+  "replace_by_fee": "فی فیس کو تبدیل کریں",
   "require_for_adding_contacts": "رابطوں کو شامل کرنے کی ضرورت ہے۔",
   "require_for_all_security_and_backup_settings": "تمام سیکورٹی اور بیک اپ کی ترتیبات کے لیے درکار ہے۔",
   "require_for_assessing_wallet": "بٹوے تک رسائی کے لیے درکار ہے۔",

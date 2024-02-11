@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/widgets/textfield_list_row.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
@@ -10,6 +11,7 @@ import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class TransactionDetailsPage extends BasePage {
   TransactionDetailsPage({required this.transactionDetailsViewModel});
@@ -21,41 +23,61 @@ class TransactionDetailsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return SectionStandardList(
-        sectionCount: 1,
-        itemCounter: (int _) => transactionDetailsViewModel.items.length,
-        itemBuilder: (__, index) {
-          final item = transactionDetailsViewModel.items[index];
+    return Column(
+      children: [
+        Expanded(
+          child: SectionStandardList(
+              sectionCount: 1,
+              itemCounter: (int _) => transactionDetailsViewModel.items.length,
+              itemBuilder: (__, index) {
+                final item = transactionDetailsViewModel.items[index];
 
-          if (item is StandartListItem) {
-            return GestureDetector(
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: item.value));
-                showBar<void>(context,
-                    S.of(context).transaction_details_copied(item.title));
-              },
-              child:
-                  ListRow(title: '${item.title}:', value: item.value),
-            );
-          }
+                if (item is StandartListItem) {
+                  return GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: item.value));
+                      showBar<void>(context, S.of(context).transaction_details_copied(item.title));
+                    },
+                    child: ListRow(title: '${item.title}:', value: item.value),
+                  );
+                }
 
-          if (item is BlockExplorerListItem) {
-            return GestureDetector(
-              onTap: item.onTap,
-              child:
-                  ListRow(title: '${item.title}:', value: item.value),
-            );
-          }
+                if (item is BlockExplorerListItem) {
+                  return GestureDetector(
+                    onTap: item.onTap,
+                    child: ListRow(title: '${item.title}:', value: item.value),
+                  );
+                }
 
-          if (item is TextFieldListItem) {
-            return TextFieldListRow(
-              title: item.title,
-              value: item.value,
-              onSubmitted: item.onSubmitted,
-            );
-          }
+                if (item is TextFieldListItem) {
+                  return TextFieldListRow(
+                    title: item.title,
+                    value: item.value,
+                    onSubmitted: item.onSubmitted,
+                  );
+                }
 
-          return Container();
-        });
+                return Container();
+              }),
+        ),
+        Observer(
+          builder: (_) {
+            if (transactionDetailsViewModel.canReplaceByFee) {
+              return PrimaryButton(
+                onPressed: () {
+                  // TODO: show popup to enter desired new fee
+                  transactionDetailsViewModel.replaceByFee("0.0001");
+                },
+                text: S.of(context).replace_by_fee,
+                color: Theme.of(context).cardColor,
+                textColor: Colors.white,
+              );
+            }
+
+            return const SizedBox();
+          },
+        ),
+      ],
+    );
   }
 }

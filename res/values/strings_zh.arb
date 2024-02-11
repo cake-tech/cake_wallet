@@ -449,6 +449,7 @@
   "remove_node": "删除节点",
   "remove_node_message": "您确定要删除所选节点吗？",
   "rename": "重命名",
+  "replace_by_fee": "by-Fee替换",
   "require_for_adding_contacts": "需要添加联系人",
   "require_for_all_security_and_backup_settings": "需要所有安全和备份设置",
   "require_for_assessing_wallet": "需要访问钱包",

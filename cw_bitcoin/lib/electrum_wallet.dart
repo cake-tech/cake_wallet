@@ -567,6 +567,14 @@ abstract class ElectrumWalletBase
     final transactionHex = verboseTransaction['hex'] as String;
     final original = bitcoin.Transaction.fromHex(transactionHex);
 
+    // TODO: debug
+    print("!!!!!!!!!!!!!");
+    print(original.ins.every((element) {
+      return element.sequence != null && element.sequence! < 4294967;
+    }));
+
+    return true;
+
     return original.ins
         .every((element) => element.sequence != null && element.sequence! < 4294967);
   }

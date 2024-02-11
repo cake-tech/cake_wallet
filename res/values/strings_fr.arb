@@ -449,6 +449,7 @@
   "remove_node": "Supprimer le nœud",
   "remove_node_message": "Êtes vous certain de vouloir supprimer le nœud sélectionné ?",
   "rename": "Renommer",
+  "replace_by_fee": "Remplacer par temps",
   "require_for_adding_contacts": "Requis pour ajouter des contacts",
   "require_for_all_security_and_backup_settings": "Exiger pour tous les paramètres de sécurité et de sauvegarde",
   "require_for_assessing_wallet": "Nécessaire pour accéder au portefeuille",

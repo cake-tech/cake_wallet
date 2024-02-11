@@ -42,6 +42,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
         _addElectrumListItems(tx, dateFormat);
+        _checkForRBF();
         break;
       case WalletType.haven:
         _addHavenListItems(tx, dateFormat);
@@ -111,6 +112,12 @@ abstract class TransactionDetailsViewModelBase with Store {
   final List<TransactionDetailsListItem> items;
   bool showRecipientAddress;
   bool isRecipientAddressShown;
+
+  @observable
+  bool _canReplaceByFee = false;
+
+  @computed
+  bool get canReplaceByFee => _canReplaceByFee;
 
   String _explorerUrl(WalletType type, String txId) {
     switch (type) {
@@ -211,11 +218,6 @@ abstract class TransactionDetailsViewModelBase with Store {
       StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
       if (tx.feeFormatted()?.isNotEmpty ?? false)
         StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
-      // if (wallet.type == WalletType.bitcoin) {
-      //   if (await bitcoin!.canReplaceByFee(tx)) {
-      //
-      //   }
-      // }
     ];
 
     items.addAll(_items);
@@ -286,5 +288,18 @@ abstract class TransactionDetailsViewModelBase with Store {
     ];
 
     items.addAll(_items);
+  }
+
+  @action
+  void _checkForRBF() async {
+    if (wallet.type == WalletType.bitcoin) {
+      if (await bitcoin!.canReplaceByFee(wallet, transactionInfo.id)) {
+        _canReplaceByFee = true;
+      }
+    }
+  }
+
+  void replaceByFee(String newFee) {
+    bitcoin!.replaceByFee(wallet, transactionInfo.id, newFee);
   }
 }

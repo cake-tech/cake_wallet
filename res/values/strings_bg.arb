@@ -449,6 +449,7 @@
   "remove_node": "Премахни node",
   "remove_node_message": "Сигурни ли сте, че искате да премахнете избрания node?",
   "rename": "Промяна на името",
+  "replace_by_fee": "Заменете от такса",
   "require_for_adding_contacts": "Изисква се за добавяне на контакти",
   "require_for_all_security_and_backup_settings": "Изисква се за всички настройки за сигурност и архивиране",
   "require_for_assessing_wallet": "Изискване за достъп до портфейла",

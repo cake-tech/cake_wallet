@@ -449,6 +449,7 @@
   "remove_node": "Ukloni node",
   "remove_node_message": "Jeste li sigurni da želite ukloniti odabrani node?",
   "rename": "Preimenuj",
+  "replace_by_fee": "Zamijenite se",
   "require_for_adding_contacts": "Zahtijeva za dodavanje kontakata",
   "require_for_all_security_and_backup_settings": "Zahtijeva za sve postavke sigurnosti i sigurnosne kopije",
   "require_for_assessing_wallet": "Potreban za pristup novčaniku",
