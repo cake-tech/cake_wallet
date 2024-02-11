@@ -189,6 +189,8 @@
   "disable_exchange": "Disable exchange",
   "disable_fiat": "Disable fiat",
   "disable_sell": "Disable sell action",
+  "disableBatteryOptimization": "Disable Battery Optimization",
+  "disableBatteryOptimizationDescription": "Do you want to disable battery optimization in order to make background sync run more freely and smoothly?",
   "disabled": "Disabled",
   "discount": "Save ${value}%",
   "display_settings": "Display settings",

@@ -189,6 +189,8 @@
   "disable_exchange": "Деактивиране на борса",
   "disable_fiat": "Деактивиране на fiat",
   "disable_sell": "Деактивирайте действието за продажба",
+  "disableBatteryOptimization": "Деактивирайте оптимизацията на батерията",
+  "disableBatteryOptimizationDescription": "Искате ли да деактивирате оптимизацията на батерията, за да направите синхронизирането на фона да работи по -свободно и гладко?",
   "disabled": "Деактивирано",
   "discount": "Спестете ${value}%",
   "display_settings": "Настройки на екрана",

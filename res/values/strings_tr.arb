@@ -189,6 +189,8 @@
   "disable_exchange": "Borsayı devre dışı bırak",
   "disable_fiat": "İtibari paraları devre dışı bırak",
   "disable_sell": "Satış işlemini devre dışı bırak",
+  "disableBatteryOptimization": "Pil optimizasyonunu devre dışı bırakın",
+  "disableBatteryOptimizationDescription": "Arka plan senkronizasyonunu daha özgür ve sorunsuz bir şekilde çalıştırmak için pil optimizasyonunu devre dışı bırakmak istiyor musunuz?",
   "disabled": "Devre dışı",
   "discount": "%${value} tasarruf et",
   "display_settings": "Görüntü ayarları",

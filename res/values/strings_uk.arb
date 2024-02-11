@@ -189,6 +189,8 @@
   "disable_exchange": "Вимкнути exchange",
   "disable_fiat": "Вимкнути фиат",
   "disable_sell": "Вимкнути дію продажу",
+  "disableBatteryOptimization": "Вимкнути оптимізацію акумулятора",
+  "disableBatteryOptimizationDescription": "Ви хочете відключити оптимізацію акумулятора, щоб зробити фонову синхронізацію більш вільно та плавно?",
   "disabled": "Вимкнено",
   "discount": "Зекономте ${value}%",
   "display_settings": "Налаштування дисплея",

@@ -189,6 +189,8 @@
   "disable_exchange": "Huwag paganahin ang palitan",
   "disable_fiat": "Huwag paganahin ang Fiat",
   "disable_sell": "Huwag paganahin ang pagkilos ng pagbebenta",
+  "disableBatteryOptimization": "Huwag paganahin ang pag -optimize ng baterya",
+  "disableBatteryOptimizationDescription": "Nais mo bang huwag paganahin ang pag -optimize ng baterya upang gawing mas malaya at maayos ang pag -sync ng background?",
   "disabled": "Hindi pinagana",
   "discount": "Makatipid ng ${value}%",
   "display_settings": "Mga setting ng pagpapakita",

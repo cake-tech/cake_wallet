@@ -189,6 +189,8 @@
   "disable_exchange": "Desativar troca",
   "disable_fiat": "Desativar fiat",
   "disable_sell": "Desativar ação de venda",
+  "disableBatteryOptimization": "Desative a otimização da bateria",
+  "disableBatteryOptimizationDescription": "Deseja desativar a otimização da bateria para fazer a sincronização de fundo funcionar de forma mais livre e suave?",
   "disabled": "Desabilitado",
   "discount": "Economize ${value}%",
   "display_settings": "Configurações de exibição",

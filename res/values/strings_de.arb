@@ -189,6 +189,8 @@
   "disable_exchange": "Exchange deaktivieren",
   "disable_fiat": "Fiat deaktivieren",
   "disable_sell": "Verkaufsaktion deaktivieren",
+  "disableBatteryOptimization": "Batterieoptimierung deaktivieren",
+  "disableBatteryOptimizationDescription": "Möchten Sie die Batterieoptimierung deaktivieren, um die Hintergrundsynchronisierung freier und reibungsloser zu gestalten?",
   "disabled": "Deaktiviert",
   "discount": "${value} % sparen",
   "display_settings": "Anzeigeeinstellungen",

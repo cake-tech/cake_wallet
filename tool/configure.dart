@@ -528,6 +528,8 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+import 'package:web3dart/web3dart.dart';
 
 """;
   const ethereumCWHeaders = """
@@ -543,8 +545,6 @@ import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_ethereum/ethereum_wallet_service.dart';
 
 import 'package:eth_sig_util/util/utils.dart';
-import 'package:hive/hive.dart';
-import 'package:web3dart/web3dart.dart';
 
 """;
   const ethereumCwPart = "part 'cw_ethereum.dart';";
@@ -620,6 +620,8 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+import 'package:web3dart/web3dart.dart';
 
 """;
   const polygonCWHeaders = """
@@ -634,8 +636,6 @@ import 'package:cw_polygon/polygon_client.dart';
 import 'package:cw_polygon/polygon_wallet.dart';
 import 'package:cw_polygon/polygon_wallet_service.dart';
 
-import 'package:hive/hive.dart';
-import 'package:web3dart/web3dart.dart';
 import 'package:eth_sig_util/util/utils.dart';
 
 """;
