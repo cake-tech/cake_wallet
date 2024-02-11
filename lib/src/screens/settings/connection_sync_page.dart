@@ -55,10 +55,12 @@ class ConnectionSyncPage extends BasePage {
                     onItemSelected: (syncMode) async {
                       dashboardViewModel.setSyncMode(syncMode);
 
+                      if (Platform.isIOS) return;
+
                       if (syncMode.type != SyncType.disabled) {
                         final isDisabled = await isBatteryOptimizationDisabled();
 
-                        if (isDisabled || Platform.isIOS) return;
+                        if (isDisabled) return;
 
                         await showPopUp<void>(
                           context: context,
