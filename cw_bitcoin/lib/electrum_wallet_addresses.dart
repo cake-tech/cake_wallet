@@ -314,15 +314,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     var countOfReceiveAddresses = 0;
     var countOfHiddenAddresses = 0;
 
-    _addresses.forEach((addr) {
-      if (_isAddressByType(addr, type)) {
-        if (addr.isHidden) {
-          countOfHiddenAddresses += 1;
-          return;
-        }
-
-        countOfReceiveAddresses += 1;
+    addresses.forEach((addr) {
+      if (addr.isHidden) {
+        countOfHiddenAddresses += 1;
+        return;
       }
+
+      countOfReceiveAddresses += 1;
     });
 
     if (countOfReceiveAddresses < defaultReceiveAddressesCount) {
