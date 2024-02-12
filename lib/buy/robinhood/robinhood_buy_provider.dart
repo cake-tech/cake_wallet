@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -19,7 +20,10 @@ class RobinhoodBuyProvider extends BuyProvider {
   static const _cIdBaseUrl = 'exchange-helper.cakewallet.com';
 
   @override
-  String get title => 'Robinhood Connect';
+  ProviderType get providerType => ProviderType.robinhood;
+
+  @override
+  String get title => providerType.title;
 
   @override
   String get providerDescription => S.current.robinhood_option_description;
@@ -29,6 +33,9 @@ class RobinhoodBuyProvider extends BuyProvider {
 
   @override
   String get darkIcon => 'assets/images/robinhood_dark.png';
+
+  @override
+  String get trackUrl => '';
 
   String get _applicationId => secrets.robinhoodApplicationId;
 

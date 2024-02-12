@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:cake_wallet/buy/buy_provider.dart';
-import 'package:cake_wallet/buy/buy_provider_description.dart';
+import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -9,8 +10,6 @@ import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.d
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
-import 'package:cake_wallet/buy/wyre/wyre_buy_provider.dart';
 
 part 'order_details_view_model.g.dart';
 
@@ -21,17 +20,11 @@ abstract class OrderDetailsViewModelBase with Store {
   OrderDetailsViewModelBase({required WalletBase wallet, required Order orderForDetails})
   : items = ObservableList<StandartListItem>(), 
     order = orderForDetails {
-    if (order.provider != null) {
-      switch (order.provider) {
-        case BuyProviderDescription.wyre:
-          _provider = WyreBuyProvider(wallet: wallet);
-          break;
-        case BuyProviderDescription.moonPay:
-          _provider = MoonPayBuyProvider(wallet: wallet);
-          break;
-      }
+   if (order.provider != null) {
+     order.provider == ProviderType.onramper
+         ? _provider = OnRamperBuyProvider(wallet: wallet, partner: order.onramperPartner)
+         : _provider = ProvidersHelper.getProviderByType(order.provider!);
     }
-
     _updateItems();
     _updateOrder();
     timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateOrder());
@@ -50,20 +43,16 @@ abstract class OrderDetailsViewModelBase with Store {
   @action
   Future<void> _updateOrder() async {
     try {
-      if (_provider != null && (_provider is MoonPayBuyProvider || _provider is WyreBuyProvider)) {
-        final updatedOrder = _provider is MoonPayBuyProvider
-            ? await (_provider as MoonPayBuyProvider).findOrderById(order.id)
-            : await (_provider as WyreBuyProvider).findOrderById(order.id);
+      final updatedOrder = await _provider!.findOrderById(order.transferId);
+
         updatedOrder.from = order.from;
         updatedOrder.to = order.to;
         updatedOrder.receiveAddress = order.receiveAddress;
         updatedOrder.walletId = order.walletId;
-        if (order.provider != null) {
-          updatedOrder.providerRaw = order.provider.raw;
-        }
+          updatedOrder.providerRaw = order.provider != null
+              ? ProvidersHelper.serialize(order.provider!) : null;
         order = updatedOrder;
         _updateItems();
-      }
     } catch (e) {
       print(e.toString());
     }
@@ -86,24 +75,19 @@ abstract class OrderDetailsViewModelBase with Store {
     items.add(
       StandartListItem(
           title: 'Buy provider',
-          value: order.provider.title)
+          value: order.provider?.title ?? '')
     );
 
-    if (_provider != null && (_provider is MoonPayBuyProvider || _provider is WyreBuyProvider)) {
-
-      final trackUrl = _provider is MoonPayBuyProvider
-          ? (_provider as MoonPayBuyProvider).trackUrl
-          : (_provider as WyreBuyProvider).trackUrl;
-
-      if (trackUrl.isNotEmpty ?? false) {
-        final buildURL = trackUrl + '${order.transferId}';
+    if(_provider != null) {
+      if(_provider!.trackUrl.isNotEmpty  && order.transferId.isNotEmpty) {
+        final buildURL = _provider!.trackUrl + '${order.transferId}';
         items.add(
             TrackTradeListItem(
                 title: 'Track',
                 value: buildURL,
                 onTap: () {
                   try {
-                    launch(buildURL);
+                    launchUrl(Uri.parse(buildURL));
                   } catch (e) {}
                 }
             )

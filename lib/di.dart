@@ -120,7 +120,6 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
-import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
@@ -231,6 +230,7 @@ import 'package:cake_wallet/entities/qr_view_data.dart';
 
 import 'buy/dfx/dfx_buy_provider.dart';
 import 'core/totp_request_details.dart';
+import 'entities/provider_types.dart';
 import 'src/screens/settings/desktop_settings/desktop_settings_page.dart';
 
 final getIt = GetIt.instance;
@@ -808,11 +808,16 @@ Future<void> setup({
       settingsStore: getIt.get<AppStore>().settingsStore, wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
-        getIt.get<AppStore>().settingsStore,
+        settingsStore: getIt.get<AppStore>().settingsStore,
         wallet: getIt.get<AppStore>().wallet!,
       ));
 
-  getIt.registerFactoryParam<WebViewPage, String, Uri>((title, uri) => WebViewPage(title, uri));
+  getIt.registerFactoryParam<WebViewPage,List<dynamic>, void>((args, _) {
+    final uri = args.first as Uri;
+    final type = args.length > 1 ? args[1] as ProviderType? : null;
+    return WebViewPage(uri, type, buyViewModel: getIt.get<BuyViewModel>());
+  });
+
 
   getIt.registerFactory<PayfuraBuyProvider>(() => PayfuraBuyProvider(
         settingsStore: getIt.get<AppStore>().settingsStore,
@@ -954,21 +959,14 @@ Future<void> setup({
   getIt.registerFactoryParam<BuySellOptionsPage, bool, void>(
       (isBuyOption, _) => BuySellOptionsPage(getIt.get<DashboardViewModel>(), isBuyOption));
 
-  getIt.registerFactory(() {
-    final wallet = getIt.get<AppStore>().wallet;
+  getIt.registerFactory(() => BuyViewModel(
+      _ordersSource,
+      getIt.get<OrdersStore>(),
+      getIt.get<SettingsStore>(),
+      getIt.get<BuyAmountViewModel>(),
+      wallet: getIt.get<AppStore>().wallet!));
 
-    return BuyViewModel(_ordersSource, getIt.get<OrdersStore>(), getIt.get<SettingsStore>(),
-        getIt.get<BuyAmountViewModel>(),
-        wallet: wallet!);
-  });
 
-  getIt.registerFactoryParam<BuyWebViewPage, List<dynamic>, void>((List<dynamic> args, _) {
-    final url = args.first as String;
-    final buyViewModel = args[1] as BuyViewModel;
-
-    return BuyWebViewPage(
-        buyViewModel: buyViewModel, ordersStore: getIt.get<OrdersStore>(), url: url);
-  });
 
   getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>((order, _) {
     final wallet = getIt.get<AppStore>().wallet;

@@ -10,7 +10,6 @@ import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dar
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_options_page.dart';
-import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
@@ -396,12 +395,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<BuySellOptionsPage>(param1: args));
 
-    case Routes.buyWebView:
-      final args = settings.arguments as List;
-
-      return MaterialPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<BuyWebViewPage>(param1: args));
-
     case Routes.exchange:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<ExchangePage>());
@@ -526,10 +519,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.webViewPage:
       final args = settings.arguments as List;
-      final title = args.first as String;
-      final url = args[1] as Uri;
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<WebViewPage>(param1: title, param2: url));
+          builder: (_) => getIt.get<WebViewPage>(param1: args));
 
     case Routes.advancedPrivacySettings:
       final type = settings.arguments as WalletType;

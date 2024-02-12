@@ -1,5 +1,6 @@
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -9,18 +10,32 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:collection/collection.dart';
+
+enum OnRamperPartner {
+  guardarian,
+  paybis,
+}
 
 class OnRamperBuyProvider extends BuyProvider {
-  OnRamperBuyProvider(this._settingsStore,
-      {required WalletBase wallet, bool isTestEnvironment = false})
+  OnRamperBuyProvider({this.settingsStore,this.partner,
+      required WalletBase wallet, bool isTestEnvironment = false})
       : super(wallet: wallet, isTestEnvironment: isTestEnvironment);
 
   static const _baseUrl = 'buy.onramper.com';
 
-  final SettingsStore _settingsStore;
+  static OnRamperPartner? fromRaw(int? raw) =>
+      OnRamperPartner.values.firstWhereOrNull((e) => e.index == raw);
+
+  final SettingsStore? settingsStore;
+
+  OnRamperPartner? partner;
 
   @override
-  String get title => 'Onramper';
+  ProviderType get providerType => ProviderType.onramper;
+
+  @override
+  String get title => providerType.title;
 
   @override
   String get providerDescription => S.current.onramper_option_description;
@@ -30,6 +45,17 @@ class OnRamperBuyProvider extends BuyProvider {
 
   @override
   String get darkIcon => 'assets/images/onramper_dark.png';
+
+  String get trackUrl {
+    switch (partner) {
+      case OnRamperPartner.guardarian:
+        return "https://payments.guardarian.com/checkout?tid=";
+      case OnRamperPartner.paybis:
+        return "https://widget.paybis.com/?requestId=";
+      default:
+        return '';
+    }
+  }
 
   String get _apiKey => secrets.onramperApiKey;
 
@@ -69,8 +95,10 @@ class OnRamperBuyProvider extends BuyProvider {
     containerColor = getColorStr(Theme.of(context).colorScheme.background);
     cardColor = getColorStr(Theme.of(context).cardColor);
 
-    if (_settingsStore.currentTheme.title == S.current.high_contrast_theme) {
-      cardColor = getColorStr(Colors.white);
+    if (settingsStore != null) {
+      if (settingsStore!.currentTheme.title == S.current.high_contrast_theme) {
+        cardColor = getColorStr(Colors.white);
+      }
     }
 
     final networkName =
@@ -96,7 +124,7 @@ class OnRamperBuyProvider extends BuyProvider {
     final uri = requestOnramperUrl(context, isBuyAction);
     if (DeviceInfo.instance.isMobile) {
       Navigator.of(context)
-          .pushNamed(Routes.webViewPage, arguments: [title, uri]);
+          .pushNamed(Routes.webViewPage, arguments:[uri, providerType]);
     } else {
       await launchUrl(uri);
     }

@@ -1,31 +1,39 @@
+import 'dart:async';
+
+import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class WebViewPage extends BasePage {
-  WebViewPage(this._title, this._url);
+  WebViewPage(this._url, this._providerType, {required this.buyViewModel}) {
+    buyViewModel.selectedProviderType = _providerType;
+  }
 
-  final String _title;
   final Uri _url;
+  final ProviderType? _providerType;
+  final BuyViewModel buyViewModel;
 
   @override
-  String get title => _title;
+  String get title => _providerType?.title ?? '';
 
   @override
   Widget body(BuildContext context) {
-    return WebViewPageBody(_title, _url);
+    return WebViewPageBody(title, _url, buyViewModel);
   }
 }
 
 class WebViewPageBody extends StatefulWidget {
-  WebViewPageBody(this.title, this.uri);
+  WebViewPageBody(this.title, this.uri, this.buyViewModel);
 
   final String title;
   final Uri uri;
+  final BuyViewModel buyViewModel;
 
   @override
   WebViewPageBodyState createState() => WebViewPageBodyState();
@@ -41,6 +49,12 @@ class WebViewPageBodyState extends State<WebViewPageBody> {
         transparentBackground: true,
       ),
       initialUrlRequest: URLRequest(url: WebUri.uri(widget.uri)),
+      onWebViewCreated: (InAppWebViewController controller) =>
+          setState(() => controller),
+      onLoadStart: (controller, url) async {
+        if (widget.buyViewModel.selectedProviderType == null) return;
+        widget.buyViewModel.processProviderUrl(urlStr: url.toString());
+      },
       onPermissionRequest: (controller, request) async {
         bool permissionGranted = await Permission.camera.status == PermissionStatus.granted;
         if (!permissionGranted) {
@@ -70,9 +84,8 @@ class WebViewPageBodyState extends State<WebViewPageBody> {
 
         return PermissionResponse(
           resources: request.resources,
-          action: permissionGranted
-              ? PermissionResponseAction.GRANT
-              : PermissionResponseAction.DENY,
+          action:
+              permissionGranted ? PermissionResponseAction.GRANT : PermissionResponseAction.DENY,
         );
       },
     );

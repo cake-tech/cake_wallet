@@ -3,6 +3,7 @@ import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
+import 'package:cake_wallet/buy/wyre/wyre_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -12,6 +13,7 @@ enum ProviderType {
   dfx,
   onramper,
   moonpaySell,
+  wyre,
 }
 
 extension ProviderTypeName on ProviderType {
@@ -27,6 +29,8 @@ extension ProviderTypeName on ProviderType {
         return 'Onramper';
       case ProviderType.moonpaySell:
         return 'MoonPay';
+      case ProviderType.wyre:
+        return 'Wyre';
     }
   }
 
@@ -42,6 +46,8 @@ extension ProviderTypeName on ProviderType {
         return 'onramper_provider';
       case ProviderType.moonpaySell:
         return 'moonpay_provider';
+      case ProviderType.wyre:
+        return 'wyre_provider';
     }
   }
 }
@@ -105,10 +111,50 @@ class ProvidersHelper {
         return getIt.get<DFXBuyProvider>();
       case ProviderType.onramper:
         return getIt.get<OnRamperBuyProvider>();
-      case ProviderType.askEachTime:
-        return null;
       case ProviderType.moonpaySell:
         return getIt.get<MoonPaySellProvider>();
+      case ProviderType.wyre:
+        return getIt.get<WyreBuyProvider>();
+      case ProviderType.askEachTime:
+        return null;
+    }
+  }
+
+  static int serialize(ProviderType type) {
+    switch (type) {
+      case ProviderType.askEachTime:
+        return 0;
+      case ProviderType.robinhood:
+        return 1;
+      case ProviderType.dfx:
+        return 2;
+      case ProviderType.onramper:
+        return 3;
+      case ProviderType.moonpaySell:
+        return 4;
+      case ProviderType.wyre:
+        return 5;
+      default:
+        throw Exception('Incorrect token $type for ProviderType serialize');
+    }
+  }
+
+  static ProviderType deserialize({required int raw}) {
+    switch (raw) {
+      case 0:
+        return ProviderType.askEachTime;
+      case 1:
+        return ProviderType.robinhood;
+      case 2:
+        return ProviderType.dfx;
+      case 3:
+        return ProviderType.onramper;
+      case 4:
+        return ProviderType.moonpaySell;
+      case 5:
+        return ProviderType.wyre;
+      default:
+        throw Exception('Incorrect token $raw  for ProviderType deserialize');
     }
   }
 }

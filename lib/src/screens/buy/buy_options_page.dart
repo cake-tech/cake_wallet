@@ -42,7 +42,7 @@ class BuySellOptionsPage extends BasePage {
                   padding: EdgeInsets.only(top: 24),
                   child: OptionTile(
                     image: icon,
-                    title: provider.toString(),
+                    title: provider.title,
                     description: provider.providerDescription,
                     onPressed: () => provider.launchProvider(context, isBuyAction),
                   ),

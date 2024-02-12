@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
@@ -47,7 +48,6 @@ class TransactionsPage extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
                   child: DashBoardRoundedCardWidget(
                     onTap: () => Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [
-                      '',
                       Uri.parse(
                           'https://guides.cakewallet.com/docs/FAQ/why_are_my_funds_not_appearing/')
                     ]),
@@ -127,12 +127,13 @@ class TransactionsPage extends StatelessWidget {
 
                         if (item is OrderListItem) {
                           final order = item.order;
+                          if (order.provider == null) return null;
 
                           return Observer(
                               builder: (_) => OrderRow(
                                     onTap: () => Navigator.of(context)
                                         .pushNamed(Routes.orderDetails, arguments: order),
-                                    provider: order.provider,
+                                    provider: ProvidersHelper.getProviderByType(order.provider!)!,
                                     from: order.from!,
                                     to: order.to!,
                                     createdAtFormattedDate:

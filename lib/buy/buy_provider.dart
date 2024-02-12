@@ -1,5 +1,6 @@
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +20,10 @@ abstract class BuyProvider {
   String get lightIcon;
 
   String get darkIcon;
+
+  ProviderType get providerType;
+
+  String get trackUrl;
 
   @override
   String toString() => title;
