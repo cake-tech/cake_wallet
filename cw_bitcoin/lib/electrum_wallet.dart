@@ -509,12 +509,15 @@ abstract class ElectrumWalletBase
   Future<void> updateUnspent() async {
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
+    final addressesSet = walletAddresses.allAddresses.map((addr) => addr.address).toSet();
+
     await Future.wait(walletAddresses.allAddresses.map((address) => electrumClient
         .getListUnspentWithAddress(address.address, network)
         .then((unspent) => Future.forEach<Map<String, dynamic>>(unspent, (unspent) async {
               try {
                 final coin = BitcoinUnspent.fromJSON(address, unspent);
-                final tx = await fetchTransactionInfo(hash: coin.hash, height: 0);
+                final tx = await fetchTransactionInfo(
+                    hash: coin.hash, height: 0, myAddresses: addressesSet);
                 coin.isChange = tx?.direction == TransactionDirection.outgoing;
                 updatedUnspentCoins.add(coin);
               } catch (_) {}
@@ -633,12 +636,11 @@ abstract class ElectrumWalletBase
   }
 
   Future<ElectrumTransactionInfo?> fetchTransactionInfo(
-      {required String hash, required int height}) async {
+      {required String hash, required int height, required Set<String> myAddresses}) async {
     try {
-      final tx = await getTransactionExpanded(hash: hash, height: height);
-      final addresses = walletAddresses.allAddresses.map((addr) => addr.address).toSet();
-      return ElectrumTransactionInfo.fromElectrumBundle(tx, walletInfo.type, network,
-          addresses: addresses, height: height);
+      return ElectrumTransactionInfo.fromElectrumBundle(
+          await getTransactionExpanded(hash: hash, height: height), walletInfo.type, network,
+          addresses: myAddresses, height: height);
     } catch (_) {
       return null;
     }
@@ -646,61 +648,45 @@ abstract class ElectrumWalletBase
 
   @override
   Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
-    final addressHashes = <String, BitcoinAddressRecord>{};
-    final normalizedHistories = <Map<String, dynamic>>[];
-    final newTxCounts = <String, int>{};
-
-    walletAddresses.allAddresses.forEach((addressRecord) {
-      final sh = scriptHash(addressRecord.address, network: network);
-      addressHashes[sh] = addressRecord;
-      newTxCounts[sh] = 0;
-    });
-
     try {
-      final histories = addressHashes.keys.map((scriptHash) =>
-          electrumClient.getHistory(scriptHash).then((history) => {scriptHash: history}));
-      final historyResults = await Future.wait(histories);
+      final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
+      final addressesSet = walletAddresses.allAddresses.map((addr) => addr.address).toSet();
 
-      historyResults.forEach((history) {
-        history.entries.forEach((historyItem) {
-          if (historyItem.value.isNotEmpty) {
-            final address = addressHashes[historyItem.key];
-            address?.setAsUsed();
-            newTxCounts[historyItem.key] = historyItem.value.length;
-            normalizedHistories.addAll(historyItem.value);
-          }
-        });
-      });
+      await Future.wait(walletAddresses.allAddresses.map((addressRecord) => electrumClient
+              .getHistory(addressRecord.scriptHash ?? addressRecord.updateScriptHash(network))
+              .then((history) async {
+            if (history.isNotEmpty) {
+              addressRecord.setAsUsed();
 
-      for (var sh in addressHashes.keys) {
-        var balanceData = await electrumClient.getBalance(sh);
-        var addressRecord = addressHashes[sh];
-        if (addressRecord != null) {
-          addressRecord.balance = balanceData['confirmed'] as int? ?? 0;
-        }
-      }
+              await Future.wait(history.map((transaction) async {
+                final txid = transaction['tx_hash'] as String;
+                final storedTx = transactionHistory.transactions[txid];
 
-      addressHashes.forEach((sh, addressRecord) {
-        addressRecord.txCount = newTxCounts[sh] ?? 0;
-      });
+                if (storedTx != null) {
+                  // TODO: updated confs & time
+                  historiesWithDetails[txid] = storedTx;
+                } else {
+                  final tx = await fetchTransactionInfo(
+                    hash: txid,
+                    height: transaction['height'] as int,
+                    myAddresses: addressesSet,
+                  );
+                  if (tx != null) {
+                    historiesWithDetails[txid] = tx;
 
-      final historiesWithDetails = await Future.wait(normalizedHistories.map((transaction) {
-        try {
-          return fetchTransactionInfo(
-              hash: transaction['tx_hash'] as String, height: transaction['height'] as int);
-        } catch (_) {
-          return Future.value(null);
-        }
-      }));
+                    // Got a new transaction fetched, add it to the transaction history
+                    // instead of waiting all to finish, and next time it will be faster
+                    transactionHistory.addOne(tx);
+                    await transactionHistory.save();
+                  }
+                }
 
-      return historiesWithDetails.fold<Map<String, ElectrumTransactionInfo>>(
-          <String, ElectrumTransactionInfo>{}, (acc, tx) {
-        if (tx == null) {
-          return acc;
-        }
-        acc[tx.id] = acc[tx.id]?.updated(tx) ?? tx;
-        return acc;
-      });
+                return Future.value(null);
+              }));
+            }
+          })));
+
+      return historiesWithDetails;
     } catch (e) {
       print(e.toString());
       return {};
@@ -714,10 +700,8 @@ abstract class ElectrumWalletBase
       }
 
       _isTransactionUpdating = true;
-      final transactions = await fetchTransactions();
-      transactionHistory.addMany(transactions);
+      await fetchTransactions();
       walletAddresses.updateReceiveAddresses();
-      await transactionHistory.save();
       _isTransactionUpdating = false;
     } catch (e, stacktrace) {
       print(stacktrace);

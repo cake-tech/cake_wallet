@@ -32,7 +32,6 @@ abstract class WalletAddresses {
       walletInfo.addresses = addressesMap;
       walletInfo.addressInfos = addressInfos;
       walletInfo.usedAddresses = usedAddresses.toList();
-      walletInfo.addressPageType = addressPageTypeStr;
 
       if (walletInfo.isInBox) {
         await walletInfo.save();

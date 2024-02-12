@@ -1,3 +1,4 @@
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -86,7 +87,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
-    final snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password);
+    final snp =
+        await ElectrumWalletSnapshot.load(name, walletInfo.type, password, LitecoinNetwork.mainnet);
     return LitecoinWallet(
       mnemonic: snp.mnemonic,
       password: password,

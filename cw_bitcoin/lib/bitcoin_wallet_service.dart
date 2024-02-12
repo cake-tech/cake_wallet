@@ -25,12 +25,15 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
 
   @override
   Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
+    final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
+    credentials.walletInfo?.network = network.value;
+
     final wallet = await BitcoinWalletBase.create(
       mnemonic: await generateMnemonic(),
       password: credentials.password!,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
-      network: (isTestnet ?? false) ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet,
+      network: network,
     );
     await wallet.save();
     await wallet.init();
@@ -106,12 +109,15 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
       throw BitcoinMnemonicIsIncorrectException();
     }
 
+    final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
+    credentials.walletInfo?.network = network.value;
+
     final wallet = await BitcoinWalletBase.create(
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
-      network: (isTestnet ?? false) ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet,
+      network: network,
     );
     await wallet.save();
     await wallet.init();

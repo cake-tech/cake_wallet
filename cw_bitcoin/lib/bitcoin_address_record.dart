@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:bitbox/bitbox.dart' as bitbox;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/script_hash.dart' as sh;
 
 class BitcoinAddressRecord {
   BitcoinAddressRecord(
@@ -13,12 +14,16 @@ class BitcoinAddressRecord {
     String name = '',
     bool isUsed = false,
     required this.type,
+    String? scriptHash,
+    required this.network,
   })  : _txCount = txCount,
         _balance = balance,
         _name = name,
-        _isUsed = isUsed;
+        _isUsed = isUsed,
+        scriptHash =
+            scriptHash ?? (network != null ? sh.scriptHash(address, network: network) : null);
 
-  factory BitcoinAddressRecord.fromJSON(String jsonSource) {
+  factory BitcoinAddressRecord.fromJSON(String jsonSource, BasedUtxoNetwork? network) {
     final decoded = json.decode(jsonSource) as Map;
 
     return BitcoinAddressRecord(
@@ -33,6 +38,10 @@ class BitcoinAddressRecord {
           ? BitcoinAddressType.values
               .firstWhere((type) => type.toString() == decoded['type'] as String)
           : SegwitAddresType.p2wpkh,
+      scriptHash: decoded['scriptHash'] as String?,
+      network: (decoded['network'] as String?) == null
+          ? network
+          : BasedUtxoNetwork.fromName(decoded['network'] as String),
     );
   }
 
@@ -46,6 +55,8 @@ class BitcoinAddressRecord {
   int _balance;
   String _name;
   bool _isUsed;
+  String? scriptHash;
+  BasedUtxoNetwork? network;
 
   int get txCount => _txCount;
 
@@ -69,6 +80,11 @@ class BitcoinAddressRecord {
 
   BitcoinAddressType type;
 
+  String updateScriptHash(BasedUtxoNetwork network) {
+    scriptHash = sh.scriptHash(address, network: network);
+    return scriptHash!;
+  }
+
   String toJSON() => json.encode({
         'address': address,
         'index': index,
@@ -78,5 +94,7 @@ class BitcoinAddressRecord {
         'name': name,
         'balance': balance,
         'type': type.toString(),
+        'scriptHash': scriptHash,
+        'network': network?.value,
       });
 }

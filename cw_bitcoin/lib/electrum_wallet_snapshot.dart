@@ -32,7 +32,7 @@ class ElectrumWalletSnapshot {
   Map<String, int> regularAddressIndex;
   Map<String, int> changeAddressIndex;
 
-  static Future<ElectrumWalletSnapshot> load(String name, WalletType type, String password) async {
+  static Future<ElectrumWalletSnapshot> load(String name, WalletType type, String password, BasedUtxoNetwork? network) async {
     final path = await pathForWallet(name: name, type: type);
     final jsonSource = await read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
@@ -40,7 +40,7 @@ class ElectrumWalletSnapshot {
     final mnemonic = data['mnemonic'] as String;
     final addresses = addressesTmp
         .whereType<String>()
-        .map((addr) => BitcoinAddressRecord.fromJSON(addr))
+        .map((addr) => BitcoinAddressRecord.fromJSON(addr, network))
         .toList();
     final balance = ElectrumBalance.fromJSON(data['balance'] as String) ??
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);

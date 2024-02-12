@@ -92,7 +92,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
-    final snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password);
+    final snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password,
+        walletInfo.network != null ? BasedUtxoNetwork.fromName(walletInfo.network!) : null);
+
     return BitcoinWallet(
       mnemonic: snp.mnemonic,
       password: password,

@@ -151,6 +151,9 @@ class WalletInfo extends HiveObject {
   @HiveField(18)
   String? addressPageType;
 
+  @HiveField(19)
+  String? network;
+
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
 
   set yatLastUsedAddress(String address) {
