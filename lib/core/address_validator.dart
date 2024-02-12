@@ -3,14 +3,13 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_solana/spl_token.dart';
 
 class AddressValidator extends TextValidator {
   AddressValidator({required CryptoCurrency type})
       : super(
             errorMessage: S.current.error_text_address,
-            useAdditionalValidation: type == CryptoCurrency.btc
-                ? bitcoin.Address.validateAddress
-                : null,
+            useAdditionalValidation: type == CryptoCurrency.btc ? bitcoin.Address.validateAddress : null,
             pattern: getPattern(type),
             length: getLength(type));
 
@@ -130,6 +129,11 @@ class AddressValidator extends TextValidator {
     if (type is Erc20Token) {
       return [42];
     }
+
+    if (type is SPLToken) {
+      return [44];
+    }
+
     switch (type) {
       case CryptoCurrency.xmr:
         return null;
@@ -192,11 +196,11 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.sc:
         return [76];
       case CryptoCurrency.sol:
+      case CryptoCurrency.usdtSol:
+      case CryptoCurrency.usdcsol:
         return [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44];
       case CryptoCurrency.trx:
         return [34];
-      case CryptoCurrency.usdcsol:
-        return [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44];
       case CryptoCurrency.usdt:
         return [34];
       case CryptoCurrency.usdttrc20:

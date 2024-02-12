@@ -125,8 +125,6 @@ abstract class SolanaWalletBase
 
     walletInfo.address = _wallet!.address;
 
-    print(_wallet!.address);
-
     await walletAddresses.init();
     await transactionHistory.init();
     await save();
@@ -195,7 +193,7 @@ abstract class SolanaWalletBase
     final CryptoCurrency transactionCurrency =
         balance.keys.firstWhere((element) => element.title == solCredentials.currency.title);
 
-    final currentBalance = balance[currency]?.balance ?? 0.0;
+    final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
 
     double totalAmount = 0.0;
 
@@ -209,7 +207,7 @@ abstract class SolanaWalletBase
 
       totalAmount = totalAmountFromCredentials.toDouble();
 
-      if (currentBalance < totalAmount) {
+      if (walletBalanceForCurrency < totalAmount) {
         throw SolanaTransactionWrongBalanceException(transactionCurrency);
       }
     } else {
@@ -217,15 +215,21 @@ abstract class SolanaWalletBase
 
       final totalOriginalAmount = double.parse(output.cryptoAmount ?? '0.0');
 
-      totalAmount = output.sendAll ? currentBalance : totalOriginalAmount;
+      totalAmount = output.sendAll ? walletBalanceForCurrency : totalOriginalAmount;
 
-      if (currentBalance < totalAmount) {
+      if (walletBalanceForCurrency < totalAmount) {
         throw SolanaTransactionWrongBalanceException(transactionCurrency);
       }
     }
 
+    String? tokenMint;
+    // Token Mint is only needed for transactions that are not native tokens(non-SOL transactions)
+    if (transactionCurrency.title != CryptoCurrency.sol.title) {
+      tokenMint = (transactionCurrency as SPLToken).mintAddress;
+    }
+
     final pendingSolanaTransaction = await _client.signSolanaTransaction(
-      tokenMint: transactionCurrency.name,
+      tokenMint: tokenMint,
       tokenTitle: transactionCurrency.title,
       inputAmount: totalAmount,
       ownerKeypair: _wallet!,

@@ -2,6 +2,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/core/wallet_connect/models/chain_key_model.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -13,7 +14,6 @@ abstract class WalletConnectKeyService {
   /// If the chain is not found, returns an empty list.
   ///  - [chain]: The chain to get the keys for.
   List<ChainKeyModel> getKeysForChain(WalletBase wallet);
-
 }
 
 class KeyServiceImpl implements WalletConnectKeyService {
@@ -23,6 +23,8 @@ class KeyServiceImpl implements WalletConnectKeyService {
         return ethereum!.getPrivateKey(wallet);
       case WalletType.polygon:
         return polygon!.getPrivateKey(wallet);
+      case WalletType.solana:
+        return solana!.getPrivateKey(wallet);
       default:
         return '';
     }
@@ -34,6 +36,8 @@ class KeyServiceImpl implements WalletConnectKeyService {
         return ethereum!.getPublicKey(wallet);
       case WalletType.polygon:
         return polygon!.getPublicKey(wallet);
+      case WalletType.solana:
+        return solana!.getPublicKey(wallet);
       default:
         return '';
     }

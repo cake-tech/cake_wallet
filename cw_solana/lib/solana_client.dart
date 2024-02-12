@@ -78,7 +78,7 @@ class SolanaWalletClient {
 
       totalBalance += balanceAsDouble;
     }
-    
+
     return SolanaBalance(totalBalance);
   }
 
@@ -189,7 +189,7 @@ class SolanaWalletClient {
   Future<PendingSolanaTransaction> signSolanaTransaction({
     required String tokenTitle,
     required int tokenDecimals,
-    required String tokenMint,
+    String? tokenMint,
     required double inputAmount,
     required String destinationAddress,
     required Ed25519HDKeyPair ownerKeypair,
@@ -211,7 +211,6 @@ class SolanaWalletClient {
       final pendingNativeTokenTransaction = await _signNativeTokenTransaction(
         tokenTitle: tokenTitle,
         tokenDecimals: tokenDecimals,
-        tokenMint: tokenMint,
         inputAmount: inputAmount,
         destinationAddress: destinationAddress,
         ownerKeypair: ownerKeypair,
@@ -223,7 +222,7 @@ class SolanaWalletClient {
       final pendingSPLTokenTransaction = _signSPLTokenTransaction(
         tokenTitle: tokenTitle,
         tokenDecimals: tokenDecimals,
-        tokenMint: tokenMint,
+        tokenMint: tokenMint!,
         inputAmount: inputAmount,
         destinationAddress: destinationAddress,
         ownerKeypair: ownerKeypair,
@@ -245,7 +244,6 @@ class SolanaWalletClient {
   Future<PendingSolanaTransaction> _signNativeTokenTransaction({
     required String tokenTitle,
     required int tokenDecimals,
-    required String tokenMint,
     required double inputAmount,
     required String destinationAddress,
     required Ed25519HDKeyPair ownerKeypair,
