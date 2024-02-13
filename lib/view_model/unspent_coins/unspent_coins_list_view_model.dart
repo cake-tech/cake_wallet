@@ -23,6 +23,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
   WalletBase wallet;
   final Box<UnspentCoinsInfo> _unspentCoinsInfo;
 
+  @observable
   final ObservableList<UnspentCoinsItem> _items = ObservableList();
 
   @computed
