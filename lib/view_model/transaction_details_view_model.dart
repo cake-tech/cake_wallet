@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -27,7 +28,8 @@ abstract class TransactionDetailsViewModelBase with Store {
       {required this.transactionInfo,
       required this.transactionDescriptionBox,
       required this.wallet,
-      required this.settingsStore})
+      required this.settingsStore,
+      required this.sendViewModel})
       : items = [],
         isRecipientAddressShown = false,
         showRecipientAddress = settingsStore.shouldSaveRecipientAddress {
@@ -108,6 +110,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   final Box<TransactionDescription> transactionDescriptionBox;
   final SettingsStore settingsStore;
   final WalletBase wallet;
+  final SendViewModel sendViewModel;
 
   final List<TransactionDetailsListItem> items;
   bool showRecipientAddress;
@@ -117,7 +120,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   bool _canReplaceByFee = false;
 
   @computed
-  bool get canReplaceByFee => _canReplaceByFee;
+  bool get canReplaceByFee => _canReplaceByFee /*&& transactionInfo.confirmations <= 0*/;
 
   String _explorerUrl(WalletType type, String txId) {
     switch (type) {
@@ -299,7 +302,17 @@ abstract class TransactionDetailsViewModelBase with Store {
     }
   }
 
-  void replaceByFee(String newFee) {
-    bitcoin!.replaceByFee(wallet, transactionInfo.id, newFee);
-  }
+  void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo.id, newFee);
+
+
+  @computed
+  String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled
+      ? ''
+      : sendViewModel.pendingTransactionFiatAmount + ' ' + sendViewModel.fiat.title;
+
+  @computed
+  String get pendingTransactionFeeFiatAmountFormatted => sendViewModel.isFiatDisabled
+      ? ''
+      : sendViewModel.pendingTransactionFeeFiatAmount + ' ' + sendViewModel.fiat.title;
+
 }

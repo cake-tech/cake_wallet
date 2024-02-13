@@ -906,7 +906,8 @@ Future<void> setup({
         transactionInfo: transactionInfo,
         transactionDescriptionBox: _transactionDescriptionBox,
         wallet: wallet,
-        settingsStore: getIt.get<SettingsStore>());
+        settingsStore: getIt.get<SettingsStore>(),
+        sendViewModel: getIt.get<SendViewModel>());
   });
 
   getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(

@@ -305,6 +305,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @action
+  void replaceByFee(String txId, String newFee) async {
+    state = IsExecutingState();
+    pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
+    state = ExecutedSuccessfullyState();
+  }
+
+  @action
   Future<void> commitTransaction() async {
     if (pendingTransaction == null) {
       throw Exception("Pending transaction doesn't exist. It should not be happened.");

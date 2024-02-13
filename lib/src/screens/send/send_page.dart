@@ -194,7 +194,7 @@ class SendPage extends BasePage {
                       )),
                   if (sendViewModel.isElectrumWallet)
                     Padding(
-                      padding: EdgeInsets.only(left: 24),
+                      padding: EdgeInsets.only(left: 24, top: 8),
                       child: CheckboxWidget(
                         value: sendViewModel.useReplaceByFee,
                         caption: S.of(context).enable_replace_by_fee,

@@ -77,6 +77,7 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
+import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:mobx/mobx.dart';
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
@@ -135,7 +136,7 @@ abstract class Bitcoin {
   TransactionPriority getBitcoinTransactionPrioritySlow();
   TransactionPriority getLitecoinTransactionPrioritySlow();
 
-  Future<void> replaceByFee(Object wallet, String transactionHash, String fee);
+  Future<PendingBitcoinTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
   Future<bool> canReplaceByFee(Object wallet, String transactionHash);
 }
   """;

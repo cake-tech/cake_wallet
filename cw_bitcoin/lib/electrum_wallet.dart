@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:collection/collection.dart';
+import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/address_to_output_script.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
@@ -259,6 +260,9 @@ abstract class ElectrumWalletBase
     if (fee == 0) {
       throw BitcoinTransactionWrongBalanceException(currency);
     }
+    print("^^^^^^^^^^^^^^^^");
+    print(fee);
+    // fee = 500;
 
     final totalAmount = amount + fee;
 
@@ -335,6 +339,10 @@ abstract class ElectrumWalletBase
     } else {
       feeAmount = feeRate(transactionCredentials.priority!) * estimatedSize;
     }
+
+    print("^^^^^^^^^^^^^^^^");
+    print(feeAmount);
+    // feeAmount = 500;
 
     final changeValue = totalInputAmount - amount - feeAmount;
 
@@ -567,19 +575,11 @@ abstract class ElectrumWalletBase
     final transactionHex = verboseTransaction['hex'] as String;
     final original = bitcoin.Transaction.fromHex(transactionHex);
 
-    // TODO: debug
-    print("!!!!!!!!!!!!!");
-    print(original.ins.every((element) {
-      return element.sequence != null && element.sequence! < 4294967;
-    }));
-
-    return true;
-
     return original.ins
         .every((element) => element.sequence != null && element.sequence! < 4294967);
   }
 
-  Future<void> replaceByFee(String hash, int newFee) async {
+  Future<PendingBitcoinTransaction> replaceByFee(String hash, int newFee) async {
     final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
     final transactionHex = verboseTransaction['hex'] as String;
     final original = bitcoin.Transaction.fromHex(transactionHex);
@@ -595,9 +595,11 @@ abstract class ElectrumWalletBase
         continue;
       }
 
+      if (remainingFee <= 0) {
+        break;
+      }
+
       // check if the amount is larger than the new fee
-      // TODO: currently it deducts the new fee while the old fee is still there
-      // TODO: remove the old fee and deduct the new fee
       if (original.outs[i].value! >= remainingFee) {
         original.outs[i].value = original.outs[i].value! - remainingFee;
       } else {
@@ -605,18 +607,87 @@ abstract class ElectrumWalletBase
       }
 
       remainingFee -= original.outs[i].value!;
-
-      if (remainingFee <= 0) {
-        break;
-      }
     }
 
     if (remainingFee > 0) {
       throw "Fee is larger than amount sent";
     }
 
+    final txb = bitcoin.TransactionBuilder(network: networkType);
+
+    txb.setVersion(1);
+
+    // Add inputs
+    original.ins.forEach((input) {
+        txb.addInput(
+          input.hash,
+          input.value ?? 0,
+          input.sequence,
+          input.prevOutScript,
+        );
+    });
+
+    // Add outputs
+    original.outs.forEach((item) {
+      txb.addOutput(item.script, item.value ?? 0);
+    });
+
+    // match inputs with unspent coins to sign inputs
+    final inputs = <BitcoinUnspent>[];
+    for (var input in original.ins) {
+      var address = addressFromOutput(input.script!, networkType);
+      // inputs.add(unspentCoins.firstWhere((element) {
+      //   print("----------------");
+      //   print(input.script);
+      //   print(input.signScript);
+      //   print(input.prevOutScript);
+      //   print(address);
+      //   print(element.address);
+      //   return element.address == address;
+      // }));
+      inputs.add(unspentCoins.first);
+    }
+
+    // sign inputs
+    for (var i = 0; i < inputs.length; i++) {
+      final input = inputs[i];
+      final keyPair = generateKeyPair(
+          hd: input.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+          index: input.bitcoinAddressRecord.index,
+          network: networkType);
+      final witnessValue = input.isP2wpkh ? input.value : null;
+
+      txb.sign(vin: i, keyPair: keyPair, witnessValue: witnessValue);
+    }
+
+    // ====================================================================================
+
+
+    int amountOut = 0;
+    for (var out in original.outs) {
+      amountOut += out.value ?? 0;
+    }
+    int amountIn = 0;
+    for (var input in original.ins) {
+      amountIn += input.value ?? 0;
+    }
+
+    final transaction = txb.build();
+
     print("@@@@@@@@@@@@@@@");
     print(original.toHex());
+    print(transaction.toHex());
+    print(amountIn);
+    print(amountOut);
+    print(amountIn - amountOut);
+
+
+    return PendingBitcoinTransaction(transaction, type,
+        electrumClient: electrumClient, amount: amountOut, fee: newFee)
+      ..addListener((transaction) async {
+        transactionHistory.addOne(transaction);
+        await updateBalance();
+      });
   }
 
   Future<ElectrumTransactionBundle> getTransactionExpanded(
