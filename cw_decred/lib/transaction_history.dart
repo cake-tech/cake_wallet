@@ -2,7 +2,6 @@ import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_history.dart';
 
-// NOTE: Methods currently not used.
 class DecredTransactionHistory extends TransactionHistoryBase<TransactionInfo> {
   DecredTransactionHistory() {
     transactions = ObservableMap<String, TransactionInfo>();
@@ -23,6 +22,17 @@ class DecredTransactionHistory extends TransactionHistoryBase<TransactionInfo> {
 
   Future<void> changePassword(String password) async {}
 
-  void _update(TransactionInfo transaction) =>
-      transactions[transaction.id] = transaction;
+  // update returns true if a known transaction that is not pending was found.
+  bool update(Map<String, TransactionInfo> txs) {
+    var foundOldTx = false;
+    txs.forEach((_, tx) {
+      if (!this.transactions.containsKey(tx.id) ||
+          this.transactions[tx.id]!.isPending) {
+        this.transactions[tx.id] = tx;
+      } else {
+        foundOldTx = true;
+      }
+    });
+    return foundOldTx;
+  }
 }
