@@ -15,7 +15,8 @@ class UnspentCoinsListViewModel = UnspentCoinsListViewModelBase with _$UnspentCo
 abstract class UnspentCoinsListViewModelBase with Store {
   UnspentCoinsListViewModelBase(
       {required this.wallet, required Box<UnspentCoinsInfo> unspentCoinsInfo})
-      : _unspentCoinsInfo = unspentCoinsInfo {
+      : _unspentCoinsInfo = unspentCoinsInfo,
+        _items = ObservableList<UnspentCoinsItem>() {
     _updateUnspentCoinsInfo();
     _updateUnspents();
   }
@@ -24,7 +25,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
   final Box<UnspentCoinsInfo> _unspentCoinsInfo;
 
   @observable
-  final ObservableList<UnspentCoinsItem> _items = ObservableList();
+  ObservableList<UnspentCoinsItem> _items;
 
   @computed
   ObservableList<UnspentCoinsItem> get items => _items;

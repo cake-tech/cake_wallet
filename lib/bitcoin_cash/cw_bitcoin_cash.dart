@@ -2,12 +2,6 @@ part of 'bitcoin_cash.dart';
 
 class CWBitcoinCash extends BitcoinCash {
   @override
-  String getMnemonic(int? strength) => Mnemonic.generate();
-
-  @override
-  Uint8List getSeedFromMnemonic(String seed) => Mnemonic.toSeed(seed);
-
-  @override
   String getCashAddrFormat(String address) => AddressUtils.getCashAddrFormat(address);
 
   @override
