@@ -1,7 +1,4 @@
-import 'dart:io';
 
-import 'package:breez_sdk/breez_sdk.dart';
-import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -15,8 +12,6 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:cw_bitcoin/.secrets.g.dart' as secrets;
 
 part 'bitcoin_wallet.g.dart';
 
