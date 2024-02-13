@@ -23,11 +23,7 @@ class BuyViewModel = BuyViewModelBase with _$BuyViewModel;
 abstract class BuyViewModelBase with Store {
   BuyViewModelBase(this.ordersSource, this.ordersStore, this.settingsStore, this.buyAmountViewModel,
       {required this.wallet})
-      : isRunning = false,
-        orderId = '',
-        isDisabled = true,
-        isShowProviderButtons = false,
-        items = <BuyItem>[] {}
+      : orderId = '';
 
   final Box<Order> ordersSource;
   final OrdersStore ordersStore;
@@ -38,18 +34,6 @@ abstract class BuyViewModelBase with Store {
   String orderId;
 
   ProviderType? selectedProviderType;
-
-  @observable
-  List<BuyItem> items;
-
-  @observable
-  bool isRunning;
-
-  @observable
-  bool isDisabled;
-
-  @observable
-  bool isShowProviderButtons;
 
   WalletType get type => wallet.type;
 
@@ -85,35 +69,40 @@ abstract class BuyViewModelBase with Store {
     }
   }
 
+  void processProviderUrl({required String urlStr}) async {
+    if (selectedProviderType == null) return;
+
+    final orderId = extractInfoFromUrl(urlStr, selectedProviderType!);
+    final onRamperPartner = determineOnRamperPartner(urlStr);
+    final onRamperPartnerRaw = onRamperPartner != null ? onRamperPartner.index : null;
+
+    if (orderId != null && orderId.isNotEmpty && orderId != this.orderId) {
+      this.orderId = orderId;
+      await saveOrder(orderId, onRamperPartnerRaw: onRamperPartnerRaw);
+    }
+  }
+
   String? extractInfoFromUrl(String url, ProviderType providerType) {
     final config = providerUrlConfigs[providerType];
     if (config == null) return null;
 
     for (var entry in config.parameterKeywords.entries) {
-      final keyword = entry.value;
-      final paramIndex = url.indexOf('$keyword=');
-      if (paramIndex != -1) {
-        final start = paramIndex + keyword.length + 1;
-        int end = config.splitSymbol != null ? url.indexOf(config.splitSymbol!, start) : url.length;
-        end = end == -1 ? url.length : end;
-        return url.substring(start, end);
+      final keywords = entry.value;
+      final startKeyword = keywords['start'];
+      final endKeyword = keywords['end'];
+
+      if (startKeyword != null) {
+        final startIndex = url.indexOf(startKeyword);
+        if (startIndex != -1) {
+          final start = startIndex + startKeyword.length;
+          int end = endKeyword != null ? url.indexOf(endKeyword, start) : url.length;
+          end = end == -1 ? url.length : end;
+          return url.substring(start, end);
+        }
       }
     }
 
     return null;
-  }
-
-  void processProviderUrl({required String urlStr}) async {
-    if (selectedProviderType == null) return;
-
-    final orderId = extractInfoFromUrl(urlStr, selectedProviderType!);
-    final onRamperPartner = determineOnRamperPartner(urlStr); // Determine the partner
-    final onRamperPartnerRaw = onRamperPartner != null ? onRamperPartner.index : null; // Serialize the partner for storage
-
-    if (orderId != null && orderId.isNotEmpty && orderId != this.orderId) {
-      this.orderId = orderId;
-      await saveOrder(orderId, onRamperPartnerRaw: onRamperPartnerRaw); // Pass the partner information
-    }
   }
 
   OnRamperPartner? determineOnRamperPartner(String url) {
@@ -121,8 +110,9 @@ abstract class BuyViewModelBase with Store {
       return OnRamperPartner.guardarian;
     } else if (url.contains('paybis')) {
       return OnRamperPartner.paybis;
+    } else if (url.contains('utpay')) {
+      return OnRamperPartner.utorg;
     }
-    // Add more partners as needed
     return null;
   }
 
@@ -130,35 +120,26 @@ abstract class BuyViewModelBase with Store {
     ProviderType.onramper: ProviderUrlConfig(
       name: ProviderType.onramper.title,
       parameterKeywords: {
-        'guardarian': 'tid',
-        'paybis': 'requestId',
-      },
-      splitSymbol: '&',
-    ),
-    ProviderType.dfx: ProviderUrlConfig(
-      name: ProviderType.dfx.title,
-      parameterKeywords: {
-        'transaction': 'id', // Adjust based on actual URL scheme.
-      },
-    ),
-    ProviderType.robinhood: ProviderUrlConfig(
-      name: ProviderType.robinhood.title,
-      parameterKeywords: {
-        'order': 'ref', // Adjust based on actual URL scheme.
+        'guardarian': {
+          'start': 'tid=',
+          'end': '&',
+        },
+        'paybis': {
+          'start': 'requestId=',
+          'end': '&',
+        },
+        'utpay': {
+          'start': '/order/',
+          'end': '/',
+        },
       },
     ),
-    // Add more providers as necessary, using their titles.
   };
 }
 
-
-
 class ProviderUrlConfig {
   final String name;
-  final Map<String, String> parameterKeywords;
-  final String? splitSymbol;
+  final Map<String, Map<String, String?>> parameterKeywords;
 
-  ProviderUrlConfig({required this.name, required this.parameterKeywords, this.splitSymbol});
+  ProviderUrlConfig({required this.name, required this.parameterKeywords});
 }
-
-

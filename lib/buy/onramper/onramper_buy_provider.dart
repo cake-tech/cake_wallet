@@ -15,6 +15,20 @@ import 'package:collection/collection.dart';
 enum OnRamperPartner {
   guardarian,
   paybis,
+  utorg
+}
+
+extension Name on OnRamperPartner {
+  String get name {
+    switch (this) {
+      case OnRamperPartner.guardarian:
+        return 'Guardarian';
+      case OnRamperPartner.paybis:
+        return 'Paybis';
+      case OnRamperPartner.utorg:
+        return 'Utorg';
+    }
+  }
 }
 
 class OnRamperBuyProvider extends BuyProvider {

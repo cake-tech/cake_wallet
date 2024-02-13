@@ -49,8 +49,10 @@ abstract class OrderDetailsViewModelBase with Store {
         updatedOrder.to = order.to;
         updatedOrder.receiveAddress = order.receiveAddress;
         updatedOrder.walletId = order.walletId;
-          updatedOrder.providerRaw = order.provider != null
+        updatedOrder.providerRaw = order.provider != null
               ? ProvidersHelper.serialize(order.provider!) : null;
+        updatedOrder.onramperPartnerRaw = order.onramperPartner != null
+            ? order.onramperPartner!.index : null;
         order = updatedOrder;
         _updateItems();
     } catch (e) {
@@ -76,6 +78,12 @@ abstract class OrderDetailsViewModelBase with Store {
       StandartListItem(
           title: 'Buy provider',
           value: order.provider?.title ?? '')
+    );
+
+    items.add(
+        StandartListItem(
+            title: 'Partner',
+            value: order.onramperPartner?.name ?? '')
     );
 
     if(_provider != null) {
