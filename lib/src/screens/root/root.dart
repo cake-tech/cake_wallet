@@ -89,10 +89,33 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     }
   }
 
-  void handleDeepLinking(Uri? uri) {
+  Future<void> handleDeepLinking(Uri? uri) async {
     if (uri == null || !mounted) return;
 
     launchUri = uri;
+
+    if (_isValidPaymentUri()) {
+      bool walletAvailable = await waitForWalletInstance();
+      if (walletAvailable) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          widget.navigatorKey.currentState?.pushNamed(
+              Routes.send, arguments: PaymentRequest.fromUri(launchUri)
+          );
+        });
+      }
+    }
+  }
+
+  Future<bool> waitForWalletInstance() async {
+    const maxWait = Duration(milliseconds: 6000);
+    const checkInterval = Duration(milliseconds: 100);
+
+    DateTime start = DateTime.now();
+    while (widget.appStore.wallet == null && DateTime.now().difference(start) < maxWait) {
+      await Future.delayed(checkInterval);
+    }
+
+    return widget.appStore.wallet != null;
   }
 
   @override
@@ -168,12 +191,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           },
         );
       });
-    } else if (_isValidPaymentUri()) {
-      widget.navigatorKey.currentState?.pushNamed(
-        Routes.send,
-        arguments: PaymentRequest.fromUri(launchUri),
-      );
-      launchUri = null;
     } else if (isWalletConnectLink) {
       if (isEVMCompatibleChain(widget.appStore.wallet!.type)) {
         widget.navigatorKey.currentState?.pushNamed(
