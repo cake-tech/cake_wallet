@@ -7,6 +7,7 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
@@ -15,7 +16,6 @@ import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
-import 'package:mobx/mobx.dart';
 import 'package:cw_lightning/lightning_wallet_service.dart';
 
 part 'cw_lightning.dart';
@@ -53,9 +53,7 @@ abstract class Lightning {
   List<String> getWordList();
   Map<String, String> getWalletKeys(Object wallet);
   List<TransactionPriority> getTransactionPriorities();
-  List<TransactionPriority> getLitecoinTransactionPriorities();
   TransactionPriority deserializeLightningTransactionPriority(int raw);
-  TransactionPriority deserializeLitecoinTransactionPriority(int raw);
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet, String label);
   Future<void> updateAddress(Object wallet, String address, String label);

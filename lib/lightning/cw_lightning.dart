@@ -45,16 +45,8 @@ class CWLightning extends Lightning {
 		=> BitcoinTransactionPriority.all;
 
 	@override
-	List<TransactionPriority> getLitecoinTransactionPriorities()
-		=> LitecoinTransactionPriority.all;
-
-	@override
 	TransactionPriority deserializeLightningTransactionPriority(int raw)
 		=> BitcoinTransactionPriority.deserialize(raw: raw);
-
-	@override
-	TransactionPriority deserializeLitecoinTransactionPriority(int raw)
-		=> LitecoinTransactionPriority.deserialize(raw: raw);
 
 	@override
 	int getFeeRate(Object wallet, TransactionPriority priority) {

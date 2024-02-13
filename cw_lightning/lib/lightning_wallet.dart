@@ -64,6 +64,45 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     });
   }
 
+
+  void printDirectoryTree(Directory directory, {String prefix = ''}) {
+    try {
+      final files = directory.listSync();
+      for (var i = 0; i < files.length; i++) {
+        final isLast = i == files.length - 1;
+        if (files[i] is File) {
+          print(
+              '${prefix}${isLast ? '└─' : '├─'} ${files[i].path.split(Platform.pathSeparator).last}');
+        } else if (files[i] is Directory) {
+          print(
+              '${prefix}${isLast ? '└─' : '├─'} ${files[i].path.split(Platform.pathSeparator).last}');
+          printDirectoryTree(files[i] as Directory, prefix: '${prefix}${isLast ? '   ' : '│  '}');
+        }
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> setupBreeze(Uint8List seedBytes) async {
+    // Initialize SDK logs listener
+    final sdk = BreezSDK();
+    sdk.initialize();
+
+    NodeConfig breezNodeConfig = NodeConfig.greenlight(
+      config: GreenlightNodeConfig(
+        partnerCredentials: null,
+        inviteCode: secrets.breezInviteCode,
+      ),
+    );
+    Config breezConfig = await sdk.defaultConfig(
+      envType: EnvironmentType.Production,
+      apiKey: secrets.breezApiKey,
+      nodeConfig: breezNodeConfig,
+    );
+
+    printDirectoryTree(Directory((await getApplicationDocumentsDirectory()).path));
+
   static Future<LightningWallet> create(
       {required String mnemonic,
       required String password,

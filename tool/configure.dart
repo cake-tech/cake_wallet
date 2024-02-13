@@ -704,31 +704,27 @@ abstract class Polygon {
 Future<void> generateLightning(bool hasImplementation) async {
   final outputFile = File(lightningOutputPath);
   const lightningCommonHeaders = """
-import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/erc20_token.dart';
-import 'package:cw_core/output_info.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
-
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
 """;
   const lightningCWHeaders = """
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cw_bitcoin/bitcoin_wallet_service.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
-import 'package:mobx/mobx.dart';
 import 'package:cw_lightning/lightning_wallet_service.dart';
-
 """;
   const lightningCwPart = "part 'cw_lightning.dart';";
   const lightningContent = """
@@ -747,9 +743,7 @@ abstract class Lightning {
   List<String> getWordList();
   Map<String, String> getWalletKeys(Object wallet);
   List<TransactionPriority> getTransactionPriorities();
-  List<TransactionPriority> getLitecoinTransactionPriorities();
   TransactionPriority deserializeLightningTransactionPriority(int raw);
-  TransactionPriority deserializeLitecoinTransactionPriority(int raw);
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet, String label);
   Future<void> updateAddress(Object wallet, String address, String label);
