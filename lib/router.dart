@@ -634,6 +634,18 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.torPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<TorPage>());
 
+    case Routes.lightningSend:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<ExchangePage>());
+
+    case Routes.lightningReceive:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<ExchangePage>());
+
+    case Routes.lightningSettings:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<ExchangePage>());
+
     default:
       return MaterialPageRoute<void>(
           builder: (_) => Scaffold(

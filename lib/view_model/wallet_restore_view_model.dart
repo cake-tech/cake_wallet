@@ -90,6 +90,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
             password: password,
           );
+        case WalletType.lightning:
+          return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+          );
         case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
               name: name, mnemonic: seed, password: password);

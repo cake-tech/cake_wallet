@@ -72,6 +72,7 @@ class TransactionListItem extends ActionListItem with Keyable {
             price: price);
         break;
       case WalletType.bitcoin:
+      case WalletType.lightning:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
         amount = calculateFiatAmountRaw(

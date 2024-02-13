@@ -54,6 +54,7 @@ Future<void> main(List<String> args) async {
     hasBanano: hasBanano,
     hasBitcoinCash: hasBitcoinCash,
     hasPolygon: hasPolygon,
+    hasLightning: hasLightning,
   );
 }
 
@@ -1058,7 +1059,8 @@ Future<void> generateWalletTypes(
     required bool hasNano,
     required bool hasBanano,
     required bool hasBitcoinCash,
-    required bool hasPolygon}) async {
+    required bool hasPolygon,
+    required bool hasLightning}) async {
   final walletTypesFile = File(walletTypesPath);
 
   if (walletTypesFile.existsSync()) {
@@ -1075,6 +1077,10 @@ Future<void> generateWalletTypes(
 
   if (hasBitcoin) {
     outputContent += '\tWalletType.bitcoin,\n';
+  }
+
+  if (hasLightning) {
+    outputContent += '\tWalletType.lightning,\n';
   }
 
   if (hasEthereum) {

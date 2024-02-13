@@ -141,6 +141,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.monero:
         return S.current.view_transaction_on + 'Monero.com';
       case WalletType.bitcoin:
+      case WalletType.lightning:
         return S.current.view_transaction_on + 'mempool.space';
       case WalletType.litecoin:
       case WalletType.bitcoinCash:

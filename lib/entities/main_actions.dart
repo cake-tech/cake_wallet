@@ -3,6 +3,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
 class MainActions {
@@ -11,8 +12,7 @@ class MainActions {
 
   final bool Function(DashboardViewModel viewModel)? isEnabled;
   final bool Function(DashboardViewModel viewModel)? canShow;
-  final Future<void> Function(
-      BuildContext context, DashboardViewModel viewModel) onTap;
+  final Future<void> Function(BuildContext context, DashboardViewModel viewModel) onTap;
 
   MainActions._({
     required this.name,
@@ -55,6 +55,10 @@ class MainActions {
     name: (context) => S.of(context).receive,
     image: 'assets/images/received.png',
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
+      if (viewModel.wallet.type == WalletType.lightning) {
+        Navigator.pushNamed(context, Routes.lightningReceive);
+        return;
+      }
       Navigator.pushNamed(context, Routes.addressPage);
     },
   );
@@ -75,6 +79,10 @@ class MainActions {
     name: (context) => S.of(context).send,
     image: 'assets/images/upload.png',
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
+      if (viewModel.wallet.type == WalletType.lightning) {
+        Navigator.pushNamed(context, Routes.lightningSend);
+        return;
+      }
       Navigator.pushNamed(context, Routes.send);
     },
   );

@@ -264,6 +264,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   bool get hasAllAmount =>
       (wallet.type == WalletType.bitcoin ||
+          wallet.type == WalletType.lightning ||
           wallet.type == WalletType.litecoin ||
           wallet.type == WalletType.bitcoinCash) &&
       depositCurrency == wallet.currency;

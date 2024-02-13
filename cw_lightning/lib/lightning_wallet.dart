@@ -53,7 +53,11 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         networkType: networkType);
 
     // initialize breeze:
-    setupBreeze(seedBytes);
+    try {
+      setupBreez(seedBytes);
+    } catch (e) {
+      print("Error initializing Breez: $e");
+    }
 
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
@@ -100,30 +104,30 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         initialChangeAddressIndex: snp.changeAddressIndex);
   }
 
-  Future<void> setupBreeze(Uint8List seedBytes) async {
-    // // Initialize SDK logs listener
-    // final sdk = BreezSDK();
-    // sdk.initialize();
+  Future<void> setupBreez(Uint8List seedBytes) async {
+    // Initialize SDK logs listener
+    final sdk = BreezSDK();
+    sdk.initialize();
 
-    // NodeConfig breezNodeConfig = NodeConfig.greenlight(
-    //   config: GreenlightNodeConfig(
-    //     partnerCredentials: null,
-    //     inviteCode: secrets.breezInviteCode,
-    //   ),
-    // );
-    // Config breezConfig = await sdk.defaultConfig(
-    //   envType: EnvironmentType.Production,
-    //   apiKey: secrets.breezApiKey,
-    //   nodeConfig: breezNodeConfig,
-    // );
-    
-    // // Customize the config object according to your needs
-    // String workingDir = (await getApplicationDocumentsDirectory()).path;
-    // workingDir = "$workingDir/wallets/lightning/${walletInfo.name}/breez/";
-    // new Directory(workingDir).createSync(recursive: true);
-    // breezConfig = breezConfig.copyWith(workingDir: workingDir);
-    // await sdk.connect(config: breezConfig, seed: seedBytes);
+    NodeConfig breezNodeConfig = NodeConfig.greenlight(
+      config: GreenlightNodeConfig(
+        partnerCredentials: null,
+        inviteCode: secrets.breezInviteCode,
+      ),
+    );
+    Config breezConfig = await sdk.defaultConfig(
+      envType: EnvironmentType.Production,
+      apiKey: secrets.breezApiKey,
+      nodeConfig: breezNodeConfig,
+    );
 
-    // print("initialized: ${(await sdk.isInitialized())}");
+    // Customize the config object according to your needs
+    String workingDir = (await getApplicationDocumentsDirectory()).path;
+    workingDir = "$workingDir/wallets/lightning/${walletInfo.name}/breez/";
+    new Directory(workingDir).createSync(recursive: true);
+    breezConfig = breezConfig.copyWith(workingDir: workingDir);
+    await sdk.connect(config: breezConfig, seed: seedBytes);
+
+    print("initialized: ${(await sdk.isInitialized())}");
   }
 }
