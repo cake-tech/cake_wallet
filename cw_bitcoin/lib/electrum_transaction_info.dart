@@ -11,11 +11,12 @@ import 'package:cw_core/wallet_type.dart';
 
 class ElectrumTransactionBundle {
   ElectrumTransactionBundle(this.originalTransaction,
-      {required this.ins, required this.confirmations, this.time});
+      {required this.ins, required this.confirmations, this.time, required this.height});
   final BtcTransaction originalTransaction;
   final List<BtcTransaction> ins;
   final int? time;
   final int confirmations;
+  final int height;
 }
 
 class ElectrumTransactionInfo extends TransactionInfo {

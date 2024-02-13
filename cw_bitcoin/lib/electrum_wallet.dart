@@ -157,7 +157,6 @@ abstract class ElectrumWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
-      await walletAddresses.discoverAddressesAll();
       await updateTransactions();
       _subscribeForUpdates();
       await updateUnspent();
@@ -632,7 +631,8 @@ abstract class ElectrumWalletBase
       }
     }
 
-    return ElectrumTransactionBundle(original, ins: ins, time: time, confirmations: confirmations);
+    return ElectrumTransactionBundle(original,
+        ins: ins, time: time, confirmations: confirmations, height: height);
   }
 
   Future<ElectrumTransactionInfo?> fetchTransactionInfo(
@@ -641,7 +641,11 @@ abstract class ElectrumWalletBase
       return ElectrumTransactionInfo.fromElectrumBundle(
           await getTransactionExpanded(hash: hash, height: height), walletInfo.type, network,
           addresses: myAddresses, height: height);
-    } catch (_) {
+    } catch (e) {
+      if (e is FormatException) {
+        await Future.delayed(const Duration(seconds: 2));
+        return fetchTransactionInfo(hash: hash, height: height, myAddresses: myAddresses);
+      }
       return null;
     }
   }
@@ -651,40 +655,86 @@ abstract class ElectrumWalletBase
     try {
       final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
       final addressesSet = walletAddresses.allAddresses.map((addr) => addr.address).toSet();
+      final currentHeight = await electrumClient.getCurrentBlockChainTip() ?? 0;
 
-      await Future.wait(walletAddresses.allAddresses.map((addressRecord) => electrumClient
-              .getHistory(addressRecord.scriptHash ?? addressRecord.updateScriptHash(network))
-              .then((history) async {
-            if (history.isNotEmpty) {
-              addressRecord.setAsUsed();
+      await Future.wait(ADDRESS_TYPES.map((type) {
+        final addressesByType = walletAddresses.allAddresses.where((addr) => addr.type == type);
 
-              await Future.wait(history.map((transaction) async {
-                final txid = transaction['tx_hash'] as String;
-                final storedTx = transactionHistory.transactions[txid];
+        return Future.wait(addressesByType.map((addressRecord) async {
+          final history = await _fetchAddressHistory(addressRecord, addressesSet, currentHeight);
 
-                if (storedTx != null) {
-                  // TODO: updated confs & time
-                  historiesWithDetails[txid] = storedTx;
-                } else {
-                  final tx = await fetchTransactionInfo(
-                    hash: txid,
-                    height: transaction['height'] as int,
-                    myAddresses: addressesSet,
-                  );
-                  if (tx != null) {
-                    historiesWithDetails[txid] = tx;
+          if (history.isNotEmpty) {
+            addressRecord.txCount = history.length;
+            historiesWithDetails.addAll(history);
 
-                    // Got a new transaction fetched, add it to the transaction history
-                    // instead of waiting all to finish, and next time it will be faster
-                    transactionHistory.addOne(tx);
-                    await transactionHistory.save();
-                  }
-                }
+            final matchedAddresses =
+                addressesByType.where((addr) => addr.isHidden == addressRecord.isHidden);
 
-                return Future.value(null);
-              }));
+            final isLastUsedAddress =
+                history.isNotEmpty && addressRecord.address == matchedAddresses.last.address;
+
+            if (isLastUsedAddress) {
+              await walletAddresses.discoverAddresses(
+                  matchedAddresses.toList(),
+                  addressRecord.isHidden,
+                  (address, addressesSet) =>
+                      _fetchAddressHistory(address, addressesSet, currentHeight)
+                          .then((history) => history.isNotEmpty ? address.address : null),
+                  type: type);
             }
-          })));
+          }
+        }));
+      }));
+
+      return historiesWithDetails;
+    } catch (e) {
+      print(e.toString());
+      return {};
+    }
+  }
+
+  Future<Map<String, ElectrumTransactionInfo>> _fetchAddressHistory(
+      BitcoinAddressRecord addressRecord, Set<String> addressesSet, int currentHeight) async {
+    try {
+      final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
+
+      final history = await electrumClient
+          .getHistory(addressRecord.scriptHash ?? addressRecord.updateScriptHash(network));
+
+      if (history.isNotEmpty) {
+        addressRecord.setAsUsed();
+
+        await Future.wait(history.map((transaction) async {
+          final txid = transaction['tx_hash'] as String;
+          final height = transaction['height'] as int;
+          final storedTx = transactionHistory.transactions[txid];
+
+          if (storedTx != null) {
+            if (height > 0) {
+              storedTx.height = height;
+              // the tx's block itself is the first confirmation so add 1
+              storedTx.confirmations = currentHeight - height + 1;
+              storedTx.isPending = storedTx.confirmations == 0;
+            }
+
+            historiesWithDetails[txid] = storedTx;
+          } else {
+            final tx =
+                await fetchTransactionInfo(hash: txid, height: height, myAddresses: addressesSet);
+
+            if (tx != null) {
+              historiesWithDetails[txid] = tx;
+
+              // Got a new transaction fetched, add it to the transaction history
+              // instead of waiting all to finish, and next time it will be faster
+              transactionHistory.addOne(tx);
+              await transactionHistory.save();
+            }
+          }
+
+          return Future.value(null);
+        }));
+      }
 
       return historiesWithDetails;
     } catch (e) {

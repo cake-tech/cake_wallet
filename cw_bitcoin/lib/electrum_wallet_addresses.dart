@@ -3,7 +3,6 @@ import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum.dart';
-import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -12,6 +11,14 @@ import 'package:mobx/mobx.dart';
 part 'electrum_wallet_addresses.g.dart';
 
 class ElectrumWalletAddresses = ElectrumWalletAddressesBase with _$ElectrumWalletAddresses;
+
+const List<BitcoinAddressType> ADDRESS_TYPES = [
+  SegwitAddresType.p2wpkh,
+  P2pkhAddressType.p2pkh,
+  SegwitAddresType.p2tr,
+  SegwitAddresType.p2wsh,
+  P2shAddressType.p2wpkhInP2sh,
+];
 
 abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   ElectrumWalletAddressesBase(
@@ -147,23 +154,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         return acc;
       });
 
-  Future<void> discoverAddressesAll() async {
-    await _discoverAddresses(false);
-    await _discoverAddresses(true);
-    await _discoverAddresses(false, type: P2pkhAddressType.p2pkh);
-    await _discoverAddresses(true, type: P2pkhAddressType.p2pkh);
-    await _discoverAddresses(false, type: P2shAddressType.p2wpkhInP2sh);
-    await _discoverAddresses(true, type: P2shAddressType.p2wpkhInP2sh);
-    await _discoverAddresses(false, type: SegwitAddresType.p2tr);
-    await _discoverAddresses(true, type: SegwitAddresType.p2tr);
-    await _discoverAddresses(false, type: SegwitAddresType.p2wsh);
-    await _discoverAddresses(true, type: SegwitAddresType.p2wsh);
-    updateAddressesByMatch();
-    updateReceiveAddresses();
-    updateChangeAddresses();
-    await updateAddressesInBox();
-  }
-
   @override
   Future<void> init() async {
     await _generateInitialAddresses();
@@ -277,43 +267,24 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  Future<void> _discoverAddresses(bool isHidden,
+  Future<void> discoverAddresses(List<BitcoinAddressRecord> addressList, bool isHidden,
+      Future<String?> Function(BitcoinAddressRecord, Set<String>) getAddressHistory,
       {BitcoinAddressType type = SegwitAddresType.p2wpkh}) async {
-    List<BitcoinAddressRecord> addrs;
-    final matchingAddresses =
-        _addresses.where((addr) => _addressMatchesTypeAndHidden(addr, isHidden, type));
-
-    if (matchingAddresses.isNotEmpty) {
-      if (!isHidden) {
-        _validateSideHdAddresses(matchingAddresses.toList());
-      }
-
-      addrs = matchingAddresses.toList();
-    } else {
-      addrs = await _createNewAddresses(
-          isHidden ? defaultChangeAddressesCount : defaultReceiveAddressesCount,
-          startIndex: 0,
-          isHidden: isHidden,
-          type: type);
+    if (!isHidden) {
+      _validateSideHdAddresses(addressList.toList());
     }
 
-    var hasAddrUse = true;
-    while (hasAddrUse) {
-      final addr = addrs.last.address;
-      hasAddrUse = await _hasAddressUsed(addr);
+    final newAddresses = await _createNewAddresses(gap,
+        startIndex: addressList.length, isHidden: isHidden, type: type);
+    addAddresses(newAddresses);
 
-      if (!hasAddrUse) {
-        break;
-      }
+    final addressesWithHistory = await Future.wait(newAddresses
+        .map((addr) => getAddressHistory(addr, _addresses.map((e) => e.address).toSet())));
+    final isLastAddressUsed = addressesWithHistory.last == addressList.last.address;
 
-      final start = addrs.length;
-      final count = start + gap;
-      final batch =
-          await _createNewAddresses(count, startIndex: start, isHidden: isHidden, type: type);
-      addrs.addAll(batch);
+    if (isLastAddressUsed) {
+      discoverAddresses(addressList, isHidden, getAddressHistory, type: type);
     }
-
-    addAddresses(addrs);
   }
 
   Future<void> _generateInitialAddresses(
@@ -321,13 +292,15 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     var countOfReceiveAddresses = 0;
     var countOfHiddenAddresses = 0;
 
-    addresses.forEach((addr) {
-      if (addr.isHidden) {
-        countOfHiddenAddresses += 1;
-        return;
-      }
+    _addresses.forEach((addr) {
+      if (addr.type == type) {
+        if (addr.isHidden) {
+          countOfHiddenAddresses += 1;
+          return;
+        }
 
-      countOfReceiveAddresses += 1;
+        countOfReceiveAddresses += 1;
+      }
     });
 
     if (countOfReceiveAddresses < defaultReceiveAddressesCount) {
@@ -372,12 +345,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
   }
 
-  Future<bool> _hasAddressUsed(String address) async {
-    final sh = scriptHash(address, network: network);
-    final transactionHistory = await electrumClient.getHistory(sh);
-    return transactionHistory.isNotEmpty;
-  }
-
   void _validateSideHdAddresses(List<BitcoinAddressRecord> addrWithTransactions) {
     addrWithTransactions.forEach((element) {
       if (element.address !=
@@ -389,6 +356,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @action
   Future<void> setAddressType(BitcoinAddressType type) async {
     _addressPageType = type;
+    updateAddressesByMatch();
     walletInfo.addressPageType = addressPageTypeStr;
     await walletInfo.save();
   }
@@ -399,7 +367,4 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   bitcoin.HDWallet _getHd(bool isHidden) => isHidden ? sideHd : mainHd;
   bool _isAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) => addr.type == type;
-  bool _addressMatchesTypeAndHidden(
-          BitcoinAddressRecord addr, bool isHidden, BitcoinAddressType type) =>
-      _isAddressByType(addr, type) && addr.isHidden == isHidden;
 }
