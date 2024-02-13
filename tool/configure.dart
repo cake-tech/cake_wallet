@@ -714,6 +714,7 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
 """;
   const lightningCWHeaders = """
 import 'package:cw_bitcoin/electrum_wallet.dart';
