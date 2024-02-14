@@ -189,6 +189,8 @@
   "disable_exchange": "Отключить обмен",
   "disable_fiat": "Отключить фиат",
   "disable_sell": "Отключить действие продажи",
+  "disableBatteryOptimization": "Отключить оптимизацию батареи",
+  "disableBatteryOptimizationDescription": "Вы хотите отключить оптимизацию батареи, чтобы сделать фона синхронизации более свободно и плавно?",
   "disabled": "Отключено",
   "discount": "Сэкономьте ${value}%",
   "display_settings": "Настройки отображения",

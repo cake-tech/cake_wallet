@@ -189,6 +189,8 @@
   "disable_exchange": "Onemogući exchange",
   "disable_fiat": "Isključi, fiat",
   "disable_sell": "Onemogući akciju prodaje",
+  "disableBatteryOptimization": "Onemogući optimizaciju baterije",
+  "disableBatteryOptimizationDescription": "Želite li onemogućiti optimizaciju baterije kako bi se pozadinska sinkronizacija radila slobodnije i glatko?",
   "disabled": "Onemogućeno",
   "discount": "Uštedite ${value}%",
   "display_settings": "Postavke zaslona",

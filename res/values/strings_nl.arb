@@ -189,6 +189,8 @@
   "disable_exchange": "Uitwisseling uitschakelen",
   "disable_fiat": "Schakel Fiat uit",
   "disable_sell": "Verkoopactie uitschakelen",
+  "disableBatteryOptimization": "Schakel de batterijoptimalisatie uit",
+  "disableBatteryOptimizationDescription": "Wilt u de optimalisatie van de batterij uitschakelen om achtergrondsynchronisatie te laten werken, vrijer en soepeler?",
   "disabled": "Gehandicapt",
   "discount": "Bespaar ${value}%",
   "display_settings": "Weergave-instellingen",

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
@@ -12,6 +14,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/settings/tor_connection.dart';
+import 'package:cw_core/battery_optimization_native.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -49,12 +52,39 @@ class ConnectionSyncPage extends BasePage {
             if (DeviceInfo.instance.isMobile) ...[
               Observer(builder: (context) {
                 return SettingsPickerCell<SyncMode>(
-                  title: S.current.background_sync_mode,
-                  items: SyncMode.all,
-                  displayItem: (SyncMode syncMode) => syncMode.name,
-                  selectedItem: dashboardViewModel.syncMode,
-                  onItemSelected: dashboardViewModel.setSyncMode,
-                );
+                    title: S.current.background_sync_mode,
+                    items: SyncMode.all,
+                    displayItem: (SyncMode syncMode) => syncMode.name,
+                    selectedItem: dashboardViewModel.syncMode,
+                    onItemSelected: (syncMode) async {
+                      dashboardViewModel.setSyncMode(syncMode);
+
+                      if (Platform.isIOS) return;
+
+                      if (syncMode.type != SyncType.disabled) {
+                        final isDisabled = await isBatteryOptimizationDisabled();
+
+                        if (isDisabled) return;
+
+                        await showPopUp<void>(
+                          context: context,
+                          builder: (BuildContext dialogContext) {
+                            return AlertWithTwoActions(
+                              alertTitle: S.current.disableBatteryOptimization,
+                              alertContent: S.current.disableBatteryOptimizationDescription,
+                              leftButtonText: S.of(context).cancel,
+                              rightButtonText: S.of(context).ok,
+                              actionLeftButton: () => Navigator.of(dialogContext).pop(),
+                              actionRightButton: () async {
+                                await requestDisableBatteryOptimization();
+
+                                Navigator.of(dialogContext).pop();
+                              },
+                            );
+                          },
+                        );
+                      }
+                    });
               }),
               const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
               Observer(builder: (context) {

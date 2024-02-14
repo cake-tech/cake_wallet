@@ -189,6 +189,8 @@
   "disable_exchange": "تبادلے کو غیر فعال کریں۔",
   "disable_fiat": "فیاٹ کو غیر فعال کریں۔",
   "disable_sell": "فروخت کی کارروائی کو غیر فعال کریں۔",
+  "disableBatteryOptimization": "بیٹری کی اصلاح کو غیر فعال کریں",
+  "disableBatteryOptimizationDescription": "کیا آپ پس منظر کی مطابقت پذیری کو زیادہ آزادانہ اور آسانی سے چلانے کے لئے بیٹری کی اصلاح کو غیر فعال کرنا چاہتے ہیں؟",
   "disabled": "معذور",
   "discount": "${value}% بچائیں",
   "display_settings": "ڈسپلے کی ترتیبات",

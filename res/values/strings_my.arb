@@ -189,6 +189,8 @@
   "disable_exchange": "လဲလှယ်မှုကို ပိတ်ပါ။",
   "disable_fiat": "Fiat ကိုပိတ်ပါ။",
   "disable_sell": "ရောင်းချခြင်းလုပ်ဆောင်ချက်ကို ပိတ်ပါ။",
+  "disableBatteryOptimization": "ဘက်ထရီ optimization ကိုပိတ်ပါ",
+  "disableBatteryOptimizationDescription": "နောက်ခံထပ်တူပြုခြင်းနှင့်ချောချောမွေ့မွေ့ပြုလုပ်နိုင်ရန်ဘက်ထရီ optimization ကိုသင်ပိတ်ထားလိုပါသလား။",
   "disabled": "မသန်စွမ်း",
   "discount": "${value}% ချွေတာ",
   "display_settings": "ပြသရန် ဆက်တင်များ",
