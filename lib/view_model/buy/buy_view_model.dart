@@ -7,28 +7,23 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/view_model/buy/buy_item.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
-import 'buy_amount_view_model.dart';
-
 part 'buy_view_model.g.dart';
 
 class BuyViewModel = BuyViewModelBase with _$BuyViewModel;
 
 abstract class BuyViewModelBase with Store {
-  BuyViewModelBase(this.ordersSource, this.ordersStore, this.settingsStore, this.buyAmountViewModel,
-      {required this.wallet})
+  BuyViewModelBase(this.ordersSource, this.ordersStore, this.settingsStore, {required this.wallet})
       : orderId = '';
 
   final Box<Order> ordersSource;
   final OrdersStore ordersStore;
   final SettingsStore settingsStore;
-  final BuyAmountViewModel buyAmountViewModel;
   final WalletBase wallet;
 
   String orderId;
@@ -37,10 +32,8 @@ abstract class BuyViewModelBase with Store {
 
   WalletType get type => wallet.type;
 
-  double get doubleAmount => buyAmountViewModel.doubleAmount;
-
   @computed
-  FiatCurrency get fiatCurrency => buyAmountViewModel.fiatCurrency;
+  FiatCurrency get fiatCurrency => settingsStore.fiatCurrency;
 
   CryptoCurrency get cryptoCurrency => walletTypeToCryptoCurrency(type);
 
@@ -50,7 +43,7 @@ abstract class BuyViewModelBase with Store {
         'id': orderId,
         'transferId': orderId,
         'createdAt': DateTime.now().toIso8601String(),
-        'amount': doubleAmount.toString(),
+        'amount': '0.0',
         'receiveAddress': 'address123',
         'walletId': wallet.id,
         'providerRaw': ProvidersHelper.serialize(selectedProviderType ?? ProviderType.askEachTime),

@@ -163,7 +163,6 @@ import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
-import 'package:cake_wallet/view_model/buy/buy_amount_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
@@ -954,8 +953,6 @@ Future<void> setup({
   getIt.registerFactoryParam<TradeDetailsPage, Trade, void>(
       (Trade trade, _) => TradeDetailsPage(getIt.get<TradeDetailsViewModel>(param1: trade)));
 
-  getIt.registerFactory(() => BuyAmountViewModel());
-
   getIt.registerFactoryParam<BuySellOptionsPage, bool, void>(
       (isBuyOption, _) => BuySellOptionsPage(getIt.get<DashboardViewModel>(), isBuyOption));
 
@@ -963,7 +960,6 @@ Future<void> setup({
       _ordersSource,
       getIt.get<OrdersStore>(),
       getIt.get<SettingsStore>(),
-      getIt.get<BuyAmountViewModel>(),
       wallet: getIt.get<AppStore>().wallet!));
 
 
