@@ -14,6 +14,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.WindowManager;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.PowerManager;
+import android.provider.Settings;
 
 import com.unstoppabledomains.resolution.DomainResolution;
 import com.unstoppabledomains.resolution.Resolution;
@@ -64,6 +68,14 @@ public class MainActivity extends FlutterFragmentActivity {
                         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
                     }
                     break;
+                case "disableBatteryOptimization":
+                    disableBatteryOptimization();
+                    handler.post(() -> result.success(null));
+                    break;
+                case "isBatteryOptimizationDisabled":
+                    boolean isDisabled = isBatteryOptimizationDisabled();
+                    handler.post(() -> result.success(isDisabled));
+                    break;
                 default:
                     handler.post(() -> result.notImplemented());
             }
@@ -88,4 +100,22 @@ public class MainActivity extends FlutterFragmentActivity {
             }
         });
     }
+
+    private void disableBatteryOptimization() {
+        String packageName = getPackageName();
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+            Intent intent = new Intent();
+            intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+            intent.setData(Uri.parse("package:" + packageName));
+            startActivity(intent);
+        }
+    }
+
+    private boolean isBatteryOptimizationDisabled() {
+        String packageName = getPackageName();
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        return pm.isIgnoringBatteryOptimizations(packageName);
+    }
+
 }
