@@ -107,6 +107,7 @@ class Routes {
   static const importNFTPage = '/import_nft_page';
   static const torPage = '/tor_page';
   static const lightningSend = '/lightning_send';
-  static const lightningReceive = '/lightning_receive';
+  static const lightningInvoice = '/lightning_invoice';
+  static const lightningReceiveOnchain = '/lightning_receive_onchain';
   static const lightningSettings = '/lightning_settings';
 }

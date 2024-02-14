@@ -37,7 +37,10 @@ import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dar
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
+import 'package:cake_wallet/src/screens/receive/lightning_invoice_page.dart';
+import 'package:cake_wallet/src/screens/receive/lightning_receive_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
+import 'package:cake_wallet/src/screens/send/lightning_send_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
@@ -89,6 +92,8 @@ import 'package:cake_wallet/src/screens/dashboard/pages/balance_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
+import 'package:cake_wallet/view_model/lightning_invoice_page_view_model.dart';
+import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
@@ -1194,6 +1199,43 @@ Future<void> setup({
 
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
+
+  getIt.registerFactory<LightningReceiveOnchainPage>(() => LightningReceiveOnchainPage(
+        addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+        receiveOptionViewModel: ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, ReceivePageOption.lightningOnchain),
+      ));
+
+  getIt.registerFactoryParam<LightningInvoicePageViewModel, List<dynamic>, void>((args, _) {
+    final address = args.first as String;
+    final pageOption = args.last as ReceivePageOption;
+    return LightningInvoicePageViewModel(
+      address,
+      getIt.get<SettingsStore>(),
+      getIt.get<AppStore>().wallet!,
+      getIt.get<SharedPreferences>(),
+      pageOption,
+    );
+  });
+
+  // getIt.registerFactory<LightningInvoicePage>(() => LightningInvoicePage(
+  //       lightningInvoicePageViewModel: getIt.get<LightningInvoicePageViewModel>(),
+  //       lightningViewModel: LightningViewModel(),
+  //       receiveOptionViewModel: ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, ReceivePageOption.lightningInvoice),
+  //     ));
+
+
+
+
+  getIt.registerFactoryParam<LightningInvoicePage, List<dynamic>, void>((List<dynamic> args, _) {
+    final pageOption = args.last as ReceivePageOption;
+    return LightningInvoicePage(
+      lightningInvoicePageViewModel: getIt.get<LightningInvoicePageViewModel>(param1: args),
+      lightningViewModel: LightningViewModel(),
+      receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(param1: pageOption));
+  });
+
+  
+  // getIt.registerFactory<LightningSendPage>(() => LightningSendPage(authService: , sendViewModel: , initialPaymentRequest: ,));
 
   _isSetupFinished = true;
 }

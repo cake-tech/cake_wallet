@@ -100,7 +100,7 @@ class CWLightning extends Lightning {
 	}
 
 	@override
-	// @computed
+	@computed
 	List<ElectrumSubAddress> getSubAddresses(Object wallet) {
 		final electrumWallet = wallet as ElectrumWallet;
 		return electrumWallet.walletAddresses.addresses

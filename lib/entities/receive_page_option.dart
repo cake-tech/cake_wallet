@@ -1,8 +1,9 @@
-
 enum ReceivePageOption {
   mainnet,
   anonPayInvoice,
-  anonPayDonationLink;
+  anonPayDonationLink,
+  lightningInvoice,
+  lightningOnchain;
 
   @override
   String toString() {
@@ -16,6 +17,12 @@ enum ReceivePageOption {
         break;
       case ReceivePageOption.anonPayDonationLink:
         label = 'Trocador AnonPay Donation Link';
+        break;
+      case ReceivePageOption.lightningInvoice:
+        label = 'Sats via Invoice';
+        break;
+      case ReceivePageOption.lightningOnchain:
+        label = 'Sats via BTC address';
         break;
     }
     return label;

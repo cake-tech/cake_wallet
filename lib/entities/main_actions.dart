@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -56,7 +57,11 @@ class MainActions {
     image: 'assets/images/received.png',
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
       if (viewModel.wallet.type == WalletType.lightning) {
-        Navigator.pushNamed(context, Routes.lightningReceive);
+        Navigator.pushNamed(
+          context,
+          Routes.lightningInvoice,
+          arguments: [viewModel.address, ReceivePageOption.lightningInvoice],
+        );
         return;
       }
       Navigator.pushNamed(context, Routes.addressPage);

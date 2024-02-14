@@ -9,13 +9,13 @@ import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 class AnonpayCurrencyInputField extends StatelessWidget {
   const AnonpayCurrencyInputField(
       {super.key,
-      required this.onTapPicker,
+      this.onTapPicker,
       required this.selectedCurrency,
       required this.focusNode,
       required this.controller,
       required this.minAmount,
       required this.maxAmount});
-  final Function() onTapPicker;
+  final Function()? onTapPicker;
   final Currency selectedCurrency;
   final FocusNode focusNode;
   final TextEditingController controller;
@@ -34,40 +34,50 @@ class AnonpayCurrencyInputField extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                   bottom: BorderSide(
-                      color:
-                          Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
+                      color: Theme.of(context)
+                          .extension<ExchangePageTheme>()!
+                          .textFieldBorderBottomPanelColor,
                       width: 1)),
             ),
             child: Padding(
               padding: EdgeInsets.only(top: 20),
               child: Row(
                 children: [
-                  Container(
-                    padding: EdgeInsets.only(right: 8),
-                    height: 32,
-                    child: InkWell(
-                      onTap: onTapPicker,
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(right: 5),
-                              child: arrowBottomPurple,
-                            ),
-                            Text(selectedCurrency.name.toUpperCase(),
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white))
-                          ]),
-                    ),
-                  ),
+                  if (onTapPicker != null)
+                    Container(
+                      padding: EdgeInsets.only(right: 8),
+                      height: 32,
+                      child: InkWell(
+                        onTap: onTapPicker,
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(right: 5),
+                                child: arrowBottomPurple,
+                              ),
+                              Text(selectedCurrency.name.toUpperCase(),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                      color: Colors.white))
+                            ]),
+                      ),
+                    )
+                  else
+                    Text(selectedCurrency.name.toUpperCase(),
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white)),
                   selectedCurrency.tag != null
                       ? Padding(
                           padding: const EdgeInsets.only(right: 3.0),
                           child: Container(
                             height: 32,
                             decoration: BoxDecoration(
-                                color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+                                color: Theme.of(context)
+                                    .extension<SendPageTheme>()!
+                                    .textFieldButtonColor,
                                 borderRadius: BorderRadius.all(Radius.circular(6))),
                             child: Center(
                               child: Padding(
@@ -77,7 +87,9 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
+                                    color: Theme.of(context)
+                                        .extension<SendPageTheme>()!
+                                        .textFieldButtonIconColor,
                                   ),
                                 ),
                               ),
@@ -115,7 +127,8 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                             placeholderTextStyle: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor,
+                              color:
+                                  Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor,
                             ),
                             validator: null,
                           ),
