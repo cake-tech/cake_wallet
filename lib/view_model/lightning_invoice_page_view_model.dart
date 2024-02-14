@@ -6,6 +6,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -16,23 +17,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 part 'lightning_invoice_page_view_model.g.dart';
 
-class LightningInvoicePageViewModel = LightningInvoicePageViewModelBase with _$LightningInvoicePageViewModel;
+class LightningInvoicePageViewModel = LightningInvoicePageViewModelBase
+    with _$LightningInvoicePageViewModel;
 
 abstract class LightningInvoicePageViewModelBase with Store {
   LightningInvoicePageViewModelBase(
     this.address,
     this.settingsStore,
     this._wallet,
-    // this._anonpayInvoiceInfoSource,
     this.sharedPreferences,
+    this.lightningViewModel,
     this.pageOption,
   )   : description = '',
         amount = '',
         state = InitialExecutionState(),
         selectedCurrency = walletTypeToCryptoCurrency(_wallet.type),
         cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type) {
-    // _getPreviousDonationLink();
-    // _fetchLimits();
+    _fetchLimits();
   }
 
   List<Currency> get currencies => [walletTypeToCryptoCurrency(_wallet.type), ...FiatCurrency.all];
@@ -42,6 +43,7 @@ abstract class LightningInvoicePageViewModelBase with Store {
   // final Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
   final SharedPreferences sharedPreferences;
   final ReceivePageOption pageOption;
+  final LightningViewModel lightningViewModel;
 
   @observable
   Currency selectedCurrency;
@@ -97,18 +99,14 @@ abstract class LightningInvoicePageViewModelBase with Store {
         return;
       }
     }
-    // final result = await anonPayApi.createInvoice(AnonPayRequest(
-    //   cryptoCurrency: cryptoCurrency,
-    //   address: address,
-    //   amount: amount.isEmpty ? null : amount,
-    //   description: description,
-    //   fiatEquivalent:
-    //       selectedCurrency is FiatCurrency ? (selectedCurrency as FiatCurrency).raw : null,
-    // ));
 
-    // _anonpayInvoiceInfoSource.add(result);
-
-    // state = ExecutedSuccessfullyState(payload: result);
+    try {
+      String bolt11 =
+          await lightningViewModel.createInvoice(amount: amount, description: description);
+      state = ExecutedSuccessfullyState(payload: bolt11);
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
   }
 
   @action
@@ -121,6 +119,7 @@ abstract class LightningInvoicePageViewModelBase with Store {
   }
 
   Future<void> _fetchLimits() async {
+    List<String> limits = await lightningViewModel.invoiceLimits();
     // final limit = await anonPayApi.fetchLimits(
     //   cryptoCurrency: cryptoCurrency,
     //   fiatCurrency: selectedCurrency is FiatCurrency ? selectedCurrency as FiatCurrency : null,
@@ -132,7 +131,7 @@ abstract class LightningInvoicePageViewModelBase with Store {
   @action
   void reset() {
     selectedCurrency = walletTypeToCryptoCurrency(_wallet.type);
-    cryptoCurrency =  walletTypeToCryptoCurrency(_wallet.type);
+    cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type);
     description = '';
     amount = '';
     _fetchLimits();

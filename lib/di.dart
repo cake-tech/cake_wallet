@@ -608,7 +608,6 @@ Future<void> setup({
             authService: getIt.get<AuthService>(),
             initialPaymentRequest: initialPaymentRequest,
           ));
-
   getIt.registerFactory(
       () => SendTemplatePage(sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
 
@@ -1200,11 +1199,6 @@ Future<void> setup({
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
 
-  getIt.registerFactory<LightningReceiveOnchainPage>(() => LightningReceiveOnchainPage(
-        addressListViewModel: getIt.get<WalletAddressListViewModel>(),
-        receiveOptionViewModel: ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, ReceivePageOption.lightningOnchain),
-      ));
-
   getIt.registerFactoryParam<LightningInvoicePageViewModel, List<dynamic>, void>((args, _) {
     final address = args.first as String;
     final pageOption = args.last as ReceivePageOption;
@@ -1213,29 +1207,38 @@ Future<void> setup({
       getIt.get<SettingsStore>(),
       getIt.get<AppStore>().wallet!,
       getIt.get<SharedPreferences>(),
+      LightningViewModel(),
       pageOption,
     );
   });
 
-  // getIt.registerFactory<LightningInvoicePage>(() => LightningInvoicePage(
-  //       lightningInvoicePageViewModel: getIt.get<LightningInvoicePageViewModel>(),
-  //       lightningViewModel: LightningViewModel(),
-  //       receiveOptionViewModel: ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, ReceivePageOption.lightningInvoice),
+  // getIt.registerFactory<LightningReceiveOnchainPage>(() => LightningReceiveOnchainPage(
+  //       addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+  //       receiveOptionViewModel: ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, ReceivePageOption.lightningOnchain),
   //     ));
 
-
-
+  getIt.registerFactoryParam<LightningReceiveOnchainPage, List<dynamic>, void>(
+      (List<dynamic> args, _) {
+    final pageOption = args.last as ReceivePageOption;
+    return LightningReceiveOnchainPage(
+        addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+        // lightningViewModel: LightningViewModel(),
+        receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(param1: pageOption));
+  });
 
   getIt.registerFactoryParam<LightningInvoicePage, List<dynamic>, void>((List<dynamic> args, _) {
     final pageOption = args.last as ReceivePageOption;
     return LightningInvoicePage(
-      lightningInvoicePageViewModel: getIt.get<LightningInvoicePageViewModel>(param1: args),
-      lightningViewModel: LightningViewModel(),
-      receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(param1: pageOption));
+        lightningInvoicePageViewModel: getIt.get<LightningInvoicePageViewModel>(param1: args),
+        lightningViewModel: LightningViewModel(),
+        receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(param1: pageOption));
   });
 
-  
-  // getIt.registerFactory<LightningSendPage>(() => LightningSendPage(authService: , sendViewModel: , initialPaymentRequest: ,));
+  getIt.registerFactory<LightningSendPage>(() => LightningSendPage(
+        sendViewModel: getIt.get<SendViewModel>(),
+        authService: getIt.get<AuthService>(),
+        initialPaymentRequest: null,
+      ));
 
   _isSetupFinished = true;
 }

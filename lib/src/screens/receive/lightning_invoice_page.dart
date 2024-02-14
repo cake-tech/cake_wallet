@@ -35,8 +35,6 @@ class LightningInvoicePage extends BasePage {
     required this.receiveOptionViewModel,
   }) : _amountFocusNode = FocusNode() {}
 
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
   final FocusNode _amountFocusNode;
@@ -138,48 +136,36 @@ class LightningInvoicePage extends BasePage {
             bottomSection: Observer(builder: (_) {
               return Column(
                 children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 15),
-                    child: Center(
-                      child: Text(
-                        S.of(context).anonpay_description("an invoice", "pay"),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Theme.of(context)
-                                .extension<ExchangePageTheme>()!
-                                .receiveAmountColor,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 12),
-                      ),
-                    ),
-                  ),
-                  // LoadingPrimaryButton(
-                  //   text: isInvoice
-                  //       ? S.of(context).create_invoice
-                  //       : S.of(context).create_donation_link,
-                  //   onPressed: () {
-                  //     FocusScope.of(context).unfocus();
-                  //     anonInvoicePageViewModel.setRequestParams(
-                  //       inputAmount: _amountController.text,
-                  //       inputName: _nameController.text,
-                  //       inputEmail: _emailController.text,
-                  //       inputDescription: _descriptionController.text,
-                  //     );
-                  //     if (anonInvoicePageViewModel.receipientEmail.isNotEmpty &&
-                  //         _formKey.currentState != null &&
-                  //         !_formKey.currentState!.validate()) {
-                  //       return;
-                  //     }
-                  //     if (isInvoice) {
-                  //       anonInvoicePageViewModel.createInvoice();
-                  //     } else {
-                  //       anonInvoicePageViewModel.generateDonationLink();
-                  //     }
-                  //   },
-                  //    color: Theme.of(context).primaryColor,
-                  //   textColor: Colors.white,
-                  //   isLoading: anonInvoicePageViewModel.state is IsExecutingState,
+                  // Padding(
+                  //   padding: EdgeInsets.only(bottom: 15),
+                  //   child: Center(
+                  //     child: Text(
+                  //       S.of(context).anonpay_description("an invoice", "pay"),
+                  //       textAlign: TextAlign.center,
+                  //       style: TextStyle(
+                  //           color: Theme.of(context)
+                  //               .extension<ExchangePageTheme>()!
+                  //               .receiveAmountColor,
+                  //           fontWeight: FontWeight.w500,
+                  //           fontSize: 12),
+                  //     ),
+                  //   ),
                   // ),
+                  LoadingPrimaryButton(
+                    text: S.of(context).create_invoice,
+                    onPressed: () {
+                      FocusScope.of(context).unfocus();
+                      lightningViewModel.createInvoice(amount: _amountController.text, description: _descriptionController.text);
+                      lightningInvoicePageViewModel.setRequestParams(
+                        inputAmount: _amountController.text,
+                        inputDescription: _descriptionController.text,
+                      );
+                      lightningInvoicePageViewModel.createInvoice();
+                    },
+                    color: Theme.of(context).primaryColor,
+                    textColor: Colors.white,
+                    isLoading: lightningInvoicePageViewModel.state is IsExecutingState,
+                  ),
                 ],
               );
             }),
@@ -194,33 +180,56 @@ class LightningInvoicePage extends BasePage {
       return;
     }
 
-    reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
+    reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) async {
       switch (option) {
         case ReceivePageOption.lightningInvoice:
           break;
         case ReceivePageOption.lightningOnchain:
-          Navigator.popAndPushNamed(context, Routes.lightningReceiveOnchain);
+          final address = await lightningViewModel.receiveOnchain();
+          Navigator.popAndPushNamed(
+            context,
+            Routes.lightningReceiveOnchain,
+            arguments: [address, ReceivePageOption.lightningInvoice],
+          );
           break;
         default:
       }
     });
 
-    // reaction((_) => anonInvoicePageViewModel.state, (ExecutionState state) {
-    //   if (state is ExecutedSuccessfullyState) {
-    //     Navigator.pushNamed(context, Routes.anonPayReceivePage, arguments: state.payload);
-    //   }
-    //   if (state is FailureState) {
-    //     showPopUp<void>(
-    //         context: context,
-    //         builder: (BuildContext context) {
-    //           return AlertWithOneAction(
-    //               alertTitle: S.of(context).error,
-    //               alertContent: state.error.toString(),
-    //               buttonText: S.of(context).ok,
-    //               buttonAction: () => Navigator.of(context).pop());
-    //         });
-    //   }
-    // });
+    reaction((_) => lightningInvoicePageViewModel.state, (ExecutionState state) {
+      if (state is ExecutedSuccessfullyState) {
+        // Navigator.pushNamed(context, Routes.anonPayReceivePage, arguments: state.payload);
+        lightningViewModel.createInvoice(
+          amount: state.payload["amount"] as String,
+          description: state.payload["description"] as String?,
+        );
+      }
+
+      if (state is ExecutedSuccessfullyState) {
+        showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                  // alertTitle: S.of(context).invoice_created,
+                  alertTitle: "Invoice created TODO",
+                  alertContent: state.payload as String,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop());
+            });
+      }
+
+      if (state is FailureState) {
+        showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                  alertTitle: S.of(context).error,
+                  alertContent: state.error.toString(),
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop());
+            });
+      }
+    });
 
     effectsInstalled = true;
   }
