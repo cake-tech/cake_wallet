@@ -20,6 +20,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:collection/collection.dart';
+import 'package:cake_wallet/core/key_service.dart';
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
@@ -31,15 +32,17 @@ const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
 
-Future<void> defaultSettingsMigration(
-    {required int version,
-    required SharedPreferences sharedPreferences,
-    required FlutterSecureStorage secureStorage,
-    required Box<Node> nodes,
-    required Box<Node> powNodes,
-    required Box<WalletInfo> walletInfoSource,
-    required Box<Trade> tradeSource,
-    required Box<Contact> contactSource}) async {
+Future<void> defaultSettingsMigration({
+  required int version,
+  required SharedPreferences sharedPreferences,
+  required FlutterSecureStorage secureStorage,
+  required Box<Node> nodes,
+  required Box<Node> powNodes,
+  required Box<WalletInfo> walletInfoSource,
+  required Box<Trade> tradeSource,
+  required Box<Contact> contactSource,
+  required KeyService keyService,
+}) async {
   if (Platform.isIOS) {
     await ios_migrate_v1(walletInfoSource, tradeSource, contactSource);
   }
@@ -50,7 +53,7 @@ Future<void> defaultSettingsMigration(
   final isNewInstall =
       sharedPreferences.getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) == null;
 
-  await _validateWalletInfoBoxData(walletInfoSource);
+  await _validateWalletInfoBoxData(keyService, walletInfoSource);
 
   await sharedPreferences.setBool(PreferencesKey.isNewInstall, isNewInstall);
 
@@ -186,6 +189,7 @@ Future<void> defaultSettingsMigration(
           await rewriteSecureStoragePin(secureStorage: secureStorage);
           break;
         case 26:
+
           /// commented out as it was a probable cause for some users to have white screen issues
           /// maybe due to multiple access on Secure Storage at once
           /// or long await time on start of the app
@@ -205,7 +209,8 @@ Future<void> defaultSettingsMigration(
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
 }
 
-Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async {
+Future<void> _validateWalletInfoBoxData(
+    KeyService keyService, Box<WalletInfo> walletInfoSource) async {
   try {
     final root = await getApplicationDocumentsDirectory();
 
@@ -232,17 +237,66 @@ Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async 
         }
 
         final walletFiles = dir.listSync();
-        final hasCacheFile = walletFiles.any((element) => element.path.contains("$name/$name"));
+        final hasCacheFile =
+            walletFiles.any((element) => element.path.endsWith("${dir.path}/#_$name"));
+        String? renamedFileName;
 
         if (!hasCacheFile) {
-          continue;
+          await Future.wait(walletFiles.map((file) async {
+            if (file.path.startsWith("${dir.path}/#_")) {
+              var rightPath = '${dir.path}/#_$name';
+              if (file.path.endsWith(".keys")) {
+                rightPath += ".keys";
+              }
+              // Create the new file with the right wallet name
+              File(file.path).copySync(rightPath);
+
+              renamedFileName = file.path.replaceAll("${dir.path}/#_", "").replaceAll(".keys", "");
+              final rest = file.path.replaceAll("${dir.path}/#_$renamedFileName", "");
+              final renamedFileDirPath =
+                  Directory(await pathForWalletDir(name: renamedFileName!, type: type));
+
+              // Move the renamed file to the proper wallet directory
+              File(file.path).copySync('${renamedFileDirPath.path}/#_$renamedFileName$rest');
+            }
+          }));
         }
 
         if (type == WalletType.monero || type == WalletType.haven) {
-          final hasKeysFile = walletFiles.any((element) => element.path.contains(".keys"));
+          final hasKeysFile =
+              walletFiles.any((element) => element.path == "${dir.path}/$name.keys");
 
           if (!hasKeysFile) {
-            continue;
+            final renamedKeysFile = walletFiles.firstWhereOrNull((element) =>
+                !element.path.startsWith("${dir.path}/#_") && element.path.endsWith(".keys"));
+
+            if (renamedKeysFile != null) {
+              renamedFileName =
+                  renamedKeysFile.path.replaceAll("${dir.path}/", "").replaceAll(".keys", "");
+
+              await keyService.saveWalletPassword(
+                  walletName: renamedFileName!,
+                  password: await keyService.getWalletPassword(walletName: name));
+
+              // Create the new files with the right wallet name
+              File("${dir.path}/$renamedFileName").copySync('${dir.path}/$name');
+              File("${dir.path}/$renamedFileName.keys").copySync('${dir.path}/$name.keys');
+              File("${dir.path}/$renamedFileName.address.txt")
+                  .copySync('${dir.path}/$name.address.txt');
+
+              final renamedFileDirPath =
+                  Directory(await pathForWalletDir(name: renamedFileName!, type: type));
+
+              // Move the renamed files to the proper wallet directory
+              File("${dir.path}/$renamedFileName")
+                  .copySync('${renamedFileDirPath.path}/$renamedFileName');
+              File("${dir.path}/$renamedFileName.keys")
+                  .copySync('${renamedFileDirPath.path}/$renamedFileName.keys');
+              File("${dir.path}/$renamedFileName.address.txt")
+                  .copySync('${renamedFileDirPath.path}/$renamedFileName.address.txt');
+            } else {
+              continue;
+            }
           }
         }
 

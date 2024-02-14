@@ -276,7 +276,6 @@ Future<void> setup({
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
-    getIt.registerSingleton<FlutterSecureStorage>(secureStorage);
   }
   if (!_isSetupFinished) {
     getIt.registerFactory(() => BackgroundTasks());
@@ -331,8 +330,6 @@ Future<void> setup({
   final secretStore = await SecretStoreBase.load(getIt.get<FlutterSecureStorage>());
 
   getIt.registerSingleton<SecretStore>(secretStore);
-
-  getIt.registerFactory<KeyService>(() => KeyService(getIt.get<FlutterSecureStorage>()));
 
   getIt.registerFactoryParam<WalletCreationService, WalletType, void>((type, _) =>
       WalletCreationService(

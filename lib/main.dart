@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/locales/locale.dart';
@@ -183,15 +184,19 @@ Future<void> initialSetup(
     required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
     int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
+  getIt.registerSingleton<FlutterSecureStorage>(secureStorage);
+  getIt.registerFactory<KeyService>(() => KeyService(getIt.get<FlutterSecureStorage>()));
   await defaultSettingsMigration(
-      secureStorage: secureStorage,
-      version: initialMigrationVersion,
-      sharedPreferences: sharedPreferences,
-      walletInfoSource: walletInfoSource,
-      contactSource: contactSource,
-      tradeSource: tradesSource,
-      nodes: nodes,
-      powNodes: powNodes);
+    secureStorage: secureStorage,
+    version: initialMigrationVersion,
+    sharedPreferences: sharedPreferences,
+    walletInfoSource: walletInfoSource,
+    contactSource: contactSource,
+    tradeSource: tradesSource,
+    nodes: nodes,
+    powNodes: powNodes,
+    keyService: getIt.get<KeyService>(),
+  );
   await setup(
       walletInfoSource: walletInfoSource,
       nodeSource: nodes,
