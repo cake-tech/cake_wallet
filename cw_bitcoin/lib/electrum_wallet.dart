@@ -386,7 +386,9 @@ abstract class ElectrumWalletBase
         'account_index': walletAddresses.currentReceiveAddressIndexByType,
         'change_address_index': walletAddresses.currentChangeAddressIndexByType,
         'addresses': walletAddresses.allAddresses.map((addr) => addr.toJSON()).toList(),
-        'address_page_type': walletInfo.addressPageType.toString(),
+        'address_page_type': walletInfo.addressPageType == null
+            ? SegwitAddresType.p2wpkh.toString()
+            : walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON(),
         'network_type': network == BitcoinNetwork.testnet ? 'testnet' : 'mainnet',
       });
