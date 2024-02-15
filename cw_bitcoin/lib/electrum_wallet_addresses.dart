@@ -72,10 +72,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   BitcoinAddressType get addressPageType => _addressPageType;
 
   @computed
-  @override
-  String get addressPageTypeStr => addressPageType.toString();
-
-  @computed
   List<BitcoinAddressRecord> get allAddresses => _addresses;
 
   @override
@@ -359,7 +355,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   Future<void> setAddressType(BitcoinAddressType type) async {
     _addressPageType = type;
     updateAddressesByMatch();
-    walletInfo.addressPageType = addressPageTypeStr;
+    walletInfo.addressPageType = addressPageType.toString();
     await walletInfo.save();
   }
 

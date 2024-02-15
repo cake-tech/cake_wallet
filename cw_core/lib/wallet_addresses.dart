@@ -20,8 +20,6 @@ abstract class WalletAddresses {
 
   Set<String> usedAddresses = {};
 
-  String? addressPageTypeStr;
-
   Future<void> init();
 
   Future<void> updateAddressesInBox();
