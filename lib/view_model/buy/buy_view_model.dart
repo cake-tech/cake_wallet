@@ -46,7 +46,8 @@ abstract class BuyViewModelBase with Store {
     bool isBuyAction = this.isBuyAction ?? true;
 
     final formattedCryptoCurrency =
-        cryptoCurrency != null ? CryptoCurrency.fromString(cryptoCurrency) : null;
+        cryptoCurrency != null && cryptoCurrency.isNotEmpty
+            ? CryptoCurrency.fromString(cryptoCurrency) : null;
 
     final orderData = {
       'id': orderId,
