@@ -115,8 +115,9 @@ abstract class ElectrumWalletBase
   @observable
   SyncStatus syncStatus;
 
-  List<String> get scriptHashes =>
-      walletAddresses.addresses.map((addr) => scriptHash(addr.address, network: network)).toList();
+  List<String> get scriptHashes => walletAddresses.addressesByReceiveType
+      .map((addr) => scriptHash(addr.address, network: network))
+      .toList();
 
   List<String> get publicScriptHashes => walletAddresses.allAddresses
       .where((addr) => !addr.isHidden)

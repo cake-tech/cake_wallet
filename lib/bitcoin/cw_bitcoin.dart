@@ -100,7 +100,7 @@ class CWBitcoin extends Bitcoin {
   @override
   List<String> getAddresses(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.walletAddresses.addresses
+    return bitcoinWallet.walletAddresses.addressesByReceiveType
         .map((BitcoinAddressRecord addr) => addr.address)
         .toList();
   }
@@ -109,7 +109,7 @@ class CWBitcoin extends Bitcoin {
   @computed
   List<ElectrumSubAddress> getSubAddresses(Object wallet) {
     final electrumWallet = wallet as ElectrumWallet;
-    return electrumWallet.walletAddresses.addresses
+    return electrumWallet.walletAddresses.addressesByReceiveType
         .map((BitcoinAddressRecord addr) => ElectrumSubAddress(
             id: addr.index,
             name: addr.name,

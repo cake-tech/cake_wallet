@@ -31,7 +31,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
-        addresses = ObservableList<BitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
+        addressesByReceiveType =
+            ObservableList<BitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
         receiveAddresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? [])
             .where((addressRecord) => !addressRecord.isHidden && !addressRecord.isUsed)
             .toSet()),
@@ -57,7 +58,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   final ObservableList<BitcoinAddressRecord> _addresses;
   // Matched by addressPageType
-  late ObservableList<BitcoinAddressRecord> addresses;
+  late ObservableList<BitcoinAddressRecord> addressesByReceiveType;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
   final ElectrumClient electrumClient;
@@ -89,7 +90,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           previousAddressRecord != null && previousAddressRecord!.type == addressPageType;
 
       if (previousAddressMatchesType &&
-          typeMatchingReceiveAddresses.first.address != addresses.first.address) {
+          typeMatchingReceiveAddresses.first.address != addressesByReceiveType.first.address) {
         receiveAddress = previousAddressRecord!.address;
       } else {
         receiveAddress = typeMatchingReceiveAddresses.first.address;
@@ -137,7 +138,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   BitcoinAddressRecord? previousAddressRecord;
 
   @computed
-  int get totalCountOfReceiveAddresses => addresses.fold(0, (acc, addressRecord) {
+  int get totalCountOfReceiveAddresses => addressesByReceiveType.fold(0, (acc, addressRecord) {
         if (!addressRecord.isHidden) {
           return acc + 1;
         }
@@ -145,7 +146,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       });
 
   @computed
-  int get totalCountOfChangeAddresses => addresses.fold(0, (acc, addressRecord) {
+  int get totalCountOfChangeAddresses => addressesByReceiveType.fold(0, (acc, addressRecord) {
         if (addressRecord.isHidden) {
           return acc + 1;
         }
@@ -195,7 +196,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   BitcoinAddressRecord generateNewAddress({String label = ''}) {
-    final newAddressIndex = addresses.fold(
+    final newAddressIndex = addressesByReceiveType.fold(
         0, (int acc, addressRecord) => addressRecord.isHidden == false ? acc + 1 : acc);
 
     final address = BitcoinAddressRecord(
@@ -241,8 +242,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   void updateAddressesByMatch() {
-    addresses.clear();
-    addresses.addAll(_addresses.where(_isAddressPageTypeMatch).toList());
+    addressesByReceiveType.clear();
+    addressesByReceiveType.addAll(_addresses.where(_isAddressPageTypeMatch).toList());
   }
 
   @action
