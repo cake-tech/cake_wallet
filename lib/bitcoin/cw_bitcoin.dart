@@ -188,24 +188,4 @@ class CWBitcoin extends Bitcoin {
 
   @override
   List<BitcoinReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
-
-  @override
-  Future<BitcoinWallet> create(WalletService service, WalletCredentials credentials,
-          {bool? isTestnet}) =>
-      (service as BitcoinWalletService)
-          .create(credentials as BitcoinNewWalletCredentials, isTestnet: isTestnet);
-
-  @override
-  Future<BitcoinWallet> restoreFromKeys(WalletService service, WalletCredentials credentials,
-          {bool? isTestnet}) =>
-      (service as BitcoinWalletService).restoreFromKeys(
-          credentials as BitcoinRestoreWalletFromWIFCredentials,
-          isTestnet: isTestnet);
-
-  @override
-  Future<BitcoinWallet> restoreFromSeed(WalletService service, WalletCredentials credentials,
-          {bool? isTestnet}) =>
-      (service as BitcoinWalletService).restoreFromSeed(
-          credentials as BitcoinRestoreWalletFromSeedCredentials,
-          isTestnet: isTestnet);
 }

@@ -2,10 +2,7 @@ import 'dart:io';
 
 import 'package:bip39/bip39.dart';
 import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
-import 'package:cw_core/balance.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -29,12 +26,9 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
       File(await pathForWallet(name: name, type: getType())).existsSync();
 
   @override
-  Future<BitcoinCashWallet> create(credentials) async {
-    final strength = (credentials.seedPhraseLength == 12)
-        ? 128
-        : (credentials.seedPhraseLength == 24)
-            ? 256
-            : 128;
+  Future<BitcoinCashWallet> create(credentials, {bool? isTestnet}) async {
+    final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
+
     final wallet = await BitcoinCashWalletBase.create(
         mnemonic: await Mnemonic.generate(strength: strength),
         password: credentials.password!,
@@ -100,14 +94,14 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
   }
 
   @override
-  Future<BitcoinCashWallet> restoreFromKeys(credentials) {
+  Future<BitcoinCashWallet> restoreFromKeys(credentials, {bool? isTestnet}) {
     // TODO: implement restoreFromKeys
     throw UnimplementedError('restoreFromKeys() is not implemented');
   }
 
   @override
-  Future<BitcoinCashWallet> restoreFromSeed(
-      BitcoinCashRestoreWalletFromSeedCredentials credentials) async {
+  Future<BitcoinCashWallet> restoreFromSeed(BitcoinCashRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
     if (!validateMnemonic(credentials.mnemonic)) {
       throw BitcoinCashMnemonicIsIncorrectException();
     }

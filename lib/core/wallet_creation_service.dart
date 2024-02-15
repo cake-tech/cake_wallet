@@ -1,4 +1,3 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -63,12 +62,7 @@ class WalletCreationService {
       credentials.seedPhraseLength = settingsStore.seedPhraseLength.value;
     }
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);
-    WalletBase? wallet;
-    if (type == WalletType.bitcoin) {
-      wallet = await bitcoin!.create(_service!, credentials, isTestnet: isTestnet);
-    } else {
-      wallet = await _service!.create(credentials);
-    }
+    final wallet = await _service!.create(credentials, isTestnet: isTestnet);
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
@@ -83,12 +77,7 @@ class WalletCreationService {
     final password = generateWalletPassword();
     credentials.password = password;
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);
-    WalletBase? wallet;
-    if (type == WalletType.bitcoin) {
-      wallet = await bitcoin!.restoreFromKeys(_service!, credentials, isTestnet: isTestnet);
-    } else {
-      wallet = await _service!.restoreFromKeys(credentials);
-    }
+    final wallet = await _service!.restoreFromKeys(credentials, isTestnet: isTestnet);
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
@@ -103,12 +92,7 @@ class WalletCreationService {
     final password = generateWalletPassword();
     credentials.password = password;
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);
-    WalletBase? wallet;
-    if (type == WalletType.bitcoin) {
-      wallet = await bitcoin!.restoreFromSeed(_service!, credentials, isTestnet: isTestnet);
-    } else {
-      wallet = await _service!.restoreFromSeed(credentials);
-    }
+    final wallet = await _service!.restoreFromSeed(credentials, isTestnet: isTestnet);
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
