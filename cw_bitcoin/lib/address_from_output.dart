@@ -3,8 +3,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 String addressFromOutputScript(Script script, BasedUtxoNetwork network) {
   try {
     switch (script.getAddressType()) {
-      case PubKeyAddressType.p2pk:
-        return P2pkAddress.fromScriptPubkey(script: script).toAddress(network);
       case P2pkhAddressType.p2pkh:
         return P2pkhAddress.fromScriptPubkey(script: script).toAddress(network);
       case P2shAddressType.p2pkInP2sh:
