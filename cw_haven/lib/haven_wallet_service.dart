@@ -22,10 +22,7 @@ class HavenNewWalletCredentials extends WalletCredentials {
 
 class HavenRestoreWalletFromSeedCredentials extends WalletCredentials {
   HavenRestoreWalletFromSeedCredentials(
-      {required String name,
-      required String password,
-      required int height,
-      required this.mnemonic})
+      {required String name, required String password, required int height, required this.mnemonic})
       : super(name: name, password: password, height: height);
 
   final String mnemonic;
@@ -53,14 +50,12 @@ class HavenRestoreWalletFromKeysCredentials extends WalletCredentials {
   final String spendKey;
 }
 
-class HavenWalletService extends WalletService<
-    HavenNewWalletCredentials,
-    HavenRestoreWalletFromSeedCredentials,
-    HavenRestoreWalletFromKeysCredentials> {
+class HavenWalletService extends WalletService<HavenNewWalletCredentials,
+    HavenRestoreWalletFromSeedCredentials, HavenRestoreWalletFromKeysCredentials> {
   HavenWalletService(this.walletInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
-  
+
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();
 
@@ -68,13 +63,11 @@ class HavenWalletService extends WalletService<
   WalletType getType() => WalletType.haven;
 
   @override
-  Future<HavenWallet> create(HavenNewWalletCredentials credentials, {bool? isTestnet}) async {
+  Future<HavenWallet> create(HavenNewWalletCredentials credentials) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       await haven_wallet_manager.createWallet(
-          path: path,
-          password: credentials.password!,
-          language: credentials.language);
+          path: path, password: credentials.password!, language: credentials.language);
       final wallet = HavenWallet(walletInfo: credentials.walletInfo!);
       await wallet.init();
       return wallet;
@@ -106,10 +99,9 @@ class HavenWalletService extends WalletService<
         await repairOldAndroidWallet(name);
       }
 
-      await haven_wallet_manager
-          .openWalletAsync({'path': path, 'password': password});
-      final walletInfo = walletInfoSource.values.firstWhereOrNull(
-          (info) => info.id == WalletBase.idFor(name, getType()))!;
+      await haven_wallet_manager.openWalletAsync({'path': path, 'password': password});
+      final walletInfo = walletInfoSource.values
+          .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
       final wallet = HavenWallet(walletInfo: walletInfo);
       final isValid = wallet.walletAddresses.validate();
 
@@ -126,12 +118,10 @@ class HavenWalletService extends WalletService<
       // TODO: Implement Exception for wallet list service.
 
       if ((e.toString().contains('bad_alloc') ||
-          (e is WalletOpeningException &&
-              (e.message == 'std::bad_alloc' ||
-                  e.message.contains('bad_alloc')))) ||
+              (e is WalletOpeningException &&
+                  (e.message == 'std::bad_alloc' || e.message.contains('bad_alloc')))) ||
           (e.toString().contains('does not correspond') ||
-          (e is WalletOpeningException &&
-            e.message.contains('does not correspond')))) {
+              (e is WalletOpeningException && e.message.contains('does not correspond')))) {
         await restoreOrResetWalletFiles(name);
         return openWallet(name, password);
       }
@@ -156,10 +146,9 @@ class HavenWalletService extends WalletService<
   }
 
   @override
-  Future<void> rename(
-      String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values.firstWhere(
-        (info) => info.id == WalletBase.idFor(currentName, getType()));
+  Future<void> rename(String currentName, String password, String newName) async {
+    final currentWalletInfo = walletInfoSource.values
+        .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
     final currentWallet = HavenWallet(walletInfo: currentWalletInfo);
 
     await currentWallet.renameWalletFiles(newName);
@@ -173,8 +162,7 @@ class HavenWalletService extends WalletService<
   }
 
   @override
-  Future<HavenWallet> restoreFromKeys(
-      HavenRestoreWalletFromKeysCredentials credentials, {bool? isTestnet}) async {
+  Future<HavenWallet> restoreFromKeys(HavenRestoreWalletFromKeysCredentials credentials) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       await haven_wallet_manager.restoreFromKeys(
@@ -197,8 +185,7 @@ class HavenWalletService extends WalletService<
   }
 
   @override
-  Future<HavenWallet> restoreFromSeed(
-      HavenRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
+  Future<HavenWallet> restoreFromSeed(HavenRestoreWalletFromSeedCredentials credentials) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       await haven_wallet_manager.restoreFromSeed(
@@ -223,16 +210,14 @@ class HavenWalletService extends WalletService<
         return;
       }
 
-      final oldAndroidWalletDirPath =
-          await outdatedAndroidPathForWalletDir(name: name);
+      final oldAndroidWalletDirPath = await outdatedAndroidPathForWalletDir(name: name);
       final dir = Directory(oldAndroidWalletDirPath);
 
       if (!dir.existsSync()) {
         return;
       }
 
-      final newWalletDirPath =
-          await pathForWalletDir(name: name, type: getType());
+      final newWalletDirPath = await pathForWalletDir(name: name, type: getType());
 
       dir.listSync().forEach((f) {
         final file = File(f.path);

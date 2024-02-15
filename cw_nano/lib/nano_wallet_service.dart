@@ -26,7 +26,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   WalletType getType() => WalletType.nano;
 
   @override
-  Future<WalletBase> create(NanoNewWalletCredentials credentials, {bool? isTestnet}) async {
+  Future<WalletBase> create(NanoNewWalletCredentials credentials) async {
     // nano standard:
     DerivationType derivationType = DerivationType.nano;
     String seedKey = NanoSeeds.generateSeed();
@@ -79,7 +79,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   }
 
   @override
-  Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials, {bool? isTestnet}) async {
+  Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials) async {
     if (credentials.seedKey.contains(' ')) {
       throw Exception("Invalid key!");
     } else {
@@ -113,7 +113,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   }
 
   @override
-  Future<NanoWallet> restoreFromSeed(NanoRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
+  Future<NanoWallet> restoreFromSeed(NanoRestoreWalletFromSeedCredentials credentials) async {
     if (credentials.mnemonic.contains(' ')) {
       if (!bip39.validateMnemonic(credentials.mnemonic)) {
         throw nm.NanoMnemonicIsIncorrectException();
