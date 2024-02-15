@@ -89,10 +89,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         typeMatchingReceiveAddresses.isEmpty) {
       receiveAddress = generateNewAddress().address;
     } else {
-      if (previousAddressRecord != null && previousAddressRecord!.type == addressPageType) {
-        receiveAddress = (typeMatchingReceiveAddresses.first.address != addresses.first.address)
-            ? previousAddressRecord!.address
-            : typeMatchingReceiveAddresses.first.address;
+      final previousAddressMatchesType =
+          previousAddressRecord != null && previousAddressRecord!.type == addressPageType;
+
+      if (previousAddressMatchesType &&
+          typeMatchingReceiveAddresses.first.address != addresses.first.address) {
+        receiveAddress = previousAddressRecord!.address;
       } else {
         receiveAddress = typeMatchingReceiveAddresses.first.address;
       }
