@@ -639,13 +639,16 @@ abstract class ElectrumWalletBase
   }
 
   Future<ElectrumTransactionInfo?> fetchTransactionInfo(
-      {required String hash, required int height, required Set<String> myAddresses}) async {
+      {required String hash,
+      required int height,
+      required Set<String> myAddresses,
+      bool? retryOnFailure}) async {
     try {
       return ElectrumTransactionInfo.fromElectrumBundle(
           await getTransactionExpanded(hash: hash, height: height), walletInfo.type, network,
           addresses: myAddresses, height: height);
     } catch (e) {
-      if (e is FormatException) {
+      if (e is FormatException && retryOnFailure == true) {
         await Future.delayed(const Duration(seconds: 2));
         return fetchTransactionInfo(hash: hash, height: height, myAddresses: myAddresses);
       }
@@ -722,8 +725,8 @@ abstract class ElectrumWalletBase
 
             historiesWithDetails[txid] = storedTx;
           } else {
-            final tx =
-                await fetchTransactionInfo(hash: txid, height: height, myAddresses: addressesSet);
+            final tx = await fetchTransactionInfo(
+                hash: txid, height: height, myAddresses: addressesSet, retryOnFailure: true);
 
             if (tx != null) {
               historiesWithDetails[txid] = tx;
