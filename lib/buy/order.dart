@@ -39,6 +39,7 @@ class Order extends HiveObject {
     final decoded = json.decode(jsonSource) as Map<String, dynamic>;
     final providerRaw = decoded['providerRaw'] as int?;
     final onramperPartnerRaw = decoded['onramperPartnerRaw'] as int?;
+    final stateRaw = decoded['stateRaw'] as String?;
 
     return Order(
       id: decoded['id'] as String,
@@ -50,7 +51,7 @@ class Order extends HiveObject {
       provider: providerRaw != null ? ProvidersHelper.deserialize(raw: providerRaw) : null,
       onramperPartner:
           onramperPartnerRaw != null ? OnRamperBuyProvider.fromRaw(onramperPartnerRaw) : null,
-      state: TradeState.created,
+      state: stateRaw != null ? TradeState.deserialize(raw: stateRaw) : null,
       from: decoded['from'] as String?,
       to: decoded['to'] as String?,
     );

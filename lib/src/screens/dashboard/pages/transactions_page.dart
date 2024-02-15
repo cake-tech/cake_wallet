@@ -134,8 +134,8 @@ class TransactionsPage extends StatelessWidget {
                                     onTap: () => Navigator.of(context)
                                         .pushNamed(Routes.orderDetails, arguments: order),
                                     provider: ProvidersHelper.getProviderByType(order.provider!)!,
-                                    from: order.from!,
-                                    to: order.to!,
+                                    from: order.from ?? '-',
+                                    to: order.to ?? '-',
                                     createdAtFormattedDate:
                                         DateFormat('HH:mm').format(order.createdAt),
                                     formattedAmount: item.orderFormattedAmount,

@@ -814,7 +814,8 @@ Future<void> setup({
   getIt.registerFactoryParam<WebViewPage,List<dynamic>, void>((args, _) {
     final uri = args.first as Uri;
     final type = args.length > 1 ? args[1] as ProviderType? : null;
-    return WebViewPage(uri, type, buyViewModel: getIt.get<BuyViewModel>());
+    final isBuyAction = args.length > 2 ? args[2] as bool? : null;
+    return WebViewPage(uri, type, isBuyAction, buyViewModel: getIt.get<BuyViewModel>());
   });
 
 

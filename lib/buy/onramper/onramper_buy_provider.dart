@@ -15,7 +15,9 @@ import 'package:collection/collection.dart';
 enum OnRamperPartner {
   guardarian,
   paybis,
-  utorg
+  utorg,
+  alchemypay,
+  sardine
 }
 
 extension Name on OnRamperPartner {
@@ -27,6 +29,10 @@ extension Name on OnRamperPartner {
         return 'Paybis';
       case OnRamperPartner.utorg:
         return 'Utorg';
+      case OnRamperPartner.alchemypay:
+        return 'Alchemy Pay';
+      case OnRamperPartner.sardine:
+        return 'Sardine';
     }
   }
 }
@@ -138,7 +144,7 @@ class OnRamperBuyProvider extends BuyProvider {
     final uri = requestOnramperUrl(context, isBuyAction);
     if (DeviceInfo.instance.isMobile) {
       Navigator.of(context)
-          .pushNamed(Routes.webViewPage, arguments:[uri, providerType]);
+          .pushNamed(Routes.webViewPage, arguments:[uri, providerType, isBuyAction]);
     } else {
       await launchUrl(uri);
     }

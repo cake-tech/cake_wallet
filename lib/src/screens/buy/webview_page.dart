@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -11,12 +9,14 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class WebViewPage extends BasePage {
-  WebViewPage(this._url, this._providerType, {required this.buyViewModel}) {
+  WebViewPage(this._url, this._providerType, this.isBuyAction, {required this.buyViewModel}) {
     buyViewModel.selectedProviderType = _providerType;
+    buyViewModel.isBuyAction = isBuyAction;
   }
 
   final Uri _url;
   final ProviderType? _providerType;
+  final bool? isBuyAction;
   final BuyViewModel buyViewModel;
 
   @override

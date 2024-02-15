@@ -53,7 +53,7 @@ class OrderRow extends StatelessWidget {
                                     color: Theme.of(context).extension<DashboardPageTheme>()!.textColor
                                 )),
                             formattedAmount != null
-                                ? Text(formattedAmount! + ' ' + to,
+                                ? Text(formattedAmount! + ' ' + from,
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,

@@ -30,28 +30,39 @@ abstract class BuyViewModelBase with Store {
 
   ProviderType? selectedProviderType;
 
+  bool? isBuyAction;
+
   WalletType get type => wallet.type;
 
   @computed
   FiatCurrency get fiatCurrency => settingsStore.fiatCurrency;
 
-  CryptoCurrency get cryptoCurrency => walletTypeToCryptoCurrency(type);
+  Future<void> saveOrder(String orderId,
+      {int? onRamperPartnerRaw,
+      String? fiatCurrency,
+      String? cryptoCurrency,
+      String? fiatAmount,
+      String? cryptoAmount}) async {
+    bool isBuyAction = this.isBuyAction ?? true;
 
-  Future<void> saveOrder(String orderId, {int? onRamperPartnerRaw}) async {
+    final formattedCryptoCurrency =
+        cryptoCurrency != null ? CryptoCurrency.fromString(cryptoCurrency) : null;
+
+    final orderData = {
+      'id': orderId,
+      'transferId': orderId,
+      'createdAt': DateTime.now().toIso8601String(),
+      'amount': isBuyAction ? fiatAmount ?? '' : cryptoAmount ?? '',
+      'receiveAddress': '',
+      'walletId': wallet.id,
+      'providerRaw': ProvidersHelper.serialize(selectedProviderType ?? ProviderType.askEachTime),
+      'onramperPartnerRaw': onRamperPartnerRaw,
+      'from': isBuyAction ? fiatCurrency : formattedCryptoCurrency?.title,
+      'to': isBuyAction ? formattedCryptoCurrency?.title : fiatCurrency,
+    };
+
     try {
-      final String jsonSource = json.encode({
-        'id': orderId,
-        'transferId': orderId,
-        'createdAt': DateTime.now().toIso8601String(),
-        'amount': '0.0',
-        'receiveAddress': 'address123',
-        'walletId': wallet.id,
-        'providerRaw': ProvidersHelper.serialize(selectedProviderType ?? ProviderType.askEachTime),
-        'onramperPartnerRaw': onRamperPartnerRaw,
-        'stateRaw': 'created',
-        'from': fiatCurrency.title,
-        'to': cryptoCurrency.title,
-      }).toString();
+      final String jsonSource = json.encode(orderData).toString();
 
       final order = Order.fromJSON(jsonSource);
 
@@ -65,18 +76,31 @@ abstract class BuyViewModelBase with Store {
   void processProviderUrl({required String urlStr}) async {
     if (selectedProviderType == null) return;
 
-    final orderId = extractInfoFromUrl(urlStr, selectedProviderType!);
+    final orderId = extractInfoFromUrl(
+        urlStr, selectedProviderType!, providerUrlOrderIdConfigs[selectedProviderType!]);
     final onRamperPartner = determineOnRamperPartner(urlStr);
     final onRamperPartnerRaw = onRamperPartner != null ? onRamperPartner.index : null;
 
     if (orderId != null && orderId.isNotEmpty && orderId != this.orderId) {
+      final fiatCurrency = extractInfoFromUrl(
+          urlStr, selectedProviderType!, providerUrlFiatCurrencyConfigs[selectedProviderType!]);
+      final cryptoCurrency = extractInfoFromUrl(
+          urlStr, selectedProviderType!, providerUrlCryptoCurrencyConfigs[selectedProviderType!]);
+      final fiatAmount = extractInfoFromUrl(
+          urlStr, selectedProviderType!, providerUrlFiatAmountConfigs[selectedProviderType!]);
+      final cryptoAmount = extractInfoFromUrl(
+          urlStr, selectedProviderType!, providerUrlCryptoAmountConfigs[selectedProviderType!]);
       this.orderId = orderId;
-      await saveOrder(orderId, onRamperPartnerRaw: onRamperPartnerRaw);
+      await saveOrder(orderId,
+          onRamperPartnerRaw: onRamperPartnerRaw,
+          fiatCurrency: fiatCurrency,
+          cryptoCurrency: cryptoCurrency,
+          fiatAmount: fiatAmount,
+          cryptoAmount: cryptoAmount);
     }
   }
 
-  String? extractInfoFromUrl(String url, ProviderType providerType) {
-    final config = providerUrlConfigs[providerType];
+  String? extractInfoFromUrl(String url, ProviderType providerType, ProviderUrlConfig? config) {
     if (config == null) return null;
 
     for (var entry in config.parameterKeywords.entries) {
@@ -105,11 +129,15 @@ abstract class BuyViewModelBase with Store {
       return OnRamperPartner.paybis;
     } else if (url.contains('utpay')) {
       return OnRamperPartner.utorg;
+    } else if (url.contains('alchemypay')) {
+      return OnRamperPartner.alchemypay;
+    } else if (url.contains('sardine')) {
+      return OnRamperPartner.sardine;
     }
     return null;
   }
 
-  final Map<ProviderType, ProviderUrlConfig> providerUrlConfigs = {
+  final Map<ProviderType, ProviderUrlConfig> providerUrlOrderIdConfigs = {
     ProviderType.onramper: ProviderUrlConfig(
       name: ProviderType.onramper.title,
       parameterKeywords: {
@@ -124,6 +152,74 @@ abstract class BuyViewModelBase with Store {
         'utpay': {
           'start': '/order/',
           'end': '/',
+        },
+        'alchemypay': {
+          'start': 'merchantOrderNo=',
+          'end': '&',
+        },
+        'sardine': {
+          'start': 'client_token=',
+          'end': null,
+        },
+      },
+    ),
+  };
+
+  final Map<ProviderType, ProviderUrlConfig> providerUrlFiatCurrencyConfigs = {
+    ProviderType.onramper: ProviderUrlConfig(
+      name: ProviderType.onramper.title,
+      parameterKeywords: {
+        'alchemypay': {
+          'start': 'fiat=',
+          'end': '&',
+        },
+        'sardine': {
+          'start': 'fixed_fiat_currency=',
+          'end': '&',
+        },
+      },
+    ),
+  };
+
+  final Map<ProviderType, ProviderUrlConfig> providerUrlCryptoCurrencyConfigs = {
+    ProviderType.onramper: ProviderUrlConfig(
+      name: ProviderType.onramper.title,
+      parameterKeywords: {
+        'alchemypay': {
+          'start': 'crypto=',
+          'end': '&',
+        },
+        'sardine': {
+          'start': 'fixed_asset_type=',
+          'end': '&',
+        },
+      },
+    ),
+  };
+
+  final Map<ProviderType, ProviderUrlConfig> providerUrlFiatAmountConfigs = {
+    ProviderType.onramper: ProviderUrlConfig(
+      name: ProviderType.onramper.title,
+      parameterKeywords: {
+        'alchemypay': {
+          'start': 'fiatAmount=',
+          'end': '&',
+        },
+        'sardine': {
+          'start': 'fixed_fiat_amount=',
+          'end': '&',
+        },
+      },
+    ),
+  };
+
+  final Map<ProviderType, ProviderUrlConfig> providerUrlCryptoAmountConfigs = {
+    ProviderType.onramper: ProviderUrlConfig(
+      name: ProviderType.onramper.title,
+      parameterKeywords: {
+        'alchemypay': {
+          'start': 'cryptoAmount=',
+          'end': '&',
         },
       },
     ),

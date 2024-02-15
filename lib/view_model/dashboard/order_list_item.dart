@@ -14,11 +14,9 @@ class OrderListItem extends ActionListItem {
   BalanceDisplayMode get displayMode => settingsStore.balanceDisplayMode;
 
   String get orderFormattedAmount {
-    return order.amount != null
-        ? displayMode == BalanceDisplayMode.hiddenBalance
+    return displayMode == BalanceDisplayMode.hiddenBalance
           ? '---'
-          : order.amountFormatted()
-        : order.amount;
+          : order.amountFormatted();
   }
 
   @override

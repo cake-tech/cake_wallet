@@ -67,11 +67,12 @@ abstract class OrderDetailsViewModelBase with Store {
       StandartListItem(
           title: 'Transfer ID',
           value: order.transferId),
+
+
+      if(order.state != null)
       StandartListItem(
           title: S.current.trade_details_state,
-          value: order.state != null
-              ? order.state.toString()
-              : S.current.trade_details_fetching),
+          value: order.state.toString())
     ]);
 
     items.add(
@@ -112,7 +113,7 @@ abstract class OrderDetailsViewModelBase with Store {
     items.add(
         StandartListItem(
             title: S.current.trade_details_pair,
-            value: '${order.from} → ${order.to}')
+            value: '${order.from ?? '-'} → ${order.to ?? '-'}')
     );
   }
 }
