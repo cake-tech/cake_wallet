@@ -10,12 +10,12 @@ import 'package:cake_wallet/core/wallet_connect/models/auth_request_model.dart';
 import 'package:cake_wallet/core/wallet_connect/models/chain_key_model.dart';
 import 'package:cake_wallet/core/wallet_connect/models/session_request_model.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_request_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_solana/solana_wallet.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
@@ -143,7 +143,7 @@ abstract class Web3WalletServiceBase with Store {
           wcKeyService: walletKeyService,
           bottomSheetService: _bottomSheetHandler,
           wallet: _web3Wallet,
-          ownerKeyPair: (appStore.wallet as SolanaWallet).walletKeyPair,
+          ownerKeyPair: solana!.getWalletKeyPair(appStore.wallet!),
         );
       }
     }

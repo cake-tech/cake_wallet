@@ -460,7 +460,7 @@ abstract class SolanaWalletBase
     });
   }
 
-  Future<String> signSolanaMessage(String message, {String? address}) async {
+  Future<String> signSolanaMessage(String message) async {
     // Convert the message to bytes
     final messageBytes = utf8.encode(message);
 

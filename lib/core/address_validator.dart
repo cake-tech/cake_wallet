@@ -1,9 +1,9 @@
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
-import 'package:cw_solana/spl_token.dart';
 
 class AddressValidator extends TextValidator {
   AddressValidator({required CryptoCurrency type})
@@ -130,8 +130,9 @@ class AddressValidator extends TextValidator {
       return [42];
     }
 
-    if (type is SPLToken) {
-      return [44];
+    if (solana != null) {
+      final length = solana!.getValidationLength(type);
+      if (length != null) return length;
     }
 
     switch (type) {

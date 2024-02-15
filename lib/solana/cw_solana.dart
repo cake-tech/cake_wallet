@@ -39,6 +39,9 @@ class CWSolana extends Solana {
   @override
   String getPublicKey(WalletBase wallet) => (wallet as SolanaWallet).keys.publicKey.toBase58();
 
+  @override
+  Ed25519HDKeyPair? getWalletKeyPair(WalletBase wallet) => (wallet as SolanaWallet).walletKeyPair;
+
   Object createSolanaTransactionCredentials(
     List<Output> outputs, {
     required CryptoCurrency currency,
@@ -101,5 +104,15 @@ class CWSolana extends Solana {
     return (transactionInfo as SolanaTransactionInfo).solAmount.toDouble();
   }
 
-  String getTokenAddress(CryptoCurrency asset) => ( asset as SPLToken).mintAddress;
+  @override
+  String getTokenAddress(CryptoCurrency asset) => (asset as SPLToken).mintAddress;
+
+  @override
+  List<int>? getValidationLength(CryptoCurrency type) {
+    if (type is SPLToken) {
+      return [44];
+    }
+
+    return null;
+  }
 }

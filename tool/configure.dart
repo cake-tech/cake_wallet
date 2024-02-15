@@ -914,6 +914,7 @@ import 'package:cw_solana/solana_wallet_service.dart';
 import 'package:cw_solana/solana_transaction_info.dart';
 import 'package:cw_solana/solana_transaction_credentials.dart';
 import 'package:cw_solana/solana_wallet_creation_credentials.dart';
+import 'package:solana/solana.dart';
 """;
   const solanaCwPart = "part 'cw_solana.dart';";
   const solanaContent = """
@@ -926,9 +927,11 @@ abstract class Solana {
       {required String name, required String mnemonic, required String password});
   WalletCredentials createSolanaRestoreWalletFromPrivateKey(
       {required String name, required String privateKey, required String password});
+
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
+  Ed25519HDKeyPair? getWalletKeyPair(WalletBase wallet);
 
   Object createSolanaTransactionCredentials(
     List<Output> outputs, {
@@ -947,6 +950,7 @@ abstract class Solana {
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   double getTransactionAmountRaw(TransactionInfo transactionInfo);
   String getTokenAddress(CryptoCurrency asset);
+  List<int>? getValidationLength(CryptoCurrency type);
 }
 
   """;
