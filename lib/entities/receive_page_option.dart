@@ -19,10 +19,10 @@ enum ReceivePageOption {
         label = 'Trocador AnonPay Donation Link';
         break;
       case ReceivePageOption.lightningInvoice:
-        label = 'Sats via Invoice';
+        label = 'Lightning via Invoice';
         break;
       case ReceivePageOption.lightningOnchain:
-        label = 'Sats via BTC address';
+        label = 'Lightning via BTC address';
         break;
     }
     return label;

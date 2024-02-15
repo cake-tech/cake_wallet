@@ -60,7 +60,7 @@ class MainActions {
         Navigator.pushNamed(
           context,
           Routes.lightningInvoice,
-          arguments: [viewModel.address, ReceivePageOption.lightningInvoice],
+          arguments: [ReceivePageOption.lightningInvoice],
         );
         return;
       }

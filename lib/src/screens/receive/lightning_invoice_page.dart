@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/screens/receive/widgets/lightning_input_form.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
@@ -151,11 +152,46 @@ class LightningInvoicePage extends BasePage {
                   //     ),
                   //   ),
                   // ),
+                  Container(
+                    padding: const EdgeInsets.only(top: 12, bottom: 12, right: 6),
+                    margin: const EdgeInsets.only(left: 24, right: 24, bottom: 48),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                      color: Color.fromARGB(94, 255, 221, 44),
+                      border: Border.all(
+                        color: Color.fromARGB(178, 223, 214, 0),
+                        width: 2,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          margin: EdgeInsets.only(left: 12, bottom: 48, right: 12),
+                          child: Image.asset("assets/images/warning.png"),
+                        ),
+                        Expanded(
+                          child: Text(
+                            "A setup fee of 0.4% with a minimum of 2,079 sats will be applied upon receiving this invoice.",
+                            maxLines: 3,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   LoadingPrimaryButton(
                     text: S.of(context).create_invoice,
                     onPressed: () {
                       FocusScope.of(context).unfocus();
-                      lightningViewModel.createInvoice(amount: _amountController.text, description: _descriptionController.text);
+                      lightningViewModel.createInvoice(
+                          amount: _amountController.text, description: _descriptionController.text);
                       lightningInvoicePageViewModel.setRequestParams(
                         inputAmount: _amountController.text,
                         inputDescription: _descriptionController.text,
@@ -185,14 +221,14 @@ class LightningInvoicePage extends BasePage {
         case ReceivePageOption.lightningInvoice:
           break;
         case ReceivePageOption.lightningOnchain:
-          final address = await lightningViewModel.receiveOnchain();
           Navigator.popAndPushNamed(
             context,
             Routes.lightningReceiveOnchain,
-            arguments: [address, ReceivePageOption.lightningInvoice],
+            arguments: [ReceivePageOption.lightningOnchain],
           );
           break;
         default:
+          break;
       }
     });
 

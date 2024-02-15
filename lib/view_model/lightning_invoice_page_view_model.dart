@@ -1,9 +1,5 @@
-import 'package:cake_wallet/anonpay/anonpay_api.dart';
-import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
-import 'package:cake_wallet/anonpay/anonpay_request.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
@@ -11,7 +7,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,7 +17,6 @@ class LightningInvoicePageViewModel = LightningInvoicePageViewModelBase
 
 abstract class LightningInvoicePageViewModelBase with Store {
   LightningInvoicePageViewModelBase(
-    this.address,
     this.settingsStore,
     this._wallet,
     this.sharedPreferences,
@@ -37,10 +31,8 @@ abstract class LightningInvoicePageViewModelBase with Store {
   }
 
   List<Currency> get currencies => [walletTypeToCryptoCurrency(_wallet.type), ...FiatCurrency.all];
-  final String address;
   final SettingsStore settingsStore;
   final WalletBase _wallet;
-  // final Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
   final SharedPreferences sharedPreferences;
   final ReceivePageOption pageOption;
   final LightningViewModel lightningViewModel;
@@ -120,12 +112,8 @@ abstract class LightningInvoicePageViewModelBase with Store {
 
   Future<void> _fetchLimits() async {
     List<String> limits = await lightningViewModel.invoiceLimits();
-    // final limit = await anonPayApi.fetchLimits(
-    //   cryptoCurrency: cryptoCurrency,
-    //   fiatCurrency: selectedCurrency is FiatCurrency ? selectedCurrency as FiatCurrency : null,
-    // );
-    // minimum = limit.min;
-    // maximum = limit.max != null ? limit.max! / 4 : null;
+    minimum = double.tryParse(limits[0]);
+    maximum = double.tryParse(limits[1]);
   }
 
   @action

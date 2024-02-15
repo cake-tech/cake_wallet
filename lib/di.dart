@@ -1200,10 +1200,8 @@ Future<void> setup({
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
 
   getIt.registerFactoryParam<LightningInvoicePageViewModel, List<dynamic>, void>((args, _) {
-    final address = args.first as String;
-    final pageOption = args.last as ReceivePageOption;
+    final pageOption = args.first as ReceivePageOption;
     return LightningInvoicePageViewModel(
-      address,
       getIt.get<SettingsStore>(),
       getIt.get<AppStore>().wallet!,
       getIt.get<SharedPreferences>(),
@@ -1222,7 +1220,7 @@ Future<void> setup({
     final pageOption = args.last as ReceivePageOption;
     return LightningReceiveOnchainPage(
         addressListViewModel: getIt.get<WalletAddressListViewModel>(),
-        // lightningViewModel: LightningViewModel(),
+        lightningViewModel: LightningViewModel(),
         receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(param1: pageOption));
   });
 

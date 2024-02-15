@@ -23,6 +23,8 @@ part 'lightning_wallet.g.dart';
 class LightningWallet = LightningWalletBase with _$LightningWallet;
 
 abstract class LightningWalletBase extends ElectrumWallet with Store {
+  int satBalance = 0;
+
   LightningWalletBase(
       {required String mnemonic,
       required String password,
@@ -128,6 +130,18 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     breezConfig = breezConfig.copyWith(workingDir: workingDir);
     await sdk.connect(config: breezConfig, seed: seedBytes);
 
-    print("initialized: ${(await sdk.isInitialized())}");
+    sdk.nodeStateStream.listen((event) {
+      // print("Node state: $event");
+      if (event == null) return;
+      // int balanceSat = event.maxPayableMsat ~/ 1000;
+      // print("sats: $balanceSat");
+      balance[CryptoCurrency.btc] = ElectrumBalance(
+        confirmed: event.maxPayableMsat,
+        unconfirmed: event.maxReceivableMsat,
+        frozen: 0,
+      );
+    });
+
+    print("initialized breez: ${(await sdk.isInitialized())}");
   }
 }
