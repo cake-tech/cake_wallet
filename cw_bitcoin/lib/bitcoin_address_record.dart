@@ -28,7 +28,7 @@ class BitcoinAddressRecord {
   }
 
   final String address;
-  final bool isHidden;
+  bool isHidden;
   final int index;
   int _txCount;
   int _balance;
