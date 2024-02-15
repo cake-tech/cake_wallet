@@ -233,7 +233,8 @@ abstract class ElectrumWalletBase
           ),
         );
 
-        if (inputsCount != null ? i + 1 == inputsCount : !sendAll && leftAmount <= 0) {
+        bool amountIsAcquired = !sendAll && leftAmount <= 0;
+        if ((inputsCount == null && amountIsAcquired) || inputsCount == i + 1) {
           break;
         }
       }
