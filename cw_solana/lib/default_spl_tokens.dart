@@ -4,11 +4,11 @@ import 'package:cw_solana/spl_token.dart';
 class DefaultSPLTokens {
   final List<SPLToken> _defaultTokens = [
     SPLToken(
-      name: 'USDT',
+      name: 'USDT Tether',
       symbol: 'USDT',
       mintAddress: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
       decimal: 6,
-      mint: 'usdt',
+      mint: 'usdtsol',
       enabled: true,
     ),
     SPLToken(
@@ -16,7 +16,7 @@ class DefaultSPLTokens {
       symbol: 'USDC',
       mintAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
       decimal: 6,
-      mint: 'usdc',
+      mint: 'usdcsol',
       enabled: true,
     ),
     SPLToken(
@@ -40,7 +40,7 @@ class DefaultSPLTokens {
       symbol: 'BTC',
       mintAddress: '9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E',
       decimal: 6,
-      mint: 'btc',
+      mint: 'btcsol',
     ),
     SPLToken(
       name: 'Bonk',

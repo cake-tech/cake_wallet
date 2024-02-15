@@ -152,6 +152,7 @@ flutter:
     - assets/nano_node_list.yml
     - assets/nano_pow_node_list.yml
     - assets/polygon_node_list.yml
+    - assets/solana_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/

@@ -57,6 +57,14 @@ class KeyServiceImpl implements WalletConnectKeyService {
         privateKey: _getPrivateKeyForWallet(wallet),
         publicKey: _getPublicKeyForWallet(wallet),
       ),
+      ChainKeyModel(
+        chains: [
+          'solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ', // main-net
+          'solana:8E9rvCKLFQia2Y35HXjjpWzj8weVo44K', // test-net
+        ],
+        privateKey: _getPrivateKeyForWallet(wallet),
+        publicKey: _getPublicKeyForWallet(wallet),
+      ),
     ];
     return keys;
   }

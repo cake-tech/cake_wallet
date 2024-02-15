@@ -1,4 +1,4 @@
 -
-  uri: api.mainnet-beta.solana.com
+  uri: solana-mainnet.core.chainstack.com
   is_default: true
   useSSL: true

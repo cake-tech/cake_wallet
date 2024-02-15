@@ -4,14 +4,17 @@ import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cw_solana/default_spl_tokens.dart';
 import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
+import 'package:cw_solana/spl_token.dart';
 import 'package:http/http.dart' as http;
 import 'package:solana/dto.dart';
 import 'package:solana/encoder.dart';
 import 'package:solana/solana.dart';
+import '.secrets.g.dart' as secrets;
 
 class SolanaWalletClient {
   final httpClient = http.Client();
@@ -19,9 +22,23 @@ class SolanaWalletClient {
 
   bool connect(Node node) {
     try {
+      Uri? rpcUri;
+      String webSocketUrl;
+      bool isChainStackNode = false;
+
+      if (node.uriRaw == 'solana-mainnet.core.chainstack.com') {
+        isChainStackNode = true;
+        String chainStackApiKey = secrets.chainStackApiKey;
+
+        rpcUri = Uri.https(node.uriRaw, '/$chainStackApiKey');
+        webSocketUrl = 'wss://${node.uriRaw}/ws/$chainStackApiKey';
+      } else {
+        webSocketUrl = 'wss://${node.uriRaw}';
+      }
+
       _client = SolanaClient(
-        rpcUrl: node.uri,
-        websocketUrl: Uri.parse('wss://${node.uriRaw}'),
+        rpcUrl: isChainStackNode ? rpcUri! : node.uri,
+        websocketUrl: Uri.parse(webSocketUrl),
         timeout: const Duration(minutes: 2),
       );
       return true;
@@ -96,10 +113,23 @@ class SolanaWalletClient {
   Future<List<SolanaTransactionModel>> fetchTransactions(Ed25519HDPublicKey address) async {
     List<SolanaTransactionModel> transactions = [];
 
+    // Using mainnet beta node to fetch transactions.
+    final mainNetBetaConfig = {"uri": "api.mainnet-beta.solana.com"};
+
+    final mainNetBetaNode = Node.fromMap(mainNetBetaConfig);
+    mainNetBetaNode.type = WalletType.solana;
+
+    final mainNetBetaSolanaClient = SolanaClient(
+      rpcUrl: mainNetBetaNode.uri,
+      websocketUrl: Uri.parse('wss://${mainNetBetaNode.uriRaw}'),
+      timeout: const Duration(minutes: 2),
+    );
+
     try {
-      final response = await _client!.rpcClient.getTransactionsList(
+      final response = await mainNetBetaSolanaClient.rpcClient.getTransactionsList(
         address,
         commitment: Commitment.confirmed,
+        limit: 1000,
       );
 
       for (final tx in response) {
@@ -139,12 +169,47 @@ class SolanaWalletClient {
                 },
                 splToken: (data) {
                   data.parsed.map(
-                    transfer: (data) {},
+                    transfer: (data) {
+                      final mintAddress = tx.meta?.postTokenBalances.first.mint ?? '';
+                      final tokens = DefaultSPLTokens().initialSPLTokens;
+                      SPLToken? token;
+                      try {
+                        token = tokens.firstWhere((token) => token.mintAddress == mintAddress);
+                      } catch (e) {
+                        print('Error getting the token from default tokens: $e');
+                      }
+
+                      SplTokenTransferInfo transfer = data.info;
+                      bool incomingTx = transfer.destination == address.toBase58();
+                      double amount =
+                          (double.tryParse(transfer.amount) ?? 0.0) / pow(10, token?.decimal ?? 9);
+
+                      transactions.add(
+                        SolanaTransactionModel(
+                          id: parsedTx.signatures.first,
+                          fee: fee,
+                          from: transfer.source,
+                          to: transfer.destination,
+                          amount: amount,
+                          isOutgoingTx: !incomingTx,
+                          programId: TokenProgram.programId,
+                          blockTimeInInt: tx.blockTime!,
+                          tokenSymbol: token?.symbol ?? 'SOL',
+                        ),
+                      );
+                    },
                     transferChecked: (data) {
                       final mintAddress = tx.meta?.postTokenBalances.first.mint ?? '';
                       final tokens = DefaultSPLTokens().initialSPLTokens;
-                      final tokenSymbol =
-                          tokens.firstWhere((token) => token.mintAddress == mintAddress).symbol;
+
+                      String tokenSymbol;
+                      try {
+                        tokenSymbol =
+                            tokens.firstWhere((token) => token.mintAddress == mintAddress).symbol;
+                      } catch (e) {
+                        tokenSymbol = 'SOL';
+                        print('Error getting the tokenSymbol from default tokens: $e');
+                      }
 
                       SplTokenTransferCheckedInfo transfer = data.info;
                       bool outgoingTx = transfer.source == address.toBase58();
@@ -309,12 +374,16 @@ class SolanaWalletClient {
     final destinationOwner = Ed25519HDPublicKey.fromBase58(destinationAddress);
     final mint = Ed25519HDPublicKey.fromBase58(tokenMint);
 
-    final associatedRecipientAccount = await _client!.getAssociatedTokenAccount(
+    ProgramAccount? associatedRecipientAccount;
+    ProgramAccount? associatedSenderAccount;
+
+    associatedRecipientAccount = await _client!.getAssociatedTokenAccount(
       mint: mint,
       owner: destinationOwner,
       commitment: commitment,
     );
-    final associatedSenderAccount = await _client!.getAssociatedTokenAccount(
+
+    associatedSenderAccount = await _client!.getAssociatedTokenAccount(
       owner: ownerKeypair.publicKey,
       mint: mint,
       commitment: commitment,
@@ -326,12 +395,15 @@ class SolanaWalletClient {
       throw NoAssociatedTokenAccountException(ownerKeypair.address, mint.toBase58());
     }
 
-    // Also throw an adequate exception if the recipient has no associated
-    // token account
-    if (associatedRecipientAccount == null) {
-      throw NoAssociatedTokenAccountException(
-        destinationOwner.toBase58(),
-        mint.toBase58(),
+    try {
+      associatedRecipientAccount ??= await _client!.createAssociatedTokenAccount(
+        mint: mint,
+        owner: destinationOwner,
+        funder: ownerKeypair,
+      );
+    } catch (e) {
+      throw Exception(
+        'Error while creating an associated token account for the recipient: ${e.toString()}',
       );
     }
 

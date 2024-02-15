@@ -30,7 +30,7 @@ const polygonDefaultNodeUri = 'polygon-bor.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
-const solanaDefaultNodeUri = 'api.mainnet-beta.solana.com';
+const solanaDefaultNodeUri = 'solana-mainnet.core.chainstack.com';
 
 Future<void> defaultSettingsMigration(
     {required int version,

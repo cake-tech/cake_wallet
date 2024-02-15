@@ -1,9 +1,8 @@
 import 'package:cake_wallet/entities/wallet_nft_response.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/widgets/cake_image_tile_widget.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NFTTileWidget extends StatelessWidget {

@@ -68,10 +68,12 @@ abstract class SolanaWalletBase
   final String? _hexPrivateKey;
 
   // The Solana WalletPair
-  Ed25519HDKeyPair? _wallet;
+  Ed25519HDKeyPair? _walletKeyPair;
+
+  Ed25519HDKeyPair? get walletKeyPair => _walletKeyPair;
 
   // To access the privateKey bytes.
-  Ed25519HDKeyPairData? _keyPair;
+  Ed25519HDKeyPairData? _keyPairData;
 
   late SolanaWalletClient _client;
 
@@ -96,18 +98,18 @@ abstract class SolanaWalletBase
 
   @override
   Ed25519HDKeyPairData get keys {
-    if (_keyPair == null) {
+    if (_keyPairData == null) {
       return Ed25519HDKeyPairData([], publicKey: const Ed25519HDPublicKey([]));
     }
 
-    return _keyPair!;
+    return _keyPairData!;
   }
 
   @override
   String? get seed => _mnemonic;
 
   @override
-  String get privateKey => HEX.encode(_keyPair!.bytes);
+  String get privateKey => HEX.encode(_keyPairData!.bytes);
 
   Future<void> init() async {
     final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${SPLToken.boxName}";
@@ -115,15 +117,15 @@ abstract class SolanaWalletBase
     splTokensBox = await CakeHive.openBox<SPLToken>(boxName);
 
     // Create WalletPair using either the mnemonic or the privateKey
-    _wallet = await getWalletPair(
+    _walletKeyPair = await getWalletPair(
       mnemonic: _mnemonic,
       privateKey: _hexPrivateKey,
     );
 
     // Extract the keyPairData containing both the privateKey bytes and the publicKey hex.
-    _keyPair = await _wallet!.extract();
+    _keyPairData = await _walletKeyPair!.extract();
 
-    walletInfo.address = _wallet!.address;
+    walletInfo.address = _walletKeyPair!.address;
 
     await walletAddresses.init();
     await transactionHistory.init();
@@ -232,7 +234,7 @@ abstract class SolanaWalletBase
       tokenMint: tokenMint,
       tokenTitle: transactionCurrency.title,
       inputAmount: totalAmount,
-      ownerKeypair: _wallet!,
+      ownerKeypair: _walletKeyPair!,
       tokenDecimals: transactionCurrency.decimals,
       destinationAddress: solCredentials.outputs.first.isParsedAddress
           ? solCredentials.outputs.first.extractedAddress!
@@ -264,7 +266,7 @@ abstract class SolanaWalletBase
 
   @override
   Future<Map<String, SolanaTransactionInfo>> fetchTransactions() async {
-    final address = Ed25519HDPublicKey.fromBase58(_wallet!.address);
+    final address = Ed25519HDPublicKey.fromBase58(_walletKeyPair!.address);
 
     final transactions = await _client.fetchTransactions(address);
 
@@ -350,7 +352,7 @@ abstract class SolanaWalletBase
   }
 
   Future<SolanaBalance> _fetchSOLBalance() async {
-    final balance = await _client.getBalance(_wallet!.address);
+    final balance = await _client.getBalance(_walletKeyPair!.address);
 
     return SolanaBalance(balance);
   }
@@ -360,7 +362,7 @@ abstract class SolanaWalletBase
       if (token.enabled) {
         try {
           final tokenBalance =
-              await _client.getSplTokenBalance(token.mintAddress, _wallet!.address) ??
+              await _client.getSplTokenBalance(token.mintAddress, _walletKeyPair!.address) ??
                   balance[token] ??
                   SolanaBalance(0.0);
           balance[token] = tokenBalance;
@@ -389,7 +391,7 @@ abstract class SolanaWalletBase
     await splTokensBox.put(token.mintAddress, token);
 
     if (token.enabled) {
-      final tokenBalance = await _client.getSplTokenBalance(token.mintAddress, _wallet!.address) ??
+      final tokenBalance = await _client.getSplTokenBalance(token.mintAddress, _walletKeyPair!.address) ??
           balance[token] ??
           SolanaBalance(0.0);
 
@@ -463,7 +465,7 @@ abstract class SolanaWalletBase
     final messageBytes = utf8.encode(message);
 
     // Sign the message bytes with the wallet's private key
-    final signature = await _wallet!.sign(messageBytes);
+    final signature = await _walletKeyPair!.sign(messageBytes);
 
     // Convert the signature to a hexadecimal string
     final hex = bytesToHex(signature.bytes);
