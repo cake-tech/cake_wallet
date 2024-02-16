@@ -1,21 +1,24 @@
 class SolanaSignTransaction {
-  final String feePayer;
-  final String recentBlockhash;
-  final List<SolanaInstruction> instructions;
+  final String? feePayer;
+  final String? recentBlockhash;
+  final String transaction;
+  final List<SolanaInstruction>? instructions;
 
   SolanaSignTransaction({
     required this.feePayer,
     required this.recentBlockhash,
     required this.instructions,
+    required this.transaction,
   });
 
   factory SolanaSignTransaction.fromJson(Map<String, dynamic> json) {
     return SolanaSignTransaction(
-      feePayer: json['feePayer'] as String,
-      recentBlockhash: json['recentBlockhash'] as String,
-      instructions: (json['instructions'] as List<dynamic>)
+      feePayer:json['feePayer'] !=null ? json['feePayer'] as String: null,
+      recentBlockhash: json['recentBlockhash']!=null? json['recentBlockhash'] as String: null,
+      instructions:json['instructions']!=null? (json['instructions'] as List<dynamic>)
           .map((e) => SolanaInstruction.fromJson(e as Map<String, dynamic>))
-          .toList(),
+          .toList(): null,
+      transaction: json['transaction'] as String,
     );
   }
 
@@ -24,12 +27,13 @@ class SolanaSignTransaction {
       'feePayer': feePayer,
       'recentBlockhash': recentBlockhash,
       'instructions': instructions,
+      'transaction': transaction,
     };
   }
 
   @override
   String toString() {
-    return 'SolanaSignTransaction(feePayer: $feePayer, recentBlockhash: $recentBlockhash, instructions: $instructions)';
+    return 'SolanaSignTransaction(feePayer: $feePayer, recentBlockhash: $recentBlockhash, instructions: $instructions, transaction: $transaction)';
   }
 }
 

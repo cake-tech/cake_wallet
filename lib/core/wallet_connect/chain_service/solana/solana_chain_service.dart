@@ -9,7 +9,6 @@ import 'package:cake_wallet/core/wallet_connect/models/connection_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
 import 'package:solana/base58.dart';
-import 'package:solana/encoder.dart';
 import 'package:solana/solana.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import '../chain_service.dart';
@@ -99,9 +98,9 @@ class SolanaChainServiceImpl implements ChainService {
   }
 
   Future<String> solanaSignTransaction(String topic, dynamic parameters) async {
-    log('received solana sign transaction request');
+    log('received solana sign transaction request $parameters');
 
-    final solanaSignTransaction =
+    final solanaSignTx =
         SolanaSignTransaction.fromJson(parameters as Map<String, dynamic>);
 
     final String? authError = await requestAuthorization('Confirm request to sign transaction?');
@@ -111,32 +110,12 @@ class SolanaChainServiceImpl implements ChainService {
     }
 
     try {
-      List<Instruction> instructions = List.empty(growable: true);
-
-      for (var element in solanaSignTransaction.instructions) {
-        List<AccountMeta> accountMetas = [];
-        for (var key in element.keys) {
-          accountMetas.add(
-            AccountMeta.writeable(
-              pubKey: Ed25519HDPublicKey.fromBase58(key.pubkey),
-              isSigner: key.isSigner,
-            ),
-          );
-        }
-        instructions.add(
-          Instruction(
-            programId: Ed25519HDPublicKey.fromBase58(element.programId),
-            accounts: accountMetas,
-            data: ByteArray(element.data),
-          ),
-        );
-      }
-
-      Message message = Message.only(instructions.first);
+      final message =
+          await solanaClient.rpcClient.getMessageFromEncodedTx(solanaSignTx.transaction);
 
       final sign = await ownerKeyPair?.signMessage(
         message: message,
-        recentBlockhash: solanaSignTransaction.recentBlockhash,
+        recentBlockhash: solanaSignTx.recentBlockhash ?? '',
       );
 
       if (sign == null) {
@@ -144,6 +123,9 @@ class SolanaChainServiceImpl implements ChainService {
       }
 
       String signature = sign.signatures.first.toBase58();
+
+      print(signature);
+      print(signature.runtimeType);
 
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
@@ -176,14 +158,19 @@ class SolanaChainServiceImpl implements ChainService {
     if (authError != null) {
       return authError;
     }
+    Signature? sign;
 
-    final sign = await ownerKeyPair?.sign(base58decode(solanaSignMessage.message));
+    try {
+      sign = await ownerKeyPair?.sign(base58decode(solanaSignMessage.message));
+    } catch (e) {
+      print(e);
+    }
 
     if (sign == null) {
       return '';
     }
 
-    String signature = base58encode(sign.bytes);
+    String signature = sign.toBase58();
 
     return signature;
   }

@@ -28,7 +28,7 @@ class PairingItemWidget extends StatelessWidget {
 
     return ListTile(
       leading: CakeImageWidget(
-        imageUrl: metadata.icons[0],
+        imageUrl: metadata.icons.isNotEmpty ?  metadata.icons[0]: null,
         displayOnError: CircleAvatar(
           backgroundImage: AssetImage('assets/images/default_icon.png'),
         ),

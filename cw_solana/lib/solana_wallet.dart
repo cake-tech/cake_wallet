@@ -168,8 +168,10 @@ abstract class SolanaWalletBase
       }
 
       try {
-        await _updateBalance();
-        await _updateTransactions();
+        await Future.wait([
+          _updateBalance(),
+          _updateTransactions(),
+        ]);
       } catch (e) {
         log(e.toString());
       }
@@ -307,8 +309,11 @@ abstract class SolanaWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
-      await _updateBalance();
-      await _updateTransactions();
+
+      await Future.wait([
+        _updateBalance(),
+        _updateTransactions(),
+      ]);
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {
@@ -391,9 +396,10 @@ abstract class SolanaWalletBase
     await splTokensBox.put(token.mintAddress, token);
 
     if (token.enabled) {
-      final tokenBalance = await _client.getSplTokenBalance(token.mintAddress, _walletKeyPair!.address) ??
-          balance[token] ??
-          SolanaBalance(0.0);
+      final tokenBalance =
+          await _client.getSplTokenBalance(token.mintAddress, _walletKeyPair!.address) ??
+              balance[token] ??
+              SolanaBalance(0.0);
 
       balance[token] = tokenBalance;
     } else {

@@ -147,6 +147,7 @@ class SolanaWalletClient {
                     transfer: (data) {
                       ParsedSystemTransferInformation transfer = data.info;
                       bool isOutgoingTx = transfer.source == address.toBase58();
+
                       double amount = transfer.lamports.toDouble() / lamportsPerSol;
 
                       transactions.add(
@@ -180,7 +181,8 @@ class SolanaWalletClient {
                       }
 
                       SplTokenTransferInfo transfer = data.info;
-                      bool incomingTx = transfer.destination == address.toBase58();
+                      bool isOutgoingTx = message.accountKeys[0].pubkey == address.toBase58();
+
                       double amount =
                           (double.tryParse(transfer.amount) ?? 0.0) / pow(10, token?.decimal ?? 9);
 
@@ -191,7 +193,7 @@ class SolanaWalletClient {
                           from: transfer.source,
                           to: transfer.destination,
                           amount: amount,
-                          isOutgoingTx: !incomingTx,
+                          isOutgoingTx: isOutgoingTx,
                           programId: TokenProgram.programId,
                           blockTimeInInt: tx.blockTime!,
                           tokenSymbol: token?.symbol ?? 'SOL',
@@ -212,7 +214,7 @@ class SolanaWalletClient {
                       }
 
                       SplTokenTransferCheckedInfo transfer = data.info;
-                      bool outgoingTx = transfer.source == address.toBase58();
+                      bool isOutgoingTx = message.accountKeys[0].pubkey == address.toBase58();
                       double amount =
                           double.tryParse(transfer.tokenAmount.uiAmountString ?? '0.0') ?? 0.0;
 
@@ -223,7 +225,7 @@ class SolanaWalletClient {
                           from: transfer.source,
                           to: transfer.destination,
                           amount: amount,
-                          isOutgoingTx: outgoingTx,
+                          isOutgoingTx: isOutgoingTx,
                           programId: TokenProgram.programId,
                           blockTimeInInt: tx.blockTime!,
                           tokenSymbol: tokenSymbol,
