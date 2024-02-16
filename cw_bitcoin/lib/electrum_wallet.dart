@@ -606,8 +606,6 @@ abstract class ElectrumWalletBase
           electrumClient.getHistory(scriptHash).then((history) => {scriptHash: history}));
       final historyResults = await Future.wait(histories);
 
-
-
       historyResults.forEach((history) {
         history.entries.forEach((historyItem) {
           if (historyItem.value.isNotEmpty) {
@@ -626,7 +624,6 @@ abstract class ElectrumWalletBase
           addressRecord.balance = balanceData['confirmed'] as int? ?? 0;
         }
       }
-
 
       addressHashes.forEach((sh, addressRecord) {
         addressRecord.txCount = newTxCounts[sh] ?? 0;
