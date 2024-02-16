@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/screens/receive/widgets/lightning_input_form.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
@@ -13,11 +14,13 @@ import 'package:cake_wallet/src/screens/receive/widgets/anonpay_input_form.dart'
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/lightning_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -190,8 +193,6 @@ class LightningInvoicePage extends BasePage {
                     text: S.of(context).create_invoice,
                     onPressed: () {
                       FocusScope.of(context).unfocus();
-                      lightningViewModel.createInvoice(
-                          amount: _amountController.text, description: _descriptionController.text);
                       lightningInvoicePageViewModel.setRequestParams(
                         inputAmount: _amountController.text,
                         inputDescription: _descriptionController.text,
@@ -233,24 +234,30 @@ class LightningInvoicePage extends BasePage {
     });
 
     reaction((_) => lightningInvoicePageViewModel.state, (ExecutionState state) {
-      if (state is ExecutedSuccessfullyState) {
-        // Navigator.pushNamed(context, Routes.anonPayReceivePage, arguments: state.payload);
-        lightningViewModel.createInvoice(
-          amount: state.payload["amount"] as String,
-          description: state.payload["description"] as String?,
-        );
-      }
+      // if (state is ExecutedSuccessfullyState) {
+      //   // Navigator.pushNamed(context, Routes.anonPayReceivePage, arguments: state.payload);
+      //   lightningViewModel.createInvoice(
+      //     amount: state.payload["amount"] as String,
+      //     description: state.payload["description"] as String?,
+      //   );
+      // }
 
       if (state is ExecutedSuccessfullyState) {
         showPopUp<void>(
             context: context,
             builder: (BuildContext context) {
-              return AlertWithOneAction(
-                  // alertTitle: S.of(context).invoice_created,
-                  alertTitle: "Invoice created TODO",
-                  alertContent: state.payload as String,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
+              return AlertWithTwoActions(
+                // alertTitle: S.of(context).invoice_created,
+                alertTitle: "Invoice created TODO: CW-563",
+                alertContent: state.payload as String,
+                rightButtonText: S.of(context).ok,
+                actionRightButton: () => Navigator.of(context).pop(),
+                actionLeftButton: () async {
+                  Clipboard.setData(ClipboardData(text: state.payload as String));
+                  showBar<void>(context, S.of(context).copied_to_clipboard);
+                },
+                leftButtonText: S.of(context).copy,
+              );
             });
       }
 

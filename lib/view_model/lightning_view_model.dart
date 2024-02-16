@@ -78,12 +78,13 @@ abstract class LightningViewModelBase with Store {
 
   Future<String> createInvoice({required String amount, String? description}) async {
     final sdk = await BreezSDK();
+    print(amount);
+    print("@@@@@@@@@@@@@@");
     final req = ReceivePaymentRequest(
-      amountMsat: int.parse(amount) * 1000,
+      amountMsat: (double.parse(amount) * 100000000).round(),
       description: description ?? '',
     );
     final res = await sdk.receivePayment(req: req);
-    print(res.lnInvoice.bolt11);
     return res.lnInvoice.bolt11;
   }
 
@@ -96,7 +97,7 @@ abstract class LightningViewModelBase with Store {
     // final res = await sdk.receivePayment(req: req);
     // print(res.lnInvoice.);
     // return res.lnInvoice.bolt11;
-    // TODO: figure out how to get the limits
-    return ['1000', '20000'];
+    // TODO: CW-563 figure out how to get the limits
+    return ['0', '20000'];
   }
 }
