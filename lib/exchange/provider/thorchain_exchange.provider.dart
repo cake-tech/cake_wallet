@@ -141,7 +141,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   @override
   Future<Trade> findTradeById({required String id}) async {
     if (id.isEmpty) throw Exception('Trade id is empty');
-    final uri = Uri.parse('$_baseURL$_txInfoPath$id');
+    final formattedId = id.startsWith('0x') ? id.substring(2) : id;
+    final uri = Uri.parse('$_baseURL$_txInfoPath$formattedId');
     final response = await http.get(uri);
 
     if (response.statusCode == 404) {
