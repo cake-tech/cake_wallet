@@ -251,9 +251,8 @@ class AddressValidator extends TextValidator {
         return [64];
       case CryptoCurrency.btcln:
       case CryptoCurrency.kaspa:
-        return null;
       default:
-        return [];
+        return null;
     }
   }
 
