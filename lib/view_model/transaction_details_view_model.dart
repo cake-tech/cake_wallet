@@ -294,7 +294,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   @action
-  void _checkForRBF() async {
+  Future<void> _checkForRBF() async {
     if (wallet.type == WalletType.bitcoin) {
       if (await bitcoin!.canReplaceByFee(wallet, transactionInfo.id)) {
         _canReplaceByFee = true;

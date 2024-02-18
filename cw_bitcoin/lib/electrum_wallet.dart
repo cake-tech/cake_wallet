@@ -576,7 +576,7 @@ abstract class ElectrumWalletBase
     final original = bitcoin.Transaction.fromHex(transactionHex);
 
     return original.ins
-        .every((element) => element.sequence != null && element.sequence! < 4294967);
+        .every((element) => element.sequence != null && element.sequence! < 4294967293);
   }
 
   Future<PendingBitcoinTransaction> replaceByFee(String hash, int newFee) async {

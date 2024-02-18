@@ -305,7 +305,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @action
-  void replaceByFee(String txId, String newFee) async {
+  Future<void> replaceByFee(String txId, String newFee) async {
     state = IsExecutingState();
     pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
     state = ExecutedSuccessfullyState();
