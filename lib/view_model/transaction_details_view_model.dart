@@ -295,7 +295,8 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   @action
   Future<void> _checkForRBF() async {
-    if (wallet.type == WalletType.bitcoin) {
+    if (wallet.type == WalletType.bitcoin &&
+        transactionInfo.direction == TransactionDirection.outgoing) {
       if (await bitcoin!.canReplaceByFee(wallet, transactionInfo.id)) {
         _canReplaceByFee = true;
       }
@@ -303,7 +304,6 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo.id, newFee);
-
 
   @computed
   String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled
@@ -314,5 +314,4 @@ abstract class TransactionDetailsViewModelBase with Store {
   String get pendingTransactionFeeFiatAmountFormatted => sendViewModel.isFiatDisabled
       ? ''
       : sendViewModel.pendingTransactionFeeFiatAmount + ' ' + sendViewModel.fiat.title;
-
 }

@@ -78,7 +78,7 @@ class TransactionDetailsPage extends BasePage {
                 child: PrimaryButton(
                   onPressed: () {
                     // TODO: show popup to enter desired new fee
-                    transactionDetailsViewModel.replaceByFee("0.0002");
+                    transactionDetailsViewModel.replaceByFee("0.00002");
                   },
                   text: S.of(context).replace_by_fee,
                   color: Theme.of(context).primaryColor,

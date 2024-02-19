@@ -572,7 +572,12 @@ abstract class ElectrumWalletBase
 
   Future<bool> canReplaceByFee(String hash) async {
     final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
-    final transactionHex = verboseTransaction['hex'] as String;
+    final transactionHex = verboseTransaction['hex'] as String?;
+
+    if (transactionHex == null) {
+      return false;
+    }
+
     final original = bitcoin.Transaction.fromHex(transactionHex);
 
     return original.ins
@@ -580,18 +585,66 @@ abstract class ElectrumWalletBase
   }
 
   Future<PendingBitcoinTransaction> replaceByFee(String hash, int newFee) async {
-    final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
-    final transactionHex = verboseTransaction['hex'] as String;
-    final original = bitcoin.Transaction.fromHex(transactionHex);
+    final bundle = await getTransactionExpanded(hash: hash);
 
-    print("@@@@@@@@@@@@@@@");
-    print(transactionHex);
-    print(original.toHex());
+    final txb = bitcoin.TransactionBuilder(network: networkType);
+
+    txb.setVersion(1);
+
+    var inputAmount = 0;
+    var totalOutAmount = 0;
+
+    final addressRecords = <BitcoinAddressRecord>[];
+    final inputValues = <int>[];
+
+    // Add inputs
+    for (var i = 0; i < bundle.originalTransaction.ins.length; i++) {
+      final input = bundle.originalTransaction.ins[i];
+      final inputTransaction = bundle.ins[i];
+      final vout = input.index;
+      final outTransaction = inputTransaction.outs[vout!];
+      final address = addressFromOutput(outTransaction.script!, networkType);
+      inputAmount += outTransaction.value!;
+
+      // match inputs with address records to sign inputs
+      final addressRecord =
+          walletAddresses.addresses.firstWhere((element) => element.address == address);
+      addressRecords.add(addressRecord);
+      inputValues.add(outTransaction.value!);
+
+      if (addressRecord.address.startsWith("bc")) {
+        final p2wpkh = bitcoin
+            .P2WPKH(
+                data: generatePaymentData(
+                    hd: addressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+                    index: addressRecord.index),
+                network: networkType)
+            .data;
+
+        txb.addInput(
+          input.hash,
+          1, // TODO:
+          input.sequence,
+          p2wpkh.output,
+        );
+      } else {
+        txb.addInput(input.hash, 1, input.sequence); // TODO:
+      }
+    }
+
+    // Add outputs
+    for (final out in bundle.originalTransaction.outs) {
+      totalOutAmount += out.value!;
+      txb.addOutput(out.script, out.value!);
+    }
+
+    final oldFee = inputAmount - totalOutAmount;
 
     int remainingFee = newFee;
 
-    for (int i = original.outs.length - 1; i >= 0; i--) {
-      if (original.outs[i].value == null) {
+    // deduct the additional fee
+    for (int i = txb.tx.outs.length - 1; i >= 0; i--) {
+      if (txb.tx.outs[i].value == null) {
         continue;
       }
 
@@ -600,98 +653,54 @@ abstract class ElectrumWalletBase
       }
 
       // check if the amount is larger than the new fee
-      if (original.outs[i].value! >= remainingFee) {
-        original.outs[i].value = original.outs[i].value! - remainingFee;
+      if (txb.tx.outs[i].value! >= remainingFee) {
+        txb.tx.outs[i].value = txb.tx.outs[i].value! - remainingFee;
       } else {
-        original.outs[i].value = 0;
+        txb.tx.outs[i].value = 0;
       }
 
-      remainingFee -= original.outs[i].value!;
+      remainingFee -= txb.tx.outs[i].value!;
     }
 
     if (remainingFee > 0) {
       throw "Fee is larger than amount sent";
     }
 
-    final txb = bitcoin.TransactionBuilder(network: networkType);
-
-    txb.setVersion(1);
-
-    // Add inputs
-    original.ins.forEach((input) {
-        txb.addInput(
-          input.hash,
-          input.value ?? 0,
-          input.sequence,
-          input.prevOutScript,
-        );
-    });
-
-    // Add outputs
-    original.outs.forEach((item) {
-      txb.addOutput(item.script, item.value ?? 0);
-    });
-
-    // match inputs with unspent coins to sign inputs
-    final inputs = <BitcoinUnspent>[];
-    for (var input in original.ins) {
-      var address = addressFromOutput(input.script!, networkType);
-      // inputs.add(unspentCoins.firstWhere((element) {
-      //   print("----------------");
-      //   print(input.script);
-      //   print(input.signScript);
-      //   print(input.prevOutScript);
-      //   print(address);
-      //   print(element.address);
-      //   return element.address == address;
-      // }));
-      inputs.add(unspentCoins.first);
-    }
-
     // sign inputs
-    for (var i = 0; i < inputs.length; i++) {
-      final input = inputs[i];
+    for (var i = 0; i < addressRecords.length; i++) {
+      final addressRecord = addressRecords[i];
       final keyPair = generateKeyPair(
-          hd: input.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
-          index: input.bitcoinAddressRecord.index,
+          hd: addressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+          index: addressRecord.index,
           network: networkType);
-      final witnessValue = input.isP2wpkh ? input.value : null;
+      final witnessValue = addressRecord.address.startsWith('bc') ? inputValues[i] : null;
 
       txb.sign(vin: i, keyPair: keyPair, witnessValue: witnessValue);
     }
 
-    // ====================================================================================
-
-
-    int amountOut = 0;
-    for (var out in original.outs) {
-      amountOut += out.value ?? 0;
-    }
-    int amountIn = 0;
-    for (var input in original.ins) {
-      amountIn += input.value ?? 0;
-    }
-
     final transaction = txb.build();
 
-    print("@@@@@@@@@@@@@@@");
-    print(original.toHex());
-    print(transaction.toHex());
-    print(amountIn);
-    print(amountOut);
-    print(amountIn - amountOut);
+    int amountOut = 0;
+    for (var out in transaction.outs) {
+      amountOut += out.value ?? 0;
+    }
 
+    print("=====================");
+    print(transaction.toString());
+
+    print("@@@@@@@@@@@@@@@");
+    print(bundle.originalTransaction.toHex());
+    print(transaction.toHex());
 
     return PendingBitcoinTransaction(transaction, type,
-        electrumClient: electrumClient, amount: amountOut, fee: newFee)
+        electrumClient: electrumClient, amount: amountOut, fee: newFee + oldFee)
       ..addListener((transaction) async {
         transactionHistory.addOne(transaction);
         await updateBalance();
       });
   }
 
-  Future<ElectrumTransactionBundle> getTransactionExpanded(
-      {required String hash, required int height}) async {
+  Future<ElectrumTransactionBundle> getTransactionExpanded({required String hash}) async {
     final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
     final transactionHex = verboseTransaction['hex'] as String;
     final original = bitcoin.Transaction.fromHex(transactionHex);
@@ -712,7 +721,7 @@ abstract class ElectrumWalletBase
   Future<ElectrumTransactionInfo?> fetchTransactionInfo(
       {required String hash, required int height}) async {
     try {
-      final tx = await getTransactionExpanded(hash: hash, height: height);
+      final tx = await getTransactionExpanded(hash: hash);
       final addresses = walletAddresses.addresses.map((addr) => addr.address).toSet();
       return ElectrumTransactionInfo.fromElectrumBundle(tx, walletInfo.type, networkType,
           addresses: addresses, height: height);
