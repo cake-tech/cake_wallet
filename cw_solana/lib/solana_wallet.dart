@@ -21,6 +21,7 @@ import 'package:cw_solana/solana_exceptions.dart';
 import 'package:cw_solana/solana_transaction_credentials.dart';
 import 'package:cw_solana/solana_transaction_history.dart';
 import 'package:cw_solana/solana_transaction_info.dart';
+import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:cw_solana/solana_wallet_addresses.dart';
 import 'package:cw_solana/spl_token.dart';
 import 'package:hex/hex.dart';
@@ -47,7 +48,6 @@ abstract class SolanaWalletBase
         _password = password,
         _mnemonic = mnemonic,
         _hexPrivateKey = privateKey,
-        _isTransactionUpdating = false,
         _client = SolanaWalletClient(),
         walletAddresses = SolanaWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, SolanaBalance>.of(
@@ -77,7 +77,6 @@ abstract class SolanaWalletBase
 
   late SolanaWalletClient _client;
 
-  bool _isTransactionUpdating;
 
   Timer? _transactionsUpdateTimer;
 
@@ -170,7 +169,7 @@ abstract class SolanaWalletBase
       try {
         await Future.wait([
           _updateBalance(),
-          _updateTransactions(),
+          _updateNativeSOLTransactions(),
         ]);
       } catch (e) {
         log(e.toString());
@@ -246,46 +245,14 @@ abstract class SolanaWalletBase
     return pendingSolanaTransaction;
   }
 
-  Future<void> _updateTransactions() async {
-    try {
-      if (_isTransactionUpdating) {
-        return;
-      }
-
-      _isTransactionUpdating = true;
-
-      final transactions = await fetchTransactions();
-
-      transactionHistory.addMany(transactions);
-
-      await transactionHistory.save();
-
-      _isTransactionUpdating = false;
-    } catch (_) {
-      _isTransactionUpdating = false;
-    }
-  }
-
   @override
-  Future<Map<String, SolanaTransactionInfo>> fetchTransactions() async {
+  Future<Map<String, SolanaTransactionInfo>> fetchTransactions() async => {};
+
+  /// Fetches the native SOL transactions linked to the wallet Public Key
+  Future<void> _updateNativeSOLTransactions() async {
     final address = Ed25519HDPublicKey.fromBase58(_walletKeyPair!.address);
 
-    // This fetches the transactions linked to the wallet itself, primarily the native transactions
     final transactions = await _client.fetchTransactions(address);
-
-    //TODO(David): Implement Sychronized locks for preventing concurrent access to the async operation
-    for (var token in balance.keys) {
-      if (token is SPLToken) {
-        final tokenTxs = await _client.getSPLTokenTransfers(
-          token.mintAddress,
-          token.symbol,
-          token.decimal,
-          _walletKeyPair!,
-        );
-
-        transactions.addAll(tokenTxs);
-      }
-    }
 
     final Map<String, SolanaTransactionInfo> result = {};
 
@@ -305,7 +272,49 @@ abstract class SolanaWalletBase
       );
     }
 
-    return result;
+    transactionHistory.addMany(result);
+
+    await transactionHistory.save();
+  }
+
+  /// Fetches the SPL Tokens transactions linked to the token account Public Key
+  Future<void> _updateSPLTokenTransactions() async {
+    List<SolanaTransactionModel> splTokenTransactions = [];
+
+    for (var token in balance.keys) {
+      if (token is SPLToken) {
+        final tokenTxs = await _client.getSPLTokenTransfers(
+          token.mintAddress,
+          token.symbol,
+          token.decimal,
+          _walletKeyPair!,
+        );
+
+        splTokenTransactions.addAll(tokenTxs);
+      }
+    }
+
+    final Map<String, SolanaTransactionInfo> result = {};
+
+    for (var transactionModel in splTokenTransactions) {
+      result[transactionModel.id] = SolanaTransactionInfo(
+        id: transactionModel.id,
+        to: transactionModel.to,
+        from: transactionModel.from,
+        blockTime: transactionModel.blockTime,
+        direction: transactionModel.isOutgoingTx
+            ? TransactionDirection.outgoing
+            : TransactionDirection.incoming,
+        solAmount: transactionModel.amount,
+        isPending: false,
+        txFee: transactionModel.fee,
+        tokenSymbol: transactionModel.tokenSymbol,
+      );
+    }
+
+    transactionHistory.addMany(result);
+
+    await transactionHistory.save();
   }
 
   @override
@@ -327,7 +336,7 @@ abstract class SolanaWalletBase
 
       await Future.wait([
         _updateBalance(),
-        _updateTransactions(),
+        _updateNativeSOLTransactions(),
       ]);
 
       syncStatus = SyncedSyncStatus();
@@ -476,8 +485,9 @@ abstract class SolanaWalletBase
       _transactionsUpdateTimer!.cancel();
     }
 
-    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 10), (_) {
-      _updateTransactions();
+    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 20), (_) {
+      _updateSPLTokenTransactions();
+      _updateNativeSOLTransactions();
       _updateBalance();
     });
   }
