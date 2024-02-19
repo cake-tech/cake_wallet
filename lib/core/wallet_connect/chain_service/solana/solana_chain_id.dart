@@ -3,6 +3,7 @@ import 'solana_chain_service.dart';
 enum SolanaChainId {
   mainnet,
   testnet,
+  devnet,
 }
 
 extension SolanaChainIdX on SolanaChainId {
@@ -11,10 +12,13 @@ extension SolanaChainIdX on SolanaChainId {
 
     switch (this) {
       case SolanaChainId.mainnet:
-        name = '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ';
+        name = '101';
         break;
       case SolanaChainId.testnet:
-        name = '8E9rvCKLFQia2Y35HXjjpWzj8weVo44K';
+        name = '102';
+        break;
+      case SolanaChainId.devnet:
+        name = '103';
         break;
     }
 

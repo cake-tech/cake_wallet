@@ -270,7 +270,22 @@ abstract class SolanaWalletBase
   Future<Map<String, SolanaTransactionInfo>> fetchTransactions() async {
     final address = Ed25519HDPublicKey.fromBase58(_walletKeyPair!.address);
 
+    // This fetches the transactions linked to the wallet itself, primarily the native transactions
     final transactions = await _client.fetchTransactions(address);
+
+    //TODO(David): Implement Sychronized locks for preventing concurrent access to the async operation
+    for (var token in balance.keys) {
+      if (token is SPLToken) {
+        final tokenTxs = await _client.getSPLTokenTransfers(
+          token.mintAddress,
+          token.symbol,
+          token.decimal,
+          _walletKeyPair!,
+        );
+
+        transactions.addAll(tokenTxs);
+      }
+    }
 
     final Map<String, SolanaTransactionInfo> result = {};
 
@@ -380,6 +395,7 @@ abstract class SolanaWalletBase
     }
   }
 
+  @override
   Future<void>? updateBalance() async => await _updateBalance();
 
   List<SPLToken> get splTokenCurrencies => splTokensBox.values.toList();

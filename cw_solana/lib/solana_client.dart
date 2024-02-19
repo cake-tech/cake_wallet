@@ -5,11 +5,9 @@ import 'dart:math';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_solana/default_spl_tokens.dart';
 import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
-import 'package:cw_solana/spl_token.dart';
 import 'package:http/http.dart' as http;
 import 'package:solana/dto.dart';
 import 'package:solana/encoder.dart';
@@ -110,7 +108,11 @@ class SolanaWalletClient {
   }
 
   /// Load the Address's transactions into the account
-  Future<List<SolanaTransactionModel>> fetchTransactions(Ed25519HDPublicKey address) async {
+  Future<List<SolanaTransactionModel>> fetchTransactions(
+    Ed25519HDPublicKey publicKey, {
+    String? splTokenSymbol,
+    int? splTokenDecimal,
+  }) async {
     List<SolanaTransactionModel> transactions = [];
 
     // Using mainnet beta node to fetch transactions.
@@ -127,7 +129,7 @@ class SolanaWalletClient {
 
     try {
       final response = await mainNetBetaSolanaClient.rpcClient.getTransactionsList(
-        address,
+        publicKey,
         commitment: Commitment.confirmed,
         limit: 1000,
       );
@@ -142,11 +144,11 @@ class SolanaWalletClient {
           for (final instruction in message.instructions) {
             if (instruction is ParsedInstruction) {
               instruction.map(
-                system: (data) {
-                  data.parsed.map(
-                    transfer: (data) {
-                      ParsedSystemTransferInformation transfer = data.info;
-                      bool isOutgoingTx = transfer.source == address.toBase58();
+                system: (systemData) {
+                  systemData.parsed.map(
+                    transfer: (transferData) {
+                      ParsedSystemTransferInformation transfer = transferData.info;
+                      bool isOutgoingTx = transfer.source == publicKey.toBase58();
 
                       double amount = transfer.lamports.toDouble() / lamportsPerSol;
 
@@ -168,72 +170,53 @@ class SolanaWalletClient {
                     unsupported: (_) {},
                   );
                 },
-                splToken: (data) {
-                  data.parsed.map(
-                    transfer: (data) {
-                      final mintAddress = tx.meta?.postTokenBalances.first.mint ?? '';
-                      final tokens = DefaultSPLTokens().initialSPLTokens;
-                      SPLToken? token;
-                      try {
-                        token = tokens.firstWhere((token) => token.mintAddress == mintAddress);
-                      } catch (e) {
-                        print('Error getting the token from default tokens: $e');
-                      }
+                splToken: (splTokenData) {
+                  if (splTokenSymbol != null) {
+                    splTokenData.parsed.map(
+                      transfer: (transferData) {
+                        SplTokenTransferInfo transfer = transferData.info;
+                        bool isOutgoingTx = transfer.source == publicKey.toBase58();
 
-                      SplTokenTransferInfo transfer = data.info;
-                      bool isOutgoingTx = message.accountKeys[0].pubkey == address.toBase58();
+                        double amount = (double.tryParse(transfer.amount) ?? 0.0) /
+                            pow(10, splTokenDecimal ?? 9);
 
-                      double amount =
-                          (double.tryParse(transfer.amount) ?? 0.0) / pow(10, token?.decimal ?? 9);
+                        transactions.add(
+                          SolanaTransactionModel(
+                            id: parsedTx.signatures.first,
+                            fee: fee,
+                            from: transfer.source,
+                            to: transfer.destination,
+                            amount: amount,
+                            isOutgoingTx: isOutgoingTx,
+                            programId: TokenProgram.programId,
+                            blockTimeInInt: tx.blockTime!,
+                            tokenSymbol: splTokenSymbol,
+                          ),
+                        );
+                      },
+                      transferChecked: (transferCheckedData) {
+                        SplTokenTransferCheckedInfo transfer = transferCheckedData.info;
+                        bool isOutgoingTx = transfer.source == publicKey.toBase58();
+                        double amount =
+                            double.tryParse(transfer.tokenAmount.uiAmountString ?? '0.0') ?? 0.0;
 
-                      transactions.add(
-                        SolanaTransactionModel(
-                          id: parsedTx.signatures.first,
-                          fee: fee,
-                          from: transfer.source,
-                          to: transfer.destination,
-                          amount: amount,
-                          isOutgoingTx: isOutgoingTx,
-                          programId: TokenProgram.programId,
-                          blockTimeInInt: tx.blockTime!,
-                          tokenSymbol: token?.symbol ?? 'SOL',
-                        ),
-                      );
-                    },
-                    transferChecked: (data) {
-                      final mintAddress = tx.meta?.postTokenBalances.first.mint ?? '';
-                      final tokens = DefaultSPLTokens().initialSPLTokens;
-
-                      String tokenSymbol;
-                      try {
-                        tokenSymbol =
-                            tokens.firstWhere((token) => token.mintAddress == mintAddress).symbol;
-                      } catch (e) {
-                        tokenSymbol = 'SOL';
-                        print('Error getting the tokenSymbol from default tokens: $e');
-                      }
-
-                      SplTokenTransferCheckedInfo transfer = data.info;
-                      bool isOutgoingTx = message.accountKeys[0].pubkey == address.toBase58();
-                      double amount =
-                          double.tryParse(transfer.tokenAmount.uiAmountString ?? '0.0') ?? 0.0;
-
-                      transactions.add(
-                        SolanaTransactionModel(
-                          id: parsedTx.signatures.first,
-                          fee: fee,
-                          from: transfer.source,
-                          to: transfer.destination,
-                          amount: amount,
-                          isOutgoingTx: isOutgoingTx,
-                          programId: TokenProgram.programId,
-                          blockTimeInInt: tx.blockTime!,
-                          tokenSymbol: tokenSymbol,
-                        ),
-                      );
-                    },
-                    generic: (data) {},
-                  );
+                        transactions.add(
+                          SolanaTransactionModel(
+                            id: parsedTx.signatures.first,
+                            fee: fee,
+                            from: transfer.source,
+                            to: transfer.destination,
+                            amount: amount,
+                            isOutgoingTx: isOutgoingTx,
+                            programId: TokenProgram.programId,
+                            blockTimeInInt: tx.blockTime!,
+                            tokenSymbol: splTokenSymbol,
+                          ),
+                        );
+                      },
+                      generic: (genericData) {},
+                    );
+                  }
                 },
                 memo: (_) {},
                 unsupported: (a) {},
@@ -247,6 +230,33 @@ class SolanaWalletClient {
     } catch (err) {
       return [];
     }
+  }
+
+  Future<List<SolanaTransactionModel>> getSPLTokenTransfers(
+    String address,
+    String splTokenSymbol,
+    int splTokenDecimal,
+    Ed25519HDKeyPair ownerKeypair,
+  ) async {
+    final tokenMint = Ed25519HDPublicKey.fromBase58(address);
+
+    final associatedTokenAccount = await _client!.getAssociatedTokenAccount(
+      mint: tokenMint,
+      owner: ownerKeypair.publicKey,
+      commitment: Commitment.confirmed,
+    );
+
+    if (associatedTokenAccount == null) return [];
+
+    final accountPublicKey = Ed25519HDPublicKey.fromBase58(associatedTokenAccount.pubkey);
+
+    final tokenTransactions = await fetchTransactions(
+      accountPublicKey,
+      splTokenSymbol: splTokenSymbol,
+      splTokenDecimal: splTokenDecimal,
+    );
+
+    return tokenTransactions;
   }
 
   void stop() {}
