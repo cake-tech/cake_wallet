@@ -46,6 +46,9 @@ jobs:
           docker-images: true
           swap-storage: true
 
+      - name: Get storage info
+        run: sudo df -h
+
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
         with:
@@ -170,6 +173,9 @@ jobs:
 
       - name: Rename app
         run: echo -e "id=com.cakewallet.test\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
+
+      - name: Get storage info
+        run: sudo df -h
 
       - name: Build
         run: |
