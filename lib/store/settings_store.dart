@@ -59,7 +59,9 @@ abstract class SettingsStoreBase with Store {
       required bool initialDisableBuy,
       required bool initialDisableSell,
       required WalletListOrderType initialWalletListOrder,
+      required WalletListOrderType initialContactListOrder,
       required bool initialWalletListAscending,
+      required bool initialContactListAscending,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
       required String initialTotpSecretKey,
@@ -130,7 +132,9 @@ abstract class SettingsStoreBase with Store {
         disableBuy = initialDisableBuy,
         disableSell = initialDisableSell,
         walletListOrder = initialWalletListOrder,
+        contactListOrder = initialContactListOrder,
         walletListAscending = initialWalletListAscending,
+        contactListAscending = initialContactListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
@@ -299,6 +303,11 @@ abstract class SettingsStoreBase with Store {
         (_) => walletListAscending,
         (bool walletListAscending) =>
             sharedPreferences.setBool(PreferencesKey.walletListAscending, walletListAscending));
+
+    reaction(
+            (_) => contactListAscending,
+            (bool contactListAscending) =>
+            sharedPreferences.setBool(PreferencesKey.walletListAscending, contactListAscending));
 
     reaction(
         (_) => autoGenerateSubaddressStatus,
@@ -556,7 +565,13 @@ abstract class SettingsStoreBase with Store {
   WalletListOrderType walletListOrder;
 
   @observable
+  WalletListOrderType contactListOrder;
+
+  @observable
   bool walletListAscending;
+
+  @observable
+  bool contactListAscending;
 
   @observable
   bool allowBiometricalAuthentication;
@@ -778,8 +793,12 @@ abstract class SettingsStoreBase with Store {
     final disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? false;
     final walletListOrder =
         WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
+    final contactListOrder =
+    WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
     final walletListAscending =
         sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
+    final contactListAscending =
+        sharedPreferences.getBool(PreferencesKey.contactListAscending) ?? true;
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
             FiatApiMode.enabled.raw);
@@ -1020,6 +1039,8 @@ abstract class SettingsStoreBase with Store {
         initialDisableSell: disableSell,
         initialWalletListOrder: walletListOrder,
         initialWalletListAscending: walletListAscending,
+        initialContactListOrder: contactListOrder,
+        initialContactListAscending: contactListAscending,
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialCake2FAPresetOptions: selectedCake2FAPreset,
@@ -1138,8 +1159,10 @@ abstract class SettingsStoreBase with Store {
     disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? disableSell;
     walletListOrder =
         WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
+    contactListOrder =
+    WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
     walletListAscending = sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
-
+    contactListAscending = sharedPreferences.getBool(PreferencesKey.contactListAscending) ?? true;
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;

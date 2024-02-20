@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
+import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -12,6 +14,7 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:collection/collection.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'contact_list_view_model.g.dart';
 
@@ -59,6 +62,10 @@ abstract class ContactListViewModelBase with Store {
     _subscription = contactSource.bindToListWithTransform(
         contacts, (Contact contact) => ContactRecord(contactSource, contact),
         initialFire: true);
+
+    setOrderType(settingsStore.contactListOrder);
+    updateList();
+
   }
 
   String _createName(String walletName, String label) {
@@ -75,6 +82,10 @@ abstract class ContactListViewModelBase with Store {
   final SettingsStore settingsStore;
 
   bool get isEditable => _currency == null;
+
+  WalletListOrderType? get orderType => settingsStore.contactListOrder;
+
+  bool get ascending => settingsStore.contactListAscending;
 
   @computed
   bool get shouldRequireTOTP2FAForAddingContacts =>
@@ -95,5 +106,142 @@ abstract class ContactListViewModelBase with Store {
         element.type == _currency ||
         element.type.title == _currency!.tag ||
         element.type.tag == _currency!.tag;
+  }
+
+  @action
+  void updateList() {
+    contacts.clear();
+    contacts.addAll(contactSource.values.map((contact) => ContactRecord(contactSource, contact)));
+  }
+
+  Future<void> reorderAccordingToContactList() async {
+    settingsStore.contactListOrder = WalletListOrderType.Custom;
+
+    Map<dynamic, Contact> contactSourceCopy = Map.fromIterable(contactSource.values,
+        key: (item) => item.key, value: (item) => item as Contact);
+
+    List<MapEntry<dynamic, Contact>> newOrder = [];
+
+    for (ContactRecord contactRecord in contacts) {
+
+      var foundEntry = contactSourceCopy.entries.firstWhereOrNull(
+            (entry) => entry.value.name == contactRecord.name,
+      );
+      if (foundEntry != null) {
+        newOrder.add(foundEntry);
+        contactSourceCopy.remove(foundEntry.key);
+      }
+    }
+    await contactSource.clear();
+
+    for (var entry in newOrder) {
+      await contactSource.put(entry.key, entry.value);
+    }
+  }
+
+  Future<void> sortGroupByType() async {
+    Map<dynamic, Contact> contactSourceCopy = Map.fromIterable(contactSource.values,
+        key: (item) => item.key, value: (item) => item as Contact);
+
+    var entries = contactSourceCopy.entries.toList();
+
+    entries.sort((a, b) =>
+    ascending ? a.value.type.toString().compareTo(b.value.type.toString()) : b.value.name.compareTo(a.value.type.toString()));
+
+    await contactSource.clear();
+
+    for (var entry in entries) {
+
+      await contactSource.put(entry.key, entry.value);
+    }
+  }
+
+  Future<void> sortAlphabetically() async {
+    Map<dynamic, Contact> contactSourceCopy = Map.fromIterable(contactSource.values,
+        key: (item) => item.key, value: (item) => item as Contact);
+
+    var entries = contactSourceCopy.entries.toList();
+
+    entries.sort((a, b) =>
+        ascending ? a.value.name.compareTo(b.value.name) : b.value.name.compareTo(a.value.name));
+
+    await contactSource.clear();
+
+    for (var entry in entries) {
+      await contactSource.put(entry.key, entry.value);
+    }
+  }
+
+  Future<void> sortByCreationDate() async {
+    Map<dynamic, Contact> contactSourceCopy = Map.fromIterable(contactSource.values,
+        key: (item) => item.key, value: (item) => item as Contact);
+
+    var entries = contactSourceCopy.entries.toList();
+    entries.sort((a, b) => ascending
+        ? a.value.lastChange.compareTo(b.value.lastChange)
+        : b.value.lastChange.compareTo(a.value.lastChange));
+
+    await contactSource.clear();
+
+    for (var entry in entries) {
+      await contactSource.put(entry.key, entry.value);
+    }
+  }
+
+  void setAscending(bool ascending) {
+    settingsStore.contactListAscending = ascending;
+  }
+
+  Future<void> setOrderType(WalletListOrderType? type) async {
+    if (type == null) return;
+
+    settingsStore.contactListOrder = type;
+
+    switch (type) {
+      case WalletListOrderType.CreationDate:
+        await sortByCreationDate();
+        break;
+      case WalletListOrderType.Alphabetical:
+        await sortAlphabetically();
+        break;
+      case WalletListOrderType.GroupByType:
+        await sortGroupByType();
+        break;
+      case WalletListOrderType.Custom:
+      default:
+        await reorderAccordingToContactList();
+        break;
+    }
+  }
+
+  Future<List<int>> loadContactOrder() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String>? stringOrder = prefs.getStringList(PreferencesKey.customContactListOrder);
+    if (stringOrder != null) {
+      return stringOrder.map((i) => int.parse(i)).toList();
+    } else {
+      return <int>[];
+    }
+  }
+
+  Future<void> saveContactOrder(List<int> order) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> stringOrder = order.map((i) => i.toString()).toList();
+    await prefs.setStringList( PreferencesKey.customContactListOrder, stringOrder);
+  }
+
+  @action
+  Future<void> applyOrderToContacts() async {
+    List<int> order = await loadContactOrder();
+    if (order.isEmpty) return;
+    if (order.length != contacts.length) return;
+
+    contacts.clear();
+    for (var key in order) {
+      var contact = contactSource.get(key);
+      if (contact != null) {
+        contacts.add(ContactRecord(contactSource, contact));
+      }
+    }
   }
 }

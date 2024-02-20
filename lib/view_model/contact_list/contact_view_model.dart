@@ -17,7 +17,9 @@ abstract class ContactViewModelBase with Store {
         _contact = contact,
         name = contact?.name ?? '',
         address = contact?.address ?? '',
-        currency = contact?.type;
+        currency = contact?.type,
+        lastChange = contact?.lastChange;
+
 
   @observable
   ExecutionState state;
@@ -30,6 +32,8 @@ abstract class ContactViewModelBase with Store {
 
   @observable
   CryptoCurrency? currency;
+
+  DateTime? lastChange;
 
   @computed
   bool get isReady =>
@@ -48,20 +52,23 @@ abstract class ContactViewModelBase with Store {
     currency = null;
   }
 
-  Future save() async {
+  Future<void> save() async {
     try {
       state = IsExecutingState();
+      final now = DateTime.now();
 
       if (_contact != null) {
         _contact?.name = name;
         _contact?.address = address;
         _contact?.type = currency!;
+        _contact?.lastChange = now;
         await _contact?.save();
       } else {
         await _contacts
-            .add(Contact(name: name, address: address, type: currency!));
+            .add(Contact(name: name, address: address, type: currency!, lastChange: now));
       }
 
+            lastChange = now;
       state = ExecutedSuccessfullyState();
     } catch (e) {
       state = FailureState(e.toString());
