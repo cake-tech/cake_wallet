@@ -12,8 +12,18 @@ abstract class ReceiveOptionViewModelBase with Store {
       : selectedReceiveOption = initialPageOption ?? ReceivePageOption.mainnet,
         _options = [] {
     final walletType = _wallet.type;
-    _options =
-        walletType == WalletType.haven ? [ReceivePageOption.mainnet] : ReceivePageOption.values;
+
+    switch (walletType) {
+      case WalletType.haven:
+        _options = [ReceivePageOption.mainnet];
+        break;
+      case WalletType.lightning:
+        _options = [ReceivePageOption.lightningInvoice, ReceivePageOption.lightningOnchain];
+        break;
+      default:
+        _options = [ReceivePageOption.mainnet, ReceivePageOption.anonPayDonationLink, ReceivePageOption.anonPayInvoice];
+        break;
+    }
   }
 
   final WalletBase _wallet;

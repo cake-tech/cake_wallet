@@ -24,10 +24,10 @@ class LightningBalance extends Balance {
   final int frozen;
 
   @override
-  String get formattedAvailableBalance => bitcoinAmountToString(amount: confirmed - frozen);
+  String get formattedAvailableBalance => bitcoinAmountToLightningString(amount: confirmed);
 
   @override
-  String get formattedAdditionalBalance => bitcoinAmountToString(amount: unconfirmed);
+  String get formattedAdditionalBalance => bitcoinAmountToLightningString(amount: unconfirmed);
 
   @override
   String get formattedUnAvailableBalance {

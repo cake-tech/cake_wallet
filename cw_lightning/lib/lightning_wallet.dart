@@ -169,8 +169,13 @@ class LightningWalletBase
     workingDir = "$workingDir/wallets/lightning/${walletInfo.name}/breez/";
     new Directory(workingDir).createSync(recursive: true);
     breezConfig = breezConfig.copyWith(workingDir: workingDir);
+
     try {
+      // disconnect if already connected
       await sdk.disconnect();
+    } catch (_) {}
+
+    try {
       await sdk.connect(config: breezConfig, seed: seedBytes);
     } catch (e) {
       print("Error connecting to Breez: $e");
