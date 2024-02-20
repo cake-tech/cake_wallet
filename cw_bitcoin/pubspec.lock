@@ -75,6 +75,15 @@ packages:
       url: "https://github.com/cake-tech/bitbox-flutter.git"
     source: git
     version: "1.0.1"
+  bitcoin_base:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: cake-update-v2
+      resolved-ref: e4686da77cace5400697de69f7885020297cb900
+      url: "https://github.com/cake-tech/bitcoin_base.git"
+    source: git
+    version: "4.0.0"
   bitcoin_flutter:
     dependency: "direct main"
     description:
@@ -84,6 +93,15 @@ packages:
       url: "https://github.com/cake-tech/bitcoin_flutter.git"
     source: git
     version: "2.1.0"
+  blockchain_utils:
+    dependency: transitive
+    description:
+      path: "."
+      ref: cake-update-v1
+      resolved-ref: b4db705d5409aba30730818ed0d3c09aac5b9992
+      url: "https://github.com/rafael-xmr/blockchain_utils"
+    source: git
+    version: "1.6.0"
   boolean_selector:
     dependency: transitive
     description:

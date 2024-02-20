@@ -11,22 +11,18 @@ part 'bitcoin_wallet_addresses.g.dart';
 class BitcoinWalletAddresses = BitcoinWalletAddressesBase with _$BitcoinWalletAddresses;
 
 abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
-  BitcoinWalletAddressesBase(WalletInfo walletInfo,
-      {required bitcoin.HDWallet mainHd,
-      required bitcoin.HDWallet sideHd,
-      required bitcoin.NetworkType networkType,
-      required ElectrumClient electrumClient,
-      List<BitcoinAddressRecord>? initialAddresses,
-      int initialRegularAddressIndex = 0,
-      int initialChangeAddressIndex = 0})
-      : super(walletInfo,
-            initialAddresses: initialAddresses,
-            initialRegularAddressIndex: initialRegularAddressIndex,
-            initialChangeAddressIndex: initialChangeAddressIndex,
-            mainHd: mainHd,
-            sideHd: sideHd,
-            electrumClient: electrumClient,
-            networkType: networkType);
+  BitcoinWalletAddressesBase(
+    WalletInfo walletInfo, {
+    required super.mainHd,
+    required super.sideHd,
+    required super.network,
+    super.initialAddresses,
+    super.initialRegularAddressIndex,
+    super.initialChangeAddressIndex,
+    super.initialSilentAddresses,
+    super.initialSilentAddressIndex = 0,
+    super.silentAddress,
+  }) : super(walletInfo);
 
   @override
   String getAddress({required int index, required bitcoin.HDWallet hd}) =>

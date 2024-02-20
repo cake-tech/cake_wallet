@@ -167,8 +167,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   })  : _baseItems = <ListItem>[],
         selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
-        hasAccounts =
-            appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven,
         amount = '',
         _settingsStore = appStore.settingsStore,
         super(appStore: appStore) {
@@ -180,7 +178,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     _init();
 
     selectedCurrency = walletTypeToCryptoCurrency(wallet.type);
-    hasAccounts = wallet.type == WalletType.monero || wallet.type == WalletType.haven;
+    _hasAccounts =
+        hasSilentAddresses || wallet.type == WalletType.monero || wallet.type == WalletType.haven;
   }
 
   static const String _cryptoNumberPattern = '0.00000000';
@@ -339,7 +338,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   @observable
-  bool hasAccounts;
+  bool _hasAccounts = false;
+
+  @computed
+  bool get hasAccounts => _hasAccounts;
 
   @computed
   String get accountLabel {
@@ -354,8 +356,21 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     return '';
   }
 
+  @observable
+  // ignore: prefer_final_fields
+  bool? _hasSilentAddresses = null;
+
+  @computed
+  bool get hasSilentAddresses => _hasSilentAddresses ?? wallet.type == WalletType.bitcoin;
+  // @computed
+  // bool get hasSilentAddresses =>
+  //     _hasSilentAddresses ??
+  //     wallet.type == WalletType.bitcoin &&
+  //         wallet.walletAddresses.addressPageType == btc.AddressType.p2sp;
+
   @computed
   bool get hasAddressList =>
+      hasSilentAddresses ||
       wallet.type == WalletType.monero ||
       wallet.type == WalletType.haven ||
       wallet.type == WalletType.bitcoinCash ||

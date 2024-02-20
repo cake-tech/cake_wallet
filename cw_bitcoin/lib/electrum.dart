@@ -335,6 +335,27 @@ class ElectrumClient {
     }
   }
 
+  // https://electrumx.readthedocs.io/en/latest/protocol-methods.html#blockchain-headers-subscribe
+  // example response:
+  // {
+  //   "height": 520481,
+  //   "hex": "00000020890208a0ae3a3892aa047c5468725846577cfcd9b512b50000000000000000005dc2b02f2d297a9064ee103036c14d678f9afc7e3d9409cf53fd58b82e938e8ecbeca05a2d2103188ce804c4"
+  // }
+  Future<int?> getCurrentBlockChainTip() =>
+      call(method: 'blockchain.headers.subscribe').then((result) {
+        if (result is Map<String, dynamic>) {
+          return result["height"] as int;
+        }
+
+        return null;
+      });
+
+  BehaviorSubject<Object>? chainTipUpdate() {
+    _id += 1;
+    return subscribe<Object>(
+        id: 'blockchain.headers.subscribe', method: 'blockchain.headers.subscribe');
+  }
+
   BehaviorSubject<Object>? scripthashUpdate(String scripthash) {
     _id += 1;
     return subscribe<Object>(
