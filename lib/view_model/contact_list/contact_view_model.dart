@@ -2,7 +2,7 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cw_core/wallet_base.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cw_core/crypto_currency.dart';
 
@@ -57,6 +57,11 @@ abstract class ContactViewModelBase with Store {
       state = IsExecutingState();
       final now = DateTime.now();
 
+      if (doesContactNameExist(name)) {
+        state = FailureState(S.current.contact_name_exists);
+        return;
+      }
+
       if (_contact != null) {
         _contact?.name = name;
         _contact?.address = address;
@@ -74,4 +79,9 @@ abstract class ContactViewModelBase with Store {
       state = FailureState(e.toString());
     }
   }
+
+  bool doesContactNameExist(String name) {
+    return _contacts.values.any((contact) => contact.name == name);
+  }
 }
+yy
