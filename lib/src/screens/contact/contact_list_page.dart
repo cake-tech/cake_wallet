@@ -84,19 +84,23 @@ class ContactListPage extends BasePage {
         child: Column(
           children: [
             buildTitle(title: S.of(context).contact_list_wallets),
-            ListView.separated(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: walletContacts.length + 2,
-              itemBuilder: (context, index) {
-                if (index == 0 || index == walletContacts.length + 1) {
-                  return Container();
-                } else {
-                  final walletInfo = walletContacts[index - 1];
-                  return generateRaw(context, walletInfo);
-                }
-              },
-              separatorBuilder: (_, __) => StandardListSeparator(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: walletContacts.length + 2,
+                  itemBuilder: (context, index) {
+                    if (index == 0 || index == walletContacts.length + 1) {
+                      return Container();
+                    } else {
+                      final walletInfo = walletContacts[index - 1];
+                      return generateRaw(context, walletInfo);
+                    }
+                  },
+                  separatorBuilder: (_, __) => StandardListSeparator(),
+                ),
+              ),
             ),
             buildTitle(
                 title: S.of(context).contact_list_contacts,
