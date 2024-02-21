@@ -1,4 +1,4 @@
 -
-  uri: solana-mainnet.core.chainstack.com
+  uri: rpc.ankr.com
   is_default: true
   useSSL: true

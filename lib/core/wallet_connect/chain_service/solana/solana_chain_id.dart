@@ -12,13 +12,13 @@ extension SolanaChainIdX on SolanaChainId {
 
     switch (this) {
       case SolanaChainId.mainnet:
-        name = '101';
+        name = '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ';
         break;
       case SolanaChainId.testnet:
-        name = '102';
+        name = '8E9rvCKLFQia2Y35HXjjpWzj8weVo44K';
         break;
       case SolanaChainId.devnet:
-        name = '103';
+        name = '';
         break;
     }
 

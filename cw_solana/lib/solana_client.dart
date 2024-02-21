@@ -22,20 +22,20 @@ class SolanaWalletClient {
     try {
       Uri? rpcUri;
       String webSocketUrl;
-      bool isChainStackNode = false;
+      bool isModifiedNodeUri = false;
 
-      if (node.uriRaw == 'solana-mainnet.core.chainstack.com') {
-        isChainStackNode = true;
-        String chainStackApiKey = secrets.chainStackApiKey;
+      if (node.uriRaw == 'rpc.ankr.com') {
+        isModifiedNodeUri = true;
+        String ankrApiKey = secrets.ankrApiKey;
 
-        rpcUri = Uri.https(node.uriRaw, '/$chainStackApiKey');
-        webSocketUrl = 'wss://${node.uriRaw}/ws/$chainStackApiKey';
+        rpcUri = Uri.https(node.uriRaw, '/solana/$ankrApiKey');
+        webSocketUrl = 'wss://${node.uriRaw}/solana/ws/$ankrApiKey';
       } else {
         webSocketUrl = 'wss://${node.uriRaw}';
       }
 
       _client = SolanaClient(
-        rpcUrl: isChainStackNode ? rpcUri! : node.uri,
+        rpcUrl: isModifiedNodeUri ? rpcUri! : node.uri,
         websocketUrl: Uri.parse(webSocketUrl),
         timeout: const Duration(minutes: 2),
       );
@@ -238,6 +238,7 @@ class SolanaWalletClient {
     int splTokenDecimal,
     Ed25519HDKeyPair ownerKeypair,
   ) async {
+    print('aBOUT TO GET SPL');
     final tokenMint = Ed25519HDPublicKey.fromBase58(address);
 
     final associatedTokenAccount = await _client!.getAssociatedTokenAccount(

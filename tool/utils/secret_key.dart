@@ -45,7 +45,7 @@ class SecretKey {
   ];
 
   static final solanaSecrets = [
-    SecretKey('chainStackApiKey', () => ''),
+    SecretKey('ankrApiKey', () => ''),
   ];
 
   final String name;
