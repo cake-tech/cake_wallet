@@ -779,5 +779,8 @@
   "you_pay": "Tú pagas",
   "you_will_get": "Convertir a",
   "you_will_send": "Convertir de",
-  "yy": "YY"
+  "yy": "YY",
+  "preExistingSeeds": "Semillas preexistentes",
+  "chooseWalletToShareSeedWith": "Elija una billetera para compartir una semilla",
+  "newSeed": "Nueva semilla"
 }

@@ -779,5 +779,8 @@
   "you_pay": "Ẹ sàn",
   "you_will_get": "Ṣe pàṣípààrọ̀ sí",
   "you_will_send": "Ṣe pàṣípààrọ̀ láti",
-  "yy": "Ọd"
+  "yy": "Ọd",
+  "preExistingSeeds": "Awọn irugbin ti o wa tẹlẹ",
+  "chooseWalletToShareSeedWith": "Yan apamọwọ kan lati pin irugbin pẹlu",
+  "newSeed": "Irugbin Tuntun"
 }

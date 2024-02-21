@@ -779,5 +779,8 @@
   "you_pay": "U betaalt",
   "you_will_get": "Converteren naar",
   "you_will_send": "Converteren van",
-  "yy": "JJ"
+  "yy": "JJ",
+  "preExistingSeeds": "Reeds bestaande zaden",
+  "chooseWalletToShareSeedWith": "Kies een portemonnee om een zaadje mee te delen",
+  "newSeed": "Nieuw zaad"
 }

@@ -778,5 +778,8 @@
   "you_pay": "انت تدفع",
   "you_will_get": "حول الى",
   "you_will_send": "تحويل من",
-  "yy": "YY"
+  "yy": "YY",
+  "preExistingSeeds": "ﺎﻘﺒﺴﻣ ﺓﺩﻮﺟﻮﻤﻟﺍ ﺭﻭﺬﺒﻟﺍ",
+  "chooseWalletToShareSeedWith": "ﺎﻬﻌﻣ ﺭﻭﺬﺒﻟﺍ ﺔﻛﺭﺎﺸﻤﻟ ﺔﻈﻔﺤﻣ ﺮﺘﺧﺍ",
+  "newSeed": "ﺓﺪﻳﺪﺟ ﺓﺭﺬﺑ"
 }

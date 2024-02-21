@@ -778,5 +778,8 @@
   "you_pay": "Şu kadar ödeyeceksin: ",
   "you_will_get": "Biçimine dönüştür:",
   "you_will_send": "Biçiminden dönüştür:",
-  "yy": "YY"
+  "yy": "YY",
+  "preExistingSeeds": "Önceden var olan tohumlar",
+  "chooseWalletToShareSeedWith": "Bir tohumu paylaşmak için bir cüzdan seçin",
+  "newSeed": "Yeni Tohum"
 }

@@ -778,5 +778,8 @@
   "you_pay": "你付钱",
   "you_will_get": "转换到",
   "you_will_send": "转换自",
-  "yy": "YY"
+  "yy": "YY",
+  "preExistingSeeds": "预先存在的种子",
+  "chooseWalletToShareSeedWith": "选择与之共享种子的钱包",
+  "newSeed": "新种子"
 }

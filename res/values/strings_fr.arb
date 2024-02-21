@@ -778,5 +778,8 @@
   "you_pay": "Vous payez",
   "you_will_get": "Convertir vers",
   "you_will_send": "Convertir depuis",
-  "yy": "AA"
+  "yy": "AA",
+  "preExistingSeeds": "Semences préexistantes",
+  "chooseWalletToShareSeedWith": "Choisissez un portefeuille avec lequel partager une graine",
+  "newSeed": "Nouvelle graine"
 }

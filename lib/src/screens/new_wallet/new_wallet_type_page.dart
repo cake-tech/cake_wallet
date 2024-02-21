@@ -1,4 +1,7 @@
+import 'package:cake_wallet/core/new_wallet_page_arguments.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/widgets/popup_cancellable_alert.dart';
@@ -9,14 +12,20 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/new_wallet_type_view_model.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
 class NewWalletTypePage extends BasePage {
-  NewWalletTypePage({required this.onTypeSelected, required this.isCreate});
+  NewWalletTypePage({
+    required this.newWalletTypeViewModel,
+    required this.isCreate,
+    this.onTypeSelected,
+  });
 
-  final void Function(BuildContext, WalletType) onTypeSelected;
+  final NewWalletTypeViewModel newWalletTypeViewModel;
+  final void Function(BuildContext, WalletType)? onTypeSelected;
   final bool isCreate;
 
   final walletTypeImage = Image.asset('assets/images/wallet_type.png');
@@ -28,18 +37,25 @@ class NewWalletTypePage extends BasePage {
 
   @override
   Widget body(BuildContext context) => WalletTypeForm(
-        onTypeSelected: onTypeSelected,
         walletImage: currentTheme.type == ThemeType.dark ? walletTypeImage : walletTypeLightImage,
         isCreate: isCreate,
+        newWalletTypeViewModel: newWalletTypeViewModel,
+        onTypeSelected: onTypeSelected,
       );
 }
 
 class WalletTypeForm extends StatefulWidget {
-  WalletTypeForm({required this.onTypeSelected, required this.walletImage, required this.isCreate});
+  WalletTypeForm({
+    required this.walletImage,
+    required this.isCreate,
+    required this.newWalletTypeViewModel,
+    this.onTypeSelected,
+  });
 
-  final void Function(BuildContext, WalletType) onTypeSelected;
-  final Image walletImage;
   final bool isCreate;
+  final Image walletImage;
+  final NewWalletTypeViewModel newWalletTypeViewModel;
+  final void Function(BuildContext, WalletType)? onTypeSelected;
 
   @override
   WalletTypeFormState createState() => WalletTypeFormState();
@@ -117,7 +133,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                     ),
                     bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
                     bottomSection: PrimaryButton(
-                      onPressed: () => onTypeSelected(),
+                      onPressed: onTypeSelected,
                       text: S.of(context).seed_language_next,
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
@@ -147,6 +163,18 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       );
     }
 
-    widget.onTypeSelected(context, selected!);
+    // If it's a restore flow, trigger the external callback
+    // If it's not a BIP39 Wallet or if there are no other wallets, route to the newWallet page
+    // Any other scenario, route to pre-existing seed page
+    if (!widget.isCreate) {
+      widget.onTypeSelected!(context, selected!);
+    } else if (!isBIP39Wallet(selected!) || !widget.newWalletTypeViewModel.hasExisitingWallet) {
+      Navigator.of(context).pushNamed(
+        Routes.newWallet,
+        arguments: NewWalletPageArguments(type: selected!),
+      );
+    } else {
+      Navigator.of(context).pushNamed(Routes.preExistingSeedsPage, arguments: selected!);
+    }
   }
 }
