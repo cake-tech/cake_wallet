@@ -106,42 +106,7 @@ class ContactListPage extends BasePage {
                 title: S.of(context).contact_list_contacts,
                 trailingFilterButton: contactListViewModel.isEditable ? trailingFilterButtonWidget(context) : null),
             Expanded(
-              child: Container(
-                  child: FilteredList(
-                list: contactListViewModel.contacts,
-                updateFunction: contactListViewModel.reorderAccordingToContactList,
-                canReorder: contactListViewModel.isEditable,
-                itemBuilder: (context, index) {
-                  final contact = contactListViewModel.contacts[index];
-                  final contactContent = generateContactRaw(context, contact, contactListViewModel.contacts.length == index + 1);
-                  return GestureDetector(
-                    key: Key('${contact.name}'),
-                    onTap: () async {
-                      if (!contactListViewModel.isEditable) {
-                        Navigator.of(context).pop(contact);
-                        return;
-                      }
-
-                      final isCopied =
-                          await showNameAndAddressDialog(context, contact.name, contact.address);
-
-                      if (isCopied) {
-                        await Clipboard.setData(ClipboardData(text: contact.address));
-                        await showBar<void>(context, S.of(context).copied_to_clipboard);
-                      }
-                    },
-                    behavior: HitTestBehavior.opaque,
-                    child: SingleChildScrollView(
-                      child: contactListViewModel.isEditable
-                          ? Slidable(
-                              key: Key('${contact.key}'),
-                              endActionPane: _actionPane(context, contact),
-                              child: contactContent)
-                          : contactContent,
-                    ),
-                  );
-                },
-              )),
+              child: ContactListBody(contactListViewModel: contactListViewModel),
             ),
           ],
         ));
@@ -202,40 +167,19 @@ class ContactListPage extends BasePage {
     );
   }
 
-  Widget generateContactRaw(BuildContext context, ContactRecord contact, bool isLast) {
-    final image = contact.type.iconPath;
-    final currencyIcon = image != null
-        ? Image.asset(image, height: 24, width: 24)
-        : const SizedBox(height: 24, width: 24);
-    return Column(
-      children: [
-        StandardListSeparator(),
-        Container(
-          key: Key('${contact.name}'),
-          padding: const EdgeInsets.only(top: 16, bottom: 16, right: 24),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              currencyIcon,
-              Expanded(
-                  child: Padding(
-                padding: EdgeInsets.only(left: 12),
-                child: Text(
-                  contact.name,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                  ),
-                ),
-              ))
-            ],
-          ),
-        ),
-        if (isLast) StandardListSeparator(),
-      ],
-    );
+  Future<bool> showNameAndAddressDialog(BuildContext context, String name, String address) async {
+    return await showPopUp<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithTwoActions(
+              alertTitle: name,
+              alertContent: address,
+              rightButtonText: S.of(context).copy,
+              leftButtonText: S.of(context).cancel,
+              actionRightButton: () => Navigator.of(context).pop(true),
+              actionLeftButton: () => Navigator.of(context).pop(false));
+        }) ??
+        false;
   }
 
   Widget trailingFilterButtonWidget(BuildContext context) {
@@ -283,62 +227,157 @@ class ContactListPage extends BasePage {
       ),
     );
   }
+}
+
+class ContactListBody extends StatefulWidget {
+  ContactListBody({required this.contactListViewModel});
+
+  final ContactListViewModel contactListViewModel;
+
+  @override
+  State<ContactListBody> createState() => _ContactListBodyState( );
+}
+
+class _ContactListBodyState extends State<ContactListBody> {
+
+  @override
+  void dispose() {
+    widget.contactListViewModel.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        child: FilteredList(
+          list: widget.contactListViewModel.contacts,
+          updateFunction: widget.contactListViewModel.reorderAccordingToContactList,
+          canReorder: widget.contactListViewModel.isEditable,
+          itemBuilder: (context, index) {
+            final contact = widget.contactListViewModel.contacts[index];
+            final contactContent = generateContactRaw(context, contact, widget.contactListViewModel.contacts.length == index + 1);
+            return GestureDetector(
+              key: Key('${contact.name}'),
+              onTap: () async {
+                if (!widget.contactListViewModel.isEditable) {
+                  Navigator.of(context).pop(contact);
+                  return;
+                }
+
+                final isCopied =
+                await showNameAndAddressDialog(context, contact.name, contact.address);
+
+                if (isCopied) {
+                  await Clipboard.setData(ClipboardData(text: contact.address));
+                  await showBar<void>(context, S.of(context).copied_to_clipboard);
+                }
+              },
+              behavior: HitTestBehavior.opaque,
+              child: SingleChildScrollView(
+                child: widget.contactListViewModel.isEditable
+                    ? Slidable(
+                    key: Key('${contact.key}'),
+                    endActionPane: _actionPane(context, contact),
+                    child: contactContent)
+                    : contactContent,
+              ),
+            );
+          },
+        ));
+  }
+
+  Widget generateContactRaw(BuildContext context, ContactRecord contact, bool isLast) {
+    final image = contact.type.iconPath;
+    final currencyIcon = image != null
+        ? Image.asset(image, height: 24, width: 24)
+        : const SizedBox(height: 24, width: 24);
+    return Column(
+      children: [
+        StandardListSeparator(),
+        Container(
+          key: Key('${contact.name}'),
+          padding: const EdgeInsets.only(top: 16, bottom: 16, right: 24),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              currencyIcon,
+              Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 12),
+                    child: Text(
+                      contact.name,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      ),
+                    ),
+                  ))
+            ],
+          ),
+        ),
+        if (isLast) StandardListSeparator(),
+      ],
+    );
+  }
+
+  ActionPane _actionPane(BuildContext context, ContactRecord contact) => ActionPane(
+    motion: const ScrollMotion(),
+    extentRatio: 0.4,
+    children: [
+      SlidableAction(
+        onPressed: (_) async => await Navigator.of(context)
+            .pushNamed(Routes.addressBookAddContact, arguments: contact),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        icon: Icons.edit,
+        label: S.of(context).edit,
+      ),
+      SlidableAction(
+        onPressed: (_) async {
+          final isDelete = await showAlertDialog(context);
+
+          if (isDelete) {
+            await widget.contactListViewModel.delete(contact);
+          }
+        },
+        backgroundColor: Colors.red,
+        foregroundColor: Colors.white,
+        icon: CupertinoIcons.delete,
+        label: S.of(context).delete,
+      ),
+    ],
+  );
 
   Future<bool> showAlertDialog(BuildContext context) async {
     return await showPopUp<bool>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithTwoActions(
-                  alertTitle: S.of(context).address_remove_contact,
-                  alertContent: S.of(context).address_remove_content,
-                  rightButtonText: S.of(context).remove,
-                  leftButtonText: S.of(context).cancel,
-                  actionRightButton: () => Navigator.of(context).pop(true),
-                  actionLeftButton: () => Navigator.of(context).pop(false));
-            }) ??
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithTwoActions(
+              alertTitle: S.of(context).address_remove_contact,
+              alertContent: S.of(context).address_remove_content,
+              rightButtonText: S.of(context).remove,
+              leftButtonText: S.of(context).cancel,
+              actionRightButton: () => Navigator.of(context).pop(true),
+              actionLeftButton: () => Navigator.of(context).pop(false));
+        }) ??
         false;
   }
 
   Future<bool> showNameAndAddressDialog(BuildContext context, String name, String address) async {
     return await showPopUp<bool>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithTwoActions(
-                  alertTitle: name,
-                  alertContent: address,
-                  rightButtonText: S.of(context).copy,
-                  leftButtonText: S.of(context).cancel,
-                  actionRightButton: () => Navigator.of(context).pop(true),
-                  actionLeftButton: () => Navigator.of(context).pop(false));
-            }) ??
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithTwoActions(
+              alertTitle: name,
+              alertContent: address,
+              rightButtonText: S.of(context).copy,
+              leftButtonText: S.of(context).cancel,
+              actionRightButton: () => Navigator.of(context).pop(true),
+              actionLeftButton: () => Navigator.of(context).pop(false));
+        }) ??
         false;
   }
-
-  ActionPane _actionPane(BuildContext context, ContactRecord contact) => ActionPane(
-        motion: const ScrollMotion(),
-        extentRatio: 0.4,
-        children: [
-          SlidableAction(
-            onPressed: (_) async => await Navigator.of(context)
-                .pushNamed(Routes.addressBookAddContact, arguments: contact),
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            icon: Icons.edit,
-            label: S.of(context).edit,
-          ),
-          SlidableAction(
-            onPressed: (_) async {
-              final isDelete = await showAlertDialog(context);
-
-              if (isDelete) {
-                await contactListViewModel.delete(contact);
-              }
-            },
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-            icon: CupertinoIcons.delete,
-            label: S.of(context).delete,
-          ),
-        ],
-      );
 }
+

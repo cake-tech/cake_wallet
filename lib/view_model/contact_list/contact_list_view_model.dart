@@ -60,11 +60,12 @@ abstract class ContactListViewModelBase with Store {
     });
 
     _subscription = contactSource.bindToListWithTransform(
-        contacts, (Contact contact) => ContactRecord(contactSource, contact),
-        initialFire: true);
+        contacts, (Contact contact) {
+          return ContactRecord(contactSource, contact);
+    }
+        ,initialFire: true);
 
     setOrderType(settingsStore.contactListOrder);
-    updateList();
 
   }
 
@@ -112,6 +113,10 @@ abstract class ContactListViewModelBase with Store {
   void updateList() {
     contacts.clear();
     contacts.addAll(contactSource.values.map((contact) => ContactRecord(contactSource, contact)));
+  }
+
+  void dispose() {
+    _subscription?.cancel();
   }
 
   Future<void> reorderAccordingToContactList() async {

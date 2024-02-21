@@ -84,4 +84,3 @@ abstract class ContactViewModelBase with Store {
     return _contacts.values.any((contact) => contact.name == name);
   }
 }
-yy
