@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
@@ -115,20 +114,8 @@ class SolanaWalletClient {
   }) async {
     List<SolanaTransactionModel> transactions = [];
 
-    // Using mainnet beta node to fetch transactions.
-    final mainNetBetaConfig = {"uri": "api.mainnet-beta.solana.com"};
-
-    final mainNetBetaNode = Node.fromMap(mainNetBetaConfig);
-    mainNetBetaNode.type = WalletType.solana;
-
-    final mainNetBetaSolanaClient = SolanaClient(
-      rpcUrl: mainNetBetaNode.uri,
-      websocketUrl: Uri.parse('wss://${mainNetBetaNode.uriRaw}'),
-      timeout: const Duration(minutes: 2),
-    );
-
     try {
-      final response = await mainNetBetaSolanaClient.rpcClient.getTransactionsList(
+      final response = await _client!.rpcClient.getTransactionsList(
         publicKey,
         commitment: Commitment.confirmed,
         limit: 1000,
@@ -310,14 +297,6 @@ class SolanaWalletClient {
     }
   }
 
-  Future<int> getMinimumBalanceForRentExemption(String publicKey) async {
-    final rent = _client!.rpcClient.getMinimumBalanceForRentExemption(
-      TokenProgram.neededAccountSpace,
-    );
-
-    return rent;
-  }
-
   Future<PendingSolanaTransaction> _signNativeTokenTransaction({
     required String tokenTitle,
     required int tokenDecimals,
@@ -348,14 +327,11 @@ class SolanaWalletClient {
       recentBlockhash: recentBlockhash,
     );
 
-    final compile = message.compile(
-      recentBlockhash: recentBlockhash.blockhash,
-      feePayer: signers.first.publicKey,
+    final fee = await _getFeeFromCompiledMessage(
+      message,
+      recentBlockhash,
+      signers.first.publicKey,
     );
-
-    final base64Message = base64Encode(compile.toByteArray().toList());
-
-    final fee = await getGasForMessage(base64Message);
 
     sendTx() async => await sendTransaction(
           signedTransaction: signedTx,
@@ -438,14 +414,12 @@ class SolanaWalletClient {
       commitment: commitment,
       recentBlockhash: recentBlockhash,
     );
-    final compile = message.compile(
-      recentBlockhash: recentBlockhash.blockhash,
-      feePayer: signers.first.publicKey,
+
+    final fee = await _getFeeFromCompiledMessage(
+      message,
+      recentBlockhash,
+      signers.first.publicKey,
     );
-
-    final base64Message = base64Encode(compile.toByteArray().toList());
-
-    final fee = await getGasForMessage(base64Message);
 
     sendTx() async => await sendTransaction(
           signedTransaction: signedTx,
@@ -462,17 +436,26 @@ class SolanaWalletClient {
     return pendingTransaction;
   }
 
+  Future<double> _getFeeFromCompiledMessage(
+      Message message, RecentBlockhash recentBlockhash, Ed25519HDPublicKey feePayer) async {
+    final compile = message.compile(
+      recentBlockhash: recentBlockhash.blockhash,
+      feePayer: feePayer,
+    );
+
+    final base64Message = base64Encode(compile.toByteArray().toList());
+
+    final fee = await getGasForMessage(base64Message);
+    return fee;
+  }
+
   Future<SignedTx> _signTransactionInternal({
     required Message message,
     required List<Ed25519HDKeyPair> signers,
     required Commitment commitment,
     required RecentBlockhash recentBlockhash,
   }) async {
-    final signedTx = await signTransaction(
-      recentBlockhash,
-      message,
-      signers,
-    );
+    final signedTx = await signTransaction(recentBlockhash, message, signers);
 
     return signedTx;
   }
