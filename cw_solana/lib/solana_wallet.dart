@@ -77,7 +77,6 @@ abstract class SolanaWalletBase
 
   late SolanaWalletClient _client;
 
-
   Timer? _transactionsUpdateTimer;
 
   late final Box<SPLToken> splTokensBox;
@@ -170,6 +169,7 @@ abstract class SolanaWalletBase
         await Future.wait([
           _updateBalance(),
           _updateNativeSOLTransactions(),
+          _updateSPLTokenTransactions(),
         ]);
       } catch (e) {
         log(e.toString());
@@ -337,6 +337,7 @@ abstract class SolanaWalletBase
       await Future.wait([
         _updateBalance(),
         _updateNativeSOLTransactions(),
+        _updateSPLTokenTransactions(),
       ]);
 
       syncStatus = SyncedSyncStatus();

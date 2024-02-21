@@ -778,5 +778,6 @@
   "you_pay": "Vi plaćate",
   "you_will_get": "Razmijeni u",
   "you_will_send": "Razmijeni iz",
-  "yy": "GG"
+  "yy": "GG",
+  "waitFewSecondForTxUpdate": "Pričekajte nekoliko sekundi da se transakcija prikaže u povijesti transakcija"
 }

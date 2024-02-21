@@ -483,7 +483,7 @@ class SolanaWalletClient {
   }) async {
     final signature = await _client!.rpcClient.sendTransaction(signedTransaction.encode());
 
-    await _client!.waitForSignatureStatus(signature, status: commitment);
+    _client!.waitForSignatureStatus(signature, status: commitment);
 
     return signature;
   }

@@ -779,5 +779,6 @@
   "you_pay": "あなたが支払う",
   "you_will_get": "に変換",
   "you_will_send": "から変換",
-  "yy": "YY"
+  "yy": "YY",
+  "waitFewSecondForTxUpdate": "取引履歴に取引が反映されるまで数秒お待ちください。"
 }
