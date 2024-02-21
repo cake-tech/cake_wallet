@@ -78,8 +78,6 @@ abstract class LightningViewModelBase with Store {
 
   Future<String> createInvoice({required String amount, String? description}) async {
     final sdk = await BreezSDK();
-    print(amount);
-    print("@@@@@@@@@@@@@@");
     final req = ReceivePaymentRequest(
       amountMsat: (double.parse(amount) * 100000000).round(),
       description: description ?? '',

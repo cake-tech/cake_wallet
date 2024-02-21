@@ -26,6 +26,7 @@ import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
+import 'package:cake_wallet/src/screens/send/lightning_send_confirm_page.dart';
 import 'package:cake_wallet/src/screens/send/lightning_send_page.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
@@ -640,10 +641,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<LightningSendPage>());
 
+    case Routes.lightningSendConfirm:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<LightningSendConfirmPage>(param1: settings.arguments));
+
     case Routes.lightningReceiveOnchain:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<LightningReceiveOnchainPage>(param1: args));
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<LightningReceiveOnchainPage>(param1: args));
 
     case Routes.lightningInvoice:
       final args = settings.arguments as List;

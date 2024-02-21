@@ -1,3 +1,4 @@
+import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
@@ -40,6 +41,7 @@ import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/receive/lightning_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/lightning_receive_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
+import 'package:cake_wallet/src/screens/send/lightning_send_confirm_page.dart';
 import 'package:cake_wallet/src/screens/send/lightning_send_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
@@ -1233,10 +1235,14 @@ Future<void> setup({
   });
 
   getIt.registerFactory<LightningSendPage>(() => LightningSendPage(
-        sendViewModel: getIt.get<SendViewModel>(),
         authService: getIt.get<AuthService>(),
-        initialPaymentRequest: null,
       ));
+
+  getIt.registerFactoryParam<LightningSendConfirmPage, LNInvoice, void>((LNInvoice invoice, _) {
+    return LightningSendConfirmPage(
+      invoice: invoice,
+    );
+  });
 
   _isSetupFinished = true;
 }

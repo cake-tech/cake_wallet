@@ -1,30 +1,50 @@
 import 'package:breez_sdk/breez_sdk.dart';
 import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
+import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
+import 'package:cake_wallet/src/widgets/add_template_button.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
+import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:cw_core/crypto_currency.dart';
 
-class LightningSendPage extends BasePage {
-  LightningSendPage({
-    required this.authService,
-  }) : _formKey = GlobalKey<FormState>();
+class LightningSendConfirmPage extends BasePage {
+  LightningSendConfirmPage({this.invoice}) : _formKey = GlobalKey<FormState>();
 
-  final AuthService authService;
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
+  LNInvoice? invoice;
 
   final bolt11Controller = TextEditingController();
   final _bolt11FocusNode = FocusNode();
@@ -90,6 +110,7 @@ class LightningSendPage extends BasePage {
 
   @override
   void onClose(BuildContext context) {
+    // sendViewModel.onClose();
     Navigator.of(context).pop();
   }
 
@@ -111,15 +132,6 @@ class LightningSendPage extends BasePage {
   // }
 
   @override
-  Widget trailing(context) => Observer(builder: (_) {
-        return TrailButton(
-            caption: S.of(context).clear,
-            onPressed: () {
-              _formKey.currentState?.reset();
-            });
-      });
-
-  @override
   Widget body(BuildContext context) {
     _setEffects(context);
 
@@ -134,6 +146,7 @@ class LightningSendPage extends BasePage {
             actions: [
               KeyboardActionsItem(
                 focusNode: FocusNode(),
+                // focusNode: _amountFocusNode,
                 toolbarButtons: [(_) => KeyboardDoneButton()],
               ),
             ]),
@@ -204,23 +217,15 @@ class LightningSendPage extends BasePage {
                   //   ),
                   // ),
                   LoadingPrimaryButton(
-                    text: S.of(context).paste,
+                    text: S.of(context).send,
+                    onPressed: () async {
+                      FocusScope.of(context).unfocus();
+                      // sendViewModel.send(bolt11Controller.text);
+                      final sdk = await BreezSDK();
+                    },
                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                     isLoading: false,
-                    onPressed: () async {
-                      processInput(context);
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  LoadingPrimaryButton(
-                    text: S.of(context).scan_qr_code,
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
-                    isLoading: false,
-                    onPressed: () async {
-                      processInput(context);
-                    },
                   ),
                 ],
               );
@@ -236,30 +241,84 @@ class LightningSendPage extends BasePage {
     return false;
   }
 
-  Future<void> processInput(BuildContext context) async {
-    FocusScope.of(context).unfocus();
-
-    final sdk = await BreezSDK();
-    try {
-      final InputType inputType = await sdk.parseInput(input: bolt11Controller.text);
-
-      if (inputType is InputType_Bolt11) {
-        final bolt11 = await sdk.parseInvoice(bolt11Controller.text);
-        Navigator.of(context).pushNamed(Routes.lightningSendConfirm, arguments: bolt11);
-      } else if (inputType is InputType_LnUrlPay) {
-        throw Exception("Unsupported input type");
-      } else {
-        throw Exception("Unknown input type");
-      }
-    } catch (e) {
-      print("Error processsing input: $e");
-    }
-  }
-
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
       return;
     }
+
+    // reaction((_) => sendViewModel.state, (ExecutionState state) {
+    //   if (state is FailureState) {
+    //     WidgetsBinding.instance.addPostFrameCallback((_) {
+    //       showPopUp<void>(
+    //           context: context,
+    //           builder: (BuildContext context) {
+    //             return AlertWithOneAction(
+    //                 alertTitle: S.of(context).error,
+    //                 alertContent: state.error,
+    //                 buttonText: S.of(context).ok,
+    //                 buttonAction: () => Navigator.of(context).pop());
+    //           });
+    //     });
+    //   }
+
+    //   if (state is ExecutedSuccessfullyState) {
+    //     WidgetsBinding.instance.addPostFrameCallback((_) {
+    //       if (context.mounted) {
+    //         showPopUp<void>(
+    //             context: context,
+    //             builder: (BuildContext _dialogContext) {
+    //               return ConfirmSendingAlert(
+    //                   alertTitle: S.of(_dialogContext).confirm_sending,
+    //                   amount: S.of(_dialogContext).send_amount,
+    //                   amountValue: sendViewModel.pendingTransaction!.amountFormatted,
+    //                   fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
+    //                   fee: S.of(_dialogContext).send_fee,
+    //                   feeValue: sendViewModel.pendingTransaction!.feeFormatted,
+    //                   feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+    //                   outputs: sendViewModel.outputs,
+    //                   rightButtonText: S.of(_dialogContext).send,
+    //                   leftButtonText: S.of(_dialogContext).cancel,
+    //                   actionRightButton: () {
+    //                     Navigator.of(_dialogContext).pop();
+    //                     sendViewModel.commitTransaction();
+    //                     showPopUp<void>(
+    //                         context: context,
+    //                         builder: (BuildContext _dialogContext) {
+    //                           return Observer(builder: (_) {
+    //                             final state = sendViewModel.state;
+
+    //                             if (state is FailureState) {
+    //                               Navigator.of(_dialogContext).pop();
+    //                             }
+
+    //                             if (state is TransactionCommitted) {
+    //                               return AlertWithOneAction(
+    //                                   alertTitle: '',
+    //                                   alertContent: S.of(_dialogContext).send_success(
+    //                                       sendViewModel.selectedCryptoCurrency.toString()),
+    //                                   buttonText: S.of(_dialogContext).ok,
+    //                                   buttonAction: () {
+    //                                     Navigator.of(_dialogContext).pop();
+    //                                     RequestReviewHandler.requestReview();
+    //                                   });
+    //                             }
+
+    //                             return Offstage();
+    //                           });
+    //                         });
+    //                   },
+    //                   actionLeftButton: () => Navigator.of(_dialogContext).pop());
+    //             });
+    //       }
+    //     });
+    //   }
+
+    //   if (state is TransactionCommitted) {
+    //     WidgetsBinding.instance.addPostFrameCallback((_) {
+    //       sendViewModel.clearOutputs();
+    //     });
+    //   }
+    // });
 
     _effectsInstalled = true;
   }
