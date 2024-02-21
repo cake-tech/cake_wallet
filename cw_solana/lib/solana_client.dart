@@ -238,7 +238,6 @@ class SolanaWalletClient {
     int splTokenDecimal,
     Ed25519HDKeyPair ownerKeypair,
   ) async {
-    print('aBOUT TO GET SPL');
     final tokenMint = Ed25519HDPublicKey.fromBase58(address);
 
     final associatedTokenAccount = await _client!.getAssociatedTokenAccount(
