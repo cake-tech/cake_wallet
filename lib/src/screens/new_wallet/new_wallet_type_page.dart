@@ -3,7 +3,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/widgets/popup_cancellable_alert.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -94,35 +94,31 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
                   child: SearchBarWidget(searchController: searchController, borderRadius: 24),
                 ),
-                Expanded(
-                  child: ScrollableWithBottomSection(
-                    contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        ...filteredTypes.map((type) => Padding(
-                              padding: EdgeInsets.only(top: 12),
-                              child: SelectButton(
-                                  image: Image.asset(
-                                      walletTypeToCryptoCurrency(type).iconPath ?? '',
-                                      height: 24,
-                                      width: 24),
-                                  text: walletTypeToDisplayName(type),
-                                  showTrailingIcon: false,
-                                  height: 54,
-                                  isSelected: selected == type,
-                                  onTap: () => setState(() => selected = type)),
-                            ))
-                      ],
-                    ),
-                    bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-                    bottomSection: PrimaryButton(
-                      onPressed: () => onTypeSelected(),
-                      text: S.of(context).seed_language_next,
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
-                      isDisabled: selected == null,
-                    ),
+                ScrollableWithBottomSection(
+                  contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+                  content: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      ...filteredTypes.map((type) => Padding(
+                            padding: EdgeInsets.only(top: 12),
+                            child: SelectButton(
+                                image: Image.asset(walletTypeToCryptoCurrency(type).iconPath ?? '',
+                                    height: 24, width: 24),
+                                text: walletTypeToDisplayName(type),
+                                showTrailingIcon: false,
+                                height: 54,
+                                isSelected: selected == type,
+                                onTap: () => setState(() => selected = type)),
+                          ))
+                    ],
+                  ),
+                  bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+                  bottomSection: PrimaryButton(
+                    onPressed: () => onTypeSelected(),
+                    text: S.of(context).seed_language_next,
+                    color: Theme.of(context).primaryColor,
+                    textColor: Colors.white,
+                    isDisabled: selected == null,
                   ),
                 ),
               ],
