@@ -58,8 +58,8 @@ abstract class SettingsStoreBase with Store {
       required bool initialAppSecure,
       required bool initialDisableBuy,
       required bool initialDisableSell,
-      required WalletListOrderType initialWalletListOrder,
-      required WalletListOrderType initialContactListOrder,
+      required FilterListOrderType initialWalletListOrder,
+      required FilterListOrderType initialContactListOrder,
       required bool initialWalletListAscending,
       required bool initialContactListAscending,
       required FiatApiMode initialFiatMode,
@@ -296,7 +296,7 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
         (_) => walletListOrder,
-        (WalletListOrderType walletListOrder) =>
+        (FilterListOrderType walletListOrder) =>
             sharedPreferences.setInt(PreferencesKey.walletListOrder, walletListOrder.index));
 
     reaction(
@@ -562,10 +562,10 @@ abstract class SettingsStoreBase with Store {
   bool disableSell;
 
   @observable
-  WalletListOrderType walletListOrder;
+  FilterListOrderType walletListOrder;
 
   @observable
-  WalletListOrderType contactListOrder;
+  FilterListOrderType contactListOrder;
 
   @observable
   bool walletListAscending;
@@ -792,9 +792,9 @@ abstract class SettingsStoreBase with Store {
     final disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? false;
     final disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? false;
     final walletListOrder =
-        WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
+        FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     final contactListOrder =
-    WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
+    FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
     final walletListAscending =
         sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
     final contactListAscending =
@@ -1158,9 +1158,9 @@ abstract class SettingsStoreBase with Store {
     disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? disableBuy;
     disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? disableSell;
     walletListOrder =
-        WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
+        FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     contactListOrder =
-    WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
+    FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
     walletListAscending = sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
     contactListAscending = sharedPreferences.getBool(PreferencesKey.contactListAscending) ?? true;
     shouldShowMarketPlaceInDashboard =

@@ -81,7 +81,7 @@ abstract class ContactListViewModelBase with Store {
 
   bool get isEditable => _currency == null;
 
-  WalletListOrderType? get orderType => settingsStore.contactListOrder;
+  FilterListOrderType? get orderType => settingsStore.contactListOrder;
 
   bool get ascending => settingsStore.contactListAscending;
 
@@ -113,7 +113,7 @@ abstract class ContactListViewModelBase with Store {
   }
 
   void reorderAccordingToContactList() =>
-      settingsStore.contactListOrder = WalletListOrderType.Custom;
+      settingsStore.contactListOrder = FilterListOrderType.Custom;
 
   Future<void> reorderContacts(List<Contact> contactCopy) async {
     await contactSource.deleteAll(contactCopy.map((e) => e.key).toList());
@@ -150,22 +150,22 @@ abstract class ContactListViewModelBase with Store {
 
   void setAscending(bool ascending) => settingsStore.contactListAscending = ascending;
 
-  Future<void> setOrderType(WalletListOrderType? type) async {
+  Future<void> setOrderType(FilterListOrderType? type) async {
     if (type == null) return;
 
     settingsStore.contactListOrder = type;
 
     switch (type) {
-      case WalletListOrderType.CreationDate:
+      case FilterListOrderType.CreationDate:
         await sortByCreationDate();
         break;
-      case WalletListOrderType.Alphabetical:
+      case FilterListOrderType.Alphabetical:
         await sortAlphabetically();
         break;
-      case WalletListOrderType.GroupByType:
+      case FilterListOrderType.GroupByType:
         await sortGroupByType();
         break;
-      case WalletListOrderType.Custom:
+      case FilterListOrderType.Custom:
       default:
         reorderAccordingToContactList();
         break;
