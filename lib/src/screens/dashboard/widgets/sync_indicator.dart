@@ -64,7 +64,7 @@ class SyncIndicator extends StatelessWidget {
                           case TorConnectionStatus.connected:
                             torImage = Image.asset(
                               'assets/images/tor_onion.png',
-                              color: Color(0x6000D9),
+                              color: Color(0xFF6000D9),
                             );
                             break;
                           case TorConnectionStatus.connecting:
