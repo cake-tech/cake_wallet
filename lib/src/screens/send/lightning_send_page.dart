@@ -160,71 +160,57 @@ class LightningSendPage extends BasePage {
                       ),
                     )
                   : null,
-              child: Observer(builder: (_) {
-                return Padding(
-                  padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
-                  child: BaseTextFormField(
-                    controller: bolt11Controller,
-                    focusNode: _bolt11FocusNode,
-                    textInputAction: TextInputAction.next,
-                    borderColor: Theme.of(context)
-                        .extension<ExchangePageTheme>()!
-                        .textFieldBorderTopPanelColor,
-                    suffixIcon: SizedBox(width: 36),
-                    hintText: S.of(context).invoice_details,
-                    placeholderTextStyle: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
+                child: Column(
+                  children: [
+                    BaseTextFormField(
+                      controller: bolt11Controller,
+                      focusNode: _bolt11FocusNode,
+                      textInputAction: TextInputAction.next,
+                      borderColor: Theme.of(context)
+                          .extension<ExchangePageTheme>()!
+                          .textFieldBorderTopPanelColor,
+                      suffixIcon: SizedBox(width: 36),
+                      hintText: S.of(context).invoice_details,
+                      placeholderTextStyle: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor,
+                      ),
+                      textStyle:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                      validator: null,
                     ),
-                    textStyle:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-                    validator: null,
-                  ),
-                );
-              }),
+                    SizedBox(height: 24),
+                  ],
+                ),
+              ),
             ),
             bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-            bottomSection: Observer(builder: (_) {
-              return Column(
-                children: <Widget>[
-                  // Padding(
-                  //   padding: EdgeInsets.only(bottom: 15),
-                  //   child: Center(
-                  //     child: Text(
-                  //       S.of(context).anonpay_description("an invoice", "pay"),
-                  //       textAlign: TextAlign.center,
-                  //       style: TextStyle(
-                  //           color: Theme.of(context)
-                  //               .extension<ExchangePageTheme>()!
-                  //               .receiveAmountColor,
-                  //           fontWeight: FontWeight.w500,
-                  //           fontSize: 12),
-                  //     ),
-                  //   ),
-                  // ),
-                  LoadingPrimaryButton(
-                    text: S.of(context).paste,
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
-                    isLoading: false,
-                    onPressed: () async {
-                      processInput(context);
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  LoadingPrimaryButton(
-                    text: S.of(context).scan_qr_code,
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
-                    isLoading: false,
-                    onPressed: () async {
-                      processInput(context);
-                    },
-                  ),
-                ],
-              );
-            }),
+            bottomSection: Column(
+              children: <Widget>[
+                LoadingPrimaryButton(
+                  text: S.of(context).paste,
+                  color: Theme.of(context).primaryColor,
+                  textColor: Colors.white,
+                  isLoading: false,
+                  onPressed: () async {
+                    processInput(context);
+                  },
+                ),
+                const SizedBox(height: 16),
+                LoadingPrimaryButton(
+                  text: S.of(context).scan_qr_code,
+                  color: Theme.of(context).primaryColor,
+                  textColor: Colors.white,
+                  isLoading: false,
+                  onPressed: () async {
+                    processInput(context);
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

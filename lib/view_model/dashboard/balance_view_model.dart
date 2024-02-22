@@ -142,7 +142,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.banano:
         return S.current.receivable_balance;
       case WalletType.lightning:
-        return "CW-563 Max Receivable";
+        return S.current.max_receivable;
       default:
         return S.current.unconfirmed;
     }

@@ -247,8 +247,7 @@ class LightningInvoicePage extends BasePage {
             context: context,
             builder: (BuildContext context) {
               return AlertWithTwoActions(
-                // alertTitle: S.of(context).invoice_created,
-                alertTitle: "Invoice created TODO: CW-563",
+                alertTitle: S.of(context).invoice_created,
                 alertContent: state.payload as String,
                 rightButtonText: S.of(context).ok,
                 actionRightButton: () => Navigator.of(context).pop(),

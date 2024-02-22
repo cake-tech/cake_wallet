@@ -80,6 +80,16 @@ class BitcoinURI extends PaymentURI {
   }
 }
 
+class LightningURI extends PaymentURI {
+  LightningURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    throw Exception('TODO: Not implemented');
+  }
+}
+
 class LitecoinURI extends PaymentURI {
   LitecoinURI({required String amount, required String address})
       : super(amount: amount, address: address);
@@ -238,8 +248,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (wallet.type == WalletType.lightning) {
-      // TODO: CW-563
-      return BitcoinURI(amount: amount, address: address.address);
+      return LightningURI(amount: amount, address: address.address);
     }
 
     if (wallet.type == WalletType.litecoin) {

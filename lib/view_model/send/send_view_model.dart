@@ -377,8 +377,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.polygon:
         return polygon!.createPolygonTransactionCredentials(outputs,
             priority: priority!, currency: selectedCryptoCurrency);
-      case WalletType.lightning:
-        throw Exception("TODO: CW-563 Implement lightning tx send!");
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }

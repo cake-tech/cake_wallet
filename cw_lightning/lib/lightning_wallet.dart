@@ -6,19 +6,20 @@ import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum.dart';
-import 'package:cw_bitcoin/electrum_balance.dart';
-import 'package:cw_bitcoin/electrum_transaction_history.dart';
-import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/file.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cw_lightning/lightning_balance.dart';
+import 'package:cw_lightning/lightning_transaction_history.dart';
+import 'package:cw_lightning/lightning_transaction_info.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
@@ -36,13 +37,13 @@ part 'lightning_wallet.g.dart';
 
 class LightningWallet = LightningWalletBase with _$LightningWallet;
 
-// abstract class LightningWalletBase extends ElectrumWallet with Store {
-class LightningWalletBase
-    extends WalletBase<LightningBalance, ElectrumTransactionHistory, ElectrumTransactionInfo>
+abstract class LightningWalletBase
+    extends WalletBase<LightningBalance, LightningTransactionHistory, LightningTransactionInfo>
     with Store {
   final bitcoin.HDWallet hd;
   final String mnemonic;
   String _password;
+  bool _isTransactionUpdating;
   late ElectrumClient electrumClient;
 
   @override
@@ -77,12 +78,13 @@ class LightningWalletBase
         syncStatus = NotConnectedSyncStatus(),
         mnemonic = mnemonic,
         _password = password,
+        _isTransactionUpdating = false,
         balance = ObservableMap<CryptoCurrency, LightningBalance>.of({
           CryptoCurrency.btc:
               initialBalance ?? const LightningBalance(confirmed: 0, unconfirmed: 0, frozen: 0)
         }),
         super(walletInfo) {
-    transactionHistory = ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
+    transactionHistory = LightningTransactionHistory(walletInfo: walletInfo, password: password);
     walletAddresses = BitcoinWalletAddresses(walletInfo,
         electrumClient: electrumClient ?? ElectrumClient(),
         initialAddresses: initialAddresses,
@@ -182,16 +184,16 @@ class LightningWalletBase
     }
 
     sdk.nodeStateStream.listen((event) {
-      print("Node state: $event");
       if (event == null) return;
-      int balanceSat = event.maxPayableMsat ~/ 1000;
-      print("sats: $balanceSat");
       balance[CryptoCurrency.btc] = LightningBalance(
         confirmed: event.maxPayableMsat ~/ 1000,
         unconfirmed: event.maxReceivableMsat ~/ 1000,
         frozen: 0,
       );
     });
+
+    // final payments = await sdk.listPayments(req: ListPaymentsRequest());
+    // print("payments: $payments");
 
     print("initialized breez: ${(await sdk.isInitialized())}");
   }
@@ -206,9 +208,7 @@ class LightningWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
-
-      // TODO: CW-563 Implement sync
-
+      await updateTransactions();
       syncStatus = SyncedSyncStatus();
     } catch (e) {
       print(e);
@@ -230,6 +230,7 @@ class LightningWalletBase
   Future<void> connectToNode({required Node node}) async {
     try {
       syncStatus = ConnectingSyncStatus();
+      await updateTransactions();
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
       print(e);
@@ -242,35 +243,61 @@ class LightningWalletBase
     throw UnimplementedError("createTransaction");
   }
 
-  @override
-  Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
-    // String address = _publicAddress!;
+  Future<bool> updateTransactions() async {
+    try {
+      if (_isTransactionUpdating) {
+        return false;
+      }
 
-    // final transactions = await _client.fetchTransactions(address);
-
-    // final Map<String, NanoTransactionInfo> result = {};
-
-    // for (var transactionModel in transactions) {
-    //   final bool isSend = transactionModel.type == "send";
-    //   result[transactionModel.hash] = NanoTransactionInfo(
-    //     id: transactionModel.hash,
-    //     amountRaw: transactionModel.amount,
-    //     height: transactionModel.height,
-    //     direction: isSend ? TransactionDirection.outgoing : TransactionDirection.incoming,
-    //     confirmed: transactionModel.confirmed,
-    //     date: transactionModel.date ?? DateTime.now(),
-    //     confirmations: transactionModel.confirmed ? 1 : 0,
-    //     to: isSend ? transactionModel.account : address,
-    //     from: isSend ? address : transactionModel.account,
-    //   );
-    // }
-
-    // return result;
-    return {};
+      _isTransactionUpdating = true;
+      final transactions = await fetchTransactions();
+      transactionHistory.addMany(transactions);
+      await transactionHistory.save();
+      _isTransactionUpdating = false;
+      return true;
+    } catch (_) {
+      _isTransactionUpdating = false;
+      return false;
+    }
   }
 
   @override
-  Future<void> rescan({required int height}) async => throw UnimplementedError();
+  Future<Map<String, LightningTransactionInfo>> fetchTransactions() async {
+    final sdk = await BreezSDK();
+
+    final payments = await sdk.listPayments(req: ListPaymentsRequest());
+    final Map<String, LightningTransactionInfo> result = {};
+
+    for (var tx in payments) {
+      print(tx.details.data);
+      var details = tx.details.data as LnPaymentDetails;
+      bool isSend = false;
+      if (details.lnAddress?.isNotEmpty ?? false) {
+        isSend = true;
+      }
+      if (details.lnurlMetadata?.isNotEmpty ?? false) {
+        isSend = true;
+      }
+      result[tx.id] = LightningTransactionInfo(
+        WalletType.lightning,
+        isPending: false,
+        id: tx.id,
+        amount: tx.amountMsat ~/ 1000,
+        fee: tx.feeMsat,
+        date: DateTime.fromMillisecondsSinceEpoch(tx.paymentTime * 1000),
+        height: tx.paymentTime,
+        direction: isSend ? TransactionDirection.outgoing : TransactionDirection.incoming,
+        confirmations: 1,
+      );
+    }
+
+    return result;
+  }
+
+  @override
+  Future<void> rescan({required int height}) async {
+    updateTransactions();
+  }
 
   Future<void> init() async {
     await walletAddresses.init();

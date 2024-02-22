@@ -92,10 +92,9 @@ abstract class LightningViewModelBase with Store {
       amountMsat: 1000,
       description: 'limits',
     );
-    // final res = await sdk.receivePayment(req: req);
-    // print(res.lnInvoice.);
-    // return res.lnInvoice.bolt11;
+    final res = await sdk.receivePayment(req: req);
+    // sdk.
     // TODO: CW-563 figure out how to get the limits
-    return ['0', '20000'];
+    return [(res.openingFeeMsat).toString(), '20000'];
   }
 }
