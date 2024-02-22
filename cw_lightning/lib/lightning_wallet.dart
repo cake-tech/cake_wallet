@@ -267,7 +267,7 @@ abstract class LightningWalletBase
   }
 
   Map<String, LightningTransactionInfo> convertToTxInfo(List<Payment> payments) {
-    final Map<String, LightningTransactionInfo> 
+    Map<String, LightningTransactionInfo> transactions = {}; 
 
     for (var tx in payments) {
       var details = tx.details.data as LnPaymentDetails;
