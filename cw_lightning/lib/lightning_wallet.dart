@@ -192,8 +192,13 @@ abstract class LightningWalletBase
       );
     });
 
-    // final payments = await sdk.listPayments(req: ListPaymentsRequest());
-    // print("payments: $payments");
+    sdk.paymentsStream.listen((payments) {
+      _isTransactionUpdating = true;
+      print("payment event: $payments");
+      var txs = convertToTxInfo(payments);
+      transactionHistory.addMany(txs);
+      _isTransactionUpdating = false;
+    });
 
     print("initialized breez: ${(await sdk.isInitialized())}");
   }
@@ -261,15 +266,10 @@ abstract class LightningWalletBase
     }
   }
 
-  @override
-  Future<Map<String, LightningTransactionInfo>> fetchTransactions() async {
-    final sdk = await BreezSDK();
-
-    final payments = await sdk.listPayments(req: ListPaymentsRequest());
-    final Map<String, LightningTransactionInfo> result = {};
+  Map<String, LightningTransactionInfo> convertToTxInfo(List<Payment> payments) {
+    final Map<String, LightningTransactionInfo> 
 
     for (var tx in payments) {
-      print(tx.details.data);
       var details = tx.details.data as LnPaymentDetails;
       bool isSend = false;
       if (details.lnAddress?.isNotEmpty ?? false) {
@@ -278,7 +278,7 @@ abstract class LightningWalletBase
       if (details.lnurlMetadata?.isNotEmpty ?? false) {
         isSend = true;
       }
-      result[tx.id] = LightningTransactionInfo(
+      transactions[tx.id] = LightningTransactionInfo(
         WalletType.lightning,
         isPending: false,
         id: tx.id,
@@ -290,8 +290,17 @@ abstract class LightningWalletBase
         confirmations: 1,
       );
     }
+    return transactions;
+  }
 
-    return result;
+  @override
+  Future<Map<String, LightningTransactionInfo>> fetchTransactions() async {
+    final sdk = await BreezSDK();
+
+    final payments = await sdk.listPayments(req: ListPaymentsRequest());
+    final transactions = convertToTxInfo(payments);
+
+    return transactions;
   }
 
   @override
