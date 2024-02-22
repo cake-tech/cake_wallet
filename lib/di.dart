@@ -100,6 +100,7 @@ import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_cr
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:cake_wallet/view_model/seed_type_view_model.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
@@ -1234,9 +1235,17 @@ Future<void> setup({
         receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(param1: pageOption));
   });
 
-  getIt.registerFactory<LightningSendPage>(() => LightningSendPage(
-        authService: getIt.get<AuthService>(),
-      ));
+  getIt.registerFactory<LightningSendPage>(() {
+    return LightningSendPage(
+      output: Output(
+        getIt.get<AppStore>().wallet!,
+        getIt.get<SettingsStore>(),
+        getIt.get<FiatConversionStore>(),
+        () => CryptoCurrency.btc,
+      ),
+      authService: getIt.get<AuthService>(),
+    );
+  });
 
   getIt.registerFactoryParam<LightningSendConfirmPage, LNInvoice, void>((LNInvoice invoice, _) {
     return LightningSendConfirmPage(

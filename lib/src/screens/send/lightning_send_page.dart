@@ -1,12 +1,19 @@
 import 'package:breez_sdk/breez_sdk.dart';
 import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/src/widgets/address_text_field.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
@@ -19,15 +26,17 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class LightningSendPage extends BasePage {
   LightningSendPage({
+    required this.output,
     required this.authService,
   }) : _formKey = GlobalKey<FormState>();
 
+  final Output output;
   final AuthService authService;
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
 
   final bolt11Controller = TextEditingController();
-  final _bolt11FocusNode = FocusNode();
+  final bolt11FocusNode = FocusNode();
 
   bool _effectsInstalled = false;
 
@@ -79,44 +88,16 @@ class LightningSendPage extends BasePage {
   @override
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
-  double _sendCardHeight(BuildContext context) {
-    final double initialHeight = 465;
-
-    if (!responsiveLayoutUtil.shouldRenderMobileUI) {
-      return initialHeight - 66;
-    }
-    return initialHeight;
-  }
-
   @override
   void onClose(BuildContext context) {
     Navigator.of(context).pop();
   }
 
-  // @override
-  // Widget? middle(BuildContext context) {
-  //   final supMiddle = super.middle(context);
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.center,
-  //     children: [
-  //       Padding(
-  //         padding: const EdgeInsets.only(right: 8.0),
-  //         child: Observer(
-  //           builder: (_) => SyncIndicatorIcon(isSynced: sendViewModel.isReadyForSend),
-  //         ),
-  //       ),
-  //       if (supMiddle != null) supMiddle
-  //     ],
-  //   );
-  // }
-
   @override
-  Widget trailing(context) => Observer(builder: (_) {
-        return TrailButton(
-            caption: S.of(context).clear,
-            onPressed: () {
-              _formKey.currentState?.reset();
-            });
+  Widget trailing(context) => TrailButton(
+      caption: S.of(context).clear,
+      onPressed: () {
+        _formKey.currentState?.reset();
       });
 
   @override
@@ -164,23 +145,39 @@ class LightningSendPage extends BasePage {
                 padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
                 child: Column(
                   children: [
-                    BaseTextFormField(
+                    AddressTextField(
+                      focusNode: bolt11FocusNode,
                       controller: bolt11Controller,
-                      focusNode: _bolt11FocusNode,
-                      textInputAction: TextInputAction.next,
-                      borderColor: Theme.of(context)
-                          .extension<ExchangePageTheme>()!
-                          .textFieldBorderTopPanelColor,
-                      suffixIcon: SizedBox(width: 36),
-                      hintText: S.of(context).invoice_details,
-                      placeholderTextStyle: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor,
-                      ),
+                      onURIScanned: (uri) {
+                        final paymentRequest = PaymentRequest.fromUri(uri);
+                        bolt11Controller.text = paymentRequest.address;
+                      },
+                      options: [
+                        AddressTextFieldOption.paste,
+                        AddressTextFieldOption.qrCode,
+                        AddressTextFieldOption.addressBook
+                      ],
+                      buttonColor:
+                          Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+                      borderColor:
+                          Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                       textStyle:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-                      validator: null,
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
+                      hintStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
+                      onPushPasteButton: (context) async {
+                        output.resetParsedAddress();
+                        await output.fetchParsedAddress(context);
+                      },
+                      onPushAddressBookButton: (context) async {
+                        output.resetParsedAddress();
+                      },
+                      onSelectedContact: (contact) {
+                        output.loadContact(contact);
+                      },
+                      selectedCurrency: CryptoCurrency.btc,
                     ),
                     SizedBox(height: 24),
                   ],
@@ -191,22 +188,24 @@ class LightningSendPage extends BasePage {
             bottomSection: Column(
               children: <Widget>[
                 LoadingPrimaryButton(
-                  text: S.of(context).paste,
+                  text: S.of(context).send,
                   color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                   isLoading: false,
                   onPressed: () async {
-                    processInput(context);
-                  },
-                ),
-                const SizedBox(height: 16),
-                LoadingPrimaryButton(
-                  text: S.of(context).scan_qr_code,
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
-                  isLoading: false,
-                  onPressed: () async {
-                    processInput(context);
+                    try {
+                      processInput(context);
+                    } catch (e) {
+                      showPopUp<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertWithOneAction(
+                                alertTitle: S.of(context).error,
+                                alertContent: e.toString(),
+                                buttonText: S.of(context).ok,
+                                buttonAction: () => Navigator.of(context).pop());
+                          });
+                    }
                   },
                 ),
               ],
@@ -226,19 +225,16 @@ class LightningSendPage extends BasePage {
     FocusScope.of(context).unfocus();
 
     final sdk = await BreezSDK();
-    try {
-      final InputType inputType = await sdk.parseInput(input: bolt11Controller.text);
 
-      if (inputType is InputType_Bolt11) {
-        final bolt11 = await sdk.parseInvoice(bolt11Controller.text);
-        Navigator.of(context).pushNamed(Routes.lightningSendConfirm, arguments: bolt11);
-      } else if (inputType is InputType_LnUrlPay) {
-        throw Exception("Unsupported input type");
-      } else {
-        throw Exception("Unknown input type");
-      }
-    } catch (e) {
-      print("Error processsing input: $e");
+    final InputType inputType = await sdk.parseInput(input: bolt11Controller.text);
+
+    if (inputType is InputType_Bolt11) {
+      final bolt11 = await sdk.parseInvoice(bolt11Controller.text);
+      Navigator.of(context).pushNamed(Routes.lightningSendConfirm, arguments: bolt11);
+    } else if (inputType is InputType_LnUrlPay) {
+      throw Exception("Unsupported input type");
+    } else {
+      throw Exception("Unknown input type");
     }
   }
 
