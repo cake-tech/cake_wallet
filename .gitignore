@@ -86,6 +86,7 @@ cw_monero/cw_monero/android/.cxx/
 **/*.g.dart
 
 android/key.properties
+android/app/key.jks
 
 **/tool/.secrets-prod.json
 **/tool/.secrets-test.json
