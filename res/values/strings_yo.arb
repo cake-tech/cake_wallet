@@ -772,5 +772,6 @@
   "no_relay_on_domain": "Ko si iṣipopada fun agbegbe olumulo tabi yiyi ko si. Jọwọ yan yii lati lo.",
   "restore_title_from_hardware_wallet": "Mu pada kuro ninu apamọwọ ohun elo",
   "restore_description_from_hardware_wallet": "Mu pada kuro ninu apamọwọ ohun elo ti o yanilenu",
-  "connect_your_hardware_wallet": "So apamọwọ irinṣẹ rẹ nipa lilo Bluetooth tabi USB"
+  "connect_your_hardware_wallet": "So apamọwọ irinṣẹ rẹ nipa lilo Bluetooth tabi USB",
+  "load_more": "Ẹru diẹ sii"
 }

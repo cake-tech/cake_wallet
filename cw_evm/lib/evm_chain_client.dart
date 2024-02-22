@@ -77,7 +77,7 @@ abstract class EVMChainClient {
   }
 
   Future<PendingEVMChainTransaction> signTransaction({
-    required EthPrivateKey privateKey,
+    required CredentialsWithKnownAddress privateKey,
     required String toAddress,
     required String amount,
     required int gas,

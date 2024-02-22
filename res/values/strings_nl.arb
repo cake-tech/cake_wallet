@@ -778,5 +778,6 @@
   "no_relay_on_domain": "Er is geen relay voor het domein van de gebruiker of de relay is niet beschikbaar. Kies een relais dat u wilt gebruiken.",
   "restore_title_from_hardware_wallet": "Herstel van de hardware -portemonnee",
   "restore_description_from_hardware_wallet": "Herstel van een grootboekhardware -portemonnee",
-  "connect_your_hardware_wallet": "Sluit uw hardware -portemonnee aan met Bluetooth of USB"
+  "connect_your_hardware_wallet": "Sluit uw hardware -portemonnee aan met Bluetooth of USB",
+  "load_more": "Meer laden"
 }

@@ -27,3 +27,13 @@ class EVMChainRestoreWalletFromPrivateKey extends WalletCredentials {
 
   final String privateKey;
 }
+
+class EVMChainRestoreWalletFromHardware extends WalletCredentials {
+  EVMChainRestoreWalletFromHardware({
+    required String name,
+    required this.address,
+    WalletInfo? walletInfo,
+  }) : super(name: name, walletInfo: walletInfo);
+
+  final String address;
+}

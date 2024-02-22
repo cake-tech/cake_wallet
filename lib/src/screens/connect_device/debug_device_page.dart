@@ -1,28 +1,27 @@
-import 'package:bitcoin_flutter/bitcoin_flutter.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/option_tile.dart';
+import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:flutter/material.dart';
+import 'package:ledger_ethereum/ledger_ethereum.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:polyseed/polyseed.dart';
 
-class ConnectDevicePage extends BasePage {
+class DebugDevicePage extends BasePage {
   @override
   String get title => "Connect Ledger";
 
   @override
-  Widget body(BuildContext context) => ConnectDevicePageBody();
+  Widget body(BuildContext context) => DebugDevicePageBody();
 }
 
-class ConnectDevicePageBody extends StatefulWidget {
+class DebugDevicePageBody extends StatefulWidget {
   @override
-  ConnectDevicePageBodyState createState() => ConnectDevicePageBodyState();
+  DebugDevicePageBodyState createState() => DebugDevicePageBodyState();
 }
 
-class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
+class DebugDevicePageBodyState extends State<DebugDevicePageBody> {
   final imageLedger = Image.asset(
     'assets/images/ledger_icon_black.png',
     width: 40,
@@ -47,24 +46,26 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       return statuses.values.where((status) => status.isDenied).isEmpty;
     },
   );
-  final client = EthereumClient();
+  final conLedger = Ledger(options: LedgerOptions(
+    scanMode: ScanMode.balanced,));
 
-  // late BitcoinLedgerApp btc;
+  late EthereumLedgerApp eth;
   var devices = <LedgerDevice>[];
   var status = "";
+  var counter = 0;
   LedgerDevice? selectedDevice = null;
 
   @override
   void initState() {
     super.initState();
-    // btc = BitcoinLedgerApp(ledger);
+    eth = EthereumLedgerApp(conLedger);
   }
 
   @override
   void dispose() {
     super.dispose();
-    ledger.close(ConnectionType.ble);
-    ledger.close(ConnectionType.usb);
+    conLedger.close(ConnectionType.ble);
+    conLedger.close(ConnectionType.usb);
   }
 
   Future<void> reconnectCurrentDevice() async {
@@ -73,14 +74,14 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   }
 
   Future<void> disconnectCurrentDevice() async {
-    await ledger.disconnect(selectedDevice!);
-    setState(() {
-      selectedDevice = null;
-    });
+    await conLedger.disconnect(selectedDevice!);
+    setState(() => selectedDevice = null);
   }
 
   @override
   Widget build(BuildContext context) {
+    final imageLedger = 'assets/images/ledger_nano.png';
+
     return Center(
       child: Container(
           width: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
@@ -89,25 +90,6 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                ...devices.map((e) {
-                  return OptionTile(
-                    onPressed: () async {
-                      // setState(() => status = "Loading");
-                      // final path = await pathForWallet(name: "Ledger Test", type: WalletType.monero);
-                      // try {
-                      //   restoreMoneroWalletFromDevice(path: path, password: "CakeWallet", deviceName: e.id);
-                      //   setState(() => status = "Success!");
-                      // } on WalletRestoreFromKeysException catch (ex) {
-                      //   setState(() {
-                      //     status = "ERROR: ${ex.message}";
-                      //   });
-                      // }
-                    },
-                    title: e.name,
-                    description: e.connectionType.name,
-                    image: imageLedger,
-                  );
-                }).toList(),
                 Padding(
                   padding: EdgeInsets.only(top: 20),
                   child: Text(status),
@@ -116,7 +98,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   DebugButton(
                     title: "Get Version",
                     method: "Version",
-                    func: () async => {}// await btc.getVersion(selectedDevice!),
+                    func: () async => await eth.getVersion(selectedDevice!),
                   ),
                   DebugButton(
                     title: "Get Master Fingerprint",
@@ -130,13 +112,18 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   ),
                   DebugButton(
                     title: "Get Wallet Address",
-                    method: "BTC-Wallet",
-                    func: () async => {}// await btc.getAccounts(selectedDevice!),
+                    method: "Wallet Address",
+                    func: () async {
+                      // setState(() => counter++);
+                      // final derivationPath = "m/44'/60'/$counter'/0/0";
+                      // print(derivationPath);
+                      // return await eth.getAccounts(selectedDevice!, derivationPath);
+                      return await ethereum!.getHardwareWalletAccounts(selectedDevice!);},
                   ),
                   DebugButton(
                     title: "Get Output",
                     method: "OutHash",
-                    func: () async => Address.addressToOutputScript("bc1q4aacwm9f9ayukulk7sq4h75ge0pwp6r8nzvt7h").toHexString(),
+                    func: () async => {}//Address.addressToOutputScript("bc1q4aacwm9f9ayukulk7sq4h75ge0pwp6r8nzvt7h").toHexString(),
                   ),
                   DebugButton(
                     title: "Sign Message",
@@ -170,6 +157,22 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   ),
                 ],
                 if (selectedDevice == null) ...[
+                  ...devices
+                      .map(
+                        (device) => Padding(
+                      padding: EdgeInsets.only(bottom: 20),
+                      child: DeviceTile(
+                        onPressed: () {
+                          setState(() => selectedDevice = device);
+                          // conLedger.connect(device);
+                        },
+                        title: device.name,
+                        leading: imageLedger,
+                        connectionType: device.connectionType,
+                      ),
+                    ),
+                  )
+                      .toList(),
                   PrimaryButton(
                       text: "Refresh BLE",
                       onPressed: () async {
@@ -196,22 +199,6 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
             ),
           )),
     );
-  }
-
-  Future<void> signMessage() async {
-    // final ticker = "USDC";
-    // final decimals = 6;
-    // final infoSig = "3045022100b2e358726e4e6a6752cf344017c0e9d45b9a904120758d45f61b2804f9ad5299022015161ef28d8c4481bd9432c13562def9cce688bcfec896ef244c9a213f106cdd";
-    // final chainId = 1;
-    // final address = "A0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
-    //
-    // await eth.provideERC20TokenInformation(selectedDevice!,
-    //   erc20Ticker: ticker,
-    //   erc20ContractAddress: address,
-    //   decimals: decimals,
-    //   chainId: chainId,
-    //   tokenInformationSignature: infoSig
-    // );
   }
 
   Widget DebugButton(

@@ -774,5 +774,6 @@
   "no_relay_on_domain": ".ﻡﺍﺪﺨﺘﺳﻼ﻿ﻟ ﻊﺑﺎﺘﺘﻟﺍ ﺭﺎﻴﺘﺧﺍ ءﺎﺟﺮﻟﺍ .ﺡﺎﺘﻣ ﺮﻴﻏ ﻞﻴﺣﺮﺘﻟﺍ ﻥﺃ ﻭﺃ ﻡﺪﺨﺘﺴﻤﻟﺍ ﻝﺎﺠﻤﻟ ﻞﻴﺣﺮﺗ ﺪ",
   "restore_title_from_hardware_wallet": "استعادة من محفظة الأجهزة",
   "restore_description_from_hardware_wallet": "استعادة من محفظة أجهزة دفتر الأستاذ",
-  "connect_your_hardware_wallet": "قم بتوصيل محفظة الأجهزة الخاصة بك باستخدام Bluetooth أو USB"
+  "connect_your_hardware_wallet": "قم بتوصيل محفظة الأجهزة الخاصة بك باستخدام Bluetooth أو USB",
+  "load_more": "تحميل المزيد"
 }

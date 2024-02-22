@@ -5,22 +5,24 @@ import 'package:ledger_flutter/ledger_flutter.dart';
 class DeviceTile extends StatelessWidget {
   const DeviceTile({
     required this.onPressed,
-    required this.leading,
     required this.title,
-    required this.connectionType,
+    this.leading,
+    this.connectionType,
   });
 
   final VoidCallback onPressed;
-  final String leading;
   final String title;
-  final ConnectionType connectionType;
+  final String? leading;
+  final ConnectionType? connectionType;
 
-  String get connectionTypeIcon {
+  String? get connectionTypeIcon {
     switch (connectionType) {
       case ConnectionType.ble:
         return 'assets/images/bluetooth.png';
       case ConnectionType.usb:
         return 'assets/images/usb.png';
+      case null:
+        return null;
     }
   }
 
@@ -41,11 +43,12 @@ class DeviceTile extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Image.asset(
-              leading,
-              height: 30,
-              color: Theme.of(context).extension<OptionTileTheme>()!.titleColor,
-            ),
+            if (leading != null)
+              Image.asset(
+                leading!,
+                height: 30,
+                color: Theme.of(context).extension<OptionTileTheme>()!.titleColor,
+              ),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.only(left: 16),
@@ -59,13 +62,14 @@ class DeviceTile extends StatelessWidget {
                 ),
               ),
             ),
-            Center(
-              child: Image.asset(
-                connectionTypeIcon,
-                height: 25,
-                color: Theme.of(context).extension<OptionTileTheme>()!.titleColor,
-              ),
-            )
+            if (connectionTypeIcon != null)
+              Center(
+                child: Image.asset(
+                  connectionTypeIcon!,
+                  height: 25,
+                  color: Theme.of(context).extension<OptionTileTheme>()!.titleColor,
+                ),
+              )
           ],
         ),
       ),

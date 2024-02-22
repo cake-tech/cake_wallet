@@ -770,5 +770,6 @@
   "no_relay_on_domain": "Няма реле за домейна на потребителя или релето не е налично. Моля, изберете реле, което да използвате.",
   "restore_title_from_hardware_wallet": "Възстановяване от хардуерния портфейл",
   "restore_description_from_hardware_wallet": "Възстановяване от хардуерния портфейл на главната книга",
-  "connect_your_hardware_wallet": "Свържете хардуерния си портфейл с помощта на Bluetooth или USB"
+  "connect_your_hardware_wallet": "Свържете хардуерния си портфейл с помощта на Bluetooth или USB",
+  "load_more": "Зареди още"
 }

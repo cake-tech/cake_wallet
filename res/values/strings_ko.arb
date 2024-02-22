@@ -776,5 +776,6 @@
   "no_relay_on_domain": "사용자 도메인에 릴레이가 없거나 릴레이를 사용할 수 없습니다. 사용할 릴레이를 선택해주세요.",
   "restore_title_from_hardware_wallet": "하드웨어 지갑에서 복원하십시오",
   "restore_description_from_hardware_wallet": "원장 하드웨어 지갑에서 복원하십시오",
-  "connect_your_hardware_wallet": "Bluetooth 또는 USB를 사용하여 하드웨어 지갑을 연결하십시오"
+  "connect_your_hardware_wallet": "Bluetooth 또는 USB를 사용하여 하드웨어 지갑을 연결하십시오",
+  "load_more": "더로드하십시오"
 }

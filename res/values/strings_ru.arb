@@ -778,5 +778,6 @@
   "no_relay_on_domain": "Для домена пользователя реле не существует или реле недоступно. Пожалуйста, выберите реле для использования.",
   "restore_title_from_hardware_wallet": "Восстановить из аппаратного кошелька",
   "restore_description_from_hardware_wallet": "Восстановите из оборудования",
-  "connect_your_hardware_wallet": "Подключите свой аппаратный кошелек с помощью Bluetooth или USB"
+  "connect_your_hardware_wallet": "Подключите свой аппаратный кошелек с помощью Bluetooth или USB",
+  "load_more": "Загрузи больше"
 }

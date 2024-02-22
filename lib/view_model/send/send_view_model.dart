@@ -294,8 +294,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Future<void> createTransaction() async {
     try {
       state = IsExecutingState();
-      pendingTransaction = await wallet.createTransaction(_credentials());
-      state = ExecutedSuccessfullyState();
+
+      if (wallet.isHardwareWallet)
+        state = IsAwaitingDeviceResponseState();
+      else {
+        pendingTransaction = await wallet.createTransaction(_credentials());
+        state = ExecutedSuccessfullyState();
+      }
     } catch (e) {
       state = FailureState(e.toString());
     }
@@ -309,15 +314,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     String address = outputs.fold('', (acc, value) {
       return value.isParsedAddress
-          ? acc + value.address + '\n' + value.extractedAddress + '\n\n'
-          : acc + value.address + '\n\n';
+          ? '$acc${value.address}\n${value.extractedAddress}\n\n'
+          : '$acc${value.address}\n\n';
     });
 
     address = address.trim();
 
-    String note = outputs.fold('', (acc, value) {
-      return acc + value.note + '\n';
-    });
+    String note = outputs.fold('', (acc, value) => '$acc${value.note}\n');
 
     note = note.trim();
 

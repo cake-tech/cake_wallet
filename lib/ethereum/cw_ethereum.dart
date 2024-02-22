@@ -31,13 +31,21 @@ class CWEthereum extends Ethereum {
       EVMChainRestoreWalletFromPrivateKey(name: name, password: password, privateKey: privateKey);
 
   @override
+  WalletCredentials createEthereumHardwareWalletCredentials({
+    required String name,
+    required String address,
+    WalletInfo? walletInfo,
+  }) =>
+      EVMChainRestoreWalletFromHardware(name: name, address: address, walletInfo: walletInfo);
+
+  @override
   String getAddress(WalletBase wallet) => (wallet as EthereumWallet).walletAddresses.address;
 
   @override
   String getPrivateKey(WalletBase wallet) {
     final privateKeyHolder = (wallet as EthereumWallet).evmChainPrivateKey;
-    String stringKey = bytesToHex(privateKeyHolder.privateKey);
-    return stringKey;
+    if (privateKeyHolder is EthPrivateKey) return bytesToHex(privateKeyHolder.privateKey);
+    return "";
   }
 
   @override
@@ -152,5 +160,18 @@ class CWEthereum extends Ethereum {
   @override
   Web3Client? getWeb3Client(WalletBase wallet) {
     return (wallet as EthereumWallet).getWeb3Client();
+  }
+
+  @override
+  Future<List<String>> getHardwareWalletAccounts(LedgerDevice device,
+      {int index = 0, int limit = 5}) async {
+    final ethereumHWService = EthereumHardwareWalletService(device);
+    print("getHardwareWalletAccounts $limit"); // TODO: (Konsti) remove
+    try {
+      return await ethereumHWService.getAvailableAccounts(index: index, limit: limit);
+    } on LedgerException catch (err) {
+      print(err.message); // TODO: (Konsti) remove
+      throw err;
+    }
   }
 }

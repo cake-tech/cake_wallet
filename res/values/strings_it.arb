@@ -778,5 +778,6 @@
   "no_relay_on_domain": "Non esiste un inoltro per il dominio dell'utente oppure l'inoltro non è disponibile. Scegli un relè da utilizzare.",
   "restore_title_from_hardware_wallet": "Ripristina dal portafoglio hardware",
   "restore_description_from_hardware_wallet": "Ripristina da un portafoglio hardware di libro mastro",
-  "connect_your_hardware_wallet": "Collega il tuo portafoglio hardware con Bluetooth o USB"
+  "connect_your_hardware_wallet": "Collega il tuo portafoglio hardware con Bluetooth o USB",
+  "load_more": "Carica di più"
 }

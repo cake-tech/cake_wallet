@@ -34,7 +34,7 @@ class RobinhoodBuyProvider extends BuyProvider {
 
   String get _apiSecret => secrets.robinhoodCIdApiSecret;
 
-  String getSignature(String message) {
+  Future<String> getSignature(String message) {
     switch (wallet.type) {
       case WalletType.ethereum:
         return wallet.signMessage(message);
@@ -52,7 +52,7 @@ class RobinhoodBuyProvider extends BuyProvider {
     final valid_until = (DateTime.now().millisecondsSinceEpoch / 1000).round() + 10;
     final message = "$_apiSecret:${valid_until}";
 
-    final signature = getSignature(message);
+    final signature = await getSignature(message);
 
     final uri = Uri.https(_cIdBaseUrl, "/api/robinhood");
 

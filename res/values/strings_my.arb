@@ -776,5 +776,6 @@
   "no_relay_on_domain": "အသုံးပြုသူ၏ဒိုမိန်းအတွက် ထပ်ဆင့်လွှင့်ခြင်း မရှိပါ သို့မဟုတ် ထပ်ဆင့်လွှင့်ခြင်း မရနိုင်ပါ။ အသုံးပြုရန် relay ကိုရွေးချယ်ပါ။",
   "restore_title_from_hardware_wallet": "ဟာ့ဒ်ဝဲပိုက်ဆံအိတ်မှ restore",
   "restore_description_from_hardware_wallet": "Ledger ဟာ့ဒ်ဝဲပိုက်ဆံအိတ်မှ Restore",
-  "connect_your_hardware_wallet": "သင်၏ hardware ပိုက်ဆံအိတ်ကို Bluetooth သို့မဟုတ် USB ကို သုံး. ချိတ်ဆက်ပါ"
+  "connect_your_hardware_wallet": "သင်၏ hardware ပိုက်ဆံအိတ်ကို Bluetooth သို့မဟုတ် USB ကို သုံး. ချိတ်ဆက်ပါ",
+  "load_more": "ပိုပြီး load"
 }

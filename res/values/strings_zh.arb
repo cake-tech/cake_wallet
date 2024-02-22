@@ -777,5 +777,6 @@
   "no_relay_on_domain": "用户域没有中继或中继不可用。请选择要使用的继电器。",
   "restore_title_from_hardware_wallet": "从硬件钱包还原",
   "restore_description_from_hardware_wallet": "从分类帐硬件钱包还原",
-  "connect_your_hardware_wallet": "使用蓝牙或USB连接硬件钱包"
+  "connect_your_hardware_wallet": "使用蓝牙或USB连接硬件钱包",
+  "load_more": "装载更多"
 }

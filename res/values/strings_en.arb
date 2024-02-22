@@ -779,5 +779,6 @@
   "no_relay_on_domain": "There isn't a relay for user's domain or the relay is unavailable. Please choose a relay to use.",
   "restore_title_from_hardware_wallet": "Restore from hardware wallet",
   "restore_description_from_hardware_wallet": "Restore from a Ledger hardware wallet",
-  "connect_your_hardware_wallet": "Connect your hardware wallet using Bluetooth or USB"
+  "connect_your_hardware_wallet": "Connect your hardware wallet using Bluetooth or USB",
+  "load_more": "Load more"
 }

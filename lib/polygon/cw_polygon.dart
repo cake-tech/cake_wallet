@@ -36,8 +36,8 @@ class CWPolygon extends Polygon {
   @override
   String getPrivateKey(WalletBase wallet) {
     final privateKeyHolder = (wallet as PolygonWallet).evmChainPrivateKey;
-    String stringKey = bytesToHex(privateKeyHolder.privateKey);
-    return stringKey;
+    if (privateKeyHolder is EthPrivateKey) return bytesToHex(privateKeyHolder.privateKey);
+    return "";
   }
 
   @override

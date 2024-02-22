@@ -15,7 +15,7 @@ import 'package:collection/collection.dart';
 class LitecoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
-    BitcoinRestoreWalletFromWIFCredentials> {
+    BitcoinRestoreWalletFromWIFCredentials,BitcoinNewWalletCredentials> {
   LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
@@ -78,6 +78,11 @@ class LitecoinWalletService extends WalletService<
     newWalletInfo.name = newName;
 
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+  }
+
+  @override
+  Future<LitecoinWallet> restoreFromHardwareWallet(BitcoinNewWalletCredentials credentials) {
+    throw UnimplementedError("Restoring a Litecoin wallet from a hardware wallet is not yet supported!");
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -20,6 +21,12 @@ enum DerivationType {
   electrum1,
   @HiveField(5)
   electrum2,
+}
+
+@HiveType(typeId: HARDWARE_WALLET_TYPE_TYPE_ID)
+enum HardwareWalletType {
+  @HiveField(0)
+  ledger,
 }
 
 class DerivationInfo {
@@ -45,21 +52,22 @@ class DerivationInfo {
 @HiveType(typeId: WalletInfo.typeId)
 class WalletInfo extends HiveObject {
   WalletInfo(
-      this.id,
-      this.name,
-      this.type,
-      this.isRecovery,
-      this.restoreHeight,
-      this.timestamp,
-      this.dirPath,
-      this.path,
-      this.address,
-      this.yatEid,
-      this.yatLastUsedAddressRaw,
-      this.showIntroCakePayCard,
-      this.derivationType,
-      this.derivationPath)
-      : _yatLastUsedAddressController = StreamController<String>.broadcast();
+    this.id,
+    this.name,
+    this.type,
+    this.isRecovery,
+    this.restoreHeight,
+    this.timestamp,
+    this.dirPath,
+    this.path,
+    this.address,
+    this.yatEid,
+    this.yatLastUsedAddressRaw,
+    this.showIntroCakePayCard,
+    this.derivationType,
+    this.derivationPath,
+    this.hardwareWalletType,
+  ) : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
     required String id,
@@ -76,22 +84,25 @@ class WalletInfo extends HiveObject {
     String yatLastUsedAddressRaw = '',
     DerivationType? derivationType,
     String? derivationPath,
+    HardwareWalletType? hardwareWalletType,
   }) {
     return WalletInfo(
-        id,
-        name,
-        type,
-        isRecovery,
-        restoreHeight,
-        date.millisecondsSinceEpoch,
-        dirPath,
-        path,
-        address,
-        yatEid,
-        yatLastUsedAddressRaw,
-        showIntroCakePayCard,
-        derivationType,
-        derivationPath);
+      id,
+      name,
+      type,
+      isRecovery,
+      restoreHeight,
+      date.millisecondsSinceEpoch,
+      dirPath,
+      path,
+      address,
+      yatEid,
+      yatLastUsedAddressRaw,
+      showIntroCakePayCard,
+      derivationType,
+      derivationPath,
+      hardwareWalletType,
+    );
   }
 
   static const typeId = WALLET_INFO_TYPE_ID;
@@ -148,6 +159,9 @@ class WalletInfo extends HiveObject {
   @HiveField(17)
   String? derivationPath;
 
+  @HiveField(18)
+  HardwareWalletType? hardwareWalletType;
+
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
 
   set yatLastUsedAddress(String address) {
@@ -163,6 +177,8 @@ class WalletInfo extends HiveObject {
     }
     return showIntroCakePayCard!;
   }
+
+  bool get isHardwareWallet => hardwareWalletType != null;
 
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
 

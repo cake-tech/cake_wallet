@@ -778,5 +778,6 @@
   "no_relay_on_domain": "Il n'existe pas de relais pour le domaine de l'utilisateur ou le relais n'est pas disponible. Veuillez choisir un relais à utiliser.",
   "restore_title_from_hardware_wallet": "Restaurer à partir du portefeuille matériel",
   "restore_description_from_hardware_wallet": "Restaurer à partir d'un portefeuille matériel de grand livre",
-  "connect_your_hardware_wallet": "Connectez votre portefeuille matériel à l'aide de Bluetooth ou USB"
+  "connect_your_hardware_wallet": "Connectez votre portefeuille matériel à l'aide de Bluetooth ou USB",
+  "load_more": "Charger plus"
 }

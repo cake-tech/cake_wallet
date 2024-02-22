@@ -772,5 +772,6 @@
   "no_relay_on_domain": "Walang relay para sa domain ng user o hindi available ang relay. Mangyaring pumili ng relay na gagamitin.",
   "restore_title_from_hardware_wallet": "Ibalik mula sa pitaka ng hardware",
   "restore_description_from_hardware_wallet": "Ibalik mula sa isang ledger hardware wallet",
-  "connect_your_hardware_wallet": "Ikonekta ang iyong wallet ng hardware gamit ang Bluetooth o USB"
+  "connect_your_hardware_wallet": "Ikonekta ang iyong wallet ng hardware gamit ang Bluetooth o USB",
+  "load_more": "Mag -load pa"
 }

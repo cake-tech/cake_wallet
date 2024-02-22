@@ -10,22 +10,35 @@ import 'package:flutter/material.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+typedef OnConnectDevice = void Function(BuildContext, LedgerDevice);
+
+class ConnectDevicePageParams {
+  final WalletType walletType;
+  final OnConnectDevice onConnectDevice;
+
+  ConnectDevicePageParams({required this.walletType, required this.onConnectDevice});
+}
+
 class ConnectDevicePage extends BasePage {
   final WalletType walletType;
+  final OnConnectDevice onConnectDevice;
 
-  ConnectDevicePage(this.walletType);
+  ConnectDevicePage(ConnectDevicePageParams params)
+      : walletType = params.walletType,
+        onConnectDevice = params.onConnectDevice;
 
   @override
   String get title => S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget body(BuildContext context) => ConnectDevicePageBody(walletType);
+  Widget body(BuildContext context) => ConnectDevicePageBody(walletType, onConnectDevice);
 }
 
 class ConnectDevicePageBody extends StatefulWidget {
   final WalletType walletType;
+  final OnConnectDevice onConnectDevice;
 
-  const ConnectDevicePageBody(this.walletType);
+  const ConnectDevicePageBody(this.walletType, this.onConnectDevice);
 
   @override
   ConnectDevicePageBodyState createState() => ConnectDevicePageBodyState();
@@ -39,14 +52,12 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       scanMode: ScanMode.balanced,
       maxScanDuration: const Duration(minutes: 5),
     ),
-    onPermissionRequest: (status) async {
+    onPermissionRequest: (_) async {
       Map<Permission, PermissionStatus> statuses = await [
         Permission.bluetoothScan,
         Permission.bluetoothConnect,
         Permission.bluetoothAdvertise,
       ].request();
-
-      if (status != BleStatus.ready) return false;
 
       return statuses.values.where((status) => status.isDenied).isEmpty;
     },
@@ -54,25 +65,24 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
 
   var bleDevices = <LedgerDevice>[];
   var usbDevices = <LedgerDevice>[];
-  LedgerDevice? selectedDevice = null;
 
   late Timer _usbRefreshTimer;
   late StreamSubscription<LedgerDevice> _bleRefresh;
 
   @override
   void initState() {
+    super.initState();
     _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
     _bleRefresh = ledger.scan().listen((device) => setState(() => bleDevices.add(device)));
-    super.initState();
   }
 
   @override
   void dispose() {
+    super.dispose();
     _usbRefreshTimer.cancel();
     _bleRefresh.cancel();
     ledger.close(ConnectionType.ble);
     ledger.close(ConnectionType.usb);
-    super.dispose();
   }
 
   Future<void> _refreshUsbDevices() async {
@@ -80,10 +90,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     if (usbDevices.length != dev.length) setState(() => usbDevices = dev);
   }
 
-  Future<void> _connectToDevice(LedgerDevice device) async {
-    await ledger.connect(device);
-    setState(() => selectedDevice = device);
-  }
+  void _connectToDevice(LedgerDevice device) => widget.onConnectDevice(context, device);
 
   @override
   Widget build(BuildContext context) {

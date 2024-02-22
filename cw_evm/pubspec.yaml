@@ -23,6 +23,7 @@ dependencies:
   shared_preferences: ^2.0.15
   cw_core:
     path: ../cw_core
+  ledger_flutter: ^1.0.1
 
 dev_dependencies:
   flutter_test:

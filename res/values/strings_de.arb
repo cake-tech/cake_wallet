@@ -778,5 +778,6 @@
   "no_relay_on_domain": "Es gibt kein Relay für die Domäne des Benutzers oder das Relay ist nicht verfügbar. Bitte wählen Sie ein zu verwendendes Relais aus.",
   "restore_title_from_hardware_wallet": "Von Hardware-Wallet wiederherstellen",
   "restore_description_from_hardware_wallet": "Stellen Sie eine Wallet von Ledger wieder her",
-  "connect_your_hardware_wallet": "Verbinden Sie Ihr Hardware-Wallet mit Bluetooth oder USB"
+  "connect_your_hardware_wallet": "Verbinden Sie Ihr Hardware-Wallet mit Bluetooth oder USB",
+  "load_more": "Mehr laden"
 }

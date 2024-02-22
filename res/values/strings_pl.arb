@@ -778,5 +778,6 @@
   "no_relay_on_domain": "Brak przekaźnika dla domeny użytkownika lub przekaźnik jest niedostępny. Wybierz przekaźnik, którego chcesz użyć.",
   "restore_title_from_hardware_wallet": "Przywróć z portfela sprzętowego",
   "restore_description_from_hardware_wallet": "Przywróć z portfela sprzętowego księgi",
-  "connect_your_hardware_wallet": "Podłącz portfel sprzętowy za pomocą Bluetooth lub USB"
+  "connect_your_hardware_wallet": "Podłącz portfel sprzętowy za pomocą Bluetooth lub USB",
+  "load_more": "Załaduj więcej"
 }

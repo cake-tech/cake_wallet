@@ -776,5 +776,6 @@
   "no_relay_on_domain": "Kullanıcının alanı için bir geçiş yok veya geçiş kullanılamıyor. Lütfen kullanmak için bir röle seçin.",
   "restore_title_from_hardware_wallet": "Donanım cüzdanından geri yükleme",
   "restore_description_from_hardware_wallet": "Bir defter donanım cüzdanından geri yükleyin",
-  "connect_your_hardware_wallet": "Bluetooth veya USB kullanarak donanım cüzdanınızı bağlayın"
+  "connect_your_hardware_wallet": "Bluetooth veya USB kullanarak donanım cüzdanınızı bağlayın",
+  "load_more": "Daha fazla yükle"
 }

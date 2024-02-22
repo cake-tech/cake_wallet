@@ -1,0 +1,84 @@
+import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
+import 'package:hive/hive.dart';
+import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:mobx/mobx.dart';
+
+part 'wallet_hardware_restore_view_model.g.dart';
+
+class WalletHardwareRestoreViewModel = WalletHardwareRestoreViewModelBase
+    with _$WalletHardwareRestoreViewModel;
+
+abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with Store {
+  final LedgerDevice device;
+
+  int _nextIndex = 0;
+
+  WalletHardwareRestoreViewModelBase(this.device, AppStore appStore,
+      WalletCreationService walletCreationService, Box<WalletInfo> walletInfoSource,
+      {required WalletType type})
+      : super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
+
+  @observable
+  String name = "";
+
+  @observable
+  String? selectedAccount = null;
+
+  @observable
+  bool isLoadingMoreAccounts = false;
+
+  // @observable
+  ObservableList<String> availableAccounts = ObservableList();
+
+  @action
+  Future<void> getNextAvailableAccounts(int limit) async {
+    print("getNextAvailableAccounts($limit)"); // TODO: (Konsti) remove
+    List<String> accounts;
+    switch (type) {
+      case WalletType.ethereum:
+        accounts =
+            await ethereum!.getHardwareWalletAccounts(device, index: _nextIndex, limit: limit);
+        break;
+      default:
+        return;
+    }
+
+    availableAccounts.addAll(accounts);
+    isLoadingMoreAccounts = false;
+    _nextIndex += limit;
+  }
+
+  @override
+  WalletCredentials getCredentials(dynamic _options) {
+    final address = selectedAccount!;
+    WalletCredentials credentials;
+    switch (type) {
+      case WalletType.ethereum:
+        credentials =
+            ethereum!.createEthereumHardwareWalletCredentials(name: name, address: address);
+        break;
+      default:
+        throw Exception('Unexpected type: ${type.toString()}');
+    }
+
+    credentials.hardwareWalletType = HardwareWalletType.ledger;
+
+    return credentials;
+  }
+
+  @override
+  Future<WalletBase> process(WalletCredentials credentials) async {
+    walletCreationService.changeWalletType(type: type);
+    final cred = credentials as EVMChainRestoreWalletFromHardware;
+    credentials.walletInfo?.address = cred.address;
+    return walletCreationService.restoreFromHardwareWallet(credentials);
+  }
+}

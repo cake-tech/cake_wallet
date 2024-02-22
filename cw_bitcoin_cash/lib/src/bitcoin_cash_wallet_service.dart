@@ -16,7 +16,7 @@ import 'package:hive/hive.dart';
 
 class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredentials,
     BitcoinCashRestoreWalletFromSeedCredentials,
-    BitcoinCashRestoreWalletFromWIFCredentials> {
+    BitcoinCashRestoreWalletFromWIFCredentials, BitcoinCashNewWalletCredentials> {
   BitcoinCashWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
@@ -84,6 +84,11 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
     newWalletInfo.name = newName;
 
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+  }
+
+  @override
+  Future<BitcoinCashWallet> restoreFromHardwareWallet(BitcoinCashNewWalletCredentials credentials) {
+    throw UnimplementedError("Restoring a Bitcoin Cash wallet from a hardware wallet is not yet supported!");
   }
 
   @override

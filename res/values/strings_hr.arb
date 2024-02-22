@@ -776,5 +776,6 @@
   "no_relay_on_domain": "Ne postoji relej za korisničku domenu ili je relej nedostupan. Odaberite relej za korištenje.",
   "restore_title_from_hardware_wallet": "Vrati iz hardverskog novčanika",
   "restore_description_from_hardware_wallet": "Vratite se iz novčanice od naslovnice",
-  "connect_your_hardware_wallet": "Spojite svoj hardverski novčanik pomoću Bluetooth -a ili USB -a"
+  "connect_your_hardware_wallet": "Spojite svoj hardverski novčanik pomoću Bluetooth -a ili USB -a",
+  "load_more": "Učitaj više"
 }

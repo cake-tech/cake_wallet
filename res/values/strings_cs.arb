@@ -770,5 +770,6 @@
   "no_relay_on_domain": "Pro doménu uživatele neexistuje přenos nebo je přenos nedostupný. Vyberte relé, které chcete použít.",
   "restore_title_from_hardware_wallet": "Obnovit z hardwarové peněženky",
   "restore_description_from_hardware_wallet": "Obnovit z peněženky hardwaru knihy",
-  "connect_your_hardware_wallet": "Připojte hardwarovou peněženku pomocí Bluetooth nebo USB"
+  "connect_your_hardware_wallet": "Připojte hardwarovou peněženku pomocí Bluetooth nebo USB",
+  "load_more": "Načíst další"
 }

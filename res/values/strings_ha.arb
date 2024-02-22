@@ -760,5 +760,6 @@
   "no_relay_on_domain": "Babu gudun ba da sanda ga yankin mai amfani ko kuma ba a samu ba. Da fatan za a zaɓi gudun ba da sanda don amfani.",
   "restore_title_from_hardware_wallet": "Dawowa daga walatware mai wuya",
   "restore_description_from_hardware_wallet": "Maidowa da walatware mai wanki",
-  "connect_your_hardware_wallet": "Haɗa Wallake Wallware ɗinku ta Bluetooth ko USB"
+  "connect_your_hardware_wallet": "Haɗa Wallake Wallware ɗinku ta Bluetooth ko USB",
+  "load_more": "Like more"
 }

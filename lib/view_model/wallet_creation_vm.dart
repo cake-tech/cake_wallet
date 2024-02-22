@@ -67,6 +67,7 @@ abstract class WalletCreationVMBase with Store {
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationPath: credentials.derivationPath,
         derivationType: credentials.derivationType,
+        hardwareWalletType: credentials.hardwareWalletType,
       );
       credentials.walletInfo = walletInfo;
       final wallet = restoreWallet != null
