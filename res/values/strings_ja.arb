@@ -779,5 +779,8 @@
   "you_pay": "あなたが支払う",
   "you_will_get": "に変換",
   "you_will_send": "から変換",
-  "yy": "YY"
+  "yy": "YY",
+  "preExistingSeeds": "既存のシード",
+  "chooseWalletToShareSeedWith": "シードを共有するウォレットを選択してください",
+  "newSeed": "新しい種"
 }

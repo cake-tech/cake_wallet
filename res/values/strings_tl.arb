@@ -778,5 +778,8 @@
   "you_pay": "Magbabayad ka",
   "you_will_get": "Mag -convert sa",
   "you_will_send": "I -convert mula sa",
-  "yy": "YY"
+  "yy": "YY",
+  "preExistingSeeds": "Mga dati nang binhi",
+  "chooseWalletToShareSeedWith": "Pumili ng wallet na pagbahagian ng binhi",
+  "newSeed": "Bagong Binhi"
 }

@@ -549,7 +549,7 @@ import 'package:eth_sig_util/util/utils.dart';
 abstract class Ethereum {
   List<String> getEthereumWordList(String language);
   WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource);
-  WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  WalletCredentials createEthereumNewWalletCredentials({required String name, String? mnemonic, WalletInfo? walletInfo});
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   String getAddress(WalletBase wallet);
@@ -641,7 +641,7 @@ import 'package:eth_sig_util/util/utils.dart';
 abstract class Polygon {
   List<String> getPolygonWordList(String language);
   WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource);
-  WalletCredentials createPolygonNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  WalletCredentials createPolygonNewWalletCredentials({required String name, String? mnemonic, WalletInfo? walletInfo});
   WalletCredentials createPolygonRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createPolygonRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   String getAddress(WalletBase wallet);

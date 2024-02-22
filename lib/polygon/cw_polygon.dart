@@ -10,9 +10,10 @@ class CWPolygon extends Polygon {
   @override
   WalletCredentials createPolygonNewWalletCredentials({
     required String name,
+   String? mnemonic,
     WalletInfo? walletInfo,
   }) =>
-      EVMChainNewWalletCredentials(name: name, walletInfo: walletInfo);
+      EVMChainNewWalletCredentials(name: name,mnemonic: mnemonic, walletInfo: walletInfo);
 
   @override
   WalletCredentials createPolygonRestoreWalletFromSeedCredentials({

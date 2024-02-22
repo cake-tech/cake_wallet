@@ -778,5 +778,8 @@
   "you_pay": "Вие плащате",
   "you_will_get": "Обръщане в",
   "you_will_send": "Обръщане от",
-  "yy": "гг"
+  "yy": "гг",
+  "preExistingSeeds": "Съществуващи семена",
+  "chooseWalletToShareSeedWith": "Изберете портфейл, с който да споделите семе",
+  "newSeed": "Ново семе"
 }

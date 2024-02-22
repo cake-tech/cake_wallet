@@ -780,5 +780,8 @@
   "you_pay": "تم ادا کرو",
   "you_will_get": "میں تبدیل کریں۔",
   "you_will_send": "سے تبدیل کریں۔",
-  "yy": "YY"
+  "yy": "YY",
+  "preExistingSeeds": "ﺞﯿﺑ ﺩﻮﺟﻮﻣ ﮯﺳ ﮯﻠﮩﭘ",
+  "chooseWalletToShareSeedWith": "۔ﮟﯾﺮﮐ ﺏﺎﺨﺘﻧﺍ ﺎﮐ ﺱﺮﭘ ﮏﯾﺍ ﮯﯿﻟ ﮯﮐ ﮯﻨﭩﻧﺎﺑ ﻮﮐ ﺞﯿﺑ",
+  "newSeed": "ﺞﯿﺑ ﺎﯿﻧ"
 }

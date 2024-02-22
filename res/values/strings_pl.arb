@@ -778,5 +778,8 @@
   "you_pay": "Płacisz",
   "you_will_get": "Konwertuj na",
   "you_will_send": "Konwertuj z",
-  "yy": "RR"
+  "yy": "RR",
+  "preExistingSeeds": "Istniejące nasiona",
+  "chooseWalletToShareSeedWith": "Wybierz portfel, z którym chcesz udostępnić nasiona",
+  "newSeed": "Nowe ziarno"
 }

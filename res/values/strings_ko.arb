@@ -780,5 +780,8 @@
   "you_will_get": "로 변환하다",
   "you_will_send": "다음에서 변환",
   "YY": "YY",
-  "yy": "YY"
+  "yy": "YY",
+  "preExistingSeeds": "기존 종자",
+  "chooseWalletToShareSeedWith": "시드를 공유할 지갑을 선택하세요",
+  "newSeed": "새로운 씨앗"
 }

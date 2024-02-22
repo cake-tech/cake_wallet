@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/new_wallet_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
@@ -239,14 +240,18 @@ class WalletListBodyState extends State<WalletListBody> {
                         widget.authService.authenticateAction(
                           context,
                           route: Routes.newWallet,
-                          arguments: widget.walletListViewModel.currentWalletType,
+                          arguments: NewWalletPageArguments(
+                            type: widget.walletListViewModel.currentWalletType,
+                          ),
                           conditionToDetermineIfToUse2FA:
                               widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
                         );
                       } else {
                         Navigator.of(context).pushNamed(
                           Routes.newWallet,
-                          arguments: widget.walletListViewModel.currentWalletType,
+                          arguments: NewWalletPageArguments(
+                            type: widget.walletListViewModel.currentWalletType,
+                          ),
                         );
                       }
                     } else {

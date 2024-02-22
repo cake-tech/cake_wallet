@@ -778,5 +778,8 @@
   "you_pay": "Zaplatíte",
   "you_will_get": "Směnit na",
   "you_will_send": "Směnit z",
-  "yy": "YY"
+  "yy": "YY",
+  "preExistingSeeds": "Již existující semena",
+  "chooseWalletToShareSeedWith": "Vyberte peněženku, se kterou chcete sdílet semeno",
+  "newSeed": "Nové semeno"
 }

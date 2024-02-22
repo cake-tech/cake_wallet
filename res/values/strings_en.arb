@@ -778,5 +778,8 @@
   "you_pay": "You Pay",
   "you_will_get": "Convert to",
   "you_will_send": "Convert from",
-  "yy": "YY"
+  "yy": "YY",
+  "preExistingSeeds": "Pre-existing seeds",
+  "chooseWalletToShareSeedWith": "Choose a wallet to share a seed with",
+  "newSeed": "New Seed"
 }

@@ -780,5 +780,8 @@
   "you_pay": "आप भुगतान करते हैं",
   "you_will_get": "में बदलें",
   "you_will_send": "से रूपांतरित करें",
-  "yy": "वाईवाई"
+  "yy": "वाईवाई",
+  "preExistingSeeds": "पहले से मौजूद बीज",
+  "chooseWalletToShareSeedWith": "बीज साझा करने के लिए एक बटुआ चुनें",
+  "newSeed": "नया बीज"
 }

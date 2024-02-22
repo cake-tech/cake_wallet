@@ -779,5 +779,8 @@
   "you_pay": "Ви платите",
   "you_will_get": "Конвертувати в",
   "you_will_send": "Конвертувати з",
-  "yy": "YY"
+  "yy": "YY",
+  "preExistingSeeds": "Попереднє насіння",
+  "chooseWalletToShareSeedWith": "Виберіть гаманець, щоб поділитися насінням",
+  "newSeed": "Нове насіння"
 }

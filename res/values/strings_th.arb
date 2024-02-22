@@ -778,5 +778,8 @@
   "you_pay": "คุณจ่าย",
   "you_will_get": "แปลงเป็น",
   "you_will_send": "แปลงจาก",
-  "yy": "ปี"
+  "yy": "ปี",
+  "preExistingSeeds": "เมล็ดพันธุ์ที่มีอยู่แล้ว",
+  "chooseWalletToShareSeedWith": "เลือกกระเป๋าเงินที่จะแบ่งปันเมล็ดพันธุ์ด้วย",
+  "newSeed": "เมล็ดพันธุ์ใหม่"
 }

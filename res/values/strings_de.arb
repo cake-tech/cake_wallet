@@ -781,5 +781,8 @@
   "you_pay": "Sie bezahlen",
   "you_will_get": "Konvertieren zu",
   "you_will_send": "Konvertieren von",
-  "yy": "YY"
+  "yy": "YY",
+  "preExistingSeeds": "Bereits vorhandenes Saatgut",
+  "chooseWalletToShareSeedWith": "Wählen Sie eine Wallet, mit der Sie einen Samen teilen möchten",
+  "newSeed": "Neuer Samen"
 }

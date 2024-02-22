@@ -781,5 +781,8 @@
   "you_pay": "Anda Membayar",
   "you_will_get": "Konversi ke",
   "you_will_send": "Konversi dari",
-  "yy": "YY"
+  "yy": "YY",
+  "preExistingSeeds": "Benih yang sudah ada sebelumnya",
+  "chooseWalletToShareSeedWith": "Pilih dompet untuk berbagi benih",
+  "newSeed": "Benih Baru"
 }
