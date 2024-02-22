@@ -789,12 +789,9 @@ abstract class SettingsStoreBase with Store {
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
-    final legacyTheme = (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
-        ? ThemeType.dark.index
-        : ThemeType.bright.index;
     final savedTheme = initialTheme ??
         ThemeList.deserialize(
-            raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? legacyTheme);
+            raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? ThemeType.dark.index);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
@@ -1146,11 +1143,8 @@ abstract class SettingsStoreBase with Store {
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
-    final legacyTheme = (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
-        ? ThemeType.dark.index
-        : ThemeType.bright.index;
     currentTheme = ThemeList.deserialize(
-        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? legacyTheme);
+        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? ThemeType.dark.index);
     actionlistDisplayMode = ObservableList<ActionListDisplayMode>();
     actionlistDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
