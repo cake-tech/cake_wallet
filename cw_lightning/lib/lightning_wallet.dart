@@ -267,17 +267,13 @@ abstract class LightningWalletBase
   }
 
   Map<String, LightningTransactionInfo> convertToTxInfo(List<Payment> payments) {
-    Map<String, LightningTransactionInfo> transactions = {}; 
+    Map<String, LightningTransactionInfo> transactions = {};
 
-    for (var tx in payments) {
-      var details = tx.details.data as LnPaymentDetails;
-      bool isSend = false;
-      if (details.lnAddress?.isNotEmpty ?? false) {
-        isSend = true;
+    for (Payment tx in payments) {
+      if (tx.paymentType == PaymentType.ClosedChannel) {
+        continue;
       }
-      if (details.lnurlMetadata?.isNotEmpty ?? false) {
-        isSend = true;
-      }
+      bool isSend = tx.paymentType == PaymentType.Sent;
       transactions[tx.id] = LightningTransactionInfo(
         WalletType.lightning,
         isPending: false,
