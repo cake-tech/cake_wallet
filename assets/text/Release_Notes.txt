@@ -1,2 +1,5 @@
-Support multiple address types for Bitcoin Cash
+Bitcoin transactions fixes and enhancements
+EVM wallets enhancements (Ethereum and Polygon)
+Improve wallet recovery and error tolerance
+Enhance Background sync for Monero wallets
 Bug fixes
