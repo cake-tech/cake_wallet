@@ -22,7 +22,6 @@ class PreferencesKey {
   static const defaultBuyProvider = 'default_buy_provider';
   static const walletListOrder = 'wallet_list_order';
   static const contactListOrder = 'contact_list_order';
-  static const customContactListOrder = 'custom_contact_list_order';
   static const walletListAscending = 'wallet_list_ascending';
   static const contactListAscending = 'contact_list_ascending';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';

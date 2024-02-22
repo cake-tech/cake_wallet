@@ -60,13 +60,10 @@ abstract class ContactListViewModelBase with Store {
     });
 
     _subscription = contactSource.bindToListWithTransform(
-        contacts, (Contact contact) {
-          return ContactRecord(contactSource, contact);
-    }
-        ,initialFire: true);
+        contacts, (Contact contact) => ContactRecord(contactSource, contact),
+        initialFire: true);
 
     setOrderType(settingsStore.contactListOrder);
-
   }
 
   String _createName(String walletName, String label) {
@@ -109,93 +106,49 @@ abstract class ContactListViewModelBase with Store {
         element.type.tag == _currency!.tag;
   }
 
-  @action
-  void updateList() {
-    contacts.clear();
-    contacts.addAll(contactSource.values.map((contact) => ContactRecord(contactSource, contact)));
-  }
-
-  void dispose() {
+  void dispose() async {
     _subscription?.cancel();
+    final List<Contact> contactsSourceCopy = contactSource.values.toList();
+    reorderContacts(contactsSourceCopy);
   }
 
-  Future<void> reorderAccordingToContactList() async {
-    settingsStore.contactListOrder = WalletListOrderType.Custom;
+  void reorderAccordingToContactList() =>
+      settingsStore.contactListOrder = WalletListOrderType.Custom;
 
-    Map<dynamic, Contact> contactSourceCopy = Map.fromIterable(contactSource.values,
-        key: (item) => item.key, value: (item) => item as Contact);
-
-    List<MapEntry<dynamic, Contact>> newOrder = [];
-
-    for (ContactRecord contactRecord in contacts) {
-
-      var foundEntry = contactSourceCopy.entries.firstWhereOrNull(
-            (entry) => entry.value.name == contactRecord.name,
-      );
-      if (foundEntry != null) {
-        newOrder.add(foundEntry);
-        contactSourceCopy.remove(foundEntry.key);
-      }
-    }
-    await contactSource.clear();
-
-    for (var entry in newOrder) {
-      await contactSource.put(entry.key, entry.value);
-    }
+  Future<void> reorderContacts(List<Contact> contactCopy) async {
+    await contactSource.deleteAll(contactCopy.map((e) => e.key).toList());
+    await contactSource.addAll(contactCopy);
   }
 
   Future<void> sortGroupByType() async {
-    Map<dynamic, Contact> contactSourceCopy = Map.fromIterable(contactSource.values,
-        key: (item) => item.key, value: (item) => item as Contact);
+    List<Contact> contactsSourceCopy = contactSource.values.toList();
 
-    var entries = contactSourceCopy.entries.toList();
+    contactsSourceCopy.sort((a, b) => ascending
+        ? a.type.toString().compareTo(b.type.toString())
+        : b.type.toString().compareTo(a.type.toString()));
 
-    entries.sort((a, b) =>
-    ascending ? a.value.type.toString().compareTo(b.value.type.toString()) : b.value.name.compareTo(a.value.type.toString()));
-
-    await contactSource.clear();
-
-    for (var entry in entries) {
-
-      await contactSource.put(entry.key, entry.value);
-    }
+    reorderContacts(contactsSourceCopy);
   }
 
   Future<void> sortAlphabetically() async {
-    Map<dynamic, Contact> contactSourceCopy = Map.fromIterable(contactSource.values,
-        key: (item) => item.key, value: (item) => item as Contact);
+    List<Contact> contactsSourceCopy = contactSource.values.toList();
 
-    var entries = contactSourceCopy.entries.toList();
+    contactsSourceCopy
+        .sort((a, b) => ascending ? a.name.compareTo(b.name) : b.name.compareTo(a.name));
 
-    entries.sort((a, b) =>
-        ascending ? a.value.name.compareTo(b.value.name) : b.value.name.compareTo(a.value.name));
-
-    await contactSource.clear();
-
-    for (var entry in entries) {
-      await contactSource.put(entry.key, entry.value);
-    }
+    reorderContacts(contactsSourceCopy);
   }
 
   Future<void> sortByCreationDate() async {
-    Map<dynamic, Contact> contactSourceCopy = Map.fromIterable(contactSource.values,
-        key: (item) => item.key, value: (item) => item as Contact);
+    List<Contact> contactsSourceCopy = contactSource.values.toList();
 
-    var entries = contactSourceCopy.entries.toList();
-    entries.sort((a, b) => ascending
-        ? a.value.lastChange.compareTo(b.value.lastChange)
-        : b.value.lastChange.compareTo(a.value.lastChange));
+    contactsSourceCopy.sort((a, b) =>
+        ascending ? a.lastChange.compareTo(b.lastChange) : b.lastChange.compareTo(a.lastChange));
 
-    await contactSource.clear();
-
-    for (var entry in entries) {
-      await contactSource.put(entry.key, entry.value);
-    }
+    reorderContacts(contactsSourceCopy);
   }
 
-  void setAscending(bool ascending) {
-    settingsStore.contactListAscending = ascending;
-  }
+  void setAscending(bool ascending) => settingsStore.contactListAscending = ascending;
 
   Future<void> setOrderType(WalletListOrderType? type) async {
     if (type == null) return;
@@ -214,39 +167,8 @@ abstract class ContactListViewModelBase with Store {
         break;
       case WalletListOrderType.Custom:
       default:
-        await reorderAccordingToContactList();
+        reorderAccordingToContactList();
         break;
-    }
-  }
-
-  Future<List<int>> loadContactOrder() async {
-    final prefs = await SharedPreferences.getInstance();
-    List<String>? stringOrder = prefs.getStringList(PreferencesKey.customContactListOrder);
-    if (stringOrder != null) {
-      return stringOrder.map((i) => int.parse(i)).toList();
-    } else {
-      return <int>[];
-    }
-  }
-
-  Future<void> saveContactOrder(List<int> order) async {
-    final prefs = await SharedPreferences.getInstance();
-    List<String> stringOrder = order.map((i) => i.toString()).toList();
-    await prefs.setStringList( PreferencesKey.customContactListOrder, stringOrder);
-  }
-
-  @action
-  Future<void> applyOrderToContacts() async {
-    List<int> order = await loadContactOrder();
-    if (order.isEmpty) return;
-    if (order.length != contacts.length) return;
-
-    contacts.clear();
-    for (var key in order) {
-      var contact = contactSource.get(key);
-      if (contact != null) {
-        contacts.add(ContactRecord(contactSource, contact));
-      }
     }
   }
 }

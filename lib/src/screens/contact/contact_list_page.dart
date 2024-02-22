@@ -248,14 +248,15 @@ class _ContactListBodyState extends State<ContactListBody> {
 
   @override
   Widget build(BuildContext context) {
+    final contacts = widget.contactListViewModel.contacts;
     return Container(
         child: FilteredList(
-          list: widget.contactListViewModel.contacts,
+          list: contacts,
           updateFunction: widget.contactListViewModel.reorderAccordingToContactList,
           canReorder: widget.contactListViewModel.isEditable,
           itemBuilder: (context, index) {
-            final contact = widget.contactListViewModel.contacts[index];
-            final contactContent = generateContactRaw(context, contact, widget.contactListViewModel.contacts.length == index + 1);
+            final contact = contacts[index];
+            final contactContent = generateContactRaw(context, contact, contacts == index + 1);
             return GestureDetector(
               key: Key('${contact.name}'),
               onTap: () async {
