@@ -40,7 +40,9 @@ class NewWalletPage extends BasePage {
 
   @override
   Widget body(BuildContext context) => WalletNameForm(
-      _walletNewVM, currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage, _seedTypeViewModel);
+      _walletNewVM,
+      currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage,
+      _seedTypeViewModel);
 }
 
 class WalletNameForm extends StatefulWidget {
@@ -97,9 +99,9 @@ class _WalletNameFormState extends State<WalletNameForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(top: 24),
-      child: ScrollableWithBottomSection(
+    return Column(
+      children: [
+        ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
           content: Center(
             child: ConstrainedBox(
@@ -187,7 +189,6 @@ class _WalletNameFormState extends State<WalletNameForm> {
                       ),
                     ),
                   ),
-
                   if (_walletNewVM.hasLanguageSelector) ...[
                     if (_walletNewVM.hasSeedType) ...[
                       Observer(
@@ -251,7 +252,9 @@ class _WalletNameFormState extends State<WalletNameForm> {
                 child: Text(S.of(context).advanced_settings),
               ),
             ],
-          )),
+          ),
+        )
+      ],
     );
   }
 

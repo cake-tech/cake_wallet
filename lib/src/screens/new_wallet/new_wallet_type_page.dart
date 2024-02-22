@@ -112,7 +112,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                           ))
                     ],
                   ),
-                  bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+                  bottomSectionPadding: EdgeInsets.all(24),
                   bottomSection: PrimaryButton(
                     onPressed: () => onTypeSelected(),
                     text: S.of(context).seed_language_next,
