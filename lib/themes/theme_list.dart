@@ -22,9 +22,9 @@ class ThemeList {
     highContrastTheme
   ];
 
-  static final darkTheme = DarkTheme(raw: 0);
-  static final lightTheme = LightTheme(raw: 1);
-  static final brightTheme = BrightTheme(raw: 2);
+  static final lightTheme = LightTheme(raw: 0);
+  static final brightTheme = BrightTheme(raw: 1);
+  static final darkTheme = DarkTheme(raw: 2);
   static final moneroDarkTheme = MoneroDarkTheme(raw: 3);
   static final moneroLightTheme = MoneroLightTheme(raw: 4);
   static final matrixGreenTheme = MatrixGreenTheme(raw: 5);
@@ -35,11 +35,11 @@ class ThemeList {
   static ThemeBase deserialize({required int raw}) {
     switch (raw) {
       case 0:
-        return darkTheme;
-      case 1:
         return lightTheme;
-      case 2:
+      case 1:
         return brightTheme;
+      case 2:
+        return darkTheme;
       case 3:
         return moneroDarkTheme;
       case 4:

@@ -19,6 +19,7 @@ import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
@@ -791,7 +792,7 @@ abstract class SettingsStoreBase with Store {
             ExchangeApiMode.enabled.raw);
     final savedTheme = initialTheme ??
         ThemeList.deserialize(
-            raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? ThemeType.dark.index);
+            raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? (isMoneroOnly ? 3 : 2));
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
@@ -1143,8 +1144,8 @@ abstract class SettingsStoreBase with Store {
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
-    currentTheme = ThemeList.deserialize(
-        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? ThemeType.dark.index);
+    ThemeList.deserialize(
+        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? (isMoneroOnly ? 3 : 2));
     actionlistDisplayMode = ObservableList<ActionListDisplayMode>();
     actionlistDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
