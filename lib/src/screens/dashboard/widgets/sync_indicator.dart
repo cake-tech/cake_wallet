@@ -63,19 +63,19 @@ class SyncIndicator extends StatelessWidget {
                         switch (dashboardViewModel.torViewModel.torConnectionStatus) {
                           case TorConnectionStatus.connected:
                             torImage = Image.asset(
-                              'assets/images/tor_onion.svg',
+                              'assets/images/tor_onion.png',
                               color: Color(0x6000D9),
                             );
                             break;
                           case TorConnectionStatus.connecting:
                             torImage = Image.asset(
-                              'assets/images/tor_onion.svg',
+                              'assets/images/tor_onion.png',
                               color: Theme.of(context).extension<SyncIndicatorTheme>()!.notSyncedIconColor,
                             );
                             break;
                           case TorConnectionStatus.disconnected:
                             torImage = Image.asset(
-                              'assets/images/tor_onion.svg',
+                              'assets/images/tor_onion.png',
                               color: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
                             );
                             break;
