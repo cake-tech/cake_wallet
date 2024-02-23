@@ -20,7 +20,7 @@ class HomeScreenAccountWidget extends StatelessWidget {
     },
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: EdgeInsets.only(top: 25, bottom: 25, left: 20, right: 0),
+        padding: EdgeInsets.only(top: 25, bottom: 25, left: 25, right: 0),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
