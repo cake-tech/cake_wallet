@@ -526,6 +526,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:web3dart/web3dart.dart';
 
 """;
@@ -540,6 +541,7 @@ import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_ethereum/ethereum_wallet_service.dart';
+import 'package:cw_ethereum/ethereum_hardware_wallet_service.dart';
 
 import 'package:eth_sig_util/util/utils.dart';
 
@@ -552,6 +554,7 @@ abstract class Ethereum {
   WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo});
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
+  WalletCredentials createEthereumHardwareWalletCredentials({required String name, required String address, WalletInfo? walletInfo});
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
@@ -585,6 +588,8 @@ abstract class Ethereum {
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled);
   Web3Client? getWeb3Client(WalletBase wallet);
+  
+  Future<List<String>> getHardwareWalletAccounts(LedgerDevice device, {int index = 0, int limit = 5});
 }
   """;
 

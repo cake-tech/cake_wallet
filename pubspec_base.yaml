@@ -107,8 +107,6 @@ dependencies:
   polyseed: ^0.0.2
   nostr_tools: ^1.0.9
   ledger_flutter: ^1.0.1
-  ledger_bitcoin:
-    path: ./ledger_bitcoin
 
 dev_dependencies:
   flutter_test:
