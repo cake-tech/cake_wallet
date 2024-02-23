@@ -27,11 +27,25 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   final SettingsStore _settingsStore;
 
-  bool get hasSeedPhraseLengthOption =>
-      type == WalletType.bitcoinCash ||
-      type == WalletType.ethereum ||
-      type == WalletType.polygon ||
-      type == WalletType.solana;
+  bool get hasSeedPhraseLengthOption {
+    // convert to switch case so that it give a syntax error when adding a new wallet type
+    // thus we don't forget about it
+    switch (type) {
+      case WalletType.ethereum:
+      case WalletType.bitcoinCash:
+      case WalletType.polygon:
+      case WalletType.solana:
+        return true;
+      case WalletType.monero:
+      case WalletType.none:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.haven:
+      case WalletType.nano:
+      case WalletType.banano:
+        return false;
+    }
+  }
 
   bool get hasSeedTypeOption => type == WalletType.monero;
 

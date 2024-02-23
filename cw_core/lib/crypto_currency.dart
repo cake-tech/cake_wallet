@@ -9,7 +9,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     required this.decimals,
     this.fullName,
     this.iconPath,
-    this.tag, this.enabled = false,
+    this.tag,
+    this.enabled = false,
     })
       : super(title: title, raw: raw);
 
@@ -100,6 +101,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.usdtPoly,
     CryptoCurrency.usdcEPoly,
     CryptoCurrency.kaspa,
+    CryptoCurrency.digibyte,
   ];
 
   static const havenCurrencies = [
@@ -211,8 +213,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const banano = CryptoCurrency(title: 'BAN', fullName: 'Banano', raw: 86, name: 'banano', iconPath: 'assets/images/nano_icon.png', decimals: 29);
   static const usdtPoly = CryptoCurrency(title: 'USDT', tag: 'POLY', fullName: 'Tether USD (PoS)', raw: 87, name: 'usdtpoly', iconPath: 'assets/images/usdt_icon.png', decimals: 6);
   static const usdcEPoly = CryptoCurrency(title: 'USDC.E', tag: 'POLY', fullName: 'USD Coin (PoS)', raw: 88, name: 'usdcepoly', iconPath: 'assets/images/usdc_icon.png', decimals: 6);
-  static const kaspa = CryptoCurrency(title: 'KAS', fullName: 'Kaspa', raw: 89, name: 'kaspa', iconPath: 'assets/images/kaspa_icon.png', decimals: 8);
-    static const usdtSol = CryptoCurrency(title: 'USDT', tag: 'SOL', fullName: 'USDT Tether', raw: 90, name: 'usdtsol', iconPath: 'assets/images/usdt_icon.png', decimals: 6);
+  static const kaspa = CryptoCurrency(title: 'KAS', fullName: 'Kaspa', raw: 89, name: 'kas', iconPath: 'assets/images/kaspa_icon.png', decimals: 8);
+  static const digibyte = CryptoCurrency(title: 'DGB', fullName: 'DigiByte', raw: 90, name: 'dgb', iconPath: 'assets/images/digibyte.png', decimals: 8);
+  static const usdtSol = CryptoCurrency(title: 'USDT', tag: 'SOL', fullName: 'USDT Tether', raw: 90, name: 'usdtsol', iconPath: 'assets/images/usdt_icon.png', decimals: 6);
 
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =

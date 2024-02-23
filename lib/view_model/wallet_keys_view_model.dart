@@ -21,9 +21,7 @@ abstract class WalletKeysViewModelBase with Store {
       : title = _appStore.wallet!.type == WalletType.bitcoin ||
                 _appStore.wallet!.type == WalletType.lightning ||
                 _appStore.wallet!.type == WalletType.litecoin ||
-                _appStore.wallet!.type == WalletType.bitcoinCash ||
-                _appStore.wallet!.type == WalletType.ethereum ||
-                _appStore.wallet!.type == WalletType.polygon
+                _appStore.wallet!.type == WalletType.bitcoinCash
             ? S.current.wallet_seed
             : S.current.wallet_keys,
         _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
