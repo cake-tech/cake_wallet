@@ -227,11 +227,15 @@ class SolanaWalletClient {
   ) async {
     final tokenMint = Ed25519HDPublicKey.fromBase58(address);
 
-    final associatedTokenAccount = await _client!.getAssociatedTokenAccount(
-      mint: tokenMint,
-      owner: ownerKeypair.publicKey,
-      commitment: Commitment.confirmed,
-    );
+    ProgramAccount? associatedTokenAccount;
+
+    try {
+      associatedTokenAccount = await _client!.getAssociatedTokenAccount(
+        mint: tokenMint,
+        owner: ownerKeypair.publicKey,
+        commitment: Commitment.confirmed,
+      );
+    } catch (_) {}
 
     if (associatedTokenAccount == null) return [];
 

@@ -26,6 +26,7 @@ class DefaultSPLTokens {
       decimal: 6,
       mint: 'soEth',
       enabled: true,
+      iconPath: 'assets/images/eth_icon.png',
     ),
     SPLToken(
       name: 'Wrapped SOL',
@@ -34,6 +35,7 @@ class DefaultSPLTokens {
       decimal: 9,
       mint: 'WSOL',
       enabled: true,
+      iconPath: 'assets/images/sol_icon.png',
     ),
     SPLToken(
       name: 'Wrapped Bitcoin (Sollet)',
@@ -41,6 +43,7 @@ class DefaultSPLTokens {
       mintAddress: '9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E',
       decimal: 6,
       mint: 'btcsol',
+      iconPath: 'assets/images/btc.png',
     ),
     SPLToken(
       name: 'Bonk',
@@ -48,6 +51,7 @@ class DefaultSPLTokens {
       mintAddress: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
       decimal: 5,
       mint: 'Bonk',
+      iconPath: 'assets/images/bonk_icon.png',
     ),
     SPLToken(
       name: 'Helium Network Token',
@@ -55,6 +59,7 @@ class DefaultSPLTokens {
       mintAddress: 'hntyVP6YFm1Hg25TN9WGLqM12b8TQmcknKrdu1oxWux',
       decimal: 8,
       mint: 'hnt',
+      iconPath: 'assets/images/hnt_icon.png',
     ),
     SPLToken(
       name: 'Pyth Network',
@@ -69,6 +74,7 @@ class DefaultSPLTokens {
       mintAddress: '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R',
       decimal: 6,
       mint: 'ray',
+      iconPath: 'assets/images/ray_icon.png',
     ),
     SPLToken(
       name: 'GMT',
@@ -76,6 +82,7 @@ class DefaultSPLTokens {
       mintAddress: '7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx',
       decimal: 6,
       mint: 'ray',
+      iconPath: 'assets/images/gmt_icon.png',
     ),
     SPLToken(
       name: 'AvocadoCoin',
@@ -83,11 +90,14 @@ class DefaultSPLTokens {
       mintAddress: 'EE5L8cMU4itTsCSuor7NLK6RZx6JhsBe8GGV3oaAHm3P',
       decimal: 8,
       mint: 'avdo',
+      iconPath: 'assets/images/avdo_icon.png',
     ),
   ];
 
   List<SPLToken> get initialSPLTokens => _defaultTokens.map((token) {
         String? iconPath;
+        if (token.iconPath != null) return token;
+
         try {
           iconPath = CryptoCurrency.all
               .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
