@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -436,7 +437,9 @@ class SendPage extends BasePage {
                       amount: S.of(_dialogContext).send_amount,
                       amountValue: sendViewModel.pendingTransaction!.amountFormatted,
                       fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
-                      fee: S.of(_dialogContext).send_fee,
+                      fee: isEVMCompatibleChain(sendViewModel.walletType)
+                          ? S.of(_dialogContext).send_estimated_fee
+                          : S.of(_dialogContext).send_fee,
                       feeValue: sendViewModel.pendingTransaction!.feeFormatted,
                       feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                       outputs: sendViewModel.outputs,
