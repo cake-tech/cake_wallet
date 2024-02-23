@@ -719,6 +719,7 @@
   "use_card_info_two": "Środki są przeliczane na USD, gdy są przechowywane na koncie przedpłaconym, a nie w walutach cyfrowych.",
   "use_ssl": "Użyj SSL",
   "use_suggested": "Użyj sugerowane",
+  "use_testnet": "Użyj testne",
   "variable_pair_not_supported": "Ta para zmiennych nie jest obsługiwana na wybranych giełdach",
   "verification": "Weryfikacja",
   "verify_with_2fa": "Sprawdź za pomocą Cake 2FA",

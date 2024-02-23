@@ -28,17 +28,18 @@ part 'bitcoin_cash_wallet.g.dart';
 class BitcoinCashWallet = BitcoinCashWalletBase with _$BitcoinCashWallet;
 
 abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
-  BitcoinCashWalletBase(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required Uint8List seedBytes,
-      List<BitcoinAddressRecord>? initialAddresses,
-      ElectrumBalance? initialBalance,
-      int initialRegularAddressIndex = 0,
-      int initialChangeAddressIndex = 0})
-      : super(
+  BitcoinCashWalletBase({
+    required String mnemonic,
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required Uint8List seedBytes,
+    String? addressPageType,
+    List<BitcoinAddressRecord>? initialAddresses,
+    ElectrumBalance? initialBalance,
+    Map<String, int>? initialRegularAddressIndex,
+    Map<String, int>? initialChangeAddressIndex,
+  }) : super(
             mnemonic: mnemonic,
             password: password,
             walletInfo: walletInfo,
@@ -48,40 +49,43 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             initialBalance: initialBalance,
             seedBytes: seedBytes,
             currency: CryptoCurrency.bch) {
-    walletAddresses = BitcoinCashWalletAddresses(walletInfo,
-        electrumClient: electrumClient,
-        initialAddresses: initialAddresses,
-        initialRegularAddressIndex: initialRegularAddressIndex,
-        initialChangeAddressIndex: initialChangeAddressIndex,
-        mainHd: hd,
-        sideHd: bitcoin.HDWallet.fromSeed(seedBytes)
-            .derivePath("m/44'/145'/0'/1"),
-        networkType: networkType);
+    walletAddresses = BitcoinCashWalletAddresses(
+      walletInfo,
+      electrumClient: electrumClient,
+      initialAddresses: initialAddresses,
+      initialRegularAddressIndex: initialRegularAddressIndex,
+      initialChangeAddressIndex: initialChangeAddressIndex,
+      mainHd: hd,
+      sideHd: bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'/1"),
+      network: network,
+    );
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
   }
-
 
   static Future<BitcoinCashWallet> create(
       {required String mnemonic,
       required String password,
       required WalletInfo walletInfo,
       required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      String? addressPageType,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumBalance? initialBalance,
-      int initialRegularAddressIndex = 0,
-      int initialChangeAddressIndex = 0}) async {
+      Map<String, int>? initialRegularAddressIndex,
+      Map<String, int>? initialChangeAddressIndex}) async {
     return BitcoinCashWallet(
-        mnemonic: mnemonic,
-        password: password,
-        walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfo,
-        initialAddresses: initialAddresses,
-        initialBalance: initialBalance,
-        seedBytes: await Mnemonic.toSeed(mnemonic),
-        initialRegularAddressIndex: initialRegularAddressIndex,
-        initialChangeAddressIndex: initialChangeAddressIndex);
+      mnemonic: mnemonic,
+      password: password,
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfo,
+      initialAddresses: initialAddresses,
+      initialBalance: initialBalance,
+      seedBytes: await Mnemonic.toSeed(mnemonic),
+      initialRegularAddressIndex: initialRegularAddressIndex,
+      initialChangeAddressIndex: initialChangeAddressIndex,
+      addressPageType: addressPageType,
+    );
   }
 
   static Future<BitcoinCashWallet> open({
@@ -90,17 +94,20 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
-    final snp = await ElectrumWallletSnapshot.load(name, walletInfo.type, password);
+    final snp = await ElectrumWalletSnapshot.load(
+        name, walletInfo.type, password, BitcoinCashNetwork.mainnet);
     return BitcoinCashWallet(
-        mnemonic: snp.mnemonic,
-        password: password,
-        walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfo,
-        initialAddresses: snp.addresses,
-        initialBalance: snp.balance,
-        seedBytes: await Mnemonic.toSeed(snp.mnemonic),
-        initialRegularAddressIndex: snp.regularAddressIndex,
-        initialChangeAddressIndex: snp.changeAddressIndex);
+      mnemonic: snp.mnemonic,
+      password: password,
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfo,
+      initialAddresses: snp.addresses,
+      initialBalance: snp.balance,
+      seedBytes: await Mnemonic.toSeed(snp.mnemonic),
+      initialRegularAddressIndex: snp.regularAddressIndex,
+      initialChangeAddressIndex: snp.changeAddressIndex,
+      addressPageType: snp.addressPageType,
+    );
   }
 
   @override
@@ -270,20 +277,18 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         electrumClient: electrumClient, amount: amount, fee: fee);
   }
 
-  bitbox.ECPair generateKeyPair(
-          {required bitcoin.HDWallet hd,
-          required int index}) =>
+  bitbox.ECPair generateKeyPair({required bitcoin.HDWallet hd, required int index}) =>
       bitbox.ECPair.fromWIF(hd.derive(index).wif!);
 
   @override
-  int feeAmountForPriority(
-          BitcoinTransactionPriority priority, int inputsCount, int outputsCount) =>
+  int feeAmountForPriority(BitcoinTransactionPriority priority, int inputsCount, int outputsCount,
+          {int? size}) =>
       feeRate(priority) * bitbox.BitcoinCash.getByteCount(inputsCount, outputsCount);
 
-  int feeAmountWithFeeRate(int feeRate, int inputsCount, int outputsCount) =>
+  int feeAmountWithFeeRate(int feeRate, int inputsCount, int outputsCount, {int? size}) =>
       feeRate * bitbox.BitcoinCash.getByteCount(inputsCount, outputsCount);
 
-  int calculateEstimatedFeeWithFeeRate(int feeRate, int? amount, {int? outputsCount}) {
+  int calculateEstimatedFeeWithFeeRate(int feeRate, int? amount, {int? outputsCount, int? size}) {
     int inputsCount = 0;
     int totalValue = 0;
 
@@ -323,9 +328,10 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   @override
   String signMessage(String message, {String? address = null}) {
     final index = address != null
-        ? walletAddresses.addresses
+        ? walletAddresses.allAddresses
             .firstWhere((element) => element.address == AddressUtils.toLegacyAddress(address))
-            .index : null;
+            .index
+        : null;
     final HD = index == null ? hd : hd.derive(index);
     return base64Encode(HD.signMessage(message));
   }

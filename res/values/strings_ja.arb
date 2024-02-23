@@ -720,6 +720,7 @@
   "use_card_info_two": "デジタル通貨ではなく、プリペイドアカウントで保持されている場合、資金は米ドルに変換されます。",
   "use_ssl": "SSLを使用する",
   "use_suggested": "推奨を使用",
+  "use_testnet": "テストネットを使用します",
   "variable_pair_not_supported": "この変数ペアは、選択した取引所ではサポートされていません",
   "verification": "検証",
   "verify_with_2fa": "Cake 2FA で検証する",

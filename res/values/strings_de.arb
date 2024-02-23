@@ -721,6 +721,7 @@
   "use_card_info_two": "Guthaben werden auf dem Prepaid-Konto in USD umgerechnet, nicht in digitale Währung.",
   "use_ssl": "SSL verwenden",
   "use_suggested": "Vorgeschlagen verwenden",
+  "use_testnet": "TESTNET verwenden",
   "variable_pair_not_supported": "Dieses Variablenpaar wird von den ausgewählten Börsen nicht unterstützt",
   "verification": "Verifizierung",
   "verify_with_2fa": "Verifizieren Sie mit Cake 2FA",

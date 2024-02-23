@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
@@ -23,12 +24,17 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
   WalletType getType() => WalletType.bitcoin;
 
   @override
-  Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials) async {
+  Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
+    final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
+    credentials.walletInfo?.network = network.value;
+
     final wallet = await BitcoinWalletBase.create(
-        mnemonic: await generateMnemonic(),
-        password: credentials.password!,
-        walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+      mnemonic: await generateMnemonic(),
+      password: credentials.password!,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      network: network,
+    );
     await wallet.save();
     await wallet.init();
     return wallet;
@@ -92,20 +98,27 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
   }
 
   @override
-  Future<BitcoinWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials) async =>
+  Future<BitcoinWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials,
+          {bool? isTestnet}) async =>
       throw UnimplementedError();
 
   @override
-  Future<BitcoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials) async {
+  Future<BitcoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
     if (!validateMnemonic(credentials.mnemonic)) {
       throw BitcoinMnemonicIsIncorrectException();
     }
 
+    final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
+    credentials.walletInfo?.network = network.value;
+
     final wallet = await BitcoinWalletBase.create(
-        password: credentials.password!,
-        mnemonic: credentials.mnemonic,
-        walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+      password: credentials.password!,
+      mnemonic: credentials.mnemonic,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      network: network,
+    );
     await wallet.save();
     await wallet.init();
     return wallet;

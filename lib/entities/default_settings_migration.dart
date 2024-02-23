@@ -23,6 +23,10 @@ import 'package:collection/collection.dart';
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
+const publicBitcoinTestnetElectrumAddress = 'electrum.blockstream.info';
+const publicBitcoinTestnetElectrumPort = '60002';
+const publicBitcoinTestnetElectrumUri =
+    '$publicBitcoinTestnetElectrumAddress:$publicBitcoinTestnetElectrumPort';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
@@ -334,6 +338,12 @@ Node? getBitcoinDefaultElectrumServer({required Box<Node> nodes}) {
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoin);
 }
 
+Node? getBitcoinTestnetDefaultElectrumServer({required Box<Node> nodes}) {
+  return nodes.values
+          .firstWhereOrNull((Node node) => node.uriRaw == publicBitcoinTestnetElectrumUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoin);
+}
+
 Node? getLitecoinDefaultElectrumServer({required Box<Node> nodes}) {
   return nodes.values
           .firstWhereOrNull((Node node) => node.uriRaw == cakeWalletLitecoinElectrumUri) ??
@@ -503,8 +513,15 @@ Future<void> rewriteSecureStoragePin({required FlutterSecureStorage secureStorag
 }
 
 Future<void> changeBitcoinCurrentElectrumServerToDefault(
-    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
-  final server = getBitcoinDefaultElectrumServer(nodes: nodes);
+    {required SharedPreferences sharedPreferences,
+    required Box<Node> nodes,
+    bool? isTestnet}) async {
+  Node? server;
+  if (isTestnet == true) {
+    server = getBitcoinTestnetDefaultElectrumServer(nodes: nodes);
+  } else {
+    server = getBitcoinDefaultElectrumServer(nodes: nodes);
+  }
   final serverId = server?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentBitcoinElectrumSererIdKey, serverId);

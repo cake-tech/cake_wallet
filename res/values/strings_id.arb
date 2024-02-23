@@ -722,6 +722,7 @@
   "use_card_info_two": "Dana dikonversi ke USD ketika disimpan dalam akun pra-bayar, bukan dalam mata uang digital.",
   "use_ssl": "Gunakan SSL",
   "use_suggested": "Gunakan yang Disarankan",
+  "use_testnet": "Gunakan TestNet",
   "variable_pair_not_supported": "Pasangan variabel ini tidak didukung dengan bursa yang dipilih",
   "verification": "Verifikasi",
   "verify_with_2fa": "Verifikasi dengan Cake 2FA",
