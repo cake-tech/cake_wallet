@@ -724,6 +724,7 @@
   "use_card_info_two": "Guthaben werden auf dem Prepaid-Konto in USD umgerechnet, nicht in digitale Währung.",
   "use_ssl": "SSL verwenden",
   "use_suggested": "Vorgeschlagen verwenden",
+  "use_testnet": "TESTNET verwenden",
   "variable_pair_not_supported": "Dieses Variablenpaar wird von den ausgewählten Börsen nicht unterstützt",
   "verification": "Verifizierung",
   "verify_with_2fa": "Verifizieren Sie mit Cake 2FA",
@@ -784,5 +785,6 @@
   "you_pay": "Sie bezahlen",
   "you_will_get": "Konvertieren zu",
   "you_will_send": "Konvertieren von",
-  "yy": "YY"
+  "yy": "YY",
+  "waitFewSecondForTxUpdate": "Bitte warten Sie einige Sekunden, bis die Transaktion im Transaktionsverlauf angezeigt wird"
 }

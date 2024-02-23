@@ -5,7 +5,8 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/entities/receive_page_option.dart';
+import 'package:cw_core/receive_page_option.dart';
+import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
@@ -27,6 +28,7 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:bitcoin_base/bitcoin_base.dart';
 
 class AddressPage extends BasePage {
   AddressPage({
@@ -69,7 +71,7 @@ class AddressPage extends BasePage {
       size: 16,
     );
     final _closeButton =
-    currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
+        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -163,11 +165,10 @@ class AddressPage extends BasePage {
                   return SelectButton(
                     text: addressListViewModel.buttonTitle,
                     onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled &&
-                        (WalletType.monero == addressListViewModel.wallet.type ||
-                            WalletType.haven == addressListViewModel.wallet.type)
+                            (WalletType.monero == addressListViewModel.wallet.type ||
+                                WalletType.haven == addressListViewModel.wallet.type)
                         ? await showPopUp<void>(
-                        context: context,
-                        builder: (_) => getIt.get<MoneroAccountListPage>())
+                            context: context, builder: (_) => getIt.get<MoneroAccountListPage>())
                         : Navigator.of(context).pushNamed(Routes.receive),
                     textColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
                     color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
@@ -228,6 +229,21 @@ class AddressPage extends BasePage {
               arguments: [addressListViewModel.address.address, option],
             );
           }
+          break;
+        case BitcoinReceivePageOption.p2pkh:
+          addressListViewModel.setAddressType(P2pkhAddressType.p2pkh);
+          break;
+        case BitcoinReceivePageOption.p2sh:
+          addressListViewModel.setAddressType(P2shAddressType.p2wpkhInP2sh);
+          break;
+        case BitcoinReceivePageOption.p2wpkh:
+          addressListViewModel.setAddressType(SegwitAddresType.p2wpkh);
+          break;
+        case BitcoinReceivePageOption.p2tr:
+          addressListViewModel.setAddressType(SegwitAddresType.p2tr);
+          break;
+        case BitcoinReceivePageOption.p2wsh:
+          addressListViewModel.setAddressType(SegwitAddresType.p2wsh);
           break;
         default:
       }

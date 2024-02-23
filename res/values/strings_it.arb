@@ -724,6 +724,7 @@
   "use_card_info_two": "I fondi vengono convertiti in USD quando sono detenuti nel conto prepagato, non in valute digitali.",
   "use_ssl": "Usa SSL",
   "use_suggested": "Usa suggerito",
+  "use_testnet": "Usa TestNet",
   "variable_pair_not_supported": "Questa coppia di variabili non è supportata con gli scambi selezionati",
   "verification": "Verifica",
   "verify_with_2fa": "Verifica con Cake 2FA",
@@ -784,5 +785,6 @@
   "you_pay": "Tu paghi",
   "you_will_get": "Converti a",
   "you_will_send": "Conveti da",
-  "yy": "YY"
+  "yy": "YY",
+  "waitFewSecondForTxUpdate": "Attendi qualche secondo affinché la transazione venga riflessa nella cronologia delle transazioni"
 }

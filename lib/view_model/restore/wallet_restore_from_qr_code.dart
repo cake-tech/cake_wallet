@@ -32,6 +32,7 @@ class WalletRestoreFromQRCode {
     'bitcoincash': WalletType.bitcoinCash,
     'bitcoincash-wallet': WalletType.bitcoinCash,
     'bitcoincash_wallet': WalletType.bitcoinCash,
+    'solana-wallet': WalletType.solana,
   };
 
   static bool _containsAssetSpecifier(String code) => _extractWalletType(code) != null;
@@ -173,6 +174,14 @@ class WalletRestoreFromQRCode {
         throw Exception('Unexpected restore mode: hexSeed');
       }
       return WalletRestoreMode.seed;
+    }
+
+    if (type == WalletType.solana && credentials.containsKey('private_key')) {
+      final privateKey = credentials['private_key'] as String;
+      if (privateKey.isEmpty) {
+        throw Exception('Unexpected restore mode: private_key');
+      }
+      return WalletRestoreMode.keys;
     }
 
     throw Exception('Unexpected restore mode: restore params are invalid');

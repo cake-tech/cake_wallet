@@ -723,6 +723,7 @@
   "use_card_info_two": "디지털 화폐가 아닌 선불 계정에 보유하면 자금이 USD로 변환됩니다.",
   "use_ssl": "SSL 사용",
   "use_suggested": "추천 사용",
+  "use_testnet": "TestNet을 사용하십시오",
   "variable_pair_not_supported": "이 변수 쌍은 선택한 교환에서 지원되지 않습니다.",
   "verification": "검증",
   "verify_with_2fa": "케이크 2FA로 확인",
@@ -783,5 +784,6 @@
   "you_will_get": "로 변환하다",
   "you_will_send": "다음에서 변환",
   "YY": "YY",
-  "yy": "YY"
+  "yy": "YY",
+  "waitFewSecondForTxUpdate": "거래 내역에 거래가 반영될 때까지 몇 초 정도 기다려 주세요."
 }
