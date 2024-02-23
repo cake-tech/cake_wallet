@@ -10,6 +10,7 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
+import 'package:cw_lightning/lightning_receive_page_option.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -225,14 +226,14 @@ class LightningReceiveOnchainPage extends BasePage {
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) async {
       switch (option) {
-        case ReceivePageOption.lightningInvoice:
+        case LightningReceivePageOption.lightningInvoice:
           Navigator.popAndPushNamed(
             context,
             Routes.lightningInvoice,
-            arguments: [ReceivePageOption.lightningInvoice],
+            arguments: [LightningReceivePageOption.lightningInvoice],
           );
           break;
-        case ReceivePageOption.lightningOnchain:
+        case LightningReceivePageOption.lightningOnchain:
           break;
         default:
           break;

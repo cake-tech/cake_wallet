@@ -1,4 +1,3 @@
-import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
