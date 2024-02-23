@@ -169,93 +169,98 @@ class ExchangePage extends BasePage {
         child: Container(
           color: Theme.of(context).colorScheme.background,
           child: Form(
-              key: _formKey,
-              child: ScrollableWithBottomSection(
-                contentPadding: EdgeInsets.only(bottom: 24),
-                content: Observer(
-                  builder: (_) => Column(
-                    children: <Widget>[
-                      _exchangeCardsSection(context),
-                      Padding(
-                          padding: EdgeInsets.only(top: 12, left: 24),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              StandardCheckbox(
-                                value: exchangeViewModel.isFixedRateMode,
-                                caption: S.of(context).fixed_rate,
-                                onChanged: (value) => exchangeViewModel.isFixedRateMode = value,
-                              ),
-                            ],
-                          )),
-                      SizedBox(height: 30),
-                      _buildTemplateSection(context)
-                    ],
+            key: _formKey,
+            child: Column(
+              children: [
+                ScrollableWithBottomSection(
+                  contentPadding: EdgeInsets.only(bottom: 24),
+                  content: Observer(
+                    builder: (_) => Column(
+                      children: <Widget>[
+                        _exchangeCardsSection(context),
+                        Padding(
+                            padding: EdgeInsets.only(top: 12, left: 24),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                StandardCheckbox(
+                                  value: exchangeViewModel.isFixedRateMode,
+                                  caption: S.of(context).fixed_rate,
+                                  onChanged: (value) => exchangeViewModel.isFixedRateMode = value,
+                                ),
+                              ],
+                            )),
+                        SizedBox(height: 30),
+                        _buildTemplateSection(context)
+                      ],
+                    ),
                   ),
-                ),
-                bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-                bottomSection: Column(children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 15),
-                    child: Observer(builder: (_) {
-                      final description = exchangeViewModel.isFixedRateMode
-                          ? exchangeViewModel.isAvailableInSelected
-                              ? S.of(context).amount_is_guaranteed
-                              : S.of(context).fixed_pair_not_supported
-                          : exchangeViewModel.isAvailableInSelected
-                              ? S.of(context).amount_is_estimate
-                              : S.of(context).variable_pair_not_supported;
-                      return Center(
-                        child: Text(
-                          description,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .extension<ExchangePageTheme>()!
-                                  .receiveAmountColor,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 12),
-                        ),
-                      );
-                    }),
-                  ),
-                  Observer(
-                      builder: (_) => LoadingPrimaryButton(
-                          text: S.of(context).exchange,
-                          onPressed: () {
-                            if (_formKey.currentState != null &&
-                                _formKey.currentState!.validate()) {
-                              if ((exchangeViewModel.depositCurrency == CryptoCurrency.xmr) &&
-                                  (!(exchangeViewModel.status is SyncedSyncStatus))) {
-                                showPopUp<void>(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertWithOneAction(
-                                          alertTitle: S.of(context).exchange,
-                                          alertContent: S.of(context).exchange_sync_alert_content,
-                                          buttonText: S.of(context).ok,
-                                          buttonAction: () => Navigator.of(context).pop());
-                                    });
-                              } else {
-                                final check = exchangeViewModel.shouldDisplayTOTP();
-                                authService.authenticateAction(
-                                  context,
-                                  conditionToDetermineIfToUse2FA: check,
-                                  onAuthSuccess: (value) {
-                                    if (value) {
-                                      exchangeViewModel.createTrade();
-                                    }
-                                  },
-                                );
+                  bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+                  bottomSection: Column(children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 15, top: 15),
+                      child: Observer(builder: (_) {
+                        final description = exchangeViewModel.isFixedRateMode
+                            ? exchangeViewModel.isAvailableInSelected
+                                ? S.of(context).amount_is_guaranteed
+                                : S.of(context).fixed_pair_not_supported
+                            : exchangeViewModel.isAvailableInSelected
+                                ? S.of(context).amount_is_estimate
+                                : S.of(context).variable_pair_not_supported;
+                        return Center(
+                          child: Text(
+                            description,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Theme.of(context)
+                                    .extension<ExchangePageTheme>()!
+                                    .receiveAmountColor,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12),
+                          ),
+                        );
+                      }),
+                    ),
+                    Observer(
+                        builder: (_) => LoadingPrimaryButton(
+                            text: S.of(context).exchange,
+                            onPressed: () {
+                              if (_formKey.currentState != null &&
+                                  _formKey.currentState!.validate()) {
+                                if ((exchangeViewModel.depositCurrency == CryptoCurrency.xmr) &&
+                                    (!(exchangeViewModel.status is SyncedSyncStatus))) {
+                                  showPopUp<void>(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertWithOneAction(
+                                            alertTitle: S.of(context).exchange,
+                                            alertContent: S.of(context).exchange_sync_alert_content,
+                                            buttonText: S.of(context).ok,
+                                            buttonAction: () => Navigator.of(context).pop());
+                                      });
+                                } else {
+                                  final check = exchangeViewModel.shouldDisplayTOTP();
+                                  authService.authenticateAction(
+                                    context,
+                                    conditionToDetermineIfToUse2FA: check,
+                                    onAuthSuccess: (value) {
+                                      if (value) {
+                                        exchangeViewModel.createTrade();
+                                      }
+                                    },
+                                  );
+                                }
                               }
-                            }
-                          },
-                          color: Theme.of(context).primaryColor,
-                          textColor: Colors.white,
-                          isDisabled: exchangeViewModel.selectedProviders.isEmpty,
-                          isLoading: exchangeViewModel.tradeState is TradeIsCreating)),
-                ]),
-              )),
+                            },
+                            color: Theme.of(context).primaryColor,
+                            textColor: Colors.white,
+                            isDisabled: exchangeViewModel.selectedProviders.isEmpty,
+                            isLoading: exchangeViewModel.tradeState is TradeIsCreating)),
+                  ]),
+                ),
+              ],
+            ),
+          ),
         ));
   }
 
@@ -626,8 +631,10 @@ class ExchangePage extends BasePage {
               },
               imageArrow: arrowBottomPurple,
               currencyButtonColor: Colors.transparent,
-              addressButtonsColor: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-              borderColor: Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderTopPanelColor,
+              addressButtonsColor:
+                  Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+              borderColor:
+                  Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderTopPanelColor,
               currencyValueValidator: (value) {
                 return !exchangeViewModel.isFixedRateMode
                     ? AmountValidator(
@@ -673,8 +680,10 @@ class ExchangePage extends BasePage {
                   exchangeViewModel.changeReceiveCurrency(currency: currency),
               imageArrow: arrowBottomCakeGreen,
               currencyButtonColor: Colors.transparent,
-              addressButtonsColor: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-              borderColor: Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
+              addressButtonsColor:
+                  Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+              borderColor:
+                  Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
               currencyValueValidator: (value) {
                 return exchangeViewModel.isFixedRateMode
                     ? AmountValidator(
