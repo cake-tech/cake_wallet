@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
@@ -29,6 +30,7 @@ import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -362,6 +364,17 @@ class SendPage extends BasePage {
                           return;
                         }
 
+                        if (sendViewModel.wallet.isHardwareWallet &&
+                            sendViewModel.ledgerDevice == null) {
+                          sendViewModel.ledgerDevice =
+                              await Navigator.of(context).pushNamed(Routes.connectDevices,
+                                  arguments: ConnectDevicePageParams(
+                                    walletType: sendViewModel.walletType,
+                                    onConnectDevice: (BuildContext context, LedgerDevice device) =>
+                                        Navigator.of(context).pop(device),
+                                  ));
+                        }
+
                         // TODO: (Konsti) Check if HW is connected
 
                         final check = sendViewModel.shouldDisplayTotp();
@@ -471,13 +484,14 @@ class SendPage extends BasePage {
 
       if (state is IsAwaitingDeviceResponseState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          // Navigator.of(context).pushNamed(Routes.connectDevices)
           showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
-                    alertTitle: "Proceed on your device", // TODO: (Konsti) localize
-                    alertContent: "Please follow the instructions prompted on your hardware wallet", // TODO: (Konsti) localize
+                    alertTitle: "Proceed on your device",
+                    // TODO: (Konsti) localize
+                    alertContent: "Please follow the instructions prompted on your hardware wallet",
+                    // TODO: (Konsti) localize
                     buttonText: S.of(context).cancel,
                     buttonAction: () => Navigator.of(context).pop());
               });

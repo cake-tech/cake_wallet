@@ -672,7 +672,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.connectDevices:
       final params = settings.arguments as ConnectDevicePageParams;
-      return MaterialPageRoute<void>(builder: (_) => ConnectDevicePage(params));
+      return MaterialPageRoute<LedgerDevice>(builder: (_) => ConnectDevicePage(params));
 
     default:
       return MaterialPageRoute<void>(

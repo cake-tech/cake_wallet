@@ -565,6 +565,7 @@ abstract class Ethereum {
     required TransactionPriority priority,
     required CryptoCurrency currency,
     int? feeRate,
+    LedgerDevice? device,
   });
 
   Object createEthereumTransactionCredentialsRaw(

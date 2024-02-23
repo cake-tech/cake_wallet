@@ -24,6 +24,9 @@ dependencies:
   cw_core:
     path: ../cw_core
   ledger_flutter: ^1.0.1
+  ledger_ethereum:
+    git:
+      url: https://github.com/cake-tech/ledger-ethereum.git
 
 dev_dependencies:
   flutter_test:

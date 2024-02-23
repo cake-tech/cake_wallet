@@ -5,8 +5,6 @@ import 'package:ledger_flutter/ledger_flutter.dart';
 class EthereumHardwareWalletService extends EVMChainHardwareWalletService {
   EthereumHardwareWalletService(LedgerDevice device) : super(device);
 
-
-
   @override
   Future<List<String>> getAvailableAccounts({int index = 0, int limit = 5}) async {
     final ethereumLedgerApp = EthereumLedgerApp(ledger);

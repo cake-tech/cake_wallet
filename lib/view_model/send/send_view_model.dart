@@ -14,6 +14,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/core/address_validator.dart';
@@ -227,6 +228,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @observable
   bool hasMultipleTokens;
 
+  @observable
+  LedgerDevice? ledgerDevice = null;
+
   @computed
   List<ContactRecord> get contactsToShow => contactListViewModel.contacts
       .where((element) => element.type == selectedCryptoCurrency)
@@ -295,12 +299,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     try {
       state = IsExecutingState();
 
-      if (wallet.isHardwareWallet)
-        state = IsAwaitingDeviceResponseState();
-      else {
-        pendingTransaction = await wallet.createTransaction(_credentials());
+      // if (wallet.isHardwareWallet)
+      //   state = IsAwaitingDeviceConnectionState();
+      // else {
+        pendingTransaction = await wallet.createTransaction(_credentials(ledgerDevice));
         state = ExecutedSuccessfullyState();
-      }
+      // }
     } catch (e) {
       state = FailureState(e.toString());
     }
@@ -351,7 +355,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void setTransactionPriority(TransactionPriority priority) =>
       _settingsStore.priority[wallet.type] = priority;
 
-  Object _credentials() {
+  Object _credentials([LedgerDevice? ledger]) {
     final priority = _settingsStore.priority[wallet.type];
 
     if (priority == null && wallet.type != WalletType.nano) {
@@ -374,7 +378,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       case WalletType.ethereum:
         return ethereum!.createEthereumTransactionCredentials(outputs,
-            priority: priority!, currency: selectedCryptoCurrency);
+            priority: priority!, currency: selectedCryptoCurrency, device: ledger);
       case WalletType.nano:
         return nano!.createNanoTransactionCredentials(outputs);
       case WalletType.polygon:
