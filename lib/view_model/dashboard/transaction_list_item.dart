@@ -4,6 +4,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -104,6 +105,14 @@ class TransactionListItem extends ActionListItem with Keyable {
             cryptoAmount: double.parse(nanoUtil!.getRawAsUsableString(
                 nano!.getTransactionAmountRaw(transaction).toString(), nanoUtil!.rawPerNano)),
             price: price);
+        break;
+      case WalletType.solana:
+        final asset = solana!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        amount = calculateFiatAmountRaw(
+          cryptoAmount: solana!.getTransactionAmountRaw(transaction),
+          price: price,
+        );
         break;
       default:
         break;

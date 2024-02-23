@@ -30,6 +30,7 @@ const polygonDefaultNodeUri = 'polygon-bor.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
+const solanaDefaultNodeUri = 'rpc.ankr.com';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -186,10 +187,15 @@ Future<void> defaultSettingsMigration(
           await rewriteSecureStoragePin(secureStorage: secureStorage);
           break;
         case 26:
-          /// commented out as it was a probable cause for some users to have white screen issues
-          /// maybe due to multiple access on Secure Storage at once
-          /// or long await time on start of the app
-          // await insecureStorageMigration(secureStorage: secureStorage, sharedPreferences: sharedPreferences);
+
+        /// commented out as it was a probable cause for some users to have white screen issues
+        /// maybe due to multiple access on Secure Storage at once
+        /// or long await time on start of the app
+        // await insecureStorageMigration(secureStorage: secureStorage, sharedPreferences: sharedPreferences);
+        case 27:
+          await addSolanaNodeList(nodes: nodes);
+          await changeSolanaCurrentNodeToDefault(
+              sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         case 27:
           await migrateTorPreferences(sharedPreferences: sharedPreferences);
@@ -401,6 +407,11 @@ Future<void> migrateTorPreferences({required SharedPreferences sharedPreferences
   if (sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) == 1) {
     await sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, 0);
   }
+}
+
+Node? getSolanaDefaultNode({required Box<Node> nodes}) {
+  return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == solanaDefaultNodeUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.solana);
 }
 
 Future<void> insecureStorageMigration({
@@ -692,6 +703,7 @@ Future<void> checkCurrentNodes(
   final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
   final currentBitcoinCashNodeId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
+  final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
   final currentMoneroNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer =
@@ -710,6 +722,8 @@ Future<void> checkCurrentNodes(
       powNodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
   final currentBitcoinCashNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinCashNodeId);
+  final currentSolanaNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentSolanaNodeId);
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
     await nodeSource.add(newCakeWalletNode);
@@ -768,6 +782,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: polygonDefaultNodeUri, type: WalletType.polygon);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.key as int);
+  }
+
+  if (currentSolanaNodeServer == null) {
+    final node = Node(uri: solanaDefaultNodeUri, type: WalletType.solana);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);
   }
 }
 
@@ -879,4 +899,21 @@ Future<void> changePolygonCurrentNodeToDefault(
   final nodeId = node?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, nodeId);
+}
+
+Future<void> addSolanaNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultSolanaNodes();
+  for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
+}
+
+Future<void> changeSolanaCurrentNodeToDefault(
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+  final node = getSolanaDefaultNode(nodes: nodes);
+  final nodeId = node?.key as int? ?? 0;
+
+  await sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, nodeId);
 }

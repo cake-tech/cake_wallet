@@ -14,6 +14,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -439,10 +440,17 @@ class SendPage extends BasePage {
                                 }
 
                                 if (state is TransactionCommitted) {
+                                  String alertContent;
+                                  if (sendViewModel.walletType == WalletType.solana) {
+                                    alertContent =
+                                        '${S.of(_dialogContext).send_success(sendViewModel.selectedCryptoCurrency.toString())}. ${S.of(_dialogContext).waitFewSecondForTxUpdate}';
+                                  } else {
+                                    alertContent = S.of(_dialogContext).send_success(
+                                        sendViewModel.selectedCryptoCurrency.toString());
+                                  }
                                   return AlertWithOneAction(
                                       alertTitle: '',
-                                      alertContent: S.of(_dialogContext).send_success(
-                                          sendViewModel.selectedCryptoCurrency.toString()),
+                                      alertContent: alertContent,
                                       buttonText: S.of(_dialogContext).ok,
                                       buttonAction: () {
                                         Navigator.of(_dialogContext).pop();

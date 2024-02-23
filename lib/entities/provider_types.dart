@@ -67,6 +67,8 @@ class ProvidersHelper {
         return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.robinhood];
       case WalletType.polygon:
         return [ProviderType.askEachTime, ProviderType.dfx];
+      case WalletType.solana:
+        return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.robinhood];
       case WalletType.none:
       case WalletType.haven:
         return [];
@@ -88,6 +90,13 @@ class ProvidersHelper {
         return [ProviderType.askEachTime, ProviderType.moonpaySell];
       case WalletType.polygon:
         return [ProviderType.askEachTime, ProviderType.dfx];
+      case WalletType.solana:
+        return [
+          ProviderType.askEachTime,
+          ProviderType.onramper,
+          ProviderType.robinhood,
+          ProviderType.moonpaySell,
+        ];
       case WalletType.monero:
       case WalletType.nano:
       case WalletType.banano:

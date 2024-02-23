@@ -862,6 +862,7 @@ abstract class SettingsStoreBase with Store {
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
+    final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -871,6 +872,7 @@ abstract class SettingsStoreBase with Store {
     final bitcoinCashElectrumServer = nodeSource.get(bitcoinCashElectrumServerId);
     final nanoNode = nodeSource.get(nanoNodeId);
     final nanoPowNode = powNodeSource.get(nanoPowNodeId);
+    final solanaNode = nodeSource.get(solanaNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
@@ -925,6 +927,10 @@ abstract class SettingsStoreBase with Store {
 
     if (nanoPowNode != null) {
       powNodes[WalletType.nano] = nanoPowNode;
+    }
+
+    if (solanaNode != null) {
+      nodes[WalletType.solana] = solanaNode;
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
@@ -1216,6 +1222,7 @@ abstract class SettingsStoreBase with Store {
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
+    final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -1224,7 +1231,7 @@ abstract class SettingsStoreBase with Store {
     final polygonNode = nodeSource.get(polygonNodeId);
     final bitcoinCashNode = nodeSource.get(bitcoinCashElectrumServerId);
     final nanoNode = nodeSource.get(nanoNodeId);
-
+    final solanaNode = nodeSource.get(solanaNodeId);
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
     }
@@ -1255,6 +1262,10 @@ abstract class SettingsStoreBase with Store {
 
     if (nanoNode != null) {
       nodes[WalletType.nano] = nanoNode;
+    }
+
+    if (solanaNode != null) {
+      nodes[WalletType.solana] = solanaNode;
     }
 
     // MIGRATED:
@@ -1383,6 +1394,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.polygon:
         await _sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.key as int);
+        break;
+      case WalletType.solana:
+        await _sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);
         break;
       default:
         break;
