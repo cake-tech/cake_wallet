@@ -1150,7 +1150,7 @@ abstract class SettingsStoreBase with Store {
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
-    ThemeList.deserialize(
+    currentTheme = ThemeList.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? (isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.darkTheme.raw));
     actionlistDisplayMode = ObservableList<ActionListDisplayMode>();
     actionlistDisplayMode.addAll(deserializeActionlistDisplayModes(
