@@ -42,28 +42,41 @@ class BitcoinWalletService extends WalletService<
 
   @override
   Future<BitcoinWallet> openWallet(String name, String password) async {
-    final walletInfo = walletInfoSource.values.firstWhereOrNull(
-        (info) => info.id == WalletBase.idFor(name, getType()))!;
-    final wallet = await BitcoinWalletBase.open(
-        password: password, name: name, walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource);
-    await wallet.init();
-    return wallet;
+    final walletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
+    try {
+      final wallet = await BitcoinWalletBase.open(
+          password: password,
+          name: name,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfoSource);
+      await wallet.init();
+      saveBackup(name);
+      return wallet;
+    } catch (_) {
+      await restoreWalletFilesFromBackup(name);
+      final wallet = await BitcoinWalletBase.open(
+          password: password,
+          name: name,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfoSource);
+      await wallet.init();
+      return wallet;
+    }
   }
 
   @override
   Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType()))
-        .delete(recursive: true);
-    final walletInfo = walletInfoSource.values.firstWhereOrNull(
-        (info) => info.id == WalletBase.idFor(wallet, getType()))!;
+    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
+    final walletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
   }
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values.firstWhereOrNull(
-        (info) => info.id == WalletBase.idFor(currentName, getType()))!;
+    final currentWalletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
     final currentWallet = await BitcoinWalletBase.open(
         password: password,
         name: currentName,
@@ -71,6 +84,7 @@ class BitcoinWalletService extends WalletService<
         unspentCoinsInfo: unspentCoinsInfoSource);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
@@ -85,13 +99,11 @@ class BitcoinWalletService extends WalletService<
   }
 
   @override
-  Future<BitcoinWallet> restoreFromKeys(
-          BitcoinRestoreWalletFromWIFCredentials credentials) async =>
+  Future<BitcoinWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials) async =>
       throw UnimplementedError();
 
   @override
-  Future<BitcoinWallet> restoreFromSeed(
-      BitcoinRestoreWalletFromSeedCredentials credentials) async {
+  Future<BitcoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials) async {
     if (!validateMnemonic(credentials.mnemonic)) {
       throw BitcoinMnemonicIsIncorrectException();
     }

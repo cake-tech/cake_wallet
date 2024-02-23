@@ -1,3 +1,3 @@
-Security and Privacy enhancements
-Usability enhancements
+Improve wallet recovery and error tolerance
+Enhance Background sync for Monero wallets
 Bug fixes
