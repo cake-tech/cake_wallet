@@ -636,6 +636,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:web3dart/web3dart.dart';
 
 """;
