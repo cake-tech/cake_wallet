@@ -25,7 +25,6 @@ class DefaultSPLTokens {
       mintAddress: '2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk',
       decimal: 6,
       mint: 'soEth',
-      enabled: true,
       iconPath: 'assets/images/eth_icon.png',
     ),
     SPLToken(
@@ -34,7 +33,6 @@ class DefaultSPLTokens {
       mintAddress: 'So11111111111111111111111111111111111111112',
       decimal: 9,
       mint: 'WSOL',
-      enabled: true,
       iconPath: 'assets/images/sol_icon.png',
     ),
     SPLToken(
