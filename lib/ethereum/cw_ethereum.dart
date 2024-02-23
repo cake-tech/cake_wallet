@@ -173,7 +173,6 @@ class CWEthereum extends Ethereum {
     final hardwareWalletService = EVMChainHardwareWalletService(device);
     print("getHardwareWalletAccounts $limit"); // TODO: (Konsti) remove
     try {
-      await hardwareWalletService.connect();
       return await hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } on LedgerException catch (err) {
       print(err.message); // TODO: (Konsti) remove
