@@ -1,4 +1,5 @@
-import 'package:cake_wallet/entities/receive_page_option.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -9,7 +10,10 @@ class ReceiveOptionViewModel = ReceiveOptionViewModelBase with _$ReceiveOptionVi
 
 abstract class ReceiveOptionViewModelBase with Store {
   ReceiveOptionViewModelBase(this._wallet, this.initialPageOption)
-      : selectedReceiveOption = initialPageOption ?? ReceivePageOption.mainnet,
+      : selectedReceiveOption = initialPageOption ??
+            (_wallet.type == WalletType.bitcoin
+                ? bitcoin!.getSelectedAddressType(_wallet)
+                : ReceivePageOption.mainnet),
         _options = [] {
     final walletType = _wallet.type;
 
@@ -20,8 +24,18 @@ abstract class ReceiveOptionViewModelBase with Store {
       case WalletType.lightning:
         _options = [ReceivePageOption.lightningInvoice, ReceivePageOption.lightningOnchain];
         break;
+      case WalletType.bitcoin:
+        _options = [
+          ...bitcoin!.getBitcoinReceivePageOptions(),
+          ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+        ];
+        break;
       default:
-        _options = [ReceivePageOption.mainnet, ReceivePageOption.anonPayDonationLink, ReceivePageOption.anonPayInvoice];
+        _options = [
+          ReceivePageOption.mainnet,
+          ReceivePageOption.anonPayDonationLink,
+          ReceivePageOption.anonPayInvoice
+        ];
         break;
     }
   }
