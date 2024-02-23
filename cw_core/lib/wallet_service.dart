@@ -9,13 +9,13 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
     RFK extends WalletCredentials, RFH extends WalletCredentials> {
   WalletType getType();
 
-  Future<WalletBase> create(N credentials);
+  Future<WalletBase> create(N credentials, {bool? isTestnet});
 
   Future<WalletBase> restoreFromHardwareWallet(RFH credentials);
 
-  Future<WalletBase> restoreFromSeed(RFS credentials);
+  Future<WalletBase> restoreFromSeed(RFS credentials, {bool? isTestnet});
 
-  Future<WalletBase> restoreFromKeys(RFK credentials);
+  Future<WalletBase> restoreFromKeys(RFK credentials, {bool? isTestnet});
 
   Future<WalletBase> openWallet(String name, String password);
 

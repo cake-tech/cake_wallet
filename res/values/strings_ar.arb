@@ -723,6 +723,7 @@
   "use_card_info_two": "يتم تحويل الأموال إلى الدولار الأمريكي عند الاحتفاظ بها في الحساب المدفوع مسبقًا ، وليس بالعملات الرقمية.",
   "use_ssl": "استخدم SSL",
   "use_suggested": "استخدام المقترح",
+  "use_testnet": "استخدم testnet",
   "variable_pair_not_supported": "هذا الزوج المتغير غير مدعوم في التبادلات المحددة",
   "verification": "تَحَقّق",
   "verify_with_2fa": "تحقق مع Cake 2FA",
@@ -782,5 +783,6 @@
   "you_pay": "انت تدفع",
   "you_will_get": "حول الى",
   "you_will_send": "تحويل من",
-  "yy": "YY"
+  "yy": "YY",
+  "waitFewSecondForTxUpdate": "ﺕﻼ﻿ﻣﺎﻌﻤﻟﺍ ﻞﺠﺳ ﻲﻓ ﺔﻠﻣﺎﻌﻤﻟﺍ ﺲﻜﻌﻨﺗ ﻰﺘﺣ ﻥﺍﻮﺛ ﻊﻀﺒﻟ ﺭﺎﻈﺘﻧﻻ﻿ﺍ ﻰﺟﺮﻳ"
 }

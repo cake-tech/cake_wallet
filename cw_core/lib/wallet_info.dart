@@ -160,6 +160,12 @@ class WalletInfo extends HiveObject {
   String? derivationPath;
 
   @HiveField(18)
+  String? addressPageType;
+
+  @HiveField(19)
+  String? network;
+
+  @HiveField(20)
   HardwareWalletType? hardwareWalletType;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';

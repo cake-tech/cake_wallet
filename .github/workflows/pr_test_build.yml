@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch name to build'
+        description: "Branch name to build"
         required: true
-        default: 'main'
+        default: "main"
 
 jobs:
   PR_test_build:
@@ -111,6 +111,7 @@ jobs:
           cd cw_haven && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           cd cw_bitcoin_cash && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           cd cw_nano && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
+          cd cw_solana && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
           cd cw_ethereum && flutter pub get && cd ..
           cd cw_polygon && flutter pub get && cd ..
           flutter packages pub run build_runner build --delete-conflicting-outputs
@@ -120,6 +121,7 @@ jobs:
           cd /opt/android/cake_wallet
           touch lib/.secrets.g.dart
           touch cw_evm/lib/.secrets.g.dart
+          touch cw_solana/lib/.secrets.g.dart
           echo "const salt = '${{ secrets.SALT }}';" > lib/.secrets.g.dart
           echo "const keychainSalt = '${{ secrets.KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
           echo "const key = '${{ secrets.KEY }}';" >> lib/.secrets.g.dart
@@ -154,6 +156,7 @@ jobs:
           echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
 
       - name: Rename app
         run: echo -e "id=com.cakewallet.test\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
@@ -163,18 +166,18 @@ jobs:
           cd /opt/android/cake_wallet
           flutter build apk --release
 
-#            - name: Push to App Center
-#              run: |
-#                echo 'Installing App Center CLI tools'
-#                npm install -g appcenter-cli
-#                echo "Publishing test to App Center"
-#                appcenter distribute release \
-#                    --group "Testers" \
-#                    --file "/opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk" \
-#                    --release-notes ${{ env.BRANCH_NAME }} \
-#                    --app Cake-Labs/Cake-Wallet \
-#                    --token ${{ secrets.APP_CENTER_TOKEN }} \
-#                    --quiet
+      #            - name: Push to App Center
+      #              run: |
+      #                echo 'Installing App Center CLI tools'
+      #                npm install -g appcenter-cli
+      #                echo "Publishing test to App Center"
+      #                appcenter distribute release \
+      #                    --group "Testers" \
+      #                    --file "/opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk" \
+      #                    --release-notes ${{ env.BRANCH_NAME }} \
+      #                    --app Cake-Labs/Cake-Wallet \
+      #                    --token ${{ secrets.APP_CENTER_TOKEN }} \
+      #                    --quiet
 
       - name: Rename apk file
         run: |

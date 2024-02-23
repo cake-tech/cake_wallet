@@ -27,7 +27,7 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
-import 'package:cake_wallet/entities/receive_page_option.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -46,6 +46,7 @@ import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
@@ -870,6 +871,8 @@ Future<void> setup({
         return nano!.createNanoWalletService(_walletInfoSource);
       case WalletType.polygon:
         return polygon!.createPolygonWalletService(_walletInfoSource);
+      case WalletType.solana:
+        return solana!.createSolanaWalletService(_walletInfoSource);
       default:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }
@@ -1190,7 +1193,7 @@ Future<void> setup({
   getIt.registerFactoryParam<EditTokenPage, HomeSettingsViewModel, Map<String, dynamic>>(
     (homeSettingsViewModel, arguments) => EditTokenPage(
       homeSettingsViewModel: homeSettingsViewModel,
-      erc20token: arguments['token'] as Erc20Token?,
+      token: arguments['token'] as CryptoCurrency?,
       initialContractAddress: arguments['contractAddress'] as String?,
     ),
   );

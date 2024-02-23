@@ -92,8 +92,10 @@ android/key.properties
 **/tool/.secrets-config.json
 **/tool/.evm-secrets-config.json
 **/tool/.ethereum-secrets-config.json
+**/tool/.solana-secrets-config.json
 **/lib/.secrets.g.dart
 **/cw_evm/lib/.secrets.g.dart
+**/cw_solana/lib/.secrets.g.dart
 
 vendor/
 
@@ -128,6 +130,7 @@ lib/ethereum/ethereum.dart
 lib/bitcoin_cash/bitcoin_cash.dart
 lib/nano/nano.dart
 lib/polygon/polygon.dart
+lib/solana/solana.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_180.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_120.png

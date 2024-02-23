@@ -107,7 +107,7 @@ class ConnectionSyncPage extends BasePage {
               );
             },
           ),
-          if (isEVMCompatibleChain(dashboardViewModel.wallet.type)) ...[
+          if (isWalletConnectCompatibleChain(dashboardViewModel.wallet.type)) ...[
             WalletConnectTile(
               onTap: () => Navigator.of(context).pushNamed(Routes.walletConnectConnectionsListing),
             ),

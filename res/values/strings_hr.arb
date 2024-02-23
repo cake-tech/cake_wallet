@@ -723,6 +723,7 @@
   "use_card_info_two": "Sredstva se pretvaraju u USD kada se drže na prepaid računu, a ne u digitalnim valutama.",
   "use_ssl": "Koristi SSL",
   "use_suggested": "Koristite predloženo",
+  "use_testnet": "Koristite TestNet",
   "variable_pair_not_supported": "Ovaj par varijabli nije podržan s odabranim burzama",
   "verification": "Potvrda",
   "verify_with_2fa": "Provjerite s Cake 2FA",
@@ -782,5 +783,6 @@
   "you_pay": "Vi plaćate",
   "you_will_get": "Razmijeni u",
   "you_will_send": "Razmijeni iz",
-  "yy": "GG"
+  "yy": "GG",
+  "waitFewSecondForTxUpdate": "Pričekajte nekoliko sekundi da se transakcija prikaže u povijesti transakcija"
 }

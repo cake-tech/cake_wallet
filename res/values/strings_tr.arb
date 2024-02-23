@@ -723,6 +723,7 @@
   "use_card_info_two": "Paralar, dijital para birimlerinde değil, ön ödemeli hesapta tutulduğunda USD'ye dönüştürülür.",
   "use_ssl": "SSL kullan",
   "use_suggested": "Önerileni Kullan",
+  "use_testnet": "TestNet kullanın",
   "variable_pair_not_supported": "Bu değişken paritesi seçilen borsalarda desteklenmemekte",
   "verification": "Doğrulama",
   "verify_with_2fa": "Cake 2FA ile Doğrulayın",
@@ -782,5 +783,6 @@
   "you_pay": "Şu kadar ödeyeceksin: ",
   "you_will_get": "Biçimine dönüştür:",
   "you_will_send": "Biçiminden dönüştür:",
-  "yy": "YY"
+  "yy": "YY",
+  "waitFewSecondForTxUpdate": "İşlemin işlem geçmişine yansıması için lütfen birkaç saniye bekleyin"
 }
