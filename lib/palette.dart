@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class Palette {
   static const Color green = Color.fromRGBO(39, 206, 80, 1.0);
   static const Color red = Color.fromRGBO(255, 51, 51, 1.0);
-  static const Color red = Color.fromRGBO(200, 0, 0, 1.0);
+  static const Color darkRed = Color.fromRGBO(205, 0, 0, 1.0);
   static const Color blueAlice = Color.fromRGBO(229, 247, 255, 1.0);
   static const Color lightBlue = Color.fromRGBO(172, 203, 238, 1.0);
   static const Color lavender = Color.fromRGBO(237, 245, 252, 1.0);
