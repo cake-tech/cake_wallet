@@ -778,5 +778,6 @@
   "you_pay": "Şu kadar ödeyeceksin: ",
   "you_will_get": "Biçimine dönüştür:",
   "you_will_send": "Biçiminden dönüştür:",
-  "yy": "YY"
+  "yy": "YY",
+  "waitFewSecondForTxUpdate": "İşlemin işlem geçmişine yansıması için lütfen birkaç saniye bekleyin"
 }

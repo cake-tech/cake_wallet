@@ -778,5 +778,6 @@
   "you_pay": "You Pay",
   "you_will_get": "Convert to",
   "you_will_send": "Convert from",
-  "yy": "YY"
+  "yy": "YY",
+  "waitFewSecondForTxUpdate": "Kindly wait for a few seconds for transaction to reflect in transactions history"
 }

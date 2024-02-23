@@ -778,5 +778,6 @@
   "you_pay": "你付钱",
   "you_will_get": "转换到",
   "you_will_send": "转换自",
-  "yy": "YY"
+  "yy": "YY",
+  "waitFewSecondForTxUpdate": "请等待几秒钟，交易才会反映在交易历史记录中"
 }

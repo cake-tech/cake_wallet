@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
@@ -117,7 +118,7 @@ class HomeSettingsPage extends BasePage {
 
                         return SettingsSwitcherCell(
                           title: "${token.name} "
-                              "(${token.symbol})",
+                              "(${token.title})",
                           value: token.enabled,
                           onValueChange: (_, bool value) {
                             _homeSettingsViewModel.changeTokenAvailability(token, value);
@@ -128,20 +129,16 @@ class HomeSettingsPage extends BasePage {
                               'token': token,
                             });
                           },
-                          leading: token.iconPath != null
-                              ? Container(
-                                  child: Image.asset(
-                                    token.iconPath!,
-                                    height: 30.0,
-                                    width: 30.0,
-                                  ),
-                                )
-                              : Container(
+                          leading: CakeImageWidget(
+                            imageUrl: token.iconPath,
+                            height: 40,
+                            width: 40,
+                            displayOnError: Container(
                                   height: 30.0,
                                   width: 30.0,
                                   child: Center(
                                     child: Text(
-                                      token.symbol.substring(0, min(token.symbol.length, 2)),
+                                      token.title.substring(0, min(token.title.length, 2)),
                                       style: TextStyle(fontSize: 11),
                                     ),
                                   ),
@@ -149,7 +146,8 @@ class HomeSettingsPage extends BasePage {
                                     shape: BoxShape.circle,
                                     color: Colors.grey.shade400,
                                   ),
-                                ),
+                            ),
+                          ),        
                           decoration: BoxDecoration(
                             color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(30),

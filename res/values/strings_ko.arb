@@ -780,5 +780,6 @@
   "you_will_get": "로 변환하다",
   "you_will_send": "다음에서 변환",
   "YY": "YY",
-  "yy": "YY"
+  "yy": "YY",
+  "waitFewSecondForTxUpdate": "거래 내역에 거래가 반영될 때까지 몇 초 정도 기다려 주세요."
 }
