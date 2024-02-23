@@ -784,6 +784,7 @@ abstract class Lightning {
       Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   TransactionPriority getLightningTransactionPriorityMedium();
   TransactionPriority getLightningTransactionPrioritySlow();
+  List<LightningReceivePageOption> getLightningReceivePageOptions();
 }
   """;
 
