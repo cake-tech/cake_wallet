@@ -729,10 +729,6 @@ import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
   const bitcoinCashCwPart = "part 'cw_bitcoin_cash.dart';";
   const bitcoinCashContent = """
 abstract class BitcoinCash {
-  String getMnemonic(int? strength);
-
-  Uint8List getSeedFromMnemonic(String seed);
-
   String getCashAddrFormat(String address);
 
   WalletService createBitcoinCashWalletService(
