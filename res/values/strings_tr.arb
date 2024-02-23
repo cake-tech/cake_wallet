@@ -75,6 +75,7 @@
   "bitcoin_dark_theme": "Bitcoin Karanlık Teması",
   "bitcoin_light_theme": "Bitcoin Hafif Tema",
   "bitcoin_payments_require_1_confirmation": "Bitcoin ödemeleri, 20 dakika veya daha uzun sürebilen 1 onay gerektirir. Sabrınız için teşekkürler! Ödeme onaylandığında e-posta ile bilgilendirileceksiniz.",
+  "block_remaining": "Kalan 1 blok",
   "Blocks_remaining": "${status} Blok Kaldı",
   "bright_theme": "Parlak",
   "buy": "Alış",

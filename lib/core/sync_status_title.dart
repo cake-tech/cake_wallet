@@ -4,7 +4,7 @@ import 'package:cw_core/sync_status.dart';
 String syncStatusTitle(SyncStatus syncStatus) {
   if (syncStatus is SyncingSyncStatus) {
     return syncStatus.blocksLeft == 1
-        ? S.current.Block_remaining('${syncStatus.blocksLeft}')
+        ? S.current.block_remaining
         : S.current.Blocks_remaining('${syncStatus.blocksLeft}');
   }
 

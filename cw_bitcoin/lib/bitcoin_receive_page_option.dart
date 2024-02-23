@@ -23,8 +23,27 @@ class BitcoinReceivePageOption implements ReceivePageOption {
     BitcoinReceivePageOption.p2sh,
     BitcoinReceivePageOption.p2tr,
     BitcoinReceivePageOption.p2wsh,
-    BitcoinReceivePageOption.p2pkh
+    BitcoinReceivePageOption.p2pkh,
+    BitcoinReceivePageOption.silent_payments,
   ];
+
+  BitcoinAddressType toType() {
+    switch (this) {
+      case BitcoinReceivePageOption.p2tr:
+        return SegwitAddresType.p2tr;
+      case BitcoinReceivePageOption.p2wsh:
+        return SegwitAddresType.p2wsh;
+      case BitcoinReceivePageOption.p2pkh:
+        return P2pkhAddressType.p2pkh;
+      case BitcoinReceivePageOption.p2sh:
+        return P2shAddressType.p2wpkhInP2sh;
+      case BitcoinReceivePageOption.silent_payments:
+        return SilentPaymentsAddresType.p2sp;
+      case BitcoinReceivePageOption.p2wpkh:
+      default:
+        return SegwitAddresType.p2wpkh;
+    }
+  }
 
   factory BitcoinReceivePageOption.fromType(BitcoinAddressType type) {
     switch (type) {

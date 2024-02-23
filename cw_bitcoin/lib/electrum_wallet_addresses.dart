@@ -216,7 +216,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     for (int i = 0; i < silentAddresses.length; i++) {
       final silentAddressRecord = silentAddresses[i];
       final silentAddress =
-          SilentPaymentDestination.fromAddress(silentAddressRecord.address, 0).spendPubkey.toHex();
+          SilentPaymentDestination.fromAddress(silentAddressRecord.address, 0).B_spend.toHex();
 
       if (silentAddressRecord.silentPaymentTweak != null)
         labels[silentAddress] = silentAddressRecord.silentPaymentTweak!;
@@ -232,7 +232,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
       final address = BitcoinAddressRecord(
         SilentPaymentAddress.createLabeledSilentPaymentAddress(
-                primarySilentAddress!.scanPubkey, primarySilentAddress!.spendPubkey, tweak,
+                primarySilentAddress!.B_scan, primarySilentAddress!.B_spend, tweak,
                 hrp: primarySilentAddress!.hrp, version: primarySilentAddress!.version)
             .toString(),
         index: currentSilentAddressIndex,

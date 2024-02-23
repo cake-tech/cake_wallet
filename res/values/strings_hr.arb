@@ -75,6 +75,7 @@
   "bitcoin_dark_theme": "Bitcoin Tamna tema",
   "bitcoin_light_theme": "Bitcoin Light Theme",
   "bitcoin_payments_require_1_confirmation": "Bitcoin plaćanja zahtijevaju 1 potvrdu, što može potrajati 20 minuta ili dulje. Hvala na Vašem strpljenju! Dobit ćete e-poruku kada plaćanje bude potvrđeno.",
+  "block_remaining": "Preostalo 1 blok",
   "Blocks_remaining": "${status} preostalih blokova",
   "bright_theme": "Jarka",
   "buy": "Kupi",

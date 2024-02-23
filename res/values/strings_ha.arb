@@ -75,6 +75,7 @@
   "bitcoin_dark_theme": "Bitcoin Dark Jigo",
   "bitcoin_light_theme": "Jigon Hasken Bitcoin",
   "bitcoin_payments_require_1_confirmation": "Akwatin Bitcoin na buɗe 1 sambumbu, da yake za ta samu mintuna 20 ko yawa. Ina kira ga sabuwar lafiya! Zaka sanarwa ta email lokacin da aka samu akwatin samun lambar waya.",
+  "block_remaining": "1 toshe ragowar",
   "Blocks_remaining": "${status} Katanga ya rage",
   "bright_theme": "Mai haske",
   "buy": "Sayi",

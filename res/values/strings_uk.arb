@@ -75,6 +75,7 @@
   "bitcoin_dark_theme": "Темна тема Bitcoin",
   "bitcoin_light_theme": "Світла тема Bitcoin",
   "bitcoin_payments_require_1_confirmation": "Платежі Bitcoin потребують 1 підтвердження, яке може зайняти 20 хвилин або більше. Дякую за Ваше терпіння! Ви отримаєте електронний лист, коли платіж буде підтверджено.",
+  "block_remaining": "1 блок, що залишився",
   "Blocks_remaining": "${status} Залишилось блоків",
   "bright_theme": "Яскрава",
   "buy": "Купити",

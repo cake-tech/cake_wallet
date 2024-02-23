@@ -75,6 +75,7 @@
   "bitcoin_dark_theme": "Bitcoin donker thema",
   "bitcoin_light_theme": "Bitcoin Light-thema",
   "bitcoin_payments_require_1_confirmation": "Bitcoin-betalingen vereisen 1 bevestiging, wat 20 minuten of langer kan duren. Dank voor uw geduld! U ontvangt een e-mail wanneer de betaling is bevestigd.",
+  "block_remaining": "1 blok resterend",
   "Blocks_remaining": "${status} Resterende blokken",
   "bright_theme": "Helder",
   "buy": "Kopen",
