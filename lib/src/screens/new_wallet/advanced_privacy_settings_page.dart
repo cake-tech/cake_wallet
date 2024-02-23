@@ -55,113 +55,115 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(top: 24),
-      child: ScrollableWithBottomSection(
-        contentPadding: EdgeInsets.only(bottom: 24),
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Observer(builder: (_) {
-              return SettingsChoicesCell(
-                ChoicesListItem<FiatApiMode>(
-                  title: S.current.fiat_api,
-                  items: FiatApiMode.all,
-                  selectedItem: widget.privacySettingsViewModel.fiatApiMode,
-                  onItemSelected: (FiatApiMode mode) =>
-                      widget.privacySettingsViewModel.setFiatApiMode(mode),
-                ),
-              );
-            }),
-            Observer(builder: (_) {
-              return SettingsChoicesCell(
-                ChoicesListItem<ExchangeApiMode>(
-                  title: S.current.exchange,
-                  items: ExchangeApiMode.all,
-                  selectedItem: widget.privacySettingsViewModel.exchangeStatus,
-                  onItemSelected: (ExchangeApiMode mode) =>
-                      widget.privacySettingsViewModel.setExchangeApiMode(mode),
-                ),
-              );
-            }),
-            Observer(builder: (_) {
-              return Column(
-                children: [
-                  SettingsSwitcherCell(
-                    title: S.current.add_custom_node,
-                    value: widget.privacySettingsViewModel.addCustomNode,
-                    onValueChange: (_, __) => widget.privacySettingsViewModel.toggleAddCustomNode(),
-                  ),
-                  if (widget.privacySettingsViewModel.addCustomNode)
-                    Padding(
-                      padding: EdgeInsets.only(left: 24, right: 24, top: 24),
-                      child: NodeForm(
-                        formKey: _formKey,
-                        nodeViewModel: widget.nodeViewModel,
-                      ),
-                    )
-                ],
-              );
-            }),
-            if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
-              Observer(builder: (_) {
-                return SettingsPickerCell<SeedPhraseLength>(
-                  title: S.current.seed_phrase_length,
-                  items: SeedPhraseLength.values,
-                  selectedItem: widget.privacySettingsViewModel.seedPhraseLength,
-                  onItemSelected: (SeedPhraseLength length) {
-                    widget.privacySettingsViewModel.setSeedPhraseLength(length);
-                  },
-                );
-              }),
-            if (widget.privacySettingsViewModel.hasSeedTypeOption)
+    return Column(
+      children: [
+        ScrollableWithBottomSection(
+          contentPadding: EdgeInsets.only(bottom: 24, top: 24),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
               Observer(builder: (_) {
                 return SettingsChoicesCell(
-                  ChoicesListItem<SeedType>(
-                    title: S.current.seedtype,
-                    items: SeedType.all,
-                    selectedItem: widget.seedTypeViewModel.moneroSeedType,
-                    onItemSelected: widget.seedTypeViewModel.setMoneroSeedType,
+                  ChoicesListItem<FiatApiMode>(
+                    title: S.current.fiat_api,
+                    items: FiatApiMode.all,
+                    selectedItem: widget.privacySettingsViewModel.fiatApiMode,
+                    onItemSelected: (FiatApiMode mode) =>
+                        widget.privacySettingsViewModel.setFiatApiMode(mode),
                   ),
                 );
               }),
-          ],
-        ),
-        bottomSectionPadding: EdgeInsets.all(24),
-        bottomSection: Column(
-          children: [
-            LoadingPrimaryButton(
-              onPressed: () {
-                if (widget.privacySettingsViewModel.addCustomNode) {
-                  if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-                    return;
+              Observer(builder: (_) {
+                return SettingsChoicesCell(
+                  ChoicesListItem<ExchangeApiMode>(
+                    title: S.current.exchange,
+                    items: ExchangeApiMode.all,
+                    selectedItem: widget.privacySettingsViewModel.exchangeStatus,
+                    onItemSelected: (ExchangeApiMode mode) =>
+                        widget.privacySettingsViewModel.setExchangeApiMode(mode),
+                  ),
+                );
+              }),
+              Observer(builder: (_) {
+                return Column(
+                  children: [
+                    SettingsSwitcherCell(
+                      title: S.current.add_custom_node,
+                      value: widget.privacySettingsViewModel.addCustomNode,
+                      onValueChange: (_, __) =>
+                          widget.privacySettingsViewModel.toggleAddCustomNode(),
+                    ),
+                    if (widget.privacySettingsViewModel.addCustomNode)
+                      Padding(
+                        padding: EdgeInsets.only(left: 24, right: 24, top: 24),
+                        child: NodeForm(
+                          formKey: _formKey,
+                          nodeViewModel: widget.nodeViewModel,
+                        ),
+                      )
+                  ],
+                );
+              }),
+              if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
+                Observer(builder: (_) {
+                  return SettingsPickerCell<SeedPhraseLength>(
+                    title: S.current.seed_phrase_length,
+                    items: SeedPhraseLength.values,
+                    selectedItem: widget.privacySettingsViewModel.seedPhraseLength,
+                    onItemSelected: (SeedPhraseLength length) {
+                      widget.privacySettingsViewModel.setSeedPhraseLength(length);
+                    },
+                  );
+                }),
+              if (widget.privacySettingsViewModel.hasSeedTypeOption)
+                Observer(builder: (_) {
+                  return SettingsChoicesCell(
+                    ChoicesListItem<SeedType>(
+                      title: S.current.seedtype,
+                      items: SeedType.all,
+                      selectedItem: widget.seedTypeViewModel.moneroSeedType,
+                      onItemSelected: widget.seedTypeViewModel.setMoneroSeedType,
+                    ),
+                  );
+                }),
+            ],
+          ),
+          bottomSectionPadding: EdgeInsets.all(24),
+          bottomSection: Column(
+            children: [
+              LoadingPrimaryButton(
+                onPressed: () {
+                  if (widget.privacySettingsViewModel.addCustomNode) {
+                    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+                      return;
+                    }
+
+                    widget.nodeViewModel.save();
                   }
 
-                  widget.nodeViewModel.save();
-                }
-
-                Navigator.pop(context);
-              },
-              text: S.of(context).continue_text,
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-            ),
-            const SizedBox(height: 25),
-            LayoutBuilder(
-              builder: (_, constraints) => SizedBox(
-                width: constraints.maxWidth * 0.8,
-                child: Text(
-                  S.of(context).settings_can_be_changed_later,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                  Navigator.pop(context);
+                },
+                text: S.of(context).continue_text,
+                color: Theme.of(context).primaryColor,
+                textColor: Colors.white,
+              ),
+              const SizedBox(height: 25),
+              LayoutBuilder(
+                builder: (_, constraints) => SizedBox(
+                  width: constraints.maxWidth * 0.8,
+                  child: Text(
+                    S.of(context).settings_can_be_changed_later,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                    ),
                   ),
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }
