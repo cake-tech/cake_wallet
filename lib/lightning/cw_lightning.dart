@@ -91,28 +91,28 @@ class CWLightning extends Lightning {
 				priority: priority != null ? priority as BitcoinTransactionPriority : null,
 				feeRate: feeRate);
 
-	@override
-	List<String> getAddresses(Object wallet) {
-		final lightningWallet = wallet as ElectrumWallet;
-		return lightningWallet.walletAddresses.addresses
-			.map((BitcoinAddressRecord addr) => addr.address)
-			.toList();
-	}
+  @override
+  List<String> getAddresses(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.walletAddresses.addressesByReceiveType
+        .map((BitcoinAddressRecord addr) => addr.address)
+        .toList();
+  }
 
-	@override
-	@computed
-	List<ElectrumSubAddress> getSubAddresses(Object wallet) {
-		final electrumWallet = wallet as ElectrumWallet;
-		return electrumWallet.walletAddresses.addresses
-			.map((BitcoinAddressRecord addr) => ElectrumSubAddress(
-				id: addr.index,
-				name: addr.name,
-				address: addr.address,
-				txCount: addr.txCount,
-				balance: addr.balance,
-				isChange: addr.isHidden))
-			.toList();
-	}
+  @override
+  @computed
+  List<ElectrumSubAddress> getSubAddresses(Object wallet) {
+    final electrumWallet = wallet as ElectrumWallet;
+    return electrumWallet.walletAddresses.addressesByReceiveType
+        .map((BitcoinAddressRecord addr) => ElectrumSubAddress(
+            id: addr.index,
+            name: addr.name,
+            address: electrumWallet.type == WalletType.bitcoinCash ? addr.cashAddr : addr.address,
+            txCount: addr.txCount,
+            balance: addr.balance,
+            isChange: addr.isHidden))
+        .toList();
+  }
 
 	@override
 	String getAddress(Object wallet) {
@@ -158,4 +158,7 @@ class CWLightning extends Lightning {
   @override
   TransactionPriority getLightningTransactionPrioritySlow()
     => BitcoinTransactionPriority.slow;
+
+  @override
+  List<LightningReceivePageOption> getLightningReceivePageOptions() => LightningReceivePageOption.all;
 }

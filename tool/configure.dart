@@ -726,6 +726,7 @@ import 'package:cw_core/output_info.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 """;
@@ -739,6 +740,7 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_lightning/lightning_wallet_service.dart';
+import 'package:cw_lightning/lightning_receive_page_option.dart';
 """;
   const lightningCwPart = "part 'cw_lightning.dart';";
   const lightningContent = """

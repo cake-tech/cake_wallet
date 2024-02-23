@@ -1,5 +1,4 @@
 import 'package:cake_wallet/entities/qr_view_data.dart';
-import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
@@ -10,6 +9,7 @@ import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';

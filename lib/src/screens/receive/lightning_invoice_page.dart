@@ -3,22 +3,18 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/entities/receive_page_option.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/anonpay_input_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/lightning_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
+import 'package:cw_core/receive_page_option.dart';
+import 'package:cw_lightning/lightning_receive_page_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -30,7 +26,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:mobx/mobx.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LightningInvoicePage extends BasePage {
   LightningInvoicePage({
@@ -219,13 +214,13 @@ class LightningInvoicePage extends BasePage {
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) async {
       switch (option) {
-        case ReceivePageOption.lightningInvoice:
+        case LightningReceivePageOption.lightningInvoice:
           break;
-        case ReceivePageOption.lightningOnchain:
+        case LightningReceivePageOption.lightningOnchain:
           Navigator.popAndPushNamed(
             context,
             Routes.lightningReceiveOnchain,
-            arguments: [ReceivePageOption.lightningOnchain],
+            arguments: [LightningReceivePageOption.lightningOnchain],
           );
           break;
         default:

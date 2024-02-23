@@ -19,7 +19,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
   final Box<WalletInfo> walletInfoSource;
 
   @override
-  Future<SolanaWallet> create(SolanaNewWalletCredentials credentials) async {
+  Future<SolanaWallet> create(SolanaNewWalletCredentials credentials, {bool? isTestnet}) async {
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
     final mnemonic = bip39.generateMnemonic(strength: strength);
@@ -67,7 +67,8 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
   }
 
   @override
-  Future<SolanaWallet> restoreFromKeys(SolanaRestoreWalletFromPrivateKey credentials) async {
+  Future<SolanaWallet> restoreFromKeys(SolanaRestoreWalletFromPrivateKey credentials,
+      {bool? isTestnet}) async {
     final wallet = SolanaWallet(
       password: credentials.password!,
       privateKey: credentials.privateKey,
@@ -82,7 +83,8 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
   }
 
   @override
-  Future<SolanaWallet> restoreFromSeed(SolanaRestoreWalletFromSeedCredentials credentials) async {
+  Future<SolanaWallet> restoreFromSeed(SolanaRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
     if (!bip39.validateMnemonic(credentials.mnemonic)) {
       throw SolanaMnemonicIsIncorrectException();
     }

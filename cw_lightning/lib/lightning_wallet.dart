@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:breez_sdk/breez_sdk.dart';
 import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
+import 'package:cw_bitcoin/litecoin_network.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -24,8 +27,6 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
@@ -54,6 +55,7 @@ abstract class LightningWalletBase
   late ElectrumWalletAddresses walletAddresses;
 
   bitcoin.NetworkType networkType = bitcoin.bitcoin;
+  late BasedUtxoNetwork network;
 
   @override
   BitcoinWalletKeys get keys =>
@@ -63,18 +65,20 @@ abstract class LightningWalletBase
   @observable
   SyncStatus syncStatus;
 
-  LightningWalletBase(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required Uint8List seedBytes,
-      ElectrumClient? electrumClient,
-      List<BitcoinAddressRecord>? initialAddresses,
-      LightningBalance? initialBalance,
-      int initialRegularAddressIndex = 0,
-      int initialChangeAddressIndex = 0})
-      : hd = bitcoin.HDWallet.fromSeed(seedBytes, network: bitcoin.bitcoin).derivePath("m/0'/0"),
+  LightningWalletBase({
+    required String mnemonic,
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required Uint8List seedBytes,
+    String? addressPageType,
+    ElectrumClient? electrumClient,
+    BasedUtxoNetwork? networkParam,
+    List<BitcoinAddressRecord>? initialAddresses,
+    LightningBalance? initialBalance,
+    Map<String, int>? initialRegularAddressIndex,
+    Map<String, int>? initialChangeAddressIndex,
+  })  : hd = bitcoin.HDWallet.fromSeed(seedBytes, network: bitcoin.bitcoin).derivePath("m/0'/0"),
         syncStatus = NotConnectedSyncStatus(),
         mnemonic = mnemonic,
         _password = password,
@@ -85,14 +89,24 @@ abstract class LightningWalletBase
         }),
         super(walletInfo) {
     transactionHistory = LightningTransactionHistory(walletInfo: walletInfo, password: password);
-    walletAddresses = BitcoinWalletAddresses(walletInfo,
-        electrumClient: electrumClient ?? ElectrumClient(),
-        initialAddresses: initialAddresses,
-        initialRegularAddressIndex: initialRegularAddressIndex,
-        initialChangeAddressIndex: initialChangeAddressIndex,
-        mainHd: hd,
-        sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
-        networkType: networkType);
+
+    this.network = networkType == bitcoin.bitcoin
+        ? BitcoinNetwork.mainnet
+        : networkType == litecoinNetwork
+            ? LitecoinNetwork.mainnet
+            : BitcoinNetwork.testnet;
+    this.isTestnet = networkType == bitcoin.testnet;
+
+    walletAddresses = BitcoinWalletAddresses(
+      walletInfo,
+      electrumClient: electrumClient ?? ElectrumClient(),
+      initialAddresses: initialAddresses,
+      initialRegularAddressIndex: initialRegularAddressIndex,
+      initialChangeAddressIndex: initialChangeAddressIndex,
+      mainHd: hd,
+      sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
+      network: networkParam ?? network,
+    );
 
     this.electrumClient = electrumClient ?? ElectrumClient();
 
@@ -108,23 +122,26 @@ abstract class LightningWalletBase
     });
   }
 
-  static Future<LightningWallet> create(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      List<BitcoinAddressRecord>? initialAddresses,
-      int initialRegularAddressIndex = 0,
-      int initialChangeAddressIndex = 0}) async {
+  static Future<LightningWallet> create({
+    required String mnemonic,
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    BasedUtxoNetwork? network,
+    List<BitcoinAddressRecord>? initialAddresses,
+    Map<String, int>? initialRegularAddressIndex,
+    Map<String, int>? initialChangeAddressIndex,
+  }) async {
     return LightningWallet(
-        mnemonic: mnemonic,
-        password: password,
-        walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfo,
-        initialAddresses: initialAddresses,
-        seedBytes: await mnemonicToSeedBytes(mnemonic),
-        initialRegularAddressIndex: initialRegularAddressIndex,
-        initialChangeAddressIndex: initialChangeAddressIndex);
+      mnemonic: mnemonic,
+      password: password,
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfo,
+      initialAddresses: initialAddresses,
+      seedBytes: await mnemonicToSeedBytes(mnemonic),
+      initialRegularAddressIndex: initialRegularAddressIndex,
+      initialChangeAddressIndex: initialChangeAddressIndex,
+    );
   }
 
   static Future<LightningWallet> open({
@@ -133,16 +150,22 @@ abstract class LightningWalletBase
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
-    final snp = await ElectrumWallletSnapshot.load(name, walletInfo.type, password);
+    final snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password,
+        walletInfo.network != null ? BasedUtxoNetwork.fromName(walletInfo.network!) : null);
+
     return LightningWallet(
-        mnemonic: snp.mnemonic,
-        password: password,
-        walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfo,
-        initialAddresses: snp.addresses,
-        seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
-        initialRegularAddressIndex: snp.regularAddressIndex,
-        initialChangeAddressIndex: snp.changeAddressIndex);
+      mnemonic: snp.mnemonic,
+      password: password,
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfo,
+      initialAddresses: snp.addresses,
+      // initialBalance: snp.balance,
+      seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
+      initialRegularAddressIndex: snp.regularAddressIndex,
+      initialChangeAddressIndex: snp.changeAddressIndex,
+      addressPageType: snp.addressPageType,
+      networkParam: snp.network,
+    );
   }
 
   Future<void> setupBreez(Uint8List seedBytes) async {
@@ -312,10 +335,14 @@ abstract class LightningWalletBase
 
   String toJSON() => json.encode({
         'mnemonic': mnemonic,
-        'account_index': walletAddresses.currentReceiveAddressIndex.toString(),
-        'change_address_index': walletAddresses.currentChangeAddressIndex.toString(),
-        'addresses': walletAddresses.addresses.map((addr) => addr.toJSON()).toList(),
-        'balance': balance[currency]?.toJSON()
+        'account_index': walletAddresses.currentReceiveAddressIndexByType,
+        'change_address_index': walletAddresses.currentChangeAddressIndexByType,
+        'addresses': walletAddresses.allAddresses.map((addr) => addr.toJSON()).toList(),
+        'address_page_type': walletInfo.addressPageType == null
+            ? SegwitAddresType.p2wpkh.toString()
+            : walletInfo.addressPageType.toString(),
+        'balance': balance[currency]?.toJSON(),
+        'network_type': network == BitcoinNetwork.testnet ? 'testnet' : 'mainnet',
       });
 
   @override

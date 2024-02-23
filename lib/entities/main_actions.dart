@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_lightning/lightning_receive_page_option.dart';
 import 'package:flutter/material.dart';
 
 class MainActions {
@@ -60,7 +61,7 @@ class MainActions {
         Navigator.pushNamed(
           context,
           Routes.lightningInvoice,
-          arguments: [ReceivePageOption.lightningInvoice],
+          arguments: [LightningReceivePageOption.lightningInvoice],
         );
         return;
       }
