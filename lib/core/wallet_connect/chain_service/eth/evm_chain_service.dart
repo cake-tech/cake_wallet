@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:cake_wallet/core/wallet_connect/eth_transaction_model.dart';
-import 'package:cake_wallet/core/wallet_connect/evm_chain_id.dart';
+import 'package:cake_wallet/core/wallet_connect/chain_service/eth/evm_chain_id.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -20,8 +20,8 @@ import 'package:eth_sig_util/util/utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import 'package:web3dart/web3dart.dart';
-import 'chain_service.dart';
-import 'wallet_connect_key_service.dart';
+import '../chain_service.dart';
+import '../../wallet_connect_key_service.dart';
 
 class EvmChainServiceImpl implements ChainService {
   final AppStore appStore;

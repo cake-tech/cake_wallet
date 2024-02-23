@@ -7,6 +7,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -159,6 +160,21 @@ class PolygonURI extends PaymentURI {
   }
 }
 
+class SolanaURI extends PaymentURI {
+  SolanaURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'solana:' + address;
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
@@ -257,6 +273,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       return PolygonURI(amount: amount, address: address.address);
     }
 
+    if (wallet.type == WalletType.solana) {
+      return SolanaURI(amount: amount, address: address.address);
+    }
+
     throw Exception('Unexpected type: ${type.toString()}');
   }
 
@@ -322,6 +342,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     if (wallet.type == WalletType.polygon) {
       final primaryAddress = polygon!.getAddress(wallet);
+
+      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+    }
+
+    if (wallet.type == WalletType.solana) {
+      final primaryAddress = solana!.getAddress(wallet);
 
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }

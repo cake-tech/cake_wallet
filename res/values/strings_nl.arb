@@ -780,5 +780,6 @@
   "you_pay": "U betaalt",
   "you_will_get": "Converteren naar",
   "you_will_send": "Converteren van",
-  "yy": "YY"
+  "yy": "JJ",
+  "waitFewSecondForTxUpdate": "Wacht een paar seconden totdat de transactie wordt weergegeven in de transactiegeschiedenis"
 }

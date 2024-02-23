@@ -106,6 +106,7 @@ dependencies:
   flutter_svg: ^2.0.9
   polyseed: ^0.0.2
   nostr_tools: ^1.0.9
+  solana: ^0.30.1
 
 dev_dependencies:
   flutter_test:
@@ -152,6 +153,7 @@ flutter:
     - assets/nano_node_list.yml
     - assets/nano_pow_node_list.yml
     - assets/polygon_node_list.yml
+    - assets/solana_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/
