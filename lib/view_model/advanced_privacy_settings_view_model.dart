@@ -28,7 +28,10 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   final SettingsStore _settingsStore;
 
   bool get hasSeedPhraseLengthOption =>
-      type == WalletType.bitcoinCash || type == WalletType.ethereum;
+      type == WalletType.bitcoinCash ||
+      type == WalletType.ethereum ||
+      type == WalletType.polygon ||
+      type == WalletType.solana;
 
   bool get hasSeedTypeOption => type == WalletType.monero;
 

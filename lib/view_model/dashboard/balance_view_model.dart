@@ -79,7 +79,8 @@ abstract class BalanceViewModelBase with Store {
   bool get isFiatDisabled => settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   @computed
-  bool get isHomeScreenSettingsEnabled => isEVMCompatibleChain(wallet.type);
+  bool get isHomeScreenSettingsEnabled =>
+      isEVMCompatibleChain(wallet.type) || wallet.type == WalletType.solana;
 
   @computed
   bool get hasAccounts => wallet.type == WalletType.monero;
@@ -124,6 +125,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.polygon:
       case WalletType.nano:
       case WalletType.banano:
+      case WalletType.solana:
         return S.current.xmr_available_balance;
       default:
         return S.current.confirmed;
@@ -137,6 +139,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.solana:
         return S.current.xmr_full_balance;
       case WalletType.nano:
       case WalletType.banano:
@@ -279,7 +282,18 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
-  bool get hasAdditionalBalance => !isEVMCompatibleChain(wallet.type);
+  bool get hasAdditionalBalance => _hasAdditionBalanceForWalletType(wallet.type);
+
+  bool _hasAdditionBalanceForWalletType(WalletType type) {
+    switch (type) {
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.solana:
+        return false;
+      default:
+        return true;
+    }
+  }
 
   @computed
   List<BalanceRecord> get formattedBalances {

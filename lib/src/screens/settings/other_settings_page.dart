@@ -26,7 +26,7 @@ class OtherSettingsPage extends BasePage {
           padding: EdgeInsets.only(top: 10),
           child: Column(
             children: [
-              if (!_otherSettingsViewModel.changeRepresentativeEnabled)
+              if (_otherSettingsViewModel.displayTransactionPriority)
                 SettingsPickerCell(
                   title: S.current.settings_fee_priority,
                   items: priorityForWalletType(_otherSettingsViewModel.walletType),
@@ -61,7 +61,6 @@ class OtherSettingsPage extends BasePage {
                 handler: (BuildContext context) =>
                     Navigator.of(context).pushNamed(Routes.readDisclaimer),
               ),
-              StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
               Spacer(),
               SettingsVersionCell(
                   title: S.of(context).version(_otherSettingsViewModel.currentVersion)),

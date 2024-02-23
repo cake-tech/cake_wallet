@@ -48,6 +48,10 @@ class SecretKey {
     SecretKey('breezApiKey', () => ''),
     SecretKey('breezInviteCode', () => ''),
   ];
+  
+  static final solanaSecrets = [
+    SecretKey('ankrApiKey', () => ''),
+  ];
 
   final String name;
   final String Function() generate;
