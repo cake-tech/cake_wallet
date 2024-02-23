@@ -163,11 +163,11 @@ Future<void> initializeAppConfigs() async {
       transactionDescriptions: transactionDescriptions,
       secureStorage: secureStorage,
       anonpayInvoiceInfo: anonpayInvoiceInfo,
-      initialMigrationVersion: 26);
+      initialMigrationVersion: 27);
 }
 
 Future<void> initialSetup(
-    {required SharedPreferences sharedPreferences,
+    {required SharedPreferences sharedPreferences, 
     required Box<Node> nodes,
     required Box<Node> powNodes,
     required Box<WalletInfo> walletInfoSource,

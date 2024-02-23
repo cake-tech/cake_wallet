@@ -781,5 +781,6 @@
   "you_pay": "Anda Membayar",
   "you_will_get": "Konversi ke",
   "you_will_send": "Konversi dari",
-  "yy": "YY"
+  "yy": "YY",
+  "waitFewSecondForTxUpdate": "Mohon tunggu beberapa detik hingga transaksi terlihat di riwayat transaksi"
 }

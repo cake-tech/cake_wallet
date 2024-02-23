@@ -110,7 +110,8 @@ abstract class WalletKeysViewModelBase with Store {
       ]);
     }
 
-    if (isEVMCompatibleChain(_appStore.wallet!.type)) {
+    if (isEVMCompatibleChain(_appStore.wallet!.type) ||
+        _appStore.wallet!.type == WalletType.solana) {
       items.addAll([
         if (_appStore.wallet!.privateKey != null)
           StandartListItem(title: S.current.private_key, value: _appStore.wallet!.privateKey!),
@@ -165,6 +166,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'banano-wallet';
       case WalletType.polygon:
         return 'polygon-wallet';
+      case WalletType.solana:
+        return 'solana-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
     }

@@ -34,6 +34,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.ethereum:
       case WalletType.bitcoinCash:
       case WalletType.polygon:
+      case WalletType.solana:
         return true;
       case WalletType.monero:
       case WalletType.none:

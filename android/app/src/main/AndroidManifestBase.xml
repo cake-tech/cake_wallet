@@ -66,6 +66,7 @@
                 <data android:scheme="polygon" />
                 <data android:scheme="polygon-wallet" />
                 <data android:scheme="polygon_wallet" />
+                <data android:scheme="solana-wallet" />
             </intent-filter>
         </activity>
         <meta-data
