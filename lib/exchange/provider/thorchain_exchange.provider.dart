@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -8,11 +7,9 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
-import 'package:collection/collection.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ThorChainExchangeProvider extends ExchangeProvider {
   ThorChainExchangeProvider({required this.tradesStore})
@@ -29,9 +26,11 @@ class ThorChainExchangeProvider extends ExchangeProvider {
         .toList())
   ];
 
+  static final isRefundAddressSupported = [CryptoCurrency.eth];
+
   static const _baseURL = 'https://thornode.ninerealms.com';
   static const _quotePath = '/thorchain/quote/swap';
-  static const _txInfoPath = '/thorchain/tx/';
+  static const _txInfoPath = '/thorchain/tx/status/';
   static const _affiliateName = 'cakewallet';
   static const _affiliateBps = '0';
 
@@ -117,7 +116,9 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       'amount': _doubleToThorChainString(formattedFromAmount),
       'destination': formattedToAddress,
       'affiliate': _affiliateName,
-      'affiliate_bps': _affiliateBps
+      'affiliate_bps': _affiliateBps,
+      'refund_address':
+          isRefundAddressSupported.contains(request.fromCurrency) ? request.refundAddress : '',
     };
 
     final responseJSON = await _getSwapQuote(params);
@@ -133,7 +134,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
         inputAddress: inputAddress,
         createdAt: DateTime.now(),
         amount: request.fromAmount,
-        state: TradeState.pending,
+        state: TradeState.notFound,
         payoutAddress: request.toAddress,
         memo: memo);
   }
@@ -146,25 +147,30 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final response = await http.get(uri);
 
     if (response.statusCode == 404) {
-      throw Exception('Trade not found for id: $id');
+      throw Exception('Trade not found for id: $formattedId');
     } else if (response.statusCode != 200) {
       throw Exception('Unexpected HTTP status: ${response.statusCode}');
     }
 
     final responseJSON = json.decode(response.body);
-    final observedTx = responseJSON['observed_tx'];
-    if (observedTx == null) {
-      throw Exception('No observed transaction found for id: $id');
+    final Map<String, dynamic> stagesJson = responseJSON['stages'] as Map<String, dynamic>;
+
+    final inboundObservedStarted = stagesJson['inbound_observed']?['started'] as bool? ?? true;
+    if (!inboundObservedStarted) {
+      throw Exception('Trade has not started for id: $formattedId');
     }
 
-    final tx = observedTx['tx'];
+    final currentState = _updateStateBasedOnStages(stagesJson) ?? TradeState.notFound;
+
+    final tx = responseJSON['tx'];
     final String fromAddress = tx['from_address'] as String? ?? '';
     final String toAddress = tx['to_address'] as String? ?? '';
     final List<dynamic> coins = tx['coins'] as List<dynamic>;
     final String? memo = tx['memo'] as String?;
     final String toAsset = memo != null ? (memo.split(':')[1]).split('.')[0] : '';
-    final status = observedTx['status'] as String?;
-    final formattedStatus = status ?? 'pending';
+
+    final plannedOutTxs = responseJSON['planned_out_txs'] as List<dynamic>?;
+    final isRefund = plannedOutTxs?.any((tx) => tx['refund'] == true) ?? false;
 
     return Trade(
       id: id,
@@ -174,8 +180,9 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       inputAddress: fromAddress,
       payoutAddress: toAddress,
       amount: coins.first['amount'] as String? ?? '0.0',
-      state: TradeState.deserialize(raw: formattedStatus),
+      state: currentState,
       memo: memo,
+      isRefund: isRefund,
     );
   }
 
@@ -200,4 +207,26 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   String _doubleToThorChainString(double amount) => (amount * 1e8).toInt().toString();
 
   double _thorChainAmountToDouble(String amount) => double.parse(amount) / 1e8;
+
+  TradeState? _updateStateBasedOnStages(Map<String, dynamic> stages) {
+    TradeState? currentState;
+
+    if (stages['inbound_observed']['completed'] as bool? ?? false) {
+      currentState = TradeState.confirmation;
+    }
+    if (stages['inbound_confirmation_counted']['completed'] as bool? ?? false) {
+      currentState = TradeState.confirmed;
+    }
+    if (stages['inbound_finalised']['completed'] as bool? ?? false) {
+      currentState = TradeState.processing;
+    }
+    if (stages['swap_finalised']['completed'] as bool? ?? false) {
+      currentState = TradeState.traded;
+    }
+    if (stages['outbound_signed']['completed'] as bool? ?? false) {
+      currentState = TradeState.success;
+    }
+
+    return currentState;
+  }
 }

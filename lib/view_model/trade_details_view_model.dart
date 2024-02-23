@@ -153,6 +153,11 @@ abstract class TradeDetailsViewModelBase with Store {
           title: S.current.track, value: trackUrl, onTap: () => _launchUrl(trackUrl)));
     }
 
+    if (trade.isRefund == true) {
+      items.add(StandartListItem(
+          title: 'Refund', value: trade.refundAddress ?? ''));
+    }
+
     if (trade.provider == ExchangeProviderDescription.trocador) {
       items.add(StandartListItem(
           title: '${trade.providerName} ${S.current.id.toUpperCase()}',

@@ -41,6 +41,8 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
   static const success = TradeState(raw: 'success', title: 'Success');
   static TradeState deserialize({required String raw}) {
     switch (raw) {
+      case 'NOT_FOUND':
+        return notFound;
       case 'pending':
         return pending;
       case 'confirming':
