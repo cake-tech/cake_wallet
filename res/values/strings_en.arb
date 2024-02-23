@@ -719,6 +719,7 @@
   "use_card_info_two": "Funds are converted to USD when they're held in the prepaid account, not in digital currencies.",
   "use_ssl": "Use SSL",
   "use_suggested": "Use Suggested",
+  "use_testnet": "Use Testnet",
   "variable_pair_not_supported": "This variable pair is not supported with the selected exchanges",
   "verification": "Verification",
   "verify_with_2fa": "Verify with Cake 2FA",

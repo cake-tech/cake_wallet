@@ -720,6 +720,7 @@
   "use_card_info_two": "Los fondos se convierten a USD cuando se mantienen en la cuenta prepaga, no en monedas digitales.",
   "use_ssl": "Utilice SSL",
   "use_suggested": "Usar sugerido",
+  "use_testnet": "Use TestNet",
   "variable_pair_not_supported": "Este par de variables no es compatible con los intercambios seleccionados",
   "verification": "Verificación",
   "verify_with_2fa": "Verificar con Cake 2FA",

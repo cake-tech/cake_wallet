@@ -719,6 +719,7 @@
   "use_card_info_two": "Tegoeden worden omgezet naar USD wanneer ze op de prepaid-rekening staan, niet in digitale valuta.",
   "use_ssl": "Gebruik SSL",
   "use_suggested": "Gebruik aanbevolen",
+  "use_testnet": "Gebruik testnet",
   "variable_pair_not_supported": "Dit variabelenpaar wordt niet ondersteund met de geselecteerde uitwisselingen",
   "verification": "Verificatie",
   "verify_with_2fa": "Controleer met Cake 2FA",

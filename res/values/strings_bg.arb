@@ -719,6 +719,7 @@
   "use_card_info_two": "Средствата се обръщат в USD, когато биват запазени в предплатената карта, а не в дигитална валута.",
   "use_ssl": "Използване на SSL",
   "use_suggested": "Използване на предложеното",
+  "use_testnet": "Използвайте TestNet",
   "variable_pair_not_supported": "Този variable pair не се поддържа от избраната борса",
   "verification": "Потвърждаване",
   "verify_with_2fa": "Проверете с Cake 2FA",

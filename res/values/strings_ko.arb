@@ -720,6 +720,7 @@
   "use_card_info_two": "디지털 화폐가 아닌 선불 계정에 보유하면 자금이 USD로 변환됩니다.",
   "use_ssl": "SSL 사용",
   "use_suggested": "추천 사용",
+  "use_testnet": "TestNet을 사용하십시오",
   "variable_pair_not_supported": "이 변수 쌍은 선택한 교환에서 지원되지 않습니다.",
   "verification": "검증",
   "verify_with_2fa": "케이크 2FA로 확인",
