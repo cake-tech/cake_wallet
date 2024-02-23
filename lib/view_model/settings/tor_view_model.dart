@@ -5,6 +5,8 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/settings/tor_connection.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:socks5_proxy/socks_client.dart';
@@ -70,11 +72,18 @@ abstract class TorViewModelBase with Store {
     try {
       torConnectionStatus = TorConnectionStatus.connecting;
 
+      // stop monero from syncing before tor is connected by connecting to a dummy node:
+      final appStore = getIt.get<AppStore>();
+      if (appStore.wallet != null && appStore.wallet!.type == WalletType.monero) {
+        appStore.wallet!.syncStatus = NotConnectedSyncStatus();
+        await appStore.wallet!.connectToNode(node: Node(uri: "http://127.0.0.1"));
+      }
+
       if (!torStarted) {
         torStarted = true;
         torInstance = await Tor.init();
       }
-      
+
       await torInstance.enable();
 
       _settingsStore.shouldStartTorOnLaunch = true;
