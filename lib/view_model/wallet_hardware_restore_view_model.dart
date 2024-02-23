@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -47,6 +48,10 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
         accounts =
             await ethereum!.getHardwareWalletAccounts(device, index: _nextIndex, limit: limit);
         break;
+      case WalletType.polygon:
+        accounts =
+            await polygon!.getHardwareWalletAccounts(device, index: _nextIndex, limit: limit);
+        break;
       default:
         return;
     }
@@ -64,6 +69,10 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
       case WalletType.ethereum:
         credentials =
             ethereum!.createEthereumHardwareWalletCredentials(name: name, address: address);
+        break;
+      case WalletType.polygon:
+        credentials =
+            polygon!.createPolygonHardwareWalletCredentials(name: name, address: address);
         break;
       default:
         throw Exception('Unexpected type: ${type.toString()}');

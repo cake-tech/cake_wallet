@@ -10,7 +10,7 @@ class EthereumHardwareWalletService extends EVMChainHardwareWalletService {
     final ethereumLedgerApp = EthereumLedgerApp(ledger);
 
     print("Start loading availableAccounts"); // TODO: (Konsti) remove
-    await ledger.connect(device, options: LedgerOptions(connectionTimeout: Duration(seconds: 10)));
+    await ledger.connect(device);
 
     final version = await ethereumLedgerApp.getVersion(device);
     print(version.version); // TODO: (Konsti) remove

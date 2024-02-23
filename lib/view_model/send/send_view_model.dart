@@ -388,7 +388,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return nano!.createNanoTransactionCredentials(outputs);
       case WalletType.polygon:
         return polygon!.createPolygonTransactionCredentials(outputs,
-            priority: priority!, currency: selectedCryptoCurrency);
+            priority: priority!, currency: selectedCryptoCurrency, device: ledger);
       case WalletType.solana:
         return solana!
             .createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);

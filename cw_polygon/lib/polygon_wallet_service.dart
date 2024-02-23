@@ -87,9 +87,19 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
   }
 
   @override
-  Future<PolygonWallet> restoreFromHardwareWallet(EVMChainRestoreWalletFromHardware credentials) {
-    throw UnimplementedError("Restoring a Polygon wallet from a hardware wallet is not yet supported!");
-  }
+  Future<PolygonWallet> restoreFromHardwareWallet(EVMChainRestoreWalletFromHardware credentials) async {
+      final wallet = PolygonWallet(
+        walletInfo: credentials.walletInfo!,
+        password: credentials.password!,
+        client: client,
+      );
+
+      await wallet.init();
+      wallet.addInitialTokens();
+      await wallet.save();
+
+      return wallet;
+    }
 
   @override
   Future<PolygonWallet> restoreFromSeed(EVMChainRestoreWalletFromSeedCredentials credentials,

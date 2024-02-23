@@ -1,10 +1,36 @@
+import 'package:ledger_ethereum/ledger_ethereum.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 
-abstract class EVMChainHardwareWalletService {
+class EVMChainHardwareWalletService {
   EVMChainHardwareWalletService(this.device);
 
-  final Ledger ledger = Ledger(options: LedgerOptions());
+  final Ledger ledger = Ledger(options: LedgerOptions(connectionTimeout: const Duration(seconds: 10),));
   final LedgerDevice device;
+  EthereumLedgerApp get ethereumLedgerApp => EthereumLedgerApp(ledger);
 
-  Future<List<String>> getAvailableAccounts({int index = 0, int limit = 5});
+  Future<void> connect() async => await ledger.connect(device);
+
+  Future<List<String>> getAvailableAccounts({int index = 0, int limit = 5}) async {
+    final app = ethereumLedgerApp;
+
+    print("Start loading availableAccounts"); // TODO: (Konsti) remove
+
+    final version = await app.getVersion(device);
+    print(version.version); // TODO: (Konsti) remove
+
+    final accounts = <String>[];
+    final indexRange = List.generate(limit, (i) => i + index);
+
+    for (final i in indexRange) {
+      final derivationPath = "m/44'/60'/$i'/0/0";
+      print(derivationPath); // TODO: (Konsti) remove
+      final account = await app.getAccounts(device, derivationPath);
+      accounts.addAll(account);
+    }
+
+    await ledger.disconnect(device);
+
+
+    return accounts;
+  }
 }

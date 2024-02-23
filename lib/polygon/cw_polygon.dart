@@ -31,6 +31,14 @@ class CWPolygon extends Polygon {
       EVMChainRestoreWalletFromPrivateKey(name: name, password: password, privateKey: privateKey);
 
   @override
+  WalletCredentials createPolygonHardwareWalletCredentials({
+    required String name,
+    required String address,
+    WalletInfo? walletInfo,
+  }) =>
+      EVMChainRestoreWalletFromHardware(name: name, address: address, walletInfo: walletInfo);
+
+  @override
   String getAddress(WalletBase wallet) => (wallet as PolygonWallet).walletAddresses.address;
 
   @override
@@ -65,23 +73,24 @@ class CWPolygon extends Polygon {
     required TransactionPriority priority,
     required CryptoCurrency currency,
     int? feeRate,
+    LedgerDevice? device,
   }) =>
       EVMChainTransactionCredentials(
-        outputs
-            .map((out) => OutputInfo(
-                fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
-                address: out.address,
-                note: out.note,
-                sendAll: out.sendAll,
-                extractedAddress: out.extractedAddress,
-                isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount))
-            .toList(),
-        priority: priority as EVMChainTransactionPriority,
-        currency: currency,
-        feeRate: feeRate,
-      );
+          outputs
+              .map((out) => OutputInfo(
+                  fiatAmount: out.fiatAmount,
+                  cryptoAmount: out.cryptoAmount,
+                  address: out.address,
+                  note: out.note,
+                  sendAll: out.sendAll,
+                  extractedAddress: out.extractedAddress,
+                  isParsedAddress: out.isParsedAddress,
+                  formattedCryptoAmount: out.formattedCryptoAmount))
+              .toList(),
+          priority: priority as EVMChainTransactionPriority,
+          currency: currency,
+          feeRate: feeRate,
+          device: device);
 
   Object createPolygonTransactionCredentialsRaw(
     List<OutputInfo> outputs, {
@@ -155,4 +164,18 @@ class CWPolygon extends Polygon {
   }
 
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
+
+  @override
+  Future<List<String>> getHardwareWalletAccounts(LedgerDevice device,
+      {int index = 0, int limit = 5}) async {
+    final hardwareWalletService = EVMChainHardwareWalletService(device);
+    print("getHardwareWalletAccounts $limit"); // TODO: (Konsti) remove
+    try {
+      await hardwareWalletService.connect();
+      return await hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
+    } on LedgerException catch (err) {
+      print(err.message); // TODO: (Konsti) remove
+      throw err;
+    }
+  }
 }

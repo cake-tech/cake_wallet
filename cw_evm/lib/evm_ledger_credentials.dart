@@ -12,7 +12,9 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
   final String _address;
   LedgerDevice? device;
 
-  final Ledger ledger = Ledger(options: LedgerOptions());
+  final Ledger ledger = Ledger(options: LedgerOptions(connectionTimeout: const Duration(seconds: 10)));
+
+  late final StreamSubscription<BleStatus> ledgerSubscription;
 
   EvmLedgerCredentials(this._address);
 
@@ -21,6 +23,7 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
 
   void connect(LedgerDevice device) {
     this.device = device;
+    ledgerSubscription = ledger.statusStateChanges.listen((state) => print(state));
     // TODO: (Konsti) Listener for ConnectionUpdate to reset device to null
   }
 
@@ -35,7 +38,7 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
     if (device == null) throw DeviceNotConnectedException();
     final ethereumLedgerApp = EthereumLedgerApp(ledger);
 
-    await ledger.connect(device!, options: LedgerOptions(connectionTimeout: const Duration(seconds: 10)));
+    await ledger.connect(device!);
 
     final sig = await ethereumLedgerApp.signTransaction(device!, payload);
 

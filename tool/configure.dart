@@ -548,11 +548,11 @@ import 'package:cw_evm/evm_chain_transaction_credentials.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
+import 'package:cw_evm/evm_chain_hardware_wallet_service.dart';
 
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_ethereum/ethereum_wallet_service.dart';
-import 'package:cw_ethereum/ethereum_hardware_wallet_service.dart';
 
 import 'package:eth_sig_util/util/utils.dart';
 
@@ -642,10 +642,11 @@ import 'package:web3dart/web3dart.dart';
   const polygonCWHeaders = """
 import 'package:cw_evm/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_mnemonics.dart';
+import 'package:cw_evm/evm_chain_transaction_credentials.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
-import 'package:cw_evm/evm_chain_transaction_credentials.dart';
 import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
+import 'package:cw_evm/evm_chain_hardware_wallet_service.dart';
 
 import 'package:cw_polygon/polygon_client.dart';
 import 'package:cw_polygon/polygon_wallet.dart';
@@ -662,6 +663,7 @@ abstract class Polygon {
   WalletCredentials createPolygonNewWalletCredentials({required String name, WalletInfo? walletInfo});
   WalletCredentials createPolygonRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createPolygonRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
+  WalletCredentials createPolygonHardwareWalletCredentials({required String name, required String address, WalletInfo? walletInfo});
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
@@ -675,6 +677,7 @@ abstract class Polygon {
     required TransactionPriority priority,
     required CryptoCurrency currency,
     int? feeRate,
+    LedgerDevice? device,
   });
 
   Object createPolygonTransactionCredentialsRaw(
@@ -695,6 +698,8 @@ abstract class Polygon {
   void updatePolygonScanUsageState(WalletBase wallet, bool isEnabled);
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
+  
+  Future<List<String>> getHardwareWalletAccounts(LedgerDevice device, {int index = 0, int limit = 5});
 }
   """;
 
