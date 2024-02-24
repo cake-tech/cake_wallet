@@ -1,3 +1,2 @@
-Improve wallet recovery and error tolerance
-Enhance Background sync for Monero wallets
-Bug fixes
+New themes
+Bug fixes and enhancements

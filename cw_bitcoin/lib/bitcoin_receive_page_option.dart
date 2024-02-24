@@ -18,9 +18,9 @@ class BitcoinReceivePageOption implements ReceivePageOption {
 
   static const all = [
     BitcoinReceivePageOption.p2wpkh,
-    BitcoinReceivePageOption.p2sh,
     BitcoinReceivePageOption.p2tr,
     BitcoinReceivePageOption.p2wsh,
+    BitcoinReceivePageOption.p2sh,
     BitcoinReceivePageOption.p2pkh
   ];
 
