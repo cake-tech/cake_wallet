@@ -102,6 +102,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.usdcEPoly,
     CryptoCurrency.kaspa,
     CryptoCurrency.digibyte,
+    CryptoCurrency.usdtSol,
   ];
 
   static const havenCurrencies = [
