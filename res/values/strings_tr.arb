@@ -429,6 +429,7 @@
   "provider_error": "${provider} hatası",
   "public_key": "Genel Anahtar",
   "purchase_gift_card": "Hediye Kartı Satın Al",
+  "purple_dark_theme": "Mor karanlık tema",
   "qr_fullscreen": "QR kodunu tam ekranda açmak için dokun",
   "qr_payment_amount": "Bu QR kodu ödeme tutarını içeriyor. Geçerli miktarın üzerine yazmak istediğine emin misin?",
   "question_to_disable_2fa": "Cake 2FA'yı devre dışı bırakmak istediğinizden emin misiniz? M-cüzdana ve belirli işlevlere erişmek için artık 2FA koduna gerek kalmayacak.",
@@ -440,6 +441,8 @@
   "reconnect": "Yeniden Bağlan",
   "reconnect_alert_text": "Yeniden bağlanmak istediğinden emin misin?",
   "reconnection": "Yeniden bağlantı",
+  "red_dark_theme": "Kırmızı Karanlık Tema",
+  "red_light_theme": "Kırmızı Işık Teması",
   "redeemed": "Kullanılmış",
   "refund_address": "İade adresi",
   "reject": "Reddetmek",
@@ -719,6 +722,7 @@
   "use_card_info_two": "Paralar, dijital para birimlerinde değil, ön ödemeli hesapta tutulduğunda USD'ye dönüştürülür.",
   "use_ssl": "SSL kullan",
   "use_suggested": "Önerileni Kullan",
+  "use_testnet": "TestNet kullanın",
   "variable_pair_not_supported": "Bu değişken paritesi seçilen borsalarda desteklenmemekte",
   "verification": "Doğrulama",
   "verify_with_2fa": "Cake 2FA ile Doğrulayın",
@@ -778,5 +782,6 @@
   "you_pay": "Şu kadar ödeyeceksin: ",
   "you_will_get": "Biçimine dönüştür:",
   "you_will_send": "Biçiminden dönüştür:",
-  "yy": "YY"
+  "yy": "YY",
+  "waitFewSecondForTxUpdate": "İşlemin işlem geçmişine yansıması için lütfen birkaç saniye bekleyin"
 }

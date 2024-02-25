@@ -430,6 +430,7 @@
   "provider_error": "${provider} त्रुटि",
   "public_key": "सार्वजनिक कुंजी",
   "purchase_gift_card": "गिफ्ट कार्ड खरीदें",
+  "purple_dark_theme": "पर्पल डार्क थीम",
   "qr_fullscreen": "फ़ुल स्क्रीन क्यूआर कोड खोलने के लिए टैप करें",
   "qr_payment_amount": "This QR code contains a payment amount. Do you want to overwrite the current value?",
   "question_to_disable_2fa": "क्या आप सुनिश्चित हैं कि आप Cake 2FA को अक्षम करना चाहते हैं? वॉलेट और कुछ कार्यों तक पहुँचने के लिए अब 2FA कोड की आवश्यकता नहीं होगी।",
@@ -442,6 +443,8 @@
   "reconnect": "रिकनेक्ट",
   "reconnect_alert_text": "क्या आप पुन: कनेक्ट होना सुनिश्चित करते हैं?",
   "reconnection": "पुनर्संयोजन",
+  "red_dark_theme": "लाल डार्क थीम",
+  "red_light_theme": "लाल प्रकाश थीम",
   "redeemed": "रिडीम किया गया",
   "refund_address": "वापसी का पता",
   "reject": "अस्वीकार करना",
@@ -721,6 +724,7 @@
   "use_card_info_two": "डिजिटल मुद्राओं में नहीं, प्रीपेड खाते में रखे जाने पर निधियों को यूएसडी में बदल दिया जाता है।",
   "use_ssl": "उपयोग SSL",
   "use_suggested": "सुझाए गए का प्रयोग करें",
+  "use_testnet": "टेस्टनेट का उपयोग करें",
   "variable_pair_not_supported": "यह परिवर्तनीय जोड़ी चयनित एक्सचेंजों के साथ समर्थित नहीं है",
   "verification": "सत्यापन",
   "verify_with_2fa": "केक 2FA के साथ सत्यापित करें",
@@ -780,5 +784,6 @@
   "you_pay": "आप भुगतान करते हैं",
   "you_will_get": "में बदलें",
   "you_will_send": "से रूपांतरित करें",
-  "yy": "वाईवाई"
+  "yy": "वाईवाई",
+  "waitFewSecondForTxUpdate": "लेन-देन इतिहास में लेन-देन प्रतिबिंबित होने के लिए कृपया कुछ सेकंड प्रतीक्षा करें"
 }

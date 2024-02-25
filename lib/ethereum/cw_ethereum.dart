@@ -119,12 +119,13 @@ class CWEthereum extends Ethereum {
   }
 
   @override
-  Future<void> addErc20Token(WalletBase wallet, Erc20Token token) async =>
-      await (wallet as EthereumWallet).addErc20Token(token);
+  Future<void> addErc20Token(WalletBase wallet, CryptoCurrency token) async {
+    await (wallet as EthereumWallet).addErc20Token(token as Erc20Token);
+  }
 
   @override
-  Future<void> deleteErc20Token(WalletBase wallet, Erc20Token token) async =>
-      await (wallet as EthereumWallet).deleteErc20Token(token);
+  Future<void> deleteErc20Token(WalletBase wallet, CryptoCurrency token) async =>
+      await (wallet as EthereumWallet).deleteErc20Token(token as Erc20Token);
 
   @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {
@@ -153,4 +154,6 @@ class CWEthereum extends Ethereum {
   Web3Client? getWeb3Client(WalletBase wallet) {
     return (wallet as EthereumWallet).getWeb3Client();
   }
+
+  String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 }

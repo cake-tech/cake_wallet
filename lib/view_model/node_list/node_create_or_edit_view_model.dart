@@ -65,6 +65,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool get hasAuthCredentials =>
       _walletType == WalletType.monero || _walletType == WalletType.haven;
 
+  bool get hasTestnetSupport => _walletType == WalletType.bitcoin;
+
   String get uri {
     var uri = address;
 
