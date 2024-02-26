@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
+import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/receive_page_option.dart';
@@ -112,11 +113,9 @@ abstract class LightningInvoicePageViewModelBase with Store {
   }
 
   Future<void> _fetchLimits() async {
-    List<String> limits = await lightningViewModel.invoiceLimits();
-    minimum = double.tryParse(limits[0]) ?? 0;
-    maximum = double.tryParse(limits[1]) ?? (100000000 * 10);
-    minimum = minimum! / 100000000000;
-    maximum = maximum! / 100000000000;
+    List<String> limits = await lightningViewModel.invoiceLimitsSats();
+    minimum = bitcoinAmountToDouble(amount: int.parse(limits[0]) ~/ 1000);
+    maximum = bitcoinAmountToDouble(amount: int.parse(limits[1]) ~/ 1000);
   }
 
   @action

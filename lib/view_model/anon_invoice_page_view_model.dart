@@ -102,10 +102,6 @@ abstract class AnonInvoicePageViewModelBase with Store {
         state = FailureState('Amount is too small');
         return;
       }
-      if (maximum != null && amountInCrypto > maximum!) {
-        state = FailureState('Amount is too big');
-        return;
-      }
     }
     final result = await anonPayApi.createInvoice(AnonPayRequest(
       cryptoCurrency: cryptoCurrency,

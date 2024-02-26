@@ -151,12 +151,14 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                     height: 1.2,
                     color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
               ),
-              SizedBox(width: 10),
-              Text(S.of(context).max_value(maxAmount, selectedCurrency.toString()),
-                  style: TextStyle(
-                      fontSize: 10,
-                      height: 1.2,
-                      color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor)),
+              if (maxAmount.isNotEmpty) ...[
+                SizedBox(width: 10),
+                Text(S.of(context).max_value(maxAmount, selectedCurrency.toString()),
+                    style: TextStyle(
+                        fontSize: 10,
+                        height: 1.2,
+                        color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor))
+              ],
             ],
           ),
         )

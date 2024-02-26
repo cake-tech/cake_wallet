@@ -43,7 +43,7 @@ class LightningInvoiceForm extends StatelessWidget {
               return AnonpayCurrencyInputField(
                 controller: amountController,
                 focusNode: depositAmountFocus,
-                maxAmount: lightningInvoicePageViewModel.maximum?.toString() ?? '...',
+                maxAmount: '',
                 minAmount: lightningInvoicePageViewModel.minimum?.toString() ?? '...',
                 selectedCurrency: CryptoCurrency.btc,
               );

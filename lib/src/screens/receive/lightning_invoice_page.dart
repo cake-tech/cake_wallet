@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/lightning_input_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
@@ -13,6 +14,7 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/lightning_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
+import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_lightning/lightning_receive_page_option.dart';
 import 'package:flutter/material.dart';
@@ -135,21 +137,6 @@ class LightningInvoicePage extends BasePage {
             bottomSection: Observer(builder: (_) {
               return Column(
                 children: <Widget>[
-                  // Padding(
-                  //   padding: EdgeInsets.only(bottom: 15),
-                  //   child: Center(
-                  //     child: Text(
-                  //       S.of(context).anonpay_description("an invoice", "pay"),
-                  //       textAlign: TextAlign.center,
-                  //       style: TextStyle(
-                  //           color: Theme.of(context)
-                  //               .extension<ExchangePageTheme>()!
-                  //               .receiveAmountColor,
-                  //           fontWeight: FontWeight.w500,
-                  //           fontSize: 12),
-                  //     ),
-                  //   ),
-                  // ),
                   Container(
                     padding: const EdgeInsets.only(top: 12, bottom: 12, right: 6),
                     margin: const EdgeInsets.only(left: 24, right: 24, bottom: 48),
@@ -170,16 +157,27 @@ class LightningInvoicePage extends BasePage {
                           margin: EdgeInsets.only(left: 12, bottom: 48, right: 12),
                           child: Image.asset("assets/images/warning.png"),
                         ),
-                        Expanded(
-                          child: Text(
-                            "A setup fee of 0.4% with a minimum of 2,079 sats will be applied upon receiving this invoice.",
-                            maxLines: 3,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                            ),
-                          ),
+                        FutureBuilder(
+                          future: lightningInvoicePageViewModel.lightningViewModel.invoiceLimitsSats(),
+                          builder: (context, snapshot) {
+                            if (snapshot.data == null) {
+                              return SizedBox();
+                            }
+                            String min = (snapshot.data as List<String>)[0];
+                            min = bitcoinAmountToLightningString(amount: int.parse(min) ~/ 1000);
+                            return Expanded(
+                              child: Text(
+                                "A setup fee of 0.4% with a minimum of ${min} sats will be applied upon receiving this invoice.",
+                                maxLines: 3,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color:
+                                      Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
