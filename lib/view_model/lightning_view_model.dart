@@ -45,8 +45,6 @@ abstract class LightningViewModelBase with Store {
       description: 'limits',
     );
     final res = await sdk.receivePayment(req: req);
-    // sdk.
-    // TODO: CW-563 figure out how to get the limits
-    return [(res.openingFeeMsat).toString(), '20000'];
+    return [(res.openingFeeMsat).toString(), '10000'];
   }
 }

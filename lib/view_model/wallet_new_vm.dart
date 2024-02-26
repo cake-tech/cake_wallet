@@ -66,7 +66,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name);
       case WalletType.lightning:
-        // return lightning!.createLightningNewWalletCredentials(name: name);// TODO: CW-563 see if necessary
         return bitcoin!.createBitcoinNewWalletCredentials(name: name);
       case WalletType.litecoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name);
