@@ -75,6 +75,7 @@
   "bitcoin_dark_theme": "Bitcoin Dark Akori",
   "bitcoin_light_theme": "Bitcoin Light Akori",
   "bitcoin_payments_require_1_confirmation": "Àwọn àránṣẹ́ Bitcoin nílò ìjẹ́rìísí kan. Ó lè lo ìṣéjú ogun tàbí ìṣéjú jù. A dúpẹ́ fún sùúrù yín! Ẹ máa gba ímeèlì t'ó bá jẹ́rìísí àránṣẹ́ náà.",
+  "block_remaining": "1 bulọọki to ku",
   "Blocks_remaining": "Àkójọpọ̀ ${status} kikù",
   "bright_theme": "Funfun",
   "buy": "Rà",

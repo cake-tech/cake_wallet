@@ -45,7 +45,7 @@ class PresentReceiveOptionPicker extends StatelessWidget {
                     fontSize: 18.0, fontWeight: FontWeight.bold, fontFamily: 'Lato', color: color),
               ),
               Observer(
-                  builder: (_) => Text(describeOption(receiveOptionViewModel.selectedReceiveOption),
+                  builder: (_) => Text(receiveOptionViewModel.selectedReceiveOption.toString(),
                       style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.w500, color: color)))
             ],
           ),
@@ -101,7 +101,7 @@ class PresentReceiveOptionPicker extends StatelessWidget {
                                 return Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(describeOption(option),
+                                    Text(option.toString(),
                                         textAlign: TextAlign.left,
                                         style: textSmall(
                                           color: Theme.of(context)

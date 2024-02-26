@@ -199,6 +199,11 @@ class AddressPage extends BasePage {
     }
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
+      if (option is BitcoinReceivePageOption) {
+        addressListViewModel.setAddressType(option.toType());
+        return;
+      }
+
       switch (option) {
         case ReceivePageOption.anonPayInvoice:
           Navigator.pushNamed(

@@ -75,6 +75,7 @@
   "bitcoin_dark_theme": "Tema Gelap Bitcoin",
   "bitcoin_light_theme": "Tema Cahaya Bitcoin",
   "bitcoin_payments_require_1_confirmation": "Pembayaran Bitcoin memerlukan 1 konfirmasi, yang bisa memakan waktu 20 menit atau lebih. Terima kasih atas kesabaran Anda! Anda akan diemail saat pembayaran dikonfirmasi.",
+  "block_remaining": "1 blok tersisa",
   "Blocks_remaining": "${status} Blok Tersisa",
   "bright_theme": "Cerah",
   "buy": "Beli",

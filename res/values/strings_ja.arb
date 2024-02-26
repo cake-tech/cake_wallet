@@ -75,6 +75,7 @@
   "bitcoin_dark_theme": "ビットコインダークテーマ",
   "bitcoin_light_theme": "ビットコインライトテーマ",
   "bitcoin_payments_require_1_confirmation": "ビットコインの支払いには 1 回の確認が必要で、これには 20 分以上かかる場合があります。お待ち頂きまして、ありがとうございます！支払いが確認されると、メールが送信されます。",
+  "block_remaining": "残り1ブロック",
   "Blocks_remaining": "${status} 残りのブロック",
   "bright_theme": "明るい",
   "buy": "購入",

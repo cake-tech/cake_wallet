@@ -145,6 +145,7 @@ abstract class Bitcoin {
 
   Future<void> setAddressType(Object wallet, dynamic option);
   BitcoinReceivePageOption getSelectedAddressType(Object wallet);
+  bool hasSelectedSilentPayments(Object wallet);
   List<BitcoinReceivePageOption> getBitcoinReceivePageOptions();
 }
   """;

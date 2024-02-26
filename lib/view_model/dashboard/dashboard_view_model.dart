@@ -42,7 +42,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/entities/provider_types.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -277,12 +277,10 @@ abstract class DashboardViewModelBase with Store {
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
-  bool get hasRescan => wallet.type == WalletType.monero || wallet.type == WalletType.haven;
-  // bool get hasRescan =>
-  //     (wallet.type == WalletType.bitcoin &&
-  //         wallet.walletAddresses.addressPageType == bitcoin.AddressType.p2sp) ||
-  //     wallet.type == WalletType.monero ||
-  //     wallet.type == WalletType.haven;
+  bool get hasRescan =>
+      (wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet)) ||
+      wallet.type == WalletType.monero ||
+      wallet.type == WalletType.haven;
 
   final KeyService keyService;
 
@@ -344,15 +342,13 @@ abstract class DashboardViewModelBase with Store {
   bool hasExchangeAction;
 
   @computed
-  bool get isEnabledBuyAction =>
-      !settingsStore.disableBuy && availableBuyProviders.isNotEmpty;
+  bool get isEnabledBuyAction => !settingsStore.disableBuy && availableBuyProviders.isNotEmpty;
 
   @observable
   bool hasBuyAction;
 
   @computed
-  bool get isEnabledSellAction =>
-      !settingsStore.disableSell && availableSellProviders.isNotEmpty;
+  bool get isEnabledSellAction => !settingsStore.disableSell && availableSellProviders.isNotEmpty;
 
   @observable
   bool hasSellAction;
@@ -477,7 +473,8 @@ abstract class DashboardViewModelBase with Store {
 
   Future<List<String>> checkAffectedWallets() async {
     // await load file
-    final vulnerableSeedsString = await rootBundle.loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
+    final vulnerableSeedsString = await rootBundle
+        .loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
     final vulnerableSeeds = vulnerableSeedsString.split("\n");
 
     final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);

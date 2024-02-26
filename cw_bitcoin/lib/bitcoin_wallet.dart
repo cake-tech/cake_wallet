@@ -78,6 +78,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialChangeAddressIndex,
     int initialSilentAddressIndex = 0,
   }) async {
+    final seedBytes = await mnemonicToSeedBytes(mnemonic);
     return BitcoinWallet(
       mnemonic: mnemonic,
       password: password,
@@ -86,10 +87,18 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialAddresses: initialAddresses,
       initialSilentAddresses: initialSilentAddresses,
       initialSilentAddressIndex: initialSilentAddressIndex,
-      silentAddress: await SilentPaymentOwner.fromMnemonic(mnemonic,
+      silentAddress: await SilentPaymentOwner.fromPrivateKeys(
+          scanPrivkey: ECPrivate.fromHex(bitcoin.HDWallet.fromSeed(
+            seedBytes,
+            network: network == BitcoinNetwork.testnet ? bitcoin.testnet : bitcoin.bitcoin,
+          ).derivePath(SCAN_PATH).privKey!),
+          spendPrivkey: ECPrivate.fromHex(bitcoin.HDWallet.fromSeed(
+            seedBytes,
+            network: network == BitcoinNetwork.testnet ? bitcoin.testnet : bitcoin.bitcoin,
+          ).derivePath(SPEND_PATH).privKey!),
           hrp: network == BitcoinNetwork.testnet ? 'tsp' : 'sp'),
       initialBalance: initialBalance,
-      seedBytes: await mnemonicToSeedBytes(mnemonic),
+      seedBytes: seedBytes,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
@@ -106,6 +115,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password,
         walletInfo.network != null ? BasedUtxoNetwork.fromName(walletInfo.network!) : null);
 
+    final seedBytes = await mnemonicToSeedBytes(snp.mnemonic);
     return BitcoinWallet(
       mnemonic: snp.mnemonic,
       password: password,
@@ -114,10 +124,18 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialAddresses: snp.addresses,
       initialSilentAddresses: snp.silentAddresses,
       initialSilentAddressIndex: snp.silentAddressIndex,
-      silentAddress: await SilentPaymentOwner.fromMnemonic(snp.mnemonic,
+      silentAddress: await SilentPaymentOwner.fromPrivateKeys(
+          scanPrivkey: ECPrivate.fromHex(bitcoin.HDWallet.fromSeed(
+            seedBytes,
+            network: snp.network == BitcoinNetwork.testnet ? bitcoin.testnet : bitcoin.bitcoin,
+          ).derivePath(SCAN_PATH).privKey!),
+          spendPrivkey: ECPrivate.fromHex(bitcoin.HDWallet.fromSeed(
+            seedBytes,
+            network: snp.network == BitcoinNetwork.testnet ? bitcoin.testnet : bitcoin.bitcoin,
+          ).derivePath(SPEND_PATH).privKey!),
           hrp: snp.network == BitcoinNetwork.testnet ? 'tsp' : 'sp'),
       initialBalance: snp.balance,
-      seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
+      seedBytes: seedBytes,
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,

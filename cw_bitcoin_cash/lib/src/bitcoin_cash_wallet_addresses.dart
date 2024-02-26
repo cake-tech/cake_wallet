@@ -15,7 +15,6 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
     required super.mainHd,
     required super.sideHd,
     required super.network,
-    required super.electrumClient,
     super.initialAddresses,
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,

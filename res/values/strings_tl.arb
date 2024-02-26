@@ -75,6 +75,7 @@
   "bitcoin_dark_theme": "Bitcoin Madilim na Tema",
   "bitcoin_light_theme": "Tema ng ilaw ng bitcoin",
   "bitcoin_payments_require_1_confirmation": "Ang mga pagbabayad sa Bitcoin ay nangangailangan ng 1 kumpirmasyon, na maaaring tumagal ng 20 minuto o mas mahaba. Salamat sa iyong pasensya! Mag -email ka kapag nakumpirma ang pagbabayad.",
+  "block_remaining": "1 bloke ang natitira",
   "Blocks_remaining": "Ang natitirang ${status} ay natitira",
   "bright_theme": "Maliwanag",
   "buy": "Bilhin",

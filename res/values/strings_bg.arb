@@ -75,6 +75,7 @@
   "bitcoin_dark_theme": "Тъмна тема за биткойн",
   "bitcoin_light_theme": "Лека биткойн тема",
   "bitcoin_payments_require_1_confirmation": "Плащанията с Bitcoin изискват потвърждение, което може да отнеме 20 минути или повече. Благодарим за търпението! Ще получите имейл, когато плащането е потвърдено.",
+  "block_remaining": "1 блок останал",
   "Blocks_remaining": "${status} оставащи блока",
   "bright_theme": "Ярко",
   "buy": "Купуване",

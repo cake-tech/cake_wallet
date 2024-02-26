@@ -75,6 +75,7 @@
   "bitcoin_dark_theme": "Thème sombre Bitcoin",
   "bitcoin_light_theme": "Thème léger Bitcoin",
   "bitcoin_payments_require_1_confirmation": "Les paiements Bitcoin nécessitent 1 confirmation, ce qui peut prendre 20 minutes ou plus. Merci pour votre patience ! Vous serez averti par e-mail lorsque le paiement sera confirmé.",
+  "block_remaining": "1 bloc restant",
   "Blocks_remaining": "Blocs Restants : ${status}",
   "bright_theme": "Vif",
   "buy": "Acheter",

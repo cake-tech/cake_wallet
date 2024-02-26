@@ -75,6 +75,7 @@
   "bitcoin_dark_theme": "موضوع البيتكوين الظلام",
   "bitcoin_light_theme": "موضوع البيتكوين الخفيفة",
   "bitcoin_payments_require_1_confirmation": "تتطلب مدفوعات Bitcoin تأكيدًا واحدًا ، والذي قد يستغرق 20 دقيقة أو أكثر. شكرا لصبرك! سيتم إرسال بريد إلكتروني إليك عند تأكيد الدفع.",
+  "block_remaining": "1 كتلة متبقية",
   "Blocks_remaining": "بلوك متبقي ${status}",
   "bright_theme": "مشرق",
   "buy": "اشتري",
