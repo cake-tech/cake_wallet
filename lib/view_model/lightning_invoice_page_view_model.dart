@@ -113,8 +113,10 @@ abstract class LightningInvoicePageViewModelBase with Store {
 
   Future<void> _fetchLimits() async {
     List<String> limits = await lightningViewModel.invoiceLimits();
-    minimum = double.tryParse(limits[0]);
-    maximum = double.tryParse(limits[1]);
+    minimum = double.tryParse(limits[0]) ?? 0;
+    maximum = double.tryParse(limits[1]) ?? (100000000 * 10);
+    minimum = minimum! / 100000000;
+    maximum = maximum! / 100000000;
   }
 
   @action

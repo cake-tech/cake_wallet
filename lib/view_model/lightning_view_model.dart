@@ -41,10 +41,12 @@ abstract class LightningViewModelBase with Store {
   Future<List<String>> invoiceLimits() async {
     final sdk = await BreezSDK();
     final req = ReceivePaymentRequest(
-      amountMsat: 2500000,
-      description: 'limits',
+      amountMsat: 3000000,
+      description: "limits",
     );
     final res = await sdk.receivePayment(req: req);
-    return [(res.openingFeeMsat).toString(), '10000'];
+    int min = (res.openingFeeMsat ?? 2500000);
+    int max = 1000000000;
+    return [min.toString(), max.toString()];
   }
 }
