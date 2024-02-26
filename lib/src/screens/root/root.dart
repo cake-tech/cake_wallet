@@ -202,7 +202,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     );
   }
   Future<bool> waitForWalletInstance() async {
-    const maxWait = Duration(milliseconds: 600);
+    const maxWait = Duration(milliseconds: 1000);
     const checkInterval = Duration(milliseconds: 100);
 
     DateTime start = DateTime.now();
