@@ -84,6 +84,7 @@
   "buy_with": "Rà pẹ̀lú",
   "by_cake_pay": "láti ọwọ́ Cake Pay",
   "cake_2fa_preset": "Cake 2FA Tito",
+  "cake_dark_theme": "Akara oyinbo dudu koko",
   "cake_pay_account_note": "Ẹ fi àdírẹ́sì ímeèlì nìkan forúkọ sílẹ̀ k'ẹ́ rí àti ra àwọn káàdì. Ẹ lè fi owó tó kéré jù ra àwọn káàdì kan!",
   "cake_pay_learn_more": "Láìpẹ́ ra àti lo àwọn káàdí ìrajà t'á lò nínú irú kan ìtajà nínú áàpù!\nẸ tẹ̀ òsì de ọ̀tún láti kọ́ jù.",
   "cake_pay_subtitle": "Ra àwọn káàdì ìrajà t'á lò nínú ìtajà kan fún owó tí kò pọ̀ (USA nìkan)",
@@ -733,6 +734,7 @@
   "view_key_private": "Kọ́kọ́rọ́ ìwò (àdáni)",
   "view_key_public": "Kọ́kọ́rọ́ ìwò (kò àdáni)",
   "view_transaction_on": "Wo pàṣípààrọ̀ lórí ",
+  "waitFewSecondForTxUpdate": "Fi inurere duro fun awọn iṣeju diẹ fun idunadura lati ṣe afihan ninu itan-akọọlẹ iṣowo",
   "wallet_keys": "Hóró/kọ́kọ́rọ́ àpamọ́wọ́",
   "wallet_list_create_new_wallet": "Ṣe àpamọ́wọ́ títun",
   "wallet_list_edit_wallet": "Ṣatunkọ apamọwọ",
@@ -783,6 +785,5 @@
   "you_pay": "Ẹ sàn",
   "you_will_get": "Ṣe pàṣípààrọ̀ sí",
   "you_will_send": "Ṣe pàṣípààrọ̀ láti",
-  "yy": "Ọd",
-  "waitFewSecondForTxUpdate": "Fi inurere duro fun awọn iṣeju diẹ fun idunadura lati ṣe afihan ninu itan-akọọlẹ iṣowo"
+  "yy": "Ọd"
 }
