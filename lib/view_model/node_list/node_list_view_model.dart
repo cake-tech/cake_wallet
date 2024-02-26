@@ -52,7 +52,11 @@ abstract class NodeListViewModelBase with Store {
 
     switch (_appStore.wallet!.type) {
       case WalletType.bitcoin:
-        node = getBitcoinDefaultElectrumServer(nodes: _nodeSource)!;
+        if (_appStore.wallet!.isTestnet == true) {
+          node = getBitcoinTestnetDefaultElectrumServer(nodes: _nodeSource)!;
+        } else {
+          node = getBitcoinDefaultElectrumServer(nodes: _nodeSource)!;
+        }
         break;
       case WalletType.monero:
         node = getMoneroDefaultNode(nodes: _nodeSource);

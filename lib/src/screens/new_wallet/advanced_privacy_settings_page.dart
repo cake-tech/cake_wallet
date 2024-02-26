@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
@@ -19,6 +20,7 @@ import 'package:cake_wallet/view_model/seed_type_view_model.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -28,6 +30,8 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class AdvancedPrivacySettingsPage extends BasePage {
   AdvancedPrivacySettingsPage(
+    this.useTestnet,
+    this.toggleUseTestnet,
     this.advancedPrivacySettingsViewModel,
     this.nodeViewModel,
     this.seedTypeViewModel,
@@ -42,8 +46,13 @@ class AdvancedPrivacySettingsPage extends BasePage {
   @override
   String get title => S.current.privacy_settings;
 
+  final bool useTestnet;
+  final Function(bool? val) toggleUseTestnet;
+
   @override
   Widget body(BuildContext context) => AdvancedPrivacySettingsBody(
+        useTestnet,
+        toggleUseTestnet,
         advancedPrivacySettingsViewModel,
         nodeViewModel,
         seedTypeViewModel,
@@ -52,7 +61,7 @@ class AdvancedPrivacySettingsPage extends BasePage {
 }
 
 class AdvancedPrivacySettingsBody extends StatefulWidget {
-  const AdvancedPrivacySettingsBody(
+  const AdvancedPrivacySettingsBody(this.useTestnet, this.toggleUseTestnet,
       this.privacySettingsViewModel, this.nodeViewModel, this.seedTypeViewModel, this.torViewModel,
       {Key? key})
       : super(key: key);
@@ -62,6 +71,9 @@ class AdvancedPrivacySettingsBody extends StatefulWidget {
   final SeedTypeViewModel seedTypeViewModel;
   final TorViewModel torViewModel;
 
+  final bool useTestnet;
+  final Function(bool? val) toggleUseTestnet;
+
   @override
   _AdvancedPrivacySettingsBodyState createState() => _AdvancedPrivacySettingsBodyState();
 }
@@ -70,9 +82,14 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
   _AdvancedPrivacySettingsBodyState();
 
   final _formKey = GlobalKey<FormState>();
+  bool? testnetValue;
 
   @override
   Widget build(BuildContext context) {
+    if (testnetValue == null && widget.useTestnet != null) {
+      testnetValue = widget.useTestnet;
+    }
+
     return Container(
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
@@ -143,6 +160,19 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                   ),
                 );
               }),
+            if (widget.privacySettingsViewModel.type == WalletType.bitcoin)
+              Builder(builder: (_) {
+                final val = testnetValue!;
+                return SettingsSwitcherCell(
+                    title: S.current.use_testnet,
+                    value: val,
+                    onValueChange: (_, __) {
+                      setState(() {
+                        testnetValue = !val;
+                      });
+                      widget.toggleUseTestnet!.call(testnetValue);
+                    });
+              }),
             if (FeatureFlag.isInAppTorEnabled && DeviceInfo.instance.isMobile) ...[
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -204,6 +234,13 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                   if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                     return;
                   }
+
+                  widget.nodeViewModel.save();
+                } else if (testnetValue == true) {
+                  // TODO: add type (mainnet/testnet) to Node class so when switching wallets the node can be switched to a matching type
+                  // Currently this is so you can create a working testnet wallet but you need to keep switching back the node if you use multiple wallets at once
+                  widget.nodeViewModel.address = publicBitcoinTestnetElectrumAddress;
+                  widget.nodeViewModel.port = publicBitcoinTestnetElectrumPort;
 
                   widget.nodeViewModel.save();
                 }

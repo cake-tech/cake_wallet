@@ -14,6 +14,7 @@ abstract class EVMChainWalletAddressesBase extends WalletAddresses with Store {
         super(walletInfo);
 
   @override
+  @observable
   String address;
 
   @override
