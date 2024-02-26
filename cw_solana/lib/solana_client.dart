@@ -263,7 +263,7 @@ class SolanaWalletClient {
     required Ed25519HDKeyPair ownerKeypair,
     List<String> references = const [],
   }) async {
-    const commitment = Commitment.finalized;
+    const commitment = Commitment.confirmed;
 
     final latestBlockhash =
         await _client!.rpcClient.getLatestBlockhash(commitment: commitment).value;
@@ -468,7 +468,10 @@ class SolanaWalletClient {
     required SignedTx signedTransaction,
     required Commitment commitment,
   }) async {
-    final signature = await _client!.rpcClient.sendTransaction(signedTransaction.encode());
+    final signature = await _client!.rpcClient.sendTransaction(
+      signedTransaction.encode(),
+      preflightCommitment: commitment,
+    );
 
     _client!.waitForSignatureStatus(signature, status: commitment);
 
