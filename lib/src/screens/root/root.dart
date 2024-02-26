@@ -169,10 +169,19 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         );
       });
     } else if (_isValidPaymentUri()) {
-      widget.navigatorKey.currentState?.pushNamed(
-        Routes.send,
-        arguments: PaymentRequest.fromUri(launchUri),
-      );
+      if (widget.authenticationStore.state == AuthenticationState.uninitialized) {
+        launchUri = null;
+      } else {
+        final tempLaunchUri = launchUri;
+        waitForWalletInstance().then((value) {
+          if (value) {
+            widget.navigatorKey.currentState?.pushNamed(
+              Routes.send,
+              arguments: PaymentRequest.fromUri(tempLaunchUri),
+            );
+          }
+        });
+      }
       launchUri = null;
     } else if (isWalletConnectLink) {
       if (isEVMCompatibleChain(widget.appStore.wallet!.type)) {
@@ -191,6 +200,16 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       onWillPop: () async => false,
       child: widget.child,
     );
+  }
+  Future<bool> waitForWalletInstance() async {
+    const maxWait = Duration(milliseconds: 600);
+    const checkInterval = Duration(milliseconds: 100);
+
+    DateTime start = DateTime.now();
+    while (widget.appStore.wallet == null && DateTime.now().difference(start) < maxWait) {
+      await Future.delayed(checkInterval);
+    }
+    return widget.appStore.wallet != null;
   }
 
   void _reset() {
