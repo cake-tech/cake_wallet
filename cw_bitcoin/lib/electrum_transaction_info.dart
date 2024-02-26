@@ -1,9 +1,8 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/format_amount.dart';
@@ -20,6 +19,8 @@ class ElectrumTransactionBundle {
 }
 
 class ElectrumTransactionInfo extends TransactionInfo {
+  BitcoinUnspent? unspent;
+
   ElectrumTransactionInfo(this.type,
       {required String id,
       required int height,
@@ -28,7 +29,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
       required TransactionDirection direction,
       required bool isPending,
       required DateTime date,
-      required int confirmations}) {
+      required int confirmations,
+      String? to,
+      this.unspent}) {
     this.id = id;
     this.height = height;
     this.amount = amount;
@@ -37,6 +40,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.date = date;
     this.isPending = isPending;
     this.confirmations = confirmations;
+    this.to = to;
   }
 
   factory ElectrumTransactionInfo.fromElectrumVerbose(Map<String, Object> obj, WalletType type,
@@ -144,50 +148,24 @@ class ElectrumTransactionInfo extends TransactionInfo {
         confirmations: bundle.confirmations);
   }
 
-  factory ElectrumTransactionInfo.fromHexAndHeader(WalletType type, String hex,
-      {List<String>? addresses, required int height, int? timestamp, required int confirmations}) {
-    final tx = bitcoin.Transaction.fromHex(hex);
-    var exist = false;
-    var amount = 0;
-
-    if (addresses != null) {
-      tx.outs.forEach((out) {
-        try {
-          final p2pkh =
-              bitcoin.P2PKH(data: PaymentData(output: out.script), network: bitcoin.bitcoin);
-          exist = addresses.contains(p2pkh.data.address);
-
-          if (exist) {
-            amount += out.value!;
-          }
-        } catch (_) {}
-      });
-    }
-
-    final date =
-        timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000) : DateTime.now();
-
-    return ElectrumTransactionInfo(type,
-        id: tx.getId(),
-        height: height,
-        isPending: false,
-        fee: null,
-        direction: TransactionDirection.incoming,
-        amount: amount,
-        date: date,
-        confirmations: confirmations);
-  }
-
   factory ElectrumTransactionInfo.fromJson(Map<String, dynamic> data, WalletType type) {
-    return ElectrumTransactionInfo(type,
-        id: data['id'] as String,
-        height: data['height'] as int,
-        amount: data['amount'] as int,
-        fee: data['fee'] as int,
-        direction: parseTransactionDirectionFromInt(data['direction'] as int),
-        date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
-        isPending: data['isPending'] as bool,
-        confirmations: data['confirmations'] as int);
+    return ElectrumTransactionInfo(
+      type,
+      id: data['id'] as String,
+      height: data['height'] as int,
+      amount: data['amount'] as int,
+      fee: data['fee'] as int,
+      direction: parseTransactionDirectionFromInt(data['direction'] as int),
+      date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
+      isPending: data['isPending'] as bool,
+      confirmations: data['confirmations'] as int,
+      to: data['to'] as String?,
+      unspent: data['unspent'] != null
+          ? BitcoinUnspent.fromJSON(
+              BitcoinAddressRecord.fromJSON(data['unspent']['address_record'] as String),
+              data['unspent'] as Map<String, dynamic>)
+          : null,
+    );
   }
 
   final WalletType type;
@@ -231,6 +209,12 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['isPending'] = isPending;
     m['confirmations'] = confirmations;
     m['fee'] = fee;
+    m['to'] = to;
+    m['unspent'] = unspent?.toJson() ?? <String, dynamic>{};
     return m;
+  }
+
+  String toString() {
+    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, confirmations: $confirmations, to: $to, unspent: $unspent)';
   }
 }

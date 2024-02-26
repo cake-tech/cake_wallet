@@ -1,4 +1,5 @@
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
 part 'rescan_view_model.g.dart';
@@ -9,8 +10,8 @@ enum RescanWalletState { rescaning, none }
 
 abstract class RescanViewModelBase with Store {
   RescanViewModelBase(this._wallet)
-    : state = RescanWalletState.none,
-      isButtonEnabled = false;
+      : state = RescanWalletState.none,
+        isButtonEnabled = false;
 
   final WalletBase _wallet;
 
@@ -23,8 +24,8 @@ abstract class RescanViewModelBase with Store {
   @action
   Future<void> rescanCurrentWallet({required int restoreHeight}) async {
     state = RescanWalletState.rescaning;
-    await _wallet.rescan(height: restoreHeight);
-    _wallet.transactionHistory.clear();
+    _wallet.rescan(height: restoreHeight);
+    if (_wallet.type != WalletType.bitcoin) _wallet.transactionHistory.clear();
     state = RescanWalletState.none;
   }
 }

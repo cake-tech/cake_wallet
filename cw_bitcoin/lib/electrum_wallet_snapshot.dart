@@ -13,11 +13,13 @@ class ElectrumWalletSnapshot {
     required this.password,
     required this.mnemonic,
     required this.addresses,
+    required this.silentAddresses,
     required this.balance,
     required this.regularAddressIndex,
     required this.changeAddressIndex,
     required this.addressPageType,
     required this.network,
+    required this.silentAddressIndex,
   });
 
   final String name;
@@ -28,24 +30,36 @@ class ElectrumWalletSnapshot {
 
   String mnemonic;
   List<BitcoinAddressRecord> addresses;
+  List<BitcoinAddressRecord> silentAddresses;
   ElectrumBalance balance;
   Map<String, int> regularAddressIndex;
   Map<String, int> changeAddressIndex;
+  int silentAddressIndex;
 
-  static Future<ElectrumWalletSnapshot> load(String name, WalletType type, String password, BasedUtxoNetwork? network) async {
+  static Future<ElectrumWalletSnapshot> load(
+      String name, WalletType type, String password, BasedUtxoNetwork? network) async {
     final path = await pathForWallet(name: name, type: type);
     final jsonSource = await read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
-    final addressesTmp = data['addresses'] as List? ?? <Object>[];
     final mnemonic = data['mnemonic'] as String;
+
+    final addressesTmp = data['addresses'] as List? ?? <Object>[];
     final addresses = addressesTmp
         .whereType<String>()
-        .map((addr) => BitcoinAddressRecord.fromJSON(addr, network))
+        .map((addr) => BitcoinAddressRecord.fromJSON(addr, network: network))
         .toList();
+
+    final silentAddressesTmp = data['silent_addresses'] as List? ?? <Object>[];
+    final silentAddresses = silentAddressesTmp
+        .whereType<String>()
+        .map((addr) => BitcoinAddressRecord.fromJSON(addr, network: network))
+        .toList();
+
     final balance = ElectrumBalance.fromJSON(data['balance'] as String) ??
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
     var regularAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
     var changeAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
+    var silentAddressIndex = 0;
 
     try {
       regularAddressIndexByType = {
@@ -55,6 +69,7 @@ class ElectrumWalletSnapshot {
         SegwitAddresType.p2wpkh.toString():
             int.parse(data['change_address_index'] as String? ?? '0')
       };
+      silentAddressIndex = int.parse(data['silent_address_index'] as String? ?? '0');
     } catch (_) {
       try {
         regularAddressIndexByType = data["account_index"] as Map<String, int>? ?? {};
@@ -68,11 +83,13 @@ class ElectrumWalletSnapshot {
       password: password,
       mnemonic: mnemonic,
       addresses: addresses,
+      silentAddresses: silentAddresses,
       balance: balance,
       regularAddressIndex: regularAddressIndexByType,
       changeAddressIndex: changeAddressIndexByType,
       addressPageType: data['address_page_type'] as String? ?? SegwitAddresType.p2wpkh.toString(),
       network: data['network_type'] == 'testnet' ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet,
+      silentAddressIndex: silentAddressIndex,
     );
   }
 }

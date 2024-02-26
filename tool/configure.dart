@@ -125,6 +125,7 @@ abstract class Bitcoin {
 
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
+	List<BitcoinAddressRecord> getSilentAddresses(Object wallet);
 
   List<ElectrumSubAddress> getSubAddresses(Object wallet);
 

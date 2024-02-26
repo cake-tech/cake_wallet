@@ -229,6 +229,7 @@ import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as btc;
 
 import 'buy/dfx/dfx_buy_provider.dart';
 import 'core/totp_request_details.dart';
@@ -657,6 +658,10 @@ Future<void> setup({
 
   getIt.registerFactory<MoneroAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;
+    // if ((wallet.type == WalletType.bitcoin &&
+    //         wallet.walletAddresses.addressPageType == btc.AddressType.p2sp) ||
+    //     wallet.type == WalletType.monero ||
+    //     wallet.type == WalletType.haven) {
     if (wallet.type == WalletType.monero || wallet.type == WalletType.haven) {
       return MoneroAccountListViewModel(wallet);
     }

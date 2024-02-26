@@ -349,6 +349,12 @@ class ElectrumClient {
         return null;
       });
 
+  BehaviorSubject<Object>? chainTipUpdate() {
+    _id += 1;
+    return subscribe<Object>(
+        id: 'blockchain.headers.subscribe', method: 'blockchain.headers.subscribe');
+  }
+
   BehaviorSubject<Object>? scripthashUpdate(String scripthash) {
     _id += 1;
     return subscribe<Object>(

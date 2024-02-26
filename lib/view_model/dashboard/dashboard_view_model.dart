@@ -278,6 +278,11 @@ abstract class DashboardViewModelBase with Store {
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
   bool get hasRescan => wallet.type == WalletType.monero || wallet.type == WalletType.haven;
+  // bool get hasRescan =>
+  //     (wallet.type == WalletType.bitcoin &&
+  //         wallet.walletAddresses.addressPageType == bitcoin.AddressType.p2sp) ||
+  //     wallet.type == WalletType.monero ||
+  //     wallet.type == WalletType.haven;
 
   final KeyService keyService;
 

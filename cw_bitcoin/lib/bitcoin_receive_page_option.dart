@@ -8,6 +8,8 @@ class BitcoinReceivePageOption implements ReceivePageOption {
   static const p2wsh = BitcoinReceivePageOption._('Segwit (P2WSH)');
   static const p2pkh = BitcoinReceivePageOption._('Legacy (P2PKH)');
 
+  static const silent_payments = BitcoinReceivePageOption._('Silent Payments');
+
   const BitcoinReceivePageOption._(this.value);
 
   final String value;
@@ -34,6 +36,8 @@ class BitcoinReceivePageOption implements ReceivePageOption {
         return BitcoinReceivePageOption.p2pkh;
       case P2shAddressType.p2wpkhInP2sh:
         return BitcoinReceivePageOption.p2sh;
+      case SilentPaymentsAddresType.p2sp:
+        return BitcoinReceivePageOption.silent_payments;
       case SegwitAddresType.p2wpkh:
       default:
         return BitcoinReceivePageOption.p2wpkh;

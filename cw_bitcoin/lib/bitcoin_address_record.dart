@@ -16,6 +16,7 @@ class BitcoinAddressRecord {
     required this.type,
     String? scriptHash,
     required this.network,
+    this.silentPaymentTweak,
   })  : _txCount = txCount,
         _balance = balance,
         _name = name,
@@ -23,7 +24,7 @@ class BitcoinAddressRecord {
         scriptHash =
             scriptHash ?? (network != null ? sh.scriptHash(address, network: network) : null);
 
-  factory BitcoinAddressRecord.fromJSON(String jsonSource, BasedUtxoNetwork? network) {
+  factory BitcoinAddressRecord.fromJSON(String jsonSource, {BasedUtxoNetwork? network}) {
     final decoded = json.decode(jsonSource) as Map;
 
     return BitcoinAddressRecord(
@@ -42,6 +43,7 @@ class BitcoinAddressRecord {
       network: (decoded['network'] as String?) == null
           ? network
           : BasedUtxoNetwork.fromName(decoded['network'] as String),
+      silentPaymentTweak: decoded['silentPaymentTweak'] as String?,
     );
   }
 
@@ -57,6 +59,7 @@ class BitcoinAddressRecord {
   bool _isUsed;
   String? scriptHash;
   BasedUtxoNetwork? network;
+  final String? silentPaymentTweak;
 
   int get txCount => _txCount;
 
@@ -96,5 +99,6 @@ class BitcoinAddressRecord {
         'type': type.toString(),
         'scriptHash': scriptHash,
         'network': network?.value,
+        'silentPaymentTweak': silentPaymentTweak,
       });
 }

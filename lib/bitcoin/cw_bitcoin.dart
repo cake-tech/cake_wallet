@@ -188,4 +188,9 @@ class CWBitcoin extends Bitcoin {
 
   @override
   List<BitcoinReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
+
+  List<BitcoinAddressRecord> getSilentAddresses(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.walletAddresses.silentAddresses;
+  }
 }
