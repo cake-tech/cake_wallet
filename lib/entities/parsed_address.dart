@@ -2,7 +2,18 @@ import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/yat_record.dart';
 
 
-enum ParseFrom { unstoppableDomains, openAlias, yatRecord, fio, notParsed, twitter, ens, contact, mastodon }
+enum ParseFrom {
+  unstoppableDomains,
+  openAlias,
+  yatRecord,
+  fio,
+  notParsed,
+  twitter,
+  ens,
+  contact,
+  mastodon,
+  nostr
+}
 
 class ParsedAddress {
   ParsedAddress({
@@ -11,9 +22,9 @@ class ParsedAddress {
     this.description = '',
     this.parseFrom = ParseFrom.notParsed,
   });
-  
+
   factory ParsedAddress.fetchEmojiAddress({
-    List<YatRecord>? addresses, 
+    List<YatRecord>? addresses,
     required String name,
     }){
       if (addresses?.isEmpty ?? true) {
@@ -28,7 +39,7 @@ class ParsedAddress {
   }
 
   factory ParsedAddress.fetchUnstoppableDomainAddress({
-    String? address, 
+    String? address,
     required String name,
   }){
       if (address?.isEmpty ?? true) {
@@ -91,6 +102,14 @@ class ParsedAddress {
       addresses: [address],
       name: name,
       parseFrom: ParseFrom.ens,
+    );
+  }
+
+  factory ParsedAddress.nostrAddress({required String address, required String name}) {
+    return ParsedAddress(
+      addresses: [address],
+      name: name,
+      parseFrom: ParseFrom.nostr,
     );
   }
 

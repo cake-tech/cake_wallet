@@ -37,7 +37,6 @@ class SecurityBackupPage extends BasePage {
                   .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsCellWithArrow(
             title: S.current.create_backup,
             handler: (_) => _authService.authenticateAction(
@@ -47,7 +46,6 @@ class SecurityBackupPage extends BasePage {
                   .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SettingsCellWithArrow(
             title: S.current.settings_change_pin,
             handler: (_) => _authService.authenticateAction(
@@ -60,7 +58,6 @@ class SecurityBackupPage extends BasePage {
                   .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           if (DeviceInfo.instance.isMobile)
             Observer(builder: (_) {
               return SettingsSwitcherCell(
@@ -108,7 +105,7 @@ class SecurityBackupPage extends BasePage {
               context,
               route: _securitySettingsViewModel.useTotp2FA
                   ? Routes.modify2FAPage
-                  : Routes.setup_2faPage,
+                  : Routes.setup2faInfoPage,
                   conditionToDetermineIfToUse2FA: _securitySettingsViewModel
                       .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
                 ),

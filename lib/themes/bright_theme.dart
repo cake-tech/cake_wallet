@@ -78,7 +78,7 @@ class BrightTheme extends LightTheme {
   FilterTheme get filterTheme => super.filterTheme.copyWith(
       checkboxSecondGradientColor: Palette.pinkFlamingo,
       checkboxBackgroundColor: Colors.white,
-      buttonColor: Colors.white.withOpacity(0.2),
+      buttonColor: Palette.darkGray.withOpacity(0.2),
       iconColor: Colors.white);
 
   @override

@@ -1,6 +1,6 @@
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_nano/nano_client.dart';
-import 'package:cw_nano/nano_util.dart';
+import 'package:nanoutil/nanoutil.dart';
 
 class PendingNanoTransaction with PendingTransaction {
   PendingNanoTransaction({
@@ -18,13 +18,13 @@ class PendingNanoTransaction with PendingTransaction {
 
   @override
   String get amountFormatted {
-    final String amt = NanoUtil.getRawAsUsableString(amount.toString(), NanoUtil.rawPerNano);
+    final String amt = NanoAmounts.getRawAsUsableString(amount.toString(), NanoAmounts.rawPerNano);
     return amt;
   }
 
   String get accurateAmountFormatted {
-    final String amt = NanoUtil.getRawAsUsableString(amount.toString(), NanoUtil.rawPerNano);
-    final String acc = NanoUtil.getRawAccuracy(amount.toString(), NanoUtil.rawPerNano);
+    final String amt = NanoAmounts.getRawAsUsableString(amount.toString(), NanoAmounts.rawPerNano);
+    final String acc = NanoAmounts.getRawAccuracy(amount.toString(), NanoAmounts.rawPerNano);
     return "$acc$amt";
   }
 

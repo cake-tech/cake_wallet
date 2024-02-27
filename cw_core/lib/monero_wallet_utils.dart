@@ -54,6 +54,17 @@ Future<void> restoreWalletFiles(String name) async {
   }
 }
 
+Future<void> resetCache(String name) async {
+  await removeCache(name);
+
+  final walletDirPath = await pathForWalletDir(name: name, type: WalletType.monero);
+  final cacheFilePath = '$walletDirPath/$name';
+  final backupCacheFile = File(backupFileName(cacheFilePath));
+  if (backupCacheFile.existsSync()) {
+    await backupCacheFile.copy(cacheFilePath);
+  }
+}
+
 Future<bool> backupWalletFilesExists(String name) async {
   final walletDirPath = await pathForWalletDir(name: name, type: WalletType.monero);
   final cacheFilePath = '$walletDirPath/$name';
@@ -63,9 +74,9 @@ Future<bool> backupWalletFilesExists(String name) async {
   final backupKeysFile = File(backupFileName(keysFilePath));
   final backupAddressListFile = File(backupFileName(addressListFilePath));
 
-  return backupCacheFile.existsSync()
-    && backupKeysFile.existsSync()
-    && backupAddressListFile.existsSync();
+  return backupCacheFile.existsSync() &&
+      backupKeysFile.existsSync() &&
+      backupAddressListFile.existsSync();
 }
 
 Future<void> removeCache(String name) async {

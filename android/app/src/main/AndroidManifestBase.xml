@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 
     <application
         android:name=".Application"
@@ -65,14 +66,15 @@
                 <data android:scheme="polygon" />
                 <data android:scheme="polygon-wallet" />
                 <data android:scheme="polygon_wallet" />
+                <data android:scheme="solana-wallet" />
             </intent-filter>
         </activity>
         <meta-data
                 android:name="flutterEmbedding"
                 android:value="2" />
         <provider
-            android:name="com.pichillilorenzo.flutter_inappwebview.InAppWebViewFileProvider"
-            android:authorities="${applicationId}.flutter_inappwebview.fileprovider"
+            android:name="com.pichillilorenzo.flutter_inappwebview_android.InAppWebViewFileProvider"
+            android:authorities="${applicationId}.flutter_inappwebview_android.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

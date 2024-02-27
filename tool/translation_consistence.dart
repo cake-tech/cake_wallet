@@ -30,8 +30,10 @@ void main(List<String> args) async {
           missingDefaults[key] = arbObj[key] as String;
       });
 
-      if (missingDefaults.isNotEmpty)
+      if (missingDefaults.isNotEmpty) {
         await appendTranslations(lang, missingDefaults);
+        alphabetizeArbFile(fileName);
+      }
     }
   }
 }

@@ -222,6 +222,10 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
         return 'usdttrc20';
       case CryptoCurrency.usdcpoly:
         return 'usdcpoly';
+      case CryptoCurrency.usdtPoly:
+        return 'usdtpoly';
+      case CryptoCurrency.usdcEPoly:
+        return 'usdcepoly';
       case CryptoCurrency.usdcsol:
         return 'usdcspl';
       case CryptoCurrency.matic:

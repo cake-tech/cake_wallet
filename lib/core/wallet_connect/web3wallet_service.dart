@@ -2,23 +2,27 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:typed_data';
 
-import 'package:cake_wallet/core/wallet_connect/evm_chain_id.dart';
-import 'package:cake_wallet/core/wallet_connect/evm_chain_service.dart';
+import 'package:cake_wallet/core/wallet_connect/chain_service/eth/evm_chain_id.dart';
+import 'package:cake_wallet/core/wallet_connect/chain_service/eth/evm_chain_service.dart';
 import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/wallet_connect/models/auth_request_model.dart';
 import 'package:cake_wallet/core/wallet_connect/models/chain_key_model.dart';
 import 'package:cake_wallet/core/wallet_connect/models/session_request_model.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_request_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
+import 'chain_service/solana/solana_chain_id.dart';
+import 'chain_service/solana/solana_chain_service.dart';
 import 'wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
@@ -68,7 +72,7 @@ abstract class Web3WalletServiceBase with Store {
     );
 
     // Setup our accounts
-    List<ChainKeyModel> chainKeys = walletKeyService.getKeys();
+    List<ChainKeyModel> chainKeys = walletKeyService.getKeys(appStore.wallet!);
     for (final chainKey in chainKeys) {
       for (final chainId in chainKey.chains) {
         _web3Wallet.registerAccount(
@@ -114,14 +118,34 @@ abstract class Web3WalletServiceBase with Store {
     final newAuthRequests = _web3Wallet.completeRequests.getAll();
     auth.addAll(newAuthRequests);
 
-    for (final cId in EVMChainId.values) {
-      EvmChainServiceImpl(
-        reference: cId,
-        appStore: appStore,
-        wcKeyService: walletKeyService,
-        bottomSheetService: _bottomSheetHandler,
-        wallet: _web3Wallet,
-      );
+    if (isEVMCompatibleChain(appStore.wallet!.type)) {
+      for (final cId in EVMChainId.values) {
+        EvmChainServiceImpl(
+          reference: cId,
+          appStore: appStore,
+          wcKeyService: walletKeyService,
+          bottomSheetService: _bottomSheetHandler,
+          wallet: _web3Wallet,
+        );
+      }
+    }
+
+    if (appStore.wallet!.type == WalletType.solana) {
+      for (final cId in SolanaChainId.values) {
+        final node = appStore.settingsStore.getCurrentNode(appStore.wallet!.type);
+        final rpcUri = node.uri;
+        final webSocketUri = 'wss://${node.uriRaw}/ws${node.uri.path}';
+
+        SolanaChainServiceImpl(
+          reference: cId,
+          rpcUrl: rpcUri,
+          webSocketUrl: webSocketUri,
+          wcKeyService: walletKeyService,
+          bottomSheetService: _bottomSheetHandler,
+          wallet: _web3Wallet,
+          ownerKeyPair: solana!.getWalletKeyPair(appStore.wallet!),
+        );
+      }
     }
   }
 
@@ -136,6 +160,7 @@ abstract class Web3WalletServiceBase with Store {
     _web3Wallet.onAuthRequest.unsubscribe(_onAuthRequest);
     _web3Wallet.core.pairing.onPairingDelete.unsubscribe(_onPairingDelete);
     _web3Wallet.core.pairing.onPairingExpire.unsubscribe(_onPairingDelete);
+    isInitialized = false;
   }
 
   Web3Wallet getWeb3Wallet() {
@@ -236,7 +261,7 @@ abstract class Web3WalletServiceBase with Store {
   Future<void> _onAuthRequest(AuthRequest? args) async {
     if (args != null) {
       final chaindIdNamespace = getChainNameSpaceAndIdBasedOnWalletType(appStore.wallet!.type);
-      List<ChainKeyModel> chainKeys = walletKeyService.getKeysForChain(chaindIdNamespace);
+      List<ChainKeyModel> chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
       // Create the message to be signed
       final String iss = 'did:pkh:$chaindIdNamespace:${chainKeys.first.publicKey}';
       final Widget modalWidget = Web3RequestModal(

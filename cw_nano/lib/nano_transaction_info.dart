@@ -1,7 +1,7 @@
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_nano/nano_util.dart';
+import 'package:nanoutil/nanoutil.dart';
 
 class NanoTransactionInfo extends TransactionInfo {
   NanoTransactionInfo({
@@ -13,6 +13,8 @@ class NanoTransactionInfo extends TransactionInfo {
     required this.confirmed,
     required this.date,
     required this.confirmations,
+    required this.to,
+    required this.from,
   }) : this.amount = amountRaw.toInt();
 
   final String id;
@@ -24,14 +26,17 @@ class NanoTransactionInfo extends TransactionInfo {
   final bool confirmed;
   final int confirmations;
   final String tokenSymbol;
+  final String? to;
+  final String? from;
   String? _fiatAmount;
 
   bool get isPending => !this.confirmed;
 
   @override
   String amountFormatted() {
-    final String amt = NanoUtil.getRawAsUsableString(amountRaw.toString(), NanoUtil.rawPerNano);
-    final String acc = NanoUtil.getRawAccuracy(amountRaw.toString(), NanoUtil.rawPerNano);
+    final String amt =
+        NanoAmounts.getRawAsUsableString(amountRaw.toString(), NanoAmounts.rawPerNano);
+    final String acc = NanoAmounts.getRawAccuracy(amountRaw.toString(), NanoAmounts.rawPerNano);
     return "$acc$amt $tokenSymbol";
   }
 
@@ -54,6 +59,8 @@ class NanoTransactionInfo extends TransactionInfo {
       confirmed: data['confirmed'] as bool,
       confirmations: data['confirmations'] as int,
       tokenSymbol: data['tokenSymbol'] as String,
+      to: data['to'] as String,
+      from: data['from'] as String,
     );
   }
 
@@ -66,5 +73,7 @@ class NanoTransactionInfo extends TransactionInfo {
         'confirmed': confirmed,
         'confirmations': confirmations,
         'tokenSymbol': tokenSymbol,
+        'to': to,
+        'from': from,
       };
 }

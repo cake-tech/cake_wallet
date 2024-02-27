@@ -159,8 +159,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       url = apiBaseUrl + orderPath + '/fixed';
     } else {
       url = apiBaseUrl + orderPath + '/variable';
-      body["depositCoin"] = request.fromCurrency.title.toLowerCase();
-      body["settleCoin"] = request.toCurrency.title.toLowerCase();
+      body["depositCoin"] = _normalizeCurrency(request.fromCurrency);
+      body["settleCoin"] = _normalizeCurrency(request.toCurrency);
       body["settleNetwork"] = _networkFor(request.toCurrency);
       body["depositNetwork"] = _networkFor(request.fromCurrency);
     }
@@ -248,8 +248,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final url = apiBaseUrl + quotePath;
     final headers = {'Content-Type': 'application/json'};
     final body = {
-      'depositCoin': request.fromCurrency.title.toLowerCase(),
-      'settleCoin': request.toCurrency.title.toLowerCase(),
+      'depositCoin': _normalizeCurrency(request.fromCurrency),
+      'settleCoin': _normalizeCurrency(request.toCurrency),
       'affiliateId': affiliateId,
       'settleAmount': request.toAmount,
       'settleNetwork': _networkFor(request.toCurrency),
@@ -272,6 +272,15 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
     return responseJSON['id'] as String;
+  }
+
+  String _normalizeCurrency(CryptoCurrency currency) {
+    switch (currency) {
+      case CryptoCurrency.usdcEPoly:
+        return 'usdc';
+      default:
+        return currency.title.toLowerCase();
+    }
   }
 
   String _networkFor(CryptoCurrency currency) =>

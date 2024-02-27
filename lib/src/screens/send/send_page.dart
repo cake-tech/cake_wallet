@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
@@ -14,6 +15,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -419,11 +421,13 @@ class SendPage extends BasePage {
                       amount: S.of(_dialogContext).send_amount,
                       amountValue: sendViewModel.pendingTransaction!.amountFormatted,
                       fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
-                      fee: S.of(_dialogContext).send_fee,
+                      fee: isEVMCompatibleChain(sendViewModel.walletType)
+                          ? S.of(_dialogContext).send_estimated_fee
+                          : S.of(_dialogContext).send_fee,
                       feeValue: sendViewModel.pendingTransaction!.feeFormatted,
                       feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                       outputs: sendViewModel.outputs,
-                      rightButtonText: S.of(_dialogContext).ok,
+                      rightButtonText: S.of(_dialogContext).send,
                       leftButtonText: S.of(_dialogContext).cancel,
                       actionRightButton: () {
                         Navigator.of(_dialogContext).pop();
@@ -439,10 +443,17 @@ class SendPage extends BasePage {
                                 }
 
                                 if (state is TransactionCommitted) {
+                                  String alertContent;
+                                  if (sendViewModel.walletType == WalletType.solana) {
+                                    alertContent =
+                                        '${S.of(_dialogContext).send_success(sendViewModel.selectedCryptoCurrency.toString())}. ${S.of(_dialogContext).waitFewSecondForTxUpdate}';
+                                  } else {
+                                    alertContent = S.of(_dialogContext).send_success(
+                                        sendViewModel.selectedCryptoCurrency.toString());
+                                  }
                                   return AlertWithOneAction(
                                       alertTitle: '',
-                                      alertContent: S.of(_dialogContext).send_success(
-                                          sendViewModel.selectedCryptoCurrency.toString()),
+                                      alertContent: alertContent,
                                       buttonText: S.of(_dialogContext).ok,
                                       buttonAction: () {
                                         Navigator.of(_dialogContext).pop();

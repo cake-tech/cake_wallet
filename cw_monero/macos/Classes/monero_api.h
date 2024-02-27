@@ -32,6 +32,7 @@ void store(char *path);
 
 void set_trusted_daemon(bool arg);
 bool trusted_daemon();
+char *sign_message(char *message, char *address);
 
 #ifdef __cplusplus
 }

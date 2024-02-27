@@ -1,4 +1,5 @@
-import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
+import 'dart:io';
+
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
@@ -9,6 +10,7 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
+import 'package:cw_core/battery_optimization_native.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -18,12 +20,11 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class ConnectionSyncPage extends BasePage {
-  ConnectionSyncPage(this.dashboardViewModel, this.web3walletService);
+  ConnectionSyncPage(this.dashboardViewModel);
 
   @override
   String get title => S.current.connection_sync;
 
-  final Web3WalletService? web3walletService;
   final DashboardViewModel dashboardViewModel;
 
   @override
@@ -37,24 +38,48 @@ class ConnectionSyncPage extends BasePage {
             title: S.current.reconnect,
             handler: (context) => _presentReconnectAlert(context),
           ),
-          const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           if (dashboardViewModel.hasRescan) ...[
             SettingsCellWithArrow(
               title: S.current.rescan,
               handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
             ),
-            const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
             if (DeviceInfo.instance.isMobile) ...[
               Observer(builder: (context) {
                 return SettingsPickerCell<SyncMode>(
-                  title: S.current.background_sync_mode,
-                  items: SyncMode.all,
-                  displayItem: (SyncMode syncMode) => syncMode.name,
-                  selectedItem: dashboardViewModel.syncMode,
-                  onItemSelected: dashboardViewModel.setSyncMode,
-                );
+                    title: S.current.background_sync_mode,
+                    items: SyncMode.all,
+                    displayItem: (SyncMode syncMode) => syncMode.name,
+                    selectedItem: dashboardViewModel.syncMode,
+                    onItemSelected: (syncMode) async {
+                      dashboardViewModel.setSyncMode(syncMode);
+
+                      if (Platform.isIOS) return;
+
+                      if (syncMode.type != SyncType.disabled) {
+                        final isDisabled = await isBatteryOptimizationDisabled();
+
+                        if (isDisabled) return;
+
+                        await showPopUp<void>(
+                          context: context,
+                          builder: (BuildContext dialogContext) {
+                            return AlertWithTwoActions(
+                              alertTitle: S.current.disableBatteryOptimization,
+                              alertContent: S.current.disableBatteryOptimizationDescription,
+                              leftButtonText: S.of(context).cancel,
+                              rightButtonText: S.of(context).ok,
+                              actionLeftButton: () => Navigator.of(dialogContext).pop(),
+                              actionRightButton: () async {
+                                await requestDisableBatteryOptimization();
+
+                                Navigator.of(dialogContext).pop();
+                              },
+                            );
+                          },
+                        );
+                      }
+                    });
               }),
-              const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
               Observer(builder: (context) {
                 return SettingsSwitcherCell(
                   title: S.current.sync_all_wallets,
@@ -62,14 +87,12 @@ class ConnectionSyncPage extends BasePage {
                   onValueChange: (_, bool value) => dashboardViewModel.setSyncAll(value),
                 );
               }),
-              const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
             ],
           ],
           SettingsCellWithArrow(
             title: S.current.manage_nodes,
             handler: (context) => Navigator.of(context).pushNamed(Routes.manageNodes),
           ),
-          const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           Observer(
             builder: (context) {
               if (!dashboardViewModel.hasPowNodes) return const SizedBox();
@@ -80,16 +103,14 @@ class ConnectionSyncPage extends BasePage {
                     title: S.current.manage_pow_nodes,
                     handler: (context) => Navigator.of(context).pushNamed(Routes.managePowNodes),
                   ),
-                  const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
                 ],
               );
             },
           ),
-          if (isEVMCompatibleChain(dashboardViewModel.wallet.type)) ...[
+          if (isWalletConnectCompatibleChain(dashboardViewModel.wallet.type)) ...[
             WalletConnectTile(
               onTap: () => Navigator.of(context).pushNamed(Routes.walletConnectConnectionsListing),
             ),
-            const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           ],
           if (FeatureFlag.isInAppTorEnabled)
             SettingsCellWithArrow(
@@ -100,7 +121,6 @@ class ConnectionSyncPage extends BasePage {
       ),
     );
   }
-
 
   Future<void> _presentReconnectAlert(BuildContext context) async {
     await showPopUp<void>(

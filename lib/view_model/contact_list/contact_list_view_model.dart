@@ -91,6 +91,9 @@ abstract class ContactListViewModelBase with Store {
       walletContacts.where((element) => _isValidForCurrency(element)).toList();
 
   bool _isValidForCurrency(ContactBase element) {
-    return _currency == null || element.type == _currency || element.type.title == _currency!.tag;
+    return _currency == null ||
+        element.type == _currency ||
+        element.type.title == _currency!.tag ||
+        element.type.tag == _currency!.tag;
   }
 }

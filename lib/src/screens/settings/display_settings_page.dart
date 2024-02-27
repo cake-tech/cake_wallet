@@ -76,7 +76,7 @@ class DisplaySettingsPage extends BasePage {
                 },
               ),
               if (responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile)
-                SettingsThemeChoicesCell(_displaySettingsViewModel),
+                Semantics(label: S.current.color_theme, child: SettingsThemeChoicesCell(_displaySettingsViewModel)),
             ],
           ),
         );

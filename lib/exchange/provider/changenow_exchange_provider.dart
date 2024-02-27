@@ -265,6 +265,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {
+    if (currency.title == "USDC" && currency.tag == "POLY") {
+      throw "Only Bridged USDC (USDC.e) is allowed in ChangeNow";
+    }
     switch (currency) {
       case CryptoCurrency.zec:
         return 'zec';

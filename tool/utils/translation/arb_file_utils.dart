@@ -47,9 +47,7 @@ Map<String, dynamic> readArbFile(File file) {
 }
 
 String getArbFileName(String lang) {
-  final shortLang = lang
-      .split("-")
-      .first;
+  final shortLang = lang.split("-").first;
   return "./res/values/strings_$shortLang.arb";
 }
 
@@ -65,4 +63,26 @@ List<String> getMissingKeysInArbFile(String fileName, Iterable<String> langKeys)
   }
 
   return results;
+}
+
+void alphabetizeArbFile(String fileName) {
+  final file = File(fileName);
+  final arbObj = readArbFile(file);
+
+  final sortedKeys = arbObj.keys.toList()
+    ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+  final Map<String, dynamic> sortedArbObj = {};
+  for (var key in sortedKeys) {
+    sortedArbObj[key] = arbObj[key];
+  }
+
+  final outputContent = json
+      .encode(sortedArbObj)
+      .replaceAll('","', '",\n  "')
+      .replaceAll('{"', '{\n  "')
+      .replaceAll('"}', '"\n}')
+      .replaceAll('":"', '": "')
+      .replaceAll('\$ {', '\${');
+
+  file.writeAsStringSync(outputContent);
 }

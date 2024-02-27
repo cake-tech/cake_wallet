@@ -6,10 +6,9 @@ class BitcoinUnspent extends Unspent {
       : bitcoinAddressRecord = addressRecord,
         super(addressRecord.address, hash, value, vout, null);
 
-  factory BitcoinUnspent.fromJSON(
-      BitcoinAddressRecord address, Map<String, dynamic> json) =>
-      BitcoinUnspent(address, json['tx_hash'] as String, json['value'] as int,
-          json['tx_pos'] as int);
+  factory BitcoinUnspent.fromJSON(BitcoinAddressRecord address, Map<String, dynamic> json) =>
+      BitcoinUnspent(
+          address, json['tx_hash'] as String, json['value'] as int, json['tx_pos'] as int);
 
   final BitcoinAddressRecord bitcoinAddressRecord;
 }

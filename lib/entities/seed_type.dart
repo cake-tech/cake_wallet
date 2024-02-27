@@ -6,7 +6,7 @@ class SeedType extends EnumerableItem<int> with Serializable<int> {
 
   static const all = [SeedType.legacy, SeedType.polyseed];
 
-  static const defaultSeedType = legacy;
+  static const defaultSeedType = polyseed;
 
   static const legacy = SeedType(raw: 0, title: 'Legacy (25 words)');
   static const polyseed = SeedType(raw: 1, title: 'Polyseed (16 words)');

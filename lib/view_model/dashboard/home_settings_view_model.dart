@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -16,14 +17,14 @@ class HomeSettingsViewModel = HomeSettingsViewModelBase with _$HomeSettingsViewM
 
 abstract class HomeSettingsViewModelBase with Store {
   HomeSettingsViewModelBase(this._settingsStore, this._balanceViewModel)
-      : tokens = ObservableSet<Erc20Token>() {
+      : tokens = ObservableSet<CryptoCurrency>() {
     _updateTokensList();
   }
 
   final SettingsStore _settingsStore;
   final BalanceViewModel _balanceViewModel;
 
-  final ObservableSet<Erc20Token> tokens;
+  final ObservableSet<CryptoCurrency> tokens;
 
   @observable
   String searchText = '';
@@ -43,7 +44,7 @@ abstract class HomeSettingsViewModelBase with Store {
   @action
   void setPinNativeToken(bool value) => _settingsStore.pinNativeTokenAtTop = value;
 
-  Future<void> addErc20Token(Erc20Token token) async {
+  Future<void> addToken(CryptoCurrency token) async {
     if (_balanceViewModel.wallet.type == WalletType.ethereum) {
       await ethereum!.addErc20Token(_balanceViewModel.wallet, token);
     }
@@ -52,23 +53,31 @@ abstract class HomeSettingsViewModelBase with Store {
       await polygon!.addErc20Token(_balanceViewModel.wallet, token);
     }
 
+    if (_balanceViewModel.wallet.type == WalletType.solana) {
+      await solana!.addSPLToken(_balanceViewModel.wallet, token);
+    }
+
     _updateTokensList();
     _updateFiatPrices(token);
   }
 
-  Future<void> deleteErc20Token(Erc20Token token) async {
+  Future<void> deleteToken(CryptoCurrency token) async {
     if (_balanceViewModel.wallet.type == WalletType.ethereum) {
-      await ethereum!.deleteErc20Token(_balanceViewModel.wallet, token);
+      await ethereum!.deleteErc20Token(_balanceViewModel.wallet, token as Erc20Token);
     }
 
     if (_balanceViewModel.wallet.type == WalletType.polygon) {
-      await polygon!.deleteErc20Token(_balanceViewModel.wallet, token);
+      await polygon!.deleteErc20Token(_balanceViewModel.wallet, token as Erc20Token);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.solana) {
+      await solana!.deleteSPLToken(_balanceViewModel.wallet, token);
     }
 
     _updateTokensList();
   }
 
-  Future<Erc20Token?> getErc20Token(String contractAddress) async {
+  Future<CryptoCurrency?> getToken(String contractAddress) async {
     if (_balanceViewModel.wallet.type == WalletType.ethereum) {
       return await ethereum!.getErc20Token(_balanceViewModel.wallet, contractAddress);
     }
@@ -77,12 +86,16 @@ abstract class HomeSettingsViewModelBase with Store {
       return await polygon!.getErc20Token(_balanceViewModel.wallet, contractAddress);
     }
 
+    if (_balanceViewModel.wallet.type == WalletType.solana) {
+      return await solana!.getSPLToken(_balanceViewModel.wallet, contractAddress);
+    }
+
     return null;
   }
 
   CryptoCurrency get nativeToken => _balanceViewModel.wallet.currency;
 
-  void _updateFiatPrices(Erc20Token token) async {
+  void _updateFiatPrices(CryptoCurrency token) async {
     try {
       _balanceViewModel.fiatConvertationStore.prices[token] =
           await FiatConversionService.fetchPrice(
@@ -92,20 +105,27 @@ abstract class HomeSettingsViewModelBase with Store {
     } catch (_) {}
   }
 
-  void changeTokenAvailability(Erc20Token token, bool value) async {
+  void changeTokenAvailability(CryptoCurrency token, bool value) async {
     token.enabled = value;
+
     if (_balanceViewModel.wallet.type == WalletType.ethereum) {
-      ethereum!.addErc20Token(_balanceViewModel.wallet, token);
+      ethereum!.addErc20Token(_balanceViewModel.wallet, token as Erc20Token);
     }
+
     if (_balanceViewModel.wallet.type == WalletType.polygon) {
-      polygon!.addErc20Token(_balanceViewModel.wallet, token);
+      polygon!.addErc20Token(_balanceViewModel.wallet, token as Erc20Token);
     }
+
+    if (_balanceViewModel.wallet.type == WalletType.solana) {
+      solana!.addSPLToken(_balanceViewModel.wallet, token);
+    }
+
     _refreshTokensList();
   }
 
   @action
   void _updateTokensList() {
-    int _sortFunc(Erc20Token e1, Erc20Token e2) {
+    int _sortFunc(CryptoCurrency e1, CryptoCurrency e2) {
       int index1 = _balanceViewModel.formattedBalances.indexWhere((element) => element.asset == e1);
       int index2 = _balanceViewModel.formattedBalances.indexWhere((element) => element.asset == e2);
 
@@ -138,6 +158,14 @@ abstract class HomeSettingsViewModelBase with Store {
           .toList()
         ..sort(_sortFunc));
     }
+
+    if (_balanceViewModel.wallet.type == WalletType.solana) {
+      tokens.addAll(solana!
+          .getSPLTokenCurrencies(_balanceViewModel.wallet)
+          .where((element) => _matchesSearchText(element))
+          .toList()
+        ..sort(_sortFunc));
+    }
   }
 
   @action
@@ -153,10 +181,32 @@ abstract class HomeSettingsViewModelBase with Store {
     _updateTokensList();
   }
 
-  bool _matchesSearchText(Erc20Token asset) {
+  bool _matchesSearchText(CryptoCurrency asset) {
+    final address = getTokenAddressBasedOnWallet(asset);
+
+    // The homes settings would only be displayed for either of Ethereum, Polygon or Solana Wallets.
+    if (address == null) return false;
+
     return searchText.isEmpty ||
         asset.fullName!.toLowerCase().contains(searchText.toLowerCase()) ||
         asset.title.toLowerCase().contains(searchText.toLowerCase()) ||
-        asset.contractAddress == searchText;
+        address == searchText;
+  }
+
+  String? getTokenAddressBasedOnWallet(CryptoCurrency asset) {
+    if (_balanceViewModel.wallet.type == WalletType.solana) {
+      return solana!.getTokenAddress(asset);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.ethereum) {
+      return ethereum!.getTokenAddress(asset);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.polygon) {
+      return polygon!.getTokenAddress(asset);
+    }
+
+    // We return null if it's neither Polygin, Ethereum or Solana wallet (which is actually impossible because we only display home settings for either of these three wallets).
+    return null;
   }
 }

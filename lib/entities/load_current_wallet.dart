@@ -22,7 +22,7 @@ Future<void> loadCurrentWallet() async {
   final type = deserializeFromInt(typeRaw);
   final walletLoadingService = getIt.get<WalletLoadingService>();
   final wallet = await walletLoadingService.load(type, name);
-  appStore.changeCurrentWallet(wallet);
+  await appStore.changeCurrentWallet(wallet);
 
   getIt.get<BackgroundTasks>().registerSyncTask();
 }

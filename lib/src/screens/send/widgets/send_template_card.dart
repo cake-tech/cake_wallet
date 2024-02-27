@@ -69,40 +69,44 @@ class SendTemplateCard extends StatelessWidget {
                       validator: sendTemplateViewModel.templateValidator),
                 Padding(
                   padding: EdgeInsets.only(top: 20),
-                  child: AddressTextField(
-                    selectedCurrency: sendTemplateViewModel.cryptoCurrency,
-                    controller: _addressController,
-                    onURIScanned: (uri) {
-                      final paymentRequest = PaymentRequest.fromUri(uri);
-                      _addressController.text = paymentRequest.address;
-                      _cryptoAmountController.text = paymentRequest.amount;
-                    },
-                    options: [
-                      AddressTextFieldOption.paste,
-                      AddressTextFieldOption.qrCode,
-                      AddressTextFieldOption.addressBook
-                    ],
-                    onPushPasteButton: (context) async {
-                      template.output.resetParsedAddress();
-                      await template.output.fetchParsedAddress(context);
-                    },
-                    onPushAddressBookButton: (context) async {
-                      template.output.resetParsedAddress();
-                      await template.output.fetchParsedAddress(context);
-                    },
-                    buttonColor: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-                    borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
-                    textStyle: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
-                    hintStyle: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
-                    ),
-                    validator: sendTemplateViewModel.addressValidator,
+                  child: Observer(
+                    builder: (context) {
+                      return AddressTextField(
+                        selectedCurrency: template.selectedCurrency,
+                        controller: _addressController,
+                        onURIScanned: (uri) {
+                          final paymentRequest = PaymentRequest.fromUri(uri);
+                          _addressController.text = paymentRequest.address;
+                          _cryptoAmountController.text = paymentRequest.amount;
+                        },
+                        options: [
+                          AddressTextFieldOption.paste,
+                          AddressTextFieldOption.qrCode,
+                          AddressTextFieldOption.addressBook
+                        ],
+                        onPushPasteButton: (context) async {
+                          template.output.resetParsedAddress();
+                          await template.output.fetchParsedAddress(context);
+                        },
+                        onPushAddressBookButton: (context) async {
+                          template.output.resetParsedAddress();
+                          await template.output.fetchParsedAddress(context);
+                        },
+                        buttonColor: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+                        borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
+                        textStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                        hintStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
+                        ),
+                        validator: sendTemplateViewModel.addressValidator,
+                      );
+                    }
                   ),
                 ),
                 Padding(

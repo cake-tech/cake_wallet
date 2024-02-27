@@ -43,6 +43,11 @@ Future<String> extractAddressFromParsed(
       content = S.of(context).extracted_address_content('${parsedAddress.name} (Mastodon)');
       address = parsedAddress.addresses.first;
       break;
+    case ParseFrom.nostr:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (Nostr NIP-05)');
+      address = parsedAddress.addresses.first;
+      break;
     case ParseFrom.yatRecord:
       if (parsedAddress.name.isEmpty) {
         title = S.of(context).yat_error;

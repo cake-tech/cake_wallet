@@ -95,12 +95,12 @@ class MoneroDarkTheme extends DarkTheme {
 
   @override
   CakeMenuTheme get menuTheme => super.menuTheme.copyWith(
-      headerFirstGradientColor: containerColor,
+      headerFirstGradientColor: primaryColor,
       headerSecondGradientColor: containerColor,
       backgroundColor: containerColor,
       subnameTextColor: Colors.grey,
       dividerColor: colorScheme.secondaryContainer,
-      iconColor: colorScheme.secondaryContainer,
+      iconColor: Colors.white,
       settingActionsIconColor: colorScheme.secondaryContainer);
 
   @override

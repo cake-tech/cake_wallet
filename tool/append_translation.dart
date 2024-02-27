@@ -13,10 +13,20 @@ void main(List<String> args) async {
 
   print('Appending "$name": "$text"');
 
+  // add translation to all languages:
   for (var lang in langs) {
     final fileName = getArbFileName(lang);
     final translation = await getTranslation(text, lang);
 
     appendStringToArbFile(fileName, name, translation);
   }
+
+  print('Alphabetizing all files...');
+  
+  for (var lang in langs) {
+    final fileName = getArbFileName(lang);
+    alphabetizeArbFile(fileName);
+  }
+
+  print('Done!');
 }
