@@ -1216,11 +1216,6 @@ Future<void> setup({
     );
   });
 
-  // getIt.registerFactory<LightningReceiveOnchainPage>(() => LightningReceiveOnchainPage(
-  //       addressListViewModel: getIt.get<WalletAddressListViewModel>(),
-  //       receiveOptionViewModel: ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, ReceivePageOption.lightningOnchain),
-  //     ));
-
   getIt.registerFactoryParam<LightningReceiveOnchainPage, List<dynamic>, void>(
       (List<dynamic> args, _) {
     final pageOption = args.last as ReceivePageOption;
