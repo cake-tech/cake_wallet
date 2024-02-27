@@ -29,6 +29,13 @@ Future<void> startFiatRateUpdate(
 
       if (appStore.wallet!.type == WalletType.haven) {
         await updateHavenRate(fiatConversionStore);
+      } else if (appStore.wallet!.type == WalletType.lightning) {
+        fiatConversionStore.prices[appStore.wallet!.currency] =
+            await FiatConversionService.fetchPrice(
+                    crypto: appStore.wallet!.currency,
+                    fiat: settingsStore.fiatCurrency,
+                    torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly) /
+                100000000;
       } else {
         fiatConversionStore.prices[appStore.wallet!.currency] =
             await FiatConversionService.fetchPrice(
@@ -52,7 +59,6 @@ Future<void> startFiatRateUpdate(
         currencies =
             solana!.getSPLTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
       }
-
 
       if (currencies != null) {
         for (final currency in currencies) {
