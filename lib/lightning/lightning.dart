@@ -27,8 +27,6 @@ part 'cw_lightning.dart';
 Lightning? lightning = CWLightning();
 
 abstract class Lightning {
-  TransactionPriority getMediumTransactionPriority();
-
   WalletCredentials createLightningRestoreWalletFromSeedCredentials(
       {required String name, required String mnemonic, required String password});
   WalletCredentials createLightningRestoreWalletFromWIFCredentials(
@@ -40,9 +38,6 @@ abstract class Lightning {
       {required String name, WalletInfo? walletInfo});
   List<String> getWordList();
   Map<String, String> getWalletKeys(Object wallet);
-  List<TransactionPriority> getTransactionPriorities();
-  TransactionPriority deserializeLightningTransactionPriority(int raw);
-  int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet, String label);
   Future<void> updateAddress(Object wallet, String address, String label);
   Object createLightningTransactionCredentials(List<Output> outputs,
@@ -58,14 +53,11 @@ abstract class Lightning {
   String formatterLightningAmountToString({required int amount});
   double formatterLightningAmountToDouble({required int amount});
   int formatterStringDoubleToLightningAmount(String amount);
-  String lightningTransactionPriorityWithLabel(TransactionPriority priority, int rate);
 
   List<Unspent> getUnspents(Object wallet);
   Future<void> updateUnspents(Object wallet);
   WalletService createLightningWalletService(
       Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
-  TransactionPriority getLightningTransactionPriorityMedium();
-  TransactionPriority getLightningTransactionPrioritySlow();
   List<LightningReceivePageOption> getLightningReceivePageOptions();
 }
   

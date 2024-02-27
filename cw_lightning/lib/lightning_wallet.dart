@@ -43,7 +43,7 @@ abstract class LightningWalletBase
     with Store {
   final bitcoin.HDWallet hd;
   final String mnemonic;
-  String _password;
+  final String _password;
   bool _isTransactionUpdating;
   late ElectrumClient electrumClient;
 
@@ -159,7 +159,6 @@ abstract class LightningWalletBase
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp.addresses,
-      // initialBalance: snp.balance,
       seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
@@ -217,8 +216,7 @@ abstract class LightningWalletBase
 
     sdk.paymentsStream.listen((payments) {
       _isTransactionUpdating = true;
-      print("payment event: $payments");
-      var txs = convertToTxInfo(payments);
+      final txs = convertToTxInfo(payments);
       transactionHistory.addMany(txs);
       _isTransactionUpdating = false;
     });
@@ -352,23 +350,10 @@ abstract class LightningWalletBase
     await transactionHistory.save();
   }
 
-  Future<void> updateBalance() async {
-    // balance[currency] = await _fetchBalances();
-    await save();
-  }
-
   @override
   String get seed => mnemonic;
 
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
-
-  // String toJSON() => json.encode({
-  //       'seedKey': _hexSeed,
-  //       'mnemonic': _mnemonic,
-  //       'currentBalance': balance[currency]?.currentBalance.toString() ?? "0",
-  //       'receivableBalance': balance[currency]?.receivableBalance.toString() ?? "0",
-  //       'derivationType': _derivationType.toString()
-  //     });
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {

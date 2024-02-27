@@ -1,8 +1,6 @@
 part of 'lightning.dart';
 
 class CWLightning extends Lightning {
-	@override
-	TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;	
 
 	@override
 	WalletCredentials createLightningRestoreWalletFromSeedCredentials({
@@ -38,20 +36,6 @@ class CWLightning extends Lightning {
 			'privateKey': keys.privateKey,
 			'publicKey': keys.publicKey	
 		};
-	}
-	
-	@override
-	List<TransactionPriority> getTransactionPriorities() 
-		=> BitcoinTransactionPriority.all;
-
-	@override
-	TransactionPriority deserializeLightningTransactionPriority(int raw)
-		=> BitcoinTransactionPriority.deserialize(raw: raw);
-
-	@override
-	int getFeeRate(Object wallet, TransactionPriority priority) {
-		final lightningWallet = wallet as ElectrumWallet;
-		return lightningWallet.feeRate(priority);
 	}
 
 	@override
@@ -132,10 +116,6 @@ class CWLightning extends Lightning {
 	int formatterStringDoubleToLightningAmount(String amount)
 		=> stringDoubleToBitcoinAmount(amount);
 
-  @override
-  String lightningTransactionPriorityWithLabel(TransactionPriority priority, int rate)
-    => (priority as BitcoinTransactionPriority).labelWithRate(rate);
-
 	@override
 	List<BitcoinUnspent> getUnspents(Object wallet) {
 		final lightningWallet = wallet as ElectrumWallet;
@@ -150,14 +130,6 @@ class CWLightning extends Lightning {
 	WalletService createLightningWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
 		return LightningWalletService(walletInfoSource, unspentCoinSource);
 	}
-  
-  @override
-  TransactionPriority getLightningTransactionPriorityMedium()
-    => BitcoinTransactionPriority.medium;
-
-  @override
-  TransactionPriority getLightningTransactionPrioritySlow()
-    => BitcoinTransactionPriority.slow;
 
   @override
   List<LightningReceivePageOption> getLightningReceivePageOptions() => LightningReceivePageOption.all;
