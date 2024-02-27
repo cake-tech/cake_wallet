@@ -35,7 +35,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
         primarySilentAddress = silentAddress,
         addressesByReceiveType =
-            ObservableList<BitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
+            ObservableList<BaseBitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
         receiveAddresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? [])
             .where((addressRecord) => !addressRecord.isHidden && !addressRecord.isUsed)
             .toSet()),
@@ -405,6 +405,15 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     addressesSet.addAll(addresses);
     this._addresses.clear();
     this._addresses.addAll(addressesSet);
+    updateAddressesByMatch();
+  }
+
+  @action
+  void addSilentAddresses(Iterable<BitcoinSilentPaymentAddressRecord> addresses) {
+    final addressesSet = this.silentAddresses.toSet();
+    addressesSet.addAll(addresses);
+    this.silentAddresses.clear();
+    this.silentAddresses.addAll(addressesSet);
     updateAddressesByMatch();
   }
 

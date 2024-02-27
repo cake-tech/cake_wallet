@@ -19,7 +19,7 @@ class ElectrumTransactionBundle {
 }
 
 class ElectrumTransactionInfo extends TransactionInfo {
-  BitcoinUnspent? unspent;
+  List<BitcoinUnspent>? unspents;
 
   ElectrumTransactionInfo(this.type,
       {required String id,
@@ -31,7 +31,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
       required DateTime date,
       required int confirmations,
       String? to,
-      this.unspent}) {
+      this.unspents}) {
     this.id = id;
     this.height = height;
     this.amount = amount;
@@ -160,10 +160,12 @@ class ElectrumTransactionInfo extends TransactionInfo {
       isPending: data['isPending'] as bool,
       confirmations: data['confirmations'] as int,
       to: data['to'] as String?,
-      unspent: data['unspent'] != null
-          ? BitcoinUnspent.fromJSON(
-              BitcoinAddressRecord.fromJSON(data['unspent']['address_record'] as String),
-              data['unspent'] as Map<String, dynamic>)
+      unspents: data['unspent'] != null
+          ? (data['unspent'] as List<dynamic>)
+              .map((unspent) => BitcoinUnspent.fromJSON(
+                  BitcoinAddressRecord.fromJSON(unspent['address_record'] as String),
+                  data['unspent'] as Map<String, dynamic>))
+              .toList()
           : null,
     );
   }
@@ -210,11 +212,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['confirmations'] = confirmations;
     m['fee'] = fee;
     m['to'] = to;
-    m['unspent'] = unspent?.toJson() ?? <String, dynamic>{};
+    m['unspent'] = unspents?.map((e) => e.toJson()) ?? [];
     return m;
   }
 
   String toString() {
-    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, confirmations: $confirmations, to: $to, unspent: $unspent)';
+    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, confirmations: $confirmations, to: $to, unspent: $unspents)';
   }
 }
