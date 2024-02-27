@@ -45,7 +45,6 @@ abstract class LightningViewModelBase with Store {
       description: "limits",
     );
     final res = await sdk.receivePayment(req: req);
-    final res = await sdk.
     int min = (res.openingFeeMsat ?? (2500 * 1000));
     int max = 1000000000 * 1000 * 10;// 10 BTC
     return [min.toString(), max.toString()];
