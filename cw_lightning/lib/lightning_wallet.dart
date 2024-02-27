@@ -350,6 +350,10 @@ abstract class LightningWalletBase
     await transactionHistory.save();
   }
 
+  Future<void> updateBalance() async {
+    // balance is updated automatically
+  }
+
   @override
   String get seed => mnemonic;
 
