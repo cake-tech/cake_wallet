@@ -9,7 +9,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     required this.decimals,
     this.fullName,
     this.iconPath,
-    this.tag})
+    this.tag,
+    this.enabled = false,
+    })
       : super(title: title, raw: raw);
 
   final String name;
@@ -17,6 +19,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   final String? fullName;
   final String? iconPath;
   final int decimals;
+  final bool enabled;
+
+  set enabled(bool value) => this.enabled = value;
 
   static const all = [
     CryptoCurrency.xmr,
@@ -93,6 +98,10 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.dydx,
     CryptoCurrency.steth,
     CryptoCurrency.banano,
+    CryptoCurrency.usdtPoly,
+    CryptoCurrency.usdcEPoly,
+    CryptoCurrency.kaspa,
+    CryptoCurrency.digibyte,
   ];
 
   static const havenCurrencies = [
@@ -202,6 +211,11 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const dydx = CryptoCurrency(title: 'DYDX', tag: 'ETH', fullName: 'dYdX', raw: 84, name: 'dydx', iconPath: 'assets/images/dydx_icon.png', decimals: 18);
   static const steth = CryptoCurrency(title: 'STETH', tag: 'ETH', fullName: 'Lido Staked Ethereum', raw: 85, name: 'steth', iconPath: 'assets/images/steth_icon.png', decimals: 18);
   static const banano = CryptoCurrency(title: 'BAN', fullName: 'Banano', raw: 86, name: 'banano', iconPath: 'assets/images/nano_icon.png', decimals: 29);
+  static const usdtPoly = CryptoCurrency(title: 'USDT', tag: 'POLY', fullName: 'Tether USD (PoS)', raw: 87, name: 'usdtpoly', iconPath: 'assets/images/usdt_icon.png', decimals: 6);
+  static const usdcEPoly = CryptoCurrency(title: 'USDC.E', tag: 'POLY', fullName: 'USD Coin (PoS)', raw: 88, name: 'usdcepoly', iconPath: 'assets/images/usdc_icon.png', decimals: 6);
+  static const kaspa = CryptoCurrency(title: 'KAS', fullName: 'Kaspa', raw: 89, name: 'kas', iconPath: 'assets/images/kaspa_icon.png', decimals: 8);
+  static const digibyte = CryptoCurrency(title: 'DGB', fullName: 'DigiByte', raw: 90, name: 'dgb', iconPath: 'assets/images/digibyte.png', decimals: 8);
+  static const usdtSol = CryptoCurrency(title: 'USDT', tag: 'SOL', fullName: 'USDT Tether', raw: 90, name: 'usdtsol', iconPath: 'assets/images/usdt_icon.png', decimals: 6);
 
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
@@ -241,7 +255,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   }
 
   static CryptoCurrency fromFullName(String name) {
-    if (CryptoCurrency._fullNameCurrencyMap[name.toLowerCase()] == null) {
+    if (CryptoCurrency._fullNameCurrencyMap[name.split("(").first.trim().toLowerCase()] == null) {
       final s = 'Unexpected token: $name for CryptoCurrency fromFullName';
       throw  ArgumentError.value(name, 'Fullname', s);
     }

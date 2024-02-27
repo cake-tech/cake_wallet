@@ -3,23 +3,29 @@ import 'package:cake_wallet/themes/dark_theme.dart';
 import 'package:cake_wallet/themes/light_theme.dart';
 import 'package:cake_wallet/themes/monero_light_theme.dart';
 import 'package:cake_wallet/themes/monero_dark_theme.dart';
+import 'package:cake_wallet/themes/purple_dark_theme.dart';
 import 'package:cake_wallet/themes/matrix_green_theme.dart';
 import 'package:cake_wallet/themes/bitcoin_dark_theme.dart';
 import 'package:cake_wallet/themes/bitcoin_light_theme.dart';
 import 'package:cake_wallet/themes/high_contrast_theme.dart';
+import 'package:cake_wallet/themes/red_dark_theme.dart';
+import 'package:cake_wallet/themes/red_light_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 
 class ThemeList {
   static final all = [
-    brightTheme,
-    lightTheme,
     darkTheme,
+    lightTheme,
+    brightTheme,
     moneroDarkTheme,
     moneroLightTheme,
-    matrixGreenTheme,
+    purpleDarkTheme,
     bitcoinDarkTheme,
     bitcoinLightTheme,
-    highContrastTheme
+    matrixGreenTheme,
+    redDarkTheme,
+    redLightTheme,
+    highContrastTheme,
   ];
 
   static final lightTheme = LightTheme(raw: 0);
@@ -31,6 +37,9 @@ class ThemeList {
   static final bitcoinDarkTheme = BitcoinDarkTheme(raw: 6);
   static final bitcoinLightTheme = BitcoinLightTheme(raw: 7);
   static final highContrastTheme = HighContrastTheme(raw: 8);
+  static final redLightTheme = RedLightTheme(raw: 9);
+  static final redDarkTheme = RedDarkTheme(raw: 10);
+  static final purpleDarkTheme = PurpleDarkTheme(raw: 11);
 
   static ThemeBase deserialize({required int raw}) {
     switch (raw) {
@@ -52,6 +61,12 @@ class ThemeList {
         return bitcoinLightTheme;
       case 8:
         return highContrastTheme;
+      case 9:
+        return redLightTheme;
+      case 10:
+        return redDarkTheme;
+      case 11:
+        return purpleDarkTheme;
       default:
         throw Exception(
             'Unexpected token raw: $raw for deserialization of ThemeBase');

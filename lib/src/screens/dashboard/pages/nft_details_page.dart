@@ -2,7 +2,7 @@ import 'package:cake_wallet/entities/wallet_nft_response.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/nft_image_tile_widget.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
@@ -94,33 +94,33 @@ class NFTDetailsPage extends BasePage {
                         .syncedBackgroundColor,
 
                   ),
-                  child: NFTImageWidget(
+                  child: CakeImageWidget(
                     imageUrl: nftAsset.normalizedMetadata?.imageUrl,
                   ),
                 ),
                 SizedBox(height: 16),
                 _NFTSingleInfoTile(
                   infoType: S.current.name,
-                  infoValue: nftAsset.normalizedMetadata?.name ?? '',
+                  infoValue: nftAsset.normalizedMetadata?.name ?? '---',
                 ),
 
                 if (nftAsset.normalizedMetadata?.description != null) ...[
                   SizedBox(height: 16),
                   _NFTSingleInfoTile(
-                    infoType: 'Description',
-                    infoValue: nftAsset.normalizedMetadata?.description ?? '',
+                    infoType: S.current.description,
+                    infoValue: nftAsset.normalizedMetadata?.description ?? '---',
                   ),
                 ],
 
                 SizedBox(height: 16),
                 _NFTSingleInfoTile(
-                  infoType: 'Contract Name',
-                  infoValue: nftAsset.name ?? '',
+                  infoType: S.current.contractName,
+                  infoValue: nftAsset.name ?? '---',
                 ),
                 SizedBox(height: 8),
                 _NFTSingleInfoTile(
-                  infoType: 'Contract Symbol',
-                  infoValue: nftAsset.symbol ?? '',
+                  infoType: S.current.contractSymbol,
+                  infoValue: nftAsset.symbol ?? '---',
                 ),
               ],
             ),

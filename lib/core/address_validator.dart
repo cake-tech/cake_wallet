@@ -1,6 +1,7 @@
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 
@@ -9,7 +10,7 @@ class AddressValidator extends TextValidator {
       : super(
             errorMessage: S.current.error_text_address,
             useAdditionalValidation: type == CryptoCurrency.btc
-                ? bitcoin.Address.validateAddress
+                ? (String txt) => validateAddress(address: txt, network: BitcoinNetwork.mainnet)
                 : null,
             pattern: getPattern(type),
             length: getLength(type));
@@ -25,13 +26,15 @@ class AddressValidator extends TextValidator {
         return '^[0-9a-zA-Z]{59}\$|^[0-9a-zA-Z]{92}\$|^[0-9a-zA-Z]{104}\$'
             '|^[0-9a-zA-Z]{105}\$|^addr1[0-9a-zA-Z]{98}\$';
       case CryptoCurrency.btc:
-        return '^3[0-9a-zA-Z]{32}\$|^3[0-9a-zA-Z]{33}\$|^bc1[0-9a-zA-Z]{59}\$';
+        return '^${P2pkhAddress.regex.pattern}\$|^${P2shAddress.regex.pattern}\$|^${P2wpkhAddress.regex.pattern}\$|${P2trAddress.regex.pattern}\$|^${P2wshAddress.regex.pattern}\$';
       case CryptoCurrency.nano:
         return '[0-9a-zA-Z_]';
       case CryptoCurrency.banano:
         return '[0-9a-zA-Z_]';
       case CryptoCurrency.usdc:
       case CryptoCurrency.usdcpoly:
+      case CryptoCurrency.usdtPoly:
+      case CryptoCurrency.usdcEPoly:
       case CryptoCurrency.ape:
       case CryptoCurrency.avaxc:
       case CryptoCurrency.eth:
@@ -88,9 +91,9 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.dai:
       case CryptoCurrency.dash:
       case CryptoCurrency.eos:
-      return '[0-9a-zA-Z]';
+        return '[0-9a-zA-Z]';
       case CryptoCurrency.bch:
-        return '^(?!bitcoincash:)[0-9a-zA-Z]*\$|^(?!bitcoincash:)q[0-9a-zA-Z]{41}\$|^(?!bitcoincash:)q[0-9a-zA-Z]{42}\$|^bitcoincash:q[0-9a-zA-Z]{41}\$|^bitcoincash:q[0-9a-zA-Z]{42}\$';
+        return '^(?!bitcoincash:)[0-9a-zA-Z]*\$|^(?!bitcoincash:)q|p[0-9a-zA-Z]{41}\$|^(?!bitcoincash:)q|p[0-9a-zA-Z]{42}\$|^bitcoincash:q|p[0-9a-zA-Z]{41}\$|^bitcoincash:q|p[0-9a-zA-Z]{42}\$';
       case CryptoCurrency.bnb:
         return '[0-9a-zA-Z]';
       case CryptoCurrency.ltc:
@@ -128,6 +131,12 @@ class AddressValidator extends TextValidator {
     if (type is Erc20Token) {
       return [42];
     }
+
+    if (solana != null) {
+      final length = solana!.getValidationLength(type);
+      if (length != null) return length;
+    }
+
     switch (type) {
       case CryptoCurrency.xmr:
         return null;
@@ -141,6 +150,8 @@ class AddressValidator extends TextValidator {
         return [42];
       case CryptoCurrency.eth:
       case CryptoCurrency.usdcpoly:
+      case CryptoCurrency.usdtPoly:
+      case CryptoCurrency.usdcEPoly:
       case CryptoCurrency.mana:
       case CryptoCurrency.matic:
       case CryptoCurrency.maticpoly:
@@ -188,11 +199,11 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.sc:
         return [76];
       case CryptoCurrency.sol:
+      case CryptoCurrency.usdtSol:
+      case CryptoCurrency.usdcsol:
         return [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44];
       case CryptoCurrency.trx:
         return [34];
-      case CryptoCurrency.usdcsol:
-        return [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44];
       case CryptoCurrency.usdt:
         return [34];
       case CryptoCurrency.usdttrc20:
@@ -246,9 +257,9 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.near:
         return [64];
       case CryptoCurrency.btcln:
-        return null;
+      case CryptoCurrency.kaspa:
       default:
-        return [];
+        return null;
     }
   }
 
@@ -259,12 +270,11 @@ class AddressValidator extends TextValidator {
             '|([^0-9a-zA-Z]|^)8[0-9a-zA-Z]{94}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)[0-9a-zA-Z]{106}([^0-9a-zA-Z]|\$)';
       case CryptoCurrency.btc:
-        return '([^0-9a-zA-Z]|^)1[0-9a-zA-Z]{32}([^0-9a-zA-Z]|\$)'
-            '|([^0-9a-zA-Z]|^)1[0-9a-zA-Z]{33}([^0-9a-zA-Z]|\$)'
-            '|([^0-9a-zA-Z]|^)3[0-9a-zA-Z]{32}([^0-9a-zA-Z]|\$)'
-            '|([^0-9a-zA-Z]|^)3[0-9a-zA-Z]{33}([^0-9a-zA-Z]|\$)'
-            '|([^0-9a-zA-Z]|^)bc1[0-9a-zA-Z]{39}([^0-9a-zA-Z]|\$)'
-            '|([^0-9a-zA-Z]|^)bc1[0-9a-zA-Z]{59}([^0-9a-zA-Z]|\$)';
+        return '([^0-9a-zA-Z]|^)${P2pkhAddress.regex.pattern}|\$)'
+            '([^0-9a-zA-Z]|^)${P2shAddress.regex.pattern}|\$)'
+            '([^0-9a-zA-Z]|^)${P2wpkhAddress.regex.pattern}|\$)'
+            '([^0-9a-zA-Z]|^)${P2wshAddress.regex.pattern}|\$)'
+            '([^0-9a-zA-Z]|^)${P2trAddress.regex.pattern}|\$)';
       case CryptoCurrency.ltc:
         return '([^0-9a-zA-Z]|^)^L[a-zA-Z0-9]{26,33}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)[LM][a-km-zA-HJ-NP-Z1-9]{26,33}([^0-9a-zA-Z]|\$)'
@@ -282,6 +292,8 @@ class AddressValidator extends TextValidator {
             '|bitcoincash:q[0-9a-zA-Z]{42}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)q[0-9a-zA-Z]{41}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)q[0-9a-zA-Z]{42}([^0-9a-zA-Z]|\$)';
+      case CryptoCurrency.sol:
+        return '([^0-9a-zA-Z]|^)[1-9A-HJ-NP-Za-km-z]{43,44}([^0-9a-zA-Z]|\$)';
       default:
         return null;
     }

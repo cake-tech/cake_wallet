@@ -18,7 +18,6 @@ import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:cw_nano/nano_transaction_history.dart';
 import 'package:cw_nano/nano_transaction_info.dart';
-import 'package:cw_nano/nano_util.dart';
 import 'package:cw_nano/nano_wallet_keys.dart';
 import 'package:cw_nano/pending_nano_transaction.dart';
 import 'package:mobx/mobx.dart';
@@ -27,6 +26,7 @@ import 'package:cw_nano/nano_wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:nanodart/nanodart.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:nanoutil/nanoutil.dart';
 
 part 'nano_wallet.g.dart';
 
@@ -83,6 +83,8 @@ abstract class NanoWalletBase
   @observable
   late ObservableMap<CryptoCurrency, NanoBalance> balance;
 
+  static const int POLL_INTERVAL_SECONDS = 10;
+
   // initialize the different forms of private / public key we'll need:
   Future<void> init() async {
     if (_derivationType == DerivationType.unknown) {
@@ -100,11 +102,21 @@ abstract class NanoWalletBase
       if (_derivationType == DerivationType.nano) {
         _hexSeed = bip39.mnemonicToEntropy(_mnemonic).toUpperCase();
       } else {
-        _hexSeed = await NanoUtil.hdMnemonicListToSeed(_mnemonic.split(' '));
+        _hexSeed = await NanoDerivations.hdMnemonicListToSeed(_mnemonic.split(' '));
       }
     }
-    _privateKey = await NanoUtil.uniSeedToPrivate(_hexSeed!, 0, type);
-    _publicAddress = await NanoUtil.uniSeedToAddress(_hexSeed!, 0, type);
+    NanoDerivationType derivationType =
+        type == "standard" ? NanoDerivationType.STANDARD : NanoDerivationType.HD;
+    _privateKey = await NanoDerivations.universalSeedToPrivate(
+      _hexSeed!,
+      index: 0,
+      type: derivationType,
+    );
+    _publicAddress = await NanoDerivations.universalSeedToAddress(
+      _hexSeed!,
+      index: 0,
+      type: derivationType,
+    );
     this.walletInfo.address = _publicAddress!;
 
     await walletAddresses.init();
@@ -125,6 +137,7 @@ abstract class NanoWalletBase
   @override
   void close() {
     _client.stop();
+    _receiveTimer?.cancel();
   }
 
   @action
@@ -139,6 +152,7 @@ abstract class NanoWalletBase
 
       try {
         await _updateBalance();
+        await updateTransactions();
         await _updateRep();
         await _receiveAll();
       } catch (e) {
@@ -173,8 +187,8 @@ abstract class NanoWalletBase
       if (txOut.sendAll) {
         amt = balance[currency]?.currentBalance ?? BigInt.zero;
       } else {
-        amt = BigInt.tryParse(NanoUtil.getAmountAsRaw(
-                txOut.cryptoAmount?.replaceAll(',', '.') ?? "0", NanoUtil.rawPerNano)) ??
+        amt = BigInt.tryParse(NanoAmounts.getAmountAsRaw(
+                txOut.cryptoAmount?.replaceAll(',', '.') ?? "0", NanoAmounts.rawPerNano)) ??
             BigInt.zero;
       }
 
@@ -186,9 +200,7 @@ abstract class NanoWalletBase
 
       final block = await _client.constructSendBlock(
         amountRaw: amt.toString(),
-        destinationAddress: txOut.isParsedAddress
-            ? txOut.extractedAddress!
-            : txOut.address,
+        destinationAddress: txOut.isParsedAddress ? txOut.extractedAddress! : txOut.address,
         privateKey: _privateKey!,
         balanceAfterTx: runningBalance,
         previousHash: previousHash,
@@ -236,10 +248,10 @@ abstract class NanoWalletBase
     }
   }
 
-  Future<void> updateTransactions() async {
+  Future<bool> updateTransactions() async {
     try {
       if (_isTransactionUpdating) {
-        return;
+        return false;
       }
 
       _isTransactionUpdating = true;
@@ -247,8 +259,10 @@ abstract class NanoWalletBase
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
       _isTransactionUpdating = false;
+      return true;
     } catch (_) {
       _isTransactionUpdating = false;
+      return false;
     }
   }
 
@@ -261,16 +275,17 @@ abstract class NanoWalletBase
     final Map<String, NanoTransactionInfo> result = {};
 
     for (var transactionModel in transactions) {
+      final bool isSend = transactionModel.type == "send";
       result[transactionModel.hash] = NanoTransactionInfo(
         id: transactionModel.hash,
         amountRaw: transactionModel.amount,
         height: transactionModel.height,
-        direction: transactionModel.type == "send"
-            ? TransactionDirection.outgoing
-            : TransactionDirection.incoming,
+        direction: isSend ? TransactionDirection.outgoing : TransactionDirection.incoming,
         confirmed: transactionModel.confirmed,
         date: transactionModel.date ?? DateTime.now(),
         confirmations: transactionModel.confirmed ? 1 : 0,
+        to: isSend ? transactionModel.account : address,
+        from: isSend ? address : transactionModel.account,
       );
     }
 
@@ -312,11 +327,10 @@ abstract class NanoWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
-      await _updateBalance();
-      await updateTransactions();
 
+      // setup a timer to receive transactions periodically:
       _receiveTimer?.cancel();
-      _receiveTimer = Timer.periodic(const Duration(seconds: 15), (timer) async {
+      _receiveTimer = Timer.periodic(const Duration(seconds: POLL_INTERVAL_SECONDS), (timer) async {
         // get our balance:
         await _updateBalance();
         // if we have anything to receive, process it:
@@ -324,6 +338,14 @@ abstract class NanoWalletBase
           await _receiveAll();
         }
       });
+
+      // also run once, immediately:
+      await _updateBalance();
+      bool updateSuccess = await updateTransactions();
+      if (!updateSuccess) {
+        syncStatus = FailedSyncStatus();
+        return;
+      }
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {
@@ -353,9 +375,11 @@ abstract class NanoWalletBase
 
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String;
-    final balance = NanoBalance.fromString(
-        formattedCurrentBalance: data['currentBalance'] as String? ?? "0",
-        formattedReceivableBalance: data['receivableBalance'] as String? ?? "0");
+    
+    final balance = NanoBalance.fromRawString(
+      currentBalance: data['currentBalance'] as String? ?? "0",
+      receivableBalance: data['receivableBalance'] as String? ?? "0",
+    );
 
     DerivationType derivationType = DerivationType.nano;
     if (data['derivationType'] == "DerivationType.bip39") {
@@ -374,12 +398,26 @@ abstract class NanoWalletBase
   }
 
   Future<void> _updateBalance() async {
+    var oldBalance = balance[currency];
     try {
       balance[currency] = await _client.getBalance(_publicAddress!);
     } catch (e) {
       print("Failed to get balance $e");
+      // if we don't have a balance, we should at least create one, since it's a late binding
+      // otherwise, it's better to just leave it as whatever it was before:
+      if (balance[currency] == null) {
+        balance[currency] =
+            NanoBalance(currentBalance: BigInt.zero, receivableBalance: BigInt.zero);
+      }
     }
-    await save();
+    // don't save unnecessarily:
+    // trying to save too frequently can cause problems with the file system
+    // since nano is updated frequently this can be a problem, so we only save if there is a change:
+    if (oldBalance == null ||
+        balance[currency]!.currentBalance != oldBalance.currentBalance ||
+        balance[currency]!.receivableBalance != oldBalance.receivableBalance) {
+      await save();
+    }
   }
 
   Future<void> _updateRep() async {
@@ -394,11 +432,19 @@ abstract class NanoWalletBase
   }
 
   Future<void> regenerateAddress() async {
-    final String type = (_derivationType == DerivationType.nano) ? "standard" : "hd";
-    _privateKey =
-        await NanoUtil.uniSeedToPrivate(_hexSeed!, this.walletAddresses.account!.id, type);
-    _publicAddress =
-        await NanoUtil.uniSeedToAddress(_hexSeed!, this.walletAddresses.account!.id, type);
+    final NanoDerivationType type = (_derivationType == DerivationType.nano)
+        ? NanoDerivationType.STANDARD
+        : NanoDerivationType.HD;
+    _privateKey = await NanoDerivations.universalSeedToPrivate(
+      _hexSeed!,
+      index: this.walletAddresses.account!.id,
+      type: type,
+    );
+    _publicAddress = await NanoDerivations.universalSeedToAddress(
+      _hexSeed!,
+      index: this.walletAddresses.account!.id,
+      type: type,
+    );
 
     this.walletInfo.address = _publicAddress!;
     this.walletAddresses.address = _publicAddress!;

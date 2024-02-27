@@ -10,6 +10,8 @@ abstract class WalletAddresses {
 
   String get address;
 
+  String? get primaryAddress => null;
+
   set address(String address);
 
   Map<String, String> addressesMap;

@@ -53,13 +53,17 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    _requestAuth = widget.authService.requireAuth();
+    WidgetsBinding.instance.addObserver(this);
+
+    widget.authService.requireAuth().then((value) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() => _requestAuth = value);
+      });
+    });
     _isInactiveController = StreamController<bool>.broadcast();
     _isInactive = false;
     _postFrameCallback = false;
-    WidgetsBinding.instance.addObserver(this);
     super.initState();
-
     if (DeviceInfo.instance.isMobile) {
       initUniLinks();
     }
@@ -105,8 +109,10 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
         break;
       case AppLifecycleState.resumed:
-        setState(() {
-          _requestAuth = widget.authService.requireAuth();
+        widget.authService.requireAuth().then((value) {
+          setState(() {
+            _requestAuth = value;
+          });
         });
         break;
       default:
@@ -176,7 +182,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         );
         launchUri = null;
       } else {
-        _nonETHWalletErrorToast(S.current.switchToETHWallet);
+        _nonETHWalletErrorToast(S.current.switchToEVMCompatibleWallet);
       }
     }
 
@@ -206,7 +212,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   String? _getRouteToGo() {
     if (isWalletConnectLink) {
       if (isEVMCompatibleChain(widget.appStore.wallet!.type)) {
-        _nonETHWalletErrorToast(S.current.switchToETHWallet);
+        _nonETHWalletErrorToast(S.current.switchToEVMCompatibleWallet);
         return null;
       }
       return Routes.walletConnectConnectionsListing;

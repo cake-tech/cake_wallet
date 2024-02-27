@@ -189,7 +189,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                           output.loadContact(contact);
                         },
                         validator: validator,
-                        selectedCurrency: sendViewModel.currency,
+                        selectedCurrency: sendViewModel.selectedCryptoCurrency,
                       );
                     }),
                     if (output.isParsedAddress)
@@ -321,7 +321,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                           ? sendViewModel.allAmountValidator
                                           : sendViewModel.amountValidator,
                                     ),
-                                    if (!sendViewModel.isBatchSending)
+                                    if (!sendViewModel.isBatchSending && sendViewModel.shouldDisplaySendALL)
                                       Positioned(
                                         top: 2,
                                         right: 0,
@@ -478,7 +478,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                           Text(
                                             output.estimatedFee.toString() +
                                                 ' ' +
-                                                sendViewModel.selectedCryptoCurrency.toString(),
+                                                sendViewModel.currency.toString(),
                                             style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.w600,

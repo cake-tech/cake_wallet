@@ -1,6 +1,5 @@
 import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
@@ -24,6 +23,10 @@ import 'package:collection/collection.dart';
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
+const publicBitcoinTestnetElectrumAddress = 'electrum.blockstream.info';
+const publicBitcoinTestnetElectrumPort = '60002';
+const publicBitcoinTestnetElectrumUri =
+    '$publicBitcoinTestnetElectrumAddress:$publicBitcoinTestnetElectrumPort';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
@@ -31,6 +34,7 @@ const polygonDefaultNodeUri = 'polygon-bor.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
+const solanaDefaultNodeUri = 'rpc.ankr.com';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -186,7 +190,17 @@ Future<void> defaultSettingsMigration(
         case 25:
           await rewriteSecureStoragePin(secureStorage: secureStorage);
           break;
+        case 26:
 
+        /// commented out as it was a probable cause for some users to have white screen issues
+        /// maybe due to multiple access on Secure Storage at once
+        /// or long await time on start of the app
+        // await insecureStorageMigration(secureStorage: secureStorage, sharedPreferences: sharedPreferences);
+        case 27:
+          await addSolanaNodeList(nodes: nodes);
+          await changeSolanaCurrentNodeToDefault(
+              sharedPreferences: sharedPreferences, nodes: nodes);
+          break;
         default:
           break;
       }
@@ -324,6 +338,12 @@ Node? getBitcoinDefaultElectrumServer({required Box<Node> nodes}) {
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoin);
 }
 
+Node? getBitcoinTestnetDefaultElectrumServer({required Box<Node> nodes}) {
+  return nodes.values
+          .firstWhereOrNull((Node node) => node.uriRaw == publicBitcoinTestnetElectrumUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoin);
+}
+
 Node? getLitecoinDefaultElectrumServer({required Box<Node> nodes}) {
   return nodes.values
           .firstWhereOrNull((Node node) => node.uriRaw == cakeWalletLitecoinElectrumUri) ??
@@ -380,6 +400,87 @@ Node getMoneroDefaultNode({required Box<Node> nodes}) {
   }
 }
 
+Node? getSolanaDefaultNode({required Box<Node> nodes}) {
+  return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == solanaDefaultNodeUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.solana);
+}
+
+Future<void> insecureStorageMigration({
+  required SharedPreferences sharedPreferences,
+  required FlutterSecureStorage secureStorage,
+}) async {
+  bool? allowBiometricalAuthentication =
+      sharedPreferences.getBool(SecureKey.allowBiometricalAuthenticationKey);
+  bool? useTOTP2FA = sharedPreferences.getBool(SecureKey.useTOTP2FA);
+  bool? shouldRequireTOTP2FAForAccessingWallet =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForAccessingWallet);
+  bool? shouldRequireTOTP2FAForSendsToContact =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForSendsToContact);
+  bool? shouldRequireTOTP2FAForSendsToNonContact =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForSendsToNonContact);
+  bool? shouldRequireTOTP2FAForSendsToInternalWallets =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets);
+  bool? shouldRequireTOTP2FAForExchangesToInternalWallets =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets);
+  bool? shouldRequireTOTP2FAForExchangesToExternalWallets =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets);
+  bool? shouldRequireTOTP2FAForAddingContacts =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForAddingContacts);
+  bool? shouldRequireTOTP2FAForCreatingNewWallets =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForCreatingNewWallets);
+  bool? shouldRequireTOTP2FAForAllSecurityAndBackupSettings =
+      sharedPreferences.getBool(SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings);
+  int? selectedCake2FAPreset = sharedPreferences.getInt(SecureKey.selectedCake2FAPreset);
+  String? totpSecretKey = sharedPreferences.getString(SecureKey.totpSecretKey);
+  int? pinTimeOutDuration = sharedPreferences.getInt(SecureKey.pinTimeOutDuration);
+  int? lastAuthTimeMilliseconds = sharedPreferences.getInt(SecureKey.lastAuthTimeMilliseconds);
+
+  try {
+    await secureStorage.write(
+        key: SecureKey.allowBiometricalAuthenticationKey,
+        value: allowBiometricalAuthentication.toString());
+    await secureStorage.write(key: SecureKey.useTOTP2FA, value: useTOTP2FA.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForAccessingWallet,
+        value: shouldRequireTOTP2FAForAccessingWallet.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForSendsToContact,
+        value: shouldRequireTOTP2FAForSendsToContact.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForSendsToNonContact,
+        value: shouldRequireTOTP2FAForSendsToNonContact.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets,
+        value: shouldRequireTOTP2FAForSendsToInternalWallets.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets,
+        value: shouldRequireTOTP2FAForExchangesToInternalWallets.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets,
+        value: shouldRequireTOTP2FAForExchangesToExternalWallets.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForAddingContacts,
+        value: shouldRequireTOTP2FAForAddingContacts.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForCreatingNewWallets,
+        value: shouldRequireTOTP2FAForCreatingNewWallets.toString());
+    await secureStorage.write(
+        key: SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+        value: shouldRequireTOTP2FAForAllSecurityAndBackupSettings.toString());
+    await secureStorage.write(
+        key: SecureKey.selectedCake2FAPreset, value: selectedCake2FAPreset.toString());
+    await secureStorage.write(key: SecureKey.totpSecretKey, value: totpSecretKey.toString());
+    await secureStorage.write(
+        key: SecureKey.pinTimeOutDuration, value: pinTimeOutDuration.toString());
+    await secureStorage.write(
+        key: SecureKey.lastAuthTimeMilliseconds, value: lastAuthTimeMilliseconds.toString());
+  } catch (e) {
+    print("Error migrating shared preferences to secure storage!: $e");
+    // this actually shouldn't be that big of a problem since we don't delete the old keys in this update
+    // and we read and write to the new locations when loading storage, the migration is just for extra safety
+  }
+}
+
 Future<void> rewriteSecureStoragePin({required FlutterSecureStorage secureStorage}) async {
   // the bug only affects ios/mac:
   if (!Platform.isIOS && !Platform.isMacOS) {
@@ -412,8 +513,15 @@ Future<void> rewriteSecureStoragePin({required FlutterSecureStorage secureStorag
 }
 
 Future<void> changeBitcoinCurrentElectrumServerToDefault(
-    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
-  final server = getBitcoinDefaultElectrumServer(nodes: nodes);
+    {required SharedPreferences sharedPreferences,
+    required Box<Node> nodes,
+    bool? isTestnet}) async {
+  Node? server;
+  if (isTestnet == true) {
+    server = getBitcoinTestnetDefaultElectrumServer(nodes: nodes);
+  } else {
+    server = getBitcoinDefaultElectrumServer(nodes: nodes);
+  }
   final serverId = server?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentBitcoinElectrumSererIdKey, serverId);
@@ -430,7 +538,7 @@ Future<void> changeLitecoinCurrentElectrumServerToDefault(
 Future<void> changeBitcoinCashCurrentNodeToDefault(
     {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
   final server = getBitcoinCashDefaultElectrumServer(nodes: nodes);
-  final serverId = server?.key as int ?? 0;
+  final serverId = server?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, serverId);
 }
@@ -593,6 +701,7 @@ Future<void> checkCurrentNodes(
   final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
   final currentBitcoinCashNodeId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
+  final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
   final currentMoneroNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer =
@@ -611,6 +720,8 @@ Future<void> checkCurrentNodes(
       powNodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
   final currentBitcoinCashNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinCashNodeId);
+  final currentSolanaNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentSolanaNodeId);
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
     await nodeSource.add(newCakeWalletNode);
@@ -669,6 +780,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: polygonDefaultNodeUri, type: WalletType.polygon);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.key as int);
+  }
+
+  if (currentSolanaNodeServer == null) {
+    final node = Node(uri: solanaDefaultNodeUri, type: WalletType.solana);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);
   }
 }
 
@@ -780,4 +897,21 @@ Future<void> changePolygonCurrentNodeToDefault(
   final nodeId = node?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, nodeId);
+}
+
+Future<void> addSolanaNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultSolanaNodes();
+  for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
+}
+
+Future<void> changeSolanaCurrentNodeToDefault(
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+  final node = getSolanaDefaultNode(nodes: nodes);
+  final nodeId = node?.key as int? ?? 0;
+
+  await sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, nodeId);
 }
