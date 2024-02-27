@@ -201,16 +201,21 @@ class LightningReceiveOnchainPage extends BasePage {
                     child: Image.asset("assets/images/warning.png"),
                   ),
                   FutureBuilder(
-                      future: lightningViewModel.invoiceLimitsSats(),
+                      future: lightningViewModel.receiveOnchain(),
                       builder: (context, snapshot) {
                         if (snapshot.data == null) {
                           return SizedBox();
                         }
-                        String min = (snapshot.data as List<String>)[0];
+                        String min = (snapshot.data as List<String>)[1];
+                        String max = (snapshot.data as List<String>)[2];
+                        String fee = (snapshot.data as List<String>)[3];
                         min = bitcoinAmountToLightningString(amount: int.parse(min) ~/ 1000);
+                        max = bitcoinAmountToLightningString(amount: int.parse(min) ~/ 1000);
+                        fee = bitcoinAmountToLightningString(amount: int.parse(min) ~/ 1000);
                         return Expanded(
                           child: Text(
-                            "Send more than 20,029 sats and up to 3,998,387 sats to this address. A setup fee of 0.4% with a minimum of 2,079 sats will be applied upon receiving this invoice. This will convert any received Bitcoin into Lightning. An on-chain fee will be applied. This address can only be used once.",
+                            // S.of(context).lightning_receive_limits(min, max, fee),
+                            "Needs fixing!: $min, $max, $fee",
                             maxLines: 10,
                             style: TextStyle(
                               fontSize: 14,

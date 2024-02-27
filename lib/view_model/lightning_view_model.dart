@@ -18,13 +18,13 @@ abstract class LightningViewModelBase with Store {
 
     ReceiveOnchainRequest req = const ReceiveOnchainRequest();
     SwapInfo swapInfo = await sdk.receiveOnchain(req: req);
-    print(swapInfo.bitcoinAddress);
     print("Minimum amount allowed to deposit in sats: ${swapInfo.minAllowedDeposit}");
     print("Maximum amount allowed to deposit in sats: ${swapInfo.maxAllowedDeposit}");
     return [
       swapInfo.bitcoinAddress,
       swapInfo.minAllowedDeposit.toString(),
-      swapInfo.maxAllowedDeposit.toString()
+      swapInfo.maxAllowedDeposit.toString(),
+      swapInfo.channelOpeningFees?.minMsat.toString() ?? "2000",
     ];
   }
 
@@ -45,6 +45,7 @@ abstract class LightningViewModelBase with Store {
       description: "limits",
     );
     final res = await sdk.receivePayment(req: req);
+    final res = await sdk.
     int min = (res.openingFeeMsat ?? (2500 * 1000));
     int max = 1000000000 * 1000 * 10;// 10 BTC
     return [min.toString(), max.toString()];
