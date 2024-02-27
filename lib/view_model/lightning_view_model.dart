@@ -10,9 +10,6 @@ class LightningViewModel = LightningViewModelBase with _$LightningViewModel;
 abstract class LightningViewModelBase with Store {
   LightningViewModelBase() {}
 
-  // @observable
-  // ExecutionState state;
-
   Future<List<String>> receiveOnchain() async {
     final sdk = await BreezSDK();
 

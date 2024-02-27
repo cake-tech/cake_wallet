@@ -228,13 +228,6 @@ class LightningInvoicePage extends BasePage {
     });
 
     reaction((_) => lightningInvoicePageViewModel.state, (ExecutionState state) {
-      // if (state is ExecutedSuccessfullyState) {
-      //   // Navigator.pushNamed(context, Routes.anonPayReceivePage, arguments: state.payload);
-      //   lightningViewModel.createInvoice(
-      //     amount: state.payload["amount"] as String,
-      //     description: state.payload["description"] as String?,
-      //   );
-      // }
 
       if (state is ExecutedSuccessfullyState) {
         showPopUp<void>(

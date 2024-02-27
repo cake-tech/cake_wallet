@@ -663,10 +663,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<LightningInvoicePage>(param1: args));
 
-    // case Routes.lightningSettings:
-    //   return CupertinoPageRoute<void>(
-    //       fullscreenDialog: true, builder: (_) => getIt.get<LightningSendPage>());
-
     default:
       return MaterialPageRoute<void>(
           builder: (_) => Scaffold(
