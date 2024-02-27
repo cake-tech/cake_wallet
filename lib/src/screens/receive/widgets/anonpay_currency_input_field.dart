@@ -23,6 +23,7 @@ class AnonpayCurrencyInputField extends StatelessWidget {
   final String maxAmount;
   @override
   Widget build(BuildContext context) {
+    bool hasDecimals = selectedCurrency.name != "Sats";
     final arrowBottomPurple = Image.asset(
       'assets/images/arrow_bottom_purple_icon.png',
       color: Colors.white,
@@ -114,12 +115,13 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                             textInputAction: TextInputAction.next,
                             enabled: true,
                             textAlign: TextAlign.left,
-                            keyboardType:
-                                TextInputType.numberWithOptions(signed: false, decimal: true),
+                            keyboardType: TextInputType.numberWithOptions(
+                                signed: false, decimal: hasDecimals),
                             inputFormatters: [
-                              FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
+                              FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]')),
+                              if (!hasDecimals) FilteringTextInputFormatter.deny(RegExp('[\.,]')),
                             ],
-                            hintText: '0.0000',
+                            hintText: hasDecimals ? '0.0000' : '0',
                             borderColor: Colors.transparent,
                             //widget.borderColor,
                             textStyle: TextStyle(

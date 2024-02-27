@@ -8,7 +8,6 @@ import 'package:cw_core/currency.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_lightning/lightning_receive_page_option.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -114,8 +113,9 @@ abstract class LightningInvoicePageViewModelBase with Store {
 
   Future<void> _fetchLimits() async {
     List<String> limits = await lightningViewModel.invoiceLimitsSats();
-    minimum = bitcoinAmountToDouble(amount: int.parse(limits[0]) ~/ 1000);
-    maximum = bitcoinAmountToDouble(amount: int.parse(limits[1]) ~/ 1000);
+    minimum = double.parse(limits[0]);
+    maximum = double.parse(limits[1]);
+    print(minimum);
   }
 
   @action

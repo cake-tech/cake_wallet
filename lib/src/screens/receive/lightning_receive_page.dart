@@ -209,13 +209,13 @@ class LightningReceiveOnchainPage extends BasePage {
                         String min = (snapshot.data as List<String>)[1];
                         String max = (snapshot.data as List<String>)[2];
                         String fee = (snapshot.data as List<String>)[3];
-                        min = bitcoinAmountToLightningString(amount: int.parse(min) ~/ 1000);
-                        max = bitcoinAmountToLightningString(amount: int.parse(min) ~/ 1000);
-                        fee = bitcoinAmountToLightningString(amount: int.parse(min) ~/ 1000);
+                        min = satsToLightningString(double.parse(min));
+                        max = satsToLightningString(double.parse(max));
+                        fee = satsToLightningString(double.parse(fee));
                         return Expanded(
                           child: Text(
                             // S.of(context).lightning_receive_limits(min, max, fee),
-                            "Needs fixing!: $min, $max, $fee",
+                            "Needs fixing!: min: $min    max: $max    fee: $fee",
                             maxLines: 10,
                             style: TextStyle(
                               fontSize: 14,

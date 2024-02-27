@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/view_model/lightning_invoice_page_view_model.dart';
+import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -44,8 +45,8 @@ class LightningInvoiceForm extends StatelessWidget {
                 controller: amountController,
                 focusNode: depositAmountFocus,
                 maxAmount: '',
-                minAmount: lightningInvoicePageViewModel.minimum?.toString() ?? '...',
-                selectedCurrency: CryptoCurrency.btc,
+                minAmount: (lightningInvoicePageViewModel.minimum != null) ? satsToLightningString(lightningInvoicePageViewModel.minimum!) : '...',
+                selectedCurrency: CryptoCurrency.satoshis,
               );
             }),
             SizedBox(
