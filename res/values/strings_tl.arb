@@ -635,6 +635,7 @@
   "sync_status_starting_sync": "Simula sa pag -sync",
   "sync_status_syncronized": "Naka -synchronize",
   "sync_status_syncronizing": "Pag -synchronize",
+  "sync_status_unsupported": "Hindi suportadong node",
   "syncing_wallet_alert_content": "Ang iyong balanse at listahan ng transaksyon ay maaaring hindi kumpleto hanggang sa sabihin nito na \"naka -synchronize\" sa tuktok. Mag -click/tap upang malaman ang higit pa.",
   "syncing_wallet_alert_title": "Ang iyong pitaka ay nag -sync",
   "template": "Template",
@@ -733,6 +734,7 @@
   "view_key_private": "Tingnan ang Key (Pribado)",
   "view_key_public": "Tingnan ang Key (Publiko)",
   "view_transaction_on": "Tingnan ang transaksyon sa",
+  "waitFewSecondForTxUpdate": "Mangyaring maghintay ng ilang segundo para makita ang transaksyon sa history ng mga transaksyon",
   "wallet_keys": "Mga buto/susi ng pitaka",
   "wallet_list_create_new_wallet": "Lumikha ng bagong pitaka",
   "wallet_list_edit_wallet": "I -edit ang Wallet",
@@ -783,6 +785,5 @@
   "you_pay": "Magbabayad ka",
   "you_will_get": "Mag -convert sa",
   "you_will_send": "I -convert mula sa",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "Mangyaring maghintay ng ilang segundo para makita ang transaksyon sa history ng mga transaksyon"
+  "yy": "YY"
 }

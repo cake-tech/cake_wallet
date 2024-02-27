@@ -279,8 +279,8 @@ class ElectrumClient {
   Future<Map<String, dynamic>> getHeader({required int height}) async =>
       await call(method: 'blockchain.block.get_header', params: [height]) as Map<String, dynamic>;
 
-  Future<Map<String, dynamic>> getTweaks({required int height}) async =>
-      await call(method: 'blockchain.block.tweaks', params: [height]) as Map<String, dynamic>;
+  Future<List<dynamic>> getTweaks({required int height}) async =>
+      await callWithTimeout(method: 'blockchain.block.tweaks', params: [height]) as List<dynamic>;
 
   Future<double> estimatefee({required int p}) =>
       call(method: 'blockchain.estimatefee', params: [p]).then((dynamic result) {

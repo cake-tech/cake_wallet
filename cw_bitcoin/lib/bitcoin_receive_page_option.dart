@@ -19,12 +19,12 @@ class BitcoinReceivePageOption implements ReceivePageOption {
   }
 
   static const all = [
+    BitcoinReceivePageOption.silent_payments,
     BitcoinReceivePageOption.p2wpkh,
     BitcoinReceivePageOption.p2sh,
     BitcoinReceivePageOption.p2tr,
     BitcoinReceivePageOption.p2wsh,
     BitcoinReceivePageOption.p2pkh,
-    BitcoinReceivePageOption.silent_payments,
   ];
 
   BitcoinAddressType toType() {

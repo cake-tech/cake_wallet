@@ -36,5 +36,9 @@ String syncStatusTitle(SyncStatus syncStatus) {
     return S.current.sync_status_failed_connect;
   }
 
+  if (syncStatus is UnsupportedSyncStatus) {
+    return S.current.sync_status_unsupported;
+  }
+
   return '';
 }

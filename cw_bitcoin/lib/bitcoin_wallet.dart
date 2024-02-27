@@ -30,7 +30,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     ElectrumBalance? initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
-    List<BitcoinAddressRecord>? initialSilentAddresses,
+    List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     int initialSilentAddressIndex = 0,
     SilentPaymentOwner? silentAddress,
   }) : super(
@@ -59,8 +59,18 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
       network: networkParam ?? network,
     );
+    hasSilentPaymentsScanning = addressPageType == SilentPaymentsAddresType.p2sp.toString();
+
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
+    });
+
+    reaction((_) => walletAddresses.addressPageType, (BitcoinAddressType addressPageType) {
+      final prev = hasSilentPaymentsScanning;
+      hasSilentPaymentsScanning = addressPageType == SilentPaymentsAddresType.p2sp;
+      if (prev != hasSilentPaymentsScanning) {
+        startSync();
+      }
     });
   }
 
@@ -72,7 +82,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     String? addressPageType,
     BasedUtxoNetwork? network,
     List<BitcoinAddressRecord>? initialAddresses,
-    List<BitcoinAddressRecord>? initialSilentAddresses,
+    List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     ElectrumBalance? initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
@@ -88,11 +98,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialSilentAddresses: initialSilentAddresses,
       initialSilentAddressIndex: initialSilentAddressIndex,
       silentAddress: await SilentPaymentOwner.fromPrivateKeys(
-          scanPrivkey: ECPrivate.fromHex(bitcoin.HDWallet.fromSeed(
+          b_scan: ECPrivate.fromHex(bitcoin.HDWallet.fromSeed(
             seedBytes,
             network: network == BitcoinNetwork.testnet ? bitcoin.testnet : bitcoin.bitcoin,
           ).derivePath(SCAN_PATH).privKey!),
-          spendPrivkey: ECPrivate.fromHex(bitcoin.HDWallet.fromSeed(
+          b_spend: ECPrivate.fromHex(bitcoin.HDWallet.fromSeed(
             seedBytes,
             network: network == BitcoinNetwork.testnet ? bitcoin.testnet : bitcoin.bitcoin,
           ).derivePath(SPEND_PATH).privKey!),
@@ -125,11 +135,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialSilentAddresses: snp.silentAddresses,
       initialSilentAddressIndex: snp.silentAddressIndex,
       silentAddress: await SilentPaymentOwner.fromPrivateKeys(
-          scanPrivkey: ECPrivate.fromHex(bitcoin.HDWallet.fromSeed(
+          b_scan: ECPrivate.fromHex(bitcoin.HDWallet.fromSeed(
             seedBytes,
             network: snp.network == BitcoinNetwork.testnet ? bitcoin.testnet : bitcoin.bitcoin,
           ).derivePath(SCAN_PATH).privKey!),
-          spendPrivkey: ECPrivate.fromHex(bitcoin.HDWallet.fromSeed(
+          b_spend: ECPrivate.fromHex(bitcoin.HDWallet.fromSeed(
             seedBytes,
             network: snp.network == BitcoinNetwork.testnet ? bitcoin.testnet : bitcoin.bitcoin,
           ).derivePath(SPEND_PATH).privKey!),

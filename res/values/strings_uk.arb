@@ -636,6 +636,7 @@
   "sync_status_starting_sync": "ПОЧАТОК СИНХРОНІЗАЦІЇ",
   "sync_status_syncronized": "СИНХРОНІЗОВАНИЙ",
   "sync_status_syncronizing": "СИНХРОНІЗАЦІЯ",
+  "sync_status_unsupported": "Непідтримуваний вузол",
   "syncing_wallet_alert_content": "Ваш баланс та список транзакцій може бути неповним, доки вгорі не буде написано «СИНХРОНІЗОВАНО». Натисніть/торкніться, щоб дізнатися більше.",
   "syncing_wallet_alert_title": "Ваш гаманець синхронізується",
   "template": "Шаблон",
@@ -734,6 +735,7 @@
   "view_key_private": "Приватний ключ перегляду",
   "view_key_public": "Публічний ключ перегляду",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "Будь ласка, зачекайте кілька секунд, поки транзакція відобразиться в історії транзакцій",
   "wallet_keys": "Мнемонічна фраза/ключі гаманця",
   "wallet_list_create_new_wallet": "Створити новий гаманець",
   "wallet_list_edit_wallet": "Редагувати гаманець",
@@ -784,6 +786,5 @@
   "you_pay": "Ви платите",
   "you_will_get": "Конвертувати в",
   "you_will_send": "Конвертувати з",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "Будь ласка, зачекайте кілька секунд, поки транзакція відобразиться в історії транзакцій"
+  "yy": "YY"
 }

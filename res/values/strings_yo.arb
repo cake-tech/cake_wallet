@@ -636,6 +636,7 @@
   "sync_status_starting_sync": "Ń BẸ̀RẸ̀ RẸ́",
   "sync_status_syncronized": "TI MÚDỌ́GBA",
   "sync_status_syncronizing": "Ń MÚDỌ́GBA",
+  "sync_status_unsupported": "Ile-igbimọ ti ko ni atilẹyin",
   "syncing_wallet_alert_content": "Iwontunws.funfun rẹ ati atokọ idunadura le ma pari titi ti yoo fi sọ “SYNCHRONIZED” ni oke. Tẹ/tẹ ni kia kia lati ni imọ siwaju sii.",
   "syncing_wallet_alert_title": "Apamọwọ rẹ n muṣiṣẹpọ",
   "template": "Àwòṣe",
@@ -734,6 +735,7 @@
   "view_key_private": "Kọ́kọ́rọ́ ìwò (àdáni)",
   "view_key_public": "Kọ́kọ́rọ́ ìwò (kò àdáni)",
   "view_transaction_on": "Wo pàṣípààrọ̀ lórí ",
+  "waitFewSecondForTxUpdate": "Fi inurere duro fun awọn iṣeju diẹ fun idunadura lati ṣe afihan ninu itan-akọọlẹ iṣowo",
   "wallet_keys": "Hóró/kọ́kọ́rọ́ àpamọ́wọ́",
   "wallet_list_create_new_wallet": "Ṣe àpamọ́wọ́ títun",
   "wallet_list_edit_wallet": "Ṣatunkọ apamọwọ",
@@ -784,6 +786,5 @@
   "you_pay": "Ẹ sàn",
   "you_will_get": "Ṣe pàṣípààrọ̀ sí",
   "you_will_send": "Ṣe pàṣípààrọ̀ láti",
-  "yy": "Ọd",
-  "waitFewSecondForTxUpdate": "Fi inurere duro fun awọn iṣeju diẹ fun idunadura lati ṣe afihan ninu itan-akọọlẹ iṣowo"
+  "yy": "Ọd"
 }

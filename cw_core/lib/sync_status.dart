@@ -58,6 +58,11 @@ class ConnectedSyncStatus extends SyncStatus {
   double progress() => 0.0;
 }
 
+class UnsupportedSyncStatus extends SyncStatus {
+  @override
+  double progress() => 1.0;
+}
+
 class LostConnectionSyncStatus extends SyncStatus {
   @override
   double progress() => 1.0;

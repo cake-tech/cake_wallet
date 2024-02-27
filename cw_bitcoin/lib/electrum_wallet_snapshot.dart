@@ -30,7 +30,7 @@ class ElectrumWalletSnapshot {
 
   String mnemonic;
   List<BitcoinAddressRecord> addresses;
-  List<BitcoinAddressRecord> silentAddresses;
+  List<BitcoinSilentPaymentAddressRecord> silentAddresses;
   ElectrumBalance balance;
   Map<String, int> regularAddressIndex;
   Map<String, int> changeAddressIndex;
@@ -52,7 +52,7 @@ class ElectrumWalletSnapshot {
     final silentAddressesTmp = data['silent_addresses'] as List? ?? <Object>[];
     final silentAddresses = silentAddressesTmp
         .whereType<String>()
-        .map((addr) => BitcoinAddressRecord.fromJSON(addr, network: network))
+        .map((addr) => BitcoinSilentPaymentAddressRecord.fromJSON(addr, network: network))
         .toList();
 
     final balance = ElectrumBalance.fromJSON(data['balance'] as String) ??

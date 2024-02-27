@@ -635,6 +635,7 @@
   "sync_status_starting_sync": "بدء المزامنة",
   "sync_status_syncronized": "متزامن",
   "sync_status_syncronizing": "يتم المزامنة",
+  "sync_status_unsupported": "عقدة غير مدعومة",
   "syncing_wallet_alert_content": "قد لا يكتمل رصيدك وقائمة المعاملات الخاصة بك حتى تظهر عبارة “SYNCHRONIZED“ في الأعلى. انقر / اضغط لمعرفة المزيد.",
   "syncing_wallet_alert_title": "محفظتك تتم مزامنتها",
   "template": "قالب",
@@ -733,6 +734,7 @@
   "view_key_private": "مفتاح العرض (خاص)",
   "view_key_public": "مفتاح العرض (عام)",
   "view_transaction_on": "عرض العملية على",
+  "waitFewSecondForTxUpdate": "ﺕﻼ﻿ﻣﺎﻌﻤﻟﺍ ﻞﺠﺳ ﻲﻓ ﺔﻠﻣﺎﻌﻤﻟﺍ ﺲﻜﻌﻨﺗ ﻰﺘﺣ ﻥﺍﻮﺛ ﻊﻀﺒﻟ ﺭﺎﻈﺘﻧﻻ﻿ﺍ ﻰﺟﺮﻳ",
   "wallet_keys": "سييد المحفظة / المفاتيح",
   "wallet_list_create_new_wallet": "إنشاء محفظة جديدة",
   "wallet_list_edit_wallet": "تحرير المحفظة",
@@ -783,6 +785,5 @@
   "you_pay": "انت تدفع",
   "you_will_get": "حول الى",
   "you_will_send": "تحويل من",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "ﺕﻼ﻿ﻣﺎﻌﻤﻟﺍ ﻞﺠﺳ ﻲﻓ ﺔﻠﻣﺎﻌﻤﻟﺍ ﺲﻜﻌﻨﺗ ﻰﺘﺣ ﻥﺍﻮﺛ ﻊﻀﺒﻟ ﺭﺎﻈﺘﻧﻻ﻿ﺍ ﻰﺟﺮﻳ"
+  "yy": "YY"
 }

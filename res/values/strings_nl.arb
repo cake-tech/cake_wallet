@@ -635,6 +635,7 @@
   "sync_status_starting_sync": "BEGINNEN MET SYNCHRONISEREN",
   "sync_status_syncronized": "SYNCHRONIZED",
   "sync_status_syncronizing": "SYNCHRONISEREN",
+  "sync_status_unsupported": "Niet ondersteund knooppunt",
   "syncing_wallet_alert_content": "Uw saldo- en transactielijst is mogelijk pas compleet als er bovenaan 'GESYNCHRONISEERD' staat. Klik/tik voor meer informatie.",
   "syncing_wallet_alert_title": "Uw portemonnee wordt gesynchroniseerd",
   "template": "Sjabloon",
@@ -733,6 +734,7 @@
   "view_key_private": "Bekijk sleutel (privaat)",
   "view_key_public": "Bekijk sleutel (openbaar)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "Wacht een paar seconden totdat de transactie wordt weergegeven in de transactiegeschiedenis",
   "waiting_payment_confirmation": "In afwachting van betalingsbevestiging",
   "wallet_keys": "Portemonnee zaad/sleutels",
   "wallet_list_create_new_wallet": "Maak een nieuwe portemonnee",
@@ -784,6 +786,5 @@
   "you_pay": "U betaalt",
   "you_will_get": "Converteren naar",
   "you_will_send": "Converteren van",
-  "yy": "JJ",
-  "waitFewSecondForTxUpdate": "Wacht een paar seconden totdat de transactie wordt weergegeven in de transactiegeschiedenis"
+  "yy": "JJ"
 }

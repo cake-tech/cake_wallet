@@ -636,6 +636,7 @@
   "sync_status_starting_sync": "STARTE SYNCHRONISIERUNG",
   "sync_status_syncronized": "SYNCHRONISIERT",
   "sync_status_syncronizing": "SYNCHRONISIERE",
+  "sync_status_unsupported": "Nicht unterstützter Knoten",
   "syncing_wallet_alert_content": "Ihr Kontostand und Ihre Transaktionsliste sind möglicherweise erst vollständig, wenn oben „SYNCHRONISIERT“ steht. Klicken/tippen Sie, um mehr zu erfahren.",
   "syncing_wallet_alert_title": "Ihr Wallet wird synchronisiert",
   "template": "Vorlage",
@@ -735,6 +736,7 @@
   "view_key_private": "View Key (geheim)",
   "view_key_public": "View Key (öffentlich)",
   "view_transaction_on": "Anzeigen der Transaktion auf ",
+  "waitFewSecondForTxUpdate": "Bitte warten Sie einige Sekunden, bis die Transaktion im Transaktionsverlauf angezeigt wird",
   "waiting_payment_confirmation": "Warte auf Zahlungsbestätigung",
   "wallet_keys": "Wallet-Seed/-Schlüssel",
   "wallet_list_create_new_wallet": "Neue Wallet erstellen",
@@ -786,6 +788,5 @@
   "you_pay": "Sie bezahlen",
   "you_will_get": "Konvertieren zu",
   "you_will_send": "Konvertieren von",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "Bitte warten Sie einige Sekunden, bis die Transaktion im Transaktionsverlauf angezeigt wird"
+  "yy": "YY"
 }

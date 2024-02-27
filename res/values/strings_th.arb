@@ -635,6 +635,7 @@
   "sync_status_starting_sync": "กำลังเริ่มซิงโครไนซ์",
   "sync_status_syncronized": "ซิงโครไนซ์แล้ว",
   "sync_status_syncronizing": "กำลังซิงโครไนซ์",
+  "sync_status_unsupported": "โหนดที่ไม่ได้รับการสนับสนุน",
   "syncing_wallet_alert_content": "รายการยอดเงินและธุรกรรมของคุณอาจไม่สมบูรณ์จนกว่าจะมีข้อความว่า “ซิงโครไนซ์” ที่ด้านบน คลิก/แตะเพื่อเรียนรู้เพิ่มเติม่",
   "syncing_wallet_alert_title": "กระเป๋าสตางค์ของคุณกำลังซิงค์",
   "template": "แบบฟอร์ม",
@@ -733,6 +734,7 @@
   "view_key_private": "คีย์มุมมอง (ส่วนตัว)",
   "view_key_public": "คีย์มุมมอง (สาธารณะ)",
   "view_transaction_on": "ดูการทำธุรกรรมบน ",
+  "waitFewSecondForTxUpdate": "กรุณารอสักครู่เพื่อให้ธุรกรรมปรากฏในประวัติการทำธุรกรรม",
   "wallet_keys": "ซีดของกระเป๋า/คีย์",
   "wallet_list_create_new_wallet": "สร้างกระเป๋าใหม่",
   "wallet_list_edit_wallet": "แก้ไขกระเป๋าสตางค์",
@@ -783,6 +785,5 @@
   "you_pay": "คุณจ่าย",
   "you_will_get": "แปลงเป็น",
   "you_will_send": "แปลงจาก",
-  "yy": "ปี",
-  "waitFewSecondForTxUpdate": "กรุณารอสักครู่เพื่อให้ธุรกรรมปรากฏในประวัติการทำธุรกรรม"
+  "yy": "ปี"
 }

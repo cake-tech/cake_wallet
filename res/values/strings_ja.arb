@@ -636,6 +636,7 @@
   "sync_status_starting_sync": "同期の開始",
   "sync_status_syncronized": "同期された",
   "sync_status_syncronizing": "同期",
+  "sync_status_unsupported": "サポートされていないノード",
   "syncing_wallet_alert_content": "上部に「同期済み」と表示されるまで、残高と取引リストが完了していない可能性があります。詳細については、クリック/タップしてください。",
   "syncing_wallet_alert_title": "ウォレットは同期中です",
   "template": "テンプレート",
@@ -734,6 +735,7 @@
   "view_key_private": "ビューキー (プライベート)",
   "view_key_public": "ビューキー (パブリック)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "取引履歴に取引が反映されるまで数秒お待ちください。",
   "wallet_keys": "ウォレットシード/キー",
   "wallet_list_create_new_wallet": "新しいウォレットを作成",
   "wallet_list_edit_wallet": "ウォレットを編集する",
@@ -784,6 +786,5 @@
   "you_pay": "あなたが支払う",
   "you_will_get": "に変換",
   "you_will_send": "から変換",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "取引履歴に取引が反映されるまで数秒お待ちください。"
+  "yy": "YY"
 }

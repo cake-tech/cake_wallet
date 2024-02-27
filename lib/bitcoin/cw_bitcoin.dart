@@ -101,7 +101,7 @@ class CWBitcoin extends Bitcoin {
   List<String> getAddresses(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.walletAddresses.addressesByReceiveType
-        .map((BitcoinAddressRecord addr) => addr.address)
+        .map((BaseBitcoinAddressRecord addr) => addr.address)
         .toList();
   }
 
@@ -110,7 +110,7 @@ class CWBitcoin extends Bitcoin {
   List<ElectrumSubAddress> getSubAddresses(Object wallet) {
     final electrumWallet = wallet as ElectrumWallet;
     return electrumWallet.walletAddresses.addressesByReceiveType
-        .map((BitcoinAddressRecord addr) => ElectrumSubAddress(
+        .map((BaseBitcoinAddressRecord addr) => ElectrumSubAddress(
             id: addr.index,
             name: addr.name,
             address: electrumWallet.type == WalletType.bitcoinCash ? addr.cashAddr : addr.address,
@@ -195,7 +195,7 @@ class CWBitcoin extends Bitcoin {
   @override
   List<BitcoinReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
 
-  List<BitcoinAddressRecord> getSilentAddresses(Object wallet) {
+  List<BitcoinSilentPaymentAddressRecord> getSilentAddresses(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.walletAddresses.silentAddresses;
   }

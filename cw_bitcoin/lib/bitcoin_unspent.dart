@@ -3,12 +3,12 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 
 class BitcoinUnspent extends Unspent {
-  BitcoinUnspent(BitcoinAddressRecord addressRecord, String hash, int value, int vout,
+  BitcoinUnspent(BaseBitcoinAddressRecord addressRecord, String hash, int value, int vout,
       {this.silentPaymentTweak, this.type})
       : bitcoinAddressRecord = addressRecord,
         super(addressRecord.address, hash, value, vout, null);
 
-  factory BitcoinUnspent.fromJSON(BitcoinAddressRecord address, Map<String, dynamic> json) =>
+  factory BitcoinUnspent.fromJSON(BaseBitcoinAddressRecord address, Map<String, dynamic> json) =>
       BitcoinUnspent(
         address,
         json['tx_hash'] as String,
@@ -32,7 +32,7 @@ class BitcoinUnspent extends Unspent {
     return json;
   }
 
-  final BitcoinAddressRecord bitcoinAddressRecord;
+  final BaseBitcoinAddressRecord bitcoinAddressRecord;
   String? silentPaymentTweak;
   BitcoinAddressType? type;
 }

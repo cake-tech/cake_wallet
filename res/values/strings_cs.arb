@@ -635,6 +635,7 @@
   "sync_status_starting_sync": "SPOUŠTĚNÍ SYNCHRONIZACE",
   "sync_status_syncronized": "SYNCHRONIZOVÁNO",
   "sync_status_syncronizing": "SYNCHRONIZUJI",
+  "sync_status_unsupported": "Nepodporovaný uzel",
   "syncing_wallet_alert_content": "Váš seznam zůstatků a transakcí nemusí být úplný, dokud nebude nahoře uvedeno „SYNCHRONIZOVANÉ“. Kliknutím/klepnutím se dozvíte více.",
   "syncing_wallet_alert_title": "Vaše peněženka se synchronizuje",
   "template": "Šablona",
@@ -733,6 +734,7 @@
   "view_key_private": "Klíč pro zobrazení (soukromý)",
   "view_key_public": "Klíč pro zobrazení (veřejný)",
   "view_transaction_on": "Zobrazit transakci na ",
+  "waitFewSecondForTxUpdate": "Počkejte několik sekund, než se transakce projeví v historii transakcí",
   "wallet_keys": "Seed/klíče peněženky",
   "wallet_list_create_new_wallet": "Vytvořit novou peněženku",
   "wallet_list_edit_wallet": "Upravit peněženku",
@@ -783,6 +785,5 @@
   "you_pay": "Zaplatíte",
   "you_will_get": "Směnit na",
   "you_will_send": "Směnit z",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "Počkejte několik sekund, než se transakce projeví v historii transakcí"
+  "yy": "YY"
 }

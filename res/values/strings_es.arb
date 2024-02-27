@@ -636,6 +636,7 @@
   "sync_status_starting_sync": "EMPEZANDO A SINCRONIZAR",
   "sync_status_syncronized": "SINCRONIZADO",
   "sync_status_syncronizing": "SINCRONIZANDO",
+  "sync_status_unsupported": "Nodo no compatible",
   "syncing_wallet_alert_content": "Es posible que su lista de saldo y transacciones no esté completa hasta que diga \"SINCRONIZADO\" en la parte superior. Haga clic/toque para obtener más información.",
   "syncing_wallet_alert_title": "Tu billetera se está sincronizando",
   "template": "Plantilla",
@@ -734,6 +735,7 @@
   "view_key_private": "View clave (privado)",
   "view_key_public": "View clave (público)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "Espere unos segundos para que la transacción se refleje en el historial de transacciones.",
   "wallet_keys": "Billetera semilla/claves",
   "wallet_list_create_new_wallet": "Crear nueva billetera",
   "wallet_list_edit_wallet": "Editar billetera",
@@ -784,6 +786,5 @@
   "you_pay": "Tú pagas",
   "you_will_get": "Convertir a",
   "you_will_send": "Convertir de",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "Espere unos segundos para que la transacción se refleje en el historial de transacciones."
+  "yy": "YY"
 }

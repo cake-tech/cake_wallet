@@ -635,6 +635,7 @@
   "sync_status_starting_sync": "开始同步",
   "sync_status_syncronized": "已同步",
   "sync_status_syncronizing": "正在同步",
+  "sync_status_unsupported": "不支持的节点",
   "syncing_wallet_alert_content": "您的余额和交易列表可能不完整，直到顶部显示“已同步”。单击/点击以了解更多信息。",
   "syncing_wallet_alert_title": "您的钱包正在同步",
   "template": "模板",
@@ -733,6 +734,7 @@
   "view_key_private": "View 密钥(私钥)",
   "view_key_public": "View 密钥(公钥)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "请等待几秒钟，交易才会反映在交易历史记录中",
   "wallet_keys": "钱包种子/密钥",
   "wallet_list_create_new_wallet": "创建新钱包",
   "wallet_list_edit_wallet": "编辑钱包",
@@ -783,6 +785,5 @@
   "you_pay": "你付钱",
   "you_will_get": "转换到",
   "you_will_send": "转换自",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "请等待几秒钟，交易才会反映在交易历史记录中"
+  "yy": "YY"
 }

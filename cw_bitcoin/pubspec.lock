@@ -80,7 +80,7 @@ packages:
     description:
       path: "."
       ref: cake-update-v2
-      resolved-ref: e4686da77cace5400697de69f7885020297cb900
+      resolved-ref: "43b80bcf0ef6e7224603a6b8874b61efec3c6a4c"
       url: "https://github.com/cake-tech/bitcoin_base.git"
     source: git
     version: "4.0.0"
@@ -93,6 +93,15 @@ packages:
       url: "https://github.com/cake-tech/bitcoin_flutter.git"
     source: git
     version: "2.1.0"
+  blockchain_utils:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: cake-update-v1
+      resolved-ref: "6a0b891db4d90c647ebf5fc3a9132e614c70e1c6"
+      url: "https://github.com/cake-tech/blockchain_utils"
+    source: git
+    version: "1.6.0"
   boolean_selector:
     dependency: transitive
     description:

@@ -637,6 +637,7 @@
   "sync_status_starting_sync": "KWAFI",
   "sync_status_syncronized": "KYAU",
   "sync_status_syncronizing": "KWAFI",
+  "sync_status_unsupported": "Ba a Taimako ba",
   "syncing_wallet_alert_content": "Ma'aunin ku da lissafin ma'amala bazai cika ba har sai an ce \"SYNCHRONIZED\" a saman. Danna/matsa don ƙarin koyo.",
   "syncing_wallet_alert_title": "Walat ɗin ku yana aiki tare",
   "template": "Samfura",
@@ -735,6 +736,7 @@
   "view_key_private": "Duba maɓallin (maɓallin kalmar sirri)",
   "view_key_public": "Maɓallin Duba (maɓallin jama'a)",
   "view_transaction_on": "Dubo aikace-aikacen akan",
+  "waitFewSecondForTxUpdate": "Da fatan za a jira ƴan daƙiƙa don ciniki don yin tunani a tarihin ma'amala",
   "wallet_keys": "Iri/maɓalli na walat",
   "wallet_list_create_new_wallet": "Ƙirƙiri Sabon Wallet",
   "wallet_list_edit_wallet": "Gyara walat",
@@ -785,6 +787,5 @@
   "you_pay": "Ka Bayar",
   "you_will_get": "Maida zuwa",
   "you_will_send": "Maida daga",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "Da fatan za a jira ƴan daƙiƙa don ciniki don yin tunani a tarihin ma'amala"
+  "yy": "YY"
 }

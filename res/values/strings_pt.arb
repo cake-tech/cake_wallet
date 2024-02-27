@@ -637,6 +637,7 @@
   "sync_status_starting_sync": "INICIANDO SINCRONIZAÇÃO",
   "sync_status_syncronized": "SINCRONIZADO",
   "sync_status_syncronizing": "SINCRONIZANDO",
+  "sync_status_unsupported": "Nó não suportado",
   "syncing_wallet_alert_content": "Seu saldo e lista de transações podem não estar completos até que diga “SYNCHRONIZED” no topo. Clique/toque para saber mais.",
   "syncing_wallet_alert_title": "Sua carteira está sincronizando",
   "template": "Modelo",
@@ -735,6 +736,7 @@
   "view_key_private": "Chave de visualização (privada)",
   "view_key_public": "Chave de visualização (pública)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "Aguarde alguns segundos para que a transação seja refletida no histórico de transações",
   "waiting_payment_confirmation": "Aguardando confirmação de pagamento",
   "wallet_keys": "Semente/chaves da carteira",
   "wallet_list_create_new_wallet": "Criar nova carteira",
@@ -786,6 +788,5 @@
   "you_pay": "Você paga",
   "you_will_get": "Converter para",
   "you_will_send": "Converter de",
-  "yy": "aa",
-  "waitFewSecondForTxUpdate": "Aguarde alguns segundos para que a transação seja refletida no histórico de transações"
+  "yy": "aa"
 }

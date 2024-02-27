@@ -1,6 +1,7 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitbox/bitbox.dart' as bitbox;
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -28,7 +29,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     List<BitcoinAddressRecord>? initialAddresses,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
-    List<BitcoinAddressRecord>? initialSilentAddresses,
+    List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     int initialSilentAddressIndex = 0,
     SilentPaymentOwner? silentAddress,
   })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
@@ -46,9 +47,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         _addressPageType = walletInfo.addressPageType != null
             ? BitcoinAddressType.fromValue(walletInfo.addressPageType!)
             : SegwitAddresType.p2wpkh,
-        silentAddresses = ObservableList<BitcoinAddressRecord>.of((initialSilentAddresses ?? [])
-            .where((addressRecord) => addressRecord.silentPaymentTweak != null)
-            .toSet()),
+        silentAddresses = ObservableList<BitcoinSilentPaymentAddressRecord>.of(
+            (initialSilentAddresses ?? []).toSet()),
         currentSilentAddressIndex = initialSilentAddressIndex,
         super(walletInfo) {
     updateAddressesByMatch();
@@ -59,15 +59,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static const gap = 20;
 
   static String toCashAddr(String address) => bitbox.Address.toCashAddress(address);
-
   static String toLegacy(String address) => bitbox.Address.toLegacyAddress(address);
 
   final ObservableList<BitcoinAddressRecord> _addresses;
-  // Matched by addressPageType
-  late ObservableList<BitcoinAddressRecord> addressesByReceiveType;
+  late ObservableList<BaseBitcoinAddressRecord> addressesByReceiveType;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
-  final ObservableList<BitcoinAddressRecord> silentAddresses;
+  final ObservableList<BitcoinSilentPaymentAddressRecord> silentAddresses;
   final BasedUtxoNetwork network;
   final bitcoin.HDWallet mainHd;
   final bitcoin.HDWallet sideHd;
@@ -98,23 +96,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     String receiveAddress;
-
-    final typeMatchingReceiveAddresses = receiveAddresses.where(_isAddressPageTypeMatch);
-
-    if ((isEnabledAutoGenerateSubaddress && receiveAddresses.isEmpty) ||
-        typeMatchingReceiveAddresses.isEmpty) {
-      receiveAddress = generateNewAddress().address;
-    } else {
-      final previousAddressMatchesType =
-          previousAddressRecord != null && previousAddressRecord!.type == addressPageType;
-
-      if (previousAddressMatchesType &&
-          typeMatchingReceiveAddresses.first.address != addressesByReceiveType.first.address) {
-        receiveAddress = previousAddressRecord!.address;
-      } else {
-        receiveAddress = typeMatchingReceiveAddresses.first.address;
-      }
-      final receiveAddress = receiveAddresses.first.address;
 
     final typeMatchingReceiveAddresses = receiveAddresses.where(_isAddressPageTypeMatch);
 
@@ -239,38 +220,36 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   Map<String, String> get labels {
+    final G = ECPublic.fromBytes(BigintUtils.toBytes(Curves.generatorSecp256k1.x, length: 32));
     final labels = <String, String>{};
     for (int i = 0; i < silentAddresses.length; i++) {
       final silentAddressRecord = silentAddresses[i];
-      final silentAddress =
-          SilentPaymentDestination.fromAddress(silentAddressRecord.address, 0).B_spend.toHex();
-
-      if (silentAddressRecord.silentPaymentTweak != null)
-        labels[silentAddress] = silentAddressRecord.silentPaymentTweak!;
+      final silentPaymentTweak = silentAddressRecord.silentPaymentTweak;
+      labels[G
+          .tweakMul(BigintUtils.fromBytes(BytesUtils.fromHexString(silentPaymentTweak)))
+          .toHex()] = silentPaymentTweak;
     }
     return labels;
   }
 
-  BitcoinAddressRecord generateNewAddress({String label = ''}) {
+  @action
+  BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
     if (addressPageType == SilentPaymentsAddresType.p2sp) {
       currentSilentAddressIndex += 1;
 
-      final tweak = BigInt.from(currentSilentAddressIndex);
-
-      final address = BitcoinAddressRecord(
-        SilentPaymentAddress.createLabeledSilentPaymentAddress(
-                primarySilentAddress!.B_scan, primarySilentAddress!.B_spend, tweak,
-                hrp: primarySilentAddress!.hrp, version: primarySilentAddress!.version)
-            .toString(),
+      final address = BitcoinSilentPaymentAddressRecord(
+        primarySilentAddress!.toLabeledSilentPaymentAddress(currentSilentAddressIndex).toString(),
         index: currentSilentAddressIndex,
         isHidden: false,
         name: label,
-        silentPaymentTweak: tweak.toString(),
+        silentPaymentTweak:
+            BytesUtils.toHexString(primarySilentAddress!.generateLabel(currentSilentAddressIndex)),
         network: network,
         type: SilentPaymentsAddresType.p2sp,
       );
 
       silentAddresses.add(address);
+      updateAddressesByMatch();
 
       return address;
     }
@@ -321,6 +300,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   void updateAddressesByMatch() {
+    if (addressPageType == SilentPaymentsAddresType.p2sp) {
+      addressesByReceiveType.clear();
+      addressesByReceiveType.addAll(silentAddresses);
+      return;
+    }
+
     addressesByReceiveType.clear();
     addressesByReceiveType.addAll(_addresses.where(_isAddressPageTypeMatch).toList());
   }

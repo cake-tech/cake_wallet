@@ -635,6 +635,7 @@
   "sync_status_starting_sync": "STARTING SYNC",
   "sync_status_syncronized": "SYNCHRONIZED",
   "sync_status_syncronizing": "SYNCHRONIZING",
+  "sync_status_unsupported": "UNSUPPORTED NODE",
   "syncing_wallet_alert_content": "Your balance and transaction list may not be complete until it says “SYNCHRONIZED” at the top. Click/tap to learn more.",
   "syncing_wallet_alert_title": "Your wallet is syncing",
   "template": "Template",
@@ -733,6 +734,7 @@
   "view_key_private": "View key (private)",
   "view_key_public": "View key (public)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "Kindly wait for a few seconds for transaction to reflect in transactions history",
   "wallet_keys": "Wallet seed/keys",
   "wallet_list_create_new_wallet": "Create New Wallet",
   "wallet_list_edit_wallet": "Edit wallet",
@@ -783,6 +785,5 @@
   "you_pay": "You Pay",
   "you_will_get": "Convert to",
   "you_will_send": "Convert from",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "Kindly wait for a few seconds for transaction to reflect in transactions history"
+  "yy": "YY"
 }

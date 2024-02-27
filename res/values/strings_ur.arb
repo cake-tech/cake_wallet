@@ -637,6 +637,7 @@
   "sync_status_starting_sync": "مطابقت پذیری شروع کر رہا ہے۔",
   "sync_status_syncronized": "مطابقت پذیر",
   "sync_status_syncronizing": "مطابقت پذیری",
+  "sync_status_unsupported": "غیر تعاون یافتہ نوڈ",
   "syncing_wallet_alert_content": "آپ کے بیلنس اور لین دین کی فہرست اس وقت تک مکمل نہیں ہو سکتی جب تک کہ یہ سب سے اوپر \"SYNCRONIZED\" نہ کہے۔ مزید جاننے کے لیے کلک/تھپتھپائیں۔",
   "syncing_wallet_alert_title": "آپ کا بٹوہ مطابقت پذیر ہو رہا ہے۔",
   "template": "سانچے",
@@ -735,6 +736,7 @@
   "view_key_private": "کلید دیکھیں (نجی)",
   "view_key_public": "کلید دیکھیں (عوامی)",
   "view_transaction_on": "لین دین دیکھیں آن",
+  "waitFewSecondForTxUpdate": "۔ﮟﯾﺮﮐ ﺭﺎﻈﺘﻧﺍ ﺎﮐ ﮉﻨﮑﯿﺳ ﺪﻨﭼ ﻡﺮﮐ ﮦﺍﺮﺑ ﮯﯿﻟ ﮯﮐ ﮯﻧﺮﮐ ﯽﺳﺎﮑﻋ ﯽﮐ ﻦﯾﺩ ﻦﯿﻟ ﮟﯿﻣ ﺦﯾﺭﺎﺗ ﯽﮐ ﻦ",
   "wallet_keys": "بٹوے کے بیج / چابیاں",
   "wallet_list_create_new_wallet": "نیا والیٹ بنائیں",
   "wallet_list_edit_wallet": "بٹوے میں ترمیم کریں۔",
@@ -785,6 +787,5 @@
   "you_pay": "تم ادا کرو",
   "you_will_get": "میں تبدیل کریں۔",
   "you_will_send": "سے تبدیل کریں۔",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "۔ﮟﯾﺮﮐ ﺭﺎﻈﺘﻧﺍ ﺎﮐ ﮉﻨﮑﯿﺳ ﺪﻨﭼ ﻡﺮﮐ ﮦﺍﺮﺑ ﮯﯿﻟ ﮯﮐ ﮯﻧﺮﮐ ﯽﺳﺎﮑﻋ ﯽﮐ ﻦﯾﺩ ﻦﯿﻟ ﮟﯿﻣ ﺦﯾﺭﺎﺗ ﯽﮐ ﻦ"
+  "yy": "YY"
 }
