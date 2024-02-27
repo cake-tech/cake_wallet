@@ -167,7 +167,8 @@ class LightningInvoicePage extends BasePage {
                             min = bitcoinAmountToLightningString(amount: int.parse(min) ~/ 1000);
                             return Expanded(
                               child: Text(
-                                /*S.of(context).lightning_invoice_min(min)*/"Needs fixing!",
+                                // S.of(context).lightning_invoice_min(min)
+                                "Needs fixing!: $min",
                                 maxLines: 3,
                                 style: TextStyle(
                                   fontSize: 14,
