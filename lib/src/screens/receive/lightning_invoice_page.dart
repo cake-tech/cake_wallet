@@ -164,7 +164,7 @@ class LightningInvoicePage extends BasePage {
                               return SizedBox();
                             }
                             String min = (snapshot.data as List<String>)[0];
-                            min = bitcoinAmountToLightningString(amount: int.parse(min) ~/ 1000);
+                            min = satsToLightningString(double.parse(min));
                             return Expanded(
                               child: Text(
                                 // S.of(context).lightning_invoice_min(min)
