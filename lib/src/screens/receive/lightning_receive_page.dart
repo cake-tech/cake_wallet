@@ -9,6 +9,7 @@ import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
+import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_lightning/lightning_receive_page_option.dart';
 import 'package:flutter/material.dart';
@@ -199,17 +200,26 @@ class LightningReceiveOnchainPage extends BasePage {
                     margin: EdgeInsets.only(left: 12, bottom: 48, right: 12),
                     child: Image.asset("assets/images/warning.png"),
                   ),
-                  Expanded(
-                    child: Text(
-                      "Send more than 20,029 sats and up to 3,998,387 sats to this address. A setup fee of 0.4% with a minimum of 2,079 sats will be applied upon receiving this invoice. This will convert any received Bitcoin into Lightning. An on-chain fee will be applied. This address can only be used once.",
-                      maxLines: 10,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                      ),
-                    ),
-                  ),
+                  FutureBuilder(
+                      future: lightningViewModel.invoiceLimitsSats(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data == null) {
+                          return SizedBox();
+                        }
+                        String min = (snapshot.data as List<String>)[0];
+                        min = bitcoinAmountToLightningString(amount: int.parse(min) ~/ 1000);
+                        return Expanded(
+                          child: Text(
+                            "Send more than 20,029 sats and up to 3,998,387 sats to this address. A setup fee of 0.4% with a minimum of 2,079 sats will be applied upon receiving this invoice. This will convert any received Bitcoin into Lightning. An on-chain fee will be applied. This address can only be used once.",
+                            maxLines: 10,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                            ),
+                          ),
+                        );
+                      }),
                 ],
               ),
             ),

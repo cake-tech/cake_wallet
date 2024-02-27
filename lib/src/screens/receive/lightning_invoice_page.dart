@@ -167,7 +167,7 @@ class LightningInvoicePage extends BasePage {
                             min = bitcoinAmountToLightningString(amount: int.parse(min) ~/ 1000);
                             return Expanded(
                               child: Text(
-                                "A setup fee of 0.4% with a minimum of ${min} sats will be applied upon receiving this invoice.",
+                                S.of(context).lightning_invoice_min(min),
                                 maxLines: 3,
                                 style: TextStyle(
                                   fontSize: 14,
