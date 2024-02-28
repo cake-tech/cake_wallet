@@ -319,6 +319,7 @@
   "last_30_days": "过去 30 天",
   "learn_more": "了解更多",
   "light_theme": "艳丽",
+  "lightning_invoice_min": "收到此发票后，将收取0.4％的设置费用为0.4％，至少为${min} SAT。",
   "loading_your_wallet": "加载您的钱包",
   "login": "登录",
   "logout": "注销",

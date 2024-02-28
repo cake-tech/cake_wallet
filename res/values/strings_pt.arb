@@ -319,6 +319,7 @@
   "last_30_days": "Últimos 30 dias",
   "learn_more": "Saber mais",
   "light_theme": "Luz",
+  "lightning_invoice_min": "Uma taxa de configuração de 0,4% com um mínimo de ${min} SATS será aplicada ao receber esta fatura.",
   "loading_your_wallet": "Abrindo sua carteira",
   "login": "Login",
   "logout": "Logout",

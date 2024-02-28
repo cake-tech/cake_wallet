@@ -319,6 +319,7 @@
   "last_30_days": "Kwanaki 30 na ƙarshe",
   "learn_more": "Ƙara Koyi",
   "light_theme": "Haske",
+  "lightning_invoice_min": "Kudin saiti na 0.4% tare da mafi karancin ${min} Ana amfani da shi a kan karbar wannan daftari.",
   "loading_your_wallet": "Ana loda walat ɗin ku",
   "login": "Shiga",
   "logout": "Fita",

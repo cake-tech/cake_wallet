@@ -319,6 +319,7 @@
   "last_30_days": "Letzte 30 Tage",
   "learn_more": "Erfahren Sie mehr",
   "light_theme": "Hell",
+  "lightning_invoice_min": "Eine Einrichtungsgebühr von 0,4% mit einem Minimum von ${min} SATs wird nach Erhalt dieser Rechnung angewendet.",
   "loading_your_wallet": "Wallet wird geladen",
   "login": "Einloggen",
   "logout": "Abmelden",

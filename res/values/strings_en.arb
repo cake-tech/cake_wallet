@@ -319,6 +319,7 @@
   "last_30_days": "Last 30 days",
   "learn_more": "Learn More",
   "light_theme": "Light",
+  "lightning_invoice_min": "A setup fee of 0.4% with a minimum of ${min} sats will be applied upon receiving this invoice.",
   "loading_your_wallet": "Loading your wallet",
   "login": "Login",
   "logout": "Logout",

@@ -319,6 +319,7 @@
   "last_30_days": "Posledních 30 dnů",
   "learn_more": "Zjistit více",
   "light_theme": "Světlý",
+  "lightning_invoice_min": "Po obdržení této faktury se použije poplatek za nastavení 0,4% s minimem ${min} SATS.",
   "loading_your_wallet": "Načítám peněženku",
   "login": "Login",
   "logout": "Odhlásit",

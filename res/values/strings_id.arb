@@ -319,6 +319,7 @@
   "last_30_days": "30 hari terakhir",
   "learn_more": "Pelajari Lebih Lanjut",
   "light_theme": "Terang",
+  "lightning_invoice_min": "Biaya pengaturan 0,4% dengan minimum ${min} SAT akan diterapkan setelah menerima faktur ini.",
   "loading_your_wallet": "Memuat dompet Anda",
   "login": "Masuk",
   "logout": "Keluar",

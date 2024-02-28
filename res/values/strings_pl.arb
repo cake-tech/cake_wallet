@@ -319,6 +319,7 @@
   "last_30_days": "Ostatnie 30 dni",
   "learn_more": "Dowiedz się więcej",
   "light_theme": "Jasny",
+  "lightning_invoice_min": "Opłata konfiguracyjna w wysokości 0,4% przy minimum ${min} SAT zostanie zastosowana po otrzymaniu tej faktury.",
   "loading_your_wallet": "Ładowanie portfela",
   "login": "Login",
   "logout": "Wyloguj",

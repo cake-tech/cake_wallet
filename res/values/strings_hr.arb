@@ -319,6 +319,7 @@
   "last_30_days": "Zadnjih 30 dana",
   "learn_more": "Saznajte više",
   "light_theme": "Svijetla",
+  "lightning_invoice_min": "Naknada za postavljanje od 0,4% s najmanje ${min} SAT -om primijenit će se nakon primanja ove fakture.",
   "loading_your_wallet": "Novčanik se učitava",
   "login": "Prijava",
   "logout": "Odjava",

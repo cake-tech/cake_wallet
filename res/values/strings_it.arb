@@ -320,6 +320,7 @@
   "last_30_days": "Ultimi 30 giorni",
   "learn_more": "Impara di più",
   "light_theme": "Bianco",
+  "lightning_invoice_min": "Una commissione di configurazione dello 0,4% con un minimo di ${min} SAT sarà applicata al momento della ricezione di questa fattura.",
   "loading_your_wallet": "Caricamento portafoglio",
   "login": "Accedi",
   "logout": "Logout",

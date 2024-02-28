@@ -319,6 +319,7 @@
   "last_30_days": "Huling 30 araw",
   "learn_more": "Matuto nang higit pa",
   "light_theme": "Ilaw",
+  "lightning_invoice_min": "Ang isang bayad sa pag -setup na 0.4% na may isang minimum na ${min} sats ay ilalapat sa pagtanggap ng invoice na ito.",
   "loading_your_wallet": "Naglo -load ng iyong pitaka",
   "login": "Mag log in",
   "logout": "Mag -logout",

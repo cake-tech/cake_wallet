@@ -319,6 +319,7 @@
   "last_30_days": "Laatste 30 dagen",
   "learn_more": "Kom meer te weten",
   "light_theme": "Licht",
+  "lightning_invoice_min": "Een installatiekosten van 0,4% met een minimum van ${min} SAT's wordt toegepast bij het ontvangen van deze factuur.",
   "loading_your_wallet": "Uw portemonnee laden",
   "login": "Log in",
   "logout": "Uitloggen",

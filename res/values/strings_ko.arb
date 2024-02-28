@@ -319,6 +319,7 @@
   "last_30_days": "지난 30일",
   "learn_more": "더 알아보기",
   "light_theme": "빛",
+  "lightning_invoice_min": "이 송장을 받으면 최소 ${min} SAT가있는 0.4%의 설정 수수료가 적용됩니다.",
   "loading_your_wallet": "지갑 넣기",
   "login": "로그인",
   "logout": "로그아웃",

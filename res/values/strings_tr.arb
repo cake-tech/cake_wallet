@@ -319,6 +319,7 @@
   "last_30_days": "Son 30 gün",
   "learn_more": "Daha fazla öğren",
   "light_theme": "Aydınlık",
+  "lightning_invoice_min": "Bu faturayı aldıktan sonra en az ${min} SAT ile% 0,4'lük bir kurulum ücreti uygulanacaktır.",
   "loading_your_wallet": "Cüzdanın yükleniyor",
   "login": "Login",
   "logout": "Çıkış yap",

@@ -319,6 +319,7 @@
   "last_30_days": "Последните 30 дни",
   "learn_more": "Научете още",
   "light_theme": "Светло",
+  "lightning_invoice_min": "Такса за настройка от 0,4% с минимум ${min} SATS ще бъде приложена при получаване на тази фактура.",
   "loading_your_wallet": "Зареждане на портфейл",
   "login": "Влизане",
   "logout": "Logout",

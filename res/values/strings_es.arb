@@ -319,6 +319,7 @@
   "last_30_days": "Últimos 30 días",
   "learn_more": "Aprende más",
   "light_theme": "Ligera",
+  "lightning_invoice_min": "Se aplicará una tarifa de configuración de 0.4% con un mínimo de ${min} SATS al recibir esta factura.",
   "loading_your_wallet": "Cargando tu billetera",
   "login": "Iniciar sesión",
   "logout": "Cerrar sesión",
