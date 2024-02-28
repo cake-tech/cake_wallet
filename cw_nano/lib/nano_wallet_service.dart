@@ -26,7 +26,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   WalletType getType() => WalletType.nano;
 
   @override
-  Future<WalletBase> create(NanoNewWalletCredentials credentials) async {
+  Future<WalletBase> create(NanoNewWalletCredentials credentials, {bool? isTestnet}) async {
     // nano standard:
     DerivationType derivationType = DerivationType.nano;
     String seedKey = NanoSeeds.generateSeed();
@@ -69,6 +69,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
         NanoWallet(walletInfo: currentWalletInfo, password: password, mnemonic: randomWords);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
@@ -78,7 +79,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   }
 
   @override
-  Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials) async {
+  Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials, {bool? isTestnet}) async {
     if (credentials.seedKey.contains(' ')) {
       throw Exception("Invalid key!");
     } else {
@@ -112,7 +113,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   }
 
   @override
-  Future<NanoWallet> restoreFromSeed(NanoRestoreWalletFromSeedCredentials credentials) async {
+  Future<NanoWallet> restoreFromSeed(NanoRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
     if (credentials.mnemonic.contains(' ')) {
       if (!bip39.validateMnemonic(credentials.mnemonic)) {
         throw nm.NanoMnemonicIsIncorrectException();
@@ -150,14 +151,29 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   Future<NanoWallet> openWallet(String name, String password) async {
     final walletInfo =
         walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-    final wallet = await NanoWalletBase.open(
-      name: name,
-      password: password,
-      walletInfo: walletInfo,
-    );
 
-    await wallet.init();
-    await wallet.save();
-    return wallet;
+    try {
+      final wallet = await NanoWalletBase.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
+
+      await wallet.init();
+      await wallet.save();
+      saveBackup(name);
+      return wallet;
+    } catch (_) {
+      await restoreWalletFilesFromBackup(name);
+      final wallet = await NanoWalletBase.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
+
+      await wallet.init();
+      await wallet.save();
+      return wallet;
+    }
   }
 }

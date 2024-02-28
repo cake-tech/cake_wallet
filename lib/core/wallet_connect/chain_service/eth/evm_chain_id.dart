@@ -1,4 +1,4 @@
-import 'package:cake_wallet/core/wallet_connect/evm_chain_service.dart';
+import 'package:cake_wallet/core/wallet_connect/chain_service/eth/evm_chain_service.dart';
 
 enum EVMChainId {
   ethereum,

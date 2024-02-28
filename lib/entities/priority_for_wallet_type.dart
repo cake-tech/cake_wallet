@@ -21,12 +21,13 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return ethereum!.getTransactionPriorities();
     case WalletType.bitcoinCash:
       return bitcoinCash!.getTransactionPriorities();
-    // no such thing for nano/banano:
-    case WalletType.nano:
-    case WalletType.banano:
-      return [];
     case WalletType.polygon:
       return polygon!.getTransactionPriorities();
+    // no such thing for nano/banano/solana:
+    case WalletType.nano:
+    case WalletType.banano:
+    case WalletType.solana:
+      return [];
     default:
       return [];
   }

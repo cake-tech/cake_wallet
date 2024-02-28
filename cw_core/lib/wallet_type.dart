@@ -14,6 +14,7 @@ const walletTypes = [
   WalletType.nano,
   WalletType.banano,
   WalletType.polygon,
+  WalletType.solana,
 ];
 
 @HiveType(typeId: WALLET_TYPE_TYPE_ID)
@@ -49,7 +50,11 @@ enum WalletType {
   polygon,
 
   @HiveField(10)
+<<<<<<< HEAD
   tron
+=======
+  solana
+>>>>>>> 2549b0fa0a7171846e7dd872a54dc2e41075e6f6
 }
 
 int serializeToInt(WalletType type) {
@@ -72,8 +77,13 @@ int serializeToInt(WalletType type) {
       return 7;
     case WalletType.polygon:
       return 8;
+<<<<<<< HEAD
     case WalletType.tron:
       return 8;
+=======
+    case WalletType.solana:
+      return 9;
+>>>>>>> 2549b0fa0a7171846e7dd872a54dc2e41075e6f6
     default:
       return -1;
   }
@@ -100,7 +110,11 @@ WalletType deserializeFromInt(int raw) {
     case 8:
       return WalletType.polygon;
     case 9:
+<<<<<<< HEAD
       return WalletType.tron;
+=======
+      return WalletType.solana;
+>>>>>>> 2549b0fa0a7171846e7dd872a54dc2e41075e6f6
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
@@ -126,8 +140,13 @@ String walletTypeToString(WalletType type) {
       return 'Banano';
     case WalletType.polygon:
       return 'Polygon';
+<<<<<<< HEAD
     case WalletType.tron:
       return 'Tron';
+=======
+    case WalletType.solana:
+      return 'Solana';
+>>>>>>> 2549b0fa0a7171846e7dd872a54dc2e41075e6f6
     default:
       return '';
   }
@@ -153,8 +172,13 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Banano (BAN)';
     case WalletType.polygon:
       return 'Polygon (MATIC)';
+<<<<<<< HEAD
     case WalletType.tron:
       return 'Tron (TRX)';
+=======
+    case WalletType.solana:
+      return 'Solana (SOL)';
+>>>>>>> 2549b0fa0a7171846e7dd872a54dc2e41075e6f6
     default:
       return '';
   }
@@ -180,8 +204,13 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.banano;
     case WalletType.polygon:
       return CryptoCurrency.maticpoly;
+<<<<<<< HEAD
     case WalletType.tron:
       return CryptoCurrency.trx;
+=======
+    case WalletType.solana:
+      return CryptoCurrency.sol;
+>>>>>>> 2549b0fa0a7171846e7dd872a54dc2e41075e6f6
     default:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');

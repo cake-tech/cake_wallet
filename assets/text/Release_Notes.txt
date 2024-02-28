@@ -1,4 +1,3 @@
-List previously used Bitcoin addresses
-Security and Privacy enhancements
-Usability enhancements
-Bug fixes
+Support ALL Bitcoin address types (Legacy, Segwit (both variants), Taproot)
+Enhance Sending/Receiving flow for Bitcoin
+Improve fee calculations in Bitcoin
