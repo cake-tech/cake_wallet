@@ -84,6 +84,7 @@
   "buy_with": "Kupite s",
   "by_cake_pay": "od Cake Paya",
   "cake_2fa_preset": "Cake 2FA Preset",
+  "cake_dark_theme": "TOKA DARKA TEMA",
   "cake_pay_account_note": "Prijavite se samo s adresom e-pošte da biste vidjeli i kupili kartice. Neke su čak dostupne uz popust!",
   "cake_pay_learn_more": "Azonnal vásárolhat és válthat be ajándékutalványokat az alkalmazásban!\nTovábbi információért csúsztassa balról jobbra az ujját.",
   "cake_pay_subtitle": "Kupite darovne kartice s popustom (samo SAD)",
@@ -732,6 +733,7 @@
   "view_key_private": "View key (privatni)",
   "view_key_public": "View key (javni)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "Pričekajte nekoliko sekundi da se transakcija prikaže u povijesti transakcija",
   "wallet_keys": "Pristupni izraz/ključ novčanika",
   "wallet_list_create_new_wallet": "Izradi novi novčanik",
   "wallet_list_edit_wallet": "Uredi novčanik",
@@ -782,6 +784,5 @@
   "you_pay": "Vi plaćate",
   "you_will_get": "Razmijeni u",
   "you_will_send": "Razmijeni iz",
-  "yy": "GG",
-  "waitFewSecondForTxUpdate": "Pričekajte nekoliko sekundi da se transakcija prikaže u povijesti transakcija"
+  "yy": "GG"
 }

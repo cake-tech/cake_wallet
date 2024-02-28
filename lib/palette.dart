@@ -100,4 +100,6 @@ class PaletteDark {
   static const Color moneroCard = Color.fromRGBO(20, 21, 24, 1.0);
   static const Color red = Color.fromRGBO(195, 0, 0, 1.0);
   static const Color darkPurple = Color.fromRGBO(109, 14, 210, 1.0);
+  static const Color cakeBlue = Color.fromRGBO(0, 184, 250, 1.0);
+  static const Color darkBlue = Color.fromRGBO(0, 123, 168, 1.0);
 }

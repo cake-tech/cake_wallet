@@ -793,7 +793,7 @@ abstract class SettingsStoreBase with Store {
     final bool isNewInstall = sharedPreferences.getBool(PreferencesKey.isNewInstall) ?? true;
     final int defaultTheme;
     if (isNewInstall) {
-      defaultTheme = isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.darkTheme.raw;
+      defaultTheme = isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.cakeDarkTheme.raw;
     } else {
       defaultTheme = ThemeType.bright.index;
     }
@@ -1159,7 +1159,7 @@ abstract class SettingsStoreBase with Store {
             ExchangeApiMode.enabled.raw);
     currentTheme = ThemeList.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
-            (isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.darkTheme.raw));
+            (isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.cakeDarkTheme.raw));
     actionlistDisplayMode = ObservableList<ActionListDisplayMode>();
     actionlistDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
