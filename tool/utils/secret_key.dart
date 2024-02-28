@@ -44,6 +44,10 @@ class SecretKey {
     SecretKey('polygonScanApiKey', () => ''),
   ];
 
+  static final solanaSecrets = [
+    SecretKey('ankrApiKey', () => ''),
+  ];
+
   final String name;
   final String Function() generate;
 }

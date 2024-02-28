@@ -1,0 +1,37 @@
+name: cw_solana
+description: A new Flutter package project.
+version: 0.0.1
+publish_to: none
+homepage: https://cakewallet.com
+
+environment:
+  sdk: '>=3.0.6 <4.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  solana: ^0.30.1
+  cw_core:
+    path: ../cw_core
+  http: ^1.1.0
+  hive: ^2.2.3
+  bip39: ^1.0.6
+  mobx: ^2.3.0+1
+  shared_preferences: ^2.0.15
+  web3dart: ^2.7.1
+  bip32: ^2.0.0
+  hex: ^0.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+  build_runner: ^2.1.11
+  mobx_codegen: ^2.0.7
+  hive_generator: ^1.1.3
+
+flutter:
+  # assets:
+  #   - images/a_dot_burr.jpeg
+  #   - images/a_dot_ham.jpeg

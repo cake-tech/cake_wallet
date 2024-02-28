@@ -22,7 +22,7 @@ abstract class EVMChainWalletService<T extends EVMChainWallet> extends WalletSer
   WalletType getType();
 
   @override
-  Future<T> create(EVMChainNewWalletCredentials credentials);
+  Future<T> create(EVMChainNewWalletCredentials credentials, {bool? isTestnet});
 
   @override
   Future<T> openWallet(String name, String password);
@@ -31,10 +31,10 @@ abstract class EVMChainWalletService<T extends EVMChainWallet> extends WalletSer
   Future<void> rename(String currentName, String password, String newName);
 
   @override
-  Future<T> restoreFromKeys(EVMChainRestoreWalletFromPrivateKey credentials);
+  Future<T> restoreFromKeys(EVMChainRestoreWalletFromPrivateKey credentials, {bool? isTestnet});
 
   @override
-  Future<T> restoreFromSeed(EVMChainRestoreWalletFromSeedCredentials credentials);
+  Future<T> restoreFromSeed(EVMChainRestoreWalletFromSeedCredentials credentials, {bool? isTestnet});
 
   @override
   Future<bool> isWalletExit(String name) async =>

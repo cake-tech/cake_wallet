@@ -6,6 +6,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -333,15 +334,11 @@ class BalanceRowWidget extends StatelessWidget {
                   child: Center(
                     child: Column(
                       children: [
-                        currency.iconPath != null
-                            ? Container(
-                                child: Image.asset(
-                                  currency.iconPath!,
-                                  height: 40.0,
-                                  width: 40.0,
-                                ),
-                              )
-                            : Container(
+                        CakeImageWidget(
+                          imageUrl: currency.iconPath,
+                          height: 40,
+                          width: 40,
+                          displayOnError: Container(
                                 height: 30.0,
                                 width: 30.0,
                                 child: Center(
@@ -355,6 +352,7 @@ class BalanceRowWidget extends StatelessWidget {
                                   color: Colors.grey.shade400,
                                 ),
                               ),
+                        ),
                         const SizedBox(height: 10),
                         Text(
                           currency.title,

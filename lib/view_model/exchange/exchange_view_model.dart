@@ -625,6 +625,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency = CryptoCurrency.maticpoly;
         receiveCurrency = CryptoCurrency.xmr;
         break;
+      case WalletType.solana:
+        depositCurrency = CryptoCurrency.sol;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
       default:
         break;
     }
