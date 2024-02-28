@@ -320,6 +320,7 @@
   "learn_more": "Erfahren Sie mehr",
   "light_theme": "Hell",
   "lightning_invoice_min": "Eine Einrichtungsgebühr von 0,4% mit einem Minimum von ${min} SATs wird nach Erhalt dieser Rechnung angewendet.",
+  "lightning_receive_limits": "Senden Sie mehr als ${min} SATs und bis zu ${max} SATs an diese Adresse. Eine Einrichtungsgebühr von 0,4% mit einem Minimum von ${fee} SATs wird nach Erhalt dieser Rechnung angewendet. Dadurch werden alle empfangenen Bitcoin in Blitz umgewandelt. Es wird eine Gebühr für Ketten angewendet. Diese Adresse kann nur einmal verwendet werden.",
   "loading_your_wallet": "Wallet wird geladen",
   "login": "Einloggen",
   "logout": "Abmelden",

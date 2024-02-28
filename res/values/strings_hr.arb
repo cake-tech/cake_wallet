@@ -320,6 +320,7 @@
   "learn_more": "Saznajte više",
   "light_theme": "Svijetla",
   "lightning_invoice_min": "Naknada za postavljanje od 0,4% s najmanje ${min} SAT -om primijenit će se nakon primanja ove fakture.",
+  "lightning_receive_limits": "Na ovu adresu pošaljite više od ${min} SAT -a i do ${max} SAT -a. Naknada za postavljanje od 0,4% s najmanje ${fee} SAT -om primijenit će se nakon primanja ove fakture. To će pretvoriti bilo koji primljeni bitcoin u munje. Primjenjivat će se naknada na lancu. Ova se adresa može koristiti samo jednom.",
   "loading_your_wallet": "Novčanik se učitava",
   "login": "Prijava",
   "logout": "Odjava",

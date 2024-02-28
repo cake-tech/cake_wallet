@@ -320,6 +320,7 @@
   "learn_more": "더 알아보기",
   "light_theme": "빛",
   "lightning_invoice_min": "이 송장을 받으면 최소 ${min} SAT가있는 0.4%의 설정 수수료가 적용됩니다.",
+  "lightning_receive_limits": "${min} sats 이상을 보내고이 주소로 ${max} SATS를 보내십시오. 이 송장을 받으면 최소 ${fee} SAT가있는 0.4%의 설정 수수료가 적용됩니다. 이것은 수신 된 비트 코인을 번개로 변환합니다. 온쇄 수수료가 적용됩니다. 이 주소는 한 번만 사용할 수 있습니다.",
   "loading_your_wallet": "지갑 넣기",
   "login": "로그인",
   "logout": "로그아웃",
