@@ -319,6 +319,8 @@
   "last_30_days": "Posledních 30 dnů",
   "learn_more": "Zjistit více",
   "light_theme": "Světlý",
+  "lightning_invoice_min": "Po obdržení této faktury se použije poplatek za nastavení 0,4% s minimem ${min} SATS.",
+  "lightning_receive_limits": "Pošlete více než ${min} SATS a až ${max} SATS na tuto adresu. Poplatek za nastavení 0,4% s minimem${fee}]] SAT se použije po obdržení této faktury. Tím se převedou jakýkoli přijatý bitcoin na blesk. Bude použito poplatek za řetěz. Tuto adresu lze použít pouze jednou.",
   "loading_your_wallet": "Načítám peněženku",
   "login": "Login",
   "logout": "Odhlásit",
@@ -735,6 +737,7 @@
   "view_key_private": "Klíč pro zobrazení (soukromý)",
   "view_key_public": "Klíč pro zobrazení (veřejný)",
   "view_transaction_on": "Zobrazit transakci na ",
+  "waitFewSecondForTxUpdate": "Počkejte několik sekund, než se transakce projeví v historii transakcí",
   "wallet_keys": "Seed/klíče peněženky",
   "wallet_list_create_new_wallet": "Vytvořit novou peněženku",
   "wallet_list_edit_wallet": "Upravit peněženku",
@@ -785,6 +788,5 @@
   "you_pay": "Zaplatíte",
   "you_will_get": "Směnit na",
   "you_will_send": "Směnit z",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "Počkejte několik sekund, než se transakce projeví v historii transakcí"
+  "yy": "YY"
 }

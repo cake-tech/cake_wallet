@@ -319,6 +319,8 @@
   "last_30_days": "Last 30 days",
   "learn_more": "Learn More",
   "light_theme": "Light",
+  "lightning_invoice_min": "A setup fee of 0.4% with a minimum of ${min} sats will be applied upon receiving this invoice.",
+  "lightning_receive_limits": "Send more than ${min} sats and up to ${max} sats to this address. A setup fee of 0.4% with a minimum of ${fee} sats will be applied upon receiving this invoice. This will convert any received Bitcoin into Lightning. An on-chain fee will be applied. This address can only be used once.",
   "loading_your_wallet": "Loading your wallet",
   "login": "Login",
   "logout": "Logout",
@@ -735,6 +737,7 @@
   "view_key_private": "View key (private)",
   "view_key_public": "View key (public)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "Kindly wait for a few seconds for transaction to reflect in transactions history",
   "wallet_keys": "Wallet seed/keys",
   "wallet_list_create_new_wallet": "Create New Wallet",
   "wallet_list_edit_wallet": "Edit wallet",
@@ -785,6 +788,5 @@
   "you_pay": "You Pay",
   "you_will_get": "Convert to",
   "you_will_send": "Convert from",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "Kindly wait for a few seconds for transaction to reflect in transactions history"
+  "yy": "YY"
 }

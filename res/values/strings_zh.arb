@@ -319,6 +319,8 @@
   "last_30_days": "过去 30 天",
   "learn_more": "了解更多",
   "light_theme": "艳丽",
+  "lightning_invoice_min": "收到此发票后，将收取最低${min} SAT的0.4％的设置费。",
+  "lightning_receive_limits": "发送到${min} SATS和最多${max} SATS的发送到此地址更多。在收到此发票后，将对0.4％的设置费用为0.4％。这将把任何收到的比特币转换为闪电。将收取链费费。此地址只能使用一次。",
   "loading_your_wallet": "加载您的钱包",
   "login": "登录",
   "logout": "注销",
@@ -735,6 +737,7 @@
   "view_key_private": "View 密钥(私钥)",
   "view_key_public": "View 密钥(公钥)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "请等待几秒钟，交易才会反映在交易历史记录中",
   "wallet_keys": "钱包种子/密钥",
   "wallet_list_create_new_wallet": "创建新钱包",
   "wallet_list_edit_wallet": "编辑钱包",
@@ -785,6 +788,5 @@
   "you_pay": "你付钱",
   "you_will_get": "转换到",
   "you_will_send": "转换自",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "请等待几秒钟，交易才会反映在交易历史记录中"
+  "yy": "YY"
 }

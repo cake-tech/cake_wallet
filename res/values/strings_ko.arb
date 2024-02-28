@@ -319,6 +319,8 @@
   "last_30_days": "지난 30일",
   "learn_more": "더 알아보기",
   "light_theme": "빛",
+  "lightning_invoice_min": "이 송장을 받으면 최소 ${min} sats의 설정 수수료가 0.4%입니다.",
+  "lightning_receive_limits": "${min} SAT 이상을 보내고 최대 ${max} SAT를이 주소로 보내십시오. 이 송장을 받으면 최소${fee} SAT의 설정 수수료가 적용됩니다. 이것은 수신 된 비트 코인을 번개로 변환합니다. 온쇄 수수료가 적용됩니다. 이 주소는 한 번만 사용할 수 있습니다.",
   "loading_your_wallet": "지갑 넣기",
   "login": "로그인",
   "logout": "로그아웃",
@@ -736,6 +738,7 @@
   "view_key_private": "키보기(은밀한)",
   "view_key_public": "키보기 (공공의)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "거래 내역에 거래가 반영될 때까지 몇 초 정도 기다려 주세요.",
   "wallet_keys": "지갑 시드 / 키",
   "wallet_list_create_new_wallet": "새 월렛 만들기",
   "wallet_list_edit_wallet": "지갑 수정",
@@ -787,6 +790,5 @@
   "you_will_get": "로 변환하다",
   "you_will_send": "다음에서 변환",
   "YY": "YY",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "거래 내역에 거래가 반영될 때까지 몇 초 정도 기다려 주세요."
+  "yy": "YY"
 }

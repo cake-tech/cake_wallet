@@ -319,6 +319,8 @@
   "last_30_days": "Laatste 30 dagen",
   "learn_more": "Kom meer te weten",
   "light_theme": "Licht",
+  "lightning_invoice_min": "Een installatiekosten van 0,4% met een minimum van ${min} SAT's zal worden toegepast bij het ontvangen van deze factuur.",
+  "lightning_receive_limits": "Stuur meer dan ${min} SAT's en tot ${max} SAT's naar dit adres. Een installatiekosten van 0,4% met een minimum van${fee}] SAT's worden toegepast bij het ontvangen van deze factuur. Dit zal elke ontvangen bitcoin omzetten in bliksem. Een on-chain-vergoeding wordt toegepast. Dit adres kan slechts eenmaal worden gebruikt.",
   "loading_your_wallet": "Uw portemonnee laden",
   "login": "Log in",
   "logout": "Uitloggen",
@@ -735,6 +737,7 @@
   "view_key_private": "Bekijk sleutel (privaat)",
   "view_key_public": "Bekijk sleutel (openbaar)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "Wacht een paar seconden totdat de transactie wordt weergegeven in de transactiegeschiedenis",
   "waiting_payment_confirmation": "In afwachting van betalingsbevestiging",
   "wallet_keys": "Portemonnee zaad/sleutels",
   "wallet_list_create_new_wallet": "Maak een nieuwe portemonnee",
@@ -786,6 +789,5 @@
   "you_pay": "U betaalt",
   "you_will_get": "Converteren naar",
   "you_will_send": "Converteren van",
-  "yy": "JJ",
-  "waitFewSecondForTxUpdate": "Wacht een paar seconden totdat de transactie wordt weergegeven in de transactiegeschiedenis"
+  "yy": "JJ"
 }

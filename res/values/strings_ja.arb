@@ -320,6 +320,8 @@
   "last_30_days": "過去30日",
   "learn_more": "もっと詳しく知る",
   "light_theme": "光",
+  "lightning_invoice_min": "この請求書を受け取ると、最低${min} satsの0.4％のセットアップ料金が適用されます。",
+  "lightning_receive_limits": "このアドレスに${min} SATを超えて${max}+ SATを送信します。この請求書を受け取ると、最低では0.4％のセットアップ料金が最低でください。これにより、受信したビットコインを稲妻に変換します。オンチェーン料金が適用されます。このアドレスは1回しか使用できません。",
   "loading_your_wallet": "ウォレットをロードしています",
   "login": "ログイン",
   "logout": "ログアウト",
@@ -736,6 +738,7 @@
   "view_key_private": "ビューキー (プライベート)",
   "view_key_public": "ビューキー (パブリック)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "取引履歴に取引が反映されるまで数秒お待ちください。",
   "wallet_keys": "ウォレットシード/キー",
   "wallet_list_create_new_wallet": "新しいウォレットを作成",
   "wallet_list_edit_wallet": "ウォレットを編集する",
@@ -786,6 +789,5 @@
   "you_pay": "あなたが支払う",
   "you_will_get": "に変換",
   "you_will_send": "から変換",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "取引履歴に取引が反映されるまで数秒お待ちください。"
+  "yy": "YY"
 }

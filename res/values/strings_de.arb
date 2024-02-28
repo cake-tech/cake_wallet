@@ -319,6 +319,8 @@
   "last_30_days": "Letzte 30 Tage",
   "learn_more": "Erfahren Sie mehr",
   "light_theme": "Hell",
+  "lightning_invoice_min": "Eine Einrichtungsgebühr von 0,4% mit einem Minimum von ${min} SATs wird nach Erhalt dieser Rechnung angewendet.",
+  "lightning_receive_limits": "Senden Sie mehr als ${min} SATs und bis zu ${max} SATs an diese Adresse. Eine Einrichtungsgebühr von 0,4% mit einem Minimum von${fee} SATs werden nach Erhalt dieser Rechnung angewendet. Dadurch werden alle empfangenen Bitcoin in Blitz umgewandelt. Es wird eine Gebühr für Ketten angewendet. Diese Adresse kann nur einmal verwendet werden.",
   "loading_your_wallet": "Wallet wird geladen",
   "login": "Einloggen",
   "logout": "Abmelden",
@@ -737,6 +739,7 @@
   "view_key_private": "View Key (geheim)",
   "view_key_public": "View Key (öffentlich)",
   "view_transaction_on": "Anzeigen der Transaktion auf ",
+  "waitFewSecondForTxUpdate": "Bitte warten Sie einige Sekunden, bis die Transaktion im Transaktionsverlauf angezeigt wird",
   "waiting_payment_confirmation": "Warte auf Zahlungsbestätigung",
   "wallet_keys": "Wallet-Seed/-Schlüssel",
   "wallet_list_create_new_wallet": "Neue Wallet erstellen",
@@ -788,6 +791,5 @@
   "you_pay": "Sie bezahlen",
   "you_will_get": "Konvertieren zu",
   "you_will_send": "Konvertieren von",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "Bitte warten Sie einige Sekunden, bis die Transaktion im Transaktionsverlauf angezeigt wird"
+  "yy": "YY"
 }

@@ -319,6 +319,8 @@
   "last_30_days": "30 derniers jours",
   "learn_more": "En savoir plus",
   "light_theme": "Clair",
+  "lightning_invoice_min": "Des frais de configuration de 0,4% avec un minimum de SAT ${min} seront appliqués sur la réception de cette facture.",
+  "lightning_receive_limits": "Envoyez plus que ${min} SATS et jusqu'à ${max} SATS à cette adresse. Des frais d'installation de 0,4% avec un minimum de${fee} SATS seront appliqués sur la réception de cette facture. Cela convertira tout bitcoin reçu en foudre. Des frais de chaîne seront appliqués. Cette adresse ne peut être utilisée qu'une seule fois.",
   "loading_your_wallet": "Chargement de votre portefeuille (wallet)",
   "login": "Utilisateur",
   "logout": "Déconnexion",
@@ -735,6 +737,7 @@
   "view_key_private": "Clef d'audit (view key) (privée)",
   "view_key_public": "Clef d'audit (view key) (publique)",
   "view_transaction_on": "Voir la Transaction sur ",
+  "waitFewSecondForTxUpdate": "Veuillez attendre quelques secondes pour que la transaction soit reflétée dans l'historique des transactions.",
   "wallet_keys": "Phrase secrète (seed)/Clefs du portefeuille (wallet)",
   "wallet_list_create_new_wallet": "Créer un Nouveau Portefeuille (Wallet)",
   "wallet_list_edit_wallet": "Modifier le portefeuille",
@@ -785,6 +788,5 @@
   "you_pay": "Vous payez",
   "you_will_get": "Convertir vers",
   "you_will_send": "Convertir depuis",
-  "yy": "AA",
-  "waitFewSecondForTxUpdate": "Veuillez attendre quelques secondes pour que la transaction soit reflétée dans l'historique des transactions."
+  "yy": "AA"
 }

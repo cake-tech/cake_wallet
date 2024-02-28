@@ -320,6 +320,8 @@
   "last_30_days": "Ọ̀jọ̀ mọ́gbọ̀n tó kọjà",
   "learn_more": "Túbọ̀ kọ́",
   "light_theme": "Funfun bí eérú",
+  "lightning_invoice_min": "Ota ti o ṣeto ti 0.4% pẹlu o kere ju ${min} Saulu yoo lo lori gbigba iwe-ini yii.",
+  "lightning_receive_limits": "Firanṣẹ diẹ sii ju [----] Sals ati si ++++ Shs si adirẹsi yii. Ota ti oso ti 0.4% pẹlu o kere ju] ju] yoo lo lori gbigba iwe-ini yii. Eyi yoo ṣe iyipada eyikeyi ti o gba bitcoin sinu monomono. Owo lori-pq yoo lo. Adirẹsi yii le ṣee lo lẹẹkan.",
   "loading_your_wallet": "A ń ṣí àpamọ́wọ́ yín",
   "login": "Orúkọ",
   "logout": "Jáde",
@@ -736,6 +738,7 @@
   "view_key_private": "Kọ́kọ́rọ́ ìwò (àdáni)",
   "view_key_public": "Kọ́kọ́rọ́ ìwò (kò àdáni)",
   "view_transaction_on": "Wo pàṣípààrọ̀ lórí ",
+  "waitFewSecondForTxUpdate": "Fi inurere duro fun awọn iṣeju diẹ fun idunadura lati ṣe afihan ninu itan-akọọlẹ iṣowo",
   "wallet_keys": "Hóró/kọ́kọ́rọ́ àpamọ́wọ́",
   "wallet_list_create_new_wallet": "Ṣe àpamọ́wọ́ títun",
   "wallet_list_edit_wallet": "Ṣatunkọ apamọwọ",
@@ -786,6 +789,5 @@
   "you_pay": "Ẹ sàn",
   "you_will_get": "Ṣe pàṣípààrọ̀ sí",
   "you_will_send": "Ṣe pàṣípààrọ̀ láti",
-  "yy": "Ọd",
-  "waitFewSecondForTxUpdate": "Fi inurere duro fun awọn iṣeju diẹ fun idunadura lati ṣe afihan ninu itan-akọọlẹ iṣowo"
+  "yy": "Ọd"
 }

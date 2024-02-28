@@ -214,8 +214,7 @@ class LightningReceiveOnchainPage extends BasePage {
                         fee = satsToLightningString(double.parse(fee));
                         return Expanded(
                           child: Text(
-                            // S.of(context).lightning_receive_limits(min, max, fee),
-                            "Needs fixing!: min: $min    max: $max    fee: $fee",
+                            S.of(context).lightning_receive_limits(min, max, fee),
                             maxLines: 10,
                             style: TextStyle(
                               fontSize: 14,

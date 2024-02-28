@@ -320,6 +320,8 @@
   "last_30_days": "Ultimi 30 giorni",
   "learn_more": "Impara di più",
   "light_theme": "Bianco",
+  "lightning_invoice_min": "Verrà applicata una commissione di configurazione dello 0,4% con un minimo di ${min} SAT al momento della ricezione di questa fattura.",
+  "lightning_receive_limits": "Invia più di ${min} SAT e fino a ${max} SAT a questo indirizzo. Una commissione di configurazione dello 0,4% con un minimo di]]]] SAT verrà applicata al momento della ricezione di questa fattura. Ciò convertirà qualsiasi bitcoin ricevuto in fulmini. Verrà applicata una tassa sulla catena. Questo indirizzo può essere usato solo una volta.",
   "loading_your_wallet": "Caricamento portafoglio",
   "login": "Accedi",
   "logout": "Logout",
@@ -737,6 +739,7 @@
   "view_key_private": "Chiave di visualizzazione (privata)",
   "view_key_public": "Chiave di visualizzazione (pubblica)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "Attendi qualche secondo affinché la transazione venga riflessa nella cronologia delle transazioni",
   "waiting_payment_confirmation": "In attesa di conferma del pagamento",
   "wallet_keys": "Seme Portafoglio /chiavi",
   "wallet_list_create_new_wallet": "Crea Nuovo Portafoglio",
@@ -788,6 +791,5 @@
   "you_pay": "Tu paghi",
   "you_will_get": "Converti a",
   "you_will_send": "Conveti da",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "Attendi qualche secondo affinché la transazione venga riflessa nella cronologia delle transazioni"
+  "yy": "YY"
 }

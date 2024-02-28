@@ -167,8 +167,7 @@ class LightningInvoicePage extends BasePage {
                             min = satsToLightningString(double.parse(min));
                             return Expanded(
                               child: Text(
-                                // S.of(context).lightning_invoice_min(min)
-                                "Needs fixing!: $min",
+                                S.of(context).lightning_invoice_min(min),
                                 maxLines: 3,
                                 style: TextStyle(
                                   fontSize: 14,

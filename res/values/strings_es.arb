@@ -319,6 +319,8 @@
   "last_30_days": "Últimos 30 días",
   "learn_more": "Aprende más",
   "light_theme": "Ligera",
+  "lightning_invoice_min": "Se aplicará una tarifa de configuración de 0.4% con un mínimo de ${min} SATS al recibir esta factura.",
+  "lightning_receive_limits": "Envíe más de ${min} SAT y hasta ${max} SAT a esta dirección. Se aplicará una tarifa de configuración de 0.4% con un mínimo de${fee} SATS al recibir esta factura. Esto convertirá cualquier bitcoin recibido en rayos. Se aplicará una tarifa en la cadena. Esta dirección solo se puede usar una vez.",
   "loading_your_wallet": "Cargando tu billetera",
   "login": "Iniciar sesión",
   "logout": "Cerrar sesión",
@@ -736,6 +738,7 @@
   "view_key_private": "View clave (privado)",
   "view_key_public": "View clave (público)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "Espere unos segundos para que la transacción se refleje en el historial de transacciones.",
   "wallet_keys": "Billetera semilla/claves",
   "wallet_list_create_new_wallet": "Crear nueva billetera",
   "wallet_list_edit_wallet": "Editar billetera",
@@ -786,6 +789,5 @@
   "you_pay": "Tú pagas",
   "you_will_get": "Convertir a",
   "you_will_send": "Convertir de",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "Espere unos segundos para que la transacción se refleje en el historial de transacciones."
+  "yy": "YY"
 }

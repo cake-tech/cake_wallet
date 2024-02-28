@@ -319,6 +319,8 @@
   "last_30_days": "آخر 30 يومًا",
   "learn_more": "اعرف المزيد",
   "light_theme": "فاتح",
+  "lightning_invoice_min": "سيتم تطبيق رسوم الإعداد بنسبة 0.4 ٪ مع الحد الأدنى من ${min} SATs عند تلقي هذه الفاتورة.",
+  "lightning_receive_limits": "أرسل أكثر من ${min} SATs وما يصل إلى ${max} SATs إلى هذا العنوان. سيتم تطبيق رسوم الإعداد بنسبة 0.4 ٪ مع الحد الأدنى من${fee} SATS عند تلقي هذه الفاتورة. سيؤدي ذلك إلى تحويل أي Bitcoin المستلم إلى Lightning. سيتم تطبيق رسوم على السلسلة. لا يمكن استخدام هذا العنوان إلا مرة واحدة.",
   "loading_your_wallet": "يتم تحميل محفظتك",
   "login": "تسجيل الدخول",
   "logout": "تسجيل خروج",
@@ -735,6 +737,7 @@
   "view_key_private": "مفتاح العرض (خاص)",
   "view_key_public": "مفتاح العرض (عام)",
   "view_transaction_on": "عرض العملية على",
+  "waitFewSecondForTxUpdate": "ﺕﻼ﻿ﻣﺎﻌﻤﻟﺍ ﻞﺠﺳ ﻲﻓ ﺔﻠﻣﺎﻌﻤﻟﺍ ﺲﻜﻌﻨﺗ ﻰﺘﺣ ﻥﺍﻮﺛ ﻊﻀﺒﻟ ﺭﺎﻈﺘﻧﻻ﻿ﺍ ﻰﺟﺮﻳ",
   "wallet_keys": "سييد المحفظة / المفاتيح",
   "wallet_list_create_new_wallet": "إنشاء محفظة جديدة",
   "wallet_list_edit_wallet": "تحرير المحفظة",
@@ -785,6 +788,5 @@
   "you_pay": "انت تدفع",
   "you_will_get": "حول الى",
   "you_will_send": "تحويل من",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "ﺕﻼ﻿ﻣﺎﻌﻤﻟﺍ ﻞﺠﺳ ﻲﻓ ﺔﻠﻣﺎﻌﻤﻟﺍ ﺲﻜﻌﻨﺗ ﻰﺘﺣ ﻥﺍﻮﺛ ﻊﻀﺒﻟ ﺭﺎﻈﺘﻧﻻ﻿ﺍ ﻰﺟﺮﻳ"
+  "yy": "YY"
 }

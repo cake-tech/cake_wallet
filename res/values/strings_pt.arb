@@ -319,6 +319,8 @@
   "last_30_days": "Últimos 30 dias",
   "learn_more": "Saber mais",
   "light_theme": "Luz",
+  "lightning_invoice_min": "Uma taxa de configuração de 0,4% com um mínimo de ${min} SATS será aplicada ao receber esta fatura.",
+  "lightning_receive_limits": "Envie mais do que ${min} SATs e até ${max} SATs para este endereço. Uma taxa de configuração de 0,4% com um mínimo de${fee} SATs será aplicado ao receber esta fatura. Isso converterá qualquer bitcoin recebido em raios. Uma taxa na cadeia será aplicada. Este endereço só pode ser usado uma vez.",
   "loading_your_wallet": "Abrindo sua carteira",
   "login": "Login",
   "logout": "Logout",
@@ -737,6 +739,7 @@
   "view_key_private": "Chave de visualização (privada)",
   "view_key_public": "Chave de visualização (pública)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "Aguarde alguns segundos para que a transação seja refletida no histórico de transações",
   "waiting_payment_confirmation": "Aguardando confirmação de pagamento",
   "wallet_keys": "Semente/chaves da carteira",
   "wallet_list_create_new_wallet": "Criar nova carteira",
@@ -788,6 +791,5 @@
   "you_pay": "Você paga",
   "you_will_get": "Converter para",
   "you_will_send": "Converter de",
-  "yy": "aa",
-  "waitFewSecondForTxUpdate": "Aguarde alguns segundos para que a transação seja refletida no histórico de transações"
+  "yy": "aa"
 }

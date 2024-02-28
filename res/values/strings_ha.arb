@@ -319,6 +319,8 @@
   "last_30_days": "Kwanaki 30 na ƙarshe",
   "learn_more": "Ƙara Koyi",
   "light_theme": "Haske",
+  "lightning_invoice_min": "Za a iya amfani da kuɗin kuɗi na 0.4% tare da mafi ƙarancin hawan ++++ + ++++ a kan karɓar wannan daftari.",
+  "lightning_receive_limits": "Aika sama da ${min} sun kasance da ++++ sun sha zuwa wannan adireshin. Kudin saiti na 0.4% tare da mafi karancin${fee} Za a yi amfani da duwatsun kan karbar wannan daftari. Wannan zai sauya wani karuwa da aka samu cikin walƙiya. Za a yi amfani da kudin kan sarkar. Wannan adireshin za a iya amfani da wannan adireshin sau ɗaya kawai.",
   "loading_your_wallet": "Ana loda walat ɗin ku",
   "login": "Shiga",
   "logout": "Fita",
@@ -737,6 +739,7 @@
   "view_key_private": "Duba maɓallin (maɓallin kalmar sirri)",
   "view_key_public": "Maɓallin Duba (maɓallin jama'a)",
   "view_transaction_on": "Dubo aikace-aikacen akan",
+  "waitFewSecondForTxUpdate": "Da fatan za a jira ƴan daƙiƙa don ciniki don yin tunani a tarihin ma'amala",
   "wallet_keys": "Iri/maɓalli na walat",
   "wallet_list_create_new_wallet": "Ƙirƙiri Sabon Wallet",
   "wallet_list_edit_wallet": "Gyara walat",
@@ -787,6 +790,5 @@
   "you_pay": "Ka Bayar",
   "you_will_get": "Maida zuwa",
   "you_will_send": "Maida daga",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "Da fatan za a jira ƴan daƙiƙa don ciniki don yin tunani a tarihin ma'amala"
+  "yy": "YY"
 }
