@@ -178,14 +178,14 @@ jobs:
       - name: Upload Artifact
         uses: kittaakos/upload-artifact-as-is@v0
         with:
-          path: /opt/android/cake_wallet/build/app/outputs/apk/release/test-apk/
+          path: /opt/android/cake_wallet/build/app/outputs/flutter-apk/test-apk/
 
       - name: Send Test APK
         continue-on-error: true
         uses: adrey/slack-file-upload-action@1.0.5
         with:
           token: ${{ secrets.SLACK_APP_TOKEN }}
-          path: /opt/android/cake_wallet/build/app/outputs/apk/release/test-apk/${{env.BRANCH_NAME}}.apk
+          path: /opt/android/cake_wallet/build/app/outputs/flutter-apk/test-apk/${{env.BRANCH_NAME}}.apk
           channel: ${{ secrets.SLACK_APK_CHANNEL }}
           title: "${{ env.BRANCH_NAME }}.apk"
           filename: ${{ env.BRANCH_NAME }}.apk
