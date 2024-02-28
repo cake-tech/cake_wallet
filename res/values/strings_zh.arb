@@ -84,6 +84,7 @@
   "buy_with": "一起购买",
   "by_cake_pay": "通过 Cake Pay",
   "cake_2fa_preset": "蛋糕 2FA 预设",
+  "cake_dark_theme": "蛋糕黑暗主题",
   "cake_pay_account_note": "只需使用電子郵件地址註冊即可查看和購買卡片。有些甚至可以打折！",
   "cake_pay_learn_more": "立即在应用中购买和兑换礼品卡！\n从左向右滑动以了解详情。",
   "cake_pay_subtitle": "购买打折礼品卡（仅限美国）",
@@ -732,6 +733,7 @@
   "view_key_private": "View 密钥(私钥)",
   "view_key_public": "View 密钥(公钥)",
   "view_transaction_on": "View Transaction on ",
+  "waitFewSecondForTxUpdate": "请等待几秒钟，交易才会反映在交易历史记录中",
   "wallet_keys": "钱包种子/密钥",
   "wallet_list_create_new_wallet": "创建新钱包",
   "wallet_list_edit_wallet": "编辑钱包",
@@ -782,6 +784,5 @@
   "you_pay": "你付钱",
   "you_will_get": "转换到",
   "you_will_send": "转换自",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "请等待几秒钟，交易才会反映在交易历史记录中"
+  "yy": "YY"
 }

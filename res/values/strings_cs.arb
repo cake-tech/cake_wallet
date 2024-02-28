@@ -84,6 +84,7 @@
   "buy_with": "Nakoupit pomocí",
   "by_cake_pay": "od Cake Pay",
   "cake_2fa_preset": "Předvolba Cake 2FA",
+  "cake_dark_theme": "Dort tmavé téma",
   "cake_pay_account_note": "Přihlaste se svou e-mailovou adresou pro zobrazení a nákup karet. Některé jsou dostupné ve slevě!",
   "cake_pay_learn_more": "Okamžitý nákup a uplatnění dárkových karet v aplikaci!\nPřejeďte prstem zleva doprava pro další informace.",
   "cake_pay_subtitle": "Kupte si zlevněné dárkové karty (pouze USA)",
@@ -732,6 +733,7 @@
   "view_key_private": "Klíč pro zobrazení (soukromý)",
   "view_key_public": "Klíč pro zobrazení (veřejný)",
   "view_transaction_on": "Zobrazit transakci na ",
+  "waitFewSecondForTxUpdate": "Počkejte několik sekund, než se transakce projeví v historii transakcí",
   "wallet_keys": "Seed/klíče peněženky",
   "wallet_list_create_new_wallet": "Vytvořit novou peněženku",
   "wallet_list_edit_wallet": "Upravit peněženku",
@@ -782,6 +784,5 @@
   "you_pay": "Zaplatíte",
   "you_will_get": "Směnit na",
   "you_will_send": "Směnit z",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "Počkejte několik sekund, než se transakce projeví v historii transakcí"
+  "yy": "YY"
 }

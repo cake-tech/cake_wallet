@@ -84,6 +84,7 @@
   "buy_with": "Kup za pomocą",
   "by_cake_pay": "przez Cake Pay",
   "cake_2fa_preset": "Ciasto 2FA Preset",
+  "cake_dark_theme": "Cake Dark Temat",
   "cake_pay_account_note": "Zarejestruj się, używając tylko adresu e-mail, aby przeglądać i kupować karty. Niektóre są nawet dostępne ze zniżką!",
   "cake_pay_learn_more": "Kupuj i wykorzystuj karty podarunkowe od razu w aplikacji!\nPrzesuń od lewej do prawej, aby dowiedzieć się więcej.",
   "cake_pay_subtitle": "Kup karty upominkowe ze zniżką (tylko USA)",
@@ -732,6 +733,7 @@
   "view_key_private": "Prywatny Klucz Wglądu",
   "view_key_public": "Publiczny Klucz Wglądu",
   "view_transaction_on": "Zobacz transakcje na ",
+  "waitFewSecondForTxUpdate": "Poczekaj kilka sekund, aż transakcja zostanie odzwierciedlona w historii transakcji",
   "wallet_keys": "Klucze portfela",
   "wallet_list_create_new_wallet": "Utwórz nowy portfel",
   "wallet_list_edit_wallet": "Edytuj portfel",
@@ -782,6 +784,5 @@
   "you_pay": "Płacisz",
   "you_will_get": "Konwertuj na",
   "you_will_send": "Konwertuj z",
-  "yy": "RR",
-  "waitFewSecondForTxUpdate": "Poczekaj kilka sekund, aż transakcja zostanie odzwierciedlona w historii transakcji"
+  "yy": "RR"
 }

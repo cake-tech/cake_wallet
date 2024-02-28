@@ -84,6 +84,7 @@
   "buy_with": "Acheter avec",
   "by_cake_pay": "par Cake Pay",
   "cake_2fa_preset": "Cake 2FA prédéfini",
+  "cake_dark_theme": "Thème sombre du gâteau",
   "cake_pay_account_note": "Inscrivez-vous avec juste une adresse e-mail pour voir et acheter des cartes. Certaines sont même disponibles à prix réduit !",
   "cake_pay_learn_more": "Achetez et utilisez instantanément des cartes-cadeaux dans l'application !\nBalayer de gauche à droite pour en savoir plus.",
   "cake_pay_subtitle": "Achetez des cartes-cadeaux à prix réduit (États-Unis uniquement)",
@@ -732,6 +733,7 @@
   "view_key_private": "Clef d'audit (view key) (privée)",
   "view_key_public": "Clef d'audit (view key) (publique)",
   "view_transaction_on": "Voir la Transaction sur ",
+  "waitFewSecondForTxUpdate": "Veuillez attendre quelques secondes pour que la transaction soit reflétée dans l'historique des transactions.",
   "wallet_keys": "Phrase secrète (seed)/Clefs du portefeuille (wallet)",
   "wallet_list_create_new_wallet": "Créer un Nouveau Portefeuille (Wallet)",
   "wallet_list_edit_wallet": "Modifier le portefeuille",
@@ -782,6 +784,5 @@
   "you_pay": "Vous payez",
   "you_will_get": "Convertir vers",
   "you_will_send": "Convertir depuis",
-  "yy": "AA",
-  "waitFewSecondForTxUpdate": "Veuillez attendre quelques secondes pour que la transaction soit reflétée dans l'historique des transactions."
+  "yy": "AA"
 }

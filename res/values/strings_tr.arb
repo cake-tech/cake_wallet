@@ -84,6 +84,7 @@
   "buy_with": "Şunun ile al: ",
   "by_cake_pay": "Cake Pay tarafından",
   "cake_2fa_preset": "Kek 2FA Ön Ayarı",
+  "cake_dark_theme": "Kek Koyu Tema",
   "cake_pay_account_note": "Kartları görmek ve satın almak için sadece bir e-posta adresiyle kaydolun. Hatta bazıları indirimli olarak bile mevcut!",
   "cake_pay_learn_more": "Uygulamada anında hediye kartları satın alın ve harcayın!\nDaha fazla öğrenmek için soldan sağa kaydır.",
   "cake_pay_subtitle": "İndirimli hediye kartları satın alın (yalnızca ABD)",
@@ -732,6 +733,7 @@
   "view_key_private": "İzleme anahtarı (özel)",
   "view_key_public": "İzleme anahtarı (genel)",
   "view_transaction_on": "İşlemi şurada görüntüle ",
+  "waitFewSecondForTxUpdate": "İşlemin işlem geçmişine yansıması için lütfen birkaç saniye bekleyin",
   "wallet_keys": "Cüzdan tohumu/anahtarları",
   "wallet_list_create_new_wallet": "Yeni Cüzdan Oluştur",
   "wallet_list_edit_wallet": "Cüzdanı düzenle",
@@ -782,6 +784,5 @@
   "you_pay": "Şu kadar ödeyeceksin: ",
   "you_will_get": "Biçimine dönüştür:",
   "you_will_send": "Biçiminden dönüştür:",
-  "yy": "YY",
-  "waitFewSecondForTxUpdate": "İşlemin işlem geçmişine yansıması için lütfen birkaç saniye bekleyin"
+  "yy": "YY"
 }
