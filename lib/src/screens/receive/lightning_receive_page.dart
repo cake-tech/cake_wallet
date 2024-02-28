@@ -156,7 +156,7 @@ class LightningReceiveOnchainPage extends BasePage {
                               children: <Widget>[
                                 Expanded(
                                   child: Text(
-                                    addressListViewModel.address.address,
+                                    data,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontSize: 15,

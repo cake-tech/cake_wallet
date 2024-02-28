@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/lightning_input_form.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
@@ -158,7 +159,8 @@ class LightningInvoicePage extends BasePage {
                           child: Image.asset("assets/images/warning.png"),
                         ),
                         FutureBuilder(
-                          future: lightningInvoicePageViewModel.lightningViewModel.invoiceLimitsSats(),
+                          future:
+                              lightningInvoicePageViewModel.lightningViewModel.invoiceLimitsSats(),
                           builder: (context, snapshot) {
                             if (snapshot.data == null) {
                               return CircularProgressIndicator();
@@ -227,21 +229,43 @@ class LightningInvoicePage extends BasePage {
     });
 
     reaction((_) => lightningInvoicePageViewModel.state, (ExecutionState state) {
-
       if (state is ExecutedSuccessfullyState) {
         showPopUp<void>(
             context: context,
             builder: (BuildContext context) {
-              return AlertWithTwoActions(
-                alertTitle: S.of(context).invoice_created,
-                alertContent: state.payload as String,
-                rightButtonText: S.of(context).ok,
-                actionRightButton: () => Navigator.of(context).pop(),
-                actionLeftButton: () async {
-                  Clipboard.setData(ClipboardData(text: state.payload as String));
-                  showBar<void>(context, S.of(context).copied_to_clipboard);
-                },
-                leftButtonText: S.of(context).copy,
+              // return AlertWithTwoActions(
+              //   alertTitle: S.of(context).invoice_created,
+              //   alertContent: state.payload as String,
+              //   rightButtonText: S.of(context).ok,
+              //   actionRightButton: () => Navigator.of(context).pop(),
+              //   actionLeftButton: () async {
+              //     Clipboard.setData(ClipboardData(text: state.payload as String));
+              //     showBar<void>(context, S.of(context).copied_to_clipboard);
+              //   },
+              //   leftButtonText: S.of(context).copy,
+              // );
+
+              return Center(
+                child: AspectRatio(
+                  aspectRatio: 1.0,
+                  child: Container(
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        width: 3,
+                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                      ),
+                    ),
+                    child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 3,
+                            color: Colors.white,
+                          ),
+                        ),
+                        child: QrImage(data: state.payload as String)),
+                  ),
+                ),
               );
             });
       }
