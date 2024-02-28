@@ -319,8 +319,6 @@
   "last_30_days": "Son 30 gün",
   "learn_more": "Daha fazla öğren",
   "light_theme": "Aydınlık",
-  "lightning_invoice_min": "Bu faturayı aldıktan sonra en az ++++ SAT ile% 0.4'lük bir kurulum ücreti uygulanacaktır.",
-  "lightning_receive_limits": "Bu adrese ${min} SATS ve ++++ SATS'a kadar daha fazlasını gönderin. Bu faturayı aldıktan sonra en az% 0,4'lük bir kurulum ücreti${fee}] SAT uygulanacaktır. Bu, alınan bitcoin'i yıldırım haline getirecektir. Zincir üstü bir ücret uygulanacaktır. Bu adres yalnızca bir kez kullanılabilir.",
   "loading_your_wallet": "Cüzdanın yükleniyor",
   "login": "Login",
   "logout": "Çıkış yap",

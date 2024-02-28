@@ -320,8 +320,6 @@
   "last_30_days": "Ultimi 30 giorni",
   "learn_more": "Impara di più",
   "light_theme": "Bianco",
-  "lightning_invoice_min": "Verrà applicata una commissione di configurazione dello 0,4% con un minimo di ${min} SAT al momento della ricezione di questa fattura.",
-  "lightning_receive_limits": "Invia più di ${min} SAT e fino a ${max} SAT a questo indirizzo. Una commissione di configurazione dello 0,4% con un minimo di]]]] SAT verrà applicata al momento della ricezione di questa fattura. Ciò convertirà qualsiasi bitcoin ricevuto in fulmini. Verrà applicata una tassa sulla catena. Questo indirizzo può essere usato solo una volta.",
   "loading_your_wallet": "Caricamento portafoglio",
   "login": "Accedi",
   "logout": "Logout",

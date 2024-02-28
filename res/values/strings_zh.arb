@@ -319,8 +319,6 @@
   "last_30_days": "过去 30 天",
   "learn_more": "了解更多",
   "light_theme": "艳丽",
-  "lightning_invoice_min": "收到此发票后，将收取最低${min} SAT的0.4％的设置费。",
-  "lightning_receive_limits": "发送到${min} SATS和最多${max} SATS的发送到此地址更多。在收到此发票后，将对0.4％的设置费用为0.4％。这将把任何收到的比特币转换为闪电。将收取链费费。此地址只能使用一次。",
   "loading_your_wallet": "加载您的钱包",
   "login": "登录",
   "logout": "注销",

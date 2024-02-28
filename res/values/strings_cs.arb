@@ -319,8 +319,6 @@
   "last_30_days": "Posledních 30 dnů",
   "learn_more": "Zjistit více",
   "light_theme": "Světlý",
-  "lightning_invoice_min": "Po obdržení této faktury se použije poplatek za nastavení 0,4% s minimem ${min} SATS.",
-  "lightning_receive_limits": "Pošlete více než ${min} SATS a až ${max} SATS na tuto adresu. Poplatek za nastavení 0,4% s minimem${fee}]] SAT se použije po obdržení této faktury. Tím se převedou jakýkoli přijatý bitcoin na blesk. Bude použito poplatek za řetěz. Tuto adresu lze použít pouze jednou.",
   "loading_your_wallet": "Načítám peněženku",
   "login": "Login",
   "logout": "Odhlásit",

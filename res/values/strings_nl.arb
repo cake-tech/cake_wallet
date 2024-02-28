@@ -319,8 +319,6 @@
   "last_30_days": "Laatste 30 dagen",
   "learn_more": "Kom meer te weten",
   "light_theme": "Licht",
-  "lightning_invoice_min": "Een installatiekosten van 0,4% met een minimum van ${min} SAT's zal worden toegepast bij het ontvangen van deze factuur.",
-  "lightning_receive_limits": "Stuur meer dan ${min} SAT's en tot ${max} SAT's naar dit adres. Een installatiekosten van 0,4% met een minimum van${fee}] SAT's worden toegepast bij het ontvangen van deze factuur. Dit zal elke ontvangen bitcoin omzetten in bliksem. Een on-chain-vergoeding wordt toegepast. Dit adres kan slechts eenmaal worden gebruikt.",
   "loading_your_wallet": "Uw portemonnee laden",
   "login": "Log in",
   "logout": "Uitloggen",

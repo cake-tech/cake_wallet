@@ -320,8 +320,6 @@
   "last_30_days": "Ọ̀jọ̀ mọ́gbọ̀n tó kọjà",
   "learn_more": "Túbọ̀ kọ́",
   "light_theme": "Funfun bí eérú",
-  "lightning_invoice_min": "Ota ti o ṣeto ti 0.4% pẹlu o kere ju ${min} Saulu yoo lo lori gbigba iwe-ini yii.",
-  "lightning_receive_limits": "Firanṣẹ diẹ sii ju [----] Sals ati si ++++ Shs si adirẹsi yii. Ota ti oso ti 0.4% pẹlu o kere ju] ju] yoo lo lori gbigba iwe-ini yii. Eyi yoo ṣe iyipada eyikeyi ti o gba bitcoin sinu monomono. Owo lori-pq yoo lo. Adirẹsi yii le ṣee lo lẹẹkan.",
   "loading_your_wallet": "A ń ṣí àpamọ́wọ́ yín",
   "login": "Orúkọ",
   "logout": "Jáde",
