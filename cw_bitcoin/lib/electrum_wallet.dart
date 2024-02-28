@@ -37,7 +37,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
@@ -253,7 +252,7 @@ abstract class ElectrumWalletBase
           await _setInitialHeight();
         } catch (_) {}
 
-        if ((currentChainTip ?? 0) < walletInfo.restoreHeight) {
+        if ((currentChainTip ?? 0) > walletInfo.restoreHeight) {
           _setListeners(walletInfo.restoreHeight, chainTip: currentChainTip);
         }
       }
@@ -278,14 +277,17 @@ abstract class ElectrumWalletBase
   }
 
   @action
-  @override
-  Future<void> connectToNode({required Node node}) async {
+  Future<void> _electrumConnect(Node node, {bool? attemptedReconnect}) async {
     try {
       syncStatus = ConnectingSyncStatus();
       await electrumClient.connectToUri(node.uri);
-      electrumClient.onConnectionStatusChange = (bool isConnected) {
+      electrumClient.onConnectionStatusChange = (bool isConnected) async {
         if (!isConnected) {
           syncStatus = LostConnectionSyncStatus();
+          await electrumClient.close();
+          if (attemptedReconnect == false) {
+            await _electrumConnect(node, attemptedReconnect: true);
+          }
         }
       };
       syncStatus = ConnectedSyncStatus();
@@ -294,6 +296,10 @@ abstract class ElectrumWalletBase
       syncStatus = FailedSyncStatus();
     }
   }
+
+  @action
+  @override
+  Future<void> connectToNode({required Node node}) => _electrumConnect(node);
 
   Future<EstimatedTxResult> _estimateTxFeeAndInputsToUse(
       int credentialsAmount,
@@ -807,14 +813,7 @@ abstract class ElectrumWalletBase
     final ins = <BtcTransaction>[];
 
     for (final vin in original.inputs) {
-      try {
-        final id = HEX.encode(HEX.decode(vin.txId).reversed.toList());
-        final txHex = await electrumClient.getTransactionHex(hash: id);
-        final tx = BtcTransaction.fromRaw(txHex);
-        ins.add(tx);
-      } catch (_) {
-        ins.add(BtcTransaction.fromRaw(await electrumClient.getTransactionHex(hash: vin.txId)));
-      }
+      ins.add(BtcTransaction.fromRaw(await electrumClient.getTransactionHex(hash: vin.txId)));
     }
 
     return ElectrumTransactionBundle(original,
@@ -1065,10 +1064,6 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> _setInitialHeight() async {
-    if (walletInfo.isRecovery) {
-      return;
-    }
-
     if (walletInfo.restoreHeight == 0) {
       currentChainTip = await electrumClient.getCurrentBlockChainTip();
       if (currentChainTip != null) walletInfo.restoreHeight = currentChainTip!;
@@ -1191,10 +1186,11 @@ Future<void> startRefresh(ScanData scanData) async {
       }
 
       if (tweaks == null) {
-        return scanData.sendPort.send(false);
+        scanData.sendPort.send(SyncResponse(syncHeight,
+            SyncingSyncStatus.fromHeightValues(currentChainTip, initialSyncHeight, syncHeight)));
       }
 
-      for (var i = 0; i < tweaks.length; i++) {
+      for (var i = 0; i < tweaks!.length; i++) {
         try {
           final details = tweaks[i] as Map<String, dynamic>;
           final output_pubkeys = (details["output_pubkeys"] as List<dynamic>);
