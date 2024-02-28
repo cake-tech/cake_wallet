@@ -161,7 +161,7 @@ class LightningInvoicePage extends BasePage {
                           future: lightningInvoicePageViewModel.lightningViewModel.invoiceLimitsSats(),
                           builder: (context, snapshot) {
                             if (snapshot.data == null) {
-                              return SizedBox();
+                              return CircularProgressIndicator();
                             }
                             String min = (snapshot.data as List<String>)[0];
                             min = satsToLightningString(double.parse(min));

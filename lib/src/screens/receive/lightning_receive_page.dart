@@ -204,7 +204,7 @@ class LightningReceiveOnchainPage extends BasePage {
                       future: lightningViewModel.receiveOnchain(),
                       builder: (context, snapshot) {
                         if (snapshot.data == null) {
-                          return SizedBox();
+                          return CircularProgressIndicator();
                         }
                         String min = (snapshot.data as List<String>)[1];
                         String max = (snapshot.data as List<String>)[2];

@@ -123,7 +123,6 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                             ],
                             hintText: hasDecimals ? '0.0000' : '0',
                             borderColor: Colors.transparent,
-                            //widget.borderColor,
                             textStyle: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
                             placeholderTextStyle: TextStyle(
