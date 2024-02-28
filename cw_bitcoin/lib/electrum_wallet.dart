@@ -253,7 +253,7 @@ abstract class ElectrumWalletBase
           await _setInitialHeight();
         } catch (_) {}
 
-        if ((currentChainTip ?? 0) > walletInfo.restoreHeight) {
+        if ((currentChainTip ?? 0) <= walletInfo.restoreHeight) {
           _setListeners(walletInfo.restoreHeight, chainTip: currentChainTip);
         }
       }
