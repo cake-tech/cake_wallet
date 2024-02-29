@@ -69,16 +69,17 @@ class AddressResolver {
   }
 
 
-    Future<ParsedAddress> resolve(BuildContext context, String text, String ticker) async {
+  Future<ParsedAddress> resolve(BuildContext context, String text, String ticker) async {
     try {
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
-        if(settingsStore.lookupsTwitter) {
+        if (settingsStore.lookupsTwitter) {
           final formattedName = text.substring(1);
           final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
           final addressFromBio = extractAddressByType(
               raw: twitterUser.description, type: CryptoCurrency.fromString(ticker));
           if (addressFromBio != null) {
-            return ParsedAddress.fetchTwitterAddress(address: addressFromBio, name: text);
+            return ParsedAddress.fetchTwitterAddress(
+                address: addressFromBio, name: text, profileImageUrl: twitterUser.profileImageUrl, profileName: twitterUser.name);
           }
 
           final pinnedTweet = twitterUser.pinnedTweet?.text;

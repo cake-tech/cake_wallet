@@ -20,6 +20,8 @@ class ParsedAddress {
     required this.addresses,
     this.name = '',
     this.description = '',
+    this.profileImageUrl = '',
+    this.profileName = '',
     this.parseFrom = ParseFrom.notParsed,
   });
 
@@ -73,10 +75,18 @@ class ParsedAddress {
     );
   }
 
-  factory ParsedAddress.fetchTwitterAddress({required String address, required String name}){
+  factory ParsedAddress.fetchTwitterAddress(
+      {required String address,
+        required String name,
+        String? description,
+        String? profileImageUrl,
+        String? profileName}) {
     return ParsedAddress(
       addresses: [address],
       name: name,
+      description: description ?? '',
+      profileImageUrl: profileImageUrl ?? '',
+      profileName: profileName ?? '',
       parseFrom: ParseFrom.twitter,
     );
   }
@@ -116,6 +126,8 @@ class ParsedAddress {
   final List<String> addresses;
   final String name;
   final String description;
+  final String profileImageUrl;
+  final String profileName;
   final ParseFrom parseFrom;
 
 }

@@ -11,6 +11,8 @@ Future<String> extractAddressFromParsed(
   var title = '';
   var content = '';
   var address = '';
+  String? profileImageUrl;
+  String? profileName;
 
   switch (parsedAddress.parseFrom) {
     case ParseFrom.unstoppableDomains:
@@ -37,6 +39,8 @@ Future<String> extractAddressFromParsed(
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (Twitter)');
       address = parsedAddress.addresses.first;
+      profileImageUrl = parsedAddress.profileImageUrl;
+      profileName = parsedAddress.profileName;
       break;
     case ParseFrom.mastodon:
       title = S.of(context).address_detected;
@@ -95,6 +99,8 @@ Future<String> extractAddressFromParsed(
 
         return AlertWithOneAction(
             alertTitle: title,
+            headerTitleText: profileName,
+            headerImageProfileUrl: profileImageUrl,
             alertContent: content,
             buttonText: S.of(context).ok,
             buttonAction: () => Navigator.of(context).pop());
