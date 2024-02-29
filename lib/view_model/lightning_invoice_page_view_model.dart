@@ -115,7 +115,6 @@ abstract class LightningInvoicePageViewModelBase with Store {
     List<String> limits = await lightningViewModel.invoiceLimitsSats();
     minimum = double.parse(limits[0]);
     maximum = double.parse(limits[1]);
-    print(minimum);
   }
 
   @action
@@ -124,6 +123,8 @@ abstract class LightningInvoicePageViewModelBase with Store {
     cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type);
     description = '';
     amount = '';
-    _fetchLimits();
+    try {
+      _fetchLimits();
+    } catch (_) {}
   }
 }

@@ -65,171 +65,168 @@ class LightningReceiveOnchainPage extends BasePage {
     final copyImage = Image.asset('assets/images/copy_address.png',
         color: Theme.of(context).extension<QRCodeTheme>()!.qrWidgetCopyButtonColor);
     String heroTag = "lightning_receive";
-    return Center(
-      child: Expanded(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            FutureBuilder(
-              future: lightningViewModel.receiveOnchain(),
-              builder: ((context, snapshot) {
-                if (snapshot.data == null) {
-                  return CircularProgressIndicator();
-                }
-                String data = (snapshot.data as List<String>)[0];
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Text(
-                        S.of(context).qr_fullscreen,
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
-                      ),
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Spacer(flex: 3),
-                        Observer(
-                          builder: (_) => Flexible(
-                            flex: 5,
-                            child: GestureDetector(
-                              onTap: () {
-                                BrightnessUtil.changeBrightnessForFunction(
-                                  () async {
-                                    await Navigator.pushNamed(context, Routes.fullscreenQR,
-                                        arguments: QrViewData(
-                                          data: data,
-                                          heroTag: heroTag,
-                                        ));
-                                  },
-                                );
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        FutureBuilder(
+          future: lightningViewModel.receiveOnchain(),
+          builder: ((context, snapshot) {
+            if (snapshot.data == null) {
+              return CircularProgressIndicator();
+            }
+            String data = (snapshot.data as List<String>)[0];
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    S.of(context).qr_fullscreen,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
+                  ),
+                ),
+                Row(
+                  children: <Widget>[
+                    Spacer(flex: 3),
+                    Observer(
+                      builder: (_) => Flexible(
+                        flex: 5,
+                        child: GestureDetector(
+                          onTap: () {
+                            BrightnessUtil.changeBrightnessForFunction(
+                              () async {
+                                await Navigator.pushNamed(context, Routes.fullscreenQR,
+                                    arguments: QrViewData(
+                                      data: data,
+                                      heroTag: heroTag,
+                                    ));
                               },
-                              child: Hero(
-                                tag: Key(heroTag),
-                                child: Center(
-                                  child: AspectRatio(
-                                    aspectRatio: 1.0,
-                                    child: Container(
-                                      padding: EdgeInsets.all(5),
+                            );
+                          },
+                          child: Hero(
+                            tag: Key(heroTag),
+                            child: Center(
+                              child: AspectRatio(
+                                aspectRatio: 1.0,
+                                child: Container(
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      width: 3,
+                                      color: Theme.of(context)
+                                          .extension<DashboardPageTheme>()!
+                                          .textColor,
+                                    ),
+                                  ),
+                                  child: Container(
                                       decoration: BoxDecoration(
                                         border: Border.all(
                                           width: 3,
-                                          color: Theme.of(context)
-                                              .extension<DashboardPageTheme>()!
-                                              .textColor,
+                                          color: Colors.white,
                                         ),
                                       ),
-                                      child: Container(
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              width: 3,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          child: QrImage(data: data)),
-                                    ),
-                                  ),
+                                      child: QrImage(data: data)),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                        Spacer(flex: 3)
-                      ],
+                      ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 20, bottom: 8, left: 24, right: 24),
-                      child: Builder(
-                        builder: (context) => Observer(
-                          builder: (context) => GestureDetector(
-                            onTap: () {
-                              Clipboard.setData(ClipboardData(text: data));
-                              showBar<void>(context, S.of(context).copied_to_clipboard);
-                            },
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Expanded(
-                                  child: Text(
-                                    data,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                        color: Theme.of(context)
-                                            .extension<DashboardPageTheme>()!
-                                            .textColor),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 12),
-                                  child: copyImage,
-                                )
-                              ],
+                    Spacer(flex: 3)
+                  ],
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 20, bottom: 8, left: 24, right: 24),
+                  child: Builder(
+                    builder: (context) => Observer(
+                      builder: (context) => GestureDetector(
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: data));
+                          showBar<void>(context, S.of(context).copied_to_clipboard);
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Expanded(
+                              child: Text(
+                                data,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context)
+                                        .extension<DashboardPageTheme>()!
+                                        .textColor),
+                              ),
                             ),
-                          ),
+                            Padding(
+                              padding: EdgeInsets.only(left: 12),
+                              child: copyImage,
+                            )
+                          ],
                         ),
                       ),
-                    )
-                  ],
-                );
-              }),
-            ),
-            Container(
-              padding: const EdgeInsets.only(top: 24, bottom: 24, right: 6),
-              margin: const EdgeInsets.symmetric(horizontal: 24),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(15)),
-                color: Color.fromARGB(94, 255, 221, 44),
-                border: Border.all(
-                  color: Color.fromARGB(178, 223, 214, 0),
-                  width: 2,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    margin: EdgeInsets.only(left: 12, bottom: 48, right: 12),
-                    child: Image.asset("assets/images/warning.png"),
+                    ),
                   ),
-                  FutureBuilder(
-                      future: lightningViewModel.receiveOnchain(),
-                      builder: (context, snapshot) {
-                        if (snapshot.data == null) {
-                          return CircularProgressIndicator();
-                        }
-                        String min = (snapshot.data as List<String>)[1];
-                        String max = (snapshot.data as List<String>)[2];
-                        String fee = (snapshot.data as List<String>)[3];
-                        min = satsToLightningString(double.parse(min));
-                        max = satsToLightningString(double.parse(max));
-                        fee = satsToLightningString(double.parse(fee));
-                        return Expanded(
-                          child: Text(
-                            S.of(context).lightning_receive_limits(min, max, fee),
-                            maxLines: 10,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                            ),
-                          ),
-                        );
-                      }),
-                ],
-              ),
-            ),
-          ],
+                )
+              ],
+            );
+          }),
         ),
-      ),
+        Container(
+          padding: const EdgeInsets.only(top: 24, bottom: 24, right: 6),
+          margin: const EdgeInsets.symmetric(horizontal: 24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(15)),
+            color: Color.fromARGB(94, 255, 221, 44),
+            border: Border.all(
+              color: Color.fromARGB(178, 223, 214, 0),
+              width: 2,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                margin: EdgeInsets.only(left: 12, bottom: 48, right: 12),
+                child: Image.asset("assets/images/warning.png"),
+              ),
+              FutureBuilder(
+                  future: lightningViewModel.receiveOnchain(),
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) {
+                      return Expanded(
+                          child: Container(child: Center(child: CircularProgressIndicator())));
+                    }
+                    String min = (snapshot.data as List<String>)[1];
+                    String max = (snapshot.data as List<String>)[2];
+                    String fee = (snapshot.data as List<String>)[3];
+                    min = satsToLightningString(double.parse(min));
+                    max = satsToLightningString(double.parse(max));
+                    fee = satsToLightningString(double.parse(fee));
+                    return Expanded(
+                      child: Text(
+                        S.of(context).lightning_receive_limits(min, max, fee),
+                        maxLines: 10,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                        ),
+                      ),
+                    );
+                  }),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
