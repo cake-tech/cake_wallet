@@ -226,7 +226,13 @@ class LightningSendPage extends BasePage {
 
     final sdk = await BreezSDK();
 
-    final InputType inputType = await sdk.parseInput(input: bolt11Controller.text);
+    late InputType inputType;
+
+    try {
+      inputType = await sdk.parseInput(input: bolt11Controller.text);
+    } catch (_) {
+      throw Exception("Unknown input type");
+    }
 
     if (inputType is InputType_Bolt11) {
       final bolt11 = await sdk.parseInvoice(bolt11Controller.text);
