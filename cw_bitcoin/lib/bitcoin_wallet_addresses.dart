@@ -20,7 +20,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     super.initialChangeAddressIndex,
     super.initialSilentAddresses,
     super.initialSilentAddressIndex = 0,
-    super.silentAddress,
+    super.masterHd,
   }) : super(walletInfo);
 
   @override

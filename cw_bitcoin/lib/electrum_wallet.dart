@@ -171,6 +171,7 @@ abstract class ElectrumWalletBase
   @action
   Future<void> _setListeners(int height, {int? chainTip}) async {
     final currentChainTip = chainTip ?? await electrumClient.getCurrentBlockChainTip() ?? 0;
+    print(["AttemptingSyncStatus"]);
     syncStatus = AttemptingSyncStatus();
 
     if (_isolate != null) {
@@ -179,11 +180,12 @@ abstract class ElectrumWalletBase
     }
 
     final receivePort = ReceivePort();
+    print(["_isolate"]);
     _isolate = Isolate.spawn(
         startRefresh,
         ScanData(
           sendPort: receivePort.sendPort,
-          primarySilentAddress: walletAddresses.primarySilentAddress!,
+          silentAddress: walletAddresses.silentAddress!,
           network: network,
           height: height,
           chainTip: currentChainTip,
@@ -245,24 +247,37 @@ abstract class ElectrumWalletBase
   @override
   Future<void> startSync() async {
     try {
+      print(["attempting"]);
       syncStatus = AttemptingSyncStatus();
 
       if (hasSilentPaymentsScanning) {
+        print(["_setInitialHeight"]);
         try {
           await _setInitialHeight();
-        } catch (_) {}
+        } catch (e) {
+          print(["_setInitialHeight e ", e]);
+        }
 
+        print(["_setListeners", walletInfo.restoreHeight, currentChainTip]);
         if ((currentChainTip ?? 0) > walletInfo.restoreHeight) {
           _setListeners(walletInfo.restoreHeight, chainTip: currentChainTip);
         }
       }
 
+      print(["updateTransactions"]);
       await updateTransactions();
+      print(["_subscribeForUpdates"]);
       _subscribeForUpdates();
+      print(["updateUnspent"]);
       await updateUnspent();
-      await updateBalance();
+      print(["updateBalance"]);
+      try {
+        await updateBalance();
+      } catch (_) {}
+      print(["_feeRates"]);
       _feeRates = await electrumClient.feeRates(network: network);
 
+      print(["Timer.periodic"]);
       Timer.periodic(
           const Duration(minutes: 1), (timer) async => _feeRates = await electrumClient.feeRates());
 
@@ -282,6 +297,7 @@ abstract class ElectrumWalletBase
       syncStatus = ConnectingSyncStatus();
       await electrumClient.connectToUri(node.uri);
       electrumClient.onConnectionStatusChange = (bool isConnected) async {
+        print(["onConnectionStatusChange", isConnected]);
         if (!isConnected) {
           syncStatus = LostConnectionSyncStatus();
           await electrumClient.close();
@@ -291,7 +307,8 @@ abstract class ElectrumWalletBase
         }
       };
       syncStatus = ConnectedSyncStatus();
-    } catch (e) {
+    } catch (e, stacktrace) {
+      print(stacktrace);
       print(e.toString());
       syncStatus = FailedSyncStatus();
     }
@@ -330,10 +347,10 @@ abstract class ElectrumWalletBase
 
         ECPrivate? privkey;
         if (utx.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
-          privkey = walletAddresses.primarySilentAddress!.b_spend.clone().tweakAdd(
+          privkey = walletAddresses.silentAddress!.b_spend.clone().tweakAdd(
                 BigintUtils.fromBytes(BytesUtils.fromHexString(
                     (utx.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord)
-                        .silentPaymentTweak)),
+                        .silentPaymentTweak!)),
               );
         } else {
           privkey = generateECPrivate(
@@ -781,7 +798,8 @@ abstract class ElectrumWalletBase
       if (keys.isNotEmpty) {
         await unspentCoinsInfo.deleteAll(keys);
       }
-    } catch (e) {
+    } catch (e, stacktrace) {
+      print(stacktrace);
       print(e.toString());
     }
   }
@@ -799,8 +817,7 @@ abstract class ElectrumWalletBase
           (await http.get(Uri.parse("https://blockstream.info/testnet/api/tx/$hash/status"))).body);
 
       time = status["block_time"] as int?;
-      final tip = await electrumClient.getCurrentBlockChainTip() ?? 0;
-      confirmations = tip - (status["block_height"] as int? ?? 0);
+      confirmations = currentChainTip! - (status["block_height"] as int? ?? 0);
     } else {
       final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
 
@@ -843,13 +860,13 @@ abstract class ElectrumWalletBase
     try {
       final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
       final addressesSet = walletAddresses.allAddresses.map((addr) => addr.address).toSet();
-      final currentHeight = await electrumClient.getCurrentBlockChainTip() ?? 0;
+      currentChainTip ??= await electrumClient.getCurrentBlockChainTip() ?? 0;
 
       await Future.wait(ADDRESS_TYPES.map((type) {
         final addressesByType = walletAddresses.allAddresses.where((addr) => addr.type == type);
 
         return Future.wait(addressesByType.map((addressRecord) async {
-          final history = await _fetchAddressHistory(addressRecord, addressesSet, currentHeight);
+          final history = await _fetchAddressHistory(addressRecord, addressesSet, currentChainTip!);
 
           if (history.isNotEmpty) {
             addressRecord.txCount = history.length;
@@ -866,7 +883,7 @@ abstract class ElectrumWalletBase
                   matchedAddresses.toList(),
                   addressRecord.isHidden,
                   (address, addressesSet) =>
-                      _fetchAddressHistory(address, addressesSet, currentHeight)
+                      _fetchAddressHistory(address, addressesSet, currentChainTip!)
                           .then((history) => history.isNotEmpty ? address.address : null),
                   type: type);
             }
@@ -875,7 +892,8 @@ abstract class ElectrumWalletBase
       }));
 
       return historiesWithDetails;
-    } catch (e) {
+    } catch (e, stacktrace) {
+      print(stacktrace);
       print(e.toString());
       return {};
     }
@@ -925,7 +943,8 @@ abstract class ElectrumWalletBase
       }
 
       return historiesWithDetails;
-    } catch (e) {
+    } catch (e, stacktrace) {
+      print(stacktrace);
       print(e.toString());
       return {};
     }
@@ -933,13 +952,17 @@ abstract class ElectrumWalletBase
 
   Future<void> updateTransactions() async {
     try {
+      print(["_isTransactionUpdating"]);
       if (_isTransactionUpdating) {
         return;
       }
 
       _isTransactionUpdating = true;
+      print(["fetchTransactions"]);
       await fetchTransactions();
+      print(["end fetchTransactions"]);
       walletAddresses.updateReceiveAddresses();
+      print(["walletAddresses.updateReceiveAddresses() end"]);
       _isTransactionUpdating = false;
     } catch (e, stacktrace) {
       print(stacktrace);
@@ -957,11 +980,12 @@ abstract class ElectrumWalletBase
           await updateUnspent();
           await updateBalance();
           await updateTransactions();
-        } catch (e, s) {
+        } catch (e, stacktrace) {
+          print(stacktrace);
           print(e.toString());
           _onError?.call(FlutterErrorDetails(
             exception: e,
-            stack: s,
+            stack: stacktrace,
             library: this.runtimeType.toString(),
           ));
         }
@@ -975,11 +999,12 @@ abstract class ElectrumWalletBase
         final currentHeight = await electrumClient.getCurrentBlockChainTip();
         if (currentHeight != null) walletInfo.restoreHeight = currentHeight;
         _setListeners(walletInfo.restoreHeight, chainTip: currentHeight);
-      } catch (e, s) {
+      } catch (e, stacktrace) {
+        print(stacktrace);
         print(e.toString());
         _onError?.call(FlutterErrorDetails(
           exception: e,
-          stack: s,
+          stack: stacktrace,
           library: this.runtimeType.toString(),
         ));
       }
@@ -1064,16 +1089,18 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> _setInitialHeight() async {
-    if (walletInfo.restoreHeight == 0) {
-      currentChainTip = await electrumClient.getCurrentBlockChainTip();
-      if (currentChainTip != null) walletInfo.restoreHeight = currentChainTip!;
-    }
+    print(["walletInfo.restoreHeight", walletInfo.restoreHeight]);
+    // if (walletInfo.restoreHeight == 0) {
+    currentChainTip = await electrumClient.getCurrentBlockChainTip();
+    print(["did _setInitialHeight", walletInfo.restoreHeight, currentChainTip]);
+    if (currentChainTip != null) walletInfo.restoreHeight = currentChainTip!;
+    // }
   }
 }
 
 class ScanData {
   final SendPort sendPort;
-  final SilentPaymentOwner primarySilentAddress;
+  final SilentPaymentOwner silentAddress;
   final int height;
   final String node;
   final BasedUtxoNetwork network;
@@ -1084,7 +1111,7 @@ class ScanData {
 
   ScanData({
     required this.sendPort,
-    required this.primarySilentAddress,
+    required this.silentAddress,
     required this.height,
     required this.node,
     required this.network,
@@ -1097,7 +1124,7 @@ class ScanData {
   factory ScanData.fromHeight(ScanData scanData, int newHeight) {
     return ScanData(
       sendPort: scanData.sendPort,
-      primarySilentAddress: scanData.primarySilentAddress,
+      silentAddress: scanData.silentAddress,
       height: newHeight,
       node: scanData.node,
       network: scanData.network,
@@ -1117,6 +1144,7 @@ class SyncResponse {
 }
 
 Future<void> startRefresh(ScanData scanData) async {
+  print(["startRefresh"]);
   var cachedBlockchainHeight = scanData.chainTip;
 
   Future<ElectrumClient> connect() async {
@@ -1153,6 +1181,7 @@ Future<void> startRefresh(ScanData scanData) async {
     initialSyncHeight = syncHeight;
   }
 
+  print(["lastKnownBlockHeight == syncHeight", lastKnownBlockHeight, syncHeight]);
   if (lastKnownBlockHeight == syncHeight) {
     scanData.sendPort.send(SyncResponse(currentChainTip, SyncedSyncStatus()));
     return;
@@ -1205,11 +1234,12 @@ Future<void> startRefresh(ScanData scanData) async {
 
           final spb = SilentPaymentBuilder(receiverTweak: tweak);
           final result = spb.scanOutputs(
-            scanData.primarySilentAddress.b_scan,
-            scanData.primarySilentAddress.B_spend,
+            scanData.silentAddress.b_scan,
+            scanData.silentAddress.B_spend,
             output_pubkeys.map((output) => output.toString()).toList(),
             precomputedLabels: scanData.labels,
           );
+          print(result);
 
           if (result.isEmpty) {
             // no results tx, continue to next tx
@@ -1226,15 +1256,12 @@ Future<void> startRefresh(ScanData scanData) async {
             BitcoinUnspent? info;
             await Future.forEach<Map<String, dynamic>>(listUnspent, (unspent) async {
               try {
-                final addressRecord = BitcoinSilentPaymentAddressRecord(
-                  address,
-                  index: 0,
-                  isHidden: true,
-                  isUsed: true,
-                  network: scanData.network,
-                  silentPaymentTweak: t_k,
-                  type: SegwitAddresType.p2tr,
-                );
+                final addressRecord = BitcoinSilentPaymentAddressRecord(address,
+                    index: 0,
+                    isHidden: true,
+                    isUsed: true,
+                    network: scanData.network,
+                    silentPaymentTweak: t_k);
                 info = BitcoinUnspent.fromJSON(addressRecord, unspent);
               } catch (_) {}
             });
@@ -1258,7 +1285,7 @@ Future<void> startRefresh(ScanData scanData) async {
               isPending: false,
               date: DateTime.now(),
               confirmations: currentChainTip - syncHeight - 1,
-              to: scanData.primarySilentAddress.toString(),
+              to: scanData.silentAddress.toString(),
               unspents: [tx],
             );
 
@@ -1310,7 +1337,6 @@ Future<void> startRefresh(ScanData scanData) async {
           });
         } catch (_) {}
       }
-      // break;
 
       // Finished scanning block, add 1 to height and continue to next block in loop
       syncHeight += 1;

@@ -124,10 +124,9 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
     super.balance = 0,
     super.name = '',
     super.isUsed = false,
-    required super.type,
     required this.silentPaymentTweak,
     required super.network,
-  });
+  }) : super(type: SilentPaymentsAddresType.p2sp);
 
   factory BitcoinSilentPaymentAddressRecord.fromJSON(String jsonSource,
       {BasedUtxoNetwork? network}) {
@@ -141,18 +140,14 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
       txCount: decoded['txCount'] as int? ?? 0,
       name: decoded['name'] as String? ?? '',
       balance: decoded['balance'] as int? ?? 0,
-      type: decoded['type'] != null && decoded['type'] != ''
-          ? BitcoinAddressType.values
-              .firstWhere((type) => type.toString() == decoded['type'] as String)
-          : SegwitAddresType.p2wpkh,
       network: (decoded['network'] as String?) == null
           ? network
           : BasedUtxoNetwork.fromName(decoded['network'] as String),
-      silentPaymentTweak: decoded['silentPaymentTweak'] as String,
+      silentPaymentTweak: decoded['silentPaymentTweak'] as String?,
     );
   }
 
-  final String silentPaymentTweak;
+  final String? silentPaymentTweak;
 
   @override
   String toJSON() => json.encode({

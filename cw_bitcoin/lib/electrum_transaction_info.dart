@@ -212,7 +212,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['confirmations'] = confirmations;
     m['fee'] = fee;
     m['to'] = to;
-    m['unspent'] = unspents?.map((e) => e.toJson()) ?? [];
+    m['unspent'] = unspents?.map((e) => e.toJson()).toList() ?? [];
     return m;
   }
 

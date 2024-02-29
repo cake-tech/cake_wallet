@@ -36,7 +36,7 @@ class ElectrumClient {
         _tasks = {},
         unterminatedString = '';
 
-  static const connectionTimeout = Duration(seconds: 5);
+  static const connectionTimeout = Duration(seconds: 30);
   static const aliveTimerDuration = Duration(seconds: 4);
 
   bool get isConnected => _isConnected;
