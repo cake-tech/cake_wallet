@@ -156,8 +156,11 @@ class LightningInvoicePage extends BasePage {
                         Container(
                           width: 48,
                           height: 48,
-                          margin: EdgeInsets.only(left: 12, bottom: 48, right: 12),
-                          child: Image.asset("assets/images/warning.png"),
+                          margin: EdgeInsets.only(left: 12, bottom: 48, right: 20),
+                          child: Image.asset(
+                            "assets/images/warning.png",
+                            color: Color.fromARGB(128, 255, 255, 255),
+                          ),
                         ),
                         FutureBuilder(
                           future:
@@ -173,7 +176,7 @@ class LightningInvoicePage extends BasePage {
                             return Expanded(
                               child: Text(
                                 S.of(context).lightning_invoice_min(min),
-                                maxLines: 3,
+                                maxLines: 4,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -238,31 +241,72 @@ class LightningInvoicePage extends BasePage {
             builder: (BuildContext context) {
               return AlertWithTwoActionsContentOverride(
                 alertTitle: S.of(context).invoice_created,
-                alertContent: Center(
-                  child: AspectRatio(
-                    aspectRatio: 1.0,
-                    child: Container(
-                      padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          width: 3,
-                          color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                        ),
-                      ),
-                      child: Container(
+                alertContent: Column(
+                  children: [
+                    Center(
+                      child: AspectRatio(
+                        aspectRatio: 1.0,
+                        child: Container(
+                          padding: EdgeInsets.all(5),
                           decoration: BoxDecoration(
                             border: Border.all(
                               width: 3,
-                              color: Colors.white,
+                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                             ),
                           ),
-                          child: QrImage(
-                            data: state.payload as String,
-                            version: 14,
-                            errorCorrectionLevel: qr.QrErrorCorrectLevel.L,
-                          )),
+                          child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 3,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              child: QrImage(
+                                data: state.payload as String,
+                                version: 14,
+                                errorCorrectionLevel: qr.QrErrorCorrectLevel.L,
+                              )),
+                        ),
+                      ),
                     ),
-                  ),
+                    Container(
+                      padding: const EdgeInsets.only(top: 12, bottom: 12, right: 6),
+                      margin: const EdgeInsets.only(top: 32),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                        color: Color.fromARGB(94, 255, 221, 44),
+                        border: Border.all(
+                          color: Color.fromARGB(178, 223, 214, 0),
+                          width: 2,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 32,
+                            height: 32,
+                            margin: EdgeInsets.only(left: 12, bottom: 48, right: 12),
+                            child: Image.asset(
+                              "assets/images/warning.png",
+                              color: Color.fromARGB(128, 255, 255, 255),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              S.of(context).lightning_invoice_warning,
+                              maxLines: 5,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
                 rightButtonText: S.of(context).ok,
                 actionRightButton: () => Navigator.of(context).pop(),

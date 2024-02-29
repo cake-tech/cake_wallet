@@ -195,8 +195,11 @@ class LightningReceiveOnchainPage extends BasePage {
               Container(
                 width: 48,
                 height: 48,
-                margin: EdgeInsets.only(left: 12, bottom: 48, right: 12),
-                child: Image.asset("assets/images/warning.png"),
+                margin: EdgeInsets.only(left: 12, bottom: 48, right: 20),
+                child: Image.asset(
+                  "assets/images/warning.png",
+                  color: Color.fromARGB(128, 255, 255, 255),
+                ),
               ),
               FutureBuilder(
                   future: lightningViewModel.receiveOnchain(),

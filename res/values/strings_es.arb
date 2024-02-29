@@ -321,6 +321,7 @@
   "learn_more": "Aprende más",
   "light_theme": "Ligera",
   "lightning_invoice_min": "Se aplicará una tarifa de configuración de 0.4% con un mínimo de ${min} SATS al recibir esta factura.",
+  "lightning_invoice_warning": "Debe mantener la aplicación abierta hasta que se complete el pago o la transacción fallará",
   "lightning_receive_limits": "Envíe más de ${min} SATS y hasta ${max} SATS a esta dirección. Se aplicará una tarifa de configuración de 0.4% con un mínimo de ${fee} SATS al recibir esta factura. Esto convertirá cualquier bitcoin recibido en rayos. Se aplicará una tarifa en la cadena. Esta dirección solo se puede usar una vez.",
   "loading_your_wallet": "Cargando tu billetera",
   "login": "Iniciar sesión",

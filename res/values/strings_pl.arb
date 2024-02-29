@@ -321,6 +321,7 @@
   "learn_more": "Dowiedz się więcej",
   "light_theme": "Jasny",
   "lightning_invoice_min": "Opłata konfiguracyjna w wysokości 0,4% przy minimum ${min} SAT zostanie zastosowana po otrzymaniu tej faktury.",
+  "lightning_invoice_warning": "Musisz utrzymać aplikację otwartą do momentu zakończenia płatności lub transakcji ulegnie awarii",
   "lightning_receive_limits": "Wyślij więcej niż ${min} SAT i do ${max} SATS na ten adres. Opłata konfiguracyjna w wysokości 0,4% przy minimum ${fee} SAT zostanie zastosowana po otrzymaniu tej faktury. To przekonwertuje każdy otrzymany bitcoin w błyskawicę. Zostanie zastosowana opłata w łańcuchu. Ten adres można użyć tylko raz.",
   "loading_your_wallet": "Ładowanie portfela",
   "login": "Login",
