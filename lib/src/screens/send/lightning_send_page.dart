@@ -194,7 +194,7 @@ class LightningSendPage extends BasePage {
                   isLoading: false,
                   onPressed: () async {
                     try {
-                      processInput(context);
+                      await processInput(context);
                     } catch (e) {
                       showPopUp<void>(
                           context: context,
