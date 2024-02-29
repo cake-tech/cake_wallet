@@ -270,6 +270,7 @@ class AddressValidator extends TextValidator {
             '|([^0-9a-zA-Z]|^)8[0-9a-zA-Z]{94}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)[0-9a-zA-Z]{106}([^0-9a-zA-Z]|\$)';
       case CryptoCurrency.btc:
+      case CryptoCurrency.btcln:
         return '([^0-9a-zA-Z]|^)${P2pkhAddress.regex.pattern}|\$)'
             '([^0-9a-zA-Z]|^)${P2shAddress.regex.pattern}|\$)'
             '([^0-9a-zA-Z]|^)${P2wpkhAddress.regex.pattern}|\$)'

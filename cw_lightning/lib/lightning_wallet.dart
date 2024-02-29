@@ -84,7 +84,7 @@ abstract class LightningWalletBase
         _password = password,
         _isTransactionUpdating = false,
         balance = ObservableMap<CryptoCurrency, LightningBalance>.of({
-          CryptoCurrency.btc:
+          CryptoCurrency.btcln:
               initialBalance ?? const LightningBalance(confirmed: 0, unconfirmed: 0, frozen: 0)
         }),
         super(walletInfo) {
@@ -207,7 +207,7 @@ abstract class LightningWalletBase
 
     sdk.nodeStateStream.listen((event) {
       if (event == null) return;
-      balance[CryptoCurrency.btc] = LightningBalance(
+      balance[CryptoCurrency.btcln] = LightningBalance(
         confirmed: event.maxPayableMsat ~/ 1000,
         unconfirmed: event.maxReceivableMsat ~/ 1000,
         frozen: 0,

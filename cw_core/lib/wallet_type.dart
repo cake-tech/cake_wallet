@@ -194,7 +194,7 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
     case WalletType.polygon:
       return CryptoCurrency.maticpoly;
     case WalletType.lightning:
-      return CryptoCurrency.btc;
+      return CryptoCurrency.btcln;
     case WalletType.solana:
       return CryptoCurrency.sol;
     default:

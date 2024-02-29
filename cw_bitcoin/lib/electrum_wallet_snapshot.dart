@@ -42,7 +42,7 @@ class ElectrumWalletSnapshot {
         .whereType<String>()
         .map((addr) => BitcoinAddressRecord.fromJSON(addr, network))
         .toList();
-    final balance = ElectrumBalance.fromJSON(data['balance'] as String) ??
+    final balance = ElectrumBalance.fromJSON(data['balance'] as String?) ??
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
     var regularAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
     var changeAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
