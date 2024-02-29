@@ -805,7 +805,7 @@ Future<void> setup({
   getIt
       .registerFactory<DFXBuyProvider>(() => DFXBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory<MoonPaySellProvider>(() => MoonPaySellProvider(
+  getIt.registerFactory<MoonPayProvider>(() => MoonPayProvider(
       settingsStore: getIt.get<AppStore>().settingsStore, wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
