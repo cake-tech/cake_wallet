@@ -74,7 +74,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Object createBitcoinTransactionCredentials(List<Output> outputs,
-          {required TransactionPriority priority, int? feeRate}) =>
+          {required TransactionPriority priority, int? feeRate, bool useReplaceByFee = false}) =>
       BitcoinTransactionCredentials(
           outputs
               .map((out) => OutputInfo(

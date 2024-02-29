@@ -8,7 +8,6 @@ import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitcoin_base/bitcoin_base.dart' as bitcoin_base;
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
-import 'package:cw_bitcoin/address_to_output_script.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_no_inputs_exception.dart';
@@ -258,7 +257,11 @@ abstract class ElectrumWalletBase
     }
 
     final estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
-        utxos: utxos, outputs: outputs, network: network);
+      utxos: utxos,
+      outputs: outputs,
+      network: network,
+      enableRBF: transactionCredentials.useReplaceByFee,
+    );
 
     final fee = transactionCredentials.feeRate != null
         ? feeAmountWithFeeRate(transactionCredentials.feeRate!, 0, 0, size: estimatedSize)
@@ -350,10 +353,12 @@ abstract class ElectrumWalletBase
           credentialsAmount, sendAll, outputAddresses, outputs, transactionCredentials);
 
       final txb = BitcoinTransactionBuilder(
-          utxos: estimatedTx.utxos,
-          outputs: outputs,
-          fee: BigInt.from(estimatedTx.fee),
-          network: network);
+        utxos: estimatedTx.utxos,
+        outputs: outputs,
+        fee: BigInt.from(estimatedTx.fee),
+        network: network,
+        enableRBF: transactionCredentials.useReplaceByFee,
+      );
 
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
         final key = estimatedTx.privateKeys
@@ -612,123 +617,131 @@ abstract class ElectrumWalletBase
   }
 
   Future<PendingBitcoinTransaction> replaceByFee(String hash, int newFee) async {
-    final bundle = await getTransactionExpanded(hash: hash);
+    try {
+      final bundle = await getTransactionExpanded(hash: hash);
 
-    final txb = bitcoin.TransactionBuilder(network: networkType);
+      final utxos = <UtxoWithAddress>[];
+      List<ECPrivate> privateKeys = [];
 
-    txb.setVersion(1);
+      var allInputsAmount = 0;
 
-    var inputAmount = 0;
-    var totalOutAmount = 0;
+      // Add inputs
+      for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
+        final input = bundle.originalTransaction.inputs[i];
+        final inputTransaction = bundle.ins[i];
+        final vout = input.txIndex;
+        final outTransaction = inputTransaction.outputs[vout];
+        final address = addressFromOutputScript(outTransaction.scriptPubKey, network);
+        allInputsAmount += outTransaction.amount.toInt();
 
-    final addressRecords = <BitcoinAddressRecord>[];
-    final inputValues = <int>[];
+        final addressRecord =
+            walletAddresses.allAddresses.firstWhere((element) => element.address == address);
 
-    // Add inputs
-    for (var i = 0; i < bundle.originalTransaction.ins.length; i++) {
-      final input = bundle.originalTransaction.ins[i];
-      final inputTransaction = bundle.ins[i];
-      final vout = input.index;
-      final outTransaction = inputTransaction.outs[vout!];
-      final address = addressFromOutput(outTransaction.script!, networkType);
-      inputAmount += outTransaction.value!;
+        final btcAddress = _addressTypeFromStr(addressRecord.address, network);
+        final privkey = generateECPrivate(
+            hd: addressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+            index: addressRecord.index,
+            network: network);
 
-      // match inputs with address records to sign inputs
-      final addressRecord =
-      walletAddresses.addresses.firstWhere((element) => element.address == address);
-      addressRecords.add(addressRecord);
-      inputValues.add(outTransaction.value!);
+        privateKeys.add(privkey);
 
-      if (addressRecord.address.startsWith("bc")) {
-        final p2wpkh = bitcoin
-            .P2WPKH(
-            data: generatePaymentData(
-                hd: addressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
-                index: addressRecord.index),
-            network: networkType)
-            .data;
-
-        txb.addInput(
-          input.hash,
-          1, // TODO:
-          input.sequence,
-          p2wpkh.output,
+        utxos.add(
+          UtxoWithAddress(
+            utxo: BitcoinUtxo(
+              txHash: input.txId,
+              value: outTransaction.amount,
+              vout: vout,
+              scriptType: _getScriptType(btcAddress),
+            ),
+            ownerDetails:
+                UtxoAddressDetails(publicKey: privkey.getPublic().toHex(), address: btcAddress),
+          ),
         );
-      } else {
-        txb.addInput(input.hash, 1, input.sequence); // TODO:
-      }
-    }
-
-    // Add outputs
-    for (final out in bundle.originalTransaction.outs) {
-      totalOutAmount += out.value!;
-      txb.addOutput(out.script, out.value!);
-    }
-
-    final oldFee = inputAmount - totalOutAmount;
-
-    int remainingFee = newFee;
-
-    // deduct the additional fee
-    for (int i = txb.tx.outs.length - 1; i >= 0; i--) {
-      if (txb.tx.outs[i].value == null) {
-        continue;
       }
 
-      if (remainingFee <= 0) {
-        break;
+      int totalOutAmount = bundle.originalTransaction.outputs
+          .fold<int>(0, (previousValue, element) => previousValue + element.amount.toInt());
+
+      var currentFee = allInputsAmount - totalOutAmount;
+      int remainingFee = newFee - currentFee;
+
+      final outputs = <BitcoinOutput>[];
+      final outputAddresses = <BitcoinBaseAddress>[];
+
+      // TODO: check whether to only deduct from change or from output too
+      // Add outputs and deduct the fees from it
+      for (int i = bundle.originalTransaction.outputs.length - 1; i >= 0; i--) {
+        final out = bundle.originalTransaction.outputs[i];
+        final address = addressFromOutputScript(out.scriptPubKey, network);
+        final btcAddress = _addressTypeFromStr(address, network);
+
+        int newAmount;
+        if (out.amount.toInt() >= remainingFee) {
+          newAmount = out.amount.toInt() - remainingFee;
+          remainingFee = 0;
+        } else {
+          // TODO: check whether to throw an exception or just discard this output
+          remainingFee -= out.amount.toInt();
+          continue;
+        }
+
+        outputs.add(BitcoinOutput(address: btcAddress, value: BigInt.from(newAmount)));
+        outputAddresses.add(btcAddress);
       }
 
-      // check if the amount is larger than the new fee
-      if (txb.tx.outs[i].value! >= remainingFee) {
-        txb.tx.outs[i].value = txb.tx.outs[i].value! - remainingFee;
-      } else {
-        txb.tx.outs[i].value = 0;
+      final lastAddress = addressFromOutputScript(
+          bundle.originalTransaction.outputs.last.scriptPubKey, network);
+
+      final changeAddresses = walletAddresses.allAddresses.where((element) => element.isHidden);
+
+      // deduct the change amount from the output amount
+      if (changeAddresses.any((element) => element.address == lastAddress)) {
+        totalOutAmount -= bundle.originalTransaction.outputs.last.amount.toInt();
       }
 
-      remainingFee -= txb.tx.outs[i].value!;
-    }
+      // Here, lastOutput is change, deduct the fee from it
+      // outputs[outputs.length - 1] = BitcoinOutput(
+      //     address: lastOutput.address, value: lastOutput.value - BigInt.from(fee));
+      // if (changeValue > fee) {
+      //   outputAddresses.removeLast();
+      //   outputs.removeLast();
+      // }
 
-    if (remainingFee > 0) {
-      throw "Fee is larger than amount sent";
-    }
+      final txb = BitcoinTransactionBuilder(
+        utxos: utxos,
+        outputs: outputs,
+        fee: BigInt.from(newFee),
+        network: network,
+        enableRBF: true,
+      );
 
-    // sign inputs
-    for (var i = 0; i < addressRecords.length; i++) {
-      final addressRecord = addressRecords[i];
-      final keyPair = generateKeyPair(
-          hd: addressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
-          index: addressRecord.index,
-          network: networkType);
-      final witnessValue = addressRecord.address.startsWith('bc') ? inputValues[i] : null;
+      final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
+        final key =
+            privateKeys.firstWhereOrNull((element) => element.getPublic().toHex() == publicKey);
 
-      txb.sign(vin: i, keyPair: keyPair, witnessValue: witnessValue);
-    }
+        if (key == null) {
+          throw Exception("Cannot find private key");
+        }
 
-    final transaction = txb.build();
-
-    int amountOut = 0;
-    for (var out in transaction.outs) {
-      amountOut += out.value ?? 0;
-    }
-
-    print("=====================");
-    print(transaction.toString());
-
-    print("@@@@@@@@@@@@@@@");
-    print(bundle.originalTransaction.toHex());
-    print(transaction.toHex());
-
-    return PendingBitcoinTransaction(transaction, type,
-        electrumClient: electrumClient, amount: amountOut, fee: newFee + oldFee)
-      ..addListener((transaction) async {
-        transactionHistory.addOne(transaction);
-        await updateBalance();
+        if (utxo.utxo.isP2tr()) {
+          return key.signTapRoot(txDigest, sighash: sighash);
+        } else {
+          return key.signInput(txDigest, sigHash: sighash);
+        }
       });
+
+      return PendingBitcoinTransaction(transaction, type,
+          electrumClient: electrumClient, amount: totalOutAmount, fee: newFee, network: network)
+        ..addListener((transaction) async {
+          transactionHistory.addOne(transaction);
+          await updateBalance();
+        });
+    } catch (e) {
+      throw e;
+    }
   }
 
-  Future<ElectrumTransactionBundle> getTransactionExpanded(
-      {required String hash, required int height}) async {
+  Future<ElectrumTransactionBundle> getTransactionExpanded({required String hash}) async {
     String transactionHex;
     int? time;
     int confirmations = 0;
@@ -759,8 +772,12 @@ abstract class ElectrumWalletBase
       ins.add(tx);
     }
 
-    return ElectrumTransactionBundle(original,
-        ins: ins, time: time, confirmations: confirmations, height: height);
+    return ElectrumTransactionBundle(
+      original,
+      ins: ins,
+      time: time,
+      confirmations: confirmations,
+    );
   }
 
   Future<ElectrumTransactionInfo?> fetchTransactionInfo(
@@ -770,7 +787,7 @@ abstract class ElectrumWalletBase
       bool? retryOnFailure}) async {
     try {
       return ElectrumTransactionInfo.fromElectrumBundle(
-          await getTransactionExpanded(hash: hash, height: height), walletInfo.type, network,
+          await getTransactionExpanded(hash: hash), walletInfo.type, network,
           addresses: myAddresses, height: height);
     } catch (e) {
       if (e is FormatException && retryOnFailure == true) {
