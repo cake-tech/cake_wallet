@@ -29,13 +29,6 @@ Future<void> startFiatRateUpdate(
 
       if (appStore.wallet!.type == WalletType.haven) {
         await updateHavenRate(fiatConversionStore);
-      } else if (appStore.wallet!.type == WalletType.lightning) {
-        fiatConversionStore.prices[appStore.wallet!.currency] =
-            await FiatConversionService.fetchPrice(
-                    crypto: appStore.wallet!.currency,
-                    fiat: settingsStore.fiatCurrency,
-                    torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly) /
-                100000000;
       } else {
         fiatConversionStore.prices[appStore.wallet!.currency] =
             await FiatConversionService.fetchPrice(
@@ -61,7 +54,7 @@ Future<void> startFiatRateUpdate(
       }
 
       if (appStore.wallet!.type == WalletType.lightning) {
-        currencies = [CryptoCurrency.btc];
+        currencies = [CryptoCurrency.btc, CryptoCurrency.btcln];
       }
 
       if (currencies != null) {
@@ -75,10 +68,9 @@ Future<void> startFiatRateUpdate(
         }
       }
 
-      if (appStore.wallet!.type == WalletType.lightning) {
-        fiatConversionStore.prices[CryptoCurrency.btcln] =
-            (fiatConversionStore.prices[CryptoCurrency.btc] ?? 0) / 100000000;
-      }
+      // keep btcln price in sync with btc:
+      fiatConversionStore.prices[CryptoCurrency.btcln] =
+          (fiatConversionStore.prices[CryptoCurrency.btc] ?? 0) / 100000000;
     } catch (e) {
       print(e);
     }
