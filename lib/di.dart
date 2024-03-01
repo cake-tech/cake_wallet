@@ -725,7 +725,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => TrocadorProvidersViewModel(getIt.get<SettingsStore>()));
 
-  getIt.registerSingleton(TorViewModel(getIt.get<SettingsStore>()));
+  getIt.registerSingleton(TorViewModel(getIt.get<SettingsStore>(), getIt.get<SettingsStore>().nodes));
   getIt.registerSingleton(ProxyWrapper(
     settingsStore: getIt.get<SettingsStore>(),
     torViewModel: getIt.get<TorViewModel>(),

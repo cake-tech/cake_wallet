@@ -19,7 +19,7 @@ class TorViewModel = TorViewModelBase with _$TorViewModel;
 enum TorConnectionStatus { connecting, connected, disconnected }
 
 abstract class TorViewModelBase with Store {
-  TorViewModelBase(this._settingsStore) {
+  TorViewModelBase(this._settingsStore, this.nodes) {
     reaction((_) => torConnectionMode, (TorConnectionMode mode) async {
       if (mode == TorConnectionMode.enabled || mode == TorConnectionMode.torOnly) {
         startTor();
@@ -35,10 +35,16 @@ abstract class TorViewModelBase with Store {
         await connectOrDisconnectNodeToProxy(connect: true);
       }
     });
+    this.nodes.observe((change) async {
+      if (change.newValue != null && change.key != null) {
+        await connectOrDisconnectNodeToProxy(connect: true);
+      }
+    });
   }
 
   bool torStarted = false;
   final SettingsStore _settingsStore;
+  final ObservableMap<WalletType, Node> nodes;
   Tor torInstance = Tor.instance;
 
   @computed
@@ -52,22 +58,23 @@ abstract class TorViewModelBase with Store {
 
   Future<void> connectOrDisconnectNodeToProxy({required bool connect}) async {
     final appStore = getIt.get<AppStore>();
-    if (appStore.wallet != null) {
-      final node = _settingsStore.getCurrentNode(appStore.wallet!.type);
-      if (connect && (node.socksProxyAddress?.isEmpty ?? true)) {
-        node.socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${torInstance.port}";
-      } else if (!connect) {
-        node.socksProxyAddress = null;
-      }
-
-      bool torOnly = _settingsStore.torConnectionMode == TorConnectionMode.torOnly;
-      if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash]
-          .contains(appStore.wallet!.type)) {
-        bitcoin!.setTorOnly(appStore.wallet!, torOnly);
-      }
-
-      await appStore.wallet!.connectToNode(node: node);
+    if (appStore.wallet == null) {
+      return;
     }
+    final node = _settingsStore.getCurrentNode(appStore.wallet!.type);
+    if (connect && (node.socksProxyAddress?.isEmpty ?? true)) {
+      node.socksProxyAddress = "${InternetAddress.loopbackIPv4.address}:${torInstance.port}";
+    } else if (!connect) {
+      node.socksProxyAddress = null;
+    }
+
+    bool torOnly = _settingsStore.torConnectionMode == TorConnectionMode.torOnly;
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash]
+        .contains(appStore.wallet!.type)) {
+      bitcoin!.setTorOnly(appStore.wallet!, torOnly);
+    }
+
+    await appStore.wallet!.connectToNode(node: node);
   }
 
   Future<void> disconnectFromNode() async {
