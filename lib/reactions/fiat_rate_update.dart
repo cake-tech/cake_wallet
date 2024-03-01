@@ -60,6 +60,10 @@ Future<void> startFiatRateUpdate(
             solana!.getSPLTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
       }
 
+      if (appStore.wallet!.type == WalletType.lightning) {
+        currencies = [CryptoCurrency.btc];
+      }
+
       if (currencies != null) {
         for (final currency in currencies) {
           () async {
@@ -69,6 +73,11 @@ Future<void> startFiatRateUpdate(
                 torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
           }.call();
         }
+      }
+
+      if (appStore.wallet!.type == WalletType.lightning) {
+        fiatConversionStore.prices[CryptoCurrency.btcln] =
+            (fiatConversionStore.prices[CryptoCurrency.btc] ?? 0) / 100000000;
       }
     } catch (e) {
       print(e);

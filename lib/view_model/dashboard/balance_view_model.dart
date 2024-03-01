@@ -63,12 +63,7 @@ abstract class BalanceViewModelBase with Store {
   @computed
   double get price {
     CryptoCurrency currency = appStore.wallet!.currency;
-
-    // the fiat api doesn't correctly get the price of BTCLN
-    // (as it should just grab the price of BTC)
-    if (currency == CryptoCurrency.btcln) {
-      currency = CryptoCurrency.btc;
-    }
+    
     final price = fiatConvertationStore.prices[currency];
 
     if (price == null) {
@@ -248,10 +243,6 @@ abstract class BalanceViewModelBase with Store {
                 fiatFrozenBalance: isFiatDisabled ? '' : '---',
                 asset: key,
                 formattedAssetTitle: _formatterAsset(key)));
-      }
-      // get price of btc because btcln is not supported by the fiat api:
-      if (key == CryptoCurrency.btcln) {
-        key = CryptoCurrency.btc;
       }
 
       final fiatCurrency = settingsStore.fiatCurrency;
