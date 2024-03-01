@@ -150,8 +150,8 @@ jobs:
 
       - name: Rename app
         run: |
-          x=`md5sum <<<"my string"`
-          echo -e "id=com.cakewallet.test_\$x\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
+          hash=`md5sum <<<"${{ env.BRANCH_NAME }}"`
+          echo -e "id=com.cakewallet.test_${{ hash }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
 
       - name: Build
         run: |
