@@ -11,6 +11,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
@@ -56,6 +57,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.balanceViewModel,
     this.contactListViewModel,
     this.transactionDescriptionBox,
+    this.ledgerViewModel,
   )   : state = InitialExecutionState(),
         currencies = appStore.wallet!.balance.keys.toList(),
         selectedCryptoCurrency = appStore.wallet!.currency,
@@ -226,15 +228,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   final SendTemplateViewModel sendTemplateViewModel;
   final BalanceViewModel balanceViewModel;
   final ContactListViewModel contactListViewModel;
-  // final LedgerViewModel ledgerViewModel;
+  final LedgerViewModel ledgerViewModel;
   final FiatConversionStore _fiatConversationStore;
   final Box<TransactionDescription> transactionDescriptionBox;
 
   @observable
   bool hasMultipleTokens;
-
-  @observable
-  LedgerDevice? ledgerDevice = null;
 
   @computed
   List<ContactRecord> get contactsToShow => contactListViewModel.contacts
@@ -307,7 +306,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // if (wallet.isHardwareWallet)
       //   state = IsAwaitingDeviceConnectionState();
       // else {
-        pendingTransaction = await wallet.createTransaction(_credentials(ledgerDevice));
+        pendingTransaction = await wallet.createTransaction(_credentials(wallet.isHardwareWallet ? ledgerViewModel.ledger : null));
         state = ExecutedSuccessfullyState();
       // }
     } catch (e) {
@@ -361,7 +360,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void setTransactionPriority(TransactionPriority priority) =>
       _settingsStore.priority[wallet.type] = priority;
 
-  Object _credentials([LedgerDevice? ledger]) {
+  Object _credentials([Ledger? ledger]) {
     final priority = _settingsStore.priority[wallet.type];
 
     if (priority == null && wallet.type != WalletType.nano && wallet.type != WalletType.solana) {
@@ -384,12 +383,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       case WalletType.ethereum:
         return ethereum!.createEthereumTransactionCredentials(outputs,
-            priority: priority!, currency: selectedCryptoCurrency, device: ledger);
+            priority: priority!, currency: selectedCryptoCurrency, ledger: ledger);
       case WalletType.nano:
         return nano!.createNanoTransactionCredentials(outputs);
       case WalletType.polygon:
         return polygon!.createPolygonTransactionCredentials(outputs,
-            priority: priority!, currency: selectedCryptoCurrency, device: ledger);
+            priority: priority!, currency: selectedCryptoCurrency, ledger: ledger);
       case WalletType.solana:
         return solana!
             .createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);

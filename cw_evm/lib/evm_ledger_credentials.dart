@@ -10,21 +10,16 @@ import 'package:web3dart/web3dart.dart';
 
 class EvmLedgerCredentials extends CredentialsWithKnownAddress {
   final String _address;
-  LedgerDevice? device;
 
-  final Ledger ledger = Ledger(options: LedgerOptions(connectionTimeout: const Duration(seconds: 10)));
-
-  late StreamSubscription<BleStatus> ledgerSubscription;
+  late Ledger ledger;
 
   EvmLedgerCredentials(this._address);
 
   @override
   EthereumAddress get address => EthereumAddress.fromHex(_address);
 
-  void connect(LedgerDevice device) {
-    this.device = device;
-    ledgerSubscription = ledger.statusStateChanges.listen((state) => print(state));
-    // TODO: (Konsti) Listener for ConnectionUpdate to reset device to null
+  void setLedger(Ledger ledger) {
+    this.ledger = ledger;
   }
 
   @override
@@ -35,12 +30,11 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
 
   @override
   Future<MsgSignature> signToSignature(Uint8List payload, {int? chainId, bool isEIP1559 = false}) async {
-    if (device == null) throw DeviceNotConnectedException();
+    if (ledger.devices.isEmpty) throw DeviceNotConnectedException();
     final ethereumLedgerApp = EthereumLedgerApp(ledger);
+    final device = ledger.devices.first;
 
-    await ledger.connect(device!);
-
-    final sig = await ethereumLedgerApp.signTransaction(device!, payload);
+    final sig = await ethereumLedgerApp.signTransaction(device, payload);
 
 
     final v = sig[0].toInt();

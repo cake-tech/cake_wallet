@@ -367,8 +367,7 @@ class SendPage extends BasePage {
                         }
 
                         if (sendViewModel.wallet.isHardwareWallet &&
-                            sendViewModel.ledgerDevice == null) {
-                          sendViewModel.ledgerDevice =
+                            !sendViewModel.ledgerViewModel.isConnected) {
                               await Navigator.of(context).pushNamed(Routes.connectDevices,
                                   arguments: ConnectDevicePageParams(
                                     walletType: sendViewModel.walletType,

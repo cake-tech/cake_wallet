@@ -9,12 +9,12 @@ class EVMChainTransactionCredentials {
     required this.priority,
     required this.currency,
     this.feeRate,
-    this.device,
+    this.ledger,
   });
 
   final List<OutputInfo> outputs;
   final EVMChainTransactionPriority? priority;
   final int? feeRate;
   final CryptoCurrency currency;
-  final LedgerDevice? device;
+  final Ledger? ledger;
 }

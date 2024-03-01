@@ -602,6 +602,7 @@ Future<void> setup({
       getIt.get<BalanceViewModel>(),
       getIt.get<ContactListViewModel>(),
       _transactionDescriptionBox,
+      getIt.get<LedgerViewModel>(),
     ),
   );
 

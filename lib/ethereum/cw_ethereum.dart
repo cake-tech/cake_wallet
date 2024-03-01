@@ -73,7 +73,7 @@ class CWEthereum extends Ethereum {
     required TransactionPriority priority,
     required CryptoCurrency currency,
     int? feeRate,
-    LedgerDevice? device,
+    Ledger? ledger,
   }) =>
       EVMChainTransactionCredentials(
         outputs
@@ -90,7 +90,7 @@ class CWEthereum extends Ethereum {
         priority: priority as EVMChainTransactionPriority,
         currency: currency,
         feeRate: feeRate,
-        device: device
+        ledger: ledger,
       );
 
   Object createEthereumTransactionCredentialsRaw(

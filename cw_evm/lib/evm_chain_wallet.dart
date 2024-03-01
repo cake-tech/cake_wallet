@@ -275,11 +275,11 @@ abstract class EVMChainWalletBase
     }
 
     if (isHardwareWallet) {
-      if (_credentials.device == null) {
+      if (_credentials.ledger?.devices.isNotEmpty != true) {
         throw EVMChainTransactionCreationException.fromMessage("No ledger is connected");
       }
 
-      (_evmChainPrivateKey as EvmLedgerCredentials).connect(_credentials.device!);
+      (_evmChainPrivateKey as EvmLedgerCredentials).setLedger(_credentials.ledger!);
     }
 
     final pendingEVMChainTransaction = await _client.signTransaction(

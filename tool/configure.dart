@@ -526,6 +526,7 @@ abstract class HavenAccountList {
 Future<void> generateEthereum(bool hasImplementation) async {
   final outputFile = File(ethereumOutputPath);
   const ethereumCommonHeaders = """
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -579,7 +580,7 @@ abstract class Ethereum {
     required TransactionPriority priority,
     required CryptoCurrency currency,
     int? feeRate,
-    LedgerDevice? device,
+    Ledger? ledger,
   });
 
   Object createEthereumTransactionCredentialsRaw(
@@ -601,7 +602,7 @@ abstract class Ethereum {
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
   
-  Future<List<String>> getHardwareWalletAccounts(LedgerDevice device, {int index = 0, int limit = 5});
+  Future<List<String>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
 }
   """;
 
@@ -625,6 +626,7 @@ abstract class Ethereum {
 Future<void> generatePolygon(bool hasImplementation) async {
   final outputFile = File(polygonOutputPath);
   const polygonCommonHeaders = """
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -678,7 +680,7 @@ abstract class Polygon {
     required TransactionPriority priority,
     required CryptoCurrency currency,
     int? feeRate,
-    LedgerDevice? device,
+    Ledger? ledger,
   });
 
   Object createPolygonTransactionCredentialsRaw(
@@ -700,7 +702,7 @@ abstract class Polygon {
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
   
-  Future<List<String>> getHardwareWalletAccounts(LedgerDevice device, {int index = 0, int limit = 5});
+  Future<List<String>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
 }
   """;
 
