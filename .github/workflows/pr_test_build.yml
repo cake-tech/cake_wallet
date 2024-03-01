@@ -149,7 +149,9 @@ jobs:
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
 
       - name: Rename app
-        run: echo -e "id=com.cakewallet.test_${{ md5sum <<<env.BRANCH_NAME }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
+        run: |
+          x=`md5sum <<<"my string"`
+          echo -e "id=com.cakewallet.test_\$x\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
 
       - name: Build
         run: |
