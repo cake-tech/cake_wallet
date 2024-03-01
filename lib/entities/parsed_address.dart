@@ -1,7 +1,6 @@
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/yat_record.dart';
 
-
 enum ParseFrom {
   unstoppableDomains,
   openAlias,
@@ -20,36 +19,37 @@ class ParsedAddress {
     required this.addresses,
     this.name = '',
     this.description = '',
+    this.profileImageUrl = '',
+    this.profileName = '',
     this.parseFrom = ParseFrom.notParsed,
   });
 
   factory ParsedAddress.fetchEmojiAddress({
     List<YatRecord>? addresses,
     required String name,
-    }){
-      if (addresses?.isEmpty ?? true) {
-        return ParsedAddress(
-          addresses: [name], parseFrom: ParseFrom.yatRecord);
-      }
-      return ParsedAddress(
-        addresses: addresses!.map((e) => e.address).toList(),
-        name: name,
-        parseFrom: ParseFrom.yatRecord,
-      );
+  }) {
+    if (addresses?.isEmpty ?? true) {
+      return ParsedAddress(addresses: [name], parseFrom: ParseFrom.yatRecord);
+    }
+    return ParsedAddress(
+      addresses: addresses!.map((e) => e.address).toList(),
+      name: name,
+      parseFrom: ParseFrom.yatRecord,
+    );
   }
 
   factory ParsedAddress.fetchUnstoppableDomainAddress({
     String? address,
     required String name,
-  }){
-      if (address?.isEmpty ?? true) {
-        return ParsedAddress(addresses: [name]);
-      }
-      return ParsedAddress(
-        addresses: [address!],
-        name: name,
-        parseFrom: ParseFrom.unstoppableDomains,
-      );
+  }) {
+    if (address?.isEmpty ?? true) {
+      return ParsedAddress(addresses: [name]);
+    }
+    return ParsedAddress(
+      addresses: [address!],
+      name: name,
+      parseFrom: ParseFrom.unstoppableDomains,
+    );
   }
 
   factory ParsedAddress.fetchOpenAliasAddress(
@@ -65,7 +65,7 @@ class ParsedAddress {
     );
   }
 
-  factory ParsedAddress.fetchFioAddress({required String address, required String name}){
+  factory ParsedAddress.fetchFioAddress({required String address, required String name}) {
     return ParsedAddress(
       addresses: [address],
       name: name,
@@ -73,23 +73,37 @@ class ParsedAddress {
     );
   }
 
-  factory ParsedAddress.fetchTwitterAddress({required String address, required String name}){
+  factory ParsedAddress.fetchTwitterAddress(
+      {required String address,
+      required String name,
+      required String profileImageUrl,
+      required String profileName,
+      String? description}) {
     return ParsedAddress(
       addresses: [address],
       name: name,
+      description: description ?? '',
+      profileImageUrl: profileImageUrl,
+      profileName: profileName,
       parseFrom: ParseFrom.twitter,
     );
   }
 
-  factory ParsedAddress.fetchMastodonAddress({required String address, required String name}){
+  factory ParsedAddress.fetchMastodonAddress(
+      {required String address,
+      required String name,
+      required String profileImageUrl,
+      required String profileName}) {
     return ParsedAddress(
       addresses: [address],
       name: name,
-      parseFrom: ParseFrom.mastodon
+      parseFrom: ParseFrom.mastodon,
+      profileImageUrl: profileImageUrl,
+      profileName: profileName,
     );
   }
 
-  factory ParsedAddress.fetchContactAddress({required String address, required String name}){
+  factory ParsedAddress.fetchContactAddress({required String address, required String name}) {
     return ParsedAddress(
       addresses: [address],
       name: name,
@@ -116,6 +130,7 @@ class ParsedAddress {
   final List<String> addresses;
   final String name;
   final String description;
+  final String profileImageUrl;
+  final String profileName;
   final ParseFrom parseFrom;
-
 }
