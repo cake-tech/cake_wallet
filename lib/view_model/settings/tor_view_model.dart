@@ -27,6 +27,14 @@ abstract class TorViewModelBase with Store {
         stopTor();
       }
     });
+    reaction((_) => torConnectionStatus, (TorConnectionStatus status) async {
+      if (status == TorConnectionStatus.connecting) {
+        await disconnectFromNode();
+      }
+      if (status == TorConnectionStatus.connected) {
+        await connectOrDisconnectNodeToProxy(connect: true);
+      }
+    });
   }
 
   bool torStarted = false;
@@ -62,17 +70,16 @@ abstract class TorViewModelBase with Store {
     }
   }
 
+  Future<void> disconnectFromNode() async {
+    final appStore = getIt.get<AppStore>();
+    appStore.wallet!.syncStatus = NotConnectedSyncStatus();
+    await appStore.wallet!.connectToNode(node: Node(uri: "http://127.0.0.1"));
+  }
+
   @action
   Future<void> startTor() async {
     try {
       torConnectionStatus = TorConnectionStatus.connecting;
-
-      // stop monero from syncing before tor is connected by connecting to a dummy node:
-      final appStore = getIt.get<AppStore>();
-      if (appStore.wallet != null && appStore.wallet!.type == WalletType.monero) {
-        appStore.wallet!.syncStatus = NotConnectedSyncStatus();
-        await appStore.wallet!.connectToNode(node: Node(uri: "http://127.0.0.1"));
-      }
 
       if (!torStarted) {
         torStarted = true;
