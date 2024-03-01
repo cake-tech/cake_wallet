@@ -7,7 +7,9 @@ class AlertWithOneAction extends BaseAlertDialog {
     required this.alertContent,
     required this.buttonText,
     required this.buttonAction,
-    this.alertBarrierDismissible = true
+    this.alertBarrierDismissible = true,
+    this.headerTitleText,
+    this.headerImageProfileUrl
   });
 
   final String alertTitle;
@@ -15,6 +17,8 @@ class AlertWithOneAction extends BaseAlertDialog {
   final String buttonText;
   final VoidCallback buttonAction;
   final bool alertBarrierDismissible;
+  final String? headerTitleText;
+  final String? headerImageProfileUrl;
 
   @override
   String get titleText => alertTitle;
@@ -24,6 +28,12 @@ class AlertWithOneAction extends BaseAlertDialog {
 
   @override
   bool get barrierDismissible => alertBarrierDismissible;
+
+  @override
+  String? get headerImageUrl => headerImageProfileUrl;
+
+  @override
+  String? get headerText => headerTitleText;
 
   @override
   Widget actionButtons(BuildContext context) {

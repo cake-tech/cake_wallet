@@ -12,7 +12,7 @@ class TwitterApi {
 
   static Future<TwitterUser> lookupUserByName({required String userName}) async {
     final queryParams = {
-      'user.fields': 'description',
+      'user.fields': 'description,profile_image_url',
       'expansions': 'pinned_tweet_id',
       'tweet.fields': 'note_tweet'
     };
