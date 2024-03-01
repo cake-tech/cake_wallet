@@ -30,10 +30,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
-    int initialSilentAddressIndex = 0,
-    SilentPaymentOwner? silentAddress,
+    int initialSilentAddressIndex = 1,
+    bitcoin.HDWallet? masterHd,
   })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
-        primarySilentAddress = silentAddress,
         addressesByReceiveType =
             ObservableList<BaseBitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
         receiveAddresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? [])
@@ -51,6 +50,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
             (initialSilentAddresses ?? []).toSet()),
         currentSilentAddressIndex = initialSilentAddressIndex,
         super(walletInfo) {
+    if (masterHd != null) {
+      silentAddress = SilentPaymentOwner.fromPrivateKeys(
+          b_scan: ECPrivate.fromHex(masterHd.derivePath(SCAN_PATH).privKey!),
+          b_spend: ECPrivate.fromHex(masterHd.derivePath(SPEND_PATH).privKey!),
+          hrp: network == BitcoinNetwork.testnet ? 'tsp' : 'sp');
+
+      if (silentAddresses.length == 0)
+        silentAddresses.add(BitcoinSilentPaymentAddressRecord(silentAddress.toString(),
+            index: 1, isHidden: false, name: "", silentPaymentTweak: null, network: network));
+    }
+
     updateAddressesByMatch();
   }
 
@@ -70,7 +80,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final bitcoin.HDWallet mainHd;
   final bitcoin.HDWallet sideHd;
 
-  final SilentPaymentOwner? primarySilentAddress;
+  @observable
+  SilentPaymentOwner? silentAddress;
 
   @observable
   BitcoinAddressType _addressPageType = SegwitAddresType.p2wpkh;
@@ -92,7 +103,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         return activeSilentAddress!;
       }
 
-      return primarySilentAddress!.toString();
+      return silentAddress.toString();
     }
 
     String receiveAddress;
@@ -123,7 +134,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @override
   set address(String addr) {
     if (addressPageType == SilentPaymentsAddresType.p2sp) {
-      activeSilentAddress = addr;
+      final selected = silentAddresses.firstWhere((addressRecord) => addressRecord.address == addr);
+
+      if (selected.silentPaymentTweak != null && silentAddress != null) {
+        activeSilentAddress =
+            silentAddress!.toLabeledSilentPaymentAddress(selected.index).toString();
+      } else {
+        activeSilentAddress = silentAddress!.toString();
+      }
       return;
     }
 
@@ -225,27 +243,28 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     for (int i = 0; i < silentAddresses.length; i++) {
       final silentAddressRecord = silentAddresses[i];
       final silentPaymentTweak = silentAddressRecord.silentPaymentTweak;
-      labels[G
-          .tweakMul(BigintUtils.fromBytes(BytesUtils.fromHexString(silentPaymentTweak)))
-          .toHex()] = silentPaymentTweak;
+
+      if (silentPaymentTweak != null)
+        labels[G
+            .tweakMul(BigintUtils.fromBytes(BytesUtils.fromHexString(silentPaymentTweak)))
+            .toHex()] = silentPaymentTweak;
     }
     return labels;
   }
 
   @action
   BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
-    if (addressPageType == SilentPaymentsAddresType.p2sp) {
+    if (addressPageType == SilentPaymentsAddresType.p2sp && silentAddress != null) {
       currentSilentAddressIndex += 1;
 
       final address = BitcoinSilentPaymentAddressRecord(
-        primarySilentAddress!.toLabeledSilentPaymentAddress(currentSilentAddressIndex).toString(),
+        silentAddress!.toLabeledSilentPaymentAddress(currentSilentAddressIndex).toString(),
         index: currentSilentAddressIndex,
         isHidden: false,
         name: label,
         silentPaymentTweak:
-            BytesUtils.toHexString(primarySilentAddress!.generateLabel(currentSilentAddressIndex)),
+            BytesUtils.toHexString(silentAddress!.generateLabel(currentSilentAddressIndex)),
         network: network,
-        type: SilentPaymentsAddresType.p2sp,
       );
 
       silentAddresses.add(address);

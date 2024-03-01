@@ -160,11 +160,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
       isPending: data['isPending'] as bool,
       confirmations: data['confirmations'] as int,
       to: data['to'] as String?,
-      unspents: data['unspent'] != null
-          ? (data['unspent'] as List<dynamic>)
+      unspents: data['unspents'] != null
+          ? (data['unspents'] as List<dynamic>)
               .map((unspent) => BitcoinUnspent.fromJSON(
-                  BitcoinAddressRecord.fromJSON(unspent['address_record'] as String),
-                  data['unspent'] as Map<String, dynamic>))
+                  BitcoinAddressRecord.fromJSON(unspent['address_record'].toString()),
+                  unspent as Map<String, dynamic>))
               .toList()
           : null,
     );
@@ -212,7 +212,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['confirmations'] = confirmations;
     m['fee'] = fee;
     m['to'] = to;
-    m['unspent'] = unspents?.map((e) => e.toJson()) ?? [];
+    m['unspents'] = unspents?.map((e) => e.toJson()).toList() ?? [];
     return m;
   }
 
