@@ -4,17 +4,6 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:socks5_proxy/socks.dart';
-import 'package:tor/tor.dart';
-
-// this is the only way to ensure we're making a non-tor connection:
-class NullOverrides extends HttpOverrides {
-  NullOverrides();
-
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context);
-  }
-}
 
 class ProxyWrapper {
   ProxyWrapper({

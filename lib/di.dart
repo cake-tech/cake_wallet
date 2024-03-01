@@ -725,16 +725,20 @@ Future<void> setup({
 
   getIt.registerFactory(() => TrocadorProvidersViewModel(getIt.get<SettingsStore>()));
 
-  getIt.registerSingleton(TorViewModel(getIt.get<SettingsStore>(), getIt.get<SettingsStore>().nodes));
+  getIt.registerSingleton(
+      TorViewModel(getIt.get<SettingsStore>(), getIt.get<SettingsStore>().nodes));
   getIt.registerSingleton(ProxyWrapper(
     settingsStore: getIt.get<SettingsStore>(),
     torViewModel: getIt.get<TorViewModel>(),
   ));
 
-  if (DeviceInfo.instance.isMobile &&
-      (settingsStore.torConnectionMode == TorConnectionMode.enabled ||
-          settingsStore.torConnectionMode == TorConnectionMode.torOnly)) {
-    getIt.get<TorViewModel>().startTor();
+  if (DeviceInfo.instance.isMobile) {
+    // only await if torOnly:
+    if (settingsStore.torConnectionMode == TorConnectionMode.enabled) {
+      getIt.get<TorViewModel>().startTor();
+    } else if (settingsStore.torConnectionMode == TorConnectionMode.torOnly) {
+      await getIt.get<TorViewModel>().startTor();
+    }
   }
 
   getIt.registerFactory(() {
