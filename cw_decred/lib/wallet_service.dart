@@ -69,13 +69,17 @@ class DecredWalletService extends WalletService<
   @override
   Future<void> rename(
       String currentName, String password, String newName) async {
-    final currentWallet = await openWallet(currentName, password);
+    final currentWalletInfo = walletInfoSource.values.firstWhereOrNull(
+        (info) => info.id == WalletBase.idFor(currentName, getType()))!;
+    final currentWallet = DecredWallet(currentWalletInfo, password);
+
     await currentWallet.renameWalletFiles(newName);
 
-    final currentWalletInfo = currentWallet.walletInfo;
+    final newDirPath = await pathForWalletDir(name: newName, type: getType());
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
     newWalletInfo.name = newName;
+    newWalletInfo.dirPath = newDirPath;
 
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
   }

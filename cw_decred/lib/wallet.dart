@@ -157,24 +157,17 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
       onError;
 
   Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath =
-        await pathForWallet(name: walletInfo.name, type: type);
-    final currentWalletFile = File(currentWalletPath);
-
     final currentDirPath =
         await pathForWalletDir(name: walletInfo.name, type: type);
 
-    // TODO: Stop the wallet, wait, and restart after.
+    final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
 
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentWalletFile.existsSync()) {
-      final newWalletPath =
-          await pathForWallet(name: newWalletName, type: type);
-      await currentWalletFile.copy(newWalletPath);
+    if (File(newDirPath).existsSync()) {
+      throw "wallet already exists at $newDirPath";
     }
+    ;
 
-    // Delete old name's dir and files
-    await Directory(currentDirPath).delete(recursive: true);
+    await Directory(currentDirPath).rename(newDirPath);
   }
 
   @override
