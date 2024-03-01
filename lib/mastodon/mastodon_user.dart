@@ -1,12 +1,14 @@
 class MastodonUser {
   String id;
   String username;
+  String profileImageUrl;
   String acct;
   String note;
 
   MastodonUser({
     required this.id,
     required this.username,
+    required this.profileImageUrl,
     required this.acct,
     required this.note,
   });
@@ -17,6 +19,7 @@ class MastodonUser {
       username: json['username'] as String,
       acct: json['acct'] as String,
       note: json['note'] as String,
+      profileImageUrl: json['avatar'] as String? ?? ''
     );
   }
 }

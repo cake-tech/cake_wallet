@@ -108,7 +108,11 @@ class AddressResolver {
             extractAddressByType(raw: mastodonUser.note, type: CryptoCurrency.fromString(ticker));
 
             if (addressFromBio != null) {
-              return ParsedAddress.fetchMastodonAddress(address: addressFromBio, name: text);
+              return ParsedAddress.fetchMastodonAddress(
+                  address: addressFromBio,
+                  name: text,
+                  profileImageUrl: mastodonUser.profileImageUrl,
+                  profileName: mastodonUser.username);
             } else {
               final pinnedPosts =
               await MastodonAPI.getPinnedPosts(userId: mastodonUser.id, apiHost: hostName);
@@ -120,7 +124,10 @@ class AddressResolver {
 
                 if (addressFromPinnedPost != null) {
                   return ParsedAddress.fetchMastodonAddress(
-                      address: addressFromPinnedPost, name: text);
+                      address: addressFromPinnedPost,
+                      name: text,
+                      profileImageUrl: mastodonUser.profileImageUrl,
+                      profileName: mastodonUser.username);
                 }
               }
             }

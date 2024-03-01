@@ -1,7 +1,6 @@
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/yat_record.dart';
 
-
 enum ParseFrom {
   unstoppableDomains,
   openAlias,
@@ -28,30 +27,29 @@ class ParsedAddress {
   factory ParsedAddress.fetchEmojiAddress({
     List<YatRecord>? addresses,
     required String name,
-    }){
-      if (addresses?.isEmpty ?? true) {
-        return ParsedAddress(
-          addresses: [name], parseFrom: ParseFrom.yatRecord);
-      }
-      return ParsedAddress(
-        addresses: addresses!.map((e) => e.address).toList(),
-        name: name,
-        parseFrom: ParseFrom.yatRecord,
-      );
+  }) {
+    if (addresses?.isEmpty ?? true) {
+      return ParsedAddress(addresses: [name], parseFrom: ParseFrom.yatRecord);
+    }
+    return ParsedAddress(
+      addresses: addresses!.map((e) => e.address).toList(),
+      name: name,
+      parseFrom: ParseFrom.yatRecord,
+    );
   }
 
   factory ParsedAddress.fetchUnstoppableDomainAddress({
     String? address,
     required String name,
-  }){
-      if (address?.isEmpty ?? true) {
-        return ParsedAddress(addresses: [name]);
-      }
-      return ParsedAddress(
-        addresses: [address!],
-        name: name,
-        parseFrom: ParseFrom.unstoppableDomains,
-      );
+  }) {
+    if (address?.isEmpty ?? true) {
+      return ParsedAddress(addresses: [name]);
+    }
+    return ParsedAddress(
+      addresses: [address!],
+      name: name,
+      parseFrom: ParseFrom.unstoppableDomains,
+    );
   }
 
   factory ParsedAddress.fetchOpenAliasAddress(
@@ -67,7 +65,7 @@ class ParsedAddress {
     );
   }
 
-  factory ParsedAddress.fetchFioAddress({required String address, required String name}){
+  factory ParsedAddress.fetchFioAddress({required String address, required String name}) {
     return ParsedAddress(
       addresses: [address],
       name: name,
@@ -77,10 +75,10 @@ class ParsedAddress {
 
   factory ParsedAddress.fetchTwitterAddress(
       {required String address,
-        required String name,
-        String? description,
-        String? profileImageUrl,
-        String? profileName}) {
+      required String name,
+      String? description,
+      String? profileImageUrl,
+      String? profileName}) {
     return ParsedAddress(
       addresses: [address],
       name: name,
@@ -91,15 +89,20 @@ class ParsedAddress {
     );
   }
 
-  factory ParsedAddress.fetchMastodonAddress({required String address, required String name}){
+  factory ParsedAddress.fetchMastodonAddress(
+      {required String address,
+      required String name,
+      String? profileImageUrl,
+      String? profileName}) {
     return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.mastodon
-    );
+        addresses: [address],
+        name: name,
+        parseFrom: ParseFrom.mastodon,
+        profileName: profileName ?? '',
+        profileImageUrl: profileImageUrl ?? '');
   }
 
-  factory ParsedAddress.fetchContactAddress({required String address, required String name}){
+  factory ParsedAddress.fetchContactAddress({required String address, required String name}) {
     return ParsedAddress(
       addresses: [address],
       name: name,
@@ -129,5 +132,4 @@ class ParsedAddress {
   final String profileImageUrl;
   final String profileName;
   final ParseFrom parseFrom;
-
 }
