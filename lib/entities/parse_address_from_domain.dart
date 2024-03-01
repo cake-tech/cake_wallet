@@ -69,16 +69,20 @@ class AddressResolver {
   }
 
 
-    Future<ParsedAddress> resolve(BuildContext context, String text, String ticker) async {
+  Future<ParsedAddress> resolve(BuildContext context, String text, String ticker) async {
     try {
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
-        if(settingsStore.lookupsTwitter) {
+        if (settingsStore.lookupsTwitter) {
           final formattedName = text.substring(1);
           final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
           final addressFromBio = extractAddressByType(
               raw: twitterUser.description, type: CryptoCurrency.fromString(ticker));
           if (addressFromBio != null) {
-            return ParsedAddress.fetchTwitterAddress(address: addressFromBio, name: text);
+            return ParsedAddress.fetchTwitterAddress(
+                address: addressFromBio,
+                name: text,
+                profileImageUrl: twitterUser.profileImageUrl,
+                profileName: twitterUser.name);
           }
 
           final pinnedTweet = twitterUser.pinnedTweet?.text;
@@ -86,7 +90,11 @@ class AddressResolver {
             final addressFromPinnedTweet =
             extractAddressByType(raw: pinnedTweet, type: CryptoCurrency.fromString(ticker));
             if (addressFromPinnedTweet != null) {
-              return ParsedAddress.fetchTwitterAddress(address: addressFromPinnedTweet, name: text);
+              return ParsedAddress.fetchTwitterAddress(
+                  address: addressFromPinnedTweet,
+                  name: text,
+                  profileImageUrl: twitterUser.profileImageUrl,
+                  profileName: twitterUser.name);
             }
           }
         }
@@ -107,7 +115,11 @@ class AddressResolver {
             extractAddressByType(raw: mastodonUser.note, type: CryptoCurrency.fromString(ticker));
 
             if (addressFromBio != null) {
-              return ParsedAddress.fetchMastodonAddress(address: addressFromBio, name: text);
+              return ParsedAddress.fetchMastodonAddress(
+                  address: addressFromBio,
+                  name: text,
+                  profileImageUrl: mastodonUser.profileImageUrl,
+                  profileName: mastodonUser.username);
             } else {
               final pinnedPosts =
               await MastodonAPI.getPinnedPosts(userId: mastodonUser.id, apiHost: hostName);
@@ -119,7 +131,10 @@ class AddressResolver {
 
                 if (addressFromPinnedPost != null) {
                   return ParsedAddress.fetchMastodonAddress(
-                      address: addressFromPinnedPost, name: text);
+                      address: addressFromPinnedPost,
+                      name: text,
+                      profileImageUrl: mastodonUser.profileImageUrl,
+                      profileName: mastodonUser.username);
                 }
               }
             }
