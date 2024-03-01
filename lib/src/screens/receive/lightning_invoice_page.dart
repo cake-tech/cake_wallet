@@ -171,11 +171,24 @@ class LightningInvoicePage extends BasePage {
                                   child:
                                       Container(child: Center(child: CircularProgressIndicator())));
                             }
-                            String min = (snapshot.data as List<String>)[0];
-                            min = satsToLightningString(double.parse(min));
+                            late String min;
+                            bool zeroBalance = false;
+                            if (zeroBalance) {
+                              min = (snapshot.data as List<String>)[0];
+                              min = satsToLightningString(double.parse(min));
+                              min = S.of(context).lightning_invoice_min(min);
+                            } else {
+                              min = (snapshot.data as List<String>)[0];
+                              String max = (snapshot.data as List<String>)[1];
+                              min = satsToLightningString(double.parse(min));
+                              max = satsToLightningString(double.parse(max));
+                              // min = S.of(context).lightning_invoice_min_max(min, max);
+                              min = "$min $max";
+                            }
+
                             return Expanded(
                               child: Text(
-                                S.of(context).lightning_invoice_min(min),
+                                min,
                                 maxLines: 4,
                                 style: TextStyle(
                                   fontSize: 14,
