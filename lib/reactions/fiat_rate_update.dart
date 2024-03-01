@@ -54,7 +54,7 @@ Future<void> startFiatRateUpdate(
       }
 
       if (appStore.wallet!.type == WalletType.lightning) {
-        currencies = [CryptoCurrency.btc, CryptoCurrency.btcln];
+        currencies = [CryptoCurrency.btc];
       }
 
       if (currencies != null) {
