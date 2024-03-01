@@ -19,7 +19,7 @@ class TwitterUser {
     final scaledProfileImageUrl = profileImageUrl.replaceFirst('normal', '200x200');
     return TwitterUser(
       id: json['data']['id'] as String,
-      username: json['data']['username'] as String,
+      username: json['data']['username'] as String? ?? '',
       name: json['data']['name'] as String,
       description: json['data']['description'] as String? ?? '',
       profileImageUrl: scaledProfileImageUrl,

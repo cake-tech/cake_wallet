@@ -79,7 +79,10 @@ class AddressResolver {
               raw: twitterUser.description, type: CryptoCurrency.fromString(ticker));
           if (addressFromBio != null) {
             return ParsedAddress.fetchTwitterAddress(
-                address: addressFromBio, name: text, profileImageUrl: twitterUser.profileImageUrl, profileName: twitterUser.name);
+                address: addressFromBio,
+                name: text,
+                profileImageUrl: twitterUser.profileImageUrl,
+                profileName: twitterUser.name);
           }
 
           final pinnedTweet = twitterUser.pinnedTweet?.text;
@@ -87,7 +90,11 @@ class AddressResolver {
             final addressFromPinnedTweet =
             extractAddressByType(raw: pinnedTweet, type: CryptoCurrency.fromString(ticker));
             if (addressFromPinnedTweet != null) {
-              return ParsedAddress.fetchTwitterAddress(address: addressFromPinnedTweet, name: text);
+              return ParsedAddress.fetchTwitterAddress(
+                  address: addressFromPinnedTweet,
+                  name: text,
+                  profileImageUrl: twitterUser.profileImageUrl,
+                  profileName: twitterUser.name);
             }
           }
         }

@@ -76,15 +76,15 @@ class ParsedAddress {
   factory ParsedAddress.fetchTwitterAddress(
       {required String address,
       required String name,
-      String? description,
-      String? profileImageUrl,
-      String? profileName}) {
+      required String profileImageUrl,
+      required String profileName,
+      String? description}) {
     return ParsedAddress(
       addresses: [address],
       name: name,
       description: description ?? '',
-      profileImageUrl: profileImageUrl ?? '',
-      profileName: profileName ?? '',
+      profileImageUrl: profileImageUrl,
+      profileName: profileName,
       parseFrom: ParseFrom.twitter,
     );
   }
@@ -92,14 +92,15 @@ class ParsedAddress {
   factory ParsedAddress.fetchMastodonAddress(
       {required String address,
       required String name,
-      String? profileImageUrl,
-      String? profileName}) {
+      required String profileImageUrl,
+      required String profileName}) {
     return ParsedAddress(
-        addresses: [address],
-        name: name,
-        parseFrom: ParseFrom.mastodon,
-        profileName: profileName ?? '',
-        profileImageUrl: profileImageUrl ?? '');
+      addresses: [address],
+      name: name,
+      parseFrom: ParseFrom.mastodon,
+      profileImageUrl: profileImageUrl,
+      profileName: profileName,
+    );
   }
 
   factory ParsedAddress.fetchContactAddress({required String address, required String name}) {

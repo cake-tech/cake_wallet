@@ -16,7 +16,7 @@ class MastodonUser {
   factory MastodonUser.fromJson(Map<String, dynamic> json) {
     return MastodonUser(
       id: json['id'] as String,
-      username: json['username'] as String,
+      username: json['username'] as String? ?? '',
       acct: json['acct'] as String,
       note: json['note'] as String,
       profileImageUrl: json['avatar'] as String? ?? ''

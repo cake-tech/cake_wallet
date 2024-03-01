@@ -11,8 +11,8 @@ Future<String> extractAddressFromParsed(
   var title = '';
   var content = '';
   var address = '';
-  String? profileImageUrl;
-  String? profileName;
+  var profileImageUrl = '';
+  var profileName = '';
 
   switch (parsedAddress.parseFrom) {
     case ParseFrom.unstoppableDomains:
@@ -101,8 +101,8 @@ Future<String> extractAddressFromParsed(
 
         return AlertWithOneAction(
             alertTitle: title,
-            headerTitleText: profileName,
-            headerImageProfileUrl: profileImageUrl,
+            headerTitleText: profileName.isEmpty ? null : profileName,
+            headerImageProfileUrl: profileImageUrl.isEmpty ? null : profileImageUrl,
             alertContent: content,
             buttonText: S.of(context).ok,
             buttonAction: () => Navigator.of(context).pop());
