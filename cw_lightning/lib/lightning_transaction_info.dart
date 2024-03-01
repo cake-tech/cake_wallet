@@ -80,11 +80,11 @@ class LightningTransactionInfo extends TransactionInfo {
 
   @override
   String amountFormatted() =>
-      '${formatAmount(bitcoinAmountToString(amount: amount))} ${walletTypeToCryptoCurrency(type).title}';
+      '${formatAmount(bitcoinAmountToLightningString(amount: amount))} ${walletTypeToCryptoCurrency(type).title}';
 
   @override
   String? feeFormatted() => fee != null
-      ? '${formatAmount(bitcoinAmountToString(amount: fee!))} ${walletTypeToCryptoCurrency(type).title}'
+      ? '${formatAmount(bitcoinAmountToLightningString(amount: fee!))} ${walletTypeToCryptoCurrency(type).title}'
       : '';
 
   @override
