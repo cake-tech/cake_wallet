@@ -189,7 +189,7 @@ class LightningInvoicePage extends BasePage {
                             return Expanded(
                               child: Text(
                                 finalText,
-                                maxLines: 4,
+                                maxLines: 5,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -306,13 +306,17 @@ class LightningInvoicePage extends BasePage {
                             ),
                           ),
                           Expanded(
-                            child: Text(
-                              S.of(context).lightning_invoice_warning,
-                              maxLines: 5,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                            child: Material(
+                              color: Colors.transparent,
+                              child: Text(
+                                S.of(context).lightning_invoice_warning,
+                                maxLines: 5,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color:
+                                      Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                                ),
                               ),
                             ),
                           ),
