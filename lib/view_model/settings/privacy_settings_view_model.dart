@@ -83,9 +83,6 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get looksUpENS => _settingsStore.lookupsENS;
 
-  @computed
-  bool get shouldStartTorOnLaunch => _settingsStore.shouldStartTorOnLaunch;
-
   bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
 
   bool get canUsePolygonScan => _wallet.type == WalletType.polygon;
@@ -126,9 +123,6 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setLookupsOpenAlias(bool value) => _settingsStore.lookupsOpenAlias = value;
-
-  @action
-  void setShouldStartTorOnLaunch(bool value) => _settingsStore.shouldStartTorOnLaunch = value;
 
   @action
   void setUseEtherscan(bool value) {

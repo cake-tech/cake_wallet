@@ -33,11 +33,6 @@ abstract class TorViewModelBase with Store {
   final SettingsStore _settingsStore;
   Tor torInstance = Tor.instance;
 
-  @action
-  Future<void> updateStartOnLaunch(bool value) async {
-    _settingsStore.shouldStartTorOnLaunch = value;
-  }
-
   @computed
   TorConnectionMode get torConnectionMode => _settingsStore.torConnectionMode;
 
@@ -86,8 +81,6 @@ abstract class TorViewModelBase with Store {
 
       await torInstance.enable();
 
-      _settingsStore.shouldStartTorOnLaunch = true;
-
       SocksTCPClient.setProxy(proxies: [
         ProxySettings(
           InternetAddress.loopbackIPv4,
@@ -108,8 +101,6 @@ abstract class TorViewModelBase with Store {
   @action
   Future<void> stopTor() async {
     torInstance.disable();
-    // setting the torConnectionMode to disabled will prevent anything from actually using the proxy
-    _settingsStore.shouldStartTorOnLaunch = false;
     torConnectionStatus = TorConnectionStatus.disconnected;
     SocksTCPClient.removeProxy();
     await connectOrDisconnectNodeToProxy(connect: false);

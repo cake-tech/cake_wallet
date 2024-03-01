@@ -24,7 +24,6 @@ class PreferencesKey {
   static const walletListOrder = 'wallet_list_order';
   static const walletListAscending = 'wallet_list_ascending';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
-  static const shouldStartTorOnLaunch = 'start_tor_on_launch';
   static const currentTorConnectionModeKey = 'current_tor_connection_mode';
   static const failedTotpTokenTrials = 'failed_token_trials';
   static const disableExchangeKey = 'disable_exchange';

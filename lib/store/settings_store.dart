@@ -64,7 +64,6 @@ abstract class SettingsStoreBase with Store {
       required bool initialWalletListAscending,
       required FiatApiMode initialFiatMode,
       required TorConnectionMode initialTorConnectionMode,
-      required bool initialShouldStartTorOnLaunch,
       required bool initialAllowBiometricalAuthentication,
       required String initialTotpSecretKey,
       required bool initialUseTOTP2FA,
@@ -126,7 +125,6 @@ abstract class SettingsStoreBase with Store {
         moneroSeedType = initialMoneroSeedType,
         fiatApiMode = initialFiatMode,
         torConnectionMode = initialTorConnectionMode,
-        shouldStartTorOnLaunch = initialShouldStartTorOnLaunch,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         selectedCake2FAPreset = initialCake2FAPresetOptions,
         totpSecretKey = initialTotpSecretKey,
@@ -324,9 +322,6 @@ abstract class SettingsStoreBase with Store {
     reaction((_) => torConnectionMode, (TorConnectionMode mode) async {
       await sharedPreferences.setInt(PreferencesKey.currentTorConnectionModeKey, mode.serialize());
     });
-
-    reaction((_) => shouldStartTorOnLaunch,
-        (bool value) => sharedPreferences.setBool(PreferencesKey.shouldStartTorOnLaunch, value));
 
     reaction((_) => currentTheme,
         (ThemeBase theme) => sharedPreferences.setInt(PreferencesKey.currentTheme, theme.raw));
@@ -549,9 +544,6 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   TorConnectionMode torConnectionMode;
-
-  @observable
-  bool shouldStartTorOnLaunch;
 
   @observable
   bool shouldSaveRecipientAddress;
@@ -805,8 +797,6 @@ abstract class SettingsStoreBase with Store {
     final currentTorConnectionMode = TorConnectionMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentTorConnectionModeKey) ??
             TorConnectionMode.disabled.raw);
-    final shouldStartTorOnLaunch =
-        sharedPreferences.getBool(PreferencesKey.shouldStartTorOnLaunch) ?? false;
     final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
@@ -1049,7 +1039,6 @@ abstract class SettingsStoreBase with Store {
         initialWalletListAscending: walletListAscending,
         initialFiatMode: currentFiatApiMode,
         initialTorConnectionMode: currentTorConnectionMode,
-        initialShouldStartTorOnLaunch: shouldStartTorOnLaunch,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialCake2FAPresetOptions: selectedCake2FAPreset,
         initialUseTOTP2FA: useTOTP2FA,
