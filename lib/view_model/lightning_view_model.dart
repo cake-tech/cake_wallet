@@ -50,7 +50,7 @@ abstract class LightningViewModelBase with Store {
     return [min.toString(), max.toString()];
   }
 
-  Future<List<String>> invoiceSoftLimitsSats() async {
+  Future<List<int>> invoiceSoftLimitsSats() async {
     final sdk = await BreezSDK();
     ReceivePaymentRequest? req = null;
     req = ReceivePaymentRequest(
@@ -62,10 +62,23 @@ abstract class LightningViewModelBase with Store {
 
     int max = 1000000000 * 1000 * 10; // 10 BTC
 
+    int balance = 0;
+
     try {
       final nodeState = (await sdk.nodeInfo())!;
       max = nodeState.inboundLiquidityMsats ~/ 1000;
+      balance = nodeState.channelsBalanceMsat ~/ 1000;
     } catch (_) {}
-    return [min.toString(), max.toString()];
+    return [min, max, balance];
+  }
+
+  Future<int> getBalanceSats() async {
+    try {
+      final sdk = await BreezSDK();
+      final nodeState = (await sdk.nodeInfo())!;
+      return nodeState.channelsBalanceMsat ~/ 1000;
+    } catch (_) {
+      return 0;
+    }
   }
 }

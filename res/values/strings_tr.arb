@@ -321,6 +321,7 @@
   "learn_more": "Daha fazla öğren",
   "light_theme": "Aydınlık",
   "lightning_invoice_min": "Bu faturayı aldıktan sonra en az ${min} SAT ile% 0,4'lük bir kurulum ücreti uygulanacaktır.",
+  "lightning_invoice_min_max": "${max} SATS'den fazla almak için en az ${min} SAT ile% 0.4'lük bir kurulum ücreti uygulanacak",
   "lightning_invoice_warning": "Ödeme tamamlanana veya işlem başarısız olana kadar uygulamayı açık tutmalısınız",
   "lightning_receive_limits": "Bu adrese ${min} SATS'den fazla ve ${max} SAT'ları gönderin. Bu faturayı aldıktan sonra en az ${fee} SAT ile% 0,4'lük bir kurulum ücreti uygulanacaktır. Bu, alınan bitcoin'i yıldırım haline getirecektir. Zincir üstü bir ücret uygulanacaktır. Bu adres yalnızca bir kez kullanılabilir.",
   "loading_your_wallet": "Cüzdanın yükleniyor",

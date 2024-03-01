@@ -321,6 +321,7 @@
   "learn_more": "Ƙara Koyi",
   "light_theme": "Haske",
   "lightning_invoice_min": "Kudin saiti na 0.4% tare da mafi karancin ${min} Ana amfani da shi a kan karbar wannan daftari.",
+  "lightning_invoice_min_max": "Kudin saiti na 0.4% tare da mafi ƙarancin ${min} Sab ana amfani da shi don karɓar fiye da ${max} Has",
   "lightning_invoice_warning": "Dole ne ku kiyaye app din har sai an gama biyan ko ma'amala ba zai gaza ba",
   "lightning_receive_limits": "Aika sama da ${min} Haske kuma har zuwa ${max} yana cikin wannan adireshin. Kudin saiti na 0.4% tare da mafi karancin ${fee} Ana amfani da shi a kan karbar wannan daftari. Wannan zai sauya wani karuwa da aka samu cikin walƙiya. Za a yi amfani da kudin kan sarkar. Wannan adireshin za a iya amfani da wannan adireshin sau ɗaya kawai.",
   "loading_your_wallet": "Ana loda walat ɗin ku",

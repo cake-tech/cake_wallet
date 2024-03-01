@@ -163,32 +163,32 @@ class LightningInvoicePage extends BasePage {
                           ),
                         ),
                         FutureBuilder(
-                          future:
-                              lightningInvoicePageViewModel.lightningViewModel.invoiceLimitsSats(),
+                          future: lightningInvoicePageViewModel.lightningViewModel
+                              .invoiceSoftLimitsSats(),
                           builder: (context, snapshot) {
                             if (snapshot.data == null) {
                               return Expanded(
                                   child:
                                       Container(child: Center(child: CircularProgressIndicator())));
                             }
-                            late String min;
-                            bool zeroBalance = false;
-                            if (zeroBalance) {
-                              min = (snapshot.data as List<String>)[0];
-                              min = satsToLightningString(double.parse(min));
-                              min = S.of(context).lightning_invoice_min(min);
+                            late String finalText;
+                            int balance = (snapshot.data as List<int>)[2];
+                            if (balance == 0) {
+                              int min = (snapshot.data as List<int>)[0];
+                              finalText =
+                                  S.of(context).lightning_invoice_min(satsToLightningString(min));
                             } else {
-                              min = (snapshot.data as List<String>)[0];
-                              String max = (snapshot.data as List<String>)[1];
-                              min = satsToLightningString(double.parse(min));
-                              max = satsToLightningString(double.parse(max));
-                              // min = S.of(context).lightning_invoice_min_max(min, max);
-                              min = "$min $max";
+                              int min = (snapshot.data as List<int>)[0];
+                              int max = (snapshot.data as List<int>)[1];
+                              finalText = S.of(context).lightning_invoice_min_max(
+                                    satsToLightningString(min),
+                                    satsToLightningString(max),
+                                  );
                             }
 
                             return Expanded(
                               child: Text(
-                                min,
+                                finalText,
                                 maxLines: 4,
                                 style: TextStyle(
                                   fontSize: 14,

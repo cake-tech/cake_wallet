@@ -321,6 +321,7 @@
   "learn_more": "Pelajari Lebih Lanjut",
   "light_theme": "Terang",
   "lightning_invoice_min": "Biaya pengaturan 0,4% dengan minimum ${min} SAT akan diterapkan setelah menerima faktur ini.",
+  "lightning_invoice_min_max": "Biaya pengaturan 0,4% dengan minimum ${min} SAT akan diterapkan untuk menerima lebih dari ${max} SAT",
   "lightning_invoice_warning": "Anda harus menjaga aplikasi tetap terbuka sampai pembayaran selesai atau transaksi akan gagal",
   "lightning_receive_limits": "Kirim lebih dari ${min} sat dan hingga ${max} SAT ke alamat ini. Biaya pengaturan 0,4% dengan minimum ${fee} SAT akan diterapkan setelah menerima faktur ini. Ini akan mengubah bitcoin yang diterima menjadi kilat. Biaya rantai akan diterapkan. Alamat ini hanya dapat digunakan sekali.",
   "loading_your_wallet": "Memuat dompet Anda",

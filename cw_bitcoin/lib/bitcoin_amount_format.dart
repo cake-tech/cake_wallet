@@ -31,7 +31,7 @@ String bitcoinAmountToLightningString({required int amount}) {
   return formattedAmount.substring(0, formattedAmount.length - 2);
 }
 
-String satsToLightningString(double sats) {
+String satsToLightningString(int sats) {
   String formattedAmount = bitcoinAmountFormat.format(sats);
   return formattedAmount.substring(0, formattedAmount.length - 2);
 }

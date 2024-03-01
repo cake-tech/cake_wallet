@@ -321,6 +321,7 @@
   "learn_more": "En savoir plus",
   "light_theme": "Clair",
   "lightning_invoice_min": "Des frais d'installation de 0,4% avec un minimum de ${min} SATS seront appliqués sur la réception de cette facture.",
+  "lightning_invoice_min_max": "Des frais de configuration de 0,4% avec un minimum de ${min} SATS seront appliqués pour recevoir plus de ${max} SATS",
   "lightning_invoice_warning": "Vous devez garder l'application ouverte jusqu'à la fin du paiement ou que la transaction échouera",
   "lightning_receive_limits": "Envoyez plus que ${min} SATS et jusqu'à ${max} SATS à cette adresse. Des frais d'installation de 0,4% avec un minimum de ${fee} SATS seront appliqués sur la réception de cette facture. Cela convertira tout bitcoin reçu en foudre. Des frais de chaîne seront appliqués. Cette adresse ne peut être utilisée qu'une seule fois.",
   "loading_your_wallet": "Chargement de votre portefeuille (wallet)",
