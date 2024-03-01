@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
@@ -22,8 +23,9 @@ class ConnectDevicePageParams {
 class ConnectDevicePage extends BasePage {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
+  final LedgerViewModel ledgerVM;
 
-  ConnectDevicePage(ConnectDevicePageParams params)
+  ConnectDevicePage(ConnectDevicePageParams params, this.ledgerVM)
       : walletType = params.walletType,
         onConnectDevice = params.onConnectDevice;
 
@@ -31,14 +33,15 @@ class ConnectDevicePage extends BasePage {
   String get title => S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget body(BuildContext context) => ConnectDevicePageBody(walletType, onConnectDevice);
+  Widget body(BuildContext context) => ConnectDevicePageBody(walletType, onConnectDevice, ledgerVM);
 }
 
 class ConnectDevicePageBody extends StatefulWidget {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
+  final LedgerViewModel ledgerVM;
 
-  const ConnectDevicePageBody(this.walletType, this.onConnectDevice);
+  const ConnectDevicePageBody(this.walletType, this.onConnectDevice, this.ledgerVM);
 
   @override
   ConnectDevicePageBodyState createState() => ConnectDevicePageBodyState();
@@ -72,7 +75,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   @override
   void initState() {
     super.initState();
-    _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
+    _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices()); // ToDo: (Konsti) Skip for iOS
     _bleRefresh = ledger.scan().listen((device) => setState(() => bleDevices.add(device)));
   }
 
@@ -81,8 +84,6 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     super.dispose();
     _usbRefreshTimer.cancel();
     _bleRefresh.cancel();
-    ledger.close(ConnectionType.ble);
-    ledger.close(ConnectionType.usb);
   }
 
   Future<void> _refreshUsbDevices() async {
@@ -90,7 +91,10 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     if (usbDevices.length != dev.length) setState(() => usbDevices = dev);
   }
 
-  void _connectToDevice(LedgerDevice device) => widget.onConnectDevice(context, device);
+  Future<void> _connectToDevice(LedgerDevice device) async {
+    await widget.ledgerVM.connectLedger(device);
+    widget.onConnectDevice(context, device);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +123,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   child: Container(
                     width: double.infinity,
                     child: Text(
-                      "Bluetooth",
+                      "Bluetooth", // ToDo: (konsti) Use S.of(context)
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
@@ -147,7 +151,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   child: Container(
                     width: double.infinity,
                     child: Text(
-                      "USB",
+                      "USB", // ToDo: (konsti) Use S.of(context)
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,

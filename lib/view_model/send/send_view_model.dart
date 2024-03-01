@@ -226,6 +226,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   final SendTemplateViewModel sendTemplateViewModel;
   final BalanceViewModel balanceViewModel;
   final ContactListViewModel contactListViewModel;
+  // final LedgerViewModel ledgerViewModel;
   final FiatConversionStore _fiatConversationStore;
   final Box<TransactionDescription> transactionDescriptionBox;
 

@@ -27,6 +27,7 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -216,7 +217,6 @@ import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_mod
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -307,6 +307,7 @@ Future<void> setup({
   getIt.registerFactory<Box<Node>>(() => _powNodeSource, instanceName: Node.boxName + "pow");
 
   getIt.registerSingleton(AuthenticationStore());
+  getIt.registerSingleton(LedgerViewModel());
   getIt.registerSingleton<WalletListStore>(WalletListStore());
   getIt.registerSingleton(NodeListStoreBase.instance);
   getIt.registerSingleton<SettingsStore>(settingsStore);
@@ -367,7 +368,7 @@ Future<void> setup({
   });
 
   getIt.registerFactoryParam<WalletHardwareRestoreViewModel, WalletType, LedgerDevice>(
-      (type, device) => WalletHardwareRestoreViewModel(device, getIt.get<AppStore>(),
+      (type, device) => WalletHardwareRestoreViewModel(getIt.get<LedgerViewModel>(), getIt.get<AppStore>(),
           getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
           type: type));
 

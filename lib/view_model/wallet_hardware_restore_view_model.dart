@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -9,7 +10,6 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:mobx/mobx.dart';
 
 part 'wallet_hardware_restore_view_model.g.dart';
@@ -18,11 +18,11 @@ class WalletHardwareRestoreViewModel = WalletHardwareRestoreViewModelBase
     with _$WalletHardwareRestoreViewModel;
 
 abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with Store {
-  final LedgerDevice device;
+  final LedgerViewModel ledgerViewModel;
 
   int _nextIndex = 0;
 
-  WalletHardwareRestoreViewModelBase(this.device, AppStore appStore,
+  WalletHardwareRestoreViewModelBase(this.ledgerViewModel, AppStore appStore,
       WalletCreationService walletCreationService, Box<WalletInfo> walletInfoSource,
       {required WalletType type})
       : super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
@@ -46,11 +46,11 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
     switch (type) {
       case WalletType.ethereum:
         accounts =
-            await ethereum!.getHardwareWalletAccounts(device, index: _nextIndex, limit: limit);
+            await ethereum!.getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
         break;
       case WalletType.polygon:
         accounts =
-            await polygon!.getHardwareWalletAccounts(device, index: _nextIndex, limit: limit);
+            await polygon!.getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
         break;
       default:
         return;

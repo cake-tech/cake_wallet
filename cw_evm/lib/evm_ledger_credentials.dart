@@ -14,7 +14,7 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
 
   final Ledger ledger = Ledger(options: LedgerOptions(connectionTimeout: const Duration(seconds: 10)));
 
-  late final StreamSubscription<BleStatus> ledgerSubscription;
+  late StreamSubscription<BleStatus> ledgerSubscription;
 
   EvmLedgerCredentials(this._address);
 

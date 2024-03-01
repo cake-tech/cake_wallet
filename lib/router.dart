@@ -101,6 +101,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/seed_type_view_model.dart';
@@ -217,12 +218,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreWalletFromHardwareWallet:
       if (isSingleCoin) {
         return MaterialPageRoute<void>(
-            builder: (_) => ConnectDevicePage(ConnectDevicePageParams(
-                  walletType: availableWalletTypes.first,
-                  onConnectDevice: (BuildContext context, LedgerDevice device) =>
-                      Navigator.of(context).pushNamed(Routes.chooseHardwareWalletAccount,
-                          arguments: [availableWalletTypes.first, device]),
-                )));
+            builder: (_) => ConnectDevicePage(
+                  ConnectDevicePageParams(
+                    walletType: availableWalletTypes.first,
+                    onConnectDevice: (BuildContext context, LedgerDevice device) =>
+                        Navigator.of(context).pushNamed(Routes.chooseHardwareWalletAccount,
+                            arguments: [availableWalletTypes.first, device]),
+                  ),
+                  getIt.get<LedgerViewModel>(),
+                ));
       } else {
         return CupertinoPageRoute<void>(
             builder: (_) => getIt.get<NewWalletTypePage>(
@@ -678,7 +682,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.connectDevices:
       final params = settings.arguments as ConnectDevicePageParams;
-      return MaterialPageRoute<LedgerDevice>(builder: (_) => ConnectDevicePage(params));
+      return MaterialPageRoute<LedgerDevice>(builder: (_) => ConnectDevicePage(params, getIt.get<LedgerViewModel>()));
 
     default:
       return MaterialPageRoute<void>(

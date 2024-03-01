@@ -1,4 +1,3 @@
-import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -118,7 +117,8 @@ class DebugDevicePageBodyState extends State<DebugDevicePageBody> {
                       // final derivationPath = "m/44'/60'/$counter'/0/0";
                       // print(derivationPath);
                       // return await eth.getAccounts(selectedDevice!, derivationPath);
-                      return await ethereum!.getHardwareWalletAccounts(selectedDevice!);},
+                      // return await ethereum!.getHardwareWalletAccounts(selectedDevice!);
+                      },
                   ),
                   DebugButton(
                     title: "Get Output",
@@ -164,7 +164,7 @@ class DebugDevicePageBodyState extends State<DebugDevicePageBody> {
                       child: DeviceTile(
                         onPressed: () {
                           setState(() => selectedDevice = device);
-                          // conLedger.connect(device);
+                          ledger.connect(device);
                         },
                         title: device.name,
                         leading: imageLedger,

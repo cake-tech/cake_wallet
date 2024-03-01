@@ -166,9 +166,9 @@ class CWPolygon extends Polygon {
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
   @override
-  Future<List<String>> getHardwareWalletAccounts(LedgerDevice device,
+  Future<List<String>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
       {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = EVMChainHardwareWalletService(device);
+    final hardwareWalletService = EVMChainHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
     print("getHardwareWalletAccounts $limit"); // TODO: (Konsti) remove
     try {
       return await hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
