@@ -208,15 +208,16 @@ class LightningReceiveOnchainPage extends BasePage {
                       return Expanded(
                           child: Container(child: Center(child: CircularProgressIndicator())));
                     }
-                    String min = (snapshot.data as List<String>)[1];
-                    String max = (snapshot.data as List<String>)[2];
-                    String fee = (snapshot.data as List<String>)[3];
-                    min = satsToLightningString(double.parse(min));
-                    max = satsToLightningString(double.parse(max));
-                    fee = satsToLightningString(double.parse(fee));
+                    int min = (snapshot.data as List<int>)[1];
+                    int max = (snapshot.data as List<int>)[2];
+                    int fee = (snapshot.data as List<int>)[3];
                     return Expanded(
                       child: Text(
-                        S.of(context).lightning_receive_limits(min, max, fee),
+                        S.of(context).lightning_receive_limits(
+                              satsToLightningString(min),
+                              satsToLightningString(max),
+                              satsToLightningString(fee),
+                            ),
                         maxLines: 10,
                         style: TextStyle(
                           fontSize: 14,

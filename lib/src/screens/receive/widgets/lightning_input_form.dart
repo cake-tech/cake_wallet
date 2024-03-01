@@ -45,7 +45,7 @@ class LightningInvoiceForm extends StatelessWidget {
                 controller: amountController,
                 focusNode: depositAmountFocus,
                 maxAmount: '',
-                minAmount: (lightningInvoicePageViewModel.minimum != null) ? satsToLightningString(lightningInvoicePageViewModel.minimum!) : '...',
+                minAmount: (lightningInvoicePageViewModel.minimum != null) ? satsToLightningString(lightningInvoicePageViewModel.minimum!.round()) : '...',
                 selectedCurrency: CryptoCurrency.satoshis,
               );
             }),
