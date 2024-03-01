@@ -300,11 +300,9 @@ abstract class LightningWalletBase
         isPending: false,
         id: tx.id,
         amount: tx.amountMsat ~/ 1000,
-        fee: tx.feeMsat,
+        fee: tx.feeMsat ~/ 1000,
         date: DateTime.fromMillisecondsSinceEpoch(tx.paymentTime * 1000),
-        height: tx.paymentTime,
         direction: isSend ? TransactionDirection.outgoing : TransactionDirection.incoming,
-        confirmations: 1,
       );
     }
     return transactions;
