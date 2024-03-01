@@ -1239,7 +1239,7 @@ Future<void> setup({
         getIt.get<AppStore>().wallet!,
         getIt.get<SettingsStore>(),
         getIt.get<FiatConversionStore>(),
-        () => CryptoCurrency.btc,
+        () => CryptoCurrency.btcln,
       ),
       authService: getIt.get<AuthService>(),
     );

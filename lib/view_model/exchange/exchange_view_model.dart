@@ -145,8 +145,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         ChangeNowExchangeProvider(settingsStore: _settingsStore),
         SideShiftExchangeProvider(),
         SimpleSwapExchangeProvider(),
-        TrocadorExchangeProvider(useTorOnly: _useTorOnly,
-            providerStates: _settingsStore.trocadorProviderStates),
+        TrocadorExchangeProvider(
+            useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
       ];
 
@@ -599,6 +599,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         receiveCurrency = CryptoCurrency.btc;
         break;
       case WalletType.bitcoin:
+      case WalletType.lightning:
         depositCurrency = CryptoCurrency.btc;
         receiveCurrency = CryptoCurrency.xmr;
         break;
