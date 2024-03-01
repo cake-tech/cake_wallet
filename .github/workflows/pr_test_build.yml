@@ -149,7 +149,7 @@ jobs:
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
 
       - name: Rename app
-        run: echo -e "id=com.cakewallet.test\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
+        run: echo -e "id=com.cakewallet.test_${{ echo -n env.BRANCH_NAME | sha512sum }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
 
       - name: Build
         run: |
