@@ -1,23 +1,31 @@
+// ignore_for_file: annotate_overrides, overridden_fields
+
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
-part 'erc20_token.g.dart';
+part 'tron_token.g.dart';
 
-@HiveType(typeId: Erc20Token.typeId)
-class Erc20Token extends CryptoCurrency with HiveObjectMixin {
+@HiveType(typeId: TronToken.typeId)
+class TronToken extends CryptoCurrency with HiveObjectMixin {
   @HiveField(0)
   final String name;
+
   @HiveField(1)
   final String symbol;
+
   @HiveField(2)
   final String contractAddress;
+
   @HiveField(3)
   final int decimal;
+
   @HiveField(4, defaultValue: true)
   bool _enabled;
+
   @HiveField(5)
   final String? iconPath;
+  
   @HiveField(6)
   final String? tag;
 
@@ -25,14 +33,14 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
 
   set enabled(bool value) => _enabled = value;
 
-  Erc20Token({
+  TronToken({
     required this.name,
     required this.symbol,
     required this.contractAddress,
     required this.decimal,
     bool enabled = true,
     this.iconPath,
-    this.tag,
+    this.tag = 'TRX',
   })  : _enabled = enabled,
         super(
             name: symbol.toLowerCase(),
@@ -42,14 +50,14 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
             iconPath: iconPath,
             decimals: decimal);
 
-  Erc20Token.copyWith(Erc20Token other, String? icon, String? tag)
-      : this.name = other.name,
-        this.symbol = other.symbol,
-        this.contractAddress = other.contractAddress,
-        this.decimal = other.decimal,
-        this._enabled = other.enabled,
-        this.tag = tag,
-        this.iconPath = icon,
+  TronToken.copyWith(TronToken other, String? icon, String? tag)
+      : name = other.name,
+        symbol = other.symbol,
+        contractAddress = other.contractAddress,
+        decimal = other.decimal,
+        _enabled = other.enabled,
+        tag = other.tag,
+        iconPath = icon,
         super(
           name: other.name,
           title: other.symbol.toUpperCase(),
@@ -59,14 +67,12 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
           decimals: other.decimal,
         );
 
-  static const typeId = ERC20_TOKEN_TYPE_ID;
-  static const boxName = 'Erc20Tokens';
-  static const ethereumBoxName = 'EthereumErc20Tokens';
-  static const polygonBoxName = 'PolygonErc20Tokens';
+  static const typeId = TRON_TOKEN_TYPE_ID;
+  static const boxName = 'TronTokens';
 
   @override
   bool operator ==(other) =>
-      (other is Erc20Token && other.contractAddress == contractAddress) ||
+      (other is TronToken && other.contractAddress == contractAddress) ||
       (other is CryptoCurrency && other.title == title);
 
   @override

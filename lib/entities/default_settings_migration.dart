@@ -35,6 +35,7 @@ const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'rpc.ankr.com';
+const tronDefaultNodeUri = 'api.nile.trongrid.io';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -199,6 +200,11 @@ Future<void> defaultSettingsMigration(
         case 27:
           await addSolanaNodeList(nodes: nodes);
           await changeSolanaCurrentNodeToDefault(
+              sharedPreferences: sharedPreferences, nodes: nodes);
+          break;
+        case 28:
+          await addTronNodeList(nodes: nodes);
+          await changeTronCurrentNodeToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         default:
@@ -403,6 +409,11 @@ Node getMoneroDefaultNode({required Box<Node> nodes}) {
 Node? getSolanaDefaultNode({required Box<Node> nodes}) {
   return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == solanaDefaultNodeUri) ??
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.solana);
+}
+
+Node? getTronDefaultNode({required Box<Node> nodes}) {
+  return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == tronDefaultNodeUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.tron);
 }
 
 Future<void> insecureStorageMigration({
@@ -914,4 +925,21 @@ Future<void> changeSolanaCurrentNodeToDefault(
   final nodeId = node?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, nodeId);
+}
+
+Future<void> addTronNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultTronNodes();
+  for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
+}
+
+Future<void> changeTronCurrentNodeToDefault(
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+  final node = getTronDefaultNode(nodes: nodes);
+  final nodeId = node?.key as int? ?? 0;
+
+  await sharedPreferences.setInt(PreferencesKey.currentTronNodeIdKey, nodeId);
 }

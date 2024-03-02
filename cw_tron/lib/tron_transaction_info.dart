@@ -1,33 +1,39 @@
+import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_evm/evm_chain_transaction_info.dart';
+import 'package:cw_core/transaction_info.dart';
 
-class TronTransactionInfo extends EVMChainTransactionInfo {
+class TronTransactionInfo extends TransactionInfo {
   TronTransactionInfo({
-    required super.id,
-    required super.height,
-    required super.ethAmount,
-    required super.ethFee,
-    required super.tokenSymbol,
-    required super.direction,
-    required super.isPending,
-    required super.date,
-    required super.confirmations,
-    required super.to,
-    required super.from,
-    super.exponent,
-  });
+    required this.id,
+    required this.tronAmount,
+    required this.txFee,
+    required this.direction,
+    required this.isPending,
+    required this.txDate,
+    required this.to,
+    required this.from,
+    this.tokenSymbol = 'TRX',
+  }) : amount = tronAmount.toInt();
+
+  final String id;
+  final String? to;
+  final String? from;
+  final int amount;
+  final bool isPending;
+  final BigInt tronAmount;
+  final String tokenSymbol;
+  final DateTime txDate;
+  final BigInt txFee;
+  final TransactionDirection direction;
 
   factory TronTransactionInfo.fromJson(Map<String, dynamic> data) {
     return TronTransactionInfo(
       id: data['id'] as String,
-      height: data['height'] as int,
-      ethAmount: BigInt.parse(data['amount']),
-      exponent: data['exponent'] as int,
-      ethFee: BigInt.parse(data['fee']),
+      tronAmount: BigInt.parse(data['amount']),
+      txFee: BigInt.parse(data['fee']),
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
-      date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
+      txDate: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
       isPending: data['isPending'] as bool,
-      confirmations: data['confirmations'] as int,
       tokenSymbol: data['tokenSymbol'] as String,
       to: data['to'],
       from: data['from'],
@@ -35,5 +41,26 @@ class TronTransactionInfo extends EVMChainTransactionInfo {
   }
 
   @override
-  String get feeCurrency => 'MATIC';
+  DateTime get date => txDate;
+
+  String? _fiatAmount;
+
+  @override
+  String amountFormatted() {
+    String stringBalance = tronAmount.toString();
+
+    if (stringBalance.toString().length >= 6) {
+      stringBalance = stringBalance.substring(0, 6);
+    }
+    return '$stringBalance $tokenSymbol';
+  }
+
+  @override
+  String fiatAmount() => _fiatAmount ?? '';
+
+  @override
+  void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
+
+  @override
+  String feeFormatted() => '${txFee.toString()} TRX';
 }

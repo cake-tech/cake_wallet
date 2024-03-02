@@ -1,25 +1,34 @@
-import 'package:bip39/bip39.dart' as bip39;
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
-import 'package:cw_evm/evm_chain_wallet_service.dart';
-import 'package:cw_tron/tron_client.dart';
-import 'package:cw_tron/tron_mnemonics_exception.dart';
-import 'package:cw_tron/tron_wallet.dart';
+import 'dart:io';
 
-class TronWalletService extends EVMChainWalletService<TronWallet> {
-  TronWalletService(
-    super.walletInfoSource, {
-    required this.client,
-  });
+import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_tron/tron_client.dart';
+import 'package:cw_tron/tron_exception.dart';
+import 'package:cw_tron/tron_wallet.dart';
+import 'package:cw_tron/tron_wallet_creation_credentials.dart';
+import 'package:hive/hive.dart';
+import 'package:collection/collection.dart';
+
+class TronWalletService extends WalletService<TronNewWalletCredentials,
+    TronRestoreWalletFromSeedCredentials, TronRestoreWalletFromPrivateKey> {
+  TronWalletService(this.walletInfoSource, {required this.client});
 
   late TronClient client;
+
+  final Box<WalletInfo> walletInfoSource;
 
   @override
   WalletType getType() => WalletType.tron;
 
   @override
-  Future<TronWallet> create(EVMChainNewWalletCredentials credentials) async {
+  Future<TronWallet> create(
+    TronNewWalletCredentials credentials, {
+    bool? isTestnet,
+  }) async {
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
     final mnemonic = bip39.generateMnemonic(strength: strength);
@@ -28,7 +37,6 @@ class TronWalletService extends EVMChainWalletService<TronWallet> {
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
       password: credentials.password!,
-      client: client,
     );
 
     await wallet.init();
@@ -42,7 +50,7 @@ class TronWalletService extends EVMChainWalletService<TronWallet> {
   Future<TronWallet> openWallet(String name, String password) async {
     final walletInfo =
         walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-    final wallet = await TronWallet.open(
+    final wallet = await TronWalletBase.open(
       name: name,
       password: password,
       walletInfo: walletInfo,
@@ -55,13 +63,14 @@ class TronWalletService extends EVMChainWalletService<TronWallet> {
   }
 
   @override
-  Future<TronWallet> restoreFromKeys(EVMChainRestoreWalletFromPrivateKey credentials) async {
-
+  Future<TronWallet> restoreFromKeys(
+    TronRestoreWalletFromPrivateKey credentials, {
+    bool? isTestnet,
+  }) async {
     final wallet = TronWallet(
       password: credentials.password!,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
-      client: client,
     );
 
     await wallet.init();
@@ -73,7 +82,9 @@ class TronWalletService extends EVMChainWalletService<TronWallet> {
 
   @override
   Future<TronWallet> restoreFromSeed(
-      EVMChainRestoreWalletFromSeedCredentials credentials) async {
+    TronRestoreWalletFromSeedCredentials credentials, {
+    bool? isTestnet,
+  }) async {
     if (!bip39.validateMnemonic(credentials.mnemonic)) {
       throw TronMnemonicIsIncorrectException();
     }
@@ -82,7 +93,6 @@ class TronWalletService extends EVMChainWalletService<TronWallet> {
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
-      client: client,
     );
 
     await wallet.init();
@@ -96,8 +106,8 @@ class TronWalletService extends EVMChainWalletService<TronWallet> {
   Future<void> rename(String currentName, String password, String newName) async {
     final currentWalletInfo = walletInfoSource.values
         .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
-    final currentWallet = await TronWallet.open(
-        password: password, name: currentName, walletInfo: currentWalletInfo);
+    final currentWallet =
+        await TronWalletBase.open(password: password, name: currentName, walletInfo: currentWalletInfo);
 
     await currentWallet.renameWalletFiles(newName);
 
@@ -106,5 +116,17 @@ class TronWalletService extends EVMChainWalletService<TronWallet> {
     newWalletInfo.name = newName;
 
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+  }
+
+  @override
+  Future<bool> isWalletExit(String name) async =>
+      File(await pathForWallet(name: name, type: getType())).existsSync();
+
+  @override
+  Future<void> remove(String wallet) async {
+    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
+    final walletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
+    await walletInfoSource.delete(walletInfo.key);
   }
 }

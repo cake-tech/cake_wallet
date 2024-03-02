@@ -86,6 +86,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.solana:
+      case WalletType.tron:
         return Uri.https(uriRaw, '');
       default:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
