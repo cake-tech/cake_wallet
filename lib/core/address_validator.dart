@@ -1,6 +1,7 @@
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 
@@ -8,9 +9,7 @@ class AddressValidator extends TextValidator {
   AddressValidator({required CryptoCurrency type})
       : super(
             errorMessage: S.current.error_text_address,
-            useAdditionalValidation: type == CryptoCurrency.btc
-                ? bitcoin.Address.validateAddress
-                : null,
+            useAdditionalValidation: type == CryptoCurrency.btc ? bitcoin.Address.validateAddress : null,
             pattern: getPattern(type),
             length: getLength(type));
 
@@ -130,6 +129,12 @@ class AddressValidator extends TextValidator {
     if (type is Erc20Token) {
       return [42];
     }
+
+    if (solana != null) {
+      final length = solana!.getValidationLength(type);
+      if (length != null) return length;
+    }
+
     switch (type) {
       case CryptoCurrency.xmr:
         return null;
@@ -192,11 +197,11 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.sc:
         return [76];
       case CryptoCurrency.sol:
+      case CryptoCurrency.usdtSol:
+      case CryptoCurrency.usdcsol:
         return [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44];
       case CryptoCurrency.trx:
         return [34];
-      case CryptoCurrency.usdcsol:
-        return [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44];
       case CryptoCurrency.usdt:
         return [34];
       case CryptoCurrency.usdttrc20:
@@ -250,9 +255,9 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.near:
         return [64];
       case CryptoCurrency.btcln:
-        return null;
+      case CryptoCurrency.kaspa:
       default:
-        return [];
+        return null;
     }
   }
 
@@ -263,12 +268,11 @@ class AddressValidator extends TextValidator {
             '|([^0-9a-zA-Z]|^)8[0-9a-zA-Z]{94}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)[0-9a-zA-Z]{106}([^0-9a-zA-Z]|\$)';
       case CryptoCurrency.btc:
-        return '([^0-9a-zA-Z]|^)1[0-9a-zA-Z]{32}([^0-9a-zA-Z]|\$)'
-            '|([^0-9a-zA-Z]|^)1[0-9a-zA-Z]{33}([^0-9a-zA-Z]|\$)'
-            '|([^0-9a-zA-Z]|^)3[0-9a-zA-Z]{32}([^0-9a-zA-Z]|\$)'
-            '|([^0-9a-zA-Z]|^)3[0-9a-zA-Z]{33}([^0-9a-zA-Z]|\$)'
-            '|([^0-9a-zA-Z]|^)bc1[0-9a-zA-Z]{39}([^0-9a-zA-Z]|\$)'
-            '|([^0-9a-zA-Z]|^)bc1[0-9a-zA-Z]{59}([^0-9a-zA-Z]|\$)';
+        return '([^0-9a-zA-Z]|^)([1mn][a-km-zA-HJ-NP-Z1-9]{25,34})([^0-9a-zA-Z]|\$)' //P2pkhAddress type
+            '|([^0-9a-zA-Z]|^)([23][a-km-zA-HJ-NP-Z1-9]{25,34})([^0-9a-zA-Z]|\$)' //P2shAddress type
+            '|([^0-9a-zA-Z]|^)((bc|tb)1q[ac-hj-np-z02-9]{25,39})([^0-9a-zA-Z]|\$)' //P2wpkhAddress type
+            '|([^0-9a-zA-Z]|^)((bc|tb)1q[ac-hj-np-z02-9]{40,80})([^0-9a-zA-Z]|\$)' //P2wshAddress type
+            '|([^0-9a-zA-Z]|^)((bc|tb)1p([ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59}|[ac-hj-np-z02-9]{8,89}))([^0-9a-zA-Z]|\$)';  //P2trAddress type
       case CryptoCurrency.ltc:
         return '([^0-9a-zA-Z]|^)^L[a-zA-Z0-9]{26,33}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)[LM][a-km-zA-HJ-NP-Z1-9]{26,33}([^0-9a-zA-Z]|\$)'
@@ -286,7 +290,19 @@ class AddressValidator extends TextValidator {
             '|bitcoincash:q[0-9a-zA-Z]{42}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)q[0-9a-zA-Z]{41}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)q[0-9a-zA-Z]{42}([^0-9a-zA-Z]|\$)';
+      case CryptoCurrency.sol:
+        return '([^0-9a-zA-Z]|^)[1-9A-HJ-NP-Za-km-z]{43,44}([^0-9a-zA-Z]|\$)';
       default:
+        if (type.tag == CryptoCurrency.eth.title) {
+          return '0x[0-9a-zA-Z]{42}';
+        }
+        if (type.tag == CryptoCurrency.maticpoly.tag) {
+          return '0x[0-9a-zA-Z]{42}';
+        }
+        if (type.tag == CryptoCurrency.sol.title) {
+          return '([^0-9a-zA-Z]|^)[1-9A-HJ-NP-Za-km-z]{43,44}([^0-9a-zA-Z]|\$)';
+        }
+
         return null;
     }
   }

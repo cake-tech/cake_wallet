@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonic_is_incorrect_exception.dart';
+import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';

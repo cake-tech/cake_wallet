@@ -20,6 +20,7 @@ import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
@@ -790,12 +791,16 @@ abstract class SettingsStoreBase with Store {
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
-    final legacyTheme = (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
-        ? ThemeType.dark.index
-        : ThemeType.bright.index;
+    final bool isNewInstall = sharedPreferences.getBool(PreferencesKey.isNewInstall) ?? true;
+    final int defaultTheme;
+    if (isNewInstall) {
+      defaultTheme = isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.brightTheme.raw;
+    } else {
+      defaultTheme = ThemeType.bright.index;
+    }
     final savedTheme = initialTheme ??
         ThemeList.deserialize(
-            raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? legacyTheme);
+            raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? defaultTheme);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
@@ -839,6 +844,7 @@ abstract class SettingsStoreBase with Store {
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
+    final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -848,6 +854,7 @@ abstract class SettingsStoreBase with Store {
     final bitcoinCashElectrumServer = nodeSource.get(bitcoinCashElectrumServerId);
     final nanoNode = nodeSource.get(nanoNodeId);
     final nanoPowNode = powNodeSource.get(nanoPowNodeId);
+    final solanaNode = nodeSource.get(solanaNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
@@ -902,6 +909,10 @@ abstract class SettingsStoreBase with Store {
 
     if (nanoPowNode != null) {
       powNodes[WalletType.nano] = nanoPowNode;
+    }
+
+    if (solanaNode != null) {
+      nodes[WalletType.solana] = solanaNode;
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
@@ -1147,11 +1158,9 @@ abstract class SettingsStoreBase with Store {
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
-    final legacyTheme = (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
-        ? ThemeType.dark.index
-        : ThemeType.bright.index;
     currentTheme = ThemeList.deserialize(
-        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? legacyTheme);
+        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
+            (isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.brightTheme.raw));
     actionlistDisplayMode = ObservableList<ActionListDisplayMode>();
     actionlistDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
@@ -1191,6 +1200,7 @@ abstract class SettingsStoreBase with Store {
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
+    final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -1199,7 +1209,7 @@ abstract class SettingsStoreBase with Store {
     final polygonNode = nodeSource.get(polygonNodeId);
     final bitcoinCashNode = nodeSource.get(bitcoinCashElectrumServerId);
     final nanoNode = nodeSource.get(nanoNodeId);
-
+    final solanaNode = nodeSource.get(solanaNodeId);
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
     }
@@ -1230,6 +1240,10 @@ abstract class SettingsStoreBase with Store {
 
     if (nanoNode != null) {
       nodes[WalletType.nano] = nanoNode;
+    }
+
+    if (solanaNode != null) {
+      nodes[WalletType.solana] = solanaNode;
     }
 
     // MIGRATED:
@@ -1358,6 +1372,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.polygon:
         await _sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.key as int);
+        break;
+      case WalletType.solana:
+        await _sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);
         break;
       default:
         break;

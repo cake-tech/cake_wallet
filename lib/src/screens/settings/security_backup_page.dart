@@ -38,8 +38,7 @@ class SecurityBackupPage extends BasePage {
                   .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          if (!SettingsStoreBase.walletPasswordDirectInput) ...[
+          if (!SettingsStoreBase.walletPasswordDirectInput)
             SettingsCellWithArrow(
               title: S.current.create_backup,
               handler: (_) => _authService.authenticateAction(
@@ -49,8 +48,6 @@ class SecurityBackupPage extends BasePage {
                     _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
               ),
             ),
-            StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          ],
           SettingsCellWithArrow(
             title: S.current.settings_change_pin,
             handler: (_) => _authService.authenticateAction(
@@ -63,7 +60,6 @@ class SecurityBackupPage extends BasePage {
                   .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
-          StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           if (DeviceInfo.instance.isMobile)
             Observer(builder: (_) {
               return SettingsSwitcherCell(

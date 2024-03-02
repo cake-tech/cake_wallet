@@ -1,5 +1,4 @@
-Bitcoin transactions fixes and enhancements
-EVM wallets enhancements (Ethereum and Polygon)
-Improve wallet recovery and error tolerance
-Enhance Background sync for Monero wallets
+Add Solana wallet
+New themes
+UI Enhancements
 Bug fixes

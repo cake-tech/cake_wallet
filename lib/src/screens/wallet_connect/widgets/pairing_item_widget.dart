@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
@@ -26,12 +27,11 @@ class PairingItemWidget extends StatelessWidget {
         '$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}';
 
     return ListTile(
-      leading: CircleAvatar(
-        backgroundImage: (metadata.icons.isNotEmpty
-            ? NetworkImage(metadata.icons[0])
-            : const AssetImage(
-                'assets/images/default_icon.png',
-              )) as ImageProvider<Object>,
+      leading: CakeImageWidget(
+        imageUrl: metadata.icons.isNotEmpty ?  metadata.icons[0]: null,
+        displayOnError: CircleAvatar(
+          backgroundImage: AssetImage('assets/images/default_icon.png'),
+        ),
       ),
       title: Text(
         metadata.name,

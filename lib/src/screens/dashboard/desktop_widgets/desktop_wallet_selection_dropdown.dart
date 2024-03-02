@@ -40,6 +40,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final bitcoinCashIcon = Image.asset('assets/images/bch_icon.png', height: 24, width: 24);
   final nanoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
   final bananoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
+  final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
@@ -156,6 +157,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return bananoIcon;
       case WalletType.polygon:
         return polygonIcon;
+      case WalletType.solana:
+        return solanaIcon;
       default:
         return nonWalletTypeIcon;
     }
