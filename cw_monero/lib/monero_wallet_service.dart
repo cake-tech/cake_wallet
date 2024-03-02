@@ -68,7 +68,7 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
   WalletType getType() => WalletType.monero;
 
   @override
-  Future<MoneroWallet> create(MoneroNewWalletCredentials credentials, {bool? isTestnet}) async {
+  Future<MoneroWallet> create(MoneroNewWalletCredentials credentials) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
 
@@ -203,8 +203,7 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
   }
 
   @override
-  Future<MoneroWallet> restoreFromKeys(MoneroRestoreWalletFromKeysCredentials credentials,
-      {bool? isTestnet}) async {
+  Future<MoneroWallet> restoreFromKeys(MoneroRestoreWalletFromKeysCredentials credentials) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       await monero_wallet_manager.restoreFromKeys(
@@ -228,8 +227,7 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
   }
 
   @override
-  Future<MoneroWallet> restoreFromSeed(MoneroRestoreWalletFromSeedCredentials credentials,
-      {bool? isTestnet}) async {
+  Future<MoneroWallet> restoreFromSeed(MoneroRestoreWalletFromSeedCredentials credentials) async {
     // Restore from Polyseed
     if (Polyseed.isValidSeed(credentials.mnemonic)) {
       return restoreFromPolyseed(credentials);

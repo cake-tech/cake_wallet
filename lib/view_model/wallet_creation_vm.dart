@@ -24,12 +24,6 @@ abstract class WalletCreationVMBase with Store {
         name = '';
 
   @observable
-  bool _useTestnet = false;
-
-  @computed
-  bool get useTestnet => _useTestnet;
-
-  @observable
   String name;
 
   @observable
@@ -100,9 +94,4 @@ abstract class WalletCreationVMBase with Store {
   Future<WalletBase> processFromRestoredWallet(
           WalletCredentials credentials, RestoredWallet restoreWallet) =>
       throw UnimplementedError();
-
-  @action
-  void toggleUseTestnet(bool? value) {
-    _useTestnet = value ?? !_useTestnet;
-  }
 }

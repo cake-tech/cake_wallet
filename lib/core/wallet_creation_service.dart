@@ -2,6 +2,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -54,7 +55,7 @@ class WalletCreationService {
     }
   }
 
-  Future<WalletBase> create(WalletCredentials credentials, {bool? isTestnet}) async {
+  Future<WalletBase> create(WalletCredentials credentials) async {
     checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
@@ -62,7 +63,7 @@ class WalletCreationService {
       credentials.seedPhraseLength = settingsStore.seedPhraseLength.value;
     }
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);
-    final wallet = await _service!.create(credentials, isTestnet: isTestnet);
+    final wallet = await _service!.create(credentials);
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
@@ -72,12 +73,12 @@ class WalletCreationService {
     return wallet;
   }
 
-  Future<WalletBase> restoreFromKeys(WalletCredentials credentials, {bool? isTestnet}) async {
+  Future<WalletBase> restoreFromKeys(WalletCredentials credentials) async {
     checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);
-    final wallet = await _service!.restoreFromKeys(credentials, isTestnet: isTestnet);
+    final wallet = await _service!.restoreFromKeys(credentials);
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
@@ -87,12 +88,12 @@ class WalletCreationService {
     return wallet;
   }
 
-  Future<WalletBase> restoreFromSeed(WalletCredentials credentials, {bool? isTestnet}) async {
+  Future<WalletBase> restoreFromSeed(WalletCredentials credentials) async {
     checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);
-    final wallet = await _service!.restoreFromSeed(credentials, isTestnet: isTestnet);
+    final wallet = await _service!.restoreFromSeed(credentials);
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(

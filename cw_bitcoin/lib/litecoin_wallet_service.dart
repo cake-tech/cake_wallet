@@ -25,7 +25,7 @@ class LitecoinWalletService extends WalletService<
   WalletType getType() => WalletType.litecoin;
 
   @override
-  Future<LitecoinWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
+  Future<LitecoinWallet> create(BitcoinNewWalletCredentials credentials) async {
     final wallet = await LitecoinWalletBase.create(
         mnemonic: await generateMnemonic(),
         password: credentials.password!,
@@ -94,12 +94,12 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> restoreFromKeys(
-          BitcoinRestoreWalletFromWIFCredentials credentials, {bool? isTestnet}) async =>
+          BitcoinRestoreWalletFromWIFCredentials credentials) async =>
       throw UnimplementedError();
 
   @override
   Future<LitecoinWallet> restoreFromSeed(
-      BitcoinRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
+      BitcoinRestoreWalletFromSeedCredentials credentials) async {
     if (!validateMnemonic(credentials.mnemonic)) {
       throw LitecoinMnemonicIsIncorrectException();
     }

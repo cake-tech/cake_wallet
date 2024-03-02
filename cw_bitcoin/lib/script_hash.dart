@@ -1,8 +1,9 @@
-import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:crypto/crypto.dart';
 
-String scriptHash(String address, {required BasedUtxoNetwork network}) {
-  final outputScript = addressToOutputScript(address: address, network: network);
+String scriptHash(String address, {required bitcoin.NetworkType networkType}) {
+  final outputScript =
+      bitcoin.Address.addressToOutputScript(address, networkType);
   final parts = sha256.convert(outputScript).toString().split('');
   var res = '';
 

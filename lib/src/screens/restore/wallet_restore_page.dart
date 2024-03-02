@@ -210,12 +210,8 @@ class WalletRestorePage extends BasePage {
                       const SizedBox(height: 25),
                       GestureDetector(
                         onTap: () {
-                          Navigator.of(context)
-                              .pushNamed(Routes.advancedPrivacySettings, arguments: {
-                            'type': walletRestoreViewModel.type,
-                            'useTestnet': walletRestoreViewModel.useTestnet,
-                            'toggleTestnet': walletRestoreViewModel.toggleUseTestnet
-                          });
+                          Navigator.of(context).pushNamed(Routes.advancedPrivacySettings,
+                              arguments: walletRestoreViewModel.type);
                         },
                         child: Text(S.of(context).advanced_settings),
                       ),

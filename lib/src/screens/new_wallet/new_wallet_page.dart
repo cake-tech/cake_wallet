@@ -40,9 +40,7 @@ class NewWalletPage extends BasePage {
 
   @override
   Widget body(BuildContext context) => WalletNameForm(
-      _walletNewVM,
-      currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage,
-      _seedTypeViewModel);
+      _walletNewVM, currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage, _seedTypeViewModel);
 }
 
 class WalletNameForm extends StatefulWidget {
@@ -189,6 +187,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                       ),
                     ),
                   ),
+
                   if (_walletNewVM.hasLanguageSelector) ...[
                     if (_walletNewVM.hasSeedType) ...[
                       Observer(
@@ -223,7 +222,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                         ),
                       ),
                     )
-                  ],
+                  ]
                 ],
               ),
             ),
@@ -246,11 +245,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
               const SizedBox(height: 25),
               GestureDetector(
                 onTap: () {
-                  Navigator.of(context).pushNamed(Routes.advancedPrivacySettings, arguments: {
-                    "type": _walletNewVM.type,
-                    "useTestnet": _walletNewVM.useTestnet,
-                    "toggleTestnet": _walletNewVM.toggleUseTestnet
-                  });
+                  Navigator.of(context)
+                      .pushNamed(Routes.advancedPrivacySettings, arguments: _walletNewVM.type);
                 },
                 child: Text(S.of(context).advanced_settings),
               ),

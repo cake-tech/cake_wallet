@@ -29,10 +29,7 @@ dependencies:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git
       ref: master
-  bitcoin_base:
-    git:
-      url: https://github.com/cake-tech/bitcoin_base.git
-      ref: cake-update-v1
+  bitcoin_base: ^3.0.1
 
 
 

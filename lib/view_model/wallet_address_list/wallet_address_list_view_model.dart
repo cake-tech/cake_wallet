@@ -388,6 +388,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.litecoin;
 
+  // wallet.type == WalletType.nano ||
+  // wallet.type == WalletType.banano; TODO: nano accounts are disabled for now
+
   @computed
   bool get isElectrumWallet =>
       wallet.type == WalletType.bitcoin ||
@@ -406,17 +409,16 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void setAddress(WalletAddressListItem address) =>
       wallet.walletAddresses.address = address.address;
 
-  @action
-  Future<void> setAddressType(dynamic option) async {
-    if (wallet.type == WalletType.bitcoin) {
-      await bitcoin!.setAddressType(wallet, option);
-    }
-  }
-
   void _init() {
     _baseItems = [];
 
-    if (wallet.type == WalletType.monero || wallet.type == WalletType.haven) {
+    if (wallet.type == WalletType.monero ||
+            wallet.type ==
+                WalletType
+                    .haven /*||
+        wallet.type == WalletType.nano ||
+        wallet.type == WalletType.banano*/
+        ) {
       _baseItems.add(WalletAccountListHeader());
     }
 

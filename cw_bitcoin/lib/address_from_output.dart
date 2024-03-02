@@ -1,23 +1,23 @@
-import 'package:bitcoin_base/bitcoin_base.dart';
+import 'dart:typed_data';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
+import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
 
-String addressFromOutputScript(Script script, BasedUtxoNetwork network) {
+String addressFromOutput(Uint8List script, bitcoin.NetworkType networkType) {
   try {
-    switch (script.getAddressType()) {
-      case P2pkhAddressType.p2pkh:
-        return P2pkhAddress.fromScriptPubkey(script: script).toAddress(network);
-      case P2shAddressType.p2pkInP2sh:
-        return P2shAddress.fromScriptPubkey(script: script).toAddress(network);
-      case SegwitAddresType.p2wpkh:
-        return P2wpkhAddress.fromScriptPubkey(script: script).toAddress(network);
-      case P2shAddressType.p2pkhInP2sh:
-        return P2shAddress.fromScriptPubkey(script: script).toAddress(network);
-      case SegwitAddresType.p2wsh:
-        return P2wshAddress.fromScriptPubkey(script: script).toAddress(network);
-      case SegwitAddresType.p2tr:
-        return P2trAddress.fromScriptPubkey(script: script).toAddress(network);
-      default:
-    }
+    return bitcoin.P2PKH(
+        data: PaymentData(output: script),
+        network: networkType)
+      .data
+      .address!;
   } catch (_) {}
+
+  try {
+    return bitcoin.P2WPKH(
+        data: PaymentData(output: script),
+        network: networkType)
+      .data
+      .address!;
+  } catch(_) {}
 
   return '';
 }
