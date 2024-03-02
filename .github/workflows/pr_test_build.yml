@@ -152,7 +152,8 @@ jobs:
         run: |
           hash=`sha512sum <<<"${{ env.BRANCH_NAME }}"`
           substring=${hash:0:15}
-          echo -e "id=com.cakewallet.test_$substring\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
+          echo substring
+          echo -e "id=com.cakewallet.test_$(substring)\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
 
       - name: Build
         run: |
