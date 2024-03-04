@@ -1,3 +1,2 @@
 New themes
-UI Enhancements
-Bug fixes
+Bug fixes and enhancements
