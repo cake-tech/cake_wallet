@@ -70,15 +70,10 @@ class Node extends HiveObject with Keyable {
   Uri get uri {
     switch (type) {
       case WalletType.monero:
-        return Uri.http(uriRaw, '');
-      case WalletType.bitcoin:
-        return createUriFromElectrumAddress(uriRaw);
-      case WalletType.litecoin:
-        return createUriFromElectrumAddress(uriRaw);
       case WalletType.haven:
         return Uri.http(uriRaw, '');
-      case WalletType.ethereum:
-        return Uri.https(uriRaw, '');
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
       case WalletType.bitcoinCash:
         return createUriFromElectrumAddress(uriRaw);
       case WalletType.nano:
@@ -88,7 +83,9 @@ class Node extends HiveObject with Keyable {
         } else {
           return Uri.http(uriRaw, '');
         }
+      case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.solana:
         return Uri.https(uriRaw, '');
       default:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
@@ -134,21 +131,17 @@ class Node extends HiveObject with Keyable {
     try {
       switch (type) {
         case WalletType.monero:
-          return requestMoneroNode();
-        case WalletType.bitcoin:
-          return requestElectrumServer();
-        case WalletType.litecoin:
-          return requestElectrumServer();
         case WalletType.haven:
           return requestMoneroNode();
-        case WalletType.ethereum:
-          return requestElectrumServer();
-        case WalletType.bitcoinCash:
-          return requestElectrumServer();
         case WalletType.nano:
         case WalletType.banano:
           return requestNanoNode();
+        case WalletType.bitcoin:
+        case WalletType.litecoin:
+        case WalletType.bitcoinCash:
+        case WalletType.ethereum:
         case WalletType.polygon:
+        case WalletType.solana:
           return requestElectrumServer();
         default:
           return false;

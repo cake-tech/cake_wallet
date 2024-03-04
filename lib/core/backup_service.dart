@@ -464,8 +464,6 @@ class BackupService {
       PreferencesKey.disableSellKey: _sharedPreferences.getBool(PreferencesKey.disableSellKey),
       PreferencesKey.defaultBuyProvider:
           _sharedPreferences.getInt(PreferencesKey.defaultBuyProvider),
-      PreferencesKey.isDarkThemeLegacy:
-          _sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy),
       PreferencesKey.currentPinLength: _sharedPreferences.getInt(PreferencesKey.currentPinLength),
       PreferencesKey.currentTransactionPriorityKeyLegacy:
           _sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy),

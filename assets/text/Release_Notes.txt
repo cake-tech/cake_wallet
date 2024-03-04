@@ -1,5 +1,6 @@
-Bitcoin transactions fixes and enhancements
-EVM wallets enhancements (Ethereum and Polygon)
-Improve wallet recovery and error tolerance
-Enhance Background sync for Monero wallets
-Bug fixes
+Add Solana wallet
+Support ALL Bitcoin address types (Legacy, Segwit (both variants), Taproot)
+Enhance Sending/Receiving flow for Bitcoin
+Improve fee calculations in Bitcoin
+New themes
+Bug fixes and enhancements

@@ -146,7 +146,7 @@ abstract class EVMChainWalletBase
       privateKey: _hexPrivateKey,
       password: _password,
     );
-    walletAddresses.address = _evmChainPrivateKey.address.toString();
+    walletAddresses.address = _evmChainPrivateKey.address.hexEip55;
     await save();
   }
 

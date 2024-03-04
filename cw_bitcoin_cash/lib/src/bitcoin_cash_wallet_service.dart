@@ -2,10 +2,7 @@ import 'dart:io';
 
 import 'package:bip39/bip39.dart';
 import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
-import 'package:cw_core/balance.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -15,8 +12,7 @@ import 'package:collection/collection.dart';
 import 'package:hive/hive.dart';
 
 class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredentials,
-    BitcoinCashRestoreWalletFromSeedCredentials,
-    BitcoinCashRestoreWalletFromWIFCredentials> {
+    BitcoinCashRestoreWalletFromSeedCredentials, BitcoinCashRestoreWalletFromWIFCredentials> {
   BitcoinCashWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
@@ -30,13 +26,9 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
       File(await pathForWallet(name: name, type: getType())).existsSync();
 
   @override
-  Future<BitcoinCashWallet> create(
-      credentials) async {
-    final strength = (credentials.seedPhraseLength == 12)
-        ? 128
-        : (credentials.seedPhraseLength == 24)
-        ? 256
-        : 128;
+  Future<BitcoinCashWallet> create(credentials, {bool? isTestnet}) async {
+    final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
+
     final wallet = await BitcoinCashWalletBase.create(
         mnemonic: await Mnemonic.generate(strength: strength),
         password: credentials.password!,
@@ -49,21 +41,25 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
 
   @override
   Future<BitcoinCashWallet> openWallet(String name, String password) async {
-    final walletInfo = walletInfoSource.values.firstWhereOrNull(
-            (info) => info.id == WalletBase.idFor(name, getType()))!;
+    final walletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
 
     try {
       final wallet = await BitcoinCashWalletBase.open(
-          password: password, name: name, walletInfo: walletInfo,
+          password: password,
+          name: name,
+          walletInfo: walletInfo,
           unspentCoinsInfo: unspentCoinsInfoSource);
       await wallet.init();
       saveBackup(name);
       return wallet;
-    } catch(_) {
+    } catch (_) {
       await restoreWalletFilesFromBackup(name);
       final wallet = await BitcoinCashWalletBase.open(
-      password: password, name: name, walletInfo: walletInfo,
-      unspentCoinsInfo: unspentCoinsInfoSource);
+          password: password,
+          name: name,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfoSource);
       await wallet.init();
       return wallet;
     }
@@ -71,17 +67,16 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
 
   @override
   Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType()))
-        .delete(recursive: true);
-    final walletInfo = walletInfoSource.values.firstWhereOrNull(
-            (info) => info.id == WalletBase.idFor(wallet, getType()))!;
+    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
+    final walletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
   }
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values.firstWhereOrNull(
-            (info) => info.id == WalletBase.idFor(currentName, getType()))!;
+    final currentWalletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
     final currentWallet = await BitcoinCashWalletBase.open(
         password: password,
         name: currentName,
@@ -99,15 +94,14 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
   }
 
   @override
-  Future<BitcoinCashWallet>
-  restoreFromKeys(credentials) {
+  Future<BitcoinCashWallet> restoreFromKeys(credentials, {bool? isTestnet}) {
     // TODO: implement restoreFromKeys
     throw UnimplementedError('restoreFromKeys() is not implemented');
   }
 
   @override
-  Future<BitcoinCashWallet> restoreFromSeed(
-      BitcoinCashRestoreWalletFromSeedCredentials credentials) async {
+  Future<BitcoinCashWallet> restoreFromSeed(BitcoinCashRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
     if (!validateMnemonic(credentials.mnemonic)) {
       throw BitcoinCashMnemonicIsIncorrectException();
     }
