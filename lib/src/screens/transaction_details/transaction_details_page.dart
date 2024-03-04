@@ -1,21 +1,28 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
+import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
+import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/widgets/textfield_list_row.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/list_row.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import 'package:cw_core/amount_converter.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/list_row.dart';
-import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
-import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
@@ -76,9 +83,11 @@ class TransactionDetailsPage extends BasePage {
               return Padding(
                 padding: const EdgeInsets.all(24),
                 child: PrimaryButton(
-                  onPressed: () {
-                    // TODO: show popup to enter desired new fee
-                    transactionDetailsViewModel.replaceByFee("0.00002");
+                  onPressed: () async {
+                    final fee = await _setTransactionPriority(context);
+                    if (fee != null) {
+                      transactionDetailsViewModel.replaceByFee(fee.toString());
+                    }
                   },
                   text: S.of(context).replace_by_fee,
                   color: Theme.of(context).primaryColor,
@@ -162,5 +171,58 @@ class TransactionDetailsPage extends BasePage {
     });
 
     _effectsInstalled = true;
+  }
+
+  Future<String?> _setTransactionPriority(BuildContext context) async {
+    final walletType = transactionDetailsViewModel.sendViewModel.walletType;
+    final cryptoCurrency = walletTypeToCryptoCurrency(walletType);
+    if (walletType != WalletType.bitcoin) return null;
+    final wallet = transactionDetailsViewModel.sendViewModel.wallet as BitcoinWallet;
+    final transactionAmount = transactionDetailsViewModel.items
+        .firstWhere((element) => element.title == S.of(context).transaction_details_amount)
+        .value;
+    final formattedCryptoAmount = AmountConverter.amountStringToInt(
+        cryptoCurrency, transactionAmount);
+
+    double sliderValue = transactionDetailsViewModel.sendViewModel.customElectrumFeeRate.toDouble();
+    final items = priorityForWalletType(walletType);
+    final selectedItem =
+        items.indexOf(transactionDetailsViewModel.sendViewModel.transactionPriority);
+    BitcoinTransactionPriority transactionPriority =
+        items[selectedItem] as BitcoinTransactionPriority;
+
+    await showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        int selectedIdx = selectedItem;
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Picker(
+              items: items,
+              displayItem: transactionDetailsViewModel.sendViewModel.displayFeeRate,
+              selectedAtIndex: selectedIdx,
+              title: S.of(context).please_select,
+              headerEnabled: false,
+              closeOnItemSelected: false,
+              mainAxisAlignment: MainAxisAlignment.center,
+              sliderValue: sliderValue,
+              onSliderChanged: (double newValue) => setState(() => sliderValue = newValue),
+              onItemSelected: (TransactionPriority priority) {
+                transactionPriority = priority as BitcoinTransactionPriority;
+                setState(() => selectedIdx = items.indexOf(priority));
+              },
+            );
+          },
+        );
+      },
+    );
+
+    final fee = transactionPriority == BitcoinTransactionPriority.custom
+        ? wallet.calculateEstimatedFeeWithFeeRate(sliderValue.round(), formattedCryptoAmount)
+        : wallet.calculateEstimatedFee(transactionPriority, formattedCryptoAmount);
+
+
+
+    return AmountConverter.amountIntToString(cryptoCurrency, fee);
   }
 }

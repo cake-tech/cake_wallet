@@ -11,6 +11,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -52,7 +53,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         extractedAddressController = TextEditingController(),
         cryptoAmountFocus = FocusNode(),
         fiatAmountFocus = FocusNode(),
-        addressFocusNode = FocusNode();
+        addressFocusNode = FocusNode(),
+        sliderValue = sendViewModel.customElectrumFeeRate.toDouble();
+
 
   static const prefixIconWidth = 34.0;
   static const prefixIconHeight = 34.0;
@@ -71,6 +74,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   final FocusNode addressFocusNode;
 
   bool _effectsInstalled = false;
+  double sliderValue;
 
   @override
   void initState() {
@@ -321,7 +325,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                           ? sendViewModel.allAmountValidator
                                           : sendViewModel.amountValidator,
                                     ),
-                                    if (!sendViewModel.isBatchSending && sendViewModel.shouldDisplaySendALL)
+                                    if (!sendViewModel.isBatchSending &&
+                                        sendViewModel.shouldDisplaySendALL)
                                       Positioned(
                                         top: 2,
                                         right: 0,
@@ -668,19 +673,34 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   Future<void> _setTransactionPriority(BuildContext context) async {
     final items = priorityForWalletType(sendViewModel.walletType);
     final selectedItem = items.indexOf(sendViewModel.transactionPriority);
+    final isBitcoinWallet = sendViewModel.walletType == WalletType.bitcoin;
 
     await showPopUp<void>(
       context: context,
-      builder: (_) => Picker(
-        items: items,
-        displayItem: sendViewModel.displayFeeRate,
-        selectedAtIndex: selectedItem,
-        title: S.of(context).please_select,
-        mainAxisAlignment: MainAxisAlignment.center,
-        onItemSelected: (TransactionPriority priority) =>
-            sendViewModel.setTransactionPriority(priority),
-      ),
+      builder: (BuildContext context) {
+        int selectedIdx = selectedItem;
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Picker(
+              items: items,
+              displayItem: sendViewModel.displayFeeRate,
+              selectedAtIndex: selectedIdx,
+              title: S.of(context).please_select,
+              headerEnabled: !isBitcoinWallet,
+              closeOnItemSelected: !isBitcoinWallet,
+              mainAxisAlignment: MainAxisAlignment.center,
+              sliderValue: sliderValue,
+              onSliderChanged: (double newValue) => setState(() => sliderValue = newValue),
+              onItemSelected: (TransactionPriority priority) {
+                sendViewModel.setTransactionPriority(priority);
+                setState(() => selectedIdx = items.indexOf(priority));
+              },
+            );
+          },
+        );
+      },
     );
+    if (isBitcoinWallet) sendViewModel.setCustomElectrumFeeRate(sliderValue.round());
   }
 
   void _presentPicker(BuildContext context) {

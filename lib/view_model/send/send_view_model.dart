@@ -35,6 +35,7 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'send_view_model.g.dart';
 
@@ -152,6 +153,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     return priority;
   }
+
+  int get customElectrumFeeRate => _settingsStore.customElectrumFeeRate;
 
   CryptoCurrency get currency => wallet.currency;
 
@@ -362,6 +365,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   void setTransactionPriority(TransactionPriority priority) =>
       _settingsStore.priority[wallet.type] = priority;
+
+  void setCustomElectrumFeeRate(int rate) => _settingsStore.customElectrumFeeRate = rate;
 
   Object _credentials() {
     final priority = _settingsStore.priority[wallet.type];

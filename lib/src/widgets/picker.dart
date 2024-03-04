@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
@@ -24,6 +25,10 @@ class Picker<Item> extends StatefulWidget {
     this.isGridView = false,
     this.isSeparated = true,
     this.hintText,
+    this.headerEnabled = true,
+    this.closeOnItemSelected = true,
+    this.sliderValue,
+    this.onSliderChanged,
     this.matchingCriteria,
   }) : assert(hintText == null ||
             matchingCriteria !=
@@ -40,6 +45,10 @@ class Picker<Item> extends StatefulWidget {
   final bool isGridView;
   final bool isSeparated;
   final String? hintText;
+  final bool headerEnabled;
+  final bool closeOnItemSelected;
+  final double? sliderValue;
+  final Function(double)? onSliderChanged;
   final bool Function(Item, String)? matchingCriteria;
 
   @override
@@ -159,13 +168,15 @@ class _PickerState<Item> extends State<Picker<Item>> {
                     if (widget.hintText != null)
                       Padding(
                         padding: const EdgeInsets.all(16),
-                        child: SearchBarWidget(searchController: searchController),
+                        child: SearchBarWidget(
+                            searchController: searchController, hintText: widget.hintText),
                       ),
                     Divider(
                       color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
                       height: 1,
                     ),
-                    if (widget.selectedAtIndex != -1) buildSelectedItem(widget.selectedAtIndex),
+                    if (widget.selectedAtIndex != -1 && widget.headerEnabled)
+                      buildSelectedItem(widget.selectedAtIndex),
                     Flexible(
                       child: Stack(
                         alignment: Alignment.center,
@@ -209,6 +220,11 @@ class _PickerState<Item> extends State<Picker<Item>> {
   }
 
   Widget itemsList() {
+    final itemCount = !widget.headerEnabled
+        ? items.length
+        : filteredItems.isEmpty
+            ? 0
+            : filteredItems.length;
     return Container(
       color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
       child: widget.isGridView
@@ -216,13 +232,16 @@ class _PickerState<Item> extends State<Picker<Item>> {
               padding: EdgeInsets.zero,
               controller: controller,
               shrinkWrap: true,
-              itemCount: filteredItems.isEmpty ? 0 : filteredItems.length,
+              itemCount: itemCount,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 2,
                 childAspectRatio: 3,
               ),
-              itemBuilder: (context, index) => buildItem(index),
+              itemBuilder: (context, index) =>
+                  !widget.headerEnabled && widget.selectedAtIndex == index
+                      ? buildSelectedItem(index)
+                      : buildItem(index),
             )
           : ListView.separated(
               padding: EdgeInsets.zero,
@@ -234,83 +253,102 @@ class _PickerState<Item> extends State<Picker<Item>> {
                       height: 1,
                     )
                   : const SizedBox(),
-              itemCount: filteredItems.isEmpty ? 0 : filteredItems.length,
-              itemBuilder: (context, index) => buildItem(index),
+              itemCount: itemCount,
+              itemBuilder: (context, index) =>
+                  !widget.headerEnabled && widget.selectedAtIndex == index
+                      ? buildSelectedItem(index)
+                      : buildItem(index),
             ),
     );
   }
 
   Widget buildItem(int index) {
-    final item = filteredItems[index];
+    final item = widget.headerEnabled ? filteredItems[index] : items[index];
 
     final tag = item is Currency ? item.tag : null;
     final icon = _getItemIcon(item);
 
     final image = images.isNotEmpty ? filteredImages[index] : icon;
 
+    final isCustomItem =
+        item is BitcoinTransactionPriority && item == BitcoinTransactionPriority.custom;
+
+    final label = isCustomItem
+        ? item.labelWithRate(widget.sliderValue != null ? widget.sliderValue!.round() : 0)
+        : widget.displayItem?.call(item);
+
+    final itemContent = Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: widget.mainAxisAlignment,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        image ?? Offstage(),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(left: image != null ? 12 : 0),
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    label ?? item.toString(),
+                    softWrap: true,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ),
+                if (tag != null)
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      width: 35.0,
+                      height: 18.0,
+                      child: Center(
+                        child: Text(
+                          tag,
+                          style: TextStyle(
+                            fontSize: 7.0,
+                            fontFamily: 'Lato',
+                            color: Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor,
+                          ),
+                        ),
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6.0),
+                        //border: Border.all(color: ),
+                        color: Theme.of(context).extension<CakeScrollbarTheme>()!.trackColor,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).pop();
+        if (widget.closeOnItemSelected) Navigator.of(context).pop();
         onItemSelected(item!);
       },
       child: Container(
-        height: 55,
+        height: isCustomItem ? 95 : 55,
         color: Theme.of(context).dialogTheme.backgroundColor,
         padding: EdgeInsets.symmetric(horizontal: 24),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: widget.mainAxisAlignment,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            image ?? Offstage(),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(left: image != null ? 12 : 0),
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        widget.displayItem?.call(item) ?? item.toString(),
-                        softWrap: true,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Lato',
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                          decoration: TextDecoration.none,
-                        ),
-                      ),
-                    ),
-                    if (tag != null)
-                      Align(
-                        alignment: Alignment.topCenter,
-                        child: Container(
-                          width: 35.0,
-                          height: 18.0,
-                          child: Center(
-                            child: Text(
-                              tag,
-                              style: TextStyle(
-                                fontSize: 7.0,
-                                fontFamily: 'Lato',
-                                color:
-                                    Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor,
-                              ),
-                            ),
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6.0),
-                            //border: Border.all(color: ),
-                            color: Theme.of(context).extension<CakeScrollbarTheme>()!.trackColor,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+        child: isCustomItem
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  itemContent,
+                  buildSlider(index: index, isActivated: widget.selectedAtIndex == index)
+                ],
+              )
+            : itemContent,
       ),
     );
   }
@@ -323,69 +361,85 @@ class _PickerState<Item> extends State<Picker<Item>> {
 
     final image = images.isNotEmpty ? images[index] : icon;
 
+    final isCustomItem =
+        item is BitcoinTransactionPriority && item == BitcoinTransactionPriority.custom;
+
+    final label = isCustomItem
+        ? item.labelWithRate(widget.sliderValue != null ? widget.sliderValue!.round() : 0)
+        : widget.displayItem?.call(item);
+
+    final itemContent = Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: widget.mainAxisAlignment,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        image ?? Offstage(),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(left: image != null ? 12 : 0),
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    label ?? item.toString(),
+                    softWrap: true,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ),
+                if (tag != null)
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      width: 35.0,
+                      height: 18.0,
+                      child: Center(
+                        child: Text(
+                          tag,
+                          style: TextStyle(
+                            fontSize: 7.0,
+                            fontFamily: 'Lato',
+                            color: Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor,
+                          ),
+                        ),
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6.0),
+                        //border: Border.all(color: ),
+                        color: Theme.of(context).extension<CakeScrollbarTheme>()!.trackColor,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        Icon(Icons.check_circle, color: Theme.of(context).primaryColor),
+      ],
+    );
+
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pop();
       },
       child: Container(
-        height: 55,
+        height: isCustomItem ? 95 : 55,
         color: Theme.of(context).dialogTheme.backgroundColor,
         padding: EdgeInsets.symmetric(horizontal: 24),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: widget.mainAxisAlignment,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            image ?? Offstage(),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(left: image != null ? 12 : 0),
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        widget.displayItem?.call(item) ?? item.toString(),
-                        softWrap: true,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontFamily: 'Lato',
-                          fontWeight: FontWeight.w700,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                          decoration: TextDecoration.none,
-                        ),
-                      ),
-                    ),
-                    if (tag != null)
-                      Align(
-                        alignment: Alignment.topCenter,
-                        child: Container(
-                          width: 35.0,
-                          height: 18.0,
-                          child: Center(
-                            child: Text(
-                              tag,
-                              style: TextStyle(
-                                fontSize: 7.0,
-                                fontFamily: 'Lato',
-                                color:
-                                    Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor,
-                              ),
-                            ),
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6.0),
-                            //border: Border.all(color: ),
-                            color: Theme.of(context).extension<CakeScrollbarTheme>()!.trackColor,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            Icon(Icons.check_circle, color: Theme.of(context).primaryColor),
-          ],
-        ),
+        child: isCustomItem
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  itemContent,
+                  buildSlider(index: index, isActivated: widget.selectedAtIndex == index)
+                ],
+              )
+            : itemContent,
       ),
     );
   }
@@ -417,5 +471,21 @@ class _PickerState<Item> extends State<Picker<Item>> {
     }
 
     return null;
+  }
+
+  Widget buildSlider({required int index, required bool isActivated}) {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: Slider(
+            value: widget.sliderValue ?? 0,
+            onChanged: isActivated ? widget.onSliderChanged : null,
+            min: 0,
+            max: 100,
+            divisions: 100,
+          ),
+        ),
+      ],
+    );
   }
 }
