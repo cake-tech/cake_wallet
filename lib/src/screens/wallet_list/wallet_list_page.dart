@@ -104,6 +104,7 @@ class WalletListBodyState extends State<WalletListBody> {
   final nanoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
   final polygonIcon = Image.asset('assets/images/matic_icon.png', height: 24, width: 24);
   final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
+  final tronIcon = Image.asset('assets/images/trx_icon.png', height: 24, width: 24);
   final scrollController = ScrollController();
   final double tileHeight = 60;
   Flushbar<void>? _progressBar;
@@ -316,6 +317,8 @@ class WalletListBodyState extends State<WalletListBody> {
         return polygonIcon;
       case WalletType.solana:
         return solanaIcon;
+      case WalletType.tron:
+        return tronIcon;
       default:
         return nonWalletTypeIcon;
     }
