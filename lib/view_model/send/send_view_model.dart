@@ -11,6 +11,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
@@ -370,6 +371,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   Object _credentials() {
     final priority = _settingsStore.priority[wallet.type];
+    final feeRate = priority == BitcoinTransactionPriority.custom ? customElectrumFeeRate : null;
 
     if (priority == null && wallet.type != WalletType.nano && wallet.type != WalletType.solana) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
@@ -380,7 +382,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
         return bitcoin!.createBitcoinTransactionCredentials(outputs,
-            priority: priority!, useReplaceByFee: useReplaceByFee);
+            priority: priority!,feeRate: feeRate, useReplaceByFee: useReplaceByFee);
 
       case WalletType.monero:
         return monero!
