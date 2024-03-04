@@ -33,15 +33,24 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   }) : super(
-            mnemonic: mnemonic,
-            password: password,
-            walletInfo: walletInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
-            networkType: litecoinNetwork,
-            initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            seedBytes: seedBytes,
-            currency: CryptoCurrency.ltc) {
+          mnemonic: mnemonic,
+          password: password,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfo,
+          networkType: litecoinNetwork,
+          initialAddresses: initialAddresses,
+          initialBalance: initialBalance,
+          seedBytes: seedBytes,
+          currency: CryptoCurrency.ltc,
+          balanceFactory: (
+              {required int confirmed, required int unconfirmed, required int frozen}) {
+            return ElectrumBalance(
+              confirmed: confirmed,
+              unconfirmed: unconfirmed,
+              frozen: frozen,
+            );
+          },
+        ) {
     walletAddresses = LitecoinWalletAddresses(
       walletInfo,
       electrumClient: electrumClient,

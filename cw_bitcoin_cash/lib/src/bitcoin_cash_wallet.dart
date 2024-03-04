@@ -40,15 +40,24 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   }) : super(
-            mnemonic: mnemonic,
-            password: password,
-            walletInfo: walletInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
-            networkType: bitcoin.bitcoin,
-            initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            seedBytes: seedBytes,
-            currency: CryptoCurrency.bch) {
+          mnemonic: mnemonic,
+          password: password,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfo,
+          networkType: bitcoin.bitcoin,
+          initialAddresses: initialAddresses,
+          initialBalance: initialBalance,
+          seedBytes: seedBytes,
+          currency: CryptoCurrency.bch,
+          balanceFactory: (
+              {required int confirmed, required int unconfirmed, required int frozen}) {
+            return ElectrumBalance(
+              confirmed: confirmed,
+              unconfirmed: unconfirmed,
+              frozen: frozen,
+            );
+          },
+        ) {
     walletAddresses = BitcoinCashWalletAddresses(
       walletInfo,
       electrumClient: electrumClient,
