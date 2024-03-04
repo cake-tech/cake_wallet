@@ -20,7 +20,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
   WalletType getType() => WalletType.polygon;
 
   @override
-  Future<PolygonWallet> create(EVMChainNewWalletCredentials credentials) async {
+  Future<PolygonWallet> create(EVMChainNewWalletCredentials credentials, {bool? isTestnet}) async {
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
     final mnemonic = bip39.generateMnemonic(strength: strength);
@@ -74,7 +74,8 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
   }
 
   @override
-  Future<PolygonWallet> restoreFromKeys(EVMChainRestoreWalletFromPrivateKey credentials) async {
+  Future<PolygonWallet> restoreFromKeys(EVMChainRestoreWalletFromPrivateKey credentials,
+      {bool? isTestnet}) async {
     final wallet = PolygonWallet(
       password: credentials.password!,
       privateKey: credentials.privateKey,
@@ -91,8 +92,8 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
   }
 
   @override
-  Future<PolygonWallet> restoreFromSeed(
-      EVMChainRestoreWalletFromSeedCredentials credentials) async {
+  Future<PolygonWallet> restoreFromSeed(EVMChainRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
     if (!bip39.validateMnemonic(credentials.mnemonic)) {
       throw PolygonMnemonicIsIncorrectException();
     }

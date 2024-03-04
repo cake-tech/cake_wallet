@@ -1,5 +1,5 @@
 import 'package:cw_bitcoin/bitcoin_commit_transaction_exception.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
@@ -9,22 +9,21 @@ import 'package:cw_core/wallet_type.dart';
 
 class PendingBitcoinTransaction with PendingTransaction {
   PendingBitcoinTransaction(this._tx, this.type,
-      {required this.electrumClient,
-      required this.amount,
-      required this.fee})
+      {required this.electrumClient, required this.amount, required this.fee, this.network})
       : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
   final WalletType type;
-  final bitcoin.Transaction _tx;
+  final BtcTransaction _tx;
   final ElectrumClient electrumClient;
   final int amount;
   final int fee;
+  final BasedUtxoNetwork? network;
 
   @override
-  String get id => _tx.getId();
+  String get id => _tx.txId();
 
   @override
-  String get hex => _tx.toHex();
+  String get hex => _tx.serialize();
 
   @override
   String get amountFormatted => bitcoinAmountToString(amount: amount);
@@ -36,18 +35,16 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    final result =
-      await electrumClient.broadcastTransaction(transactionRaw: _tx.toHex());
+    final result = await electrumClient.broadcastTransaction(transactionRaw: hex, network: network);
 
     if (result.isEmpty) {
       throw BitcoinCommitTransactionException();
     }
 
-    _listeners?.forEach((listener) => listener(transactionInfo()));
+    _listeners.forEach((listener) => listener(transactionInfo()));
   }
 
-  void addListener(
-          void Function(ElectrumTransactionInfo transaction) listener) =>
+  void addListener(void Function(ElectrumTransactionInfo transaction) listener) =>
       _listeners.add(listener);
 
   ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(type,
