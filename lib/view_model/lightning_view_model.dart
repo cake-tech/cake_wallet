@@ -37,19 +37,6 @@ abstract class LightningViewModelBase with Store {
     return res.lnInvoice.bolt11;
   }
 
-  Future<List<String>> invoiceLimitsSats() async {
-    final sdk = await BreezSDK();
-    ReceivePaymentRequest? req = null;
-    req = ReceivePaymentRequest(
-      amountMsat: 10000 * 1000, // 10000 sats
-      description: "limits",
-    );
-    final res = await sdk.receivePayment(req: req);
-    int min = (res.openingFeeMsat ?? (2500 * 1000)) ~/ 1000;
-    int max = 1000000000 * 1000 * 10; // 10 BTC
-    return [min.toString(), max.toString()];
-  }
-
   Future<List<int>> invoiceSoftLimitsSats() async {
     final sdk = await BreezSDK();
     ReceivePaymentRequest? req = null;
@@ -59,7 +46,6 @@ abstract class LightningViewModelBase with Store {
     );
     final res = await sdk.receivePayment(req: req);
     int min = (res.openingFeeMsat ?? (2500 * 1000)) ~/ 1000;
-
     int max = 1000000000 * 1000 * 10; // 10 BTC
 
     int balance = 0;
@@ -68,6 +54,9 @@ abstract class LightningViewModelBase with Store {
       final nodeState = (await sdk.nodeInfo())!;
       max = nodeState.inboundLiquidityMsats ~/ 1000;
       balance = nodeState.channelsBalanceMsat ~/ 1000;
+      if (balance > 0) {
+        min = 0;
+      }
     } catch (_) {}
     return [min, max, balance];
   }
