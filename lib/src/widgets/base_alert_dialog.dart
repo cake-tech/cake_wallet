@@ -1,4 +1,3 @@
-import 'package:cake_wallet/src/screens/receive/widgets/header_tile.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'dart:ui';
 import 'package:cake_wallet/src/widgets/section_divider.dart';

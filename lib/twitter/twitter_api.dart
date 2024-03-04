@@ -32,7 +32,10 @@ class TwitterApi {
     }
 
     final Map<String, dynamic> responseJSON = jsonDecode(response.body) as Map<String, dynamic>;
-    if (responseJSON['errors'] != null) {
+    if (responseJSON['errors'] != null &&
+        !responseJSON['errors'][0]['detail']
+            .toString()
+            .contains("Could not find tweet with pinned_tweet_id")) {
       throw Exception(responseJSON['errors'][0]['detail']);
     }
 
@@ -40,20 +43,24 @@ class TwitterApi {
   }
 
   static Tweet? _getPinnedTweet(Map<String, dynamic> responseJSON) {
-    final tweetId = responseJSON['data']['pinned_tweet_id'] as String?;
-    if (tweetId == null || responseJSON['includes'] == null) return null;
+    try {
+      final tweetId = responseJSON['data']['pinned_tweet_id'] as String?;
+      if (tweetId == null || responseJSON['includes'] == null) return null;
 
-    final tweetIncludes = List.from(responseJSON['includes']['tweets'] as List);
-    final pinnedTweetData = tweetIncludes.firstWhere(
-      (tweet) => tweet['id'] == tweetId,
-      orElse: () => null,
-    ) as Map<String, dynamic>?;
+      final tweetIncludes = List.from(responseJSON['includes']['tweets'] as List);
+      final pinnedTweetData = tweetIncludes.firstWhere(
+        (tweet) => tweet['id'] == tweetId,
+        orElse: () => null,
+      ) as Map<String, dynamic>?;
 
-    if (pinnedTweetData == null) return null;
+      if (pinnedTweetData == null) return null;
 
-    final pinnedTweetText =
-        (pinnedTweetData['note_tweet']?['text'] ?? pinnedTweetData['text']) as String;
+      final pinnedTweetText =
+          (pinnedTweetData['note_tweet']?['text'] ?? pinnedTweetData['text']) as String;
 
-    return Tweet(id: tweetId, text: pinnedTweetText);
+      return Tweet(id: tweetId, text: pinnedTweetText);
+    } catch (e) {
+      return null;
+    }
   }
 }
