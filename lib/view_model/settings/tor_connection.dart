@@ -5,6 +5,7 @@ class TorConnectionMode extends EnumerableItem<int> with Serializable<int> {
   const TorConnectionMode({required String title, required int raw}) : super(title: title, raw: raw);
 
   static const all = [TorConnectionMode.enabled, TorConnectionMode.disabled, TorConnectionMode.torOnly];
+  static const enabledDisabled = [TorConnectionMode.enabled, TorConnectionMode.disabled];
 
   static const enabled = TorConnectionMode(raw: 0, title: 'Enabled');
   static const disabled = TorConnectionMode(raw: 1, title: 'Disabled');

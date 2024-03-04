@@ -123,7 +123,7 @@ class ConnectionSyncPage extends BasePage {
                 Observer(builder: (context) {
                   return SettingsPickerCell<TorConnectionMode>(
                     title: S.current.tor_connection,
-                    items: TorConnectionMode.all,
+                    items: TorConnectionMode.enabledDisabled,
                     displayItem: (TorConnectionMode mode) => mode.title,
                     selectedItem: dashboardViewModel.torViewModel.torConnectionMode,
                     onItemSelected: (TorConnectionMode mode) async {
