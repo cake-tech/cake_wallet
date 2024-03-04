@@ -32,7 +32,6 @@ import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -371,8 +370,10 @@ class SendPage extends BasePage {
                               await Navigator.of(context).pushNamed(Routes.connectDevices,
                                   arguments: ConnectDevicePageParams(
                                     walletType: sendViewModel.walletType,
-                                    onConnectDevice: (BuildContext context, LedgerDevice device) =>
-                                        Navigator.of(context).pop(device),
+                                    onConnectDevice: (BuildContext context, _) {
+                                      sendViewModel.ledgerViewModel.setLedger(sendViewModel.wallet);
+                                      Navigator.of(context).pop();
+                                    },
                                   ));
                         }
 

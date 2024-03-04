@@ -118,7 +118,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
 
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 
@@ -161,8 +160,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.chooseHardwareWalletAccount:
       final arguments = settings.arguments as List<dynamic>;
       final type = arguments[0] as WalletType;
-      final device = arguments[1] as LedgerDevice;
-      final walletVM = getIt.get<WalletHardwareRestoreViewModel>(param1: type, param2: device);
+      final walletVM = getIt.get<WalletHardwareRestoreViewModel>(param1: type);
 
       return CupertinoPageRoute<void>(builder: (_) => SelectHardwareWalletAccountPage(walletVM));
 
@@ -232,9 +230,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
             builder: (_) => ConnectDevicePage(
                   ConnectDevicePageParams(
                     walletType: availableWalletTypes.first,
-                    onConnectDevice: (BuildContext context, LedgerDevice device) =>
+                    onConnectDevice: (BuildContext context, _) =>
                         Navigator.of(context).pushNamed(Routes.chooseHardwareWalletAccount,
-                            arguments: [availableWalletTypes.first, device]),
+                            arguments: [availableWalletTypes.first]),
                   ),
                   getIt.get<LedgerViewModel>(),
                 ));
@@ -244,9 +242,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 param1: (BuildContext context, WalletType type) {
                   final arguments = ConnectDevicePageParams(
                     walletType: type,
-                    onConnectDevice: (BuildContext context, LedgerDevice device) =>
+                    onConnectDevice: (BuildContext context, _) =>
                         Navigator.of(context).pushNamed(Routes.chooseHardwareWalletAccount,
-                            arguments: [type, device]),
+                            arguments: [type]),
                   );
 
                   Navigator.of(context).pushNamed(Routes.connectDevices, arguments: arguments);
@@ -693,7 +691,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.connectDevices:
       final params = settings.arguments as ConnectDevicePageParams;
-      return MaterialPageRoute<LedgerDevice>(
+      return MaterialPageRoute<void>(
           builder: (_) => ConnectDevicePage(params, getIt.get<LedgerViewModel>()));
 
     default:

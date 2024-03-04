@@ -166,6 +166,11 @@ class CWPolygon extends Polygon {
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
   @override
+  void setLedger(WalletBase wallet, Ledger ledger) {
+    ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedger(ledger);
+  }
+
+  @override
   Future<List<String>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
       {int index = 0, int limit = 5}) async {
     final hardwareWalletService = EVMChainHardwareWalletService(ledgerVM.ledger, ledgerVM.device);

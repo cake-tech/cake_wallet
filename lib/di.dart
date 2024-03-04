@@ -228,7 +228,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -367,8 +366,8 @@ Future<void> setup({
         getIt.get<WalletCreationService>(param1: type), _walletInfoSource, type);
   });
 
-  getIt.registerFactoryParam<WalletHardwareRestoreViewModel, WalletType, LedgerDevice>(
-      (type, device) => WalletHardwareRestoreViewModel(getIt.get<LedgerViewModel>(), getIt.get<AppStore>(),
+  getIt.registerFactoryParam<WalletHardwareRestoreViewModel, WalletType, void>(
+      (type, _) => WalletHardwareRestoreViewModel(getIt.get<LedgerViewModel>(), getIt.get<AppStore>(),
           getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
           type: type));
 

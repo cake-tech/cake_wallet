@@ -2,9 +2,13 @@ import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -83,6 +87,16 @@ class RobinhoodBuyProvider extends BuyProvider {
   }
 
   Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
+    if (wallet.isHardwareWallet && !getIt.get<LedgerViewModel>().isConnected) {
+      await Navigator.of(context).pushNamed(Routes.connectDevices,
+          arguments: ConnectDevicePageParams(
+              walletType: wallet.walletInfo.type,
+              onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) {
+                ledgerVM.setLedger(wallet);
+                Navigator.of(context).pop();
+              }));
+    }
+
     try {
       final uri = await requestProviderUrl();
       await launchUrl(uri, mode: LaunchMode.externalApplication);

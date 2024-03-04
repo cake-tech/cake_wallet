@@ -274,14 +274,6 @@ abstract class EVMChainWalletBase
       }
     }
 
-    if (isHardwareWallet) {
-      if (_credentials.ledger?.devices.isNotEmpty != true) {
-        throw EVMChainTransactionCreationException.fromMessage("No ledger is connected");
-      }
-
-      (_evmChainPrivateKey as EvmLedgerCredentials).setLedger(_credentials.ledger!);
-    }
-
     final pendingEVMChainTransaction = await _client.signTransaction(
       privateKey: _evmChainPrivateKey,
       toAddress: _credentials.outputs.first.isParsedAddress
@@ -523,7 +515,7 @@ abstract class EVMChainWalletBase
 
   @override
   Future<String> signMessage(String message, {String? address}) async =>
-      bytesToHex(_evmChainPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
+      bytesToHex(await _evmChainPrivateKey.signPersonalMessage(ascii.encode(message)));
 
   Web3Client? getWeb3Client() => _client.getWeb3Client();
 }

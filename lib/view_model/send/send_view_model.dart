@@ -306,7 +306,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // if (wallet.isHardwareWallet)
       //   state = IsAwaitingDeviceConnectionState();
       // else {
-        pendingTransaction = await wallet.createTransaction(_credentials(wallet.isHardwareWallet ? ledgerViewModel.ledger : null));
+        pendingTransaction = await wallet.createTransaction(_credentials());
         state = ExecutedSuccessfullyState();
       // }
     } catch (e) {

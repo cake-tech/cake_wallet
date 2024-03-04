@@ -1,4 +1,8 @@
+import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cw_core/hardware/cake_ble_connection_manager.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -27,5 +31,16 @@ class LedgerViewModel {
   bool get isConnected => ledger.devices.isNotEmpty;
 
   LedgerDevice get device => ledger.devices.first;
+
+  void setLedger(WalletBase wallet) {
+    switch (wallet.type) {
+      case WalletType.ethereum:
+        return ethereum!.setLedger(wallet, ledger);
+      case WalletType.polygon:
+        return polygon!.setLedger(wallet, ledger);
+      default:
+        throw Exception('Unexpected wallet type: ${wallet.type}');
+    }
+  }
 
 }

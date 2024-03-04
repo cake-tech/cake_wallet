@@ -1,15 +1,21 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DFXBuyProvider extends BuyProvider {
@@ -159,6 +165,16 @@ class DFXBuyProvider extends BuyProvider {
 
   @override
   Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
+    if (wallet.isHardwareWallet && !getIt.get<LedgerViewModel>().isConnected) {
+      await Navigator.of(context).pushNamed(Routes.connectDevices,
+          arguments: ConnectDevicePageParams(
+              walletType: wallet.walletInfo.type,
+              onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) {
+                ledgerVM.setLedger(wallet);
+                Navigator.of(context).pop();
+              }));
+    }
+
     try {
       final assetOut = this.assetOut;
       final blockchain = this.blockchain;

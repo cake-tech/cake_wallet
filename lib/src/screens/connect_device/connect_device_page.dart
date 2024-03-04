@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-typedef OnConnectDevice = void Function(BuildContext, LedgerDevice);
+typedef OnConnectDevice = void Function(BuildContext, LedgerViewModel);
 
 class ConnectDevicePageParams {
   final WalletType walletType;
@@ -93,7 +93,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
 
   Future<void> _connectToDevice(LedgerDevice device) async {
     await widget.ledgerVM.connectLedger(device);
-    widget.onConnectDevice(context, device);
+    widget.onConnectDevice(context, widget.ledgerVM);
   }
 
   @override
