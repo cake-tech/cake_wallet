@@ -32,7 +32,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   static const _quotePath = '/thorchain/quote/swap';
   static const _txInfoPath = '/thorchain/tx/status/';
   static const _affiliateName = 'cakewallet';
-  static const _affiliateBps = '0';
+  static const _affiliateBps = '175';
 
   final Box<Trade> tradesStore;
 
@@ -99,7 +99,9 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final responseJSON = await _getSwapQuote(params);
     final minAmountIn = responseJSON['recommended_min_amount_in'] as String? ?? '0.0';
 
-    return Limits(min: _thorChainAmountToDouble(minAmountIn));
+    final safeMinAmount = _thorChainAmountToDouble(minAmountIn) * 1.05;
+
+    return Limits(min: safeMinAmount);
   }
 
   @override
