@@ -25,7 +25,7 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
   @override
   MsgSignature signToEcSignature(Uint8List payload, {int? chainId, bool isEIP1559 = false}) {
     // TODO: (Konsti) Send Payload for signing to ledger
-    throw UnimplementedError();
+    throw UnimplementedError("EvmLedgerCredentials.signToEcSignature");
   }
 
   @override
@@ -46,15 +46,13 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
 
   @override
   Future<Uint8List> signPersonalMessage(Uint8List payload, {int? chainId}) {
-    print("signPersonalMessage: $payload");
     // TODO: (Konsti) implement signToSignature
-    throw UnimplementedError();
+    throw UnimplementedError("EvmLedgerCredentials.signPersonalMessage");
   }
 
   @override
   Uint8List signPersonalMessageToUint8List(Uint8List payload, {int? chainId}) {
-    print("signPersonalMessageToUint8List: $payload");
     // TODO: (Konsti) implement signToSignature
-    throw UnimplementedError();
+    throw UnimplementedError("EvmLedgerCredentials.signPersonalMessageToUint8List");
   }
 }
