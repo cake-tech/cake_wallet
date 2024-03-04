@@ -23,6 +23,7 @@ import 'package:cw_bitcoin/litecoin_network.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -45,9 +46,8 @@ part 'electrum_wallet.g.dart';
 
 class ElectrumWallet = ElectrumWalletBase with _$ElectrumWallet;
 
-abstract class ElectrumWalletBase
-    extends WalletBase<ElectrumBalance, ElectrumTransactionHistory, ElectrumTransactionInfo>
-    with Store {
+abstract class ElectrumWalletBase<T extends ElectrumBalance>
+    extends WalletBase<T, ElectrumTransactionHistory, ElectrumTransactionInfo> with Store {
   ElectrumWalletBase(
       {required String password,
       required WalletInfo walletInfo,
@@ -55,9 +55,14 @@ abstract class ElectrumWalletBase
       required this.networkType,
       required this.mnemonic,
       required Uint8List seedBytes,
+      required T Function({
+        required int confirmed,
+        required int unconfirmed,
+        required int frozen,
+      }) this.balanceFactory,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumClient? electrumClient,
-      ElectrumBalance? initialBalance,
+      T? initialBalance,
       CryptoCurrency? currency})
       : hd = currency == CryptoCurrency.bch
             ? bitcoinCashHDWallet(seedBytes)
@@ -69,12 +74,8 @@ abstract class ElectrumWalletBase
         isEnabledAutoGenerateSubaddress = true,
         unspentCoins = [],
         _scripthashesUpdateSubject = {},
-        balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of(currency != null
-            ? {
-                currency:
-                    initialBalance ?? const ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0)
-              }
-            : {}),
+        balance = ObservableMap<CryptoCurrency, T>.of(
+            currency != null ? {currency: initialBalance ?? balanceFactory(confirmed: 0, unconfirmed: 0, frozen: 0)} : {}),
         this.unspentCoinsInfo = unspentCoinsInfo,
         this.network = networkType == bitcoin.bitcoin
             ? BitcoinNetwork.mainnet
@@ -96,6 +97,11 @@ abstract class ElectrumWalletBase
 
   final bitcoin.HDWallet hd;
   final String mnemonic;
+  final T Function({
+    required int confirmed,
+    required int unconfirmed,
+    required int frozen,
+  }) balanceFactory;
 
   @override
   @observable
@@ -109,7 +115,7 @@ abstract class ElectrumWalletBase
 
   @override
   @observable
-  late ObservableMap<CryptoCurrency, ElectrumBalance> balance;
+  late ObservableMap<CryptoCurrency, T> balance;
 
   @override
   @observable
@@ -285,7 +291,7 @@ abstract class ElectrumWalletBase
 
     final totalAmount = amount + fee;
 
-    if (totalAmount > balance[currency]!.confirmed) {
+    if (totalAmount > (balance[currency]!.confirmed as int)) {
       throw BitcoinTransactionWrongBalanceException(currency);
     }
 
@@ -788,7 +794,7 @@ abstract class ElectrumWalletBase
     });
   }
 
-  Future<ElectrumBalance> _fetchBalances() async {
+  Future<T> _fetchBalances() async {
     final addresses = walletAddresses.allAddresses.toList();
     final balanceFutures = <Future<Map<String, dynamic>>>[];
     for (var i = 0; i < addresses.length; i++) {
@@ -828,8 +834,15 @@ abstract class ElectrumWalletBase
       }
     }
 
-    return ElectrumBalance(
-        confirmed: totalConfirmed, unconfirmed: totalUnconfirmed, frozen: totalFrozen);
+    // return balanceFactory()
+    //   ..confirmed = totalConfirmed
+    //   ..unconfirmed = totalUnconfirmed
+    //   ..frozen = totalFrozen;
+    return balanceFactory(
+      confirmed: totalConfirmed,
+      unconfirmed: totalUnconfirmed,
+      frozen: totalFrozen,
+    );
   }
 
   Future<void> updateBalance() async {

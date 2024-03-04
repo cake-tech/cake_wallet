@@ -42,6 +42,7 @@ Future<void> generateSecretsConfig(List<String> args) async {
     }
   }
 
+  // base:
   SecretKey.base.forEach((sec) {
     if (secrets[sec.name] != null) {
       return;
@@ -49,12 +50,11 @@ Future<void> generateSecretsConfig(List<String> args) async {
 
     secrets[sec.name] = sec.generate();
   });
-
   var secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
   await configFile.writeAsString(secretsJson);
-
   secrets.clear();
 
+  // evm:
   SecretKey.evmChainsSecrets.forEach((sec) {
     if (secrets[sec.name] != null) {
       return;
@@ -64,8 +64,9 @@ Future<void> generateSecretsConfig(List<String> args) async {
   });
   secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
   await evmChainsConfigFile.writeAsString(secretsJson);
-
   secrets.clear();
+
+  // btc / lightning:
   SecretKey.bitcoinSecrets.forEach((sec) {
     if (secrets[sec.name] != null) {
       return;
@@ -74,7 +75,9 @@ Future<void> generateSecretsConfig(List<String> args) async {
   });
   secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
   await bitcoinConfigFile.writeAsString(secretsJson);
+  secrets.clear();
 
+  // solana:
   SecretKey.solanaSecrets.forEach((sec) {
     if (secrets[sec.name] != null) {
       return;
@@ -84,4 +87,5 @@ Future<void> generateSecretsConfig(List<String> args) async {
   });
   secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
   await solanaConfigFile.writeAsString(secretsJson);
+  secrets.clear();
 }

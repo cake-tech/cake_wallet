@@ -95,7 +95,7 @@ abstract class LightningInvoicePageViewModelBase with Store {
 
     try {
       String bolt11 =
-          await lightningViewModel.createInvoice(amount: amount, description: description);
+          await lightningViewModel.createInvoice(amountSats: amount, description: description);
       state = ExecutedSuccessfullyState(payload: bolt11);
     } catch (e) {
       state = FailureState(e.toString());

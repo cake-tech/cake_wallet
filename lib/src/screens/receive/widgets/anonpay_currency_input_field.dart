@@ -23,7 +23,7 @@ class AnonpayCurrencyInputField extends StatelessWidget {
   final String maxAmount;
   @override
   Widget build(BuildContext context) {
-    bool hasDecimals = selectedCurrency.name != "sats";
+    bool hasDecimals = selectedCurrency.name.toLowerCase() != "sats";
     final arrowBottomPurple = Image.asset(
       'assets/images/arrow_bottom_purple_icon.png',
       color: Colors.white,

@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bitbox/bitbox.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:breez_sdk/breez_sdk.dart';
 import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum.dart';
+import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/litecoin_network.dart';
@@ -33,33 +36,27 @@ import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cw_lightning/.secrets.g.dart' as secrets;
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 
 part 'lightning_wallet.g.dart';
 
 class LightningWallet = LightningWalletBase with _$LightningWallet;
 
-abstract class LightningWalletBase
-    extends WalletBase<LightningBalance, LightningTransactionHistory, LightningTransactionInfo>
-    with Store {
-  final bitcoin.HDWallet hd;
-  final String mnemonic;
-  final String _password;
+ElectrumBalance myBalanceFactory(
+    {required int confirmed, required int unconfirmed, required int frozen}) {
+  return ElectrumBalance(
+    confirmed: confirmed,
+    unconfirmed: unconfirmed,
+    frozen: frozen,
+  );
+}
+
+abstract class LightningWalletBase extends ElectrumWalletBase<LightningBalance> with Store {
   bool _isTransactionUpdating;
-  late ElectrumClient electrumClient;
 
-  @override
-  @observable
-  late ObservableMap<CryptoCurrency, LightningBalance> balance;
-
-  @override
-  late ElectrumWalletAddresses walletAddresses;
-
-  bitcoin.NetworkType networkType = bitcoin.bitcoin;
-  late BasedUtxoNetwork network;
-
-  @override
-  BitcoinWalletKeys get keys =>
-      BitcoinWalletKeys(wif: hd.wif!, privateKey: hd.privKey!, publicKey: hd.pubKey!);
+  // @override
+  // @observable
+  // ObservableMap<CryptoCurrency, LightningBalance> lnbalance;
 
   @override
   @observable
@@ -72,45 +69,43 @@ abstract class LightningWalletBase
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Uint8List seedBytes,
     String? addressPageType,
-    ElectrumClient? electrumClient,
-    BasedUtxoNetwork? networkParam,
     List<BitcoinAddressRecord>? initialAddresses,
     LightningBalance? initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
-  })  : hd = bitcoin.HDWallet.fromSeed(seedBytes, network: bitcoin.bitcoin).derivePath("m/0'/0"),
+  })  : _isTransactionUpdating = false,
         syncStatus = NotConnectedSyncStatus(),
-        mnemonic = mnemonic,
-        _password = password,
-        _isTransactionUpdating = false,
-        balance = ObservableMap<CryptoCurrency, LightningBalance>.of({
-          CryptoCurrency.btcln:
-              initialBalance ?? const LightningBalance(confirmed: 0, unconfirmed: 0, frozen: 0)
-        }),
-        super(walletInfo) {
-    transactionHistory = LightningTransactionHistory(walletInfo: walletInfo, password: password);
-
-    this.network = networkType == bitcoin.bitcoin
-        ? BitcoinNetwork.mainnet
-        : networkType == litecoinNetwork
-            ? LitecoinNetwork.mainnet
-            : BitcoinNetwork.testnet;
-    this.isTestnet = networkType == bitcoin.testnet;
-
+        super(
+          mnemonic: mnemonic,
+          password: password,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfo,
+          networkType: bitcoin.bitcoin,
+          initialAddresses: initialAddresses,
+          initialBalance: initialBalance,
+          seedBytes: seedBytes,
+          currency: CryptoCurrency.btcln,
+          // balanceFactory: myBalanceFactory,
+          balanceFactory: ({required int confirmed, required int unconfirmed, required int frozen}) {
+            return LightningBalance(
+              confirmed: 0,
+              unconfirmed: 0,
+              frozen: 0,
+            );
+          },
+        ) {
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
-      electrumClient: electrumClient ?? ElectrumClient(),
+      electrumClient: electrumClient,
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       mainHd: hd,
       sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
-      network: networkParam ?? network,
+      network: network,
     );
 
-    this.electrumClient = electrumClient ?? ElectrumClient();
-
-    // initialize breeze:
+    // initialize breez:
     try {
       setupBreez(seedBytes);
     } catch (e) {
@@ -122,25 +117,27 @@ abstract class LightningWalletBase
     });
   }
 
-  static Future<LightningWallet> create({
-    required String mnemonic,
-    required String password,
-    required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    BasedUtxoNetwork? network,
-    List<BitcoinAddressRecord>? initialAddresses,
-    Map<String, int>? initialRegularAddressIndex,
-    Map<String, int>? initialChangeAddressIndex,
-  }) async {
+  static Future<LightningWallet> create(
+      {required String mnemonic,
+      required String password,
+      required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      String? addressPageType,
+      List<BitcoinAddressRecord>? initialAddresses,
+      LightningBalance? initialBalance,
+      Map<String, int>? initialRegularAddressIndex,
+      Map<String, int>? initialChangeAddressIndex}) async {
     return LightningWallet(
       mnemonic: mnemonic,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
-      seedBytes: await mnemonicToSeedBytes(mnemonic),
+      initialBalance: initialBalance,
+      seedBytes: await Mnemonic.toSeed(mnemonic),
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
+      addressPageType: addressPageType,
     );
   }
 
@@ -150,20 +147,19 @@ abstract class LightningWalletBase
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
-    final snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password,
-        walletInfo.network != null ? BasedUtxoNetwork.fromName(walletInfo.network!) : null);
-
+    final snp = await ElectrumWalletSnapshot.load(
+        name, walletInfo.type, password, BitcoinCashNetwork.mainnet);
     return LightningWallet(
       mnemonic: snp.mnemonic,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp.addresses,
+      initialBalance: snp.balance as LightningBalance?,
       seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,
-      networkParam: snp.network,
     );
   }
 
@@ -224,11 +220,6 @@ abstract class LightningWalletBase
     print("initialized breez: ${(await sdk.isInitialized())}");
   }
 
-  @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
-    throw UnimplementedError("calculateEstimatedFee");
-  }
-
   @action
   @override
   Future<void> startSync() async {
@@ -247,9 +238,6 @@ abstract class LightningWalletBase
   Future<void> changePassword(String password) {
     throw UnimplementedError("changePassword");
   }
-
-  @override
-  void close() {}
 
   @action
   @override
@@ -287,15 +275,15 @@ abstract class LightningWalletBase
     }
   }
 
-  Map<String, LightningTransactionInfo> convertToTxInfo(List<Payment> payments) {
-    Map<String, LightningTransactionInfo> transactions = {};
+  Map<String, ElectrumTransactionInfo> convertToTxInfo(List<Payment> payments) {
+    Map<String, ElectrumTransactionInfo> transactions = {};
 
     for (Payment tx in payments) {
       if (tx.paymentType == PaymentType.ClosedChannel) {
         continue;
       }
       bool isSend = tx.paymentType == PaymentType.Sent;
-      transactions[tx.id] = LightningTransactionInfo(
+      transactions[tx.id] = ElectrumTransactionInfo(
         WalletType.lightning,
         isPending: false,
         id: tx.id,
@@ -303,13 +291,16 @@ abstract class LightningWalletBase
         fee: tx.feeMsat ~/ 1000,
         date: DateTime.fromMillisecondsSinceEpoch(tx.paymentTime * 1000),
         direction: isSend ? TransactionDirection.outgoing : TransactionDirection.incoming,
+        // N/A for lightning:
+        height: 0,
+        confirmations: 0,
       );
     }
     return transactions;
   }
 
   @override
-  Future<Map<String, LightningTransactionInfo>> fetchTransactions() async {
+  Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
     final sdk = await BreezSDK();
 
     final payments = await sdk.listPayments(req: ListPaymentsRequest());
@@ -340,13 +331,6 @@ abstract class LightningWalletBase
         'balance': balance[currency]?.toJSON(),
         'network_type': network == BitcoinNetwork.testnet ? 'testnet' : 'mainnet',
       });
-
-  @override
-  Future<void> save() async {
-    final path = await makePath();
-    await write(path: path, password: _password, data: toJSON());
-    await transactionHistory.save();
-  }
 
   Future<void> updateBalance() async {
     // balance is updated automatically

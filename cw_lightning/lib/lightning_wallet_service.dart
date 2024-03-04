@@ -26,10 +26,11 @@ class LightningWalletService extends WalletService<BitcoinNewWalletCredentials,
   @override
   Future<LightningWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
     final wallet = await LightningWalletBase.create(
-        mnemonic: await generateMnemonic(),
-        password: credentials.password!,
-        walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+      mnemonic: await generateMnemonic(),
+      password: credentials.password!,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+    );
     await wallet.save();
     await wallet.init();
     return wallet;
@@ -45,20 +46,22 @@ class LightningWalletService extends WalletService<BitcoinNewWalletCredentials,
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
     try {
       final wallet = await LightningWalletBase.open(
-          password: password,
-          name: name,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource);
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+      );
       await wallet.init();
       saveBackup(name);
       return wallet;
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
       final wallet = await LightningWalletBase.open(
-          password: password,
-          name: name,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource);
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+      );
       await wallet.init();
       return wallet;
     }
@@ -93,7 +96,8 @@ class LightningWalletService extends WalletService<BitcoinNewWalletCredentials,
   }
 
   @override
-  Future<LightningWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials, {bool? isTestnet}) async =>
+  Future<LightningWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials,
+          {bool? isTestnet}) async =>
       throw UnimplementedError();
 
   @override
@@ -111,7 +115,6 @@ class LightningWalletService extends WalletService<BitcoinNewWalletCredentials,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
-      network: network,
     );
     await wallet.save();
     await wallet.init();

@@ -1,10 +1,15 @@
 import 'dart:convert';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_core/balance.dart';
 
-class LightningBalance extends Balance {
+class LightningBalance extends ElectrumBalance {
   const LightningBalance({required this.confirmed, required this.unconfirmed, required this.frozen})
-      : super(confirmed, unconfirmed);
+      : super(
+          confirmed: confirmed,
+          unconfirmed: unconfirmed,
+          frozen: frozen,
+        );
 
   static LightningBalance? fromJSON(String? jsonSource) {
     if (jsonSource == null) {

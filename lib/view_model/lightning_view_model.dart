@@ -27,10 +27,10 @@ abstract class LightningViewModelBase with Store {
     ];
   }
 
-  Future<String> createInvoice({required String amount, String? description}) async {
+  Future<String> createInvoice({required String amountSats, String? description}) async {
     final sdk = await BreezSDK();
     final req = ReceivePaymentRequest(
-      amountMsat: (double.parse(amount) * 1000).round(),
+      amountMsat: (double.parse(amountSats) * 1000).round(),
       description: description ?? '',
     );
     final res = await sdk.receivePayment(req: req);
