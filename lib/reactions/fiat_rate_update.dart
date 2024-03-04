@@ -29,12 +29,6 @@ Future<void> startFiatRateUpdate(
 
       if (appStore.wallet!.type == WalletType.haven) {
         await updateHavenRate(fiatConversionStore);
-      } else {
-        fiatConversionStore.prices[appStore.wallet!.currency] =
-            await FiatConversionService.fetchPrice(
-                crypto: appStore.wallet!.currency,
-                fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
       }
 
       Iterable<CryptoCurrency>? currencies;
@@ -68,7 +62,8 @@ Future<void> startFiatRateUpdate(
         }
       }
 
-      // keep btcln price in sync with btc:
+      // keep btcln price in sync with btc (since the fiat api only returns btc and not btcln)
+      // (btcln price is just the btc price divided by 100000000)
       fiatConversionStore.prices[CryptoCurrency.btcln] =
           (fiatConversionStore.prices[CryptoCurrency.btc] ?? 0) / 100000000;
     } catch (e) {

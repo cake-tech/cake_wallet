@@ -63,7 +63,7 @@ abstract class BalanceViewModelBase with Store {
   @computed
   double get price {
     CryptoCurrency currency = appStore.wallet!.currency;
-    
+
     final price = fiatConvertationStore.prices[currency];
 
     if (price == null) {
@@ -392,7 +392,7 @@ abstract class BalanceViewModelBase with Store {
   }
 
   String _getFiatBalance({required double price, String? cryptoAmount}) {
-    cryptoAmount = cryptoAmount?.replaceAll(',', '');
+    cryptoAmount = cryptoAmount?.replaceAll(',', '');// fix for amounts > 1000
     if (cryptoAmount == null || cryptoAmount.isEmpty || double.tryParse(cryptoAmount) == null) {
       return '0.00';
     }

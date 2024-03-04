@@ -46,8 +46,8 @@ part 'electrum_wallet.g.dart';
 
 class ElectrumWallet = ElectrumWalletBase with _$ElectrumWallet;
 
-abstract class ElectrumWalletBase<T extends ElectrumBalance>
-    extends WalletBase<T, ElectrumTransactionHistory, ElectrumTransactionInfo> with Store {
+abstract class ElectrumWalletBase<BalanceT extends ElectrumBalance, TxInfoT extends ElectrumTransactionInfo>
+    extends WalletBase<BalanceT, ElectrumTransactionHistory, TxInfoT> with Store {
   ElectrumWalletBase(
       {required String password,
       required WalletInfo walletInfo,
@@ -55,14 +55,15 @@ abstract class ElectrumWalletBase<T extends ElectrumBalance>
       required this.networkType,
       required this.mnemonic,
       required Uint8List seedBytes,
-      required T Function({
+      required BalanceT Function({
         required int confirmed,
         required int unconfirmed,
         required int frozen,
       }) this.balanceFactory,
+      // required TxInfoT Function(Map<String, dynamic> json) TxInfoFactory,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumClient? electrumClient,
-      T? initialBalance,
+      BalanceT? initialBalance,
       CryptoCurrency? currency})
       : hd = currency == CryptoCurrency.bch
             ? bitcoinCashHDWallet(seedBytes)
@@ -74,7 +75,7 @@ abstract class ElectrumWalletBase<T extends ElectrumBalance>
         isEnabledAutoGenerateSubaddress = true,
         unspentCoins = [],
         _scripthashesUpdateSubject = {},
-        balance = ObservableMap<CryptoCurrency, T>.of(
+        balance = ObservableMap<CryptoCurrency, BalanceT>.of(
             currency != null ? {currency: initialBalance ?? balanceFactory(confirmed: 0, unconfirmed: 0, frozen: 0)} : {}),
         this.unspentCoinsInfo = unspentCoinsInfo,
         this.network = networkType == bitcoin.bitcoin
@@ -97,7 +98,7 @@ abstract class ElectrumWalletBase<T extends ElectrumBalance>
 
   final bitcoin.HDWallet hd;
   final String mnemonic;
-  final T Function({
+  final BalanceT Function({
     required int confirmed,
     required int unconfirmed,
     required int frozen,
@@ -115,7 +116,7 @@ abstract class ElectrumWalletBase<T extends ElectrumBalance>
 
   @override
   @observable
-  late ObservableMap<CryptoCurrency, T> balance;
+  late ObservableMap<CryptoCurrency, BalanceT> balance;
 
   @override
   @observable
@@ -645,7 +646,7 @@ abstract class ElectrumWalletBase<T extends ElectrumBalance>
         ins: ins, time: time, confirmations: confirmations, height: height);
   }
 
-  Future<ElectrumTransactionInfo?> fetchTransactionInfo(
+  Future<TxInfoT?> fetchTransactionInfo(
       {required String hash,
       required int height,
       required Set<String> myAddresses,
@@ -653,7 +654,7 @@ abstract class ElectrumWalletBase<T extends ElectrumBalance>
     try {
       return ElectrumTransactionInfo.fromElectrumBundle(
           await getTransactionExpanded(hash: hash, height: height), walletInfo.type, network,
-          addresses: myAddresses, height: height);
+          addresses: myAddresses, height: height) as TxInfoT;
     } catch (e) {
       if (e is FormatException && retryOnFailure == true) {
         await Future.delayed(const Duration(seconds: 2));
@@ -664,9 +665,9 @@ abstract class ElectrumWalletBase<T extends ElectrumBalance>
   }
 
   @override
-  Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
+  Future<Map<String, TxInfoT>> fetchTransactions() async {
     try {
-      final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
+      final Map<String, TxInfoT> historiesWithDetails = {};
       final addressesSet = walletAddresses.allAddresses.map((addr) => addr.address).toSet();
       final currentHeight = await electrumClient.getCurrentBlockChainTip() ?? 0;
 
@@ -706,10 +707,10 @@ abstract class ElectrumWalletBase<T extends ElectrumBalance>
     }
   }
 
-  Future<Map<String, ElectrumTransactionInfo>> _fetchAddressHistory(
+  Future<Map<String, TxInfoT>> _fetchAddressHistory(
       BitcoinAddressRecord addressRecord, Set<String> addressesSet, int currentHeight) async {
     try {
-      final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
+      final Map<String, TxInfoT> historiesWithDetails = {};
 
       final history = await electrumClient
           .getHistory(addressRecord.scriptHash ?? addressRecord.updateScriptHash(network));
@@ -730,7 +731,7 @@ abstract class ElectrumWalletBase<T extends ElectrumBalance>
               storedTx.isPending = storedTx.confirmations == 0;
             }
 
-            historiesWithDetails[txid] = storedTx;
+            historiesWithDetails[txid] = storedTx as TxInfoT;
           } else {
             final tx = await fetchTransactionInfo(
                 hash: txid, height: height, myAddresses: addressesSet, retryOnFailure: true);
@@ -794,7 +795,7 @@ abstract class ElectrumWalletBase<T extends ElectrumBalance>
     });
   }
 
-  Future<T> _fetchBalances() async {
+  Future<BalanceT> _fetchBalances() async {
     final addresses = walletAddresses.allAddresses.toList();
     final balanceFutures = <Future<Map<String, dynamic>>>[];
     for (var i = 0; i < addresses.length; i++) {

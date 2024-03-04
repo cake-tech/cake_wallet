@@ -6,23 +6,16 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:breez_sdk/breez_sdk.dart';
 import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
-import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
-import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
-import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
-import 'package:cw_bitcoin/litecoin_network.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/utils/file.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cw_lightning/lightning_balance.dart';
 import 'package:cw_lightning/lightning_transaction_history.dart';
 import 'package:cw_lightning/lightning_transaction_info.dart';
@@ -35,7 +28,6 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cw_lightning/.secrets.g.dart' as secrets;
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 
 part 'lightning_wallet.g.dart';
@@ -51,12 +43,9 @@ ElectrumBalance myBalanceFactory(
   );
 }
 
-abstract class LightningWalletBase extends ElectrumWalletBase<LightningBalance> with Store {
+abstract class LightningWalletBase
+    extends ElectrumWalletBase<LightningBalance, LightningTransactionInfo> with Store {
   bool _isTransactionUpdating;
-
-  // @override
-  // @observable
-  // ObservableMap<CryptoCurrency, LightningBalance> lnbalance;
 
   @override
   @observable
@@ -86,7 +75,8 @@ abstract class LightningWalletBase extends ElectrumWalletBase<LightningBalance> 
           seedBytes: seedBytes,
           currency: CryptoCurrency.btcln,
           // balanceFactory: myBalanceFactory,
-          balanceFactory: ({required int confirmed, required int unconfirmed, required int frozen}) {
+          balanceFactory: (
+              {required int confirmed, required int unconfirmed, required int frozen}) {
             return LightningBalance(
               confirmed: 0,
               unconfirmed: 0,
@@ -155,7 +145,11 @@ abstract class LightningWalletBase extends ElectrumWalletBase<LightningBalance> 
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp.addresses,
-      initialBalance: snp.balance as LightningBalance?,
+      initialBalance: LightningBalance(
+        confirmed: snp.balance.confirmed,
+        unconfirmed: snp.balance.unconfirmed,
+        frozen: snp.balance.frozen,
+      ),
       seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
@@ -164,10 +158,11 @@ abstract class LightningWalletBase extends ElectrumWalletBase<LightningBalance> 
   }
 
   Future<void> setupBreez(Uint8List seedBytes) async {
-    // Initialize SDK logs listener
-    final sdk = BreezSDK();
+    final sdk = await BreezSDK();
     try {
-      sdk.initialize();
+      if (!(await sdk.isInitialized())) {
+        sdk.initialize();
+      }
     } catch (e) {
       print("Error initializing Breez: $e");
     }
@@ -275,32 +270,28 @@ abstract class LightningWalletBase extends ElectrumWalletBase<LightningBalance> 
     }
   }
 
-  Map<String, ElectrumTransactionInfo> convertToTxInfo(List<Payment> payments) {
-    Map<String, ElectrumTransactionInfo> transactions = {};
+  Map<String, LightningTransactionInfo> convertToTxInfo(List<Payment> payments) {
+    Map<String, LightningTransactionInfo> transactions = {};
 
     for (Payment tx in payments) {
       if (tx.paymentType == PaymentType.ClosedChannel) {
         continue;
       }
       bool isSend = tx.paymentType == PaymentType.Sent;
-      transactions[tx.id] = ElectrumTransactionInfo(
-        WalletType.lightning,
+      transactions[tx.id] = LightningTransactionInfo(
         isPending: false,
         id: tx.id,
         amount: tx.amountMsat ~/ 1000,
         fee: tx.feeMsat ~/ 1000,
         date: DateTime.fromMillisecondsSinceEpoch(tx.paymentTime * 1000),
         direction: isSend ? TransactionDirection.outgoing : TransactionDirection.incoming,
-        // N/A for lightning:
-        height: 0,
-        confirmations: 0,
       );
     }
     return transactions;
   }
 
   @override
-  Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
+  Future<Map<String, LightningTransactionInfo>> fetchTransactions() async {
     final sdk = await BreezSDK();
 
     final payments = await sdk.listPayments(req: ListPaymentsRequest());
