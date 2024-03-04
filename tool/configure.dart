@@ -985,7 +985,6 @@ Future<void> generateTron(bool hasImplementation) async {
   const tronCommonHeaders = """
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -994,7 +993,6 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
-import 'package:web3dart/web3dart.dart';
 
 """;
   const tronCWHeaders = """
@@ -1004,6 +1002,7 @@ import 'package:cw_tron/tron_transaction_info.dart';
 import 'package:cw_tron/tron_wallet_creation_credentials.dart';
 
 import 'package:cw_tron/tron_client.dart';
+import 'package:cw_tron/tron_token.dart';
 import 'package:cw_tron/tron_wallet.dart';
 import 'package:cw_tron/tron_wallet_service.dart';
 

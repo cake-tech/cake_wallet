@@ -7,8 +7,9 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
-import 'package:cw_tron/tron_token.dart';
+
 import 'package:hive/hive.dart';
+
 
 import 'package:cw_evm/evm_chain_mnemonics.dart';
 import 'package:cw_tron/tron_transaction_credentials.dart';
@@ -16,6 +17,7 @@ import 'package:cw_tron/tron_transaction_info.dart';
 import 'package:cw_tron/tron_wallet_creation_credentials.dart';
 
 import 'package:cw_tron/tron_client.dart';
+import 'package:cw_tron/tron_token.dart';
 import 'package:cw_tron/tron_wallet.dart';
 import 'package:cw_tron/tron_wallet_service.dart';
 
