@@ -53,6 +53,8 @@ Future<String> extractAddressFromParsed(
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (Nostr NIP-05)');
       address = parsedAddress.addresses.first;
+      profileImageUrl = parsedAddress.profileImageUrl;
+      profileName = parsedAddress.profileName;
       break;
     case ParseFrom.yatRecord:
       if (parsedAddress.name.isEmpty) {
