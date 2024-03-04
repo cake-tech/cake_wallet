@@ -7,7 +7,6 @@ import 'package:breez_sdk/breez_sdk.dart';
 import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
-import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
@@ -17,7 +16,6 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_lightning/lightning_balance.dart';
-import 'package:cw_lightning/lightning_transaction_history.dart';
 import 'package:cw_lightning/lightning_transaction_info.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -331,26 +329,4 @@ abstract class LightningWalletBase
   String get seed => mnemonic;
 
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
-
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
-    final currentWalletFile = File(currentWalletPath);
-
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-    final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-      await currentWalletFile.copy(newWalletPath);
-    }
-    if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-      await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
-    }
-
-    // Delete old name's dir and files
-    await Directory(currentDirPath).delete(recursive: true);
-  }
 }
