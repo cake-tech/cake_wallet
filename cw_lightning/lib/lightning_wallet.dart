@@ -32,15 +32,6 @@ part 'lightning_wallet.g.dart';
 
 class LightningWallet = LightningWalletBase with _$LightningWallet;
 
-ElectrumBalance myBalanceFactory(
-    {required int confirmed, required int unconfirmed, required int frozen}) {
-  return ElectrumBalance(
-    confirmed: confirmed,
-    unconfirmed: unconfirmed,
-    frozen: frozen,
-  );
-}
-
 abstract class LightningWalletBase
     extends ElectrumWalletBase<LightningBalance, LightningTransactionInfo> with Store {
   bool _isTransactionUpdating;
@@ -72,13 +63,12 @@ abstract class LightningWalletBase
           initialBalance: initialBalance,
           seedBytes: seedBytes,
           currency: CryptoCurrency.btcln,
-          // balanceFactory: myBalanceFactory,
           balanceFactory: (
               {required int confirmed, required int unconfirmed, required int frozen}) {
             return LightningBalance(
-              confirmed: 0,
-              unconfirmed: 0,
-              frozen: 0,
+              confirmed: confirmed,
+              unconfirmed: unconfirmed,
+              frozen: frozen,
             );
           },
         ) {
