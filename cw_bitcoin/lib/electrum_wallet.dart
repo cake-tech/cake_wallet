@@ -198,14 +198,13 @@ abstract class ElectrumWalletBase
       List<BitcoinBaseAddress> outputAddresses,
       List<BitcoinOutput> outputs,
       BitcoinTransactionCredentials transactionCredentials,
-      {int? inputsCount}) async {
+      {int? inputsCount,
+      String? memo}) async {
     final utxos = <UtxoWithAddress>[];
     List<ECPrivate> privateKeys = [];
 
     var leftAmount = credentialsAmount;
     var allInputsAmount = 0;
-
-    final String? opReturnMemo = outputs.first.memo;
 
     for (int i = 0; i < unspentCoins.length; i++) {
       final utx = unspentCoins[i];
@@ -258,7 +257,11 @@ abstract class ElectrumWalletBase
     }
 
     final estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
-        utxos: utxos, outputs: outputs, network: network);
+      utxos: utxos,
+      outputs: outputs,
+      network: network,
+      memo: memo,
+    );
 
     final fee = transactionCredentials.feeRate != null
         ? feeAmountWithFeeRate(transactionCredentials.feeRate!, 0, 0, size: estimatedSize)
@@ -305,7 +308,13 @@ abstract class ElectrumWalletBase
       }
     }
 
-    return EstimatedTxResult(utxos: utxos, privateKeys: privateKeys, fee: fee, amount: amount);
+    return EstimatedTxResult(
+      utxos: utxos,
+      privateKeys: privateKeys,
+      fee: fee,
+      amount: amount,
+      memo: memo,
+    );
   }
 
   @override
@@ -347,13 +356,22 @@ abstract class ElectrumWalletBase
       }
 
       final estimatedTx = await _estimateTxFeeAndInputsToUse(
-          credentialsAmount, sendAll, outputAddresses, outputs, transactionCredentials);
+        credentialsAmount,
+        sendAll,
+        outputAddresses,
+        outputs,
+        transactionCredentials,
+        memo: transactionCredentials.outputs.first.memo,
+      );
 
       final txb = BitcoinTransactionBuilder(
-          utxos: estimatedTx.utxos,
-          outputs: outputs,
-          fee: BigInt.from(estimatedTx.fee),
-          network: network);
+        utxos: estimatedTx.utxos,
+        outputs: outputs,
+        fee: BigInt.from(estimatedTx.fee),
+        network: network,
+        memo: estimatedTx.memo,
+        outputOrdering: BitcoinOrdering.none,
+      );
 
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
         final key = estimatedTx.privateKeys
@@ -369,9 +387,6 @@ abstract class ElectrumWalletBase
           return key.signInput(txDigest, sigHash: sighash);
         }
       });
-
-      // TODO: fix
-      if (opReturnMemo != null) txb.addOutputData(opReturnMemo);
 
       return PendingBitcoinTransaction(transaction, type,
           electrumClient: electrumClient,
@@ -875,13 +890,19 @@ class EstimateTxParams {
 }
 
 class EstimatedTxResult {
-  EstimatedTxResult(
-      {required this.utxos, required this.privateKeys, required this.fee, required this.amount});
+  EstimatedTxResult({
+    required this.utxos,
+    required this.privateKeys,
+    required this.fee,
+    required this.amount,
+    this.memo,
+  });
 
   final List<UtxoWithAddress> utxos;
   final List<ECPrivate> privateKeys;
   final int fee;
   final int amount;
+  final String? memo;
 }
 
 BitcoinBaseAddress _addressTypeFromStr(String address, BasedUtxoNetwork network) {
