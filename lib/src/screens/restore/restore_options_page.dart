@@ -59,7 +59,9 @@ class RestoreOptionsPage extends BasePage {
                 Padding(
                   padding: EdgeInsets.only(top: 24),
                   child: OptionTile(
-                    onPressed: () => Navigator.pushNamed(context, Routes.restoreWalletFromHardwareWallet),
+                    onPressed: () => Navigator.pushNamed(
+                        context, Routes.restoreWalletFromHardwareWallet,
+                        arguments: isNewInstall),
                     image: imageLedger,
                     title: S.of(context).restore_title_from_hardware_wallet,
                     description: S.of(context).restore_description_from_hardware_wallet,

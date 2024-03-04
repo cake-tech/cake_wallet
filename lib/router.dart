@@ -216,6 +216,17 @@ Route<dynamic> createRoute(RouteSettings settings) {
       }
 
     case Routes.restoreWalletFromHardwareWallet:
+      final isNewInstall = settings.arguments as bool;
+
+      if (isNewInstall) {
+        return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<SetupPinCodePage>(
+            param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
+                Navigator.of(context.context).pushNamed(Routes.restoreWalletFromHardwareWallet, arguments: false),
+          ),
+          fullscreenDialog: true,
+        );
+      }
       if (isSingleCoin) {
         return MaterialPageRoute<void>(
             builder: (_) => ConnectDevicePage(
@@ -682,7 +693,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.connectDevices:
       final params = settings.arguments as ConnectDevicePageParams;
-      return MaterialPageRoute<LedgerDevice>(builder: (_) => ConnectDevicePage(params, getIt.get<LedgerViewModel>()));
+      return MaterialPageRoute<LedgerDevice>(
+          builder: (_) => ConnectDevicePage(params, getIt.get<LedgerViewModel>()));
 
     default:
       return MaterialPageRoute<void>(
