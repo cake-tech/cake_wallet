@@ -181,7 +181,7 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  ReceivePageOption getSelectedAddressType(Object wallet) {
+  BitcoinReceivePageOption getSelectedAddressType(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return BitcoinReceivePageOption.fromType(bitcoinWallet.walletAddresses.addressPageType);
   }
@@ -210,6 +210,7 @@ class CWBitcoin extends Bitcoin {
       default:
         return SegwitAddresType.p2wpkh;
     }
+  }
 
   List<BitcoinSilentPaymentAddressRecord> getSilentAddresses(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
