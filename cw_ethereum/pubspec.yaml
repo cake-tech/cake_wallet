@@ -18,10 +18,6 @@ dependencies:
   cw_evm:
     path: ../cw_evm
   hive: ^2.2.3
-  ledger_flutter: ^1.0.1
-  ledger_ethereum:
-    git:
-      url: https://github.com/cake-tech/ledger-ethereum.git
 
 dependency_overrides:
   web3dart:

@@ -165,14 +165,18 @@ class DFXBuyProvider extends BuyProvider {
 
   @override
   Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
-    if (wallet.isHardwareWallet && !getIt.get<LedgerViewModel>().isConnected) {
-      await Navigator.of(context).pushNamed(Routes.connectDevices,
-          arguments: ConnectDevicePageParams(
-              walletType: wallet.walletInfo.type,
-              onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) {
-                ledgerVM.setLedger(wallet);
-                Navigator.of(context).pop();
-              }));
+    if (wallet.isHardwareWallet) {
+      if (!getIt.get<LedgerViewModel>().isConnected) {
+        await Navigator.of(context).pushNamed(Routes.connectDevices,
+            arguments: ConnectDevicePageParams(
+                walletType: wallet.walletInfo.type,
+                onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) {
+                  ledgerVM.setLedger(wallet);
+                  Navigator.of(context).pop();
+                }));
+      } else {
+        getIt.get<LedgerViewModel>().setLedger(wallet);
+      }
     }
 
     try {

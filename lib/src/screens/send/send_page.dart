@@ -365,16 +365,19 @@ class SendPage extends BasePage {
                           return;
                         }
 
-                        if (sendViewModel.wallet.isHardwareWallet &&
-                            !sendViewModel.ledgerViewModel.isConnected) {
-                              await Navigator.of(context).pushNamed(Routes.connectDevices,
-                                  arguments: ConnectDevicePageParams(
-                                    walletType: sendViewModel.walletType,
-                                    onConnectDevice: (BuildContext context, _) {
-                                      sendViewModel.ledgerViewModel.setLedger(sendViewModel.wallet);
-                                      Navigator.of(context).pop();
-                                    },
-                                  ));
+                        if (sendViewModel.wallet.isHardwareWallet) {
+                          if (!sendViewModel.ledgerViewModel.isConnected) {
+                            await Navigator.of(context).pushNamed(Routes.connectDevices,
+                                arguments: ConnectDevicePageParams(
+                                  walletType: sendViewModel.walletType,
+                                  onConnectDevice: (BuildContext context, _) {
+                                    sendViewModel.ledgerViewModel.setLedger(sendViewModel.wallet);
+                                    Navigator.of(context).pop();
+                                  },
+                                ));
+                          } else {
+                            sendViewModel.ledgerViewModel.setLedger(sendViewModel.wallet);
+                          }
                         }
 
                         // TODO: (Konsti) Check if HW is connected
