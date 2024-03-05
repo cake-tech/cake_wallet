@@ -450,8 +450,19 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
   }
 
   @override
-  String signMessage(String message, {String? address = null}) {
-    return ""; // TODO
+  Future<String> signMessage(String message, {String? address = null}) {
+    if (watchingOnly) {
+      throw "a watching only wallet cannot sign";
+    }
+    var addr = address;
+    if (addr == null) {
+      addr = libdcrwallet.currentReceiveAddress(walletInfo.name);
+    }
+    if (addr == null) {
+      throw "unable to get an address from unsynced wallet";
+    }
+    return libdcrwallet.signMessageAsync(
+        walletInfo.name, message, addr!, _password);
   }
 
   List<Unspent> unspents() {
