@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:bip39/bip39.dart' as bip39;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -24,7 +23,6 @@ import 'package:cw_tron/default_tron_tokens.dart';
 import 'package:cw_tron/file.dart';
 import 'package:cw_tron/tron_balance.dart';
 import 'package:cw_tron/tron_client.dart';
-import 'package:cw_tron/tron_exception.dart';
 import 'package:cw_tron/tron_token.dart';
 import 'package:cw_tron/tron_transaction_credentials.dart';
 import 'package:cw_tron/tron_transaction_history.dart';
@@ -33,7 +31,6 @@ import 'package:cw_tron/tron_transaction_model.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:on_chain/tron/tron.dart';
-import 'package:bip39/bip39.dart' as bip39;
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'tron_wallet.g.dart';
@@ -87,8 +84,6 @@ abstract class TronWalletBase
 
   late TronClient _client;
 
-  int? _gasPrice;
-  int? _estimatedGas;
   bool _isTransactionUpdating;
 
   // TODO: remove after integrating our own node and having eth_newPendingTransactionFilter
@@ -237,7 +232,6 @@ abstract class TronWalletBase
 
   @override
   void close() {
-    _client.stop();
     _transactionsUpdateTimer?.cancel();
   }
 
@@ -268,13 +262,6 @@ abstract class TronWalletBase
       syncStatus = AttemptingSyncStatus();
       await _updateBalance();
       await _updateTransactions();
-      _gasPrice = await _client.getGasUnitPrice();
-      _estimatedGas = await _client.getEstimatedGas();
-
-      Timer.periodic(
-          const Duration(minutes: 1), (timer) async => _gasPrice = await _client.getGasUnitPrice());
-      Timer.periodic(const Duration(seconds: 10),
-          (timer) async => _estimatedGas = await _client.getEstimatedGas());
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {
@@ -447,8 +434,8 @@ abstract class TronWalletBase
   }
 
   Future<TronBalance> _fetchTronBalance() async {
-    final balance = await _client.getBalance(_tronAddress);
-    return TronBalance(balance.getInWei);
+    final balance = await _client.getBalance(_tronPublicKey.toAddress());
+    return TronBalance(balance);
   }
 
   Future<void> _fetchTronTokenBalances() async {

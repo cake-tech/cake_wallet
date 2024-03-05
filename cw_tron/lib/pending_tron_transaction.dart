@@ -6,7 +6,7 @@ import 'package:web3dart/crypto.dart';
 
 class PendingTronTransaction with PendingTransaction {
   final Function sendTransaction;
-  final Uint8List signedTransaction;
+  final List<int> signedTransaction;
   final BigInt fee;
   final String amount;
   final int exponent;

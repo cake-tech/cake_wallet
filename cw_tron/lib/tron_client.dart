@@ -1,22 +1,22 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_tron/pending_tron_transaction.dart';
 import 'package:cw_tron/tron_balance.dart';
+import 'package:cw_tron/tron_http_provider.dart';
 import 'package:cw_tron/tron_token.dart';
 import 'package:cw_tron/tron_transaction_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
-import 'package:on_chain/tron/tron.dart';
-import 'package:web3dart/web3dart.dart';
+import 'package:on_chain/on_chain.dart';
 
 class TronClient {
   final httpClient = Client();
-  Web3Client? _client;
+  TronProvider? _provider;
 
   int get chainId => 137;
 
@@ -51,7 +51,8 @@ class TronClient {
 
   bool connect(Node node) {
     try {
-      _client = Web3Client(node.uri.toString(), httpClient);
+      final formattedUrl = '${node.isSSL ? 'https' : 'http'}://${node.uriRaw}';
+      _provider = TronProvider(TronHTTPProvider(url: formattedUrl));
 
       return true;
     } catch (e) {
@@ -59,36 +60,98 @@ class TronClient {
     }
   }
 
-  Future<EtherAmount> getBalance(String address) async {
+  Future<BigInt> getBalance(TronAddress address) async {
     try {
-      // return await _client!.getBalance(address.toETHAddress());
+      final accountDetails = await _provider!.request(TronRequestGetAccount(address: address));
 
-      return EtherAmount.zero();
+      return accountDetails?.balance ?? BigInt.zero;
     } catch (_) {
-      return EtherAmount.zero();
+      return BigInt.zero;
     }
   }
 
-  Future<int> getGasUnitPrice() async {
+  Future<int> getFee(
+    TransactionRaw rawTransaction,
+    TronAddress address,
+    TronAddress receiverAddress,
+  ) async {
     try {
-      final gasPrice = await _client!.getGasPrice();
-      return gasPrice.getInWei.toInt();
-    } catch (_) {
-      return 0;
-    }
-  }
+      // Fetch current Tron chain parameters using TronRequestGetChainParameters.
+      final chainParams = await _provider!.request(TronRequestGetChainParameters());
 
-  Future<int> getEstimatedGas() async {
-    try {
-      final estimatedGas = await _client!.estimateGas();
-      return estimatedGas.toInt();
+      final fakeTransaction = Transaction(
+        rawData: rawTransaction,
+        signature: [Uint8List(65)],
+      );
+
+      // Calculate the total size of the fake transaction, considering the required network overhead.
+      final transactionSize = fakeTransaction.length + 64;
+
+      // Assign the calculated size to the variable representing the required bandwidth.
+      int requiredBandwidth = transactionSize;
+
+      // We do not require energy for this operation. Energy is reserved for smart contracts
+      int energyNeed = 0;
+
+      // Occasionally, when sending a transaction to an inactive account,
+      // the network mandates a certain bandwidth for burning,
+      // and this cannot be mitigated through account bandwidth.
+      int requiredBandwidthForBurn = 0;
+
+      // We require account resources to assess the available bandwidth and energy
+      final accountResource =
+          await _provider!.request(TronRequestGetAccountResource(address: address));
+
+      // Alright, with the owner's account resources in hand,
+      // we proceed to retrieve the details of the receiver's
+      // account to determine its activation status. In this context,
+      // if accountIsActive is null, it signifies that the account is inactive.
+      final accountIsActive =
+          await _provider!.request(TronRequestGetAccount(address: receiverAddress));
+
+      // Initialize the total burn variable
+      int totalBurn = 0;
+
+      int totalBurnInSun = 0;
+
+      /// In this scenario, we calculate the required resources for creating a new account.
+      if (accountIsActive == null) {
+        requiredBandwidthForBurn += chainParams.getCreateNewAccountFeeInSystemContract!;
+        totalBurn += chainParams.getCreateAccountFee!;
+      }
+
+      /// If there is a note (memo), calculate the memo fee.
+      /// In this instance, we have a note: "https://github.com/mrtnetwork"
+      if (rawTransaction.data != null) {
+        totalBurn += chainParams.getMemoFee!;
+      }
+
+      // Now, we need to deduct the bandwidth from the account's available bandwidth.
+      final BigInt accountBandWidth = accountResource.howManyBandwIth;
+
+      // If we have sufficient total bandwidth in our account, we set the total bandwidth requirement to zero.
+      if (accountBandWidth >= BigInt.from(requiredBandwidth)) {
+        requiredBandwidth = 0;
+      }
+
+      // Now, we add to the total burn.
+      if (requiredBandwidth > 0) {
+        totalBurn += requiredBandwidth * chainParams.getTransactionFee!;
+      }
+
+      // Multiply the required bandwidth by the network transaction fee to obtain the current total burn in sun
+      if (requiredBandwidthForBurn > 0) {
+        totalBurnInSun += requiredBandwidthForBurn * chainParams.getTransactionFee!;
+      }
+
+      return totalBurnInSun;
     } catch (_) {
       return 0;
     }
   }
 
   Future<PendingTronTransaction> signTransaction({
-    required EthPrivateKey privateKey,
+    required TronPrivateKey ownerPrivKey,
     required String toAddress,
     required String amount,
     required int gas,
@@ -96,117 +159,87 @@ class TronClient {
     required int exponent,
     String? contractAddress,
   }) async {
-    assert(currency == CryptoCurrency.eth ||
-        currency == CryptoCurrency.maticpoly ||
-        contractAddress != null);
+    assert(currency == CryptoCurrency.trx || contractAddress != null);
 
-    // bool isEVMCompatibleChain =
-    //     currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
+    // Get the owner tron address from the key
+    final ownerAddress = ownerPrivKey.publicKey().toAddress();
 
-    // final price = _client!.getGasPrice();
+    // Fetch the latest Tron block using the TronRequestGetNowBlock API.
+    final block = await _provider!.request(TronRequestGetNowBlock());
 
-    // final Transaction transaction = createTransaction(
-    //   from: privateKey.address,
-    //   to: EthereumAddress.fromHex(toAddress),
-    //   maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
-    //   amount: isEVMCompatibleChain ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
-    // );
+    // Define the receiving Tron address for the transaction.
+    final receiverAddress = TronAddress(toAddress);
 
-    // final signedTransaction =
-    //     await _client!.signTransaction(privateKey, transaction, chainId: chainId);
+    // create transfer contract
+    final contract = TransferContract(
+      amount: TronHelper.toSun(amount),
+      ownerAddress: ownerAddress,
+      toAddress: receiverAddress,
+    );
 
-    // final Function _sendTransaction;
+    // Prepare the contract parameter for the transaction.
+    final parameter = Any(typeUrl: contract.typeURL, value: contract);
 
-    // if (isEVMCompatibleChain) {
-    //   _sendTransaction = () async => await sendTransaction(signedTransaction);
-    // } else {
-    //   final erc20 = ERC20(
-    //     client: _client!,
-    //     address: EthereumAddress.fromHex(contractAddress!),
-    //     chainId: chainId,
-    //   );
+    // Create a TransactionContract object with the contract type and parameter.
+    final transactionContract =
+        TransactionContract(type: contract.contractType, parameter: parameter);
 
-    //   _sendTransaction = () async {
-    //     await erc20.transfer(
-    //       EthereumAddress.fromHex(toAddress),
-    //       BigInt.parse(amount),
-    //       credentials: privateKey,
-    //       transaction: transaction,
-    //     );
-    //   };
-    // }
+    // Set the transaction expiration time (maximum 24 hours)
+    final expireTime = DateTime.now().toUtc().add(const Duration(hours: 24));
+
+    // Create a raw transaction
+    TransactionRaw rawTransaction = TransactionRaw(
+      refBlockBytes: block.blockHeader.rawData.refBlockBytes,
+      refBlockHash: block.blockHeader.rawData.refBlockHash,
+      expiration: BigInt.from(expireTime.millisecondsSinceEpoch),
+      data: utf8.encode("https://github.com/mrtnetwork"), // Memo or additional data
+      contract: [transactionContract],
+      timestamp: block.blockHeader.rawData.timestamp,
+    );
+
+    final totalBurnInSun = await getFee(rawTransaction, ownerAddress, receiverAddress);
+
+    /// Now that we have calculated the transaction fee,
+    /// it is not necessary to set the fee limit for the transaction.
+    /// Fee limits are only applicable when sending smart contract transactions.
+    rawTransaction = rawTransaction.copyWith(feeLimit: BigInt.from(totalBurnInSun));
+
+    final signature = ownerPrivKey.sign(rawTransaction.toBuffer());
+
+    sendTx() async => await sendTransaction(
+          rawTransaction: rawTransaction,
+          signature: signature,
+        );
 
     return PendingTronTransaction(
-      signedTransaction: Uint8List(2),
+      signedTransaction: signature,
       amount: amount,
       fee: BigInt.zero,
-      sendTransaction: () {},
+      sendTransaction: sendTx,
       exponent: exponent,
     );
   }
 
-  // Transaction createTransaction({
-  //   required EthereumAddress from,
-  //   required EthereumAddress to,
-  //   required EtherAmount amount,
-  //   EtherAmount? maxPriorityFeePerGas,
-  // }) {
-  //   return Transaction(
-  //     from: from,
-  //     to: to,
-  //     maxPriorityFeePerGas: maxPriorityFeePerGas,
-  //     value: amount,
-  //   );
-  // }
+  Future<String> sendTransaction({
+    required TransactionRaw rawTransaction,
+    required List<int> signature,
+  }) async {
+    final transaction = Transaction(rawData: rawTransaction, signature: [signature]);
 
-  Future<String> sendTransaction(Uint8List signedTransaction) async =>
-      await _client!.sendRawTransaction(prepareSignedTransactionForSending(signedTransaction));
+    /// get raw data buffer
+    final raw = BytesUtils.toHexString(transaction.toBuffer());
 
-  Future getTransactionDetails(String transactionHash) async {
-    // Wait for the transaction receipt to become available
-    TransactionReceipt? receipt;
-    while (receipt == null) {
-      receipt = await _client!.getTransactionReceipt(transactionHash);
-      await Future.delayed(const Duration(seconds: 1));
+    final txBroadcastResult = await _provider!.request(TronRequestBroadcastHex(transaction: raw));
+
+    if (txBroadcastResult.isSuccess) {
+      return txBroadcastResult.txId!;
+    } else {
+      throw Exception(txBroadcastResult.error);
     }
-
-    // Print the receipt information
-    log('Transaction Hash: ${receipt.transactionHash}');
-    log('Block Hash: ${receipt.blockHash}');
-    log('Block Number: ${receipt.blockNumber}');
-    log('Gas Used: ${receipt.gasUsed}');
-
-    /*
-      Transaction Hash: [112, 244, 4, 238, 89, 199, 171, 191, 210, 236, 110, 42, 185, 202, 220, 21, 27, 132, 123, 221, 137, 90, 77, 13, 23, 43, 12, 230, 93, 63, 221, 116]
-      I/flutter ( 4474): Block Hash: [149, 44, 250, 119, 111, 104, 82, 98, 17, 89, 30, 190, 25, 44, 218, 118, 127, 189, 241, 35, 213, 106, 25, 95, 195, 37, 55, 131, 185, 180, 246, 200]
-      I/flutter ( 4474): Block Number: 17120242
-      I/flutter ( 4474): Gas Used: 21000
-    */
-
-    // Wait for the transaction receipt to become available
-    TransactionInformation? transactionInformation;
-    while (transactionInformation == null) {
-      log("********************************");
-      transactionInformation = await _client!.getTransactionByHash(transactionHash);
-      await Future.delayed(const Duration(seconds: 1));
-    }
-    // Print the receipt information
-    log('Transaction Hash: ${transactionInformation.hash}');
-    log('Block Hash: ${transactionInformation.blockHash}');
-    log('Block Number: ${transactionInformation.blockNumber}');
-    log('Gas Used: ${transactionInformation.gas}');
-
-    /*
-      Transaction Hash: 0x70f404ee59c7abbfd2ec6e2ab9cadc151b847bdd895a4d0d172b0ce65d3fdd74
-      I/flutter ( 4474): Block Hash: 0x952cfa776f68526211591ebe192cda767fbdf123d56a195fc3253783b9b4f6c8
-      I/flutter ( 4474): Block Number: 17120242
-      I/flutter ( 4474): Gas Used: 53000
-    */
   }
 
-  Future<TronBalance> fetchTronTokenBalances(
-      String userAddress, String contractAddress) async {
-    return TronBalance(BigInt.zero, exponent: 10);
+  Future<TronBalance> fetchTronTokenBalances(String userAddress, String contractAddress) async {
+    return TronBalance(BigInt.zero);
   }
 
   Future<TronToken?> getTronToken(String contractAddress) async {
@@ -220,13 +253,5 @@ class TronClient {
     } catch (e) {
       return null;
     }
-  }
-
-  void stop() {
-    _client?.dispose();
-  }
-
-  Web3Client? getWeb3Client() {
-    return _client;
   }
 }

@@ -1,4 +1,4 @@
 -
-  uri: api.nile.trongrid.io
+  uri: nile.trongrid.io
   is_default: true
   useSSL: true

@@ -1,30 +1,21 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:cw_core/balance.dart';
+import 'package:on_chain/on_chain.dart';
 
 class TronBalance extends Balance {
-  TronBalance(this.balance, {this.exponent = 18})
-      : super(balance.toInt(), balance.toInt());
+  TronBalance(this.balance) : super(balance.toInt(), balance.toInt());
 
   final BigInt balance;
-  final int exponent;
 
   @override
-  String get formattedAdditionalBalance {
-    final String formattedBalance = (balance / BigInt.from(10).pow(exponent)).toString();
-    return formattedBalance.substring(0, min(12, formattedBalance.length));
-  }
+  String get formattedAdditionalBalance => TronHelper.fromSun(balance);
 
   @override
-  String get formattedAvailableBalance {
-    final String formattedBalance = (balance / BigInt.from(10).pow(exponent)).toString();
-    return formattedBalance.substring(0, min(12, formattedBalance.length));
-  }
+  String get formattedAvailableBalance => TronHelper.fromSun(balance);
 
   String toJSON() => json.encode({
-        'balanceInWei': balance.toString(),
-        'exponent': exponent,
+        'balance': balance.toString(),
       });
 
   static TronBalance? fromJSON(String? jsonSource) {
@@ -35,10 +26,7 @@ class TronBalance extends Balance {
     final decoded = json.decode(jsonSource) as Map;
 
     try {
-      return TronBalance(
-        BigInt.parse(decoded['balanceInWei']),
-        exponent: decoded['exponent'],
-      );
+      return TronBalance(BigInt.parse(decoded['balance']));
     } catch (e) {
       return TronBalance(BigInt.zero);
     }
