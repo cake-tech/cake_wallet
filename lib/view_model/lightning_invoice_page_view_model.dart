@@ -2,7 +2,6 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/receive_page_option.dart';

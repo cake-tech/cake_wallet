@@ -8,8 +8,8 @@ final bitcoinAmountFormat = NumberFormat()
   ..maximumFractionDigits = bitcoinAmountLength
   ..minimumFractionDigits = 1;
 
-String bitcoinAmountToString({required int amount}) => bitcoinAmountFormat.format(
-    cryptoAmountToDouble(amount: amount, divider: bitcoinAmountDivider));
+String bitcoinAmountToString({required int amount}) =>
+    bitcoinAmountFormat.format(cryptoAmountToDouble(amount: amount, divider: bitcoinAmountDivider));
 
 double bitcoinAmountToDouble({required int amount}) =>
     cryptoAmountToDouble(amount: amount, divider: bitcoinAmountDivider);
@@ -27,11 +27,7 @@ int stringDoubleToBitcoinAmount(String amount) {
 }
 
 String bitcoinAmountToLightningString({required int amount}) {
-  String formattedAmount = bitcoinAmountFormat.format(cryptoAmountToDouble(amount: amount, divider: lightningAmountDivider));
-  return formattedAmount.substring(0, formattedAmount.length - 2);
-}
-
-String satsToLightningString(int sats) {
-  String formattedAmount = bitcoinAmountFormat.format(sats);
+  String formattedAmount = bitcoinAmountFormat
+      .format(cryptoAmountToDouble(amount: amount, divider: lightningAmountDivider));
   return formattedAmount.substring(0, formattedAmount.length - 2);
 }

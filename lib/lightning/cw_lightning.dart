@@ -65,4 +65,35 @@ class CWLightning extends Lightning {
   @override
   List<LightningReceivePageOption> getLightningReceivePageOptions() =>
       LightningReceivePageOption.all;
+
+  @override
+  ReceivePageOption getOptionInvoice() => LightningReceivePageOption.lightningInvoice;
+
+  @override
+  ReceivePageOption getOptionOnchain() => LightningReceivePageOption.lightningOnchain;
+
+  String satsToLightningString(int sats) {
+    const bitcoinAmountLength = 8;
+    const bitcoinAmountDivider = 100000000;
+    const lightningAmountDivider = 1;
+    final bitcoinAmountFormat = NumberFormat()
+      ..maximumFractionDigits = bitcoinAmountLength
+      ..minimumFractionDigits = 1;
+
+    String formattedAmount = bitcoinAmountFormat.format(sats);
+    return formattedAmount.substring(0, formattedAmount.length - 2);
+  }
+
+  String bitcoinAmountToLightningString({required int amount}) {
+    final bitcoinAmountFormat = NumberFormat()
+      ..maximumFractionDigits = bitcoinAmountLength
+      ..minimumFractionDigits = 1;
+    String formattedAmount = bitcoinAmountFormat
+        .format(cryptoAmountToDouble(amount: amount, divider: 1));
+    return formattedAmount.substring(0, formattedAmount.length - 2);
+  }
+
+  int bitcoinAmountToLightningAmount({required int amount}) {
+    return amount * 100000000;
+  }
 }

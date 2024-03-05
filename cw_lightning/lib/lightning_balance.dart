@@ -36,7 +36,7 @@ class LightningBalance extends ElectrumBalance {
 
   @override
   String get formattedUnAvailableBalance {
-    final frozenFormatted = bitcoinAmountToString(amount: frozen);
+    final frozenFormatted = bitcoinAmountToLightningString(amount: frozen);
     return frozenFormatted == '0.0' ? '' : frozenFormatted;
   }
 

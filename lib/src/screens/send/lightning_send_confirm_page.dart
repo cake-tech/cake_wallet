@@ -1,5 +1,6 @@
 import 'package:breez_sdk/breez_sdk.dart';
 import 'package:breez_sdk/bridge_generated.dart';
+import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
@@ -8,7 +9,6 @@ import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -164,7 +164,7 @@ class LightningSendConfirmPage extends BasePage {
                             .textFieldBorderTopPanelColor,
                         suffixIcon: SizedBox(width: 36),
                         initialValue:
-                            "sats: ${bitcoinAmountToLightningString(amount: (invoice.amountMsat ?? 0) ~/ 1000)}",
+                            "sats: ${lightning!.bitcoinAmountToLightningString(amount: (invoice.amountMsat ?? 0) ~/ 1000)}",
                         placeholderTextStyle: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/lightning_input_form.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -16,9 +17,8 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/lightning_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/receive_page_option.dart';
-import 'package:cw_lightning/lightning_receive_page_option.dart';
+import 'package:cw_core/lightning_receive_page_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -175,14 +175,15 @@ class LightningInvoicePage extends BasePage {
                             int balance = (snapshot.data as List<int>)[2];
                             if (balance == 0) {
                               int min = (snapshot.data as List<int>)[0];
-                              finalText =
-                                  S.of(context).lightning_invoice_min(satsToLightningString(min));
+                              finalText = S
+                                  .of(context)
+                                  .lightning_invoice_min(lightning!.satsToLightningString(min));
                             } else {
                               int min = (snapshot.data as List<int>)[0];
                               int max = (snapshot.data as List<int>)[1];
                               finalText = S.of(context).lightning_invoice_min_max(
-                                    satsToLightningString(min),
-                                    satsToLightningString(max),
+                                    lightning!.satsToLightningString(min),
+                                    lightning!.satsToLightningString(max),
                                   );
                             }
 
@@ -232,18 +233,12 @@ class LightningInvoicePage extends BasePage {
     }
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) async {
-      switch (option) {
-        case LightningReceivePageOption.lightningInvoice:
-          break;
-        case LightningReceivePageOption.lightningOnchain:
-          Navigator.popAndPushNamed(
-            context,
-            Routes.lightningReceiveOnchain,
-            arguments: [LightningReceivePageOption.lightningOnchain],
-          );
-          break;
-        default:
-          break;
+      if (option == lightning!.getOptionOnchain()) {
+        Navigator.popAndPushNamed(
+          context,
+          Routes.lightningReceiveOnchain,
+          arguments: [LightningReceivePageOption.lightningOnchain],
+        );
       }
     });
 
