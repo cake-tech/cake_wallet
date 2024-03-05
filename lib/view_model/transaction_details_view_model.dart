@@ -81,14 +81,16 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     final type = wallet.type;
 
-    items.add(BlockExplorerListItem(
-        title: S.current.view_in_block_explorer,
-        value: _explorerDescription(type),
-        onTap: () {
-          try {
-            launch(_explorerUrl(type, tx.id));
-          } catch (e) {}
-        }));
+    if (_explorerDescription(type) != '') {
+      items.add(BlockExplorerListItem(
+          title: S.current.view_in_block_explorer,
+          value: _explorerDescription(type),
+          onTap: () {
+            try {
+              launch(_explorerUrl(type, tx.id));
+            } catch (e) {}
+          }));
+    }
 
     final description = transactionDescriptionBox.values.firstWhere(
         (val) => val.id == transactionInfo.id,
@@ -149,7 +151,6 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.monero:
         return S.current.view_transaction_on + 'Monero.com';
       case WalletType.bitcoin:
-      case WalletType.lightning:
         return S.current.view_transaction_on + 'mempool.space';
       case WalletType.litecoin:
       case WalletType.bitcoinCash:

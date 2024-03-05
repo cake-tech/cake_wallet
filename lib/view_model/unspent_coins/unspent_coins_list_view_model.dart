@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -60,8 +61,10 @@ abstract class UnspentCoinsListViewModelBase with Store {
   String formatAmountToString(int fullBalance) {
     if (wallet.type == WalletType.monero)
       return monero!.formatterMoneroAmountToString(amount: fullBalance);
-    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.lightning].contains(wallet.type))
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type))
       return bitcoin!.formatterBitcoinAmountToString(amount: fullBalance);
+    if (wallet.type == WalletType.lightning)
+      return lightning!.formatterLightningAmountToString(amount: fullBalance);
     return '';
   }
 
@@ -69,7 +72,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
     if (wallet.type == WalletType.monero) {
       await monero!.updateUnspents(wallet);
     }
-    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.lightning].contains(wallet.type)) {
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.lightning]
+        .contains(wallet.type)) {
       await bitcoin!.updateUnspents(wallet);
     }
 
@@ -78,8 +82,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   List<Unspent> _getUnspents() {
     if (wallet.type == WalletType.monero) return monero!.getUnspents(wallet);
-    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.lightning].contains(wallet.type))
-      return bitcoin!.getUnspents(wallet);
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.lightning]
+        .contains(wallet.type)) return bitcoin!.getUnspents(wallet);
     return List.empty();
   }
 
