@@ -4,7 +4,7 @@ set -o xtrace
 . ./config.sh
 #HAVEN_VERSION=tags/v3.0.7
 ZANO_SRC_DIR=${WORKDIR}/zano
-ZANO_CHECKOUT_ID=cake
+ZANO_CHECKOUT_ID=master
 
 #git clone --recursive https://github.com/hyle-team/zano.git ${ZANO_SRC_DIR}
 cd $ZANO_SRC_DIR
