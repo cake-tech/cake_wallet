@@ -9,10 +9,14 @@ import 'package:intl/intl.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/decred/decred.dart';
+import 'package:cw_core/wallet_type.dart';
+
 
 class BlockchainHeightWidget extends StatefulWidget {
   BlockchainHeightWidget({
     GlobalKey? key,
+    this.type,
     this.onHeightChange,
     this.focusNode,
     this.onHeightOrDateEntered,
@@ -23,6 +27,7 @@ class BlockchainHeightWidget extends StatefulWidget {
     required this.walletType,
   }) : super(key: key);
 
+  final WalletType? type;
   final Function(int)? onHeightChange;
   final Function(bool)? onHeightOrDateEntered;
   final FocusNode? focusNode;
@@ -164,7 +169,9 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
       if (widget.isSilentPaymentsScan) {
         height = bitcoin!.getHeightByDate(date: date);
       } else {
-        if (widget.walletType == WalletType.monero) {
+        if (widget.type == WalletType.decred) {
+          height = decred!.heightByDate(date);
+        } else if (widget.walletType == WalletType.monero) {
           height = monero!.getHeightByDate(date: date);
         } else {
           assert(widget.walletType == WalletType.wownero,

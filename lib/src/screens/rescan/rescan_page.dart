@@ -9,9 +9,10 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cw_core/wallet_type.dart';
 
 class RescanPage extends BasePage {
-  RescanPage(this._rescanViewModel)
+  RescanPage(this._rescanViewModel, this.type)
       : _blockchainHeightWidgetKey = GlobalKey<BlockchainHeightState>();
 
   @override
@@ -19,6 +20,7 @@ class RescanPage extends BasePage {
       _rescanViewModel.isSilentPaymentsScan ? S.current.silent_payments_scanning : S.current.rescan;
   final GlobalKey<BlockchainHeightState> _blockchainHeightWidgetKey;
   final RescanViewModel _rescanViewModel;
+  final WalletType type;
 
   @override
   Widget body(BuildContext context) {
@@ -27,6 +29,7 @@ class RescanPage extends BasePage {
       child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Observer(
             builder: (_) => BlockchainHeightWidget(
+                  type: this.type,
                   key: _blockchainHeightWidgetKey,
                   onHeightOrDateEntered: (value) => _rescanViewModel.isButtonEnabled = value,
                   isSilentPaymentsScan: _rescanViewModel.isSilentPaymentsScan,
