@@ -35,7 +35,6 @@ import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
@@ -623,16 +622,9 @@ abstract class ElectrumWalletBase
     final ins = <bitcoin_base.BtcTransaction>[];
 
     for (final vin in original.inputs) {
-      try {
-        final id = HEX.encode(HEX.decode(vin.txId).reversed.toList());
-        final txHex = await electrumClient.getTransactionHex(hash: id);
-        final tx = bitcoin_base.BtcTransaction.fromRaw(txHex);
-        ins.add(tx);
-      } catch (_) {
-        ins.add(bitcoin_base.BtcTransaction.fromRaw(
-          await electrumClient.getTransactionHex(hash: vin.txId),
-        ));
-      }
+      final txHex = await electrumClient.getTransactionHex(hash: vin.txId);
+      final tx = bitcoin_base.BtcTransaction.fromRaw(txHex);
+      ins.add(tx);
     }
 
     return ElectrumTransactionBundle(original,

@@ -181,11 +181,28 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  BitcoinReceivePageOption getSelectedAddressType(Object wallet) {
+  ReceivePageOption getSelectedAddressType(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return BitcoinReceivePageOption.fromType(bitcoinWallet.walletAddresses.addressPageType);
   }
 
   @override
-  List<BitcoinReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
+  List<ReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
+
+  @override
+  BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
+    switch (option) {
+      case BitcoinReceivePageOption.p2pkh:
+        return P2pkhAddressType.p2pkh;
+      case BitcoinReceivePageOption.p2sh:
+        return P2shAddressType.p2wpkhInP2sh;
+      case BitcoinReceivePageOption.p2tr:
+        return SegwitAddresType.p2tr;
+      case BitcoinReceivePageOption.p2wsh:
+        return SegwitAddresType.p2wsh;
+      case BitcoinReceivePageOption.p2wpkh:
+      default:
+        return SegwitAddresType.p2wpkh;
+    }
+  }
 }
