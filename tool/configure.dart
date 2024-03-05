@@ -756,26 +756,14 @@ abstract class Lightning {
       WalletInfo? walletInfo});
   WalletCredentials createLightningNewWalletCredentials(
       {required String name, WalletInfo? walletInfo});
-  List<String> getWordList();
-  Map<String, String> getWalletKeys(Object wallet);
-  Future<void> generateNewAddress(Object wallet, String label);
-  Future<void> updateAddress(Object wallet, String address, String label);
   Object createLightningTransactionCredentials(List<Output> outputs,
       {required TransactionPriority priority, int? feeRate});
   Object createLightningTransactionCredentialsRaw(List<OutputInfo> outputs,
       {TransactionPriority? priority, required int feeRate});
 
-  List<String> getAddresses(Object wallet);
-  String getAddress(Object wallet);
-
-  List<ElectrumSubAddress> getSubAddresses(Object wallet);
-
   String formatterLightningAmountToString({required int amount});
   double formatterLightningAmountToDouble({required int amount});
   int formatterStringDoubleToLightningAmount(String amount);
-
-  List<Unspent> getUnspents(Object wallet);
-  Future<void> updateUnspents(Object wallet);
   WalletService createLightningWalletService(
       Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   List<LightningReceivePageOption> getLightningReceivePageOptions();

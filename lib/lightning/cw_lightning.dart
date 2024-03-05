@@ -21,35 +21,6 @@ class CWLightning extends Lightning {
       BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo);
 
   @override
-  List<String> getWordList() => wordlist;
-
-  @override
-  Map<String, String> getWalletKeys(Object wallet) {
-    final lightningWallet = wallet as ElectrumWallet;
-    final keys = lightningWallet.keys;
-
-    return <String, String>{
-      'wif': keys.wif,
-      'privateKey': keys.privateKey,
-      'publicKey': keys.publicKey
-    };
-  }
-
-  @override
-  Future<void> generateNewAddress(Object wallet, String label) async {
-    final lightningWallet = wallet as ElectrumWallet;
-    await lightningWallet.walletAddresses.generateNewAddress(label: label);
-    await wallet.save();
-  }
-
-  @override
-  Future<void> updateAddress(Object wallet, String address, String label) async {
-    final lightningWallet = wallet as ElectrumWallet;
-    lightningWallet.walletAddresses.updateAddress(address, label);
-    await wallet.save();
-  }
-
-  @override
   Object createLightningTransactionCredentials(List<Output> outputs,
           {required TransactionPriority priority, int? feeRate}) =>
       BitcoinTransactionCredentials(
@@ -75,35 +46,6 @@ class CWLightning extends Lightning {
           feeRate: feeRate);
 
   @override
-  List<String> getAddresses(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.walletAddresses.addressesByReceiveType
-        .map((BitcoinAddressRecord addr) => addr.address)
-        .toList();
-  }
-
-  @override
-  @computed
-  List<ElectrumSubAddress> getSubAddresses(Object wallet) {
-    final electrumWallet = wallet as ElectrumWallet;
-    return electrumWallet.walletAddresses.addressesByReceiveType
-        .map((BitcoinAddressRecord addr) => ElectrumSubAddress(
-            id: addr.index,
-            name: addr.name,
-            address: electrumWallet.type == WalletType.bitcoinCash ? addr.cashAddr : addr.address,
-            txCount: addr.txCount,
-            balance: addr.balance,
-            isChange: addr.isHidden))
-        .toList();
-  }
-
-  @override
-  String getAddress(Object wallet) {
-    final lightningWallet = wallet as ElectrumWallet;
-    return lightningWallet.walletAddresses.address;
-  }
-
-  @override
   String formatterLightningAmountToString({required int amount}) =>
       bitcoinAmountToString(amount: amount * 100000000);
 
@@ -112,18 +54,8 @@ class CWLightning extends Lightning {
       bitcoinAmountToDouble(amount: amount * 100000000);
 
   @override
-  int formatterStringDoubleToLightningAmount(String amount) => stringDoubleToBitcoinAmount(amount * 100000000);
-
-  @override
-  List<BitcoinUnspent> getUnspents(Object wallet) {
-    final lightningWallet = wallet as ElectrumWallet;
-    return lightningWallet.unspentCoins;
-  }
-
-  Future<void> updateUnspents(Object wallet) async {
-    final lightningWallet = wallet as ElectrumWallet;
-    await lightningWallet.updateUnspent();
-  }
+  int formatterStringDoubleToLightningAmount(String amount) =>
+      stringDoubleToBitcoinAmount(amount * 100000000);
 
   WalletService createLightningWalletService(
       Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
