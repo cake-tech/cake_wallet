@@ -111,10 +111,7 @@ dependencies:
     git:
       url: https://github.com/cake-tech/bitcoin_base.git
       ref: cake-update-v1
-  ledger_flutter: #ToDo: Replace with hosted Version on publish
-    git:
-      url: https://github.com/cake-tech/ledger-flutter.git
-      ref: cake
+  ledger_flutter: ^1.0.1
 
 dev_dependencies:
   flutter_test:
@@ -137,6 +134,10 @@ dependency_overrides:
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
+  ledger_flutter: #ToDo: Replace with hosted Version on publish
+    git:
+      url: https://github.com/cake-tech/ledger-flutter.git
+      ref: cake
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

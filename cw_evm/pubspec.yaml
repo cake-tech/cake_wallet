@@ -23,10 +23,7 @@ dependencies:
   shared_preferences: ^2.0.15
   cw_core:
     path: ../cw_core
-  ledger_flutter: #ToDo: Replace with hosted Version on publish
-    git:
-      url: https://github.com/cake-tech/ledger-flutter.git
-      ref: cake
+  ledger_flutter: ^1.0.1
   ledger_ethereum:
 #    path: ../ledger_ethereum
     git:
@@ -36,6 +33,10 @@ dependency_overrides:
   web3dart:
     git:
       url: https://github.com/cake-tech/web3dart.git
+      ref: cake
+  ledger_flutter: #ToDo: Replace with hosted Version on publish
+    git:
+      url: https://github.com/cake-tech/ledger-flutter.git
       ref: cake
 
 dev_dependencies:
