@@ -206,3 +206,13 @@ String listUnspents(String walletName) {
   );
   return res.payload;
 }
+
+String rescanFromHeight(String walletName, String height) {
+  final cName = walletName.toCString();
+  final cHeight = height.toCString();
+  final res = executePayloadFn(
+    fn: () => dcrwalletApi.rescanFromHeight(cName, cHeight),
+    ptrsToFree: [cName, cHeight],
+  );
+  return res.payload;
+}

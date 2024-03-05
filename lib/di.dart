@@ -1113,7 +1113,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => RescanViewModel(getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory(() => RescanPage(getIt.get<RescanViewModel>()));
+  getIt.registerFactory(() => RescanPage(getIt.get<RescanViewModel>(), getIt.get<AppStore>().wallet!.type));
 
   getIt.registerFactory(() => FaqPage(getIt.get<SettingsStore>()));
 

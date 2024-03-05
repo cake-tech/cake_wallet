@@ -103,5 +103,17 @@ class CWDecred extends Decred {
     return decredWallet.unspents();
   }
 
+  @override
   void updateUnspents(Object wallet) async {}
+
+  @override
+  int heightByDate(DateTime date) {
+    final genesisBlocktime =
+        DateTime.fromMillisecondsSinceEpoch(1454954400 * 1000);
+    final minutesDiff = date.difference(genesisBlocktime).inMinutes;
+    // Decred has five minute blocks on mainnet.
+    // NOTE: This is off by about a day.
+    // TODO: Remove this and just rescan from the wallet birthday.
+    return (minutesDiff / 5).toInt();
+  }
 }

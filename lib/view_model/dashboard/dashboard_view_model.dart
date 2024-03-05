@@ -388,6 +388,7 @@ abstract class DashboardViewModelBase with Store {
       wallet.type == WalletType.monero ||
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.wownero ||
+      wallet.type == WalletType.decred ||
       wallet.type == WalletType.haven;
 
   @computed
