@@ -163,7 +163,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
       unspents: data['unspents'] != null
           ? (data['unspents'] as List<dynamic>)
               .map((unspent) => BitcoinUnspent.fromJSON(
-                  BitcoinAddressRecord.fromJSON(unspent['address_record'].toString()),
+                  BitcoinSilentPaymentAddressRecord.fromJSON(unspent['address_record'].toString()),
                   unspent as Map<String, dynamic>))
               .toList()
           : null,

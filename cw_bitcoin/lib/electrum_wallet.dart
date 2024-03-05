@@ -328,6 +328,7 @@ abstract class ElectrumWalletBase
     List<Outpoint> vinOutpoints = [];
     List<ECPrivateInfo> inputPrivKeyInfos = [];
     List<ECPublic> inputPubKeys = [];
+    bool spendsSilentPayment = false;
 
     for (int i = 0; i < unspentCoins.length; i++) {
       final utx = unspentCoins[i];
@@ -345,6 +346,7 @@ abstract class ElectrumWalletBase
                     (utx.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord)
                         .silentPaymentTweak!)),
               );
+          spendsSilentPayment = true;
         } else {
           privkey = generateECPrivate(
               hd: utx.bitcoinAddressRecord.isHidden
@@ -481,7 +483,12 @@ abstract class ElectrumWalletBase
       }
     }
 
-    return EstimatedTxResult(utxos: utxos, privateKeys: privateKeys, fee: fee, amount: amount);
+    return EstimatedTxResult(
+        utxos: utxos,
+        privateKeys: privateKeys,
+        fee: fee,
+        amount: amount,
+        spendsSilentPayment: spendsSilentPayment);
   }
 
   @override
@@ -559,6 +566,14 @@ abstract class ElectrumWalletBase
           network: network)
         ..addListener((transaction) async {
           transactionHistory.addOne(transaction);
+          if (estimatedTx.spendsSilentPayment) {
+            transactionHistory.transactions.values.forEach((tx) {
+              tx.unspents?.removeWhere(
+                  (unspent) => estimatedTx.utxos.any((e) => e.utxo.txHash == unspent.hash));
+              transactionHistory.addOne(tx);
+            });
+          }
+
           await updateBalance();
         });
     } catch (e) {
@@ -1196,7 +1211,7 @@ Future<void> startRefresh(ScanData scanData) async {
       for (var i = 0; i < tweaks!.length; i++) {
         try {
           final details = tweaks[i] as Map<String, dynamic>;
-          final output_pubkeys = (details["output_pubkeys"] as List<dynamic>);
+          final outputPubkeys = (details["output_pubkeys"] as List<dynamic>);
           final tweak = details["tweak"].toString();
 
           // TODO: if tx already scanned & stored skip
@@ -1210,7 +1225,7 @@ Future<void> startRefresh(ScanData scanData) async {
           final result = spb.scanOutputs(
             scanData.silentAddress.b_scan,
             scanData.silentAddress.B_spend,
-            output_pubkeys
+            outputPubkeys
                 .map((output) =>
                     BytesUtils.toHexString(BytesUtils.fromHexString(output.toString()).sublist(2))
                         .toString())
@@ -1235,7 +1250,7 @@ Future<void> startRefresh(ScanData scanData) async {
               try {
                 final addressRecord = BitcoinSilentPaymentAddressRecord(address,
                     index: 0,
-                    isHidden: true,
+                    isHidden: false,
                     isUsed: true,
                     network: scanData.network,
                     silentPaymentTweak: t_k);
@@ -1332,12 +1347,17 @@ Future<void> startRefresh(ScanData scanData) async {
 
 class EstimatedTxResult {
   EstimatedTxResult(
-      {required this.utxos, required this.privateKeys, required this.fee, required this.amount});
+      {required this.utxos,
+      required this.privateKeys,
+      required this.fee,
+      required this.amount,
+      required this.spendsSilentPayment});
 
   final List<UtxoWithAddress> utxos;
   final List<ECPrivate> privateKeys;
   final int fee;
   final int amount;
+  final bool spendsSilentPayment;
 }
 
 BitcoinBaseAddress _addressTypeFromStr(String address, BasedUtxoNetwork network) {
