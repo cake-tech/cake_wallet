@@ -790,9 +790,16 @@ abstract class SettingsStoreBase with Store {
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
+    final bool isNewInstall = sharedPreferences.getBool(PreferencesKey.isNewInstall) ?? true;
+    final int defaultTheme;
+    if (isNewInstall) {
+      defaultTheme = isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.brightTheme.raw;
+    } else {
+      defaultTheme = ThemeType.bright.index;
+    }
     final savedTheme = initialTheme ??
         ThemeList.deserialize(
-            raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? (isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.cakeDarkTheme.raw));
+            raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? defaultTheme);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
@@ -1151,7 +1158,8 @@ abstract class SettingsStoreBase with Store {
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
     currentTheme = ThemeList.deserialize(
-        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? (isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.cakeDarkTheme.raw));
+        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
+            (isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.brightTheme.raw));
     actionlistDisplayMode = ObservableList<ActionListDisplayMode>();
     actionlistDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));

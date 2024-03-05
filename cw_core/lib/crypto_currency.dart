@@ -102,6 +102,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.usdcEPoly,
     CryptoCurrency.kaspa,
     CryptoCurrency.digibyte,
+    CryptoCurrency.usdtSol,
   ];
 
   static const havenCurrencies = [
@@ -246,7 +247,16 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     return CryptoCurrency._rawCurrencyMap[raw]!;
   }
 
-  static CryptoCurrency fromString(String name) {
+  // TODO: refactor this
+  static CryptoCurrency fromString(String name, {CryptoCurrency? walletCurrency}) {
+    try {
+      return CryptoCurrency.all.firstWhere((element) =>
+          element.title.toLowerCase() == name &&
+          (element.tag == null ||
+              element.tag == walletCurrency?.title ||
+              element.tag == walletCurrency?.tag));
+    } catch (_) {}
+
     if (CryptoCurrency._nameCurrencyMap[name.toLowerCase()] == null) {
       final s = 'Unexpected token: $name for CryptoCurrency fromString';
       throw  ArgumentError.value(name, 'name', s);
