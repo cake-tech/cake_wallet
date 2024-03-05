@@ -244,10 +244,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       final silentAddressRecord = silentAddresses[i];
       final silentPaymentTweak = silentAddressRecord.silentPaymentTweak;
 
-      if (silentPaymentTweak != null)
+      if (silentPaymentTweak != null &&
+          SilentPaymentAddress.regex.hasMatch(silentAddressRecord.address)) {
         labels[G
             .tweakMul(BigintUtils.fromBytes(BytesUtils.fromHexString(silentPaymentTweak)))
             .toHex()] = silentPaymentTweak;
+      }
     }
     return labels;
   }

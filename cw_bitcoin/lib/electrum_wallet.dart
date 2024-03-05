@@ -1196,7 +1196,7 @@ Future<void> startRefresh(ScanData scanData) async {
       for (var i = 0; i < tweaks!.length; i++) {
         try {
           final details = tweaks[i] as Map<String, dynamic>;
-          final output_pubkeys = (details["output_pubkeys"] as List<dynamic>);
+          final outputPubkeys = (details["output_pubkeys"] as List<dynamic>);
           final tweak = details["tweak"].toString();
 
           // TODO: if tx already scanned & stored skip
@@ -1210,12 +1210,13 @@ Future<void> startRefresh(ScanData scanData) async {
           final result = spb.scanOutputs(
             scanData.silentAddress.b_scan,
             scanData.silentAddress.B_spend,
-            output_pubkeys
+            outputPubkeys
                 .map((output) =>
                     BytesUtils.toHexString(BytesUtils.fromHexString(output.toString()).sublist(2))
                         .toString())
                 .toList(),
             precomputedLabels: scanData.labels,
+        log: tweak == "02967d38989b20e99e5ea26a9b58837489438c69cb0caef41a47160102c72fcabd",
           );
 
           if (result.isEmpty) {
@@ -1235,7 +1236,7 @@ Future<void> startRefresh(ScanData scanData) async {
               try {
                 final addressRecord = BitcoinSilentPaymentAddressRecord(address,
                     index: 0,
-                    isHidden: true,
+                    isHidden: false,
                     isUsed: true,
                     network: scanData.network,
                     silentPaymentTweak: t_k);
