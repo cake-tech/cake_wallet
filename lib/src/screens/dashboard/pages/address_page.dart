@@ -198,8 +198,8 @@ class AddressPage extends BasePage {
     }
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
-      if (option is BitcoinReceivePageOption) {
-        addressListViewModel.setAddressType(option.toType());
+      if (bitcoin!.isBitcoinReceivePageOption(option)) {
+        addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
         return;
       }
 

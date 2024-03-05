@@ -216,4 +216,12 @@ class CWBitcoin extends Bitcoin {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.walletAddresses.silentAddresses;
   }
+
+  bool isBitcoinReceivePageOption(ReceivePageOption option) {
+    return option is BitcoinReceivePageOption;
+  }
+
+  BitcoinAddressType getOptionToType(ReceivePageOption option) {
+    return (option as BitcoinReceivePageOption).toType();
+  }
 }

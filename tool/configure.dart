@@ -149,6 +149,8 @@ abstract class Bitcoin {
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
   bool hasSelectedSilentPayments(Object wallet);
   List<BitcoinReceivePageOption> getBitcoinReceivePageOptions();
+  bool isBitcoinReceivePageOption(ReceivePageOption option);
+  BitcoinAddressType getOptionToType(ReceivePageOption option);
 }
   """;
 
