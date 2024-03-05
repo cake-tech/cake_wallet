@@ -18,7 +18,6 @@ import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart'
 import 'package:cake_wallet/view_model/lightning_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
-import 'package:cw_core/lightning_receive_page_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -237,7 +236,7 @@ class LightningInvoicePage extends BasePage {
         Navigator.popAndPushNamed(
           context,
           Routes.lightningReceiveOnchain,
-          arguments: [LightningReceivePageOption.lightningOnchain],
+          arguments: [lightning!.getOptionOnchain()],
         );
       }
     });
