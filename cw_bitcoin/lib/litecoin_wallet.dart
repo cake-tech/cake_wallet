@@ -42,14 +42,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           initialBalance: initialBalance,
           seedBytes: seedBytes,
           currency: CryptoCurrency.ltc,
-          balanceFactory: (
-              {required int confirmed, required int unconfirmed, required int frozen}) {
-            return ElectrumBalance(
-              confirmed: confirmed,
-              unconfirmed: unconfirmed,
-              frozen: frozen,
-            );
-          },
         ) {
     walletAddresses = LitecoinWalletAddresses(
       walletInfo,

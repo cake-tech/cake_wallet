@@ -27,7 +27,7 @@ class MenuWidgetState extends State<MenuWidget> {
         this.fromBottomEdge = 25,
         this.moneroIcon = Image.asset('assets/images/monero_menu.png'),
         this.bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png'),
-        this.lightningIcon = Image.asset('assets/images/lightning_menu.png'),
+        this.lightningIcon = Image.asset('assets/images/lightning_logo.png'),
         this.litecoinIcon = Image.asset('assets/images/litecoin_menu.png'),
         this.havenIcon = Image.asset('assets/images/haven_menu.png'),
         this.ethereumIcon = Image.asset('assets/images/eth_icon.png'),
@@ -100,8 +100,7 @@ class MenuWidgetState extends State<MenuWidget> {
         color: Theme.of(context).extension<CakeMenuTheme>()!.iconColor);
     bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png',
         color: Theme.of(context).extension<CakeMenuTheme>()!.iconColor);
-    lightningIcon = Image.asset('assets/images/lightning_menu.png',
-        color: Theme.of(context).extension<CakeMenuTheme>()!.iconColor);
+    lightningIcon = Image.asset('assets/images/lightning_logo.png');
 
     return Row(
       mainAxisSize: MainAxisSize.max,

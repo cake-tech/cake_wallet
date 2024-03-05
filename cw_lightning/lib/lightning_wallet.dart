@@ -32,8 +32,7 @@ part 'lightning_wallet.g.dart';
 
 class LightningWallet = LightningWalletBase with _$LightningWallet;
 
-abstract class LightningWalletBase
-    extends ElectrumWalletBase<LightningBalance, LightningTransactionInfo> with Store {
+abstract class LightningWalletBase extends ElectrumWallet with Store {
   bool _isTransactionUpdating;
 
   @override
@@ -53,6 +52,7 @@ abstract class LightningWalletBase
     Map<String, int>? initialChangeAddressIndex,
   })  : _isTransactionUpdating = false,
         syncStatus = NotConnectedSyncStatus(),
+        _balance = ObservableMap<CryptoCurrency, LightningBalance>(),
         super(
           mnemonic: mnemonic,
           password: password,
@@ -63,15 +63,9 @@ abstract class LightningWalletBase
           initialBalance: initialBalance,
           seedBytes: seedBytes,
           currency: CryptoCurrency.btcln,
-          balanceFactory: (
-              {required int confirmed, required int unconfirmed, required int frozen}) {
-            return LightningBalance(
-              confirmed: confirmed,
-              unconfirmed: unconfirmed,
-              frozen: frozen,
-            );
-          },
         ) {
+    _balance[CryptoCurrency.btcln] =
+        initialBalance ?? LightningBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
       electrumClient: electrumClient,
@@ -94,6 +88,12 @@ abstract class LightningWalletBase
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
   }
+
+  late final ObservableMap<CryptoCurrency, LightningBalance> _balance;
+
+  @override
+  @computed
+  ObservableMap<CryptoCurrency, LightningBalance> get balance => _balance;
 
   static Future<LightningWallet> create(
       {required String mnemonic,
@@ -186,7 +186,7 @@ abstract class LightningWalletBase
 
     sdk.nodeStateStream.listen((event) {
       if (event == null) return;
-      balance[CryptoCurrency.btcln] = LightningBalance(
+      _balance[CryptoCurrency.btcln] = LightningBalance(
         confirmed: event.maxPayableMsat ~/ 1000,
         unconfirmed: event.maxReceivableMsat ~/ 1000,
         frozen: 0,

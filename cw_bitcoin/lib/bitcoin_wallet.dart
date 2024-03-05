@@ -44,14 +44,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           initialBalance: initialBalance,
           seedBytes: seedBytes,
           currency: CryptoCurrency.btc,
-          balanceFactory: (
-              {required int confirmed, required int unconfirmed, required int frozen}) {
-            return ElectrumBalance(
-              confirmed: confirmed,
-              unconfirmed: unconfirmed,
-              frozen: frozen,
-            );
-          },
         ) {
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,

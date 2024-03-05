@@ -87,7 +87,7 @@ class LightningURI extends PaymentURI {
 
   @override
   String toString() {
-    throw Exception('TODO: Not implemented');
+    throw Exception('N/A for lightning wallets (need to make a bolt11 invoice).');
   }
 }
 
