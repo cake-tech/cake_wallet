@@ -7,14 +7,15 @@ import 'package:flutter/services.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class AnonpayCurrencyInputField extends StatelessWidget {
-  const AnonpayCurrencyInputField(
-      {super.key,
-      this.onTapPicker,
-      required this.selectedCurrency,
-      required this.focusNode,
-      required this.controller,
-      required this.minAmount,
-      required this.maxAmount});
+  const AnonpayCurrencyInputField({
+    super.key,
+    this.onTapPicker,
+    required this.selectedCurrency,
+    required this.focusNode,
+    required this.controller,
+    required this.minAmount,
+    required this.maxAmount,
+  });
   final Function()? onTapPicker;
   final Currency selectedCurrency;
   final FocusNode focusNode;

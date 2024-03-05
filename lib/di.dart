@@ -1205,13 +1205,15 @@ Future<void> setup({
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
 
+
+  getIt.registerFactory<LightningViewModel>(() => LightningViewModel());
   getIt.registerFactoryParam<LightningInvoicePageViewModel, List<dynamic>, void>((args, _) {
     final pageOption = args.first as ReceivePageOption;
     return LightningInvoicePageViewModel(
       getIt.get<SettingsStore>(),
       getIt.get<AppStore>().wallet!,
       getIt.get<SharedPreferences>(),
-      LightningViewModel(),
+      getIt.get<LightningViewModel>(),
       pageOption,
     );
   });
@@ -1221,7 +1223,7 @@ Future<void> setup({
     final pageOption = args.last as ReceivePageOption;
     return LightningReceiveOnchainPage(
         addressListViewModel: getIt.get<WalletAddressListViewModel>(),
-        lightningViewModel: LightningViewModel(),
+        lightningViewModel: getIt.get<LightningViewModel>(),
         receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(param1: pageOption));
   });
 
@@ -1229,7 +1231,7 @@ Future<void> setup({
     final pageOption = args.last as ReceivePageOption;
     return LightningInvoicePage(
         lightningInvoicePageViewModel: getIt.get<LightningInvoicePageViewModel>(param1: args),
-        lightningViewModel: LightningViewModel(),
+        lightningViewModel: getIt.get<LightningViewModel>(),
         receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(param1: pageOption));
   });
 
