@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -23,7 +24,10 @@ class DFXBuyProvider extends BuyProvider {
   static const walletName = 'CakeWallet';
 
   @override
-  String get title => 'DFX Connect';
+  ProviderType get providerType => ProviderType.dfx;
+
+  @override
+  String get title => providerType.title;
 
   @override
   String get providerDescription => S.current.dfx_option_description;
@@ -33,6 +37,9 @@ class DFXBuyProvider extends BuyProvider {
 
   @override
   String get darkIcon => 'assets/images/dfx_dark.png';
+
+  @override
+  String get trackUrl => 'https://dash.dfx.swiss/track/';
 
   String get assetOut {
     switch (wallet.type) {
@@ -186,7 +193,7 @@ class DFXBuyProvider extends BuyProvider {
 
       if (await canLaunchUrl(uri)) {
         if (DeviceInfo.instance.isMobile) {
-          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
+          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [uri, providerType]);
         } else {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         }

@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:cake_wallet/buy/buy_exception.dart';
+import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
-import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -30,17 +30,21 @@ class WyreBuyProvider extends BuyProvider {
   static const _secretKey = secrets.wyreSecretKey;
   static const _accountId = secrets.wyreAccountId;
 
+
   @override
-  String get title => 'Wyre';
+  ProviderType get providerType => ProviderType.wyre;
+
+  @override
+  String get title => providerType.title;
 
   @override
   String get providerDescription => '';
 
   @override
-  String get lightIcon => 'assets/images/robinhood_light.png';
+  String get lightIcon => 'assets/images/wyre-icon.png';
 
   @override
-  String get darkIcon => 'assets/images/robinhood_dark.png';
+  String get darkIcon => 'assets/images/wyre-icon.png';
 
   String get trackUrl => isTestEnvironment ? _trackTestUrl : _trackProductUrl;
 
@@ -138,7 +142,7 @@ class WyreBuyProvider extends BuyProvider {
 
     return Order(
         id: id,
-        provider: BuyProviderDescription.wyre,
+        provider: ProviderType.wyre,
         transferId: transferId,
         from: from,
         to: to,

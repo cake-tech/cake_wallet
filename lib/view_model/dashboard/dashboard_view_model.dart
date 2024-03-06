@@ -42,7 +42,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/entities/provider_types.dart';
 
 part 'dashboard_view_model.g.dart';
 

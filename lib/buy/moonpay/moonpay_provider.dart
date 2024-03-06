@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -12,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
-import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -36,17 +36,23 @@ class MoonPaySellProvider extends BuyProvider {
   static const _baseProductUrl = 'sell.moonpay.com';
 
   @override
-  String get providerDescription =>
-      'MoonPay offers a fast and simple way to buy and sell cryptocurrencies';
+  ProviderType get providerType => ProviderType.moonpaySell;
 
   @override
-  String get title => 'MoonPay';
+  String get title => providerType.title;
+
+  @override
+  String get providerDescription =>
+      'MoonPay offers a fast and simple way to buy and sell cryptocurrencies';
 
   @override
   String get lightIcon => 'assets/images/moonpay_light.png';
 
   @override
   String get darkIcon => 'assets/images/moonpay_dark.png';
+
+  @override
+  String get trackUrl => '';
 
   static String themeToMoonPayTheme(ThemeBase theme) {
     switch (theme.type) {
@@ -113,7 +119,7 @@ class MoonPaySellProvider extends BuyProvider {
 
       if (await canLaunchUrl(uri)) {
         if (DeviceInfo.instance.isMobile) {
-          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: ['MoonPay', uri]);
+          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [uri]);
         } else {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         }
@@ -152,7 +158,10 @@ class MoonPayBuyProvider extends BuyProvider {
   static const _secretKey = secrets.moonPaySecretKey;
 
   @override
-  String get title => 'MoonPay';
+  ProviderType get providerType => ProviderType.moonpaySell;
+
+  @override
+  String get title => providerType.name;
 
   @override
   String get providerDescription =>
@@ -247,7 +256,7 @@ class MoonPayBuyProvider extends BuyProvider {
 
     return Order(
         id: id,
-        provider: BuyProviderDescription.moonPay,
+        provider: ProviderType.moonpaySell,
         transferId: id,
         state: state,
         createdAt: createdAt,

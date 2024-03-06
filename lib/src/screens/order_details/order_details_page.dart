@@ -46,29 +46,27 @@ class OrderDetailsPageBodyState extends State<OrderDetailsPageBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (_) {
-      return SectionStandardList(
-          sectionCount: 1,
-          itemCounter: (int _) => orderDetailsViewModel.items.length,
-          itemBuilder: (__, index) {
-            final item = orderDetailsViewModel.items[index];
+    return SectionStandardList(
+        sectionCount: 1,
+        itemCounter: (int _) => orderDetailsViewModel.items.length,
+        itemBuilder: (__, index) {
+          final item = orderDetailsViewModel.items[index];
 
-            if (item is TrackTradeListItem) {
-              return GestureDetector(
-                  onTap: item.onTap,
-                  child: ListRow(
-                      title: '${item.title}', value: '${item.value}'));
-            } else {
-              return GestureDetector(
-                  onTap: () {
-                    Clipboard.setData(ClipboardData(text: '${item.value}'));
-                    showBar<void>(context, S.of(context).copied_to_clipboard);
-                  },
-                  child: ListRow(
-                      title: '${item.title}', value: '${item.value}'));
-            }
-          });
-    });
+          if (item is TrackTradeListItem) {
+            return GestureDetector(
+                onTap: item.onTap,
+                child: ListRow(
+                    title: '${item.title}', value: '${item.value}'));
+          } else {
+            return GestureDetector(
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: '${item.value}'));
+                  showBar<void>(context, S.of(context).copied_to_clipboard);
+                },
+                child: ListRow(
+                    title: '${item.title}', value: '${item.value}'));
+          }
+        });
   }
 
 }
