@@ -8,6 +8,7 @@ PODS:
     - Flutter
     - ReachabilitySwift
   - CryptoSwift (1.8.2)
+  - cw_decred (0.0.1):
   - cw_haven (0.0.1):
     - cw_haven/Boost (= 0.0.1)
     - cw_haven/Haven (= 0.0.1)
@@ -145,6 +146,7 @@ DEPENDENCIES:
   - barcode_scan2 (from `.symlinks/plugins/barcode_scan2/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - CryptoSwift
+  - cw_decred (from `.symlinks/plugins/cw_decred/ios`)
   - cw_haven (from `.symlinks/plugins/cw_haven/ios`)
   - cw_shared_external (from `.symlinks/plugins/cw_shared_external/ios`)
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
@@ -194,6 +196,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/barcode_scan2/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
+  cw_decred:
+    :path: ".symlinks/plugins/cw_decred/ios"
   cw_haven:
     :path: ".symlinks/plugins/cw_haven/ios"
   cw_shared_external:
@@ -252,6 +256,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
   CryptoSwift: c63a805d8bb5e5538e88af4e44bb537776af11ea
+  cw_decred: 9c0e1df74745b51a1289ec5e91fb9e24b68fa14a
   cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
   cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7

@@ -1,16 +1,13 @@
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_decred/amount_format.dart';
-import 'package:cw_decred/api/dcrlibwallet.dart';
 
 class DecredPendingTransaction with PendingTransaction {
   DecredPendingTransaction(
-      {required this.spv,
-      required this.txid,
+      {required this.txid,
       required this.amount,
       required this.fee,
       required this.rawHex});
 
-  final SPVWallet spv;
   final int amount;
   final int fee;
   final String txid;
@@ -30,6 +27,6 @@ class DecredPendingTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    this.spv.sendRawTransaction(this.rawHex);
+    // TODO: Submit rawHex using libdcrwallet.
   }
 }
