@@ -88,7 +88,8 @@ class CWBitcoin extends Bitcoin {
                   formattedCryptoAmount: out.formattedCryptoAmount))
               .toList(),
           priority: priority as BitcoinTransactionPriority,
-          feeRate: feeRate);
+          feeRate: feeRate,
+          useReplaceByFee: useReplaceByFee);
 
   @override
   Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs,

@@ -8,13 +8,16 @@ import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/template.dart';
@@ -36,7 +39,6 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'send_view_model.g.dart';
 
@@ -155,7 +157,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return priority;
   }
 
-  int get customElectrumFeeRate => _settingsStore.customElectrumFeeRate;
+  int get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate;
 
   CryptoCurrency get currency => wallet.currency;
 
@@ -367,11 +369,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void setTransactionPriority(TransactionPriority priority) =>
       _settingsStore.priority[wallet.type] = priority;
 
-  void setCustomElectrumFeeRate(int rate) => _settingsStore.customElectrumFeeRate = rate;
-
   Object _credentials() {
     final priority = _settingsStore.priority[wallet.type];
-    final feeRate = priority == BitcoinTransactionPriority.custom ? customElectrumFeeRate : null;
+    final feeRate = priority == BitcoinTransactionPriority.custom ? customBitcoinFeeRate : null;
 
     if (priority == null && wallet.type != WalletType.nano && wallet.type != WalletType.solana) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
@@ -455,5 +455,40 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     return error;
+  }
+
+
+  Future<void> pickTransactionPriority(BuildContext context) async {
+    final items = priorityForWalletType(walletType);
+    final selectedItem = items.indexOf(transactionPriority);
+    final isBitcoinWallet = walletType == WalletType.bitcoin;
+    double? customFeeRate = isBitcoinWallet ? customBitcoinFeeRate.toDouble() : null;
+
+    await showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        int selectedIdx = selectedItem;
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Picker(
+              items: items,
+              displayItem: displayFeeRate,
+              selectedAtIndex: selectedIdx,
+              title: S.of(context).please_select,
+              headerEnabled: !isBitcoinWallet,
+              closeOnItemSelected: !isBitcoinWallet,
+              mainAxisAlignment: MainAxisAlignment.center,
+              sliderValue: customFeeRate,
+              onSliderChanged: (double newValue) => setState(() => customFeeRate = newValue),
+              onItemSelected: (TransactionPriority priority) {
+                setTransactionPriority(priority);
+                setState(() => selectedIdx = items.indexOf(priority));
+              },
+            );
+          },
+        );
+      },
+    );
+    if (isBitcoinWallet) _settingsStore.customBitcoinFeeRate = customFeeRate!.round();
   }
 }

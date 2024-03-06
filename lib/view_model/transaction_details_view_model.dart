@@ -1,5 +1,12 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import 'package:cw_core/amount_converter.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -10,6 +17,7 @@ import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_i
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/src/intl/date_format.dart';
 import 'package:mobx/mobx.dart';
@@ -328,6 +336,56 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo.id, newFee);
+
+  Future<String?> setBitcoinRBFTransactionPriority(BuildContext context) async {
+    if (wallet.type != WalletType.bitcoin) return null;
+    final bitcoinWallet = this.wallet as BitcoinWallet;
+
+    final cryptoCurrency = walletTypeToCryptoCurrency(wallet.type);
+    final transactionAmount = items
+        .firstWhere((element) => element.title == S.of(context).transaction_details_amount)
+        .value;
+    final formattedCryptoAmount =
+        AmountConverter.amountStringToInt(cryptoCurrency, transactionAmount);
+
+    double sliderValue = settingsStore.customBitcoinFeeRate.toDouble();
+    final priorities = priorityForWalletType(wallet.type);
+    final selectedItem = priorities.indexOf(sendViewModel.transactionPriority);
+    BitcoinTransactionPriority transactionPriority =
+        priorities[selectedItem] as BitcoinTransactionPriority;
+
+    await showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        int selectedIdx = selectedItem;
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Picker(
+              items: priorities,
+              displayItem: sendViewModel.displayFeeRate,
+              selectedAtIndex: selectedIdx,
+              title: S.of(context).please_select,
+              headerEnabled: false,
+              closeOnItemSelected: false,
+              mainAxisAlignment: MainAxisAlignment.center,
+              sliderValue: sliderValue,
+              onSliderChanged: (double newValue) => setState(() => sliderValue = newValue),
+              onItemSelected: (TransactionPriority priority) {
+                transactionPriority = priority as BitcoinTransactionPriority;
+                setState(() => selectedIdx = priorities.indexOf(priority));
+              },
+            );
+          },
+        );
+      },
+    );
+
+    final fee = transactionPriority == BitcoinTransactionPriority.custom
+        ? bitcoinWallet.calculateEstimatedFeeWithFeeRate(sliderValue.round(), formattedCryptoAmount)
+        : bitcoinWallet.calculateEstimatedFee(transactionPriority, formattedCryptoAmount);
+
+    return AmountConverter.amountIntToString(cryptoCurrency, fee);
+  }
 
   @computed
   String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled

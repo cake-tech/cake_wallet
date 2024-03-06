@@ -122,7 +122,7 @@ abstract class OutputBase with Store {
       if (_wallet.type == WalletType.bitcoin) {
         if (_settingsStore.priority[_wallet.type]! == BitcoinTransactionPriority.custom) {
           fee = (_wallet as BitcoinWallet).calculateEstimatedFeeWithFeeRate(
-              _settingsStore.customElectrumFeeRate, formattedCryptoAmount);
+              _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
         }
 
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);

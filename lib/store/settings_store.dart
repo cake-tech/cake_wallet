@@ -104,7 +104,7 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsUnstoppableDomains,
       required this.lookupsOpenAlias,
       required this.lookupsENS,
-      required this.customElectrumFeeRate,
+      required this.customBitcoinFeeRate,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialHavenTransactionPriority,
@@ -499,9 +499,9 @@ abstract class SettingsStoreBase with Store {
             key: SecureKey.pinTimeOutDuration, value: pinCodeInterval.value.toString()));
 
     reaction(
-            (_) => customElectrumFeeRate,
-            (int customElectrumFeeRate) => _sharedPreferences.setInt(
-            PreferencesKey.customElectrumFeeRate, customElectrumFeeRate));
+            (_) => customBitcoinFeeRate,
+            (int customBitcoinFeeRate) => _sharedPreferences.setInt(
+            PreferencesKey.customBitcoinFeeRate, customBitcoinFeeRate));
 
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
@@ -687,7 +687,7 @@ abstract class SettingsStoreBase with Store {
   String deviceName;
 
   @observable
-  int customElectrumFeeRate;
+  int customBitcoinFeeRate;
 
   final FlutterSecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
@@ -832,7 +832,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
     final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
-    final customElectrumFeeRate = sharedPreferences.getInt(PreferencesKey.customElectrumFeeRate) ?? 0;
+    final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 0;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -1066,7 +1066,7 @@ abstract class SettingsStoreBase with Store {
         lookupsUnstoppableDomains: lookupsUnstoppableDomains,
         lookupsOpenAlias: lookupsOpenAlias,
         lookupsENS: lookupsENS,
-        customElectrumFeeRate: customElectrumFeeRate,
+        customBitcoinFeeRate: customBitcoinFeeRate,
         initialMoneroTransactionPriority: moneroTransactionPriority,
         initialBitcoinTransactionPriority: bitcoinTransactionPriority,
         initialHavenTransactionPriority: havenTransactionPriority,
@@ -1198,7 +1198,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
     lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
-    customElectrumFeeRate = sharedPreferences.getInt(PreferencesKey.customElectrumFeeRate) ?? 0;
+    customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 0;
 
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =
