@@ -1,6 +1,8 @@
 import 'package:breez_sdk/breez_sdk.dart';
-import 'package:breez_sdk/bridge_generated.dart';
+import 'package:breez_sdk/bridge_generated.dart' as BZG;
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/lightning/lightning.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/anonpay_currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
@@ -9,6 +11,7 @@ import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -19,14 +22,24 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class LightningSendConfirmPage extends BasePage {
-  LightningSendConfirmPage({required this.invoice}) : _formKey = GlobalKey<FormState>();
+  LightningSendConfirmPage({required this.invoice, required this.lightningViewModel})
+      : _formKey = GlobalKey<FormState>() {
+    initialSatAmount = ((invoice.amountMsat ?? 0) ~/ 1000);
+    _amountController = TextEditingController();
+    _fiatAmountController = TextEditingController();
+    _amountController.text = initialSatAmount.toString();
+    _fiatAmountController.text = lightningViewModel.formattedFiatAmount(initialSatAmount);
+  }
 
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
-  LNInvoice invoice;
 
-  final bolt11Controller = TextEditingController();
-  final _bolt11FocusNode = FocusNode();
+  BZG.LNInvoice invoice;
+  late int initialSatAmount;
+  late TextEditingController _amountController;
+  late TextEditingController _fiatAmountController;
+  final FocusNode _depositAmountFocus = FocusNode();
+  final LightningViewModel lightningViewModel;
 
   bool _effectsInstalled = false;
 
@@ -78,18 +91,8 @@ class LightningSendConfirmPage extends BasePage {
   @override
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
-  double _sendCardHeight(BuildContext context) {
-    final double initialHeight = 465;
-
-    if (!responsiveLayoutUtil.shouldRenderMobileUI) {
-      return initialHeight - 66;
-    }
-    return initialHeight;
-  }
-
   @override
   void onClose(BuildContext context) {
-    // sendViewModel.onClose();
     Navigator.of(context).pop();
   }
 
@@ -108,7 +111,6 @@ class LightningSendConfirmPage extends BasePage {
             actions: [
               KeyboardActionsItem(
                 focusNode: FocusNode(),
-                // focusNode: _amountFocusNode,
                 toolbarButtons: [(_) => KeyboardDoneButton()],
               ),
             ]),
@@ -157,27 +159,49 @@ class LightningSendConfirmPage extends BasePage {
                         validator: null,
                       ),
                       SizedBox(height: 24),
-                      BaseTextFormField(
-                        enabled: false,
-                        borderColor: Theme.of(context)
-                            .extension<ExchangePageTheme>()!
-                            .textFieldBorderTopPanelColor,
-                        suffixIcon: SizedBox(width: 36),
-                        initialValue:
-                            "sats: ${lightning!.bitcoinAmountToLightningString(amount: (invoice.amountMsat ?? 0) ~/ 1000)}",
-                        placeholderTextStyle: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor,
+                      if (invoice.amountMsat == null)
+                        Observer(builder: (_) {
+                          return AnonpayCurrencyInputField(
+                            controller: _amountController,
+                            focusNode: _depositAmountFocus,
+                            maxAmount: '',
+                            minAmount: '',
+                            selectedCurrency: CryptoCurrency.btcln,
+                          );
+                        })
+                      else
+                        BaseTextFormField(
+                          enabled: false,
+                          borderColor: Theme.of(context)
+                              .extension<ExchangePageTheme>()!
+                              .textFieldBorderTopPanelColor,
+                          suffixIcon: SizedBox(width: 36),
+                          initialValue:
+                              "sats: ${lightning!.bitcoinAmountToLightningString(amount: initialSatAmount)}",
+                          placeholderTextStyle: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor,
+                          ),
+                          textStyle: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                          validator: null,
                         ),
-                        textStyle: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-                        validator: null,
-                      ),
                       SizedBox(height: 24),
                       BaseTextFormField(
                         enabled: false,
-                        initialValue: "USD: ${invoice.amountMsat}",
+                        controller: _fiatAmountController,
+                        prefixIcon: Padding(
+                          padding: EdgeInsets.only(top: 9),
+                          child: Text(
+                            lightningViewModel.fiat.title + ':',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                         borderColor: Theme.of(context)
                             .extension<ExchangePageTheme>()!
                             .textFieldBorderTopPanelColor,
@@ -226,21 +250,37 @@ class LightningSendConfirmPage extends BasePage {
                     onPressed: () async {
                       try {
                         final sdk = await BreezSDK();
-                        await sdk.sendPayment(req: SendPaymentRequest(bolt11: invoice.bolt11));
+                        late BZG.SendPaymentRequest req;
+
+                        lightningViewModel.setLoading(true);
+
+                        if (invoice.amountMsat == null) {
+                          req = BZG.SendPaymentRequest(
+                            bolt11: invoice.bolt11,
+                            amountMsat: int.parse(_amountController.text) * 1000,
+                          );
+                        } else {
+                          req = BZG.SendPaymentRequest(bolt11: invoice.bolt11);
+                        }
+
+                        await sdk.sendPayment(req: req);
+
+                        lightningViewModel.setLoading(false);
+
                         showPopUp<void>(
                             context: context,
                             builder: (BuildContext context) {
                               return AlertWithOneAction(
                                   alertTitle: '',
-                                  alertContent: S
-                                      .of(context)
-                                      .send_success(CryptoCurrency.btc.toString()),
+                                  alertContent:
+                                      S.of(context).send_success(CryptoCurrency.btc.toString()),
                                   buttonText: S.of(context).ok,
                                   buttonAction: () {
                                     Navigator.of(context).pop();
                                   });
                             });
                       } catch (e) {
+                        lightningViewModel.setLoading(false);
                         showPopUp<void>(
                             context: context,
                             builder: (BuildContext context) {
@@ -254,7 +294,7 @@ class LightningSendConfirmPage extends BasePage {
                     },
                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
-                    isLoading: false,
+                    isLoading: lightningViewModel.loading,
                   ),
                 ],
               );
@@ -274,6 +314,11 @@ class LightningSendConfirmPage extends BasePage {
     if (_effectsInstalled) {
       return;
     }
+
+    _amountController.addListener(() {
+      final amount = _amountController.text;
+      _fiatAmountController.text = lightningViewModel.formattedFiatAmount(int.parse(amount));
+    });
 
     _effectsInstalled = true;
   }

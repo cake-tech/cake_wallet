@@ -3,7 +3,6 @@ import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
@@ -12,10 +11,10 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -28,10 +27,12 @@ class LightningSendPage extends BasePage {
   LightningSendPage({
     required this.output,
     required this.authService,
+    required this.lightningViewModel,
   }) : _formKey = GlobalKey<FormState>();
 
   final Output output;
   final AuthService authService;
+  final LightningViewModel lightningViewModel;
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
 
@@ -191,10 +192,12 @@ class LightningSendPage extends BasePage {
                   text: S.of(context).send,
                   color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
-                  isLoading: false,
+                  isLoading: lightningViewModel.loading,
                   onPressed: () async {
                     try {
+                      lightningViewModel.setLoading(true);
                       await processInput(context);
+                      lightningViewModel.setLoading(false);
                     } catch (e) {
                       showPopUp<void>(
                           context: context,

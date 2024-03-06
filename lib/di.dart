@@ -1205,8 +1205,10 @@ Future<void> setup({
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
 
-
-  getIt.registerFactory<LightningViewModel>(() => LightningViewModel());
+  getIt.registerFactory<LightningViewModel>(() => LightningViewModel(
+        settingsStore: getIt.get<SettingsStore>(),
+        fiatConversionStore: getIt.get<FiatConversionStore>(),
+      ));
   getIt.registerFactoryParam<LightningInvoicePageViewModel, List<dynamic>, void>((args, _) {
     final pageOption = args.first as ReceivePageOption;
     return LightningInvoicePageViewModel(
@@ -1244,12 +1246,14 @@ Future<void> setup({
         () => CryptoCurrency.btcln,
       ),
       authService: getIt.get<AuthService>(),
+      lightningViewModel: getIt.get<LightningViewModel>(),
     );
   });
 
   getIt.registerFactoryParam<LightningSendConfirmPage, LNInvoice, void>((LNInvoice invoice, _) {
     return LightningSendConfirmPage(
       invoice: invoice,
+      lightningViewModel: getIt.get<LightningViewModel>(),
     );
   });
 

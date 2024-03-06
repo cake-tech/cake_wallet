@@ -146,15 +146,17 @@ class AnonpayCurrencyInputField extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              Text(
-                S.of(context).min_value(minAmount, selectedCurrency.toString()),
-                style: TextStyle(
-                    fontSize: 10,
-                    height: 1.2,
-                    color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
-              ),
+              if (minAmount.isNotEmpty) ...[
+                Text(
+                  S.of(context).min_value(minAmount, selectedCurrency.toString()),
+                  style: TextStyle(
+                      fontSize: 10,
+                      height: 1.2,
+                      color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
+                ),
+              ],
+              SizedBox(width: 10),
               if (maxAmount.isNotEmpty) ...[
-                SizedBox(width: 10),
                 Text(S.of(context).max_value(maxAmount, selectedCurrency.toString()),
                     style: TextStyle(
                         fontSize: 10,

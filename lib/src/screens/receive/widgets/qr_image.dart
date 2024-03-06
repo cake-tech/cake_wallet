@@ -23,7 +23,8 @@ class QrImage extends StatelessWidget {
     return qr.QrImageView(
       data: data,
       errorCorrectionLevel: errorCorrectionLevel,
-      version: version ?? 9, // Previous value: 7 something happened after flutter upgrade monero wallets addresses are longer than ver. 7 ???
+      // Previous value: 7 something happened after flutter upgrade monero wallets addresses are longer than ver. 7 ???
+      version: 14,// previously 9, but btc lightning addresses are /really/ long
       size: size,
       foregroundColor: foregroundColor,
       backgroundColor: backgroundColor,

@@ -276,6 +276,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'MATIC';
       case CryptoCurrency.zec:
         return 'Mainnet';
+      case CryptoCurrency.btcln:
+        return 'Lightning';
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : 'Mainnet';
     }
@@ -287,6 +289,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'zec';
       case CryptoCurrency.usdcEPoly:
         return 'usdce';
+      case CryptoCurrency.btcln:
+        return 'btc';
       default:
         return currency.title.toLowerCase();
     }

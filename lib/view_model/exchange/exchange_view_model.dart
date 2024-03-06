@@ -500,6 +500,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               /// return after the first successful trade
               return;
             } catch (e) {
+              print(e);
               continue;
             }
           }
@@ -599,8 +600,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         receiveCurrency = CryptoCurrency.btc;
         break;
       case WalletType.bitcoin:
-      case WalletType.lightning:
         depositCurrency = CryptoCurrency.btc;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.lightning:
+        depositCurrency = CryptoCurrency.btcln;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.litecoin:
