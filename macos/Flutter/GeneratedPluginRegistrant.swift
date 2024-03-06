@@ -6,6 +6,7 @@ import FlutterMacOS
 import Foundation
 
 import connectivity_plus
+import cw_decred
 import cw_monero
 import device_info_plus
 import devicelocale
@@ -22,6 +23,7 @@ import wakelock_plus
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   ConnectivityPlugin.register(with: registry.registrar(forPlugin: "ConnectivityPlugin"))
+  CwDecredPlugin.register(with: registry.registrar(forPlugin: "CwDecredPlugin"))
   CwMoneroPlugin.register(with: registry.registrar(forPlugin: "CwMoneroPlugin"))
   DeviceInfoPlusMacosPlugin.register(with: registry.registrar(forPlugin: "DeviceInfoPlusMacosPlugin"))
   DevicelocalePlugin.register(with: registry.registrar(forPlugin: "DevicelocalePlugin"))

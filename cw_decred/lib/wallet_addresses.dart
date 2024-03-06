@@ -1,25 +1,23 @@
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_decred/api/dcrlibwallet.dart';
+import 'package:cw_decred/api/libdcrwallet.dart' as libdcrwallet;
 
 class DecredWalletAddresses extends WalletAddresses {
-  DecredWalletAddresses(WalletInfo walletInfo, SPVWallet spv)
-      : this.spv = spv,
-        super(walletInfo);
-
-  final SPVWallet spv;
+  DecredWalletAddresses(WalletInfo walletInfo) : super(walletInfo);
 
   @override
   String get address {
-    return this.spv.newAddress();
+    return libdcrwallet.currentReceiveAddress(walletInfo.name) ?? '';
   }
 
   String generateNewAddress() {
-    return this.spv.newAddress();
+    // TODO: generate new external address with libdcrwallet.
+    return "DsT4qJPPaYEuQRimfgvSKxKH3paysn1x3Nt";
   }
 
   List<String> addresses() {
-    return this.spv.addresses();
+    final currentAddress = libdcrwallet.currentReceiveAddress(walletInfo.name);
+    return currentAddress == null ? [] : [currentAddress];
   }
 
   @override
