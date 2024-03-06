@@ -10,7 +10,8 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_zano/api/calls.dart' as calls;
+import 'package:cw_zano/api/api_calls.dart' as calls;
+import 'package:cw_zano/api/api_calls.dart';
 import 'package:cw_zano/api/consts.dart';
 import 'package:cw_zano/api/exceptions/already_exists_exception.dart';
 import 'package:cw_zano/api/exceptions/create_wallet_exception.dart';
@@ -72,12 +73,12 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
       final wallet = ZanoWallet(credentials.walletInfo!);
       await wallet.connectToNode(node: Node());
       final path = await pathForWallet(name: credentials.name, type: getType());
-      final result = calls.createWallet(language: "", path: path, password: credentials.password!);
+      final result = ApiCalls.createWallet(language: "", path: path, password: credentials.password!);
       final map = json.decode(result) as Map<String, dynamic>;
       if (map['result'] == null) throw CreateWalletException('');
       final createWalletResult = CreateWalletResult.fromJson(map['result'] as Map<String, dynamic>);
       _parseCreateWalletResult(createWalletResult, wallet);
-      await calls.store(hWallet);
+      await wallet.store();
       await wallet.init(createWalletResult.wi.address);
       return wallet;
     } catch (e) {
@@ -91,7 +92,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
   Future<bool> isWalletExit(String name) async {
     try {
       final path = await pathForWallet(name: name, type: getType());
-      return calls.isWalletExist(path: path);
+      return ApiCalls.isWalletExist(path: path);
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
       print('ZanoWalletsManager Error: $e');
@@ -118,7 +119,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
       if (map['result'] == null) throw CreateWalletException('');
       final createWalletResult = CreateWalletResult.fromJson(map['result'] as Map<String, dynamic>);
       _parseCreateWalletResult(createWalletResult, wallet);
-      await calls.store(hWallet);
+      await wallet.store();
       await wallet.init(createWalletResult.wi.address);
       return wallet;
     } catch (e) {
@@ -180,13 +181,13 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
       final wallet = ZanoWallet(credentials.walletInfo!);
       await wallet.connectToNode(node: Node());
       final path = await pathForWallet(name: credentials.name, type: getType());
-      final result = calls.restoreWalletFromSeed(path, credentials.password!, credentials.mnemonic);
+      final result = ApiCalls.restoreWalletFromSeed(path: path, password: credentials.password!, seed: credentials.mnemonic);
       final map = json.decode(result) as Map<String, dynamic>;
       if (map['result'] != null) {
         final createWalletResult =
             CreateWalletResult.fromJson(map['result'] as Map<String, dynamic>);
         _parseCreateWalletResult(createWalletResult, wallet);
-        await calls.store(hWallet);
+        await wallet.store();
         await wallet.init(createWalletResult.wi.address);
         return wallet;
       } else if (map['error'] != null) {

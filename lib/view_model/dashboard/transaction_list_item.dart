@@ -1,4 +1,3 @@
-import 'package:cake_wallet/dummy/dummy.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -99,13 +98,6 @@ class TransactionListItem extends ActionListItem with Keyable {
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
           cryptoAmount: zano!.formatterMoneroAmountToDouble(amount: transaction.amount),
-          price: price);
-        break;
-      case WalletType.dummy:
-        final asset = dummy!.assetOfTransaction(transaction);
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
-        amount = calculateFiatAmountRaw(
-          cryptoAmount: dummy!.formatterDummyAmountToDouble(amount: transaction.amount),
           price: price);
         break;
       default:

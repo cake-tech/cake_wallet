@@ -1,5 +1,4 @@
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
-import 'package:cake_wallet/dummy/dummy.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -387,12 +386,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
         return zano!.createZanoTransactionCreationCredentials(
             outputs: outputs, priority: priority, assetType: selectedCryptoCurrency.title);
-      case WalletType.dummy:
-        final priority = _settingsStore.priority[wallet.type];
-        if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${wallet.type}');
-        }
-        return dummy!.createDummyTransactionCreationCredentials(outputs: outputs, priority: priority);
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }

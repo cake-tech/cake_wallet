@@ -27,7 +27,6 @@ const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
 const zanoDefaultNodeUri = 'zano.org';
-const dummyDefaultNodeUri = 'example.com';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -324,12 +323,6 @@ Node? getZanoDefaultNode({required Box<Node> nodes}) {
           ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.zano);
 }
 
-Node? getDummyDefaultNode({required Box<Node> nodes}) {
-    return nodes.values.firstWhereOrNull(
-          (Node node) => node.uriRaw == dummyDefaultNodeUri)
-          ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.dummy);
-}
-
 Node getMoneroDefaultNode({required Box<Node> nodes}) {
   final timeZone = DateTime.now().timeZoneOffset.inHours;
   var nodeUri = '';
@@ -530,8 +523,6 @@ Future<void> checkCurrentNodes(
       .getInt(PreferencesKey.currentEthereumNodeIdKey);
   final currentZanoNodeId = sharedPreferences
       .getInt(PreferencesKey.currentZanoNodeIdKey);
-  final currentDummyNodeId = sharedPreferences
-      .getInt(PreferencesKey.currentDummyNodeIdKey);
   final currentMoneroNode = nodeSource.values.firstWhereOrNull(
       (node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer = nodeSource.values.firstWhereOrNull(
@@ -543,7 +534,6 @@ Future<void> checkCurrentNodes(
   final currentEthereumNodeServer = nodeSource.values.firstWhereOrNull(
       (node) => node.key == currentEthereumNodeId);
   final currentZanoNode = nodeSource.values.firstWhereOrNull((node) => node.key == currentZanoNodeId);
-  final currentDummyNode = nodeSource.values.firstWhereOrNull((node) => node.key == currentDummyNodeId);
   
   if (currentMoneroNode == null) {
     final newCakeWalletNode =
@@ -590,13 +580,6 @@ Future<void> checkCurrentNodes(
     await nodeSource.add(node);
     await sharedPreferences.setInt(
         PreferencesKey.currentZanoNodeIdKey, node.key as int);
-  }
-
-  if (currentDummyNode == null) {
-    final node = Node(uri: dummyDefaultNodeUri, type: WalletType.dummy);
-    await nodeSource.add(node);
-    await sharedPreferences.setInt(
-        PreferencesKey.currentDummyNodeIdKey, node.key as int);
   }
 }
 

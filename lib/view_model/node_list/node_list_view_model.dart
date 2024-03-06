@@ -69,9 +69,6 @@ abstract class NodeListViewModelBase with Store {
       case WalletType.zano:
         node = getZanoDefaultNode(nodes: _nodeSource)!;
         break;
-      case WalletType.dummy:
-        node = getDummyDefaultNode(nodes: _nodeSource)!;
-        break;
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.type}');
     }

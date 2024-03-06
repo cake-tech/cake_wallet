@@ -1,5 +1,4 @@
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/dummy/dummy.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
@@ -99,9 +98,6 @@ abstract class OutputBase with Store {
           case WalletType.zano:
             _amount = zano!.formatterMoneroParseAmount(amount: _cryptoAmount);
             break;
-          case WalletType.dummy:
-            _amount = dummy!.formatterDummyParseAmount(amount: _cryptoAmount);
-            break;
           default:
             break;
         }
@@ -142,10 +138,6 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.ethereum) {
         return ethereum!.formatterEthereumAmountToDouble(amount: BigInt.from(fee));
-      }
-
-      if (_wallet.type == WalletType.dummy) {
-        return dummy!.formatterDummyAmountToDouble(amount: fee);
       }
     } catch (e) {
       print(e.toString());
@@ -256,7 +248,6 @@ abstract class OutputBase with Store {
       case WalletType.ethereum:
         maximumFractionDigits = 12;
         break;
-      case WalletType.dummy:
       case WalletType.zano:
         maximumFractionDigits = 12;
         break;

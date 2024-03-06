@@ -1,5 +1,4 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/dummy/dummy.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:hive/hive.dart';
@@ -98,9 +97,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
               password: password, 
               height: height, 
               mnemonic: seed);
-        case WalletType.dummy:
-          return dummy!.createDummyRestoreWalletFromSeedCredentials(
-              name: name);
         default:
           break;
       }
@@ -150,10 +146,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           privateKey: options['private_key'] as String,
           password: password,
         );
-      }
-
-      if (type == WalletType.dummy) {
-        return dummy!.createDummyRestoreWalletFromKeyCredentials(name: name);
       }
     }
 

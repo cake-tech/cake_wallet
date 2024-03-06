@@ -7,13 +7,13 @@ import 'package:cw_zano/api/model/transfer_result.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_zano/api/calls.dart' as calls;
+import 'package:cw_zano/api/api_calls.dart' as calls;
 import 'package:cw_zano/zano_wallet.dart';
 
 class PendingZanoTransaction with PendingTransaction {
   PendingZanoTransaction(
       {required this.zanoWallet,
-        required this.fee,
+      required this.fee,
       required this.intAmount,
       //required this.stringAmount,
       required this.hWallet,
@@ -50,26 +50,24 @@ class PendingZanoTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    final result = await calls.transfer(
-        hWallet,
-        TransferParams(
-          destinations: [
-            Destination(
-              amount: intAmount.toString(),
-              address: address,
-              assetId: assetId,
-            )
-          ],
-          fee: fee,
-          mixin: zanoMixin,
-          paymentId: '',
-          comment: comment,
-          pushPayer: false,
-          hideReceiver: false,
-        ));
-    print('transfer result $result');
+    final params = TransferParams(
+      destinations: [
+        Destination(
+          amount: intAmount.toString(),
+          address: address,
+          assetId: assetId,
+        )
+      ],
+      fee: fee,
+      mixin: zanoMixin,
+      paymentId: '',
+      comment: comment,
+      pushPayer: false,
+      hideReceiver: false,
+    );
+    final result = await zanoWallet.invokeMethod(hWallet, 'transfer', params);
     final map = jsonDecode(result);
-    if (map['result'] != null && map['result']['result'] != null ) {
+    if (map['result'] != null && map['result']['result'] != null) {
       transferResult = TransferResult.fromJson(
         map['result']['result'] as Map<String, dynamic>,
       );

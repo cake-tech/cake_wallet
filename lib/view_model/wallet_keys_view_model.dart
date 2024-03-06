@@ -111,13 +111,6 @@ abstract class WalletKeysViewModelBase with Store {
         StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
-
-    if (_appStore.wallet!.type == WalletType.dummy) {
-      items.addAll([
-        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
-      ]);
-    }
-
   }
 
   Future<int?> _currentHeight() async {
@@ -147,8 +140,6 @@ abstract class WalletKeysViewModelBase with Store {
         return 'ethereum-wallet';
       case WalletType.zano:
         return 'zano-wallet';
-      case WalletType.dummy:
-        return 'dummy-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
     }

@@ -50,9 +50,6 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.zano:
         _addZanoListItems(tx, dateFormat);
         break;
-      case WalletType.dummy:
-        _addDummyListItems(tx, dateFormat);
-        break;
       default:
         break;
     }
@@ -124,8 +121,6 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://etherscan.io/tx/${txId}';
       case WalletType.zano:
         return 'https://testnet-explorer.zano.org/transaction/${txId}';
-      case WalletType.dummy:
-        return 'https://example.com/${txId}';
       default:
         return '';
     }
@@ -145,8 +140,6 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'etherscan.io';
       case WalletType.zano:
         return S.current.view_transaction_on + 'zano';
-      case WalletType.dummy:
-        return S.current.view_transaction_on + 'dummy';
       default:
         return '';
     }
@@ -237,18 +230,6 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void _addZanoListItems(TransactionInfo tx, DateFormat dateFormat) {
-    items.addAll([
-      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
-      StandartListItem(
-          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
-      StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
-      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
-      if (tx.feeFormatted()?.isNotEmpty ?? false)
-        StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
-    ]);
-  }
-
-  void _addDummyListItems(TransactionInfo tx, DateFormat dateFormat) {
     items.addAll([
       StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
       StandartListItem(

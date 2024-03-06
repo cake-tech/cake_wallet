@@ -1,4 +1,3 @@
-import 'package:cake_wallet/dummy/dummy.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/zano/zano.dart';
@@ -49,8 +48,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return ethereum!.createEthereumNewWalletCredentials(name: name);
       case WalletType.zano:
         return zano!.createZanoNewWalletCredentials(name: name);
-      case WalletType.dummy:
-        return dummy!.createDummyNewWalletCredentials(name: name);
       default:
         throw Exception('Unexpected type: ${type.toString()}');;
     }
