@@ -117,8 +117,6 @@ abstract class EVMChainClient {
         chainId: chainId,
       );
 
-      // ToDo: (Konsti) Provide ERC20 Ledger
-
       _sendTransaction = () async {
         await erc20.transfer(
           EthereumAddress.fromHex(toAddress),

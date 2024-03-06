@@ -29,7 +29,6 @@ import 'package:cw_evm/evm_ledger_credentials.dart';
 import 'package:cw_evm/file.dart';
 import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web3dart/crypto.dart';
@@ -234,19 +233,6 @@ abstract class EVMChainWalletBase
 
     final CryptoCurrency transactionCurrency =
         balance.keys.firstWhere((element) => element.title == _credentials.currency.title);
-
-    if (transactionCurrency is Erc20Token && isHardwareWallet) {
-      print("isProviding Ledger ERC20");
-
-      try {
-        await (_evmChainPrivateKey as EvmLedgerCredentials)
-            .provideERC20Info(transactionCurrency.contractAddress, _client.chainId);
-      } on LedgerException catch (e) {
-        print(e.errorCode.toRadixString(16));
-        rethrow;
-      }
-      print("Provided Ledger ERC20");
-    }
 
     final _erc20Balance = balance[transactionCurrency]!;
     BigInt totalAmount = BigInt.zero;
