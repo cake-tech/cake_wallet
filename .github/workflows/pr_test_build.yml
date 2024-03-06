@@ -151,7 +151,7 @@ jobs:
 
       - name: Rename app
         run: |
-          echo -e "id=com.cakewallet.test_${{ env.BRANCH_NAME }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
+          echo -e "id=com.cakewallet.test_${{ env.PR_NUMBER }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
 
       - name: Build
         run: |
