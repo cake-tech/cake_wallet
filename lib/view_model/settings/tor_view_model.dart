@@ -79,8 +79,8 @@ abstract class TorViewModelBase with Store {
 
   Future<void> disconnectFromNode() async {
     final appStore = getIt.get<AppStore>();
-    appStore.wallet!.syncStatus = NotConnectedSyncStatus();
-    await appStore.wallet!.connectToNode(node: Node(uri: "http://127.0.0.1"));
+    appStore.wallet?.syncStatus = NotConnectedSyncStatus();
+    await appStore.wallet?.connectToNode(node: Node(uri: "http://127.0.0.1"));
   }
 
   @action
