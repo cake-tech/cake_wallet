@@ -104,7 +104,7 @@ jobs:
       - name: Build generated code
         run: |
           cd /opt/android/cake_wallet
-          ./model_generator.sh
+          ./model_generator.sh all
 
       - name: Add secrets
         run: |
