@@ -56,12 +56,14 @@ class SyncListener {
       }*/
 
       var json = ApiCalls.getWalletStatus(hWallet: hWallet);
+      print('wallet status $json');
       final status = GetWalletStatusResult.fromJson(jsonDecode(json) as Map<String, dynamic>);
       // You can call getWalletInfo ONLY if getWalletStatus returns NOT is in long refresh and wallet state is 2 (ready)
       if (!status.isInLongRefresh && status.walletState == 2) {
         final syncHeight = status.currentWalletHeight;
 
         json = ApiCalls.getWalletInfo(hWallet);
+        print('wallet info $json');
         final result = GetWalletInfoResult.fromJson(jsonDecode(json) as Map<String, dynamic>);
         wallet.seed = result.wiExtended.seed;
         wallet.keys = ZanoWalletKeys(
