@@ -124,23 +124,18 @@ final trustedDaemonNative = havenApi
     .lookup<NativeFunction<trusted_daemon>>('trusted_daemon')
     .asFunction<TrustedDaemon>();
 
-int getSyncingHeight() {
-  return getSyncingHeightNative();
-}
+int getSyncingHeight() => getSyncingHeightNative();
 
 bool isNeededToRefresh() => isNeededToRefreshNative() != 0;
 
-bool isNewTransactionExist() {
-  return isNewTransactionExistNative() != 0;
-}
+bool isNewTransactionExist() => isNewTransactionExistNative() != 0;
 
 String getFilename() => convertUTF8ToString(pointer: getFileNameNative());
 
 String getSeed() => convertUTF8ToString(pointer: getSeedNative());
 
-String getAddress({int accountIndex = 0, int addressIndex = 0}) {
-  return convertUTF8ToString(pointer: getAddressNative(accountIndex, addressIndex));
-}
+String getAddress({int accountIndex = 0, int addressIndex = 0}) =>
+    convertUTF8ToString(pointer: getAddressNative(accountIndex, addressIndex));
 
 int getFullBalance({int accountIndex = 0}) =>
     getFullBalanceNative(accountIndex);
@@ -148,17 +143,11 @@ int getFullBalance({int accountIndex = 0}) =>
 int getUnlockedBalance({int accountIndex = 0}) =>
     getUnlockedBalanceNative(accountIndex);
 
-int getCurrentHeight() {
-  return getCurrentHeightNative();
-}
+int getCurrentHeight() => getCurrentHeightNative();
 
-int getNodeHeightSync() {
-  return getNodeHeightNative();
-}
+int getNodeHeightSync() => getNodeHeightNative();
 
-bool isConnectedSync() {
-  return isConnectedNative() != 0;
-}
+bool isConnectedSync() => isConnectedNative() != 0;
 
 bool setupNodeSync(
     {required String address,
@@ -217,13 +206,11 @@ void startRefreshSync() => startRefreshNative();
 
 Future<bool> connectToNode() async => connecToNodeNative() != 0;
 
-void setRefreshFromBlockHeight({required int height}) {
-  setRefreshFromBlockHeightNative(height);
-}
+void setRefreshFromBlockHeight({required int height}) =>
+    setRefreshFromBlockHeightNative(height);
 
-void setRecoveringFromSeed({required bool isRecovery}) {
-  setRecoveringFromSeedNative(_boolToInt(isRecovery));
-}
+void setRecoveringFromSeed({required bool isRecovery}) =>
+    setRecoveringFromSeedNative(_boolToInt(isRecovery));
 
 void storeSync() {
   final pathPointer = ''.toNativeUtf8();
@@ -248,21 +235,17 @@ void setPasswordSync(String password) {
 
 void closeCurrentWallet() => closeCurrentWalletNative();
 
-String getSecretViewKey() {
-  return convertUTF8ToString(pointer: getSecretViewKeyNative());
-}
+String getSecretViewKey() =>
+    convertUTF8ToString(pointer: getSecretViewKeyNative());
 
-String getPublicViewKey() {
-  return convertUTF8ToString(pointer: getPublicViewKeyNative());
-}
+String getPublicViewKey() =>
+    convertUTF8ToString(pointer: getPublicViewKeyNative());
 
-String getSecretSpendKey() {
-  return convertUTF8ToString(pointer: getSecretSpendKeyNative());
-}
+String getSecretSpendKey() =>
+    convertUTF8ToString(pointer: getSecretSpendKeyNative());
 
-String getPublicSpendKey() {
-  return convertUTF8ToString(pointer: getPublicSpendKeyNative());
-}
+String getPublicSpendKey() =>
+    convertUTF8ToString(pointer: getPublicSpendKeyNative());
 
 class SyncListener {
   SyncListener(this.onNewBlock, this.onNewTransaction)
@@ -337,9 +320,7 @@ SyncListener setListeners(void Function(int, int, double) onNewBlock,
   return listener;
 }
 
-void onStartup() {
-  onStartupNative();
-}
+void onStartup() => onStartupNative();
 
 void _storeSync(Object _) => storeSync();
 
@@ -364,9 +345,7 @@ bool _isConnected(Object _) => isConnectedSync();
 
 int _getNodeHeight(Object _) => getNodeHeightSync();
 
-void startRefresh() {
-  startRefreshSync();
-}
+void startRefresh() => startRefreshSync();
 
 Future<void> setupNode(
         {required String address,
@@ -390,9 +369,7 @@ Future<bool> isConnected() => compute(_isConnected, 0);
 
 Future<int> getNodeHeight() => compute(_getNodeHeight, 0);
 
-void rescanBlockchainAsync() {
-  rescanBlockchainAsyncNative();
-}
+void rescanBlockchainAsync() => rescanBlockchainAsyncNative();
 
 Future setTrustedDaemon(bool trusted) async => setTrustedDaemonNative(_boolToInt(trusted));
 
