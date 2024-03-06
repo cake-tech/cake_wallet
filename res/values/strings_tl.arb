@@ -655,6 +655,7 @@
   "token_symbol": "Simbolo ng token hal: USDT",
   "tokenID": "ID",
   "tor_connection": "Koneksyon ng Tor",
+  "tor_enabled_warning": "Mangyaring tandaan na ang Tor ay kasalukuyang isang pinakamahusay na pagsisikap at ang ilang mga serbisyo ay maaaring hindi gumana o bumalik sa Clearnet kung nabigo ang koneksyon",
   "tor_feature_disabled": "Ang tampok na ito ay hindi pinagana habang ang mode lamang ay pinagana upang maprotektahan ang iyong privacy dahil ang tampok na ito ay hindi kumonekta sa tor",
   "tor_only": "Tor lang",
   "tor_only_warning": "Ang ilang mga tampok ay maaaring hindi pinagana upang maprotektahan ang iyong privacy kapag gumagamit lamang ng mode ng tor",

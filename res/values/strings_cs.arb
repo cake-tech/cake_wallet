@@ -655,6 +655,7 @@
   "token_symbol": "Symbol tokenu, např.: USDT",
   "tokenID": "ID",
   "tor_connection": "Připojení Tor",
+  "tor_enabled_warning": "Vezměte prosím na vědomí, že Tor je v současné době nejlepším úsilím a některé služby nemusí fungovat nebo se vrátit zpět na Clearnet, pokud připojení selže",
   "tor_feature_disabled": "Tato funkce je zakázána, zatímco režim pouze TOR je povolen k ochraně vašeho soukromí, protože tato funkce se nepřipojuje přes tor",
   "tor_only": "Pouze Tor",
   "tor_only_warning": "Některé funkce mohou být deaktivovány k ochraně vašeho soukromí při používání režimu pouze TOR",

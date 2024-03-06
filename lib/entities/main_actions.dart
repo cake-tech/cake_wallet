@@ -44,6 +44,10 @@ class MainActions {
         return;
       }
 
+      if (viewModel.isTorEnabled) {
+        _showErrorDialog(context, S.of(context).warning, S.of(context).tor_enabled_warning);
+      }
+
       final defaultBuyProvider = viewModel.defaultBuyProvider;
       try {
         defaultBuyProvider != null
@@ -69,9 +73,15 @@ class MainActions {
     isEnabled: (viewModel) => viewModel.isEnabledExchangeAction,
     canShow: (viewModel) => viewModel.hasExchangeAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
-      if (viewModel.isEnabledExchangeAction) {
-        await Navigator.of(context).pushNamed(Routes.exchange);
+      if (!viewModel.isEnabledExchangeAction) {
+        return;
       }
+
+      if (viewModel.isTorEnabled) {
+        _showErrorDialog(context, S.of(context).warning, S.of(context).tor_enabled_warning);
+      }
+      
+      await Navigator.of(context).pushNamed(Routes.exchange);
     },
   );
 
@@ -96,6 +106,10 @@ class MainActions {
       if (viewModel.isTorOnly) {
         _showErrorDialog(context, S.of(context).error, S.of(context).tor_feature_disabled);
         return;
+      }
+
+      if (viewModel.isTorEnabled) {
+        _showErrorDialog(context, S.of(context).warning, S.of(context).tor_enabled_warning);
       }
 
       final defaultSellProvider = viewModel.defaultSellProvider;

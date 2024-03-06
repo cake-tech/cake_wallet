@@ -657,6 +657,7 @@
   "token_symbol": "Símbolo de token, por exemplo: USDT",
   "tokenID": "EU IA",
   "tor_connection": "Conexão Tor",
+  "tor_enabled_warning": "Observe que o Tor é atualmente o melhor esforço e alguns serviços podem não funcionar ou voltar para o clearnet se a conexão falhar",
   "tor_feature_disabled": "Esse recurso está desativado, enquanto o modo apenas Tor está habilitado para proteger sua privacidade, pois esse recurso não se conecta",
   "tor_only": "Tor apenas",
   "tor_only_warning": "Alguns recursos podem ser desativados para proteger sua privacidade ao usar apenas o modo Tor",

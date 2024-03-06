@@ -655,6 +655,7 @@
   "token_symbol": "代币符号例如：USDT",
   "tokenID": "ID",
   "tor_connection": "Tor连接",
+  "tor_enabled_warning": "请注意，TOR目前是最好的努力，如果连接失败，某些服务可能无法正常工作或落回Clearnet",
   "tor_feature_disabled": "此功能在启用仅TOR模式的同时被禁用，以保护您的隐私，因为此功能无法通过TOR连接",
   "tor_only": "仅限 Tor",
   "tor_only_warning": "某些功能可能会被禁用以保护您的隐私时仅使用TOR模式",

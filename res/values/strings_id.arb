@@ -658,6 +658,7 @@
   "token_symbol": "Simbol token misalnya: USDT",
   "tokenID": "PENGENAL",
   "tor_connection": "koneksi Tor",
+  "tor_enabled_warning": "Harap dicatat bahwa Tor saat ini merupakan upaya terbaik dan beberapa layanan mungkin tidak berfungsi atau kembali ke ClearNet jika koneksi gagal",
   "tor_feature_disabled": "Fitur ini dinonaktifkan sementara mode Tor Only diaktifkan untuk melindungi privasi Anda karena fitur ini tidak terhubung melalui Tor",
   "tor_only": "Hanya Tor",
   "tor_only_warning": "Beberapa fitur mungkin dinonaktifkan untuk melindungi privasi Anda saat menggunakan mode tor saja",

@@ -358,6 +358,11 @@ abstract class DashboardViewModelBase with Store {
   bool get isTorOnly => settingsStore.torConnectionMode == TorConnectionMode.torOnly;
 
   @computed
+  bool get isTorEnabled =>
+      settingsStore.torConnectionMode == TorConnectionMode.enabled ||
+      settingsStore.torConnectionMode == TorConnectionMode.torOnly;
+
+  @computed
   bool get isEnabledSellAction => !settingsStore.disableSell && availableSellProviders.isNotEmpty;
 
   @observable

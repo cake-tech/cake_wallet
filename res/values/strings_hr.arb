@@ -655,6 +655,7 @@
   "token_symbol": "Simbol tokena npr.: USDT",
   "tokenID": "iskaznica",
   "tor_connection": "Tor veza",
+  "tor_enabled_warning": "Imajte na umu da je Tor trenutno najbolji napor, a neke usluge možda neće raditi ili se vratiti na Clearnet ako veza ne uspije",
   "tor_feature_disabled": "Ova je značajka onemogućena dok je način samo TOR omogućen kako bi zaštitio vašu privatnost jer se ova značajka ne povezuje preko Tor -a",
   "tor_only": "Samo Tor",
   "tor_only_warning": "Neke značajke mogu biti onemogućene za zaštitu vaše privatnosti kada koristite TOR način",

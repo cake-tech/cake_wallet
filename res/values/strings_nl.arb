@@ -655,6 +655,7 @@
   "token_symbol": "Tokensymbool bijv.: USDT",
   "tokenID": "ID kaart",
   "tor_connection": "Tor-verbinding",
+  "tor_enabled_warning": "Houd er rekening mee dat Tor momenteel een beste inspanning is en dat sommige diensten mogelijk niet werken of terugvallen naar Clearnet als de verbinding mislukt",
   "tor_feature_disabled": "Deze functie is uitgeschakeld, terwijl alleen TOR -modus is ingeschakeld om uw privacy te beschermen, omdat deze functie geen verbinding maakt via Tor",
   "tor_only": "Alleen Tor",
   "tor_only_warning": "Sommige functies kunnen worden uitgeschakeld om uw privacy te beschermen wanneer u alleen de Tor -modus gebruikt",
