@@ -72,6 +72,7 @@ class CWLightning extends Lightning {
   @override
   ReceivePageOption getOptionOnchain() => LightningReceivePageOption.lightningOnchain;
 
+  @override
   String satsToLightningString(int sats) {
     const bitcoinAmountLength = 8;
     const bitcoinAmountDivider = 100000000;
@@ -84,16 +85,28 @@ class CWLightning extends Lightning {
     return formattedAmount.substring(0, formattedAmount.length - 2);
   }
 
+  @override
   String bitcoinAmountToLightningString({required int amount}) {
     final bitcoinAmountFormat = NumberFormat()
       ..maximumFractionDigits = bitcoinAmountLength
       ..minimumFractionDigits = 1;
-    String formattedAmount = bitcoinAmountFormat
-        .format(cryptoAmountToDouble(amount: amount, divider: 1));
+    String formattedAmount =
+        bitcoinAmountFormat.format(cryptoAmountToDouble(amount: amount, divider: 1));
     return formattedAmount.substring(0, formattedAmount.length - 2);
   }
 
+  @override
   int bitcoinAmountToLightningAmount({required int amount}) {
     return amount * 100000000;
+  }
+
+  @override
+  double bitcoinDoubleToLightningDouble({required double amount}) {
+    return amount * 100000000;
+  }
+
+  @override
+  double lightningDoubleToBitcoinDouble({required double amount}) {
+    return amount / 100000000;
   }
 }

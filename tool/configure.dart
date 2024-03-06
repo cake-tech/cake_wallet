@@ -775,6 +775,8 @@ abstract class Lightning {
   ReceivePageOption getOptionOnchain();
   String bitcoinAmountToLightningString({required int amount});
   int bitcoinAmountToLightningAmount({required int amount});
+  double bitcoinDoubleToLightningDouble({required double amount});
+  double lightningDoubleToBitcoinDouble({required double amount});
 }
   """;
 

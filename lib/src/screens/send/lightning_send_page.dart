@@ -171,6 +171,7 @@ class LightningSendPage extends BasePage {
                       onPushPasteButton: (context) async {
                         output.resetParsedAddress();
                         await output.fetchParsedAddress(context);
+                        await send(context);
                       },
                       onPushAddressBookButton: (context) async {
                         output.resetParsedAddress();
@@ -188,28 +189,11 @@ class LightningSendPage extends BasePage {
             bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
             bottomSection: Column(
               children: <Widget>[
-                LoadingPrimaryButton(
+                PrimaryButton(
                   text: S.of(context).send,
                   color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
-                  isLoading: lightningViewModel.loading,
-                  onPressed: () async {
-                    try {
-                      lightningViewModel.setLoading(true);
-                      await processInput(context);
-                      lightningViewModel.setLoading(false);
-                    } catch (e) {
-                      showPopUp<void>(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertWithOneAction(
-                                alertTitle: S.of(context).error,
-                                alertContent: e.toString(),
-                                buttonText: S.of(context).ok,
-                                buttonAction: () => Navigator.of(context).pop());
-                          });
-                    }
-                  },
+                  onPressed: () => send(context),
                 ),
               ],
             ),
@@ -217,6 +201,22 @@ class LightningSendPage extends BasePage {
         ),
       ),
     );
+  }
+
+  Future<void> send(BuildContext context) async {
+    try {
+      await processInput(context);
+    } catch (e) {
+      showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
+                alertTitle: S.of(context).error,
+                alertContent: e.toString(),
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
+          });
+    }
   }
 
   Future<bool> _onNavigateBack(BuildContext context) async {
