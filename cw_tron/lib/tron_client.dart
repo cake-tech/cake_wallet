@@ -176,7 +176,7 @@ class TronClient {
       print('About to send trc token');
       final tokenAddress = (currency as TronToken).contractAddress;
 
-      rawTransaction = await _signTrc10TokenTransaction(
+      rawTransaction = await _signTrcTokenTransaction(
         ownerAddress,
         receiverAddress,
         amount,
@@ -248,7 +248,7 @@ class TronClient {
     return rawTransaction;
   }
 
-  Future<TransactionRaw> _signTrc10TokenTransaction(
+  Future<TransactionRaw> _signTrcTokenTransaction(
     TronAddress ownerAddress,
     TronAddress receiverAddress,
     String amount,
