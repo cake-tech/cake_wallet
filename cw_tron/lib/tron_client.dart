@@ -5,6 +5,7 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_tron/pending_tron_transaction.dart';
+import 'package:cw_tron/tron_abi.dart';
 import 'package:cw_tron/tron_balance.dart';
 import 'package:cw_tron/tron_http_provider.dart';
 import 'package:cw_tron/tron_token.dart';
@@ -70,7 +71,7 @@ class TronClient {
     }
   }
 
-  Future<int> getFee(
+  Future<int> getFeeLimit(
     TransactionRaw rawTransaction,
     TronAddress address,
     TronAddress receiverAddress,
@@ -150,25 +151,72 @@ class TronClient {
     }
   }
 
-  Future<PendingTronTransaction> signTransaction({
+  Future<PendingTronTransaction> signTransaction({ 
     required TronPrivateKey ownerPrivKey,
     required String toAddress,
     required String amount,
-    required int gas,
     required CryptoCurrency currency,
-    required int exponent,
-    String? contractAddress,
   }) async {
-    assert(currency == CryptoCurrency.trx || contractAddress != null);
-
     // Get the owner tron address from the key
     final ownerAddress = ownerPrivKey.publicKey().toAddress();
 
-    // Fetch the latest Tron block using the TronRequestGetNowBlock API.
-    final block = await _provider!.request(TronRequestGetNowBlock());
-
     // Define the receiving Tron address for the transaction.
     final receiverAddress = TronAddress(toAddress);
+
+    bool isNativeTransaction = currency == CryptoCurrency.trx;
+
+    TransactionRaw rawTransaction;
+    if (isNativeTransaction) {
+      rawTransaction = await _signNativeTransaction(
+        ownerAddress,
+        receiverAddress,
+        amount,
+      );
+    } else {
+      print('About to send trc token');
+      final tokenAddress = (currency as TronToken).contractAddress;
+
+      rawTransaction = await _signTrc10TokenTransaction(
+        ownerAddress,
+        receiverAddress,
+        amount,
+        tokenAddress,
+      );
+    }
+
+    final totalBurnInSun = await getFeeLimit(rawTransaction, ownerAddress, receiverAddress);
+
+    /// Now that we have calculated the transaction fee,
+    /// it is not necessary to set the fee limit for the transaction.
+    /// Fee limits are only applicable when sending smart contract transactions.
+    rawTransaction = rawTransaction.copyWith(feeLimit: BigInt.from(10000000));
+
+    print('Raw transaction id: ${rawTransaction.txID}');
+
+    final signature = ownerPrivKey.sign(rawTransaction.toBuffer());
+
+    sendTx() async => await sendTransaction(
+          rawTransaction: rawTransaction,
+          signature: signature,
+        );
+
+    final fee = TronHelper.fromSun(BigInt.from(totalBurnInSun));
+
+    return PendingTronTransaction(
+      signedTransaction: signature,
+      amount: amount,
+      fee: fee,
+      sendTransaction: sendTx,
+    );
+  }
+
+  Future<TransactionRaw> _signNativeTransaction(
+    TronAddress ownerAddress,
+    TronAddress receiverAddress,
+    String amount,
+  ) async {
+    // Fetch the latest Tron block using the TronRequestGetNowBlock API.
+    final block = await _provider!.request(TronRequestGetNowBlock());
 
     // create transfer contract
     final contract = TransferContract(
@@ -192,32 +240,72 @@ class TronClient {
       refBlockBytes: block.blockHeader.rawData.refBlockBytes,
       refBlockHash: block.blockHeader.rawData.refBlockHash,
       expiration: BigInt.from(expireTime.millisecondsSinceEpoch),
-      data: utf8.encode("https://github.com/mrtnetwork"), // Memo or additional data
+      // data: utf8.encode("https://github.com/mrtnetwork"), // Memo or additional data
       contract: [transactionContract],
       timestamp: block.blockHeader.rawData.timestamp,
     );
 
-    final totalBurnInSun = await getFee(rawTransaction, ownerAddress, receiverAddress);
+    return rawTransaction;
+  }
 
-    /// Now that we have calculated the transaction fee,
-    /// it is not necessary to set the fee limit for the transaction.
-    /// Fee limits are only applicable when sending smart contract transactions.
-    rawTransaction = rawTransaction.copyWith(feeLimit: BigInt.from(totalBurnInSun));
+  Future<TransactionRaw> _signTrc10TokenTransaction(
+    TronAddress ownerAddress,
+    TronAddress receiverAddress,
+    String amount,
+    String contractAddress,
+  ) async {
+    // /// create transfer asset contraact
+    // final contract = TransferAssetContract(
+    //   ownerAddress: ownerAddress,
 
-    final signature = ownerPrivKey.sign(rawTransaction.toBuffer());
+    //   /// token address (MRT trc10 token)  we create this token in create trc10 example
+    //   assetName: utf8.encode("1001449"),
 
-    sendTx() async => await sendTransaction(
-          rawTransaction: rawTransaction,
-          signature: signature,
-        );
+    //   /// token issue address
+    //   toAddress: receiverAddress,
+    //   amount: TronHelper.toSun(amount),
+    // );
 
-    return PendingTronTransaction(
-      signedTransaction: signature,
-      amount: amount,
-      fee: BigInt.zero,
-      sendTransaction: sendTx,
-      exponent: exponent,
+    // /// validate transacation and got required data like block hash and ....
+    // final request = await _provider!.request(TronRequestTransferAsset.fromJson(contract));
+
+    // /// get transactionRaw from response and make sure set fee limit
+    // final rawTransaction = request.transactionRaw!.copyWith(
+    //     feeLimit: BigInt.from(10000000), data: utf8.encode("https://github.com/mrtnetwork"));
+
+    // return rawTransaction;
+
+    final contract = ContractABI.fromJson(trc20Abi, isTron: true);
+
+    final function = contract.functionFromName("transfer");
+
+    /// address /// amount
+    final transferparams = [
+      receiverAddress,
+      TronHelper.toSun(amount),
+    ];
+
+    final contractAddr = TronAddress(contractAddress);
+
+    final request = await _provider!.request(
+      TronRequestTriggerConstantContract(
+        ownerAddress: ownerAddress,
+        contractAddress: contractAddr,
+        data: function.encodeHex(transferparams),
+      ),
     );
+
+    if (!request.isSuccess) {
+      print("Tron TRC20 error: ${request.error} \n ${request.respose}");
+    }
+
+    /// get transactionRaw from response and make sure set fee limit
+    final rawTransaction = request.transactionRaw!.copyWith(
+      feeLimit: TronHelper.toSun("10000000"),
+      data: utf8.encode("https://github.com/mrtnetwork"),
+    );
+
+    return rawTransaction;
   }
 
   Future<String> sendTransaction({

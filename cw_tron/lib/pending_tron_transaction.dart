@@ -1,5 +1,4 @@
-import 'dart:math';
-import 'dart:typed_data';
+
 
 import 'package:cw_core/pending_transaction.dart';
 import 'package:web3dart/crypto.dart';
@@ -7,32 +6,24 @@ import 'package:web3dart/crypto.dart';
 class PendingTronTransaction with PendingTransaction {
   final Function sendTransaction;
   final List<int> signedTransaction;
-  final BigInt fee;
+  final String fee;
   final String amount;
-  final int exponent;
 
   PendingTronTransaction({
     required this.sendTransaction,
     required this.signedTransaction,
     required this.fee,
     required this.amount,
-    required this.exponent,
   });
 
   @override
-  String get amountFormatted {
-    final _amount = (BigInt.parse(amount) / BigInt.from(pow(10, exponent))).toString();
-    return _amount.substring(0, min(10, _amount.length));
-  }
+  String get amountFormatted => amount;
 
   @override
   Future<void> commit() async => await sendTransaction();
 
   @override
-  String get feeFormatted {
-    final _fee = (fee / BigInt.from(pow(10, 18))).toString();
-    return _fee.substring(0, min(10, _fee.length));
-  }
+  String get feeFormatted => fee;
 
   @override
   String get hex => bytesToHex(signedTransaction, include0x: true);

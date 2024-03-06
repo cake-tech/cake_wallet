@@ -23,6 +23,7 @@ import 'package:cw_tron/default_tron_tokens.dart';
 import 'package:cw_tron/file.dart';
 import 'package:cw_tron/tron_balance.dart';
 import 'package:cw_tron/tron_client.dart';
+import 'package:cw_tron/tron_exception.dart';
 import 'package:cw_tron/tron_token.dart';
 import 'package:cw_tron/tron_transaction_credentials.dart';
 import 'package:cw_tron/tron_transaction_history.dart';
@@ -145,23 +146,6 @@ abstract class TronWalletBase
   //   return isPolygonScanEnabled;
   // }
 
-  TronTransactionInfo getTransactionInfo(TronTransactionModel transactionModel, String address) {
-    final model = TronTransactionInfo(
-      id: transactionModel.hash,
-      tronAmount: transactionModel.amount,
-      direction: transactionModel.from == address
-          ? TransactionDirection.outgoing
-          : TransactionDirection.incoming,
-      isPending: false,
-      txDate: transactionModel.date,
-      txFee: BigInt.from(transactionModel.gasUsed) * transactionModel.gasPrice,
-      tokenSymbol: transactionModel.tokenSymbol ?? "TRX",
-      to: transactionModel.to,
-      from: transactionModel.from,
-    );
-    return model;
-  }
-
   String idFor(String name, WalletType type) => '${walletTypeToString(type).toLowerCase()}_$name';
 
   TronTransactionHistory setUpTransactionHistory(WalletInfo walletInfo, String password) {
@@ -271,74 +255,54 @@ abstract class TronWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-    final _credentials = credentials as TronTransactionCredentials;
-    final outputs = _credentials.outputs;
+    final tronCredentials = credentials as TronTransactionCredentials;
+
+    final outputs = tronCredentials.outputs;
+
     final hasMultiDestination = outputs.length > 1;
 
-    // final CryptoCurrency transactionCurrency =
-    //     balance.keys.firstWhere((element) => element.title == _credentials.currency.title);
+    final CryptoCurrency transactionCurrency =
+        balance.keys.firstWhere((element) => element.title == tronCredentials.currency.title);
 
-    // final _erc20Balance = balance[transactionCurrency]!;
-    // BigInt totalAmount = BigInt.zero;
-    // int exponent = transactionCurrency is Erc20Token ? transactionCurrency.decimal : 18;
-    // num amountToEVMChainMultiplier = pow(10, exponent);
+    final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
 
-    // // so far this can not be made with Ethereum as Ethereum does not support multiple recipients
-    // if (hasMultiDestination) {
-    //   if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
-    //     throw TronTransactionCreationException(transactionCurrency);
-    //   }
+    BigInt totalAmount = BigInt.zero;
 
-    //   final totalOriginalAmount = TronFormatter.parseEVMChainAmountToDouble(
-    //       outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
-    //   totalAmount = BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
+    if (hasMultiDestination) {
+      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
+        throw TronTransactionCreationException(transactionCurrency);
+      }
 
-    //   if (_erc20Balance.balance < totalAmount) {
-    //     throw TronTransactionCreationException(transactionCurrency);
-    //   }
-    // } else {
-    //   final output = outputs.first;
-    //   // since the fees are taken from Ethereum
-    //   // then no need to subtract the fees from the amount if send all
-    //   final BigInt allAmount;
-    //   if (transactionCurrency is Erc20Token) {
-    //     allAmount = _erc20Balance.balance;
-    //   } else {
-    //     allAmount = _erc20Balance.balance -
-    //         BigInt.from(calculateEstimatedFee(_credentials.priority!, null));
-    //   }
-    //   final totalOriginalAmount =
-    //       EVMChainFormatter.parseEVMChainAmountToDouble(output.formattedCryptoAmount ?? 0);
-    //   totalAmount = output.sendAll
-    //       ? allAmount
-    //       : BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
+      final totalAmountFromCredentials =
+          outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
 
-    //   if (_erc20Balance.balance < totalAmount) {
-    //     throw EVMChainTransactionCreationException(transactionCurrency);
-    //   }
-    // }
+      totalAmount = BigInt.from(totalAmountFromCredentials);
 
-    // final pendingEVMChainTransaction = await _client.signTransaction(
-    //   privateKey: _tronPrivateKey,
-    //   toAddress: _credentials.outputs.first.isParsedAddress
-    //       ? _credentials.outputs.first.extractedAddress!
-    //       : _credentials.outputs.first.address,
-    //   amount: totalAmount.toString(),
-    //   gas: _estimatedGas!,
-    //   priority: _credentials.priority!,
-    //   currency: transactionCurrency,
-    //   exponent: exponent,
-    //   contractAddress:
-    //       transactionCurrency is Erc20Token ? transactionCurrency.contractAddress : null,
-    // );
+      if (walletBalanceForCurrency < totalAmount) {
+        throw TronTransactionCreationException(transactionCurrency);
+      }
+    } else {
+      final output = outputs.first;
 
-    return PendingEVMChainTransaction(
-      sendTransaction: () {},
-      signedTransaction: Uint8List(2),
-      fee: BigInt.zero,
-      amount: '10',
-      exponent: 8,
+      final totalOriginalAmount = double.parse(output.cryptoAmount ?? '0.0');
+
+      totalAmount = output.sendAll ? walletBalanceForCurrency : BigInt.from(totalOriginalAmount);
+
+      if (walletBalanceForCurrency < totalAmount) {
+        throw TronTransactionCreationException(transactionCurrency);
+      }
+    }
+
+    final pendingTransaction = await _client.signTransaction(
+      ownerPrivKey: _tronPrivateKey,
+      toAddress: tronCredentials.outputs.first.isParsedAddress
+          ? tronCredentials.outputs.first.extractedAddress!
+          : tronCredentials.outputs.first.address,
+      amount: totalAmount.toString(),
+      currency: transactionCurrency,
     );
+
+    return pendingTransaction;
   }
 
   Future<void> _updateTransactions() async {
@@ -390,7 +354,19 @@ abstract class TronWalletBase
         continue;
       }
 
-      result[transactionModel.hash] = getTransactionInfo(transactionModel, address);
+      result[transactionModel.hash] = TronTransactionInfo(
+        id: transactionModel.hash,
+        tronAmount: transactionModel.amount,
+        direction: transactionModel.from == address
+            ? TransactionDirection.outgoing
+            : TransactionDirection.incoming,
+        isPending: false,
+        txDate: transactionModel.date,
+        txFee: BigInt.from(transactionModel.gasUsed) * transactionModel.gasPrice,
+        tokenSymbol: transactionModel.tokenSymbol ?? "TRX",
+        to: transactionModel.to,
+        from: transactionModel.from,
+      );
     }
 
     return result;

@@ -253,6 +253,9 @@ abstract class OutputBase with Store {
       case WalletType.solana:
         maximumFractionDigits = 12;
         break;
+      case WalletType.tron:
+        maximumFractionDigits = 12;
+        break;
       default:
         break;
     }
