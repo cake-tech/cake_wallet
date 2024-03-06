@@ -769,10 +769,10 @@ abstract class Lightning {
   int formatterStringDoubleToLightningAmount(String amount);
   WalletService createLightningWalletService(
       Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
-  List<LightningReceivePageOption> getLightningReceivePageOptions();
+  List<ReceivePageOption> getLightningReceivePageOptions();
   String satsToLightningString(int sats);
-  LightningReceivePageOption getOptionInvoice();
-  LightningReceivePageOption getOptionOnchain();
+  ReceivePageOption getOptionInvoice();
+  ReceivePageOption getOptionOnchain();
   String bitcoinAmountToLightningString({required int amount});
   int bitcoinAmountToLightningAmount({required int amount});
 }
