@@ -119,11 +119,17 @@ class ParsedAddress {
     );
   }
 
-  factory ParsedAddress.nostrAddress({required String address, required String name}) {
+  factory ParsedAddress.nostrAddress(
+      {required String address,
+      required String name,
+      required String profileImageUrl,
+      required String profileName}) {
     return ParsedAddress(
       addresses: [address],
       name: name,
       parseFrom: ParseFrom.nostr,
+      profileImageUrl: profileImageUrl,
+      profileName: profileName,
     );
   }
 

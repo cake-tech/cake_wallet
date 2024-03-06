@@ -295,6 +295,16 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.sol:
         return '([^0-9a-zA-Z]|^)[1-9A-HJ-NP-Za-km-z]{43,44}([^0-9a-zA-Z]|\$)';
       default:
+        if (type.tag == CryptoCurrency.eth.title) {
+          return '0x[0-9a-zA-Z]{42}';
+        }
+        if (type.tag == CryptoCurrency.maticpoly.tag) {
+          return '0x[0-9a-zA-Z]{42}';
+        }
+        if (type.tag == CryptoCurrency.sol.title) {
+          return '([^0-9a-zA-Z]|^)[1-9A-HJ-NP-Za-km-z]{43,44}([^0-9a-zA-Z]|\$)';
+        }
+
         return null;
     }
   }

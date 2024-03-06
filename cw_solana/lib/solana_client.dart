@@ -263,7 +263,7 @@ class SolanaWalletClient {
     required Ed25519HDKeyPair ownerKeypair,
     List<String> references = const [],
   }) async {
-    const commitment = Commitment.finalized;
+    const commitment = Commitment.confirmed;
 
     final latestBlockhash =
         await _client!.rpcClient.getLatestBlockhash(commitment: commitment).value;
@@ -394,9 +394,7 @@ class SolanaWalletClient {
         funder: ownerKeypair,
       );
     } catch (e) {
-      throw Exception(
-        'Error while creating an associated token account for the recipient: ${e.toString()}',
-      );
+      throw Exception('Insufficient lamports balance to complete this transaction');
     }
 
     // Input by the user
@@ -468,7 +466,10 @@ class SolanaWalletClient {
     required SignedTx signedTransaction,
     required Commitment commitment,
   }) async {
-    final signature = await _client!.rpcClient.sendTransaction(signedTransaction.encode());
+    final signature = await _client!.rpcClient.sendTransaction(
+      signedTransaction.encode(),
+      preflightCommitment: commitment,
+    );
 
     _client!.waitForSignatureStatus(signature, status: commitment);
 
