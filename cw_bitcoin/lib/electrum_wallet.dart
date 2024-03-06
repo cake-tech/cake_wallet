@@ -605,7 +605,10 @@ abstract class ElectrumWalletBase
 
   Future<bool> canReplaceByFee(String hash) async {
     final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
+    final confirmations = verboseTransaction['confirmations'] as int? ?? 0;
     final transactionHex = verboseTransaction['hex'] as String?;
+
+    if (confirmations > 0) return false;
 
     if (transactionHex == null) {
       return false;
