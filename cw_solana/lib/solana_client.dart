@@ -394,9 +394,7 @@ class SolanaWalletClient {
         funder: ownerKeypair,
       );
     } catch (e) {
-      throw Exception(
-        'Error while creating an associated token account for the recipient: ${e.toString()}',
-      );
+      throw Exception('Insufficient lamports balance to complete this transaction');
     }
 
     // Input by the user
