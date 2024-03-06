@@ -35,6 +35,7 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -668,7 +669,23 @@ abstract class ElectrumWalletBase
       final outputs = <BitcoinOutput>[];
       final outputAddresses = <BitcoinBaseAddress>[];
 
-      // TODO: check whether to only deduct from change or from output too
+
+      bool changeAdjusted = false;
+
+      if (outputs.isNotEmpty) {
+        final lastOutput = outputs.last;
+        final lastOutputAmount = lastOutput.value.toInt();
+        if (lastOutputAmount > remainingFee) {
+          outputs[outputs.length - 1] = BitcoinOutput(
+              address: lastOutput.address, value: BigInt.from(lastOutputAmount - remainingFee));
+          remainingFee = 0;
+          changeAdjusted = true;
+        }
+      }
+
+      if (!changeAdjusted && remainingFee > 0) {
+        throw Exception("Insufficient change to cover the increased fee. Additional fee required: $remainingFee");
+      }
       // Add outputs and deduct the fees from it
       for (int i = bundle.originalTransaction.outputs.length - 1; i >= 0; i--) {
         final out = bundle.originalTransaction.outputs[i];
