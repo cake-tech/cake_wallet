@@ -321,7 +321,7 @@
   "last_30_days": "Ọ̀jọ̀ mọ́gbọ̀n tó kọjà",
   "learn_more": "Túbọ̀ kọ́",
   "light_theme": "Funfun bí eérú",
-  "lightning_invoice_min": "Owo oso ti 0.4% pẹlu o kere ju ${min} Sahs yoo lo lori gbigba ikowe yii.",
+  "lightning_invoice_min": "A oto kan ọya ti ${feePercent}% pẹlu o kere ju ${min} Awọn Sahs yoo lo lori gbigba iwe-ẹkọ yii",
   "lightning_invoice_min_max": "A oso ti oso ti 0.4% pẹlu o kere ju ${min} Sala yoo lo diẹ sii ju ${max} Sats",
   "lightning_invoice_warning": "O gbọdọ pa app naa titi ti isanwo ti pari tabi idunadura naa yoo kuna",
   "lightning_receive_limits": "Firanṣẹ diẹ sii ju ${min} osù ati si to ${max} O si só si adirẹsi yii. Owo oso ti 0.4% pẹlu o kere ju ${fee} Sahs yoo lo lori gbigba invoisi yii. Eyi yoo ṣe iyipada eyikeyi ti o gba bitcoin sinu monomono. Owo lori-pq yoo lo. Adirẹsi yii le ṣee lo lẹẹkan.",
