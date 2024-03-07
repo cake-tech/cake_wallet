@@ -213,6 +213,7 @@ class LightningReceiveOnchainPage extends BasePage {
                         S.of(context).lightning_receive_limits(
                               lightning!.satsToLightningString(results.minAllowedDeposit),
                               lightning!.satsToLightningString(results.maxAllowedDeposit),
+                              results.feePercent.toString(),
                               lightning!.satsToLightningString(results.fee),
                             ),
                         maxLines: 10,

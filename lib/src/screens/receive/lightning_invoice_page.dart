@@ -172,11 +172,12 @@ class LightningInvoicePage extends BasePage {
                             InvoiceSoftLimitsResult limits =
                                 snapshot.data as InvoiceSoftLimitsResult;
                             if (limits.inboundLiquidity == 0) {
-                              finalText = S
-                                  .of(context)
-                                  .lightning_invoice_min(lightning!.satsToLightningString(limits.minFee));
+                              finalText = S.of(context).lightning_invoice_min(
+                                  limits.feePercent.toString(),
+                                  lightning!.satsToLightningString(limits.minFee));
                             } else {
                               finalText = S.of(context).lightning_invoice_min_max(
+                                    limits.feePercent.toString(),
                                     lightning!.satsToLightningString(limits.minFee),
                                     lightning!.satsToLightningString(limits.inboundLiquidity),
                                   );

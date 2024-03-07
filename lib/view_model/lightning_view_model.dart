@@ -23,12 +23,26 @@ abstract class LightningViewModelBase with Store {
     BZG.SwapInfo swapInfo = await sdk.receiveOnchain(req: req);
     print("Minimum amount allowed to deposit in sats: ${swapInfo.minAllowedDeposit}");
     print("Maximum amount allowed to deposit in sats: ${swapInfo.maxAllowedDeposit}");
-    int fee = swapInfo.channelOpeningFees?.minMsat ?? 2000;
-    fee = fee ~/ 1000;
+
+    int fee = 0;
+    double feePercent = 0;
+
+    try {
+      final nodeState = (await sdk.nodeInfo())!;
+      int inboundLiquidity = nodeState.inboundLiquidityMsats ~/ 1000;
+      final openingFees = await sdk.openChannelFee(
+          req: BZG.OpenChannelFeeRequest(amountMsat: inboundLiquidity + 1));
+      if (openingFees.usedFeeParams != null) {
+        feePercent = (openingFees.usedFeeParams!.proportional * 100) / 1000000;
+        fee = openingFees.usedFeeParams!.minMsat ~/ 1000;
+      }
+    } catch (_) {}
+    
     return ReceiveOnchainResult(
       bitcoinAddress: swapInfo.bitcoinAddress,
       minAllowedDeposit: swapInfo.minAllowedDeposit,
       maxAllowedDeposit: swapInfo.maxAllowedDeposit,
+      feePercent: feePercent,
       fee: fee,
     );
   }
@@ -88,12 +102,14 @@ class ReceiveOnchainResult {
   final int minAllowedDeposit;
   final int maxAllowedDeposit;
   final int fee;
+  final double feePercent;
 
   ReceiveOnchainResult({
     required this.bitcoinAddress,
     required this.minAllowedDeposit,
     required this.maxAllowedDeposit,
     required this.fee,
+    required this.feePercent,
   });
 }
 
