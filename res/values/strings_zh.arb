@@ -323,7 +323,7 @@
   "lightning_invoice_min": "收到此发票时，将收取至少${min} SAT的设置费为${feePercent}％",
   "lightning_invoice_min_max": "最少${min} SAT的设置费为${feePercent}％，将用于接收超过${max} SATS",
   "lightning_invoice_warning": "您必须保持应用程序打开，直到付款完成或交易将失败",
-  "lightning_receive_limits": "发送超过${min} sats，最多${max}坐在此地址。收到此发票后，将收取0.4％的设置费为0.4％，至少为${fee} SAT。这将把任何收到的比特币转换为闪电。将收取链费费。此地址只能使用一次。",
+  "lightning_receive_limits": "将超过 ${min} 个 sat 且最多 ${max} 个 sat 发送到此地址。 收到此发票后，将收取 ${feePercent}% 的安装费，至少 ${fee} sat。 这会将任何收到的比特币转换为闪电网络。 将收取链上费用。 该地址只能使用一次。",
   "loading_your_wallet": "加载您的钱包",
   "login": "登录",
   "logout": "注销",

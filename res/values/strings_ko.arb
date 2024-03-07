@@ -323,7 +323,7 @@
   "lightning_invoice_min": "이 송장을 받으면 최소 ${min} SAT가있는 ${feePercent}%의 설정 수수료가 적용됩니다.",
   "lightning_invoice_min_max": "최소 ${min} SAT의 ${feePercent}%의 설정 수수료는 ${max} sats 이상을 받기 위해 적용됩니다.",
   "lightning_invoice_warning": "결제가 완료되거나 거래가 실패 할 때까지 앱을 열어야합니다.",
-  "lightning_receive_limits": "${min} sats 이상을 보내고이 주소로 ${max} SATS를 보내십시오. 이 송장을 받으면 최소 ${fee} SAT가있는 0.4%의 설정 수수료가 적용됩니다. 이것은 수신 된 비트 코인을 번개로 변환합니다. 온쇄 수수료가 적용됩니다. 이 주소는 한 번만 사용할 수 있습니다.",
+  "lightning_receive_limits": "${min} sats 이상을 보내고이 주소로 ${max} SATS를 보내십시오. 이 송장을 받으면 최소 ${fee} SAT의 ${feePercent}%의 설정 수수료가 적용됩니다. 이것은 수신 된 비트 코인을 번개로 변환합니다. 온쇄 수수료가 적용됩니다. 이 주소는 한 번만 사용할 수 있습니다.",
   "loading_your_wallet": "지갑 넣기",
   "login": "로그인",
   "logout": "로그아웃",
