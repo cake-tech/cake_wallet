@@ -57,11 +57,7 @@ class MainActions {
     image: 'assets/images/received.png',
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
       if (viewModel.wallet.type == WalletType.lightning) {
-        Navigator.pushNamed(
-          context,
-          Routes.lightningInvoice,
-          arguments: [lightning!.getOptionInvoice()],
-        );
+        Navigator.pushNamed(context, Routes.lightningInvoice);
         return;
       }
       Navigator.pushNamed(context, Routes.addressPage);

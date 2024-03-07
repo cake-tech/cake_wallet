@@ -1209,32 +1209,32 @@ Future<void> setup({
         settingsStore: getIt.get<SettingsStore>(),
         fiatConversionStore: getIt.get<FiatConversionStore>(),
       ));
-  getIt.registerFactoryParam<LightningInvoicePageViewModel, List<dynamic>, void>((args, _) {
-    final pageOption = args.first as ReceivePageOption;
+
+  getIt.registerFactoryParam<LightningInvoicePageViewModel, void, void>((_, __) {
     return LightningInvoicePageViewModel(
       getIt.get<SettingsStore>(),
       getIt.get<AppStore>().wallet!,
       getIt.get<SharedPreferences>(),
       getIt.get<LightningViewModel>(),
-      pageOption,
     );
   });
 
-  getIt.registerFactoryParam<LightningReceiveOnchainPage, List<dynamic>, void>(
-      (List<dynamic> args, _) {
-    final pageOption = args.last as ReceivePageOption;
+  getIt.registerFactoryParam<LightningReceiveOnchainPage, void, void>((_, __) {
     return LightningReceiveOnchainPage(
-        addressListViewModel: getIt.get<WalletAddressListViewModel>(),
-        lightningViewModel: getIt.get<LightningViewModel>(),
-        receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(param1: pageOption));
+      addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+      lightningViewModel: getIt.get<LightningViewModel>(),
+      receiveOptionViewModel:
+          getIt.get<ReceiveOptionViewModel>(param1: lightning!.getOptionOnchain()),
+    );
   });
 
-  getIt.registerFactoryParam<LightningInvoicePage, List<dynamic>, void>((List<dynamic> args, _) {
-    final pageOption = args.last as ReceivePageOption;
+  getIt.registerFactoryParam<LightningInvoicePage, void, void>((_, __) {
     return LightningInvoicePage(
-        lightningInvoicePageViewModel: getIt.get<LightningInvoicePageViewModel>(param1: args),
-        lightningViewModel: getIt.get<LightningViewModel>(),
-        receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(param1: pageOption));
+      lightningInvoicePageViewModel: getIt.get<LightningInvoicePageViewModel>(),
+      lightningViewModel: getIt.get<LightningViewModel>(),
+      receiveOptionViewModel:
+          getIt.get<ReceiveOptionViewModel>(param1: lightning!.getOptionInvoice()),
+    );
   });
 
   getIt.registerFactory<LightningSendPage>(() {

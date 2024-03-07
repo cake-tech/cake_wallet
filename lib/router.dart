@@ -659,9 +659,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<LightningReceiveOnchainPage>(param1: args));
 
     case Routes.lightningInvoice:
-      final args = settings.arguments as List;
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<LightningInvoicePage>(param1: args));
+          fullscreenDialog: true, builder: (_) => getIt.get<LightningInvoicePage>());
 
     default:
       return MaterialPageRoute<void>(

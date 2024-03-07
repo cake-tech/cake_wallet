@@ -126,7 +126,11 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     required String password,
   }) async {
     final snp = await ElectrumWalletSnapshot.load(
-        name, walletInfo.type, password, BitcoinCashNetwork.mainnet);
+      name,
+      walletInfo.type,
+      password,
+      BitcoinNetwork.mainnet
+    );
     return LightningWallet(
       mnemonic: snp.mnemonic,
       password: password,

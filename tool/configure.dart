@@ -750,20 +750,6 @@ import 'package:cw_lightning/lightning_receive_page_option.dart';
   const lightningCwPart = "part 'cw_lightning.dart';";
   const lightningContent = """
 abstract class Lightning {
-  WalletCredentials createLightningRestoreWalletFromSeedCredentials(
-      {required String name, required String mnemonic, required String password});
-  WalletCredentials createLightningRestoreWalletFromWIFCredentials(
-      {required String name,
-      required String password,
-      required String wif,
-      WalletInfo? walletInfo});
-  WalletCredentials createLightningNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo});
-  Object createLightningTransactionCredentials(List<Output> outputs,
-      {required TransactionPriority priority, int? feeRate});
-  Object createLightningTransactionCredentialsRaw(List<OutputInfo> outputs,
-      {TransactionPriority? priority, required int feeRate});
-
   String formatterLightningAmountToString({required int amount});
   double formatterLightningAmountToDouble({required int amount});
   int formatterStringDoubleToLightningAmount(String amount);

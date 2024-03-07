@@ -21,7 +21,6 @@ abstract class LightningInvoicePageViewModelBase with Store {
     this._wallet,
     this.sharedPreferences,
     this.lightningViewModel,
-    this.pageOption,
   )   : description = '',
         amount = '',
         state = InitialExecutionState(),
@@ -34,7 +33,6 @@ abstract class LightningInvoicePageViewModelBase with Store {
   final SettingsStore settingsStore;
   final WalletBase _wallet;
   final SharedPreferences sharedPreferences;
-  final ReceivePageOption pageOption;
   final LightningViewModel lightningViewModel;
 
   @observable
