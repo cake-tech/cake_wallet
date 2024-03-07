@@ -431,7 +431,7 @@ abstract class TronWalletBase
 
   Future<void>? updateBalance() async => await _updateBalance();
 
-  List<TronToken> get tronCurrencies => tronTokensBox.values.toList();
+  List<TronToken> get tronTokenCurrencies => tronTokensBox.values.toList();
 
   Future<void> addTronToken(TronToken token) async {
     String? iconPath;
@@ -471,7 +471,7 @@ abstract class TronWalletBase
   }
 
   Future<TronToken?> getTronToken(String contractAddress) async =>
-      await _client.getTronToken(contractAddress);
+      await _client.getTronToken(contractAddress, _tronAddress);
 
   void _onNewTransaction() {
     _updateBalance();

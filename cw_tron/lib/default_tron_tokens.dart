@@ -11,9 +11,9 @@ class DefaultTronTokens {
       enabled: true,
     ),
     TronToken(
-      name: "Wrapped TRX",
-      symbol: "WTRX",
-      contractAddress: "TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR",
+      name: "USD Coin",
+      symbol: "USDC",
+      contractAddress: "TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8",
       decimal: 6,
       enabled: true,
     ),
@@ -25,13 +25,6 @@ class DefaultTronTokens {
       enabled: true,
     ),
     TronToken(
-      name: "Wrapped BTC",
-      symbol: "WBTC",
-      contractAddress: "TXpw8XeWYeTUd4quDskoUqeQPowRh4jY65",
-      decimal: 8,
-      enabled: true,
-    ),
-    TronToken(
       name: "Ethereum",
       symbol: "ETH",
       contractAddress: "TRFe3hT5oYhjSZ6f3ji5FJ7YCfrkWnHRvh",
@@ -39,10 +32,17 @@ class DefaultTronTokens {
       enabled: true,
     ),
     TronToken(
-      name: "USD Coin",
-      symbol: "USDC",
-      contractAddress: "TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8",
-      decimal: 6,
+      name: "Wrapped BTC",
+      symbol: "WBTC",
+      contractAddress: "TXpw8XeWYeTUd4quDskoUqeQPowRh4jY65",
+      decimal: 8,
+      enabled: true,
+    ),
+    TronToken(
+      name: "Dogecoin",
+      symbol: "DOGE",
+      contractAddress: "THbVQp8kMjStKNnf2iCY6NEzThKMK5aBHg",
+      decimal: 8,
       enabled: true,
     ),
     TronToken(
@@ -60,10 +60,10 @@ class DefaultTronTokens {
       enabled: false,
     ),
     TronToken(
-      name: "Dogecoin",
-      symbol: "DOGE",
-      contractAddress: "THbVQp8kMjStKNnf2iCY6NEzThKMK5aBHg",
-      decimal: 8,
+      name: "Wrapped TRX",
+      symbol: "WTRX",
+      contractAddress: "TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR",
+      decimal: 6,
       enabled: false,
     ),
     TronToken(

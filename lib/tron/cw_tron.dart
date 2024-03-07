@@ -76,7 +76,8 @@ class CWTron extends Tron {
       );
 
   @override
-  List<TronToken> getTronCurrencies(WalletBase wallet) => (wallet as TronWallet).tronCurrencies;
+  List<TronToken> getTronTokenCurrencies(WalletBase wallet) =>
+      (wallet as TronWallet).tronTokenCurrencies;
 
   @override
   Future<void> addTronToken(WalletBase wallet, CryptoCurrency token) async =>
@@ -91,6 +92,11 @@ class CWTron extends Tron {
       (wallet as TronWallet).getTronToken(contractAddress);
 
   @override
+  double getTransactionAmountRaw(TransactionInfo transactionInfo) {
+    return (transactionInfo as TronTransactionInfo).tronAmount.toDouble();
+  }
+
+  @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
     transaction as TronTransactionInfo;
     if (transaction.tokenSymbol == CryptoCurrency.trx.title) {
@@ -98,7 +104,7 @@ class CWTron extends Tron {
     }
 
     wallet as TronWallet;
-    return wallet.tronCurrencies.firstWhere(
+    return wallet.tronTokenCurrencies.firstWhere(
         (element) => transaction.tokenSymbol.toLowerCase() == element.symbol.toLowerCase());
   }
 

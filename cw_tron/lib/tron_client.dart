@@ -48,8 +48,6 @@ class TronClient {
     }
   }
 
-  Uint8List prepareSignedTransactionForSending(Uint8List signedTransaction) => signedTransaction;
-
   bool connect(Node node) {
     try {
       final formattedUrl = '${node.isSSL ? 'https' : 'http'}://${node.uriRaw}';
@@ -151,7 +149,7 @@ class TronClient {
     }
   }
 
-  Future<PendingTronTransaction> signTransaction({ 
+  Future<PendingTronTransaction> signTransaction({
     required TronPrivateKey ownerPrivKey,
     required String toAddress,
     required String amount,
@@ -173,7 +171,6 @@ class TronClient {
         amount,
       );
     } else {
-      print('About to send trc token');
       final tokenAddress = (currency as TronToken).contractAddress;
 
       rawTransaction = await _signTrcTokenTransaction(
@@ -186,9 +183,6 @@ class TronClient {
 
     final totalBurnInSun = await getFeeLimit(rawTransaction, ownerAddress, receiverAddress);
 
-    /// Now that we have calculated the transaction fee,
-    /// it is not necessary to set the fee limit for the transaction.
-    /// Fee limits are only applicable when sending smart contract transactions.
     rawTransaction = rawTransaction.copyWith(feeLimit: BigInt.from(10000000));
 
     print('Raw transaction id: ${rawTransaction.txID}');
@@ -200,12 +194,11 @@ class TronClient {
           signature: signature,
         );
 
-    final fee = TronHelper.fromSun(BigInt.from(totalBurnInSun));
-
     return PendingTronTransaction(
       signedTransaction: signature,
       amount: amount,
-      fee: fee,
+      //TODO: We need the fee!
+      fee: '',
       sendTransaction: sendTx,
     );
   }
@@ -240,7 +233,6 @@ class TronClient {
       refBlockBytes: block.blockHeader.rawData.refBlockBytes,
       refBlockHash: block.blockHeader.rawData.refBlockHash,
       expiration: BigInt.from(expireTime.millisecondsSinceEpoch),
-      // data: utf8.encode("https://github.com/mrtnetwork"), // Memo or additional data
       contract: [transactionContract],
       timestamp: block.blockHeader.rawData.timestamp,
     );
@@ -254,26 +246,6 @@ class TronClient {
     String amount,
     String contractAddress,
   ) async {
-    // /// create transfer asset contraact
-    // final contract = TransferAssetContract(
-    //   ownerAddress: ownerAddress,
-
-    //   /// token address (MRT trc10 token)  we create this token in create trc10 example
-    //   assetName: utf8.encode("1001449"),
-
-    //   /// token issue address
-    //   toAddress: receiverAddress,
-    //   amount: TronHelper.toSun(amount),
-    // );
-
-    // /// validate transacation and got required data like block hash and ....
-    // final request = await _provider!.request(TronRequestTransferAsset.fromJson(contract));
-
-    // /// get transactionRaw from response and make sure set fee limit
-    // final rawTransaction = request.transactionRaw!.copyWith(
-    //     feeLimit: BigInt.from(10000000), data: utf8.encode("https://github.com/mrtnetwork"));
-
-    // return rawTransaction;
 
     final contract = ContractABI.fromJson(trc20Abi, isTron: true);
 
@@ -302,7 +274,6 @@ class TronClient {
     /// get transactionRaw from response and make sure set fee limit
     final rawTransaction = request.transactionRaw!.copyWith(
       feeLimit: TronHelper.toSun("10000000"),
-      data: utf8.encode("https://github.com/mrtnetwork"),
     );
 
     return rawTransaction;
@@ -314,7 +285,6 @@ class TronClient {
   }) async {
     final transaction = Transaction(rawData: rawTransaction, signature: [signature]);
 
-    /// get raw data buffer
     final raw = BytesUtils.toHexString(transaction.toBuffer());
 
     final txBroadcastResult = await _provider!.request(TronRequestBroadcastHex(transaction: raw));
@@ -353,15 +323,55 @@ class TronClient {
     }
   }
 
-  Future<TronToken?> getTronToken(String contractAddress) async {
+  Future<TronToken?> getTronToken(String contractAddress, String userAddress) async {
     try {
+      final tokenAddress = TronAddress(contractAddress);
+
+      final ownerAddress = TronAddress(userAddress);
+
+      final contract = ContractABI.fromJson(trc20Abi, isTron: true);
+
+      final name =
+          (await _getTokenDetail(contract, "name", ownerAddress, tokenAddress) as String?) ?? '';
+
+      final symbol =
+          (await _getTokenDetail(contract, "symbol", ownerAddress, tokenAddress) as String?) ?? '';
+
+      final decimal =
+          (await _getTokenDetail(contract, "decimals", ownerAddress, tokenAddress) as BigInt?) ??
+              BigInt.zero;
+
       return TronToken(
-        name: '',
-        symbol: '',
+        name: name,
+        symbol: symbol,
         contractAddress: contractAddress,
-        decimal: 10,
+        decimal: decimal.toInt(),
       );
     } catch (e) {
+      return null;
+    }
+  }
+
+  Future<dynamic> _getTokenDetail(ContractABI contract, String functionName,
+      TronAddress ownerAddress, TronAddress tokenAddress) async {
+    final function = contract.functionFromName(functionName);
+
+    try {
+      final request = await _provider!.request(
+        TronRequestTriggerConstantContract.fromMethod(
+          ownerAddress: ownerAddress,
+          contractAddress: tokenAddress,
+          function: function,
+          params: [],
+        ),
+      );
+
+      final outputResult = request.outputResult?.first;
+
+      return outputResult;
+    } catch (_) {
+      print('Erorr fetching detail: ${_.toString()}');
+
       return null;
     }
   }

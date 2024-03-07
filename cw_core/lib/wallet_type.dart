@@ -15,6 +15,7 @@ const walletTypes = [
   WalletType.banano,
   WalletType.polygon,
   WalletType.solana,
+  WalletType.tron,
 ];
 
 @HiveType(typeId: WALLET_TYPE_TYPE_ID)

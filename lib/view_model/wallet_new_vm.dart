@@ -44,6 +44,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           return 16;
         }
         return 25;
+      case WalletType.tron:
       case WalletType.solana:
       case WalletType.polygon:
       case WalletType.ethereum:

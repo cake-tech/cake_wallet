@@ -1031,11 +1031,12 @@ abstract class Tron {
     required int feeRate,
   });
 
-  List<TronToken> getTronCurrencies(WalletBase wallet);
+  List<TronToken> getTronTokenCurrencies(WalletBase wallet);
   Future<void> addTronToken(WalletBase wallet, CryptoCurrency token);
   Future<void> deleteTronToken(WalletBase wallet, CryptoCurrency token);
   Future<TronToken?> getTronToken(WalletBase wallet, String contractAddress);
   
+  double getTransactionAmountRaw(TransactionInfo transactionInfo);
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   String getTokenAddress(CryptoCurrency asset);
 }
