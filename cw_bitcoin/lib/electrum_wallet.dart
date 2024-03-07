@@ -672,23 +672,6 @@ abstract class ElectrumWalletBase
       final outputs = <BitcoinOutput>[];
       final outputAddresses = <BitcoinBaseAddress>[];
 
-
-      bool changeAdjusted = false;
-
-      if (outputs.isNotEmpty) {
-        final lastOutput = outputs.last;
-        final lastOutputAmount = lastOutput.value.toInt();
-        if (lastOutputAmount > remainingFee) {
-          outputs[outputs.length - 1] = BitcoinOutput(
-              address: lastOutput.address, value: BigInt.from(lastOutputAmount - remainingFee));
-          remainingFee = 0;
-          changeAdjusted = true;
-        }
-      }
-
-      if (!changeAdjusted && remainingFee > 0) {
-        throw Exception("Insufficient change to cover the increased fee. Additional fee required: $remainingFee");
-      }
       // Add outputs and deduct the fees from it
       for (int i = bundle.originalTransaction.outputs.length - 1; i >= 0; i--) {
         final out = bundle.originalTransaction.outputs[i];
@@ -700,7 +683,6 @@ abstract class ElectrumWalletBase
           newAmount = out.amount.toInt() - remainingFee;
           remainingFee = 0;
         } else {
-          // TODO: check whether to throw an exception or just discard this output
           remainingFee -= out.amount.toInt();
           continue;
         }
@@ -719,13 +701,6 @@ abstract class ElectrumWalletBase
         totalOutAmount -= bundle.originalTransaction.outputs.last.amount.toInt();
       }
 
-      // Here, lastOutput is change, deduct the fee from it
-      // outputs[outputs.length - 1] = BitcoinOutput(
-      //     address: lastOutput.address, value: lastOutput.value - BigInt.from(fee));
-      // if (changeValue > fee) {
-      //   outputAddresses.removeLast();
-      //   outputs.removeLast();
-      // }
 
       final txb = BitcoinTransactionBuilder(
         utxos: utxos,
@@ -1021,6 +996,9 @@ abstract class ElectrumWalletBase
     final HD = index == null ? hd : hd.derive(index);
     return base64Encode(HD.signMessage(message));
   }
+
+  String getAddressFromOutputScript(Script script) =>
+      addressFromOutputScript(script, network);
 }
 
 class EstimateTxParams {

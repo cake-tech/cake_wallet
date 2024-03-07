@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.d
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/widgets/textfield_list_row.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -121,6 +122,27 @@ class TransactionDetailsPage extends BasePage {
                     buttonText: S.of(popupContext).ok,
                     buttonAction: () => Navigator.of(popupContext).pop());
               });
+        });
+      }
+      if (state is AwaitingConfirmationState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+            showPopUp<void>(
+                context: context,
+                builder: (BuildContext popupContext) {
+                  return AlertWithTwoActions(
+                      alertTitle: state.title ?? '',
+                      alertContent: state.message ?? '',
+                      rightButtonText: S.of(context).ok,
+                      leftButtonText: S.of(context).cancel,
+                      actionRightButton: () {
+                        state.onConfirm?.call();
+                        Navigator.of(popupContext).pop();
+                      },
+                      actionLeftButton: () {
+                        state.onCancel?.call();
+                        Navigator.of(popupContext).pop();
+                      });
+                });
         });
       }
 

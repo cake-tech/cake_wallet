@@ -151,6 +151,7 @@ abstract class Bitcoin {
 
   Future<PendingBitcoinTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
   Future<bool> canReplaceByFee(Object wallet, String transactionHash);
+  String getAddressFromOutputScript(Object wallet, Script script);
 }
   """;
 

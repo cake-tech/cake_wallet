@@ -14,6 +14,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
@@ -39,6 +40,8 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:solana/dto.dart';
+import 'package:collection/collection.dart';
 
 part 'send_view_model.g.dart';
 
@@ -318,8 +321,28 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   Future<void> replaceByFee(String txId, String newFee) async {
     state = IsExecutingState();
-    pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
-    state = ExecutedSuccessfullyState();
+
+    final isSufficient = await isChangeSufficientForFee(txId, newFee);
+
+    print('Is sufficient: $isSufficient');
+
+    if (!isSufficient) {
+      state = AwaitingConfirmationState(
+          title: "Confirm Fee Deduction",
+          message: "Do you agree to deduct the fee from the output?",
+          onConfirm: () async {
+            pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
+            state = ExecutedSuccessfullyState();
+          },
+          onCancel: () {
+            state = FailureState('Insufficient change for fee');
+          });
+    } else {
+      pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
+      state = ExecutedSuccessfullyState();
+    }
+
+    print('Is sufficient: ${state.toString()}');
   }
 
   @action
@@ -382,7 +405,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
         return bitcoin!.createBitcoinTransactionCredentials(outputs,
-            priority: priority!,feeRate: feeRate, useReplaceByFee: useReplaceByFee);
+            priority: priority!, feeRate: feeRate, useReplaceByFee: useReplaceByFee);
 
       case WalletType.monero:
         return monero!
@@ -457,6 +480,23 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return error;
   }
 
+  Future<bool> isChangeSufficientForFee(String txId, String newFee) async {
+    final bitcoinWallet = walletType == WalletType.bitcoin ? wallet as BitcoinWallet : null;
+    if (bitcoinWallet == null) throw Exception('Unexpected wallet type: $walletType');
+
+    int formattedNewFee = bitcoin!.formatterStringDoubleToBitcoinAmount(newFee);
+    final bundle = await bitcoinWallet.getTransactionExpanded(hash: txId);
+    final lastOutput = bundle.originalTransaction.outputs.last;
+
+    final lastAddress = bitcoin!.getAddressFromOutputScript(wallet, lastOutput.scriptPubKey);
+
+    final lastAddressRecord = bitcoinWallet.walletAddresses.allAddresses
+        .firstWhereOrNull((element) => element.address == lastAddress);
+
+    final isChange = lastAddressRecord?.isHidden ?? false;
+
+    return isChange && lastOutput.amount.toInt() - formattedNewFee > 0;
+  }
 
   Future<void> pickTransactionPriority(BuildContext context) async {
     final items = priorityForWalletType(walletType);

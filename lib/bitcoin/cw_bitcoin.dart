@@ -220,4 +220,10 @@ class CWBitcoin extends Bitcoin {
 		final bitcoinWallet = wallet as ElectrumWallet;
 		return bitcoinWallet.canReplaceByFee(transactionHash);
 	}
+
+  @override
+  String getAddressFromOutputScript(Object wallet, Script script) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.getAddressFromOutputScript(script);
+  }
 }
