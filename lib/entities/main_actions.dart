@@ -45,7 +45,7 @@ class MainActions {
       }
 
       if (viewModel.isTorEnabled) {
-        _showErrorDialog(context, S.of(context).warning, S.of(context).tor_enabled_warning);
+        await _showErrorDialog(context, S.of(context).warning, S.of(context).tor_enabled_warning);
       }
 
       final defaultBuyProvider = viewModel.defaultBuyProvider;
@@ -76,10 +76,6 @@ class MainActions {
       if (!viewModel.isEnabledExchangeAction) {
         return;
       }
-
-      if (viewModel.isTorEnabled) {
-        _showErrorDialog(context, S.of(context).warning, S.of(context).tor_enabled_warning);
-      }
       
       await Navigator.of(context).pushNamed(Routes.exchange);
     },
@@ -109,7 +105,7 @@ class MainActions {
       }
 
       if (viewModel.isTorEnabled) {
-        _showErrorDialog(context, S.of(context).warning, S.of(context).tor_enabled_warning);
+        await _showErrorDialog(context, S.of(context).warning, S.of(context).tor_enabled_warning);
       }
 
       final defaultSellProvider = viewModel.defaultSellProvider;
