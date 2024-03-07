@@ -11,6 +11,7 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/LightningSendViewModel.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -27,12 +28,12 @@ class LightningSendPage extends BasePage {
   LightningSendPage({
     required this.output,
     required this.authService,
-    required this.lightningViewModel,
+    required this.lightningSendViewModel,
   }) : _formKey = GlobalKey<FormState>();
 
   final Output output;
   final AuthService authService;
-  final LightningViewModel lightningViewModel;
+  final LightningSendViewModel lightningSendViewModel;
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
 

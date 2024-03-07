@@ -73,7 +73,7 @@ class LightningReceiveOnchainPage extends BasePage {
             if (snapshot.data == null) {
               return CircularProgressIndicator();
             }
-            String data = (snapshot.data as List<String>)[0];
+            ReceiveOnchainResult results = snapshot.data as ReceiveOnchainResult;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -99,7 +99,7 @@ class LightningReceiveOnchainPage extends BasePage {
                               () async {
                                 await Navigator.pushNamed(context, Routes.fullscreenQR,
                                     arguments: QrViewData(
-                                      data: data,
+                                      data: results.bitcoinAddress,
                                       heroTag: heroTag,
                                     ));
                               },
@@ -127,7 +127,7 @@ class LightningReceiveOnchainPage extends BasePage {
                                           color: Colors.white,
                                         ),
                                       ),
-                                      child: QrImage(data: data)),
+                                      child: QrImage(data: results.bitcoinAddress)),
                                 ),
                               ),
                             ),
@@ -144,7 +144,7 @@ class LightningReceiveOnchainPage extends BasePage {
                     builder: (context) => Observer(
                       builder: (context) => GestureDetector(
                         onTap: () {
-                          Clipboard.setData(ClipboardData(text: data));
+                          Clipboard.setData(ClipboardData(text: results.bitcoinAddress));
                           showBar<void>(context, S.of(context).copied_to_clipboard);
                         },
                         child: Row(
@@ -153,7 +153,7 @@ class LightningReceiveOnchainPage extends BasePage {
                           children: <Widget>[
                             Expanded(
                               child: Text(
-                                data,
+                                results.bitcoinAddress,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: 15,
@@ -207,15 +207,13 @@ class LightningReceiveOnchainPage extends BasePage {
                       return Expanded(
                           child: Container(child: Center(child: CircularProgressIndicator())));
                     }
-                    int min = int.parse((snapshot.data as List<String>)[1]);
-                    int max = int.parse((snapshot.data as List<String>)[2]);
-                    int fee = int.parse((snapshot.data as List<String>)[3]);
+                    ReceiveOnchainResult results = snapshot.data as ReceiveOnchainResult;
                     return Expanded(
                       child: Text(
                         S.of(context).lightning_receive_limits(
-                              lightning!.satsToLightningString(min),
-                              lightning!.satsToLightningString(max),
-                              lightning!.satsToLightningString(fee),
+                              lightning!.satsToLightningString(results.minAllowedDeposit),
+                              lightning!.satsToLightningString(results.maxAllowedDeposit),
+                              lightning!.satsToLightningString(results.fee),
                             ),
                         maxLines: 10,
                         style: TextStyle(

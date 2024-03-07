@@ -14,33 +14,9 @@ part 'lightning_view_model.g.dart';
 class LightningViewModel = LightningViewModelBase with _$LightningViewModel;
 
 abstract class LightningViewModelBase with Store {
-  LightningViewModelBase({
-    required this.settingsStore,
-    required this.fiatConversionStore,
-  }) {}
+  LightningViewModelBase() {}
 
-  final SettingsStore settingsStore;
-  final FiatConversionStore fiatConversionStore;
-  
-  @observable
-  bool loading = false;
-
-  @action
-  void setLoading(bool value) {
-    loading = value;
-  }
-
-  FiatCurrency get fiat => settingsStore.fiatCurrency;
-
-  String formattedFiatAmount(int sats) {
-    String amount = calculateFiatAmountRaw(
-      cryptoAmount: lightning!.formatterLightningAmountToDouble(amount: sats),
-      price: fiatConversionStore.prices[CryptoCurrency.btcln],
-    );
-    return amount;
-  }
-
-  Future<List<String>> receiveOnchain() async {
+  Future<ReceiveOnchainResult> receiveOnchain() async {
     final sdk = await BreezSDK();
 
     BZG.ReceiveOnchainRequest req = const BZG.ReceiveOnchainRequest();
@@ -49,12 +25,12 @@ abstract class LightningViewModelBase with Store {
     print("Maximum amount allowed to deposit in sats: ${swapInfo.maxAllowedDeposit}");
     int fee = swapInfo.channelOpeningFees?.minMsat ?? 2000;
     fee = fee ~/ 1000;
-    return [
-      swapInfo.bitcoinAddress,
-      swapInfo.minAllowedDeposit.toString(),
-      swapInfo.maxAllowedDeposit.toString(),
-      fee.toString(),
-    ];
+    return ReceiveOnchainResult(
+      bitcoinAddress: swapInfo.bitcoinAddress,
+      minAllowedDeposit: swapInfo.minAllowedDeposit,
+      maxAllowedDeposit: swapInfo.maxAllowedDeposit,
+      fee: fee,
+    );
   }
 
   Future<String> createInvoice({required String amountSats, String? description}) async {
@@ -67,7 +43,7 @@ abstract class LightningViewModelBase with Store {
     return res.lnInvoice.bolt11;
   }
 
-  Future<List<int>> invoiceSoftLimitsSats() async {
+  Future<InvoiceSoftLimitsResult> invoiceSoftLimitsSats() async {
     final sdk = await BreezSDK();
     BZG.ReceivePaymentRequest? req = null;
     req = BZG.ReceivePaymentRequest(
@@ -88,7 +64,11 @@ abstract class LightningViewModelBase with Store {
         min = 0;
       }
     } catch (_) {}
-    return [min, max, balance];
+    return InvoiceSoftLimitsResult(
+      min: min,
+      max: max,
+      balance: balance,
+    );
   }
 
   Future<int> getBalanceSats() async {
@@ -100,4 +80,31 @@ abstract class LightningViewModelBase with Store {
       return 0;
     }
   }
+}
+
+
+class ReceiveOnchainResult {
+  final String bitcoinAddress;
+  final int minAllowedDeposit;
+  final int maxAllowedDeposit;
+  final int fee;
+
+  ReceiveOnchainResult({
+    required this.bitcoinAddress,
+    required this.minAllowedDeposit,
+    required this.maxAllowedDeposit,
+    required this.fee,
+  });
+}
+
+class InvoiceSoftLimitsResult {
+  final int min;
+  final int max;
+  final int balance;
+
+  InvoiceSoftLimitsResult({
+    required this.min,
+    required this.max,
+    required this.balance,
+  });
 }

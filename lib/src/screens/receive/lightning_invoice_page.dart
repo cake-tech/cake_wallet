@@ -169,18 +169,16 @@ class LightningInvoicePage extends BasePage {
                                       Container(child: Center(child: CircularProgressIndicator())));
                             }
                             late String finalText;
-                            int balance = (snapshot.data as List<int>)[2];
-                            if (balance == 0) {
-                              int min = (snapshot.data as List<int>)[0];
+                            InvoiceSoftLimitsResult limits =
+                                snapshot.data as InvoiceSoftLimitsResult;
+                            if (limits.balance == 0) {
                               finalText = S
                                   .of(context)
-                                  .lightning_invoice_min(lightning!.satsToLightningString(min));
+                                  .lightning_invoice_min(lightning!.satsToLightningString(limits.min));
                             } else {
-                              int min = (snapshot.data as List<int>)[0];
-                              int max = (snapshot.data as List<int>)[1];
                               finalText = S.of(context).lightning_invoice_min_max(
-                                    lightning!.satsToLightningString(min),
-                                    lightning!.satsToLightningString(max),
+                                    lightning!.satsToLightningString(limits.min),
+                                    lightning!.satsToLightningString(limits.max),
                                   );
                             }
 

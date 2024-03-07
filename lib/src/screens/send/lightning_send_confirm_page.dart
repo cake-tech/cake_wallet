@@ -11,6 +11,7 @@ import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/LightningSendViewModel.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -22,13 +23,13 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class LightningSendConfirmPage extends BasePage {
-  LightningSendConfirmPage({required this.invoice, required this.lightningViewModel})
+  LightningSendConfirmPage({required this.invoice, required this.lightningSendViewModel})
       : _formKey = GlobalKey<FormState>() {
     initialSatAmount = ((invoice.amountMsat ?? 0) ~/ 1000);
     _amountController = TextEditingController();
     _fiatAmountController = TextEditingController();
     _amountController.text = initialSatAmount.toString();
-    _fiatAmountController.text = lightningViewModel.formattedFiatAmount(initialSatAmount);
+    _fiatAmountController.text = lightningSendViewModel.formattedFiatAmount(initialSatAmount);
   }
 
   final GlobalKey<FormState> _formKey;
@@ -39,7 +40,7 @@ class LightningSendConfirmPage extends BasePage {
   late TextEditingController _amountController;
   late TextEditingController _fiatAmountController;
   final FocusNode _depositAmountFocus = FocusNode();
-  final LightningViewModel lightningViewModel;
+  final LightningSendViewModel lightningSendViewModel;
 
   bool _effectsInstalled = false;
 
@@ -194,7 +195,7 @@ class LightningSendConfirmPage extends BasePage {
                         prefixIcon: Padding(
                           padding: EdgeInsets.only(top: 9),
                           child: Text(
-                            lightningViewModel.fiat.title + ':',
+                            lightningSendViewModel.fiat.title + ':',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -252,7 +253,7 @@ class LightningSendConfirmPage extends BasePage {
                         final sdk = await BreezSDK();
                         late BZG.SendPaymentRequest req;
 
-                        lightningViewModel.setLoading(true);
+                        lightningSendViewModel.setLoading(true);
 
                         if (invoice.amountMsat == null) {
                           req = BZG.SendPaymentRequest(
@@ -265,7 +266,7 @@ class LightningSendConfirmPage extends BasePage {
 
                         await sdk.sendPayment(req: req);
 
-                        lightningViewModel.setLoading(false);
+                        lightningSendViewModel.setLoading(false);
 
                         showPopUp<void>(
                             context: context,
@@ -280,7 +281,7 @@ class LightningSendConfirmPage extends BasePage {
                                   });
                             });
                       } catch (e) {
-                        lightningViewModel.setLoading(false);
+                        lightningSendViewModel.setLoading(false);
                         showPopUp<void>(
                             context: context,
                             builder: (BuildContext context) {
@@ -294,7 +295,7 @@ class LightningSendConfirmPage extends BasePage {
                     },
                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
-                    isLoading: lightningViewModel.loading,
+                    isLoading: lightningSendViewModel.loading,
                   ),
                 ],
               );
@@ -317,7 +318,7 @@ class LightningSendConfirmPage extends BasePage {
 
     _amountController.addListener(() {
       final amount = _amountController.text;
-      _fiatAmountController.text = lightningViewModel.formattedFiatAmount(int.parse(amount));
+      _fiatAmountController.text = lightningSendViewModel.formattedFiatAmount(int.parse(amount));
     });
 
     _effectsInstalled = true;

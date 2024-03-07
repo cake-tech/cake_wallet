@@ -14,6 +14,7 @@ import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/view_model/LightningSendViewModel.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/lightning/lightning.dart';
@@ -1205,10 +1206,16 @@ Future<void> setup({
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
 
-  getIt.registerFactory<LightningViewModel>(() => LightningViewModel(
-        settingsStore: getIt.get<SettingsStore>(),
-        fiatConversionStore: getIt.get<FiatConversionStore>(),
-      ));
+  getIt.registerFactory<LightningViewModel>(
+    () => LightningViewModel(),
+  );
+
+  getIt.registerFactory<LightningSendViewModel>(
+    () => LightningSendViewModel(
+      settingsStore: getIt.get<SettingsStore>(),
+      fiatConversionStore: getIt.get<FiatConversionStore>(),
+    ),
+  );
 
   getIt.registerFactoryParam<LightningInvoicePageViewModel, void, void>((_, __) {
     return LightningInvoicePageViewModel(
@@ -1246,14 +1253,14 @@ Future<void> setup({
         () => CryptoCurrency.btcln,
       ),
       authService: getIt.get<AuthService>(),
-      lightningViewModel: getIt.get<LightningViewModel>(),
+      lightningSendViewModel: getIt.get<LightningSendViewModel>(),
     );
   });
 
   getIt.registerFactoryParam<LightningSendConfirmPage, LNInvoice, void>((LNInvoice invoice, _) {
     return LightningSendConfirmPage(
       invoice: invoice,
-      lightningViewModel: getIt.get<LightningViewModel>(),
+      lightningSendViewModel: getIt.get<LightningSendViewModel>(),
     );
   });
 
