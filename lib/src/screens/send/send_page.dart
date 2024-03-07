@@ -502,10 +502,8 @@ class SendPage extends BasePage {
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
-                    alertTitle: "Proceed on your device",
-                    // TODO: (Konsti) localize
-                    alertContent: "Please follow the instructions prompted on your hardware wallet",
-                    // TODO: (Konsti) localize
+                    alertTitle: S.of(context).proceed_on_device,
+                    alertContent: S.of(context).proceed_on_device_description,
                     buttonText: S.of(context).cancel,
                     buttonAction: () => Navigator.of(context).pop());
               });

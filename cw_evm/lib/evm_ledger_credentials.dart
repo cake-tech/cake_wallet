@@ -41,7 +41,21 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
     final r = bytesToHex(sig.sublist(1, 1 + 32));
     final s = bytesToHex(sig.sublist(1 + 32, 1 + 32 + 32));
 
-    return MsgSignature(BigInt.parse(r, radix: 16), BigInt.parse(s, radix: 16), v);
+    // https://github.com/ethereumjs/ethereumjs-util/blob/8ffe697fafb33cefc7b7ec01c11e3a7da787fe0e/src/signature.ts#L26
+    int chainIdV;
+    if (isEIP1559) {
+      chainIdV = v;
+    } else {
+      chainIdV = chainId != null
+          ? (v + (chainId * 2 + 35))
+          : v;
+    }
+
+    await ledger!.disconnect(device);
+
+    print("chainId: $chainId, chainIdV: $chainIdV, v: $v");
+
+    return MsgSignature(BigInt.parse(r, radix: 16), BigInt.parse(s, radix: 16), chainIdV);
   }
 
   @override

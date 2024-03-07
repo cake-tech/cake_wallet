@@ -303,15 +303,22 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     try {
       state = IsExecutingState();
 
-      // if (wallet.isHardwareWallet)
-      //   state = IsAwaitingDeviceConnectionState();
-      // else {
-        pendingTransaction = await wallet.createTransaction(_credentials());
-        state = ExecutedSuccessfullyState();
-      // }
+      print(wallet.isHardwareWallet);
+
+      if (wallet.isHardwareWallet) state = IsAwaitingDeviceResponseState();
+      pendingTransaction = await wallet.createTransaction(_credentials());
+      state = ExecutedSuccessfullyState();
     } catch (e) {
-      print('Failed with ${e.toString()}');
-      state = FailureState(e.toString());
+      if (e is LedgerException) {
+        final errorCode = e.errorCode.toRadixString(16);
+        final fallbackMsg = e.message.isNotEmpty ? e.message : "Unexpected Ledger Error Code: $errorCode";
+        final errorMsg = ledgerViewModel.interpretErrorCode(errorCode) ?? fallbackMsg;
+        print('Failed with $errorMsg');
+        state = FailureState(errorMsg);
+      } else {
+        print('Failed with ${e.toString()}');
+        state = FailureState(e.toString());
+      }
     }
   }
 

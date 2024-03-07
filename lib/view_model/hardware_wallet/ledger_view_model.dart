@@ -1,4 +1,5 @@
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -36,6 +37,15 @@ class LedgerViewModel {
         return polygon!.setLedger(wallet, ledger);
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
+    }
+  }
+
+  String? interpretErrorCode(String errorCode) {
+    switch(errorCode) {
+      case "6985": return S.current.ledger_error_tx_rejected_by_user;
+      case "5515": return S.current.ledger_error_device_locked;
+      case "6e00": return S.current.ledger_error_wrong_app;
+      default: return null;
     }
   }
 

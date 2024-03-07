@@ -91,7 +91,7 @@ abstract class EVMChainClient {
         currency == CryptoCurrency.maticpoly ||
         contractAddress != null);
 
-    bool isEVMCompatibleChain =
+    bool isEVMCompatibleChain = // ToDo: (Konsti) rename to isNativeCurrency
         currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
 
     final price = _client!.getGasPrice();
@@ -103,8 +103,8 @@ abstract class EVMChainClient {
       amount: isEVMCompatibleChain ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
     );
 
-    final signedTransaction =
-        await _client!.signTransaction(privateKey, transaction, chainId: chainId);
+    final signedTransaction = // ToDo: (Konsti) Move into ifNativeCurrency?
+    await _client!.signTransaction(privateKey, transaction, chainId: chainId);
 
     final Function _sendTransaction;
 
@@ -150,8 +150,11 @@ abstract class EVMChainClient {
     );
   }
 
-  Future<String> sendTransaction(Uint8List signedTransaction) async =>
-      await _client!.sendRawTransaction(prepareSignedTransactionForSending(signedTransaction));
+  Future<String> sendTransaction(Uint8List signedTransaction) async {
+    final netId = await _client!.getNetworkId();
+    final chainId = await _client!.getChainId();
+    return await _client!.sendRawTransaction(prepareSignedTransactionForSending(signedTransaction));
+  }
 
   Future getTransactionDetails(String transactionHash) async {
     // Wait for the transaction receipt to become available
