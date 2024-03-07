@@ -29,18 +29,22 @@ Future<void> startFiatRateUpdate(
 
       if (appStore.wallet!.type == WalletType.haven) {
         await updateHavenRate(fiatConversionStore);
+        return;
       }
 
       Iterable<CryptoCurrency>? currencies = [];
       switch (appStore.wallet!.type) {
         case WalletType.ethereum:
-          currencies = ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+          currencies =
+              ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
           break;
         case WalletType.polygon:
-          currencies = polygon!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+          currencies =
+              polygon!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
           break;
         case WalletType.solana:
-          currencies = solana!.getSPLTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
+          currencies =
+              solana!.getSPLTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
           break;
         case WalletType.lightning:
           currencies = [CryptoCurrency.btc];

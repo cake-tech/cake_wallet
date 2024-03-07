@@ -1,6 +1,7 @@
 import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/lightning_input_form.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions_content_override.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
@@ -242,9 +243,10 @@ class LightningInvoicePage extends BasePage {
         showPopUp<void>(
             context: context,
             builder: (BuildContext context) {
-              return AlertWithTwoActionsContentOverride(
+              return AlertWithTwoActions(
                 alertTitle: S.of(context).invoice_created,
-                alertContent: Column(
+                alertContent: '',
+                contentWidget: Column(
                   children: [
                     Center(
                       child: AspectRatio(

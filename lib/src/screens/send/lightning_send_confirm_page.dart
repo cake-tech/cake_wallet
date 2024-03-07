@@ -11,7 +11,7 @@ import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/LightningSendViewModel.dart';
+import 'package:cake_wallet/view_model/lightning_send_view_model.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -250,24 +250,10 @@ class LightningSendConfirmPage extends BasePage {
                     text: S.of(context).send,
                     onPressed: () async {
                       try {
-                        final sdk = await BreezSDK();
-                        late BZG.SendPaymentRequest req;
-
-                        lightningSendViewModel.setLoading(true);
-
-                        if (invoice.amountMsat == null) {
-                          req = BZG.SendPaymentRequest(
-                            bolt11: invoice.bolt11,
-                            amountMsat: int.parse(_amountController.text) * 1000,
-                          );
-                        } else {
-                          req = BZG.SendPaymentRequest(bolt11: invoice.bolt11);
-                        }
-
-                        await sdk.sendPayment(req: req);
-
-                        lightningSendViewModel.setLoading(false);
-
+                        await lightningSendViewModel.send(
+                          invoice,
+                          int.parse(_amountController.text)
+                        );
                         showPopUp<void>(
                             context: context,
                             builder: (BuildContext context) {
@@ -281,7 +267,6 @@ class LightningSendConfirmPage extends BasePage {
                                   });
                             });
                       } catch (e) {
-                        lightningSendViewModel.setLoading(false);
                         showPopUp<void>(
                             context: context,
                             builder: (BuildContext context) {

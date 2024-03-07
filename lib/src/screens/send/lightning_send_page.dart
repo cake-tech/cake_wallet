@@ -11,8 +11,7 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/LightningSendViewModel.dart';
-import 'package:cake_wallet/view_model/lightning_view_model.dart';
+import 'package:cake_wallet/view_model/lightning_send_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +34,6 @@ class LightningSendPage extends BasePage {
   final AuthService authService;
   final LightningSendViewModel lightningSendViewModel;
   final GlobalKey<FormState> _formKey;
-  final controller = PageController(initialPage: 0);
 
   final bolt11Controller = TextEditingController();
   final bolt11FocusNode = FocusNode();
@@ -206,7 +204,7 @@ class LightningSendPage extends BasePage {
 
   Future<void> send(BuildContext context) async {
     try {
-      await processInput(context);
+      await lightningSendViewModel.processInput(context, bolt11Controller.text);
     } catch (e) {
       showPopUp<void>(
           context: context,
@@ -223,29 +221,6 @@ class LightningSendPage extends BasePage {
   Future<bool> _onNavigateBack(BuildContext context) async {
     onClose(context);
     return false;
-  }
-
-  Future<void> processInput(BuildContext context) async {
-    FocusScope.of(context).unfocus();
-
-    final sdk = await BreezSDK();
-
-    late InputType inputType;
-
-    try {
-      inputType = await sdk.parseInput(input: bolt11Controller.text);
-    } catch (_) {
-      throw Exception("Unknown input type");
-    }
-
-    if (inputType is InputType_Bolt11) {
-      final bolt11 = await sdk.parseInvoice(bolt11Controller.text);
-      Navigator.of(context).pushNamed(Routes.lightningSendConfirm, arguments: bolt11);
-    } else if (inputType is InputType_LnUrlPay) {
-      throw Exception("Unsupported input type");
-    } else {
-      throw Exception("Unknown input type");
-    }
   }
 
   void _setEffects(BuildContext context) {
