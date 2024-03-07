@@ -44,7 +44,8 @@ class MainActions {
         return;
       }
 
-      if (viewModel.isTorEnabled) {
+      if (viewModel.isTorEnabled && viewModel.settingsStore.shouldShowTorBuyWarning) {
+        viewModel.settingsStore.shouldShowTorBuyWarning = false;
         await _showErrorDialog(context, S.of(context).warning, S.of(context).tor_enabled_warning);
       }
 
@@ -76,7 +77,7 @@ class MainActions {
       if (!viewModel.isEnabledExchangeAction) {
         return;
       }
-      
+
       await Navigator.of(context).pushNamed(Routes.exchange);
     },
   );
@@ -104,7 +105,8 @@ class MainActions {
         return;
       }
 
-      if (viewModel.isTorEnabled) {
+      if (viewModel.isTorEnabled && viewModel.settingsStore.shouldShowTorSellWarning) {
+        viewModel.settingsStore.shouldShowTorSellWarning = false;
         await _showErrorDialog(context, S.of(context).warning, S.of(context).tor_enabled_warning);
       }
 

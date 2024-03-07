@@ -61,8 +61,8 @@ class PreferencesKey {
   static const lookupsUnstoppableDomains = 'looks_up_mastodon';
   static const lookupsOpenAlias = 'looks_up_mastodon';
   static const lookupsENS = 'looks_up_ens';
-  static const shownTorSellWarning = 'shown_tor_sell_warning';
-  static const shownTorBuyWarning = 'shown_tor_buy_warning';
+  static const shouldShowTorSellWarning = 'shown_tor_sell_warning';
+  static const shouldShowTorBuyWarning = 'shown_tor_buy_warning';
 
 
   static String moneroWalletUpdateV1Key(String name) =>
