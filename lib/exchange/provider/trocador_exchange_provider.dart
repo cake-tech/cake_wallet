@@ -8,9 +8,16 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
-import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:http/http.dart';
+
+double lightningDoubleToBitcoinDouble({required double amount}) {
+  return amount / 100000000;
+}
+
+double bitcoinDoubleToLightningDouble({required double amount}) {
+  return amount * 100000000;
+}
 
 class TrocadorExchangeProvider extends ExchangeProvider {
   TrocadorExchangeProvider({this.useTorOnly = false, this.providerStates = const {}})
@@ -100,8 +107,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     // trocador treats btcln as just bitcoin amounts:
     if (from == CryptoCurrency.btcln) {
       return Limits(
-        min: lightning!.bitcoinDoubleToLightningDouble(amount: (coinJson['minimum'] as double)),
-        max: lightning!.bitcoinDoubleToLightningDouble(amount: (coinJson['maximum'] as double)),
+        min: bitcoinDoubleToLightningDouble(amount: (coinJson['minimum'] as double)),
+        max: bitcoinDoubleToLightningDouble(amount: (coinJson['maximum'] as double)),
       );
     }
 
@@ -124,7 +131,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       double amt = amount;
 
       if (from == CryptoCurrency.btcln) {
-        amt = lightning!.lightningDoubleToBitcoinDouble(amount: amount);
+        amt = lightningDoubleToBitcoinDouble(amount: amount);
       }
 
       final params = <String, String>{
@@ -164,10 +171,10 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     double fromAmt = double.parse(request.fromAmount);
     double toAmt = double.parse(request.toAmount);
     if (request.fromCurrency == CryptoCurrency.btcln) {
-      fromAmt = lightning!.lightningDoubleToBitcoinDouble(amount: fromAmt);
+      fromAmt = lightningDoubleToBitcoinDouble(amount: fromAmt);
     }
     if (request.toCurrency == CryptoCurrency.btcln) {
-      toAmt = lightning!.lightningDoubleToBitcoinDouble(amount: toAmt);
+      toAmt = lightningDoubleToBitcoinDouble(amount: toAmt);
     }
 
     final params = {
@@ -187,7 +194,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     double amt = double.tryParse(request.toAmount) ?? 0;
     if (request.fromCurrency == CryptoCurrency.btcln) {
-      amt = lightning!.lightningDoubleToBitcoinDouble(amount: amt);
+      amt = lightningDoubleToBitcoinDouble(amount: amt);
     }
 
     if (isFixedRateMode) {
@@ -242,9 +249,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     String? responseAmount = responseJSON['amount_from']?.toString();
     if (request.fromCurrency == CryptoCurrency.btcln && responseAmount != null) {
-      responseAmount = lightning!
-          .bitcoinDoubleToLightningDouble(amount: double.parse(responseAmount))
-          .toString();
+      responseAmount =
+          bitcoinDoubleToLightningDouble(amount: double.parse(responseAmount)).toString();
     }
     responseAmount ??= fromAmt.toString();
 

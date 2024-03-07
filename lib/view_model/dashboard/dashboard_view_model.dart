@@ -333,7 +333,12 @@ abstract class DashboardViewModelBase with Store {
   void furtherShowYatPopup(bool shouldShow) => settingsStore.shouldShowYatPopup = shouldShow;
 
   @computed
-  bool get isEnabledExchangeAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
+  bool get isEnabledExchangeAction {
+    if (wallet.type == WalletType.lightning) {
+      return false;
+    }
+    return settingsStore.exchangeStatus != ExchangeApiMode.disabled;
+  }
 
   @observable
   bool hasExchangeAction;

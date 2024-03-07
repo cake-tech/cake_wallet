@@ -171,14 +171,14 @@ class LightningInvoicePage extends BasePage {
                             late String finalText;
                             InvoiceSoftLimitsResult limits =
                                 snapshot.data as InvoiceSoftLimitsResult;
-                            if (limits.balance == 0) {
+                            if (limits.inboundLiquidity == 0) {
                               finalText = S
                                   .of(context)
-                                  .lightning_invoice_min(lightning!.satsToLightningString(limits.min));
+                                  .lightning_invoice_min(lightning!.satsToLightningString(limits.minFee));
                             } else {
                               finalText = S.of(context).lightning_invoice_min_max(
-                                    lightning!.satsToLightningString(limits.min),
-                                    lightning!.satsToLightningString(limits.max),
+                                    lightning!.satsToLightningString(limits.minFee),
+                                    lightning!.satsToLightningString(limits.inboundLiquidity),
                                   );
                             }
 

@@ -110,8 +110,8 @@ abstract class LightningInvoicePageViewModelBase with Store {
 
   Future<void> _fetchLimits() async {
     final limits = await lightningViewModel.invoiceSoftLimitsSats();
-    minimum = limits.min.toDouble();
-    maximum = limits.max.toDouble();
+    minimum = limits.minFee.toDouble();
+    maximum = limits.inboundLiquidity.toDouble();
   }
 
   @action

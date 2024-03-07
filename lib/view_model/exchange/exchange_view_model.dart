@@ -271,6 +271,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
 
+  // lightning doesn't have the same concept of "addresses" (since it uses invoices)
+  bool get hasAddress => wallet.type != WalletType.lightning;
+
   bool get isLowFee {
     switch (wallet.type) {
       case WalletType.monero:

@@ -44,29 +44,30 @@ abstract class LightningViewModelBase with Store {
   }
 
   Future<InvoiceSoftLimitsResult> invoiceSoftLimitsSats() async {
-    final sdk = await BreezSDK();
-    BZG.ReceivePaymentRequest? req = null;
-    req = BZG.ReceivePaymentRequest(
-      amountMsat: 10000 * 1000, // 10000 sats
-      description: "limits",
-    );
-    final res = await sdk.receivePayment(req: req);
-    int min = (res.openingFeeMsat ?? (2500 * 1000)) ~/ 1000;
-    int max = 1000000000 * 1000 * 10; // 10 BTC
-
+    double feePercent = 0.4;
+    int minFee = (2500 * 1000) ~/ 1000; // 2500 sats
+    int inboundLiquidity = 1000000000 * 1000 * 10; // 10 BTC
     int balance = 0;
+
+    final sdk = await BreezSDK();
 
     try {
       final nodeState = (await sdk.nodeInfo())!;
-      max = nodeState.inboundLiquidityMsats ~/ 1000;
-      balance = nodeState.channelsBalanceMsat ~/ 1000;
-      if (balance > 0) {
-        min = 0;
+      inboundLiquidity = nodeState.inboundLiquidityMsats ~/ 1000;
+
+      final openingFees = await sdk.openChannelFee(
+          req: BZG.OpenChannelFeeRequest(amountMsat: inboundLiquidity + 1));
+
+      if (openingFees.usedFeeParams != null) {
+        feePercent = (openingFees.usedFeeParams!.proportional * 100) / 1000000;
+        minFee = openingFees.usedFeeParams!.minMsat ~/ 1000;
       }
+      balance = nodeState.channelsBalanceMsat ~/ 1000;
     } catch (_) {}
     return InvoiceSoftLimitsResult(
-      min: min,
-      max: max,
+      minFee: minFee,
+      inboundLiquidity: inboundLiquidity,
+      feePercent: feePercent,
       balance: balance,
     );
   }
@@ -81,7 +82,6 @@ abstract class LightningViewModelBase with Store {
     }
   }
 }
-
 
 class ReceiveOnchainResult {
   final String bitcoinAddress;
@@ -98,13 +98,15 @@ class ReceiveOnchainResult {
 }
 
 class InvoiceSoftLimitsResult {
-  final int min;
-  final int max;
+  final double feePercent;
+  final int minFee;
+  final int inboundLiquidity;
   final int balance;
 
   InvoiceSoftLimitsResult({
-    required this.min,
-    required this.max,
+    required this.inboundLiquidity,
+    required this.feePercent,
+    required this.minFee,
     required this.balance,
   });
 }
