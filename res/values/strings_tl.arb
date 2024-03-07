@@ -321,7 +321,7 @@
   "learn_more": "Matuto nang higit pa",
   "light_theme": "Ilaw",
   "lightning_invoice_min": "Isang bayad sa pag -setup ng ${feePercent}% na may isang minimum na ${min} sats ay ilalapat sa pagtanggap ng invoice na ito",
-  "lightning_invoice_min_max": "Isang bayad sa pag -setup na 0.4% na may isang minimum na ${min} sats ay ilalapat para sa pagtanggap ng higit sa ${max} SATS",
+  "lightning_invoice_min_max": "Isang bayad sa pag -setup ng ${feePercent}% na may isang minimum na ${min} sats ay ilalapat para sa pagtanggap ng higit sa ${max} sats",
   "lightning_invoice_warning": "Dapat mong panatilihing bukas ang app hanggang makumpleto ang pagbabayad o mabibigo ang transaksyon",
   "lightning_receive_limits": "Magpadala ng higit sa ${min} sats at hanggang sa ${max} sats sa address na ito. Ang isang bayad sa pag -setup na 0.4% na may isang minimum na ${fee} SAT ay ilalapat sa pagtanggap ng invoice na ito. Ito ay i -convert ang anumang natanggap na Bitcoin sa kidlat. Ang isang on-chain fee ay ilalapat. Ang address na ito ay maaari lamang magamit nang isang beses.",
   "loading_your_wallet": "Naglo -load ng iyong pitaka",
