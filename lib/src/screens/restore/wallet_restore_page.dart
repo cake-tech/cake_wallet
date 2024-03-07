@@ -211,8 +211,6 @@ class WalletRestorePage extends BasePage {
     final seedWords =
         walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.text.split(' ');
 
-    if (walletRestoreViewModel.type == WalletType.zano) return true;
-
     if ((walletRestoreViewModel.type == WalletType.monero ||
             walletRestoreViewModel.type == WalletType.haven) &&
         seedWords.length != WalletRestoreViewModelBase.moneroSeedMnemonicLength) {
