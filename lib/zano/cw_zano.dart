@@ -91,12 +91,6 @@ class CWZano extends Zano {
   }
 
   @override
-  int getHeightByDate({required DateTime date}) => getZanoHeightByDate(date: date);
-
-  @override
-  Future<int> getCurrentHeight() => getZanoCurrentHeight();
-
-  @override
   TransactionPriority getDefaultTransactionPriority() {
     return MoneroTransactionPriority.automatic;
   }

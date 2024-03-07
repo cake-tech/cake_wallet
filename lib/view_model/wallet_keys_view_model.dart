@@ -120,9 +120,6 @@ abstract class WalletKeysViewModelBase with Store {
     if (_appStore.wallet!.type == WalletType.monero) {
       return monero_wallet.getCurrentHeight();
     }
-    if (_appStore.wallet!.type == WalletType.zano) {
-      return await zano!.getCurrentHeight();
-    }
     return null;
   }
 
@@ -184,8 +181,6 @@ abstract class WalletKeysViewModelBase with Store {
       return monero!.getHeigthByDate(date: date);
     } else if (type == WalletType.haven) {
       return haven!.getHeightByDate(date: date);
-    } else if (type == WalletType.zano) {
-      return zano!.getHeightByDate(date: date);
     }
     return 0;
   }
