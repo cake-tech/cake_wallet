@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:on_chain/tron/tron.dart';
+import '.secrets.g.dart' as secrets;
 
 class TronHTTPProvider implements TronServiceProvider {
   TronHTTPProvider(
@@ -15,21 +16,23 @@ class TronHTTPProvider implements TronServiceProvider {
   final Duration defaultRequestTimeout;
 
   @override
-  Future<Map<String, dynamic>> get(TronRequestDetails params,
-      [Duration? timeout]) async {
+  Future<Map<String, dynamic>> get(TronRequestDetails params, [Duration? timeout]) async {
     final response = await client.get(Uri.parse(params.url(url)), headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'TRON-PRO-API-KEY': secrets.tronGridApiKey,
     }).timeout(timeout ?? defaultRequestTimeout);
     final data = json.decode(response.body) as Map<String, dynamic>;
     return data;
   }
 
   @override
-  Future<Map<String, dynamic>> post(TronRequestDetails params,
-      [Duration? timeout]) async {
+  Future<Map<String, dynamic>> post(TronRequestDetails params, [Duration? timeout]) async {
     final response = await client
         .post(Uri.parse(params.url(url)),
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+              'Content-Type': 'application/json',
+              'TRON-PRO-API-KEY': secrets.tronGridApiKey,
+            },
             body: params.toRequestBody())
         .timeout(timeout ?? defaultRequestTimeout);
     final data = json.decode(response.body) as Map<String, dynamic>;

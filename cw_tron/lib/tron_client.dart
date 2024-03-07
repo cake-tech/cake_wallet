@@ -327,7 +327,30 @@ class TronClient {
   }
 
   Future<TronBalance> fetchTronTokenBalances(String userAddress, String contractAddress) async {
-    return TronBalance(BigInt.zero);
+    try {
+      final ownerAddress = TronAddress(userAddress);
+
+      final tokenAddress = TronAddress(contractAddress);
+
+      final contract = ContractABI.fromJson(trc20Abi, isTron: true);
+
+      final function = contract.functionFromName("balanceOf");
+
+      final request = await _provider!.request(
+        TronRequestTriggerConstantContract.fromMethod(
+          ownerAddress: ownerAddress,
+          contractAddress: tokenAddress,
+          function: function,
+          params: [ownerAddress],
+        ),
+      );
+
+      final outputResult = request.outputResult?.first ?? BigInt.zero;
+
+      return TronBalance(outputResult);
+    } catch (_) {
+      return TronBalance(BigInt.zero);
+    }
   }
 
   Future<TronToken?> getTronToken(String contractAddress) async {
