@@ -657,6 +657,7 @@
   "tor_connection": "Tor connection",
   "tor_enabled_warning": "Please note that Tor is currently a best effort and some services may not work or fall back to clearnet if the connection fails",
   "tor_feature_disabled": "This feature is disabled while Tor Only mode is enabled to protect your privacy as this feature doesn't connect over Tor",
+  "tor_node_warning": "This wallet type doesn't support connecting to the node over Tor",
   "tor_only": "Tor only",
   "tor_only_warning": "Some features may be disabled to protect your privacy when using Tor only mode",
   "tor_status": "Tor status",

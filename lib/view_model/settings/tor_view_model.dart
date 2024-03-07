@@ -47,6 +47,8 @@ abstract class TorViewModelBase with Store {
   final ObservableMap<WalletType, Node> nodes;
   Tor torInstance = Tor.instance;
 
+  bool get supportsNodeProxy => !([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(getIt.get<AppStore>().wallet?.type));
+
   @computed
   TorConnectionMode get torConnectionMode => _settingsStore.torConnectionMode;
 

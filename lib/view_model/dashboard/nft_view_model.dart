@@ -126,15 +126,17 @@ abstract class NFTViewModelBase with Store {
     try {
       isImportNFTLoading = true;
 
-      final response = await http.get(
-        uri,
+      final response = await proxyWrapper.get(
+        clearnetUri: uri,
         headers: {
           "Accept": "application/json",
           "X-API-Key": secrets.moralisApiKey,
         },
       );
 
-      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
+      final responseBody = await utf8.decodeStream(response);
+
+      final decodedResponse = jsonDecode(responseBody) as Map<String, dynamic>;
 
       final nftAsset = NFTAssetModel.fromJson(decodedResponse);
 

@@ -657,6 +657,7 @@
   "tor_connection": "Połączenie Torem",
   "tor_enabled_warning": "Należy pamiętać, że TOR jest obecnie najlepszym wysiłkiem, a niektóre usługi mogą nie działać ani nie spadać do ClearNET, jeśli połączenie się nie powiedzie",
   "tor_feature_disabled": "Ta funkcja jest wyłączona, podczas gdy tryb TOR jest włączony do ochrony prywatności, ponieważ ta funkcja nie łączy się z Tor",
+  "tor_node_warning": "Ten typ portfela nie obsługuje łączenia się z węzłem nad Tor",
   "tor_only": "Tylko sieć Tor",
   "tor_only_warning": "Niektóre funkcje mogą być wyłączone w celu ochrony prywatności podczas korzystania z trybu TOR",
   "tor_status": "Status TOR",

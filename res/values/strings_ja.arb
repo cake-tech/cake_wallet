@@ -658,6 +658,7 @@
   "tor_connection": "Tor接続",
   "tor_enabled_warning": "TORは現在最善の努力であり、一部のサービスが機能しないか、接続が失敗した場合にClearNetに戻ってくる可能性があることに注意してください",
   "tor_feature_disabled": "この機能はプライバシーを保護するためにTORのみモードが有効になっている間、この機能は無効になります。この機能はTORに接続していないため",
+  "tor_node_warning": "このウォレットタイプは、TORを介してノードに接続することをサポートしていません",
   "tor_only": "Torのみ",
   "tor_only_warning": "TORのみのモードを使用する場合、プライバシーを保護するためにいくつかの機能が無効になる場合があります",
   "tor_status": "TORステータス",

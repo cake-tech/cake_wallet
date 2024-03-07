@@ -657,6 +657,7 @@
   "tor_connection": "Tor bağlantısı",
   "tor_enabled_warning": "Tor'un şu anda en iyi çaba olduğunu ve bağlantı başarısız olursa bazı hizmetlerin işe yaramayabileceğini veya ClearNet'e geri dönmeyebileceğini lütfen unutmayın.",
   "tor_feature_disabled": "Bu özellik, gizliliğinizi korumak için yalnızca TOR modu etkinleştirilirken bu özellik devre dışı bırakılır, çünkü bu özellik TOR üzerinden bağlanmaz",
+  "tor_node_warning": "Bu cüzdan türü, Tor üzerinden düğüme bağlanmayı desteklemiyor",
   "tor_only": "Yalnızca Tor",
   "tor_only_warning": "Yalnızca TOR modu kullanırken gizliliğinizi korumak için bazı özellikler devre dışı bırakılabilir",
   "tor_status": "Tor Durumu",

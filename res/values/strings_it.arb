@@ -659,6 +659,7 @@
   "tor_connection": "Connessione Tor",
   "tor_enabled_warning": "Si prega di notare che TOR è attualmente uno sforzo migliore e alcuni servizi potrebbero non funzionare o tornare a ClearNet se la connessione non riesce",
   "tor_feature_disabled": "Questa funzione è disabilitata mentre la modalità solo TOR è abilitata per proteggere la tua privacy in quanto questa funzione non si collega a Tor",
+  "tor_node_warning": "Questo tipo di portafoglio non supporta la connessione al nodo sopra Tor",
   "tor_only": "Solo Tor",
   "tor_only_warning": "Alcune funzionalità possono essere disabilitate per proteggere la tua privacy quando si utilizzano solo la modalità Tor",
   "tor_status": "Stato di tor",

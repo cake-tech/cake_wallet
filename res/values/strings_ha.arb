@@ -659,6 +659,7 @@
   "tor_connection": "Tor haɗin gwiwa",
   "tor_enabled_warning": "Lura cewa tor din a yanzu haka ne mafi kyawun ƙoƙari kuma wasu sabis na iya yin aiki ko faduwa ga bayyananniyar idan haɗin ya gaza",
   "tor_feature_disabled": "An kunna wannan fasalin kawai yayin da kawai ana kunna yanayin don kare sirrinka saboda wannan fasalin bashi da alaƙa da tor",
+  "tor_node_warning": "Wannan nau'in walat ɗin baya goyan bayan haɗi zuwa kumburi a kan tor",
   "tor_only": "Tor kawai",
   "tor_only_warning": "Ana iya kashe wasu fasaloli don kare sirrinka lokacin da kake amfani da tor kawai",
   "tor_status": "State State",

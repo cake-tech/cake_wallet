@@ -658,6 +658,7 @@
   "tor_connection": "conexión tor",
   "tor_enabled_warning": "Tenga en cuenta que Tor es actualmente el mejor esfuerzo y que algunos servicios pueden no funcionar o recurrir a Clearnet si la conexión falla",
   "tor_feature_disabled": "Esta característica está deshabilitada, mientras que el modo de solo tor está habilitado para proteger su privacidad, ya que esta función no se conecta a través de Tor",
+  "tor_node_warning": "Este tipo de billetera no admite conectarse al nodo a través de Tor",
   "tor_only": "solo Tor",
   "tor_only_warning": "Algunas características pueden desactivarse para proteger su privacidad cuando se usa solo el modo Tor",
   "tor_status": "Estado de Tor",

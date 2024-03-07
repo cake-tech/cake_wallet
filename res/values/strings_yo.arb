@@ -658,6 +658,7 @@
   "tor_connection": "Tor asopọ",
   "tor_enabled_warning": "Jọwọ ṣe akiyesi pe isọdọmọ ni lọwọlọwọ igbiyanju ti o dara julọ ati diẹ ninu awọn iṣẹ le ma ṣiṣẹ tabi ṣubu pada si ko opure ti asopọ ba kuna",
   "tor_feature_disabled": "Ẹya yii jẹ alaabo lakoko ti o ba jẹ pe o ṣiṣẹ nikan lati daabobo aṣiri rẹ bi ẹya yii ko sopọ mọra",
+  "tor_node_warning": "Iru apamọwọ yii ko ṣe atilẹyin sisopọ si ibi-afẹde naa nipa lile",
   "tor_only": "Tor nìkan",
   "tor_only_warning": "Diẹ ninu awọn ẹya le jẹ alaabo lati daabobo aṣiri rẹ nigbati o ba ni ọna to",
   "tor_status": "Ipo Tor",

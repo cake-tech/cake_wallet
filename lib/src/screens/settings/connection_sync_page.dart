@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.
 import 'package:cake_wallet/src/screens/settings/widgets/settings_tor_status.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/wallet_connect_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -117,6 +118,44 @@ class ConnectionSyncPage extends BasePage {
             ),
           ],
           if (FeatureFlag.isInAppTorEnabled && DeviceInfo.instance.isMobile) ...[
+            if (!dashboardViewModel.torViewModel.supportsNodeProxy)
+              Container(
+                padding: const EdgeInsets.only(top: 12, bottom: 12, right: 6),
+                margin: const EdgeInsets.only(left: 24, right: 24, top: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                  color: Color.fromARGB(200, 255, 221, 44),
+                  border: Border.all(
+                    color: Color.fromARGB(178, 223, 214, 0),
+                    width: 2,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      margin: EdgeInsets.only(left: 12, bottom: 48, right: 20),
+                      child: Image.asset(
+                        "assets/images/warning.png",
+                        color: Color.fromARGB(128, 255, 255, 255),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        S.of(context).tor_node_warning,
+                        maxLines: 5,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               child: Column(children: [
