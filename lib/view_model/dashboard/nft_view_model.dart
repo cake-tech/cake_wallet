@@ -95,6 +95,11 @@ abstract class NFTViewModelBase with Store {
     } catch (e) {
       isLoading = false;
       log(e.toString());
+      // this is just a connection error that happens while tor is initializing
+      // so we can ignore it:
+      if (e.toString().contains("Unexpected character")) {
+        return;
+      }
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
         widget: BottomSheetMessageDisplayWidget(
@@ -145,6 +150,11 @@ abstract class NFTViewModelBase with Store {
       isImportNFTLoading = false;
     } catch (e) {
       isImportNFTLoading = false;
+      // this is just a connection error that happens while tor is initializing
+      // so we can ignore it:
+      if (e.toString().contains("Unexpected character")) {
+        return;
+      }
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
         widget: BottomSheetMessageDisplayWidget(
