@@ -184,13 +184,13 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                       displayItem: (TorConnectionMode mode) => mode.title,
                       selectedItem: widget.torViewModel.torConnectionMode,
                       onItemSelected: (TorConnectionMode mode) async {
-                        if (mode == TorConnectionMode.torOnly) {
+                        if (mode == TorConnectionMode.enabled) {
                           await showPopUp<void>(
                             context: context,
                             builder: (BuildContext context) {
                               return AlertWithOneAction(
                                 alertTitle: S.of(context).warning,
-                                alertContent: S.of(context).tor_only_warning,
+                                alertContent: S.of(context).tor_enabled_warning,
                                 buttonText: S.of(context).ok,
                                 buttonAction: () => Navigator.of(context).pop(),
                               );
