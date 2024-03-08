@@ -72,11 +72,23 @@ class TronClient {
   Future<int> getFeeLimit(
     TransactionRaw rawTransaction,
     TronAddress address,
-    TronAddress receiverAddress,
-  ) async {
+    TronAddress receiverAddress, {
+    int energyUsed = 0,
+  }) async {
     try {
       // Fetch current Tron chain parameters using TronRequestGetChainParameters.
       final chainParams = await _provider!.request(TronRequestGetChainParameters());
+
+      final bandWidthInSun = chainParams.getTransactionFee!;
+      print('BandWidth In Sun: $bandWidthInSun');
+
+      final energyInSun = chainParams.getEnergyFee!;
+      print('Energy In Sun: $energyInSun');
+
+      print(
+        'Create Account Fee In System Contract for Chain: ${chainParams.getCreateNewAccountFeeInSystemContract!}',
+      );
+      print('Create Account Fee for Chain: ${chainParams.getCreateAccountFee}');
 
       final fakeTransaction = Transaction(
         rawData: rawTransaction,
@@ -87,63 +99,63 @@ class TronClient {
       final transactionSize = fakeTransaction.length + 64;
 
       // Assign the calculated size to the variable representing the required bandwidth.
-      int requiredBandwidth = transactionSize;
+      int neededBandWidth = transactionSize;
+      print('Initial Needed Bandwidth: $neededBandWidth');
 
       // We do not require energy for this operation. Energy is reserved for smart contracts
-      int energyNeed = 0;
-
-      // Occasionally, when sending a transaction to an inactive account,
-      // the network mandates a certain bandwidth for burning,
-      // and this cannot be mitigated through account bandwidth.
-      int requiredBandwidthForBurn = 0;
+      int neededEnergy = energyUsed;
+      print('Initial Needed Energy: $neededEnergy');
 
       // We require account resources to assess the available bandwidth and energy
       final accountResource =
           await _provider!.request(TronRequestGetAccountResource(address: address));
 
-      // Alright, with the owner's account resources in hand,
-      // we proceed to retrieve the details of the receiver's
-      // account to determine its activation status. In this context,
-      // if accountIsActive is null, it signifies that the account is inactive.
-      final accountIsActive =
-          await _provider!.request(TronRequestGetAccount(address: receiverAddress));
+      neededEnergy -= accountResource.howManyEnergy.toInt();
+      print('Account resource energy: ${accountResource.howManyEnergy.toInt()}');
+      print('Needed Energy after deducting from account resource energy: $neededEnergy');
 
-      // Initialize the total burn variable
-      int totalBurn = 0;
+      // Now, we need to deduct the bandwidth from the account's available bandwidth.
+      final BigInt accountBandWidth = accountResource.howManyBandwIth;
+      print('Account resource bandwidth: ${accountResource.howManyBandwIth.toInt()}');
 
-      int totalBurnInSun = 0;
-
-      /// In this scenario, we calculate the required resources for creating a new account.
-      if (accountIsActive == null) {
-        requiredBandwidthForBurn += chainParams.getCreateNewAccountFeeInSystemContract!;
-        totalBurn += chainParams.getCreateAccountFee!;
+      // If we have sufficient total bandwidth in our account, we set the total bandwidth requirement to zero.
+      if (accountBandWidth >= BigInt.from(neededBandWidth)) {
+        print('Account has more bandwidth than required');
+        neededBandWidth = 0;
       }
 
+      if (neededEnergy < 0) {
+        neededEnergy = 0;
+      }
+
+      final energyBurn = neededEnergy * energyInSun.toInt();
+      print('Energy Burn: $energyBurn');
+
+      final bandWidthBurn = neededBandWidth * bandWidthInSun;
+      print('Bandwidth Burn: $bandWidthBurn');
+
+      int totalBurn = energyBurn + bandWidthBurn;
+      print('Total Burn: $totalBurn');
+
       /// If there is a note (memo), calculate the memo fee.
-      /// In this instance, we have a note: "https://github.com/mrtnetwork"
       if (rawTransaction.data != null) {
         totalBurn += chainParams.getMemoFee!;
       }
 
-      // Now, we need to deduct the bandwidth from the account's available bandwidth.
-      final BigInt accountBandWidth = accountResource.howManyBandwIth;
+      // Check if the receiver account is active
+      final receiverAccountInfo =
+          await _provider!.request(TronRequestGetAccount(address: receiverAddress));
 
-      // If we have sufficient total bandwidth in our account, we set the total bandwidth requirement to zero.
-      if (accountBandWidth >= BigInt.from(requiredBandwidth)) {
-        requiredBandwidth = 0;
+      /// In this scenario, we calculate the required resources for creating a new account.
+      if (receiverAccountInfo == null) {
+        totalBurn += chainParams.getCreateNewAccountFeeInSystemContract!;
+
+        totalBurn += (chainParams.getCreateAccountFee! * bandWidthInSun);
       }
 
-      // Now, we add to the total burn.
-      if (requiredBandwidth > 0) {
-        totalBurn += requiredBandwidth * chainParams.getTransactionFee!;
-      }
+      print('Final total burn: $totalBurn');
 
-      // Multiply the required bandwidth by the network transaction fee to obtain the current total burn in sun
-      if (requiredBandwidthForBurn > 0) {
-        totalBurnInSun += requiredBandwidthForBurn * chainParams.getTransactionFee!;
-      }
-
-      return totalBurnInSun;
+      return totalBurn;
     } catch (_) {
       return 0;
     }
@@ -180,10 +192,6 @@ class TronClient {
         tokenAddress,
       );
     }
-
-    final totalBurnInSun = await getFeeLimit(rawTransaction, ownerAddress, receiverAddress);
-
-    rawTransaction = rawTransaction.copyWith(feeLimit: BigInt.from(10000000));
 
     print('Raw transaction id: ${rawTransaction.txID}');
 
@@ -237,6 +245,14 @@ class TronClient {
       timestamp: block.blockHeader.rawData.timestamp,
     );
 
+    final feeLimit = await getFeeLimit(rawTransaction, ownerAddress, receiverAddress);
+
+    print('Native transaction Fee Limit: $feeLimit');
+
+    rawTransaction = rawTransaction.copyWith(
+      feeLimit: BigInt.from(feeLimit),
+    );
+
     return rawTransaction;
   }
 
@@ -246,7 +262,6 @@ class TronClient {
     String amount,
     String contractAddress,
   ) async {
-
     final contract = ContractABI.fromJson(trc20Abi, isTron: true);
 
     final function = contract.functionFromName("transfer");
@@ -271,9 +286,20 @@ class TronClient {
       print("Tron TRC20 error: ${request.error} \n ${request.respose}");
     }
 
+    print('Energy Used: ${request.energyUsed}');
+
+    final feeLimit = await getFeeLimit(
+      request.transactionRaw!,
+      ownerAddress,
+      receiverAddress,
+      energyUsed: request.energyUsed ?? 0,
+    );
+
+    print('TRC20 Transaction Fee Limit: $feeLimit');
+
     /// get transactionRaw from response and make sure set fee limit
     final rawTransaction = request.transactionRaw!.copyWith(
-      feeLimit: TronHelper.toSun("10000000"),
+      feeLimit: BigInt.from(feeLimit),
     );
 
     return rawTransaction;
@@ -283,16 +309,21 @@ class TronClient {
     required TransactionRaw rawTransaction,
     required List<int> signature,
   }) async {
-    final transaction = Transaction(rawData: rawTransaction, signature: [signature]);
+    try {
+      final transaction = Transaction(rawData: rawTransaction, signature: [signature]);
 
-    final raw = BytesUtils.toHexString(transaction.toBuffer());
+      final raw = BytesUtils.toHexString(transaction.toBuffer());
 
-    final txBroadcastResult = await _provider!.request(TronRequestBroadcastHex(transaction: raw));
+      final txBroadcastResult = await _provider!.request(TronRequestBroadcastHex(transaction: raw));
 
-    if (txBroadcastResult.isSuccess) {
-      return txBroadcastResult.txId!;
-    } else {
-      throw Exception(txBroadcastResult.error);
+      if (txBroadcastResult.isSuccess) {
+        return txBroadcastResult.txId!;
+      } else {
+        throw Exception(txBroadcastResult.error);
+      }
+    } catch (e) {
+      print('Send block Exception: ${e.toString()}');
+      throw Exception(e);
     }
   }
 
