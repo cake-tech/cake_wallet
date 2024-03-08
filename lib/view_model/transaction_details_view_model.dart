@@ -353,12 +353,10 @@ abstract class TransactionDetailsViewModelBase with Store {
         (element) => element == sendViewModel.getBitcoinTransactionPriorityCustom);
     final customItemIndex = customItem != null ? priorities.indexOf(customItem) : null;
     TransactionPriority transactionPriority = priorities[selectedItem];
-    BuildContext popContext = context;
 
     await showPopUp<void>(
       context: context,
       builder: (BuildContext popUpContext) {
-        popContext = popUpContext;
         int selectedIdx = selectedItem;
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
@@ -388,7 +386,6 @@ abstract class TransactionDetailsViewModelBase with Store {
         ? wallet.calculateEstimatedFeeWithFeeRate(sliderValue.round(), formattedCryptoAmount)
         : wallet.calculateEstimatedFee(transactionPriority, formattedCryptoAmount);
 
-    Navigator.of(popContext).pop();
     return AmountConverter.amountIntToString(cryptoCurrency, fee ?? 0);
   }
 
