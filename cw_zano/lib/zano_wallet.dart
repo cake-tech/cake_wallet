@@ -254,6 +254,9 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
         )
       ];
     }
+    destinations.forEach((destination) {
+      debugPrint('destination ${destination.address} ${destination.amount} ${destination.assetId}');
+    });
     return PendingZanoTransaction(
       zanoWallet: this,
       destinations: destinations,
@@ -416,9 +419,8 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
   //   _listener = zano_wallet.setListeners(_onNewBlock, _onNewTransaction);
   // }
 
-
   void _askForUpdateBalance() {
-    debugPrint('askForUpdateBalance');      // TODO: remove, also remove this method completely
+    debugPrint('askForUpdateBalance'); // TODO: remove, also remove this method completely
   }
 
   Future<void> _askForUpdateTransactionHistory() async => await updateTransactions();
