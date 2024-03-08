@@ -55,7 +55,10 @@ class BitcoinTransactionPriority extends TransactionPriority {
     return label;
   }
 
-  String labelWithRate(int rate) => '${toString()} ($rate ${units}/byte)';
+  String labelWithRate(int rate, int? customRate) {
+    final rateValue = this == custom ? customRate ??= 0 : rate;
+    return '${toString()} ($rateValue ${units}/byte)';
+  }
 }
 
 class LitecoinTransactionPriority extends BitcoinTransactionPriority {

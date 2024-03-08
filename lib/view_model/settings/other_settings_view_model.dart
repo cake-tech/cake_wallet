@@ -3,7 +3,6 @@ import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -12,6 +11,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
+import 'package:collection/collection.dart';
 
 part 'other_settings_view_model.g.dart';
 
@@ -78,31 +78,27 @@ abstract class OtherSettingsViewModelBase with Store {
   ProviderType get sellProviderType =>
       _settingsStore.defaultSellProviders[walletType] ?? ProviderType.askEachTime;
 
-  String getDisplayPriority(dynamic priority) {
+  String getDisplayPriority(dynamic priority, {int? customValue}) {
     final _priority = priority as TransactionPriority;
 
-    if (_wallet.type == WalletType.bitcoin && _priority == BitcoinTransactionPriority.custom) {
-      final rate = _settingsStore.customBitcoinFeeRate;
-      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
-    }
     if (_wallet.type == WalletType.bitcoin ||
         _wallet.type == WalletType.litecoin ||
         _wallet.type == WalletType.bitcoinCash) {
       final rate = bitcoin!.getFeeRate(_wallet, _priority);
-      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
+      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
     }
 
     return priority.toString();
   }
 
-  String getBuyProviderType(dynamic buyProviderType) {
+  String getBuyProviderType(dynamic buyProviderType, {int? customValue}) {
     final _buyProviderType = buyProviderType as ProviderType;
     return _buyProviderType == ProviderType.askEachTime
         ? S.current.ask_each_time
         : _buyProviderType.title;
   }
 
-  String getSellProviderType(dynamic sellProviderType) {
+  String getSellProviderType(dynamic sellProviderType, {int? customValue}) {
     final _sellProviderType = sellProviderType as ProviderType;
     return _sellProviderType == ProviderType.askEachTime
         ? S.current.ask_each_time
@@ -110,17 +106,23 @@ abstract class OtherSettingsViewModelBase with Store {
   }
 
   void onDisplayPrioritySelected(TransactionPriority priority) =>
-    _settingsStore.priority[walletType] = priority;
+      _settingsStore.priority[walletType] = priority;
 
   void onDisplayBitcoinPrioritySelected(TransactionPriority priority, double customValue) {
     if (_wallet.type == WalletType.bitcoin) {
-
       _settingsStore.customBitcoinFeeRate = customValue.round();
     }
     _settingsStore.priority[_wallet.type] = priority;
   }
 
   double get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate.toDouble();
+
+  int? get customPriorityItemIndex {
+    final priorities = priorityForWalletType(walletType);
+    final customItem = priorities
+        .firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
+    return customItem != null ? priorities.indexOf(customItem) : null;
+  }
 
   @action
   ProviderType onBuyProviderTypeSelected(ProviderType buyProviderType) =>

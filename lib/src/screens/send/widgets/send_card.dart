@@ -1,3 +1,5 @@
+import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -8,6 +10,8 @@ import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -19,6 +23,7 @@ import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:collection/collection.dart';
 
 class SendCard extends StatefulWidget {
   SendCard({
@@ -452,7 +457,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     if (sendViewModel.hasFees)
                       Observer(
                         builder: (_) => GestureDetector(
-                          onTap: () => sendViewModel.pickTransactionPriority(context),
+                          onTap: () => pickTransactionPriority(context),
                           child: Container(
                             padding: EdgeInsets.only(top: 24),
                             child: Row(
@@ -662,6 +667,43 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     }
 
     _effectsInstalled = true;
+  }
+
+  Future<void> pickTransactionPriority(BuildContext context) async {
+    final items = priorityForWalletType(sendViewModel.walletType);
+    final selectedItem = items.indexOf(sendViewModel.transactionPriority);
+    final customItem = items.firstWhereOrNull((element) => element == sendViewModel.getBitcoinTransactionPriorityCustom);
+    final customItemIndex = customItem != null ? items.indexOf(customItem) : null;
+    final isBitcoinWallet = sendViewModel.walletType == WalletType.bitcoin;
+    double? customFeeRate = isBitcoinWallet ? sendViewModel.customBitcoinFeeRate.toDouble() : null;
+
+    await showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        int selectedIdx = selectedItem;
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Picker(
+              items: items,
+              displayItem: sendViewModel.displayFeeRate,
+              selectedAtIndex: selectedIdx,
+              customItemIndex: customItemIndex,
+              title: S.of(context).please_select,
+              headerEnabled: !isBitcoinWallet,
+              closeOnItemSelected: !isBitcoinWallet,
+              mainAxisAlignment: MainAxisAlignment.center,
+              sliderValue: customFeeRate,
+              onSliderChanged: (double newValue) => setState(() => customFeeRate = newValue),
+              onItemSelected: (TransactionPriority priority) {
+                sendViewModel.setTransactionPriority(priority);
+                setState(() => selectedIdx = items.indexOf(priority));
+              },
+            );
+          },
+        );
+      },
+    );
+    if (isBitcoinWallet) sendViewModel.customBitcoinFeeRate = customFeeRate!.round();
   }
 
   void _presentPicker(BuildContext context) {

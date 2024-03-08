@@ -34,6 +34,7 @@ class OtherSettingsPage extends BasePage {
                     items: priorityForWalletType(_otherSettingsViewModel.walletType),
                     displayItem: _otherSettingsViewModel.getDisplayPriority,
                     selectedItem: _otherSettingsViewModel.transactionPriority,
+                    customItemIndex: _otherSettingsViewModel.customPriorityItemIndex,
                     onItemSelected: _otherSettingsViewModel.onDisplayBitcoinPrioritySelected,
                     customValue: _otherSettingsViewModel.customBitcoinFeeRate,
                   ) :

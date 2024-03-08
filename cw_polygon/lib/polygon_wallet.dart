@@ -114,4 +114,9 @@ class PolygonWallet extends EVMChainWallet {
       client: PolygonClient(),
     );
   }
+
+  @override
+  int calculateEstimatedFeeWithFeeRate(int feeRate, int? amount, {int? outputsCount, int? size}) {
+    throw UnimplementedError('calculateEstimatedFeeWithFeeRate');
+  }
 }

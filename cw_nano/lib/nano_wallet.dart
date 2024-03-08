@@ -488,4 +488,9 @@ abstract class NanoWalletBase
     // Delete old name's dir and files
     await Directory(currentDirPath).delete(recursive: true);
   }
+
+  @override
+  int calculateEstimatedFeeWithFeeRate(int feeRate, int? amount, {int? outputsCount, int? size}) {
+    throw UnimplementedError('calculateEstimatedFeeWithFeeRate');
+  }
 }

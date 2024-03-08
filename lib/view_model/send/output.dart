@@ -7,8 +7,6 @@ import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -120,8 +118,8 @@ abstract class OutputBase with Store {
           _settingsStore.priority[_wallet.type]!, formattedCryptoAmount);
 
       if (_wallet.type == WalletType.bitcoin) {
-        if (_settingsStore.priority[_wallet.type]! == BitcoinTransactionPriority.custom) {
-          fee = (_wallet as BitcoinWallet).calculateEstimatedFeeWithFeeRate(
+        if (_settingsStore.priority[_wallet.type]! == bitcoin!.getBitcoinTransactionPriorityCustom()) {
+          fee = _wallet.calculateEstimatedFeeWithFeeRate(
               _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
         }
 

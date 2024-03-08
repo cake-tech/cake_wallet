@@ -13,8 +13,6 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
@@ -161,6 +159,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   int get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate;
+
+  void set customBitcoinFeeRate(int value) => _settingsStore.customBitcoinFeeRate = value;
 
   CryptoCurrency get currency => wallet.currency;
 
@@ -322,9 +322,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Future<void> replaceByFee(String txId, String newFee) async {
     state = IsExecutingState();
 
-    final isSufficient = await isChangeSufficientForFee(txId, newFee);
-
-    print('Is sufficient: $isSufficient');
+    final isSufficient = await bitcoin!.isChangeSufficientForFee(wallet, txId, newFee);
 
     if (!isSufficient) {
       state = AwaitingConfirmationState(
@@ -341,8 +339,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
       state = ExecutedSuccessfullyState();
     }
-
-    print('Is sufficient: ${state.toString()}');
   }
 
   @action
@@ -394,7 +390,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   Object _credentials() {
     final priority = _settingsStore.priority[wallet.type];
-    final feeRate = priority == BitcoinTransactionPriority.custom ? customBitcoinFeeRate : null;
 
     if (priority == null && wallet.type != WalletType.nano && wallet.type != WalletType.solana) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
@@ -405,7 +400,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
         return bitcoin!.createBitcoinTransactionCredentials(outputs,
-            priority: priority!, feeRate: feeRate, useReplaceByFee: useReplaceByFee);
+            priority: priority!, feeRate: customBitcoinFeeRate, useReplaceByFee: useReplaceByFee);
 
       case WalletType.monero:
         return monero!
@@ -431,8 +426,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
-  String displayFeeRate(dynamic priority) {
+  String displayFeeRate(dynamic priority, {int? customValue}) {
     final _priority = priority as TransactionPriority;
+
+    if (walletType == WalletType.bitcoin) {
+      final rate = bitcoin!.getFeeRate(wallet, _priority);
+      return bitcoin!
+          .bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
+    }
 
     if (isElectrumWallet) {
       final rate = bitcoin!.getFeeRate(wallet, _priority);
@@ -444,6 +445,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool _isEqualCurrency(String currency) =>
       wallet.balance.keys.any((e) => currency.toLowerCase() == e.title.toLowerCase());
+
+  TransactionPriority get getBitcoinTransactionPriorityCustom =>
+      bitcoin!.getBitcoinTransactionPriorityCustom();
 
   @action
   void onClose() => _settingsStore.fiatCurrency = fiatFromSettings;
@@ -478,57 +482,5 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     return error;
-  }
-
-  Future<bool> isChangeSufficientForFee(String txId, String newFee) async {
-    final bitcoinWallet = walletType == WalletType.bitcoin ? wallet as BitcoinWallet : null;
-    if (bitcoinWallet == null) throw Exception('Unexpected wallet type: $walletType');
-
-    int formattedNewFee = bitcoin!.formatterStringDoubleToBitcoinAmount(newFee);
-    final bundle = await bitcoinWallet.getTransactionExpanded(hash: txId);
-    final lastOutput = bundle.originalTransaction.outputs.last;
-
-    final lastAddress = bitcoin!.getAddressFromOutputScript(wallet, lastOutput.scriptPubKey);
-
-    final lastAddressRecord = bitcoinWallet.walletAddresses.allAddresses
-        .firstWhereOrNull((element) => element.address == lastAddress);
-
-    final isChange = lastAddressRecord?.isHidden ?? false;
-
-    return isChange && lastOutput.amount.toInt() - formattedNewFee > 0;
-  }
-
-  Future<void> pickTransactionPriority(BuildContext context) async {
-    final items = priorityForWalletType(walletType);
-    final selectedItem = items.indexOf(transactionPriority);
-    final isBitcoinWallet = walletType == WalletType.bitcoin;
-    double? customFeeRate = isBitcoinWallet ? customBitcoinFeeRate.toDouble() : null;
-
-    await showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-        int selectedIdx = selectedItem;
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Picker(
-              items: items,
-              displayItem: displayFeeRate,
-              selectedAtIndex: selectedIdx,
-              title: S.of(context).please_select,
-              headerEnabled: !isBitcoinWallet,
-              closeOnItemSelected: !isBitcoinWallet,
-              mainAxisAlignment: MainAxisAlignment.center,
-              sliderValue: customFeeRate,
-              onSliderChanged: (double newValue) => setState(() => customFeeRate = newValue),
-              onItemSelected: (TransactionPriority priority) {
-                setTransactionPriority(priority);
-                setState(() => selectedIdx = items.indexOf(priority));
-              },
-            );
-          },
-        );
-      },
-    );
-    if (isBitcoinWallet) _settingsStore.customBitcoinFeeRate = customFeeRate!.round();
   }
 }

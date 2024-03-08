@@ -15,6 +15,7 @@ class SettingsPriorityPickerCell<ItemType> extends StandardListRow {
       this.isGridView = false,
       this.matchingCriteria,
       this.customValue,
+      this.customItemIndex,
       this.onItemSelected})
       : super(
             title: title,
@@ -32,6 +33,7 @@ class SettingsPriorityPickerCell<ItemType> extends StandardListRow {
                         items: items,
                         displayItem: displayItem,
                         selectedAtIndex: selectedAtIndex,
+                        customItemIndex: customItemIndex,
                         headerEnabled: false,
                         closeOnItemSelected: false,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -52,18 +54,20 @@ class SettingsPriorityPickerCell<ItemType> extends StandardListRow {
 
   final ItemType selectedItem;
   final List<ItemType> items;
-  final void Function(ItemType item, double customeValue)? onItemSelected;
-  final String Function(ItemType item)? displayItem;
+  final void Function(ItemType item, double customValue)? onItemSelected;
+  final String Function(ItemType item, {int? customValue})? displayItem;
   final List<Image>? images;
   final String? searchHintText;
   final bool isGridView;
   final bool Function(ItemType, String)? matchingCriteria;
   double? customValue;
+  int? customItemIndex;
 
   @override
   Widget buildTrailing(BuildContext context) {
+    final customSliderValue = customValue?.round() ?? 0;
     return Text(
-      displayItem?.call(selectedItem) ?? selectedItem.toString(),
+      displayItem?.call(selectedItem, customValue: customSliderValue) ?? selectedItem.toString(),
       textAlign: TextAlign.right,
       style: TextStyle(
         fontSize: 14.0,

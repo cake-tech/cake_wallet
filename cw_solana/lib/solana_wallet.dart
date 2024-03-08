@@ -506,5 +506,10 @@ abstract class SolanaWalletBase
     return hex;
   }
 
+  @override
+  int calculateEstimatedFeeWithFeeRate(int feeRate, int? amount, {int? outputsCount, int? size}) {
+    throw UnimplementedError('calculateEstimatedFeeWithFeeRate');
+  }
+
   SolanaClient? get solanaClient => _client.getSolanaClient;
 }

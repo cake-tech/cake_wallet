@@ -42,7 +42,7 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
   final ItemType selectedItem;
   final List<ItemType> items;
   final void Function(ItemType item)? onItemSelected;
-  final String Function(ItemType item)? displayItem;
+  final String Function(ItemType item, {int? customValue})? displayItem;
   final List<Image>? images;
   final String? searchHintText;
   final bool isGridView;

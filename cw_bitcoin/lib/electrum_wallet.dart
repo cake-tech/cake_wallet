@@ -620,6 +620,39 @@ abstract class ElectrumWalletBase
         .every((element) => element.sequence != null && element.sequence! < 4294967293);
   }
 
+  Future<bool> isChangeSufficientForFee(String txId, int newFee) async {
+
+    final bundle = await getTransactionExpanded(hash: txId);
+    final lastOutput = bundle.originalTransaction.outputs.last;
+
+    final lastAddress = addressFromOutputScript(lastOutput.scriptPubKey, network);
+
+    final lastAddressRecord = walletAddresses.allAddresses
+        .firstWhereOrNull((element) => element.address == lastAddress);
+
+    final isChange = lastAddressRecord?.isHidden ?? false;
+
+    var allInputsAmount = 0;
+
+    for(int i = 0; i < bundle.originalTransaction.inputs.length; i++) {
+      final input = bundle.originalTransaction.inputs[i];
+      final inputTransaction = bundle.ins[i];
+      final vout = input.txIndex;
+      final outTransaction = inputTransaction.outputs[vout];
+      allInputsAmount += outTransaction.amount.toInt();
+    }
+
+    int totalOutAmount = bundle.originalTransaction.outputs
+        .fold<int>(0, (previousValue, element) => previousValue + element.amount.toInt());
+
+    var currentFee = allInputsAmount - totalOutAmount;
+
+    int remainingFee = (newFee - currentFee > 0) ? newFee - currentFee : newFee;
+
+    return isChange && lastOutput.amount.toInt() - remainingFee > 0;
+  }
+
+
   Future<PendingBitcoinTransaction> replaceByFee(String hash, int newFee) async {
     try {
       final bundle = await getTransactionExpanded(hash: hash);
@@ -997,8 +1030,6 @@ abstract class ElectrumWalletBase
     return base64Encode(HD.signMessage(message));
   }
 
-  String getAddressFromOutputScript(Script script) =>
-      addressFromOutputScript(script, network);
 }
 
 class EstimateTxParams {

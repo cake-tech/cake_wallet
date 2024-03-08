@@ -545,7 +545,7 @@ class SendPage extends BasePage {
     await showPopUp<CryptoCurrency>(
         builder: (_) => Picker(
               items: sendViewModel.currencies,
-              displayItem: (Object item) => item.toString(),
+              displayItem: (Object item, {int? customValue}) => item.toString(),
               selectedAtIndex:
                   sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
               title: S.of(context).please_select,

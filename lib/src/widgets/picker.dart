@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
@@ -28,6 +27,7 @@ class Picker<Item> extends StatefulWidget {
     this.headerEnabled = true,
     this.closeOnItemSelected = true,
     this.sliderValue,
+    this.customItemIndex,
     this.onSliderChanged,
     this.matchingCriteria,
   }) : assert(hintText == null ||
@@ -41,13 +41,14 @@ class Picker<Item> extends StatefulWidget {
   final String? description;
   final Function(Item) onItemSelected;
   final MainAxisAlignment mainAxisAlignment;
-  final String Function(Item)? displayItem;
+  final String Function(Item,{int? customValue})? displayItem;
   final bool isGridView;
   final bool isSeparated;
   final String? hintText;
   final bool headerEnabled;
   final bool closeOnItemSelected;
   final double? sliderValue;
+  final int? customItemIndex;
   final Function(double)? onSliderChanged;
   final bool Function(Item, String)? matchingCriteria;
 
@@ -270,12 +271,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
 
     final image = images.isNotEmpty ? filteredImages[index] : icon;
 
-    final isCustomItem =
-        item is BitcoinTransactionPriority && item == BitcoinTransactionPriority.custom;
-
-    final label = isCustomItem
-        ? item.labelWithRate(widget.sliderValue != null ? widget.sliderValue!.round() : 0)
-        : widget.displayItem?.call(item);
+    final isCustomItem = widget.customItemIndex != null && index == widget.customItemIndex;
+    final customNewValue = widget.sliderValue?.round() ?? 0;
 
     final itemContent = Row(
       mainAxisSize: MainAxisSize.max,
@@ -290,7 +287,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               children: [
                 Flexible(
                   child: Text(
-                    label ?? item.toString(),
+                    widget.displayItem?.call(item, customValue: customNewValue) ?? item.toString(),
                     softWrap: true,
                     style: TextStyle(
                       fontSize: 14,
@@ -361,12 +358,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
 
     final image = images.isNotEmpty ? images[index] : icon;
 
-    final isCustomItem =
-        item is BitcoinTransactionPriority && item == BitcoinTransactionPriority.custom;
-
-    final label = isCustomItem
-        ? item.labelWithRate(widget.sliderValue != null ? widget.sliderValue!.round() : 0)
-        : widget.displayItem?.call(item);
+    final isCustomItem = widget.customItemIndex != null && index == widget.customItemIndex;
+    final customNewValue = widget.sliderValue?.round() ?? 0;
 
     final itemContent = Row(
       mainAxisSize: MainAxisSize.max,
@@ -381,7 +374,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               children: [
                 Flexible(
                   child: Text(
-                    label ?? item.toString(),
+                    widget.displayItem?.call(item,customValue: customNewValue) ?? item.toString(),
                     softWrap: true,
                     style: TextStyle(
                       fontSize: 16,

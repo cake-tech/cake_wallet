@@ -48,7 +48,7 @@ class ConnectionSyncPage extends BasePage {
                 return SettingsPickerCell<SyncMode>(
                     title: S.current.background_sync_mode,
                     items: SyncMode.all,
-                    displayItem: (SyncMode syncMode) => syncMode.name,
+                    displayItem: (SyncMode syncMode,{int? customValue}) => syncMode.name,
                     selectedItem: dashboardViewModel.syncMode,
                     onItemSelected: (syncMode) async {
                       dashboardViewModel.setSyncMode(syncMode);

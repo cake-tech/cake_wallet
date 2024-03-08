@@ -17,8 +17,6 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';

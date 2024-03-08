@@ -3,8 +3,6 @@ import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -25,6 +23,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:collection/collection.dart';
 
 part 'transaction_details_view_model.g.dart';
 
@@ -339,7 +338,6 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   Future<String?> setBitcoinRBFTransactionPriority(BuildContext context) async {
     if (wallet.type != WalletType.bitcoin) return null;
-    final bitcoinWallet = this.wallet as BitcoinWallet;
 
     final cryptoCurrency = walletTypeToCryptoCurrency(wallet.type);
     final transactionAmount = items
@@ -351,8 +349,10 @@ abstract class TransactionDetailsViewModelBase with Store {
     double sliderValue = settingsStore.customBitcoinFeeRate.toDouble();
     final priorities = priorityForWalletType(wallet.type);
     final selectedItem = priorities.indexOf(sendViewModel.transactionPriority);
-    BitcoinTransactionPriority transactionPriority =
-        priorities[selectedItem] as BitcoinTransactionPriority;
+    final customItem = priorities.firstWhereOrNull((element) => element == sendViewModel.getBitcoinTransactionPriorityCustom);
+    final customItemIndex = customItem != null ? priorities.indexOf(customItem) : null;
+    TransactionPriority transactionPriority = priorities[selectedItem];
+
 
     await showPopUp<void>(
       context: context,
@@ -364,6 +364,7 @@ abstract class TransactionDetailsViewModelBase with Store {
               items: priorities,
               displayItem: sendViewModel.displayFeeRate,
               selectedAtIndex: selectedIdx,
+              customItemIndex: customItemIndex,
               title: S.of(context).please_select,
               headerEnabled: false,
               closeOnItemSelected: false,
@@ -371,7 +372,7 @@ abstract class TransactionDetailsViewModelBase with Store {
               sliderValue: sliderValue,
               onSliderChanged: (double newValue) => setState(() => sliderValue = newValue),
               onItemSelected: (TransactionPriority priority) {
-                transactionPriority = priority as BitcoinTransactionPriority;
+                transactionPriority = priority;
                 setState(() => selectedIdx = priorities.indexOf(priority));
               },
             );
@@ -380,9 +381,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       },
     );
 
-    final fee = transactionPriority == BitcoinTransactionPriority.custom
-        ? bitcoinWallet.calculateEstimatedFeeWithFeeRate(sliderValue.round(), formattedCryptoAmount)
-        : bitcoinWallet.calculateEstimatedFee(transactionPriority, formattedCryptoAmount);
+    final fee = transactionPriority == bitcoin!.getBitcoinTransactionPriorityCustom()
+        ? wallet.calculateEstimatedFeeWithFeeRate(sliderValue.round(), formattedCryptoAmount)
+        : wallet.calculateEstimatedFee(transactionPriority, formattedCryptoAmount);
 
     return AmountConverter.amountIntToString(cryptoCurrency, fee);
   }

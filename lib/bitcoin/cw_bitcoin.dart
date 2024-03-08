@@ -74,22 +74,25 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Object createBitcoinTransactionCredentials(List<Output> outputs,
-          {required TransactionPriority priority, int? feeRate, bool useReplaceByFee = false}) =>
-      BitcoinTransactionCredentials(
-          outputs
-              .map((out) => OutputInfo(
-                  fiatAmount: out.fiatAmount,
-                  cryptoAmount: out.cryptoAmount,
-                  address: out.address,
-                  note: out.note,
-                  sendAll: out.sendAll,
-                  extractedAddress: out.extractedAddress,
-                  isParsedAddress: out.isParsedAddress,
-                  formattedCryptoAmount: out.formattedCryptoAmount))
-              .toList(),
-          priority: priority as BitcoinTransactionPriority,
-          feeRate: feeRate,
-          useReplaceByFee: useReplaceByFee);
+      {required TransactionPriority priority, int? feeRate, bool useReplaceByFee = false}) {
+    final bitcoinFeeRate =
+    priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
+    return BitcoinTransactionCredentials(
+        outputs
+            .map((out) => OutputInfo(
+            fiatAmount: out.fiatAmount,
+            cryptoAmount: out.cryptoAmount,
+            address: out.address,
+            note: out.note,
+            sendAll: out.sendAll,
+            extractedAddress: out.extractedAddress,
+            isParsedAddress: out.isParsedAddress,
+            formattedCryptoAmount: out.formattedCryptoAmount))
+            .toList(),
+        priority: priority as BitcoinTransactionPriority,
+        feeRate: bitcoinFeeRate,
+        useReplaceByFee: useReplaceByFee);
+  }
 
   @override
   Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs,
@@ -139,8 +142,9 @@ class CWBitcoin extends Bitcoin {
   int formatterStringDoubleToBitcoinAmount(String amount) => stringDoubleToBitcoinAmount(amount);
 
   @override
-  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate) =>
-      (priority as BitcoinTransactionPriority).labelWithRate(rate);
+  String bitcoinTransactionPriorityWithLabel(
+      TransactionPriority priority, int rate, {int? customRate}) =>
+      (priority as BitcoinTransactionPriority).labelWithRate(rate, customRate);
 
   @override
   List<BitcoinUnspent> getUnspents(Object wallet) {
@@ -165,6 +169,9 @@ class CWBitcoin extends Bitcoin {
 
   @override
   TransactionPriority getBitcoinTransactionPriorityMedium() => BitcoinTransactionPriority.medium;
+
+  @override
+  TransactionPriority getBitcoinTransactionPriorityCustom() => BitcoinTransactionPriority.custom;
 
   @override
   TransactionPriority getLitecoinTransactionPriorityMedium() => LitecoinTransactionPriority.medium;
@@ -222,8 +229,9 @@ class CWBitcoin extends Bitcoin {
 	}
 
   @override
-  String getAddressFromOutputScript(Object wallet, Script script) {
+  Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.getAddressFromOutputScript(script);
+    final formattedFee = stringDoubleToBitcoinAmount(newFee);
+    return bitcoinWallet.isChangeSufficientForFee(txId, formattedFee);
   }
 }

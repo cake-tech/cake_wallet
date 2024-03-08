@@ -61,6 +61,7 @@ Future<void> main(List<String> args) async {
 Future<void> generateBitcoin(bool hasImplementation) async {
   final outputFile = File(bitcoinOutputPath);
   const bitcoinCommonHeaders = """
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -133,13 +134,14 @@ abstract class Bitcoin {
   String formatterBitcoinAmountToString({required int amount});
   double formatterBitcoinAmountToDouble({required int amount});
   int formatterStringDoubleToBitcoinAmount(String amount);
-  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate);
+  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate, {int? customRate});
 
   List<Unspent> getUnspents(Object wallet);
   Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   TransactionPriority getBitcoinTransactionPriorityMedium();
+  TransactionPriority getBitcoinTransactionPriorityCustom();
   TransactionPriority getLitecoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPrioritySlow();
   TransactionPriority getLitecoinTransactionPrioritySlow();
@@ -149,9 +151,9 @@ abstract class Bitcoin {
   List<ReceivePageOption> getBitcoinReceivePageOptions();
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
 
-  Future<PendingBitcoinTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
+  Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
   Future<bool> canReplaceByFee(Object wallet, String transactionHash);
-  String getAddressFromOutputScript(Object wallet, Script script);
+  Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee);
 }
   """;
 
