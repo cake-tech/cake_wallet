@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 class ServiceStatusTile extends StatelessWidget {
   final ServiceStatus status;
 
-  const ServiceStatusTile(this.status, {Key? key}) : super(key: key);
+  const ServiceStatusTile(this.status, {super.key});
 
   @override
   Widget build(BuildContext context) {
