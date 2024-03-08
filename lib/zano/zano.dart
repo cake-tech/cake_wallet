@@ -1,4 +1,5 @@
 import 'package:cake_wallet/utils/language_list.dart';
+import 'package:cw_zano/zano_transaction_credentials.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -12,15 +13,12 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_zano/zano_wallet_service.dart';
 import 'package:cw_zano/zano_wallet.dart';
 import 'package:cw_zano/zano_transaction_info.dart';
-import 'package:cw_zano/zano_transaction_history.dart';
 import 'package:cw_zano/mnemonics/english.dart';
-import 'package:cw_zano/zano_transaction_creation_credentials.dart';
 
 part 'cw_zano.dart';
 

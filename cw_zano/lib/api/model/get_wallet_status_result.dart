@@ -16,11 +16,11 @@ class GetWalletStatusResult {
 
   factory GetWalletStatusResult.fromJson(Map<String, dynamic> json) =>
       GetWalletStatusResult(
-        currentDaemonHeight: json['current_daemon_height'] as int,
-        currentWalletHeight: json['current_wallet_height'] as int,
-        isDaemonConnected: json['is_daemon_connected'] as bool,
-        isInLongRefresh: json['is_in_long_refresh'] as bool,
-        progress: json['progress'] as int,
-        walletState: json['wallet_state'] as int,
+        currentDaemonHeight: json['current_daemon_height'] as int? ?? 0,
+        currentWalletHeight: json['current_wallet_height'] as int? ?? 0,
+        isDaemonConnected: json['is_daemon_connected'] as bool? ?? false,
+        isInLongRefresh: json['is_in_long_refresh'] as bool? ?? false,
+        progress: json['progress'] as int? ?? 0,
+        walletState: json['wallet_state'] as int? ?? 0,
       );
 }

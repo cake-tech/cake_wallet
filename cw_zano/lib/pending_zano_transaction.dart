@@ -7,83 +7,62 @@ import 'package:cw_zano/api/model/transfer_result.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_zano/api/api_calls.dart' as calls;
 import 'package:cw_zano/zano_wallet.dart';
 
 class PendingZanoTransaction with PendingTransaction {
-  PendingZanoTransaction(
-      {required this.zanoWallet,
-      required this.fee,
-      required this.intAmount,
-      //required this.stringAmount,
-      required this.hWallet,
-      required this.address,
-      required this.assetId,
-      required this.comment});
+  PendingZanoTransaction({
+    required this.zanoWallet,
+    required this.destinations,
+    required this.fee,
+    required this.comment,
+  });
 
   final ZanoWalletBase zanoWallet;
-  final int hWallet;
-  final int intAmount;
-  //final String stringAmount;
+  final List<Destination> destinations;
   final int fee;
-  final String address;
-  final String assetId;
   final String comment;
 
-  final CryptoCurrency cryptoCurrency = CryptoCurrency.zano;
-
   @override
-  String get id => transferResult != null ? transferResult!.txHash : '';
+  String get id => transferResult?.txHash ?? '';
 
   @override
   String get hex => '';
 
   @override
-  String get amountFormatted {
-    return AmountConverter.amountIntToString(cryptoCurrency, intAmount);
-  }
+  String get amountFormatted => AmountConverter.amountIntToString(CryptoCurrency.zano, destinations.first.amount);
 
   @override
-  String get feeFormatted => AmountConverter.amountIntToString(cryptoCurrency, fee);
+  String get feeFormatted => AmountConverter.amountIntToString(CryptoCurrency.zano, fee);
 
   TransferResult? transferResult;
 
   @override
   Future<void> commit() async {
     final params = TransferParams(
-      destinations: [
-        Destination(
-          amount: intAmount.toString(),
-          address: address,
-          assetId: assetId,
-        )
-      ],
+      destinations: destinations,
       fee: fee,
       mixin: zanoMixin,
       paymentId: '',
       comment: comment,
       pushPayer: false,
-      hideReceiver: false,
+      hideReceiver: true,
     );
-    final result = await zanoWallet.invokeMethod(hWallet, 'transfer', params);
+    final result = await zanoWallet.invokeMethod('transfer', params);
     final map = jsonDecode(result);
-    if (map['result'] != null && map['result']['result'] != null) {
-      transferResult = TransferResult.fromJson(
-        map['result']['result'] as Map<String, dynamic>,
-      );
-      await zanoWallet.fetchTransactions();
-    } else if (map['result'] != null && map['result']['error'] != null) {
-      final String code;
-      if (map['result']['error']['code'] is int) {
-        code = (map['result']['error']['code'] as int).toString();
-      } else if (map['result']['error']['code'] is String) {
-        code = map['result']['error']['code'] as String;
+    final resultMap = map['result'] as Map<String, dynamic>?;
+    if (resultMap != null) {
+      final transferResultMap = resultMap['result'] as Map<String, dynamic>?;
+      if (transferResultMap != null) {
+        transferResult = TransferResult.fromJson(transferResultMap);
+        print('transfer success hash ${transferResult!.txHash}');
+        await zanoWallet.fetchTransactions();
       } else {
-        code = '';
+        final errorCode = resultMap['error']['code'];
+        final code = errorCode is int ? errorCode.toString() : errorCode as String? ?? '';
+        final message = resultMap['error']['message'] as String? ?? '';
+        print('transfer error $code $message');
+        throw TransferException(code, message);
       }
-      final message = map['result']['error']['message'] as String;
-      print('transfer error $code $message');
-      throw TransferException(code, message);
     }
   }
 }

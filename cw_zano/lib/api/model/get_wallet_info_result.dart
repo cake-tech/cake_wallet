@@ -8,6 +8,7 @@ class GetWalletInfoResult {
   GetWalletInfoResult({required this.wi, required this.wiExtended});
 
   factory GetWalletInfoResult.fromJson(Map<String, dynamic> json) => GetWalletInfoResult(
-    wi: Wi.fromJson(json['wi'] as Map<String, dynamic>), 
-    wiExtended: WiExtended.fromJson(json['wi_extended'] as Map<String, dynamic>));
+        wi: Wi.fromJson(json['wi'] as Map<String, dynamic>? ?? {}),
+        wiExtended: WiExtended.fromJson(json['wi_extended'] as Map<String, dynamic>? ?? {}),
+      );
 }

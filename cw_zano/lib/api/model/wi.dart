@@ -19,14 +19,14 @@ class Wi {
       required this.viewSecKey});
 
   factory Wi.fromJson(Map<String, dynamic> json) => Wi(
-        address: json['address'] as String,
-        balances: (json['balances'] as List<dynamic>)
+        address: json['address'] as String? ?? '',
+        balances: (json['balances'] as List<dynamic>? ?? [])
             .map((e) => Balance.fromJson(e as Map<String, dynamic>))
             .toList(),
-        isAuditable: json['is_auditable'] as bool,
-        isWatchOnly: json['is_watch_only'] as bool,
-        minedTotal: json['mined_total'] as int,
-        path: json['path'] as String,
-        viewSecKey: json['view_sec_key'] as String,
+        isAuditable: json['is_auditable'] as bool? ?? false,
+        isWatchOnly: json['is_watch_only'] as bool? ?? false,
+        minedTotal: json['mined_total'] as int? ?? 0,
+        path: json['path'] as String? ?? '',
+        viewSecKey: json['view_sec_key'] as String? ?? '',
       );
 }

@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -13,17 +14,19 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_zano/api/api_calls.dart' as calls;
 import 'package:cw_zano/api/api_calls.dart';
+import 'package:cw_zano/api/model/destination.dart';
 import 'package:cw_zano/api/model/get_recent_txs_and_info_params.dart';
+import 'package:cw_zano/api/model/get_wallet_info_result.dart';
+import 'package:cw_zano/api/model/get_wallet_status_result.dart';
 import 'package:cw_zano/api/model/history.dart';
 import 'package:cw_zano/api/model/store_result.dart';
 import 'package:cw_zano/api/model/zano_wallet_keys.dart';
-import 'package:cw_zano/api/wallet.dart' as zano_wallet;
 import 'package:cw_zano/api/zano_api.dart';
+import 'package:cw_zano/exceptions/zano_transaction_creation_exception.dart';
 import 'package:cw_zano/pending_zano_transaction.dart';
 import 'package:cw_zano/zano_balance.dart';
-import 'package:cw_zano/zano_transaction_creation_credentials.dart';
+import 'package:cw_zano/zano_transaction_credentials.dart';
 import 'package:cw_zano/zano_transaction_history.dart';
 import 'package:cw_zano/zano_transaction_info.dart';
 import 'package:cw_zano/zano_wallet_addresses.dart';
@@ -62,7 +65,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
   }
 
   List<History> history = [];
-  String assetId = '';
+  String defaultAsssetId = '';
 
   static const int _autoSaveInterval = 30;
   static const _statusDelivered = 'delivered';
@@ -85,8 +88,12 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
   @override
   ZanoWalletKeys keys = ZanoWalletKeys(privateSpendKey: '', privateViewKey: '', publicSpendKey: '', publicViewKey: '');
 
-  zano_wallet.SyncListener? _listener;
+  //zano_wallet.SyncListener? _listener;
   /**ReactionDisposer? _onAccountChangeReaction;*/
+  Timer? _updateSyncInfoTimer;
+  int _cachedBlockchainHeight = 0;
+  int _lastKnownBlockHeight = 0;
+  int _initialSyncHeight = 0;
   bool _isTransactionUpdating;
   bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
@@ -104,16 +111,8 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     await walletAddresses.updateAddress(address);
 
     ///balance.addAll(getZanoBalance(/**accountIndex: walletAddresses.account?.id ?? 0*/));
-    _setListeners();
+    //_setListeners();
     await updateTransactions();
-
-    if (walletInfo.isRecovery) {
-      debugPrint('setRecoveringFromSeed isRecovery ${walletInfo.isRecovery}');
-
-      if (zano_wallet.getCurrentHeight(hWallet) <= 1) {
-        debugPrint('setRefreshFromBlockHeight height ${walletInfo.restoreHeight}');
-      }
-    }
 
     _autoSaveTimer = Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
   }
@@ -123,7 +122,8 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
 
   @override
   void close() {
-    _listener?.stop();
+    _updateSyncInfoTimer?.cancel();
+    //_listener?.stop();
     /**_onAccountChangeReaction?.reaction.dispose();*/
     _autoSaveTimer?.cancel();
   }
@@ -152,14 +152,57 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
   @override
   Future<void> startSync() async {
     try {
-      _setInitialHeight();
-    } catch (_) {}
-
-    try {
       syncStatus = AttemptingSyncStatus();
-      debugPrint("startRefresh");
-      _setListeners();
-      _listener?.start(this, hWallet);
+      _cachedBlockchainHeight = 0;
+      _lastKnownBlockHeight = 0;
+      _initialSyncHeight = 0;
+      _updateSyncInfoTimer ??= Timer.periodic(Duration(milliseconds: 1200), (_) async {
+        /**if (isNewTransactionExist()) {
+        onNewTransaction?.call();
+      }*/
+
+        GetWalletStatusResult status = getWalletStatus();
+        // You can call getWalletInfo ONLY if getWalletStatus returns NOT is in long refresh and wallet state is 2 (ready)
+        if (!status.isInLongRefresh && status.walletState == 2) {
+          final syncHeight = status.currentWalletHeight;
+
+          GetWalletInfoResult result = getWalletInfo();
+          seed = result.wiExtended.seed;
+          keys = ZanoWalletKeys(
+            privateSpendKey: result.wiExtended.spendPrivateKey,
+            privateViewKey: result.wiExtended.viewPrivateKey,
+            publicSpendKey: result.wiExtended.spendPublicKey,
+            publicViewKey: result.wiExtended.viewPublicKey,
+          );
+
+          final _balance = result.wi.balances.first;
+          defaultAsssetId = _balance.assetInfo.assetId;
+          balance = ObservableMap.of({CryptoCurrency.zano: ZanoBalance(total: _balance.total, unlocked: _balance.unlocked)});
+
+          if (_initialSyncHeight <= 0) {
+            _initialSyncHeight = syncHeight;
+          }
+
+          final bchHeight = status.currentDaemonHeight;
+
+          if (_lastKnownBlockHeight == syncHeight) {
+            return;
+          }
+
+          _lastKnownBlockHeight = syncHeight;
+          final track = bchHeight - _initialSyncHeight;
+          final diff = track - (bchHeight - syncHeight);
+          final ptc = diff <= 0 ? 0.0 : diff / track;
+          final left = bchHeight - syncHeight;
+
+          if (syncHeight < 0 || left < 0) {
+            return;
+          }
+
+          // 1. Actual new height; 2. Blocks left to finish; 3. Progress in percents;
+          _onNewBlock.call(syncHeight, left, ptc);
+        }
+      });
     } catch (e) {
       syncStatus = FailedSyncStatus();
       print(e);
@@ -169,82 +212,54 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-    final creds = credentials as ZanoTransactionCreationCredentials;
-    final output = creds.outputs.first;
-    final address = output.isParsedAddress && (output.extractedAddress?.isNotEmpty ?? false) ? output.extractedAddress! : output.address;
-    final stringAmount = output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
-    final fee = calculateEstimatedFee(creds.priority);
-    final intAmount = (double.parse(stringAmount!) * pow(10, 12)).toInt();
-    final transaction = PendingZanoTransaction(fee: fee, intAmount: intAmount, hWallet: hWallet, address: address, assetId: assetId, comment: output.note ?? '', zanoWallet: this);
-    return transaction;
-
-    /*final _credentials = credentials as ZanoTransactionCreationCredentials;
-    final outputs = _credentials.outputs;
+    final creds = credentials as ZanoTransactionCredentials;
+    final outputs = creds.outputs;
     final hasMultiDestination = outputs.length > 1;
-    final assetType =
-        CryptoCurrency.fromString(_credentials.assetType.toLowerCase());
-    final balances = getZanoBalance(/*accountIndex: walletAddresses.account!.id*/);
-    final unlockedBalance = balances[assetType]!.unlockedBalance;
-
-    PendingTransactionDescription pendingTransactionDescription;
-
-    if (!(syncStatus is SyncedSyncStatus)) {
-      throw ZanoTransactionCreationException('The wallet is not synced.');
-    }
-
+    final unlockedBalance = balance[CryptoCurrency.zano]?.unlocked ?? 0;
+    final fee = calculateEstimatedFee(creds.priority);
+    late List<Destination> destinations;
     if (hasMultiDestination) {
-      if (outputs.any(
-          (item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
-        throw ZanoTransactionCreationException(
-            'You do not have enough coins to send this amount.');
+      if (outputs.any((output) => output.sendAll || (output.formattedCryptoAmount ?? 0) <= 0)) {
+        throw ZanoTransactionCreationException("You don't have enough coins.");
       }
-
-      final int totalAmount = outputs.fold(
-          0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
-
-      if (unlockedBalance < totalAmount) {
+      final int totalAmount = outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
+      if (totalAmount + fee > unlockedBalance) {
         throw ZanoTransactionCreationException(
-            'You do not have enough coins to send this amount.');
+            "You don't have enough coins (required: ${moneroAmountToString(amount: totalAmount + fee)}, unlocked ${moneroAmountToString(amount: unlockedBalance)}).");
       }
-
-      final zanoOutputs = outputs
-          .map((output) => ZanoOutput(
-              address: output.address,
-              amount: output.cryptoAmount!.replaceAll(',', '.')))
+      destinations = outputs
+          .map((output) => Destination(
+                amount: output.formattedCryptoAmount ?? 0,
+                address: output.isParsedAddress ? output.extractedAddress! : output.address,
+                assetId: defaultAsssetId,
+              ))
           .toList();
-
-      pendingTransactionDescription =
-          await transaction_history.createTransactionMultDest(
-              outputs: zanoOutputs,
-              priorityRaw: _credentials.priority.serialize());
     } else {
       final output = outputs.first;
-      final address = output.isParsedAddress &&
-              (output.extractedAddress?.isNotEmpty ?? false)
-          ? output.extractedAddress!
-          : output.address;
-      final amount =
-          output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
-      final int? formattedAmount =
-          output.sendAll ? null : output.formattedCryptoAmount;
-
-      if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
-          (formattedAmount == null && unlockedBalance <= 0)) {
-        final formattedBalance = moneroAmountToString(amount: unlockedBalance);
-
-        throw ZanoTransactionCreationException(
-            'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
+      late int amount;
+      if (output.sendAll) {
+        amount = unlockedBalance - fee;
+      } else {
+        amount = output.formattedCryptoAmount!;
       }
-
-      pendingTransactionDescription =
-          await transaction_history.createTransaction(
-              address: address,
-              assetType: _credentials.assetType,
-              amount: amount,
-              priorityRaw: _credentials.priority.serialize());
+      if (amount + fee > unlockedBalance) {
+        throw ZanoTransactionCreationException(
+            "You don't have enough coins (required: ${moneroAmountToString(amount: amount + fee)}, unlocked ${moneroAmountToString(amount: unlockedBalance)}).");
+      }
+      destinations = [
+        Destination(
+          amount: amount,
+          address: output.isParsedAddress ? output.extractedAddress! : output.address,
+          assetId: defaultAsssetId,
+        )
+      ];
     }
-
-    return PendingZanoTransaction(pendingTransactionDescription, assetType);*/
+    return PendingZanoTransaction(
+      zanoWallet: this,
+      destinations: destinations,
+      fee: fee,
+      comment: outputs.first.note ?? '',
+    );
   }
 
   @override
@@ -265,7 +280,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
 
   Future<void> store() async {
     try {
-      final json = await invokeMethod(hWallet, 'store', '{}');
+      final json = await invokeMethod('store', '{}');
       final map = jsonDecode(json) as Map<String, dynamic>;
       if (map['result'] == null || map['result']['result'] == null) {
         throw 'store empty response';
@@ -326,7 +341,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
 
   Future<void> _refreshTransactions() async {
     try {
-      final result = await invokeMethod(hWallet, 'get_recent_txs_and_info', GetRecentTxsAndInfoParams(offset: 0, count: 30));
+      final result = await invokeMethod('get_recent_txs_and_info', GetRecentTxsAndInfoParams(offset: 0, count: 30));
       final map = jsonDecode(result) as Map<String, dynamic>?;
       if (map == null) {
         print('get_recent_txs_and_info empty response');
@@ -396,31 +411,14 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
   //         .map((row) => ZanoTransactionInfo.fromRow(row))
   //         .toList();
 
-  void _setListeners() {
-    _listener?.stop();
-    _listener = zano_wallet.setListeners(_onNewBlock, _onNewTransaction);
-  }
+  // void _setListeners() {
+  //   _listener?.stop();
+  //   _listener = zano_wallet.setListeners(_onNewBlock, _onNewTransaction);
+  // }
 
-  void _setInitialHeight() {
-    if (walletInfo.isRecovery) {
-      return;
-    }
-
-    final currentHeight = zano_wallet.getCurrentHeight(hWallet);
-
-    if (currentHeight <= 1) {
-      final height = _getHeightByDate(walletInfo.date);
-      debugPrint('setRecoveringFromSeed isRecovery true');
-      debugPrint('setRefreshFromBlockHeight height $height');
-    }
-  }
-
-  int _getHeightByDate(DateTime date) {
-    return 0;
-  }
 
   void _askForUpdateBalance() {
-    debugPrint('askForUpdateBalance');
+    debugPrint('askForUpdateBalance');      // TODO: remove, also remove this method completely
   }
 
   Future<void> _askForUpdateTransactionHistory() async => await updateTransactions();
@@ -459,7 +457,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     try {
       await _askForUpdateTransactionHistory();
       _askForUpdateBalance();
-      await Future<void>.delayed(Duration(seconds: 1));
+      await Future<void>.delayed(Duration(seconds: 1)); // TODO: ???
     } catch (e) {
       print(e.toString());
     }
@@ -484,7 +482,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     return str;
   }
 
-  Future<String> invokeMethod(int hWallet, String methodName, Object params) async {
+  Future<String> invokeMethod(String methodName, Object params) async {
     var invokeResult = ApiCalls.asyncCall(methodName: 'invoke', hWallet: hWallet, params: '{"method": "$methodName","params": ${jsonEncode(params)}}');
     var map = jsonDecode(invokeResult) as Map<String, dynamic>;
     int attempts = 0;
@@ -500,5 +498,19 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
       } while (++attempts < _maxAttempts);
     }
     return invokeResult;
+  }
+
+  GetWalletInfoResult getWalletInfo() {
+    final json = ApiCalls.getWalletInfo(hWallet);
+    print('wallet info $json'); // TODO: remove
+    final result = GetWalletInfoResult.fromJson(jsonDecode(json) as Map<String, dynamic>);
+    return result;
+  }
+
+  GetWalletStatusResult getWalletStatus() {
+    final json = ApiCalls.getWalletStatus(hWallet: hWallet);
+    print('wallet status $json'); // TODO: remove
+    final status = GetWalletStatusResult.fromJson(jsonDecode(json) as Map<String, dynamic>);
+    return status;
   }
 }

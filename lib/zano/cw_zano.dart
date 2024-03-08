@@ -113,36 +113,17 @@ class CWZano extends Zano {
 
   @override
   WalletCredentials createZanoRestoreWalletFromKeysCredentials(
-      {required String name,
-      required String spendKey,
-      required String viewKey,
-      required String address,
-      required String password,
-      required String language,
-      required int height}) {
-    return ZanoRestoreWalletFromKeysCredentials(
-        name: name,
-        spendKey: spendKey,
-        viewKey: viewKey,
-        address: address,
-        password: password,
-        language: language,
-        height: height);
+      {required String name, required String spendKey, required String viewKey, required String address, required String password, required String language, required int height}) {
+    return ZanoRestoreWalletFromKeysCredentials(name: name, spendKey: spendKey, viewKey: viewKey, address: address, password: password, language: language, height: height);
   }
 
   @override
-  WalletCredentials createZanoRestoreWalletFromSeedCredentials(
-      {required String name,
-      required String password,
-      required int height,
-      required String mnemonic}) {
-    return ZanoRestoreWalletFromSeedCredentials(
-        name: name, password: password, height: height, mnemonic: mnemonic);
+  WalletCredentials createZanoRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic}) {
+    return ZanoRestoreWalletFromSeedCredentials(name: name, password: password, height: height, mnemonic: mnemonic);
   }
 
   @override
-  WalletCredentials createZanoNewWalletCredentials(
-      {required String name, String? password}) {
+  WalletCredentials createZanoNewWalletCredentials({required String name, String? password}) {
     return ZanoNewWalletCredentials(name: name, password: password);
   }
 
@@ -159,11 +140,8 @@ class CWZano extends Zano {
   }
 
   @override
-  Object createZanoTransactionCreationCredentials(
-      {required List<Output> outputs,
-      required TransactionPriority priority,
-      required String assetType}) {
-    return ZanoTransactionCreationCredentials(
+  Object createZanoTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority, required String assetType}) {
+    return ZanoTransactionCredentials(
         outputs: outputs
             .map((out) => OutputInfo(
                 fiatAmount: out.fiatAmount,
