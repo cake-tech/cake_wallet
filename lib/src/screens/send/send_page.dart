@@ -409,12 +409,20 @@ class SendPage extends BasePage {
     );
   }
 
+  BuildContext? dialogContext;
+
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
       return;
     }
 
     reaction((_) => sendViewModel.state, (ExecutionState state) {
+
+      if (dialogContext != null && dialogContext?.mounted == true) {
+        Navigator.of(dialogContext!).pop();
+      }
+
+
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
@@ -501,6 +509,7 @@ class SendPage extends BasePage {
           showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
+                dialogContext = context;
                 return AlertWithOneAction(
                     alertTitle: S.of(context).proceed_on_device,
                     alertContent: S.of(context).proceed_on_device_description,

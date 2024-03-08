@@ -51,10 +51,6 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
           : v;
     }
 
-    await ledger!.disconnect(device);
-
-    print("chainId: $chainId, chainIdV: $chainIdV, v: $v");
-
     return MsgSignature(BigInt.parse(r, radix: 16), BigInt.parse(s, radix: 16), chainIdV);
   }
 

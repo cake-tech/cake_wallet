@@ -84,9 +84,9 @@ abstract class EVMChainWalletBase
 
   late final Box<Erc20Token> evmChainErc20TokensBox;
 
-  late final CredentialsWithKnownAddress _evmChainPrivateKey;
+  late final Credentials _evmChainPrivateKey;
 
-  CredentialsWithKnownAddress get evmChainPrivateKey => _evmChainPrivateKey;
+  Credentials get evmChainPrivateKey => _evmChainPrivateKey;
 
   late EVMChainClient _client;
 
