@@ -194,7 +194,7 @@ class SendPage extends BasePage {
                               });
                         },
                       )),
-                  if (sendViewModel.isElectrumWallet)
+                  if (sendViewModel.walletType == WalletType.bitcoin)
                     Padding(
                         padding: EdgeInsets.only(left: 24, top: 8),
                         child: Row(
