@@ -12,7 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 class ServicesUpdatesWidget extends StatelessWidget {
   final Future<ServicesResponse> servicesResponse;
 
-  const ServicesUpdatesWidget(this.servicesResponse, {Key? key}) : super(key: key);
+  const ServicesUpdatesWidget(this.servicesResponse, {super.key});
 
   @override
   Widget build(BuildContext context) {
