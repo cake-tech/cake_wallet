@@ -414,8 +414,4 @@ abstract class HavenWalletBase
       print(e.toString());
     }
   }
-  @override
-  int calculateEstimatedFeeWithFeeRate(int feeRate, int? amount, {int? outputsCount, int? size}) {
-    throw UnimplementedError('calculateEstimatedFeeWithFeeRate');
-  }
 }

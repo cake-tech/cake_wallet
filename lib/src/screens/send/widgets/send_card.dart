@@ -56,7 +56,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         fiatAmountFocus = FocusNode(),
         addressFocusNode = FocusNode();
 
-
   static const prefixIconWidth = 34.0;
   static const prefixIconHeight = 34.0;
 
@@ -672,7 +671,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   Future<void> pickTransactionPriority(BuildContext context) async {
     final items = priorityForWalletType(sendViewModel.walletType);
     final selectedItem = items.indexOf(sendViewModel.transactionPriority);
-    final customItem = items.firstWhereOrNull((element) => element == sendViewModel.getBitcoinTransactionPriorityCustom);
+    final customItem = items.firstWhereOrNull(
+        (element) => element == sendViewModel.getBitcoinTransactionPriorityCustom);
     final customItemIndex = customItem != null ? items.indexOf(customItem) : null;
     final isBitcoinWallet = sendViewModel.walletType == WalletType.bitcoin;
     double? customFeeRate = isBitcoinWallet ? sendViewModel.customBitcoinFeeRate.toDouble() : null;
@@ -685,7 +685,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           builder: (BuildContext context, StateSetter setState) {
             return Picker(
               items: items,
-              displayItem: sendViewModel.displayFeeRate,
+              displayItem: (TransactionPriority priority) =>
+                  sendViewModel.displayFeeRate(priority, customFeeRate?.round()),
               selectedAtIndex: selectedIdx,
               customItemIndex: customItemIndex,
               title: S.of(context).please_select,

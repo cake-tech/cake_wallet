@@ -62,7 +62,7 @@ class DisplaySettingsPage extends BasePage {
                 title: S.current.settings_change_language,
                 searchHintText: S.current.search_language,
                 items: LanguageService.list.keys.toList(),
-                displayItem: (dynamic code,{int? customValue}) {
+                displayItem: (dynamic code) {
                   return LanguageService.list[code] ?? '';
                 },
                 selectedItem: _displaySettingsViewModel.languageCode,

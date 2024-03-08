@@ -78,7 +78,22 @@ abstract class OtherSettingsViewModelBase with Store {
   ProviderType get sellProviderType =>
       _settingsStore.defaultSellProviders[walletType] ?? ProviderType.askEachTime;
 
-  String getDisplayPriority(dynamic priority, {int? customValue}) {
+
+
+  String getDisplayPriority(dynamic priority) {
+    final _priority = priority as TransactionPriority;
+
+    if (_wallet.type == WalletType.bitcoin ||
+        _wallet.type == WalletType.litecoin ||
+        _wallet.type == WalletType.bitcoinCash) {
+      final rate = bitcoin!.getFeeRate(_wallet, _priority);
+      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
+    }
+
+    return priority.toString();
+  }
+
+  String getDisplayBitcoinPriority(dynamic priority, int customValue) {
     final _priority = priority as TransactionPriority;
 
     if (_wallet.type == WalletType.bitcoin ||
@@ -91,14 +106,14 @@ abstract class OtherSettingsViewModelBase with Store {
     return priority.toString();
   }
 
-  String getBuyProviderType(dynamic buyProviderType, {int? customValue}) {
+  String getBuyProviderType(dynamic buyProviderType) {
     final _buyProviderType = buyProviderType as ProviderType;
     return _buyProviderType == ProviderType.askEachTime
         ? S.current.ask_each_time
         : _buyProviderType.title;
   }
 
-  String getSellProviderType(dynamic sellProviderType, {int? customValue}) {
+  String getSellProviderType(dynamic sellProviderType) {
     final _sellProviderType = sellProviderType as ProviderType;
     return _sellProviderType == ProviderType.askEachTime
         ? S.current.ask_each_time

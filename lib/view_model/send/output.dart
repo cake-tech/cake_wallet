@@ -114,13 +114,13 @@ abstract class OutputBase with Store {
   @computed
   double get estimatedFee {
     try {
-      int fee = _wallet.calculateEstimatedFee(
+      int? fee = _wallet.calculateEstimatedFee(
           _settingsStore.priority[_wallet.type]!, formattedCryptoAmount);
 
       if (_wallet.type == WalletType.bitcoin) {
         if (_settingsStore.priority[_wallet.type]! == bitcoin!.getBitcoinTransactionPriorityCustom()) {
           fee = _wallet.calculateEstimatedFeeWithFeeRate(
-              _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
+              _settingsStore.customBitcoinFeeRate, formattedCryptoAmount) ?? 0;
         }
 
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);

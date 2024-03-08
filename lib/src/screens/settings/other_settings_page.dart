@@ -32,7 +32,7 @@ class OtherSettingsPage extends BasePage {
                   SettingsPriorityPickerCell(
                     title: S.current.settings_fee_priority,
                     items: priorityForWalletType(_otherSettingsViewModel.walletType),
-                    displayItem: _otherSettingsViewModel.getDisplayPriority,
+                    displayItem: _otherSettingsViewModel.getDisplayBitcoinPriority,
                     selectedItem: _otherSettingsViewModel.transactionPriority,
                     customItemIndex: _otherSettingsViewModel.customPriorityItemIndex,
                     onItemSelected: _otherSettingsViewModel.onDisplayBitcoinPrioritySelected,

@@ -41,7 +41,7 @@ class Picker<Item> extends StatefulWidget {
   final String? description;
   final Function(Item) onItemSelected;
   final MainAxisAlignment mainAxisAlignment;
-  final String Function(Item,{int? customValue})? displayItem;
+  final String Function(Item)? displayItem;
   final bool isGridView;
   final bool isSeparated;
   final String? hintText;
@@ -287,7 +287,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               children: [
                 Flexible(
                   child: Text(
-                    widget.displayItem?.call(item, customValue: customNewValue) ?? item.toString(),
+                    widget.displayItem?.call(item) ?? item.toString(),
                     softWrap: true,
                     style: TextStyle(
                       fontSize: 14,
@@ -374,7 +374,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               children: [
                 Flexible(
                   child: Text(
-                    widget.displayItem?.call(item,customValue: customNewValue) ?? item.toString(),
+                    widget.displayItem?.call(item) ?? item.toString(),
                     softWrap: true,
                     style: TextStyle(
                       fontSize: 16,

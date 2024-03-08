@@ -326,8 +326,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     if (!isSufficient) {
       state = AwaitingConfirmationState(
-          title: "Confirm Fee Deduction",
-          message: "Do you agree to deduct the fee from the output?",
+          title: S.current.confirm_fee_deduction,
+          message: S.current.confirm_fee_deduction_content,
           onConfirm: () async {
             pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
             state = ExecutedSuccessfullyState();
@@ -426,7 +426,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
-  String displayFeeRate(dynamic priority, {int? customValue}) {
+  String displayFeeRate(dynamic priority, int? customValue) {
     final _priority = priority as TransactionPriority;
 
     if (walletType == WalletType.bitcoin) {
