@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Payを使用すると、仮想資産を含むギフトカードを簡単に購入でき、米国内の150,000を超える加盟店ですぐに利用できます。",
+  "accelerate_transaction": "トランザクションを加速します",
   "account": "アカウント",
   "accounts": "アカウント",
   "accounts_subaddresses": "アカウントとサブアドレス",
@@ -131,6 +132,8 @@
   "confirm": "確認する",
   "confirm_delete_template": "この操作により、このテンプレートが削除されます。 続行しますか？",
   "confirm_delete_wallet": "このアクションにより、このウォレットが削除されます。 続行しますか？",
+  "confirm_fee_deduction": "料金控除を確認します",
+  "confirm_fee_deduction_content": "出力から料金を差し引くことに同意しますか？",
   "confirm_sending": "送信を確認",
   "confirmations": "確認",
   "confirmed": "確認済み残高",
@@ -454,7 +457,6 @@
   "remove_node": "ノードを削除",
   "remove_node_message": "選択したノードを削除してもよろしいですか？",
   "rename": "リネーム",
-  "replace_by_fee": "feeごとに交換します",
   "require_for_adding_contacts": "連絡先の追加に必要",
   "require_for_all_security_and_backup_settings": "すべてのセキュリティおよびバックアップ設定に必須",
   "require_for_assessing_wallet": "ウォレットにアクセスするために必要です",

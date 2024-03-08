@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay vous permet d'acheter facilement des cartes-cadeaux avec des actifs virtuels, utilisables instantanément chez plus de 150 000 marchands aux États-Unis.",
+  "accelerate_transaction": "Accélérer la transaction",
   "account": "Compte",
   "accounts": "Comptes",
   "accounts_subaddresses": "Comptes et sous-adresses",
@@ -131,6 +132,8 @@
   "confirm": "Confirmer",
   "confirm_delete_template": "Cette action va supprimer ce modèle. Souhaitez-vous continuer ?",
   "confirm_delete_wallet": "Cette action va supprimer ce portefeuille (wallet). Souhaitez-vous contnuer ?",
+  "confirm_fee_deduction": "Confirmer la déduction des frais",
+  "confirm_fee_deduction_content": "Acceptez-vous de déduire les frais de la production?",
   "confirm_sending": "Confirmer l'envoi",
   "confirmations": "Confirmations",
   "confirmed": "Solde confirmé",
@@ -453,7 +456,6 @@
   "remove_node": "Supprimer le nœud",
   "remove_node_message": "Êtes vous certain de vouloir supprimer le nœud sélectionné ?",
   "rename": "Renommer",
-  "replace_by_fee": "Remplacer par temps",
   "require_for_adding_contacts": "Requis pour ajouter des contacts",
   "require_for_all_security_and_backup_settings": "Exiger pour tous les paramètres de sécurité et de sauvegarde",
   "require_for_assessing_wallet": "Nécessaire pour accéder au portefeuille",

@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Biyan Cake yana ba ku damar sauƙin siyan katunan kyauta tare da kadarorin kama-da-wane, wanda za'a iya kashewa nan take a sama da yan kasuwa 150,000 a Amurka.",
+  "accelerate_transaction": "Hanzarta ma'amala",
   "account": "Asusu",
   "accounts": "Lissafi",
   "accounts_subaddresses": "Accounts da subaddresses",
@@ -131,6 +132,8 @@
   "confirm": "Tabbatar",
   "confirm_delete_template": "Wannan aikin zai share wannan samfuri. Kuna so ku ci gaba?",
   "confirm_delete_wallet": "Wannan aikin zai share wannan walat. Kuna so ku ci gaba?",
+  "confirm_fee_deduction": "Tabbatar da cire kudade",
+  "confirm_fee_deduction_content": "Shin kun yarda ku cire kuɗin daga fitarwa?",
   "confirm_sending": "Tabbatar da aikawa",
   "confirmations": "Tabbatar",
   "confirmed": "An tabbatar",
@@ -455,7 +458,6 @@
   "remove_node": "Cire node",
   "remove_node_message": "Kuna tabbatar kuna so ku cire wannan node?",
   "rename": "Sake suna",
-  "replace_by_fee": "Sauya-by-kudin",
   "require_for_adding_contacts": "Bukatar ƙara lambobin sadarwa",
   "require_for_all_security_and_backup_settings": "Bukatar duk tsaro da saitunan wariyar ajiya",
   "require_for_assessing_wallet": "Bukatar samun damar walat",

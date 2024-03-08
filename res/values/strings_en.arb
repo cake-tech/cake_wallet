@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay allows you to easily buy gift cards with virtual assets, spendable instantly at over 150,000 merchants in the United States.",
+  "accelerate_transaction": "Accelerate transaction",
   "account": "Account",
   "accounts": "Accounts",
   "accounts_subaddresses": "Accounts and subaddresses",
@@ -131,6 +132,8 @@
   "confirm": "Confirm",
   "confirm_delete_template": "This action will delete this template. Do you wish to continue?",
   "confirm_delete_wallet": "This action will delete this wallet. Do you wish to continue?",
+  "confirm_fee_deduction": "Confirm Fee Deduction",
+  "confirm_fee_deduction_content": "Do you agree to deduct the fee from the output?",
   "confirm_sending": "Confirm sending",
   "confirmations": "Confirmations",
   "confirmed": "Confirmed Balance",
@@ -453,7 +456,6 @@
   "remove_node": "Remove node",
   "remove_node_message": "Are you sure that you want to remove selected node?",
   "rename": "Rename",
-  "replace_by_fee": "Replace-By-Fee",
   "require_for_adding_contacts": "Require for adding contacts",
   "require_for_all_security_and_backup_settings": "Require for all security and backup settings",
   "require_for_assessing_wallet": "Require for accessing wallet",

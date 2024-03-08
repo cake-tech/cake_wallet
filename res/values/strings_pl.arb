@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay umożliwia łatwe kupowanie kart podarunkowych z wirtualnymi aktywami, które można natychmiast wydać u ponad 150 000 sprzedawców w Stanach Zjednoczonych.",
+  "accelerate_transaction": "Przyspieszyć transakcję",
   "account": "Konto",
   "accounts": "Konta",
   "accounts_subaddresses": "Konta i podadresy",
@@ -131,6 +132,8 @@
   "confirm": "Potwierdzać",
   "confirm_delete_template": "Ta czynność usunie ten szablon. Czy chcesz kontynuować?",
   "confirm_delete_wallet": "Ta czynność usunie ten portfel. Czy chcesz kontynuować?",
+  "confirm_fee_deduction": "Potwierdź odliczenie opłaty",
+  "confirm_fee_deduction_content": "Czy zgadzasz się odliczyć opłatę od wyników?",
   "confirm_sending": "Potwierdź wysłanie",
   "confirmations": "Potwierdzenia",
   "confirmed": "Potwierdzone saldo",
@@ -453,7 +456,6 @@
   "remove_node": "Usuń węzeł",
   "remove_node_message": "Czy na pewno chcesz usunąć wybrany węzeł?",
   "rename": "Zmień nazwę",
-  "replace_by_fee": "Wymień po lewej",
   "require_for_adding_contacts": "Wymagane do dodania kontaktów",
   "require_for_all_security_and_backup_settings": "Wymagaj dla wszystkich ustawień zabezpieczeń i kopii zapasowych",
   "require_for_assessing_wallet": "Wymagaj dostępu do portfela",

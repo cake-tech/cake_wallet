@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay Ви позволява лесно да купувате предплатени карти, които веднага могат да се използват с над 150,000 търговци на територията на САЩ.",
+  "accelerate_transaction": "Ускорете транзакцията",
   "account": "Профил",
   "accounts": "Профили",
   "accounts_subaddresses": "Профили и подадреси",
@@ -131,6 +132,8 @@
   "confirm": "Потвърждаване",
   "confirm_delete_template": "Този шаблон ще бъде изтрит. Искате ли да продължите?",
   "confirm_delete_wallet": "Този портфейл ще бъде изтрит. Искате ли да продължите?",
+  "confirm_fee_deduction": "Потвърдете приспадането на таксите",
+  "confirm_fee_deduction_content": "Съгласни ли сте да приспадате таксата от продукцията?",
   "confirm_sending": "Потвърждаване на изпращането",
   "confirmations": "потвърждения",
   "confirmed": "Потвърден баланс",
@@ -453,7 +456,6 @@
   "remove_node": "Премахни node",
   "remove_node_message": "Сигурни ли сте, че искате да премахнете избрания node?",
   "rename": "Промяна на името",
-  "replace_by_fee": "Заменете от такса",
   "require_for_adding_contacts": "Изисква се за добавяне на контакти",
   "require_for_all_security_and_backup_settings": "Изисква се за всички настройки за сигурност и архивиране",
   "require_for_assessing_wallet": "Изискване за достъп до портфейла",

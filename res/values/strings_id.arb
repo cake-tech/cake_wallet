@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay memungkinkan Anda untuk dengan mudah membeli kartu hadiah dengan aset virtual, yang dapat digunakan segera di lebih dari 150.000 pedagang di Amerika Serikat.",
+  "accelerate_transaction": "Percepat transaksi",
   "account": "Akun",
   "accounts": "Akun",
   "accounts_subaddresses": "Akun dan sub-alamat",
@@ -131,6 +132,8 @@
   "confirm": "Konfirmasi",
   "confirm_delete_template": "Tindakan ini akan menghapus template ini. Apakah Anda ingin melanjutkan?",
   "confirm_delete_wallet": "Tindakan ini akan menghapus dompet ini. Apakah Anda ingin melanjutkan?",
+  "confirm_fee_deduction": "Konfirmasi pengurangan biaya",
+  "confirm_fee_deduction_content": "Apakah Anda setuju untuk mengurangi biaya dari output?",
   "confirm_sending": "Konfirmasi pengiriman",
   "confirmations": "Konfirmasi",
   "confirmed": "Saldo Terkonfirmasi",
@@ -455,7 +458,6 @@
   "remove_node": "Hapus node",
   "remove_node_message": "Apakah Anda yakin ingin menghapus node yang dipilih?",
   "rename": "Ganti nama",
-  "replace_by_fee": "Ganti-by-fee",
   "require_for_adding_contacts": "Membutuhkan untuk menambahkan kontak",
   "require_for_all_security_and_backup_settings": "Memerlukan untuk semua pengaturan keamanan dan pencadangan",
   "require_for_assessing_wallet": "Diperlukan untuk mengakses dompet",

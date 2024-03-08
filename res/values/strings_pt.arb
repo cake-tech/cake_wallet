@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "O Cake Pay permite que você compre facilmente cartões-presente com ativos virtuais, que podem ser gastos instantaneamente em mais de 150.000 comerciantes nos Estados Unidos.",
+  "accelerate_transaction": "Acelerar a transação",
   "account": "Conta",
   "accounts": "Contas",
   "accounts_subaddresses": "Contas e sub-endereços",
@@ -131,6 +132,8 @@
   "confirm": "Confirmar",
   "confirm_delete_template": "Esta ação excluirá este modelo. Você deseja continuar?",
   "confirm_delete_wallet": "Esta ação excluirá esta carteira. Você deseja continuar?",
+  "confirm_fee_deduction": "Confirme dedução da taxa",
+  "confirm_fee_deduction_content": "Você concorda em deduzir a taxa da saída?",
   "confirm_sending": "Confirmar o envio",
   "confirmations": "Confirmações",
   "confirmed": "Saldo Confirmado",
@@ -455,7 +458,6 @@
   "remove_node": "Remover nó",
   "remove_node_message": "Você realmente deseja remover o nó selecionado?",
   "rename": "Renomear",
-  "replace_by_fee": "Substitua por taxa",
   "require_for_adding_contacts": "Requer para adicionar contatos",
   "require_for_all_security_and_backup_settings": "Exigir todas as configurações de segurança e backup",
   "require_for_assessing_wallet": "Requer para acessar a carteira",

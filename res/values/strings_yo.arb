@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay jẹ́ kí ẹ lè fi owó wẹ́ẹ̀bù ra àwọn káàdì ìrajà t'á lò nínú iye ìtajà kan. Ẹ lè san wọn láìpẹ́ nítajà 150,000 nínú Amẹ́ríkà.",
+  "accelerate_transaction": "Idawọleja",
   "account": "Àkáǹtì",
   "accounts": "Àwọn àkáǹtì",
   "accounts_subaddresses": "Àwọn àkáǹtì àti àwọn àdírẹ́sì kékeré",
@@ -131,6 +132,8 @@
   "confirm": "Jẹ́rìísí",
   "confirm_delete_template": "Ìṣe yìí máa yọ àwòṣe yìí kúrò. Ṣé ẹ fẹ́ tẹ̀síwájú?",
   "confirm_delete_wallet": "Ìṣe yìí máa yọ àpamọ́wọ́ yìí kúrò. Ṣé ẹ fẹ́ tẹ̀síwájú?",
+  "confirm_fee_deduction": "Jẹrisi iyọkuro owo",
+  "confirm_fee_deduction_content": "Ṣe o gba lati yọkuro idiyele naa kuro ni iṣejade?",
   "confirm_sending": "Jẹ́rìí sí ránṣẹ́",
   "confirmations": "Àwọn ẹ̀rí",
   "confirmed": "A ti jẹ́rìí ẹ̀",
@@ -454,7 +457,6 @@
   "remove_node": "Yọ apẹka kúrò",
   "remove_node_message": "Ṣé ó da yín lójú pé ẹ fẹ́ yọ apẹka lọwọ́ kúrò?",
   "rename": "Pààrọ̀ orúkọ",
-  "replace_by_fee": "Rọpo-nipasẹ-ọya",
   "require_for_adding_contacts": "Beere fun fifi awọn olubasọrọ kun",
   "require_for_all_security_and_backup_settings": "Beere fun gbogbo aabo ati awọn eto afẹyinti",
   "require_for_assessing_wallet": "Beere fun wiwọle si apamọwọ",

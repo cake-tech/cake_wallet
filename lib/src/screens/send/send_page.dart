@@ -203,7 +203,7 @@ class SendPage extends BasePage {
                             Observer(
                                 builder: (_) => StandardCheckbox(
                                   value: sendViewModel.useReplaceByFee,
-                                  caption: S.of(context).replace_by_fee,
+                                  caption: S.of(context).enable_replace_by_fee,
                                   onChanged: (value) => sendViewModel.useReplaceByFee = value,
                                 ))
                           ],

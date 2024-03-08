@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Met Cake Pay kunt u eenvoudig cadeaubonnen kopen met virtuele activa, die direct kunnen worden uitgegeven bij meer dan 150.000 handelaren in de Verenigde Staten.",
+  "accelerate_transaction": "De transactie versnellen",
   "account": "Account",
   "accounts": "Accounts",
   "accounts_subaddresses": "Accounts en subadressen",
@@ -131,6 +132,8 @@
   "confirm": "Bevestigen",
   "confirm_delete_template": "Met deze actie wordt deze sjabloon verwijderd. Wilt u doorgaan?",
   "confirm_delete_wallet": "Met deze actie wordt deze portemonnee verwijderd. Wilt u doorgaan?",
+  "confirm_fee_deduction": "Bevestig de aftrek van de kosten",
+  "confirm_fee_deduction_content": "Stemt u ermee in om de vergoeding af te trekken van de output?",
   "confirm_sending": "Bevestig verzending",
   "confirmations": "Bevestigingen",
   "confirmed": "Bevestigd saldo",
@@ -453,7 +456,6 @@
   "remove_node": "Knoop verwijderen",
   "remove_node_message": "Weet u zeker dat u het geselecteerde knooppunt wilt verwijderen?",
   "rename": "Hernoemen",
-  "replace_by_fee": "Vervangen door een fee",
   "require_for_adding_contacts": "Vereist voor het toevoegen van contacten",
   "require_for_all_security_and_backup_settings": "Vereist voor alle beveiligings- en back-upinstellingen",
   "require_for_assessing_wallet": "Vereist voor toegang tot portemonnee",

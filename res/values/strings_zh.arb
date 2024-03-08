@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay 让您可以轻松购买带有虚拟资产的礼品卡，可立即在美国超过 150,000 家商家消费。",
+  "accelerate_transaction": "加速交易",
   "account": "帐户",
   "accounts": "账户",
   "accounts_subaddresses": "账户和子地址",
@@ -131,6 +132,8 @@
   "confirm": "确认",
   "confirm_delete_template": "此操作将刪除此模板。确定吗？",
   "confirm_delete_wallet": "此操作将刪除此钱包。确定吗？",
+  "confirm_fee_deduction": "确认费用扣除",
+  "confirm_fee_deduction_content": "您是否同意从产出中扣除费用？",
   "confirm_sending": "确认发送",
   "confirmations": "确认",
   "confirmed": "确认余额",
@@ -453,7 +456,6 @@
   "remove_node": "删除节点",
   "remove_node_message": "您确定要删除所选节点吗？",
   "rename": "重命名",
-  "replace_by_fee": "by-Fee替换",
   "require_for_adding_contacts": "需要添加联系人",
   "require_for_all_security_and_backup_settings": "需要所有安全和备份设置",
   "require_for_assessing_wallet": "需要访问钱包",

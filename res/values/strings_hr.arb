@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay vam omogućuje jednostavnu kupnju darovnih kartica s virtualnim sredstvima, koja se trenutno mogu potrošiti kod više od 150 000 trgovaca u Sjedinjenim Državama.",
+  "accelerate_transaction": "Ubrzati transakciju",
   "account": "Račun",
   "accounts": "Računi",
   "accounts_subaddresses": "Računi i podadrese",
@@ -131,6 +132,8 @@
   "confirm": "Potvrdi",
   "confirm_delete_template": "Ovom ćete radnjom izbrisati ovaj predložak. Želite li nastaviti?",
   "confirm_delete_wallet": "Ovom ćete radnjom izbrisati ovaj novčanik. Želite li nastaviti?",
+  "confirm_fee_deduction": "Potvrdite odbitak naknade",
+  "confirm_fee_deduction_content": "Slažete li se da ćete odbiti naknadu od izlaza?",
   "confirm_sending": "Potvrdi slanje",
   "confirmations": "Potvrde",
   "confirmed": "Potvrđeno stanje",
@@ -453,7 +456,6 @@
   "remove_node": "Ukloni node",
   "remove_node_message": "Jeste li sigurni da želite ukloniti odabrani node?",
   "rename": "Preimenuj",
-  "replace_by_fee": "Zamijenite se",
   "require_for_adding_contacts": "Zahtijeva za dodavanje kontakata",
   "require_for_all_security_and_backup_settings": "Zahtijeva za sve postavke sigurnosti i sigurnosne kopije",
   "require_for_assessing_wallet": "Potreban za pristup novčaniku",

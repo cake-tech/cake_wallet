@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Pinapayagan ka ng cake Pay na madaling bumili ng mga kard ng regalo na may mga virtual na pag -aari, gastusin agad sa higit sa 150,000 mga mangangalakal sa Estados Unidos.",
+  "accelerate_transaction": "Pabilisin ang transaksyon",
   "account": "Account",
   "accounts": "Mga Account",
   "accounts_subaddresses": "Mga Account at Subaddresses",
@@ -131,6 +132,8 @@
   "confirm": "Kumpirmahin",
   "confirm_delete_template": "Ang pagkilos na ito ay tatanggalin ang template na ito. Nais mo bang magpatuloy?",
   "confirm_delete_wallet": "Ang pagkilos na ito ay tatanggalin ang pitaka na ito. Nais mo bang magpatuloy?",
+  "confirm_fee_deduction": "Kumpirmahin ang pagbabawas ng bayad",
+  "confirm_fee_deduction_content": "Sumasang -ayon ka bang bawasan ang bayad mula sa output?",
   "confirm_sending": "Kumpirmahin ang pagpapadala",
   "confirmations": "Mga kumpirmasyon",
   "confirmed": "Nakumpirma na balanse",
@@ -453,7 +456,6 @@
   "remove_node": "Alisin ang node",
   "remove_node_message": "Sigurado ka bang nais mong alisin ang napiling node?",
   "rename": "Palitan ang pangalan",
-  "replace_by_fee": "Palitan-by-fee",
   "require_for_adding_contacts": "Nangangailangan para sa pagdaragdag ng mga contact",
   "require_for_all_security_and_backup_settings": "Nangangailangan para sa lahat ng mga setting ng seguridad at backup",
   "require_for_assessing_wallet": "Nangangailangan para sa pag -access ng pitaka",

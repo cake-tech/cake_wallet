@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "يتيح لك Cake Pay شراء بطاقات هدايا بأصول افتراضية بسهولة ، ويمكن إنفاقها على الفور لدى أكثر من 150,000 تاجر في الولايات المتحدة.",
+  "accelerate_transaction": "معاملة تسريع",
   "account": "حساب",
   "accounts": "حسابتي",
   "accounts_subaddresses": "الحسابات والعناوين الفرعية",
@@ -131,6 +132,8 @@
   "confirm": "تأكيد",
   "confirm_delete_template": "سيؤدي هذا الإجراء إلى حذف هذا القالب. هل ترغب في الاستمرار؟",
   "confirm_delete_wallet": "سيؤدي هذا الإجراء إلى حذف هذه المحفظة. هل ترغب في الاستمرار؟",
+  "confirm_fee_deduction": "تأكيد خصم الرسوم",
+  "confirm_fee_deduction_content": "هل توافق على خصم الرسوم من الإخراج؟",
   "confirm_sending": "تأكيد الإرسال",
   "confirmations": "التأكيدات",
   "confirmed": "رصيد مؤكد",
@@ -453,7 +456,6 @@
   "remove_node": "إزالة العقدة",
   "remove_node_message": "هل أنت متأكد أنك تريد إزالة العقدة المحددة؟",
   "rename": "إعادة تسمية",
-  "replace_by_fee": "استبدال باهظة",
   "require_for_adding_contacts": "تتطلب إضافة جهات اتصال",
   "require_for_all_security_and_backup_settings": "مطلوب لجميع إعدادات الأمان والنسخ الاحتياطي",
   "require_for_assessing_wallet": "تتطلب الوصول إلى المحفظة",

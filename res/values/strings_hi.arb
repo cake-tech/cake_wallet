@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "केक पे आपको वर्चुअल संपत्ति के साथ आसानी से उपहार कार्ड खरीदने की अनुमति देता है, जिसे संयुक्त राज्य में 150,000 से अधिक व्यापारियों पर तुरंत खर्च किया जा सकता है।",
+  "accelerate_transaction": "प्रांतीय लेनदेन",
   "account": "लेखा",
   "accounts": "हिसाब किताब",
   "accounts_subaddresses": "लेखा और उपदेस",
@@ -131,6 +132,8 @@
   "confirm": "की पुष्टि करें",
   "confirm_delete_template": "यह क्रिया इस टेम्पलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?",
   "confirm_delete_wallet": "यह क्रिया इस वॉलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?",
+  "confirm_fee_deduction": "शुल्क कटौती की पुष्टि करें",
+  "confirm_fee_deduction_content": "क्या आप आउटपुट से शुल्क में कटौती करने के लिए सहमत हैं?",
   "confirm_sending": "भेजने की पुष्टि करें",
   "confirmations": "पुष्टिकरण",
   "confirmed": "पुष्टि की गई शेष राशिी",
@@ -455,7 +458,6 @@
   "remove_node": "नोड निकालें",
   "remove_node_message": "क्या आप वाकई चयनित नोड को निकालना चाहते हैं?",
   "rename": "नाम बदलें",
-  "replace_by_fee": "बदलें",
   "require_for_adding_contacts": "संपर्क जोड़ने के लिए आवश्यकता है",
   "require_for_all_security_and_backup_settings": "सभी सुरक्षा और बैकअप सेटिंग्स की आवश्यकता है",
   "require_for_assessing_wallet": "वॉलेट तक पहुँचने के लिए आवश्यकता है",

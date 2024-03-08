@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay umožňuje jednoduše nakupovat dárkové karty pomocí virtuálních prostředků, které lze okamžitě uplatnit u více než 150 000 obchodníků ve Spojených státech.",
+  "accelerate_transaction": "Zrychlit transakci",
   "account": "Účet",
   "accounts": "Účty",
   "accounts_subaddresses": "Účty a subadresy",
@@ -131,6 +132,8 @@
   "confirm": "Potvrdit",
   "confirm_delete_template": "Tato akce smaže tuto šablonu. Přejete si pokračovat?",
   "confirm_delete_wallet": "Tato akce smaže tuto peněženku. Přejete si pokračovat?",
+  "confirm_fee_deduction": "Potvrďte odpočet poplatků",
+  "confirm_fee_deduction_content": "Souhlasíte s odečtením poplatku z výstupu?",
   "confirm_sending": "Potvrdit odeslání",
   "confirmations": "Potvrzení",
   "confirmed": "Potvrzený zůstatek",
@@ -453,7 +456,6 @@
   "remove_node": "Odstranit uzel",
   "remove_node_message": "Opravdu chcete odstranit označený uzel?",
   "rename": "Přejmenovat",
-  "replace_by_fee": "Vyměňte",
   "require_for_adding_contacts": "Vyžadovat pro přidání kontaktů",
   "require_for_all_security_and_backup_settings": "Vyžadovat všechna nastavení zabezpečení a zálohování",
   "require_for_assessing_wallet": "Vyžadovat pro přístup k peněžence",

@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay, Amerika Birleşik Devletleri'ndeki 150.000'den fazla işyerinde anında harcanabilen sanal varlıklarla kolayca hediye kartları satın almanızı sağlar.",
+  "accelerate_transaction": "İşlemi hızlandırmak",
   "account": "Hesap",
   "accounts": "Hesaplar",
   "accounts_subaddresses": "Hesaplar ve alt adresler",
@@ -131,6 +132,8 @@
   "confirm": "Onayla",
   "confirm_delete_template": "Bu eylem, bu şablonu silecek. Devam etmek istiyor musun?",
   "confirm_delete_wallet": "Bu eylem, bu cüzdanı silecek. Devam etmek istiyor musun?",
+  "confirm_fee_deduction": "Ücret kesintisini onaylayın",
+  "confirm_fee_deduction_content": "Ücreti çıktıdan düşürmeyi kabul ediyor musunuz?",
   "confirm_sending": "Göndermeyi onayla",
   "confirmations": "Onay",
   "confirmed": "Onaylanmış Bakiye",
@@ -453,7 +456,6 @@
   "remove_node": "Düğümü kaldır",
   "remove_node_message": "Seçili düğümü kaldırmak istediğinden emin misin?",
   "rename": "Yeniden adlandır",
-  "replace_by_fee": "Farklı Değiştir",
   "require_for_adding_contacts": "Kişi eklemek için gerekli",
   "require_for_all_security_and_backup_settings": "Tüm güvenlik ve yedekleme ayarları için iste",
   "require_for_assessing_wallet": "Cüzdana erişmek için gerekli",

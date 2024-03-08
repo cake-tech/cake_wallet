@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Mit Cake Pay können Sie ganz einfach Geschenkkarten mit virtuellen Vermögenswerten kaufen, die Sie sofort bei über 150.000 Händlern in den Vereinigten Staaten ausgeben können.",
+  "accelerate_transaction": "Transaktion beschleunigen",
   "account": "Konto",
   "accounts": "Konten",
   "accounts_subaddresses": "Konten und Unteradressen",
@@ -131,6 +132,8 @@
   "confirm": "Bestätigen",
   "confirm_delete_template": "Diese Aktion löscht diese Vorlage. Möchten Sie fortfahren?",
   "confirm_delete_wallet": "Diese Aktion löscht diese Wallet. Möchten Sie fortfahren?",
+  "confirm_fee_deduction": "Gebührenabzug bestätigen",
+  "confirm_fee_deduction_content": "Stimmen Sie zu, die Gebühr von der Ausgabe abzuziehen?",
   "confirm_sending": "Senden bestätigen",
   "confirmations": "Bestätigungen",
   "confirmed": "Bestätigter Saldo",
@@ -454,7 +457,6 @@
   "remove_node": "Knoten entfernen",
   "remove_node_message": "Möchten Sie den ausgewählten Knoten wirklich entfernen?",
   "rename": "Umbenennen",
-  "replace_by_fee": "Ersetzen",
   "require_for_adding_contacts": "Erforderlich zum Hinzufügen von Kontakten",
   "require_for_all_security_and_backup_settings": "Für alle Sicherheits- und Sicherungseinstellungen erforderlich",
   "require_for_assessing_wallet": "Für den Zugriff auf die Wallet erforderlich",

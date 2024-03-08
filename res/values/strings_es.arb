@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay le permite comprar fácilmente tarjetas de regalo con activos virtuales, gastables instantáneamente en más de 150 000 comerciantes en los Estados Unidos.",
+  "accelerate_transaction": "Acelerar la transacción",
   "account": "Cuenta",
   "accounts": "Cuentas",
   "accounts_subaddresses": "Cuentas y subdirecciones",
@@ -131,6 +132,8 @@
   "confirm": "Confirmar",
   "confirm_delete_template": "Esta acción eliminará esta plantilla. ¿Desea continuar?",
   "confirm_delete_wallet": "Esta acción eliminará esta billetera. ¿Desea continuar?",
+  "confirm_fee_deduction": "Confirmar la deducción de la tarifa",
+  "confirm_fee_deduction_content": "¿Acepta deducir la tarifa de la producción?",
   "confirm_sending": "Confirmar envío",
   "confirmations": "Confirmaciones",
   "confirmed": "Saldo confirmado",
@@ -454,7 +457,6 @@
   "remove_node": "Eliminar nodo",
   "remove_node_message": "¿Está seguro de que desea eliminar el nodo seleccionado?",
   "rename": "Rebautizar",
-  "replace_by_fee": "Reemplazar por tarea",
   "require_for_adding_contacts": "Requerido para agregar contactos",
   "require_for_all_security_and_backup_settings": "Requerido para todas las configuraciones de seguridad y copia de seguridad",
   "require_for_assessing_wallet": "Requerido para acceder a la billetera",
