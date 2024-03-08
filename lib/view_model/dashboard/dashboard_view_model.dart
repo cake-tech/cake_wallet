@@ -362,6 +362,9 @@ abstract class DashboardViewModelBase with Store {
   ReactionDisposer? _onMoneroBalanceChangeReaction;
 
   @computed
+  bool get hasNodes => wallet.type != WalletType.lightning;
+
+  @computed
   bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
 
   Future<void> reconnect() async {
