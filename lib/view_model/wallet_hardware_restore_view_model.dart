@@ -41,7 +41,6 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
 
   @action
   Future<void> getNextAvailableAccounts(int limit) async {
-    print("getNextAvailableAccounts($limit)"); // TODO: (Konsti) remove
     List<String> accounts;
     switch (type) {
       case WalletType.ethereum:

@@ -12,9 +12,6 @@ class EVMChainHardwareWalletService {
   Future<List<String>> getAvailableAccounts({int index = 0, int limit = 5}) async {
     final ethereumLedgerApp = EthereumLedgerApp(ledger);
 
-    print("Start loading availableAccounts"); // TODO: (Konsti) remove
-    // await connect();
-
     final version = await ethereumLedgerApp.getVersion(device);
     print(version.version); // TODO: (Konsti) remove
 
@@ -23,7 +20,6 @@ class EVMChainHardwareWalletService {
 
     for (final i in indexRange) {
       final derivationPath = "m/44'/60'/$i'/0/0";
-      print(derivationPath); // TODO: (Konsti) remove
       final account = await ethereumLedgerApp.getAccounts(device, accountsDerivationPath: derivationPath);
       accounts.addAll(account);
     }
