@@ -465,23 +465,11 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     }
   }
 
-  final _loadWalletNative = zanoApi.lookup<NativeFunction<_load_wallet>>('load_wallet').asFunction<_LoadWallet>();
-
   String loadWallet(String path, String password) {
     print('load_wallet path $path password $password');
-    final pathPointer = path.toNativeUtf8();
-    final passwordPointer = password.toNativeUtf8();
-    final result = _convertUTF8ToString(
-      pointer: _loadWalletNative(pathPointer, passwordPointer, 0),
-    );
+    final result = ApiCalls.loadWallet(path: path, password: password);
     print('load_wallet result $result');
     return result;
-  }
-
-  String _convertUTF8ToString({required Pointer<Utf8> pointer}) {
-    final str = pointer.toDartString();
-    calloc.free(pointer);
-    return str;
   }
 
   Future<String> invokeMethod(String methodName, Object params) async {

@@ -23,7 +23,7 @@ typedef _IsWalletExist = int Function(Pointer<Utf8>);
 
 // void close_wallet(uint64_t hwallet)
 typedef _close_wallet = Void Function(Int64);
-typedef _closeWalletStatus = void Function(int hWallet);
+typedef _closeWallet = void Function(int hWallet);
 
 // uint64_t get_current_tx_fee(uint64_t priority)
 typedef _get_current_tx_fee = Int64 Function(Int64);
@@ -157,7 +157,7 @@ class ApiCalls {
     return isExist;
   }
 
-  static final _closeWalletNative = zanoApi.lookup<NativeFunction<_close_wallet>>('close_wallet').asFunction<_closeWalletStatus>();
+  static final _closeWalletNative = zanoApi.lookup<NativeFunction<_close_wallet>>('close_wallet').asFunction<_closeWallet>();
 
   static void closeWallet({required int hWallet}) => _closeWalletNative(hWallet);
 
