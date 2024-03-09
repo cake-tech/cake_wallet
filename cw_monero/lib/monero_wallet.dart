@@ -282,7 +282,9 @@ abstract class MoneroWalletBase
       pendingTransactionDescription = await transaction_history.createTransaction(
           address: address!,
           amount: amount,
-          priorityRaw: _credentials.priority.serialize(),
+          priorityRaw: _credentials.priority == MoneroTransactionPriority.automatic
+              ? MoneroTransactionPriority.medium.serialize()
+              : _credentials.priority.serialize(),
           accountIndex: walletAddresses.account!.id,
           preferredInputs: inputs);
     }
