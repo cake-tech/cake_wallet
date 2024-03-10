@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
@@ -147,8 +148,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         ChangeNowExchangeProvider(settingsStore: _settingsStore),
         SideShiftExchangeProvider(),
         SimpleSwapExchangeProvider(),
-        TrocadorExchangeProvider(useTorOnly: _useTorOnly,
-            providerStates: _settingsStore.trocadorProviderStates),
+        TrocadorExchangeProvider(
+            useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
         ThorChainExchangeProvider(tradesStore: trades),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
       ];
@@ -495,8 +496,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
                   await provider.createTrade(request: request, isFixedRateMode: isFixedRateMode);
               trade.walletId = wallet.id;
               trade.fromWalletAddress = wallet.walletAddresses.address;
+
+              if (!isCanCreateTrade(trade)) {
+                tradeState = TradeIsCreatedFailure(
+                    title: S.current.trade_not_created,
+                    error: S.current.thorchain_taproot_address_not_supported);
+                return;
+              }
+
               tradesStore.setTrade(trade);
-              if(trade.provider != ExchangeProviderDescription.thorChain) await trades.add(trade);
+              if (trade.provider != ExchangeProviderDescription.thorChain) await trades.add(trade);
               tradeState = TradeIsCreatedSuccessfully(trade: trade);
 
               /// return after the first successful trade
@@ -737,4 +746,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   int get depositMaxDigits => depositCurrency.decimals;
 
   int get receiveMaxDigits => receiveCurrency.decimals;
+
+  bool isCanCreateTrade(Trade trade) {
+    if (trade.provider == ExchangeProviderDescription.thorChain) {
+      final payoutAddress = trade.payoutAddress ?? '';
+      final fromWalletAddress = trade.fromWalletAddress ?? '';
+      final tapRootPattern = RegExp(P2trAddress.regex.pattern);
+
+      if (tapRootPattern.hasMatch(payoutAddress) || tapRootPattern.hasMatch(fromWalletAddress)) {
+        return false;
+      }
+    }
+    return true;
+  }
 }
