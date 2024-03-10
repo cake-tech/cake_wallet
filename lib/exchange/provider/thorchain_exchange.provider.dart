@@ -21,14 +21,20 @@ class ThorChainExchangeProvider extends ExchangeProvider {
               CryptoCurrency.btc,
               CryptoCurrency.eth,
               CryptoCurrency.ltc,
-              CryptoCurrency.bch
+              CryptoCurrency.bch,
+              CryptoCurrency.aave,
+              CryptoCurrency.dai,
+              CryptoCurrency.gusd,
+              CryptoCurrency.usdc,
+              CryptoCurrency.usdterc20,
+              CryptoCurrency.wbtc,
             ].contains(element))
         .toList())
   ];
 
   static final isRefundAddressSupported = [CryptoCurrency.eth];
 
-  static const _baseURL = 'https://thornode.ninerealms.com';
+  static const _baseURL = 'thornode.ninerealms.com';
   static const _quotePath = '/thorchain/quote/swap';
   static const _txInfoPath = '/thorchain/tx/status/';
   static const _affiliateName = 'cakewallet';
@@ -145,7 +151,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({required String id}) async {
     if (id.isEmpty) throw Exception('Trade id is empty');
     final formattedId = id.startsWith('0x') ? id.substring(2) : id;
-    final uri = Uri.parse('$_baseURL$_txInfoPath$formattedId');
+    final uri = Uri.https(_baseURL, '$_txInfoPath$formattedId');
     final response = await http.get(uri);
 
     if (response.statusCode == 404) {
@@ -157,7 +163,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body);
     final Map<String, dynamic> stagesJson = responseJSON['stages'] as Map<String, dynamic>;
 
-    final inboundObservedStarted = stagesJson['inbound_observed']?['started'] as bool? ?? true;
+    final inboundObservedStarted = stagesJson['inbound_observed']?['started'] as bool? ?? false;
     if (!inboundObservedStarted) {
       throw Exception('Trade has not started for id: $formattedId');
     }
@@ -173,7 +179,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
     final plannedOutTxs = responseJSON['planned_out_txs'] as List<dynamic>?;
     final isRefund = plannedOutTxs?.any((tx) => tx['refund'] == true) ?? false;
-
     return Trade(
       id: id,
       from: CryptoCurrency.fromString(tx['chain'] as String? ?? ''),
@@ -189,7 +194,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   }
 
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
-    final uri = Uri.parse('$_baseURL$_quotePath${Uri(queryParameters: params)}');
+    Uri uri = Uri.https(_baseURL, _quotePath, params);
 
     final response = await http.get(uri);
 
@@ -204,7 +209,10 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     return json.decode(response.body) as Map<String, dynamic>;
   }
 
-  String _normalizeCurrency(CryptoCurrency currency) => '${currency.title}.${currency.title}';
+  String _normalizeCurrency(CryptoCurrency currency) {
+    final networkTitle = currency.tag == 'ETH' ? 'ETH' : currency.title;
+    return '$networkTitle.${currency.title}';
+  }
 
   String _doubleToThorChainString(double amount) => (amount * 1e8).toInt().toString();
 
