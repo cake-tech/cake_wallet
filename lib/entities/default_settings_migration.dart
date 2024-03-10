@@ -388,18 +388,6 @@ Node? getZanoDefaultNode({required Box<Node> nodes}) {
           ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.zano);
 }
 
-Node? getZanoDefaultNode({required Box<Node> nodes}) {
-    return nodes.values.firstWhereOrNull(
-          (Node node) => node.uriRaw == zanoDefaultNodeUri)
-          ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.zano);
-}
-
-Node? getZanoDefaultNode({required Box<Node> nodes}) {
-    return nodes.values.firstWhereOrNull(
-          (Node node) => node.uriRaw == zanoDefaultNodeUri)
-          ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.zano);
-}
-
 Node getMoneroDefaultNode({required Box<Node> nodes}) {
   final timeZone = DateTime.now().timeZoneOffset.inHours;
   var nodeUri = '';

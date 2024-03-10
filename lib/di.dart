@@ -795,9 +795,6 @@ Future<void> setup({
 
   getIt.registerFactory(() => ConnectionSyncPage(getIt.get<DashboardViewModel>()));
 
-  getIt.registerFactory(
-      () => ConnectionSyncPage(getIt.get<DashboardViewModel>()));
-
   getIt.registerFactory(() => SecurityBackupPage(
       getIt.get<SecuritySettingsViewModel>(), getIt.get<AuthService>()));
 

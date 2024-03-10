@@ -11,7 +11,7 @@ class AddressValidator extends TextValidator {
       : super(
             errorMessage: S.current.error_text_address,
             useAdditionalValidation: type == CryptoCurrency.btc
-                ? bitcoin.Address.validateAddress
+                ? (String txt) => validateAddress(address: txt, network: BitcoinNetwork.mainnet)
                 : type == CryptoCurrency.zano
                     ? ZanoUtils.validateAddress
                     : null,
