@@ -20,13 +20,13 @@ class TransferParams {
   });
 
   Map<String, dynamic> toJson() => {
-    "destinations": destinations,
-    "fee": fee,
-    "mixin": mixin,
-    "payment_id": paymentId,
-    "comment": comment,
-    "push_payer": pushPayer,
-    "hide_receiver": hideReceiver,
+    'destinations': destinations,
+    'fee': fee,
+    'mixin': mixin,
+    'payment_id': paymentId,
+    'comment': comment,
+    'push_payer': pushPayer,
+    'hide_receiver': hideReceiver,
   };
 
   factory TransferParams.fromJson(Map<String, dynamic> json) => TransferParams(
@@ -35,7 +35,7 @@ class TransferParams {
         mixin: json['mixin'] as int? ?? 0,
         paymentId: json['payment_id'] as String? ?? '',
         comment: json['comment'] as String? ?? '',
-        pushPayer: json["push_payer"] as bool? ?? false,
-        hideReceiver: json["hide_receiver"] as bool? ?? false,
+        pushPayer: json['push_payer'] as bool? ?? false,
+        hideReceiver: json['hide_receiver'] as bool? ?? false,
       );
 }

@@ -43,27 +43,27 @@ class History {
   });
 
   factory History.fromJson(Map<String, dynamic> json) => History(
-        comment: json['comment'] as String,
+        comment: json['comment'] as String? ?? '',
         employedEntries: EmployedEntries.fromJson(
-            json['employed_entries'] as Map<String, dynamic>),
-        fee: json['fee'] as int,
-        height: json['height'] as int,
-        isMining: json['is_mining'] as bool,
-        isMixing: json['is_mixing'] as bool,
-        isService: json['is_service'] as bool,
-        paymentId: json['payment_id'] as String,
+            json['employed_entries'] as Map<String, dynamic>? ?? {}),
+        fee: json['fee'] as int? ?? 0,
+        height: json['height'] as int? ?? 0,
+        isMining: json['is_mining'] as bool? ?? false,
+        isMixing: json['is_mixing'] as bool? ?? false,
+        isService: json['is_service'] as bool? ?? false,
+        paymentId: json['payment_id'] as String? ?? '',
         remoteAddresses: json['remote_addresses'] == null ? [] :
             (json['remote_addresses'] as List<dynamic>).cast<String>(),
         remoteAliases: json['remote_aliases'] == null ? [] : (json['remote_aliases'] as List<dynamic>).cast<String>(),
-        showSender: json['show_sender'] as bool,
-        subtransfers: (json['subtransfers'] as List<dynamic>)
+        showSender: json['show_sender'] as bool? ?? false,
+        subtransfers: (json['subtransfers'] as List<dynamic>? ?? [])
             .map((e) => Subtransfer.fromJson(e as Map<String, dynamic>))
             .toList(),
-        timestamp: json['timestamp'] as int,
-        transferInternalIndex: json['transfer_internal_index'] is double ? (json['transfer_internal_index'] as double).toInt() : json['transfer_internal_index'] as int,
-        txBlobSize: json['tx_blob_size'] as int,
-        txHash: json['tx_hash'] as String,
-        txType: json['tx_type'] as int,
-        unlockTime: json['unlock_time'] as int,
+        timestamp: json['timestamp'] as int? ?? 0,
+        transferInternalIndex: json['transfer_internal_index'] == null ? 0 : json['transfer_internal_index'] is double ? (json['transfer_internal_index'] as double).toInt() : json['transfer_internal_index'] as int,
+        txBlobSize: json['tx_blob_size'] as int? ?? 0,
+        txHash: json['tx_hash'] as String? ?? '',
+        txType: json['tx_type'] as int? ?? 0,
+        unlockTime: json['unlock_time'] as int? ?? 0,
       );
 }

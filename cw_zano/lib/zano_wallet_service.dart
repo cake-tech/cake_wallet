@@ -63,9 +63,9 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
       final wallet = ZanoWallet(credentials.walletInfo!);
       await wallet.connectToNode(node: Node());
       final path = await pathForWallet(name: credentials.name, type: getType());
-      final result = ApiCalls.createWallet(language: "", path: path, password: credentials.password!);
+      final result = ApiCalls.createWallet(language: '', path: path, password: credentials.password!);
       final map = json.decode(result) as Map<String, dynamic>;
-      if (map['result'] == null) throw CreateWalletException('');
+      _checkForCreateWalletError(map);
       final createWalletResult = CreateWalletResult.fromJson(map['result'] as Map<String, dynamic>);
       _parseCreateWalletResult(createWalletResult, wallet);
       await wallet.store();
@@ -103,9 +103,9 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
       final wallet = ZanoWallet(walletInfo);
       await wallet.connectToNode(node: Node());
       final result = wallet.loadWallet(path, password);
-      print("load wallet result $result");
+      print('load wallet result $result');
       final map = json.decode(result) as Map<String, dynamic>;
-      if (map['result'] == null) throw CreateWalletException('');
+      _checkForCreateWalletError(map);
       final createWalletResult = CreateWalletResult.fromJson(map['result'] as Map<String, dynamic>);
       _parseCreateWalletResult(createWalletResult, wallet);
       await wallet.store();
@@ -113,6 +113,19 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
       return wallet;
     } catch (e) {
       rethrow;
+      // TODO: uncomment after merge
+      //await restoreWalletFilesFromBackup(name);
+    }
+  }
+
+  void _checkForCreateWalletError(Map<String, dynamic> map) {
+    if (map['error'] != null) {
+      final code = map['error']!['code'] ?? '';
+      final message = map['error']!['message'] ?? '';
+      throw CreateWalletException('Error creating/loading wallet $code $message');
+    }
+    if (map['result'] == null) { 
+      throw CreateWalletException('Error creating/loading wallet, empty response');
     }
   }
 
@@ -158,7 +171,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
 
   @override
   Future<ZanoWallet> restoreFromKeys(ZanoRestoreWalletFromKeysCredentials credentials) async {
-    throw UnimplementedError("Restore from keys not implemented");
+    throw UnimplementedError('Restore from keys not implemented');
   }
 
   @override

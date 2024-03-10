@@ -25,15 +25,15 @@ class CreateWalletResult {
 
   factory CreateWalletResult.fromJson(Map<String, dynamic> json) =>
       CreateWalletResult(
-        name: json['name'] as String,
-        pass: json['pass'] as String,
+        name: json['name'] as String? ?? '',
+        pass: json['pass'] as String? ?? '',
         recentHistory: RecentHistory.fromJson(
-            json['recent_history'] as Map<String, dynamic>),
-        recovered: json['recovered'] as bool,
-        seed: json['seed'] as String,
-        walletFileSize: json['wallet_file_size'] as int,
-        walletId: json['wallet_id'] as int,
-        walletLocalBcSize: json['wallet_local_bc_size'] as int,
-        wi: Wi.fromJson(json['wi'] as Map<String, dynamic>),
+            json['recent_history'] as Map<String, dynamic>? ?? {}),
+        recovered: json['recovered'] as bool? ?? false,
+        seed: json['seed'] as String? ?? '',
+        walletFileSize: json['wallet_file_size'] as int? ?? 0,
+        walletId: json['wallet_id'] as int? ?? 0,
+        walletLocalBcSize: json['wallet_local_bc_size'] as int? ?? 0,
+        wi: Wi.fromJson(json['wi'] as Map<String, dynamic>? ?? {}),
       );
 }

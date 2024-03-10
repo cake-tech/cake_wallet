@@ -16,10 +16,10 @@ class Balance {
 
   factory Balance.fromJson(Map<String, dynamic> json) => Balance(
         assetInfo:
-            AssetInfo.fromJson(json['asset_info'] as Map<String, dynamic>),
-        awaitingIn: json['awaiting_in'] as int,
-        awaitingOut: json['awaiting_out'] as int,
-        total: json['total'] as int,
-        unlocked: json['unlocked'] as int,
+            AssetInfo.fromJson(json['asset_info'] as Map<String, dynamic>? ?? {}),
+        awaitingIn: json['awaiting_in'] as int? ?? 0,
+        awaitingOut: json['awaiting_out'] as int? ?? 0,
+        total: json['total'] as int? ?? 0,
+        unlocked: json['unlocked'] as int? ?? 0,
       );
 }

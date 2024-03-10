@@ -8,9 +8,9 @@ class GetAddressInfoResult {
       {required this.valid, required this.auditable, required this.paymentId, required this.wrap});
 
   factory GetAddressInfoResult.fromJson(Map<String, dynamic> json) => GetAddressInfoResult(
-        valid: json['valid'] as bool,
-        auditable: json['auditable'] as bool,
-        paymentId: json['payment_id'] as bool,
-        wrap: json['wrap'] as bool,
+        valid: json['valid'] as bool? ?? false,
+        auditable: json['auditable'] as bool? ?? false,
+        paymentId: json['payment_id'] as bool? ?? false,
+        wrap: json['wrap'] as bool? ?? false,
       );
 }

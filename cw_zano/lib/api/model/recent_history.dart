@@ -14,7 +14,7 @@ class RecentHistory {
         history: json['history'] == null ? null : (json['history'] as List<dynamic>)
             .map((e) => History.fromJson(e as Map<String, dynamic>))
             .toList(),
-        lastItemIndex: json['last_item_index'] as int,
-        totalHistoryItems: json['total_history_items'] as int,
+        lastItemIndex: json['last_item_index'] as int? ?? 0,
+        totalHistoryItems: json['total_history_items'] as int? ?? 0,
       );
 }
