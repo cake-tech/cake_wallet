@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:flutter/material.dart';
@@ -9,9 +11,9 @@ import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uni_links/uni_links.dart';
-
-import '../setup_2fa/setup_2fa_enter_code_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 
 class Root extends StatefulWidget {
   Root({
@@ -51,13 +53,17 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    _requestAuth = widget.authService.requireAuth();
+    WidgetsBinding.instance.addObserver(this);
+
+    widget.authService.requireAuth().then((value) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() => _requestAuth = value);
+      });
+    });
     _isInactiveController = StreamController<bool>.broadcast();
     _isInactive = false;
     _postFrameCallback = false;
-    WidgetsBinding.instance.addObserver(this);
     super.initState();
-
     if (DeviceInfo.instance.isMobile) {
       initUniLinks();
     }
@@ -97,15 +103,16 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           return;
         }
 
-        if (!_isInactive &&
-            widget.authenticationStore.state == AuthenticationState.allowed) {
+        if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
           setState(() => _setInactive(true));
         }
 
         break;
       case AppLifecycleState.resumed:
-        setState(() {
-          _requestAuth = widget.authService.requireAuth();
+        widget.authService.requireAuth().then((value) {
+          setState(() {
+            _requestAuth = value;
+          });
         });
         break;
       default:
@@ -125,23 +132,23 @@ class RootState extends State<Root> with WidgetsBindingObserver {
               return;
             } else {
               final useTotp = widget.appStore.settingsStore.useTOTP2FA;
-              final shouldUseTotp2FAToAccessWallets = widget.appStore
-                  .settingsStore.shouldRequireTOTP2FAForAccessingWallet;
+              final shouldUseTotp2FAToAccessWallets =
+                  widget.appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
               if (useTotp && shouldUseTotp2FAToAccessWallets) {
                 _reset();
                 auth.close(
                   route: Routes.totpAuthCodePage,
                   arguments: TotpAuthArgumentsModel(
                     onTotpAuthenticationFinished:
-                        (bool isAuthenticatedSuccessfully,
-                            TotpAuthCodePageState totpAuth) {
+                        (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) {
                       if (!isAuthenticatedSuccessfully) {
                         return;
                       }
                       _reset();
                       totpAuth.close(
-                        route: _isValidPaymentUri() ? Routes.send : null,
-                        arguments: PaymentRequest.fromUri(launchUri),
+                        route: _getRouteToGo(),
+                        arguments:
+                            isWalletConnectLink ? launchUri : PaymentRequest.fromUri(launchUri),
                       );
                       launchUri = null;
                     },
@@ -152,8 +159,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
               } else {
                 _reset();
                 auth.close(
-                  route: _isValidPaymentUri() ? Routes.send : null,
-                  arguments: PaymentRequest.fromUri(launchUri),
+                  route: _getRouteToGo(),
+                  arguments: isWalletConnectLink ? launchUri : PaymentRequest.fromUri(launchUri),
                 );
                 launchUri = null;
               }
@@ -167,9 +174,23 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         arguments: PaymentRequest.fromUri(launchUri),
       );
       launchUri = null;
+    } else if (isWalletConnectLink) {
+      if (isEVMCompatibleChain(widget.appStore.wallet!.type)) {
+        widget.navigatorKey.currentState?.pushNamed(
+          Routes.walletConnectConnectionsListing,
+          arguments: launchUri,
+        );
+        launchUri = null;
+      } else {
+        _nonETHWalletErrorToast(S.current.switchToEVMCompatibleWallet);
+      }
     }
 
-    return WillPopScope(onWillPop: () async => false, child: widget.child);
+    launchUri = null;
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: widget.child,
+    );
   }
 
   void _reset() {
@@ -185,4 +206,31 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   }
 
   bool _isValidPaymentUri() => launchUri?.path.isNotEmpty ?? false;
+
+  bool get isWalletConnectLink => launchUri?.authority == 'wc';
+
+  String? _getRouteToGo() {
+    if (isWalletConnectLink) {
+      if (isEVMCompatibleChain(widget.appStore.wallet!.type)) {
+        _nonETHWalletErrorToast(S.current.switchToEVMCompatibleWallet);
+        return null;
+      }
+      return Routes.walletConnectConnectionsListing;
+    } else if (_isValidPaymentUri()) {
+      return Routes.send;
+    } else {
+      return null;
+    }
+  }
+
+  Future<void> _nonETHWalletErrorToast(String message) async {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.SNACKBAR,
+      backgroundColor: Colors.black,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
 }

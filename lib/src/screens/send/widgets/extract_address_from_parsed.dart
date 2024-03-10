@@ -11,11 +11,18 @@ Future<String> extractAddressFromParsed(
   var title = '';
   var content = '';
   var address = '';
+  var profileImageUrl = '';
+  var profileName = '';
 
   switch (parsedAddress.parseFrom) {
     case ParseFrom.unstoppableDomains:
       title = S.of(context).address_detected;
       content = S.of(context).address_from_domain(parsedAddress.name);
+      address = parsedAddress.addresses.first;
+      break;
+    case ParseFrom.ens:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (ENS)');
       address = parsedAddress.addresses.first;
       break;
     case ParseFrom.openAlias:
@@ -32,6 +39,22 @@ Future<String> extractAddressFromParsed(
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (Twitter)');
       address = parsedAddress.addresses.first;
+      profileImageUrl = parsedAddress.profileImageUrl;
+      profileName = parsedAddress.profileName;
+      break;
+    case ParseFrom.mastodon:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (Mastodon)');
+      address = parsedAddress.addresses.first;
+      profileImageUrl = parsedAddress.profileImageUrl;
+      profileName = parsedAddress.profileName;
+      break;
+    case ParseFrom.nostr:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (Nostr NIP-05)');
+      address = parsedAddress.addresses.first;
+      profileImageUrl = parsedAddress.profileImageUrl;
+      profileName = parsedAddress.profileName;
       break;
     case ParseFrom.yatRecord:
       if (parsedAddress.name.isEmpty) {
@@ -80,6 +103,8 @@ Future<String> extractAddressFromParsed(
 
         return AlertWithOneAction(
             alertTitle: title,
+            headerTitleText: profileName.isEmpty ? null : profileName,
+            headerImageProfileUrl: profileImageUrl.isEmpty ? null : profileImageUrl,
             alertContent: content,
             buttonText: S.of(context).ok,
             buttonAction: () => Navigator.of(context).pop());

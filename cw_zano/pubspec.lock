@@ -184,6 +184,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.4"
+  decimal:
+    dependency: transitive
+    description:
+      name: decimal
+      sha256: "24a261d5d5c87e86c7651c417a5dbdf8bcd7080dd592533910e8d0505a279f21"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.3"
   encrypt:
     dependency: transitive
     description:
@@ -514,6 +522,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.1"
+  rational:
+    dependency: transitive
+    description:
+      name: rational
+      sha256: ba58e9e18df9abde280e8b10051e4bce85091e41e8e7e411b6cde2e738d357cf
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.2"
   shelf:
     dependency: transitive
     description:
@@ -535,6 +551,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  socks5_proxy:
+    dependency: transitive
+    description:
+      name: socks5_proxy
+      sha256: "1d21b5606169654bbf4cfb904e8e6ed897e9f763358709f87310c757096d909a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   source_gen:
     dependency: transitive
     description:

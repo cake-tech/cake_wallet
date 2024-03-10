@@ -13,6 +13,7 @@ import 'package:flutter/services.dart';
 class WalletRestoreFromKeysFrom extends StatefulWidget {
   WalletRestoreFromKeysFrom({
     required this.walletRestoreViewModel,
+    required this.onPrivateKeyChange,
     required this.displayPrivateKeyField,
     required this.onHeightOrDateEntered,
     Key? key,
@@ -20,6 +21,7 @@ class WalletRestoreFromKeysFrom extends StatefulWidget {
 
   final Function(bool) onHeightOrDateEntered;
   final WalletRestoreViewModel walletRestoreViewModel;
+  final void Function(String)? onPrivateKeyChange;
   final bool displayPrivateKeyField;
 
   @override
@@ -54,6 +56,7 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
       if (privateKeyController.text.isNotEmpty) {
         widget.onHeightOrDateEntered(true);
       }
+      widget.onPrivateKeyChange?.call(privateKeyController.text);
     });
   }
 
@@ -62,8 +65,8 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
     nameController.dispose();
     addressController.dispose();
     viewKeyController.dispose();
-    spendKeyController.dispose();
     privateKeyController.dispose();
+    spendKeyController.dispose();
     super.dispose();
   }
 
@@ -121,9 +124,16 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
 
   Widget _restoreFromKeysFormFields() {
     if (widget.displayPrivateKeyField) {
+      // the term "private key" isn't actually what we're accepting here, and it's confusing to
+      // users of the nano community, what this form actually accepts (when importing for nano) is a nano seed in it's hex form, referred to in code as a "seed key"
+      // so we should change the placeholder text to reflect this
+      // supporting actual nano private keys is possible, but it's super niche in the nano community / they're not really used
+
+      bool nanoBased = widget.walletRestoreViewModel.type == WalletType.nano ||
+          widget.walletRestoreViewModel.type == WalletType.banano;
       return AddressTextField(
         controller: privateKeyController,
-        placeholder: S.of(context).private_key,
+        placeholder: nanoBased ? S.of(context).seed_hex_form : S.of(context).private_key,
         options: [AddressTextFieldOption.paste],
         buttonColor: Theme.of(context).hintColor,
         onPushPasteButton: (_) {

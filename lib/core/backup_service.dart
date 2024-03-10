@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -211,8 +213,6 @@ class BackupService {
     final defaultBuyProvider = data[PreferencesKey.defaultBuyProvider] as int?;
     final currentTransactionPriorityKeyLegacy =
         data[PreferencesKey.currentTransactionPriorityKeyLegacy] as int?;
-    final allowBiometricalAuthentication =
-        data[PreferencesKey.allowBiometricalAuthenticationKey] as bool?;
     final currentBitcoinElectrumSererId =
         data[PreferencesKey.currentBitcoinElectrumSererIdKey] as int?;
     final currentLanguageCode = data[PreferencesKey.currentLanguageCode] as String?;
@@ -225,29 +225,21 @@ class BackupService {
         data[PreferencesKey.currentDefaultSettingsMigrationVersion] as int?;
     final moneroTransactionPriority = data[PreferencesKey.moneroTransactionPriority] as int?;
     final bitcoinTransactionPriority = data[PreferencesKey.bitcoinTransactionPriority] as int?;
-    final selectedCake2FAPreset = data[PreferencesKey.selectedCake2FAPreset] as int?;
-    final shouldRequireTOTP2FAForAccessingWallet =
-        data[PreferencesKey.shouldRequireTOTP2FAForAccessingWallet] as bool?;
-    final shouldRequireTOTP2FAForSendsToContact =
-        data[PreferencesKey.shouldRequireTOTP2FAForSendsToContact] as bool?;
-    final shouldRequireTOTP2FAForSendsToNonContact =
-        data[PreferencesKey.shouldRequireTOTP2FAForSendsToNonContact] as bool?;
-    final shouldRequireTOTP2FAForSendsToInternalWallets =
-        data[PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets] as bool?;
-    final shouldRequireTOTP2FAForExchangesToInternalWallets =
-        data[PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets] as bool?;
-    final shouldRequireTOTP2FAForAddingContacts =
-        data[PreferencesKey.shouldRequireTOTP2FAForAddingContacts] as bool?;
-    final shouldRequireTOTP2FAForCreatingNewWallets =
-        data[PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets] as bool?;
-    final shouldRequireTOTP2FAForAllSecurityAndBackupSettings =
-        data[PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings] as bool?;
     final sortBalanceTokensBy = data[PreferencesKey.sortBalanceBy] as int?;
     final pinNativeTokenAtTop = data[PreferencesKey.pinNativeTokenAtTop] as bool?;
     final useEtherscan = data[PreferencesKey.useEtherscan] as bool?;
+    final defaultNanoRep = data[PreferencesKey.defaultNanoRep] as String?;
+    final defaultBananoRep = data[PreferencesKey.defaultBananoRep] as String?;
+    final lookupsTwitter = data[PreferencesKey.lookupsTwitter] as bool?;
+    final lookupsMastodon = data[PreferencesKey.lookupsMastodon] as bool?;
+    final lookupsYatService = data[PreferencesKey.lookupsYatService] as bool?;
+    final lookupsUnstoppableDomains = data[PreferencesKey.lookupsUnstoppableDomains] as bool?;
+    final lookupsOpenAlias = data[PreferencesKey.lookupsOpenAlias] as bool?;
+    final lookupsENS = data[PreferencesKey.lookupsENS] as bool?;
     final syncAll = data[PreferencesKey.syncAllKey] as bool?;
     final syncMode = data[PreferencesKey.syncModeKey] as int?;
-    final autoGenerateSubaddressStatus = data[PreferencesKey.autoGenerateSubaddressStatusKey] as int?;
+    final autoGenerateSubaddressStatus =
+        data[PreferencesKey.autoGenerateSubaddressStatusKey] as int?;
 
     await _sharedPreferences.setString(PreferencesKey.currentWalletName, currentWalletName);
 
@@ -283,11 +275,7 @@ class BackupService {
     if (currentTransactionPriorityKeyLegacy != null)
       await _sharedPreferences.setInt(
           PreferencesKey.currentTransactionPriorityKeyLegacy, currentTransactionPriorityKeyLegacy);
-
-    if (allowBiometricalAuthentication != null)
-      await _sharedPreferences.setBool(
-          PreferencesKey.allowBiometricalAuthenticationKey, allowBiometricalAuthentication);
-
+    
     if (currentBitcoinElectrumSererId != null)
       await _sharedPreferences.setInt(
           PreferencesKey.currentBitcoinElectrumSererIdKey, currentBitcoinElectrumSererId);
@@ -302,14 +290,18 @@ class BackupService {
     if (fiatApiMode != null)
       await _sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, fiatApiMode);
     if (autoGenerateSubaddressStatus != null)
-      await _sharedPreferences.setInt(PreferencesKey.autoGenerateSubaddressStatusKey,
-          autoGenerateSubaddressStatus);
+      await _sharedPreferences.setInt(
+          PreferencesKey.autoGenerateSubaddressStatusKey, autoGenerateSubaddressStatus);
 
     if (currentPinLength != null)
       await _sharedPreferences.setInt(PreferencesKey.currentPinLength, currentPinLength);
 
-    if (currentTheme != null)
+    if (currentTheme != null && DeviceInfo.instance.isMobile) {
       await _sharedPreferences.setInt(PreferencesKey.currentTheme, currentTheme);
+      // enforce dark theme on desktop platforms until the design is ready:
+    } else if (DeviceInfo.instance.isDesktop) {
+      await _sharedPreferences.setInt(PreferencesKey.currentTheme, ThemeList.darkTheme.raw);
+    }
 
     if (exchangeStatus != null)
       await _sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, exchangeStatus);
@@ -326,43 +318,6 @@ class BackupService {
       await _sharedPreferences.setInt(
           PreferencesKey.bitcoinTransactionPriority, bitcoinTransactionPriority);
 
-    if (selectedCake2FAPreset != null)
-      await _sharedPreferences.setInt(PreferencesKey.selectedCake2FAPreset, selectedCake2FAPreset);
-
-    if (shouldRequireTOTP2FAForAccessingWallet != null)
-      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForAccessingWallet,
-          shouldRequireTOTP2FAForAccessingWallet);
-
-    if (shouldRequireTOTP2FAForSendsToContact != null)
-      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForSendsToContact,
-          shouldRequireTOTP2FAForSendsToContact);
-
-    if (shouldRequireTOTP2FAForSendsToNonContact != null)
-      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForSendsToNonContact,
-          shouldRequireTOTP2FAForSendsToNonContact);
-
-    if (shouldRequireTOTP2FAForSendsToInternalWallets != null)
-      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets,
-          shouldRequireTOTP2FAForSendsToInternalWallets);
-
-    if (shouldRequireTOTP2FAForExchangesToInternalWallets != null)
-      await _sharedPreferences.setBool(
-          PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets,
-          shouldRequireTOTP2FAForExchangesToInternalWallets);
-
-    if (shouldRequireTOTP2FAForAddingContacts != null)
-      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForAddingContacts,
-          shouldRequireTOTP2FAForAddingContacts);
-
-    if (shouldRequireTOTP2FAForCreatingNewWallets != null)
-      await _sharedPreferences.setBool(PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets,
-          shouldRequireTOTP2FAForCreatingNewWallets);
-
-    if (shouldRequireTOTP2FAForAllSecurityAndBackupSettings != null)
-      await _sharedPreferences.setBool(
-          PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-          shouldRequireTOTP2FAForAllSecurityAndBackupSettings);
-
     if (sortBalanceTokensBy != null)
       await _sharedPreferences.setInt(PreferencesKey.sortBalanceBy, sortBalanceTokensBy);
 
@@ -372,11 +327,34 @@ class BackupService {
     if (useEtherscan != null)
       await _sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan);
 
-    if (syncAll != null)
-      await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
+    if (defaultNanoRep != null)
+      await _sharedPreferences.setString(PreferencesKey.defaultNanoRep, defaultNanoRep);
 
-    if (syncMode != null)
-      await _sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode);
+    if (defaultBananoRep != null)
+      await _sharedPreferences.setString(PreferencesKey.defaultBananoRep, defaultBananoRep);
+
+    if (syncAll != null) await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
+    if (lookupsTwitter != null)
+      await _sharedPreferences.setBool(PreferencesKey.lookupsTwitter, lookupsTwitter);
+
+    if (lookupsMastodon != null)
+      await _sharedPreferences.setBool(PreferencesKey.lookupsMastodon, lookupsMastodon);
+
+    if (lookupsYatService != null)
+      await _sharedPreferences.setBool(PreferencesKey.lookupsYatService, lookupsYatService);
+
+    if (lookupsUnstoppableDomains != null)
+      await _sharedPreferences.setBool(
+          PreferencesKey.lookupsUnstoppableDomains, lookupsUnstoppableDomains);
+
+    if (lookupsOpenAlias != null)
+      await _sharedPreferences.setBool(PreferencesKey.lookupsOpenAlias, lookupsOpenAlias);
+
+    if (lookupsENS != null) await _sharedPreferences.setBool(PreferencesKey.lookupsENS, lookupsENS);
+
+    if (syncAll != null) await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
+
+    if (syncMode != null) await _sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode);
 
     await preferencesFile.delete();
   }
@@ -395,6 +373,7 @@ class BackupService {
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
 
+    await _flutterSecureStorage.delete(key: backupPasswordKey);
     await _flutterSecureStorage.write(key: backupPasswordKey, value: backupPassword);
 
     keychainWalletsInfo.forEach((dynamic rawInfo) async {
@@ -402,6 +381,7 @@ class BackupService {
       await importWalletKeychainInfo(info);
     });
 
+    await _flutterSecureStorage.delete(key: pinCodeKey);
     await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
 
     keychainDumpFile.deleteSync();
@@ -421,6 +401,7 @@ class BackupService {
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
 
+    await _flutterSecureStorage.delete(key: backupPasswordKey);
     await _flutterSecureStorage.write(key: backupPasswordKey, value: backupPassword);
 
     keychainWalletsInfo.forEach((dynamic rawInfo) async {
@@ -428,6 +409,7 @@ class BackupService {
       await importWalletKeychainInfo(info);
     });
 
+    await _flutterSecureStorage.delete(key: pinCodeKey);
     await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
 
     keychainDumpFile.deleteSync();
@@ -480,14 +462,11 @@ class BackupService {
           _sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey),
       PreferencesKey.disableBuyKey: _sharedPreferences.getBool(PreferencesKey.disableBuyKey),
       PreferencesKey.disableSellKey: _sharedPreferences.getBool(PreferencesKey.disableSellKey),
-      PreferencesKey.defaultBuyProvider: _sharedPreferences.getInt(PreferencesKey.defaultBuyProvider),
-      PreferencesKey.isDarkThemeLegacy:
-          _sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy),
+      PreferencesKey.defaultBuyProvider:
+          _sharedPreferences.getInt(PreferencesKey.defaultBuyProvider),
       PreferencesKey.currentPinLength: _sharedPreferences.getInt(PreferencesKey.currentPinLength),
       PreferencesKey.currentTransactionPriorityKeyLegacy:
           _sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy),
-      PreferencesKey.allowBiometricalAuthenticationKey:
-          _sharedPreferences.getBool(PreferencesKey.allowBiometricalAuthenticationKey),
       PreferencesKey.currentBitcoinElectrumSererIdKey:
           _sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey),
       PreferencesKey.currentLanguageCode:
@@ -504,34 +483,23 @@ class BackupService {
           _sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority),
       PreferencesKey.currentFiatApiModeKey:
           _sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey),
-      PreferencesKey.selectedCake2FAPreset:
-          _sharedPreferences.getInt(PreferencesKey.selectedCake2FAPreset),
-      PreferencesKey.shouldRequireTOTP2FAForAccessingWallet:
-          _sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAccessingWallet),
-      PreferencesKey.shouldRequireTOTP2FAForSendsToContact:
-          _sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToContact),
-      PreferencesKey.shouldRequireTOTP2FAForSendsToNonContact:
-          _sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToNonContact),
-      PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets:
-          _sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForSendsToInternalWallets),
-      PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets: _sharedPreferences
-          .getBool(PreferencesKey.shouldRequireTOTP2FAForExchangesToInternalWallets),
-      PreferencesKey.shouldRequireTOTP2FAForAddingContacts:
-          _sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForAddingContacts),
-      PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets:
-          _sharedPreferences.getBool(PreferencesKey.shouldRequireTOTP2FAForCreatingNewWallets),
-      PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings: _sharedPreferences
-          .getBool(PreferencesKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
-      PreferencesKey.sortBalanceBy:
-          _sharedPreferences.getInt(PreferencesKey.sortBalanceBy),
+      PreferencesKey.sortBalanceBy: _sharedPreferences.getInt(PreferencesKey.sortBalanceBy),
       PreferencesKey.pinNativeTokenAtTop:
           _sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop),
-      PreferencesKey.useEtherscan:
-          _sharedPreferences.getBool(PreferencesKey.useEtherscan),
-      PreferencesKey.syncModeKey:
-          _sharedPreferences.getInt(PreferencesKey.syncModeKey),
-      PreferencesKey.syncAllKey:
-          _sharedPreferences.getBool(PreferencesKey.syncAllKey),
+      PreferencesKey.useEtherscan: _sharedPreferences.getBool(PreferencesKey.useEtherscan),
+      PreferencesKey.defaultNanoRep: _sharedPreferences.getString(PreferencesKey.defaultNanoRep),
+      PreferencesKey.defaultBananoRep:
+          _sharedPreferences.getString(PreferencesKey.defaultBananoRep),
+      PreferencesKey.lookupsTwitter: _sharedPreferences.getBool(PreferencesKey.lookupsTwitter),
+      PreferencesKey.lookupsMastodon: _sharedPreferences.getBool(PreferencesKey.lookupsMastodon),
+      PreferencesKey.lookupsYatService:
+          _sharedPreferences.getBool(PreferencesKey.lookupsYatService),
+      PreferencesKey.lookupsUnstoppableDomains:
+          _sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains),
+      PreferencesKey.lookupsOpenAlias: _sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias),
+      PreferencesKey.lookupsENS: _sharedPreferences.getBool(PreferencesKey.lookupsENS),
+      PreferencesKey.syncModeKey: _sharedPreferences.getInt(PreferencesKey.syncModeKey),
+      PreferencesKey.syncAllKey: _sharedPreferences.getBool(PreferencesKey.syncAllKey),
       PreferencesKey.autoGenerateSubaddressStatusKey:
           _sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey),
     };

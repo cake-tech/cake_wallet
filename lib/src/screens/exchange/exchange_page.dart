@@ -127,7 +127,7 @@ class ExchangePage extends BasePage {
     final _closeButton =
         currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
 
-    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile;
+    bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
     return MergeSemantics(
       child: SizedBox(
@@ -411,10 +411,6 @@ class ExchangePage extends BasePage {
       }
     });
 
-    reaction((_) => exchangeViewModel.isReceiveAddressEnabled, (bool isEnabled) {
-      receiveKey.currentState!.isAddressEditable(isEditable: isEnabled);
-    });
-
     reaction((_) => exchangeViewModel.isReceiveAmountEditable, (bool isReceiveAmountEditable) {
       receiveKey.currentState!.isAmountEditable(isEditable: isReceiveAmountEditable);
     });
@@ -561,7 +557,7 @@ class ExchangePage extends BasePage {
   }
 
   Future<String> fetchParsedAddress(BuildContext context, String domain, String ticker) async {
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(domain, ticker);
+    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, ticker);
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
   }
@@ -670,7 +666,6 @@ class ExchangePage extends BasePage {
                   ? exchangeViewModel.wallet.walletAddresses.address
                   : exchangeViewModel.receiveAddress,
               initialIsAmountEditable: exchangeViewModel.isReceiveAmountEditable,
-              initialIsAddressEditable: exchangeViewModel.isReceiveAddressEnabled,
               isAmountEstimated: true,
               isMoneroWallet: exchangeViewModel.isMoneroWallet,
               currencies: exchangeViewModel.receiveCurrencies,
@@ -705,7 +700,7 @@ class ExchangePage extends BasePage {
               },
             ));
 
-    if (ResponsiveLayoutUtil.instance.isMobile) {
+    if (responsiveLayoutUtil.shouldRenderMobileUI) {
       return MobileExchangeCardsSection(
         firstExchangeCard: firstExchangeCard,
         secondExchangeCard: secondExchangeCard,

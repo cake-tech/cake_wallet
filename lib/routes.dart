@@ -6,6 +6,9 @@ class Routes {
   static const seed = '/seed';
   static const restoreOptions = '/restore_options';
   static const restoreWalletFromSeedKeys = '/restore_wallet_from_seeds_keys';
+  static const restoreWalletTypeFromQR = '/restore_wallet_from_qr_code';
+  static const restoreWalletChooseDerivation =
+      '/restore_wallet_choose_derivation';
   static const dashboard = '/dashboard';
   static const send = '/send';
   static const transactionDetails = '/transaction_info';
@@ -14,13 +17,15 @@ class Routes {
   static const walletEdit = '/walletEdit';
   static const disclaimer = '/disclaimer';
   static const readDisclaimer = '/read_disclaimer';
-  static const seedLanguage = '/seed_language';
+  static const changeRep = '/change_representative';
   static const walletList = '/view_model.wallet_list';
   static const auth = '/auth';
   static const newNode = '/new_node_list';
+  static const newPowNode = '/new_pow_node_list';
   static const login = '/login';
   static const splash = '/splash';
   static const accountCreation = '/account_new';
+  static const nanoAccountCreation = '/nano_account_new';
   static const addressBook = '/address_book';
   static const pickerAddressBook = '/picker_address_book';
   static const addressBookAddContact = '/address_book_add_contact';
@@ -42,7 +47,7 @@ class Routes {
   static const exchangeTemplate = '/exchange_template';
   static const restoreWalletType = '/restore_wallet_type';
   static const restoreWallet = '/restore_wallet';
-  static const preSeed = '/pre_seed';
+  static const preSeedPage = '/pre_seed_page';
   static const backup = '/backup';
   static const editBackupPassword = '/edit_backup_passowrd';
   static const restoreFromBackup = '/restore_from_backup';
@@ -50,7 +55,7 @@ class Routes {
   static const supportLiveChat = '/support/live_chat';
   static const supportOtherLinks = '/support/other';
   static const orderDetails = '/order_details';
-  static const buy = '/buy';
+  static const buySellPage = '/buy_sell_page';
   static const buyWebView = '/buy_web_view';
   static const unspentCoinsList = '/unspent_coins_list';
   static const unspentCoinsDetails = '/unspent_coins_details';
@@ -76,6 +81,8 @@ class Routes {
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
   static const privacyPage = '/privacy_page';
+  static const trocadorProvidersPage = '/trocador_providers_page';
+  static const domainLookupsPage = '/domain_lookups_page';
   static const displaySettingsPage = '/display_settings_page';
   static const otherSettingsPage = '/other_settings_page';
   static const advancedPrivacySettings = '/advanced_privacy_settings';
@@ -89,7 +96,14 @@ class Routes {
   static const setup_2faQRPage = '/setup_2fa_qr_page';
   static const totpAuthCodePage = '/totp_auth_code_page';
   static const modify2FAPage = '/modify_2fa_page';
+  static const setup2faInfoPage = '/setup_2fa_info_page';
   static const homeSettings = '/home_settings';
   static const editToken = '/edit_token';
   static const manageNodes = '/manage_nodes';
+  static const managePowNodes = '/manage_pow_nodes';
+  static const walletConnectConnectionsListing =
+      '/wallet-connect-connections-listing';
+  static const nftDetailsPage = '/nft_details_page';
+  static const importNFTPage = '/import_nft_page';
+  static const torPage = '/tor_page';
 }

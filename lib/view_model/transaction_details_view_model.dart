@@ -39,6 +39,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
       case WalletType.bitcoin:
       case WalletType.litecoin:
+      case WalletType.bitcoinCash:
         _addElectrumListItems(tx, dateFormat);
         break;
       case WalletType.haven:
@@ -46,6 +47,15 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
       case WalletType.ethereum:
         _addEthereumListItems(tx, dateFormat);
+        break;
+      case WalletType.nano:
+        _addNanoListItems(tx, dateFormat);
+        break;
+      case WalletType.polygon:
+        _addPolygonListItems(tx, dateFormat);
+        break;
+      case WalletType.solana:
+        _addSolanaListItems(tx, dateFormat);
         break;
       case WalletType.zano:
         _addZanoListItems(tx, dateFormat);
@@ -112,13 +122,23 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.monero:
         return 'https://monero.com/tx/${txId}';
       case WalletType.bitcoin:
-        return 'https://mempool.space/tx/${txId}';
+        return 'https://mempool.space/${wallet.isTestnet == true ? "testnet/" : ""}tx/${txId}';
       case WalletType.litecoin:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
+      case WalletType.bitcoinCash:
+        return 'https://blockchair.com/bitcoin-cash/transaction/${txId}';
       case WalletType.haven:
         return 'https://explorer.havenprotocol.org/search?value=${txId}';
       case WalletType.ethereum:
         return 'https://etherscan.io/tx/${txId}';
+      case WalletType.nano:
+        return 'https://nanolooker.com/block/${txId}';
+      case WalletType.banano:
+        return 'https://bananolooker.com/block/${txId}';
+      case WalletType.polygon:
+        return 'https://polygonscan.com/tx/${txId}';
+      case WalletType.solana:
+        return 'https://solscan.io/tx/${txId}';
       case WalletType.zano:
         return 'https://testnet-explorer.zano.org/transaction/${txId}';
       default:
@@ -133,11 +153,20 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.bitcoin:
         return S.current.view_transaction_on + 'mempool.space';
       case WalletType.litecoin:
+      case WalletType.bitcoinCash:
         return S.current.view_transaction_on + 'Blockchair.com';
       case WalletType.haven:
         return S.current.view_transaction_on + 'explorer.havenprotocol.org';
       case WalletType.ethereum:
         return S.current.view_transaction_on + 'etherscan.io';
+      case WalletType.nano:
+        return S.current.view_transaction_on + 'nanolooker.com';
+      case WalletType.banano:
+        return S.current.view_transaction_on + 'bananolooker.com';
+      case WalletType.polygon:
+        return S.current.view_transaction_on + 'polygonscan.com';
+      case WalletType.solana:
+        return S.current.view_transaction_on + 'solscan.io';
       case WalletType.zano:
         return S.current.view_transaction_on + 'zano';
       default:
@@ -224,6 +253,61 @@ abstract class TransactionDetailsViewModelBase with Store {
         StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
       if (showRecipientAddress && tx.to != null)
         StandartListItem(title: S.current.transaction_details_recipient_address, value: tx.to!),
+      if (tx.direction == TransactionDirection.incoming && tx.from != null)
+        StandartListItem(title: S.current.transaction_details_source_address, value: tx.from!),
+    ];
+
+    items.addAll(_items);
+  }
+
+  void _addNanoListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      if (showRecipientAddress && tx.to != null)
+        StandartListItem(title: S.current.transaction_details_recipient_address, value: tx.to!),
+      if (showRecipientAddress && tx.from != null)
+        StandartListItem(title: S.current.transaction_details_source_address, value: tx.from!),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+      StandartListItem(title: S.current.confirmed_tx, value: (tx.confirmations > 0).toString()),
+      StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+    ];
+
+    items.addAll(_items);
+  }
+
+  void _addPolygonListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+      StandartListItem(title: S.current.confirmations, value: tx.confirmations.toString()),
+      StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+      if (showRecipientAddress && tx.to != null && tx.direction == TransactionDirection.outgoing)
+        StandartListItem(title: S.current.transaction_details_recipient_address, value: tx.to!),
+      if (tx.direction == TransactionDirection.incoming && tx.from != null)
+        StandartListItem(title: S.current.transaction_details_source_address, value: tx.from!),
+    ];
+
+    items.addAll(_items);
+  }
+
+  void _addSolanaListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+      if (showRecipientAddress && tx.to != null)
+        StandartListItem(title: S.current.transaction_details_recipient_address, value: tx.to!),
+      if (tx.from != null)
+        StandartListItem(title: S.current.transaction_details_source_address, value: tx.from!),
     ];
 
     items.addAll(_items);

@@ -1,5 +1,6 @@
-New Buy Provider Robinhood
-Fix sending Ethereum issue
-Enhance Monero coin control
-Add Filipino localization
-Bug Fixes
+Add Solana wallet
+Support ALL Bitcoin address types (Legacy, Segwit (both variants), Taproot)
+Enhance Sending/Receiving flow for Bitcoin
+Improve fee calculations in Bitcoin
+New themes
+Bug fixes and enhancements

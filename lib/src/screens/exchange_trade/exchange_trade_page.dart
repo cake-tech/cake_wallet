@@ -1,3 +1,4 @@
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'dart:ui';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
@@ -5,7 +6,6 @@ import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/execution_state.dart';
@@ -26,16 +26,15 @@ import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 void showInformation(
     ExchangeTradeViewModel exchangeTradeViewModel, BuildContext context) {
-  final fetchingLabel = S.current.fetching;
   final trade = exchangeTradeViewModel.trade;
   final walletName = exchangeTradeViewModel.wallet.name;
 
   final information = exchangeTradeViewModel.isSendable
       ? S.current.exchange_result_confirm(
-          trade.amount ?? fetchingLabel, trade.from.toString(), walletName) +
+          trade.amount, trade.from.toString(), walletName) +
         exchangeTradeViewModel.extraInfo
       : S.current.exchange_result_description(
-          trade.amount ?? fetchingLabel, trade.from.toString()) +
+          trade.amount, trade.from.toString()) +
         exchangeTradeViewModel.extraInfo;
 
   showPopUp<void>(
@@ -93,6 +92,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
   bool _effectsInstalled = false;
 
+  ReactionDisposer? _exchangeStateReaction;
+
   @override
   void initState() {
     super.initState();
@@ -105,8 +106,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
   @override
   void dispose() {
-    super.dispose();
     widget.exchangeTradeViewModel.timer?.cancel();
+    _exchangeStateReaction?.reaction.dispose();
+    super.dispose();
   }
 
   @override
@@ -177,7 +179,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     ),
                     itemBuilder: (context, index) {
                       final item = widget.exchangeTradeViewModel.items[index];
-                      final value = item.data ?? fetchingLabel;
+                      final value = item.data;
 
                       final content = ListRow(
                         title: item.title,
@@ -231,7 +233,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
       return;
     }
 
-    reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
+    _exchangeStateReaction = reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
         (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -260,7 +262,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     fee: S.of(popupContext).send_fee,
                     feeValue: widget.exchangeTradeViewModel.sendViewModel
                         .pendingTransaction!.feeFormatted,
-                    rightButtonText: S.of(popupContext).ok,
+                    rightButtonText: S.of(popupContext).send,
                     leftButtonText: S.of(popupContext).cancel,
                     actionRightButton: () async {
                       Navigator.of(popupContext).pop();
@@ -281,15 +283,17 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (BuildContext popupContext) {
-                return AlertWithOneAction(
-                    alertTitle: S.of(popupContext).sending,
-                    alertContent: S.of(popupContext).transaction_sent,
-                    buttonText: S.of(popupContext).ok,
-                    buttonAction: () => Navigator.of(popupContext).pop());
-              });
+          if (context.mounted) {
+            showPopUp<void>(
+                context: context,
+                builder: (BuildContext popupContext) {
+                  return AlertWithOneAction(
+                      alertTitle: S.of(popupContext).sending,
+                      alertContent: S.of(popupContext).transaction_sent,
+                      buttonText: S.of(popupContext).ok,
+                      buttonAction: () => Navigator.of(popupContext).pop());
+                });
+          }
         });
       }
     });
@@ -298,7 +302,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
   }
 
   void transactionStatePopup() {
-    showPopUp<void>(
+    if (this.mounted) {
+      showPopUp<void>(
         context: context,
         builder: (BuildContext popupContext) {
           return Observer(builder: (_) {
@@ -341,9 +346,13 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       bottom: 24,
                       child: PrimaryButton(
                           onPressed: () {
-                            Navigator.of(popupContext).pop();
+                              Navigator.pushNamedAndRemoveUntil(
+                                popupContext,
+                                Routes.dashboard,
+                                (route) => false,
+                              );
                             RequestReviewHandler.requestReview();
-                          },  
+                          },
                           text: S.of(popupContext).got_it,
                           color: Theme.of(popupContext).primaryColor,
                           textColor: Colors.white))
@@ -390,5 +399,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             );
           });
         });
+    }
   }
 }

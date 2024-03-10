@@ -13,9 +13,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 
-abstract class WalletBase<
-    BalanceType extends Balance,
-    HistoryType extends TransactionHistoryBase,
+abstract class WalletBase<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
     TransactionType extends TransactionInfo> {
   WalletBase(this.walletInfo);
 
@@ -46,6 +44,8 @@ abstract class WalletBase<
 
   String? get privateKey => null;
 
+  String? get hexSeed => null;
+
   Object get keys;
 
   WalletAddresses get walletAddresses;
@@ -57,6 +57,9 @@ abstract class WalletBase<
   bool get isEnabledAutoGenerateSubaddress => false;
 
   Future<void> connectToNode({required Node node});
+
+  // there is a default definition here because only coins with a pow node (nano based) need to override this
+  Future<void> connectToPowNode({required Node node}) async {}
 
   Future<void> startSync();
 
@@ -85,4 +88,6 @@ abstract class WalletBase<
   Future<void> renameWalletFiles(String newWalletName);
 
   String signMessage(String message, {String? address = null}) => throw UnimplementedError();
+
+  bool? isTestnet;
 }

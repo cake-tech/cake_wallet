@@ -21,13 +21,12 @@ Future<List<Node>> loadDefaultNodes() async {
 }
 
 Future<List<Node>> loadBitcoinElectrumServerList() async {
-  final serverListRaw =
-      await rootBundle.loadString('assets/bitcoin_electrum_server_list.yml');
+  final serverListRaw = await rootBundle.loadString('assets/bitcoin_electrum_server_list.yml');
   final loadedServerList = loadYaml(serverListRaw) as YamlList;
   final serverList = <Node>[];
 
   for (final raw in loadedServerList) {
-     if (raw is Map) {
+    if (raw is Map) {
       final node = Node.fromMap(Map<String, Object>.from(raw));
       node.type = WalletType.bitcoin;
       serverList.add(node);
@@ -38,8 +37,7 @@ Future<List<Node>> loadBitcoinElectrumServerList() async {
 }
 
 Future<List<Node>> loadLitecoinElectrumServerList() async {
-  final serverListRaw =
-      await rootBundle.loadString('assets/litecoin_electrum_server_list.yml');
+  final serverListRaw = await rootBundle.loadString('assets/litecoin_electrum_server_list.yml');
   final loadedServerList = loadYaml(serverListRaw) as YamlList;
   final serverList = <Node>[];
 
@@ -66,7 +64,7 @@ Future<List<Node>> loadDefaultHavenNodes() async {
       nodes.add(node);
     }
   }
-  
+
   return nodes;
 }
 
@@ -86,17 +84,116 @@ Future<List<Node>> loadDefaultEthereumNodes() async {
   return nodes;
 }
 
-Future resetToDefault(Box<Node> nodeSource) async {
+Future<List<Node>> loadBitcoinCashElectrumServerList() async {
+  final serverListRaw = await rootBundle.loadString('assets/bitcoin_cash_electrum_server_list.yml');
+  final loadedServerList = loadYaml(serverListRaw) as YamlList;
+  final serverList = <Node>[];
+
+  for (final raw in loadedServerList) {
+    if (raw is Map) {
+      final node = Node.fromMap(Map<String, Object>.from(raw));
+      node.type = WalletType.bitcoinCash;
+      serverList.add(node);
+    }
+  }
+
+  return serverList;
+}
+
+Future<List<Node>> loadDefaultNanoNodes() async {
+  final nodesRaw = await rootBundle.loadString('assets/nano_node_list.yml');
+  final loadedNodes = loadYaml(nodesRaw) as YamlList;
+  final nodes = <Node>[];
+
+  for (final raw in loadedNodes) {
+    if (raw is Map) {
+      final node = Node.fromMap(Map<String, Object>.from(raw));
+      node.type = WalletType.nano;
+      nodes.add(node);
+    }
+  }
+
+  return nodes;
+}
+
+Future<List<Node>> loadDefaultNanoPowNodes() async {
+  final powNodesRaw = await rootBundle.loadString('assets/nano_pow_node_list.yml');
+  final loadedPowNodes = loadYaml(powNodesRaw) as YamlList;
+  final nodes = <Node>[];
+
+  for (final raw in loadedPowNodes) {
+    if (raw is Map) {
+      final node = Node.fromMap(Map<String, Object>.from(raw));
+      node.type = WalletType.nano;
+      nodes.add(node);
+    }
+  }
+
+  return nodes;
+}
+
+Future<List<Node>> loadDefaultPolygonNodes() async {
+  final nodesRaw = await rootBundle.loadString('assets/polygon_node_list.yml');
+  final loadedNodes = loadYaml(nodesRaw) as YamlList;
+  final nodes = <Node>[];
+
+  for (final raw in loadedNodes) {
+    if (raw is Map) {
+      final node = Node.fromMap(Map<String, Object>.from(raw));
+
+      node.type = WalletType.polygon;
+      nodes.add(node);
+    }
+  }
+
+  return nodes;
+}
+
+Future<List<Node>> loadDefaultSolanaNodes() async {
+  final nodesRaw = await rootBundle.loadString('assets/solana_node_list.yml');
+  final loadedNodes = loadYaml(nodesRaw) as YamlList;
+  final nodes = <Node>[];
+
+  for (final raw in loadedNodes) {
+    if (raw is Map) {
+      final node = Node.fromMap(Map<String, Object>.from(raw));
+
+      node.type = WalletType.solana;
+      nodes.add(node);
+    }
+  }
+
+  return nodes;
+}
+
+Future<void> resetToDefault(Box<Node> nodeSource) async {
   final moneroNodes = await loadDefaultNodes();
   final bitcoinElectrumServerList = await loadBitcoinElectrumServerList();
   final litecoinElectrumServerList = await loadLitecoinElectrumServerList();
+  final bitcoinCashElectrumServerList = await loadBitcoinCashElectrumServerList();
   final havenNodes = await loadDefaultHavenNodes();
-  final nodes =
-      moneroNodes +
+  final ethereumNodes = await loadDefaultEthereumNodes();
+  final nanoNodes = await loadDefaultNanoNodes();
+  final polygonNodes = await loadDefaultPolygonNodes();
+  final solanaNodes = await loadDefaultSolanaNodes();
+
+  final nodes = moneroNodes +
       bitcoinElectrumServerList +
       litecoinElectrumServerList +
-      havenNodes;
+      havenNodes +
+      ethereumNodes +
+      bitcoinCashElectrumServerList +
+      nanoNodes +
+      polygonNodes +
+      solanaNodes;
 
   await nodeSource.clear();
   await nodeSource.addAll(nodes);
+}
+
+Future<void> resetPowToDefault(Box<Node> powNodeSource) async {
+  final nanoPowNodes = await loadDefaultNanoPowNodes();
+  final nodes = nanoPowNodes;
+  await powNodeSource.clear();
+  await powNodeSource.addAll(nodes);
 }

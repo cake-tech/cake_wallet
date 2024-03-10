@@ -10,6 +10,11 @@ const walletTypes = [
   WalletType.litecoin,
   WalletType.haven,
   WalletType.ethereum,
+  WalletType.bitcoinCash,
+  WalletType.nano,
+  WalletType.banano,
+  WalletType.polygon,
+  WalletType.solana,
   WalletType.zano,
 ];
 
@@ -34,6 +39,21 @@ enum WalletType {
   ethereum,
 
   @HiveField(6)
+  nano,
+
+  @HiveField(7)
+  banano,
+
+  @HiveField(8)
+  bitcoinCash,
+
+  @HiveField(9)
+  polygon,
+
+  @HiveField(10)
+  solana,
+
+  @HiveField(11)
   zano,
 }
 
@@ -49,8 +69,18 @@ int serializeToInt(WalletType type) {
       return 3;
     case WalletType.ethereum:
       return 4;
-    case WalletType.zano:
+    case WalletType.nano:
       return 5;
+    case WalletType.banano:
+      return 6;
+    case WalletType.bitcoinCash:
+      return 7;
+    case WalletType.polygon:
+      return 8;
+    case WalletType.solana:
+      return 9;
+    case WalletType.zano:
+      return 10;
     default:
       return -1;
   }
@@ -69,6 +99,16 @@ WalletType deserializeFromInt(int raw) {
     case 4:
       return WalletType.ethereum;
     case 5:
+      return WalletType.nano;
+    case 6:
+      return WalletType.banano;
+    case 7:
+      return WalletType.bitcoinCash;
+    case 8:
+      return WalletType.polygon;
+    case 9:
+      return WalletType.solana;
+    case 10:
       return WalletType.zano;
     default:
       throw Exception(
@@ -88,6 +128,16 @@ String walletTypeToString(WalletType type) {
       return 'Haven';
     case WalletType.ethereum:
       return 'Ethereum';
+    case WalletType.bitcoinCash:
+      return 'Bitcoin Cash';
+    case WalletType.nano:
+      return 'Nano';
+    case WalletType.banano:
+      return 'Banano';
+    case WalletType.polygon:
+      return 'Polygon';
+    case WalletType.solana:
+      return 'Solana';
     case WalletType.zano:
       return 'Zano';
     default:
@@ -107,6 +157,16 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Haven (XHV)';
     case WalletType.ethereum:
       return 'Ethereum (ETH)';
+    case WalletType.bitcoinCash:
+      return 'Bitcoin Cash (BCH)';
+    case WalletType.nano:
+      return 'Nano (XNO)';
+    case WalletType.banano:
+      return 'Banano (BAN)';
+    case WalletType.polygon:
+      return 'Polygon (MATIC)';
+    case WalletType.solana:
+      return 'Solana (SOL)';
     case WalletType.zano:
       return 'Zano (ZANO)';
     default:
@@ -128,6 +188,16 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.zano;
     case WalletType.ethereum:
       return CryptoCurrency.eth;
+    case WalletType.bitcoinCash:
+      return CryptoCurrency.bch;
+    case WalletType.nano:
+      return CryptoCurrency.nano;
+    case WalletType.banano:
+      return CryptoCurrency.banano;
+    case WalletType.polygon:
+      return CryptoCurrency.maticpoly;
+    case WalletType.solana:
+      return CryptoCurrency.sol;
     default:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');

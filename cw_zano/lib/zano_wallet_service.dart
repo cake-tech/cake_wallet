@@ -58,7 +58,8 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
   WalletType getType() => WalletType.zano;
 
   @override
-  Future<ZanoWallet> create(WalletCredentials credentials) async {
+  Future<ZanoWallet> create(WalletCredentials credentials, {bool? isTestnet}) async {
+    print('zanowallet service create isTestnet $isTestnet'); // TODO: remove
     try {
       final wallet = ZanoWallet(credentials.walletInfo!);
       await wallet.connectToNode(node: Node());
@@ -170,12 +171,12 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
   }
 
   @override
-  Future<ZanoWallet> restoreFromKeys(ZanoRestoreWalletFromKeysCredentials credentials) async {
+  Future<ZanoWallet> restoreFromKeys(ZanoRestoreWalletFromKeysCredentials credentials, {bool? isTestnet}) async {
     throw UnimplementedError('Restore from keys not implemented');
   }
 
   @override
-  Future<ZanoWallet> restoreFromSeed(ZanoRestoreWalletFromSeedCredentials credentials) async {
+  Future<ZanoWallet> restoreFromSeed(ZanoRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
     try {
       final wallet = ZanoWallet(credentials.walletInfo!);
       await wallet.connectToNode(node: Node());

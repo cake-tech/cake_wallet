@@ -10,6 +10,8 @@ abstract class WalletAddresses {
 
   String get address;
 
+  String? get primaryAddress => null;
+
   set address(String address);
 
   Map<String, String> addressesMap;
@@ -36,4 +38,6 @@ abstract class WalletAddresses {
       print(e.toString());
     }
   }
+
+  bool containsAddress(String address) => addressesMap.containsKey(address);
 }

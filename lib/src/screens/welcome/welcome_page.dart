@@ -36,7 +36,7 @@ class WelcomePage extends BasePage {
       return S.of(context).haven_app_wallet_text;
     }
 
-    return S.of(context).first_wallet_text;
+    return S.of(context).new_first_wallet_text;
   }
 
   @override
@@ -70,7 +70,7 @@ class WelcomePage extends BasePage {
             padding: EdgeInsets.only(top: 64, bottom: 24, left: 24, right: 24),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                  maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+                  maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[

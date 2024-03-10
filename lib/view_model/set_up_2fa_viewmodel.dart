@@ -27,8 +27,9 @@ abstract class Setup2FAViewModelBase with Store {
         unhighlightTabs = false,
         selected2FASettings = ObservableList<VerboseControlSettings>(),
         state = InitialExecutionState() {
-    _getRandomBase32SecretKey();
-    selectCakePreset(selectedCake2FAPreset);
+    if (selectedCake2FAPreset != Cake2FAPresetsOptions.none) {
+      selectCakePreset(selectedCake2FAPreset);
+    }
     reaction((_) => state, _saveLastAuthTime);
   }
 
@@ -36,9 +37,12 @@ abstract class Setup2FAViewModelBase with Store {
   static const banTimeout = 180; // 3 minutes
   final banTimeoutKey = S.current.auth_store_ban_timeout;
 
-  String get secretKey => _settingsStore.totpSecretKey;
   String get deviceName => _settingsStore.deviceName;
-  String get totpVersionOneLink => _settingsStore.totpVersionOneLink;
+
+  @computed
+  String get totpSecretKey => _settingsStore.totpSecretKey;
+
+  String totpVersionOneLink = '';
 
   @observable
   ExecutionState state;
@@ -73,6 +77,10 @@ abstract class Setup2FAViewModelBase with Store {
       _settingsStore.shouldRequireTOTP2FAForExchangesToInternalWallets;
 
   @computed
+  bool get shouldRequireTOTP2FAForExchangesToExternalWallets =>
+      _settingsStore.shouldRequireTOTP2FAForExchangesToExternalWallets;
+
+  @computed
   bool get shouldRequireTOTP2FAForAddingContacts =>
       _settingsStore.shouldRequireTOTP2FAForAddingContacts;
 
@@ -84,9 +92,14 @@ abstract class Setup2FAViewModelBase with Store {
   bool get shouldRequireTOTP2FAForAllSecurityAndBackupSettings =>
       _settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings;
 
-  void _getRandomBase32SecretKey() {
-    final randomBase32Key = Utils.generateRandomBase32SecretKey(16);
-    _setBase32SecretKey(randomBase32Key);
+  @action
+  void generateSecretKey() {
+    final _totpSecretKey = Utils.generateRandomBase32SecretKey(16);
+
+    totpVersionOneLink =
+        'otpauth://totp/Cake%20Wallet:$deviceName?secret=$_totpSecretKey&issuer=Cake%20Wallet&algorithm=SHA512&digits=8&period=30';
+
+    setTOTPSecretKey(_totpSecretKey);
   }
 
   @action
@@ -95,13 +108,8 @@ abstract class Setup2FAViewModelBase with Store {
   }
 
   @action
-  void _setBase32SecretKey(String value) {
+  void setTOTPSecretKey(String value) {
     _settingsStore.totpSecretKey = value;
-  }
-
-  @action
-  void clearBase32SecretKey() {
-    _settingsStore.totpSecretKey = '';
   }
 
   Duration? banDuration() {
@@ -145,7 +153,7 @@ abstract class Setup2FAViewModelBase with Store {
     }
 
     final result = Utils.verify(
-      secretKey: secretKey,
+      secretKey: totpSecretKey,
       otp: otpText,
     );
 
@@ -156,7 +164,6 @@ abstract class Setup2FAViewModelBase with Store {
     } else {
       final value = _settingsStore.numberOfFailedTokenTrials + 1;
       adjustTokenTrialNumber(value);
-      print(value);
       if (_failureCounter >= maxFailedTrials) {
         final banDuration = await ban();
         state = AuthenticationBanned(
@@ -200,38 +207,15 @@ abstract class Setup2FAViewModelBase with Store {
   @observable
   ObservableList<VerboseControlSettings> selected2FASettings;
 
-  //! The code here works, but can be improved
-  //! Still trying out various ways to improve it
-  @action
-  void selectCakePreset(Cake2FAPresetsOptions cake2FAPreset) {
-    // The tabs are ordered in the format [Narrow || Normal || Verbose]
-    // Where Narrow = 0, Normal = 1 and Verbose =  2
-    switch (cake2FAPreset) {
-      case Cake2FAPresetsOptions.narrow:
-        activateCake2FANarrowPreset();
-        break;
-      case Cake2FAPresetsOptions.normal:
-        activateCake2FANormalPreset();
-        break;
-      case Cake2FAPresetsOptions.aggressive:
-        activateCake2FAAggressivePreset();
-        break;
-      default:
-        activateCake2FANormalPreset();
-    }
-  }
-
   @action
   void checkIfTheCurrentSettingMatchesAnyOfThePresets() {
     final hasNormalPreset = checkIfTheNormalPresetIsPresent();
     final hasNarrowPreset = checkIfTheNarrowPresetIsPresent();
     final hasVerbosePreset = checkIfTheVerbosePresetIsPresent();
 
-    if (hasNormalPreset || hasNarrowPreset || hasVerbosePreset) {
-      unhighlightTabs = false;
-    } else {
-      unhighlightTabs = true;
-    }
+    if (hasNormalPreset || hasNarrowPreset || hasVerbosePreset) return;
+
+    noCake2FAPresetSelected();
   }
 
   @action
@@ -287,32 +271,8 @@ abstract class Setup2FAViewModelBase with Store {
   }
 
   @action
-  void activateCake2FANormalPreset() {
-    _settingsStore.selectedCake2FAPreset = Cake2FAPresetsOptions.normal;
-    setAllControlsToFalse();
-    switchShouldRequireTOTP2FAForSendsToNonContact(true);
-    switchShouldRequireTOTP2FAForSendsToContact(true);
-    switchShouldRequireTOTP2FAForSendsToInternalWallets(true);
-    switchShouldRequireTOTP2FAForExchangesToInternalWallets(true);
-    switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings(true);
-  }
-
-  @action
-  void activateCake2FANarrowPreset() {
-    _settingsStore.selectedCake2FAPreset = Cake2FAPresetsOptions.narrow;
-    setAllControlsToFalse();
-    switchShouldRequireTOTP2FAForSendsToNonContact(true);
-    switchShouldRequireTOTP2FAForAddingContacts(true);
-    switchShouldRequireTOTP2FAForCreatingNewWallet(true);
-    switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings(true);
-  }
-
-  @action
-  void activateCake2FAAggressivePreset() {
-    _settingsStore.selectedCake2FAPreset = Cake2FAPresetsOptions.aggressive;
-    setAllControlsToFalse();
-    switchShouldRequireTOTP2FAForAccessingWallet(true);
-    switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings(true);
+  void noCake2FAPresetSelected() {
+    _settingsStore.selectedCake2FAPreset = Cake2FAPresetsOptions.none;
   }
 
   @action
@@ -323,96 +283,122 @@ abstract class Setup2FAViewModelBase with Store {
     switchShouldRequireTOTP2FAForAddingContacts(false);
     switchShouldRequireTOTP2FAForCreatingNewWallet(false);
     switchShouldRequireTOTP2FAForExchangesToInternalWallets(false);
+    switchShouldRequireTOTP2FAForExchangesToExternalWallets(false);
     switchShouldRequireTOTP2FAForSendsToInternalWallets(false);
     switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings(false);
     selected2FASettings.clear();
     unhighlightTabs = false;
   }
 
+  final Map<Cake2FAPresetsOptions, List<VerboseControlSettings>> presetsMap = {
+    Cake2FAPresetsOptions.normal: [
+      VerboseControlSettings.sendsToContacts,
+      VerboseControlSettings.sendsToNonContacts,
+      VerboseControlSettings.sendsToInternalWallets,
+      VerboseControlSettings.securityAndBackupSettings,
+      VerboseControlSettings.exchangesToInternalWallets
+    ],
+    Cake2FAPresetsOptions.narrow: [
+      VerboseControlSettings.addingContacts,
+      VerboseControlSettings.sendsToNonContacts,
+      VerboseControlSettings.creatingNewWallets,
+      VerboseControlSettings.securityAndBackupSettings,
+    ],
+    Cake2FAPresetsOptions.aggressive: [
+      VerboseControlSettings.accessWallet,
+      VerboseControlSettings.securityAndBackupSettings,
+    ],
+    Cake2FAPresetsOptions.none: [],
+  };
+
   @action
-  void switchShouldRequireTOTP2FAForAccessingWallet(bool value) {
-    _settingsStore.shouldRequireTOTP2FAForAccessingWallet = value;
-    if (value) {
-      selected2FASettings.add(VerboseControlSettings.accessWallet);
-    } else {
-      selected2FASettings.remove(VerboseControlSettings.accessWallet);
-    }
-    checkIfTheCurrentSettingMatchesAnyOfThePresets();
+  void selectCakePreset(Cake2FAPresetsOptions preset) {
+    setAllControlsToFalse();
+    presetsMap[preset]?.forEach(toggleControl);
+    _settingsStore.selectedCake2FAPreset = preset;
+  }
+
+  @action
+  void toggleControl(VerboseControlSettings control, [bool value = true]) {
+    final methodsMap = {
+      VerboseControlSettings.sendsToContacts: switchShouldRequireTOTP2FAForSendsToContact,
+      VerboseControlSettings.accessWallet: switchShouldRequireTOTP2FAForAccessingWallet,
+      VerboseControlSettings.addingContacts: switchShouldRequireTOTP2FAForAddingContacts,
+      VerboseControlSettings.creatingNewWallets: switchShouldRequireTOTP2FAForCreatingNewWallet,
+      VerboseControlSettings.sendsToNonContacts: switchShouldRequireTOTP2FAForSendsToNonContact,
+      VerboseControlSettings.sendsToInternalWallets:
+          switchShouldRequireTOTP2FAForSendsToInternalWallets,
+      VerboseControlSettings.securityAndBackupSettings:
+          switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+      VerboseControlSettings.exchangesToInternalWallets:
+          switchShouldRequireTOTP2FAForExchangesToInternalWallets,
+      VerboseControlSettings.exchangesToExternalWallets:
+          switchShouldRequireTOTP2FAForExchangesToExternalWallets,
+    };
+
+    methodsMap[control]?.call(value);
   }
 
   @action
   void switchShouldRequireTOTP2FAForSendsToContact(bool value) {
     _settingsStore.shouldRequireTOTP2FAForSendsToContact = value;
-    if (value) {
-      selected2FASettings.add(VerboseControlSettings.sendsToContacts);
-    } else {
-      selected2FASettings.remove(VerboseControlSettings.sendsToContacts);
-    }
-    checkIfTheCurrentSettingMatchesAnyOfThePresets();
+    updateSelectedSettings(VerboseControlSettings.sendsToContacts, value);
+  }
+
+  @action
+  void switchShouldRequireTOTP2FAForAccessingWallet(bool value) {
+    _settingsStore.shouldRequireTOTP2FAForAccessingWallet = value;
+    updateSelectedSettings(VerboseControlSettings.accessWallet, value);
   }
 
   @action
   void switchShouldRequireTOTP2FAForSendsToNonContact(bool value) {
     _settingsStore.shouldRequireTOTP2FAForSendsToNonContact = value;
-    if (value) {
-      selected2FASettings.add(VerboseControlSettings.sendsToNonContacts);
-    } else {
-      selected2FASettings.remove(VerboseControlSettings.sendsToNonContacts);
-    }
-    checkIfTheCurrentSettingMatchesAnyOfThePresets();
+    updateSelectedSettings(VerboseControlSettings.sendsToNonContacts, value);
   }
 
   @action
   void switchShouldRequireTOTP2FAForSendsToInternalWallets(bool value) {
     _settingsStore.shouldRequireTOTP2FAForSendsToInternalWallets = value;
-    if (value) {
-      selected2FASettings.add(VerboseControlSettings.sendsToInternalWallets);
-    } else {
-      selected2FASettings.remove(VerboseControlSettings.sendsToInternalWallets);
-    }
-    checkIfTheCurrentSettingMatchesAnyOfThePresets();
+    updateSelectedSettings(VerboseControlSettings.sendsToInternalWallets, value);
   }
 
   @action
   void switchShouldRequireTOTP2FAForExchangesToInternalWallets(bool value) {
     _settingsStore.shouldRequireTOTP2FAForExchangesToInternalWallets = value;
-    if (value) {
-      selected2FASettings.add(VerboseControlSettings.exchangesToInternalWallets);
-    } else {
-      selected2FASettings.remove(VerboseControlSettings.exchangesToInternalWallets);
-    }
-    checkIfTheCurrentSettingMatchesAnyOfThePresets();
+    updateSelectedSettings(VerboseControlSettings.exchangesToInternalWallets, value);
+  }
+
+  @action
+  void switchShouldRequireTOTP2FAForExchangesToExternalWallets(bool value) {
+    _settingsStore.shouldRequireTOTP2FAForExchangesToExternalWallets = value;
+    updateSelectedSettings(VerboseControlSettings.exchangesToExternalWallets, value);
   }
 
   @action
   void switchShouldRequireTOTP2FAForAddingContacts(bool value) {
     _settingsStore.shouldRequireTOTP2FAForAddingContacts = value;
-    if (value)
-      selected2FASettings.add(VerboseControlSettings.addingContacts);
-    else {
-      selected2FASettings.remove(VerboseControlSettings.addingContacts);
-    }
-    checkIfTheCurrentSettingMatchesAnyOfThePresets();
+    updateSelectedSettings(VerboseControlSettings.addingContacts, value);
   }
 
   @action
   void switchShouldRequireTOTP2FAForCreatingNewWallet(bool value) {
     _settingsStore.shouldRequireTOTP2FAForCreatingNewWallets = value;
-    if (value) {
-      selected2FASettings.add(VerboseControlSettings.creatingNewWallets);
-    } else {
-      selected2FASettings.remove(VerboseControlSettings.creatingNewWallets);
-    }
-    checkIfTheCurrentSettingMatchesAnyOfThePresets();
+    updateSelectedSettings(VerboseControlSettings.creatingNewWallets, value);
   }
 
   @action
   void switchShouldRequireTOTP2FAForAllSecurityAndBackupSettings(bool value) {
     _settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings = value;
-    if (value)
-      selected2FASettings.add(VerboseControlSettings.securityAndBackupSettings);
-    else {
-      selected2FASettings.remove(VerboseControlSettings.securityAndBackupSettings);
+    updateSelectedSettings(VerboseControlSettings.securityAndBackupSettings, value);
+  }
+
+  @action
+  void updateSelectedSettings(VerboseControlSettings control, bool value) {
+    if (value) {
+      selected2FASettings.add(control);
+    } else {
+      selected2FASettings.remove(control);
     }
     checkIfTheCurrentSettingMatchesAnyOfThePresets();
   }

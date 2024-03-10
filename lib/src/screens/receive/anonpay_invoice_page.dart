@@ -4,7 +4,7 @@ import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/entities/receive_page_option.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_input_form.dart';
@@ -99,7 +99,7 @@ class AnonPayInvoicePage extends BasePage {
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(bottom: 24),
           content: Container(
-            decoration: ResponsiveLayoutUtil.instance.isMobile ? BoxDecoration(
+            decoration: responsiveLayoutUtil.shouldRenderMobileUI ? BoxDecoration(
               borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
               gradient: LinearGradient(

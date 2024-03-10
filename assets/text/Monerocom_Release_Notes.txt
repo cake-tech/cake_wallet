@@ -1,3 +1,2 @@
-Enhance Monero coin control
-Add Filipino localization
-Bug Fixes
+New themes
+Bug fixes and enhancements
