@@ -446,8 +446,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool _isEqualCurrency(String currency) =>
       wallet.balance.keys.any((e) => currency.toLowerCase() == e.title.toLowerCase());
 
-  TransactionPriority get getBitcoinTransactionPriorityCustom =>
-      bitcoin!.getBitcoinTransactionPriorityCustom();
+  TransactionPriority? get getBitcoinTransactionPriorityCustom =>
+      bitcoin?.getBitcoinTransactionPriorityCustom();
 
   @action
   void onClose() => _settingsStore.fiatCurrency = fiatFromSettings;
