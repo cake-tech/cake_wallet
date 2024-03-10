@@ -283,7 +283,7 @@ abstract class MoneroWalletBase
           address: address!,
           amount: amount,
           priorityRaw: _credentials.priority == MoneroTransactionPriority.automatic
-              ? MoneroTransactionPriority.medium.serialize()
+              ? MoneroTransactionPriority.medium.serialize() // TODO: that was a temp fix when p2p surged
               : _credentials.priority.serialize(),
           accountIndex: walletAddresses.account!.id,
           preferredInputs: inputs);
