@@ -216,7 +216,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const usdcEPoly = CryptoCurrency(title: 'USDC.E', tag: 'POLY', fullName: 'USD Coin (PoS)', raw: 88, name: 'usdcepoly', iconPath: 'assets/images/usdc_icon.png', decimals: 6);
   static const kaspa = CryptoCurrency(title: 'KAS', fullName: 'Kaspa', raw: 89, name: 'kas', iconPath: 'assets/images/kaspa_icon.png', decimals: 8);
   static const digibyte = CryptoCurrency(title: 'DGB', fullName: 'DigiByte', raw: 90, name: 'dgb', iconPath: 'assets/images/digibyte.png', decimals: 8);
-  static const usdtSol = CryptoCurrency(title: 'USDT', tag: 'SOL', fullName: 'USDT Tether', raw: 90, name: 'usdtsol', iconPath: 'assets/images/usdt_icon.png', decimals: 6);
+  static const usdtSol = CryptoCurrency(title: 'USDT', tag: 'SOL', fullName: 'USDT Tether', raw: 91, name: 'usdtsol', iconPath: 'assets/images/usdt_icon.png', decimals: 6);
 
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =

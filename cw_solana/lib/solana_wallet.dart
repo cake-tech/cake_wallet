@@ -165,16 +165,6 @@ abstract class SolanaWalletBase
         throw Exception("Solana Node connection failed");
       }
 
-      try {
-        await Future.wait([
-          _updateBalance(),
-          _updateNativeSOLTransactions(),
-          _updateSPLTokenTransactions(),
-        ]);
-      } catch (e) {
-        log(e.toString());
-      }
-
       _setTransactionUpdateTimer();
 
       syncStatus = ConnectedSyncStatus();

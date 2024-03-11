@@ -16,6 +16,7 @@ jobs:
     env:
       STORE_PASS: test@cake_wallet
       KEY_PASS: test@cake_wallet
+      PR_NUMBER: ${{ github.event.number }}
 
     steps:
       - name: is pr
@@ -150,10 +151,7 @@ jobs:
 
       - name: Rename app
         run: |
-          hash=`sha512sum <<<"${{ env.BRANCH_NAME }}"`
-          substring=${hash:0:15}
-          echo substring
-          echo -e "id=com.cakewallet.test_$(substring)\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
+          echo -e "id=com.cakewallet.test_${{ env.PR_NUMBER }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
 
       - name: Build
         run: |

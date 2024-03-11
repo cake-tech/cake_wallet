@@ -1,7 +1,7 @@
 #!/bin/sh
 
 . ./config.sh
-MONERO_BRANCH=release-v0.18.2.2-android
+MONERO_BRANCH=release-v0.18.2.2-android_tx_priority_fix
 MONERO_SRC_DIR=${WORKDIR}/monero
 
 git clone https://github.com/cake-tech/monero.git ${MONERO_SRC_DIR} --branch ${MONERO_BRANCH}
