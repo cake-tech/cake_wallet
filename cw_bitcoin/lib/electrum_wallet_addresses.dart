@@ -57,8 +57,15 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           hrp: network == BitcoinNetwork.testnet ? 'tsp' : 'sp');
 
       if (silentAddresses.length == 0)
-        silentAddresses.add(BitcoinSilentPaymentAddressRecord(silentAddress.toString(),
-            index: 1, isHidden: false, name: "", silentPaymentTweak: null, network: network));
+        silentAddresses.add(BitcoinSilentPaymentAddressRecord(
+          silentAddress.toString(),
+          index: 1,
+          isHidden: false,
+          name: "",
+          silentPaymentTweak: null,
+          network: network,
+          type: SilentPaymentsAddresType.p2sp,
+        ));
     }
 
     updateAddressesByMatch();
@@ -267,6 +274,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         silentPaymentTweak:
             BytesUtils.toHexString(silentAddress!.generateLabel(currentSilentAddressIndex)),
         network: network,
+        type: SilentPaymentsAddresType.p2sp,
       );
 
       silentAddresses.add(address);

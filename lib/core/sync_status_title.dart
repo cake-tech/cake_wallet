@@ -40,5 +40,9 @@ String syncStatusTitle(SyncStatus syncStatus) {
     return S.current.sync_status_unsupported;
   }
 
+  if (syncStatus is TimedOutSyncStatus) {
+    return S.current.sync_status_timed_out;
+  }
+
   return '';
 }

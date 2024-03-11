@@ -637,6 +637,7 @@
   "sync_status_starting_sync": "STARTE SYNCHRONISIERUNG",
   "sync_status_syncronized": "SYNCHRONISIERT",
   "sync_status_syncronizing": "SYNCHRONISIERE",
+  "sync_status_timed_out": "Zeitlich abgestimmt",
   "sync_status_unsupported": "Nicht unterstützter Knoten",
   "syncing_wallet_alert_content": "Ihr Kontostand und Ihre Transaktionsliste sind möglicherweise erst vollständig, wenn oben „SYNCHRONISIERT“ steht. Klicken/tippen Sie, um mehr zu erfahren.",
   "syncing_wallet_alert_title": "Ihr Wallet wird synchronisiert",

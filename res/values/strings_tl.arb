@@ -636,6 +636,7 @@
   "sync_status_starting_sync": "Simula sa pag -sync",
   "sync_status_syncronized": "Naka -synchronize",
   "sync_status_syncronizing": "Pag -synchronize",
+  "sync_status_timed_out": "Nag -time out",
   "sync_status_unsupported": "Hindi suportadong node",
   "syncing_wallet_alert_content": "Ang iyong balanse at listahan ng transaksyon ay maaaring hindi kumpleto hanggang sa sabihin nito na \"naka -synchronize\" sa tuktok. Mag -click/tap upang malaman ang higit pa.",
   "syncing_wallet_alert_title": "Ang iyong pitaka ay nag -sync",

@@ -63,6 +63,13 @@ class UnsupportedSyncStatus extends SyncStatus {
   double progress() => 1.0;
 }
 
+class TimedOutSyncStatus extends SyncStatus {
+  @override
+  double progress() => 1.0;
+  @override
+  String toString() => 'Timed out';
+}
+
 class LostConnectionSyncStatus extends SyncStatus {
   @override
   double progress() => 1.0;

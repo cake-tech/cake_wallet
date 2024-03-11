@@ -637,6 +637,7 @@
   "sync_status_starting_sync": "同期の開始",
   "sync_status_syncronized": "同期された",
   "sync_status_syncronizing": "同期",
+  "sync_status_timed_out": "タイムアウトしました",
   "sync_status_unsupported": "サポートされていないノード",
   "syncing_wallet_alert_content": "上部に「同期済み」と表示されるまで、残高と取引リストが完了していない可能性があります。詳細については、クリック/タップしてください。",
   "syncing_wallet_alert_title": "ウォレットは同期中です",

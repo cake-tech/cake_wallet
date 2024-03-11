@@ -637,6 +637,7 @@
   "sync_status_starting_sync": "НАЧАЛО СИНХРОНИЗАЦИИ",
   "sync_status_syncronized": "СИНХРОНИЗИРОВАН",
   "sync_status_syncronizing": "СИНХРОНИЗАЦИЯ",
+  "sync_status_timed_out": "ВРЕМЯ ВЫШЛО",
   "sync_status_unsupported": "Неподдерживаемый узел",
   "syncing_wallet_alert_content": "Ваш баланс и список транзакций могут быть неполными, пока вверху не будет написано «СИНХРОНИЗИРОВАНО». Щелкните/коснитесь, чтобы узнать больше.",
   "syncing_wallet_alert_title": "Ваш кошелек синхронизируется",

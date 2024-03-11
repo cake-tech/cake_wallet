@@ -44,6 +44,8 @@ import 'package:http/http.dart' as http;
 
 part 'electrum_wallet.g.dart';
 
+const SCANNING_BLOCK_COUNT = 50;
+
 class ElectrumWallet = ElectrumWalletBase with _$ElectrumWallet;
 
 abstract class ElectrumWalletBase
@@ -72,8 +74,12 @@ abstract class ElectrumWalletBase
         _scripthashesUpdateSubject = {},
         balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of(currency != null
             ? {
-                currency:
-                    initialBalance ?? const ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0)
+                currency: initialBalance ??
+                    ElectrumBalance(
+                      confirmed: 0,
+                      unconfirmed: 0,
+                      frozen: 0,
+                    )
               }
             : {}),
         this.unspentCoinsInfo = unspentCoinsInfo,
@@ -194,9 +200,9 @@ abstract class ElectrumWalletBase
         ));
 
     await for (var message in receivePort) {
-      if (message is bool) {
+      if (message is bool && message == false) {
         nodeSupportsSilentPayments = message;
-        syncStatus = UnsupportedSyncStatus();
+        syncStatus = TimedOutSyncStatus();
       }
 
       if (message is Map<String, ElectrumTransactionInfo>) {
@@ -238,7 +244,7 @@ abstract class ElectrumWalletBase
 
             await transactionHistory.save();
             await updateUnspent();
-            await save();
+            await updateBalance();
           }
         }
       }
@@ -320,7 +326,6 @@ abstract class ElectrumWalletBase
       {int? inputsCount,
       bool? hasSilentPayment}) async {
     final utxos = <UtxoWithAddress>[];
-    List<ECPrivate> privateKeys = [];
 
     var leftAmount = credentialsAmount;
     var allInputsAmount = 0;
@@ -340,13 +345,15 @@ abstract class ElectrumWalletBase
         final address = _addressTypeFromStr(utx.address, network);
 
         ECPrivate? privkey;
+        bool? isSilentPayment = false;
         if (utx.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
-          privkey = walletAddresses.silentAddress!.b_spend.clone().tweakAdd(
-                BigintUtils.fromBytes(BytesUtils.fromHexString(
-                    (utx.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord)
-                        .silentPaymentTweak!)),
-              );
+          privkey = walletAddresses.silentAddress!.b_spend.tweakAdd(
+            BigintUtils.fromBytes(BytesUtils.fromHexString(
+                (utx.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord)
+                    .silentPaymentTweak!)),
+          );
           spendsSilentPayment = true;
+          isSilentPayment = true;
         } else {
           privkey = generateECPrivate(
               hd: utx.bitcoinAddressRecord.isHidden
@@ -356,7 +363,6 @@ abstract class ElectrumWalletBase
               network: network);
         }
 
-        privateKeys.add(privkey);
         inputPrivKeyInfos.add(ECPrivateInfo(privkey, address.type == SegwitAddresType.p2tr));
         inputPubKeys.add(privkey.getPublic());
         vinOutpoints.add(Outpoint(txid: utx.hash, index: utx.vout));
@@ -368,6 +374,7 @@ abstract class ElectrumWalletBase
               value: BigInt.from(utx.value),
               vout: utx.vout,
               scriptType: _getScriptType(address),
+              isSilentPayment: isSilentPayment,
             ),
             ownerDetails:
                 UtxoAddressDetails(publicKey: privkey.getPublic().toHex(), address: address),
@@ -485,7 +492,7 @@ abstract class ElectrumWalletBase
 
     return EstimatedTxResult(
         utxos: utxos,
-        privateKeys: privateKeys,
+        inputPrivKeyInfos: inputPrivKeyInfos,
         fee: fee,
         amount: amount,
         spendsSilentPayment: spendsSilentPayment);
@@ -535,8 +542,13 @@ abstract class ElectrumWalletBase
       }
 
       final estimatedTx = await _estimateTxFeeAndInputsToUse(
-          credentialsAmount, sendAll, outputAddresses, outputs, transactionCredentials,
-          hasSilentPayment: hasSilentPayment);
+        credentialsAmount,
+        sendAll,
+        outputAddresses,
+        outputs,
+        transactionCredentials,
+        hasSilentPayment: hasSilentPayment,
+      );
 
       final txb = BitcoinTransactionBuilder(
           utxos: estimatedTx.utxos,
@@ -545,17 +557,21 @@ abstract class ElectrumWalletBase
           network: network);
 
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
-        final key = estimatedTx.privateKeys
-            .firstWhereOrNull((element) => element.getPublic().toHex() == publicKey);
+        final key = estimatedTx.inputPrivKeyInfos
+            .firstWhereOrNull((element) => element.privkey.getPublic().toHex() == publicKey);
 
         if (key == null) {
           throw Exception("Cannot find private key");
         }
 
         if (utxo.utxo.isP2tr()) {
-          return key.signTapRoot(txDigest, sighash: sighash);
+          return key.privkey.signTapRoot(
+            txDigest,
+            sighash: sighash,
+            tweak: utxo.utxo.isSilentPayment != true,
+          );
         } else {
-          return key.signInput(txDigest, sigHash: sighash);
+          return key.privkey.signInput(txDigest, sigHash: sighash);
         }
       });
 
@@ -820,7 +836,9 @@ abstract class ElectrumWalletBase
           (await http.get(Uri.parse("https://blockstream.info/testnet/api/tx/$hash/status"))).body);
 
       time = status["block_time"] as int?;
-      confirmations = currentChainTip! - (status["block_height"] as int? ?? 0);
+      final height = status["block_height"] as int? ?? 0;
+      confirmations =
+          height > 0 ? (await electrumClient.getCurrentBlockChainTip())! - height + 1 : 0;
     } else {
       final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
 
@@ -1056,6 +1074,19 @@ abstract class ElectrumWalletBase
 
   Future<void> updateBalance() async {
     balance[currency] = await _fetchBalances();
+
+    // Update balance stored from scanned silent payment transactions
+    try {
+      transactionHistory.transactions.values.forEach((tx) {
+        if (tx.unspents != null) {
+          balance[currency]!.confirmed += tx.unspents!
+              .where((unspent) => unspent.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord)
+              .map((e) => e.value)
+              .reduce((value, element) => value + element);
+        }
+      });
+    } catch (_) {}
+
     await save();
   }
 
@@ -1194,9 +1225,9 @@ Future<void> startRefresh(ScanData scanData) async {
     try {
       final electrumClient = await getElectrumConnection();
 
-      List<dynamic>? tweaks;
+      Map<String, dynamic>? tweaks;
       try {
-        tweaks = await electrumClient.getTweaks(height: syncHeight);
+        tweaks = await electrumClient.getTweaks(height: syncHeight, count: SCANNING_BLOCK_COUNT);
       } catch (e) {
         if (e is RequestFailedTimeoutException) {
           return scanData.sendPort.send(false);
@@ -1208,133 +1239,103 @@ Future<void> startRefresh(ScanData scanData) async {
             SyncingSyncStatus.fromHeightValues(currentChainTip, initialSyncHeight, syncHeight)));
       }
 
-      for (var i = 0; i < tweaks!.length; i++) {
+      final blockHeights = tweaks!.keys;
+      for (var i = 0; i < blockHeights.length; i++) {
         try {
-          final details = tweaks[i] as Map<String, dynamic>;
-          final outputPubkeys = (details["output_pubkeys"] as List<dynamic>);
-          final tweak = details["tweak"].toString();
+          final blockHeight = blockHeights.elementAt(i).toString();
+          final blockTweaks = tweaks[blockHeight] as Map<String, dynamic>;
 
-          // TODO: if tx already scanned & stored skip
-          // if (scanData.transactionHistoryIds.contains(txid)) {
-          //   // already scanned tx, continue to next tx
-          //   pos++;
-          //   continue;
-          // }
+          for (var j = 0; j < blockTweaks.keys.length; j++) {
+            final txid = blockTweaks.keys.elementAt(j);
+            final details = blockTweaks[txid] as Map<String, dynamic>;
+            final outputPubkeys = (details["output_pubkeys"] as Map<dynamic, dynamic>);
+            final tweak = details["tweak"].toString();
 
-          final spb = SilentPaymentBuilder(receiverTweak: tweak);
-          final result = spb.scanOutputs(
-            scanData.silentAddress.b_scan,
-            scanData.silentAddress.B_spend,
-            outputPubkeys
-                .map((output) =>
-                    BytesUtils.toHexString(BytesUtils.fromHexString(output.toString()).sublist(2))
-                        .toString())
-                .toList(),
-            precomputedLabels: scanData.labels,
-          );
-
-          if (result.isEmpty) {
-            // no results tx, continue to next tx
-            continue;
-          }
-
-          result.forEach((key, value) async {
-            final t_k = value[0];
-            final address = ECPublic.fromHex(key).toTaprootAddress().toAddress(scanData.network);
-
-            final listUnspent =
-                await electrumClient.getListUnspentWithAddress(address, scanData.network);
-
-            BitcoinUnspent? info;
-            await Future.forEach<Map<String, dynamic>>(listUnspent, (unspent) async {
-              try {
-                final addressRecord = BitcoinSilentPaymentAddressRecord(address,
-                    index: 0,
-                    isHidden: false,
-                    isUsed: true,
-                    network: scanData.network,
-                    silentPaymentTweak: t_k);
-                info = BitcoinUnspent.fromJSON(addressRecord, unspent);
-              } catch (_) {}
-            });
-
-            if (info == null) {
-              return;
-            }
-
-            // final tweak = value[0];
-            // String? label;
-            // if (value.length > 1) label = value[1];
-
-            final tx = info!;
-            final txInfo = ElectrumTransactionInfo(
-              WalletType.bitcoin,
-              id: tx.hash,
-              height: syncHeight,
-              amount: 0, // will be added later via unspent
-              fee: 0,
-              direction: TransactionDirection.incoming,
-              isPending: false,
-              date: DateTime.now(),
-              confirmations: currentChainTip - syncHeight - 1,
-              to: scanData.silentAddress.toString(),
-              unspents: [tx],
+            final spb = SilentPaymentBuilder(receiverTweak: tweak);
+            final addToWallet = spb.scanOutputs(
+              scanData.silentAddress.b_scan,
+              scanData.silentAddress.B_spend,
+              outputPubkeys.values
+                  .map((o) => getScriptFromOutput(
+                      o["pubkey"].toString(), int.parse(o["amount"].toString())))
+                  .toList(),
+              precomputedLabels: scanData.labels,
             );
 
-            // bool spent = false;
-            // for (final s in status) {
-            //   if ((s["spent"] as bool) == true) {
-            //     spent = true;
+            if (addToWallet.isEmpty) {
+              // no results tx, continue to next tx
+              continue;
+            }
 
-            //     scanData.sendPort.send({txid: txInfo});
+            addToWallet.forEach((key, value) async {
+              final t_k = value.tweak;
 
-            //     final sentTxId = s["txid"] as String;
-            //     final sentTx = json.decode(
-            //         (await http.get(Uri.parse("https://blockstream.info/testnet/api/tx/$sentTxId")))
-            //             .body);
+              final addressRecord = BitcoinSilentPaymentAddressRecord(
+                value.output.address.toAddress(scanData.network),
+                index: 0,
+                isHidden: false,
+                isUsed: true,
+                network: scanData.network,
+                silentPaymentTweak: t_k,
+                type: SegwitAddresType.p2tr,
+              );
 
-            //     int amount = 0;
-            //     for (final out in (sentTx["vout"] as List<dynamic>)) {
-            //       amount += out["value"] as int;
-            //     }
+              int? amount;
+              int? pos;
+              outputPubkeys.entries.firstWhere((k) {
+                final matches = k.value["pubkey"] == key;
+                if (matches) {
+                  amount = int.parse(k.value["amount"].toString());
+                  pos = int.parse(k.key.toString());
+                  return true;
+                }
+                return false;
+              });
 
-            //     final height = s["status"]["block_height"] as int;
+              final json = <String, dynamic>{
+                'address_record': addressRecord.toJSON(),
+                'tx_hash': txid,
+                'value': amount!,
+                'tx_pos': pos!,
+                'silent_payment_tweak': t_k,
+              };
 
-            //     scanData.sendPort.send({
-            //       sentTxId: ElectrumTransactionInfo(
-            //         WalletType.bitcoin,
-            //         id: sentTxId,
-            //         height: height,
-            //         amount: amount,
-            //         fee: 0,
-            //         direction: TransactionDirection.outgoing,
-            //         isPending: false,
-            //         date: DateTime.fromMillisecondsSinceEpoch(
-            //             (s["status"]["block_time"] as int) * 1000),
-            //         confirmations: currentChainTip - height,
-            //       )
-            //     });
-            //   }
-            // }
+              final tx = BitcoinUnspent.fromJSON(addressRecord, json);
 
-            // if (spent) {
-            //   return;
-            // }
+              final txInfo = ElectrumTransactionInfo(
+                WalletType.bitcoin,
+                id: tx.hash,
+                height: syncHeight,
+                amount: 0, // will be added later via unspent
+                fee: 0,
+                direction: TransactionDirection.incoming,
+                isPending: false,
+                date: DateTime.now(),
+                confirmations: currentChainTip - syncHeight - 1,
+                to: value.label != null
+                    ? SilentPaymentAddress(
+                        version: scanData.silentAddress.version,
+                        B_scan: scanData.silentAddress.B_scan
+                            .tweakAdd(BigintUtils.fromBytes(BytesUtils.fromHexString(value.tweak))),
+                        B_spend: scanData.silentAddress.B_spend,
+                        hrp: scanData.silentAddress.hrp,
+                      ).toString()
+                    : scanData.silentAddress.toString(),
+                unspents: [tx],
+              );
 
-            // found utxo for tx, send unspent coin to main isolate
-            // scanData.sendPort.send(txInfo);
+              scanData.sendPort.send({txInfo.id: txInfo});
+            });
+          }
+        } catch (e, s) {
+          print([e, s]);
+        }
 
-            // also send tx data for tx history
-            scanData.sendPort.send({txInfo.id: txInfo});
-          });
-        } catch (_) {}
+        // Finished scanning block, add 1 to height and continue to next block in loop
+        syncHeight += 1;
+        scanData.sendPort.send(SyncResponse(syncHeight,
+            SyncingSyncStatus.fromHeightValues(currentChainTip, initialSyncHeight, syncHeight)));
       }
-
-      // Finished scanning block, add 1 to height and continue to next block in loop
-      syncHeight += 1;
-      currentChainTip = await getNodeHeightOrUpdate(syncHeight);
-      scanData.sendPort.send(SyncResponse(syncHeight,
-          SyncingSyncStatus.fromHeightValues(currentChainTip, initialSyncHeight, syncHeight)));
     } catch (e, stacktrace) {
       print(stacktrace);
       print(e.toString());
@@ -1348,13 +1349,13 @@ Future<void> startRefresh(ScanData scanData) async {
 class EstimatedTxResult {
   EstimatedTxResult(
       {required this.utxos,
-      required this.privateKeys,
+      required this.inputPrivKeyInfos,
       required this.fee,
       required this.amount,
       required this.spendsSilentPayment});
 
   final List<UtxoWithAddress> utxos;
-  final List<ECPrivate> privateKeys;
+  final List<ECPrivateInfo> inputPrivKeyInfos;
   final int fee;
   final int amount;
   final bool spendsSilentPayment;

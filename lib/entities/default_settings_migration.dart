@@ -23,8 +23,8 @@ import 'package:collection/collection.dart';
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
-const publicBitcoinTestnetElectrumAddress = 'electrum.blockstream.info';
-const publicBitcoinTestnetElectrumPort = '60002';
+const publicBitcoinTestnetElectrumAddress = '198.58.111.154';
+const publicBitcoinTestnetElectrumPort = '50002';
 const publicBitcoinTestnetElectrumUri =
     '$publicBitcoinTestnetElectrumAddress:$publicBitcoinTestnetElectrumPort';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';

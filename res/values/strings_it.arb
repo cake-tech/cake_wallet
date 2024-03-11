@@ -638,6 +638,7 @@
   "sync_status_starting_sync": "INIZIO SINC",
   "sync_status_syncronized": "SINCRONIZZATO",
   "sync_status_syncronizing": "SINCRONIZZAZIONE",
+  "sync_status_timed_out": "FUORI TEMPO",
   "sync_status_unsupported": "Nodo non supportato",
   "syncing_wallet_alert_content": "Il saldo e l'elenco delle transazioni potrebbero non essere completi fino a quando non viene visualizzato \"SYNCHRONIZED\" in alto. Clicca/tocca per saperne di più.",
   "syncing_wallet_alert_title": "Il tuo portafoglio si sta sincronizzando",
