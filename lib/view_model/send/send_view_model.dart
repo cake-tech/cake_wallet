@@ -427,9 +427,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   ) {
     if (walletType == WalletType.ethereum ||
         walletType == WalletType.polygon ||
+        walletType == WalletType.solana ||
         walletType == WalletType.haven) {
       if (error.contains('gas required exceeds allowance') ||
-          error.contains('insufficient funds for')) {
+          error.contains('insufficient funds')) {
         return S.current.do_not_have_enough_gas_asset(currency.toString());
       }
 
