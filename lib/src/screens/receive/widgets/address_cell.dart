@@ -81,7 +81,7 @@ class AddressCell extends StatelessWidget {
                 child: Column(
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: name.isNotEmpty ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         if (isChange)
@@ -106,7 +106,7 @@ class AddressCell extends StatelessWidget {
                           ),
                         if (name.isNotEmpty)
                           Text(
-                            '$name - ',
+                            '$name',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,

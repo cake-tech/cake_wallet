@@ -55,7 +55,9 @@ class PrivacyPage extends BasePage {
                   }),
               if (_privacySettingsViewModel.isAutoGenerateSubaddressesVisible)
                 SettingsSwitcherCell(
-                  title: S.current.auto_generate_subaddresses,
+                  title: _privacySettingsViewModel.isMoneroWallet
+                    ? S.current.auto_generate_subaddresses
+                    : S.current.auto_generate_addresses,
                   value: _privacySettingsViewModel.isAutoGenerateSubaddressesEnabled,
                   onValueChange: (BuildContext _, bool value) {
                     _privacySettingsViewModel.setAutoGenerateSubaddresses(value);
