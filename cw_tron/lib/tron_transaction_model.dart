@@ -3,6 +3,7 @@ import 'package:on_chain/on_chain.dart';
 
 class TronTRC20TransactionModel extends TronTransactionModel {
   String? transactionId;
+
   String? tokenSymbol;
 
   int? timestamp;
@@ -27,18 +28,25 @@ class TronTRC20TransactionModel extends TronTransactionModel {
   @override
   int? get fee => 0;
 
-  TronTRC20TransactionModel(
-      {this.transactionId, this.tokenSymbol, this.timestamp, this.from, this.to, this.value});
+  TronTRC20TransactionModel({
+    this.transactionId,
+    this.tokenSymbol,
+    this.timestamp,
+    this.from,
+    this.to,
+    this.value,
+  });
 
   TronTRC20TransactionModel.fromJson(Map<String, dynamic> json) {
     transactionId = json['transaction_id'];
-    tokenSymbol = json['token_info'] != null ? json['token_info']['symbol']: null;
+    tokenSymbol = json['token_info'] != null ? json['token_info']['symbol'] : null;
     timestamp = json['block_timestamp'];
     from = json['from'];
     to = json['to'];
     value = json['value'];
   }
 }
+
 class TronTransactionModel {
   List<Ret>? ret;
   String? txID;

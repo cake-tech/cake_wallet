@@ -21,7 +21,7 @@ class TronClient {
   final httpClient = Client();
   TronProvider? _provider;
 
-  int get chainId => 1;
+  int get chainId => 1000;
 
   Future<List<TronTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
@@ -118,7 +118,7 @@ class TronClient {
     int energyUsed = 0,
   }) async {
     try {
-      // Fetch current Tron chain parameters using TronRequestGetChainParameters.
+      // Get the tron chain parameters.
       final chainParams = await _provider!.request(TronRequestGetChainParameters());
 
       final bandWidthInSun = chainParams.getTransactionFee!;
@@ -144,11 +144,10 @@ class TronClient {
       int neededBandWidth = transactionSize;
       log('Initial Needed Bandwidth: $neededBandWidth');
 
-      // We do not require energy for this operation. Energy is reserved for smart contracts
       int neededEnergy = energyUsed;
       log('Initial Needed Energy: $neededEnergy');
 
-      // We require account resources to assess the available bandwidth and energy
+      // Fetch account resources to assess the available bandwidth and energy
       final accountResource =
           await _provider!.request(TronRequestGetAccountResource(address: address));
 
@@ -156,11 +155,10 @@ class TronClient {
       log('Account resource energy: ${accountResource.howManyEnergy.toInt()}');
       log('Needed Energy after deducting from account resource energy: $neededEnergy');
 
-      // Now, we need to deduct the bandwidth from the account's available bandwidth.
+      // Deduct the bandwidth from the account's available bandwidth.
       final BigInt accountBandWidth = accountResource.howManyBandwIth;
       log('Account resource bandwidth: ${accountResource.howManyBandwIth.toInt()}');
 
-      // If we have sufficient total bandwidth in our account, we set the total bandwidth requirement to zero.
       if (accountBandWidth >= BigInt.from(neededBandWidth)) {
         log('Account has more bandwidth than required');
         // neededBandWidth = 0;
@@ -184,11 +182,11 @@ class TronClient {
         totalBurn += chainParams.getMemoFee!;
       }
 
-      // Check if the receiver account is active
+      // Check if receiver's account is active
       final receiverAccountInfo =
           await _provider!.request(TronRequestGetAccount(address: receiverAddress));
 
-      /// In this scenario, we calculate the required resources for creating a new account.
+      /// Calculate the resources required to create a new account.
       if (receiverAccountInfo == null) {
         totalBurn += chainParams.getCreateNewAccountFeeInSystemContract!;
 
@@ -238,8 +236,6 @@ class TronClient {
       );
     }
 
-    log('Raw transaction id: ${rawTransaction.txID}');
-
     final signature = ownerPrivKey.sign(rawTransaction.toBuffer());
 
     sendTx() async => await sendTransaction(
@@ -261,10 +257,10 @@ class TronClient {
     String amount,
     BigInt tronBalance,
   ) async {
-    // Fetch the latest Tron block using the TronRequestGetNowBlock API.
+    // Fetch the latest Tron block
     final block = await _provider!.request(TronRequestGetNowBlock());
 
-    // create transfer contract
+    // Create the transfer contract
     final contract = TransferContract(
       amount: TronHelper.toSun(amount),
       ownerAddress: ownerAddress,
@@ -292,10 +288,7 @@ class TronClient {
 
     final feeLimit = await getFeeLimit(rawTransaction, ownerAddress, receiverAddress);
 
-    log('Fee Limit: $feeLimit');
-
     final tronBalanceInt = tronBalance.toInt();
-    log('Tron balance: $tronBalanceInt');
 
     if (feeLimit > tronBalanceInt) {
       throw Exception(
@@ -340,8 +333,6 @@ class TronClient {
       log("Tron TRC20 error: ${request.error} \n ${request.respose}");
     }
 
-    log('Energy Used: ${request.energyUsed}');
-
     final feeLimit = await getFeeLimit(
       request.transactionRaw!,
       ownerAddress,
@@ -349,9 +340,7 @@ class TronClient {
       energyUsed: request.energyUsed ?? 0,
     );
 
-    log('Fee: $feeLimit');
     final tronBalanceInt = tronBalance.toInt();
-    log('Tron balance: $tronBalanceInt');
 
     if (feeLimit > tronBalanceInt) {
       throw Exception(
@@ -359,7 +348,6 @@ class TronClient {
       );
     }
 
-    /// get transactionRaw from response and make sure set fee limit
     final rawTransaction = request.transactionRaw!.copyWith(
       feeLimit: BigInt.from(feeLimit),
     );
@@ -445,8 +433,12 @@ class TronClient {
     }
   }
 
-  Future<dynamic> getTokenDetail(ContractABI contract, String functionName,
-      TronAddress ownerAddress, TronAddress tokenAddress) async {
+  Future<dynamic> getTokenDetail(
+    ContractABI contract,
+    String functionName,
+    TronAddress ownerAddress,
+    TronAddress tokenAddress,
+  ) async {
     final function = contract.functionFromName(functionName);
 
     try {

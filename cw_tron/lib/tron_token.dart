@@ -56,14 +56,14 @@ class TronToken extends CryptoCurrency with HiveObjectMixin {
         contractAddress = other.contractAddress,
         decimal = other.decimal,
         _enabled = other.enabled,
-        tag = other.tag,
-        iconPath = icon,
+        tag = tag ?? other.tag,
+        iconPath = icon ?? other.iconPath,
         super(
           name: other.name,
           title: other.symbol.toUpperCase(),
           fullName: other.name,
-          tag: tag,
-          iconPath: icon,
+          tag: tag ?? other.tag,
+          iconPath: icon ?? other.iconPath,
           decimals: other.decimal,
         );
 

@@ -988,7 +988,6 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -1017,19 +1016,10 @@ abstract class Tron {
   WalletCredentials createTronRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createTronRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   String getAddress(WalletBase wallet);
-  String getPrivateKey(WalletBase wallet);
-  String getPublicKey(WalletBase wallet);
 
   Object createTronTransactionCredentials(
     List<Output> outputs, {
     required CryptoCurrency currency,
-    int? feeRate,
-  });
-
-  Object createTronTransactionCredentialsRaw(
-    List<OutputInfo> outputs, {
-    required CryptoCurrency currency,
-    required int feeRate,
   });
 
   List<CryptoCurrency> getTronTokenCurrencies(WalletBase wallet);

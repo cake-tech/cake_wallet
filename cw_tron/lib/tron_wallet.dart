@@ -16,7 +16,6 @@ import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_evm/evm_chain_wallet_addresses.dart';
 import 'package:cw_tron/default_tron_tokens.dart';
 import 'package:cw_tron/file.dart';
 import 'package:cw_tron/tron_abi.dart';
@@ -27,6 +26,7 @@ import 'package:cw_tron/tron_token.dart';
 import 'package:cw_tron/tron_transaction_credentials.dart';
 import 'package:cw_tron/tron_transaction_history.dart';
 import 'package:cw_tron/tron_transaction_info.dart';
+import 'package:cw_tron/tron_wallet_addresses.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:on_chain/on_chain.dart';
@@ -49,7 +49,7 @@ abstract class TronWalletBase
         _mnemonic = mnemonic,
         _hexPrivateKey = privateKey,
         _client = TronClient(),
-        walletAddresses = EVMChainWalletAddresses(walletInfo),
+        walletAddresses = TronWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, TronBalance>.of(
           {CryptoCurrency.trx: initialBalance ?? TronBalance(BigInt.zero)},
         ),
@@ -96,6 +96,26 @@ abstract class TronWalletBase
   late ObservableMap<CryptoCurrency, TronBalance> balance;
 
   Completer<SharedPreferences> sharedPrefs = Completer();
+
+  Future<void> init() async {
+    await initTronTokensBox();
+
+    await walletAddresses.init();
+    await transactionHistory.init();
+    _tronPrivateKey = await getPrivateKey(
+      mnemonic: _mnemonic,
+      privateKey: _hexPrivateKey,
+      password: _password,
+    );
+
+    _tronPublicKey = _tronPrivateKey.publicKey();
+
+    _tronAddress = _tronPublicKey.toAddress().toString();
+
+    walletAddresses.address = _tronAddress;
+
+    await save();
+  }
 
   static Future<TronWallet> open({
     required String name,
@@ -153,40 +173,13 @@ abstract class TronWalletBase
     // Derive a TRON private key from the seed
     final bip44 = Bip44.fromSeed(seed, Bip44Coins.tron);
 
-    // Derive a child key using the default path (first account)
     final childKey = bip44.deriveDefaultPath;
 
     return TronPrivateKey.fromBytes(childKey.privateKey.raw);
   }
 
-  Future<void> init() async {
-    await initTronTokensBox();
-
-    await walletAddresses.init();
-    await transactionHistory.init();
-    _tronPrivateKey = await getPrivateKey(
-      mnemonic: _mnemonic,
-      privateKey: _hexPrivateKey,
-      password: _password,
-    );
-
-    _tronPublicKey = _tronPrivateKey.publicKey();
-
-    _tronAddress = _tronPublicKey.toAddress().toString();
-
-    walletAddresses.address = _tronAddress;
-    
-    await save();
-  }
-
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
-    try {
-      return 0;
-    } catch (e) {
-      return 0;
-    }
-  }
+  int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
 
   @override
   Future<void> changePassword(String password) {
@@ -306,6 +299,10 @@ abstract class TronWalletBase
     final ownerAddress = TronAddress(_tronAddress);
 
     for (var transactionModel in transactions) {
+      if (transactionModel.isError) {
+        continue;
+      }
+      
       String? tokenSymbol;
       if (transactionModel.contractAddress != null) {
         final tokenAddress = TronAddress(transactionModel.contractAddress!);

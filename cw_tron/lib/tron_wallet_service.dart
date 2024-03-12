@@ -50,16 +50,31 @@ class TronWalletService extends WalletService<TronNewWalletCredentials,
   Future<TronWallet> openWallet(String name, String password) async {
     final walletInfo =
         walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-    final wallet = await TronWalletBase.open(
-      name: name,
-      password: password,
-      walletInfo: walletInfo,
-    );
 
-    await wallet.init();
-    await wallet.save();
+    try {
+      final wallet = await TronWalletBase.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
 
-    return wallet;
+      await wallet.init();
+      await wallet.save();
+      saveBackup(name);
+      return wallet;
+    } catch (_) {
+      await restoreWalletFilesFromBackup(name);
+
+      final wallet = await TronWalletBase.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
+
+      await wallet.init();
+      await wallet.save();
+      return wallet;
+    }
   }
 
   @override
@@ -106,10 +121,11 @@ class TronWalletService extends WalletService<TronNewWalletCredentials,
   Future<void> rename(String currentName, String password, String newName) async {
     final currentWalletInfo = walletInfoSource.values
         .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
-    final currentWallet =
-        await TronWalletBase.open(password: password, name: currentName, walletInfo: currentWalletInfo);
+    final currentWallet = await TronWalletBase.open(
+        password: password, name: currentName, walletInfo: currentWalletInfo);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());

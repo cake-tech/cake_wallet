@@ -32,17 +32,10 @@ class CWTron extends Tron {
 
   @override
   String getAddress(WalletBase wallet) => (wallet as TronWallet).walletAddresses.address;
-
-  @override
-  String getPrivateKey(WalletBase wallet) => (wallet as TronWallet).privateKey;
-
-  @override
-  String getPublicKey(WalletBase wallet) => (wallet as TronWallet).tronPublicKey.toHex();
-
+  
   Object createTronTransactionCredentials(
     List<Output> outputs, {
     required CryptoCurrency currency,
-    int? feeRate,
   }) =>
       TronTransactionCredentials(
         outputs
@@ -60,19 +53,6 @@ class CWTron extends Tron {
             )
             .toList(),
         currency: currency,
-        feeRate: feeRate,
-      );
-
-  Object createTronTransactionCredentialsRaw(
-    List<OutputInfo> outputs, {
-    TransactionPriority? priority,
-    required CryptoCurrency currency,
-    required int feeRate,
-  }) =>
-      TronTransactionCredentials(
-        outputs,
-        currency: currency,
-        feeRate: feeRate,
       );
 
   @override

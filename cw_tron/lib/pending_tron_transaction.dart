@@ -26,7 +26,7 @@ class PendingTronTransaction with PendingTransaction {
   String get feeFormatted => fee;
 
   @override
-  String get hex => bytesToHex(signedTransaction, include0x: true);
+  String get hex => bytesToHex(signedTransaction);
 
   @override
   String get id => '';
