@@ -96,9 +96,16 @@ void closeWallet(String walletName) {
   );
 }
 
-Future<void> changeWalletPassword(
-    String walletName, String currentPassword, String newPassword) async {
-  // TODO.
+String changeWalletPassword(
+    String walletName, String currentPassword, String newPassword) {
+  final cName = walletName.toCString();
+  final cCurrentPass = currentPassword.toCString();
+  final cNewPass = newPassword.toCString();
+  final res = executePayloadFn(
+    fn: () => dcrwalletApi.changePassphrase(cName, cCurrentPass, cNewPass),
+    ptrsToFree: [cName, cCurrentPass, cNewPass],
+  );
+  return res.payload;
 }
 
 String? walletSeed(String walletName, String walletPassword) {
