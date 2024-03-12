@@ -28,11 +28,15 @@ void initLibdcrwallet(String logDir) {
 /// createWalletAsync calls the libdcrwallet's createWallet function
 /// asynchronously.
 Future<void> createWalletAsync(
-    {required String name, required String dataDir, required String password}) {
+    {required String name,
+    required String dataDir,
+    required String password,
+    String? mnemonic}) {
   final args = <String, String>{
     "name": name,
     "dataDir": dataDir,
     "password": password,
+    "mnemonic": mnemonic ?? "",
   };
   return compute(createWalletSync, args);
 }
@@ -43,11 +47,13 @@ void createWalletSync(Map<String, String> args) {
   final name = args["name"]!.toCString();
   final dataDir = args["dataDir"]!.toCString();
   final password = args["password"]!.toCString();
+  final mnemonic = args["mnemonic"]!.toCString();
   final network = "testnet".toCString();
 
   executePayloadFn(
-    fn: () => dcrwalletApi.createWallet(name, dataDir, network, password),
-    ptrsToFree: [name, dataDir, network, password],
+    fn: () =>
+        dcrwalletApi.createWallet(name, dataDir, network, password, mnemonic),
+    ptrsToFree: [name, dataDir, network, password, mnemonic],
   );
 }
 

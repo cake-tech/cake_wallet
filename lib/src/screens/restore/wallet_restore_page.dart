@@ -277,6 +277,12 @@ class WalletRestorePage extends BasePage {
       return false;
     }
 
+    if ((walletRestoreViewModel.type == WalletType.decred) &&
+            seedWords.length !=
+                WalletRestoreViewModelBase.decredSeedMnemonicLength) {
+      return false;
+    }
+
     final words =
         walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.words.toSet();
     return seedWords.toSet().difference(words).toSet().isEmpty;
