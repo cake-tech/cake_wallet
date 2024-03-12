@@ -52,7 +52,7 @@ class TronClient {
 
       return [];
     } catch (e, s) {
-      print('Error getting tx: ${e.toString()}\n ${s.toString()}');
+      log('Error getting tx: ${e.toString()}\n ${s.toString()}');
       return [];
     }
   }
@@ -85,7 +85,7 @@ class TronClient {
 
       return [];
     } catch (e, s) {
-      print('Error getting trc20 tx: ${e.toString()}\n ${s.toString()}');
+      log('Error getting trc20 tx: ${e.toString()}\n ${s.toString()}');
       return [];
     }
   }
@@ -337,10 +337,10 @@ class TronClient {
     );
 
     if (!request.isSuccess) {
-      print("Tron TRC20 error: ${request.error} \n ${request.respose}");
+      log("Tron TRC20 error: ${request.error} \n ${request.respose}");
     }
 
-    print('Energy Used: ${request.energyUsed}');
+    log('Energy Used: ${request.energyUsed}');
 
     final feeLimit = await getFeeLimit(
       request.transactionRaw!,
@@ -384,7 +384,7 @@ class TronClient {
         throw Exception(txBroadcastResult.error);
       }
     } catch (e) {
-      print('Send block Exception: ${e.toString()}');
+      log('Send block Exception: ${e.toString()}');
       throw Exception(e);
     }
   }
@@ -463,7 +463,7 @@ class TronClient {
 
       return outputResult;
     } catch (_) {
-      print('Erorr fetching detail: ${_.toString()}');
+      log('Erorr fetching detail: ${_.toString()}');
 
       return null;
     }

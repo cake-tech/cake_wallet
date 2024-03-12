@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
@@ -31,7 +30,6 @@ import 'package:cw_tron/tron_transaction_info.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:on_chain/on_chain.dart';
-import 'package:on_chain/tron/tron.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'tron_wallet.g.dart';
@@ -50,7 +48,6 @@ abstract class TronWalletBase
         _password = password,
         _mnemonic = mnemonic,
         _hexPrivateKey = privateKey,
-        _isTransactionUpdating = false,
         _client = TronClient(),
         walletAddresses = EVMChainWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, TronBalance>.of(
@@ -85,9 +82,6 @@ abstract class TronWalletBase
 
   late TronClient _client;
 
-  bool _isTransactionUpdating;
-
-  // TODO: remove after integrating our own node and having eth_newPendingTransactionFilter
   Timer? _transactionsUpdateTimer;
 
   @override
@@ -181,8 +175,7 @@ abstract class TronWalletBase
     _tronAddress = _tronPublicKey.toAddress().toString();
 
     walletAddresses.address = _tronAddress;
-
-    print('Base58 address: $_tronAddress');
+    
     await save();
   }
 
