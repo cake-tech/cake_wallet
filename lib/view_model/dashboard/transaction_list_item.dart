@@ -119,8 +119,9 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.tron:
         final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        final cryptoAmount = tron!.getTransactionAmountRaw(transaction);
         amount = calculateFiatAmountRaw(
-          cryptoAmount: tron!.getTransactionAmountRaw(transaction),
+          cryptoAmount: cryptoAmount,
           price: price,
         );
         break;

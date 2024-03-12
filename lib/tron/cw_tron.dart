@@ -93,7 +93,8 @@ class CWTron extends Tron {
 
   @override
   double getTransactionAmountRaw(TransactionInfo transactionInfo) {
-    return (transactionInfo as TronTransactionInfo).tronAmount.toDouble();
+    final amount = (transactionInfo as TronTransactionInfo).rawTronAmount();
+    return double.parse(amount);
   }
 
   @override
@@ -109,4 +110,7 @@ class CWTron extends Tron {
   }
 
   String getTokenAddress(CryptoCurrency asset) => (asset as TronToken).contractAddress;
+
+  String getTronBase58Address(String hexAddress, WalletBase wallet) =>
+      (wallet as TronWallet).getTronBase58AddressFromHex(hexAddress);
 }

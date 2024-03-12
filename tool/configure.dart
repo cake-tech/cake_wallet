@@ -979,7 +979,6 @@ abstract class Solana {
   await outputFile.writeAsString(output);
 }
 
-
 Future<void> generateTron(bool hasImplementation) async {
   final outputFile = File(tronOutputPath);
   const tronCommonHeaders = """
@@ -1039,6 +1038,7 @@ abstract class Tron {
   double getTransactionAmountRaw(TransactionInfo transactionInfo);
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   String getTokenAddress(CryptoCurrency asset);
+  String getTronBase58Address(String hexAddress, WalletBase wallet);
 }
   """;
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -13,37 +14,78 @@ import 'package:cw_tron/tron_transaction_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
+import '.secrets.g.dart' as secrets;
 import 'package:on_chain/on_chain.dart';
 
 class TronClient {
   final httpClient = Client();
   TronProvider? _provider;
 
-  int get chainId => 137;
+  int get chainId => 1;
 
   Future<List<TronTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
-      final response = await httpClient.get(Uri.https("api.polygonscan.com", "/api", {
-        "module": "account",
-        "action": contractAddress != null ? "tokentx" : "txlist",
-        if (contractAddress != null) "contractaddress": contractAddress,
-        "address": address,
-        "apikey": 'secrets.polygonScanApiKey',
-      }));
-
+      final response = await httpClient.get(
+        Uri.https(
+          "api.trongrid.io",
+          "/v1/accounts/$address/transactions",
+          {
+            "only_confirmed": "true",
+            "limit": "200",
+          },
+        ),
+        headers: {
+          'Content-Type': 'application/json',
+          'TRON-PRO-API-KEY': secrets.tronGridApiKey,
+        },
+      );
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
-      if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
-        return (jsonResponse['result'] as List)
-            .map(
-              (e) => TronTransactionModel.fromJson(e as Map<String, dynamic>, 'MATIC'),
-            )
-            .toList();
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300 &&
+          jsonResponse['status'] != false) {
+        return (jsonResponse['data'] as List).map((e) {
+          return TronTransactionModel.fromJson(e as Map<String, dynamic>);
+        }).toList();
       }
 
       return [];
-    } catch (e) {
+    } catch (e, s) {
+      print('Error getting tx: ${e.toString()}\n ${s.toString()}');
+      return [];
+    }
+  }
+
+  Future<List<TronTRC20TransactionModel>> fetchTrc20ExcludedTransactions(String address) async {
+    try {
+      final response = await httpClient.get(
+        Uri.https(
+          "api.trongrid.io",
+          "/v1/accounts/$address/transactions/trc20",
+          {
+            "only_confirmed": "true",
+            "limit": "200",
+          },
+        ),
+        headers: {
+          'Content-Type': 'application/json',
+          'TRON-PRO-API-KEY': secrets.tronGridApiKey,
+        },
+      );
+      final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300 &&
+          jsonResponse['status'] != false) {
+        return (jsonResponse['data'] as List).map((e) {
+          return TronTRC20TransactionModel.fromJson(e as Map<String, dynamic>);
+        }).toList();
+      }
+
+      return [];
+    } catch (e, s) {
+      print('Error getting trc20 tx: ${e.toString()}\n ${s.toString()}');
       return [];
     }
   }
@@ -80,15 +122,15 @@ class TronClient {
       final chainParams = await _provider!.request(TronRequestGetChainParameters());
 
       final bandWidthInSun = chainParams.getTransactionFee!;
-      print('BandWidth In Sun: $bandWidthInSun');
+      log('BandWidth In Sun: $bandWidthInSun');
 
       final energyInSun = chainParams.getEnergyFee!;
-      print('Energy In Sun: $energyInSun');
+      log('Energy In Sun: $energyInSun');
 
-      print(
+      log(
         'Create Account Fee In System Contract for Chain: ${chainParams.getCreateNewAccountFeeInSystemContract!}',
       );
-      print('Create Account Fee for Chain: ${chainParams.getCreateAccountFee}');
+      log('Create Account Fee for Chain: ${chainParams.getCreateAccountFee}');
 
       final fakeTransaction = Transaction(
         rawData: rawTransaction,
@@ -100,28 +142,28 @@ class TronClient {
 
       // Assign the calculated size to the variable representing the required bandwidth.
       int neededBandWidth = transactionSize;
-      print('Initial Needed Bandwidth: $neededBandWidth');
+      log('Initial Needed Bandwidth: $neededBandWidth');
 
       // We do not require energy for this operation. Energy is reserved for smart contracts
       int neededEnergy = energyUsed;
-      print('Initial Needed Energy: $neededEnergy');
+      log('Initial Needed Energy: $neededEnergy');
 
       // We require account resources to assess the available bandwidth and energy
       final accountResource =
           await _provider!.request(TronRequestGetAccountResource(address: address));
 
       neededEnergy -= accountResource.howManyEnergy.toInt();
-      print('Account resource energy: ${accountResource.howManyEnergy.toInt()}');
-      print('Needed Energy after deducting from account resource energy: $neededEnergy');
+      log('Account resource energy: ${accountResource.howManyEnergy.toInt()}');
+      log('Needed Energy after deducting from account resource energy: $neededEnergy');
 
       // Now, we need to deduct the bandwidth from the account's available bandwidth.
       final BigInt accountBandWidth = accountResource.howManyBandwIth;
-      print('Account resource bandwidth: ${accountResource.howManyBandwIth.toInt()}');
+      log('Account resource bandwidth: ${accountResource.howManyBandwIth.toInt()}');
 
       // If we have sufficient total bandwidth in our account, we set the total bandwidth requirement to zero.
       if (accountBandWidth >= BigInt.from(neededBandWidth)) {
-        print('Account has more bandwidth than required');
-        neededBandWidth = 0;
+        log('Account has more bandwidth than required');
+        // neededBandWidth = 0;
       }
 
       if (neededEnergy < 0) {
@@ -129,13 +171,13 @@ class TronClient {
       }
 
       final energyBurn = neededEnergy * energyInSun.toInt();
-      print('Energy Burn: $energyBurn');
+      log('Energy Burn: $energyBurn');
 
       final bandWidthBurn = neededBandWidth * bandWidthInSun;
-      print('Bandwidth Burn: $bandWidthBurn');
+      log('Bandwidth Burn: $bandWidthBurn');
 
       int totalBurn = energyBurn + bandWidthBurn;
-      print('Total Burn: $totalBurn');
+      log('Total Burn: $totalBurn');
 
       /// If there is a note (memo), calculate the memo fee.
       if (rawTransaction.data != null) {
@@ -153,7 +195,7 @@ class TronClient {
         totalBurn += (chainParams.getCreateAccountFee! * bandWidthInSun);
       }
 
-      print('Final total burn: $totalBurn');
+      log('Final total burn: $totalBurn');
 
       return totalBurn;
     } catch (_) {
@@ -166,6 +208,7 @@ class TronClient {
     required String toAddress,
     required String amount,
     required CryptoCurrency currency,
+    required BigInt tronBalance,
   }) async {
     // Get the owner tron address from the key
     final ownerAddress = ownerPrivKey.publicKey().toAddress();
@@ -181,6 +224,7 @@ class TronClient {
         ownerAddress,
         receiverAddress,
         amount,
+        tronBalance,
       );
     } else {
       final tokenAddress = (currency as TronToken).contractAddress;
@@ -190,10 +234,11 @@ class TronClient {
         receiverAddress,
         amount,
         tokenAddress,
+        tronBalance,
       );
     }
 
-    print('Raw transaction id: ${rawTransaction.txID}');
+    log('Raw transaction id: ${rawTransaction.txID}');
 
     final signature = ownerPrivKey.sign(rawTransaction.toBuffer());
 
@@ -215,6 +260,7 @@ class TronClient {
     TronAddress ownerAddress,
     TronAddress receiverAddress,
     String amount,
+    BigInt tronBalance,
   ) async {
     // Fetch the latest Tron block using the TronRequestGetNowBlock API.
     final block = await _provider!.request(TronRequestGetNowBlock());
@@ -247,8 +293,16 @@ class TronClient {
 
     final feeLimit = await getFeeLimit(rawTransaction, ownerAddress, receiverAddress);
 
-    print('Native transaction Fee Limit: $feeLimit');
+    log('Fee Limit: $feeLimit');
 
+    final tronBalanceInt = tronBalance.toInt();
+    log('Tron balance: $tronBalanceInt');
+
+    if (feeLimit > tronBalanceInt) {
+      throw Exception(
+        'You don\'t have enough TRX to cover the transaction fee for this transaction. Kindly top up.',
+      );
+    }
     rawTransaction = rawTransaction.copyWith(
       feeLimit: BigInt.from(feeLimit),
     );
@@ -261,6 +315,7 @@ class TronClient {
     TronAddress receiverAddress,
     String amount,
     String contractAddress,
+    BigInt tronBalance,
   ) async {
     final contract = ContractABI.fromJson(trc20Abi, isTron: true);
 
@@ -295,7 +350,15 @@ class TronClient {
       energyUsed: request.energyUsed ?? 0,
     );
 
-    print('TRC20 Transaction Fee Limit: $feeLimit');
+    log('Fee: $feeLimit');
+    final tronBalanceInt = tronBalance.toInt();
+    log('Tron balance: $tronBalanceInt');
+
+    if (feeLimit > tronBalanceInt) {
+      throw Exception(
+        'You don\'t have enough TRX to cover the transaction fee for this transaction. Kindly top up.',
+      );
+    }
 
     /// get transactionRaw from response and make sure set fee limit
     final rawTransaction = request.transactionRaw!.copyWith(
@@ -363,13 +426,13 @@ class TronClient {
       final contract = ContractABI.fromJson(trc20Abi, isTron: true);
 
       final name =
-          (await _getTokenDetail(contract, "name", ownerAddress, tokenAddress) as String?) ?? '';
+          (await getTokenDetail(contract, "name", ownerAddress, tokenAddress) as String?) ?? '';
 
       final symbol =
-          (await _getTokenDetail(contract, "symbol", ownerAddress, tokenAddress) as String?) ?? '';
+          (await getTokenDetail(contract, "symbol", ownerAddress, tokenAddress) as String?) ?? '';
 
       final decimal =
-          (await _getTokenDetail(contract, "decimals", ownerAddress, tokenAddress) as BigInt?) ??
+          (await getTokenDetail(contract, "decimals", ownerAddress, tokenAddress) as BigInt?) ??
               BigInt.zero;
 
       return TronToken(
@@ -383,7 +446,7 @@ class TronClient {
     }
   }
 
-  Future<dynamic> _getTokenDetail(ContractABI contract, String functionName,
+  Future<dynamic> getTokenDetail(ContractABI contract, String functionName,
       TronAddress ownerAddress, TronAddress tokenAddress) async {
     final function = contract.functionFromName(functionName);
 

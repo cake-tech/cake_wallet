@@ -23,9 +23,6 @@ abstract class TronTransactionHistoryBase extends TransactionHistoryBase<TronTra
 
   final WalletInfo walletInfo;
 
-  TronTransactionInfo getTransactionInfo(Map<String, dynamic> val) =>
-      TronTransactionInfo.fromJson(val);
-
   Future<void> init() async => await _load();
 
   @override
@@ -34,7 +31,8 @@ abstract class TronTransactionHistoryBase extends TransactionHistoryBase<TronTra
     try {
       final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
       String path = '$dirPath/$transactionsHistoryFileNameForWallet';
-      final data = json.encode({'transactions': transactions});
+      final transactionMaps = transactions.map((key, value) => MapEntry(key, value.toJson()));
+      final data = json.encode({'transactions': transactionMaps});
       await writeData(path: path, password: _password, data: data);
     } catch (e, s) {
       log('Error while saving ${walletInfo.type.name} transaction history: ${e.toString()}');
@@ -69,7 +67,7 @@ abstract class TronTransactionHistoryBase extends TransactionHistoryBase<TronTra
         final val = entry.value;
 
         if (val is Map<String, dynamic>) {
-          final tx = getTransactionInfo(val);
+          final tx = TronTransactionInfo.fromJson(val);
           _update(tx);
         }
       }
