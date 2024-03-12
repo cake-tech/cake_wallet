@@ -16,7 +16,6 @@ import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
-import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -791,10 +790,16 @@ abstract class SettingsStoreBase with Store {
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
+    final bool isNewInstall = sharedPreferences.getBool(PreferencesKey.isNewInstall) ?? true;
+    final int defaultTheme;
+    if (isNewInstall) {
+      defaultTheme = isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.brightTheme.raw;
+    } else {
+      defaultTheme = ThemeType.bright.index;
+    }
     final savedTheme = initialTheme ??
         ThemeList.deserialize(
-            raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
-                (isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.cakeDarkTheme.raw));
+            raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? defaultTheme);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
@@ -1160,7 +1165,7 @@ abstract class SettingsStoreBase with Store {
             ExchangeApiMode.enabled.raw);
     currentTheme = ThemeList.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
-            (isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.cakeDarkTheme.raw));
+            (isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.brightTheme.raw));
     actionlistDisplayMode = ObservableList<ActionListDisplayMode>();
     actionlistDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));

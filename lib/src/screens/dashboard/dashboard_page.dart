@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sideba
 import 'package:cake_wallet/src/screens/dashboard/pages/market_place_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
+import 'package:cake_wallet/src/widgets/services_updates_widget.dart';
 import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -100,6 +101,9 @@ class _DashboardPageView extends BasePage {
 
   @override
   Widget get endDrawer => MenuWidget(dashboardViewModel);
+
+  @override
+  Widget leading(BuildContext context) => ServicesUpdatesWidget(dashboardViewModel.getServicesStatus());
 
   @override
   Widget middle(BuildContext context) {

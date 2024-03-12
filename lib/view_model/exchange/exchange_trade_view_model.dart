@@ -166,10 +166,15 @@ abstract class ExchangeTradeViewModelBase with Store {
         wallet.currency == CryptoCurrency.trx &&
         tradesStore.trade!.from.tag == CryptoCurrency.trx.tag;
 
+    bool _isSplToken() =>
+        wallet.currency == CryptoCurrency.sol &&
+        tradesStore.trade!.from.tag == CryptoCurrency.sol.title;
+
     return tradesStore.trade!.from == wallet.currency ||
         tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
         _isEthToken() ||
         _isPolygonToken() ||
+        _isSplToken() ||
         _isTronToken();
   }
 }
