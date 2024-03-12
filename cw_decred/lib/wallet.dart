@@ -418,8 +418,9 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
 
   @override
   Future<void> changePassword(String password) async {
-    await libdcrwallet.changeWalletPassword(
-        walletInfo.name, _password, password);
+    return () async {
+      libdcrwallet.changeWalletPassword(walletInfo.name, _password, password);
+    }();
   }
 
   @override
