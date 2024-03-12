@@ -284,10 +284,16 @@ class WalletRestorePage extends BasePage {
 
     // bip39:
     final validBip39SeedLengths = [12, 18, 24];
-    final nonBip39WalletTypes = [WalletType.monero, WalletType.wownero, WalletType.haven];
+    final nonBip39WalletTypes = [WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.decred];
     // if it's a bip39 wallet and the length is not valid return false
     if (!nonBip39WalletTypes.contains(walletRestoreViewModel.type) &&
         !(validBip39SeedLengths.contains(seedWords.length))) {
+      return false;
+    }
+
+    if ((walletRestoreViewModel.type == WalletType.decred) &&
+            seedWords.length !=
+                WalletRestoreViewModelBase.decredSeedMnemonicLength) {
       return false;
     }
 

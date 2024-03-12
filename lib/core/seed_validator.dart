@@ -9,6 +9,7 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/utils/language_list.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -46,6 +47,8 @@ class SeedValidator extends Validator<MnemonicItem> {
         return tron!.getTronWordList(language);
       case WalletType.wownero:
           return wownero!.getWowneroWordList(language);
+      case WalletType.decred:
+        return decred!.getDecredWordList();
       case WalletType.none:
         return [];
     }

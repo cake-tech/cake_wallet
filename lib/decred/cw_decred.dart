@@ -116,4 +116,7 @@ class CWDecred extends Decred {
     // TODO: Remove this and just rescan from the wallet birthday.
     return (minutesDiff / 5).toInt();
   }
+
+	@override
+	List<String> getDecredWordList() => wordlist;
 }

@@ -95,7 +95,16 @@ class DecredWalletService extends WalletService<
   Future<DecredWallet> restoreFromSeed(
       DecredRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    throw UnimplementedError();
+    await createWalletAsync(
+      name: credentials.walletInfo!.name,
+      dataDir: credentials.walletInfo!.dirPath,
+      password: credentials.password!,
+      mnemonic: credentials.mnemonic,
+    );
+    final wallet = DecredWallet(credentials.walletInfo!, credentials.password!,
+        this.unspentCoinsInfoSource);
+    await wallet.init();
+    return wallet;
   }
 
   @override

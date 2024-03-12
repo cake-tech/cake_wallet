@@ -69,6 +69,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return seedSettingsViewModel.nanoSeedType == NanoSeedType.bip39
             ? advancedPrivacySettingsViewModel.seedPhraseLength.value
             : 24;
+      case WalletType.decred:
+        return 15;
       default:
         return 24;
     }
