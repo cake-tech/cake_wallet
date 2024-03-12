@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_decred/api/libdcrwallet.dart' as libdcrwallet;
@@ -11,13 +13,13 @@ class DecredWalletAddresses extends WalletAddresses {
   }
 
   String generateNewAddress() {
-    // TODO: generate new external address with libdcrwallet.
-    return "DsT4qJPPaYEuQRimfgvSKxKH3paysn1x3Nt";
+    return libdcrwallet.newExternalAddress(walletInfo.name) ?? '';
   }
 
   List<String> addresses() {
-    final currentAddress = libdcrwallet.currentReceiveAddress(walletInfo.name);
-    return currentAddress == null ? [] : [currentAddress];
+    final res = libdcrwallet.addresses(walletInfo.name);
+    final addrs = (json.decode(res) as List<dynamic>).cast<String>();
+    return addrs;
   }
 
   @override
