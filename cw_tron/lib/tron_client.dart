@@ -249,9 +249,8 @@ class TronClient {
 
     return PendingTronTransaction(
       signedTransaction: signature,
-      amount: amount,
-      //TODO: We need the fee!
-      fee: '',
+      amount: TronHelper.fromSun(BigInt.parse(amount)),
+      fee: TronHelper.fromSun(rawTransaction.feeLimit ?? BigInt.zero),
       sendTransaction: sendTx,
     );
   }

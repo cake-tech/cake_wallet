@@ -271,9 +271,12 @@ abstract class TronWalletBase
     } else {
       final output = outputs.first;
 
-      final totalOriginalAmount = double.parse(output.cryptoAmount ?? '0.0');
-
-      totalAmount = output.sendAll ? walletBalanceForCurrency : BigInt.from(totalOriginalAmount);
+      if (output.sendAll) {
+        totalAmount = walletBalanceForCurrency;
+      } else {
+        final totalOriginalAmount = double.parse(output.cryptoAmount ?? '0.0');
+        totalAmount = BigInt.from(totalOriginalAmount);
+      }
 
       if (walletBalanceForCurrency < totalAmount) {
         throw TronTransactionCreationException(transactionCurrency);
@@ -358,7 +361,7 @@ abstract class TronWalletBase
       result[transactionModel.hash] = TronTransactionInfo(
         id: transactionModel.hash,
         tronAmount: transactionModel.amount ?? BigInt.zero,
-        direction:transactionModel.from! == address
+        direction: transactionModel.from! == address
             ? TransactionDirection.outgoing
             : TransactionDirection.incoming,
         blockTime: transactionModel.date,

@@ -713,6 +713,7 @@ Future<void> checkCurrentNodes(
   final currentBitcoinCashNodeId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
   final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
+  final currentTronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
   final currentMoneroNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer =
@@ -733,6 +734,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinCashNodeId);
   final currentSolanaNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentSolanaNodeId);
+    final currentTronNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentTronNodeId);
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
     await nodeSource.add(newCakeWalletNode);
@@ -797,6 +800,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: solanaDefaultNodeUri, type: WalletType.solana);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);
+  }
+
+    if (currentTronNodeServer == null) {
+    final node = Node(uri: tronDefaultNodeUri, type: WalletType.tron);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentTronNodeIdKey, node.key as int);
   }
 }
 

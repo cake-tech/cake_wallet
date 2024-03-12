@@ -137,7 +137,6 @@ String walletTypeToString(WalletType type) {
       return 'Polygon';
     case WalletType.solana:
       return 'Solana';
-
     case WalletType.tron:
       return 'Tron';
     default:

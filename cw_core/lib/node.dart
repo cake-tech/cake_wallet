@@ -143,6 +143,7 @@ class Node extends HiveObject with Keyable {
         case WalletType.ethereum:
         case WalletType.polygon:
         case WalletType.solana:
+        case WalletType.tron:
           return requestElectrumServer();
         default:
           return false;
