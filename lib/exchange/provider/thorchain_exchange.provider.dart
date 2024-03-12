@@ -105,9 +105,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final responseJSON = await _getSwapQuote(params);
     final minAmountIn = responseJSON['recommended_min_amount_in'] as String? ?? '0.0';
 
-    final safeMinAmount = _thorChainAmountToDouble(minAmountIn) * 1.05;
-
-    return Limits(min: safeMinAmount);
+    return Limits(min: _thorChainAmountToDouble(minAmountIn));
   }
 
   @override
@@ -163,7 +161,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body);
     final Map<String, dynamic> stagesJson = responseJSON['stages'] as Map<String, dynamic>;
 
-    final inboundObservedStarted = stagesJson['inbound_observed']?['started'] as bool? ?? false;
+    final inboundObservedStarted = stagesJson['inbound_observed']?['started'] as bool? ?? true;
     if (!inboundObservedStarted) {
       throw Exception('Trade has not started for id: $formattedId');
     }
@@ -175,14 +173,22 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final String toAddress = tx['to_address'] as String? ?? '';
     final List<dynamic> coins = tx['coins'] as List<dynamic>;
     final String? memo = tx['memo'] as String?;
-    final String toAsset = memo != null ? (memo.split(':')[1]).split('.')[0] : '';
+
+    final parts = memo?.split(':') ?? [];
+
+    final String toChain = parts.length > 1 ? parts[1].split('.')[0] : '';
+    final String toAsset = parts.length > 1 && parts[1].split('.').length > 1 ? parts[1].split('.')[1].split('-')[0] : '';
+
+    final formattedToChain = CryptoCurrency.fromString(toChain);
+    final toAssetWithChain =  CryptoCurrency.fromString(toAsset, walletCurrency:formattedToChain);
 
     final plannedOutTxs = responseJSON['planned_out_txs'] as List<dynamic>?;
     final isRefund = plannedOutTxs?.any((tx) => tx['refund'] == true) ?? false;
+
     return Trade(
       id: id,
       from: CryptoCurrency.fromString(tx['chain'] as String? ?? ''),
-      to: CryptoCurrency.fromString(toAsset),
+      to: toAssetWithChain,
       provider: description,
       inputAddress: fromAddress,
       payoutAddress: toAddress,
