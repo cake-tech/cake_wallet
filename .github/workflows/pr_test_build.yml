@@ -78,7 +78,7 @@ jobs:
         name: Generate Externals
         run: |
           cd /opt/android/cake_wallet/scripts/android/
-          source ./app_env.sh monero.com
+          source ./app_env.sh cakewallet
           ./build_all.sh
           ./copy_monero_deps.sh
 
