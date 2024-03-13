@@ -4,8 +4,10 @@ import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -46,25 +48,29 @@ import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:tor/tor.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'dashboard_view_model.g.dart';
 
 class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
 
 abstract class DashboardViewModelBase with Store {
-  DashboardViewModelBase(
-      {required this.balanceViewModel,
-      required this.appStore,
-      required this.tradesStore,
-      required this.tradeFilterStore,
-      required this.transactionFilterStore,
-      required this.settingsStore,
-      required this.yatStore,
-      required this.ordersStore,
-      required this.anonpayTransactionsStore,
-      required this.keyService,
-      required this.torViewModel})
-      : hasSellAction = false,
+  DashboardViewModelBase({
+    required this.balanceViewModel,
+    required this.appStore,
+    required this.tradesStore,
+    required this.tradeFilterStore,
+    required this.transactionFilterStore,
+    required this.settingsStore,
+    required this.yatStore,
+    required this.ordersStore,
+    required this.anonpayTransactionsStore,
+    required this.keyService,
+    required this.torViewModel,
+    required this.sharedPreferences,
+    required this.keyService,
+  })  : hasSellAction = false,
         hasBuyAction = false,
         hasExchangeAction = false,
         isShowFirstYatIntroduction = false,
@@ -288,6 +294,7 @@ abstract class DashboardViewModelBase with Store {
       [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type);
 
   final KeyService keyService;
+  final SharedPreferences sharedPreferences;
 
   BalanceViewModel balanceViewModel;
 
@@ -513,5 +520,27 @@ abstract class DashboardViewModelBase with Store {
     }
 
     return affectedWallets;
+  }
+
+  Future<ServicesResponse> getServicesStatus() async {
+    try {
+      final res = await http.get(Uri.parse("https://service-api.cakewallet.com/v1/active-notices"));
+
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        throw res.body;
+      }
+
+      final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
+
+      final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
+      final currentSha = bytesToHex(hash.bytes);
+
+      final hasUpdates = oldSha != currentSha;
+
+      return ServicesResponse.fromJson(
+          json.decode(res.body) as Map<String, dynamic>, hasUpdates, currentSha);
+    } catch (_) {
+      return ServicesResponse([], false, '');
+    }
   }
 }

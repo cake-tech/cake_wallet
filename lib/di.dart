@@ -380,17 +380,19 @@ Future<void> setup({
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory(() => DashboardViewModel(
-      balanceViewModel: getIt.get<BalanceViewModel>(),
-      appStore: getIt.get<AppStore>(),
-      tradesStore: getIt.get<TradesStore>(),
-      tradeFilterStore: getIt.get<TradeFilterStore>(),
-      transactionFilterStore: getIt.get<TransactionFilterStore>(),
-      settingsStore: settingsStore,
-      yatStore: getIt.get<YatStore>(),
-      ordersStore: getIt.get<OrdersStore>(),
-      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
-      keyService: getIt.get<KeyService>(),
-      torViewModel: getIt.get<TorViewModel>()));
+        balanceViewModel: getIt.get<BalanceViewModel>(),
+        appStore: getIt.get<AppStore>(),
+        tradesStore: getIt.get<TradesStore>(),
+        tradeFilterStore: getIt.get<TradeFilterStore>(),
+        transactionFilterStore: getIt.get<TransactionFilterStore>(),
+        settingsStore: settingsStore,
+        yatStore: getIt.get<YatStore>(),
+        ordersStore: getIt.get<OrdersStore>(),
+        anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
+        keyService: getIt.get<KeyService>(),
+        torViewModel: getIt.get<TorViewModel>(),
+        sharedPreferences: getIt.get<SharedPreferences>(),
+      ));
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
