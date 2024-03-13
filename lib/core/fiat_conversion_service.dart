@@ -4,6 +4,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/view_model/settings/tor_connection.dart';
+import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'dart:convert';
@@ -19,6 +20,8 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   final fiat = args['fiat'] as String;
   final mainThreadProxyPort = args['port'] as int;
   final torConnectionMode = TorConnectionMode.deserialize(raw: args['torConnectionMode'] as int);
+  final torConnectionStatus = TorConnectionStatus.deserialize(raw: args['torConnectionStatus'] as int);
+
 
   final Map<String, String> queryParams = {
     'interval_count': '1',
@@ -46,6 +49,7 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
         clearnetUri: clearnetUri,
         portOverride: mainThreadProxyPort,
         torConnectionMode: torConnectionMode,
+        torConnectionStatus: torConnectionStatus,
       );
 
       responseBody = await utf8.decodeStream(httpResponse);
@@ -75,12 +79,14 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
 Future<double> _fetchPriceAsync(CryptoCurrency crypto, FiatCurrency fiat) async {
   final settingsStore = getIt.get<SettingsStore>();
   final mode = settingsStore.torConnectionMode;
+  final status = getIt.get<TorViewModel>().torConnectionStatus;
   ProxyWrapper proxy = await getIt.get<ProxyWrapper>();
   return compute(_fetchPrice, {
     'fiat': fiat.toString(),
     'crypto': crypto.toString(),
     'port': proxy.getPort(),
     'torConnectionMode': mode.raw,
+    'torConnectionStatus': status.raw,
   });
 }
 

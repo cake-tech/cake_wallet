@@ -16,8 +16,6 @@ part 'tor_view_model.g.dart';
 
 class TorViewModel = TorViewModelBase with _$TorViewModel;
 
-enum TorConnectionStatus { connecting, connected, disconnected }
-
 abstract class TorViewModelBase with Store {
   TorViewModelBase(this._settingsStore, this.nodes) {
     reaction((_) => torConnectionMode, (TorConnectionMode mode) async {

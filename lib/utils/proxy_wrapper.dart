@@ -80,17 +80,24 @@ class ProxyWrapper {
     Map<String, String>? headers,
     int? portOverride,
     TorConnectionMode? torConnectionMode,
+    TorConnectionStatus? torConnectionStatus,
     Uri? clearnetUri,
     Uri? onionUri,
   }) async {
     HttpClient? torClient;
     late bool torEnabled;
     torConnectionMode ??= settingsStore?.torConnectionMode ?? TorConnectionMode.disabled;
+    torConnectionStatus ??= torViewModel?.torConnectionStatus ?? TorConnectionStatus.disconnected;
+
     if (torConnectionMode == TorConnectionMode.torOnly ||
         torConnectionMode == TorConnectionMode.enabled) {
       torEnabled = true;
     } else {
       torEnabled = false;
+    }
+
+    if (torEnabled && torConnectionStatus  == TorConnectionStatus.connecting) {
+      throw Exception("Tor is still connecting");
     }
 
     // if tor is enabled, try to connect to the onion url first:
@@ -145,17 +152,24 @@ class ProxyWrapper {
     Map<String, String>? headers,
     int? portOverride,
     TorConnectionMode? torConnectionMode,
+    TorConnectionStatus? torConnectionStatus,
     Uri? clearnetUri,
     Uri? onionUri,
   }) async {
     HttpClient? torClient;
     late bool torEnabled;
     torConnectionMode ??= settingsStore?.torConnectionMode ?? TorConnectionMode.disabled;
+    torConnectionStatus ??= torViewModel?.torConnectionStatus ?? TorConnectionStatus.disconnected;
+
     if (torConnectionMode == TorConnectionMode.torOnly ||
         torConnectionMode == TorConnectionMode.enabled) {
       torEnabled = true;
     } else {
       torEnabled = false;
+    }
+
+    if (torEnabled && torConnectionStatus  == TorConnectionStatus.connecting) {
+      throw Exception("Tor is still connecting");
     }
 
     // if tor is enabled, try to connect to the onion url first:
