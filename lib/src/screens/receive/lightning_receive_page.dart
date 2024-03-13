@@ -182,7 +182,7 @@ class LightningReceiveOnchainPage extends BasePage {
           margin: const EdgeInsets.symmetric(horizontal: 24),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(15)),
-            color: Color.fromARGB(94, 255, 221, 44),
+            color: Color.fromARGB(255, 170, 147, 30),
             border: Border.all(
               color: Color.fromARGB(178, 223, 214, 0),
               width: 2,

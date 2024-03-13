@@ -141,7 +141,7 @@ class LightningInvoicePage extends BasePage {
                     margin: const EdgeInsets.only(left: 24, right: 24, bottom: 48),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(15)),
-                      color: Color.fromARGB(94, 255, 221, 44),
+                      color: Color.fromARGB(255, 170, 147, 30),
                       border: Border.all(
                         color: Color.fromARGB(178, 223, 214, 0),
                         width: 2,
@@ -279,7 +279,7 @@ class LightningInvoicePage extends BasePage {
                       margin: const EdgeInsets.only(top: 32),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(15)),
-                        color: Color.fromARGB(94, 255, 221, 44),
+                        color: Color.fromARGB(255, 170, 147, 30),
                         border: Border.all(
                           color: Color.fromARGB(178, 223, 214, 0),
                           width: 2,
