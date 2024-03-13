@@ -43,7 +43,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   final Box<Trade> tradesStore;
 
   @override
-  String get title => 'ThorChain';
+  String get title => 'THORChain';
 
   @override
   bool get isAvailable => true;
