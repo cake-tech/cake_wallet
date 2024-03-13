@@ -69,7 +69,6 @@ abstract class DashboardViewModelBase with Store {
     required this.keyService,
     required this.torViewModel,
     required this.sharedPreferences,
-    required this.keyService,
   })  : hasSellAction = false,
         hasBuyAction = false,
         hasExchangeAction = false,

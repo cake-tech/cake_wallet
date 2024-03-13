@@ -1,5 +1,5 @@
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/core/sync_status_title.dart';
@@ -74,6 +74,7 @@ class SyncIndicator extends StatelessWidget {
                             );
                             break;
                           case TorConnectionStatus.disconnected:
+                          default:
                             torImage = Image.asset(
                               'assets/images/tor_onion.png',
                               color: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
