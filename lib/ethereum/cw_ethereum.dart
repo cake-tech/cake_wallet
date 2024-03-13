@@ -68,7 +68,8 @@ class CWEthereum extends Ethereum {
   TransactionPriority deserializeEthereumTransactionPriority(int raw) =>
       EVMChainTransactionPriority.deserialize(raw: raw);
 
-  Object createEthereumTransactionCredentials(List<Output> outputs, {
+  Object createEthereumTransactionCredentials(
+    List<Output> outputs, {
     required TransactionPriority priority,
     required CryptoCurrency currency,
     int? feeRate,
@@ -76,8 +77,7 @@ class CWEthereum extends Ethereum {
   }) =>
       EVMChainTransactionCredentials(
         outputs
-            .map((out) =>
-            OutputInfo(
+            .map((out) => OutputInfo(
                 fiatAmount: out.fiatAmount,
                 cryptoAmount: out.cryptoAmount,
                 address: out.address,
@@ -93,7 +93,8 @@ class CWEthereum extends Ethereum {
         ledger: ledger,
       );
 
-  Object createEthereumTransactionCredentialsRaw(List<OutputInfo> outputs, {
+  Object createEthereumTransactionCredentialsRaw(
+    List<OutputInfo> outputs, {
     TransactionPriority? priority,
     required CryptoCurrency currency,
     required int feeRate,
@@ -167,8 +168,9 @@ class CWEthereum extends Ethereum {
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
   @override
-  void setLedger(WalletBase wallet, Ledger ledger) {
-    ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedger(ledger);
+  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device) {
+    ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials)
+        .setLedger(ledger, device.connectionType == ConnectionType.usb ? device : null);
   }
 
   @override

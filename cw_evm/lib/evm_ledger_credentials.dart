@@ -11,6 +11,7 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
   final String _address;
 
   Ledger? ledger;
+  LedgerDevice? ledgerDevice;
   EthereumLedgerApp? ethereumLedgerApp;
 
   EvmLedgerCredentials(this._address);
@@ -18,8 +19,9 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
   @override
   EthereumAddress get address => EthereumAddress.fromHex(_address);
 
-  void setLedger(Ledger setLedger) {
+  void setLedger(Ledger setLedger, [LedgerDevice? setLedgerDevice]) {
     ledger = setLedger;
+    ledgerDevice = setLedgerDevice;
     ethereumLedgerApp = EthereumLedgerApp(ledger!);
   }
 
@@ -32,8 +34,9 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
   @override
   Future<MsgSignature> signToSignature(Uint8List payload,
       {int? chainId, bool isEIP1559 = false}) async {
-    if (ledger?.devices.isNotEmpty != true) throw DeviceNotConnectedException();
-    final device = ledger!.devices.first;
+    if (ledgerDevice == null && ledger?.devices.isNotEmpty != true) {
+      throw DeviceNotConnectedException();
+    }
 
     final sig = await ethereumLedgerApp!.signTransaction(device, payload);
 
@@ -41,14 +44,26 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
     final r = bytesToHex(sig.sublist(1, 1 + 32));
     final s = bytesToHex(sig.sublist(1 + 32, 1 + 32 + 32));
 
+    var truncChainId = chainId ?? 1;
+    while (truncChainId.bitLength > 32) {
+      truncChainId >>= 8;
+    }
+
+    final truncTarget = truncChainId * 2 + 35;
+
+    int parity = v;
+    if (truncTarget & 0xff == v) {
+      parity = 0;
+    } else if ((truncTarget + 1) & 0xff == v) {
+      parity = 1;
+    }
+
     // https://github.com/ethereumjs/ethereumjs-util/blob/8ffe697fafb33cefc7b7ec01c11e3a7da787fe0e/src/signature.ts#L26
     int chainIdV;
     if (isEIP1559) {
       chainIdV = v;
     } else {
-      chainIdV = chainId != null
-          ? (v + (chainId * 2 + 35))
-          : v;
+      chainIdV = chainId != null ? (parity + (chainId * 2 + 35)) : parity;
     }
 
     return MsgSignature(BigInt.parse(r, radix: 16), BigInt.parse(s, radix: 16), chainIdV);
@@ -56,8 +71,9 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
 
   @override
   Future<Uint8List> signPersonalMessage(Uint8List payload, {int? chainId}) async {
-    if (ledger?.devices.isNotEmpty != true) throw DeviceNotConnectedException();
-    final device = ledger!.devices.first;
+    if (ledgerDevice == null && ledger?.devices.isNotEmpty != true) {
+      throw DeviceNotConnectedException();
+    }
 
     final sig = await ethereumLedgerApp!.signMessage(device, payload);
 
@@ -76,8 +92,10 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
   }
 
   Future<void> provideERC20Info(String erc20ContractAddress, int chainId) async {
-    if (ledger?.devices.isNotEmpty != true) throw DeviceNotConnectedException();
-    final device = ledger!.devices.first;
+    if (ledgerDevice == null && ledger?.devices.isNotEmpty != true) {
+      throw DeviceNotConnectedException();
+    }
+
     try {
       await ethereumLedgerApp!.getAndProvideERC20TokenInformation(device,
           erc20ContractAddress: erc20ContractAddress, chainId: chainId);
@@ -85,4 +103,6 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
       if (e.errorCode != -28672) rethrow;
     }
   }
+
+  LedgerDevice get device => ledgerDevice ?? ledger!.devices.first;
 }

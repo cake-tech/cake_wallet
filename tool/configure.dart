@@ -606,7 +606,7 @@ abstract class Ethereum {
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
   
-  void setLedger(WalletBase wallet, Ledger ledger);
+  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device);
   Future<List<String>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
 }
   """;
@@ -709,7 +709,7 @@ abstract class Polygon {
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
   
-  void setLedger(WalletBase wallet, Ledger ledger);
+  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device);
   Future<List<String>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
 }
   """;

@@ -23,30 +23,39 @@ class LedgerViewModel {
     },
   );
 
-  Future<void> connectLedger(LedgerDevice device) async => await ledger.connect(device);
+  Future<void> connectLedger(LedgerDevice device) async {
+    await ledger.connect(device);
 
-  bool get isConnected => ledger.devices.isNotEmpty;
+    if (device.connectionType == ConnectionType.usb) _device = device;
+  }
 
-  LedgerDevice get device => ledger.devices.first;
+  LedgerDevice? _device;
+
+  bool get isConnected => ledger.devices.isNotEmpty || _device != null;
+
+  LedgerDevice get device => _device ?? ledger.devices.first;
 
   void setLedger(WalletBase wallet) {
     switch (wallet.type) {
       case WalletType.ethereum:
-        return ethereum!.setLedger(wallet, ledger);
+        return ethereum!.setLedger(wallet, ledger, device);
       case WalletType.polygon:
-        return polygon!.setLedger(wallet, ledger);
+        return polygon!.setLedger(wallet, ledger, device);
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }
   }
 
   String? interpretErrorCode(String errorCode) {
-    switch(errorCode) {
-      case "6985": return S.current.ledger_error_tx_rejected_by_user;
-      case "5515": return S.current.ledger_error_device_locked;
-      case "6e00": return S.current.ledger_error_wrong_app;
-      default: return null;
+    switch (errorCode) {
+      case "6985":
+        return S.current.ledger_error_tx_rejected_by_user;
+      case "5515":
+        return S.current.ledger_error_device_locked;
+      case "6e00":
+        return S.current.ledger_error_wrong_app;
+      default:
+        return null;
     }
   }
-
 }

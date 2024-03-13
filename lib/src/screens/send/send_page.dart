@@ -380,8 +380,6 @@ class SendPage extends BasePage {
                           }
                         }
 
-                        // TODO: (Konsti) Check if HW is connected
-
                         final check = sendViewModel.shouldDisplayTotp();
                         authService.authenticateAction(
                           context,
