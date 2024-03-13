@@ -136,6 +136,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         tradesStore.trade!.from.tag != null ? '${tradesStore.trade!.from.tag}' + ' ' : '';
     final tagTo = tradesStore.trade!.to.tag != null ? '${tradesStore.trade!.to.tag}' + ' ' : '';
     items.clear();
+
+   if(trade.provider != ExchangeProviderDescription.thorChain)
     items.add(ExchangeTradeItem(
         title: "${trade.provider.title} ${S.current.id}", data: '${trade.id}', isCopied: true));
 

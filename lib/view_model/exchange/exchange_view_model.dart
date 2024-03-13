@@ -98,7 +98,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     /// if the provider is not in the user settings (user's first time or newly added provider)
     /// then use its default value decided by us
-    selectedProviders = ObservableList.of(providersForCurrentPair()
+    selectedProviders = ObservableList.of(providerList
         .where((element) => exchangeProvidersSelection[element.title] == null
             ? element.isEnabled
             : (exchangeProvidersSelection[element.title] as bool))
