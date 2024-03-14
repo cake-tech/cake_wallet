@@ -13,6 +13,7 @@ import 'package:cw_decred/api/libdcrwallet.dart' as libdcrwallet;
 import 'package:cw_decred/transaction_history.dart';
 import 'package:cw_decred/wallet_addresses.dart';
 import 'package:cw_decred/transaction_priority.dart';
+import 'package:cw_decred/wallet_service.dart';
 import 'package:cw_decred/balance.dart';
 import 'package:cw_decred/transaction_info.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -37,6 +38,8 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
       : _password = password,
         this.syncStatus = NotConnectedSyncStatus(),
         this.unspentCoinsInfo = unspentCoinsInfo,
+        this.watchingOnly =
+            walletInfo.derivationPath == DecredWalletService.pubkeyRestorePath,
         this.balance =
             ObservableMap.of({CryptoCurrency.dcr: DecredBalance.zero()}),
         super(walletInfo) {
@@ -50,6 +53,7 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
   static final defaultFeeRate = 10000;
   final String _password;
   final idPrefix = "decred_";
+  bool watchingOnly;
   bool connecting = false;
   int bestHeight = 0;
   String bestHash = "";
@@ -73,12 +77,17 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
 
   @override
   String? get seed {
+    if (watchingOnly) {
+      return null;
+    }
     return libdcrwallet.walletSeed(walletInfo.name, _password);
   }
 
   @override
-  Object get keys {
-    return {};
+  Object get keys => {};
+
+  String get pubkey {
+    return libdcrwallet.defaultPubkey(walletInfo.name);
   }
 
   Future<void> init() async {
@@ -240,6 +249,16 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
+    if (watchingOnly) {
+      return DecredPendingTransaction(
+          txid: "",
+          amount: 0,
+          fee: 0,
+          rawHex: "",
+          send: () async {
+            throw "unable to send with watching only wallet";
+          });
+    }
     final inputs = [];
     this.unspentCoinsInfo.values.forEach((unspent) {
       if (unspent.isSending) {
@@ -417,6 +436,9 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
 
   @override
   Future<void> changePassword(String password) async {
+    if (watchingOnly) {
+      return;
+    }
     return () async {
       libdcrwallet.changeWalletPassword(walletInfo.name, _password, password);
     }();

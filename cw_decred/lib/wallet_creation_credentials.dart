@@ -18,17 +18,15 @@ class DecredRestoreWalletFromSeedCredentials extends WalletCredentials {
   final String mnemonic;
 }
 
-class DecredRestoreWalletFromWIFCredentials extends WalletCredentials {
-  DecredRestoreWalletFromWIFCredentials(
+class DecredRestoreWalletFromPubkeyCredentials extends WalletCredentials {
+  DecredRestoreWalletFromPubkeyCredentials(
       {required String name,
       required String password,
-      required this.wif,
+      required String this.pubkey,
       WalletInfo? walletInfo})
-      : t = throw UnimplementedError(), // TODO: Maybe can be used to create watching only wallets?
-        super(name: name, password: password, walletInfo: walletInfo);
+      : super(name: name, password: password, walletInfo: walletInfo);
 
-  final String wif;
-  final void t;
+  final String pubkey;
 }
 
 class DecredRestoreWalletFromHardwareCredentials extends WalletCredentials {

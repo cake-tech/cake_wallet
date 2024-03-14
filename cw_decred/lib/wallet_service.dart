@@ -20,6 +20,8 @@ class DecredWalletService extends WalletService<
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+  final seedRestorePath = "m/44'/42'";
+  static final pubkeyRestorePath = "m/44'/42'/0'";
 
   static void init() async {
     // Use the general path for all dcr wallets as the general log directory.
@@ -43,6 +45,7 @@ class DecredWalletService extends WalletService<
       dataDir: credentials.walletInfo!.dirPath,
       password: credentials.password!,
     );
+    credentials.walletInfo!.derivationPath = seedRestorePath;
     final wallet = DecredWallet(credentials.walletInfo!, credentials.password!,
         this.unspentCoinsInfoSource);
     await wallet.init();
@@ -101,12 +104,15 @@ class DecredWalletService extends WalletService<
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
     );
+    credentials.walletInfo!.derivationPath = seedRestorePath;
     final wallet = DecredWallet(credentials.walletInfo!, credentials.password!,
         this.unspentCoinsInfoSource);
     await wallet.init();
     return wallet;
   }
 
+  // restoreFromKeys only supports restoring a watch only wallet from an account
+  // pubkey.
   @override
   Future<DecredWallet> restoreFromKeys(
       DecredRestoreWalletFromPubkeyCredentials credentials,

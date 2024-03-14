@@ -19,6 +19,15 @@ class CWDecred extends Decred {
       DecredRestoreWalletFromSeedCredentials(
           name: name, mnemonic: mnemonic, password: password);
 
+  @override
+  WalletCredentials createDecredRestoreWalletFromPubkeyCredentials(
+          {required String name,
+          required String pubkey,
+          required String password}) =>
+      DecredRestoreWalletFromPubkeyCredentials(
+          name: name, pubkey: pubkey, password: password);
+
+  @override
   WalletService createDecredWalletService(Box<WalletInfo> walletInfoSource,
       Box<UnspentCoinsInfo> unspentCoinSource) {
     return DecredWalletService(walletInfoSource, unspentCoinSource);
@@ -117,6 +126,12 @@ class CWDecred extends Decred {
     return (minutesDiff / 5).toInt();
   }
 
-	@override
-	List<String> getDecredWordList() => wordlist;
+  @override
+  List<String> getDecredWordList() => wordlist;
+
+  @override
+  String pubkey(Object wallet) {
+    final decredWallet = wallet as DecredWallet;
+    return decredWallet.pubkey;
+  }
 }

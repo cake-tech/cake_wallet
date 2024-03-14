@@ -57,6 +57,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.decred:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
       case WalletType.bitcoin:
@@ -244,6 +245,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             address: address!,
             password: password,
             language: 'English',
+          );
+        case WalletType.decred:
+          return decred!.createDecredRestoreWalletFromPubkeyCredentials(
+            name: name,
+            password: password,
+            pubkey: viewKey!,
           );
         default:
           break;

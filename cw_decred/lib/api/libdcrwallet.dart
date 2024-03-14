@@ -57,6 +57,17 @@ void createWalletSync(Map<String, String> args) {
   );
 }
 
+void createWatchOnlyWallet(String walletName, String datadir, String pubkey) {
+  final cName = walletName.toCString();
+  final cDataDir = datadir.toCString();
+  final cPub = pubkey.toCString();
+  final cNet = "testnet".toCString();
+  executePayloadFn(
+    fn: () => dcrwalletApi.createWatchOnlyWallet(cName, cDataDir, cNet, cPub),
+    ptrsToFree: [cName, cDataDir, cNet, cPub],
+  );
+}
+
 /// loadWalletAsync calls the libdcrwallet's loadWallet function asynchronously.
 Future<void> loadWalletAsync({required String name, required String dataDir}) {
   final args = <String, String>{
@@ -266,6 +277,15 @@ String? newExternalAddress(String walletName) {
     return null;
   }
   checkErr(res.err);
+  return res.payload;
+}
+
+String defaultPubkey(String walletName) {
+  final cName = walletName.toCString();
+  final res = executePayloadFn(
+    fn: () => dcrwalletApi.defaultPubkey(cName),
+    ptrsToFree: [cName],
+  );
   return res.payload;
 }
 
