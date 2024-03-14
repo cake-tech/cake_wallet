@@ -3,7 +3,7 @@
 . ./config.sh
 LIBWALLET_PATH="${EXTERNAL_IOS_SOURCE_DIR}/libwallet"
 LIBWALLET_URL="https://github.com/decred/libwallet.git"
-LIBWALLET_COMMIT="9f39f38b460e2dece5704cbc4aee293c741ee710"
+LIBWALLET_VERSION="v1.0.0"
 
 if [ -e $LIBWALLET_PATH ]; then
        rm -fr $LIBWALLET_PATH
@@ -11,7 +11,7 @@ fi
 mkdir -p $LIBWALLET_PATH
 git clone $LIBWALLET_URL $LIBWALLET_PATH
 cd $LIBWALLET_PATH
-git checkout $LIBWALLET_COMMIT
+git checkout $LIBWALLET_VERSION
 
 SYSROOT=`xcrun --sdk iphoneos --show-sdk-path`
 CLANG="clang -isysroot ${SYSROOT}"

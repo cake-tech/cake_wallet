@@ -11,6 +11,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:polyseed/polyseed.dart';
 
 part 'wallet_keys_view_model.g.dart';
@@ -105,6 +106,16 @@ abstract class WalletKeysViewModelBase with Store {
       }
     }
 
+    if (_appStore.wallet!.type == WalletType.decred) {
+      final seed = _appStore.wallet!.seed;
+      final pubkey = decred!.pubkey(_appStore.wallet!);
+      items.addAll([
+        if (seed != null)
+          StandartListItem(title: S.current.wallet_seed, value: seed),
+        StandartListItem(title: S.current.view_key_public, value: pubkey),
+      ]);
+    }
+
     if (_appStore.wallet!.type == WalletType.haven) {
       final keys = haven!.getKeys(_appStore.wallet!);
 
@@ -163,7 +174,6 @@ abstract class WalletKeysViewModelBase with Store {
 
     if (_appStore.wallet!.type == WalletType.bitcoin ||
         _appStore.wallet!.type == WalletType.litecoin ||
-        _appStore.wallet!.type == WalletType.decred ||
         _appStore.wallet!.type == WalletType.bitcoinCash) {
       // final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
 
