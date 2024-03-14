@@ -89,8 +89,17 @@ class CWTron extends Tron {
         (element) => transaction.tokenSymbol.toLowerCase() == element.symbol.toLowerCase());
   }
 
+  @override
   String getTokenAddress(CryptoCurrency asset) => (asset as TronToken).contractAddress;
 
+  @override
   String getTronBase58Address(String hexAddress, WalletBase wallet) =>
       (wallet as TronWallet).getTronBase58AddressFromHex(hexAddress);
+
+  @override
+  String? getTronNativeEstimatedFee(WalletBase wallet) =>
+      (wallet as TronWallet).nativeTxEstimatedFee;
+
+  @override
+  String? getTronTRC20EstimatedFee(WalletBase wallet) => (wallet as TronWallet).trc20EstimatedFee;
 }

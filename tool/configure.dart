@@ -1031,6 +1031,9 @@ abstract class Tron {
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   String getTokenAddress(CryptoCurrency asset);
   String getTronBase58Address(String hexAddress, WalletBase wallet);
+
+  String? getTronNativeEstimatedFee(WalletBase wallet);
+  String? getTronTRC20EstimatedFee(WalletBase wallet);
 }
   """;
 

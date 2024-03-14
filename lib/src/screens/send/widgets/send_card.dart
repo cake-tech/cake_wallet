@@ -453,7 +453,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     if (sendViewModel.hasFees)
                       Observer(
                         builder: (_) => GestureDetector(
-                          onTap: () => _setTransactionPriority(context),
+                          onTap: sendViewModel.hasFeesPriority
+                              ? () => _setTransactionPriority(context)
+                              : () {},
                           child: Container(
                             padding: EdgeInsets.only(top: 24),
                             child: Row(

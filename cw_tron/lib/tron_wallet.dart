@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
@@ -86,6 +87,12 @@ abstract class TronWalletBase
 
   @override
   WalletAddresses walletAddresses;
+
+  @observable
+  String? nativeTxEstimatedFee;
+
+  @observable
+  String? trc20EstimatedFee;
 
   @override
   @observable
@@ -203,12 +210,24 @@ abstract class TronWalletBase
         throw Exception("${walletInfo.type.name.toUpperCase()} Node connection failed");
       }
 
+      _getEstimatedFees();
       _setTransactionUpdateTimer();
 
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
       syncStatus = FailedSyncStatus();
     }
+  }
+
+  Future<void> _getEstimatedFees() async {
+    final nativeFee = await _client.getEstimatedFee(_tronPublicKey.toAddress());
+    nativeTxEstimatedFee = TronHelper.fromSun(BigInt.from(nativeFee));
+
+    final trc20Fee = await _client.getTRCEstimatedFee(_tronPublicKey.toAddress());
+    trc20EstimatedFee = TronHelper.fromSun(BigInt.from(trc20Fee));
+
+    log('Native Estimated Fee: $nativeTxEstimatedFee');
+    log('TRC20 Estimated Fee: $trc20EstimatedFee');
   }
 
   @action
@@ -239,8 +258,10 @@ abstract class TronWalletBase
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
 
-    BigInt totalAmount = BigInt.zero;
+    bool isNativeTx = transactionCurrency == CryptoCurrency.trx;
 
+    BigInt totalAmount = BigInt.zero;
+    bool shouldSendAll = false;
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
         throw TronTransactionCreationException(transactionCurrency);
@@ -257,14 +278,18 @@ abstract class TronWalletBase
     } else {
       final output = outputs.first;
 
-      if (output.sendAll) {
-        totalAmount = walletBalanceForCurrency;
+      shouldSendAll = output.sendAll;
+
+      if (shouldSendAll) {
+        totalAmount = isNativeTx
+            ? (walletBalanceForCurrency - TronHelper.toSun(nativeTxEstimatedFee ?? '0'))
+            : walletBalanceForCurrency;
       } else {
         final totalOriginalAmount = double.parse(output.cryptoAmount ?? '0.0');
         totalAmount = BigInt.from(totalOriginalAmount);
       }
 
-      if (walletBalanceForCurrency < totalAmount) {
+      if (walletBalanceForCurrency < totalAmount || totalAmount < BigInt.zero) {
         throw TronTransactionCreationException(transactionCurrency);
       }
     }
@@ -279,6 +304,7 @@ abstract class TronWalletBase
       amount: totalAmount.toString(),
       currency: transactionCurrency,
       tronBalance: tronBalance,
+      sendAll: shouldSendAll,
     );
 
     return pendingTransaction;

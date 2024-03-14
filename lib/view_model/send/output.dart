@@ -7,6 +7,7 @@ import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -114,8 +115,20 @@ abstract class OutputBase with Store {
   @computed
   double get estimatedFee {
     try {
+      if (_wallet.type == WalletType.tron) {
+        if (cryptoCurrencyHandler() == CryptoCurrency.trx) {
+          final nativeEstimatedFee = tron!.getTronNativeEstimatedFee(_wallet) ?? 0;
+          return double.parse(nativeEstimatedFee.toString());
+        } else {
+          final trc20EstimatedFee = tron!.getTronTRC20EstimatedFee(_wallet) ?? 0;
+          return double.parse(trc20EstimatedFee.toString());
+        }
+      }
+
       final fee = _wallet.calculateEstimatedFee(
-          _settingsStore.priority[_wallet.type]!, formattedCryptoAmount);
+        _settingsStore.priority[_wallet.type]!,
+        formattedCryptoAmount,
+      );
 
       if (_wallet.type == WalletType.bitcoin ||
           _wallet.type == WalletType.litecoin ||
@@ -148,8 +161,9 @@ abstract class OutputBase with Store {
   @computed
   String get estimatedFeeFiatAmount {
     try {
-      final currency =
-          isEVMCompatibleChain(_wallet.type) ? _wallet.currency : cryptoCurrencyHandler();
+      final currency = (isEVMCompatibleChain(_wallet.type) || _wallet.type == WalletType.tron)
+          ? _wallet.currency
+          : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(
           price: _fiatConversationStore.prices[currency]!, cryptoAmount: estimatedFee);
       return fiat;

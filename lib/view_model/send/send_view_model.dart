@@ -106,7 +106,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get isBatchSending => outputs.length > 1;
 
-  bool get shouldDisplaySendALL => walletType != WalletType.solana;
+  bool get shouldDisplaySendALL => walletType != WalletType.solana || walletType != WalletType.tron;
 
   @computed
   String get pendingTransactionFiatAmount {
@@ -207,6 +207,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   bool get hasFees => wallet.type != WalletType.nano && wallet.type != WalletType.banano;
+
+  @computed
+  bool get hasFeesPriority =>
+      wallet.type != WalletType.nano &&
+      wallet.type != WalletType.banano &&
+      wallet.type != WalletType.tron;
 
   @observable
   CryptoCurrency selectedCryptoCurrency;
