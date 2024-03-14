@@ -52,6 +52,7 @@ cmake -D IOS=ON \
 	-DUNBOUND_INCLUDE_DIR=${EXTERNAL_IOS_INCLUDE_DIR} \
 	-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}  \
     -DUSE_DEVICE_TREZOR=OFF \
+    -DMANUAL_SUBMODULES=1 \
 	../..
 make wallet_api -j4
 find . -path ./lib -prune -o -name '*.a' -exec cp '{}' lib \;
