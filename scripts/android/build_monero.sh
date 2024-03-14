@@ -37,8 +37,7 @@ case $arch in
 		BUILD_64=ON
 		TAG="android-armv8"
 		ARCH="armv8-a"
-		ARCH_ABI="arm64-v8a"
-		FLAGS="-D CMAKE_ANDROID_ARM_MODE=ON -D NO_AES=true";;
+		ARCH_ABI="arm64-v8a";;
 	"i686"		)
 		CLANG=i686-linux-androideabi-clang
  		CXXLANG=i686-linux-androideabi-clang++
