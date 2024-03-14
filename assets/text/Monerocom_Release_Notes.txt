@@ -1,2 +1,2 @@
-New themes
+In-App live status page for the app services
 Bug fixes and enhancements
