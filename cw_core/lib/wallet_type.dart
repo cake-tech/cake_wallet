@@ -184,8 +184,6 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.ltc;
     case WalletType.haven:
       return CryptoCurrency.xhv;
-    case WalletType.zano:
-      return CryptoCurrency.zano;
     case WalletType.ethereum:
       return CryptoCurrency.eth;
     case WalletType.bitcoinCash:
@@ -198,6 +196,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.maticpoly;
     case WalletType.solana:
       return CryptoCurrency.sol;
+    case WalletType.zano:
+      return CryptoCurrency.zano;
     default:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');

@@ -79,6 +79,25 @@ class CWZano extends Zano {
     return CWZanoAccountList(wallet);
   }*/
 
+  List<ZanoAsset> getZanoAssets(WalletBase wallet) {
+    final zanoWallet = wallet as ZanoWallet;
+    return zanoWallet.zanoAssets;
+  }
+
+  @override
+  Future<void> addZanoAsset(WalletBase wallet, CryptoCurrency token) async =>
+      await (wallet as ZanoWallet).addZanoAsset(token as ZanoAsset);
+
+  @override
+  Future<void> deleteZanoAsset(WalletBase wallet, CryptoCurrency token) async =>
+      await (wallet as ZanoWallet).deleteZanoAsset(token as ZanoAsset);
+
+  @override
+  Future<ZanoAsset?> getZanoAsset(WalletBase wallet, String mintAddress) async {
+    final zanoWallet = wallet as ZanoWallet;
+    return await zanoWallet.getZanoAsset(mintAddress);
+  }
+
   @override
   TransactionHistoryBase getTransactionHistory(Object wallet) {
     final zanoWallet = wallet as ZanoWallet;
@@ -213,6 +232,8 @@ class CWZano extends Zano {
     final asset = CryptoCurrency.fromString(transaction.assetType);
     return asset;
   }
+
+  String getZanoAssetAddress(CryptoCurrency asset) => (asset as ZanoAsset).assetId;
 
   // @override
   // List<AssetRate> getAssetRate() =>

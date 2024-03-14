@@ -80,7 +80,7 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   bool get isHomeScreenSettingsEnabled =>
-      isEVMCompatibleChain(wallet.type) || wallet.type == WalletType.solana;
+      isEVMCompatibleChain(wallet.type) || wallet.type == WalletType.solana || wallet.type == WalletType.zano;
 
   @computed
   bool get hasAccounts => wallet.type == WalletType.monero;

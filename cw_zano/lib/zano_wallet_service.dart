@@ -71,6 +71,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
       _parseCreateWalletResult(createWalletResult, wallet);
       await wallet.store();
       await wallet.init(createWalletResult.wi.address);
+      wallet.addInitialAssets();
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
@@ -188,6 +189,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
         _parseCreateWalletResult(createWalletResult, wallet);
         await wallet.store();
         await wallet.init(createWalletResult.wi.address);
+        wallet.addInitialAssets();
         return wallet;
       } else if (map['error'] != null) {
         final code = map['error']['code'] as String;

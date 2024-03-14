@@ -6,6 +6,7 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -57,6 +58,10 @@ abstract class HomeSettingsViewModelBase with Store {
       await solana!.addSPLToken(_balanceViewModel.wallet, token);
     }
 
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      await zano!.addZanoAsset(_balanceViewModel.wallet, token);
+    }
+
     _updateTokensList();
     _updateFiatPrices(token);
   }
@@ -74,6 +79,10 @@ abstract class HomeSettingsViewModelBase with Store {
       await solana!.deleteSPLToken(_balanceViewModel.wallet, token);
     }
 
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      await zano!.deleteZanoAsset(_balanceViewModel.wallet, token);
+    }
+
     _updateTokensList();
   }
 
@@ -88,6 +97,10 @@ abstract class HomeSettingsViewModelBase with Store {
 
     if (_balanceViewModel.wallet.type == WalletType.solana) {
       return await solana!.getSPLToken(_balanceViewModel.wallet, contractAddress);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      return await zano!.getZanoAsset(_balanceViewModel.wallet, contractAddress);
     }
 
     return null;
@@ -118,6 +131,10 @@ abstract class HomeSettingsViewModelBase with Store {
 
     if (_balanceViewModel.wallet.type == WalletType.solana) {
       solana!.addSPLToken(_balanceViewModel.wallet, token);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      await zano!.addZanoAsset(_balanceViewModel.wallet, token);
     }
 
     _refreshTokensList();
@@ -166,6 +183,13 @@ abstract class HomeSettingsViewModelBase with Store {
           .toList()
         ..sort(_sortFunc));
     }
+
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      tokens.addAll(zano!.getZanoAssets(_balanceViewModel.wallet)
+        .where((element) => _matchesSearchText(element))
+        .toList()
+        ..sort(_sortFunc));
+    }
   }
 
   @action
@@ -204,6 +228,10 @@ abstract class HomeSettingsViewModelBase with Store {
 
     if (_balanceViewModel.wallet.type == WalletType.polygon) {
       return polygon!.getTokenAddress(asset);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      return zano!.getZanoAssetAddress(asset);
     }
 
     // We return null if it's neither Polygin, Ethereum or Solana wallet (which is actually impossible because we only display home settings for either of these three wallets).

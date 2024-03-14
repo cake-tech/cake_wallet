@@ -1,4 +1,6 @@
 import 'package:cake_wallet/utils/language_list.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_zano/zano_asset.dart';
 import 'package:cw_zano/zano_transaction_credentials.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
@@ -118,6 +120,11 @@ abstract class Zano {
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createZanoWalletService(Box<WalletInfo> walletInfoSource);
   CryptoCurrency assetOfTransaction(TransactionInfo tx);
+  List<ZanoAsset> getZanoAssets(WalletBase wallet);
+  String getZanoAssetAddress(CryptoCurrency asset);
+  Future<void> addZanoAsset(WalletBase wallet, CryptoCurrency token);
+  Future<void> deleteZanoAsset(WalletBase wallet, CryptoCurrency token);
+  Future<CryptoCurrency?> getZanoAsset(WalletBase wallet, String contractAddress);
   // List<AssetRate> getAssetRate();
 }
 

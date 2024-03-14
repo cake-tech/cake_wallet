@@ -135,16 +135,16 @@ abstract class OutputBase with Store {
         return haven!.formatterMoneroAmountToDouble(amount: fee);
       }
 
-      if (_wallet.type == WalletType.zano) {
-        return zano!.formatterMoneroAmountToDouble(amount: fee);
-      }
-
       if (_wallet.type == WalletType.ethereum) {
         return ethereum!.formatterEthereumAmountToDouble(amount: BigInt.from(fee));
       }
 
       if (_wallet.type == WalletType.polygon) {
         return polygon!.formatterPolygonAmountToDouble(amount: BigInt.from(fee));
+      }
+
+      if (_wallet.type == WalletType.zano) {
+        return zano!.formatterMoneroAmountToDouble(amount: fee);
       }
     } catch (e) {
       print(e.toString());
