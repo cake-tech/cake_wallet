@@ -191,13 +191,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         // try to use the date instead:
         try {
           _setHeightFromDate();
-        } catch (e, s) {
+        } catch (_) {
           // we still couldn't get a valid sync height :/
-          onError?.call(FlutterErrorDetails(
-            exception: e,
-            stack: s,
-            library: this.runtimeType.toString(),
-          ));
         }
       }
     }

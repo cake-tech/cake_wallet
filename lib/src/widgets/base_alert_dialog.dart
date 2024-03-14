@@ -179,7 +179,7 @@ class BaseAlertDialog extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              if (headerText != null) headerTitle(context),
+                              if (headerText?.isNotEmpty ?? false) headerTitle(context),
                               Padding(
                                 padding: EdgeInsets.fromLTRB(24, 20, 24, 0),
                                 child: title(context),
