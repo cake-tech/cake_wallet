@@ -159,7 +159,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             language: 'English',
           );
 
-      if (type == WalletType.zano) {
+      case WalletType.zano:
         return zano!.createZanoRestoreWalletFromKeysCredentials(
             name: name,
             height: height,
@@ -168,7 +168,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             address: address!,
             password: password,
             language: 'English');
-      }
+      
 
         case WalletType.ethereum:
           return ethereum!.createEthereumRestoreWalletFromPrivateKey(

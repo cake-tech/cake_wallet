@@ -376,7 +376,7 @@ extern "C"
 
     bool restore_wallet_from_spend_key(char *path, char *password, char *seed, char *language, char *spendKey, int32_t networkType, uint64_t restoreHeight, char *error)
     {
-        Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
+        /*Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::Wallet *wallet = Monero::WalletManagerFactory::getWalletManager()->createDeterministicWalletFromSpendKey(
             std::string(path),
             std::string(password),
@@ -399,7 +399,7 @@ extern "C"
             return false;
         }
 
-        change_current_wallet(wallet);
+        change_current_wallet(wallet);*/
         return true;
     }
 

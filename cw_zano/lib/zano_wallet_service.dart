@@ -18,6 +18,7 @@ import 'package:cw_zano/api/exceptions/create_wallet_exception.dart';
 import 'package:cw_zano/api/exceptions/restore_from_seed_exception.dart';
 import 'package:cw_zano/api/exceptions/wrong_seed_exception.dart';
 import 'package:cw_zano/api/model/create_wallet_result.dart';
+import 'package:cw_zano/zano_asset.dart';
 import 'package:cw_zano/zano_balance.dart';
 import 'package:cw_zano/zano_wallet.dart';
 import 'package:hive/hive.dart';
@@ -36,7 +37,13 @@ class ZanoRestoreWalletFromSeedCredentials extends WalletCredentials {
 
 class ZanoRestoreWalletFromKeysCredentials extends WalletCredentials {
   ZanoRestoreWalletFromKeysCredentials(
-      {required String name, required String password, required this.language, required this.address, required this.viewKey, required this.spendKey, required int height})
+      {required String name,
+      required String password,
+      required this.language,
+      required this.address,
+      required this.viewKey,
+      required this.spendKey,
+      required int height})
       : super(name: name, password: password, height: height);
 
   final String language;
@@ -126,7 +133,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
       final message = map['error']!['message'] ?? '';
       throw CreateWalletException('Error creating/loading wallet $code $message');
     }
-    if (map['result'] == null) { 
+    if (map['result'] == null) {
       throw CreateWalletException('Error creating/loading wallet, empty response');
     }
   }
@@ -135,9 +142,17 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
     hWallet = result.walletId;
     wallet.hWallet = hWallet;
     wallet.walletAddresses.address = result.wi.address;
-    final balance = result.wi.balances.first;
-    wallet.defaultAsssetId = balance.assetInfo.assetId;
-    wallet.balance = ObservableMap.of({CryptoCurrency.zano: ZanoBalance(total: balance.total, unlocked: balance.unlocked)});
+    for (final item in result.wi.balances) {
+      if (item.assetInfo.ticker == 'ZANO') {
+        wallet.balance[CryptoCurrency.zano] = ZanoBalance(total: item.total, unlocked: item.unlocked);
+      } else {
+        for (final asset in wallet.balance.keys) {
+          if (asset is ZanoAsset && asset.assetId == item.assetInfo.assetId) {
+            wallet.balance[asset] = ZanoBalance(total: item.total, unlocked: item.unlocked);
+          }
+        }
+      }
+    }
     if (result.recentHistory.history != null) {
       wallet.history = result.recentHistory.history!;
     }

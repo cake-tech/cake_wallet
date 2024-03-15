@@ -69,12 +69,6 @@ class ZanoBalance extends Balance {
   String get formattedAdditionalBalance => formattedFullBalance;
 }
 
-class AssetRate {
-  AssetRate(this.asset, this.rate);
-
-  final String asset;
-  final int rate;
-}
 
 abstract class ZanoWalletDetails {
   // FIX-ME: it's abstruct class
@@ -123,9 +117,9 @@ abstract class Zano {
   List<ZanoAsset> getZanoAssets(WalletBase wallet);
   String getZanoAssetAddress(CryptoCurrency asset);
   Future<void> addZanoAsset(WalletBase wallet, CryptoCurrency token);
+  Future<CryptoCurrency> addZanoAssetById(WalletBase wallet, String assetId);
   Future<void> deleteZanoAsset(WalletBase wallet, CryptoCurrency token);
   Future<CryptoCurrency?> getZanoAsset(WalletBase wallet, String contractAddress);
-  // List<AssetRate> getAssetRate();
 }
 
 // abstract class MoneroSubaddressList {

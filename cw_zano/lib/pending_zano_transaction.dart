@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cw_zano/api/exceptions/transfer_exception.dart';
 import 'package:cw_zano/api/model/destination.dart';
+import 'package:cw_zano/api/model/history.dart';
 import 'package:cw_zano/api/model/transfer_params.dart';
 import 'package:cw_zano/api/model/transfer_result.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -41,7 +42,7 @@ class PendingZanoTransaction with PendingTransaction {
     final params = TransferParams(
       destinations: destinations,
       fee: fee,
-      mixin: zanoMixin,
+      mixin: zanoMixinValue,
       paymentId: '',
       comment: comment,
       pushPayer: false,
