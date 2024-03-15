@@ -5,6 +5,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -12,6 +13,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mobx/mobx.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 
@@ -49,6 +51,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   bool _requestAuth;
 
   StreamSubscription<Uri?>? stream;
+  ReactionDisposer? _walletReactionDisposer;
   Uri? launchUri;
 
   @override
@@ -72,6 +75,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   @override
   void dispose() {
     stream?.cancel();
+    _walletReactionDisposer?.call();
     super.dispose();
   }
 
@@ -172,15 +176,16 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       if (widget.authenticationStore.state == AuthenticationState.uninitialized) {
         launchUri = null;
       } else {
-        final tempLaunchUri = launchUri;
-        waitForWalletInstance().then((value) {
-          if (value) {
-            widget.navigatorKey.currentState?.pushNamed(
-              Routes.send,
-              arguments: PaymentRequest.fromUri(tempLaunchUri),
-            );
-          }
-        });
+        if (widget.appStore.wallet == null) {
+          waitForWalletInstance(context);
+          launchUri = null;
+        } else {
+          widget.navigatorKey.currentState?.pushNamed(
+            Routes.send,
+            arguments: PaymentRequest.fromUri(launchUri),
+          );
+          launchUri = null;
+        }
       }
       launchUri = null;
     } else if (isWalletConnectLink) {
@@ -200,16 +205,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       onWillPop: () async => false,
       child: widget.child,
     );
-  }
-  Future<bool> waitForWalletInstance() async {
-    const maxWait = Duration(milliseconds: 1000);
-    const checkInterval = Duration(milliseconds: 100);
-
-    DateTime start = DateTime.now();
-    while (widget.appStore.wallet == null && DateTime.now().difference(start) < maxWait) {
-      await Future.delayed(checkInterval);
-    }
-    return widget.appStore.wallet != null;
   }
 
   void _reset() {
@@ -251,5 +246,26 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       textColor: Colors.white,
       fontSize: 16.0,
     );
+  }
+
+  void waitForWalletInstance(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) {
+        final tempLaunchUri = launchUri;
+        _walletReactionDisposer = reaction(
+              (_) => widget.appStore.wallet,
+              (WalletBase? wallet) {
+            if (wallet != null) {
+              widget.navigatorKey.currentState?.pushNamed(
+                Routes.send,
+                arguments: PaymentRequest.fromUri(tempLaunchUri),
+              );
+              _walletReactionDisposer?.call();
+              _walletReactionDisposer = null;
+            }
+          },
+        );
+      }
+    });
   }
 }
