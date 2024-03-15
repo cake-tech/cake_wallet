@@ -203,9 +203,11 @@ Future<void> defaultSettingsMigration(
               sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         case 28:
+          await _updateMoneroPriority(sharedPreferences);
+          break;
+        case 29:
           await addTronNodeList(nodes: nodes);
-          await changeTronCurrentNodeToDefault(
-              sharedPreferences: sharedPreferences, nodes: nodes);
+          await changeTronCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         default:
           break;
@@ -219,6 +221,18 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
+  final currentPriority =
+      await sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority) ??
+          monero!.getDefaultTransactionPriority().serialize();
+
+  // was set to automatic but automatic should be 0
+  if (currentPriority == 1) {
+    sharedPreferences.setInt(PreferencesKey.moneroTransactionPriority,
+        monero!.getDefaultTransactionPriority().serialize()); // 0
+  }
 }
 
 Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async {
@@ -734,7 +748,7 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinCashNodeId);
   final currentSolanaNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentSolanaNodeId);
-    final currentTronNodeServer =
+  final currentTronNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentTronNodeId);
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
@@ -802,7 +816,7 @@ Future<void> checkCurrentNodes(
     await sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);
   }
 
-    if (currentTronNodeServer == null) {
+  if (currentTronNodeServer == null) {
     final node = Node(uri: tronDefaultNodeUri, type: WalletType.tron);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentTronNodeIdKey, node.key as int);

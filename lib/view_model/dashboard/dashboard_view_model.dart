@@ -344,15 +344,13 @@ abstract class DashboardViewModelBase with Store {
   bool hasExchangeAction;
 
   @computed
-  bool get isEnabledBuyAction =>
-      !settingsStore.disableBuy && availableBuyProviders.isNotEmpty;
+  bool get isEnabledBuyAction => !settingsStore.disableBuy && availableBuyProviders.isNotEmpty;
 
   @observable
   bool hasBuyAction;
 
   @computed
-  bool get isEnabledSellAction =>
-      !settingsStore.disableSell && availableSellProviders.isNotEmpty;
+  bool get isEnabledSellAction => !settingsStore.disableSell && availableSellProviders.isNotEmpty;
 
   @observable
   bool hasSellAction;
@@ -477,7 +475,8 @@ abstract class DashboardViewModelBase with Store {
 
   Future<List<String>> checkAffectedWallets() async {
     // await load file
-    final vulnerableSeedsString = await rootBundle.loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
+    final vulnerableSeedsString = await rootBundle
+        .loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
     final vulnerableSeeds = vulnerableSeedsString.split("\n");
 
     final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
@@ -513,13 +512,16 @@ abstract class DashboardViewModelBase with Store {
 
       final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
 
-
       final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
       final currentSha = bytesToHex(hash.bytes);
 
       final hasUpdates = oldSha != currentSha;
 
-      return ServicesResponse.fromJson(json.decode(res.body) as Map<String, dynamic>, hasUpdates, currentSha);
+      return ServicesResponse.fromJson(
+        json.decode(res.body) as Map<String, dynamic>,
+        hasUpdates,
+        currentSha,
+      );
     } catch (_) {
       return ServicesResponse([], false, '');
     }
