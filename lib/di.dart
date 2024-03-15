@@ -384,6 +384,7 @@ Future<void> setup({
       yatStore: getIt.get<YatStore>(),
       ordersStore: getIt.get<OrdersStore>(),
       anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
+      sharedPreferences: getIt.get<SharedPreferences>(),
       keyService: getIt.get<KeyService>()));
 
   getIt.registerFactory<AuthService>(
