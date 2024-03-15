@@ -1,6 +1,7 @@
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -43,6 +44,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           return 16;
         }
         return 25;
+      case WalletType.tron:
       case WalletType.solana:
       case WalletType.polygon:
       case WalletType.ethereum:
@@ -79,6 +81,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return polygon!.createPolygonNewWalletCredentials(name: name);
       case WalletType.solana:
         return solana!.createSolanaNewWalletCredentials(name: name);
+      case WalletType.tron:
+        return tron!.createTronNewWalletCredentials(name: name);
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }

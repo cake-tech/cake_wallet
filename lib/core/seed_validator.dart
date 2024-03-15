@@ -5,6 +5,7 @@ import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/entities/mnemonic_item.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
@@ -40,6 +41,8 @@ class SeedValidator extends Validator<MnemonicItem> {
         return polygon!.getPolygonWordList(language);
       case WalletType.solana:
         return solana!.getSolanaWordList(language);
+        case WalletType.tron:
+        return tron!.getTronWordList(language);
       default:
         return [];
     }

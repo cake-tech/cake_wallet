@@ -14,6 +14,7 @@ class PreferencesKey {
   static const currentFiatCurrencyKey = 'current_fiat_currency';
   static const currentBitcoinCashNodeIdKey = 'current_node_id_bch';
   static const currentSolanaNodeIdKey = 'current_node_id_sol';
+  static const currentTronNodeIdKey = 'current_node_id_trx';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';

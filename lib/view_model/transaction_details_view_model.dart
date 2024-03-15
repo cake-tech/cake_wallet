@@ -1,3 +1,4 @@
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -56,6 +57,9 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
       case WalletType.solana:
         _addSolanaListItems(tx, dateFormat);
+        break;
+      case WalletType.tron:
+        _addTronListItems(tx, dateFormat);
         break;
       default:
         break;
@@ -136,6 +140,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://polygonscan.com/tx/${txId}';
       case WalletType.solana:
         return 'https://solscan.io/tx/${txId}';
+      case WalletType.tron:
+        return 'https://tronscan.org/#/transaction/${txId}';
       default:
         return '';
     }
@@ -162,6 +168,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'polygonscan.com';
       case WalletType.solana:
         return S.current.view_transaction_on + 'solscan.io';
+      case WalletType.tron:
+        return S.current.view_transaction_on + 'tronscan.org';
       default:
         return '';
     }
@@ -301,6 +309,27 @@ abstract class TransactionDetailsViewModelBase with Store {
         StandartListItem(title: S.current.transaction_details_recipient_address, value: tx.to!),
       if (tx.from != null)
         StandartListItem(title: S.current.transaction_details_source_address, value: tx.from!),
+    ];
+
+    items.addAll(_items);
+  }
+
+  void _addTronListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+      if (showRecipientAddress && tx.to != null)
+        StandartListItem(
+            title: S.current.transaction_details_recipient_address,
+            value: tron!.getTronBase58Address(tx.to!, wallet)),
+      if (tx.from != null)
+        StandartListItem(
+            title: S.current.transaction_details_source_address,
+            value: tron!.getTronBase58Address(tx.from!, wallet)),
     ];
 
     items.addAll(_items);
