@@ -220,14 +220,34 @@ abstract class TronWalletBase
   }
 
   Future<void> _getEstimatedFees() async {
-    final nativeFee = await _client.getEstimatedFee(_tronPublicKey.toAddress());
+    final nativeFee = await _getNativeTxFee();
     nativeTxEstimatedFee = TronHelper.fromSun(BigInt.from(nativeFee));
 
-    final trc20Fee = await _client.getTRCEstimatedFee(_tronPublicKey.toAddress());
+    final trc20Fee = await _getTrc20TxFee();
     trc20EstimatedFee = TronHelper.fromSun(BigInt.from(trc20Fee));
 
     log('Native Estimated Fee: $nativeTxEstimatedFee');
     log('TRC20 Estimated Fee: $trc20EstimatedFee');
+  }
+
+  Future<int> _getNativeTxFee() async {
+    try {
+      final fee = await _client.getEstimatedFee(_tronPublicKey.toAddress());
+      return fee;
+    } catch (e) {
+      log(e.toString());
+      return 0;
+    }
+  }
+
+  Future<int> _getTrc20TxFee() async {
+    try {
+      final trc20fee = await _client.getTRCEstimatedFee(_tronPublicKey.toAddress());
+      return trc20fee;
+    } catch (e) {
+      log(e.toString());
+      return 0;
+    }
   }
 
   @action
@@ -328,7 +348,7 @@ abstract class TronWalletBase
       if (transactionModel.isError) {
         continue;
       }
-      
+
       String? tokenSymbol;
       if (transactionModel.contractAddress != null) {
         final tokenAddress = TronAddress(transactionModel.contractAddress!);
