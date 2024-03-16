@@ -1,5 +1,6 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_zano/zano_formatter.dart';
 import 'package:hive/hive.dart';
 
 part 'zano_asset.g.dart';
@@ -39,7 +40,7 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
     this.fullName = '',
     this.ticker = '',
     required this.assetId,
-    this.decimalPoint = defaultDecimalPoint,
+    this.decimalPoint = ZanoFormatter.defaultDecimalPoint,
     bool enabled = true,
     this.iconPath,
     this.tag,
@@ -83,7 +84,7 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
   factory ZanoAsset.fromJson(Map<String, dynamic> json) => ZanoAsset(
         assetId: json['asset_id'] as String? ?? '',
         currentSupply: json['current_supply'] as int? ?? 0,
-        decimalPoint: json['decimal_point'] as int? ?? defaultDecimalPoint,
+        decimalPoint: json['decimal_point'] as int? ?? ZanoFormatter.defaultDecimalPoint,
         fullName: json['full_name'] as String? ?? '',
         hiddenSupply: json['hidden_supply'] as bool? ?? false,
         metaInfo: json['meta_info'] as String? ?? '',
@@ -92,11 +93,7 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
         totalMaxSupply: json['total_max_supply'] as int? ?? 0,
       );
 
-  @override
-  String toString() => '$ticker (${assetId.substring(0, 4)}...${assetId.substring(assetId.length - 4)})';
-
   static const typeId = ZANO_ASSET_TYPE_ID;
   static const zanoAssetsBoxName = 'zanoAssetsBox';
-  static const defaultDecimalPoint = 12;
   static const defaultOwner = '0000000000000000000000000000000000000000000000000000000000000000';
 }

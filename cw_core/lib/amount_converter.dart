@@ -2,7 +2,6 @@ import 'package:decimal/decimal.dart';
 import 'package:decimal/intl.dart';
 import 'package:intl/intl.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:rational/rational.dart';
 
 class AmountConverter {
   static const _moneroAmountLength = 12;

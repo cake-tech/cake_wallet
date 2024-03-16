@@ -15,12 +15,13 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_zano/api/api_calls.dart';
 import 'package:cw_zano/api/model/destination.dart';
 import 'package:cw_zano/api/model/get_wallet_status_result.dart';
-import 'package:cw_zano/api/model/history.dart';
+import 'package:cw_zano/api/model/transfer.dart';
 import 'package:cw_zano/api/model/zano_wallet_keys.dart';
 import 'package:cw_zano/exceptions/zano_transaction_creation_exception.dart';
 import 'package:cw_zano/pending_zano_transaction.dart';
 import 'package:cw_zano/zano_asset.dart';
 import 'package:cw_zano/zano_balance.dart';
+import 'package:cw_zano/zano_formatter.dart';
 import 'package:cw_zano/zano_transaction_credentials.dart';
 import 'package:cw_zano/zano_transaction_history.dart';
 import 'package:cw_zano/zano_transaction_info.dart';
@@ -41,7 +42,7 @@ class ZanoWallet = ZanoWalletBase with _$ZanoWallet;
 abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHistory, ZanoTransactionInfo> with Store, ZanoWalletApi {
   static const int _autoSaveInterval = 30;
 
-  List<History> history = [];
+  List<Transfer> transfers = [];
   //String defaultAsssetId = '';
   @override
   ZanoWalletAddresses walletAddresses;
@@ -60,6 +61,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
   @override
   ZanoWalletKeys keys = ZanoWalletKeys(privateSpendKey: '', privateViewKey: '', publicSpendKey: '', publicViewKey: '');
 
+  static const String zanoAssetId = 'd6329b5b1f7c0805b5c345f4957554002a2f557845f64d7645dae0e051a6498a';
   late final Box<ZanoAsset> zanoAssetsBox;
   List<ZanoAsset> get zanoAssets => zanoAssetsBox.values.toList();
 
@@ -128,45 +130,64 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-    final creds = credentials as ZanoTransactionCredentials;
-    final outputs = creds.outputs;
+    credentials as ZanoTransactionCredentials;
+    bool isZano() => credentials.currency == CryptoCurrency.zano;
+    final outputs = credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
-    final unlockedBalance = balance[CryptoCurrency.zano]?.unlocked ?? 0;
-    final fee = calculateEstimatedFee(creds.priority);
+    final unlockedBalanceZano = BigInt.from(balance[CryptoCurrency.zano]?.unlocked ?? 0);
+    final unlockedBalanceCurrency = BigInt.from(balance[credentials.currency]?.unlocked ?? 0);
+    final fee = BigInt.from(calculateEstimatedFee(credentials.priority));
+    late BigInt totalAmount;
+    void checkForEnoughBalances() {
+      if (isZano()) {
+        if (totalAmount + fee > unlockedBalanceZano) {
+          throw ZanoTransactionCreationException(
+              "You don't have enough coins (required: ${ZanoFormatter.bigIntAmountToString(totalAmount + fee)} ZANO, unlocked ${ZanoFormatter.bigIntAmountToString(unlockedBalanceZano)} ZANO).");
+        }
+      } else {
+        if (fee > unlockedBalanceZano) {
+          throw ZanoTransactionCreationException(
+              "You don't have enough coins (required: ${ZanoFormatter.bigIntAmountToString(fee)} ZANO, unlocked ${ZanoFormatter.bigIntAmountToString(unlockedBalanceZano)} ZANO).");
+        }
+        if (totalAmount > unlockedBalanceCurrency) {
+          throw ZanoTransactionCreationException(
+              "You don't have enough coins (required: ${ZanoFormatter.bigIntAmountToString(totalAmount)} ${credentials.currency.title}, unlocked ${ZanoFormatter.bigIntAmountToString(unlockedBalanceZano)} ${credentials.currency.title}).");
+        }
+      }
+    }
+
+    final assetId = isZano() ? zanoAssetId : (currency as ZanoAsset).assetId;
     late List<Destination> destinations;
     if (hasMultiDestination) {
       if (outputs.any((output) => output.sendAll || (output.formattedCryptoAmount ?? 0) <= 0)) {
         throw ZanoTransactionCreationException("You don't have enough coins.");
       }
-      final int totalAmount = outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
-      if (totalAmount + fee > unlockedBalance) {
-        throw ZanoTransactionCreationException(
-            "You don't have enough coins (required: ${moneroAmountToString(amount: totalAmount + fee)}, unlocked ${moneroAmountToString(amount: unlockedBalance)}).");
-      }
+      totalAmount = outputs.fold(BigInt.zero, (acc, value) => acc + BigInt.from(value.formattedCryptoAmount ?? 0));
+      checkForEnoughBalances();
       destinations = outputs
           .map((output) => Destination(
-                amount: output.formattedCryptoAmount ?? 0,
+                amount: BigInt.from(output.formattedCryptoAmount ?? 0),
                 address: output.isParsedAddress ? output.extractedAddress! : output.address,
-                assetId: "defaultAsssetId",
+                assetId: assetId,
               ))
           .toList();
     } else {
       final output = outputs.first;
-      late int amount;
       if (output.sendAll) {
-        amount = unlockedBalance - fee;
+        if (isZano()) {
+          totalAmount = unlockedBalanceZano - fee;
+        } else {
+          totalAmount = unlockedBalanceCurrency;
+        }
       } else {
-        amount = output.formattedCryptoAmount!;
+        totalAmount = BigInt.from(output.formattedCryptoAmount!);
       }
-      if (amount + fee > unlockedBalance) {
-        throw ZanoTransactionCreationException(
-            "You don't have enough coins (required: ${moneroAmountToString(amount: amount + fee)}, unlocked ${moneroAmountToString(amount: unlockedBalance)}).");
-      }
+      checkForEnoughBalances();
       destinations = [
         Destination(
-          amount: amount,
+          amount: totalAmount,
           address: output.isParsedAddress ? output.extractedAddress! : output.address,
-          assetId: "defaultAsssetId",
+          assetId: assetId,
         )
       ];
     }
@@ -178,18 +199,27 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
       destinations: destinations,
       fee: fee,
       comment: outputs.first.note ?? '',
+      assetId: assetId,
+      ticker: credentials.currency.title,
+      amount: totalAmount,
     );
   }
 
   @override
   Future<Map<String, ZanoTransactionInfo>> fetchTransactions() async {
     try {
-      await _refreshTransactions();
-      return history.map<ZanoTransactionInfo>((history) => ZanoTransactionInfo.fromHistory(history)).fold<Map<String, ZanoTransactionInfo>>(
-        <String, ZanoTransactionInfo>{},
-        (Map<String, ZanoTransactionInfo> acc, ZanoTransactionInfo tx) {
-          acc[tx.id] = tx;
-          return acc;
+      transfers = await getRecentTxsAndInfo();
+      return Map.fromIterable(
+        transfers,
+        key: (item) => (item as Transfer).txHash,
+        value: (item) {
+          item as Transfer;
+          if (item.subtransfers.first.assetId == zanoAssetId) {
+            return ZanoTransactionInfo.fromTransfer(item, 'ZANO');
+          } else {
+            final tokenSymbol = zanoAssets.firstWhere((element) => element.assetId == item.subtransfers.first.assetId).ticker;
+            return ZanoTransactionInfo.fromTransfer(item, tokenSymbol);
+          }
         },
       );
     } catch (e) {
@@ -286,7 +316,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
       _cachedBlockchainHeight = 0;
       _lastKnownBlockHeight = 0;
       _initialSyncHeight = 0;
-      _updateSyncInfoTimer ??= Timer.periodic(Duration(milliseconds: /*1200*/5000), (_) async {
+      _updateSyncInfoTimer ??= Timer.periodic(Duration(milliseconds: /*1200*/ 5000), (_) async {
         /*if (isNewTransactionExist()) {
         onNewTransaction?.call();
       }*/
@@ -463,14 +493,6 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     try {
       await _askForUpdateTransactionHistory();
       await Future<void>.delayed(Duration(seconds: 1)); // TODO: ???
-    } catch (e) {
-      print(e.toString());
-    }
-  }
-
-  Future<void> _refreshTransactions() async {
-    try {
-      history = await getRecentTxsAndInfo();
     } catch (e) {
       print(e.toString());
     }

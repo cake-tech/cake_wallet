@@ -1,13 +1,11 @@
 import 'dart:convert';
 
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_zano/api/exceptions/transfer_exception.dart';
 import 'package:cw_zano/api/model/destination.dart';
-import 'package:cw_zano/api/model/history.dart';
 import 'package:cw_zano/api/model/transfer_params.dart';
 import 'package:cw_zano/api/model/transfer_result.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/amount_converter.dart';
-import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_zano/zano_formatter.dart';
 import 'package:cw_zano/zano_wallet.dart';
 
 class PendingZanoTransaction with PendingTransaction {
@@ -16,12 +14,20 @@ class PendingZanoTransaction with PendingTransaction {
     required this.destinations,
     required this.fee,
     required this.comment,
+    required this.assetId,
+    required this.ticker,
+    this.decimalPoint = 12,
+    required this.amount,
   });
 
   final ZanoWalletBase zanoWallet;
   final List<Destination> destinations;
-  final int fee;
+  final BigInt fee;
   final String comment;
+  final String assetId;
+  final String ticker;
+  final int decimalPoint;
+  final BigInt amount;
 
   @override
   String get id => transferResult?.txHash ?? '';
@@ -30,10 +36,10 @@ class PendingZanoTransaction with PendingTransaction {
   String get hex => '';
 
   @override
-  String get amountFormatted => AmountConverter.amountIntToString(CryptoCurrency.zano, destinations.first.amount);
+  String get amountFormatted => '${ZanoFormatter.bigIntAmountToString(amount, decimalPoint)} $ticker';
 
   @override
-  String get feeFormatted => AmountConverter.amountIntToString(CryptoCurrency.zano, fee);
+  String get feeFormatted => '${ZanoFormatter.bigIntAmountToString(fee)} ZANO';
 
   TransferResult? transferResult;
 
@@ -66,4 +72,6 @@ class PendingZanoTransaction with PendingTransaction {
       }
     }
   }
+
+  
 }

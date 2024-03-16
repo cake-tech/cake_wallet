@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_zano/api/api_calls.dart';
 import 'package:cw_zano/api/model/add_remove_assets_whitelist_params.dart';
-import 'package:cw_zano/api/model/asset_descriptor.dart';
 import 'package:cw_zano/api/model/get_recent_txs_and_info_params.dart';
 import 'package:cw_zano/api/model/get_wallet_info_result.dart';
 import 'package:cw_zano/api/model/get_wallet_status_result.dart';
-import 'package:cw_zano/api/model/history.dart';
+import 'package:cw_zano/api/model/transfer.dart';
 import 'package:cw_zano/zano_asset.dart';
+import 'package:flutter/foundation.dart';
 
 import 'api/model/store_result.dart';
 
@@ -150,9 +150,10 @@ mixin ZanoWalletApi {
     }
   }
 
-  Future<List<History>> getRecentTxsAndInfo() async {
+  Future<List<Transfer>> getRecentTxsAndInfo() async {
     try {
       final json = await invokeMethod('get_recent_txs_and_info', GetRecentTxsAndInfoParams(offset: 0, count: 30));
+      debugPrint('get_recent_txs_and_info $json');
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
       final transfers = map?['result']?['result']?['transfers'] as List<dynamic>?;
@@ -160,7 +161,7 @@ mixin ZanoWalletApi {
         print('get_recent_txs_and_info empty transfers');
         return [];
       }
-      return transfers.map((e) => History.fromJson(e as Map<String, dynamic>)).toList();
+      return transfers.map((e) => Transfer.fromJson(e as Map<String, dynamic>)).toList();
     } catch (e) {
       print(e);
       return [];

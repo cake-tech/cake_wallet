@@ -1,7 +1,7 @@
 import 'package:cw_zano/api/model/employed_entries.dart';
 import 'package:cw_zano/api/model/subtransfer.dart';
 
-class History {
+class Transfer {
   final String comment;
   final EmployedEntries employedEntries;
   final int fee;
@@ -21,7 +21,7 @@ class History {
   final int txType;
   final int unlockTime;
 
-  History({
+  Transfer({
     required this.comment,
     required this.employedEntries,
     required this.fee,
@@ -42,7 +42,7 @@ class History {
     required this.unlockTime,
   });
 
-  factory History.fromJson(Map<String, dynamic> json) => History(
+  factory Transfer.fromJson(Map<String, dynamic> json) => Transfer(
         comment: json['comment'] as String? ?? '',
         employedEntries: EmployedEntries.fromJson(
             json['employed_entries'] as Map<String, dynamic>? ?? {}),

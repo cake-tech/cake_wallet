@@ -46,7 +46,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void onWalletChange(wallet) {
     currencies = wallet.balance.keys.toList();
     selectedCryptoCurrency = wallet.currency;
-    hasMultipleTokens = isEVMCompatibleChain(wallet.type) || wallet.type == WalletType.solana;
+    hasMultipleTokens = isEVMCompatibleChain(wallet.type) || wallet.type == WalletType.solana || wallet.type == WalletType.zano;
   }
 
   SendViewModelBase(
@@ -60,7 +60,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         currencies = appStore.wallet!.balance.keys.toList(),
         selectedCryptoCurrency = appStore.wallet!.currency,
         hasMultipleTokens = isEVMCompatibleChain(appStore.wallet!.type) ||
-            appStore.wallet!.type == WalletType.solana,
+            appStore.wallet!.type == WalletType.solana || appStore.wallet!.type == WalletType.zano,
         outputs = ObservableList<Output>(),
         _settingsStore = appStore.settingsStore,
         fiatFromSettings = appStore.settingsStore.fiatCurrency,
@@ -387,12 +387,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return solana!
             .createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);
       case WalletType.zano:
-        final priority = _settingsStore.priority[wallet.type];
-        if (priority == null) {
-          throw Exception('Priority is null for wallet type: ${wallet.type}');
-        }
-        return zano!.createZanoTransactionCreationCredentials(
-            outputs: outputs, priority: priority, assetType: selectedCryptoCurrency.title);
+        return zano!.createZanoTransactionCredentials(
+            outputs: outputs, priority: priority!, currency: selectedCryptoCurrency);
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }

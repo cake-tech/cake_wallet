@@ -1,5 +1,5 @@
 class Destination {
-  final int amount;     // transfered as string
+  final BigInt amount;     // transfered as string
   final String address;
   final String assetId;
 
@@ -7,7 +7,7 @@ class Destination {
       {required this.amount, required this.address, required this.assetId});
 
   factory Destination.fromJson(Map<String, dynamic> json) => Destination(
-        amount: int.parse(json['amount'] as String? ?? '0'),
+        amount: BigInt.parse(json['amount'] as String? ?? '0'),
         address: json['address'] as String? ?? '',
         assetId: json['asset_id'] as String? ?? '',
       );

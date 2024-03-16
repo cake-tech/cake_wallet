@@ -10,7 +10,6 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_zano/api/api_calls.dart' as calls;
 import 'package:cw_zano/api/api_calls.dart';
 import 'package:cw_zano/api/consts.dart';
 import 'package:cw_zano/api/exceptions/already_exists_exception.dart';
@@ -21,6 +20,7 @@ import 'package:cw_zano/api/model/create_wallet_result.dart';
 import 'package:cw_zano/zano_asset.dart';
 import 'package:cw_zano/zano_balance.dart';
 import 'package:cw_zano/zano_wallet.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
@@ -71,8 +71,8 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
       final wallet = ZanoWallet(credentials.walletInfo!);
       await wallet.connectToNode(node: Node());
       final path = await pathForWallet(name: credentials.name, type: getType());
-      final result = ApiCalls.createWallet(language: '', path: path, password: credentials.password!);
-      final map = json.decode(result) as Map<String, dynamic>;
+      final json = ApiCalls.createWallet(language: '', path: path, password: credentials.password!);
+      final map = jsonDecode(json) as Map<String, dynamic>;
       _checkForCreateWalletError(map);
       final createWalletResult = CreateWalletResult.fromJson(map['result'] as Map<String, dynamic>);
       _parseCreateWalletResult(createWalletResult, wallet);
@@ -111,9 +111,9 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
       final walletInfo = walletInfoSource.values.firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
       final wallet = ZanoWallet(walletInfo);
       await wallet.connectToNode(node: Node());
-      final result = wallet.loadWallet(path, password);
-      print('load wallet result $result');
-      final map = json.decode(result) as Map<String, dynamic>;
+      final json = wallet.loadWallet(path, password);
+      debugPrint('load wallet result $json');
+      final map = jsonDecode(json) as Map<String, dynamic>;
       _checkForCreateWalletError(map);
       final createWalletResult = CreateWalletResult.fromJson(map['result'] as Map<String, dynamic>);
       _parseCreateWalletResult(createWalletResult, wallet);
@@ -144,6 +144,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
     wallet.walletAddresses.address = result.wi.address;
     for (final item in result.wi.balances) {
       if (item.assetInfo.ticker == 'ZANO') {
+        //wallet.zanoAssetId = item.assetInfo.assetId;
         wallet.balance[CryptoCurrency.zano] = ZanoBalance(total: item.total, unlocked: item.unlocked);
       } else {
         for (final asset in wallet.balance.keys) {
@@ -154,7 +155,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
       }
     }
     if (result.recentHistory.history != null) {
-      wallet.history = result.recentHistory.history!;
+      wallet.transfers = result.recentHistory.history!;
     }
   }
 
@@ -197,8 +198,8 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
       final wallet = ZanoWallet(credentials.walletInfo!);
       await wallet.connectToNode(node: Node());
       final path = await pathForWallet(name: credentials.name, type: getType());
-      final result = ApiCalls.restoreWalletFromSeed(path: path, password: credentials.password!, seed: credentials.mnemonic);
-      final map = json.decode(result) as Map<String, dynamic>;
+      final json = ApiCalls.restoreWalletFromSeed(path: path, password: credentials.password!, seed: credentials.mnemonic);
+      final map = jsonDecode(json) as Map<String, dynamic>;
       if (map['result'] != null) {
         final createWalletResult = CreateWalletResult.fromJson(map['result'] as Map<String, dynamic>);
         _parseCreateWalletResult(createWalletResult, wallet);

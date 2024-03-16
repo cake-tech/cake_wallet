@@ -80,21 +80,18 @@ class CWZano extends Zano {
   }*/
 
   List<ZanoAsset> getZanoAssets(WalletBase wallet) {
-    final zanoWallet = wallet as ZanoWallet;
-    return zanoWallet.zanoAssets;
+    wallet as ZanoWallet;
+    return wallet.zanoAssets;
   }
 
   @override
-  Future<CryptoCurrency> addZanoAssetById(WalletBase wallet, String assetId) async => 
-    await (wallet as ZanoWallet).addZanoAssetById(assetId);
+  Future<CryptoCurrency> addZanoAssetById(WalletBase wallet, String assetId) async => await (wallet as ZanoWallet).addZanoAssetById(assetId);
 
   @override
-  Future<void> addZanoAsset(WalletBase wallet, CryptoCurrency token) async =>
-      await (wallet as ZanoWallet).addRemoveZanoAsset(token as ZanoAsset);
+  Future<void> addZanoAsset(WalletBase wallet, CryptoCurrency token) async => await (wallet as ZanoWallet).addRemoveZanoAsset(token as ZanoAsset);
 
   @override
-  Future<void> deleteZanoAsset(WalletBase wallet, CryptoCurrency token) async =>
-      await (wallet as ZanoWallet).deleteZanoAsset(token as ZanoAsset);
+  Future<void> deleteZanoAsset(WalletBase wallet, CryptoCurrency token) async => await (wallet as ZanoWallet).deleteZanoAsset(token as ZanoAsset);
 
   @override
   Future<ZanoAsset?> getZanoAsset(WalletBase wallet, String assetId) async {
@@ -136,12 +133,20 @@ class CWZano extends Zano {
 
   @override
   WalletCredentials createZanoRestoreWalletFromKeysCredentials(
-      {required String name, required String spendKey, required String viewKey, required String address, required String password, required String language, required int height}) {
-    return ZanoRestoreWalletFromKeysCredentials(name: name, spendKey: spendKey, viewKey: viewKey, address: address, password: password, language: language, height: height);
+      {required String name,
+      required String spendKey,
+      required String viewKey,
+      required String address,
+      required String password,
+      required String language,
+      required int height}) {
+    return ZanoRestoreWalletFromKeysCredentials(
+        name: name, spendKey: spendKey, viewKey: viewKey, address: address, password: password, language: language, height: height);
   }
 
   @override
-  WalletCredentials createZanoRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic}) {
+  WalletCredentials createZanoRestoreWalletFromSeedCredentials(
+      {required String name, required String password, required int height, required String mnemonic}) {
     return ZanoRestoreWalletFromSeedCredentials(name: name, password: password, height: height, mnemonic: mnemonic);
   }
 
@@ -163,21 +168,22 @@ class CWZano extends Zano {
   }
 
   @override
-  Object createZanoTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority, required String assetType}) {
+  Object createZanoTransactionCredentials({required List<Output> outputs, required TransactionPriority priority, required CryptoCurrency currency}) {
     return ZanoTransactionCredentials(
-        outputs: outputs
-            .map((out) => OutputInfo(
-                fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
-                address: out.address,
-                note: out.note,
-                sendAll: out.sendAll,
-                extractedAddress: out.extractedAddress,
-                isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount))
-            .toList(),
-        priority: priority as MoneroTransactionPriority,
-        assetType: assetType);
+      outputs: outputs
+          .map((out) => OutputInfo(
+              fiatAmount: out.fiatAmount,
+              cryptoAmount: out.cryptoAmount,
+              address: out.address,
+              note: out.note,
+              sendAll: out.sendAll,
+              extractedAddress: out.extractedAddress,
+              isParsedAddress: out.isParsedAddress,
+              formattedCryptoAmount: out.formattedCryptoAmount))
+          .toList(),
+      priority: priority as MoneroTransactionPriority,
+      currency: currency,
+    );
   }
 
   @override
@@ -231,10 +237,13 @@ class CWZano extends Zano {
   // }
 
   @override
-  CryptoCurrency assetOfTransaction(TransactionInfo tx) {
-    final transaction = tx as ZanoTransactionInfo;
-    final asset = CryptoCurrency.fromString(transaction.assetType);
-    return asset;
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
+    transaction as ZanoTransactionInfo;
+    if (transaction.tokenSymbol == CryptoCurrency.zano.title) {
+      return CryptoCurrency.zano;
+    }
+    wallet as ZanoWallet;
+    return wallet.zanoAssets.firstWhere((element) => element.ticker == transaction.tokenSymbol);
   }
 
   String getZanoAssetAddress(CryptoCurrency asset) => (asset as ZanoAsset).assetId;

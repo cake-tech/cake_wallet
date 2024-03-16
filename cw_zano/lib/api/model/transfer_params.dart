@@ -2,7 +2,7 @@ import 'package:cw_zano/api/model/destination.dart';
 
 class TransferParams {
   final List<Destination> destinations;
-  final int fee;
+  final BigInt fee;
   final int mixin;
   final String paymentId;
   final String comment;
@@ -31,7 +31,7 @@ class TransferParams {
 
   factory TransferParams.fromJson(Map<String, dynamic> json) => TransferParams(
         destinations: (json['destinations'] as List<dynamic>?)?.map((e) => Destination.fromJson(e as Map<String, dynamic>)).toList() ?? [],
-        fee: json['fee'] as int? ?? 0,
+        fee: BigInt.from(json['fee'] as int? ?? 0),
         mixin: json['mixin'] as int? ?? 0,
         paymentId: json['payment_id'] as String? ?? '',
         comment: json['comment'] as String? ?? '',

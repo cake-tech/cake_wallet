@@ -104,7 +104,7 @@ abstract class Zano {
   WalletCredentials createZanoRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
   WalletCredentials createZanoNewWalletCredentials({required String name, String password});
   Map<String, String> getKeys(Object wallet);
-  Object createZanoTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority, required String assetType});
+  Object createZanoTransactionCredentials({required List<Output> outputs, required TransactionPriority priority, required CryptoCurrency currency});
   String formatterMoneroAmountToString({required int amount});
   double formatterMoneroAmountToDouble({required int amount});
   int formatterMoneroParseAmount({required String amount});
@@ -113,7 +113,7 @@ abstract class Zano {
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createZanoWalletService(Box<WalletInfo> walletInfoSource);
-  CryptoCurrency assetOfTransaction(TransactionInfo tx);
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo tx);
   List<ZanoAsset> getZanoAssets(WalletBase wallet);
   String getZanoAssetAddress(CryptoCurrency asset);
   Future<void> addZanoAsset(WalletBase wallet, CryptoCurrency token);
