@@ -29,6 +29,7 @@ const publicBitcoinTestnetElectrumUri =
     '$publicBitcoinTestnetElectrumAddress:$publicBitcoinTestnetElectrumPort';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
+const wowneroDefaultNodeUri = 'node2.monerodevs.org:34568';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
 const polygonDefaultNodeUri = 'polygon-bor.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
@@ -196,6 +197,7 @@ Future<void> defaultSettingsMigration(
         /// maybe due to multiple access on Secure Storage at once
         /// or long await time on start of the app
         // await insecureStorageMigration(secureStorage: secureStorage, sharedPreferences: sharedPreferences);
+          break;
         case 27:
           await addSolanaNodeList(nodes: nodes);
           await changeSolanaCurrentNodeToDefault(
@@ -203,6 +205,11 @@ Future<void> defaultSettingsMigration(
           break;
         case 28:
           await _updateMoneroPriority(sharedPreferences);
+          break;
+        case 29:
+          await addWowneroNodeList(nodes: nodes);
+          await changeWowneroCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
+          await checkCurrentNodes(nodes, powNodes, sharedPreferences);
           break;
         default:
           break;
@@ -496,6 +503,25 @@ Future<void> insecureStorageMigration({
   }
 }
 
+Node getWowneroDefaultNode({required Box<Node> nodes}) {
+  final timeZone = DateTime.now().timeZoneOffset.inHours;
+  var nodeUri = '';
+
+  if (timeZone >= 1) {
+    // Eurasia
+    nodeUri = 'node2.monerodevs.org.lol:34568';
+  } else if (timeZone <= -4) {
+    // America
+    nodeUri = 'node3.monerodevs.org:34568';
+  }
+
+  try {
+    return nodes.values.firstWhere((Node node) => node.uriRaw == nodeUri);
+  } catch (_) {
+    return nodes.values.first;
+  }
+}
+
 Future<void> rewriteSecureStoragePin({required FlutterSecureStorage secureStorage}) async {
   // the bug only affects ios/mac:
   if (!Platform.isIOS && !Platform.isMacOS) {
@@ -566,6 +592,14 @@ Future<void> changeHavenCurrentNodeToDefault(
   await sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, nodeId);
 }
 
+Future<void> changeWowneroCurrentNodeToDefault(
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+  final node = getWowneroDefaultNode(nodes: nodes);
+  final nodeId = node?.key as int? ?? 0;
+
+  await sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, nodeId);
+}
+
 Future<void> replaceDefaultNode(
     {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
   const nodesForReplace = <String>[
@@ -622,6 +656,15 @@ Future<void> addBitcoinCashElectrumServerList({required Box<Node> nodes}) async 
 
 Future<void> addHavenNodeList({required Box<Node> nodes}) async {
   final nodeList = await loadDefaultHavenNodes();
+  for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
+}
+
+Future<void> addWowneroNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultWowneroNodes();
   for (var node in nodeList) {
     if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
       await nodes.add(node);
@@ -710,6 +753,7 @@ Future<void> checkCurrentNodes(
   final currentLitecoinElectrumSeverId =
       sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
   final currentHavenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
+  final currentWowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
   final currentEthereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
   final currentPolygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
   final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
@@ -725,6 +769,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentLitecoinElectrumSeverId);
   final currentHavenNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentHavenNodeId);
+  final currentWowneroNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentWowneroNodeId);
   final currentEthereumNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentEthereumNodeId);
   final currentPolygonNodeServer =
@@ -761,6 +807,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: havenDefaultNodeUri, type: WalletType.haven);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, node.key as int);
+  }
+
+  if (currentWowneroNodeServer == null) {
+    final node = Node(uri: wowneroDefaultNodeUri, type: WalletType.wownero);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, node.key as int);
   }
 
   if (currentEthereumNodeServer == null) {

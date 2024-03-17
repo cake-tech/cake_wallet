@@ -17,6 +17,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 
 part 'wallet_restore_view_model.g.dart';
@@ -49,6 +50,9 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.solana:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
+      case WalletType.wownero:
+        availableModes = [WalletRestoreMode.seed];
+        break;
       default:
         availableModes = [WalletRestoreMode.seed];
         break;
@@ -57,6 +61,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     walletCreationService.changeWalletType(type: type);
   }
 
+  static const wowneroSeedMnemonicLength = 14;
   static const moneroSeedMnemonicLength = 25;
   static const electrumSeedMnemonicLength = 24;
   static const electrumShortSeedMnemonicLength = 12;
@@ -119,6 +124,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
             password: password,
           );
+        case WalletType.wownero:
+          return wownero!.createWowneroRestoreWalletFromSeedCredentials(
+              name: name,
+              height: height,
+              mnemonic: seed,
+              password: password);
         default:
           break;
       }

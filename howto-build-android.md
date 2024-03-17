@@ -152,6 +152,10 @@ Generate mobx models for `cw_monero`:
 
 `cd cw_monero && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
 
+Generate mobx models for `cw_wownero`:
+
+`cd cw_wownero && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
+
 Generate mobx models for `cw_bitcoin`:
 
 `cd cw_bitcoin && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`

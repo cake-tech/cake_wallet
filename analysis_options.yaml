@@ -6,6 +6,7 @@ analyzer:
     lib/**.g.dart,
     cw_core/lib/**.g.dart,
     cw_haven/lib/**.g.dart,
+    cw_wownero/lib/**.g.dart,
     cw_monero/lib/**.g.dart,
     lib/generated/*.dart,
     cw_monero/ios/External/**,
