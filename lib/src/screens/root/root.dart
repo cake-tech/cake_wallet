@@ -177,7 +177,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         launchUri = null;
       } else {
         if (widget.appStore.wallet == null) {
-          waitForWalletInstance(context);
+          waitForWalletInstance(context, launchUri!);
           launchUri = null;
         } else {
           widget.navigatorKey.currentState?.pushNamed(
@@ -248,10 +248,9 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     );
   }
 
-  void waitForWalletInstance(BuildContext context) {
+  void waitForWalletInstance(BuildContext context, Uri tempLaunchUri) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.mounted) {
-        final tempLaunchUri = launchUri;
         _walletReactionDisposer = reaction(
               (_) => widget.appStore.wallet,
               (WalletBase? wallet) {
