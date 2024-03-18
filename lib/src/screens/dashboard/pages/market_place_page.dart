@@ -66,6 +66,15 @@ class MarketPlacePage extends StatelessWidget {
                       title: S.of(context).cake_pay_web_cards_title,
                       subTitle: S.of(context).cake_pay_web_cards_subtitle,
                     ),
+                    const SizedBox(height: 20),
+                    DashBoardRoundedCardWidget(
+                      onTap: () => launchUrl(
+                        Uri.https("cake.nano-gpt.com"),
+                        mode: LaunchMode.externalApplication,
+                      ),
+                      title: S.of(context).cake_pay_web_cards_title,
+                      subTitle: S.of(context).cake_pay_web_cards_subtitle,
+                    ),
                   ],
                 ),
               ),
