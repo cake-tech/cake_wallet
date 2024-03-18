@@ -66,6 +66,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final params = <String, String>{
       'rateType': _getRateType(isFixedRateMode),
       'amount': '1',
+      'apiToken': apiKey,
     };
     if (isFixedRateMode) {
       params['coinFrom'] = _normalizeCurrency(to);

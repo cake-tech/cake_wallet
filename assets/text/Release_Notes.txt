@@ -1,6 +1,5 @@
-Add Solana wallet
-Support ALL Bitcoin address types (Legacy, Segwit (both variants), Taproot)
-Enhance Sending/Receiving flow for Bitcoin
-Improve fee calculations in Bitcoin
-New themes
+Monero enhancements
+Bitcoin support different address types (Taproot, Segwit P2WPKH/P2WSH, Legacy)
+In-App live status page for the app services
+Add Exolix exchange provider
 Bug fixes and enhancements
