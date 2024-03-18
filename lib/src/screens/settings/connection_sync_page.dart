@@ -118,44 +118,48 @@ class ConnectionSyncPage extends BasePage {
             ),
           ],
           if (FeatureFlag.isInAppTorEnabled && DeviceInfo.instance.isMobile) ...[
-            if (!dashboardViewModel.torViewModel.supportsNodeProxy)
-              Container(
-                padding: const EdgeInsets.only(top: 12, bottom: 12, right: 6),
-                margin: const EdgeInsets.only(left: 24, right: 24, top: 10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                  color: Color.fromARGB(200, 255, 221, 44),
-                  border: Border.all(
-                    color: Color.fromARGB(178, 223, 214, 0),
-                    width: 2,
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      margin: EdgeInsets.only(left: 12, bottom: 48, right: 20),
-                      child: Image.asset(
-                        "assets/images/warning.png",
-                        color: Color.fromARGB(128, 255, 255, 255),
-                      ),
+            Observer(builder: (context) {
+              if (!dashboardViewModel.torViewModel.supportsNodeProxy &&
+                  dashboardViewModel.torViewModel.torConnectionMode == TorConnectionMode.enabled)
+                return Container(
+                  padding: const EdgeInsets.only(top: 12, bottom: 12, right: 6),
+                  margin: const EdgeInsets.only(left: 24, right: 24, top: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    color: Color.fromARGB(200, 255, 221, 44),
+                    border: Border.all(
+                      color: Color.fromARGB(178, 223, 214, 0),
+                      width: 2,
                     ),
-                    Expanded(
-                      child: Text(
-                        S.of(context).tor_node_warning,
-                        maxLines: 5,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        margin: EdgeInsets.only(left: 12, bottom: 48, right: 20),
+                        child: Image.asset(
+                          "assets/images/warning.png",
+                          color: Color.fromARGB(128, 255, 255, 255),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
+                      Expanded(
+                        child: Text(
+                          S.of(context).tor_node_warning,
+                          maxLines: 5,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              return const SizedBox();
+            }),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               child: Column(children: [
