@@ -392,6 +392,7 @@ Future<void> setup({
         keyService: getIt.get<KeyService>(),
         torViewModel: getIt.get<TorViewModel>(),
         sharedPreferences: getIt.get<SharedPreferences>(),
+        proxyWrapper: getIt.get<ProxyWrapper>(),
       ));
 
   getIt.registerFactory<AuthService>(
