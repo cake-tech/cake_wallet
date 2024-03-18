@@ -1,7 +1,6 @@
 part of 'bitcoin.dart';
 
 class CWBitcoin extends Bitcoin {
-
   WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({
     required String name,
     required String mnemonic,
@@ -29,28 +28,9 @@ class CWBitcoin extends Bitcoin {
   WalletCredentials createBitcoinNewWalletCredentials(
           {required String name, WalletInfo? walletInfo}) =>
       BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo);
-      
+
   @override
   TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;
-
-  @override
-  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials(
-          {required String name, required String mnemonic, required String password}) =>
-      BitcoinRestoreWalletFromSeedCredentials(name: name, mnemonic: mnemonic, password: password);
-
-  @override
-  WalletCredentials createBitcoinRestoreWalletFromWIFCredentials(
-          {required String name,
-          required String password,
-          required String wif,
-          WalletInfo? walletInfo}) =>
-      BitcoinRestoreWalletFromWIFCredentials(
-          name: name, password: password, wif: wif, walletInfo: walletInfo);
-
-  @override
-  WalletCredentials createBitcoinNewWalletCredentials(
-          {required String name, WalletInfo? walletInfo}) =>
-      BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo);
 
   @override
   List<String> getWordList() => wordlist;
@@ -235,7 +215,6 @@ class CWBitcoin extends Bitcoin {
     }
   }
 
-
   @override
   Future<List<DerivationType>> compareDerivationMethods(
       {required String mnemonic, required Node node}) async {
@@ -244,6 +223,16 @@ class CWBitcoin extends Bitcoin {
     }
 
     return [DerivationType.bip39, DerivationType.electrum2];
+  }
+
+  int _countOccurrences(String str, String charToCount) {
+    int count = 0;
+    for (int i = 0; i < str.length; i++) {
+      if (str[i] == charToCount) {
+        count++;
+      }
+    }
+    return count;
   }
 
   @override
@@ -273,7 +262,7 @@ class CWBitcoin extends Bitcoin {
           var node = bip32.BIP32.fromSeed(seedBytes);
 
           String derivationPath = dInfoCopy.derivationPath!;
-          int derivationDepth = countOccurrences(derivationPath, "/");
+          int derivationDepth = _countOccurrences(derivationPath, "/");
           if (derivationDepth == 3) {
             derivationPath += "/0/0";
             dInfoCopy.derivationPath = dInfoCopy.derivationPath! + "/0";
@@ -292,7 +281,6 @@ class CWBitcoin extends Bitcoin {
                   .address;
               break;
             case "p2pkh":
-            // case "p2wpkh-p2sh":// TODO
             default:
               address = btc
                   .P2PKH(
@@ -304,7 +292,7 @@ class CWBitcoin extends Bitcoin {
               break;
           }
 
-          final sh = scriptHash(address!, networkType: btc.bitcoin);
+          final sh = scriptHash(address!, network: BitcoinNetwork.mainnet);
           final history = await electrumClient.getHistory(sh);
 
           final balance = await electrumClient.getBalance(sh);
