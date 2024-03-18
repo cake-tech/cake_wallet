@@ -26,7 +26,8 @@ class MoonPayProvider extends BuyProvider {
     required SettingsStore settingsStore,
     required WalletBase wallet,
     bool isTestEnvironment = false,
-  })  : baseUrl = isTestEnvironment ? _baseTestUrl : _baseProductUrl,
+  })  : baseSellUrl = isTestEnvironment ? _baseSellTestUrl : _baseSellProductUrl,
+        baseBuyUrl = isTestEnvironment ? _baseBuyTestUrl : _baseBuyProductUrl,
         this._settingsStore = settingsStore,
         super(wallet: wallet, isTestEnvironment: isTestEnvironment);
 
@@ -63,11 +64,12 @@ class MoonPayProvider extends BuyProvider {
   static String get _apiKey => secrets.moonPayApiKey;
 
   static String get _secretKey => secrets.moonPaySecretKey;
-  final String baseUrl;
+  final String baseBuyUrl;
+  final String baseSellUrl;
 
   String get currencyCode => walletTypeToCryptoCurrency(wallet.type).title.toLowerCase();
 
-  String get trackUrl => baseUrl + '/transaction_receipt?transactionId=';
+  String get trackUrl => baseBuyUrl + '/transaction_receipt?transactionId=';
 
   Future<Uri> requestSellMoonPayUrl({
     required CryptoCurrency currency,
@@ -83,7 +85,7 @@ class MoonPayProvider extends BuyProvider {
     };
 
     final originalUri = Uri.https(
-      baseUrl,
+      baseSellUrl,
       '',
       <String, dynamic>{
         'apiKey': _apiKey,
@@ -108,7 +110,6 @@ class MoonPayProvider extends BuyProvider {
     return signedUri;
   }
 
-
   Future<Uri> requestBuyMoonPayUrl({
     required CryptoCurrency currency,
     required String refundWalletAddress,
@@ -123,7 +124,7 @@ class MoonPayProvider extends BuyProvider {
     };
 
     final originalUri = Uri.https(
-      baseUrl,
+      baseBuyUrl,
       '',
       <String, dynamic>{
         'apiKey': _apiKey,
@@ -151,7 +152,7 @@ class MoonPayProvider extends BuyProvider {
   @override
   Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
     try {
-      late final uri;
+      late final Uri uri;
       if (isBuyAction ?? true) {
         uri = await requestBuyMoonPayUrl(
           currency: wallet.currency,
