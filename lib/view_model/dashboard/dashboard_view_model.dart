@@ -537,7 +537,10 @@ abstract class DashboardViewModelBase with Store {
       final hasUpdates = oldSha != currentSha;
 
       return ServicesResponse.fromJson(
-          json.decode(res.body) as Map<String, dynamic>, hasUpdates, currentSha);
+        json.decode(res.body) as Map<String, dynamic>,
+        hasUpdates,
+        currentSha,
+      );
     } catch (_) {
       return ServicesResponse([], false, '');
     }

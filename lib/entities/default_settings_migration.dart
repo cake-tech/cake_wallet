@@ -35,6 +35,7 @@ const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'rpc.ankr.com';
+const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -201,10 +202,20 @@ Future<void> defaultSettingsMigration(
           await changeSolanaCurrentNodeToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
           break;
-        case 27:
+
+        case 28:
+          await _updateMoneroPriority(sharedPreferences);
+          break;
+
+        case 29:
+          await changeDefaultBitcoinNode(nodes, sharedPreferences);
+          break;
+
+        case 30:
           await migrateTorPreferences(sharedPreferences: sharedPreferences);
           await addOnionNode(nodes);
           break;
+
         default:
           break;
       }
@@ -217,6 +228,18 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
+  final currentPriority =
+      await sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority) ??
+          monero!.getDefaultTransactionPriority().serialize();
+
+  // was set to automatic but automatic should be 0
+  if (currentPriority == 1) {
+    sharedPreferences.setInt(PreferencesKey.moneroTransactionPriority,
+        monero!.getDefaultTransactionPriority().serialize()); // 0
+  }
 }
 
 Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async {
@@ -703,6 +726,26 @@ Future<void> changeDefaultMoneroNode(
 
   if (needToReplaceCurrentMoneroNode) {
     await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, newCakeWalletNode.key as int);
+  }
+}
+
+Future<void> changeDefaultBitcoinNode(
+    Box<Node> nodeSource, SharedPreferences sharedPreferences) async {
+  const cakeWalletBitcoinNodeUriPattern = '.cakewallet.com';
+  final currentBitcoinNodeId =
+      sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
+  final currentBitcoinNode =
+      nodeSource.values.firstWhere((node) => node.key == currentBitcoinNodeId);
+  final needToReplaceCurrentBitcoinNode =
+      currentBitcoinNode.uri.toString().contains(cakeWalletBitcoinNodeUriPattern);
+
+  final newCakeWalletBitcoinNode = Node(uri: newCakeWalletBitcoinUri, type: WalletType.bitcoin);
+
+  await nodeSource.add(newCakeWalletBitcoinNode);
+
+  if (needToReplaceCurrentBitcoinNode) {
+    await sharedPreferences.setInt(
+        PreferencesKey.currentBitcoinElectrumSererIdKey, newCakeWalletBitcoinNode.key as int);
   }
 }
 
