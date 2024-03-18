@@ -84,14 +84,19 @@ class MoonPayProvider extends BuyProvider {
           : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
     };
 
+    var params = <String, dynamic>{
+        'defaultBaseCurrencyCode': currency.toString().toLowerCase(),
+        'refundWalletAddress': refundWalletAddress,
+      }..addAll(customParams);
+
+    if (_apiKey.isNotEmpty) {
+      params['apiKey'] = _apiKey;
+    }
+
     final originalUri = Uri.https(
       baseSellUrl,
       '',
-      <String, dynamic>{
-        'apiKey': _apiKey,
-        'defaultBaseCurrencyCode': currency.toString().toLowerCase(),
-        'refundWalletAddress': refundWalletAddress,
-      }..addAll(customParams),
+      params,
     );
 
     final messageBytes = utf8.encode('?${originalUri.query}');
@@ -123,14 +128,19 @@ class MoonPayProvider extends BuyProvider {
           : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
     };
 
+    var params = <String, dynamic>{
+        'defaultBaseCurrencyCode': currency.toString().toLowerCase(),
+        'refundWalletAddress': refundWalletAddress,
+      }..addAll(customParams);
+
+    if (_apiKey.isNotEmpty) {
+      params['apiKey'] = _apiKey;
+    }
+
     final originalUri = Uri.https(
       baseBuyUrl,
       '',
-      <String, dynamic>{
-        'apiKey': _apiKey,
-        'defaultBaseCurrencyCode': currency.toString().toLowerCase(),
-        'refundWalletAddress': refundWalletAddress,
-      }..addAll(customParams),
+      params,
     );
 
     final messageBytes = utf8.encode('?${originalUri.query}');
