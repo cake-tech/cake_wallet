@@ -1,6 +1,5 @@
 import 'dart:ffi';
 
-import 'package:cw_zano/api/convert_utf8_to_string.dart';
 import 'package:cw_zano/api/structs/utf8_box.dart';
 import 'package:cw_zano/api/zano_api.dart';
 import 'package:ffi/ffi.dart';
@@ -55,12 +54,18 @@ typedef _SetPassword = Pointer<Utf8> Function(int hWallet, Pointer<Utf8> passwor
 typedef _stringFunction = Pointer<Utf8> Function();
 
 class ApiCalls {
+  static String _convertUTF8ToString({required Pointer<Utf8> pointer}) {
+    final str = pointer.toDartString();
+    calloc.free(pointer);
+    return str;
+  }
+
   static String _performApiCall(
     Pointer<Utf8> Function() apiCall, {
     List<Pointer<Utf8>>? pointersToFree,
   }) {
     try {
-      return convertUTF8ToString(pointer: apiCall());
+      return _convertUTF8ToString(pointer: apiCall());
     } finally {
       if (pointersToFree != null) {
         for (var pointer in pointersToFree) {

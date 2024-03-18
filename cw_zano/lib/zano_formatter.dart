@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 class ZanoFormatter {
   static const defaultDecimalPoint = 12;
 
-  //static const _moneroAmountLength = 12;
   static final numberFormat = NumberFormat()
     ..maximumFractionDigits = defaultDecimalPoint
     ..minimumFractionDigits = 1;

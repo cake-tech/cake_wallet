@@ -1,8 +1,8 @@
 import 'package:cw_core/format_amount.dart';
-import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_zano/api/model/transfer.dart';
+import 'package:cw_zano/zano_formatter.dart';
 
 class ZanoTransactionInfo extends TransactionInfo {
   ZanoTransactionInfo({
@@ -18,9 +18,10 @@ class ZanoTransactionInfo extends TransactionInfo {
     required this.assetId,
     required this.confirmations,
     required this.tokenSymbol,
+    required this.decimalPoint,
   });
 
-  ZanoTransactionInfo.fromTransfer(Transfer transfer, this.tokenSymbol)
+  ZanoTransactionInfo.fromTransfer(Transfer transfer, this.tokenSymbol, this.decimalPoint)
       : id = transfer.txHash,
         height = transfer.height,
         direction = transfer.subtransfers.first.isIncome ? TransactionDirection.incoming : TransactionDirection.outgoing,
@@ -44,6 +45,7 @@ class ZanoTransactionInfo extends TransactionInfo {
   final int fee;
   final int addressIndex;
   final int confirmations;
+  final int decimalPoint;
   late String recipientAddress;
   final String tokenSymbol;
   late String assetId;
@@ -51,7 +53,7 @@ class ZanoTransactionInfo extends TransactionInfo {
   String? key;
 
   @override
-  String amountFormatted() => '${formatAmount(moneroAmountToString(amount: amount))} $tokenSymbol';
+  String amountFormatted() => '${formatAmount(ZanoFormatter.intAmountToString(amount, decimalPoint))} $tokenSymbol';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -60,7 +62,7 @@ class ZanoTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
-  String feeFormatted() => '${formatAmount(moneroAmountToString(amount: fee))} $feeCurrency';
+  String feeFormatted() => '${formatAmount(ZanoFormatter.intAmountToString(fee))} $feeCurrency';
 
   String get feeCurrency => 'ZANO';
 }

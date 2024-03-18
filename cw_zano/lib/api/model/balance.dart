@@ -1,6 +1,5 @@
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_zano/api/model/asset_info.dart';
 import 'package:cw_zano/zano_asset.dart';
 
 class Balance {

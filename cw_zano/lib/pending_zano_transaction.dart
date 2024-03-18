@@ -16,7 +16,7 @@ class PendingZanoTransaction with PendingTransaction {
     required this.comment,
     required this.assetId,
     required this.ticker,
-    this.decimalPoint = 12,
+    this.decimalPoint = ZanoFormatter.defaultDecimalPoint,
     required this.amount,
   });
 

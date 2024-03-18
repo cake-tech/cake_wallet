@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -77,7 +76,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
   Timer? _autoSaveTimer;
 
   ZanoWalletBase(WalletInfo walletInfo)
-      : balance = ObservableMap.of({CryptoCurrency.zano: ZanoBalance(total: 0, unlocked: 0)}),
+      : balance = ObservableMap.of({CryptoCurrency.zano: ZanoBalance(total: 0, unlocked: 0, decimalPoint: ZanoFormatter.defaultDecimalPoint)}),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
         walletAddresses = ZanoWalletAddresses(walletInfo),
@@ -215,10 +214,10 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
         value: (item) {
           item as Transfer;
           if (item.subtransfers.first.assetId == zanoAssetId) {
-            return ZanoTransactionInfo.fromTransfer(item, 'ZANO');
+            return ZanoTransactionInfo.fromTransfer(item, 'ZANO', ZanoFormatter.defaultDecimalPoint);
           } else {
-            final tokenSymbol = zanoAssets.firstWhere((element) => element.assetId == item.subtransfers.first.assetId).ticker;
-            return ZanoTransactionInfo.fromTransfer(item, tokenSymbol);
+            final asset = zanoAssets.firstWhere((element) => element.assetId == item.subtransfers.first.assetId);
+            return ZanoTransactionInfo.fromTransfer(item, asset.ticker, asset.decimalPoint);
           }
         },
       );
@@ -229,12 +228,12 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
   }
 
   Future<void> init(String address) async {
-    final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${ZanoAsset.zanoAssetsBoxName}";
+    final boxName = '${walletInfo.name.replaceAll(' ', '_')}_${ZanoAsset.zanoAssetsBoxName}';
     zanoAssetsBox = await CakeHive.openBox<ZanoAsset>(boxName);
     print(
         'assets in box total: ${zanoAssetsBox.length} ${zanoAssetsBox.values} active: ${zanoAssetsBox.values.where((element) => element.enabled).length} ${zanoAssetsBox.values.where((element) => element.enabled)}');
     for (final asset in zanoAssetsBox.values) {
-      if (asset.enabled) balance[asset] = ZanoBalance(total: 0, unlocked: 0);
+      if (asset.enabled) balance[asset] = ZanoBalance(total: 0, unlocked: 0, decimalPoint: asset.decimalPoint);
     }
     await walletAddresses.init();
     await walletAddresses.updateAddress(address);
@@ -336,11 +335,11 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
 
           for (final item in walletInfo.wi.balances) {
             if (item.assetInfo.ticker == 'ZANO') {
-              balance[CryptoCurrency.zano] = ZanoBalance(total: item.total, unlocked: item.unlocked);
+              balance[CryptoCurrency.zano] = ZanoBalance(total: item.total, unlocked: item.unlocked, decimalPoint: ZanoFormatter.defaultDecimalPoint);
             } else {
               for (final asset in balance.keys) {
                 if (asset is ZanoAsset && asset.assetId == item.assetInfo.assetId) {
-                  balance[asset] = ZanoBalance(total: item.total, unlocked: item.unlocked);
+                  balance[asset] = ZanoBalance(total: item.total, unlocked: item.unlocked, decimalPoint: asset.decimalPoint);
                 }
               }
             }
@@ -410,7 +409,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     } catch (_) {}
     final asset = ZanoAsset.copyWith(assetDescriptor, iconPath, 'ZANO', assetId: assetId, enabled: true);
     await zanoAssetsBox.put(asset.assetId, ZanoAsset.copyWith(asset, iconPath, 'ZANO'));
-    balance[asset] = ZanoBalance(total: 0, unlocked: 0);
+    balance[asset] = ZanoBalance(total: 0, unlocked: 0, decimalPoint: asset.decimalPoint);
     return asset;
   }
 
@@ -426,7 +425,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
         print('error adding zano asset');
         return;
       }
-      balance[asset] = ZanoBalance(total: 0, unlocked: 0);
+      balance[asset] = ZanoBalance(total: 0, unlocked: 0, decimalPoint: asset.decimalPoint);
     } else {
       final result = await removeAssetsWhitelist(asset.assetId);
       if (result == false) {

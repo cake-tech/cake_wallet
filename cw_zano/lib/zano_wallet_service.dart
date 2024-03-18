@@ -19,6 +19,7 @@ import 'package:cw_zano/api/exceptions/wrong_seed_exception.dart';
 import 'package:cw_zano/api/model/create_wallet_result.dart';
 import 'package:cw_zano/zano_asset.dart';
 import 'package:cw_zano/zano_balance.dart';
+import 'package:cw_zano/zano_formatter.dart';
 import 'package:cw_zano/zano_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -37,13 +38,7 @@ class ZanoRestoreWalletFromSeedCredentials extends WalletCredentials {
 
 class ZanoRestoreWalletFromKeysCredentials extends WalletCredentials {
   ZanoRestoreWalletFromKeysCredentials(
-      {required String name,
-      required String password,
-      required this.language,
-      required this.address,
-      required this.viewKey,
-      required this.spendKey,
-      required int height})
+      {required String name, required String password, required this.language, required this.address, required this.viewKey, required this.spendKey, required int height})
       : super(name: name, password: password, height: height);
 
   final String language;
@@ -144,12 +139,19 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
     wallet.walletAddresses.address = result.wi.address;
     for (final item in result.wi.balances) {
       if (item.assetInfo.ticker == 'ZANO') {
-        //wallet.zanoAssetId = item.assetInfo.assetId;
-        wallet.balance[CryptoCurrency.zano] = ZanoBalance(total: item.total, unlocked: item.unlocked);
+        wallet.balance[CryptoCurrency.zano] = ZanoBalance(
+          total: item.total,
+          unlocked: item.unlocked,
+          decimalPoint: ZanoFormatter.defaultDecimalPoint,
+        );
       } else {
         for (final asset in wallet.balance.keys) {
           if (asset is ZanoAsset && asset.assetId == item.assetInfo.assetId) {
-            wallet.balance[asset] = ZanoBalance(total: item.total, unlocked: item.unlocked);
+            wallet.balance[asset] = ZanoBalance(
+              total: item.total,
+              unlocked: item.unlocked,
+              decimalPoint: asset.decimalPoint,
+            );
           }
         }
       }

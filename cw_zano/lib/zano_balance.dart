@@ -1,20 +1,18 @@
-import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/balance.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/monero_amount_format.dart';
+import 'package:cw_zano/zano_formatter.dart';
 
 class ZanoBalance extends Balance {
   final int total;
   final int unlocked;
-  ZanoBalance({required this.total, required this.unlocked}): super(unlocked, total-unlocked);
+  final int decimalPoint;
+  ZanoBalance({required this.total, required this.unlocked, required this.decimalPoint}) : super(unlocked, total - unlocked);
 
   @override
-  String get formattedAdditionalBalance => AmountConverter.amountIntToString(CryptoCurrency.zano, total-unlocked);
+  String get formattedAdditionalBalance => ZanoFormatter.intAmountToString(total - unlocked, decimalPoint);
 
   @override
-  String get formattedAvailableBalance => AmountConverter.amountIntToString(CryptoCurrency.zano, unlocked);
+  String get formattedAvailableBalance => ZanoFormatter.intAmountToString(unlocked, decimalPoint);
 
-  @override
-  String get formattedFrozenBalance => '';
-
+  // @override
+  // String get formattedFrozenBalance => '';
 }
