@@ -209,6 +209,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   bool get isWalletConnectLink => launchUri?.authority == 'wc';
 
+  bool get isNanoGptLink => launchUri?.scheme == 'nano-gpt';
+
   String? _getRouteToGo() {
     if (isWalletConnectLink) {
       if (isEVMCompatibleChain(widget.appStore.wallet!.type)) {
@@ -216,6 +218,17 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         return null;
       }
       return Routes.walletConnectConnectionsListing;
+    } else if (isNanoGptLink) {
+      switch (launchUri?.authority ?? '') {
+        case "exchange":
+          return Routes.exchange;
+        case "send":
+          return Routes.send;
+        case "buy":
+          return Routes.buySellPage;
+        default:
+          return null;
+      }
     } else if (_isValidPaymentUri()) {
       return Routes.send;
     } else {
