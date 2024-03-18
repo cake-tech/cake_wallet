@@ -585,13 +585,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     int height = 0;
     try {
       height = _getHeightByDate(walletInfo.date);
-    } catch (e, s) {
-      onError?.call(FlutterErrorDetails(
-        exception: e,
-        stack: s,
-        library: this.runtimeType.toString(),
-      ));
-    }
+    } catch (_) {}
 
     monero_wallet.setRecoveringFromSeed(isRecovery: true);
     monero_wallet.setRefreshFromBlockHeight(height: height);
