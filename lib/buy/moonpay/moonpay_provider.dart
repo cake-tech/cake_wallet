@@ -35,8 +35,8 @@ class MoonPayProvider extends BuyProvider {
 
   static const _baseSellTestUrl = 'sell-sandbox.moonpay.com';
   static const _baseSellProductUrl = 'sell.moonpay.com';
-  static const _baseBuyTestUrl = 'https://buy-staging.moonpay.com';
-  static const _baseBuyProductUrl = 'https://buy.moonpay.com';
+  static const _baseBuyTestUrl = 'buy-staging.moonpay.com';
+  static const _baseBuyProductUrl = 'buy.moonpay.com';
 
   @override
   String get providerDescription =>
