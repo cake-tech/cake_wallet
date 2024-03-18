@@ -96,7 +96,11 @@ class ProxyWrapper {
       torEnabled = false;
     }
 
-    if (torEnabled && torConnectionStatus  == TorConnectionStatus.connecting) {
+    if (torEnabled) {
+      torConnectionMode = TorConnectionMode.torOnly;
+    }
+
+    if (torEnabled && torConnectionStatus == TorConnectionStatus.connecting) {
       throw Exception("Tor is still connecting");
     }
 
@@ -168,7 +172,11 @@ class ProxyWrapper {
       torEnabled = false;
     }
 
-    if (torEnabled && torConnectionStatus  == TorConnectionStatus.connecting) {
+    if (torEnabled) {
+      torConnectionMode = TorConnectionMode.torOnly;
+    }
+
+    if (torEnabled && torConnectionStatus == TorConnectionStatus.connecting) {
       throw Exception("Tor is still connecting");
     }
 

@@ -1,6 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
@@ -44,9 +45,13 @@ class MainActions {
         return;
       }
 
-      if (viewModel.isTorEnabled && viewModel.settingsStore.shouldShowTorBuyWarning) {
+      if (viewModel.isTorEnabled /*&& viewModel.settingsStore.shouldShowTorBuyWarning*/) {
         viewModel.settingsStore.shouldShowTorBuyWarning = false;
-        await _showErrorDialog(context, S.of(context).warning, S.of(context).tor_enabled_warning);
+        bool cont = await _showWarningDialog(
+            context, S.of(context).warning, S.of(context).tor_enabled_warning);
+        if (!cont) {
+          return;
+        }
       }
 
       final defaultBuyProvider = viewModel.defaultBuyProvider;
@@ -105,9 +110,13 @@ class MainActions {
         return;
       }
 
-      if (viewModel.isTorEnabled && viewModel.settingsStore.shouldShowTorSellWarning) {
+      if (viewModel.isTorEnabled /*&& viewModel.settingsStore.shouldShowTorSellWarning*/) {
         viewModel.settingsStore.shouldShowTorSellWarning = false;
-        await _showErrorDialog(context, S.of(context).warning, S.of(context).tor_enabled_warning);
+        bool cont = await _showWarningDialog(
+            context, S.of(context).warning, S.of(context).tor_enabled_warning);
+        if (!cont) {
+          return;
+        }
       }
 
       final defaultSellProvider = viewModel.defaultSellProvider;
@@ -134,5 +143,23 @@ class MainActions {
         );
       },
     );
+  }
+
+  static Future<bool> _showWarningDialog(
+      BuildContext context, String title, String errorMessage) async {
+    bool? response = await showPopUp<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertWithTwoActions(
+          alertTitle: title,
+          alertContent: errorMessage,
+          rightButtonText: S.of(context).ok,
+          actionRightButton: () => Navigator.of(context).pop(true),
+          leftButtonText: S.of(context).cancel,
+          actionLeftButton: () => Navigator.of(context).pop(false),
+        );
+      },
+    );
+    return response ?? false;
   }
 }
