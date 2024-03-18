@@ -1,78 +1,31 @@
-import 'dart:io';
-
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_ethereum/ethereum_mnemonics.dart';
+import 'package:cw_ethereum/ethereum_client.dart';
+import 'package:cw_ethereum/ethereum_mnemonics_exception.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
-import 'package:cw_ethereum/ethereum_wallet_creation_credentials.dart';
-import 'package:hive/hive.dart';
+import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
+import 'package:cw_evm/evm_chain_wallet_service.dart';
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:collection/collection.dart';
 
-class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
-    EthereumRestoreWalletFromSeedCredentials, EthereumRestoreWalletFromPrivateKey> {
-  EthereumWalletService(this.walletInfoSource);
+class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
+  EthereumWalletService(super.walletInfoSource, {required this.client});
 
-  final Box<WalletInfo> walletInfoSource;
-
-  @override
-  Future<EthereumWallet> create(EthereumNewWalletCredentials credentials) async {
-    final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
-
-    final mnemonic = bip39.generateMnemonic(strength: strength);
-    final wallet = EthereumWallet(
-      walletInfo: credentials.walletInfo!,
-      mnemonic: mnemonic,
-      password: credentials.password!,
-    );
-
-    await wallet.init();
-    wallet.addInitialTokens();
-    await wallet.save();
-
-    return wallet;
-  }
+  late EthereumClient client;
 
   @override
   WalletType getType() => WalletType.ethereum;
 
   @override
-  Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: getType())).existsSync();
+  Future<EthereumWallet> create(EVMChainNewWalletCredentials credentials, {bool? isTestnet}) async {
+    final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
-  @override
-  Future<EthereumWallet> openWallet(String name, String password) async {
-    final walletInfo =
-        walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-    final wallet = await EthereumWalletBase.open(
-      name: name,
-      password: password,
-      walletInfo: walletInfo,
-    );
+    final mnemonic = bip39.generateMnemonic(strength: strength);
 
-    await wallet.init();
-    await wallet.save();
-
-    return wallet;
-  }
-
-  @override
-  Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
-    await walletInfoSource.delete(walletInfo.key);
-  }
-
-  @override
-  Future<EthereumWallet> restoreFromKeys(EthereumRestoreWalletFromPrivateKey credentials) async {
     final wallet = EthereumWallet(
-      password: credentials.password!,
-      privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
+      mnemonic: mnemonic,
+      password: credentials.password!,
+      client: client,
     );
 
     await wallet.init();
@@ -83,8 +36,72 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
   }
 
   @override
-  Future<EthereumWallet> restoreFromSeed(
-      EthereumRestoreWalletFromSeedCredentials credentials) async {
+  Future<EthereumWallet> openWallet(String name, String password) async {
+    final walletInfo =
+        walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
+
+    try {
+      final wallet = await EthereumWallet.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
+
+      await wallet.init();
+      await wallet.save();
+      saveBackup(name);
+      return wallet;
+    } catch (_) {
+      await restoreWalletFilesFromBackup(name);
+
+      final wallet = await EthereumWallet.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
+      await wallet.init();
+      await wallet.save();
+      return wallet;
+    }
+  }
+
+  @override
+  Future<void> rename(String currentName, String password, String newName) async {
+    final currentWalletInfo = walletInfoSource.values
+        .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
+    final currentWallet = await EthereumWallet.open(
+        password: password, name: currentName, walletInfo: currentWalletInfo);
+
+    await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
+
+    final newWalletInfo = currentWalletInfo;
+    newWalletInfo.id = WalletBase.idFor(newName, getType());
+    newWalletInfo.name = newName;
+
+    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+  }
+
+  @override
+  Future<EthereumWallet> restoreFromKeys(EVMChainRestoreWalletFromPrivateKey credentials,
+      {bool? isTestnet}) async {
+    final wallet = EthereumWallet(
+      password: credentials.password!,
+      privateKey: credentials.privateKey,
+      walletInfo: credentials.walletInfo!,
+      client: client,
+    );
+
+    await wallet.init();
+    wallet.addInitialTokens();
+    await wallet.save();
+
+    return wallet;
+  }
+
+  @override
+  Future<EthereumWallet> restoreFromSeed(EVMChainRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
     if (!bip39.validateMnemonic(credentials.mnemonic)) {
       throw EthereumMnemonicIsIncorrectException();
     }
@@ -93,6 +110,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      client: client,
     );
 
     await wallet.init();
@@ -100,21 +118,5 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
     await wallet.save();
 
     return wallet;
-  }
-
-  @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values
-        .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
-    final currentWallet = await EthereumWalletBase.open(
-        password: password, name: currentName, walletInfo: currentWalletInfo);
-
-    await currentWallet.renameWalletFiles(newName);
-
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
   }
 }

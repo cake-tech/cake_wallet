@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:cw_bitcoin/address_to_output_script.dart';
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonic_is_incorrect_exception.dart';
+import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/script_hash.dart';
@@ -24,16 +25,6 @@ import 'package:cw_bitcoin/bitcoin_derivations.dart';
 import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip39/bip39.dart' as bip39;
 
-int countOccurrences(String str, String charToCount) {
-  int count = 0;
-  for (int i = 0; i < str.length; i++) {
-    if (str[i] == charToCount) {
-      count++;
-    }
-  }
-  return count;
-}
-
 class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials, BitcoinRestoreWalletFromWIFCredentials> {
   BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
@@ -45,12 +36,17 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
   WalletType getType() => WalletType.bitcoin;
 
   @override
-  Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials) async {
+  Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
+    final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
+    credentials.walletInfo?.network = network.value;
+
     final wallet = await BitcoinWalletBase.create(
-        mnemonic: await generateElectrumMnemonic(strength: 132),
-        password: credentials.password!,
-        walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+      mnemonic: await generateElectrumMnemonic(strength: 132),
+      password: credentials.password!,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      network: network,
+    );
     await wallet.save();
     await wallet.init();
     return wallet;
@@ -64,13 +60,25 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
   Future<BitcoinWallet> openWallet(String name, String password) async {
     final walletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
-    final wallet = await BitcoinWalletBase.open(
-        password: password,
-        name: name,
-        walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource);
-    await wallet.init();
-    return wallet;
+    try {
+      final wallet = await BitcoinWalletBase.open(
+          password: password,
+          name: name,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfoSource);
+      await wallet.init();
+      saveBackup(name);
+      return wallet;
+    } catch (_) {
+      await restoreWalletFilesFromBackup(name);
+      final wallet = await BitcoinWalletBase.open(
+          password: password,
+          name: name,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfoSource);
+      await wallet.init();
+      return wallet;
+    }
   }
 
   @override
@@ -92,6 +100,7 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
         unspentCoinsInfo: unspentCoinsInfoSource);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
@@ -101,17 +110,27 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
   }
 
   @override
-  Future<BitcoinWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials) async =>
+  Future<BitcoinWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials,
+          {bool? isTestnet}) async =>
       throw UnimplementedError();
 
   @override
-  Future<BitcoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials) async {
-    final wallet = await BitcoinWalletBase.create(
-        password: credentials.password!,
-        mnemonic: credentials.mnemonic,
-        walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+  Future<BitcoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
+    if (!validateMnemonic(credentials.mnemonic)) {
+      throw BitcoinMnemonicIsIncorrectException();
+    }
 
+    final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
+    credentials.walletInfo?.network = network.value;
+
+    final wallet = await BitcoinWalletBase.create(
+      password: credentials.password!,
+      mnemonic: credentials.mnemonic,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      network: network,
+    );
     await wallet.save();
     await wallet.init();
     return wallet;

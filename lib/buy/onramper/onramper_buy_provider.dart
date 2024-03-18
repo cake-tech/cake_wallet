@@ -52,7 +52,7 @@ class OnRamperBuyProvider extends BuyProvider {
     return color.value.toRadixString(16).replaceAll(RegExp(r'^ff'), "");
   }
 
-  Uri requestOnramperUrl(BuildContext context) {
+  Uri requestOnramperUrl(BuildContext context, bool? isBuyAction) {
     String primaryColor,
         secondaryColor,
         primaryTextColor,
@@ -79,23 +79,24 @@ class OnRamperBuyProvider extends BuyProvider {
     return Uri.https(_baseUrl, '', <String, dynamic>{
       'apiKey': _apiKey,
       'defaultCrypto': _normalizeCryptoCurrency,
+      'sell_defaultCrypto': _normalizeCryptoCurrency,
       'networkWallets': '${networkName}:${wallet.walletAddresses.address}',
-      'supportSell': "false",
       'supportSwap': "false",
       'primaryColor': primaryColor,
       'secondaryColor': secondaryColor,
       'primaryTextColor': primaryTextColor,
       'secondaryTextColor': secondaryTextColor,
       'containerColor': containerColor,
-      'cardColor': cardColor
+      'cardColor': cardColor,
+      'mode': isBuyAction == true ? 'buy' : 'sell',
     });
   }
 
   Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
-    final uri = requestOnramperUrl(context);
+    final uri = requestOnramperUrl(context, isBuyAction);
     if (DeviceInfo.instance.isMobile) {
       Navigator.of(context)
-          .pushNamed(Routes.webViewPage, arguments: [S.of(context).buy, uri]);
+          .pushNamed(Routes.webViewPage, arguments: [title, uri]);
     } else {
       await launchUrl(uri);
     }

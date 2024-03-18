@@ -1,13 +1,9 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/balance.dart';
 
 class ElectrumBalance extends Balance {
-  const ElectrumBalance(
-      {required this.confirmed,
-      required this.unconfirmed,
-      required this.frozen})
+  const ElectrumBalance({required this.confirmed, required this.unconfirmed, required this.frozen})
       : super(confirmed, unconfirmed);
 
   static ElectrumBalance? fromJSON(String? jsonSource) {
@@ -28,12 +24,10 @@ class ElectrumBalance extends Balance {
   final int frozen;
 
   @override
-  String get formattedAvailableBalance =>
-      bitcoinAmountToString(amount: confirmed - unconfirmed.abs() - frozen);
+  String get formattedAvailableBalance => bitcoinAmountToString(amount: confirmed - frozen);
 
   @override
-  String get formattedAdditionalBalance =>
-      bitcoinAmountToString(amount: unconfirmed);
+  String get formattedAdditionalBalance => bitcoinAmountToString(amount: unconfirmed);
 
   @override
   String get formattedUnAvailableBalance {
@@ -41,6 +35,6 @@ class ElectrumBalance extends Balance {
     return frozenFormatted == '0.0' ? '' : frozenFormatted;
   }
 
-  String toJSON() => json.encode(
-      {'confirmed': confirmed, 'unconfirmed': unconfirmed, 'frozen': frozen});
+  String toJSON() =>
+      json.encode({'confirmed': confirmed, 'unconfirmed': unconfirmed, 'frozen': frozen});
 }

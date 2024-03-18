@@ -148,9 +148,8 @@ abstract class OutputBase with Store {
   @computed
   String get estimatedFeeFiatAmount {
     try {
-      final currency = isEVMCompatibleChain(_wallet.type)
-          ? _wallet.currency
-          : cryptoCurrencyHandler();
+      final currency =
+          isEVMCompatibleChain(_wallet.type) ? _wallet.currency : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(
           price: _fiatConversationStore.prices[currency]!, cryptoAmount: estimatedFee);
       return fiat;
@@ -220,7 +219,6 @@ abstract class OutputBase with Store {
       final crypto = double.parse(fiatAmount.replaceAll(',', '.')) /
           _fiatConversationStore.prices[cryptoCurrencyHandler()]!;
       final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
-
       if (cryptoAmount != cryptoAmountTmp) {
         cryptoAmount = cryptoAmountTmp;
       }
@@ -252,6 +250,9 @@ abstract class OutputBase with Store {
       case WalletType.polygon:
         maximumFractionDigits = 12;
         break;
+      case WalletType.solana:
+        maximumFractionDigits = 12;
+        break;
       default:
         break;
     }
@@ -262,7 +263,7 @@ abstract class OutputBase with Store {
   Future<void> fetchParsedAddress(BuildContext context) async {
     final domain = address;
     final ticker = cryptoCurrencyHandler().title.toLowerCase();
-    parsedAddress = await getIt.get<AddressResolver>().resolve(domain, ticker);
+    parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, ticker);
     extractedAddress = await extractAddressFromParsed(context, parsedAddress);
     note = parsedAddress.description;
   }

@@ -36,6 +36,8 @@ import 'package:mobx/mobx.dart';
 part 'monero_wallet.g.dart';
 
 const moneroBlockSize = 1000;
+// not sure if this should just be 0 but setting it higher feels safer / should catch more cases:
+const MIN_RESTORE_HEIGHT = 1000;
 
 class MoneroWallet = MoneroWalletBase with _$MoneroWallet;
 
@@ -79,7 +81,7 @@ abstract class MoneroWalletBase
 
   Box<UnspentCoinsInfo> unspentCoinsInfo;
 
-  void Function(FlutterErrorDetails)? _onError;
+  void Function(FlutterErrorDetails)? onError;
 
   @override
   late MoneroWalletAddresses walletAddresses;
@@ -171,7 +173,21 @@ abstract class MoneroWalletBase
   Future<void> startSync() async {
     try {
       _setInitialHeight();
-    } catch (_) {}
+    } catch (_) {
+      // our restore height wasn't correct, so lets see if using the backup works:
+      try {
+        await resetCache(name);
+        _setInitialHeight();
+      } catch (e) {
+        // we still couldn't get a valid height from the backup?!:
+        // try to use the date instead:
+        try {
+          _setHeightFromDate();
+        } catch (_) {
+          // we still couldn't get a valid sync height :/
+        }
+      }
+    }
 
     try {
       syncStatus = AttemptingSyncStatus();
@@ -339,6 +355,8 @@ abstract class MoneroWalletBase
       if (currentAddressListFile.existsSync()) {
         await currentAddressListFile.rename('$newWalletPath.address.txt');
       }
+
+      await backupWalletFiles(newWalletName);
     } catch (e) {
       final currentWalletPath = await pathForWallet(name: name, type: type);
 
@@ -402,9 +420,7 @@ abstract class MoneroWalletBase
         if (coin.spent == 0) {
           final unspent = MoneroUnspent.fromCoinsInfoRow(coin);
           if (unspent.hash.isNotEmpty) {
-            unspent.isChange = transaction_history
-                .getTransaction(unspent.hash)
-                .direction == 1;
+            unspent.isChange = transaction_history.getTransaction(unspent.hash).direction == 1;
           }
           unspentCoins.add(unspent);
         }
@@ -418,7 +434,7 @@ abstract class MoneroWalletBase
       if (unspentCoins.isNotEmpty) {
         unspentCoins.forEach((coin) {
           final coinInfoList = unspentCoinsInfo.values.where((element) =>
-          element.walletId.contains(id) &&
+              element.walletId.contains(id) &&
               element.accountIndex == walletAddresses.account!.id &&
               element.keyImage!.contains(coin.keyImage!));
 
@@ -438,7 +454,7 @@ abstract class MoneroWalletBase
       _askForUpdateBalance();
     } catch (e, s) {
       print(e.toString());
-      _onError?.call(FlutterErrorDetails(
+      onError?.call(FlutterErrorDetails(
         exception: e,
         stack: s,
         library: this.runtimeType.toString(),
@@ -534,18 +550,34 @@ abstract class MoneroWalletBase
     _listener = monero_wallet.setListeners(_onNewBlock, _onNewTransaction);
   }
 
+  // check if the height is correct:
   void _setInitialHeight() {
     if (walletInfo.isRecovery) {
       return;
     }
 
-    final currentHeight = monero_wallet.getCurrentHeight();
+    final height = monero_wallet.getCurrentHeight();
 
-    if (currentHeight <= 1) {
-      final height = _getHeightByDate(walletInfo.date);
-      monero_wallet.setRecoveringFromSeed(isRecovery: true);
-      monero_wallet.setRefreshFromBlockHeight(height: height);
+    if (height > MIN_RESTORE_HEIGHT) {
+      // the restore height is probably correct, so we do nothing:
+      return;
     }
+
+    throw Exception("height isn't > $MIN_RESTORE_HEIGHT!");
+  }
+
+  void _setHeightFromDate() {
+    if (walletInfo.isRecovery) {
+      return;
+    }
+
+    int height = 0;
+    try {
+      height = _getHeightByDate(walletInfo.date);
+    } catch (_) {}
+
+    monero_wallet.setRecoveringFromSeed(isRecovery: true);
+    monero_wallet.setRefreshFromBlockHeight(height: height);
   }
 
   int _getHeightDistance(DateTime date) {
@@ -561,7 +593,8 @@ abstract class MoneroWalletBase
     final heightDistance = _getHeightDistance(date);
 
     if (nodeHeight <= 0) {
-      return 0;
+      // the node returned 0 (an error state)
+      throw Exception("nodeHeight is <= 0!");
     }
 
     return nodeHeight - heightDistance;
@@ -650,7 +683,7 @@ abstract class MoneroWalletBase
   }
 
   @override
-  void setExceptionHandler(void Function(FlutterErrorDetails) onError) => _onError = onError;
+  void setExceptionHandler(void Function(FlutterErrorDetails) e) => onError = e;
 
   @override
   String signMessage(String message, {String? address}) {

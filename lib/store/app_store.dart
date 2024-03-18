@@ -41,7 +41,7 @@ abstract class AppStoreBase with Store {
     this.wallet = wallet;
     this.wallet!.setExceptionHandler(ExceptionHandler.onError);
 
-    if (isEVMCompatibleChain(wallet.type)) {
+    if (isWalletConnectCompatibleChain(wallet.type)) {
       await getIt.get<Web3WalletService>().onDispose();
       getIt.get<Web3WalletService>().create();
       await getIt.get<Web3WalletService>().init();

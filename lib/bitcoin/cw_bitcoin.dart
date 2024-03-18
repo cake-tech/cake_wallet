@@ -1,7 +1,7 @@
 part of 'bitcoin.dart';
 
 class CWBitcoin extends Bitcoin {
-  @override
+
   WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({
     required String name,
     required String mnemonic,
@@ -15,6 +15,28 @@ class CWBitcoin extends Bitcoin {
           password: password,
           derivationType: derivationType,
           derivationPath: derivationPath);
+
+  @override
+  WalletCredentials createBitcoinRestoreWalletFromWIFCredentials(
+          {required String name,
+          required String password,
+          required String wif,
+          WalletInfo? walletInfo}) =>
+      BitcoinRestoreWalletFromWIFCredentials(
+          name: name, password: password, wif: wif, walletInfo: walletInfo);
+
+  @override
+  WalletCredentials createBitcoinNewWalletCredentials(
+          {required String name, WalletInfo? walletInfo}) =>
+      BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo);
+      
+  @override
+  TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;
+
+  @override
+  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials(
+          {required String name, required String mnemonic, required String password}) =>
+      BitcoinRestoreWalletFromSeedCredentials(name: name, mnemonic: mnemonic, password: password);
 
   @override
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials(
@@ -46,15 +68,37 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  List<TransactionPriority> getTransactionPriorities() => BitcoinTransactionPriority.all;
+
+  @override
+  List<TransactionPriority> getLitecoinTransactionPriorities() => LitecoinTransactionPriority.all;
+
+  @override
+  TransactionPriority deserializeBitcoinTransactionPriority(int raw) =>
+      BitcoinTransactionPriority.deserialize(raw: raw);
+
+  @override
+  TransactionPriority deserializeLitecoinTransactionPriority(int raw) =>
+      LitecoinTransactionPriority.deserialize(raw: raw);
+
+  @override
   int getFeeRate(Object wallet, TransactionPriority priority) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.feeRate(priority);
   }
 
   @override
-  Future<void> generateNewAddress(Object wallet) async {
+  Future<void> generateNewAddress(Object wallet, String label) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    await bitcoinWallet.walletAddresses.generateNewAddress();
+    await bitcoinWallet.walletAddresses.generateNewAddress(label: label);
+    await wallet.save();
+  }
+
+  @override
+  Future<void> updateAddress(Object wallet, String address, String label) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    bitcoinWallet.walletAddresses.updateAddress(address, label);
+    await wallet.save();
   }
 
   @override
@@ -85,8 +129,23 @@ class CWBitcoin extends Bitcoin {
   @override
   List<String> getAddresses(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.walletAddresses.addresses
+    return bitcoinWallet.walletAddresses.addressesByReceiveType
         .map((BitcoinAddressRecord addr) => addr.address)
+        .toList();
+  }
+
+  @override
+  @computed
+  List<ElectrumSubAddress> getSubAddresses(Object wallet) {
+    final electrumWallet = wallet as ElectrumWallet;
+    return electrumWallet.walletAddresses.addressesByReceiveType
+        .map((BitcoinAddressRecord addr) => ElectrumSubAddress(
+            id: addr.index,
+            name: addr.name,
+            address: electrumWallet.type == WalletType.bitcoinCash ? addr.cashAddr : addr.address,
+            txCount: addr.txCount,
+            balance: addr.balance,
+            isChange: addr.isHidden))
         .toList();
   }
 
@@ -117,7 +176,7 @@ class CWBitcoin extends Bitcoin {
     return bitcoinWallet.unspentCoins;
   }
 
-  void updateUnspents(Object wallet) async {
+  Future<void> updateUnspents(Object wallet) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     await bitcoinWallet.updateUnspent();
   }
@@ -133,20 +192,6 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  List<TransactionPriority> getTransactionPriorities() => BitcoinTransactionPriority.all;
-
-  @override
-  List<TransactionPriority> getLitecoinTransactionPriorities() => LitecoinTransactionPriority.all;
-
-  @override
-  TransactionPriority deserializeBitcoinTransactionPriority(int raw) =>
-      BitcoinTransactionPriority.deserialize(raw: raw);
-
-  @override
-  TransactionPriority deserializeLitecoinTransactionPriority(int raw) =>
-      LitecoinTransactionPriority.deserialize(raw: raw);
-
-  @override
   TransactionPriority getBitcoinTransactionPriorityMedium() => BitcoinTransactionPriority.medium;
 
   @override
@@ -159,7 +204,37 @@ class CWBitcoin extends Bitcoin {
   TransactionPriority getLitecoinTransactionPrioritySlow() => LitecoinTransactionPriority.slow;
 
   @override
-  TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;
+  Future<void> setAddressType(Object wallet, dynamic option) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    await bitcoinWallet.walletAddresses.setAddressType(option as BitcoinAddressType);
+  }
+
+  @override
+  ReceivePageOption getSelectedAddressType(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return BitcoinReceivePageOption.fromType(bitcoinWallet.walletAddresses.addressPageType);
+  }
+
+  @override
+  List<ReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
+
+  @override
+  BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
+    switch (option) {
+      case BitcoinReceivePageOption.p2pkh:
+        return P2pkhAddressType.p2pkh;
+      case BitcoinReceivePageOption.p2sh:
+        return P2shAddressType.p2wpkhInP2sh;
+      case BitcoinReceivePageOption.p2tr:
+        return SegwitAddresType.p2tr;
+      case BitcoinReceivePageOption.p2wsh:
+        return SegwitAddresType.p2wsh;
+      case BitcoinReceivePageOption.p2wpkh:
+      default:
+        return SegwitAddresType.p2wpkh;
+    }
+  }
+
 
   @override
   Future<List<DerivationType>> compareDerivationMethods(

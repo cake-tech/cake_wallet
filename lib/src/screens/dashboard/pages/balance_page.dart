@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -14,6 +17,7 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -200,7 +204,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                       additionalFiatBalance: balance.fiatAdditionalBalance,
                       frozenBalance: balance.frozenBalance,
                       frozenFiatBalance: balance.fiatFrozenBalance,
-                      currency: balance.formattedAssetTitle,
+                      currency: balance.asset,
                       hasAdditionalBalance:
                           dashboardViewModel.balanceViewModel.hasAdditionalBalance,
                     );
@@ -216,7 +220,7 @@ class CryptoBalanceWidget extends StatelessWidget {
 }
 
 class BalanceRowWidget extends StatelessWidget {
-  const BalanceRowWidget({
+  BalanceRowWidget({
     required this.availableBalanceLabel,
     required this.availableBalance,
     required this.availableFiatBalance,
@@ -238,7 +242,7 @@ class BalanceRowWidget extends StatelessWidget {
   final String additionalFiatBalance;
   final String frozenBalance;
   final String frozenFiatBalance;
-  final String currency;
+  final CryptoCurrency currency;
   final bool hasAdditionalBalance;
 
   // void _showBalanceDescription(BuildContext context) {
@@ -262,13 +266,13 @@ class BalanceRowWidget extends StatelessWidget {
         color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
       ),
       child: Container(
-        margin: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 24),
+        margin: const EdgeInsets.only(top: 16, left: 24, right: 8, bottom: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
@@ -325,13 +329,45 @@ class BalanceRowWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                Text(currency,
-                    style: TextStyle(
-                        fontSize: 28,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w800,
-                        color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
-                        height: 1)),
+                SizedBox(
+                  width: min(MediaQuery.of(context).size.width * 0.2, 100),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        CakeImageWidget(
+                          imageUrl: currency.iconPath,
+                          height: 40,
+                          width: 40,
+                          displayOnError: Container(
+                                height: 30.0,
+                                width: 30.0,
+                                child: Center(
+                                  child: Text(
+                                    currency.title.substring(0, min(currency.title.length, 2)),
+                                    style: TextStyle(fontSize: 11),
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey.shade400,
+                                ),
+                              ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          currency.title,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w800,
+                            color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
+                            height: 1,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
             if (frozenBalance.isNotEmpty)
@@ -374,7 +410,9 @@ class BalanceRowWidget extends StatelessWidget {
                         fontSize: 20,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                        color: Theme.of(context)
+                            .extension<BalancePageTheme>()!
+                            .balanceAmountColor,
                         height: 1,
                       ),
                       maxLines: 1,
@@ -388,7 +426,7 @@ class BalanceRowWidget extends StatelessWidget {
                         fontSize: 12,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                        color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                         height: 1,
                       ),
                     ),

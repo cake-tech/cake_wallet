@@ -1,3 +1,4 @@
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'dart:ui';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
@@ -261,7 +262,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     fee: S.of(popupContext).send_fee,
                     feeValue: widget.exchangeTradeViewModel.sendViewModel
                         .pendingTransaction!.feeFormatted,
-                    rightButtonText: S.of(popupContext).ok,
+                    rightButtonText: S.of(popupContext).send,
                     leftButtonText: S.of(popupContext).cancel,
                     actionRightButton: () async {
                       Navigator.of(popupContext).pop();
@@ -282,15 +283,17 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (BuildContext popupContext) {
-                return AlertWithOneAction(
-                    alertTitle: S.of(popupContext).sending,
-                    alertContent: S.of(popupContext).transaction_sent,
-                    buttonText: S.of(popupContext).ok,
-                    buttonAction: () => Navigator.of(popupContext).pop());
-              });
+          if (context.mounted) {
+            showPopUp<void>(
+                context: context,
+                builder: (BuildContext popupContext) {
+                  return AlertWithOneAction(
+                      alertTitle: S.of(popupContext).sending,
+                      alertContent: S.of(popupContext).transaction_sent,
+                      buttonText: S.of(popupContext).ok,
+                      buttonAction: () => Navigator.of(popupContext).pop());
+                });
+          }
         });
       }
     });
@@ -343,7 +346,11 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       bottom: 24,
                       child: PrimaryButton(
                           onPressed: () {
-                            Navigator.of(popupContext).pop();
+                              Navigator.pushNamedAndRemoveUntil(
+                                popupContext,
+                                Routes.dashboard,
+                                (route) => false,
+                              );
                             RequestReviewHandler.requestReview();
                           },
                           text: S.of(popupContext).got_it,

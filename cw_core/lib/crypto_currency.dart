@@ -9,7 +9,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     required this.decimals,
     this.fullName,
     this.iconPath,
-    this.tag})
+    this.tag,
+    this.enabled = false,
+    })
       : super(title: title, raw: raw);
 
   final String name;
@@ -17,6 +19,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   final String? fullName;
   final String? iconPath;
   final int decimals;
+  final bool enabled;
+
+  set enabled(bool value) => this.enabled = value;
 
   static const all = [
     CryptoCurrency.xmr,
@@ -95,6 +100,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.banano,
     CryptoCurrency.usdtPoly,
     CryptoCurrency.usdcEPoly,
+    CryptoCurrency.kaspa,
+    CryptoCurrency.digibyte,
+    CryptoCurrency.usdtSol,
   ];
 
   static const havenCurrencies = [
@@ -206,6 +214,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const banano = CryptoCurrency(title: 'BAN', fullName: 'Banano', raw: 86, name: 'banano', iconPath: 'assets/images/nano_icon.png', decimals: 29);
   static const usdtPoly = CryptoCurrency(title: 'USDT', tag: 'POLY', fullName: 'Tether USD (PoS)', raw: 87, name: 'usdtpoly', iconPath: 'assets/images/usdt_icon.png', decimals: 6);
   static const usdcEPoly = CryptoCurrency(title: 'USDC.E', tag: 'POLY', fullName: 'USD Coin (PoS)', raw: 88, name: 'usdcepoly', iconPath: 'assets/images/usdc_icon.png', decimals: 6);
+  static const kaspa = CryptoCurrency(title: 'KAS', fullName: 'Kaspa', raw: 89, name: 'kas', iconPath: 'assets/images/kaspa_icon.png', decimals: 8);
+  static const digibyte = CryptoCurrency(title: 'DGB', fullName: 'DigiByte', raw: 90, name: 'dgb', iconPath: 'assets/images/digibyte.png', decimals: 8);
+  static const usdtSol = CryptoCurrency(title: 'USDT', tag: 'SOL', fullName: 'USDT Tether', raw: 91, name: 'usdtsol', iconPath: 'assets/images/usdt_icon.png', decimals: 6);
 
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
@@ -236,7 +247,16 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     return CryptoCurrency._rawCurrencyMap[raw]!;
   }
 
-  static CryptoCurrency fromString(String name) {
+  // TODO: refactor this
+  static CryptoCurrency fromString(String name, {CryptoCurrency? walletCurrency}) {
+    try {
+      return CryptoCurrency.all.firstWhere((element) =>
+          element.title.toLowerCase() == name &&
+          (element.tag == null ||
+              element.tag == walletCurrency?.title ||
+              element.tag == walletCurrency?.tag));
+    } catch (_) {}
+
     if (CryptoCurrency._nameCurrencyMap[name.toLowerCase()] == null) {
       final s = 'Unexpected token: $name for CryptoCurrency fromString';
       throw  ArgumentError.value(name, 'name', s);

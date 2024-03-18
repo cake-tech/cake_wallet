@@ -6,12 +6,12 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_nano/nano_mnemonic.dart' as nm;
-import 'package:cw_nano/nano_util.dart';
 import 'package:cw_nano/nano_wallet.dart';
 import 'package:cw_nano/nano_wallet_creation_credentials.dart';
 import 'package:hive/hive.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:nanodart/nanodart.dart';
+import 'package:nanoutil/nanoutil.dart';
 
 class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     NanoRestoreWalletFromSeedCredentials, NanoRestoreWalletFromKeysCredentials> {
@@ -26,10 +26,10 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   WalletType getType() => WalletType.nano;
 
   @override
-  Future<WalletBase> create(NanoNewWalletCredentials credentials) async {
+  Future<WalletBase> create(NanoNewWalletCredentials credentials, {bool? isTestnet}) async {
     // nano standard:
     String seedKey = NanoSeeds.generateSeed();
-    String mnemonic = NanoUtil.seedToMnemonic(seedKey);
+    String mnemonic = NanoDerivations.standardSeedToMnemonic(seedKey);
 
     // ensure default if not present:
     credentials.walletInfo!.derivationInfo ??= DerivationInfo(derivationType: DerivationType.nano);
@@ -69,6 +69,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
         NanoWallet(walletInfo: currentWalletInfo, password: password, mnemonic: randomWords);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
@@ -78,7 +79,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   }
 
   @override
-  Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials) async {
+  Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials, {bool? isTestnet}) async {
     if (credentials.seedKey.contains(' ')) {
       throw Exception("Invalid key!");
     } else {
@@ -92,7 +93,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     // we can't derive the mnemonic from the key in all cases, only if it's a "nano" seed
     if (credentials.seedKey.length == 64) {
       try {
-        mnemonic = NanoUtil.seedToMnemonic(credentials.seedKey);
+        mnemonic = NanoDerivations.standardSeedToMnemonic(credentials.seedKey);
       } catch (e) {
         throw Exception("Wasn't a valid nano style seed!");
       }
@@ -109,7 +110,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   }
 
   @override
-  Future<NanoWallet> restoreFromSeed(NanoRestoreWalletFromSeedCredentials credentials) async {
+  Future<NanoWallet> restoreFromSeed(NanoRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
     if (credentials.mnemonic.contains(' ')) {
       if (!bip39.validateMnemonic(credentials.mnemonic)) {
         throw nm.NanoMnemonicIsIncorrectException();
@@ -149,14 +150,28 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     final walletInfo =
         walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
 
-    final wallet = await NanoWalletBase.open(
-      name: name,
-      password: password,
-      walletInfo: walletInfo,
-    );
+    try {
+      final wallet = await NanoWalletBase.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
 
-    await wallet.init();
-    await wallet.save();
-    return wallet;
+      await wallet.init();
+      await wallet.save();
+      saveBackup(name);
+      return wallet;
+    } catch (_) {
+      await restoreWalletFilesFromBackup(name);
+      final wallet = await NanoWalletBase.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
+
+      await wallet.init();
+      await wallet.save();
+      return wallet;
+    }
   }
 }

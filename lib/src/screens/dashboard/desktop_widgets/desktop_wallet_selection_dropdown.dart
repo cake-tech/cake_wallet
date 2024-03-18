@@ -37,6 +37,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final bitcoinCashIcon = Image.asset('assets/images/bch_icon.png', height: 24, width: 24);
   final nanoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
   final bananoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
+  final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
@@ -123,8 +124,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
                   alertContent: S.of(context).change_wallet_alert_content(selectedWallet.name),
                   leftButtonText: S.of(context).cancel,
                   rightButtonText: S.of(context).change,
-                  actionLeftButton: () => Navigator.of(context).pop(false),
-                  actionRightButton: () => Navigator.of(context).pop(true));
+                  actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+                  actionRightButton: () => Navigator.of(dialogContext).pop(true));
             }) ??
         false;
 
@@ -153,6 +154,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return bananoIcon;
       case WalletType.polygon:
         return polygonIcon;
+      case WalletType.solana:
+        return solanaIcon;
       default:
         return nonWalletTypeIcon;
     }
@@ -166,12 +169,16 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
       }
 
       try {
-        changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
+        if (context.mounted) {
+          changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
+        }
         await widget.walletListViewModel.loadWallet(wallet);
         hideProgressText();
         setState(() {});
       } catch (e) {
-        changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+        if (context.mounted) {
+          changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+        }
       }
       },
       conditionToDetermineIfToUse2FA:
