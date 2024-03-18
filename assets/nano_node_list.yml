@@ -4,3 +4,6 @@
   is_default: true
 -
   uri: node.perish.co:9076
+-
+  uri: app.natrium.io/api
+  useSSL: true

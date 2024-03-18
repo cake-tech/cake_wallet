@@ -48,6 +48,10 @@ class SecretKey {
     SecretKey('ankrApiKey', () => ''),
   ];
 
+  static final nanoSecrets = [
+    SecretKey('nano2ApiKey', () => ''),
+  ];
+
   final String name;
   final String Function() generate;
 }

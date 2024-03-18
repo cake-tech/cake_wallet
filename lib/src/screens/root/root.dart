@@ -147,8 +147,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
                       _reset();
                       totpAuth.close(
                         route: _getRouteToGo(),
-                        arguments:
-                            isWalletConnectLink ? launchUri : PaymentRequest.fromUri(launchUri),
+                        arguments: _getRouteArgs(),
                       );
                       launchUri = null;
                     },
@@ -160,7 +159,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
                 _reset();
                 auth.close(
                   route: _getRouteToGo(),
-                  arguments: isWalletConnectLink ? launchUri : PaymentRequest.fromUri(launchUri),
+                  arguments: _getRouteArgs(),
                 );
                 launchUri = null;
               }
@@ -231,6 +230,18 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       }
     } else if (_isValidPaymentUri()) {
       return Routes.send;
+    } else {
+      return null;
+    }
+  }
+
+  dynamic _getRouteArgs() {
+    if (isWalletConnectLink) {
+      return launchUri;
+    } else if (isNanoGptLink) {
+      return PaymentRequest.fromUri(launchUri);
+    } else if (_isValidPaymentUri()) {
+      return PaymentRequest.fromUri(launchUri);
     } else {
       return null;
     }
