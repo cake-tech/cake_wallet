@@ -75,11 +75,7 @@ abstract class ElectrumWalletBase
               }
             : {}),
         this.unspentCoinsInfo = unspentCoinsInfo,
-        this.network = networkType == bitcoin.bitcoin
-            ? BitcoinNetwork.mainnet
-            : networkType == litecoinNetwork
-                ? LitecoinNetwork.mainnet
-                : BitcoinNetwork.testnet,
+        this.network = _getNetwork(networkType, currency),
         this.isTestnet = networkType == bitcoin.testnet,
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
@@ -851,6 +847,22 @@ abstract class ElectrumWalletBase
         : null;
     final HD = index == null ? hd : hd.derive(index);
     return base64Encode(HD.signMessage(message));
+  }
+
+  static BasedUtxoNetwork _getNetwork(bitcoin.NetworkType networkType, CryptoCurrency? currency) {
+    if (networkType == bitcoin.bitcoin && currency == CryptoCurrency.bch) {
+      return BitcoinCashNetwork.mainnet;
+    }
+
+    if (networkType == litecoinNetwork) {
+      return LitecoinNetwork.mainnet;
+    }
+
+    if (networkType == bitcoin.testnet) {
+      return BitcoinNetwork.testnet;
+    }
+
+    return BitcoinNetwork.mainnet;
   }
 }
 
