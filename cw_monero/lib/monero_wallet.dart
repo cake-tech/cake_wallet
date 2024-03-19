@@ -183,13 +183,8 @@ abstract class MoneroWalletBase
         // try to use the date instead:
         try {
           _setHeightFromDate();
-        } catch (e, s) {
+        } catch (_) {
           // we still couldn't get a valid sync height :/
-          onError?.call(FlutterErrorDetails(
-            exception: e,
-            stack: s,
-            library: this.runtimeType.toString(),
-          ));
         }
       }
     }
@@ -576,15 +571,13 @@ abstract class MoneroWalletBase
       return;
     }
 
-    final height = _getHeightByDate(walletInfo.date);
+    int height = 0;
+    try {
+      height = _getHeightByDate(walletInfo.date);
+    } catch (_) {}
 
-    if (height > MIN_RESTORE_HEIGHT) {
-      monero_wallet.setRecoveringFromSeed(isRecovery: true);
-      monero_wallet.setRefreshFromBlockHeight(height: height);
-      return;
-    }
-
-    throw Exception("height isn't > $MIN_RESTORE_HEIGHT!");
+    monero_wallet.setRecoveringFromSeed(isRecovery: true);
+    monero_wallet.setRefreshFromBlockHeight(height: height);
   }
 
   int _getHeightDistance(DateTime date) {
@@ -600,7 +593,7 @@ abstract class MoneroWalletBase
     final heightDistance = _getHeightDistance(date);
 
     if (nodeHeight <= 0) {
-      // the node returned 0 (an error state), so lets just restore from cache:
+      // the node returned 0 (an error state)
       throw Exception("nodeHeight is <= 0!");
     }
 

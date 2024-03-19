@@ -1,5 +1,5 @@
-Bitcoin transactions fixes and enhancements
-EVM wallets enhancements (Ethereum and Polygon)
-Improve wallet recovery and error tolerance
-Enhance Background sync for Monero wallets
-Bug fixes
+Monero enhancements
+Bitcoin support different address types (Taproot, Segwit P2WPKH/P2WSH, Legacy)
+In-App live status page for the app services
+Add Exolix exchange provider
+Bug fixes and enhancements

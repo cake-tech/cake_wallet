@@ -51,7 +51,8 @@ class AddressResolver {
     }
 
     final match = RegExp(addressPattern).firstMatch(raw);
-    return match?.group(0)?.replaceAllMapped(RegExp('[^0-9a-zA-Z]|bitcoincash:|nano_'), (Match match) {
+    return match?.group(0)?.replaceAllMapped(RegExp('[^0-9a-zA-Z]|bitcoincash:|nano_'),
+        (Match match) {
       String group = match.group(0)!;
       if (group.startsWith('bitcoincash:') || group.startsWith('nano_')) {
         return group;
@@ -68,25 +69,35 @@ class AddressResolver {
     return emailRegex.hasMatch(address);
   }
 
-
-    Future<ParsedAddress> resolve(BuildContext context, String text, String ticker) async {
+  // TODO: refactor this to take Crypto currency instead of ticker, or at least pass in the tag as well
+  Future<ParsedAddress> resolve(BuildContext context, String text, String ticker) async {
     try {
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
-        if(settingsStore.lookupsTwitter) {
+        if (settingsStore.lookupsTwitter) {
           final formattedName = text.substring(1);
           final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
           final addressFromBio = extractAddressByType(
-              raw: twitterUser.description, type: CryptoCurrency.fromString(ticker));
+              raw: twitterUser.description,
+              type: CryptoCurrency.fromString(ticker, walletCurrency: wallet.currency));
           if (addressFromBio != null) {
-            return ParsedAddress.fetchTwitterAddress(address: addressFromBio, name: text);
+            return ParsedAddress.fetchTwitterAddress(
+                address: addressFromBio,
+                name: text,
+                profileImageUrl: twitterUser.profileImageUrl,
+                profileName: twitterUser.name);
           }
 
           final pinnedTweet = twitterUser.pinnedTweet?.text;
           if (pinnedTweet != null) {
-            final addressFromPinnedTweet =
-            extractAddressByType(raw: pinnedTweet, type: CryptoCurrency.fromString(ticker));
+            final addressFromPinnedTweet = extractAddressByType(
+                raw: pinnedTweet,
+                type: CryptoCurrency.fromString(ticker, walletCurrency: wallet.currency));
             if (addressFromPinnedTweet != null) {
-              return ParsedAddress.fetchTwitterAddress(address: addressFromPinnedTweet, name: text);
+              return ParsedAddress.fetchTwitterAddress(
+                  address: addressFromPinnedTweet,
+                  name: text,
+                  profileImageUrl: twitterUser.profileImageUrl,
+                  profileName: twitterUser.name);
             }
           }
         }
@@ -100,17 +111,21 @@ class AddressResolver {
           final userName = subText.substring(0, hostNameIndex);
 
           final mastodonUser =
-          await MastodonAPI.lookupUserByUserName(userName: userName, apiHost: hostName);
+              await MastodonAPI.lookupUserByUserName(userName: userName, apiHost: hostName);
 
           if (mastodonUser != null) {
-            String? addressFromBio =
-            extractAddressByType(raw: mastodonUser.note, type: CryptoCurrency.fromString(ticker));
+            String? addressFromBio = extractAddressByType(
+                raw: mastodonUser.note, type: CryptoCurrency.fromString(ticker));
 
             if (addressFromBio != null) {
-              return ParsedAddress.fetchMastodonAddress(address: addressFromBio, name: text);
+              return ParsedAddress.fetchMastodonAddress(
+                  address: addressFromBio,
+                  name: text,
+                  profileImageUrl: mastodonUser.profileImageUrl,
+                  profileName: mastodonUser.username);
             } else {
               final pinnedPosts =
-              await MastodonAPI.getPinnedPosts(userId: mastodonUser.id, apiHost: hostName);
+                  await MastodonAPI.getPinnedPosts(userId: mastodonUser.id, apiHost: hostName);
 
               if (pinnedPosts.isNotEmpty) {
                 final userPinnedPostsText = pinnedPosts.map((item) => item.content).join('\n');
@@ -119,7 +134,10 @@ class AddressResolver {
 
                 if (addressFromPinnedPost != null) {
                   return ParsedAddress.fetchMastodonAddress(
-                      address: addressFromPinnedPost, name: text);
+                      address: addressFromPinnedPost,
+                      name: text,
+                      profileImageUrl: mastodonUser.profileImageUrl,
+                      profileName: mastodonUser.username);
                 }
               }
             }
@@ -135,7 +153,7 @@ class AddressResolver {
         }
       }
       if (text.hasOnlyEmojis) {
-        if(settingsStore.lookupsYatService) {
+        if (settingsStore.lookupsYatService) {
           if (walletType != WalletType.haven) {
             final addresses = await yatService.fetchYatAddress(text, ticker);
             return ParsedAddress.fetchEmojiAddress(addresses: addresses, name: text);
@@ -151,7 +169,7 @@ class AddressResolver {
       }
 
       if (unstoppableDomains.any((domain) => name.trim() == domain)) {
-        if(settingsStore.lookupsUnstoppableDomains) {
+        if (settingsStore.lookupsUnstoppableDomains) {
           final address = await fetchUnstoppableDomainAddress(text, ticker);
           return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
         }
@@ -167,7 +185,7 @@ class AddressResolver {
       }
 
       if (formattedName.contains(".")) {
-        if(settingsStore.lookupsOpenAlias) {
+        if (settingsStore.lookupsOpenAlias) {
           final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
           if (txtRecord != null) {
             final record = await OpenaliasRecord.fetchAddressAndName(
@@ -186,7 +204,11 @@ class AddressResolver {
             String? addressFromBio = extractAddressByType(
                 raw: nostrUserData.about, type: CryptoCurrency.fromString(ticker));
             if (addressFromBio != null) {
-              return ParsedAddress.nostrAddress(address: addressFromBio, name: text);
+              return ParsedAddress.nostrAddress(
+                  address: addressFromBio,
+                  name: text,
+                  profileImageUrl: nostrUserData.picture,
+                  profileName: nostrUserData.name);
             }
           }
         }

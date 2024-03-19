@@ -13,6 +13,7 @@ class PreferencesKey {
   static const currentBananoPowNodeIdKey = 'current_node_id_banano_pow';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
   static const currentBitcoinCashNodeIdKey = 'current_node_id_bch';
+  static const currentSolanaNodeIdKey = 'current_node_id_sol';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
@@ -29,7 +30,6 @@ class PreferencesKey {
   static const disableExchangeKey = 'disable_exchange';
   static const exchangeStatusKey = 'exchange_status';
   static const currentTheme = 'current_theme';
-  static const isDarkThemeLegacy = 'dark_theme';
   static const displayActionListModeKey = 'display_list_mode';
   static const currentPinLength = 'current_pin_length';
   static const currentLanguageCode = 'language_code';
@@ -74,4 +74,5 @@ class PreferencesKey {
   static const lastSeenAppVersion = 'last_seen_app_version';
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';
+  static const serviceStatusShaKey = 'service_status_sha_key';
 }

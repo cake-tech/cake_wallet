@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart';
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:collection/collection.dart';
+import 'package:http/http.dart' as http;
 
 String jsonrpcparams(List<Object> params) {
   final _params = params?.map((val) => '"${val.toString()}"')?.join(',');
@@ -22,10 +22,7 @@ String jsonrpc(
     '{"jsonrpc": "$version", "method": "$method", "id": "$id",  "params": ${json.encode(params)}}\n';
 
 class SocketTask {
-  SocketTask({
-    required this.isSubscription,
-    this.completer,
-    this.subject});
+  SocketTask({required this.isSubscription, this.completer, this.subject});
 
   final Completer<dynamic>? completer;
   final BehaviorSubject<dynamic>? subject;
@@ -51,8 +48,7 @@ class ElectrumClient {
   Timer? _aliveTimer;
   String unterminatedString;
 
-  Future<void> connectToUri(Uri uri) async =>
-    await connect(host: uri.host, port: uri.port);
+  Future<void> connectToUri(Uri uri) async => await connect(host: uri.host, port: uri.port);
 
   Future<void> connect({required String host, required int port}) async {
     try {
@@ -104,21 +100,20 @@ class ElectrumClient {
       }
 
       if (isJSONStringCorrect(unterminatedString)) {
-        final response =
-        json.decode(unterminatedString) as Map<String, dynamic>;
+        final response = json.decode(unterminatedString) as Map<String, dynamic>;
         _handleResponse(response);
         unterminatedString = '';
       }
     } on TypeError catch (e) {
-      if (!e.toString().contains('Map<String, Object>') && !e.toString().contains('Map<String, dynamic>')) {
+      if (!e.toString().contains('Map<String, Object>') &&
+          !e.toString().contains('Map<String, dynamic>')) {
         return;
       }
 
       unterminatedString += message;
 
       if (isJSONStringCorrect(unterminatedString)) {
-        final response =
-        json.decode(unterminatedString) as Map<String, dynamic>;
+        final response = json.decode(unterminatedString) as Map<String, dynamic>;
         _handleResponse(response);
         // unterminatedString = null;
         unterminatedString = '';
@@ -142,8 +137,7 @@ class ElectrumClient {
     }
   }
 
-  Future<List<String>> version() =>
-      call(method: 'server.version').then((dynamic result) {
+  Future<List<String>> version() => call(method: 'server.version').then((dynamic result) {
         if (result is List) {
           return result.map((dynamic val) => val.toString()).toList();
         }
@@ -178,11 +172,10 @@ class ElectrumClient {
       });
 
   Future<List<Map<String, dynamic>>> getListUnspentWithAddress(
-          String address, NetworkType networkType) =>
+          String address, BasedUtxoNetwork network) =>
       call(
-              method: 'blockchain.scripthash.listunspent',
-              params: [scriptHash(address, networkType: networkType)])
-          .then((dynamic result) {
+          method: 'blockchain.scripthash.listunspent',
+          params: [scriptHash(address, network: network)]).then((dynamic result) {
         if (result is List) {
           return result.map((dynamic val) {
             if (val is Map<String, dynamic>) {
@@ -229,8 +222,7 @@ class ElectrumClient {
         return [];
       });
 
-  Future<Map<String, dynamic>> getTransactionRaw(
-          {required String hash}) async =>
+  Future<Map<String, dynamic>> getTransactionRaw({required String hash}) async =>
       callWithTimeout(method: 'blockchain.transaction.get', params: [hash, true], timeout: 10000)
           .then((dynamic result) {
         if (result is Map<String, dynamic>) {
@@ -240,8 +232,7 @@ class ElectrumClient {
         return <String, dynamic>{};
       });
 
-  Future<String> getTransactionHex(
-          {required String hash}) async =>
+  Future<String> getTransactionHex({required String hash}) async =>
       callWithTimeout(method: 'blockchain.transaction.get', params: [hash, false], timeout: 10000)
           .then((dynamic result) {
         if (result is String) {
@@ -252,29 +243,40 @@ class ElectrumClient {
       });
 
   Future<String> broadcastTransaction(
-          {required String transactionRaw}) async =>
-      call(method: 'blockchain.transaction.broadcast', params: [transactionRaw])
-          .then((dynamic result) {
-        if (result is String) {
-          return result;
+      {required String transactionRaw, BasedUtxoNetwork? network}) async {
+    if (network == BitcoinNetwork.testnet) {
+      return http
+          .post(Uri(scheme: 'https', host: 'blockstream.info', path: '/testnet/api/tx'),
+              headers: <String, String>{'Content-Type': 'application/json; charset=utf-8'},
+              body: transactionRaw)
+          .then((http.Response response) {
+        if (response.statusCode == 200) {
+          return response.body;
         }
 
-        return '';
+        throw Exception('Failed to broadcast transaction: ${response.body}');
       });
+    }
 
-  Future<Map<String, dynamic>> getMerkle(
-          {required String hash, required int height}) async =>
-      await call(
-          method: 'blockchain.transaction.get_merkle',
-          params: [hash, height]) as Map<String, dynamic>;
+    return call(method: 'blockchain.transaction.broadcast', params: [transactionRaw])
+        .then((dynamic result) {
+      if (result is String) {
+        return result;
+      }
 
-  Future<Map<String, dynamic>> getHeader({required int height}) async =>
-      await call(method: 'blockchain.block.get_header', params: [height])
+      return '';
+    });
+  }
+
+  Future<Map<String, dynamic>> getMerkle({required String hash, required int height}) async =>
+      await call(method: 'blockchain.transaction.get_merkle', params: [hash, height])
           as Map<String, dynamic>;
 
+  Future<Map<String, dynamic>> getHeader({required int height}) async =>
+      await call(method: 'blockchain.block.get_header', params: [height]) as Map<String, dynamic>;
+
   Future<double> estimatefee({required int p}) =>
-      call(method: 'blockchain.estimatefee', params: [p])
-          .then((dynamic result) {
+      call(method: 'blockchain.estimatefee', params: [p]).then((dynamic result) {
         if (result is double) {
           return result;
         }
@@ -314,26 +316,38 @@ class ElectrumClient {
         return [];
       });
 
-  Future<List<int>> feeRates() async {
+  Future<List<int>> feeRates({BasedUtxoNetwork? network}) async {
+    if (network == BitcoinNetwork.testnet) {
+      return [1, 1, 1];
+    }
     try {
       final topDoubleString = await estimatefee(p: 1);
       final middleDoubleString = await estimatefee(p: 5);
       final bottomDoubleString = await estimatefee(p: 100);
-      final top =
-          (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000)
-              .round();
-      final middle =
-          (stringDoubleToBitcoinAmount(middleDoubleString.toString()) / 1000)
-              .round();
-      final bottom =
-          (stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000)
-              .round();
+      final top = (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000).round();
+      final middle = (stringDoubleToBitcoinAmount(middleDoubleString.toString()) / 1000).round();
+      final bottom = (stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000).round();
 
       return [bottom, middle, top];
     } catch (_) {
       return [];
     }
   }
+
+  // https://electrumx.readthedocs.io/en/latest/protocol-methods.html#blockchain-headers-subscribe
+  // example response:
+  // {
+  //   "height": 520481,
+  //   "hex": "00000020890208a0ae3a3892aa047c5468725846577cfcd9b512b50000000000000000005dc2b02f2d297a9064ee103036c14d678f9afc7e3d9409cf53fd58b82e938e8ecbeca05a2d2103188ce804c4"
+  // }
+  Future<int?> getCurrentBlockChainTip() =>
+      call(method: 'blockchain.headers.subscribe').then((result) {
+        if (result is Map<String, dynamic>) {
+          return result["height"] as int;
+        }
+
+        return null;
+      });
 
   BehaviorSubject<Object>? scripthashUpdate(String scripthash) {
     _id += 1;
@@ -344,16 +358,14 @@ class ElectrumClient {
   }
 
   BehaviorSubject<T>? subscribe<T>(
-      {required String id,
-      required String method,
-      List<Object> params = const []}) {
+      {required String id, required String method, List<Object> params = const []}) {
     try {
       final subscription = BehaviorSubject<T>();
       _regisrySubscription(id, subscription);
       socket!.write(jsonrpc(method: method, id: _id, params: params));
 
       return subscription;
-    } catch(e) {
+    } catch (e) {
       print(e.toString());
       return null;
     }
@@ -370,9 +382,7 @@ class ElectrumClient {
   }
 
   Future<dynamic> callWithTimeout(
-      {required String method,
-      List<Object> params = const [],
-      int timeout = 4000}) async {
+      {required String method, List<Object> params = const [], int timeout = 4000}) async {
     try {
       final completer = Completer<dynamic>();
       _id += 1;
@@ -386,7 +396,7 @@ class ElectrumClient {
       });
 
       return completer.future;
-    } catch(e) {
+    } catch (e) {
       print(e.toString());
     }
   }
@@ -397,8 +407,8 @@ class ElectrumClient {
     onConnectionStatusChange = null;
   }
 
-  void _registryTask(int id, Completer<dynamic> completer) => _tasks[id.toString()] =
-      SocketTask(completer: completer, isSubscription: false);
+  void _registryTask(int id, Completer<dynamic> completer) =>
+      _tasks[id.toString()] = SocketTask(completer: completer, isSubscription: false);
 
   void _regisrySubscription(String id, BehaviorSubject<dynamic> subject) =>
       _tasks[id] = SocketTask(subject: subject, isSubscription: true);
@@ -419,8 +429,7 @@ class ElectrumClient {
     }
   }
 
-  void _methodHandler(
-      {required String method, required Map<String, dynamic> request}) {
+  void _methodHandler({required String method, required Map<String, dynamic> request}) {
     switch (method) {
       case 'blockchain.scripthash.subscribe':
         final params = request['params'] as List<dynamic>;
@@ -451,8 +460,8 @@ class ElectrumClient {
       _methodHandler(method: method, request: response);
       return;
     }
-    
-    if (id != null){
+
+    if (id != null) {
       _finish(id, result);
     }
   }
