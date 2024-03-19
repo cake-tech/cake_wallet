@@ -6,20 +6,28 @@ import 'package:cake_wallet/src/widgets/service_status_tile.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ServicesUpdatesWidget extends StatelessWidget {
+class ServicesUpdatesWidget extends StatefulWidget {
   final Future<ServicesResponse> servicesResponse;
 
   const ServicesUpdatesWidget(this.servicesResponse, {super.key});
+
+  @override
+  State<ServicesUpdatesWidget> createState() => _ServicesUpdatesWidgetState();
+}
+
+class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
+  bool wasOpened = false;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: FutureBuilder<ServicesResponse>(
-        future: servicesResponse,
+        future: widget.servicesResponse,
         builder: (context, state) {
           return InkWell(
             onTap: state.hasData
@@ -28,6 +36,8 @@ class ServicesUpdatesWidget extends StatelessWidget {
                     getIt
                         .get<SharedPreferences>()
                         .setString(PreferencesKey.serviceStatusShaKey, state.data!.currentSha);
+
+                    setState(() => wasOpened = true);
 
                     showModalBottomSheet(
                       context: context,
@@ -96,15 +106,16 @@ class ServicesUpdatesWidget extends StatelessWidget {
                 : null,
             child: Stack(
               children: [
-                Image.asset(
-                  "assets/images/notification_icon.png",
+                SvgPicture.asset(
+                  "assets/images/notification_icon.svg",
                   color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                  width: 30,
                 ),
                 if (state.hasData && state.data!.hasUpdates)
                   Container(
                     height: 7,
                     width: 7,
-                    margin: EdgeInsetsDirectional.only(start: 8),
+                    margin: EdgeInsetsDirectional.only(start: 15),
                     decoration: BoxDecoration(
                       color: Colors.red,
                       shape: BoxShape.circle,
