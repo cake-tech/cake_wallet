@@ -36,8 +36,8 @@ class ElectrumClient {
         _tasks = {},
         unterminatedString = '';
 
-  static const connectionTimeout = Duration(seconds: 5);
-  static const aliveTimerDuration = Duration(seconds: 4);
+  static const connectionTimeout = Duration(seconds: 300);
+  static const aliveTimerDuration = Duration(seconds: 300);
 
   bool get isConnected => _isConnected;
   Socket? socket;
@@ -48,15 +48,19 @@ class ElectrumClient {
   Timer? _aliveTimer;
   String unterminatedString;
 
-  Future<void> connectToUri(Uri uri) async => await connect(host: uri.host, port: uri.port);
+  Uri? uri;
+
+  Future<void> connectToUri(Uri uri) async {
+    this.uri = uri;
+    await connect(host: uri.host, port: uri.port);
+  }
 
   Future<void> connect({required String host, required int port}) async {
     try {
       await socket?.close();
     } catch (_) {}
 
-    socket = await SecureSocket.connect(host, port,
-        timeout: connectionTimeout, onBadCertificate: (_) => true);
+    socket = await Socket.connect(host, port, timeout: connectionTimeout);
     _setIsConnected(true);
 
     socket!.listen((Uint8List event) {
@@ -275,6 +279,12 @@ class ElectrumClient {
   Future<Map<String, dynamic>> getHeader({required int height}) async =>
       await call(method: 'blockchain.block.get_header', params: [height]) as Map<String, dynamic>;
 
+  Future<Map<String, dynamic>> getTweaks({required int height, required int count}) async =>
+      await callWithTimeout(
+          method: 'blockchain.block.tweaks',
+          params: [height, count],
+          timeout: 10000) as Map<String, dynamic>;
+
   Future<double> estimatefee({required int p}) =>
       call(method: 'blockchain.estimatefee', params: [p]).then((dynamic result) {
         if (result is double) {
@@ -348,6 +358,12 @@ class ElectrumClient {
 
         return null;
       });
+
+  BehaviorSubject<Object>? chainTipUpdate() {
+    _id += 1;
+    return subscribe<Object>(
+        id: 'blockchain.headers.subscribe', method: 'blockchain.headers.subscribe');
+  }
 
   BehaviorSubject<Object>? scripthashUpdate(String scripthash) {
     _id += 1;

@@ -13,8 +13,7 @@ class AddressEditOrCreatePage extends BasePage {
       : _formKey = GlobalKey<FormState>(),
         _labelController = TextEditingController(),
         super() {
-    _labelController.addListener(
-        () => addressEditOrCreateViewModel.label = _labelController.text);
+    _labelController.addListener(() => addressEditOrCreateViewModel.label = _labelController.text);
     _labelController.text = addressEditOrCreateViewModel.label;
   }
 
@@ -55,10 +54,8 @@ class AddressEditOrCreatePage extends BasePage {
                       : S.of(context).new_subaddress_create,
                   color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
-                  isLoading:
-                      addressEditOrCreateViewModel.state is AddressIsSaving,
-                  isDisabled:
-                      addressEditOrCreateViewModel.label?.isEmpty ?? true,
+                  isLoading: addressEditOrCreateViewModel.state is AddressIsSaving,
+                  isDisabled: addressEditOrCreateViewModel.label?.isEmpty ?? true,
                 ),
               )
             ],
@@ -70,14 +67,13 @@ class AddressEditOrCreatePage extends BasePage {
     if (_isEffectsInstalled) {
       return;
     }
-    reaction((_) => addressEditOrCreateViewModel.state,
-            (AddressEditOrCreateState state) {
-          if (state is AddressSavedSuccessfully) {
-            WidgetsBinding.instance
-                .addPostFrameCallback((_) => Navigator.of(context).pop());
-          }
-        });
+    reaction((_) => addressEditOrCreateViewModel.state, (AddressEditOrCreateState state) {
+      if (state is AddressSavedSuccessfully) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.of(context).pop());
+      }
+    });
 
     _isEffectsInstalled = true;
   }
 }
+

@@ -44,6 +44,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -281,7 +282,10 @@ abstract class DashboardViewModelBase with Store {
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
-  bool get hasRescan => wallet.type == WalletType.monero || wallet.type == WalletType.haven;
+  bool get hasRescan =>
+      (wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet)) ||
+      wallet.type == WalletType.monero ||
+      wallet.type == WalletType.haven;
 
   final KeyService keyService;
   final SharedPreferences sharedPreferences;

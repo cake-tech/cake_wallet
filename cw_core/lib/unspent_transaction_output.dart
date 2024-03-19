@@ -16,5 +16,6 @@ class Unspent {
   bool isFrozen;
   String note;
 
-  bool get isP2wpkh => address.startsWith('bc') || address.startsWith('ltc');
+  bool get isP2wpkh =>
+      address.startsWith('bc') || address.startsWith('tb') || address.startsWith('ltc');
 }

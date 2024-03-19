@@ -30,6 +30,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     ElectrumBalance? initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
+    List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
+    int initialSilentAddressIndex = 0,
   }) : super(
             mnemonic: mnemonic,
             password: password,
@@ -46,16 +48,31 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             currency: CryptoCurrency.btc) {
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
-      electrumClient: electrumClient,
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
+      initialSilentAddresses: initialSilentAddresses,
+      initialSilentAddressIndex: initialSilentAddressIndex,
       mainHd: hd,
       sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
       network: networkParam ?? network,
+      masterHd: bitcoin.HDWallet.fromSeed(
+        seedBytes,
+        network: network == BitcoinNetwork.testnet ? bitcoin.testnet : bitcoin.bitcoin,
+      ),
     );
+    hasSilentPaymentsScanning = addressPageType == SilentPaymentsAddresType.p2sp.toString();
+
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
+    });
+
+    reaction((_) => walletAddresses.addressPageType, (BitcoinAddressType addressPageType) {
+      final prev = hasSilentPaymentsScanning;
+      hasSilentPaymentsScanning = addressPageType == SilentPaymentsAddresType.p2sp;
+      if (prev != hasSilentPaymentsScanning) {
+        startSync();
+      }
     });
   }
 
@@ -67,18 +84,23 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     String? addressPageType,
     BasedUtxoNetwork? network,
     List<BitcoinAddressRecord>? initialAddresses,
+    List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     ElectrumBalance? initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
+    int initialSilentAddressIndex = 0,
   }) async {
+    final seedBytes = await mnemonicToSeedBytes(mnemonic);
     return BitcoinWallet(
       mnemonic: mnemonic,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
+      initialSilentAddresses: initialSilentAddresses,
+      initialSilentAddressIndex: initialSilentAddressIndex,
       initialBalance: initialBalance,
-      seedBytes: await mnemonicToSeedBytes(mnemonic),
+      seedBytes: seedBytes,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
@@ -95,14 +117,17 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password,
         walletInfo.network != null ? BasedUtxoNetwork.fromName(walletInfo.network!) : null);
 
+    final seedBytes = await mnemonicToSeedBytes(snp.mnemonic);
     return BitcoinWallet(
       mnemonic: snp.mnemonic,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp.addresses,
+      initialSilentAddresses: snp.silentAddresses,
+      initialSilentAddressIndex: snp.silentAddressIndex,
       initialBalance: snp.balance,
-      seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
+      seedBytes: seedBytes,
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,

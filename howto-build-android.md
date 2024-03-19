@@ -142,27 +142,9 @@ Then we need to generate localization files.
 
 `$ flutter packages pub run tool/generate_localization.dart`
 
-Lastly, we will generate mobx models for the project.
-
-Generate mobx models for `cw_core`:
-
-`cd cw_core && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
-
-Generate mobx models for `cw_monero`:
-
-`cd cw_monero && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
-
-Generate mobx models for `cw_bitcoin`:
-
-`cd cw_bitcoin && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
-
-Generate mobx models for `cw_haven`:
-
-`cd cw_haven && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
-
 Finally build mobx models for the app:
 
-`$ flutter packages pub run build_runner build --delete-conflicting-outputs`
+`$ ./model_generator.sh`
 
 ### 9. Build!
 

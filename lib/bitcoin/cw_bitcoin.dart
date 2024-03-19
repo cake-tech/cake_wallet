@@ -101,7 +101,7 @@ class CWBitcoin extends Bitcoin {
   List<String> getAddresses(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.walletAddresses.addressesByReceiveType
-        .map((BitcoinAddressRecord addr) => addr.address)
+        .map((BaseBitcoinAddressRecord addr) => addr.address)
         .toList();
   }
 
@@ -110,7 +110,7 @@ class CWBitcoin extends Bitcoin {
   List<ElectrumSubAddress> getSubAddresses(Object wallet) {
     final electrumWallet = wallet as ElectrumWallet;
     return electrumWallet.walletAddresses.addressesByReceiveType
-        .map((BitcoinAddressRecord addr) => ElectrumSubAddress(
+        .map((BaseBitcoinAddressRecord addr) => ElectrumSubAddress(
             id: addr.index,
             name: addr.name,
             address: electrumWallet.type == WalletType.bitcoinCash ? addr.cashAddr : addr.address,
@@ -181,13 +181,19 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  ReceivePageOption getSelectedAddressType(Object wallet) {
+  BitcoinReceivePageOption getSelectedAddressType(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return BitcoinReceivePageOption.fromType(bitcoinWallet.walletAddresses.addressPageType);
   }
 
   @override
-  List<ReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
+  bool hasSelectedSilentPayments(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.walletAddresses.addressPageType == SilentPaymentsAddresType.p2sp;
+  }
+
+  @override
+  List<BitcoinReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
 
   @override
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
@@ -204,5 +210,18 @@ class CWBitcoin extends Bitcoin {
       default:
         return SegwitAddresType.p2wpkh;
     }
+  }
+
+  List<BitcoinSilentPaymentAddressRecord> getSilentAddresses(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.walletAddresses.silentAddresses;
+  }
+
+  bool isBitcoinReceivePageOption(ReceivePageOption option) {
+    return option is BitcoinReceivePageOption;
+  }
+
+  BitcoinAddressType getOptionToType(ReceivePageOption option) {
+    return (option as BitcoinReceivePageOption).toType();
   }
 }

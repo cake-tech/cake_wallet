@@ -51,7 +51,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             currency: CryptoCurrency.bch) {
     walletAddresses = BitcoinCashWalletAddresses(
       walletInfo,
-      electrumClient: electrumClient,
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,

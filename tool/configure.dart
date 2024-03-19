@@ -126,6 +126,7 @@ abstract class Bitcoin {
 
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
+	List<BitcoinSilentPaymentAddressRecord> getSilentAddresses(Object wallet);
 
   List<ElectrumSubAddress> getSubAddresses(Object wallet);
 
@@ -144,9 +145,12 @@ abstract class Bitcoin {
   TransactionPriority getLitecoinTransactionPrioritySlow();
 
   Future<void> setAddressType(Object wallet, dynamic option);
-  ReceivePageOption getSelectedAddressType(Object wallet);
-  List<ReceivePageOption> getBitcoinReceivePageOptions();
+  BitcoinReceivePageOption getSelectedAddressType(Object wallet);
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
+  bool hasSelectedSilentPayments(Object wallet);
+  List<BitcoinReceivePageOption> getBitcoinReceivePageOptions();
+  bool isBitcoinReceivePageOption(ReceivePageOption option);
+  BitcoinAddressType getOptionToType(ReceivePageOption option);
 }
   """;
 
