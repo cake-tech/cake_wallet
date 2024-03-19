@@ -387,7 +387,6 @@ abstract class ElectrumWalletBase
             ? SegwitAddresType.p2wpkh.toString()
             : walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON(),
-        'network_type': network == BitcoinNetwork.testnet ? 'testnet' : 'mainnet',
       });
 
   int feeRate(TransactionPriority priority) {
