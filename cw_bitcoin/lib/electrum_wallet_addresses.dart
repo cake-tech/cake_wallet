@@ -1,10 +1,10 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
 part 'electrum_wallet_addresses.g.dart';
@@ -149,11 +149,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   Future<void> init() async {
-    await _generateInitialAddresses();
-    await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
-    await _generateInitialAddresses(type: P2shAddressType.p2wpkhInP2sh);
-    await _generateInitialAddresses(type: SegwitAddresType.p2tr);
-    await _generateInitialAddresses(type: SegwitAddresType.p2wsh);
+    if (walletInfo.type == WalletType.bitcoinCash) {
+      await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
+    } else if (walletInfo.type == WalletType.litecoin) {
+      await _generateInitialAddresses();
+    } else if (walletInfo.type == WalletType.bitcoin) {
+      await _generateInitialAddresses();
+      await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
+      await _generateInitialAddresses(type: P2shAddressType.p2wpkhInP2sh);
+      await _generateInitialAddresses(type: SegwitAddresType.p2tr);
+      await _generateInitialAddresses(type: SegwitAddresType.p2wsh);
+    }
     updateAddressesByMatch();
     updateReceiveAddresses();
     updateChangeAddresses();

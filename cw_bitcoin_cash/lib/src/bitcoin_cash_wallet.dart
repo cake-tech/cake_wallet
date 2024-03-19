@@ -109,7 +109,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             addr.address,
             index: addr.index,
             isHidden: addr.isHidden,
-            type: addr.type,
+            type: P2pkhAddressType.p2pkh,
             network: BitcoinCashNetwork.mainnet,
           );
         } catch (_) {
@@ -117,7 +117,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             AddressUtils.getCashAddrFormat(addr.address),
             index: addr.index,
             isHidden: addr.isHidden,
-            type: addr.type,
+            type: P2pkhAddressType.p2pkh,
             network: BitcoinCashNetwork.mainnet,
           );
         }
