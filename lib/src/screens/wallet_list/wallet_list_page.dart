@@ -317,6 +317,8 @@ class WalletListBodyState extends State<WalletListBody> {
         return polygonIcon;
       case WalletType.solana:
         return solanaIcon;
+      case WalletType.zano:
+        return zanoIcon;
       default:
         return nonWalletTypeIcon;
     }

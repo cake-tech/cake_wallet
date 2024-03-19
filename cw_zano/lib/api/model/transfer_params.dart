@@ -21,7 +21,7 @@ class TransferParams {
 
   Map<String, dynamic> toJson() => {
     'destinations': destinations,
-    'fee': fee,
+    'fee': fee.toInt(),
     'mixin': mixin,
     'payment_id': paymentId,
     'comment': comment,

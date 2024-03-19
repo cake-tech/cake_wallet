@@ -1,5 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_zano/zano_asset.dart';
+import 'package:cw_zano/model/zano_asset.dart';
 
 class DefaultZanoAssets {
   final List<ZanoAsset> _defaultAssets = [

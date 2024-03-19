@@ -13,7 +13,6 @@ import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_zano/zano_asset.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -196,27 +195,12 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                   child: PrimaryButton(
                     onPressed: () async {
                       if (_formKey.currentState!.validate() && (!_showDisclaimer || _disclaimerChecked)) {
-                        if (widget.homeSettingsViewModel.walletType == WalletType.zano) {
-                          if (!await widget.homeSettingsViewModel.addAsset(_contractAddressController.text)) {
-                              await showPopUp<void>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertWithOneAction(
-                                      alertTitle: S.current.error,
-                                      alertContent: 'Cannot add asset ${_contractAddressController.text}',
-                                      buttonText: S.of(context).ok,
-                                      buttonAction: () => Navigator.of(context).pop());
-                                });
-                                return;
-                          }
-                        } else {
-                          await widget.homeSettingsViewModel.addToken(Erc20Token(
-                            name: _tokenNameController.text,
-                            symbol: _tokenSymbolController.text,
-                            contractAddress: _contractAddressController.text,
-                            decimal: int.parse(_tokenDecimalController.text),
-                          ));
-                        }
+                        await widget.homeSettingsViewModel.addToken(Erc20Token(
+                          name: _tokenNameController.text,
+                          symbol: _tokenSymbolController.text,
+                          contractAddress: _contractAddressController.text,
+                          decimal: int.parse(_tokenDecimalController.text),
+                        ));
                       }
                       if (context.mounted) {
                         Navigator.pop(context);
@@ -240,9 +224,10 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
       final token = await widget.homeSettingsViewModel.getToken(_contractAddressController.text);
 
       if (token != null) {
-        if (_tokenNameController.text.isEmpty) _tokenNameController.text = token.name;
-        if (_tokenSymbolController.text.isEmpty) _tokenSymbolController.text = token.title;
-        if (_tokenDecimalController.text.isEmpty) _tokenDecimalController.text = token.decimals.toString();
+        final isZano = widget.homeSettingsViewModel.walletType == WalletType.zano;
+        if (_tokenNameController.text.isEmpty || isZano) _tokenNameController.text = token.name;
+        if (_tokenSymbolController.text.isEmpty || isZano) _tokenSymbolController.text = token.title;
+        if (_tokenDecimalController.text.isEmpty || isZano) _tokenDecimalController.text = token.decimals.toString();
       }
     }
   }
@@ -273,60 +258,59 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             placeholder: S.of(context).token_contract_address,
             options: [AddressTextFieldOption.paste],
             buttonColor: Theme.of(context).hintColor,
-            validator: AddressValidator(type: widget.homeSettingsViewModel.nativeToken),
+            // we don't use zano addresses validations here, addresses and asset ids are difference entities
+            validator: AddressValidator(type: widget.homeSettingsViewModel.nativeToken, skipZanoAddressValidation: true),
             onPushPasteButton: (_) {
               _pasteText();
             },
           ),
-          if (widget.homeSettingsViewModel.walletType != WalletType.zano) ...[
-            const SizedBox(height: 8),
-            BaseTextFormField(
-              controller: _tokenNameController,
-              focusNode: _tokenNameFocusNode,
-              onSubmit: (_) => FocusScope.of(context).requestFocus(_tokenSymbolFocusNode),
-              textInputAction: TextInputAction.next,
-              hintText: S.of(context).token_name,
-              validator: (text) {
-                if (text?.isNotEmpty ?? false) {
-                  return null;
-                }
-
-                return S.of(context).field_required;
-              },
-            ),
-            const SizedBox(height: 8),
-            BaseTextFormField(
-              controller: _tokenSymbolController,
-              focusNode: _tokenSymbolFocusNode,
-              onSubmit: (_) => FocusScope.of(context).requestFocus(_tokenDecimalFocusNode),
-              textInputAction: TextInputAction.next,
-              hintText: S.of(context).token_symbol,
-              validator: (text) {
-                if (text?.isNotEmpty ?? false) {
-                  return null;
-                }
-
-                return S.of(context).field_required;
-              },
-            ),
-            const SizedBox(height: 8),
-            BaseTextFormField(
-              controller: _tokenDecimalController,
-              focusNode: _tokenDecimalFocusNode,
-              textInputAction: TextInputAction.done,
-              hintText: S.of(context).token_decimal,
-              validator: (text) {
-                if (text?.isEmpty ?? true) {
-                  return S.of(context).field_required;
-                }
-                if (int.tryParse(text!) == null) {
-                  return S.of(context).invalid_input;
-                }
-
+          const SizedBox(height: 8),
+          BaseTextFormField(
+            controller: _tokenNameController,
+            focusNode: _tokenNameFocusNode,
+            onSubmit: (_) => FocusScope.of(context).requestFocus(_tokenSymbolFocusNode),
+            textInputAction: TextInputAction.next,
+            hintText: S.of(context).token_name,
+            validator: (text) {
+              if (text?.isNotEmpty ?? false) {
                 return null;
-              },
-            ),
-          ],
+              }
+
+              return S.of(context).field_required;
+            },
+          ),
+          const SizedBox(height: 8),
+          BaseTextFormField(
+            controller: _tokenSymbolController,
+            focusNode: _tokenSymbolFocusNode,
+            onSubmit: (_) => FocusScope.of(context).requestFocus(_tokenDecimalFocusNode),
+            textInputAction: TextInputAction.next,
+            hintText: S.of(context).token_symbol,
+            validator: (text) {
+              if (text?.isNotEmpty ?? false) {
+                return null;
+              }
+
+              return S.of(context).field_required;
+            },
+          ),
+          const SizedBox(height: 8),
+          BaseTextFormField(
+            controller: _tokenDecimalController,
+            focusNode: _tokenDecimalFocusNode,
+            textInputAction: TextInputAction.done,
+            hintText: S.of(context).token_decimal,
+            validator: (text) {
+              if (text?.isEmpty ?? true) {
+                return S.of(context).field_required;
+              }
+              if (int.tryParse(text!) == null) {
+                return S.of(context).invalid_input;
+              }
+
+              return null;
+            },
+          ),
           SizedBox(height: 24),
         ],
       ),

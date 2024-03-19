@@ -51,7 +51,7 @@ part of 'zano.dart';
   }
 }*/
 
-class CWZanoWalletDetails extends ZanoWalletDetails {
+/*class CWZanoWalletDetails extends ZanoWalletDetails {
   CWZanoWalletDetails(this._wallet);
 
   final Object _wallet;
@@ -64,14 +64,14 @@ class CWZanoWalletDetails extends ZanoWalletDetails {
   //   return Account(id: acc.id, label: acc.label);
   // }
 
-  @computed
-  @override
-  ZanoBalance get balance {
-    final zanoWallet = _wallet as ZanoWallet;
-    final balance = zanoWallet.balance;
-    return ZanoBalance(fullBalance: balance[CryptoCurrency.zano]!.total, unlockedBalance: balance[CryptoCurrency.zano]!.unlocked);
-  }
-}
+  // @computed
+  // @override
+  // ZanoBalance get balance {
+  //   final zanoWallet = _wallet as ZanoWallet;
+  //   final balance = zanoWallet.balance;
+  //   return ZanoBalance(fullBalance: balance[CryptoCurrency.zano]!.total, unlockedBalance: balance[CryptoCurrency.zano]!.unlocked);
+  // }
+}*/
 
 class CWZano extends Zano {
   /**@override
@@ -88,7 +88,7 @@ class CWZano extends Zano {
   Future<CryptoCurrency> addZanoAssetById(WalletBase wallet, String assetId) async => await (wallet as ZanoWallet).addZanoAssetById(assetId);
 
   @override
-  Future<void> addZanoAsset(WalletBase wallet, CryptoCurrency token) async => await (wallet as ZanoWallet).addRemoveZanoAsset(token as ZanoAsset);
+  Future<void> changeZanoAssetAvailability(WalletBase wallet, CryptoCurrency token) async => await (wallet as ZanoWallet).changeZanoAssetAvailability(token as ZanoAsset);
 
   @override
   Future<void> deleteZanoAsset(WalletBase wallet, CryptoCurrency token) async => await (wallet as ZanoWallet).deleteZanoAsset(token as ZanoAsset);
@@ -105,10 +105,10 @@ class CWZano extends Zano {
     return zanoWallet.transactionHistory;
   }
 
-  @override
-  ZanoWalletDetails getZanoWalletDetails(Object wallet) {
-    return CWZanoWalletDetails(wallet);
-  }
+  // @override
+  // ZanoWalletDetails getZanoWalletDetails(Object wallet) {
+  //   return CWZanoWalletDetails(wallet);
+  // }
 
   @override
   TransactionPriority getDefaultTransactionPriority() {
@@ -186,10 +186,10 @@ class CWZano extends Zano {
     );
   }
 
-  @override
-  String formatterMoneroAmountToString({required int amount}) {
-    return moneroAmountToString(amount: amount);
-  }
+  // @override
+  // String formatterMoneroAmountToString({required int amount}) {
+  //   return moneroAmountToString(amount: amount);
+  // }
 
   @override
   double formatterMoneroAmountToDouble({required int amount}) {

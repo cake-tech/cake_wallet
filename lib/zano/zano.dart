@@ -1,7 +1,7 @@
 import 'package:cake_wallet/utils/language_list.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_zano/zano_asset.dart';
-import 'package:cw_zano/zano_transaction_credentials.dart';
+import 'package:cw_zano/model/zano_asset.dart';
+import 'package:cw_zano/model/zano_transaction_credentials.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -19,7 +19,7 @@ import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_zano/zano_wallet_service.dart';
 import 'package:cw_zano/zano_wallet.dart';
-import 'package:cw_zano/zano_transaction_info.dart';
+import 'package:cw_zano/model/zano_transaction_info.dart';
 import 'package:cw_zano/mnemonics/english.dart';
 
 part 'cw_zano.dart';
@@ -42,7 +42,7 @@ Zano? zano = CWZano();
 //   final String address;
 // }
 
-class ZanoBalance extends Balance {
+/*class ZanoBalance extends Balance {
   ZanoBalance({required this.fullBalance, required this.unlockedBalance})
       : formattedFullBalance = zano!.formatterMoneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
@@ -67,24 +67,24 @@ class ZanoBalance extends Balance {
 
   @override
   String get formattedAdditionalBalance => formattedFullBalance;
-}
+}*/
 
 
-abstract class ZanoWalletDetails {
+/*abstract class ZanoWalletDetails {
   // FIX-ME: it's abstruct class
   // @observable
   // late Account account;
   // FIX-ME: it's abstruct class
   @observable
   late ZanoBalance balance;
-}
+}*/
 
 abstract class Zano {
   /**ZanoAccountList getAccountList(Object wallet);*/
   
   TransactionHistoryBase getTransactionHistory(Object wallet);
 
-  ZanoWalletDetails getZanoWalletDetails(Object wallet);
+  //ZanoWalletDetails getZanoWalletDetails(Object wallet);
 
   // String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
 
@@ -105,7 +105,7 @@ abstract class Zano {
   WalletCredentials createZanoNewWalletCredentials({required String name, String password});
   Map<String, String> getKeys(Object wallet);
   Object createZanoTransactionCredentials({required List<Output> outputs, required TransactionPriority priority, required CryptoCurrency currency});
-  String formatterMoneroAmountToString({required int amount});
+  // String formatterMoneroAmountToString({required int amount});
   double formatterMoneroAmountToDouble({required int amount});
   int formatterMoneroParseAmount({required String amount});
   // Account getCurrentAccount(Object wallet);
@@ -116,7 +116,7 @@ abstract class Zano {
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo tx);
   List<ZanoAsset> getZanoAssets(WalletBase wallet);
   String getZanoAssetAddress(CryptoCurrency asset);
-  Future<void> addZanoAsset(WalletBase wallet, CryptoCurrency token);
+  Future<void> changeZanoAssetAvailability(WalletBase wallet, CryptoCurrency token);
   Future<CryptoCurrency> addZanoAssetById(WalletBase wallet, String assetId);
   Future<void> deleteZanoAsset(WalletBase wallet, CryptoCurrency token);
   Future<CryptoCurrency?> getZanoAsset(WalletBase wallet, String contractAddress);

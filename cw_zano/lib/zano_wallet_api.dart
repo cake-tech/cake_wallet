@@ -2,12 +2,15 @@ import 'dart:convert';
 
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_zano/api/api_calls.dart';
-import 'package:cw_zano/api/model/add_remove_assets_whitelist_params.dart';
+import 'package:cw_zano/api/model/asset_id_params.dart';
+import 'package:cw_zano/api/model/get_address_info_result.dart';
 import 'package:cw_zano/api/model/get_recent_txs_and_info_params.dart';
 import 'package:cw_zano/api/model/get_wallet_info_result.dart';
 import 'package:cw_zano/api/model/get_wallet_status_result.dart';
+import 'package:cw_zano/api/model/proxy_to_daemon_params.dart';
+import 'package:cw_zano/api/model/proxy_to_daemon_result.dart';
 import 'package:cw_zano/api/model/transfer.dart';
-import 'package:cw_zano/zano_asset.dart';
+import 'package:cw_zano/model/zano_asset.dart';
 import 'package:flutter/foundation.dart';
 
 import 'api/model/store_result.dart';
@@ -47,10 +50,10 @@ mixin ZanoWalletApi {
     final result = GetWalletInfoResult.fromJson(jsonDecode(json) as Map<String, dynamic>);
     switch (_logType) {
       case _LogType.json:
-        print('get_wallet_info $json');
+        debugPrint('get_wallet_info $json');
         break;
       case _LogType.simple:
-        print('get_wallet_info got ${result.wi.balances.length} balances: ${result.wi.balances}');
+        debugPrint('get_wallet_info got ${result.wi.balances.length} balances: ${result.wi.balances}');
     }
 
     return result;
@@ -61,10 +64,11 @@ mixin ZanoWalletApi {
     final status = GetWalletStatusResult.fromJson(jsonDecode(json) as Map<String, dynamic>);
     switch (_logType) {
       case _LogType.json:
-        print('get_wallet_status $json');
+        debugPrint('get_wallet_status $json');
         break;
       case _LogType.simple:
-        print('get_wallet_status connected: ${status.isDaemonConnected} in refresh: ${status.isInLongRefresh} wallet state: ${status.walletState}');
+        debugPrint(
+            'get_wallet_status connected: ${status.isDaemonConnected} in refresh: ${status.isInLongRefresh} wallet state: ${status.walletState}');
     }
     return status;
   }
@@ -91,13 +95,19 @@ mixin ZanoWalletApi {
   Future<List<ZanoAsset>> getAssetsWhitelist() async {
     try {
       final json = await invokeMethod('assets_whitelist_get', '{}');
-      if (_logType == _LogType.json) print('assets_whitelist_get $json');
+      /*if (_logType == _LogType.json)*/ debugPrint('assets_whitelist_get $json');
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
-      final assets = map?['result']?['result']?['assets'] as List<dynamic>?;
-      final result = assets?.map((e) => ZanoAsset.fromJson(e as Map<String, dynamic>)).toList();
-      if (_logType == _LogType.simple) print('assets_whitelist_get got ${result?.length ?? 0} assets: $result');
-      return result ?? [];
+      List<ZanoAsset> assets(String type) =>
+          (map?['result']?['result']?[type] as List<dynamic>?)?.map((e) => ZanoAsset.fromJson(e as Map<String, dynamic>)).toList() ?? [];
+      final localWhitelist = assets('local_whitelist');
+      final globalWhitelist = assets('global_whitelist');
+      final ownAssets = assets('own_assets');
+      if (_logType == _LogType.simple)
+        print('assets_whitelist_get got local whitelist: ${localWhitelist.length} ($localWhitelist); '
+            'global whitelist: ${globalWhitelist.length} ($globalWhitelist); '
+            'own assets: ${ownAssets.length} ($ownAssets)');
+      return [...localWhitelist, ...globalWhitelist, ...ownAssets];
     } catch (e) {
       print(e.toString());
       return [];
@@ -106,7 +116,7 @@ mixin ZanoWalletApi {
 
   Future<ZanoAsset?> addAssetsWhitelist(String assetId) async {
     try {
-      final json = await invokeMethod('assets_whitelist_add', AddRemoveAssetsWhitelistParams(assetId: assetId));
+      final json = await invokeMethod('assets_whitelist_add', AssetIdParams(assetId: assetId));
       if (_logType == _LogType.json) print('assets_whitelist_add $assetId $json');
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
@@ -126,7 +136,7 @@ mixin ZanoWalletApi {
 
   Future<bool> removeAssetsWhitelist(String assetId) async {
     try {
-      final json = await invokeMethod('assets_whitelist_remove', AddRemoveAssetsWhitelistParams(assetId: assetId));
+      final json = await invokeMethod('assets_whitelist_remove', AssetIdParams(assetId: assetId));
       if (_logType == _LogType.json) print('assets_whitelist_remove $assetId $json');
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
@@ -135,6 +145,36 @@ mixin ZanoWalletApi {
     } catch (e) {
       print(e.toString());
       return false;
+    }
+  }
+
+  Future<ProxyToDaemonResult?> _proxyToDaemon(String uri, String body) async {
+    final json = await invokeMethod('proxy_to_daemon', ProxyToDaemonParams(body: body, uri: uri));
+    final map = jsonDecode(json) as Map<String, dynamic>?;
+    _checkForErrors(map);
+    return ProxyToDaemonResult.fromJson(map!['result']['result'] as Map<String, dynamic>);
+  }
+
+  Future<ZanoAsset?> getAssetInfo(String assetId) async {
+    final methodName = 'get_asset_info';
+    final params = AssetIdParams(assetId: assetId);
+    final result = await _proxyToDaemon('/json_rpc', '{"method": "$methodName","params": ${jsonEncode(params)}}');
+    if (_logType == _LogType.json) print('$methodName $assetId ${result?.body}');
+    if (result == null) {
+      debugPrint('get_asset_info empty result');
+      return null;
+    }
+    final map = jsonDecode(result.body) as Map<String, dynamic>?;
+    if (map!['error'] != null) {
+      if (_logType == _LogType.simple) print('get_asset_info $assetId error ${map['error']!['code']} ${map['error']!['message']}');
+      return null;
+    } else if (map['result']!['status']! == 'OK') {
+      final assetDescriptor = ZanoAsset.fromJson(map['result']!['asset_descriptor']! as Map<String, dynamic>);
+      if (_logType == _LogType.simple) print('get_asset_info $assetId ${assetDescriptor.fullName} ${assetDescriptor.ticker}');
+      return assetDescriptor;
+    } else {
+      if (_logType == _LogType.simple) print('get_asset_info $assetId status ${map['result']!['status']!}');
+      return null;
     }
   }
 
@@ -153,7 +193,7 @@ mixin ZanoWalletApi {
   Future<List<Transfer>> getRecentTxsAndInfo() async {
     try {
       final json = await invokeMethod('get_recent_txs_and_info', GetRecentTxsAndInfoParams(offset: 0, count: 30));
-      debugPrint('get_recent_txs_and_info $json');
+      //debugPrint('get_recent_txs_and_info $json');
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
       final transfers = map?['result']?['result']?['transfers'] as List<dynamic>?;
@@ -167,6 +207,10 @@ mixin ZanoWalletApi {
       return [];
     }
   }
+
+  GetAddressInfoResult getAddressInfo(String address) => GetAddressInfoResult.fromJson(
+        jsonDecode(ApiCalls.getAddressInfo(address: address)) as Map<String, dynamic>,
+      );
 
   void _checkForErrors(Map<String, dynamic>? map) {
     if (map == null) {
