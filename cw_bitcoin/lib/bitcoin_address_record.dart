@@ -76,8 +76,6 @@ class BitcoinAddressRecord {
   @override
   int get hashCode => address.hashCode;
 
-  String get cashAddr => bitbox.Address.toCashAddress(address);
-
   BitcoinAddressType type;
 
   String updateScriptHash(BasedUtxoNetwork network) {

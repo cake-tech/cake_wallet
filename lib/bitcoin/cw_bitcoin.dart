@@ -113,7 +113,7 @@ class CWBitcoin extends Bitcoin {
         .map((BitcoinAddressRecord addr) => ElectrumSubAddress(
             id: addr.index,
             name: addr.name,
-            address: electrumWallet.type == WalletType.bitcoinCash ? addr.cashAddr : addr.address,
+            address: addr.address,
             txCount: addr.txCount,
             balance: addr.balance,
             isChange: addr.isHidden))

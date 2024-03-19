@@ -5,7 +5,6 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
 part 'electrum_wallet_addresses.g.dart';
@@ -52,8 +51,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static const defaultChangeAddressesCount = 17;
   static const gap = 20;
 
-  static String toCashAddr(String address) => bitbox.Address.toCashAddress(address);
-
   static String toLegacy(String address) => bitbox.Address.toLegacyAddress(address);
 
   final ObservableList<BitcoinAddressRecord> _addresses;
@@ -97,7 +94,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
     }
 
-    return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(receiveAddress) : receiveAddress;
+    return receiveAddress;
   }
 
   @observable
