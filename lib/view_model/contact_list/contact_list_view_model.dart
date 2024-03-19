@@ -1,20 +1,19 @@
 import 'dart:async';
+
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
+import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/mobx.dart';
+import 'package:collection/collection.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/entities/contact_record.dart';
-import 'package:cake_wallet/entities/contact.dart';
-import 'package:cake_wallet/utils/mobx.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:collection/collection.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'contact_list_view_model.g.dart';
 
@@ -108,8 +107,8 @@ abstract class ContactListViewModelBase with Store {
 
   void dispose() async {
     _subscription?.cancel();
-    final List<Contact> contactsSourceCopy = contactSource.values.toList();
-    reorderContacts(contactsSourceCopy);
+    final List<Contact> contactsSourceCopy = contacts.map((e) => e.original).toList();
+    await reorderContacts(contactsSourceCopy);
   }
 
   void reorderAccordingToContactList() =>
@@ -127,7 +126,7 @@ abstract class ContactListViewModelBase with Store {
         ? a.type.toString().compareTo(b.type.toString())
         : b.type.toString().compareTo(a.type.toString()));
 
-    reorderContacts(contactsSourceCopy);
+    await reorderContacts(contactsSourceCopy);
   }
 
   Future<void> sortAlphabetically() async {
@@ -136,7 +135,7 @@ abstract class ContactListViewModelBase with Store {
     contactsSourceCopy
         .sort((a, b) => ascending ? a.name.compareTo(b.name) : b.name.compareTo(a.name));
 
-    reorderContacts(contactsSourceCopy);
+    await reorderContacts(contactsSourceCopy);
   }
 
   Future<void> sortByCreationDate() async {
@@ -145,7 +144,7 @@ abstract class ContactListViewModelBase with Store {
     contactsSourceCopy.sort((a, b) =>
         ascending ? a.lastChange.compareTo(b.lastChange) : b.lastChange.compareTo(a.lastChange));
 
-    reorderContacts(contactsSourceCopy);
+    await reorderContacts(contactsSourceCopy);
   }
 
   void setAscending(bool ascending) => settingsStore.contactListAscending = ascending;

@@ -301,6 +301,11 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.setInt(PreferencesKey.walletListOrder, walletListOrder.index));
 
     reaction(
+            (_) => contactListOrder,
+            (FilterListOrderType contactListOrder) =>
+            sharedPreferences.setInt(PreferencesKey.contactListOrder, contactListOrder.index));
+
+    reaction(
         (_) => walletListAscending,
         (bool walletListAscending) =>
             sharedPreferences.setBool(PreferencesKey.walletListAscending, walletListAscending));
