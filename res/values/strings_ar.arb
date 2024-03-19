@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "ﺎﻨﻫ ﺔﻄﺸﻨﻟﺍ ﺕﻻ﻿ﺎﺼﺗﻻ﻿ﺍ ﺮﻬﻈﺘﺳ",
   "add": "إضافة",
   "add_contact": "ﻝﺎﺼﺗﺍ ﺔﻬﺟ ﺔﻓﺎﺿﺇ",
+  "add_contact_to_address_book": "هل ترغب في إضافة جهة الاتصال هذه إلى دفتر العناوين الخاص بك؟",
   "add_custom_node": "إضافة عقدة مخصصة جديدة",
   "add_custom_redemption": "إضافة استرداد مخصص",
   "add_fund_to_card": "أضف أموالاً مدفوعة مسبقًا إلى البطاقات (حتى ${value})",

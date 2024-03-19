@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "Haɗin kai mai aiki zai bayyana a nan",
   "add": "Ƙara",
   "add_contact": "Ƙara lamba",
+  "add_contact_to_address_book": "Kuna so ku ƙara wannan lamba zuwa littafin adireshinku?",
   "add_custom_node": "Ƙara Sabon Kulli na Custom",
   "add_custom_redemption": "Ƙara Ceto na Musamman",
   "add_fund_to_card": "Ƙara kuɗin da aka riga aka biya a katunan (har zuwa ${value})",
