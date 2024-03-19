@@ -22,7 +22,7 @@ class ElectrumWalletSnapshot {
   final String name;
   final String password;
   final WalletType type;
-  final String addressPageType;
+  final String? addressPageType;
 
   String mnemonic;
   List<BitcoinAddressRecord> addresses;
@@ -70,7 +70,7 @@ class ElectrumWalletSnapshot {
       balance: balance,
       regularAddressIndex: regularAddressIndexByType,
       changeAddressIndex: changeAddressIndexByType,
-      addressPageType: data['address_page_type'] as String? ?? SegwitAddresType.p2wpkh.toString(),
+      addressPageType: data['address_page_type'] as String?,
     );
   }
 }

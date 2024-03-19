@@ -29,6 +29,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     List<BitcoinAddressRecord>? initialAddresses,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
+    BitcoinAddressType? initialAddressPageType,
   })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
         addressesByReceiveType =
             ObservableList<BitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
@@ -40,9 +41,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
             .toSet()),
         currentReceiveAddressIndexByType = initialRegularAddressIndex ?? {},
         currentChangeAddressIndexByType = initialChangeAddressIndex ?? {},
-        _addressPageType = walletInfo.addressPageType != null
-            ? BitcoinAddressType.fromValue(walletInfo.addressPageType!)
-            : SegwitAddresType.p2wpkh,
+        _addressPageType = initialAddressPageType ??
+            (walletInfo.addressPageType != null
+                ? BitcoinAddressType.fromValue(walletInfo.addressPageType!)
+                : SegwitAddresType.p2wpkh),
         super(walletInfo) {
     updateAddressesByMatch();
   }
@@ -50,8 +52,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static const defaultReceiveAddressesCount = 22;
   static const defaultChangeAddressesCount = 17;
   static const gap = 20;
-
-  static String toLegacy(String address) => bitbox.Address.toLegacyAddress(address);
 
   final ObservableList<BitcoinAddressRecord> _addresses;
   // Matched by addressPageType
@@ -64,7 +64,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final bitcoin.HDWallet sideHd;
 
   @observable
-  BitcoinAddressType _addressPageType = SegwitAddresType.p2wpkh;
+  late BitcoinAddressType _addressPageType;
 
   @computed
   BitcoinAddressType get addressPageType => _addressPageType;
@@ -102,9 +102,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   set address(String addr) {
-    if (addr.startsWith('bitcoincash:')) {
-      addr = toLegacy(addr);
-    }
     final addressRecord = _addresses.firstWhere((addressRecord) => addressRecord.address == addr);
 
     previousAddressRecord = addressRecord;
@@ -226,9 +223,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   void updateAddress(String address, String label) {
-    if (address.startsWith('bitcoincash:')) {
-      address = toLegacy(address);
-    }
     final addressRecord =
         _addresses.firstWhere((addressRecord) => addressRecord.address == address);
     addressRecord.setNewName(label);
