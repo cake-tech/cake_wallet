@@ -68,7 +68,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       required bool isFixedRateMode,
       required bool isReceiveAmount}) async {
     try {
-      if (amount == 0) return 0.0;
+      amount = 1;
 
       final params = {
         'from_asset': _normalizeCurrency(from),
