@@ -23,7 +23,6 @@ import 'package:cw_zano/zano_formatter.dart';
 import 'package:cw_zano/zano_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:mobx/mobx.dart';
 
 class ZanoNewWalletCredentials extends WalletCredentials {
   ZanoNewWalletCredentials({required String name, String? password}) : super(name: name, password: password);

@@ -186,37 +186,16 @@ class CWZano extends Zano {
     );
   }
 
-  // @override
-  // String formatterMoneroAmountToString({required int amount}) {
-  //   return moneroAmountToString(amount: amount);
-  // }
-
   @override
-  double formatterMoneroAmountToDouble({required int amount}) {
-    return moneroAmountToDouble(amount: amount);
+  double formatterIntAmountToDouble({required int amount, required CryptoCurrency currency}) {
+    if (currency is ZanoAsset) return ZanoFormatter.intAmountToDouble(amount, currency.decimalPoint);
+    return ZanoFormatter.intAmountToDouble(amount);
   }
 
   @override
-  int formatterMoneroParseAmount({required String amount}) {
-    return moneroParseAmount(amount: amount);
-  }
-
-  // @override
-  // Account getCurrentAccount(Object wallet) {
-  //   final zanoWallet = wallet as ZanoWallet;
-  //   final acc = zanoWallet.walletAddresses.account as monero_account.Account;
-  //   return Account(id: acc.id, label: acc.label);
-  // }
-
-  // @override
-  // void setCurrentAccount(Object wallet, int id, String label) {
-  //   final zanoWallet = wallet as ZanoWallet;
-  //   zanoWallet.walletAddresses.account = monero_account.Account(id: id, label: label);
-  // }
-
-  @override
-  void onStartup() {
-    debugPrint("onStartup");
+  int formatterParseAmount({required String amount, required CryptoCurrency currency}) {
+    if (currency is ZanoAsset) return ZanoFormatter.parseAmount(amount, currency.decimalPoint);
+    return ZanoFormatter.parseAmount(amount);
   }
 
   @override
@@ -230,12 +209,6 @@ class CWZano extends Zano {
     return ZanoWalletService(walletInfoSource);
   }
 
-  // @override
-  // String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
-  //   final zanoWallet = wallet as ZanoWallet;
-  //   return zanoWallet.getTransactionAddress(accountIndex, addressIndex);
-  // }
-
   @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
     transaction as ZanoTransactionInfo;
@@ -247,4 +220,7 @@ class CWZano extends Zano {
   }
 
   String getZanoAssetAddress(CryptoCurrency asset) => (asset as ZanoAsset).assetId;
+
+  @override
+  String getAddress(WalletBase wallet) => (wallet as ZanoWallet).walletAddresses.address;
 }

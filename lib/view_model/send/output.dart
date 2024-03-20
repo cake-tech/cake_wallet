@@ -98,7 +98,7 @@ abstract class OutputBase with Store {
             _amount = polygon!.formatterPolygonParseAmount(_cryptoAmount);
             break;
           case WalletType.zano:
-            _amount = zano!.formatterMoneroParseAmount(amount: _cryptoAmount);
+            _amount = zano!.formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
             break;
           default:
             break;
@@ -144,7 +144,7 @@ abstract class OutputBase with Store {
       }
 
       if (_wallet.type == WalletType.zano) {
-        return zano!.formatterMoneroAmountToDouble(amount: fee);
+        return zano!.formatterIntAmountToDouble(amount: fee, currency: cryptoCurrencyHandler());
       }
     } catch (e) {
       print(e.toString());

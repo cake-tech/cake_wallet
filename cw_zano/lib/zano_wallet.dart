@@ -42,7 +42,6 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
   static const int _autoSaveInterval = 30;
 
   List<Transfer> transfers = [];
-  //String defaultAsssetId = '';
   @override
   ZanoWalletAddresses walletAddresses;
 
@@ -200,6 +199,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
       comment: outputs.first.note ?? '',
       assetId: assetId,
       ticker: credentials.currency.title,
+      decimalPoint: credentials.currency.decimals,
       amount: totalAmount,
     );
   }

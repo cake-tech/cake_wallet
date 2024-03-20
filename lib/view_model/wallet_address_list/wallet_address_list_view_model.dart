@@ -373,6 +373,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }
 
+    if (wallet.type == WalletType.zano) {
+      final primaryAddress = zano!.getAddress(wallet);
+
+      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+    }
+
     if (searchText.isNotEmpty) {
       return ObservableList.of(addressList.where((item) {
         if (item is WalletAddressListItem) {

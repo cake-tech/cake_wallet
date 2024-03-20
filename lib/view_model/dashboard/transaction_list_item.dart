@@ -119,7 +119,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         final asset = zano!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: zano!.formatterMoneroAmountToDouble(amount: transaction.amount),
+          cryptoAmount: zano!.formatterIntAmountToDouble(amount: transaction.amount, currency: asset),
           price: price);
         break;
       default:
