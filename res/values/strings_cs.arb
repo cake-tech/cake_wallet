@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "Cake Pay umožňuje jednoduše nakupovat dárkové karty pomocí virtuálních prostředků, které lze okamžitě uplatnit u více než 150 000 obchodníků ve Spojených státech.",
-  "accelerate_transaction": "Zrychlit transakci",
   "account": "Účet",
   "accounts": "Účty",
   "accounts_subaddresses": "Účty a subadresy",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "U plateb Bitcoinem je vyžadováno alespoň 1 potvrzení, což může trvat 20 minut i déle. Děkujeme za vaši trpělivost! Až bude platba potvrzena, budete informováni e-mailem.",
   "Blocks_remaining": "Zbývá ${status} bloků",
   "bright_theme": "Jasný",
+  "bump_fees": "Poplatky za hrboly",
   "buy": "Koupit",
   "buy_alert_content": "V současné době podporujeme pouze nákup bitcoinů, etherea, litecoinů a monero. Vytvořte nebo přepněte na svou peněženku bitcoinů, etherea, litecoinů nebo monero.",
   "buy_bitcoin": "Nakoupit Bitcoin",

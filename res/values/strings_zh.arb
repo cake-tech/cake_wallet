@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "Cake Pay 让您可以轻松购买带有虚拟资产的礼品卡，可立即在美国超过 150,000 家商家消费。",
-  "accelerate_transaction": "加速交易",
   "account": "帐户",
   "accounts": "账户",
   "accounts_subaddresses": "账户和子地址",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "比特币支付需要 1 次确认，这可能需要 20 分钟或更长时间。谢谢你的耐心！确认付款后，您将收到电子邮件。",
   "Blocks_remaining": "${status} 剩余的块",
   "bright_theme": "明亮",
+  "bump_fees": "撞费",
   "buy": "购买",
   "buy_alert_content": "目前我们仅支持购买比特币、以太坊、莱特币和门罗币。请创建或切换到您的比特币、以太坊、莱特币或门罗币钱包。",
   "buy_bitcoin": "购买比特币",

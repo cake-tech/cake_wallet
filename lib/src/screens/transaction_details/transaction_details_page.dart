@@ -89,7 +89,7 @@ class TransactionDetailsPage extends BasePage {
                       transactionDetailsViewModel.replaceByFee(fee.toString());
                     }
                   },
-                  text: S.of(context).accelerate_transaction,
+                  text: S.of(context).bump_fees,
                   color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                 ),

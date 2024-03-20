@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "Pinapayagan ka ng cake Pay na madaling bumili ng mga kard ng regalo na may mga virtual na pag -aari, gastusin agad sa higit sa 150,000 mga mangangalakal sa Estados Unidos.",
-  "accelerate_transaction": "Pabilisin ang transaksyon",
   "account": "Account",
   "accounts": "Mga Account",
   "accounts_subaddresses": "Mga Account at Subaddresses",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "Ang mga pagbabayad sa Bitcoin ay nangangailangan ng 1 kumpirmasyon, na maaaring tumagal ng 20 minuto o mas mahaba. Salamat sa iyong pasensya! Mag -email ka kapag nakumpirma ang pagbabayad.",
   "Blocks_remaining": "Ang natitirang ${status} ay natitira",
   "bright_theme": "Maliwanag",
+  "bump_fees": "Mga bayarin sa paga",
   "buy": "Bilhin",
   "buy_alert_content": "Sa kasalukuyan ay sinusuportahan lamang namin ang pagbili ng Bitcoin, Ethereum, Litecoin, at Monero. Mangyaring lumikha o lumipat sa iyong Bitcoin, Ethereum, Litecoin, o Monero Wallet.",
   "buy_bitcoin": "Bumili ng bitcoin",

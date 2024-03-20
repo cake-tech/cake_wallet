@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "Cake Pay Ви позволява лесно да купувате предплатени карти, които веднага могат да се използват с над 150,000 търговци на територията на САЩ.",
-  "accelerate_transaction": "Ускорете транзакцията",
   "account": "Профил",
   "accounts": "Профили",
   "accounts_subaddresses": "Профили и подадреси",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "Плащанията с Bitcoin изискват потвърждение, което може да отнеме 20 минути или повече. Благодарим за търпението! Ще получите имейл, когато плащането е потвърдено.",
   "Blocks_remaining": "${status} оставащи блока",
   "bright_theme": "Ярко",
+  "bump_fees": "Такси за блъскане",
   "buy": "Купуване",
   "buy_alert_content": "В момента поддържаме само закупуването на Bitcoin, Ethereum, Litecoin и Monero. Моля, създайте или превключете към своя портфейл Bitcoin, Ethereum, Litecoin или Monero.",
   "buy_bitcoin": "Купуване на Bitcoin",

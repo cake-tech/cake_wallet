@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "Met Cake Pay kunt u eenvoudig cadeaubonnen kopen met virtuele activa, die direct kunnen worden uitgegeven bij meer dan 150.000 handelaren in de Verenigde Staten.",
-  "accelerate_transaction": "De transactie versnellen",
   "account": "Account",
   "accounts": "Accounts",
   "accounts_subaddresses": "Accounts en subadressen",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "Bitcoin-betalingen vereisen 1 bevestiging, wat 20 minuten of langer kan duren. Dank voor uw geduld! U ontvangt een e-mail wanneer de betaling is bevestigd.",
   "Blocks_remaining": "${status} Resterende blokken",
   "bright_theme": "Helder",
+  "bump_fees": "Bump -vergoedingen",
   "buy": "Kopen",
   "buy_alert_content": "Momenteel ondersteunen we alleen de aankoop van Bitcoin, Ethereum, Litecoin en Monero. Maak of schakel over naar uw Bitcoin-, Ethereum-, Litecoin- of Monero-portemonnee.",
   "buy_bitcoin": "Koop Bitcoin",

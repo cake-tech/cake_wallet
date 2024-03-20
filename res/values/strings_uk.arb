@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "Cake Pay дозволяє вам легко купувати подарункові картки з віртуальними активами, які можна миттєво витратити в понад 150 000 продавців у Сполучених Штатах.",
-  "accelerate_transaction": "Прискорення транзакції",
   "account": "Акаунт",
   "accounts": "Акаунти",
   "accounts_subaddresses": "Акаунти та субадреси",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "Платежі Bitcoin потребують 1 підтвердження, яке може зайняти 20 хвилин або більше. Дякую за Ваше терпіння! Ви отримаєте електронний лист, коли платіж буде підтверджено.",
   "Blocks_remaining": "${status} Залишилось блоків",
   "bright_theme": "Яскрава",
+  "bump_fees": "Збори",
   "buy": "Купити",
   "buy_alert_content": "Наразі ми підтримуємо купівлю лише Bitcoin, Ethereum, Litecoin і Monero. Створіть або перейдіть на свій гаманець Bitcoin, Ethereum, Litecoin або Monero.",
   "buy_bitcoin": "Купити Bitcoin",

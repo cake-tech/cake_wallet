@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "Cake Pay vam omogućuje jednostavnu kupnju darovnih kartica s virtualnim sredstvima, koja se trenutno mogu potrošiti kod više od 150 000 trgovaca u Sjedinjenim Državama.",
-  "accelerate_transaction": "Ubrzati transakciju",
   "account": "Račun",
   "accounts": "Računi",
   "accounts_subaddresses": "Računi i podadrese",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "Bitcoin plaćanja zahtijevaju 1 potvrdu, što može potrajati 20 minuta ili dulje. Hvala na Vašem strpljenju! Dobit ćete e-poruku kada plaćanje bude potvrđeno.",
   "Blocks_remaining": "${status} preostalih blokova",
   "bright_theme": "Jarka",
+  "bump_fees": "Naplate",
   "buy": "Kupi",
   "buy_alert_content": "Trenutno podržavamo samo kupnju Bitcoina, Ethereuma, Litecoina i Monera. Izradite ili prijeđite na svoj Bitcoin, Ethereum, Litecoin ili Monero novčanik.",
   "buy_bitcoin": "Kupite Bitcoin",

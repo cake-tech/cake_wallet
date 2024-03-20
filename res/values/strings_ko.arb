@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "Cake Pay를 사용하면 미국 내 150,000개 이상의 가맹점에서 즉시 사용할 수 있는 가상 자산이 포함된 기프트 카드를 쉽게 구입할 수 있습니다.",
-  "accelerate_transaction": "거래를 가속화합니다",
   "account": "계정",
   "accounts": "계정",
   "accounts_subaddresses": "계정 및 하위 주소",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "비트코인 결제는 1번의 확인이 필요하며 20분 이상이 소요될 수 있습니다. 기다려 주셔서 감사합니다! 결제가 확인되면 이메일이 전송됩니다.",
   "Blocks_remaining": "${status} 남은 블록",
   "bright_theme": "선명한",
+  "bump_fees": "범프 요금",
   "buy": "구입",
   "buy_alert_content": "현재 Bitcoin, Ethereum, Litecoin 및 Monero 구매만 지원합니다. Bitcoin, Ethereum, Litecoin 또는 Monero 지갑을 생성하거나 전환하십시오.",
   "buy_bitcoin": "비트 코인 구매",

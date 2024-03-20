@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "Cake Pay, Amerika Birleşik Devletleri'ndeki 150.000'den fazla işyerinde anında harcanabilen sanal varlıklarla kolayca hediye kartları satın almanızı sağlar.",
-  "accelerate_transaction": "İşlemi hızlandırmak",
   "account": "Hesap",
   "accounts": "Hesaplar",
   "accounts_subaddresses": "Hesaplar ve alt adresler",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "Bitcoin ödemeleri, 20 dakika veya daha uzun sürebilen 1 onay gerektirir. Sabrınız için teşekkürler! Ödeme onaylandığında e-posta ile bilgilendirileceksiniz.",
   "Blocks_remaining": "${status} Blok Kaldı",
   "bright_theme": "Parlak",
+  "bump_fees": "Çarpma ücretleri",
   "buy": "Alış",
   "buy_alert_content": "Şu anda yalnızca Bitcoin, Ethereum, Litecoin ve Monero satın alımını destekliyoruz. Lütfen Bitcoin, Ethereum, Litecoin veya Monero cüzdanınızı oluşturun veya cüzdanınıza geçin.",
   "buy_bitcoin": "Bitcoin Satın Al",

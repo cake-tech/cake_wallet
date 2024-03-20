@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "Cake Pay le permite comprar fácilmente tarjetas de regalo con activos virtuales, gastables instantáneamente en más de 150 000 comerciantes en los Estados Unidos.",
-  "accelerate_transaction": "Acelerar la transacción",
   "account": "Cuenta",
   "accounts": "Cuentas",
   "accounts_subaddresses": "Cuentas y subdirecciones",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "Los pagos de Bitcoin requieren 1 confirmación, que puede demorar 20 minutos o más. ¡Gracias por su paciencia! Se le enviará un correo electrónico cuando se confirme el pago.",
   "Blocks_remaining": "${status} Bloques restantes",
   "bright_theme": "Brillante",
+  "bump_fees": "Tarifas de brote",
   "buy": "Comprar",
   "buy_alert_content": "Actualmente solo admitimos la compra de Bitcoin, Ethereum, Litecoin y Monero. Cree o cambie a su billetera Bitcoin, Ethereum, Litecoin o Monero.",
   "buy_bitcoin": "Comprar Bitcoin",

@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "Cake Pay ช่วยให้คุณสามารถซื้อบัตรของขวัญง่ายๆ ด้วยการใช้สินทรัพย์อนุกรม ซื้อใช้ได้ทันทีกับมากกว่า 150,000 ร้านค้าในสหรัฐอเมริกา",
-  "accelerate_transaction": "เร่งทำธุรกรรม",
   "account": "บัญชี",
   "accounts": "บัญชี",
   "accounts_subaddresses": "บัญชีและที่อยู่ย่อย",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "การชำระเงินด้วย Bitcoin ต้องการการยืนยัน 1 ครั้ง ซึ่งอาจใช้เวลา 20 นาทีหรือนานกว่านั้น ขอบคุณสำหรับความอดทนของคุณ! คุณจะได้รับอีเมลเมื่อการชำระเงินได้รับการยืนยัน",
   "Blocks_remaining": "${status} บล็อกที่เหลืออยู่",
   "bright_theme": "สดใส",
+  "bump_fees": "ค่าธรรมเนียมชน",
   "buy": "ซื้อ",
   "buy_alert_content": "ขณะนี้เรารองรับการซื้อ Bitcoin, Ethereum, Litecoin และ Monero เท่านั้น โปรดสร้างหรือเปลี่ยนเป็นกระเป๋าเงิน Bitcoin, Ethereum, Litecoin หรือ Monero",
   "buy_bitcoin": "ซื้อ Bitcoin",

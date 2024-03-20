@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "Biyan Cake yana ba ku damar sauƙin siyan katunan kyauta tare da kadarorin kama-da-wane, wanda za'a iya kashewa nan take a sama da yan kasuwa 150,000 a Amurka.",
-  "accelerate_transaction": "Hanzarta ma'amala",
   "account": "Asusu",
   "accounts": "Lissafi",
   "accounts_subaddresses": "Accounts da subaddresses",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "Akwatin Bitcoin na buɗe 1 sambumbu, da yake za ta samu mintuna 20 ko yawa. Ina kira ga sabuwar lafiya! Zaka sanarwa ta email lokacin da aka samu akwatin samun lambar waya.",
   "Blocks_remaining": "${status} Katanga ya rage",
   "bright_theme": "Mai haske",
+  "bump_fees": "Buzuza kudade",
   "buy": "Sayi",
   "buy_alert_content": "A halin yanzu muna tallafawa kawai siyan Bitcoin, Ethereum, Litecoin, da Monero. Da fatan za a ƙirƙiri ko canza zuwa Bitcoin, Ethereum, Litecoin, ko Monero walat.",
   "buy_bitcoin": "Sayi Bitcoin",

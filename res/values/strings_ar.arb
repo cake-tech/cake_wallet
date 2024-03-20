@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "يتيح لك Cake Pay شراء بطاقات هدايا بأصول افتراضية بسهولة ، ويمكن إنفاقها على الفور لدى أكثر من 150,000 تاجر في الولايات المتحدة.",
-  "accelerate_transaction": "معاملة تسريع",
   "account": "حساب",
   "accounts": "حسابتي",
   "accounts_subaddresses": "الحسابات والعناوين الفرعية",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "تتطلب مدفوعات Bitcoin تأكيدًا واحدًا ، والذي قد يستغرق 20 دقيقة أو أكثر. شكرا لصبرك! سيتم إرسال بريد إلكتروني إليك عند تأكيد الدفع.",
   "Blocks_remaining": "بلوك متبقي ${status}",
   "bright_theme": "مشرق",
+  "bump_fees": "رسوم الصدمة",
   "buy": "اشتري",
   "buy_alert_content": ".ﺎﻬﻴﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻭﺃ Monero ﻭﺃ Litecoin ﻭﺃ Ethereum ﻭﺃ Bitcoin ﺔﻈﻔﺤﻣ ءﺎﺸﻧﺇ ﻰﺟﺮﻳ .",
   "buy_bitcoin": "شراء Bitcoin",

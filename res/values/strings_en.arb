@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "Cake Pay allows you to easily buy gift cards with virtual assets, spendable instantly at over 150,000 merchants in the United States.",
-  "accelerate_transaction": "Accelerate transaction",
   "account": "Account",
   "accounts": "Accounts",
   "accounts_subaddresses": "Accounts and subaddresses",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "Bitcoin payments require 1 confirmation, which can take 20 minutes or longer. Thanks for your patience! You will be emailed when the payment is confirmed.",
   "Blocks_remaining": "${status} Blocks Remaining",
   "bright_theme": "Bright",
+  "bump_fees": "Bump fees",
   "buy": "Buy",
   "buy_alert_content": "Currently we only support the purchase of Bitcoin, Ethereum, Litecoin, and Monero. Please create or switch to your Bitcoin, Ethereum, Litecoin, or Monero wallet.",
   "buy_bitcoin": "Buy Bitcoin",

@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "Cake Pay memungkinkan Anda untuk dengan mudah membeli kartu hadiah dengan aset virtual, yang dapat digunakan segera di lebih dari 150.000 pedagang di Amerika Serikat.",
-  "accelerate_transaction": "Percepat transaksi",
   "account": "Akun",
   "accounts": "Akun",
   "accounts_subaddresses": "Akun dan sub-alamat",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "Pembayaran Bitcoin memerlukan 1 konfirmasi, yang bisa memakan waktu 20 menit atau lebih. Terima kasih atas kesabaran Anda! Anda akan diemail saat pembayaran dikonfirmasi.",
   "Blocks_remaining": "${status} Blok Tersisa",
   "bright_theme": "Cerah",
+  "bump_fees": "Biaya benjolan",
   "buy": "Beli",
   "buy_alert_content": "Saat ini kami hanya mendukung pembelian Bitcoin, Ethereum, Litecoin, dan Monero. Harap buat atau alihkan ke dompet Bitcoin, Ethereum, Litecoin, atau Monero Anda.",
   "buy_bitcoin": "Beli Bitcoin",

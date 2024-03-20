@@ -1,6 +1,5 @@
 {
   "about_cake_pay": "Cake Pay jẹ́ kí ẹ lè fi owó wẹ́ẹ̀bù ra àwọn káàdì ìrajà t'á lò nínú iye ìtajà kan. Ẹ lè san wọn láìpẹ́ nítajà 150,000 nínú Amẹ́ríkà.",
-  "accelerate_transaction": "Idawọleja",
   "account": "Àkáǹtì",
   "accounts": "Àwọn àkáǹtì",
   "accounts_subaddresses": "Àwọn àkáǹtì àti àwọn àdírẹ́sì kékeré",
@@ -78,6 +77,7 @@
   "bitcoin_payments_require_1_confirmation": "Àwọn àránṣẹ́ Bitcoin nílò ìjẹ́rìísí kan. Ó lè lo ìṣéjú ogun tàbí ìṣéjú jù. A dúpẹ́ fún sùúrù yín! Ẹ máa gba ímeèlì t'ó bá jẹ́rìísí àránṣẹ́ náà.",
   "Blocks_remaining": "Àkójọpọ̀ ${status} kikù",
   "bright_theme": "Funfun",
+  "bump_fees": "Awọn idiyele ijakadi",
   "buy": "Rà",
   "buy_alert_content": "Lọwọlọwọ a ṣe atilẹyin rira Bitcoin, Ethereum, Litecoin, ati Monero. Jọwọ ṣẹda tabi yipada si Bitcoin, Ethereum, Litecoin, tabi apamọwọ Monero.",
   "buy_bitcoin": "Ra Bitcoin",
