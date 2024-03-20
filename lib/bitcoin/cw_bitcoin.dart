@@ -1,13 +1,19 @@
 part of 'bitcoin.dart';
 
 class CWBitcoin extends Bitcoin {
-  @override
-  TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;
-
-  @override
-  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials(
-          {required String name, required String mnemonic, required String password}) =>
-      BitcoinRestoreWalletFromSeedCredentials(name: name, mnemonic: mnemonic, password: password);
+  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({
+    required String name,
+    required String mnemonic,
+    required String password,
+    required DerivationType derivationType,
+    required String derivationPath,
+  }) =>
+      BitcoinRestoreWalletFromSeedCredentials(
+          name: name,
+          mnemonic: mnemonic,
+          password: password,
+          derivationType: derivationType,
+          derivationPath: derivationPath);
 
   @override
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials(
@@ -22,6 +28,9 @@ class CWBitcoin extends Bitcoin {
   WalletCredentials createBitcoinNewWalletCredentials(
           {required String name, WalletInfo? walletInfo}) =>
       BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo);
+
+  @override
+  TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;
 
   @override
   List<String> getWordList() => wordlist;
@@ -204,5 +213,103 @@ class CWBitcoin extends Bitcoin {
       default:
         return SegwitAddresType.p2wpkh;
     }
+  }
+
+  @override
+  Future<List<DerivationType>> compareDerivationMethods(
+      {required String mnemonic, required Node node}) async {
+    if (await checkIfMnemonicIsElectrum2(mnemonic)) {
+      return [DerivationType.electrum2];
+    }
+
+    return [DerivationType.bip39, DerivationType.electrum2];
+  }
+
+  int _countOccurrences(String str, String charToCount) {
+    int count = 0;
+    for (int i = 0; i < str.length; i++) {
+      if (str[i] == charToCount) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  @override
+  Future<List<DerivationInfo>> getDerivationsFromMnemonic(
+      {required String mnemonic, required Node node}) async {
+    List<DerivationInfo> list = [];
+
+    final electrumClient = ElectrumClient();
+    await electrumClient.connectToUri(node.uri);
+
+    for (DerivationType dType in bitcoin_derivations.keys) {
+      late Uint8List seedBytes;
+      if (dType == DerivationType.electrum2) {
+        seedBytes = await mnemonicToSeedBytes(mnemonic);
+      } else if (dType == DerivationType.bip39) {
+        seedBytes = bip39.mnemonicToSeed(mnemonic);
+      }
+
+      for (DerivationInfo dInfo in bitcoin_derivations[dType]!) {
+        try {
+          DerivationInfo dInfoCopy = DerivationInfo(
+            derivationType: dInfo.derivationType,
+            derivationPath: dInfo.derivationPath,
+            description: dInfo.description,
+            script_type: dInfo.script_type,
+          );
+          var node = bip32.BIP32.fromSeed(seedBytes);
+
+          String derivationPath = dInfoCopy.derivationPath!;
+          int derivationDepth = _countOccurrences(derivationPath, "/");
+          if (derivationDepth == 3) {
+            derivationPath += "/0/0";
+            dInfoCopy.derivationPath = dInfoCopy.derivationPath! + "/0";
+          }
+          node = node.derivePath(derivationPath);
+
+          String? address;
+          switch (dInfoCopy.script_type) {
+            case "p2wpkh":
+              address = btc
+                  .P2WPKH(
+                    data: new btc.PaymentData(pubkey: node.publicKey),
+                    network: btc.bitcoin,
+                  )
+                  .data
+                  .address;
+              break;
+            case "p2pkh":
+            default:
+              address = btc
+                  .P2PKH(
+                    data: new btc.PaymentData(pubkey: node.publicKey),
+                    network: btc.bitcoin,
+                  )
+                  .data
+                  .address;
+              break;
+          }
+
+          final sh = scriptHash(address!, network: BitcoinNetwork.mainnet);
+          final history = await electrumClient.getHistory(sh);
+
+          final balance = await electrumClient.getBalance(sh);
+          dInfoCopy.balance = balance.entries.first.value.toString();
+          dInfoCopy.address = address;
+          dInfoCopy.height = history.length;
+
+          list.add(dInfoCopy);
+        } catch (e) {
+          print(e);
+        }
+      }
+    }
+
+    // sort the list such that derivations with the most transactions are first:
+    list.sort((a, b) => b.height.compareTo(a.height));
+
+    return list;
   }
 }

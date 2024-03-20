@@ -71,9 +71,9 @@ abstract class WalletCreationVMBase with Store {
         dirPath: dirPath,
         address: '',
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
-        derivationPath: credentials.derivationPath,
-        derivationType: credentials.derivationType,
+        derivationInfo: getDefaultDerivation(),
       );
+      
       credentials.walletInfo = walletInfo;
       final wallet = restoreWallet != null
           ? await processFromRestoredWallet(credentials, restoreWallet)
@@ -86,6 +86,22 @@ abstract class WalletCreationVMBase with Store {
       state = ExecutedSuccessfullyState();
     } catch (e) {
       state = FailureState(e.toString());
+    }
+  }
+
+  DerivationInfo getDefaultDerivation() {
+    switch (this.type) {
+      case WalletType.nano:
+        return DerivationInfo(
+          derivationType: DerivationType.nano,
+        );
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      default:
+        return DerivationInfo(
+          derivationType: DerivationType.electrum2,
+          derivationPath: "m/0'/1",
+        );
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -18,6 +19,8 @@ class ElectrumWalletSnapshot {
     required this.changeAddressIndex,
     required this.addressPageType,
     required this.network,
+    this.derivationType,
+    this.derivationPath,
   });
 
   final String name;
@@ -31,8 +34,11 @@ class ElectrumWalletSnapshot {
   ElectrumBalance balance;
   Map<String, int> regularAddressIndex;
   Map<String, int> changeAddressIndex;
+  DerivationType? derivationType;
+  String? derivationPath;
 
-  static Future<ElectrumWalletSnapshot> load(String name, WalletType type, String password, BasedUtxoNetwork? network) async {
+  static Future<ElectrumWalletSnapshot> load(
+      String name, WalletType type, String password, BasedUtxoNetwork? network) async {
     final path = await pathForWallet(name: name, type: type);
     final jsonSource = await read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
@@ -46,6 +52,9 @@ class ElectrumWalletSnapshot {
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
     var regularAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
     var changeAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
+
+    final derivationType = data['derivationType'] as DerivationType? ?? DerivationType.bip39;
+    final derivationPath = data['derivationPath'] as String? ?? "m/0'/1";
 
     try {
       regularAddressIndexByType = {
@@ -73,6 +82,8 @@ class ElectrumWalletSnapshot {
       changeAddressIndex: changeAddressIndexByType,
       addressPageType: data['address_page_type'] as String? ?? SegwitAddresType.p2wpkh.toString(),
       network: data['network_type'] == 'testnet' ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet,
+      derivationType: derivationType,
+      derivationPath: derivationPath,
     );
   }
 }

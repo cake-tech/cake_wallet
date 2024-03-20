@@ -2,6 +2,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cw_core/nano_account_info_response.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -77,8 +78,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     final password = generateWalletPassword();
     final height = options['height'] as int? ?? 0;
     name = options['name'] as String;
-    DerivationType? derivationType = options["derivationType"] as DerivationType?;
-    String? derivationPath = options["derivationPath"] as String?;
+    DerivationInfo? derivationInfo = options["derivationInfo"] as DerivationInfo?;
 
     if (mode == WalletRestoreMode.seed) {
       final seed = options['seed'] as String;
@@ -91,10 +91,17 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             mnemonic: seed,
             password: password,
+            derivationType: derivationInfo!.derivationType!,
+            derivationPath: derivationInfo.derivationPath!,
           );
         case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
-              name: name, mnemonic: seed, password: password);
+            name: name,
+            mnemonic: seed,
+            password: password,
+            derivationType: derivationInfo!.derivationType!,
+            derivationPath: derivationInfo.derivationPath!,
+          );
         case WalletType.haven:
           return haven!.createHavenRestoreWalletFromSeedCredentials(
               name: name, height: height, mnemonic: seed, password: password);
@@ -106,7 +113,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
               name: name, mnemonic: seed, password: password);
         case WalletType.nano:
           return nano!.createNanoRestoreWalletFromSeedCredentials(
-              name: name, mnemonic: seed, password: password, derivationType: derivationType);
+              name: name,
+              mnemonic: seed,
+              password: password,
+              derivationType: derivationInfo!.derivationType!,
+          );
         case WalletType.polygon:
           return polygon!.createPolygonRestoreWalletFromSeedCredentials(
             name: name,
@@ -185,6 +196,55 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     throw Exception('Unexpected type: ${type.toString()}');
   }
 
+  Future<List<DerivationInfo>> getDerivationInfo(dynamic credentials) async {
+    var list = <DerivationInfo>[];
+    var walletType = credentials["walletType"] as WalletType;
+    var appStore = getIt.get<AppStore>();
+    var node = appStore.settingsStore.getCurrentNode(walletType);
+
+    switch (walletType) {
+      case WalletType.bitcoin:
+        String? mnemonic = credentials['seed'] as String?;
+        return bitcoin!.getDerivationsFromMnemonic(mnemonic: mnemonic!, node: node);
+      case WalletType.nano:
+        String? mnemonic = credentials['seed'] as String?;
+        String? seedKey = credentials['private_key'] as String?;
+        AccountInfoResponse? bip39Info = await nanoUtil!.getInfoFromSeedOrMnemonic(
+            DerivationType.bip39,
+            mnemonic: mnemonic,
+            seedKey: seedKey,
+            node: node);
+        AccountInfoResponse? standardInfo = await nanoUtil!.getInfoFromSeedOrMnemonic(
+          DerivationType.nano,
+          mnemonic: mnemonic,
+          seedKey: seedKey,
+          node: node,
+        );
+
+        if (standardInfo?.balance != null) {
+          list.add(DerivationInfo(
+            derivationType: DerivationType.nano,
+            balance: nanoUtil!.getRawAsUsableString(standardInfo!.balance, nanoUtil!.rawPerNano),
+            address: standardInfo.address!,
+            height: standardInfo.confirmationHeight,
+          ));
+        }
+
+        if (bip39Info?.balance != null) {
+          list.add(DerivationInfo(
+            derivationType: DerivationType.bip39,
+            balance: nanoUtil!.getRawAsUsableString(bip39Info!.balance, nanoUtil!.rawPerNano),
+            address: bip39Info.address!,
+            height: bip39Info.confirmationHeight,
+          ));
+        }
+        break;
+      default:
+        break;
+    }
+    return list;
+  }
+
   Future<List<DerivationType>> getDerivationTypes(dynamic options) async {
     final seedKey = options['private_key'] as String?;
     final mnemonic = options['seed'] as String?;
@@ -193,14 +253,17 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     var node = appStore.settingsStore.getCurrentNode(walletType);
 
     switch (type) {
+      case WalletType.bitcoin:
+        return bitcoin!.compareDerivationMethods(mnemonic: mnemonic!, node: node);
       case WalletType.nano:
-        return nanoUtil!
-            .compareDerivationMethods(mnemonic: mnemonic, privateKey: seedKey, node: node);
+        return nanoUtil!.compareDerivationMethods(
+          mnemonic: mnemonic,
+          privateKey: seedKey,
+          node: node,
+        );
       default:
         break;
     }
-
-    // throw Exception('Unexpected type: ${type.toString()}');
     return [DerivationType.def];
   }
 
