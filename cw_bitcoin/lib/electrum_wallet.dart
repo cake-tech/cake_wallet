@@ -188,12 +188,13 @@ abstract class ElectrumWalletBase
     }
   }
 
-  Future<EstimatedTxResult> _estimateTxFeeAndInputsToUse(
+  Future<EstimatedTxResult> estimateTxFeeAndInputsToUse(
       int credentialsAmount,
       bool sendAll,
       List<BitcoinBaseAddress> outputAddresses,
       List<BitcoinOutput> outputs,
-      BitcoinTransactionCredentials transactionCredentials,
+      int? feeRate,
+      BitcoinTransactionPriority? priority,
       {int? inputsCount}) async {
     final utxos = <UtxoWithAddress>[];
     List<ECPrivate> privateKeys = [];
@@ -208,7 +209,7 @@ abstract class ElectrumWalletBase
         allInputsAmount += utx.value;
         leftAmount = leftAmount - utx.value;
 
-        final address = _addressTypeFromStr(utx.address, network);
+        final address = addressTypeFromStr(utx.address, network);
         final privkey = generateECPrivate(
             hd: utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
             index: utx.bitcoinAddressRecord.index,
@@ -245,7 +246,7 @@ abstract class ElectrumWalletBase
     if (!sendAll) {
       if (changeValue > 0) {
         final changeAddress = await walletAddresses.getChangeAddress();
-        final address = _addressTypeFromStr(changeAddress, network);
+        final address = addressTypeFromStr(changeAddress, network);
         outputAddresses.add(address);
         outputs.add(BitcoinOutput(address: address, value: BigInt.from(changeValue)));
       }
@@ -254,9 +255,9 @@ abstract class ElectrumWalletBase
     final estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
         utxos: utxos, outputs: outputs, network: network);
 
-    final fee = transactionCredentials.feeRate != null
-        ? feeAmountWithFeeRate(transactionCredentials.feeRate!, 0, 0, size: estimatedSize)
-        : feeAmountForPriority(transactionCredentials.priority!, 0, 0, size: estimatedSize);
+    int fee = feeRate != null
+        ? feeAmountWithFeeRate(feeRate, 0, 0, size: estimatedSize)
+        : feeAmountForPriority(priority!, 0, 0, size: estimatedSize);
 
     if (fee == 0) {
       throw BitcoinTransactionWrongBalanceException(currency);
@@ -266,10 +267,17 @@ abstract class ElectrumWalletBase
 
     final lastOutput = outputs.last;
     if (!sendAll) {
-      if (changeValue > fee) {
-        // Here, lastOutput is change, deduct the fee from it
-        outputs[outputs.length - 1] =
-            BitcoinOutput(address: lastOutput.address, value: lastOutput.value - BigInt.from(fee));
+      final changeMinusFee = changeValue - fee;
+      if (changeMinusFee > 0) {
+        if (changeMinusFee > 546 && network is BitcoinNetwork) {
+          // Here, lastOutput is change, deduct the fee from it
+          outputs[outputs.length - 1] = BitcoinOutput(
+              address: lastOutput.address, value: lastOutput.value - BigInt.from(fee));
+        } else {
+          // If lower, will end up with unspendable dust change
+          outputs.removeLast();
+          fee += changeMinusFee;
+        }
       }
     } else {
       // Here, if sendAll, the output amount equals to the input value - fee to fully spend every input on the transaction and have no amount for change
@@ -293,8 +301,8 @@ abstract class ElectrumWalletBase
           outputs.removeLast();
         }
 
-        return _estimateTxFeeAndInputsToUse(
-            credentialsAmount, sendAll, outputAddresses, outputs, transactionCredentials,
+        return estimateTxFeeAndInputsToUse(
+            credentialsAmount, sendAll, outputAddresses, outputs, feeRate, priority,
             inputsCount: utxos.length + 1);
       }
     }
@@ -315,7 +323,7 @@ abstract class ElectrumWalletBase
 
       for (final out in transactionCredentials.outputs) {
         final outputAddress = out.isParsedAddress ? out.extractedAddress! : out.address;
-        final address = _addressTypeFromStr(outputAddress, network);
+        final address = addressTypeFromStr(outputAddress, network);
 
         outputAddresses.add(address);
 
@@ -340,8 +348,14 @@ abstract class ElectrumWalletBase
         }
       }
 
-      final estimatedTx = await _estimateTxFeeAndInputsToUse(
-          credentialsAmount, sendAll, outputAddresses, outputs, transactionCredentials);
+      final estimatedTx = await estimateTxFeeAndInputsToUse(
+        credentialsAmount,
+        sendAll,
+        outputAddresses,
+        outputs,
+        transactionCredentials.feeRate,
+        transactionCredentials.priority,
+      );
 
       final txb = BitcoinTransactionBuilder(
           utxos: estimatedTx.utxos,
@@ -890,7 +904,7 @@ class EstimatedTxResult {
   final int amount;
 }
 
-BitcoinBaseAddress _addressTypeFromStr(String address, BasedUtxoNetwork network) {
+BitcoinBaseAddress addressTypeFromStr(String address, BasedUtxoNetwork network) {
   if (P2pkhAddress.regex.hasMatch(address)) {
     return P2pkhAddress.fromAddress(address: address, network: network);
   } else if (P2shAddress.regex.hasMatch(address)) {

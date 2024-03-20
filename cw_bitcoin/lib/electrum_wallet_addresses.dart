@@ -258,7 +258,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         addressRecord.isHidden &&
         !addressRecord.isUsed &&
         // TODO: feature to change change address type. For now fixed to p2wpkh, the cheapest type
-        addressRecord.type == SegwitAddresType.p2wpkh);
+        (walletInfo.type != WalletType.bitcoin || addressRecord.type == SegwitAddresType.p2wpkh));
     changeAddresses.addAll(newAddresses);
   }
 

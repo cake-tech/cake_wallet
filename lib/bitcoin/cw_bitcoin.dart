@@ -121,6 +121,28 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority) async {
+    final electrumWallet = wallet as ElectrumWallet;
+    final sk = ECPrivate.random();
+
+    final p2shAddr = sk.getPublic().toP2pkhInP2sh();
+    final p2wpkhAddr = sk.getPublic().toP2wpkhAddress();
+    final estimatedTx = await electrumWallet.estimateTxFeeAndInputsToUse(
+        0,
+        true,
+        // Deposit address + change address
+        [p2shAddr, p2wpkhAddr],
+        [
+          BitcoinOutput(address: p2shAddr, value: BigInt.zero),
+          BitcoinOutput(address: p2wpkhAddr, value: BigInt.zero)
+        ],
+        null,
+        priority as BitcoinTransactionPriority);
+
+    return estimatedTx.amount;
+  }
+
+  @override
   String getAddress(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.walletAddresses.address;
@@ -204,5 +226,16 @@ class CWBitcoin extends Bitcoin {
       default:
         return SegwitAddresType.p2wpkh;
     }
+  }
+
+  @override
+  String getBitcoinAddressesRegex() {
+    return '^${P2pkhAddress.regex.pattern}\$|^${P2shAddress.regex.pattern}\$|^${P2wpkhAddress.regex.pattern}\$|${P2trAddress.regex.pattern}\$|^${P2wshAddress.regex.pattern}\$';
+  }
+
+  @override
+  bool validateBitcoinAddress(String address,
+      {BasedUtxoNetwork? network = BitcoinNetwork.mainnet}) {
+    return validateAddress(address: address, network: network!);
   }
 }
