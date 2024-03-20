@@ -90,10 +90,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   buttonAction: () => Navigator.of(context).pop());
             });
       });
+    }
 
-      if (initialPaymentRequest?.callback?.isNotEmpty ?? false) {
-        sendViewModel.callbackUrl = initialPaymentRequest!.callback!;
-      }
+    if (initialPaymentRequest?.callback?.isNotEmpty ?? false) {
+      sendViewModel.callbackUrl = initialPaymentRequest!.callback!;
     }
   }
 
@@ -325,7 +325,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                           ? sendViewModel.allAmountValidator
                                           : sendViewModel.amountValidator,
                                     ),
-                                    if (!sendViewModel.isBatchSending && sendViewModel.shouldDisplaySendALL)
+                                    if (!sendViewModel.isBatchSending &&
+                                        sendViewModel.shouldDisplaySendALL)
                                       Positioned(
                                         top: 2,
                                         right: 0,

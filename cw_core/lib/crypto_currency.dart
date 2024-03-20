@@ -257,10 +257,15 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
               element.tag == walletCurrency?.tag));
     } catch (_) {}
 
+    if (name == "nano") {
+      return CryptoCurrency.nano;
+    }
+
     if (CryptoCurrency._nameCurrencyMap[name.toLowerCase()] == null) {
       final s = 'Unexpected token: $name for CryptoCurrency fromString';
       throw  ArgumentError.value(name, 'name', s);
     }
+
     return CryptoCurrency._nameCurrencyMap[name.toLowerCase()]!;
   }
 

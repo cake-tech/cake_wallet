@@ -350,7 +350,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       
       if (callbackUrl.isNotEmpty) {
         launchUrl(
-          Uri.https(callbackUrl),
+          Uri.parse(callbackUrl),
           mode: LaunchMode.externalApplication,
         );
         callbackUrl = '';

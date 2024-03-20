@@ -836,8 +836,9 @@ Future<void> setup({
       tradesStore: getIt.get<TradesStore>(),
       sendViewModel: getIt.get<SendViewModel>()));
 
-  getIt.registerFactory(
-      () => ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>()));
+  getIt.registerFactoryParam<ExchangePage, PaymentRequest, void>((PaymentRequest paymentRequest, __) {
+    return ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>(), paymentRequest);
+  });
 
   getIt.registerFactory(() => ExchangeConfirmPage(tradesStore: getIt.get<TradesStore>()));
 

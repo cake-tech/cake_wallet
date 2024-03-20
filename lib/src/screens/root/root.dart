@@ -218,8 +218,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           return Routes.send;
         case "buy":
           return Routes.buySellPage;
-        default:
-          return null;
       }
     }
 
@@ -236,7 +234,14 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     }
 
     if (isNanoGptLink) {
-      return PaymentRequest.fromUri(launchUri);
+      switch (launchUri?.authority ?? '') {
+        case "exchange":
+        case "send":
+          return PaymentRequest.fromUri(launchUri);
+        case "buy":
+          return true;
+      }
+      
     }
 
     if (_isValidPaymentUri()) {

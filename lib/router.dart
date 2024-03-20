@@ -404,7 +404,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.exchange:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<ExchangePage>());
+          fullscreenDialog: true, builder: (_) => getIt.get<ExchangePage>(param1: settings.arguments as PaymentRequest));
 
     case Routes.exchangeTemplate:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<ExchangeTemplatePage>());
