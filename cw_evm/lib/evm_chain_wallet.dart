@@ -272,7 +272,7 @@ abstract class EVMChainWalletBase
       toAddress: _credentials.outputs.first.isParsedAddress
           ? _credentials.outputs.first.extractedAddress!
           : _credentials.outputs.first.address,
-      amount: totalAmount.toString(),
+      amount: totalAmount,
       gas: _estimatedGas!,
       priority: _credentials.priority!,
       currency: transactionCurrency,
