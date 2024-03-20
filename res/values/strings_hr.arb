@@ -346,6 +346,7 @@
   "moonpay_alert_text": "Vrijednost iznosa mora biti veća ili jednaka ${minAmount} ${fiatCurrency}",
   "more_options": "Više opcija",
   "name": "Ime",
+  "nanogpt_subtitle": "Svi najnoviji modeli (GPT-4, Claude). \\ NNO pretplata, plaćajte kripto.",
   "narrow": "Usko",
   "new_first_wallet_text": "Jednostavno čuvajte svoju kripto valutu",
   "new_node_testing": "Provjera novog nodea",

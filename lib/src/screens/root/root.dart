@@ -130,59 +130,50 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
             if (!isAuthenticatedSuccessfully) {
               return;
+            }
+            final useTotp = widget.appStore.settingsStore.useTOTP2FA;
+            final shouldUseTotp2FAToAccessWallets =
+                widget.appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
+            if (useTotp && shouldUseTotp2FAToAccessWallets) {
+              _reset();
+              auth.close(
+                route: Routes.totpAuthCodePage,
+                arguments: TotpAuthArgumentsModel(
+                  onTotpAuthenticationFinished:
+                      (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) {
+                    if (!isAuthenticatedSuccessfully) {
+                      return;
+                    }
+                    _reset();
+                    totpAuth.close(
+                      route: _getRouteToGo(),
+                      arguments: _getRouteArgs(),
+                    );
+                    launchUri = null;
+                  },
+                  isForSetup: false,
+                  isClosable: false,
+                ),
+              );
             } else {
-              final useTotp = widget.appStore.settingsStore.useTOTP2FA;
-              final shouldUseTotp2FAToAccessWallets =
-                  widget.appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
-              if (useTotp && shouldUseTotp2FAToAccessWallets) {
-                _reset();
-                auth.close(
-                  route: Routes.totpAuthCodePage,
-                  arguments: TotpAuthArgumentsModel(
-                    onTotpAuthenticationFinished:
-                        (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) {
-                      if (!isAuthenticatedSuccessfully) {
-                        return;
-                      }
-                      _reset();
-                      totpAuth.close(
-                        route: _getRouteToGo(),
-                        arguments: _getRouteArgs(),
-                      );
-                      launchUri = null;
-                    },
-                    isForSetup: false,
-                    isClosable: false,
-                  ),
-                );
-              } else {
-                _reset();
-                auth.close(
-                  route: _getRouteToGo(),
-                  arguments: _getRouteArgs(),
-                );
-                launchUri = null;
-              }
+              _reset();
+              auth.close(
+                route: _getRouteToGo(),
+                arguments: _getRouteArgs(),
+              );
+              launchUri = null;
             }
           },
         );
       });
-    } else if (_isValidPaymentUri()) {
+    }
+
+    String? route = _getRouteToGo();
+    if (route != null) {
       widget.navigatorKey.currentState?.pushNamed(
-        Routes.send,
-        arguments: PaymentRequest.fromUri(launchUri),
+        route,
+        arguments: _getRouteArgs(),
       );
-      launchUri = null;
-    } else if (isWalletConnectLink) {
-      if (isEVMCompatibleChain(widget.appStore.wallet!.type)) {
-        widget.navigatorKey.currentState?.pushNamed(
-          Routes.walletConnectConnectionsListing,
-          arguments: launchUri,
-        );
-        launchUri = null;
-      } else {
-        _nonETHWalletErrorToast(S.current.switchToEVMCompatibleWallet);
-      }
     }
 
     launchUri = null;
@@ -212,12 +203,14 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   String? _getRouteToGo() {
     if (isWalletConnectLink) {
-      if (isEVMCompatibleChain(widget.appStore.wallet!.type)) {
+      if (!isEVMCompatibleChain(widget.appStore.wallet!.type)) {
         _nonETHWalletErrorToast(S.current.switchToEVMCompatibleWallet);
         return null;
       }
       return Routes.walletConnectConnectionsListing;
-    } else if (isNanoGptLink) {
+    }
+
+    if (isNanoGptLink) {
       switch (launchUri?.authority ?? '') {
         case "exchange":
           return Routes.exchange;
@@ -228,23 +221,29 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         default:
           return null;
       }
-    } else if (_isValidPaymentUri()) {
-      return Routes.send;
-    } else {
-      return null;
     }
+
+    if (_isValidPaymentUri()) {
+      return Routes.send;
+    }
+
+    return null;
   }
 
   dynamic _getRouteArgs() {
     if (isWalletConnectLink) {
       return launchUri;
-    } else if (isNanoGptLink) {
-      return PaymentRequest.fromUri(launchUri);
-    } else if (_isValidPaymentUri()) {
-      return PaymentRequest.fromUri(launchUri);
-    } else {
-      return null;
     }
+
+    if (isNanoGptLink) {
+      return PaymentRequest.fromUri(launchUri);
+    }
+
+    if (_isValidPaymentUri()) {
+      return PaymentRequest.fromUri(launchUri);
+    }
+
+    return null;
   }
 
   Future<void> _nonETHWalletErrorToast(String message) async {

@@ -346,6 +346,7 @@
   "moonpay_alert_text": "El valor de la cantidad debe ser mayor o igual a ${minAmount} ${fiatCurrency}",
   "more_options": "Más Opciones",
   "name": "Nombre",
+  "nanogpt_subtitle": "Todos los modelos más nuevos (GPT-4, Claude). \\ Nno suscripción, pague con cripto.",
   "narrow": "Angosto",
   "new_first_wallet_text": "Mantenga fácilmente su criptomoneda segura",
   "new_node_testing": "Prueba de nuevos nodos",

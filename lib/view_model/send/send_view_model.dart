@@ -35,6 +35,8 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 part 'send_view_model.g.dart';
 
@@ -218,6 +220,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool get hasCurrecyChanger => walletType == WalletType.haven;
 
+  String callbackUrl = '';
+
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
 
@@ -343,6 +347,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       state = TransactionCommitted();
+      
+      if (callbackUrl.isNotEmpty) {
+        launchUrl(
+          Uri.https(callbackUrl),
+          mode: LaunchMode.externalApplication,
+        );
+        callbackUrl = '';
+      }
     } catch (e) {
       String translatedError = translateErrorMessage(e.toString(), wallet.type, wallet.currency);
       state = FailureState(translatedError);

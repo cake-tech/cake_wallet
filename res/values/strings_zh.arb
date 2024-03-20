@@ -346,6 +346,7 @@
   "moonpay_alert_text": "金额的价值必须大于或等于 ${minAmount} ${fiatCurrency}",
   "more_options": "更多选项",
   "name": "姓名",
+  "nanogpt_subtitle": "所有最新型号（GPT-4，Claude）。\\ nno订阅，用加密货币付款。",
   "narrow": "狭窄的",
   "new_first_wallet_text": "轻松确保您的加密货币安全",
   "new_node_testing": "新节点测试",

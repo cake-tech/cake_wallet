@@ -346,6 +346,7 @@
   "moonpay_alert_text": "राशि का मूल्य अधिक है या करने के लिए बराबर होना चाहिए ${minAmount} ${fiatCurrency}",
   "more_options": "और विकल्प",
   "name": "नाम",
+  "nanogpt_subtitle": "सभी नवीनतम मॉडल (GPT-4, क्लाउड)। \\ nno सदस्यता, क्रिप्टो के साथ भुगतान करें।",
   "narrow": "सँकरा",
   "new_first_wallet_text": "आसानी से अपनी क्रिप्टोक्यूरेंसी को सुरक्षित रखें",
   "new_node_testing": "नई नोड परीक्षण",

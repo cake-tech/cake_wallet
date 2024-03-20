@@ -346,6 +346,7 @@
   "moonpay_alert_text": "Ang halaga ng halaga ay dapat na higit pa o katumbas ng ${minAmount} ${fiatCurrency}",
   "more_options": "Higit pang mga pagpipilian",
   "name": "Pangalan",
+  "nanogpt_subtitle": "Ang lahat ng mga pinakabagong modelo (GPT-4, Claude). \\ Nno subscription, magbayad gamit ang crypto.",
   "narrow": "Makitid",
   "new_first_wallet_text": "Panatilihing ligtas ang iyong crypto, piraso ng cake",
   "new_node_testing": "Bagong pagsubok sa node",

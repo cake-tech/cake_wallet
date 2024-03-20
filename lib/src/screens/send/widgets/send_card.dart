@@ -90,6 +90,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   buttonAction: () => Navigator.of(context).pop());
             });
       });
+
+      if (initialPaymentRequest?.callback?.isNotEmpty ?? false) {
+        sendViewModel.callbackUrl = initialPaymentRequest!.callback!;
+      }
     }
   }
 

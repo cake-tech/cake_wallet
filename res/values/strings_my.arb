@@ -346,6 +346,7 @@
   "moonpay_alert_text": "ပမာဏ၏တန်ဖိုးသည် ${minAmount} ${fiatCurrency} နှင့် ပိုနေရမည်",
   "more_options": "နောက်ထပ် ရွေးချယ်စရာများ",
   "name": "နာမည်",
+  "nanogpt_subtitle": "အားလုံးနောက်ဆုံးပေါ်မော်ဒယ်များ (GPT-4, Claude) ။ \\ nno subscription, crypto နှင့်အတူပေးဆောင်။",
   "narrow": "ကျဉ်းသော",
   "new_first_wallet_text": "သင့်ရဲ့ cryptocurrencrencres ကိုအလွယ်တကူလုံခြုံစွာထားရှိပါ",
   "new_node_testing": "နှာခေါင်း အသစ်စမ်းသပ်ခြင်း။",

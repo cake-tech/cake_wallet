@@ -347,6 +347,7 @@
   "moonpay_alert_text": "金額の値は以上でなければなりません ${minAmount} ${fiatCurrency}",
   "more_options": "その他のオプション",
   "name": "名前",
+  "nanogpt_subtitle": "すべての最新モデル（GPT-4、Claude）。\\ nnoサブスクリプション、暗号で支払います。",
   "narrow": "狭い",
   "new_first_wallet_text": "暗号通貨を簡単に安全に保ちます",
   "new_node_testing": "新しいノードのテスト",

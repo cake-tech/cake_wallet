@@ -346,6 +346,7 @@
   "moonpay_alert_text": "Částka musí být větší nebo rovna ${minAmount} ${fiatCurrency}",
   "more_options": "Více možností",
   "name": "název",
+  "nanogpt_subtitle": "Všechny nejnovější modely (GPT-4, Claude). \\ Nno předplatné, plaťte krypto.",
   "narrow": "Úzký",
   "new_first_wallet_text": "Snadno udržujte svou kryptoměnu v bezpečí",
   "new_node_testing": "Testování nového uzlu",
