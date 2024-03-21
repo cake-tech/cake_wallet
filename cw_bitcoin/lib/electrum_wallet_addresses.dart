@@ -220,7 +220,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   Future<void> updateAddressesInBox() async {
     try {
       addressesMap.clear();
-      addressesMap[address] = '';
+      _addresses.forEach((addressRecord) {
+        addressesMap[addressRecord.address] = addressRecord.name;
+      });
       await saveAddressesInBox();
     } catch (e) {
       print(e.toString());
