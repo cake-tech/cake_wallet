@@ -34,6 +34,7 @@ class ElectrumClient {
       : _id = 0,
         _isConnected = false,
         _tasks = {},
+        _errors = {},
         unterminatedString = '';
 
   static const connectionTimeout = Duration(seconds: 5);
@@ -44,6 +45,7 @@ class ElectrumClient {
   void Function(bool)? onConnectionStatusChange;
   int _id;
   final Map<String, SocketTask> _tasks;
+  final Map<String, String> _errors;
   bool _isConnected;
   Timer? _aliveTimer;
   String unterminatedString;
@@ -243,22 +245,13 @@ class ElectrumClient {
       });
 
   Future<String> broadcastTransaction(
-      {required String transactionRaw, BasedUtxoNetwork? network}) async {
-    if (network == BitcoinNetwork.testnet) {
-      return http
-          .post(Uri(scheme: 'https', host: 'blockstream.info', path: '/testnet/api/tx'),
-              headers: <String, String>{'Content-Type': 'application/json; charset=utf-8'},
-              body: transactionRaw)
-          .then((http.Response response) {
-        if (response.statusCode == 200) {
-          return response.body;
-        }
-
-        throw Exception('Failed to broadcast transaction: ${response.body}');
-      });
-    }
-
-    return call(method: 'blockchain.transaction.broadcast', params: [transactionRaw])
+      {required String transactionRaw,
+      BasedUtxoNetwork? network,
+      Function(int)? idCallback}) async {
+    return call(
+            method: 'blockchain.transaction.broadcast',
+            params: [transactionRaw],
+            idCallback: idCallback)
         .then((dynamic result) {
       if (result is String) {
         return result;
@@ -371,10 +364,12 @@ class ElectrumClient {
     }
   }
 
-  Future<dynamic> call({required String method, List<Object> params = const []}) async {
+  Future<dynamic> call(
+      {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
     final completer = Completer<dynamic>();
     _id += 1;
     final id = _id;
+    idCallback?.call(id);
     _registryTask(id, completer);
     socket!.write(jsonrpc(method: method, id: id, params: params));
 
@@ -455,6 +450,14 @@ class ElectrumClient {
     final method = response['method'];
     final id = response['id'] as String?;
     final result = response['result'];
+    final error = response['error'] as Map<String, dynamic>?;
+
+    if (error != null) {
+      final errorMessage = error['message'] as String?;
+      if (errorMessage != null) {
+        _errors[id!] = errorMessage;
+      }
+    }
 
     if (method is String) {
       _methodHandler(method: method, request: response);
@@ -465,6 +468,8 @@ class ElectrumClient {
       _finish(id, result);
     }
   }
+
+  String getErrorMessage(int id) => _errors[id.toString()] ?? '';
 }
 
 // FIXME: move me

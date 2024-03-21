@@ -9,9 +9,7 @@ import 'package:cw_core/wallet_type.dart';
 
 class PendingBitcoinCashTransaction with PendingTransaction {
   PendingBitcoinCashTransaction(this._tx, this.type,
-      {required this.electrumClient,
-      required this.amount,
-      required this.fee})
+      {required this.electrumClient, required this.amount, required this.fee})
       : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
   final WalletType type;
@@ -36,18 +34,25 @@ class PendingBitcoinCashTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    final result =
-      await electrumClient.broadcastTransaction(transactionRaw: _tx.toHex());
+    String errorMessage = 'Transaction commit is failed.';
+    int? callId;
+
+    final result = await electrumClient.broadcastTransaction(
+        transactionRaw: hex, idCallback: (id) => callId = id);
 
     if (result.isEmpty) {
-      throw BitcoinCommitTransactionException();
+      if (callId != null) {
+        if (electrumClient.getErrorMessage(callId!).contains("dust")) {
+          errorMessage = "Transaction rejected. Output cannot be dust. Please increase the amount.";
+        }
+      }
+      throw BitcoinCommitTransactionException(errorMessage);
     }
 
-    _listeners?.forEach((listener) => listener(transactionInfo()));
+    _listeners.forEach((listener) => listener(transactionInfo()));
   }
 
-  void addListener(
-          void Function(ElectrumTransactionInfo transaction) listener) =>
+  void addListener(void Function(ElectrumTransactionInfo transaction) listener) =>
       _listeners.add(listener);
 
   ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(type,

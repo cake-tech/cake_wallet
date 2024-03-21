@@ -35,10 +35,19 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    final result = await electrumClient.broadcastTransaction(transactionRaw: hex, network: network);
+    String errorMessage = 'Transaction commit is failed.';
+    int? callId;
+
+    final result = await electrumClient.broadcastTransaction(
+        transactionRaw: hex, network: network, idCallback: (id) => callId = id);
 
     if (result.isEmpty) {
-      throw BitcoinCommitTransactionException();
+      if (callId != null) {
+        if (electrumClient.getErrorMessage(callId!).contains("dust")) {
+          errorMessage = "Transaction rejected. Output cannot be dust. Please increase the amount.";
+        }
+      }
+      throw BitcoinCommitTransactionException(errorMessage);
     }
 
     _listeners.forEach((listener) => listener(transactionInfo()));
