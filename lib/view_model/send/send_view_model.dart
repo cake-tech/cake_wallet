@@ -302,6 +302,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       state = IsExecutingState();
       pendingTransaction = await wallet.createTransaction(_credentials());
       if (provider is ThorChainExchangeProvider) {
+        print('Output count: ${pendingTransaction?.outputCount}');
+        print('provider is ThorChainExchangeProvider and pendingTransaction is ${provider.runtimeType}');
         final outputCount = pendingTransaction?.outputCount ?? 0;
         if (outputCount > 10) throw Exception("ThorChain does not support more than 10 outputs");
       }
