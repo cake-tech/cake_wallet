@@ -113,11 +113,33 @@ class CWBitcoin extends Bitcoin {
         .map((BitcoinAddressRecord addr) => ElectrumSubAddress(
             id: addr.index,
             name: addr.name,
-            address: electrumWallet.type == WalletType.bitcoinCash ? addr.cashAddr : addr.address,
+            address: addr.address,
             txCount: addr.txCount,
             balance: addr.balance,
             isChange: addr.isHidden))
         .toList();
+  }
+
+  @override
+  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority) async {
+    final electrumWallet = wallet as ElectrumWallet;
+    final sk = ECPrivate.random();
+
+    final p2shAddr = sk.getPublic().toP2pkhInP2sh();
+    final p2wpkhAddr = sk.getPublic().toP2wpkhAddress();
+    final estimatedTx = await electrumWallet.estimateTxFeeAndInputsToUse(
+        0,
+        true,
+        // Deposit address + change address
+        [p2shAddr, p2wpkhAddr],
+        [
+          BitcoinOutput(address: p2shAddr, value: BigInt.zero),
+          BitcoinOutput(address: p2wpkhAddr, value: BigInt.zero)
+        ],
+        null,
+        priority as BitcoinTransactionPriority);
+
+    return estimatedTx.amount;
   }
 
   @override

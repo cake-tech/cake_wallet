@@ -1,5 +1,1 @@
-Monero enhancements
-Bitcoin support different address types (Taproot, Segwit P2WPKH/P2WSH, Legacy)
-In-App live status page for the app services
-Add Exolix exchange provider
 Bug fixes and enhancements
