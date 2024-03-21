@@ -84,11 +84,7 @@ abstract class LightningInvoicePageViewModelBase with Store {
         state = FailureState('Amount is too small');
         return;
       }
-      if (maximum == 0) {
-        state = FailureState('Your inbound liquidity is 0!');
-        return;
-      }
-      if (maximum != null && amountInCrypto > maximum!) {
+      if (maximum != null && maximum != 0 && amountInCrypto > maximum!) {
         state = FailureState('Amount is too big');
         return;
       }
