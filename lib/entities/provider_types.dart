@@ -89,7 +89,12 @@ class ProvidersHelper {
       case WalletType.bitcoinCash:
         return [ProviderType.askEachTime, ProviderType.moonpaySell];
       case WalletType.polygon:
-        return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.dfx];
+        return [
+          ProviderType.askEachTime,
+          ProviderType.onramper,
+          ProviderType.moonpaySell,
+          ProviderType.dfx,
+        ];
       case WalletType.solana:
         return [
           ProviderType.askEachTime,

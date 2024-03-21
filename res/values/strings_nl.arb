@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "Actieve verbindingen worden hier weergegeven",
   "add": "Toevoegen",
   "add_contact": "Contactpersoon toevoegen",
+  "add_contact_to_address_book": "Wilt u dit contact toevoegen aan uw adresboek?",
   "add_custom_node": "Voeg een nieuw aangepast knooppunt toe",
   "add_custom_redemption": "Voeg aangepaste inwisseling toe",
   "add_fund_to_card": "Voeg prepaid tegoed toe aan de kaarten (tot ${value})",

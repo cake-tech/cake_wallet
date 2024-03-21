@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "Zde se zobrazí aktivní připojení",
   "add": "Přidat",
   "add_contact": "Přidat kontakt",
+  "add_contact_to_address_book": "Chcete přidat tento kontakt do svého adresáře?",
   "add_custom_node": "Přidat vlastní uzel",
   "add_custom_redemption": "Přidat vlastní uplatnění",
   "add_fund_to_card": "Všechny předplacené prostředky na kartě (až ${value})",
