@@ -127,19 +127,23 @@ class CWBitcoin extends Bitcoin {
 
     final p2shAddr = sk.getPublic().toP2pkhInP2sh();
     final p2wpkhAddr = sk.getPublic().toP2wpkhAddress();
-    final estimatedTx = await electrumWallet.estimateTxFeeAndInputsToUse(
-        0,
-        true,
-        // Deposit address + change address
-        [p2shAddr, p2wpkhAddr],
-        [
-          BitcoinOutput(address: p2shAddr, value: BigInt.zero),
-          BitcoinOutput(address: p2wpkhAddr, value: BigInt.zero)
-        ],
-        null,
-        priority as BitcoinTransactionPriority);
+    try {
+      final estimatedTx = await electrumWallet.estimateTxFeeAndInputsToUse(
+          0,
+          true,
+          // Deposit address + change address
+          [p2shAddr, p2wpkhAddr],
+          [
+            BitcoinOutput(address: p2shAddr, value: BigInt.zero),
+            BitcoinOutput(address: p2wpkhAddr, value: BigInt.zero)
+          ],
+          null,
+          priority as BitcoinTransactionPriority);
 
-    return estimatedTx.amount;
+      return estimatedTx.amount;
+    } catch (_) {
+      return 0;
+    }
   }
 
   @override
