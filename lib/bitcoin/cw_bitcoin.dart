@@ -122,12 +122,29 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority) async {
-    final electrumWallet = wallet as ElectrumWallet;
-    final sk = ECPrivate.random();
-
-    final p2shAddr = sk.getPublic().toP2pkhInP2sh();
-    final p2wpkhAddr = sk.getPublic().toP2wpkhAddress();
     try {
+      final sk = ECPrivate.random();
+      final electrumWallet = wallet as ElectrumWallet;
+
+      if (wallet.type == WalletType.bitcoinCash) {
+        final p2pkhAddr = sk.getPublic().toP2pkhAddress();
+        final estimatedTx = await electrumWallet.estimateTxFeeAndInputsToUse(
+            0,
+            true,
+            // Deposit address + change address
+            [p2pkhAddr, p2pkhAddr],
+            [
+              BitcoinOutput(address: p2pkhAddr, value: BigInt.zero),
+              BitcoinOutput(address: p2pkhAddr, value: BigInt.zero)
+            ],
+            null,
+            priority as BitcoinCashTransactionPriority);
+
+        return estimatedTx.amount;
+      }
+
+      final p2shAddr = sk.getPublic().toP2pkhInP2sh();
+      final p2wpkhAddr = sk.getPublic().toP2wpkhAddress();
       final estimatedTx = await electrumWallet.estimateTxFeeAndInputsToUse(
           0,
           true,
@@ -138,7 +155,9 @@ class CWBitcoin extends Bitcoin {
             BitcoinOutput(address: p2wpkhAddr, value: BigInt.zero)
           ],
           null,
-          priority as BitcoinTransactionPriority);
+          wallet.type == WalletType.litecoin
+              ? priority as LitecoinTransactionPriority
+              : priority as BitcoinTransactionPriority);
 
       return estimatedTx.amount;
     } catch (_) {

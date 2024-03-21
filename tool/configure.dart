@@ -126,7 +126,7 @@ abstract class Bitcoin {
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
 
-  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority);
+  Future<int> estimateFakeSendAllTxAmount(Object wallet, BitcoinTransactionPriority priority);
   List<ElectrumSubAddress> getSubAddresses(Object wallet);
 
   String formatterBitcoinAmountToString({required int amount});

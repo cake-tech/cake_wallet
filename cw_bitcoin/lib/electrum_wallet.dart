@@ -194,7 +194,7 @@ abstract class ElectrumWalletBase
       List<BitcoinBaseAddress> outputAddresses,
       List<BitcoinOutput> outputs,
       int? feeRate,
-      BitcoinTransactionPriority? priority,
+      TransactionPriority? priority,
       {int? inputsCount}) async {
     final utxos = <UtxoWithAddress>[];
     List<ECPrivate> privateKeys = [];
@@ -252,8 +252,14 @@ abstract class ElectrumWalletBase
       }
     }
 
-    final estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
-        utxos: utxos, outputs: outputs, network: network);
+    int estimatedSize;
+    if (network is BitcoinCashNetwork) {
+      estimatedSize = ForkedTransactionBuilder.estimateTransactionSize(
+          utxos: utxos, outputs: outputs, network: network as BitcoinCashNetwork);
+    } else {
+      estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
+          utxos: utxos, outputs: outputs, network: network);
+    }
 
     int fee = feeRate != null
         ? feeAmountWithFeeRate(feeRate, 0, 0, size: estimatedSize)
@@ -267,10 +273,15 @@ abstract class ElectrumWalletBase
 
     final lastOutput = outputs.last;
     if (!sendAll) {
-      if (changeValue > fee) {
-        // Here, lastOutput is change, deduct the fee from it
+      final changeMinusFee = changeValue - fee;
+      if (changeMinusFee > 546) {
+        // Here, lastOutput is change, deduct the fee from it and return the rest to the user
         outputs[outputs.length - 1] =
             BitcoinOutput(address: lastOutput.address, value: lastOutput.value - BigInt.from(fee));
+      } else {
+        // If lower, will end up with unspendable dust change and tx rejected by network rules
+        outputs.removeLast();
+        fee += changeMinusFee;
       }
     } else {
       // Here, if sendAll, the output amount equals to the input value - fee to fully spend every input on the transaction and have no amount for change
@@ -350,11 +361,20 @@ abstract class ElectrumWalletBase
         transactionCredentials.priority,
       );
 
-      final txb = BitcoinTransactionBuilder(
-          utxos: estimatedTx.utxos,
-          outputs: outputs,
-          fee: BigInt.from(estimatedTx.fee),
-          network: network);
+      BasedBitcoinTransacationBuilder txb;
+      if (network is BitcoinCashNetwork) {
+        txb = ForkedTransactionBuilder(
+            utxos: estimatedTx.utxos,
+            outputs: outputs,
+            fee: BigInt.from(estimatedTx.fee),
+            network: network);
+      } else {
+        txb = BitcoinTransactionBuilder(
+            utxos: estimatedTx.utxos,
+            outputs: outputs,
+            fee: BigInt.from(estimatedTx.fee),
+            network: network);
+      }
 
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
         final key = estimatedTx.privateKeys
@@ -408,7 +428,7 @@ abstract class ElectrumWalletBase
     }
   }
 
-  int feeAmountForPriority(BitcoinTransactionPriority priority, int inputsCount, int outputsCount,
+  int feeAmountForPriority(TransactionPriority priority, int inputsCount, int outputsCount,
           {int? size}) =>
       feeRate(priority) * (size ?? estimatedTransactionSize(inputsCount, outputsCount));
 
@@ -898,6 +918,10 @@ class EstimatedTxResult {
 }
 
 BitcoinBaseAddress addressTypeFromStr(String address, BasedUtxoNetwork network) {
+  try {
+    return BitcoinCashAddress(address).baseAddress;
+  } catch (_) {}
+
   if (P2pkhAddress.regex.hasMatch(address)) {
     return P2pkhAddress.fromAddress(address: address, network: network);
   } else if (P2shAddress.regex.hasMatch(address)) {

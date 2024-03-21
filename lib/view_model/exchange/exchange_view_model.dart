@@ -544,20 +544,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> calculateDepositAllAmount() async {
-    if (wallet.type == WalletType.litecoin || wallet.type == WalletType.bitcoinCash) {
-      final availableBalance = wallet.balance[wallet.currency]!.available;
-      final priority = _settingsStore.priority[wallet.type]!;
-      final fee = wallet.calculateEstimatedFee(priority, null);
-
-      if (availableBalance < fee || availableBalance == 0) return;
-
-      final amount = availableBalance - fee;
-      changeDepositAmount(amount: bitcoin!.formatterBitcoinAmountToString(amount: amount));
-    } else if (wallet.type == WalletType.bitcoin) {
+    if (wallet.type == WalletType.litecoin ||
+        wallet.type == WalletType.bitcoin ||
+        wallet.type == WalletType.bitcoinCash) {
       final priority = _settingsStore.priority[wallet.type]!;
 
-      final amount = await bitcoin!.estimateFakeSendAllTxAmount(
-          wallet, bitcoin!.deserializeBitcoinTransactionPriority(priority.raw));
+      final amount = await bitcoin!.estimateFakeSendAllTxAmount(wallet, priority);
 
       changeDepositAmount(amount: bitcoin!.formatterBitcoinAmountToString(amount: amount));
     }
