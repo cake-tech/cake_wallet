@@ -246,7 +246,8 @@ class WalletRestorePage extends BasePage {
   bool _isValidSeed() {
     final seedPhrase =
         walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.text;
-    if (walletRestoreViewModel.type == WalletType.monero && Polyseed.isValidSeed(seedPhrase))
+    if ((walletRestoreViewModel.type == WalletType.monero ||
+            walletRestoreViewModel.type == WalletType.wownero) && Polyseed.isValidSeed(seedPhrase))
       return true;
 
     final seedWords = seedPhrase.split(' ');
@@ -254,6 +255,9 @@ class WalletRestorePage extends BasePage {
     if ((walletRestoreViewModel.type == WalletType.monero ||
             walletRestoreViewModel.type == WalletType.haven) &&
         seedWords.length != WalletRestoreViewModelBase.moneroSeedMnemonicLength) {
+      return false;
+    } else if(walletRestoreViewModel.type == WalletType.wownero &&
+        seedWords.length != WalletRestoreViewModelBase.wowneroSeedMnemonicLength) {
       return false;
     }
 

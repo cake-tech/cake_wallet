@@ -104,7 +104,7 @@ dependencies:
 #      ref: main
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
-  polyseed: ^0.0.2
+  polyseed: ^0.0.3
   nostr_tools: ^1.0.9
   solana: ^0.30.1
   bitcoin_base:
@@ -150,6 +150,7 @@ flutter:
     - assets/images/flags/
     - assets/node_list.yml
     - assets/haven_node_list.yml
+    - assets/wownero_node_list.yml
     - assets/bitcoin_electrum_server_list.yml
     - assets/litecoin_electrum_server_list.yml
     - assets/ethereum_server_list.yml

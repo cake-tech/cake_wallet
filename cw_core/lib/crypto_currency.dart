@@ -41,6 +41,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.xlm,
     CryptoCurrency.xrp,
     CryptoCurrency.xhv,
+    CryptoCurrency.wow,
     CryptoCurrency.ape,
     CryptoCurrency.avaxc,
     CryptoCurrency.btt,
@@ -217,7 +218,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const kaspa = CryptoCurrency(title: 'KAS', fullName: 'Kaspa', raw: 89, name: 'kas', iconPath: 'assets/images/kaspa_icon.png', decimals: 8);
   static const digibyte = CryptoCurrency(title: 'DGB', fullName: 'DigiByte', raw: 90, name: 'dgb', iconPath: 'assets/images/digibyte.png', decimals: 8);
   static const usdtSol = CryptoCurrency(title: 'USDT', tag: 'SOL', fullName: 'USDT Tether', raw: 91, name: 'usdtsol', iconPath: 'assets/images/usdt_icon.png', decimals: 6);
-
+  static const wow = CryptoCurrency(title: 'WOW', fullName: 'Wownero', raw: 92, name: 'wow', iconPath: 'assets/images/wownero_icon.png', decimals: 11);
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
     [...all, ...havenCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {

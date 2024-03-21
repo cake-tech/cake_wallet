@@ -61,6 +61,25 @@ PODS:
     - Flutter
   - cw_shared_external/Sodium (0.0.1):
     - Flutter
+  - cw_wownero (0.0.2):
+    - cw_shared_external
+    - cw_wownero/Boost (= 0.0.2)
+    - cw_wownero/OpenSSL (= 0.0.2)
+    - cw_wownero/Sodium (= 0.0.2)
+    - cw_wownero/Wownero (= 0.0.2)
+    - Flutter
+  - cw_wownero/Boost (0.0.2):
+    - cw_shared_external
+    - Flutter
+  - cw_wownero/OpenSSL (0.0.2):
+    - cw_shared_external
+    - Flutter
+  - cw_wownero/Sodium (0.0.2):
+    - cw_shared_external
+    - Flutter
+  - cw_wownero/Wownero (0.0.2):
+    - cw_shared_external
+    - Flutter
   - device_display_brightness (0.0.1):
     - Flutter
   - device_info_plus (0.0.1):
@@ -164,6 +183,7 @@ DEPENDENCIES:
   - cw_haven (from `.symlinks/plugins/cw_haven/ios`)
   - cw_monero (from `.symlinks/plugins/cw_monero/ios`)
   - cw_shared_external (from `.symlinks/plugins/cw_shared_external/ios`)
+  - cw_wownero (from `.symlinks/plugins/cw_wownero/ios`)
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
@@ -214,6 +234,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/cw_monero/ios"
   cw_shared_external:
     :path: ".symlinks/plugins/cw_shared_external/ios"
+  cw_wownero:
+    :path: ".symlinks/plugins/cw_wownero/ios"
   device_display_brightness:
     :path: ".symlinks/plugins/device_display_brightness/ios"
   device_info_plus:
@@ -267,6 +289,7 @@ SPEC CHECKSUMS:
   cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
   cw_monero: 4cf3b96f2da8e95e2ef7d6703dd4d2c509127b7d
   cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
+  cw_wownero: 25174994b62eff7bb5a4aa7e6d1f157699087d8e
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
   devicelocale: b22617f40038496deffba44747101255cee005b0
@@ -277,7 +300,7 @@ SPEC CHECKSUMS:
   flutter_inappwebview_ios: 97215cf7d4677db55df76782dbd2930c5e1c1ea0
   flutter_mailer: 2ef5a67087bc8c6c4cefd04a178bf1ae2c94cd83
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
-  fluttertoast: eb263d302cc92e04176c053d2385237e9f43fad0
+  fluttertoast: 48c57db1b71b0ce9e6bba9f31c940ff4b001293c
   in_app_review: 318597b3a06c22bb46dc454d56828c85f444f99d
   local_auth_ios: 1ba1475238daa33a6ffa2a29242558437be435ac
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
@@ -302,4 +325,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: fcb1b8418441a35b438585c9dd8374e722e6c6ca
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.15.2

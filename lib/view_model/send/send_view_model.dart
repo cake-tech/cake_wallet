@@ -34,6 +34,7 @@ import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 part 'send_view_model.g.dart';
@@ -369,6 +370,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.monero:
         return monero!
             .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
+
+      case WalletType.wownero:
+        return wownero!
+            .createWowneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
 
       case WalletType.haven:
         return haven!.createHavenTransactionCreationCredentials(

@@ -121,6 +121,7 @@ abstract class BalanceViewModelBase with Store {
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
+      case WalletType.wownero:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.nano:
@@ -137,6 +138,7 @@ abstract class BalanceViewModelBase with Store {
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
+      case WalletType.wownero:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.solana:

@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -56,6 +57,22 @@ class HavenURI extends PaymentURI {
   @override
   String toString() {
     var base = 'haven:' + address;
+
+    if (amount.isNotEmpty) {
+      base += '?tx_amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
+class WowneroURI extends PaymentURI {
+  WowneroURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'wownero:' + address;
 
     if (amount.isNotEmpty) {
       base += '?tx_amount=${amount.replaceAll(',', '.')}';
@@ -184,7 +201,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
         hasAccounts =
-            appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven,
+            appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven || appStore.wallet!.type == WalletType.wownero,
         amount = '',
         _settingsStore = appStore.settingsStore,
         super(appStore: appStore) {
@@ -196,7 +213,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     _init();
 
     selectedCurrency = walletTypeToCryptoCurrency(wallet.type);
-    hasAccounts = wallet.type == WalletType.monero || wallet.type == WalletType.haven;
+    hasAccounts = wallet.type == WalletType.monero || wallet.type == WalletType.haven || wallet.type == WalletType.wownero;
   }
 
   static const String _cryptoNumberPattern = '0.00000000';
@@ -249,6 +266,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       return HavenURI(amount: amount, address: address.address);
     }
 
+    if (wallet.type == WalletType.wownero) {
+      return WowneroURI(amount: amount, address: address.address);
+    }
+
     if (wallet.type == WalletType.bitcoin) {
       return BitcoinURI(amount: amount, address: address.address);
     }
@@ -292,6 +313,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (wallet.type == WalletType.monero) {
       final primaryAddress = monero!.getSubaddressList(wallet).subaddresses.first;
       final addressItems = monero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
+        final isPrimary = subaddress == primaryAddress;
+
+        return WalletAddressListItem(
+            id: subaddress.id,
+            isPrimary: isPrimary,
+            name: subaddress.label,
+            address: subaddress.address);
+      });
+      addressList.addAll(addressItems);
+    }
+
+    if (wallet.type == WalletType.wownero) {
+      final primaryAddress = wownero!.getSubaddressList(wallet).subaddresses.first;
+      final addressItems = wownero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
         return WalletAddressListItem(
@@ -377,12 +412,17 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       return haven!.getCurrentAccount(wallet).label;
     }
 
+    if (wallet.type == WalletType.wownero) {
+      return wownero!.getCurrentAccount(wallet).label;
+    }
+
     return '';
   }
 
   @computed
   bool get hasAddressList =>
       wallet.type == WalletType.monero ||
+      wallet.type == WalletType.wownero ||
       wallet.type == WalletType.haven ||
       wallet.type == WalletType.bitcoinCash ||
       wallet.type == WalletType.bitcoin ||
@@ -416,7 +456,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void _init() {
     _baseItems = [];
 
-    if (wallet.type == WalletType.monero || wallet.type == WalletType.haven) {
+    if (wallet.type == WalletType.monero || wallet.type == WalletType.haven || wallet.type == WalletType.wownero) {
       _baseItems.add(WalletAccountListHeader());
     }
 

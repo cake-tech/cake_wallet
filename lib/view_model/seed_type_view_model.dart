@@ -15,5 +15,11 @@ abstract class SeedTypeViewModelBase with Store {
   @action
   void setMoneroSeedType(SeedType seedType) => _appStore.settingsStore.moneroSeedType = seedType;
 
+  @computed
+  SeedType get wowneroSeedType => _appStore.settingsStore.wowneroSeedType;
+
+  @action
+  void setWowneroSeedType(SeedType seedType) => _appStore.settingsStore.wowneroSeedType = seedType;
+
   final AppStore _appStore;
 }
