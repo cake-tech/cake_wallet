@@ -63,8 +63,8 @@ class WalletLoadingService {
 
     final status = torViewModel.torConnectionStatus;
     if (status == TorConnectionStatus.connected || status == TorConnectionStatus.connecting) {
-      // connect the node to the tor proxy:
-      await torViewModel.connectOrDisconnectNodeToProxy(connect: true);
+      // disconnect from node until tor is started:
+      await torViewModel.disconnectFromNode();
     }
 
     return wallet;
