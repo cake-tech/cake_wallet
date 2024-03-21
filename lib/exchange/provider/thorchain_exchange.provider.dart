@@ -82,7 +82,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
       final expectedAmountOut = responseJSON['expected_amount_out'] as String? ?? '0.0';
 
-      return _thorChainAmountToDouble(expectedAmountOut);
+      return _thorChainAmountToDouble(expectedAmountOut) / amount;
     } catch (e) {
       print(e.toString());
       return 0.0;
