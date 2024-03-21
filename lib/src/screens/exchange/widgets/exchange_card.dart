@@ -272,9 +272,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                                   color: Theme.of(context)
                                       .extension<ExchangePageTheme>()!
                                       .hintTextColor),
-                              validator: widget.hasAllAmount
-                                  ? widget.allAmountValidator
-                                  : _isAmountEditable
+                              validator: _isAmountEditable
                                       ? widget.currencyValueValidator
                                       : null),
                         ),

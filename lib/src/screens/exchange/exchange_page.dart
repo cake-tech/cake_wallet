@@ -634,7 +634,7 @@ class ExchangePage extends BasePage {
               borderColor:
                   Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderTopPanelColor,
               currencyValueValidator: (value) {
-                return !exchangeViewModel.isFixedRateMode
+                return !exchangeViewModel.isFixedRateMode && value != S.of(context).all
                     ? AmountValidator(
                         isAutovalidate: true,
                         currency: exchangeViewModel.depositCurrency,
