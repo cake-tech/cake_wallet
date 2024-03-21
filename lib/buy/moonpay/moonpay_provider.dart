@@ -74,7 +74,7 @@ class MoonPaySellProvider extends BuyProvider {
       case WalletType.bitcoinCash:
         return wallet.signMessage(message, address: wallet.walletAddresses.address);
       default:
-        throw Exception("WalletType is not available for Robinhood ${wallet.type}");
+        throw Exception("WalletType is not available for Moonpay ${wallet.type}");
     }
   }
 
