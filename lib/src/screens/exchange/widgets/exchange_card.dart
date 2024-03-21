@@ -166,7 +166,7 @@ class ExchangeCardState extends State<ExchangeCard> {
   Widget build(BuildContext context) {
     if (widget.isAllAmountEnabled) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() => amountController.text = S.of(context).all);
+        amountController.text = S.of(context).all;
       });
     }
 
@@ -419,8 +419,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                                                     arguments: widget.initialCurrency,
                                                   );
 
-                                                  if (contact is ContactBase &&
-                                                      contact.address != null) {
+                                                  if (contact is ContactBase) {
                                                     setState(() =>
                                                         addressController.text = contact.address);
                                                     widget.onPushAddressBookButton?.call(context);

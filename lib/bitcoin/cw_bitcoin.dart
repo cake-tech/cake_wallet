@@ -227,15 +227,4 @@ class CWBitcoin extends Bitcoin {
         return SegwitAddresType.p2wpkh;
     }
   }
-
-  @override
-  String getBitcoinAddressesRegex() {
-    return '^${P2pkhAddress.regex.pattern}\$|^${P2shAddress.regex.pattern}\$|^${P2wpkhAddress.regex.pattern}\$|${P2trAddress.regex.pattern}\$|^${P2wshAddress.regex.pattern}\$';
-  }
-
-  @override
-  bool validateBitcoinAddress(String address,
-      {BasedUtxoNetwork? network = BitcoinNetwork.mainnet}) {
-    return validateAddress(address: address, network: network!);
-  }
 }

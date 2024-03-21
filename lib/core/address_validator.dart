@@ -1,4 +1,4 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -10,7 +10,7 @@ class AddressValidator extends TextValidator {
       : super(
             errorMessage: S.current.error_text_address,
             useAdditionalValidation: type == CryptoCurrency.btc
-                ? (String txt) => bitcoin!.validateBitcoinAddress(txt)
+                ? (String txt) => validateAddress(address: txt, network: BitcoinNetwork.mainnet)
                 : null,
             pattern: getPattern(type),
             length: getLength(type));
@@ -26,7 +26,7 @@ class AddressValidator extends TextValidator {
         return '^[0-9a-zA-Z]{59}\$|^[0-9a-zA-Z]{92}\$|^[0-9a-zA-Z]{104}\$'
             '|^[0-9a-zA-Z]{105}\$|^addr1[0-9a-zA-Z]{98}\$';
       case CryptoCurrency.btc:
-        return bitcoin!.getBitcoinAddressesRegex();
+        return '^${P2pkhAddress.regex.pattern}\$|^${P2shAddress.regex.pattern}\$|^${P2wpkhAddress.regex.pattern}\$|${P2trAddress.regex.pattern}\$|^${P2wshAddress.regex.pattern}\$';
       case CryptoCurrency.nano:
         return '[0-9a-zA-Z_]';
       case CryptoCurrency.banano:

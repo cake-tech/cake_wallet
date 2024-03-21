@@ -147,8 +147,6 @@ abstract class Bitcoin {
   ReceivePageOption getSelectedAddressType(Object wallet);
   List<ReceivePageOption> getBitcoinReceivePageOptions();
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
-  String getBitcoinAddressesRegex();
-  bool validateBitcoinAddress(String address, {BasedUtxoNetwork? network = BitcoinNetwork.mainnet});
 }
   """;
 

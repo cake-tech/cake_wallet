@@ -267,17 +267,10 @@ abstract class ElectrumWalletBase
 
     final lastOutput = outputs.last;
     if (!sendAll) {
-      final changeMinusFee = changeValue - fee;
-      if (changeMinusFee > 0) {
-        if (changeMinusFee > 546 && network is BitcoinNetwork) {
-          // Here, lastOutput is change, deduct the fee from it
-          outputs[outputs.length - 1] = BitcoinOutput(
-              address: lastOutput.address, value: lastOutput.value - BigInt.from(fee));
-        } else {
-          // If lower, will end up with unspendable dust change
-          outputs.removeLast();
-          fee += changeMinusFee;
-        }
+      if (changeValue > fee) {
+        // Here, lastOutput is change, deduct the fee from it
+        outputs[outputs.length - 1] =
+            BitcoinOutput(address: lastOutput.address, value: lastOutput.value - BigInt.from(fee));
       }
     } else {
       // Here, if sendAll, the output amount equals to the input value - fee to fully spend every input on the transaction and have no amount for change
