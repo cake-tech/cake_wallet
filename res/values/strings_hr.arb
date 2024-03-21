@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "Ovdje će se pojaviti aktivne veze",
   "add": "Dodaj",
   "add_contact": "Dodaj kontakt",
+  "add_contact_to_address_book": "Želite li dodati ovaj kontakt u svoj adresar?",
   "add_custom_node": "Dodaj novi prilagođeni čvor",
   "add_custom_redemption": "Dodaj prilagođeni otkup",
   "add_fund_to_card": "Dodajte unaprijed uplaćena sredstva na kartice (do ${value})",

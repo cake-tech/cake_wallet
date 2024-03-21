@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "Les connexions actives apparaîtront ici",
   "add": "Ajouter",
   "add_contact": "Ajouter le contact",
+  "add_contact_to_address_book": "Souhaitez-vous ajouter ce contact à votre carnet d'adresses?",
   "add_custom_node": "Ajouter un nouveau nœud personnalisé",
   "add_custom_redemption": "Ajouter un remboursement personnalisé",
   "add_fund_to_card": "Ajouter des fonds prépayés aux cartes (jusqu'à ${value})",
