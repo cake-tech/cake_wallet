@@ -5,6 +5,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -23,6 +24,7 @@ class Root extends StatefulWidget {
     required this.child,
     required this.navigatorKey,
     required this.authService,
+    required this.linkViewModel,
   }) : super(key: key);
 
   final AuthenticationStore authenticationStore;
@@ -30,6 +32,7 @@ class Root extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
   final AuthService authService;
   final Widget child;
+  final LinkViewModel linkViewModel;
 
   @override
   RootState createState() => RootState();
@@ -91,8 +94,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   void handleDeepLinking(Uri? uri) {
     if (uri == null || !mounted) return;
-
-    launchUri = uri;
+    widget.linkViewModel.currentLink = uri;
   }
 
   @override
@@ -122,6 +124,10 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    print("$_postFrameCallback $_isInactive $_requestAuth");
+
+    // this only happens when the app has been in the background for some time
+    // this does NOT trigger when the app is started from the "closed" state!
     if (_isInactive && !_postFrameCallback && _requestAuth) {
       _postFrameCallback = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -146,8 +152,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
                     }
                     _reset();
                     totpAuth.close(
-                      route: _getRouteToGo(),
-                      arguments: _getRouteArgs(),
+                      route: widget.linkViewModel.getRouteToGo(),
+                      arguments: widget.linkViewModel.getRouteArgs(),
                     );
                     launchUri = null;
                   },
@@ -158,8 +164,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
             } else {
               _reset();
               auth.close(
-                route: _getRouteToGo(),
-                arguments: _getRouteArgs(),
+                route: widget.linkViewModel.getRouteToGo(),
+                arguments: widget.linkViewModel.getRouteArgs(),
               );
               launchUri = null;
             }
@@ -168,15 +174,15 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       });
     }
 
-    String? route = _getRouteToGo();
-    if (route != null) {
+    String? route = widget.linkViewModel.getRouteToGo();
+    if (route != null && !_requestAuth) {
       widget.navigatorKey.currentState?.pushNamed(
         route,
-        arguments: _getRouteArgs(),
+        arguments: widget.linkViewModel.getRouteArgs(),
       );
+      launchUri = null;
     }
 
-    launchUri = null;
     return WillPopScope(
       onWillPop: () async => false,
       child: widget.child,
@@ -193,72 +199,5 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   void _setInactive(bool value) {
     _isInactive = value;
     _isInactiveController.add(value);
-  }
-
-  bool _isValidPaymentUri() => launchUri?.path.isNotEmpty ?? false;
-
-  bool get isWalletConnectLink => launchUri?.authority == 'wc';
-
-  bool get isNanoGptLink => launchUri?.scheme == 'nano-gpt';
-
-  String? _getRouteToGo() {
-    if (isWalletConnectLink) {
-      if (!isEVMCompatibleChain(widget.appStore.wallet!.type)) {
-        _nonETHWalletErrorToast(S.current.switchToEVMCompatibleWallet);
-        return null;
-      }
-      return Routes.walletConnectConnectionsListing;
-    }
-
-    if (isNanoGptLink) {
-      switch (launchUri?.authority ?? '') {
-        case "exchange":
-          return Routes.exchange;
-        case "send":
-          return Routes.send;
-        case "buy":
-          return Routes.buySellPage;
-      }
-    }
-
-    if (_isValidPaymentUri()) {
-      return Routes.send;
-    }
-
-    return null;
-  }
-
-  dynamic _getRouteArgs() {
-    if (isWalletConnectLink) {
-      return launchUri;
-    }
-
-    if (isNanoGptLink) {
-      switch (launchUri?.authority ?? '') {
-        case "exchange":
-        case "send":
-          return PaymentRequest.fromUri(launchUri);
-        case "buy":
-          return true;
-      }
-      
-    }
-
-    if (_isValidPaymentUri()) {
-      return PaymentRequest.fromUri(launchUri);
-    }
-
-    return null;
-  }
-
-  Future<void> _nonETHWalletErrorToast(String message) async {
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.SNACKBAR,
-      backgroundColor: Colors.black,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
   }
 }

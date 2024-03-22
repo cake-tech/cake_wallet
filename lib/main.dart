@@ -7,6 +7,7 @@ import 'package:cake_wallet/locales/locale.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/hive_type_ids.dart';
@@ -275,6 +276,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
     return Observer(builder: (BuildContext context) {
       final appStore = getIt.get<AppStore>();
       final authService = getIt.get<AuthService>();
+      final linkViewModel = getIt.get<LinkViewModel>();
       final settingsStore = appStore.settingsStore;
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
@@ -297,6 +299,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
           authService: authService,
+          linkViewModel: ,
           child: MaterialApp(
             navigatorObservers: [routeObserver],
             navigatorKey: navigatorKey,

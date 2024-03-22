@@ -33,6 +33,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SendPage extends BasePage {
   SendPage({
@@ -429,10 +430,10 @@ class SendPage extends BasePage {
                       outputs: sendViewModel.outputs,
                       rightButtonText: S.of(_dialogContext).send,
                       leftButtonText: S.of(_dialogContext).cancel,
-                      actionRightButton: () {
+                      actionRightButton: () async {
                         Navigator.of(_dialogContext).pop();
                         sendViewModel.commitTransaction();
-                        showPopUp<void>(
+                        await showPopUp<void>(
                             context: context,
                             builder: (BuildContext _dialogContext) {
                               return Observer(builder: (_) {
@@ -451,6 +452,11 @@ class SendPage extends BasePage {
                                     alertContent = S.of(_dialogContext).send_success(
                                         sendViewModel.selectedCryptoCurrency.toString());
                                   }
+
+                                  if (initialPaymentRequest?.callbackMessage?.isNotEmpty ?? false) {
+                                    alertContent = initialPaymentRequest!.callbackMessage!;
+                                  }
+
                                   return AlertWithOneAction(
                                       alertTitle: '',
                                       alertContent: alertContent,
@@ -464,6 +470,16 @@ class SendPage extends BasePage {
                                 return Offstage();
                               });
                             });
+                        if (state is TransactionCommitted) {
+                          if (initialPaymentRequest?.callbackUrl?.isNotEmpty ?? false) {
+                            // wait a second so it's not as jarring:
+                            await Future.delayed(Duration(seconds: 1));
+                            launchUrl(
+                              Uri.parse(initialPaymentRequest!.callbackUrl!),
+                              mode: LaunchMode.externalApplication,
+                            );
+                          }
+                        }
                       },
                       actionLeftButton: () => Navigator.of(_dialogContext).pop());
                 });

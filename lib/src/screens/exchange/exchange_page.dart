@@ -532,9 +532,6 @@ class ExchangePage extends BasePage {
       exchangeViewModel.receiveCurrency = CryptoCurrency.fromString(initialPaymentRequest!.scheme);
       exchangeViewModel.depositAmount = initialPaymentRequest!.amount;
       exchangeViewModel.receiveAddress = initialPaymentRequest!.address;
-      // if (initialPaymentRequest?.callback?.isNotEmpty ?? false) {
-      //   exchangeViewModel.callbackUrl = initialPaymentRequest!.callback!;
-      // }
     }
 
     _isReactionsSet = true;
