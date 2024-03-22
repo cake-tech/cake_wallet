@@ -25,13 +25,3 @@ class BitcoinTransactionCommitFailedDustOutputSendAll
     extends TransactionCommitFailedDustOutputSendAll {}
 
 class BitcoinTransactionCommitFailedVoutNegative extends TransactionCommitFailedVoutNegative {}
-
-// class BitcoinTransactionAllBalanceException extends Exception {
-//   BitcoinTransactionWrongBalanceException(this.currency);
-
-//   final CryptoCurrency currency;
-
-//   @override
-//   String toString() => 'You do not have enough ${currency.title} to send this amount.';
-// }
-

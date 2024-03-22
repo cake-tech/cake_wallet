@@ -465,7 +465,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return errorMessage;
     }
 
-    print(["type", error.runtimeType]);
     if (walletType == WalletType.bitcoin ||
         walletType == WalletType.litecoin ||
         walletType == WalletType.bitcoinCash) {
