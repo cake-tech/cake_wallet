@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "Awọn asopọ ti nṣiṣe lọwọ yoo han nibi",
   "add": "Fikún",
   "add_contact": "Fi olubasọrọ kun",
+  "add_contact_to_address_book": "Ṣe o fẹ lati ṣafikun olubasọrọ yii si iwe adirẹsi rẹ?",
   "add_custom_node": "Fikún apẹka títun t'ẹ́ pààrọ̀",
   "add_custom_redemption": "Tẹ̀ iye owó t'ẹ́ fẹ́ ná",
   "add_fund_to_card": "Ẹ fikún owó sí àwọn káàdì (kò tóbi ju ${value})",

@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "Active connections will appear here",
   "add": "Add",
   "add_contact": "Add contact",
+  "add_contact_to_address_book": "Would you like to add this contact to your address book?",
   "add_custom_node": "Add New Custom Node",
   "add_custom_redemption": "Add Custom Redemption",
   "add_fund_to_card": "Add prepaid funds to the cards (up to ${value})",

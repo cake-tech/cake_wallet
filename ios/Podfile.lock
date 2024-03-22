@@ -277,7 +277,7 @@ SPEC CHECKSUMS:
   flutter_inappwebview_ios: 97215cf7d4677db55df76782dbd2930c5e1c1ea0
   flutter_mailer: 2ef5a67087bc8c6c4cefd04a178bf1ae2c94cd83
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
-  fluttertoast: eb263d302cc92e04176c053d2385237e9f43fad0
+  fluttertoast: 48c57db1b71b0ce9e6bba9f31c940ff4b001293c
   in_app_review: 318597b3a06c22bb46dc454d56828c85f444f99d
   local_auth_ios: 1ba1475238daa33a6ffa2a29242558437be435ac
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
@@ -302,4 +302,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: fcb1b8418441a35b438585c9dd8374e722e6c6ca
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.15.2

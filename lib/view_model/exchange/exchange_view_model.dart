@@ -61,6 +61,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     this.sharedPreferences,
     this.contactListViewModel,
   )   : _cryptoNumberFormat = NumberFormat(),
+        isSendAllEnabled = false,
         isFixedRateMode = false,
         isReceiveAmountEntered = false,
         depositAmount = '',
@@ -205,6 +206,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @observable
   bool isFixedRateMode;
+
+  @observable
+  bool isSendAllEnabled;
 
   @observable
   Limits limits;
@@ -531,10 +535,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   @action
-  void calculateDepositAllAmount() {
-    if (wallet.type == WalletType.bitcoin ||
-        wallet.type == WalletType.litecoin ||
-        wallet.type == WalletType.bitcoinCash) {
+  void enableSendAllAmount() {
+    isSendAllEnabled = true;
+    calculateDepositAllAmount();
+  }
+
+  @action
+  Future<void> calculateDepositAllAmount() async {
+    if (wallet.type == WalletType.litecoin || wallet.type == WalletType.bitcoinCash) {
       final availableBalance = wallet.balance[wallet.currency]!.available;
       final priority = _settingsStore.priority[wallet.type]!;
       final fee = wallet.calculateEstimatedFee(priority, null);
@@ -542,6 +550,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       if (availableBalance < fee || availableBalance == 0) return;
 
       final amount = availableBalance - fee;
+      changeDepositAmount(amount: bitcoin!.formatterBitcoinAmountToString(amount: amount));
+    } else if (wallet.type == WalletType.bitcoin) {
+      final priority = _settingsStore.priority[wallet.type]!;
+
+      final amount = await bitcoin!.estimateFakeSendAllTxAmount(
+          wallet, bitcoin!.deserializeBitcoinTransactionPriority(priority.raw));
+
       changeDepositAmount(amount: bitcoin!.formatterBitcoinAmountToString(amount: amount));
     }
   }
