@@ -34,7 +34,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Uint8List seedBytes,
-    String? addressPageType,
+    BitcoinAddressType? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
     Map<String, int>? initialRegularAddressIndex,
@@ -58,6 +58,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       mainHd: hd,
       sideHd: bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'/1"),
       network: network,
+      initialAddressPageType: addressPageType,
     );
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
@@ -84,7 +85,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       seedBytes: await Mnemonic.toSeed(mnemonic),
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
-      addressPageType: addressPageType,
+      addressPageType: P2pkhAddressType.p2pkh,
     );
   }
 
@@ -101,12 +102,31 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
-      initialAddresses: snp.addresses,
+      initialAddresses: snp.addresses.map((addr) {
+        try {
+          BitcoinCashAddress(addr.address);
+          return BitcoinAddressRecord(
+            addr.address,
+            index: addr.index,
+            isHidden: addr.isHidden,
+            type: P2pkhAddressType.p2pkh,
+            network: BitcoinCashNetwork.mainnet,
+          );
+        } catch (_) {
+          return BitcoinAddressRecord(
+            AddressUtils.getCashAddrFormat(addr.address),
+            index: addr.index,
+            isHidden: addr.isHidden,
+            type: P2pkhAddressType.p2pkh,
+            network: BitcoinCashNetwork.mainnet,
+          );
+        }
+      }).toList(),
       initialBalance: snp.balance,
       seedBytes: await Mnemonic.toSeed(snp.mnemonic),
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
-      addressPageType: snp.addressPageType,
+      addressPageType: P2pkhAddressType.p2pkh,
     );
   }
 

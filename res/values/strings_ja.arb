@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "アクティブな接続がここに表示されます",
   "add": "加える",
   "add_contact": "連絡先を追加",
+  "add_contact_to_address_book": "この連絡先をアドレス帳に追加しますか？",
   "add_custom_node": "新しいカスタム ノードを追加",
   "add_custom_redemption": "カスタム引き換えを追加",
   "add_fund_to_card": "プリペイド資金をカードに追加します（最大 ${value}）",

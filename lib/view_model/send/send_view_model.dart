@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -428,6 +429,34 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
+  ContactRecord? newContactAddress () {
+
+    final Set<String> contactAddresses =
+    Set.from(contactListViewModel.contacts.map((contact) => contact.address))
+      ..addAll(contactListViewModel.walletContacts.map((contact) => contact.address));
+
+    for (var output in outputs) {
+      String address;
+      if (output.isParsedAddress) {
+        address = output.parsedAddress.addresses.first;
+      } else {
+        address = output.address;
+      }
+
+      if (address.isNotEmpty && !contactAddresses.contains(address)) {
+
+        return ContactRecord(
+            contactListViewModel.contactSource,
+            Contact(
+              name: '',
+              address: address,
+              type: selectedCryptoCurrency,
+            ));
+      }
+    }
+    return null;
+  }
+
   String translateErrorMessage(
     String error,
     WalletType walletType,
@@ -435,9 +464,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   ) {
     if (walletType == WalletType.ethereum ||
         walletType == WalletType.polygon ||
+        walletType == WalletType.solana ||
         walletType == WalletType.haven) {
       if (error.contains('gas required exceeds allowance') ||
-          error.contains('insufficient funds for')) {
+          error.contains('insufficient funds')) {
         return S.current.do_not_have_enough_gas_asset(currency.toString());
       }
 

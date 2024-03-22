@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "Тук ще се появят активни връзки",
   "add": "Добави",
   "add_contact": "Добави контакт",
+  "add_contact_to_address_book": "Искате ли да добавите този контакт към вашата адресна книга?",
   "add_custom_node": "Добавяне на нов персонализиран Node",
   "add_custom_redemption": "Добавете персонализиран Redemption",
   "add_fund_to_card": "Добавете предплатени средства в картите (до ${value})",
