@@ -175,9 +175,11 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       });
     }
 
-    // if (!_requestAuth) {
-    //   widget.linkViewModel.handleLink();
-    // }
+    
+    // handle the link if the app is already started:
+    if (!_requestAuth) {
+      widget.linkViewModel.handleLink();
+    }
 
     return WillPopScope(
       onWillPop: () async => false,
