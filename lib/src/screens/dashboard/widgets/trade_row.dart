@@ -34,7 +34,9 @@ class TradeRow extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _getPoweredImage(provider)!,
+              ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: Image.asset(provider.image, width: 36, height: 36)),
               SizedBox(width: 12),
               Expanded(
                   child: Column(
@@ -68,39 +70,5 @@ class TradeRow extends StatelessWidget {
             ],
           ),
         ));
-  }
-
-  Widget? _getPoweredImage(ExchangeProviderDescription provider) {
-    Widget? image;
-
-    switch (provider) {
-      case ExchangeProviderDescription.xmrto:
-        image = Image.asset('assets/images/xmrto.png', height: 36, width: 36);
-        break;
-      case ExchangeProviderDescription.changeNow:
-        image = Image.asset('assets/images/changenow.png', height: 36, width: 36);
-        break;
-      case ExchangeProviderDescription.morphToken:
-        image = Image.asset('assets/images/morph.png', height: 36, width: 36);
-        break;
-      case ExchangeProviderDescription.sideShift:
-        image = Image.asset('assets/images/sideshift.png', width: 36, height: 36);
-        break;
-      case ExchangeProviderDescription.simpleSwap:
-        image = Image.asset('assets/images/simpleSwap.png', width: 36, height: 36);
-        break;
-      case ExchangeProviderDescription.trocador:
-        image = ClipRRect(
-            borderRadius: BorderRadius.circular(50),
-            child: Image.asset('assets/images/trocador.png', width: 36, height: 36));
-        break;
-      case ExchangeProviderDescription.exolix:
-        image = Image.asset('assets/images/exolix.png', width: 36, height: 36);
-        break;
-      default:
-        image = null;
-    }
-
-    return image;
   }
 }

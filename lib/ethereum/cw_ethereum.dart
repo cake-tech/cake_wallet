@@ -76,7 +76,8 @@ class CWEthereum extends Ethereum {
                 sendAll: out.sendAll,
                 extractedAddress: out.extractedAddress,
                 isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount))
+                formattedCryptoAmount: out.formattedCryptoAmount,
+                memo: out.memo))
             .toList(),
         priority: priority as EVMChainTransactionPriority,
         currency: currency,
