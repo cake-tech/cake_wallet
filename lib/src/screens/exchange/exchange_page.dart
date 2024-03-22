@@ -386,7 +386,7 @@ class ExchangePage extends BasePage {
         (CryptoCurrency currency) => _onCurrencyChange(currency, exchangeViewModel, depositKey));
 
     reaction((_) => exchangeViewModel.depositAmount, (String amount) {
-      if (depositKey.currentState!.amountController.text != amount) {
+      if (depositKey.currentState!.amountController.text != amount && amount != S.of(context).all) {
         depositKey.currentState!.amountController.text = amount;
       }
     });
@@ -469,7 +469,9 @@ class ExchangePage extends BasePage {
         .addListener(() => exchangeViewModel.depositAddress = depositAddressController.text);
 
     depositAmountController.addListener(() {
-      if (depositAmountController.text != exchangeViewModel.depositAmount) {
+      if (depositAmountController.text != exchangeViewModel.depositAmount &&
+          depositAmountController.text != S.of(context).all) {
+        exchangeViewModel.isSendAllEnabled = false;
         _depositAmountDebounce.run(() {
           exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
           exchangeViewModel.isReceiveAmountEntered = false;
@@ -597,8 +599,9 @@ class ExchangePage extends BasePage {
               onDispose: disposeBestRateSync,
               hasAllAmount: exchangeViewModel.hasAllAmount,
               allAmount: exchangeViewModel.hasAllAmount
-                  ? () => exchangeViewModel.calculateDepositAllAmount()
+                  ? () => exchangeViewModel.enableSendAllAmount()
                   : null,
+              isAllAmountEnabled: exchangeViewModel.isSendAllEnabled,
               amountFocusNode: _depositAmountFocus,
               addressFocusNode: _depositAddressFocus,
               key: depositKey,
@@ -639,7 +642,7 @@ class ExchangePage extends BasePage {
               borderColor:
                   Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderTopPanelColor,
               currencyValueValidator: (value) {
-                return !exchangeViewModel.isFixedRateMode
+                return !exchangeViewModel.isFixedRateMode && value != S.of(context).all
                     ? AmountValidator(
                         isAutovalidate: true,
                         currency: exchangeViewModel.depositCurrency,

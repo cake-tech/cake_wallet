@@ -6,6 +6,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -13,6 +14,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mobx/mobx.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 
@@ -52,6 +54,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   bool _requestAuth;
 
   StreamSubscription<Uri?>? stream;
+  ReactionDisposer? _walletReactionDisposer;
   Uri? launchUri;
 
   @override
@@ -75,6 +78,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   @override
   void dispose() {
     stream?.cancel();
+    _walletReactionDisposer?.call();
     super.dispose();
   }
 

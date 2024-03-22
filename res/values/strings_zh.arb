@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "活动连接将出现在这里",
   "add": "添加",
   "add_contact": "增加联系人",
+  "add_contact_to_address_book": "您想将此联系人添加到您的通讯录中吗？",
   "add_custom_node": "添加新的自定义节点",
   "add_custom_redemption": "添加自定义兑换",
   "add_fund_to_card": "向卡中添加预付资金（最多 ${value}）",
