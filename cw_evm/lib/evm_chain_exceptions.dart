@@ -15,7 +15,7 @@ class EVMChainTransactionFeesException implements Exception {
   final String exceptionMessage;
 
   EVMChainTransactionFeesException()
-      : exceptionMessage = 'Current balance is less than the estimated fees.';
+      : exceptionMessage = 'Current balance is less than the estimated fees for this transaction.';
 
   @override
   String toString() => exceptionMessage;
