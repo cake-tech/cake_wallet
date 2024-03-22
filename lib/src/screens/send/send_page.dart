@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -48,6 +49,7 @@ class SendPage extends BasePage {
   final PaymentRequest? initialPaymentRequest;
 
   bool _effectsInstalled = false;
+  ContactRecord? newContactAddress;
 
   @override
   String get title => S.current.send;
@@ -443,22 +445,50 @@ class SendPage extends BasePage {
                                 }
 
                                 if (state is TransactionCommitted) {
-                                  String alertContent;
-                                  if (sendViewModel.walletType == WalletType.solana) {
-                                    alertContent =
-                                        '${S.of(_dialogContext).send_success(sendViewModel.selectedCryptoCurrency.toString())}. ${S.of(_dialogContext).waitFewSecondForTxUpdate}';
+                                  newContactAddress =
+                                      newContactAddress ?? sendViewModel.newContactAddress();
+
+                                  final successMessage = S.of(_dialogContext).send_success(
+                                      sendViewModel.selectedCryptoCurrency.toString());
+
+                                  final waitMessage = sendViewModel.walletType == WalletType.solana
+                                      ? '. ${S.of(_dialogContext).waitFewSecondForTxUpdate}' : '';
+
+                                  final newContactMessage = newContactAddress != null
+                                      ? '\n${S.of(context).add_contact_to_address_book}' : '';
+
+                                  final alertContent =
+                                      "$successMessage$waitMessage$newContactMessage";
+
+                                  if (newContactAddress != null) {
+                                    return AlertWithTwoActions(
+                                        alertTitle: '',
+                                        alertContent: alertContent,
+                                        rightButtonText: S.of(_dialogContext).add_contact,
+                                        leftButtonText: S.of(_dialogContext).ignor,
+                                        actionRightButton: () {
+                                          Navigator.of(_dialogContext).pop();
+                                          RequestReviewHandler.requestReview();
+                                          Navigator.of(context).pushNamed(
+                                              Routes.addressBookAddContact,
+                                              arguments: newContactAddress);
+                                          newContactAddress = null;
+                                        },
+                                        actionLeftButton: () {
+                                          Navigator.of(_dialogContext).pop();
+                                          RequestReviewHandler.requestReview();
+                                          newContactAddress = null;
+                                        });
                                   } else {
-                                    alertContent = S.of(_dialogContext).send_success(
-                                        sendViewModel.selectedCryptoCurrency.toString());
+                                    return AlertWithOneAction(
+                                        alertTitle: '',
+                                        alertContent: alertContent,
+                                        buttonText: S.of(_dialogContext).ok,
+                                        buttonAction: () {
+                                          Navigator.of(_dialogContext).pop();
+                                          RequestReviewHandler.requestReview();
+                                        });
                                   }
-                                  return AlertWithOneAction(
-                                      alertTitle: '',
-                                      alertContent: alertContent,
-                                      buttonText: S.of(_dialogContext).ok,
-                                      buttonAction: () {
-                                        Navigator.of(_dialogContext).pop();
-                                        RequestReviewHandler.requestReview();
-                                      });
                                 }
 
                                 return Offstage();

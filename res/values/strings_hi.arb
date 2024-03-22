@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "सक्रिय कनेक्शन यहां दिखाई देंगे",
   "add": "जोड़ना",
   "add_contact": "संपर्क जोड़ें",
+  "add_contact_to_address_book": "क्या आप इस संपर्क को अपनी एड्रेस बुक में जोड़ना चाहेंगे?",
   "add_custom_node": "नया कस्टम नोड जोड़ें",
   "add_custom_redemption": "कस्टम रिडेम्पशन जोड़ें",
   "add_fund_to_card": "कार्ड में प्रीपेड धनराशि जोड़ें (${value} तक)",
