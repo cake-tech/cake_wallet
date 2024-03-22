@@ -632,6 +632,7 @@
   "switchToEVMCompatibleWallet": "请切换到 EVM 兼容钱包并重试（以太坊、Polygon）",
   "symbol": "象征",
   "sync_all_wallets": "同步所有钱包",
+  "sync_enabled_warning": "请注意，背景同步仍然是实验性的",
   "sync_status_attempting_sync": "嘗試同步",
   "sync_status_connected": "已连接",
   "sync_status_connecting": "连接中",

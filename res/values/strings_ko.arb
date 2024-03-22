@@ -633,6 +633,7 @@
   "switchToEVMCompatibleWallet": "EVM 호환 지갑으로 전환 후 다시 시도해 주세요. (이더리움, 폴리곤)",
   "symbol": "상징",
   "sync_all_wallets": "모든 지갑 동기화",
+  "sync_enabled_warning": "배경 동기화는 여전히 실험적입니다",
   "sync_status_attempting_sync": "동기화 시도 중",
   "sync_status_connected": "연결됨",
   "sync_status_connecting": "연결 중",

@@ -633,6 +633,7 @@
   "switchToEVMCompatibleWallet": "EVM 互換のウォレットに切り替えて再試行してください (イーサリアム、ポリゴン)",
   "symbol": "シンボル",
   "sync_all_wallets": "すべてのウォレットを同期",
+  "sync_enabled_warning": "バックグラウンドの同期はまだ実験的であることに注意してください",
   "sync_status_attempting_sync": "同期を試みています",
   "sync_status_connected": "接続済み",
   "sync_status_connecting": "接続中",

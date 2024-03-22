@@ -632,6 +632,7 @@
   "switchToEVMCompatibleWallet": "โปรดเปลี่ยนไปใช้กระเป๋าเงินที่รองรับ EVM แล้วลองอีกครั้ง (Ethereum, Polygon)",
   "symbol": "เครื่องหมาย",
   "sync_all_wallets": "ซิงค์กระเป๋าเงินทั้งหมด",
+  "sync_enabled_warning": "โปรดทราบว่าการซิงค์พื้นหลังยังคงทดลอง",
   "sync_status_attempting_sync": "พยายามซิงโครไนซ์",
   "sync_status_connected": "เชื่อมต่อแล้ว",
   "sync_status_connecting": "กำลังเชื่อมต่อ",

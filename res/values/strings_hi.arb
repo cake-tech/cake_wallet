@@ -634,6 +634,7 @@
   "switchToEVMCompatibleWallet": "कृपया ईवीएम संगत वॉलेट पर स्विच करें और पुनः प्रयास करें (एथेरियम, पॉलीगॉन)",
   "symbol": "प्रतीक",
   "sync_all_wallets": "सभी वॉलेट सिंक करें",
+  "sync_enabled_warning": "कृपया ध्यान दें कि पृष्ठभूमि सिंक अभी भी प्रयोगात्मक है",
   "sync_status_attempting_sync": "सिंक करने का प्रयास",
   "sync_status_connected": "जुड़े हुए",
   "sync_status_connecting": "कनेक्ट",

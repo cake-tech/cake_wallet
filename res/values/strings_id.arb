@@ -635,6 +635,7 @@
   "switchToEVMCompatibleWallet": "Silakan beralih ke dompet yang kompatibel dengan EVM dan coba lagi (Ethereum, Polygon)",
   "symbol": "Simbol",
   "sync_all_wallets": "Sinkronkan semua dompet",
+  "sync_enabled_warning": "Harap dicatat bahwa sinkronisasi latar belakang masih eksperimental",
   "sync_status_attempting_sync": "MENCOBA SINKRONISASI",
   "sync_status_connected": "TERHUBUNG",
   "sync_status_connecting": "MENGHUBUNGKAN",

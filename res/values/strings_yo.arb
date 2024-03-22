@@ -633,6 +633,7 @@
   "switchToEVMCompatibleWallet": "Jọwọ yipada si apamọwọ ibaramu EVM ki o tun gbiyanju lẹẹkansi (Ethereum, Polygon)",
   "symbol": "Aami",
   "sync_all_wallets": "Muṣiṣẹpọ gbogbo awọn Woleti",
+  "sync_enabled_warning": "Jọwọ ṣe akiyesi pe amuṣiṣẹpọ isale tun jẹ esiperimenta",
   "sync_status_attempting_sync": "Ń GBÌYÀNJÚ MÚDỌ́GBA",
   "sync_status_connected": "TI DÁRAPỌ̀ MỌ́",
   "sync_status_connecting": "Ń DÁRAPỌ̀ MỌ́",

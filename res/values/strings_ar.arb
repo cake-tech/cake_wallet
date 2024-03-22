@@ -632,6 +632,7 @@
   "switchToEVMCompatibleWallet": "  (Ethereum، Polygon) ﻯﺮﺧﺃ ﺓﺮﻣ ﺔﻟﻭﺎﺤﻤﻟﺍﻭ EVM ﻊﻣ ﺔﻘﻓﺍﻮﺘﻣ ﺔﻈﻔﺤﻣ ﻰﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻰﺟﺮﻳ",
   "symbol": "ﺰﻣﺭ",
   "sync_all_wallets": "مزامنة جميع المحافظ",
+  "sync_enabled_warning": "يرجى ملاحظة أن مزامنة الخلفية لا تزال تجريبية",
   "sync_status_attempting_sync": "جاري محاولة المزامنة",
   "sync_status_connected": "متصل",
   "sync_status_connecting": "يتم التوصيل",

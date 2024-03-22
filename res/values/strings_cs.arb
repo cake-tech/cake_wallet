@@ -632,6 +632,7 @@
   "switchToEVMCompatibleWallet": "Přepněte na peněženku kompatibilní s EVM a zkuste to znovu (Ethereum, Polygon)",
   "symbol": "Symbol",
   "sync_all_wallets": "Synchronizovat všechny peněženky",
+  "sync_enabled_warning": "Vezměte prosím na vědomí, že synchronizace pozadí je stále experimentální",
   "sync_status_attempting_sync": "ZAHAJUJI SYNCHR.",
   "sync_status_connected": "PŘIPOJENO",
   "sync_status_connecting": "PŘIPOJOVÁNÍ",

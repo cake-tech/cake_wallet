@@ -632,6 +632,7 @@
   "switchToEVMCompatibleWallet": "Please switch to an EVM compatible wallet and try again (Ethereum, Polygon)",
   "symbol": "Symbol",
   "sync_all_wallets": "Sync all wallets",
+  "sync_enabled_warning": "Please note that background sync is still experimental",
   "sync_status_attempting_sync": "ATTEMPTING SYNC",
   "sync_status_connected": "CONNECTED",
   "sync_status_connecting": "CONNECTING",

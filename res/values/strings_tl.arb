@@ -632,6 +632,7 @@
   "switchToEVMCompatibleWallet": "Mangyaring lumipat sa isang EVM compatible na wallet at subukang muli (Ethereum, Polygon)",
   "symbol": "Simbolo",
   "sync_all_wallets": "I -sync ang lahat ng mga pitaka",
+  "sync_enabled_warning": "Mangyaring tandaan na ang pag -sync ng background ay eksperimentong pa rin",
   "sync_status_attempting_sync": "Pagtatangka ng pag -sync",
   "sync_status_connected": "Konektado",
   "sync_status_connecting": "Pagkonekta",

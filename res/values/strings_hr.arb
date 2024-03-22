@@ -632,6 +632,7 @@
   "switchToEVMCompatibleWallet": "Prijeđite na novčanik kompatibilan s EVM-om i pokušajte ponovno (Ethereum, Polygon)",
   "symbol": "Simbol",
   "sync_all_wallets": "Sinkronizirajte sve novčanike",
+  "sync_enabled_warning": "Imajte na umu da je pozadinska sinkronizacija još uvijek eksperimentalna",
   "sync_status_attempting_sync": "POKUŠAJ SINKRONIZACIJE",
   "sync_status_connected": "SPOJENO",
   "sync_status_connecting": "SPAJANJE",

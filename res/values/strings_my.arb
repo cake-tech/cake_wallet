@@ -632,6 +632,7 @@
   "switchToEVMCompatibleWallet": "ကျေးဇူးပြု၍ EVM တွဲဖက်သုံးနိုင်သော ပိုက်ဆံအိတ်သို့ ပြောင်းပြီး ထပ်စမ်းကြည့်ပါ (Ethereum၊ Polygon)",
   "symbol": "သင်္ကေတ",
   "sync_all_wallets": "အားလုံးပိုက်ဆံအိတ်စည်းညှိ",
+  "sync_enabled_warning": "ကျေးဇူးပြု. မှတ်သားပါ။ နောက်ခံထပ်တူပြုလုပ်ခြင်းသည်စမ်းသပ်နေဆဲဖြစ်သည်ကိုသတိပြုပါ",
   "sync_status_attempting_sync": "ချိန်ကိုက်ခြင်းကို ကြိုးစားနေသည်။",
   "sync_status_connected": "ချိတ်ဆက်ထားသည်။",
   "sync_status_connecting": "ချိတ်ဆက်ခြင်း။",

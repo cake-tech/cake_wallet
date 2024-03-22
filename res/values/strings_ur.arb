@@ -634,6 +634,7 @@
   "switchToEVMCompatibleWallet": "(Ethereum, Polygon) ﮟﯾﺮﮐ ﺶﺷﻮﮐ ﮦﺭﺎﺑﻭﺩ ﺭﻭﺍ ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﭧﯿﻟﺍﻭ ﮯﻟﺍﻭ ﮯﻨﮭﮐﺭ ﺖﻘﺑﺎﻄﻣ ",
   "symbol": "ﺖﻣﻼ﻿ﻋ",
   "sync_all_wallets": "تمام بٹوے کو ہم آہنگ کریں",
+  "sync_enabled_warning": "براہ کرم نوٹ کریں کہ پس منظر کی مطابقت پذیری اب بھی تجرباتی ہے",
   "sync_status_attempting_sync": "ہم آہنگی کی کوشش کر رہا ہے۔",
   "sync_status_connected": "منسلک",
   "sync_status_connecting": "جڑ رہا ہے۔",

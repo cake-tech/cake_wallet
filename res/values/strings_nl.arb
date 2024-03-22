@@ -632,6 +632,7 @@
   "switchToEVMCompatibleWallet": "Schakel over naar een EVM-compatibele portemonnee en probeer het opnieuw (Ethereum, Polygon)",
   "symbol": "Symbool",
   "sync_all_wallets": "Alle portemonnees synchroniseren",
+  "sync_enabled_warning": "Houd er rekening mee dat achtergrondsynchronisatie nog steeds experimenteel is",
   "sync_status_attempting_sync": "SYNCHRONISATIE PROBEREN",
   "sync_status_connected": "VERBONDEN",
   "sync_status_connecting": "AANSLUITING",

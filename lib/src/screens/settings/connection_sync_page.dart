@@ -58,6 +58,20 @@ class ConnectionSyncPage extends BasePage {
                     onItemSelected: (syncMode) async {
                       dashboardViewModel.setSyncMode(syncMode);
 
+                      if (syncMode.type != SyncType.disabled) {
+                        await showPopUp<void>(
+                          context: context,
+                          builder: (BuildContext dialogContext) {
+                            return AlertWithOneAction(
+                              alertTitle: S.current.warning,
+                              alertContent: S.current.sync_enabled_warning,
+                              buttonText: S.of(context).ok,
+                              buttonAction: () => Navigator.of(dialogContext).pop(),
+                            );
+                          },
+                        );
+                      }
+
                       if (Platform.isIOS) return;
 
                       if (syncMode.type != SyncType.disabled) {

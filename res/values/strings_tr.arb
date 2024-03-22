@@ -632,6 +632,7 @@
   "switchToEVMCompatibleWallet": "Lütfen EVM uyumlu bir cüzdana geçin ve tekrar deneyin (Ethereum, Polygon)",
   "symbol": "Sembol",
   "sync_all_wallets": "Tüm cüzdanları senkronize edin",
+  "sync_enabled_warning": "Arka plan senkronizasyonunun hala deneysel olduğunu lütfen unutmayın",
   "sync_status_attempting_sync": "SENKRONİZE EDİLMEYE ÇALIŞILIYOR",
   "sync_status_connected": "BAĞLANILDI",
   "sync_status_connecting": "BAĞLANILIYOR",

@@ -634,6 +634,7 @@
   "switchToEVMCompatibleWallet": "Da fatan za a canza zuwa walat ɗin EVM mai jituwa kuma a sake gwadawa (Ethereum, Polygon)",
   "symbol": "Alama",
   "sync_all_wallets": "Sync Duk Wallet",
+  "sync_enabled_warning": "Lura cewa Sync Tasirin Bango har yanzu yana gwaji",
   "sync_status_attempting_sync": "KWAFI",
   "sync_status_connected": "HANNU",
   "sync_status_connecting": "HADA",
