@@ -1,6 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 
-enum WalletListOrderType {
+enum FilterListOrderType {
   CreationDate,
   Alphabetical,
   GroupByType,
@@ -9,13 +9,13 @@ enum WalletListOrderType {
   @override
   String toString() {
     switch (this) {
-      case WalletListOrderType.CreationDate:
+      case FilterListOrderType.CreationDate:
         return S.current.creation_date;
-      case WalletListOrderType.Alphabetical:
+      case FilterListOrderType.Alphabetical:
         return S.current.alphabetical;
-      case WalletListOrderType.GroupByType:
+      case FilterListOrderType.GroupByType:
         return S.current.group_by_type;
-      case WalletListOrderType.Custom:
+      case FilterListOrderType.Custom:
         return S.current.custom_drag;
     }
   }
