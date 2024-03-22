@@ -168,7 +168,7 @@ Future<void> initializeAppConfigs() async {
 }
 
 Future<void> initialSetup(
-    {required SharedPreferences sharedPreferences, 
+    {required SharedPreferences sharedPreferences,
     required Box<Node> nodes,
     required Box<Node> powNodes,
     required Box<WalletInfo> walletInfoSource,
@@ -194,18 +194,20 @@ Future<void> initialSetup(
       nodes: nodes,
       powNodes: powNodes);
   await setup(
-      walletInfoSource: walletInfoSource,
-      nodeSource: nodes,
-      powNodeSource: powNodes,
-      contactSource: contactSource,
-      tradesSource: tradesSource,
-      templates: templates,
-      exchangeTemplates: exchangeTemplates,
-      transactionDescriptionBox: transactionDescriptions,
-      ordersSource: ordersSource,
-      anonpayInvoiceInfoSource: anonpayInvoiceInfo,
-      unspentCoinsInfoSource: unspentCoinsInfoSource,
-      secureStorage: secureStorage);
+    walletInfoSource: walletInfoSource,
+    nodeSource: nodes,
+    powNodeSource: powNodes,
+    contactSource: contactSource,
+    tradesSource: tradesSource,
+    templates: templates,
+    exchangeTemplates: exchangeTemplates,
+    transactionDescriptionBox: transactionDescriptions,
+    ordersSource: ordersSource,
+    anonpayInvoiceInfoSource: anonpayInvoiceInfo,
+    unspentCoinsInfoSource: unspentCoinsInfoSource,
+    secureStorage: secureStorage,
+    navigatorKey: navigatorKey,
+  );
   await bootstrap(navigatorKey);
   monero?.onStartup();
 }
@@ -299,7 +301,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
           authService: authService,
-          linkViewModel: ,
+          linkViewModel: linkViewModel,
           child: MaterialApp(
             navigatorObservers: [routeObserver],
             navigatorKey: navigatorKey,

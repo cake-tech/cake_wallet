@@ -2,6 +2,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cw_core/node.dart';
@@ -15,32 +16,18 @@ part 'link_view_model.g.dart';
 class LinkViewModel = LinkViewModelBase with _$LinkViewModel;
 
 abstract class LinkViewModelBase with Store {
-  LinkViewModelBase({required this.settingsStore, required this.appStore}) {
-    // reaction((_) => torConnectionMode, (TorConnectionMode mode) async {
-    //   if (mode == TorConnectionMode.enabled || mode == TorConnectionMode.torOnly) {
-    //     startTor();
-    //   } else {
-    //     stopTor();
-    //   }
-    // });
-    // reaction((_) => torConnectionStatus, (TorConnectionStatus status) async {
-    //   if (status == TorConnectionStatus.connecting) {
-    //     await disconnectFromNode();
-    //   }
-    //   if (status == TorConnectionStatus.connected) {
-    //     await connectOrDisconnectNodeToProxy(connect: true);
-    //   }
-    // });
-    // this.nodes.observe((change) async {
-    //   if (change.newValue != null && change.key != null) {
-    //     await connectOrDisconnectNodeToProxy(connect: true);
-    //   }
-    // });
-  }
+  LinkViewModelBase({
+    required this.settingsStore,
+    required this.appStore,
+    required this.authenticationStore,
+    required this.navigatorKey,
+  }) {}
 
   bool torStarted = false;
   final SettingsStore settingsStore;
   final AppStore appStore;
+  final AuthenticationStore authenticationStore;
+  final GlobalKey<NavigatorState> navigatorKey;
   Uri? currentLink;
 
   bool get _isValidPaymentUri => currentLink?.path.isNotEmpty ?? false;
@@ -54,6 +41,10 @@ abstract class LinkViewModelBase with Store {
         return null;
       }
       return Routes.walletConnectConnectionsListing;
+    }
+
+    if (authenticationStore.state == AuthenticationState.uninitialized) {
+      return null;
     }
 
     if (isNanoGptLink) {
@@ -105,5 +96,21 @@ abstract class LinkViewModelBase with Store {
       textColor: Colors.white,
       fontSize: 16.0,
     );
+  }
+
+  Future<void> handleLink() async {
+    print("link view model handle link");
+    String? route = getRouteToGo();
+    dynamic args = getRouteArgs();
+    if (route != null) {
+      if (appStore.wallet == null) {
+        return;
+      }
+      navigatorKey.currentState?.pushNamed(
+        route,
+        arguments: args,
+      );
+      currentLink = null;
+    }
   }
 }

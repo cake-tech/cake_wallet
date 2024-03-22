@@ -263,6 +263,7 @@ Future<void> setup({
   required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
   required FlutterSecureStorage secureStorage,
+  required GlobalKey<NavigatorState> navigatorKey,
 }) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
@@ -418,10 +419,12 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactory<LinkViewModel>(() {
+  getIt.registerLazySingleton<LinkViewModel>(() {
     return LinkViewModel(
       appStore: getIt.get<AppStore>(),
       settingsStore: getIt.get<SettingsStore>(),
+      authenticationStore: getIt.get<AuthenticationStore>(),
+      navigatorKey: navigatorKey,
     );
   });
 
@@ -467,10 +470,19 @@ Future<void> setup({
           ),
         );
       } else {
+        // wallet is already loaded:
         if (appStore.wallet != null) {
+          // goes to the dashboard:
           authStore.allowed();
+          // trigger any deep links:
+          final linkViewModel = getIt.get<LinkViewModel>();
+          if (linkViewModel.currentLink != null) {
+            linkViewModel.handleLink();
+          }
           return;
         }
+
+        // load the wallet:
 
         authPageState.changeProcessText('Loading the wallet');
 
@@ -482,11 +494,11 @@ Future<void> setup({
         _reaction = reaction((_) => appStore.wallet, (Object? _) {
           _reaction?.reaction.dispose();
           authStore.allowed();
+          final linkViewModel = getIt.get<LinkViewModel>();
+          if (linkViewModel.currentLink != null) {
+            linkViewModel.handleLink();
+          }
         });
-      }
-      final linkViewModel = getIt.get<LinkViewModel>();
-      if (linkViewModel.currentLink != null) {
-        linkViewModel.handleLink();
       }
     });
   });

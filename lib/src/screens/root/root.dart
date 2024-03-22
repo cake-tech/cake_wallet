@@ -55,7 +55,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   StreamSubscription<Uri?>? stream;
   ReactionDisposer? _walletReactionDisposer;
-  Uri? launchUri;
 
   @override
   void initState() {
@@ -128,8 +127,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    print("$_postFrameCallback $_isInactive $_requestAuth");
-
     // this only happens when the app has been in the background for some time
     // this does NOT trigger when the app is started from the "closed" state!
     if (_isInactive && !_postFrameCallback && _requestAuth) {
@@ -159,7 +156,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
                       route: widget.linkViewModel.getRouteToGo(),
                       arguments: widget.linkViewModel.getRouteArgs(),
                     );
-                    launchUri = null;
+                    widget.linkViewModel.currentLink = null;
                   },
                   isForSetup: false,
                   isClosable: false,
@@ -171,21 +168,16 @@ class RootState extends State<Root> with WidgetsBindingObserver {
                 route: widget.linkViewModel.getRouteToGo(),
                 arguments: widget.linkViewModel.getRouteArgs(),
               );
-              launchUri = null;
+              widget.linkViewModel.currentLink = null;
             }
           },
         );
       });
     }
 
-    String? route = widget.linkViewModel.getRouteToGo();
-    if (route != null && !_requestAuth) {
-      widget.navigatorKey.currentState?.pushNamed(
-        route,
-        arguments: widget.linkViewModel.getRouteArgs(),
-      );
-      launchUri = null;
-    }
+    // if (!_requestAuth) {
+    //   widget.linkViewModel.handleLink();
+    // }
 
     return WillPopScope(
       onWillPop: () async => false,
@@ -203,5 +195,26 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   void _setInactive(bool value) {
     _isInactive = value;
     _isInactiveController.add(value);
+  }
+
+  void waitForWalletInstance(BuildContext context, String route, dynamic args) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) {
+        _walletReactionDisposer = reaction(
+          (_) => widget.appStore.wallet,
+          (WalletBase? wallet) {
+            if (wallet != null) {
+              widget.navigatorKey.currentState?.pushNamed(
+                route,
+                arguments: args,
+              );
+              widget.linkViewModel.currentLink = null;
+              _walletReactionDisposer?.call();
+              _walletReactionDisposer = null;
+            }
+          },
+        );
+      }
+    });
   }
 }
