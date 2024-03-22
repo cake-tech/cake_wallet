@@ -1,4 +1,4 @@
-import 'package:cw_bitcoin/bitcoin_commit_transaction_exception.dart';
+import 'package:cw_bitcoin/exceptions.dart';
 import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_bitcoin/electrum.dart';
@@ -9,7 +9,11 @@ import 'package:cw_core/wallet_type.dart';
 
 class PendingBitcoinCashTransaction with PendingTransaction {
   PendingBitcoinCashTransaction(this._tx, this.type,
-      {required this.electrumClient, required this.amount, required this.fee})
+      {required this.electrumClient,
+      required this.amount,
+      required this.fee,
+      required this.hasChange,
+      required this.isSendAll})
       : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
   final WalletType type;
@@ -17,6 +21,8 @@ class PendingBitcoinCashTransaction with PendingTransaction {
   final ElectrumClient electrumClient;
   final int amount;
   final int fee;
+  final bool hasChange;
+  final bool isSendAll;
 
   @override
   String get id => _tx.getId();
@@ -34,7 +40,6 @@ class PendingBitcoinCashTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    String errorMessage = 'Transaction commit is failed.';
     int? callId;
 
     final result = await electrumClient.broadcastTransaction(
@@ -42,11 +47,23 @@ class PendingBitcoinCashTransaction with PendingTransaction {
 
     if (result.isEmpty) {
       if (callId != null) {
-        if (electrumClient.getErrorMessage(callId!).contains("dust")) {
-          errorMessage = "Transaction rejected. Output cannot be dust. Please increase the amount.";
+        final error = electrumClient.getErrorMessage(callId!);
+
+        if (error.contains("dust")) {
+          if (hasChange) {
+            throw BitcoinTransactionCommitFailedDustChange();
+          } else if (!isSendAll) {
+            throw BitcoinTransactionCommitFailedDustOutput();
+          } else {
+            throw BitcoinTransactionCommitFailedDustOutputSendAll();
+          }
+        }
+
+        if (error.contains("bad-txns-vout-negative")) {
+          throw BitcoinTransactionCommitFailedVoutNegative();
         }
       }
-      throw BitcoinCommitTransactionException(errorMessage);
+      throw BitcoinTransactionCommitFailed();
     }
 
     _listeners.forEach((listener) => listener(transactionInfo()));

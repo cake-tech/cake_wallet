@@ -7,10 +7,9 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:http/http.dart' as http;
 
 String jsonrpcparams(List<Object> params) {
-  final _params = params?.map((val) => '"${val.toString()}"')?.join(',');
+  final _params = params.map((val) => '"${val.toString()}"').join(',');
   return '[$_params]';
 }
 
@@ -245,21 +244,20 @@ class ElectrumClient {
       });
 
   Future<String> broadcastTransaction(
-      {required String transactionRaw,
-      BasedUtxoNetwork? network,
-      Function(int)? idCallback}) async {
-    return call(
-            method: 'blockchain.transaction.broadcast',
-            params: [transactionRaw],
-            idCallback: idCallback)
-        .then((dynamic result) {
-      if (result is String) {
-        return result;
-      }
+          {required String transactionRaw,
+          BasedUtxoNetwork? network,
+          Function(int)? idCallback}) async =>
+      call(
+              method: 'blockchain.transaction.broadcast',
+              params: [transactionRaw],
+              idCallback: idCallback)
+          .then((dynamic result) {
+        if (result is String) {
+          return result;
+        }
 
-      return '';
-    });
-  }
+        return '';
+      });
 
   Future<Map<String, dynamic>> getMerkle({required String hash, required int height}) async =>
       await call(method: 'blockchain.transaction.get_merkle', params: [hash, height])
@@ -450,14 +448,23 @@ class ElectrumClient {
     final method = response['method'];
     final id = response['id'] as String?;
     final result = response['result'];
-    final error = response['error'] as Map<String, dynamic>?;
 
-    if (error != null) {
-      final errorMessage = error['message'] as String?;
-      if (errorMessage != null) {
-        _errors[id!] = errorMessage;
+    try {
+      final error = response['error'] as Map<String, dynamic>?;
+      if (error != null) {
+        final errorMessage = error['message'] as String?;
+        if (errorMessage != null) {
+          _errors[id!] = errorMessage;
+        }
       }
-    }
+    } catch (_) {}
+
+    try {
+      final error = response['error'] as String?;
+      if (error != null) {
+        _errors[id!] = error;
+      }
+    } catch (_) {}
 
     if (method is String) {
       _methodHandler(method: method, request: response);
