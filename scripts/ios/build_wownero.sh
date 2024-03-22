@@ -52,6 +52,7 @@ cmake -D IOS=ON \
 	-DINSTALL_VENDORED_LIBUNBOUND=ON \
 	-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}  \
     -DUSE_DEVICE_TREZOR=OFF \
+    -DMANUAL_SUBMODULES=1 \
 	../..
 make -j4 && make install
 cp src/cryptonote_basic/libcryptonote_basic.a ${DEST_LIB}
