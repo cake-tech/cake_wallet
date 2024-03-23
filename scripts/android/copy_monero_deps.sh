@@ -35,6 +35,7 @@ cp -r ${PREFIX}/include/* $INCLUDE_DIR
 
 if [ -f "$LIBANBOUND_PATH" ]; then
  cp $LIBANBOUND_PATH ${LIB_DIR}/monero
+ cp $LIBANBOUND_PATH ${LIB_DIR}/wownero
 fi
 
 done
