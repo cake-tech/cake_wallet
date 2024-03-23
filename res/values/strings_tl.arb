@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "Lalabas dito ang mga aktibong koneksyon",
   "add": "Idagdag",
   "add_contact": "Magdagdag ng contact",
+  "add_contact_to_address_book": "Nais mo bang idagdag ang contact na ito sa iyong address book?",
   "add_custom_node": "Magdagdag ng bagong pasadyang node",
   "add_custom_redemption": "Magdagdag ng pasadyang pagtubos",
   "add_fund_to_card": "Magdagdag ng prepaid na pondo sa mga kard (hanggang sa ${value})",

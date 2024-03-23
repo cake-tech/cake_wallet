@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "Conexões ativas aparecerão aqui",
   "add": "Adicionar",
   "add_contact": "Adicionar contato",
+  "add_contact_to_address_book": "Você gostaria de adicionar esse contato ao seu catálogo de endereços?",
   "add_custom_node": "Adicionar novo nó personalizado",
   "add_custom_redemption": "Adicionar resgate personalizado",
   "add_fund_to_card": "Adicionar fundos pré-pagos aos cartões (até ${value})",
