@@ -6,7 +6,7 @@ MONERO_SRC_DIR=${WORKDIR}/monero
 
 git clone https://github.com/cake-tech/monero.git ${MONERO_SRC_DIR} --branch ${MONERO_BRANCH}
 cd $MONERO_SRC_DIR
-git submodule update --init --force
+git submodule update --remote
 
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
