@@ -106,7 +106,7 @@ class _DashboardPageView extends BasePage {
   Widget leading(BuildContext context) {
     return Observer(
       builder: (context) {
-        if (dashboardViewModel.isEnabledBuyAction) {
+        if (dashboardViewModel.isEnabledBulletinAction) {
           return ServicesUpdatesWidget(dashboardViewModel.getServicesStatus());
         }
         return const SizedBox();
