@@ -88,6 +88,9 @@ jobs:
           rm -r monero
           rm -r haven
           rm -r wownero
+          rm -r libsodium
+          rm -r libzmq
+          rm -r unbound-1.16.2
 
       - name: Install Flutter dependencies
         run: |
