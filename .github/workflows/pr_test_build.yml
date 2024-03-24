@@ -82,6 +82,13 @@ jobs:
           ./build_all.sh
           ./copy_monero_deps.sh
 
+      - name: Empty unused space
+        run: |
+          cd /opt/android/
+          rm -r monero
+          rm -r haven
+          rm -r wownero
+
       - name: Install Flutter dependencies
         run: |
           cd /opt/android/cake_wallet
