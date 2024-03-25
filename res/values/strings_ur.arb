@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "بٹ کوائن لائٹ تھیم",
   "bitcoin_payments_require_1_confirmation": "بٹ کوائن کی ادائیگی میں 1 تصدیق کی ضرورت ہوتی ہے ، جس میں 20 منٹ یا اس سے زیادہ وقت لگ سکتا ہے۔ آپ کے صبر کا شکریہ! ادائیگی کی تصدیق ہونے پر آپ کو ای میل کیا جائے گا۔",
   "Blocks_remaining": "${status} بلاکس باقی ہیں۔",
+  "breez_warning_disruption": "بریز سروس فی الحال مسائل کا سامنا کر رہی ہے۔ براہ کرم کچھ دیر بعد کوشش کریں.",
+  "breez_warning_maintenance": "بریز سروس اس وقت دیکھ بھال کر رہی ہے۔ براہ کرم کچھ دیر بعد کوشش کریں.",
   "bright_theme": "روشن",
   "buy": "خریدنے",
   "buy_alert_content": "۔ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﺱﺍ ﺎﯾ ﮟﯿﺋﺎﻨﺑ ﭧﯿﻟﺍﻭ Monero ﺎﯾ ،Bitcoin، Ethereum، Litecoin ﺎﻨﭘﺍ ﻡ",

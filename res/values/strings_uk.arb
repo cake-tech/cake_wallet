@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "Світла тема Bitcoin",
   "bitcoin_payments_require_1_confirmation": "Платежі Bitcoin потребують 1 підтвердження, яке може зайняти 20 хвилин або більше. Дякую за Ваше терпіння! Ви отримаєте електронний лист, коли платіж буде підтверджено.",
   "Blocks_remaining": "${status} Залишилось блоків",
+  "breez_warning_disruption": "Наразі послуга Breez переживає проблеми. Будь-ласка спробуйте пізніше.",
+  "breez_warning_maintenance": "Наразі послуга Breez проходить технічне обслуговування. Будь-ласка спробуйте пізніше.",
   "bright_theme": "Яскрава",
   "buy": "Купити",
   "buy_alert_content": "Наразі ми підтримуємо купівлю лише Bitcoin, Ethereum, Litecoin і Monero. Створіть або перейдіть на свій гаманець Bitcoin, Ethereum, Litecoin або Monero.",

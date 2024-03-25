@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "ธีมแสง Bitcoin",
   "bitcoin_payments_require_1_confirmation": "การชำระเงินด้วย Bitcoin ต้องการการยืนยัน 1 ครั้ง ซึ่งอาจใช้เวลา 20 นาทีหรือนานกว่านั้น ขอบคุณสำหรับความอดทนของคุณ! คุณจะได้รับอีเมลเมื่อการชำระเงินได้รับการยืนยัน",
   "Blocks_remaining": "${status} บล็อกที่เหลืออยู่",
+  "breez_warning_disruption": "บริการ Breez กำลังประสบปัญหา กรุณาลองใหม่อีกครั้งในภายหลัง.",
+  "breez_warning_maintenance": "บริการ Breez กำลังอยู่ระหว่างการบำรุงรักษา กรุณาลองใหม่อีกครั้งในภายหลัง.",
   "bright_theme": "สดใส",
   "buy": "ซื้อ",
   "buy_alert_content": "ขณะนี้เรารองรับการซื้อ Bitcoin, Ethereum, Litecoin และ Monero เท่านั้น โปรดสร้างหรือเปลี่ยนเป็นกระเป๋าเงิน Bitcoin, Ethereum, Litecoin หรือ Monero",

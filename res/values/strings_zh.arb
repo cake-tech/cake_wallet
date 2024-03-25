@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "比特币浅色主题",
   "bitcoin_payments_require_1_confirmation": "比特币支付需要 1 次确认，这可能需要 20 分钟或更长时间。谢谢你的耐心！确认付款后，您将收到电子邮件。",
   "Blocks_remaining": "${status} 剩余的块",
+  "breez_warning_disruption": "Breez服务目前正在遇到问题。请稍后再试。",
+  "breez_warning_maintenance": "Breez服务目前正在进行维护。请稍后再试。",
   "bright_theme": "明亮",
   "buy": "购买",
   "buy_alert_content": "目前我们仅支持购买比特币、以太坊、莱特币和门罗币。请创建或切换到您的比特币、以太坊、莱特币或门罗币钱包。",

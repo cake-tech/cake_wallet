@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "Jigon Hasken Bitcoin",
   "bitcoin_payments_require_1_confirmation": "Akwatin Bitcoin na buɗe 1 sambumbu, da yake za ta samu mintuna 20 ko yawa. Ina kira ga sabuwar lafiya! Zaka sanarwa ta email lokacin da aka samu akwatin samun lambar waya.",
   "Blocks_remaining": "${status} Katanga ya rage",
+  "breez_warning_disruption": "A halin yanzu sabis na Breez yana fuskantar al'amura. Da fatan za a sake gwadawa nan gaba.",
+  "breez_warning_maintenance": "A halin yanzu ana samun sabis na BREEZ a halin yanzu. Da fatan za a sake gwadawa nan gaba.",
   "bright_theme": "Mai haske",
   "buy": "Sayi",
   "buy_alert_content": "A halin yanzu muna tallafawa kawai siyan Bitcoin, Ethereum, Litecoin, da Monero. Da fatan za a ƙirƙiri ko canza zuwa Bitcoin, Ethereum, Litecoin, ko Monero walat.",

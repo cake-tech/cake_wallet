@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "Thème léger Bitcoin",
   "bitcoin_payments_require_1_confirmation": "Les paiements Bitcoin nécessitent 1 confirmation, ce qui peut prendre 20 minutes ou plus. Merci pour votre patience ! Vous serez averti par e-mail lorsque le paiement sera confirmé.",
   "Blocks_remaining": "Blocs Restants : ${status}",
+  "breez_warning_disruption": "Le service Breez connaît actuellement des problèmes. Veuillez réessayer plus tard.",
+  "breez_warning_maintenance": "Le service Breez est actuellement en maintenance. Veuillez réessayer plus tard.",
   "bright_theme": "Vif",
   "buy": "Acheter",
   "buy_alert_content": "Actuellement, nous ne prenons en charge que l'achat de Bitcoin, Ethereum, Litecoin et Monero. Veuillez créer ou basculer vers votre portefeuille Bitcoin, Ethereum, Litecoin ou Monero.",

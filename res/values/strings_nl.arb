@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "Bitcoin Light-thema",
   "bitcoin_payments_require_1_confirmation": "Bitcoin-betalingen vereisen 1 bevestiging, wat 20 minuten of langer kan duren. Dank voor uw geduld! U ontvangt een e-mail wanneer de betaling is bevestigd.",
   "Blocks_remaining": "${status} Resterende blokken",
+  "breez_warning_disruption": "De Breez -service ondervindt momenteel problemen. Probeer het later opnieuw.",
+  "breez_warning_maintenance": "De Breez -service ondergaat momenteel onderhoud. Probeer het later opnieuw.",
   "bright_theme": "Helder",
   "buy": "Kopen",
   "buy_alert_content": "Momenteel ondersteunen we alleen de aankoop van Bitcoin, Ethereum, Litecoin en Monero. Maak of schakel over naar uw Bitcoin-, Ethereum-, Litecoin- of Monero-portemonnee.",

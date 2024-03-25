@@ -382,12 +382,11 @@ abstract class DashboardViewModelBase with Store {
     if (wallet.type == WalletType.lightning) {
       final serviceStatus = lightningViewModel.serviceHealthCheck();
       if (serviceStatus == HealthCheckStatus.ServiceDisruption) {
-        return "The breez service is currently experiencing issues. Please try again later.";
+        return S.current.breez_warning_disruption;
       } else if (serviceStatus == HealthCheckStatus.Maintenance) {
-        return "The breez service is currently undergoing maintenance. Please try again later.";
-      } else {
-        return "NORMAL";
+        return S.current.breez_warning_maintenance;
       }
+      return "";
     }
 
     return "";

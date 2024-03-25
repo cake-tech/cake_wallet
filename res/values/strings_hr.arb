@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "Bitcoin Light Theme",
   "bitcoin_payments_require_1_confirmation": "Bitcoin plaćanja zahtijevaju 1 potvrdu, što može potrajati 20 minuta ili dulje. Hvala na Vašem strpljenju! Dobit ćete e-poruku kada plaćanje bude potvrđeno.",
   "Blocks_remaining": "${status} preostalih blokova",
+  "breez_warning_disruption": "Breez usluga trenutno ima problema. Molimo pokušajte ponovo kasnije.",
+  "breez_warning_maintenance": "Breez usluga trenutno je u održavanju. Molimo pokušajte ponovo kasnije.",
   "bright_theme": "Jarka",
   "buy": "Kupi",
   "buy_alert_content": "Trenutno podržavamo samo kupnju Bitcoina, Ethereuma, Litecoina i Monera. Izradite ili prijeđite na svoj Bitcoin, Ethereum, Litecoin ili Monero novčanik.",

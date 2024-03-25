@@ -177,7 +177,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                 return const SizedBox();
               }
               return Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: DashBoardRoundedCardWidget(
                   onTap: () => null,
                   title: S.of(context).warning,

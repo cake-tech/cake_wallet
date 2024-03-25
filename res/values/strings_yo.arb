@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "Bitcoin Light Akori",
   "bitcoin_payments_require_1_confirmation": "Àwọn àránṣẹ́ Bitcoin nílò ìjẹ́rìísí kan. Ó lè lo ìṣéjú ogun tàbí ìṣéjú jù. A dúpẹ́ fún sùúrù yín! Ẹ máa gba ímeèlì t'ó bá jẹ́rìísí àránṣẹ́ náà.",
   "Blocks_remaining": "Àkójọpọ̀ ${status} kikù",
+  "breez_warning_disruption": "Iṣẹ Breez n jẹ iriri iriri lọwọlọwọ. Jọwọ gbiyanju lẹẹkansi nigbamii.",
+  "breez_warning_maintenance": "Iṣẹ Breez n ṣe itọju Lọwọlọwọ lọwọlọwọ. Jọwọ gbiyanju lẹẹkansi nigbamii.",
   "bright_theme": "Funfun",
   "buy": "Rà",
   "buy_alert_content": "Lọwọlọwọ a ṣe atilẹyin rira Bitcoin, Ethereum, Litecoin, ati Monero. Jọwọ ṣẹda tabi yipada si Bitcoin, Ethereum, Litecoin, tabi apamọwọ Monero.",

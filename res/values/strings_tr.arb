@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "Bitcoin Hafif Tema",
   "bitcoin_payments_require_1_confirmation": "Bitcoin ödemeleri, 20 dakika veya daha uzun sürebilen 1 onay gerektirir. Sabrınız için teşekkürler! Ödeme onaylandığında e-posta ile bilgilendirileceksiniz.",
   "Blocks_remaining": "${status} Blok Kaldı",
+  "breez_warning_disruption": "Breez hizmeti şu anda sorunlar yaşıyor. Lütfen daha sonra tekrar deneyiniz.",
+  "breez_warning_maintenance": "Breez hizmeti şu anda bakım görmektedir. Lütfen daha sonra tekrar deneyiniz.",
   "bright_theme": "Parlak",
   "buy": "Alış",
   "buy_alert_content": "Şu anda yalnızca Bitcoin, Ethereum, Litecoin ve Monero satın alımını destekliyoruz. Lütfen Bitcoin, Ethereum, Litecoin veya Monero cüzdanınızı oluşturun veya cüzdanınıza geçin.",

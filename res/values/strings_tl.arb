@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "Tema ng ilaw ng bitcoin",
   "bitcoin_payments_require_1_confirmation": "Ang mga pagbabayad sa Bitcoin ay nangangailangan ng 1 kumpirmasyon, na maaaring tumagal ng 20 minuto o mas mahaba. Salamat sa iyong pasensya! Mag -email ka kapag nakumpirma ang pagbabayad.",
   "Blocks_remaining": "Ang natitirang ${status} ay natitira",
+  "breez_warning_disruption": "Ang serbisyo ng Breez ay kasalukuyang nakakaranas ng mga isyu. Subukang muli mamaya.",
+  "breez_warning_maintenance": "Ang serbisyo ng Breez ay kasalukuyang sumasailalim sa pagpapanatili. Subukang muli mamaya.",
   "bright_theme": "Maliwanag",
   "buy": "Bilhin",
   "buy_alert_content": "Sa kasalukuyan ay sinusuportahan lamang namin ang pagbili ng Bitcoin, Ethereum, Litecoin, at Monero. Mangyaring lumikha o lumipat sa iyong Bitcoin, Ethereum, Litecoin, o Monero Wallet.",

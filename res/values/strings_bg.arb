@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "Лека биткойн тема",
   "bitcoin_payments_require_1_confirmation": "Плащанията с Bitcoin изискват потвърждение, което може да отнеме 20 минути или повече. Благодарим за търпението! Ще получите имейл, когато плащането е потвърдено.",
   "Blocks_remaining": "${status} оставащи блока",
+  "breez_warning_disruption": "В момента услугата Breez изпитва проблеми. Моля, опитайте отново по-късно.",
+  "breez_warning_maintenance": "Понастоящем услугата Breez се подлага на поддръжка. Моля, опитайте отново по-късно.",
   "bright_theme": "Ярко",
   "buy": "Купуване",
   "buy_alert_content": "В момента поддържаме само закупуването на Bitcoin, Ethereum, Litecoin и Monero. Моля, създайте или превключете към своя портфейл Bitcoin, Ethereum, Litecoin или Monero.",

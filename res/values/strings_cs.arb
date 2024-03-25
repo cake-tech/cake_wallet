@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "Světlé téma bitcoinů",
   "bitcoin_payments_require_1_confirmation": "U plateb Bitcoinem je vyžadováno alespoň 1 potvrzení, což může trvat 20 minut i déle. Děkujeme za vaši trpělivost! Až bude platba potvrzena, budete informováni e-mailem.",
   "Blocks_remaining": "Zbývá ${status} bloků",
+  "breez_warning_disruption": "Služba Breez v současné době má problémy. Prosím zkuste to znovu později.",
+  "breez_warning_maintenance": "Služba Breez v současné době prochází údržbou. Prosím zkuste to znovu později.",
   "bright_theme": "Jasný",
   "buy": "Koupit",
   "buy_alert_content": "V současné době podporujeme pouze nákup bitcoinů, etherea, litecoinů a monero. Vytvořte nebo přepněte na svou peněženku bitcoinů, etherea, litecoinů nebo monero.",

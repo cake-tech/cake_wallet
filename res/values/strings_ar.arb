@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "موضوع البيتكوين الخفيفة",
   "bitcoin_payments_require_1_confirmation": "تتطلب مدفوعات Bitcoin تأكيدًا واحدًا ، والذي قد يستغرق 20 دقيقة أو أكثر. شكرا لصبرك! سيتم إرسال بريد إلكتروني إليك عند تأكيد الدفع.",
   "Blocks_remaining": "بلوك متبقي ${status}",
+  "breez_warning_disruption": "خدمة Breez تواجه حاليًا قضايا. الرجاء معاودة المحاولة في وقت لاحق.",
+  "breez_warning_maintenance": "تمر خدمة Breez حاليًا بالصيانة. الرجاء معاودة المحاولة في وقت لاحق.",
   "bright_theme": "مشرق",
   "buy": "اشتري",
   "buy_alert_content": ".ﺎﻬﻴﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻭﺃ Monero ﻭﺃ Litecoin ﻭﺃ Ethereum ﻭﺃ Bitcoin ﺔﻈﻔﺤﻣ ءﺎﺸﻧﺇ ﻰﺟﺮﻳ .",

@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "비트코인 라이트 테마",
   "bitcoin_payments_require_1_confirmation": "비트코인 결제는 1번의 확인이 필요하며 20분 이상이 소요될 수 있습니다. 기다려 주셔서 감사합니다! 결제가 확인되면 이메일이 전송됩니다.",
   "Blocks_remaining": "${status} 남은 블록",
+  "breez_warning_disruption": "Breez 서비스는 현재 문제가 발생하고 있습니다. 나중에 다시 시도 해주십시오.",
+  "breez_warning_maintenance": "Breez 서비스는 현재 유지 보수를 받고 있습니다. 나중에 다시 시도 해주십시오.",
   "bright_theme": "선명한",
   "buy": "구입",
   "buy_alert_content": "현재 Bitcoin, Ethereum, Litecoin 및 Monero 구매만 지원합니다. Bitcoin, Ethereum, Litecoin 또는 Monero 지갑을 생성하거나 전환하십시오.",

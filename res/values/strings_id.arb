@@ -77,6 +77,8 @@
   "bitcoin_light_theme": "Tema Cahaya Bitcoin",
   "bitcoin_payments_require_1_confirmation": "Pembayaran Bitcoin memerlukan 1 konfirmasi, yang bisa memakan waktu 20 menit atau lebih. Terima kasih atas kesabaran Anda! Anda akan diemail saat pembayaran dikonfirmasi.",
   "Blocks_remaining": "${status} Blok Tersisa",
+  "breez_warning_disruption": "Layanan Breez saat ini mengalami masalah. Silakan coba lagi nanti.",
+  "breez_warning_maintenance": "Layanan Breez saat ini sedang menjalani pemeliharaan. Silakan coba lagi nanti.",
   "bright_theme": "Cerah",
   "buy": "Beli",
   "buy_alert_content": "Saat ini kami hanya mendukung pembelian Bitcoin, Ethereum, Litecoin, dan Monero. Harap buat atau alihkan ke dompet Bitcoin, Ethereum, Litecoin, atau Monero Anda.",
