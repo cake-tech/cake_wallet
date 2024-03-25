@@ -186,6 +186,7 @@
   "digit_pin": "dígitos",
   "digital_and_physical_card": "cartão de débito pré-pago digital e físico",
   "disable": "Desativar",
+  "disable_bulletin": "Desativar boletim de status de serviço",
   "disable_buy": "Desativar ação de compra",
   "disable_cake_2fa": "Desabilitar o Cake 2FA",
   "disable_exchange": "Desativar troca",

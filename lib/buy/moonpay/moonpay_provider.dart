@@ -1,4 +1,13 @@
 import 'dart:convert';
+
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/buy/buy_amount.dart';
+import 'package:cake_wallet/buy/buy_exception.dart';
+import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/buy/buy_provider_description.dart';
+import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -6,19 +15,11 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:crypto/crypto.dart';
-import 'package:cake_wallet/buy/buy_exception.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'package:cake_wallet/buy/buy_amount.dart';
-import 'package:cake_wallet/buy/buy_provider.dart';
-import 'package:cake_wallet/buy/buy_provider_description.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cw_core/crypto_currency.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MoonPaySellProvider extends BuyProvider {
@@ -34,6 +35,7 @@ class MoonPaySellProvider extends BuyProvider {
 
   static const _baseTestUrl = 'sell-sandbox.moonpay.com';
   static const _baseProductUrl = 'sell.moonpay.com';
+  static const _cIdBaseUrl = 'exchange-helper.cakewallet.com';
 
   @override
   String get providerDescription =>
@@ -60,8 +62,28 @@ class MoonPaySellProvider extends BuyProvider {
 
   static String get _apiKey => secrets.moonPayApiKey;
 
-  static String get _secretKey => secrets.moonPaySecretKey;
+  static String get _exchangeHelperApiKey => secrets.exchangeHelperApiKey;
   final String baseUrl;
+
+  Future<String> getMoonpaySignature(String query) async {
+    final uri = Uri.https(_cIdBaseUrl, "/api/moonpay");
+
+    final response = await post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': _exchangeHelperApiKey,
+      },
+      body: json.encode({'query': query}),
+    );
+
+    if (response.statusCode == 200) {
+      return (jsonDecode(response.body) as Map<String, dynamic>)['signature'] as String;
+    } else {
+      throw Exception(
+          'Provider currently unavailable. Status: ${response.statusCode} ${response.body}');
+    }
+  }
 
   Future<Uri> requestMoonPayUrl({
     required CryptoCurrency currency,
@@ -86,11 +108,7 @@ class MoonPaySellProvider extends BuyProvider {
       }..addAll(customParams),
     );
 
-    final messageBytes = utf8.encode('?${originalUri.query}');
-    final key = utf8.encode(_secretKey);
-    final hmac = Hmac(sha256, key);
-    final digest = hmac.convert(messageBytes);
-    final signature = base64.encode(digest.bytes);
+    final signature = await getMoonpaySignature('?${originalUri.query}');
 
     if (isTestEnvironment) {
       return originalUri;

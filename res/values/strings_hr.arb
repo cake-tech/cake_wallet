@@ -186,6 +186,7 @@
   "digit_pin": "-znamenkasti PIN",
   "digital_and_physical_card": "digitalna i fizička unaprijed plaćena debitna kartica",
   "disable": "Onemogući",
+  "disable_bulletin": "Onemogućite bilten o statusu usluge",
   "disable_buy": "Onemogući kupnju",
   "disable_cake_2fa": "Onemogući Cake 2FA",
   "disable_exchange": "Onemogući exchange",
