@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -30,7 +29,6 @@ import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solana/metaplex.dart' as metaplex;
 import 'package:solana/solana.dart';
-import 'package:web3dart/crypto.dart';
 
 part 'solana_wallet.g.dart';
 
@@ -134,7 +132,7 @@ abstract class SolanaWalletBase
     assert(mnemonic != null || privateKey != null);
 
     if (privateKey != null) {
-      final privateKeyBytes = hexToBytes(privateKey);
+      final privateKeyBytes = HEX.decode(privateKey);
       return await Wallet.fromPrivateKeyBytes(privateKey: privateKeyBytes);
     }
 
@@ -491,7 +489,7 @@ abstract class SolanaWalletBase
     final signature = await _walletKeyPair!.sign(messageBytes);
 
     // Convert the signature to a hexadecimal string
-    final hex = bytesToHex(signature.bytes);
+    final hex = HEX.encode(signature.bytes);
 
     return hex;
   }
