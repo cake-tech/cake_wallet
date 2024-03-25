@@ -67,7 +67,6 @@ abstract class DashboardViewModelBase with Store {
       : hasSellAction = false,
         hasBuyAction = false,
         hasExchangeAction = false,
-        hasBulletinAction = false,
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
@@ -358,9 +357,6 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get isEnabledBulletinAction => !settingsStore.disableBulletin;
-
-  @observable
-  bool hasBulletinAction;
 
   ReactionDisposer? _onMoneroAccountChangeReaction;
 
