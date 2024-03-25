@@ -365,6 +365,9 @@ abstract class DashboardViewModelBase with Store {
   @observable
   bool hasSellAction;
 
+  @computed
+  bool get isEnabledBulletinAction => !settingsStore.disableBulletin;
+
   ReactionDisposer? _onMoneroAccountChangeReaction;
 
   ReactionDisposer? _onMoneroBalanceChangeReaction;

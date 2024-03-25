@@ -186,6 +186,7 @@
   "digit_pin": "-znakowy PIN",
   "digital_and_physical_card": " cyfrowa i fizyczna przedpłacona karta debetowa",
   "disable": "Wyłączyć",
+  "disable_bulletin": "Wyłącz biuletyn statusu usługi",
   "disable_buy": "Wyłącz akcję kupna",
   "disable_cake_2fa": "Wyłącz Cake 2FA",
   "disable_exchange": "Wyłącz wymianę",

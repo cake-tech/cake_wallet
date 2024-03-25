@@ -186,6 +186,7 @@
   "digit_pin": "숫자 PIN",
   "digital_and_physical_card": " 디지털 및 실제 선불 직불 카드",
   "disable": "장애를 입히다",
+  "disable_bulletin": "서비스 상태 게시판을 비활성화합니다",
   "disable_buy": "구매 행동 비활성화",
   "disable_cake_2fa": "케이크 2FA 비활성화",
   "disable_exchange": "교환 비활성화",
