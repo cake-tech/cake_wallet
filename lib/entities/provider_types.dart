@@ -55,6 +55,7 @@ class ProvidersHelper {
       case WalletType.monero:
         return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.dfx];
       case WalletType.bitcoin:
+      case WalletType.polygon:
       case WalletType.ethereum:
         return [
           ProviderType.askEachTime,
@@ -65,14 +66,7 @@ class ProvidersHelper {
         ];
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        return [
-          ProviderType.askEachTime,
-          ProviderType.onramper,
-          ProviderType.robinhood,
-          ProviderType.moonpay,
-        ];
-      case WalletType.polygon:
-        return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.dfx];
+        return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.robinhood, ProviderType.moonpay];
       case WalletType.solana:
         return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.robinhood];
       case WalletType.none:
@@ -85,6 +79,7 @@ class ProvidersHelper {
     switch (walletType) {
       case WalletType.bitcoin:
       case WalletType.ethereum:
+      case WalletType.polygon:
         return [
           ProviderType.askEachTime,
           ProviderType.onramper,
@@ -94,8 +89,6 @@ class ProvidersHelper {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
         return [ProviderType.askEachTime, ProviderType.moonpay];
-      case WalletType.polygon:
-        return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.dfx];
       case WalletType.solana:
         return [
           ProviderType.askEachTime,
