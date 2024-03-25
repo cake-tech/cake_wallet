@@ -37,6 +37,7 @@ class RobinhoodBuyProvider extends BuyProvider {
   String getSignature(String message) {
     switch (wallet.type) {
       case WalletType.ethereum:
+      case WalletType.polygon:
         return wallet.signMessage(message);
       case WalletType.litecoin:
       case WalletType.bitcoin:
