@@ -19,7 +19,6 @@ dependencies:
   bip39: ^1.0.6
   mobx: ^2.3.0+1
   shared_preferences: ^2.0.15
-  web3dart: ^2.7.1
   bip32: ^2.0.0
   hex: ^0.2.0
 
