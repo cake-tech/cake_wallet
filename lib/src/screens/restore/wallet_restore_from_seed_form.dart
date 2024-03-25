@@ -21,48 +21,71 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
       required this.displayLanguageSelector,
       required this.displayBlockHeightSelector,
       required this.type,
+      required this.displayWalletPassword,
       required this.seedTypeViewModel,
       this.blockHeightFocusNode,
       this.onHeightOrDateEntered,
       this.onSeedChange,
-      this.onLanguageChange})
+      this.onLanguageChange,
+      this.onPasswordChange,
+      this.onRepeatedPasswordChange})
       : super(key: key);
 
   final WalletType type;
   final bool displayLanguageSelector;
   final bool displayBlockHeightSelector;
+  final bool displayWalletPassword;
   final SeedTypeViewModel seedTypeViewModel;
   final FocusNode? blockHeightFocusNode;
   final Function(bool)? onHeightOrDateEntered;
   final void Function(String)? onSeedChange;
   final void Function(String)? onLanguageChange;
+  final void Function(String)? onPasswordChange;
+  final void Function(String)? onRepeatedPasswordChange;
 
   @override
-  WalletRestoreFromSeedFormState createState() => WalletRestoreFromSeedFormState('English');
+  WalletRestoreFromSeedFormState createState() =>
+      WalletRestoreFromSeedFormState('English', displayWalletPassword: displayWalletPassword);
 }
 
 class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
-  WalletRestoreFromSeedFormState(this.language)
+  WalletRestoreFromSeedFormState(this.language, {required bool displayWalletPassword})
       : seedWidgetStateKey = GlobalKey<SeedWidgetState>(),
         blockchainHeightKey = GlobalKey<BlockchainHeightState>(),
         formKey = GlobalKey<FormState>(),
         languageController = TextEditingController(),
         nameTextEditingController = TextEditingController(),
+        passwordTextEditingController = displayWalletPassword ? TextEditingController() : null,
+        repeatedPasswordTextEditingController = displayWalletPassword ? TextEditingController() : null,
         seedTypeController = TextEditingController();
 
   final GlobalKey<SeedWidgetState> seedWidgetStateKey;
   final GlobalKey<BlockchainHeightState> blockchainHeightKey;
   final TextEditingController languageController;
   final TextEditingController nameTextEditingController;
+  final TextEditingController? passwordTextEditingController;
+  final TextEditingController? repeatedPasswordTextEditingController;
   final TextEditingController seedTypeController;
   final GlobalKey<FormState> formKey;
   late ReactionDisposer moneroSeedTypeReaction;
   String language;
+  void Function()? passwordListener;
+  void Function()? repeatedPasswordListener;
 
   @override
   void initState() {
     _setSeedType(widget.seedTypeViewModel.moneroSeedType);
     _setLanguageLabel(language);
+
+    if (passwordTextEditingController != null) {
+      passwordListener = () => widget.onPasswordChange?.call(passwordTextEditingController!.text);
+      passwordTextEditingController?.addListener(passwordListener!);
+    }
+
+    if (repeatedPasswordTextEditingController != null) {
+      repeatedPasswordListener = () => widget.onRepeatedPasswordChange?.call(repeatedPasswordTextEditingController!.text);
+      repeatedPasswordTextEditingController?.addListener(repeatedPasswordListener!);
+    }
     moneroSeedTypeReaction =
         reaction((_) => widget.seedTypeViewModel.moneroSeedType, (SeedType item) {
       _setSeedType(item);
@@ -74,8 +97,16 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
 
   @override
   void dispose() {
-    super.dispose();
     moneroSeedTypeReaction();
+
+    if (passwordListener != null) {
+      passwordTextEditingController?.removeListener(passwordListener!);
+    }
+
+    if (repeatedPasswordListener != null) {
+      repeatedPasswordTextEditingController?.removeListener(repeatedPasswordListener!);
+    }
+    super.dispose();
   }
 
   void onSeedChange(String seed) {
@@ -164,6 +195,15 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 ),
               ),
             ),
+          if (widget.displayWalletPassword)
+            ...[BaseTextFormField(
+                controller: passwordTextEditingController,
+                hintText: S.of(context).password,
+                obscureText: true),
+              BaseTextFormField(
+                  controller: repeatedPasswordTextEditingController,
+                  hintText: S.of(context).repeat_wallet_password,
+                  obscureText: true)],
           if (widget.displayLanguageSelector)
             GestureDetector(
                 onTap: () async {

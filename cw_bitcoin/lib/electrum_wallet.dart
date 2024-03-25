@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitcoin_base/bitcoin_base.dart' as bitcoin_base;
 import 'package:collection/collection.dart';
@@ -49,15 +50,16 @@ abstract class ElectrumWalletBase
     with Store {
   ElectrumWalletBase(
       {required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required this.networkType,
-      required this.mnemonic,
-      required Uint8List seedBytes,
-      List<BitcoinAddressRecord>? initialAddresses,
-      ElectrumClient? electrumClient,
-      ElectrumBalance? initialBalance,
-      CryptoCurrency? currency})
+        required WalletInfo walletInfo,
+        required Box<UnspentCoinsInfo> unspentCoinsInfo,
+        required this.networkType,
+        required this.mnemonic,
+        required Uint8List seedBytes,
+        required this.encryptionFileUtils,
+        List<BitcoinAddressRecord>? initialAddresses,
+        ElectrumClient? electrumClient,
+        ElectrumBalance? initialBalance,
+        CryptoCurrency? currency})
       : hd = currency == CryptoCurrency.bch
             ? bitcoinCashHDWallet(seedBytes)
             : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/0"),
@@ -80,7 +82,11 @@ abstract class ElectrumWalletBase
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
-    transactionHistory = ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
+    transactionHistory =
+        ElectrumTransactionHistory(
+          walletInfo: walletInfo,
+          password: password,
+          encryptionFileUtils: encryptionFileUtils);
   }
 
   static bitcoin.HDWallet bitcoinCashHDWallet(Uint8List seedBytes) =>
@@ -91,6 +97,7 @@ abstract class ElectrumWalletBase
 
   final bitcoin.HDWallet hd;
   final String mnemonic;
+  final EncryptionFileUtils encryptionFileUtils;
 
   @override
   @observable
@@ -123,6 +130,9 @@ abstract class ElectrumWalletBase
 
   @override
   String get seed => mnemonic;
+
+  @override
+  String get password => _password;
 
   bitcoin.NetworkType networkType;
   BasedUtxoNetwork network;
@@ -465,7 +475,7 @@ abstract class ElectrumWalletBase
   @override
   Future<void> save() async {
     final path = await makePath();
-    await write(path: path, password: _password, data: toJSON());
+    await encryptionFileUtils.write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
   }
 

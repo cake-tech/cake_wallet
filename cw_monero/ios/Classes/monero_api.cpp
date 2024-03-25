@@ -13,8 +13,15 @@
 // Fix for randomx on ios
 void __clear_cache(void* start, void* end) { }
 #include "../External/ios/include/wallet2_api.h"
-#else
+#elif __ANDROID__
 #include "../External/android/include/wallet2_api.h"
+#else
+#include "../External/linux/include/wallet2_api.h"
+#include <string.h>
+#endif
+
+#if defined(__GNUC__)
+    #define FUNCTION_VISABILITY_ATTRIBUTE __attribute__((visibility("default"))) __attribute__((used))
 #endif
 
 using namespace std::chrono_literals;
@@ -22,8 +29,6 @@ using namespace std::chrono_literals;
 extern "C"
 {
 #endif
-    const uint64_t MONERO_BLOCK_SIZE = 1000;
-
     struct Utf8Box
     {
         char *value;
@@ -151,7 +156,8 @@ extern "C"
             fee = transaction->fee();
             blockHeight = transaction->blockHeight();
             subaddrAccount = transaction->subaddrAccount();
-            std::set<uint32_t>::iterator it = transaction->subaddrIndex().begin();
+            std::set<uint32_t> subIndex = transaction->subaddrIndex();
+            std::set<uint32_t>::iterator it = subIndex.begin();
             subaddrIndex = *it;
             confirmations = transaction->confirmations();
             datetime = static_cast<int64_t>(transaction->timestamp());
@@ -249,6 +255,7 @@ extern "C"
     std::mutex store_lock;
     bool is_storing = false;
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void change_current_wallet(Monero::Wallet *wallet)
     {
         m_wallet = wallet;
@@ -299,6 +306,7 @@ extern "C"
         return m_wallet;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     bool create_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
     {
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
@@ -321,6 +329,7 @@ extern "C"
         return true;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     bool restore_wallet_from_seed(char *path, char *password, char *seed, int32_t networkType, uint64_t restoreHeight, char *error)
     {
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
@@ -346,6 +355,7 @@ extern "C"
         return true;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     bool restore_wallet_from_keys(char *path, char *password, char *language, char *address, char *viewKey, char *spendKey, int32_t networkType, uint64_t restoreHeight, char *error)
     {
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
@@ -374,6 +384,7 @@ extern "C"
         return true;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     bool restore_wallet_from_spend_key(char *path, char *password, char *seed, char *language, char *spendKey, int32_t networkType, uint64_t restoreHeight, char *error)
     {
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
@@ -403,9 +414,10 @@ extern "C"
         return true;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     bool load_wallet(char *path, char *password, int32_t nettype)
     {
-        nice(19);
+        (void) nice(19);
         Monero::NetworkType networkType = static_cast<Monero::NetworkType>(nettype);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
         Monero::Wallet *wallet = walletManager->openWallet(std::string(path), std::string(password), networkType);
@@ -418,53 +430,61 @@ extern "C"
         return !(status != Monero::Wallet::Status_Ok || !errorString.empty());
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     char *error_string() {
         return strdup(get_current_wallet()->errorString().c_str());
     }
 
-
+    FUNCTION_VISABILITY_ATTRIBUTE
     bool is_wallet_exist(char *path)
     {
         return Monero::WalletManagerFactory::getWalletManager()->walletExists(std::string(path));
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void close_current_wallet()
     {
         Monero::WalletManagerFactory::getWalletManager()->closeWallet(get_current_wallet());
         change_current_wallet(nullptr);
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     char *get_filename()
     {
         return strdup(get_current_wallet()->filename().c_str());
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     char *secret_view_key()
     {
         return strdup(get_current_wallet()->secretViewKey().c_str());
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     char *public_view_key()
     {
         return strdup(get_current_wallet()->publicViewKey().c_str());
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     char *secret_spend_key()
     {
         return strdup(get_current_wallet()->secretSpendKey().c_str());
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     char *public_spend_key()
     {
         return strdup(get_current_wallet()->publicSpendKey().c_str());
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     char *get_address(uint32_t account_index, uint32_t address_index)
     {
         return strdup(get_current_wallet()->address(account_index, address_index).c_str());
     }
 
-
+    FUNCTION_VISABILITY_ATTRIBUTE
     const char *seed()
     {
         std::string _rawSeed = get_current_wallet()->getCacheAttribute("cakewallet.seed");
@@ -475,29 +495,34 @@ extern "C"
         return strdup(get_current_wallet()->seed().c_str());
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     uint64_t get_full_balance(uint32_t account_index)
     {
         return get_current_wallet()->balance(account_index);
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     uint64_t get_unlocked_balance(uint32_t account_index)
     {
         return get_current_wallet()->unlockedBalance(account_index);
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     uint64_t get_current_height()
     {
         return get_current_wallet()->blockChainHeight();
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     uint64_t get_node_height()
     {
         return get_current_wallet()->daemonBlockChainHeight();
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     bool connect_to_node(char *error)
     {
-        nice(19);
+        (void) nice(19);
         bool is_connected = get_current_wallet()->connectToDaemon();
 
         if (!is_connected)
@@ -508,9 +533,10 @@ extern "C"
         return is_connected;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     bool setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *socksProxyAddress, char *error)
     {
-        nice(19);
+        (void) nice(19);
         Monero::Wallet *wallet = get_current_wallet();
 
         std::string _login = "";
@@ -528,9 +554,9 @@ extern "C"
         }
 
         if (socksProxyAddress != nullptr)
-                {
-                    _socksProxyAddress = std::string(socksProxyAddress);
-                }
+        {
+            _socksProxyAddress = std::string(socksProxyAddress);
+        }
 
         bool inited = wallet->init(std::string(address), 0, _login, _password, use_ssl, is_light_wallet, _socksProxyAddress);
 
@@ -544,27 +570,32 @@ extern "C"
         return inited;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     bool is_connected()
     {
         return get_current_wallet()->connected();
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void start_refresh()
     {
         get_current_wallet()->refreshAsync();
         get_current_wallet()->startRefresh();
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void set_refresh_from_block_height(uint64_t height)
     {
         get_current_wallet()->setRefreshFromBlockHeight(height);
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void set_recovering_from_seed(bool is_recovery)
     {
         get_current_wallet()->setRecoveringFromSeed(is_recovery);
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void store(char *path)
     {
         store_lock.lock();
@@ -578,6 +609,7 @@ extern "C"
         store_lock.unlock();
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     bool set_password(char *password, Utf8Box &error) {
         bool is_changed = get_current_wallet()->setPassword(std::string(password));
 
@@ -588,12 +620,13 @@ extern "C"
         return is_changed;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     bool transaction_create(char *address, char *payment_id, char *amount,
                             uint8_t priority_raw, uint32_t subaddr_account,
                             char **preferred_inputs, uint32_t preferred_inputs_size,
                             Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
-        nice(19);
+        (void) nice(19);
 
         std::set<std::string> _preferred_inputs;
 
@@ -637,12 +670,13 @@ extern "C"
         return true;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     bool transaction_create_mult_dest(char **addresses, char *payment_id, char **amounts, uint32_t size,
                                       uint8_t priority_raw, uint32_t subaddr_account,
                                       char **preferred_inputs, uint32_t preferred_inputs_size,
                                       Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {
-        nice(19);
+        (void) nice(19);
 
         std::vector<std::string> _addresses;
         std::vector<uint64_t> _amounts;
@@ -688,6 +722,7 @@ extern "C"
         return true;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     bool transaction_commit(PendingTransactionRaw *transaction, Utf8Box &error)
     {
         bool committed = transaction->transaction->commit();
@@ -702,6 +737,7 @@ extern "C"
         return committed;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     uint64_t get_node_height_or_update(uint64_t base_eight)
     {
         if (m_cached_syncing_blockchain_height < base_eight) {
@@ -711,6 +747,7 @@ extern "C"
         return m_cached_syncing_blockchain_height;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     uint64_t get_syncing_height()
     {
         if (m_listener == nullptr) {
@@ -731,6 +768,7 @@ extern "C"
         return height;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     uint64_t is_needed_to_refresh()
     {
         if (m_listener == nullptr) {
@@ -746,6 +784,7 @@ extern "C"
         return should_refresh;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     uint8_t is_new_transaction_exist()
     {
         if (m_listener == nullptr) {
@@ -762,6 +801,7 @@ extern "C"
         return is_new_transaction_exist;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void set_listener()
     {
         m_last_known_wallet_height = 0;
@@ -775,6 +815,7 @@ extern "C"
         get_current_wallet()->setListener(m_listener);
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     int64_t *subaddrress_get_all()
     {
         std::vector<Monero::SubaddressRow *> _subaddresses = m_subaddress->getAll();
@@ -791,33 +832,39 @@ extern "C"
         return subaddresses;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     int32_t subaddrress_size()
     {
         std::vector<Monero::SubaddressRow *> _subaddresses = m_subaddress->getAll();
         return _subaddresses.size();
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void subaddress_add_row(uint32_t accountIndex, char *label)
     {
         m_subaddress->addRow(accountIndex, std::string(label));
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void subaddress_set_label(uint32_t accountIndex, uint32_t addressIndex, char *label)
     {
         m_subaddress->setLabel(accountIndex, addressIndex, std::string(label));
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void subaddress_refresh(uint32_t accountIndex)
     {
         m_subaddress->refresh(accountIndex);
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     int32_t account_size()
     {
         std::vector<Monero::SubaddressAccountRow *> _accocunts = m_account->getAll();
         return _accocunts.size();
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     int64_t *account_get_all()
     {
         std::vector<Monero::SubaddressAccountRow *> _accocunts = m_account->getAll();
@@ -834,21 +881,25 @@ extern "C"
         return accocunts;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void account_add_row(char *label)
     {
         m_account->addRow(std::string(label));
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void account_set_label_row(uint32_t account_index, char *label)
     {
         m_account->setLabel(account_index, label);
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void account_refresh()
     {
         m_account->refresh();
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     int64_t *transactions_get_all()
     {
         std::vector<Monero::TransactionInfo *> transactions = m_transaction_history->getAll();
@@ -865,22 +916,26 @@ extern "C"
         return transactionAddresses;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void transactions_refresh()
     {
         m_transaction_history->refresh();
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     int64_t transactions_count()
     {
         return m_transaction_history->count();
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     TransactionInfoRow* get_transaction(char * txId)
     {
         Monero::TransactionInfo *row = m_transaction_history->transaction(std::string(txId));
         return new TransactionInfoRow(row);
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     int LedgerExchange(
         unsigned char *command,
         unsigned int cmd_len,
@@ -890,37 +945,44 @@ extern "C"
         return -1;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     int LedgerFind(char *buffer, size_t len)
     {
         return -1;
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void on_startup()
     {
         Monero::Utils::onStartup();
         Monero::WalletManagerFactory::setLogLevel(0);
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void rescan_blockchain()
     {
         m_wallet->rescanBlockchainAsync();
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     char * get_tx_key(char * txId)
     {
         return strdup(m_wallet->getTxKey(std::string(txId)).c_str());
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     char *get_subaddress_label(uint32_t accountIndex, uint32_t addressIndex)
     {
         return strdup(get_current_wallet()->getSubaddressLabel(accountIndex, addressIndex).c_str());
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void set_trusted_daemon(bool arg)
     {
         m_wallet->setTrustedDaemon(arg);
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     bool trusted_daemon()
     {
         return m_wallet->trustedDaemon();
@@ -928,6 +990,7 @@ extern "C"
 
     // Coin Control //
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     CoinsInfoRow* coin(int index)
     {
         if (index >= 0 && index < m_coins_info.size()) {
@@ -942,6 +1005,7 @@ extern "C"
         }
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     void refresh_coins(uint32_t accountIndex)
     {
         m_coins_info.clear();
@@ -954,6 +1018,7 @@ extern "C"
         }
     }
 
+    FUNCTION_VISABILITY_ATTRIBUTE
     uint64_t coins_count()
     {
         return m_coins_info.size();
@@ -1024,7 +1089,7 @@ extern "C"
 
     // Sign Messages //
 
-    char *sign_message(char *message, char *address = "")
+    char *sign_message(char *message, char *address)
     {
         return strdup(get_current_wallet()->signMessage(std::string(message), std::string(address)).c_str());
     }

@@ -82,7 +82,7 @@ class MarketPlacePage extends StatelessWidget {
 
     switch (walletType) {
       case WalletType.haven:
-        showPopUp<void>(
+         showPopUp<void>(
             context: context,
             builder: (BuildContext context) {
               return AlertWithOneAction(

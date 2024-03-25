@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/account.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/monero_amount_format.dart';
@@ -41,10 +43,11 @@ const MIN_RESTORE_HEIGHT = 1000;
 
 class MoneroWallet = MoneroWalletBase with _$MoneroWallet;
 
-abstract class MoneroWalletBase
-    extends WalletBase<MoneroBalance, MoneroTransactionHistory, MoneroTransactionInfo> with Store {
-  MoneroWalletBase(
-      {required WalletInfo walletInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo})
+abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
+    MoneroTransactionHistory, MoneroTransactionInfo> with Store {
+  MoneroWalletBase({required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required String password})
       : balance = ObservableMap<CryptoCurrency, MoneroBalance>.of({
           CryptoCurrency.xmr: MoneroBalance(
               fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
@@ -53,6 +56,7 @@ abstract class MoneroWalletBase
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
         isEnabledAutoGenerateSubaddress = false,
+        _password = password,
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
         this.unspentCoinsInfo = unspentCoinsInfo,
@@ -102,6 +106,9 @@ abstract class MoneroWalletBase
   String get seed => monero_wallet.getSeed();
 
   @override
+  String get password => _password;
+
+  @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
       privateSpendKey: monero_wallet.getSecretSpendKey(),
       privateViewKey: monero_wallet.getSecretViewKey(),
@@ -114,6 +121,7 @@ abstract class MoneroWalletBase
   bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
   List<MoneroUnspent> unspentCoins;
+  String _password;
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -383,7 +391,10 @@ abstract class MoneroWalletBase
   }
 
   @override
-  Future<void> changePassword(String password) async => monero_wallet.setPasswordSync(password);
+  Future<void> changePassword(String password) async {
+    monero_wallet.setPasswordSync(password);
+    _password = password;
+  }
 
   Future<int> getNodeHeight() async => monero_wallet.getNodeHeight();
 

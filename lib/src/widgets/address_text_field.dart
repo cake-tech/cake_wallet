@@ -1,5 +1,5 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +19,10 @@ class AddressTextField extends StatelessWidget {
       {required this.controller,
       this.isActive = true,
       this.placeholder,
-      this.options = const [AddressTextFieldOption.qrCode, AddressTextFieldOption.addressBook],
+      this.options = const [
+        AddressTextFieldOption.qrCode,
+        AddressTextFieldOption.addressBook
+      ],
       this.onURIScanned,
       this.focusNode,
       this.isBorderExist = true,

@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.da
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -37,15 +38,16 @@ class SecurityBackupPage extends BasePage {
                   .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
-          SettingsCellWithArrow(
-            title: S.current.create_backup,
-            handler: (_) => _authService.authenticateAction(
-              context,
-              route: Routes.backup,
-              conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                  .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+          if (!SettingsStoreBase.walletPasswordDirectInput)
+            SettingsCellWithArrow(
+              title: S.current.create_backup,
+              handler: (_) => _authService.authenticateAction(
+                context,
+                route: Routes.backup,
+                conditionToDetermineIfToUse2FA:
+                    _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+              ),
             ),
-          ),
           SettingsCellWithArrow(
             title: S.current.settings_change_pin,
             handler: (_) => _authService.authenticateAction(
@@ -115,6 +117,5 @@ class SecurityBackupPage extends BasePage {
         ],
       ),
     );
-    
   }
 }

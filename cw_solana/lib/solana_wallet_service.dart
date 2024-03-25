@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:collection/collection.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -14,9 +15,10 @@ import 'package:hive/hive.dart';
 
 class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
     SolanaRestoreWalletFromSeedCredentials, SolanaRestoreWalletFromPrivateKey> {
-  SolanaWalletService(this.walletInfoSource);
+  SolanaWalletService(this.walletInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
+  final bool isDirect;
 
   @override
   Future<SolanaWallet> create(SolanaNewWalletCredentials credentials, {bool? isTestnet}) async {
@@ -28,6 +30,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
       password: credentials.password!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -50,6 +53,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       name: name,
       password: password,
       walletInfo: walletInfo,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -73,6 +77,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       password: credentials.password!,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -93,6 +98,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -107,7 +113,11 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
     final currentWalletInfo = walletInfoSource.values
         .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
     final currentWallet = await SolanaWalletBase.open(
-        password: password, name: currentName, walletInfo: currentWalletInfo);
+      password: password,
+      name: currentName,
+      walletInfo: currentWalletInfo,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
 
     await currentWallet.renameWalletFiles(newName);
 
