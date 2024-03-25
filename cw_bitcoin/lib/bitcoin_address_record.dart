@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:bitbox/bitbox.dart' as bitbox;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/script_hash.dart' as sh;
@@ -20,10 +19,9 @@ class BitcoinAddressRecord {
         _balance = balance,
         _name = name,
         _isUsed = isUsed,
-        scriptHash =
-            scriptHash ?? (network != null ? sh.scriptHash(address, network: network) : null);
+        scriptHash = scriptHash ?? sh.scriptHash(address, network: network);
 
-  factory BitcoinAddressRecord.fromJSON(String jsonSource, BasedUtxoNetwork? network) {
+  factory BitcoinAddressRecord.fromJSON(String jsonSource, BasedUtxoNetwork network) {
     final decoded = json.decode(jsonSource) as Map;
 
     return BitcoinAddressRecord(
@@ -39,9 +37,7 @@ class BitcoinAddressRecord {
               .firstWhere((type) => type.toString() == decoded['type'] as String)
           : SegwitAddresType.p2wpkh,
       scriptHash: decoded['scriptHash'] as String?,
-      network: (decoded['network'] as String?) == null
-          ? network
-          : BasedUtxoNetwork.fromName(decoded['network'] as String),
+      network: network,
     );
   }
 
@@ -56,7 +52,7 @@ class BitcoinAddressRecord {
   String _name;
   bool _isUsed;
   String? scriptHash;
-  BasedUtxoNetwork? network;
+  BasedUtxoNetwork network;
 
   int get txCount => _txCount;
 
@@ -76,8 +72,6 @@ class BitcoinAddressRecord {
   @override
   int get hashCode => address.hashCode;
 
-  String get cashAddr => bitbox.Address.toCashAddress(address);
-
   BitcoinAddressType type;
 
   String updateScriptHash(BasedUtxoNetwork network) {
@@ -95,6 +89,5 @@ class BitcoinAddressRecord {
         'balance': balance,
         'type': type.toString(),
         'scriptHash': scriptHash,
-        'network': network?.value,
       });
 }

@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "Aktif bağlantılar burada görünecek",
   "add": "Ekle",
   "add_contact": "Kişi ekle",
+  "add_contact_to_address_book": "Bu kişiyi adres defterinize eklemek ister misiniz?",
   "add_custom_node": "Yeni Özel Düğüm Ekleme",
   "add_custom_redemption": "Özel Bozdurma Ekle",
   "add_fund_to_card": "Ön ödemeli kartlara para ekle (En fazla yüklenebilir tutar: ${value})",

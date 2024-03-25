@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/routes.dart';
@@ -38,6 +39,7 @@ class ExchangeCard extends StatefulWidget {
       this.addressButtonsColor = Colors.transparent,
       this.borderColor = Colors.transparent,
       this.hasAllAmount = false,
+      this.isAllAmountEnabled = false,
       this.amountFocusNode,
       this.addressFocusNode,
       this.allAmount,
@@ -64,9 +66,11 @@ class ExchangeCard extends StatefulWidget {
   final Color borderColor;
   final FormFieldValidator<String>? currencyValueValidator;
   final FormFieldValidator<String>? addressTextFieldValidator;
+  final FormFieldValidator<String> allAmountValidator = AllAmountValidator();
   final FocusNode? amountFocusNode;
   final FocusNode? addressFocusNode;
   final bool hasAllAmount;
+  final bool isAllAmountEnabled;
   final VoidCallback? allAmount;
   final void Function(BuildContext context)? onPushPasteButton;
   final void Function(BuildContext context)? onPushAddressBookButton;
@@ -162,6 +166,12 @@ class ExchangeCardState extends State<ExchangeCard> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isAllAmountEnabled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        amountController.text = S.of(context).all;
+      });
+    }
+
     final copyImage = Image.asset('assets/images/copy_content.png',
         height: 16,
         width: 16,
@@ -207,32 +217,29 @@ class ExchangeCardState extends State<ExchangeCard> {
                         ]),
                   ),
                 ),
-                _selectedCurrency.tag != null
-                    ? Padding(
-                        padding: const EdgeInsets.only(right: 3.0),
-                        child: Container(
-                          height: 32,
-                          decoration: BoxDecoration(
-                              color: widget.addressButtonsColor ??
-                                  Theme.of(context)
+                if (_selectedCurrency.tag != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 3.0),
+                    child: Container(
+                      height: 32,
+                      decoration: BoxDecoration(
+                          color: widget.addressButtonsColor ??
+                              Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+                          borderRadius: BorderRadius.all(Radius.circular(6))),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: Text(_selectedCurrency.tag!,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context)
                                       .extension<SendPageTheme>()!
-                                      .textFieldButtonColor,
-                              borderRadius: BorderRadius.all(Radius.circular(6))),
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: Text(_selectedCurrency.tag!,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .extension<SendPageTheme>()!
-                                          .textFieldButtonIconColor)),
-                            ),
-                          ),
+                                      .textFieldButtonIconColor)),
                         ),
-                      )
-                    : Container(),
+                      ),
+                    ),
+                  ),
                 Padding(
                   padding: const EdgeInsets.only(right: 4.0),
                   child: Text(':',
@@ -267,7 +274,9 @@ class ExchangeCardState extends State<ExchangeCard> {
                                   color: Theme.of(context)
                                       .extension<ExchangePageTheme>()!
                                       .hintTextColor),
-                              validator: _isAmountEditable ? widget.currencyValueValidator : null),
+                              validator: _isAmountEditable
+                                      ? widget.currencyValueValidator
+                                      : null),
                         ),
                       ),
                       if (widget.hasAllAmount)
