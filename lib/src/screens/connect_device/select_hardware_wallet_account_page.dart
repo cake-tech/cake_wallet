@@ -49,8 +49,7 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
   void initState() {
     super.initState();
 
-    if (_walletHardwareRestoreVM.availableAccounts.length == 0)
-      _walletHardwareRestoreVM.getNextAvailableAccounts(5);
+    if (_walletHardwareRestoreVM.availableAccounts.length == 0) _loadMoreAccounts();
   }
 
   @override
