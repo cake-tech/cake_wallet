@@ -282,9 +282,7 @@ abstract class MoneroWalletBase
       pendingTransactionDescription = await transaction_history.createTransaction(
           address: address!,
           amount: amount,
-          priorityRaw: _credentials.priority == MoneroTransactionPriority.automatic
-              ? MoneroTransactionPriority.medium.serialize()
-              : _credentials.priority.serialize(),
+          priorityRaw: _credentials.priority.serialize(),
           accountIndex: walletAddresses.account!.id,
           preferredInputs: inputs);
     }
@@ -576,13 +574,7 @@ abstract class MoneroWalletBase
     int height = 0;
     try {
       height = _getHeightByDate(walletInfo.date);
-    } catch (e, s) {
-      onError?.call(FlutterErrorDetails(
-        exception: e,
-        stack: s,
-        library: this.runtimeType.toString(),
-      ));
-    }
+    } catch (_) {}
 
     monero_wallet.setRecoveringFromSeed(isRecovery: true);
     monero_wallet.setRefreshFromBlockHeight(height: height);

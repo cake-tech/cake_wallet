@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "Tutaj pojawią się aktywne połączenia",
   "add": "Dodaj",
   "add_contact": "Dodaj kontakt",
+  "add_contact_to_address_book": "Czy chciałbyś dodać ten kontakt do swojej książki adresowej?",
   "add_custom_node": "Dodaj nowy węzeł niestandardowy",
   "add_custom_redemption": "Dodaj niestandardowe wykorzystanie",
   "add_fund_to_card": "Dodaj przedpłacone środki do kart (do ${value})",

@@ -9,6 +9,7 @@
   "activeConnectionsPrompt": "Koneksi aktif akan muncul di sini",
   "add": "Menambahkan",
   "add_contact": "Tambah kontak",
+  "add_contact_to_address_book": "Apakah Anda ingin menambahkan kontak ini ke buku alamat Anda?",
   "add_custom_node": "Tambahkan Node Kustom Baru",
   "add_custom_redemption": "Tambahkan Tukar Kustom",
   "add_fund_to_card": "Tambahkan dana pra-bayar ke kartu (hingga ${value})",
