@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -28,6 +29,7 @@ import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
+import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cryptography/cryptography.dart';
@@ -52,19 +54,20 @@ part 'dashboard_view_model.g.dart';
 class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
 
 abstract class DashboardViewModelBase with Store {
-  DashboardViewModelBase(
-      {required this.balanceViewModel,
-      required this.appStore,
-      required this.tradesStore,
-      required this.tradeFilterStore,
-      required this.transactionFilterStore,
-      required this.settingsStore,
-      required this.yatStore,
-      required this.ordersStore,
-      required this.anonpayTransactionsStore,
-      required this.sharedPreferences,
-      required this.keyService})
-      : hasSellAction = false,
+  DashboardViewModelBase({
+    required this.balanceViewModel,
+    required this.appStore,
+    required this.tradesStore,
+    required this.tradeFilterStore,
+    required this.transactionFilterStore,
+    required this.settingsStore,
+    required this.yatStore,
+    required this.ordersStore,
+    required this.anonpayTransactionsStore,
+    required this.sharedPreferences,
+    required this.keyService,
+    required this.lightningViewModel,
+  })  : hasSellAction = false,
         hasBuyAction = false,
         hasExchangeAction = false,
         isShowFirstYatIntroduction = false,
@@ -304,6 +307,8 @@ abstract class DashboardViewModelBase with Store {
 
   TransactionFilterStore transactionFilterStore;
 
+  LightningViewModel lightningViewModel;
+
   Map<String, List<FilterItem>> filterItems;
 
   BuyProvider? get defaultBuyProvider => ProvidersHelper.getProviderByType(
@@ -369,6 +374,21 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
+
+  String get serviceMessage {
+    if (wallet.type == WalletType.lightning) {
+      final serviceStatus = lightningViewModel.serviceHealthCheck();
+      if (serviceStatus == HealthCheckStatus.ServiceDisruption) {
+        return "The breez service is currently experiencing issues. Please try again later.";
+      } else if (serviceStatus == HealthCheckStatus.Maintenance) {
+        return "The breez service is currently undergoing maintenance. Please try again later.";
+      } else {
+        return "NORMAL";
+      }
+    }
+
+    return "";
+  }
 
   Future<void> reconnect() async {
     final node = appStore.settingsStore.getCurrentNode(wallet.type);

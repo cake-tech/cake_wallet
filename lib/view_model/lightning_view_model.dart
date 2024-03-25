@@ -37,7 +37,7 @@ abstract class LightningViewModelBase with Store {
         fee = openingFees.usedFeeParams!.minMsat ~/ 1000;
       }
     } catch (_) {}
-    
+
     return ReceiveOnchainResult(
       bitcoinAddress: swapInfo.bitcoinAddress,
       minAllowedDeposit: swapInfo.minAllowedDeposit,
@@ -93,6 +93,16 @@ abstract class LightningViewModelBase with Store {
       return nodeState.channelsBalanceMsat ~/ 1000;
     } catch (_) {
       return 0;
+    }
+  }
+
+  Future<BZG.HealthCheckStatus> serviceHealthCheck() async {
+    try {
+      final sdk = await BreezSDK();
+      BZG.ServiceHealthCheckResponse response = await sdk.serviceHealthCheck();
+      return response.status;
+    } catch (_) {
+      return BZG.HealthCheckStatus.ServiceDisruption;
     }
   }
 }
