@@ -12,6 +12,7 @@ class PendingBitcoinTransaction with PendingTransaction {
       {required this.electrumClient,
       required this.amount,
       required this.fee,
+      required this.feeRate,
       this.network,
       required this.hasChange,
       required this.isSendAll})
@@ -22,6 +23,7 @@ class PendingBitcoinTransaction with PendingTransaction {
   final ElectrumClient electrumClient;
   final int amount;
   final int fee;
+  final String feeRate;
   final BasedUtxoNetwork? network;
   final bool hasChange;
   final bool isSendAll;

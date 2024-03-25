@@ -194,11 +194,7 @@ abstract class ElectrumWalletBase
 
   bool _isBelowDust(int amount) => amount <= _getDustAmount() && network != BitcoinNetwork.testnet;
 
-  Future<EstimatedTxResult> estimateSendAllTx(
-    List<BitcoinOutput> outputs,
-    int? feeRate,
-    TransactionPriority? priority,
-  ) async {
+  Future<EstimatedTxResult> estimateSendAllTx(List<BitcoinOutput> outputs, int feeRate) async {
     final utxos = <UtxoWithAddress>[];
     List<ECPrivate> privateKeys = [];
     int allInputsAmount = 0;
@@ -247,9 +243,7 @@ abstract class ElectrumWalletBase
           utxos: utxos, outputs: outputs, network: network);
     }
 
-    int fee = feeRate != null
-        ? feeAmountWithFeeRate(feeRate, 0, 0, size: estimatedSize)
-        : feeAmountForPriority(priority!, 0, 0, size: estimatedSize);
+    int fee = feeAmountWithFeeRate(feeRate, 0, 0, size: estimatedSize);
 
     if (fee == 0) {
       throw BitcoinTransactionNoFeeException();
@@ -279,8 +273,7 @@ abstract class ElectrumWalletBase
   Future<EstimatedTxResult> estimateTxForAmount(
     int credentialsAmount,
     List<BitcoinOutput> outputs,
-    int? feeRate,
-    TransactionPriority? priority, {
+    int feeRate, {
     int? inputsCount,
   }) async {
     final utxos = <UtxoWithAddress>[];
@@ -353,9 +346,7 @@ abstract class ElectrumWalletBase
           utxos: utxos, outputs: outputs, network: network);
     }
 
-    int fee = feeRate != null
-        ? feeAmountWithFeeRate(feeRate, 0, 0, size: estimatedSize)
-        : feeAmountForPriority(priority!, 0, 0, size: estimatedSize);
+    int fee = feeAmountWithFeeRate(feeRate, 0, 0, size: estimatedSize);
 
     if (fee == 0) {
       throw BitcoinTransactionNoFeeException();
@@ -373,7 +364,7 @@ abstract class ElectrumWalletBase
       // If has change that is lower than dust, will end up with tx rejected by network rules, so estimate again without the added change
       outputs.removeLast();
 
-      final estimatedSendAll = await estimateSendAllTx(outputs, feeRate, priority);
+      final estimatedSendAll = await estimateSendAllTx(outputs, feeRate);
 
       if (estimatedSendAll.amount == credentialsAmount) {
         return estimatedSendAll;
@@ -410,7 +401,6 @@ abstract class ElectrumWalletBase
           credentialsAmount,
           outputs,
           feeRate,
-          priority,
           inputsCount: utxos.length + 1,
         );
       }
@@ -462,20 +452,15 @@ abstract class ElectrumWalletBase
         }
       }
 
+      final feeRateInt = transactionCredentials.feeRate != null
+          ? transactionCredentials.feeRate!
+          : feeRate(transactionCredentials.priority!);
+
       EstimatedTxResult estimatedTx;
       if (sendAll) {
-        estimatedTx = await estimateSendAllTx(
-          outputs,
-          transactionCredentials.feeRate,
-          transactionCredentials.priority,
-        );
+        estimatedTx = await estimateSendAllTx(outputs, feeRateInt);
       } else {
-        estimatedTx = await estimateTxForAmount(
-          credentialsAmount,
-          outputs,
-          transactionCredentials.feeRate,
-          transactionCredentials.priority,
-        );
+        estimatedTx = await estimateTxForAmount(credentialsAmount, outputs, feeRateInt);
       }
 
       BasedBitcoinTransacationBuilder txb;
@@ -512,6 +497,7 @@ abstract class ElectrumWalletBase
           electrumClient: electrumClient,
           amount: estimatedTx.amount,
           fee: estimatedTx.fee,
+          feeRate: feeRateInt.toString(),
           network: network,
           hasChange: estimatedTx.hasChange,
           isSendAll: estimatedTx.isSendAll)

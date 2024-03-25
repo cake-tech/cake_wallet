@@ -130,8 +130,7 @@ class CWBitcoin extends Bitcoin {
         final p2pkhAddr = sk.getPublic().toP2pkhAddress();
         final estimatedTx = await electrumWallet.estimateSendAllTx(
           [BitcoinOutput(address: p2pkhAddr, value: BigInt.zero)],
-          null,
-          priority as BitcoinCashTransactionPriority,
+          getFeeRate(wallet, priority as BitcoinCashTransactionPriority),
         );
 
         return estimatedTx.amount;
@@ -140,10 +139,12 @@ class CWBitcoin extends Bitcoin {
       final p2shAddr = sk.getPublic().toP2pkhInP2sh();
       final estimatedTx = await electrumWallet.estimateSendAllTx(
         [BitcoinOutput(address: p2shAddr, value: BigInt.zero)],
-        null,
-        wallet.type == WalletType.litecoin
-            ? priority as LitecoinTransactionPriority
-            : priority as BitcoinTransactionPriority,
+        getFeeRate(
+          wallet,
+          wallet.type == WalletType.litecoin
+              ? priority as LitecoinTransactionPriority
+              : priority as BitcoinTransactionPriority,
+        ),
       );
 
       return estimatedTx.amount;
