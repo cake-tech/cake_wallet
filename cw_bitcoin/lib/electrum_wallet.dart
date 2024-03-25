@@ -189,10 +189,6 @@ abstract class ElectrumWalletBase
   }
 
   int _getDustAmount() {
-    if (network is LitecoinNetwork) {
-      return 5460;
-    }
-
     return 546;
   }
 
