@@ -81,7 +81,7 @@ class MoonPaySellProvider extends BuyProvider {
       '',
       <String, dynamic>{
         'apiKey': _apiKey,
-        'defaultBaseCurrencyCode': currency.toString().toLowerCase(),
+        'defaultBaseCurrencyCode': _normalizeCurrency(currency),
         'refundWalletAddress': refundWalletAddress,
       }..addAll(customParams),
     );
@@ -133,6 +133,14 @@ class MoonPaySellProvider extends BuyProvider {
         },
       );
     }
+  }
+
+  String _normalizeCurrency(CryptoCurrency currency) {
+    if (currency == CryptoCurrency.maticpoly) {
+      return "MATIC_POLYGON";
+    }
+
+    return currency.toString().toLowerCase();
   }
 }
 

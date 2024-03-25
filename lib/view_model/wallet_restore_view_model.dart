@@ -207,9 +207,9 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   @override
   Future<WalletBase> process(WalletCredentials credentials) async {
     if (mode == WalletRestoreMode.keys) {
-      return walletCreationService.restoreFromKeys(credentials);
+      return walletCreationService.restoreFromKeys(credentials, isTestnet: useTestnet);
     }
 
-    return walletCreationService.restoreFromSeed(credentials);
+    return walletCreationService.restoreFromSeed(credentials, isTestnet: useTestnet);
   }
 }

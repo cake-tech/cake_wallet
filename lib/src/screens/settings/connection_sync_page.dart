@@ -38,13 +38,11 @@ class ConnectionSyncPage extends BasePage {
             title: S.current.reconnect,
             handler: (context) => _presentReconnectAlert(context),
           ),
-          const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           if (dashboardViewModel.hasRescan) ...[
             SettingsCellWithArrow(
               title: S.current.rescan,
               handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
             ),
-            const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
             if (DeviceInfo.instance.isMobile) ...[
               Observer(builder: (context) {
                 return SettingsPickerCell<SyncMode>(
@@ -82,7 +80,6 @@ class ConnectionSyncPage extends BasePage {
                       }
                     });
               }),
-              const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
               Observer(builder: (context) {
                 return SettingsSwitcherCell(
                   title: S.current.sync_all_wallets,
@@ -90,14 +87,12 @@ class ConnectionSyncPage extends BasePage {
                   onValueChange: (_, bool value) => dashboardViewModel.setSyncAll(value),
                 );
               }),
-              const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
             ],
           ],
           SettingsCellWithArrow(
             title: S.current.manage_nodes,
             handler: (context) => Navigator.of(context).pushNamed(Routes.manageNodes),
           ),
-          const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           Observer(
             builder: (context) {
               if (!dashboardViewModel.hasPowNodes) return const SizedBox();
@@ -108,7 +103,6 @@ class ConnectionSyncPage extends BasePage {
                     title: S.current.manage_pow_nodes,
                     handler: (context) => Navigator.of(context).pushNamed(Routes.managePowNodes),
                   ),
-                  const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
                 ],
               );
             },
@@ -117,7 +111,6 @@ class ConnectionSyncPage extends BasePage {
             WalletConnectTile(
               onTap: () => Navigator.of(context).pushNamed(Routes.walletConnectConnectionsListing),
             ),
-            const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           ],
           if (FeatureFlag.isInAppTorEnabled)
             SettingsCellWithArrow(

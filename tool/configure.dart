@@ -61,6 +61,7 @@ Future<void> main(List<String> args) async {
 Future<void> generateBitcoin(bool hasImplementation) async {
   final outputFile = File(bitcoinOutputPath);
   const bitcoinCommonHeaders = """
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -69,9 +70,10 @@ import 'package:cw_core/output_info.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';""";
+import 'package:hive/hive.dart';
+import 'package:bitcoin_base/bitcoin_base.dart';""";
   const bitcoinCWHeaders = """
+import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
@@ -124,6 +126,7 @@ abstract class Bitcoin {
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
 
+  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority);
   List<ElectrumSubAddress> getSubAddresses(Object wallet);
 
   String formatterBitcoinAmountToString({required int amount});
@@ -139,6 +142,11 @@ abstract class Bitcoin {
   TransactionPriority getLitecoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPrioritySlow();
   TransactionPriority getLitecoinTransactionPrioritySlow();
+
+  Future<void> setAddressType(Object wallet, dynamic option);
+  ReceivePageOption getSelectedAddressType(Object wallet);
+  List<ReceivePageOption> getBitcoinReceivePageOptions();
+  BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
 }
   """;
 
@@ -723,10 +731,6 @@ import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
   const bitcoinCashCwPart = "part 'cw_bitcoin_cash.dart';";
   const bitcoinCashContent = """
 abstract class BitcoinCash {
-  String getMnemonic(int? strength);
-
-  Uint8List getSeedFromMnemonic(String seed);
-
   String getCashAddrFormat(String address);
 
   WalletService createBitcoinCashWalletService(
@@ -904,6 +908,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
+import 'package:solana/solana.dart';
 
 """;
   const solanaCWHeaders = """
@@ -914,7 +919,6 @@ import 'package:cw_solana/solana_wallet_service.dart';
 import 'package:cw_solana/solana_transaction_info.dart';
 import 'package:cw_solana/solana_transaction_credentials.dart';
 import 'package:cw_solana/solana_wallet_creation_credentials.dart';
-import 'package:solana/solana.dart';
 """;
   const solanaCwPart = "part 'cw_solana.dart';";
   const solanaContent = """
@@ -942,10 +946,10 @@ abstract class Solana {
     List<OutputInfo> outputs, {
     required CryptoCurrency currency,
   });
-  List<SPLToken> getSPLTokenCurrencies(WalletBase wallet);
+  List<CryptoCurrency> getSPLTokenCurrencies(WalletBase wallet);
   Future<void> addSPLToken(WalletBase wallet, CryptoCurrency token);
   Future<void> deleteSPLToken(WalletBase wallet, CryptoCurrency token);
-  Future<SPLToken?> getSPLToken(WalletBase wallet, String contractAddress);
+  Future<CryptoCurrency?> getSPLToken(WalletBase wallet, String contractAddress);
 
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   double getTransactionAmountRaw(TransactionInfo transactionInfo);
