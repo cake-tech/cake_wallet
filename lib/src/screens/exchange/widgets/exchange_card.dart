@@ -274,9 +274,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                                   color: Theme.of(context)
                                       .extension<ExchangePageTheme>()!
                                       .hintTextColor),
-                              validator: _isAmountEditable
-                                      ? widget.currencyValueValidator
-                                      : null),
+                              validator: _isAmountEditable ? widget.currencyValueValidator : null),
                         ),
                       ),
                       if (widget.hasAllAmount)
@@ -422,8 +420,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                                                       arguments: widget.initialCurrency,
                                                     );
 
-                                                    if (contact is ContactBase &&
-                                                        contact.address != null) {
+                                                    if (contact is ContactBase) {
                                                       setState(() =>
                                                           addressController.text = contact.address);
                                                       widget.onPushAddressBookButton?.call(context);
