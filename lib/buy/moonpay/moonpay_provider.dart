@@ -174,7 +174,6 @@ class MoonPayProvider extends BuyProvider {
     );
 
     if (isTestEnvironment) {
-      print(originalUri);
       return originalUri;
     }
 
