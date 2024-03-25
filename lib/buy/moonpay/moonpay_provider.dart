@@ -62,40 +62,19 @@ class MoonPaySellProvider extends BuyProvider {
 
   static String get _apiKey => secrets.moonPayApiKey;
 
-  static String get _apiSecret => secrets.robinhoodCIdApiSecret;
+  static String get _exchangeHelperApiKey => secrets.exchangeHelperApiKey;
   final String baseUrl;
 
-  String getSignature(String message) {
-    switch (wallet.type) {
-      case WalletType.ethereum:
-        return wallet.signMessage(message);
-      case WalletType.litecoin:
-      case WalletType.bitcoin:
-      case WalletType.bitcoinCash:
-        return wallet.signMessage(message, address: wallet.walletAddresses.address);
-      default:
-        throw Exception("WalletType is not available for Moonpay ${wallet.type}");
-    }
-  }
-
   Future<String> getMoonpaySignature(String query) async {
-    final walletAddress = wallet.walletAddresses.address;
-    final valid_until = (DateTime.now().millisecondsSinceEpoch / 1000).round() + 10;
-    final message = "$_apiSecret:${valid_until}";
-
-    final signature = getSignature(message);
-
     final uri = Uri.https(_cIdBaseUrl, "/api/moonpay");
 
     final response = await post(
       uri,
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'valid_until': valid_until,
-        'wallet': walletAddress,
-        'signature': signature,
-        'message': query
-      }),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': _exchangeHelperApiKey,
+      },
+      body: json.encode({'query': query}),
     );
 
     if (response.statusCode == 200) {

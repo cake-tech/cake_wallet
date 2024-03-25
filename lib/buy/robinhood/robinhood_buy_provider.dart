@@ -32,7 +32,7 @@ class RobinhoodBuyProvider extends BuyProvider {
 
   String get _applicationId => secrets.robinhoodApplicationId;
 
-  String get _apiSecret => secrets.robinhoodCIdApiSecret;
+  String get _apiSecret => secrets.exchangeHelperApiKey;
 
   String getSignature(String message) {
     switch (wallet.type) {
