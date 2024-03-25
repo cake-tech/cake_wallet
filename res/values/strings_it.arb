@@ -187,6 +187,7 @@
   "digit_pin": "-cifre PIN",
   "digital_and_physical_card": "carta di debito prepagata digitale e fisica",
   "disable": "disattivare",
+  "disable_bulletin": "Disabilita Bollettino dello stato del servizio",
   "disable_buy": "Disabilita l'azione di acquisto",
   "disable_cake_2fa": "Disabilita Cake 2FA",
   "disable_exchange": "Disabilita scambio",

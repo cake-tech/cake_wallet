@@ -59,6 +59,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialAppSecure,
       required bool initialDisableBuy,
       required bool initialDisableSell,
+      required bool initialDisableBulletin,
       required WalletListOrderType initialWalletListOrder,
       required bool initialWalletListAscending,
       required FiatApiMode initialFiatMode,
@@ -130,6 +131,7 @@ abstract class SettingsStoreBase with Store {
         isAppSecure = initialAppSecure,
         disableBuy = initialDisableBuy,
         disableSell = initialDisableSell,
+        disableBulletin = initialDisableBulletin,
         walletListOrder = initialWalletListOrder,
         walletListAscending = initialWalletListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
@@ -290,6 +292,11 @@ abstract class SettingsStoreBase with Store {
         (_) => disableSell,
         (bool disableSell) =>
             sharedPreferences.setBool(PreferencesKey.disableSellKey, disableSell));
+
+    reaction(
+        (_) => disableBulletin,
+        (bool disableBulletin) =>
+            sharedPreferences.setBool(PreferencesKey.disableBulletinKey, disableBulletin));
 
     reaction(
         (_) => walletListOrder,
@@ -554,6 +561,9 @@ abstract class SettingsStoreBase with Store {
   bool disableSell;
 
   @observable
+  bool disableBulletin;
+
+  @observable
   WalletListOrderType walletListOrder;
 
   @observable
@@ -777,6 +787,7 @@ abstract class SettingsStoreBase with Store {
     final isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
     final disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? false;
     final disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? false;
+    final disableBulletin = sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? false;
     final walletListOrder =
         WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     final walletListAscending =
@@ -1029,6 +1040,7 @@ abstract class SettingsStoreBase with Store {
         initialAppSecure: isAppSecure,
         initialDisableBuy: disableBuy,
         initialDisableSell: disableSell,
+        initialDisableBulletin: disableBulletin,
         initialWalletListOrder: walletListOrder,
         initialWalletListAscending: walletListAscending,
         initialFiatMode: currentFiatApiMode,
@@ -1147,6 +1159,7 @@ abstract class SettingsStoreBase with Store {
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? disableBuy;
     disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? disableSell;
+    disableBulletin = sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? disableBulletin;
     walletListOrder =
         WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     walletListAscending = sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;

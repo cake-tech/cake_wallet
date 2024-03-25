@@ -186,6 +186,7 @@
   "digit_pin": "桁ピン",
   "digital_and_physical_card": "デジタルおよび物理プリペイドデビットカード",
   "disable": "無効にする",
+  "disable_bulletin": "サービスステータス速報を無効にします",
   "disable_buy": "購入アクションを無効にする",
   "disable_cake_2fa": "Cake 2FA を無効にする",
   "disable_exchange": "交換を無効にする",

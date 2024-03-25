@@ -186,6 +186,7 @@
   "digit_pin": "-رقم PIN",
   "digital_and_physical_card": "  بطاقة ائتمان رقمية ومادية مسبقة الدفع",
   "disable": "إبطال",
+  "disable_bulletin": "تعطيل نشرة حالة الخدمة",
   "disable_buy": "تعطيل إجراء الشراء",
   "disable_cake_2fa": "تعطيل 2 عامل المصادقة",
   "disable_exchange": "تعطيل التبادل",
