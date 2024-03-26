@@ -485,14 +485,14 @@ class ExchangeCardState extends State<ExchangeCard> {
         context: context,
         builder: (dialogContext) {
           return AlertWithTwoActions(
-              alertTitle: S.of(context).overwrite_amount,
-              alertContent: S.of(context).qr_payment_amount,
-              rightButtonText: S.of(context).ok,
-              leftButtonText: S.of(context).cancel,
+              alertTitle: S.of(dialogContext).overwrite_amount,
+              alertContent: S.of(dialogContext).qr_payment_amount,
+              rightButtonText: S.of(dialogContext).ok,
+              leftButtonText: S.of(dialogContext).cancel,
               actionRightButton: () {
                 widget.amountFocusNode?.requestFocus();
                 amountController.text = paymentRequest.amount;
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
               actionLeftButton: () => Navigator.of(dialogContext).pop());
         });
