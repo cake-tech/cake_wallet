@@ -4,8 +4,10 @@ import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -42,7 +44,8 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/entities/provider_types.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -59,6 +62,7 @@ abstract class DashboardViewModelBase with Store {
       required this.yatStore,
       required this.ordersStore,
       required this.anonpayTransactionsStore,
+      required this.sharedPreferences,
       required this.keyService})
       : hasSellAction = false,
         hasBuyAction = false,
@@ -148,17 +152,21 @@ abstract class DashboardViewModelBase with Store {
               monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
           .toList();
 
-      transactions = ObservableList.of(_accountTransactions.map((transaction) =>
-          TransactionListItem(
-              transaction: transaction,
-              balanceViewModel: balanceViewModel,
-              settingsStore: appStore.settingsStore)));
+      final sortedTransactions = [..._accountTransactions];
+      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
+
+      transactions = ObservableList.of(sortedTransactions.map((transaction) => TransactionListItem(
+          transaction: transaction,
+          balanceViewModel: balanceViewModel,
+          settingsStore: appStore.settingsStore)));
     } else {
-      transactions = ObservableList.of(wallet.transactionHistory.transactions.values.map(
-          (transaction) => TransactionListItem(
-              transaction: transaction,
-              balanceViewModel: balanceViewModel,
-              settingsStore: appStore.settingsStore)));
+      final sortedTransactions = [...wallet.transactionHistory.transactions.values];
+      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
+
+      transactions = ObservableList.of(sortedTransactions.map((transaction) => TransactionListItem(
+          transaction: transaction,
+          balanceViewModel: balanceViewModel,
+          settingsStore: appStore.settingsStore)));
     }
 
     // TODO: nano sub-account generation is disabled:
@@ -276,6 +284,7 @@ abstract class DashboardViewModelBase with Store {
   bool get hasRescan => wallet.type == WalletType.monero || wallet.type == WalletType.haven;
 
   final KeyService keyService;
+  final SharedPreferences sharedPreferences;
 
   BalanceViewModel balanceViewModel;
 
@@ -335,18 +344,19 @@ abstract class DashboardViewModelBase with Store {
   bool hasExchangeAction;
 
   @computed
-  bool get isEnabledBuyAction =>
-      !settingsStore.disableBuy && availableBuyProviders.isNotEmpty;
+  bool get isEnabledBuyAction => !settingsStore.disableBuy && availableBuyProviders.isNotEmpty;
 
   @observable
   bool hasBuyAction;
 
   @computed
-  bool get isEnabledSellAction =>
-      !settingsStore.disableSell && availableSellProviders.isNotEmpty;
+  bool get isEnabledSellAction => !settingsStore.disableSell && availableSellProviders.isNotEmpty;
 
   @observable
   bool hasSellAction;
+
+  @computed
+  bool get isEnabledBulletinAction => !settingsStore.disableBulletin;
 
   ReactionDisposer? _onMoneroAccountChangeReaction;
 
@@ -468,7 +478,8 @@ abstract class DashboardViewModelBase with Store {
 
   Future<List<String>> checkAffectedWallets() async {
     // await load file
-    final vulnerableSeedsString = await rootBundle.loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
+    final vulnerableSeedsString = await rootBundle
+        .loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
     final vulnerableSeeds = vulnerableSeedsString.split("\n");
 
     final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
@@ -492,5 +503,30 @@ abstract class DashboardViewModelBase with Store {
     }
 
     return affectedWallets;
+  }
+
+  Future<ServicesResponse> getServicesStatus() async {
+    try {
+      final res = await http.get(Uri.parse("https://service-api.cakewallet.com/v1/active-notices"));
+
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        throw res.body;
+      }
+
+      final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
+
+      final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
+      final currentSha = bytesToHex(hash.bytes);
+
+      final hasUpdates = oldSha != currentSha;
+
+      return ServicesResponse.fromJson(
+        json.decode(res.body) as Map<String, dynamic>,
+        hasUpdates,
+        currentSha,
+      );
+    } catch (_) {
+      return ServicesResponse([], false, '');
+    }
   }
 }

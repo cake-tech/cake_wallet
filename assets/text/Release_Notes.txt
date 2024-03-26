@@ -1,4 +1,1 @@
-List previously used Bitcoin addresses
-Security and Privacy enhancements
-Usability enhancements
-Bug fixes
+Bug fixes and enhancements

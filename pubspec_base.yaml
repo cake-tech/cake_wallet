@@ -55,7 +55,7 @@ dependencies:
   basic_utils: ^5.6.1
   get_it: ^7.2.0
   # connectivity: ^3.0.3
-  connectivity_plus: ^2.3.5
+  connectivity_plus: ^5.0.2
   keyboard_actions: ^4.0.1
   another_flushbar: ^1.12.29
   archive: ^3.3.0
@@ -106,6 +106,11 @@ dependencies:
   flutter_svg: ^2.0.9
   polyseed: ^0.0.2
   nostr_tools: ^1.0.9
+  solana: ^0.30.1
+  bitcoin_base:
+    git:
+      url: https://github.com/cake-tech/bitcoin_base.git
+      ref: cake-update-v2
 
 dev_dependencies:
   flutter_test:
@@ -152,6 +157,7 @@ flutter:
     - assets/nano_node_list.yml
     - assets/nano_pow_node_list.yml
     - assets/polygon_node_list.yml
+    - assets/solana_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/

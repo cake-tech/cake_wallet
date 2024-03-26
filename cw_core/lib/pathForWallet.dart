@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
 Future<String> pathForWalletDir({required String name, required  WalletType type}) async {

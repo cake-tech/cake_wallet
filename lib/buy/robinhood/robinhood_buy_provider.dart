@@ -32,11 +32,12 @@ class RobinhoodBuyProvider extends BuyProvider {
 
   String get _applicationId => secrets.robinhoodApplicationId;
 
-  String get _apiSecret => secrets.robinhoodCIdApiSecret;
+  String get _apiSecret => secrets.exchangeHelperApiKey;
 
   String getSignature(String message) {
     switch (wallet.type) {
       case WalletType.ethereum:
+      case WalletType.polygon:
         return wallet.signMessage(message);
       case WalletType.litecoin:
       case WalletType.bitcoin:

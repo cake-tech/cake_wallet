@@ -1,3 +1,4 @@
-Security and Privacy enhancements
-Usability enhancements
-Bug fixes
+Monero enhancements
+In-App live status page for the app services
+Add Exolix exchange provider
+Bug fixes and enhancements

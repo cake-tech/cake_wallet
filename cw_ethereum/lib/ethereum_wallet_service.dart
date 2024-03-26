@@ -16,7 +16,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
   WalletType getType() => WalletType.ethereum;
 
   @override
-  Future<EthereumWallet> create(EVMChainNewWalletCredentials credentials) async {
+  Future<EthereumWallet> create(EVMChainNewWalletCredentials credentials, {bool? isTestnet}) async {
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
     final mnemonic = bip39.generateMnemonic(strength: strength);
@@ -39,16 +39,30 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
   Future<EthereumWallet> openWallet(String name, String password) async {
     final walletInfo =
         walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-    final wallet = await EthereumWallet.open(
-      name: name,
-      password: password,
-      walletInfo: walletInfo,
-    );
 
-    await wallet.init();
-    await wallet.save();
+    try {
+      final wallet = await EthereumWallet.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
 
-    return wallet;
+      await wallet.init();
+      await wallet.save();
+      saveBackup(name);
+      return wallet;
+    } catch (_) {
+      await restoreWalletFilesFromBackup(name);
+
+      final wallet = await EthereumWallet.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
+      await wallet.init();
+      await wallet.save();
+      return wallet;
+    }
   }
 
   @override
@@ -59,6 +73,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
         password: password, name: currentName, walletInfo: currentWalletInfo);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
@@ -68,7 +83,8 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
   }
 
   @override
-  Future<EthereumWallet> restoreFromKeys(EVMChainRestoreWalletFromPrivateKey credentials) async {
+  Future<EthereumWallet> restoreFromKeys(EVMChainRestoreWalletFromPrivateKey credentials,
+      {bool? isTestnet}) async {
     final wallet = EthereumWallet(
       password: credentials.password!,
       privateKey: credentials.privateKey,
@@ -84,8 +100,8 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
   }
 
   @override
-  Future<EthereumWallet> restoreFromSeed(
-      EVMChainRestoreWalletFromSeedCredentials credentials) async {
+  Future<EthereumWallet> restoreFromSeed(EVMChainRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
     if (!bip39.validateMnemonic(credentials.mnemonic)) {
       throw EthereumMnemonicIsIncorrectException();
     }

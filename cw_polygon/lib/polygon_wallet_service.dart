@@ -19,7 +19,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
   WalletType getType() => WalletType.polygon;
 
   @override
-  Future<PolygonWallet> create(EVMChainNewWalletCredentials credentials) async {
+  Future<PolygonWallet> create(EVMChainNewWalletCredentials credentials, {bool? isTestnet}) async {
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
     final mnemonic = bip39.generateMnemonic(strength: strength);
@@ -42,21 +42,36 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
   Future<PolygonWallet> openWallet(String name, String password) async {
     final walletInfo =
         walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-    final wallet = await PolygonWallet.open(
-      name: name,
-      password: password,
-      walletInfo: walletInfo,
-    );
 
-    await wallet.init();
-    await wallet.save();
+    try {
+      final wallet = await PolygonWallet.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
 
-    return wallet;
+      await wallet.init();
+      await wallet.save();
+      saveBackup(name);
+      return wallet;
+    } catch (_) {
+      await restoreWalletFilesFromBackup(name);
+
+      final wallet = await PolygonWallet.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
+
+      await wallet.init();
+      await wallet.save();
+      return wallet;
+    }
   }
 
   @override
-  Future<PolygonWallet> restoreFromKeys(EVMChainRestoreWalletFromPrivateKey credentials) async {
-
+  Future<PolygonWallet> restoreFromKeys(EVMChainRestoreWalletFromPrivateKey credentials,
+      {bool? isTestnet}) async {
     final wallet = PolygonWallet(
       password: credentials.password!,
       privateKey: credentials.privateKey,
@@ -72,8 +87,8 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
   }
 
   @override
-  Future<PolygonWallet> restoreFromSeed(
-      EVMChainRestoreWalletFromSeedCredentials credentials) async {
+  Future<PolygonWallet> restoreFromSeed(EVMChainRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
     if (!bip39.validateMnemonic(credentials.mnemonic)) {
       throw PolygonMnemonicIsIncorrectException();
     }
@@ -100,6 +115,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
         password: password, name: currentName, walletInfo: currentWalletInfo);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
