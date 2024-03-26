@@ -218,8 +218,7 @@ class CWBitcoin extends Bitcoin {
 	Future<PendingBitcoinTransaction> replaceByFee(
 			Object wallet, String transactionHash, String fee) async {
 		final bitcoinWallet = wallet as ElectrumWallet;
-		final formattedFee = stringDoubleToBitcoinAmount(fee);
-		return await bitcoinWallet.replaceByFee(transactionHash, formattedFee);
+		return await bitcoinWallet.replaceByFee(transactionHash, int.parse(fee));
 	}
 
 	@override
@@ -231,8 +230,7 @@ class CWBitcoin extends Bitcoin {
   @override
   Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    final formattedFee = stringDoubleToBitcoinAmount(newFee);
-    return bitcoinWallet.isChangeSufficientForFee(txId, formattedFee);
+    return bitcoinWallet.isChangeSufficientForFee(txId, int.parse(newFee));
   }
 
   @override
