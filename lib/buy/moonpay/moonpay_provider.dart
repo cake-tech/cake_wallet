@@ -66,7 +66,6 @@ class MoonPayProvider extends BuyProvider {
 
   static String get _apiKey => secrets.moonPayApiKey;
 
-  static String get _secretKey => secrets.moonPaySecretKey;
   final String baseBuyUrl;
   final String baseSellUrl;
 
@@ -107,7 +106,7 @@ class MoonPayProvider extends BuyProvider {
       'colorCode': settingsStore.currentTheme.type == ThemeType.dark
           ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
           : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
-      'defaultBaseCurrencyCode': _normalizeCurrency(currency),
+      'defaultCurrencyCode': _normalizeCurrency(currency),
       'refundWalletAddress': refundWalletAddress,
     };
 
@@ -151,7 +150,7 @@ class MoonPayProvider extends BuyProvider {
       'colorCode': settingsStore.currentTheme.type == ThemeType.dark
           ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
           : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
-      'defaultBaseCurrencyCode': _normalizeCurrency(currency),
+      'defaultCurrencyCode': _normalizeCurrency(currency),
       'baseCurrencyCode': _normalizeCurrency(currency),
       'baseCurrencyAmount': amount,
       'currencyCode': currencyCode,
