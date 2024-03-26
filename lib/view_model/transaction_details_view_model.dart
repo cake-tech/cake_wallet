@@ -1,29 +1,28 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/send/send_view_model.dart';
-import 'package:cw_core/amount_converter.dart';
-import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
+import 'package:cake_wallet/src/screens/transaction_details/rbf_details_list_fee_picker_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
-import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
-import 'package:cw_core/transaction_direction.dart';
+import 'package:cake_wallet/src/screens/transaction_details/transaction_expandable_list_item.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
-import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:collection/collection.dart';
+import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/src/intl/date_format.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:collection/collection.dart';
 
 part 'transaction_details_view_model.g.dart';
 
@@ -38,6 +37,13 @@ abstract class TransactionDetailsViewModelBase with Store {
       required this.settingsStore,
       required this.sendViewModel})
       : items = [],
+        RBFListItems = [],
+        transactionPriority = bitcoin!.getBitcoinTransactionPriorityMedium(),
+        newFee = bitcoin!.getFeeAmountForPriority(
+            wallet,
+            bitcoin!.getBitcoinTransactionPriorityMedium(),
+            transactionInfo.inputAddresses?.length ?? 1,
+            transactionInfo.outputAddresses?.length ?? 1),
         isRecipientAddressShown = false,
         showRecipientAddress = settingsStore.shouldSaveRecipientAddress {
     final dateFormat = DateFormatter.withCurrentLocal();
@@ -51,6 +57,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
         _addElectrumListItems(tx, dateFormat);
+        _addBumpFeesListItems(tx);
         _checkForRBF();
         break;
       case WalletType.haven:
@@ -123,8 +130,11 @@ abstract class TransactionDetailsViewModelBase with Store {
   final SendViewModel sendViewModel;
 
   final List<TransactionDetailsListItem> items;
+  final List<TransactionDetailsListItem> RBFListItems;
   bool showRecipientAddress;
   bool isRecipientAddressShown;
+  int newFee;
+  TransactionPriority transactionPriority;
 
   @observable
   bool _canReplaceByFee = false;
@@ -324,6 +334,44 @@ abstract class TransactionDetailsViewModelBase with Store {
     items.addAll(_items);
   }
 
+  void _addBumpFeesListItems(TransactionInfo tx) {
+    RBFListItems.add(StandartListItem(
+        title: 'Old fee', //TODO: add translation
+        value: tx.feeFormatted() ?? '0.0'));
+
+    final priorities = priorityForWalletType(wallet.type);
+    final selectedItem = priorities.indexOf(sendViewModel.transactionPriority);
+    final customItem = priorities.firstWhereOrNull(
+        (element) => element == sendViewModel.getBitcoinTransactionPriorityCustom);
+    final customItemIndex = customItem != null ? priorities.indexOf(customItem) : null;
+
+    RBFListItems.add(StandardPickerListItem(
+        title: 'Estimated new fee',
+        //TODO: add translation
+        value:
+            bitcoinAmountToString(amount: newFee) + ' ${walletTypeToCryptoCurrency(wallet.type)}',
+        items: priorityForWalletType(wallet.type),
+        customValue: settingsStore.customBitcoinFeeRate.toDouble(),
+        selectedIdx: selectedItem,
+        customItemIndex: customItemIndex ?? 0,
+        displayItem: (dynamic priority, double sliderValue) =>
+            sendViewModel.displayFeeRate(priority, sliderValue.round()),
+        onSliderChanged: (double newValue) =>
+            setNewFee(value: newValue, priority: transactionPriority),
+        onItemSelected: (dynamic item) {
+          transactionPriority = item as TransactionPriority;
+          return setNewFee(priority: transactionPriority);
+        }));
+
+    RBFListItems.add(StandardExpandableListItem(
+        title: 'Inputs', //TODO: add translation
+        expandableItems: transactionInfo.inputAddresses ?? [])); //TODO: add translation
+
+    RBFListItems.add(StandardExpandableListItem(
+        title: 'Outputs', //TODO: add translation
+        expandableItems: transactionInfo.outputAddresses ?? []));
+  }
+
   @action
   Future<void> _checkForRBF() async {
     if (wallet.type == WalletType.bitcoin &&
@@ -334,60 +382,23 @@ abstract class TransactionDetailsViewModelBase with Store {
     }
   }
 
-  void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo.id, newFee);
+  String setNewFee({double? value, required TransactionPriority priority}) {
+    newFee = priority == bitcoin!.getBitcoinTransactionPriorityCustom() && value != null
+        ? bitcoin!.getFeeAmountWithFeeRate(
+            wallet,
+            value.round(),
+            transactionInfo.inputAddresses?.length ?? 1,
+            transactionInfo.outputAddresses?.length ?? 1)
+        : bitcoin!.getFeeAmountForPriority(
+            wallet,
+            priority,
+            transactionInfo.inputAddresses?.length ?? 1,
+            transactionInfo.outputAddresses?.length ?? 1);
 
-  Future<String?> setBitcoinRBFTransactionPriority(BuildContext context) async {
-    if (wallet.type != WalletType.bitcoin) return null;
-
-    final cryptoCurrency = walletTypeToCryptoCurrency(wallet.type);
-    final transactionAmount = items
-        .firstWhere((element) => element.title == S.of(context).transaction_details_amount)
-        .value;
-    final formattedCryptoAmount =
-        AmountConverter.amountStringToInt(cryptoCurrency, transactionAmount);
-
-    double sliderValue = settingsStore.customBitcoinFeeRate.toDouble();
-    final priorities = priorityForWalletType(wallet.type);
-    final selectedItem = priorities.indexOf(sendViewModel.transactionPriority);
-    final customItem = priorities.firstWhereOrNull(
-        (element) => element == sendViewModel.getBitcoinTransactionPriorityCustom);
-    final customItemIndex = customItem != null ? priorities.indexOf(customItem) : null;
-    TransactionPriority transactionPriority = priorities[selectedItem];
-
-    await showPopUp<void>(
-      context: context,
-      builder: (BuildContext popUpContext) {
-        int selectedIdx = selectedItem;
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Picker(
-              items: priorities,
-              displayItem: (TransactionPriority priority) =>
-                  sendViewModel.displayFeeRate(priority, sliderValue.round()),
-              selectedAtIndex: selectedIdx,
-              customItemIndex: customItemIndex,
-              title: S.of(context).please_select,
-              headerEnabled: false,
-              closeOnItemSelected: false,
-              mainAxisAlignment: MainAxisAlignment.center,
-              sliderValue: sliderValue,
-              onSliderChanged: (double newValue) => setState(() => sliderValue = newValue),
-              onItemSelected: (TransactionPriority priority) {
-                transactionPriority = priority;
-                setState(() => selectedIdx = priorities.indexOf(priority));
-              },
-            );
-          },
-        );
-      },
-    );
-
-    final fee = transactionPriority == bitcoin!.getBitcoinTransactionPriorityCustom()
-        ? wallet.calculateEstimatedFeeWithFeeRate(sliderValue.round(), formattedCryptoAmount)
-        : wallet.calculateEstimatedFee(transactionPriority, formattedCryptoAmount);
-
-    return AmountConverter.amountIntToString(cryptoCurrency, fee ?? 0);
+    return bitcoinAmountToString(amount: newFee) + ' ${walletTypeToCryptoCurrency(wallet.type)}';
   }
+
+  void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo.id, newFee);
 
   @computed
   String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled

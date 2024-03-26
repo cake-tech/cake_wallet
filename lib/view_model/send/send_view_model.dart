@@ -84,7 +84,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   ExecutionState state;
 
   @observable
-  bool useReplaceByFee = false;
+  bool useReplaceByFee = true;
 
   ObservableList<Output> outputs;
 

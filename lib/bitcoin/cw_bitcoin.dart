@@ -234,4 +234,19 @@ class CWBitcoin extends Bitcoin {
     final formattedFee = stringDoubleToBitcoinAmount(newFee);
     return bitcoinWallet.isChangeSufficientForFee(txId, formattedFee);
   }
+
+  @override
+  int getFeeAmountForPriority(
+      Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size}) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.feeAmountForPriority(
+        priority as BitcoinTransactionPriority, inputsCount, outputsCount);
+  }
+
+  @override
+  int getFeeAmountWithFeeRate(
+      Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size}) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.feeAmountWithFeeRate(feeRate, inputsCount, outputsCount,);
+  }
 }

@@ -28,6 +28,8 @@ class Picker<Item> extends StatefulWidget {
     this.closeOnItemSelected = true,
     this.sliderValue,
     this.customItemIndex,
+    this.isWrapped = true,
+    this.borderColor,
     this.onSliderChanged,
     this.matchingCriteria,
   }) : assert(hintText == null ||
@@ -49,6 +51,8 @@ class Picker<Item> extends StatefulWidget {
   final bool closeOnItemSelected;
   final double? sliderValue;
   final int? customItemIndex;
+  final bool isWrapped;
+  final Color? borderColor;
   final Function(double)? onSliderChanged;
   final bool Function(Item, String)? matchingCriteria;
 
@@ -134,8 +138,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       containerHeight = height * 0.75;
     }
 
-    return PickerWrapperWidget(
-      hasTitle: widget.title?.isNotEmpty ?? false,
+    final content = Column (
       children: [
         if (widget.title?.isNotEmpty ?? false)
           Container(
@@ -154,63 +157,71 @@ class _PickerState<Item> extends State<Picker<Item>> {
           ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: padding),
-          child: ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(30)),
-            child: Container(
-              color: Theme.of(context).dialogTheme.backgroundColor,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: containerHeight,
-                  maxWidth: ResponsiveLayoutUtilBase.kPopupWidth,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (widget.hintText != null)
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: SearchBarWidget(
-                            searchController: searchController, hintText: widget.hintText),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(
+                color: widget.borderColor ?? Colors.transparent,
+              ),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.all(Radius.circular(30)),
+              child: Container(
+                color: Theme.of(context).dialogTheme.backgroundColor,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: containerHeight,
+                    maxWidth: ResponsiveLayoutUtilBase.kPopupWidth,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (widget.hintText != null)
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: SearchBarWidget(
+                              searchController: searchController, hintText: widget.hintText),
+                        ),
+                      Divider(
+                        color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
+                        height: 1,
                       ),
-                    Divider(
-                      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
-                      height: 1,
-                    ),
-                    if (widget.selectedAtIndex != -1 && widget.headerEnabled)
-                      buildSelectedItem(widget.selectedAtIndex),
-                    Flexible(
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: <Widget>[
-                          filteredItems.length > 3
-                              ? Scrollbar(
-                                  controller: controller,
-                                  child: itemsList(),
-                                )
-                              : itemsList(),
-                          (widget.description?.isNotEmpty ?? false)
-                              ? Positioned(
-                                  bottom: padding,
-                                  left: padding,
-                                  right: padding,
-                                  child: Text(
-                                    widget.description!,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: 'Lato',
-                                      decoration: TextDecoration.none,
-                                      color:
-                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      if (widget.selectedAtIndex != -1 && widget.headerEnabled)
+                        buildSelectedItem(widget.selectedAtIndex),
+                      Flexible(
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: <Widget>[
+                            filteredItems.length > 3
+                                ? Scrollbar(
+                                    controller: controller,
+                                    child: itemsList(),
+                                  )
+                                : itemsList(),
+                            (widget.description?.isNotEmpty ?? false)
+                                ? Positioned(
+                                    bottom: padding,
+                                    left: padding,
+                                    right: padding,
+                                    child: Text(
+                                      widget.description!,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: 'Lato',
+                                        decoration: TextDecoration.none,
+                                        color:
+                                            Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                      ),
                                     ),
-                                  ),
-                                )
-                              : Offstage(),
-                        ],
+                                  )
+                                : Offstage(),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -218,6 +229,15 @@ class _PickerState<Item> extends State<Picker<Item>> {
         )
       ],
     );
+
+    if (widget.isWrapped) {
+      return PickerWrapperWidget(
+        hasTitle: widget.title?.isNotEmpty ?? false,
+        children: [content],
+      );
+    } else {
+      return content;
+    }
   }
 
   Widget itemsList() {
@@ -272,7 +292,6 @@ class _PickerState<Item> extends State<Picker<Item>> {
     final image = images.isNotEmpty ? filteredImages[index] : icon;
 
     final isCustomItem = widget.customItemIndex != null && index == widget.customItemIndex;
-    final customNewValue = widget.sliderValue?.round() ?? 0;
 
     final itemContent = Row(
       mainAxisSize: MainAxisSize.max,
@@ -359,7 +378,6 @@ class _PickerState<Item> extends State<Picker<Item>> {
     final image = images.isNotEmpty ? images[index] : icon;
 
     final isCustomItem = widget.customItemIndex != null && index == widget.customItemIndex;
-    final customNewValue = widget.sliderValue?.round() ?? 0;
 
     final itemContent = Row(
       mainAxisSize: MainAxisSize.max,
