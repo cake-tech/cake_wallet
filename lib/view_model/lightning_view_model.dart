@@ -32,10 +32,8 @@ abstract class LightningViewModelBase with Store {
       int inboundLiquidity = nodeState.inboundLiquidityMsats ~/ 1000;
       final openingFees = await sdk.openChannelFee(
           req: BZG.OpenChannelFeeRequest(amountMsat: inboundLiquidity + 1));
-      if (openingFees.usedFeeParams != null) {
-        feePercent = (openingFees.usedFeeParams!.proportional * 100) / 1000000;
-        fee = openingFees.usedFeeParams!.minMsat ~/ 1000;
-      }
+      feePercent = (openingFees.feeParams.proportional * 100) / 1000000;
+      fee = openingFees.feeParams.minMsat ~/ 1000;
     } catch (_) {}
 
     return ReceiveOnchainResult(
@@ -72,10 +70,8 @@ abstract class LightningViewModelBase with Store {
       final openingFees = await sdk.openChannelFee(
           req: BZG.OpenChannelFeeRequest(amountMsat: inboundLiquidity + 1));
 
-      if (openingFees.usedFeeParams != null) {
-        feePercent = (openingFees.usedFeeParams!.proportional * 100) / 1000000;
-        minFee = openingFees.usedFeeParams!.minMsat ~/ 1000;
-      }
+      feePercent = (openingFees.feeParams.proportional * 100) / 1000000;
+      minFee = openingFees.feeParams.minMsat ~/ 1000;
       balance = nodeState.channelsBalanceMsat ~/ 1000;
     } catch (_) {}
     return InvoiceSoftLimitsResult(
