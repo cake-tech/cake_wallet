@@ -69,6 +69,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:hive/hive.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';""";

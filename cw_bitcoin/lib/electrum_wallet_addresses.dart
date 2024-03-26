@@ -77,7 +77,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   String get address {
     String receiveAddress;
 
-    final typeMatchingReceiveAddresses = receiveAddresses.where(_isAddressPageTypeMatch);
+    final typeMatchingReceiveAddresses =
+        receiveAddresses.where(_isAddressPageTypeMatch).where((addr) => !addr.isUsed);
 
     if ((isEnabledAutoGenerateSubaddress && receiveAddresses.isEmpty) ||
         typeMatchingReceiveAddresses.isEmpty) {
@@ -220,8 +221,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   Future<void> updateAddressesInBox() async {
     try {
       addressesMap.clear();
+      addressesMap[address] = '';
+
+      allAddressesMap.clear();
       _addresses.forEach((addressRecord) {
-        addressesMap[addressRecord.address] = addressRecord.name;
+        allAddressesMap[addressRecord.address] = addressRecord.name;
       });
       await saveAddressesInBox();
     } catch (e) {

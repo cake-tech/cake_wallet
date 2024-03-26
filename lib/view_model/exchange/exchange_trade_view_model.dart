@@ -107,6 +107,7 @@ abstract class ExchangeTradeViewModelBase with Store {
   @action
   Future<void> _updateTrade() async {
     try {
+      final agreedAmount = tradesStore.trade!.amount;
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
       if (updatedTrade.createdAt == null && trade.createdAt != null)
@@ -115,6 +116,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       if (updatedTrade.amount.isEmpty) updatedTrade.amount = trade.amount;
 
       trade = updatedTrade;
+      trade.amount = agreedAmount;
 
       _updateItems();
     } catch (e) {

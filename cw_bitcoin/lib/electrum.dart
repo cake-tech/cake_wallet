@@ -7,10 +7,9 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:http/http.dart' as http;
 
 String jsonrpcparams(List<Object> params) {
-  final _params = params?.map((val) => '"${val.toString()}"')?.join(',');
+  final _params = params.map((val) => '"${val.toString()}"').join(',');
   return '[$_params]';
 }
 
@@ -34,6 +33,7 @@ class ElectrumClient {
       : _id = 0,
         _isConnected = false,
         _tasks = {},
+        _errors = {},
         unterminatedString = '';
 
   static const connectionTimeout = Duration(seconds: 5);
@@ -44,6 +44,7 @@ class ElectrumClient {
   void Function(bool)? onConnectionStatusChange;
   int _id;
   final Map<String, SocketTask> _tasks;
+  final Map<String, String> _errors;
   bool _isConnected;
   Timer? _aliveTimer;
   String unterminatedString;
@@ -243,30 +244,20 @@ class ElectrumClient {
       });
 
   Future<String> broadcastTransaction(
-      {required String transactionRaw, BasedUtxoNetwork? network}) async {
-    if (network == BitcoinNetwork.testnet) {
-      return http
-          .post(Uri(scheme: 'https', host: 'blockstream.info', path: '/testnet/api/tx'),
-              headers: <String, String>{'Content-Type': 'application/json; charset=utf-8'},
-              body: transactionRaw)
-          .then((http.Response response) {
-        if (response.statusCode == 200) {
-          return response.body;
+          {required String transactionRaw,
+          BasedUtxoNetwork? network,
+          Function(int)? idCallback}) async =>
+      call(
+              method: 'blockchain.transaction.broadcast',
+              params: [transactionRaw],
+              idCallback: idCallback)
+          .then((dynamic result) {
+        if (result is String) {
+          return result;
         }
 
-        throw Exception('Failed to broadcast transaction: ${response.body}');
+        return '';
       });
-    }
-
-    return call(method: 'blockchain.transaction.broadcast', params: [transactionRaw])
-        .then((dynamic result) {
-      if (result is String) {
-        return result;
-      }
-
-      return '';
-    });
-  }
 
   Future<Map<String, dynamic>> getMerkle({required String hash, required int height}) async =>
       await call(method: 'blockchain.transaction.get_merkle', params: [hash, height])
@@ -371,10 +362,12 @@ class ElectrumClient {
     }
   }
 
-  Future<dynamic> call({required String method, List<Object> params = const []}) async {
+  Future<dynamic> call(
+      {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
     final completer = Completer<dynamic>();
     _id += 1;
     final id = _id;
+    idCallback?.call(id);
     _registryTask(id, completer);
     socket!.write(jsonrpc(method: method, id: id, params: params));
 
@@ -456,6 +449,23 @@ class ElectrumClient {
     final id = response['id'] as String?;
     final result = response['result'];
 
+    try {
+      final error = response['error'] as Map<String, dynamic>?;
+      if (error != null) {
+        final errorMessage = error['message'] as String?;
+        if (errorMessage != null) {
+          _errors[id!] = errorMessage;
+        }
+      }
+    } catch (_) {}
+
+    try {
+      final error = response['error'] as String?;
+      if (error != null) {
+        _errors[id!] = error;
+      }
+    } catch (_) {}
+
     if (method is String) {
       _methodHandler(method: method, request: response);
       return;
@@ -465,6 +475,8 @@ class ElectrumClient {
       _finish(id, result);
     }
   }
+
+  String getErrorMessage(int id) => _errors[id.toString()] ?? '';
 }
 
 // FIXME: move me
