@@ -195,12 +195,14 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate() &&
                           (!_showDisclaimer || _disclaimerChecked)) {
-                        await widget.homeSettingsViewModel.addToken(Erc20Token(
-                          name: _tokenNameController.text,
-                          symbol: _tokenSymbolController.text,
+                        await widget.homeSettingsViewModel.addToken(
+                          token: CryptoCurrency(
+                            name: _tokenNameController.text,
+                            title: _tokenSymbolController.text.toUpperCase(),
+                            decimals: int.parse(_tokenDecimalController.text),
+                          ),
                           contractAddress: _contractAddressController.text,
-                          decimal: int.parse(_tokenDecimalController.text),
-                        ));
+                        );
                         if (context.mounted) {
                           Navigator.pop(context);
                         }

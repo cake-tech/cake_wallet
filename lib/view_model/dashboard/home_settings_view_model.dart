@@ -44,17 +44,37 @@ abstract class HomeSettingsViewModelBase with Store {
   @action
   void setPinNativeToken(bool value) => _settingsStore.pinNativeTokenAtTop = value;
 
-  Future<void> addToken(CryptoCurrency token) async {
+  Future<void> addToken({
+    required String contractAddress,
+    required CryptoCurrency token,
+  }) async {
     if (_balanceViewModel.wallet.type == WalletType.ethereum) {
-      await ethereum!.addErc20Token(_balanceViewModel.wallet, token);
+      final erc20token = Erc20Token(
+        name: token.name,
+        symbol: token.title,
+        decimal: token.decimals,
+        contractAddress: contractAddress,
+      );
+
+      await ethereum!.addErc20Token(_balanceViewModel.wallet, erc20token);
     }
 
     if (_balanceViewModel.wallet.type == WalletType.polygon) {
-      await polygon!.addErc20Token(_balanceViewModel.wallet, token);
+      final polygonToken = Erc20Token(
+        name: token.name,
+        symbol: token.title,
+        decimal: token.decimals,
+        contractAddress: contractAddress,
+      );
+      await polygon!.addErc20Token(_balanceViewModel.wallet, polygonToken);
     }
 
     if (_balanceViewModel.wallet.type == WalletType.solana) {
-      await solana!.addSPLToken(_balanceViewModel.wallet, token);
+      await solana!.addSPLToken(
+        _balanceViewModel.wallet,
+        token,
+        contractAddress,
+      );
     }
 
     _updateTokensList();
@@ -117,7 +137,8 @@ abstract class HomeSettingsViewModelBase with Store {
     }
 
     if (_balanceViewModel.wallet.type == WalletType.solana) {
-      solana!.addSPLToken(_balanceViewModel.wallet, token);
+      final address = solana!.getTokenAddress(token);
+      solana!.addSPLToken(_balanceViewModel.wallet, token, address);
     }
 
     _refreshTokensList();

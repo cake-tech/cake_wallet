@@ -947,7 +947,11 @@ abstract class Solana {
     required CryptoCurrency currency,
   });
   List<CryptoCurrency> getSPLTokenCurrencies(WalletBase wallet);
-  Future<void> addSPLToken(WalletBase wallet, CryptoCurrency token);
+  Future<void> addSPLToken(
+    WalletBase wallet,
+    CryptoCurrency token,
+    String contractAddress,
+  );
   Future<void> deleteSPLToken(WalletBase wallet, CryptoCurrency token);
   Future<CryptoCurrency?> getSPLToken(WalletBase wallet, String contractAddress);
 
@@ -955,6 +959,7 @@ abstract class Solana {
   double getTransactionAmountRaw(TransactionInfo transactionInfo);
   String getTokenAddress(CryptoCurrency asset);
   List<int>? getValidationLength(CryptoCurrency type);
+  double? getEstimateFees(WalletBase wallet);
 }
 
   """;

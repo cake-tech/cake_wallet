@@ -32,6 +32,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
 
     await wallet.init();
     wallet.addInitialTokens();
+    await wallet.save();
     return wallet;
   }
 
@@ -46,16 +47,31 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
   Future<SolanaWallet> openWallet(String name, String password) async {
     final walletInfo =
         walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-    final wallet = await SolanaWalletBase.open(
-      name: name,
-      password: password,
-      walletInfo: walletInfo,
-    );
 
-    await wallet.init();
-    await wallet.save();
+    try {
+      final wallet = await SolanaWalletBase.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
 
-    return wallet;
+      await wallet.init();
+      await wallet.save();
+      saveBackup(name);
+      return wallet;
+    } catch (_) {
+      await restoreWalletFilesFromBackup(name);
+
+      final wallet = await SolanaWalletBase.open(
+        name: name,
+        password: password,
+        walletInfo: walletInfo,
+      );
+
+      await wallet.init();
+      await wallet.save();
+      return wallet;
+    }
   }
 
   @override
@@ -110,6 +126,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
         password: password, name: currentName, walletInfo: currentWalletInfo);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
