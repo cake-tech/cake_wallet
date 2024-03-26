@@ -13,10 +13,15 @@ Future<String?> readSecureStorage(FlutterSecureStorage secureStorage, String key
 
   DateTime start = DateTime.now();
 
-  do {
-    await Future.delayed(checkInterval);
+  while (result == null && DateTime.now().difference(start) < maxWait) {
     result = await secureStorage.read(key: key);
-  } while (result == null && DateTime.now().difference(start) < maxWait);
+
+    if (result != null) {
+      break;
+    }
+
+    await Future.delayed(checkInterval);
+  }
 
   return result;
 }
