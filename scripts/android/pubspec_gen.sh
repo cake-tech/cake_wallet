@@ -3,6 +3,7 @@
 MONERO_COM=monero.com
 CAKEWALLET=cakewallet
 HAVEN=haven
+WOWNERO=wownero
 CONFIG_ARGS=""
 
 case $APP_ANDROID_TYPE in
@@ -10,10 +11,13 @@ case $APP_ANDROID_TYPE in
                 CONFIG_ARGS="--monero"
                 ;;
         $CAKEWALLET)
-                CONFIG_ARGS="--monero --bitcoin --haven --ethereum --polygon --nano --bitcoinCash --solana"
+                CONFIG_ARGS="--monero --bitcoin --haven --wownero --ethereum --polygon --nano --bitcoinCash --solana"
                 ;;
         $HAVEN)
                 CONFIG_ARGS="--haven"
+                ;;
+        $WOWNERO)
+                CONFIG_ARGS="--wownero"
                 ;;
 esac
 

@@ -11,6 +11,8 @@ CryptoCurrency currencyForWalletType(WalletType type) {
       return CryptoCurrency.ltc;
     case WalletType.haven:
       return CryptoCurrency.xhv;
+    case WalletType.wownero:
+      return CryptoCurrency.wow;
     case WalletType.ethereum:
       return CryptoCurrency.eth;
     case WalletType.bitcoinCash:

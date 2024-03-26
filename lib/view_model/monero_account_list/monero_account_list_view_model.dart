@@ -5,6 +5,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 
 part 'monero_account_list_view_model.g.dart';
 

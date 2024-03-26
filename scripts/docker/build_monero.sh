@@ -4,7 +4,11 @@
 
 MONERO_SRC_DIR=${WORKDIR}/monero
 
-git clone https://github.com/cake-tech/monero.git ${MONERO_SRC_DIR} --branch ${MONERO_BRANCH}
+rm -rf $MONERO_SRC_DIR
+#echo "git clone https://git.wownero.com/dsc/wtf.git ${MONERO_SRC_DIR} --branch ${MONERO_BRANCH} --depth 1"
+#git clone https://git.wownero.com/dsc/wtf.git ${MONERO_SRC_DIR} --branch ${MONERO_BRANCH} --depth 1 --recurse-submodules --shallow-submodules
+
+git clone https://github.com/cake-tech/monero.git ${MONERO_SRC_DIR} --branch ${MONERO_BRANCH} --depth 1 --recurse-submodules --shallow-submodules
 cd $MONERO_SRC_DIR
 git submodule init
 git submodule update

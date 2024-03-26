@@ -4,7 +4,7 @@ LABEL authors="konsti"
 ENV MONERO_BRANCH=release-v0.18.2.2-android
 RUN apt-get update && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
-    apt-get install -y dialog apt-utils curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang
+    apt-get install -y byacc dialog apt-utils curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang
 
 RUN mkdir /opt/android/
 
