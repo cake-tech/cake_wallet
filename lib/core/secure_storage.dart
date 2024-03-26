@@ -7,43 +7,16 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 // It'll make these kind of modifications to read/write come from a single point.
 
 Future<String?> readSecureStorage(FlutterSecureStorage secureStorage, String key) async {
-  const timeoutDurationInSeconds = 3;
+  String? result;
+  const maxWait = Duration(seconds: 3);
+  const checkInterval = Duration(milliseconds: 200);
 
-  Completer<String?> completer = Completer<String?>();
-  Stopwatch stopwatch = Stopwatch();
-  stopwatch.start();
-  bool isRetrying = false;
-  late Timer retryTimer;
+  DateTime start = DateTime.now();
 
-  void retry() {
-    if (!isRetrying) {
-      isRetrying = true;
-      retryTimer = Timer.periodic(
-        Duration(milliseconds: 100),
-        (timer) async {
-          String? result = await secureStorage.read(key: key);
+  do {
+    await Future.delayed(checkInterval);
+    result = await secureStorage.read(key: key);
+  } while (result == null && DateTime.now().difference(start) < maxWait);
 
-          if (result != null) {
-            timer.cancel();
-            stopwatch.stop();
-            print('We\'ve gotten a valid response from secure storage');
-            completer.complete(result);
-            isRetrying = false;
-          }
-
-          if (stopwatch.elapsed.inSeconds >= timeoutDurationInSeconds) {
-            timer.cancel();
-            stopwatch.stop();
-            print('Timer cancelled due to timeout.');
-            completer.complete(null);
-            isRetrying = false;
-          }
-        },
-      );
-    }
-  }
-
-  retry(); // Start the first attempt
-
-  return completer.future;
+  return result;
 }
