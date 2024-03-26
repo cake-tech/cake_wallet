@@ -108,7 +108,7 @@ class BackgroundTasks {
       final SyncMode syncMode = settingsStore.currentSyncMode;
       final bool syncAll = settingsStore.currentSyncAll;
 
-      if (syncMode.type == SyncType.disabled || FeatureFlag.isBackgroundSyncEnabled) {
+      if (syncMode.type == SyncType.disabled || !FeatureFlag.isBackgroundSyncEnabled) {
         cancelSyncTask();
         return;
       }
