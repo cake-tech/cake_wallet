@@ -197,7 +197,8 @@ abstract class ElectrumWalletBase
       List<BitcoinOutput> outputs,
       int? feeRate,
       BitcoinTransactionPriority? priority,
-      {int? inputsCount}) async {
+      {int? inputsCount,
+      bool? useReplaceByFee}) async {
     final utxos = <UtxoWithAddress>[];
     List<ECPrivate> privateKeys = [];
 
@@ -258,7 +259,7 @@ abstract class ElectrumWalletBase
       utxos: utxos,
       outputs: outputs,
       network: network,
-      enableRBF: transactionCredentials.useReplaceByFee,
+      enableRBF: useReplaceByFee ?? false,
     );
 
     int fee = feeRate != null
@@ -354,6 +355,7 @@ abstract class ElectrumWalletBase
         outputs,
         transactionCredentials.feeRate,
         transactionCredentials.priority,
+        useReplaceByFee: transactionCredentials.useReplaceByFee,
       );
 
       final txb = BitcoinTransactionBuilder(
