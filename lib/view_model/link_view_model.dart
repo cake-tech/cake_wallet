@@ -5,6 +5,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -106,6 +107,13 @@ abstract class LinkViewModelBase with Store {
       if (appStore.wallet == null) {
         return;
       }
+
+      if (isNanoGptLink) {
+        if (route == Routes.buySellPage || route == Routes.exchange) {
+          await _nonETHWalletErrorToast(S.current.nano_gpt_thanks_message);
+        }
+      }
+
       navigatorKey.currentState?.pushNamed(
         route,
         arguments: args,

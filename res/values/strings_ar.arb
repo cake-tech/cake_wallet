@@ -348,6 +348,7 @@
   "moonpay_alert_text": "يجب أن تكون قيمة المبلغ أكبر من أو تساوي ${minAmount} ${fiatCurrency}",
   "more_options": "المزيد من الخيارات",
   "name": "ﻢﺳﺍ",
+  "nano_gpt_thanks_message": "شكرا لاستخدام nanogpt! تذكر أن تعود إلى المتصفح بعد اكتمال معاملتك!",
   "nanogpt_subtitle": "جميع النماذج الأحدث (GPT-4 ، Claude). \\ nno اشتراك ، ادفع مع Crypto.",
   "narrow": "ضيق",
   "new_first_wallet_text": "حافظ بسهولة على أمان العملة المشفرة",
