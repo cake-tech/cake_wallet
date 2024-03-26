@@ -72,7 +72,7 @@ class SolanaChainServiceImpl implements ChainService {
 
   @override
   List<String> getEvents() {
-    return [''];
+    return ['chainChanged', 'accountsChanged'];
   }
 
   Future<String?> requestAuthorization(String? text) async {
