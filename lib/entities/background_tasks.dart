@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
@@ -107,7 +108,7 @@ class BackgroundTasks {
       final SyncMode syncMode = settingsStore.currentSyncMode;
       final bool syncAll = settingsStore.currentSyncAll;
 
-      if (syncMode.type == SyncType.disabled) {
+      if (syncMode.type == SyncType.disabled || !FeatureFlag.isBackgroundSyncEnabled) {
         cancelSyncTask();
         return;
       }
