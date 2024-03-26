@@ -26,7 +26,7 @@ class RBFDetailsPage extends BasePage {
   RBFDetailsPage({required this.transactionDetailsViewModel});
 
   @override
-  String get title => 'Bump fee';
+  String get title => S.current.bump_fee;
 
   final TransactionDetailsViewModel transactionDetailsViewModel;
 

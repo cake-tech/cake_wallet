@@ -67,7 +67,7 @@ class TransactionDetailsPage extends BasePage {
               return Padding(
                 padding: const EdgeInsets.all(24),
                 child: SelectButton(
-                  text: 'Bump fee',
+                  text: S.of(context).bump_fee,
                   onTap: () async {
                     Navigator.of(context).pushNamed(Routes.bumpFeePage,
                         arguments: transactionDetailsViewModel.transactionInfo);

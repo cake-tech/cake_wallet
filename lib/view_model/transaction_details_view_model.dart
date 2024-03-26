@@ -336,7 +336,7 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   void _addBumpFeesListItems(TransactionInfo tx) {
     RBFListItems.add(StandartListItem(
-        title: 'Old fee', //TODO: add translation
+        title: S.current.old_fee,
         value: tx.feeFormatted() ?? '0.0'));
 
     final priorities = priorityForWalletType(wallet.type);
@@ -346,8 +346,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     final customItemIndex = customItem != null ? priorities.indexOf(customItem) : null;
 
     RBFListItems.add(StandardPickerListItem(
-        title: 'Estimated new fee',
-        //TODO: add translation
+        title: S.current.estimated_new_fee,
         value:
             bitcoinAmountToString(amount: newFee) + ' ${walletTypeToCryptoCurrency(wallet.type)}',
         items: priorityForWalletType(wallet.type),
@@ -364,11 +363,11 @@ abstract class TransactionDetailsViewModelBase with Store {
         }));
 
     RBFListItems.add(StandardExpandableListItem(
-        title: 'Inputs', //TODO: add translation
-        expandableItems: transactionInfo.inputAddresses ?? [])); //TODO: add translation
+        title: S.current.inputs,
+        expandableItems: transactionInfo.inputAddresses ?? []));
 
     RBFListItems.add(StandardExpandableListItem(
-        title: 'Outputs', //TODO: add translation
+        title: S.current.outputs,
         expandableItems: transactionInfo.outputAddresses ?? []));
   }
 
