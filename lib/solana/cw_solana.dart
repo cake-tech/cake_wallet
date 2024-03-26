@@ -110,7 +110,7 @@ class CWSolana extends Solana {
   @override
   List<int>? getValidationLength(CryptoCurrency type) {
     if (type is SPLToken) {
-      return [44];
+      return [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44];
     }
 
     return null;

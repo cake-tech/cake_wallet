@@ -183,13 +183,8 @@ abstract class MoneroWalletBase
         // try to use the date instead:
         try {
           _setHeightFromDate();
-        } catch (e, s) {
+        } catch (_) {
           // we still couldn't get a valid sync height :/
-          onError?.call(FlutterErrorDetails(
-            exception: e,
-            stack: s,
-            library: this.runtimeType.toString(),
-          ));
         }
       }
     }
@@ -579,13 +574,7 @@ abstract class MoneroWalletBase
     int height = 0;
     try {
       height = _getHeightByDate(walletInfo.date);
-    } catch (e, s) {
-      onError?.call(FlutterErrorDetails(
-        exception: e,
-        stack: s,
-        library: this.runtimeType.toString(),
-      ));
-    }
+    } catch (_) {}
 
     monero_wallet.setRecoveringFromSeed(isRecovery: true);
     monero_wallet.setRefreshFromBlockHeight(height: height);

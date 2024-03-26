@@ -20,6 +20,7 @@ class PreferencesKey {
   static const isAppSecureKey = 'is_app_secure';
   static const disableBuyKey = 'disable_buy';
   static const disableSellKey = 'disable_sell';
+  static const disableBulletinKey = 'disable_bulletin';
   static const defaultBuyProvider = 'default_buy_provider';
   static const walletListOrder = 'wallet_list_order';
   static const walletListAscending = 'wallet_list_ascending';
@@ -73,4 +74,5 @@ class PreferencesKey {
   static const lastSeenAppVersion = 'last_seen_app_version';
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';
+  static const serviceStatusShaKey = 'service_status_sha_key';
 }

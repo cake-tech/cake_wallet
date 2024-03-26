@@ -16,6 +16,7 @@ jobs:
     env:
       STORE_PASS: test@cake_wallet
       KEY_PASS: test@cake_wallet
+      PR_NUMBER: ${{ github.event.number }}
 
     steps:
       - name: is pr
@@ -142,7 +143,7 @@ jobs:
           echo "const chatwootWebsiteToken = '${{ secrets.CHATWOOT_WEBSITE_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const exolixApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const robinhoodApplicationId = '${{ secrets.ROBINHOOD_APPLICATION_ID }}';" >> lib/.secrets.g.dart
-          echo "const robinhoodCIdApiSecret = '${{ secrets.ROBINHOOD_CID_CLIENT_SECRET }}';" >> lib/.secrets.g.dart
+          echo "const exchangeHelperApiKey = '${{ secrets.ROBINHOOD_CID_CLIENT_SECRET }}';" >> lib/.secrets.g.dart
           echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
@@ -150,10 +151,7 @@ jobs:
 
       - name: Rename app
         run: |
-          hash=`sha512sum <<<"${{ env.BRANCH_NAME }}"`
-          substring=${hash:0:15}
-          echo substring
-          echo -e "id=com.cakewallet.test_$(substring)\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
+          echo -e "id=com.cakewallet.test_${{ env.PR_NUMBER }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
 
       - name: Build
         run: |

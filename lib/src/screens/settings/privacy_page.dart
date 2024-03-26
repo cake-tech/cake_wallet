@@ -80,6 +80,12 @@ class PrivacyPage extends BasePage {
                   onValueChange: (BuildContext _, bool value) {
                     _privacySettingsViewModel.setDisableSell(value);
                   }),
+              SettingsSwitcherCell(
+                  title: S.current.disable_bulletin,
+                  value: _privacySettingsViewModel.disableBulletin,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setDisableBulletin(value);
+                  }),
               if (_privacySettingsViewModel.canUseEtherscan)
                 SettingsSwitcherCell(
                     title: S.current.etherscan_history,

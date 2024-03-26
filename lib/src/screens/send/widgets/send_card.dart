@@ -82,15 +82,17 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     if (initialPaymentRequest != null &&
         sendViewModel.walletCurrencyName != initialPaymentRequest!.scheme.toLowerCase()) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithOneAction(
-                  alertTitle: S.of(context).error,
-                  alertContent: S.of(context).unmatched_currencies,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
-            });
+        if (context.mounted) {
+          showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithOneAction(
+                    alertTitle: S.of(context).error,
+                    alertContent: S.of(context).unmatched_currencies,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop());
+              });
+        }
       });
     }
   }
