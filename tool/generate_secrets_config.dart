@@ -5,6 +5,7 @@ import 'utils/utils.dart';
 
 const configPath = 'tool/.secrets-config.json';
 const evmChainsConfigPath = 'tool/.evm-secrets-config.json';
+const bitcoinConfigPath = 'tool/.bitcoin-secrets-config.json';
 const solanaConfigPath = 'tool/.solana-secrets-config.json';
 
 Future<void> main(List<String> args) async => generateSecretsConfig(args);
@@ -19,6 +20,7 @@ Future<void> generateSecretsConfig(List<String> args) async {
 
   final configFile = File(configPath);
   final evmChainsConfigFile = File(evmChainsConfigPath);
+  final bitcoinConfigFile = File(bitcoinConfigPath);
   final solanaConfigFile = File(solanaConfigPath);
 
   final secrets = <String, dynamic>{};
@@ -40,6 +42,7 @@ Future<void> generateSecretsConfig(List<String> args) async {
     }
   }
 
+  // base:
   SecretKey.base.forEach((sec) {
     if (secrets[sec.name] != null) {
       return;
@@ -47,12 +50,11 @@ Future<void> generateSecretsConfig(List<String> args) async {
 
     secrets[sec.name] = sec.generate();
   });
-
   var secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
   await configFile.writeAsString(secretsJson);
-
   secrets.clear();
 
+  // evm:
   SecretKey.evmChainsSecrets.forEach((sec) {
     if (secrets[sec.name] != null) {
       return;
@@ -60,13 +62,22 @@ Future<void> generateSecretsConfig(List<String> args) async {
 
     secrets[sec.name] = sec.generate();
   });
-
   secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
-
   await evmChainsConfigFile.writeAsString(secretsJson);
-
   secrets.clear();
 
+  // btc / lightning:
+  SecretKey.bitcoinSecrets.forEach((sec) {
+    if (secrets[sec.name] != null) {
+      return;
+    }
+    secrets[sec.name] = sec.generate();
+  });
+  secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
+  await bitcoinConfigFile.writeAsString(secretsJson);
+  secrets.clear();
+
+  // solana:
   SecretKey.solanaSecrets.forEach((sec) {
     if (secrets[sec.name] != null) {
       return;
@@ -74,8 +85,7 @@ Future<void> generateSecretsConfig(List<String> args) async {
 
     secrets[sec.name] = sec.generate();
   });
-
   secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
-
   await solanaConfigFile.writeAsString(secretsJson);
+  secrets.clear();
 }

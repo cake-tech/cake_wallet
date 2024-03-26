@@ -69,6 +69,7 @@ class ProvidersHelper {
       case WalletType.solana:
         return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.robinhood];
       case WalletType.none:
+      case WalletType.lightning:
       case WalletType.haven:
         return [];
     }
@@ -98,6 +99,7 @@ class ProvidersHelper {
       case WalletType.monero:
       case WalletType.nano:
       case WalletType.banano:
+      case WalletType.lightning:
       case WalletType.none:
       case WalletType.haven:
         return [];

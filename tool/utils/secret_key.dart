@@ -44,6 +44,11 @@ class SecretKey {
     SecretKey('polygonScanApiKey', () => ''),
   ];
 
+  static final bitcoinSecrets = [
+    SecretKey('breezApiKey', () => ''),
+    SecretKey('breezInviteCode', () => ''),
+  ];
+  
   static final solanaSecrets = [
     SecretKey('ankrApiKey', () => ''),
   ];

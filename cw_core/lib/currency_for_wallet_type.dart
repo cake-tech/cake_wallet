@@ -5,6 +5,8 @@ CryptoCurrency currencyForWalletType(WalletType type) {
   switch (type) {
     case WalletType.bitcoin:
       return CryptoCurrency.btc;
+    case WalletType.lightning:
+      return CryptoCurrency.btcln;
     case WalletType.monero:
       return CryptoCurrency.xmr;
     case WalletType.litecoin:

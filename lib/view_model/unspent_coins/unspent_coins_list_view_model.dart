@@ -69,7 +69,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
     if (wallet.type == WalletType.monero) {
       await monero!.updateUnspents(wallet);
     }
-    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type)) {
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash]
+        .contains(wallet.type)) {
       await bitcoin!.updateUnspents(wallet);
     }
 
@@ -78,8 +79,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   List<Unspent> _getUnspents() {
     if (wallet.type == WalletType.monero) return monero!.getUnspents(wallet);
-    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type))
-      return bitcoin!.getUnspents(wallet);
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash]
+        .contains(wallet.type)) return bitcoin!.getUnspents(wallet);
     return List.empty();
   }
 

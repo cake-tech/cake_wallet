@@ -1,3 +1,4 @@
+import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
@@ -13,8 +14,10 @@ import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/view_model/lightning_send_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
@@ -37,7 +40,11 @@ import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dar
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
+import 'package:cake_wallet/src/screens/receive/lightning_invoice_page.dart';
+import 'package:cake_wallet/src/screens/receive/lightning_receive_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
+import 'package:cake_wallet/src/screens/send/lightning_send_confirm_page.dart';
+import 'package:cake_wallet/src/screens/send/lightning_send_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
@@ -89,10 +96,13 @@ import 'package:cake_wallet/src/screens/dashboard/pages/balance_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
+import 'package:cake_wallet/view_model/lightning_invoice_page_view_model.dart';
+import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:cake_wallet/view_model/seed_type_view_model.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
@@ -375,17 +385,19 @@ Future<void> setup({
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory(() => DashboardViewModel(
-      balanceViewModel: getIt.get<BalanceViewModel>(),
-      appStore: getIt.get<AppStore>(),
-      tradesStore: getIt.get<TradesStore>(),
-      tradeFilterStore: getIt.get<TradeFilterStore>(),
-      transactionFilterStore: getIt.get<TransactionFilterStore>(),
-      settingsStore: settingsStore,
-      yatStore: getIt.get<YatStore>(),
-      ordersStore: getIt.get<OrdersStore>(),
-      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
-      sharedPreferences: getIt.get<SharedPreferences>(),
-      keyService: getIt.get<KeyService>()));
+        balanceViewModel: getIt.get<BalanceViewModel>(),
+        appStore: getIt.get<AppStore>(),
+        tradesStore: getIt.get<TradesStore>(),
+        tradeFilterStore: getIt.get<TradeFilterStore>(),
+        transactionFilterStore: getIt.get<TransactionFilterStore>(),
+        settingsStore: settingsStore,
+        yatStore: getIt.get<YatStore>(),
+        ordersStore: getIt.get<OrdersStore>(),
+        anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
+        sharedPreferences: getIt.get<SharedPreferences>(),
+        keyService: getIt.get<KeyService>(),
+        lightningViewModel: getIt.get<LightningViewModel>(),
+      ));
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
@@ -604,7 +616,6 @@ Future<void> setup({
             authService: getIt.get<AuthService>(),
             initialPaymentRequest: initialPaymentRequest,
           ));
-
   getIt.registerFactory(
       () => SendTemplatePage(sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
 
@@ -865,6 +876,8 @@ Future<void> setup({
         return nano!.createNanoWalletService(_walletInfoSource);
       case WalletType.polygon:
         return polygon!.createPolygonWalletService(_walletInfoSource);
+      case WalletType.lightning:
+        return lightning!.createLightningWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.solana:
         return solana!.createSolanaWalletService(_walletInfoSource);
       default:
@@ -1195,6 +1208,64 @@ Future<void> setup({
 
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
+
+  getIt.registerFactory<LightningViewModel>(
+    () => LightningViewModel(),
+  );
+
+  getIt.registerFactory<LightningSendViewModel>(
+    () => LightningSendViewModel(
+      settingsStore: getIt.get<SettingsStore>(),
+      fiatConversionStore: getIt.get<FiatConversionStore>(),
+    ),
+  );
+
+  getIt.registerFactoryParam<LightningInvoicePageViewModel, void, void>((_, __) {
+    return LightningInvoicePageViewModel(
+      getIt.get<SettingsStore>(),
+      getIt.get<AppStore>().wallet!,
+      getIt.get<SharedPreferences>(),
+      getIt.get<LightningViewModel>(),
+    );
+  });
+
+  getIt.registerFactoryParam<LightningReceiveOnchainPage, void, void>((_, __) {
+    return LightningReceiveOnchainPage(
+      addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+      lightningViewModel: getIt.get<LightningViewModel>(),
+      receiveOptionViewModel:
+          getIt.get<ReceiveOptionViewModel>(param1: lightning!.getOptionOnchain()),
+    );
+  });
+
+  getIt.registerFactoryParam<LightningInvoicePage, void, void>((_, __) {
+    return LightningInvoicePage(
+      lightningInvoicePageViewModel: getIt.get<LightningInvoicePageViewModel>(),
+      lightningViewModel: getIt.get<LightningViewModel>(),
+      receiveOptionViewModel:
+          getIt.get<ReceiveOptionViewModel>(param1: lightning!.getOptionInvoice()),
+    );
+  });
+
+  getIt.registerFactory<LightningSendPage>(() {
+    return LightningSendPage(
+      output: Output(
+        getIt.get<AppStore>().wallet!,
+        getIt.get<SettingsStore>(),
+        getIt.get<FiatConversionStore>(),
+        () => CryptoCurrency.btcln,
+      ),
+      authService: getIt.get<AuthService>(),
+      lightningSendViewModel: getIt.get<LightningSendViewModel>(),
+    );
+  });
+
+  getIt.registerFactoryParam<LightningSendConfirmPage, LNInvoice, void>((LNInvoice invoice, _) {
+    return LightningSendConfirmPage(
+      invoice: invoice,
+      lightningSendViewModel: getIt.get<LightningSendViewModel>(),
+    );
+  });
 
   _isSetupFinished = true;
 }

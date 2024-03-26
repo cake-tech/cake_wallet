@@ -7,6 +7,7 @@ const ethereumOutputPath = 'lib/ethereum/ethereum.dart';
 const bitcoinCashOutputPath = 'lib/bitcoin_cash/bitcoin_cash.dart';
 const nanoOutputPath = 'lib/nano/nano.dart';
 const polygonOutputPath = 'lib/polygon/polygon.dart';
+const lightningOutputPath = 'lib/lightning/lightning.dart';
 const solanaOutputPath = 'lib/solana/solana.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
@@ -22,6 +23,7 @@ Future<void> main(List<String> args) async {
   final hasNano = args.contains('${prefix}nano');
   final hasBanano = args.contains('${prefix}banano');
   final hasPolygon = args.contains('${prefix}polygon');
+  final hasLightning = args.contains('${prefix}lightning');
   final hasSolana = args.contains('${prefix}solana');
 
   await generateBitcoin(hasBitcoin);
@@ -31,6 +33,7 @@ Future<void> main(List<String> args) async {
   await generateBitcoinCash(hasBitcoinCash);
   await generateNano(hasNano);
   await generatePolygon(hasPolygon);
+  await generateLightning(hasLightning);
   await generateSolana(hasSolana);
   // await generateBanano(hasEthereum);
 
@@ -43,6 +46,7 @@ Future<void> main(List<String> args) async {
     hasBanano: hasBanano,
     hasBitcoinCash: hasBitcoinCash,
     hasPolygon: hasPolygon,
+    hasLightning: hasLightning,
     hasSolana: hasSolana,
   );
   await generateWalletTypes(
@@ -54,6 +58,7 @@ Future<void> main(List<String> args) async {
     hasBanano: hasBanano,
     hasBitcoinCash: hasBitcoinCash,
     hasPolygon: hasPolygon,
+    hasLightning: hasLightning,
     hasSolana: hasSolana,
   );
 }
@@ -711,6 +716,73 @@ abstract class Polygon {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateLightning(bool hasImplementation) async {
+  final outputFile = File(lightningOutputPath);
+  const lightningCommonHeaders = """
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cw_core/unspent_transaction_output.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/receive_page_option.dart';
+import 'package:cw_core/crypto_amount_format.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
+import 'package:intl/intl.dart';
+""";
+  const lightningCWHeaders = """
+import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
+import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cw_lightning/lightning_wallet_service.dart';
+import 'package:cw_lightning/lightning_receive_page_option.dart';
+""";
+  const lightningCwPart = "part 'cw_lightning.dart';";
+  const lightningContent = """
+abstract class Lightning {
+  String formatterLightningAmountToString({required int amount});
+  double formatterLightningAmountToDouble({required int amount});
+  int formatterStringDoubleToLightningAmount(String amount);
+  WalletService createLightningWalletService(
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+  List<ReceivePageOption> getLightningReceivePageOptions();
+  String satsToLightningString(int sats);
+  ReceivePageOption getOptionInvoice();
+  ReceivePageOption getOptionOnchain();
+  String bitcoinAmountToLightningString({required int amount});
+  int bitcoinAmountToLightningAmount({required int amount});
+  double bitcoinDoubleToLightningDouble({required double amount});
+  double lightningDoubleToBitcoinDouble({required double amount});
+}
+  """;
+
+  const lightningEmptyDefinition = 'Lightning? lightning;\n';
+  const lightningCWDefinition = 'Lightning? lightning = CWLightning();\n';
+
+  final output = '$lightningCommonHeaders\n' +
+      (hasImplementation ? '$lightningCWHeaders\n' : '\n') +
+      (hasImplementation ? '$lightningCwPart\n\n' : '\n') +
+      (hasImplementation ? lightningCWDefinition : lightningEmptyDefinition) +
+      '\n' +
+      lightningContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generateBitcoinCash(bool hasImplementation) async {
   final outputFile = File(bitcoinCashOutputPath);
   const bitcoinCashCommonHeaders = """
@@ -985,6 +1057,7 @@ Future<void> generatePubspec(
     required bool hasBanano,
     required bool hasBitcoinCash,
     required bool hasPolygon,
+    required bool hasLightning,
     required bool hasSolana}) async {
   const cwCore = """
   cw_core:
@@ -1034,6 +1107,10 @@ Future<void> generatePubspec(
   cw_evm:
     path: ./cw_evm
     """;
+  const cwLightning = """
+  cw_lightning:
+    path: ./cw_lightning
+    """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
@@ -1082,6 +1159,10 @@ Future<void> generatePubspec(
     output += '\n$cwEVM';
   }
 
+  if (hasLightning) {
+    output += '\n$cwLightning';
+  }
+
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
@@ -1103,6 +1184,7 @@ Future<void> generateWalletTypes(
     required bool hasBanano,
     required bool hasBitcoinCash,
     required bool hasPolygon,
+    required bool hasLightning,
     required bool hasSolana}) async {
   final walletTypesFile = File(walletTypesPath);
 
@@ -1120,6 +1202,10 @@ Future<void> generateWalletTypes(
 
   if (hasBitcoin) {
     outputContent += '\tWalletType.bitcoin,\n';
+  }
+
+  if (hasLightning) {
+    outputContent += '\tWalletType.lightning,\n';
   }
 
   if (hasEthereum) {

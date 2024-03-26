@@ -7,6 +7,7 @@ part 'wallet_type.g.dart';
 const walletTypes = [
   WalletType.monero,
   WalletType.bitcoin,
+  WalletType.lightning,
   WalletType.litecoin,
   WalletType.haven,
   WalletType.ethereum,
@@ -50,7 +51,10 @@ enum WalletType {
   polygon,
 
   @HiveField(10)
-  solana
+  solana,
+
+  @HiveField(11)
+  lightning
 }
 
 int serializeToInt(WalletType type) {
@@ -75,6 +79,8 @@ int serializeToInt(WalletType type) {
       return 8;
     case WalletType.solana:
       return 9;
+    case WalletType.lightning:
+      return 10;
     default:
       return -1;
   }
@@ -102,6 +108,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.polygon;
     case 9:
       return WalletType.solana;
+    case 10:
+      return WalletType.lightning;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
@@ -127,6 +135,8 @@ String walletTypeToString(WalletType type) {
       return 'Banano';
     case WalletType.polygon:
       return 'Polygon';
+    case WalletType.lightning:
+      return 'Lightning';
     case WalletType.solana:
       return 'Solana';
     default:
@@ -154,6 +164,8 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Banano (BAN)';
     case WalletType.polygon:
       return 'Polygon (MATIC)';
+    case WalletType.lightning:
+      return 'Bitcoin (Lightning)';
     case WalletType.solana:
       return 'Solana (SOL)';
     default:
@@ -181,6 +193,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.banano;
     case WalletType.polygon:
       return CryptoCurrency.maticpoly;
+    case WalletType.lightning:
+      return CryptoCurrency.btcln;
     case WalletType.solana:
       return CryptoCurrency.sol;
     default:

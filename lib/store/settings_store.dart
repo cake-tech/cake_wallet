@@ -891,6 +891,7 @@ abstract class SettingsStoreBase with Store {
 
     if (bitcoinElectrumServer != null) {
       nodes[WalletType.bitcoin] = bitcoinElectrumServer;
+      nodes[WalletType.lightning] = bitcoinElectrumServer;
     }
 
     if (litecoinElectrumServer != null) {
@@ -1228,6 +1229,7 @@ abstract class SettingsStoreBase with Store {
 
     if (bitcoinElectrumServer != null) {
       nodes[WalletType.bitcoin] = bitcoinElectrumServer;
+      nodes[WalletType.lightning] = bitcoinElectrumServer;
     }
 
     if (litecoinElectrumServer != null) {

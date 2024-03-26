@@ -18,12 +18,16 @@ import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
+import 'package:cake_wallet/src/screens/receive/lightning_invoice_page.dart';
+import 'package:cake_wallet/src/screens/receive/lightning_receive_page.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
+import 'package:cake_wallet/src/screens/send/lightning_send_confirm_page.dart';
+import 'package:cake_wallet/src/screens/send/lightning_send_page.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
@@ -150,7 +154,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final walletNewVM = getIt.get<WalletNewVM>(param1: type);
       final seedTypeViewModel = getIt.get<SeedTypeViewModel>();
 
-      return CupertinoPageRoute<void>(builder: (_) => NewWalletPage(walletNewVM, seedTypeViewModel));
+      return CupertinoPageRoute<void>(
+          builder: (_) => NewWalletPage(walletNewVM, seedTypeViewModel));
 
     case Routes.setupPin:
       Function(PinCodeState<PinCodeWidget>, String)? callback;
@@ -393,8 +398,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.buySellPage:
       final args = settings.arguments as bool;
-      return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<BuySellOptionsPage>(param1: args));
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuySellOptionsPage>(param1: args));
 
     case Routes.buyWebView:
       final args = settings.arguments as List;
@@ -417,8 +421,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.preSeedPage:
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<PreSeedPage>(
-              param1: settings.arguments as int));
+          builder: (_) => getIt.get<PreSeedPage>(param1: settings.arguments as int));
 
     case Routes.backup:
       return CupertinoPageRoute<void>(
@@ -639,6 +642,25 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.torPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<TorPage>());
+
+    case Routes.lightningSend:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<LightningSendPage>());
+
+    case Routes.lightningSendConfirm:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<LightningSendConfirmPage>(param1: settings.arguments));
+
+    case Routes.lightningReceiveOnchain:
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<LightningReceiveOnchainPage>(param1: args));
+
+    case Routes.lightningInvoice:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<LightningInvoicePage>());
 
     default:
       return MaterialPageRoute<void>(

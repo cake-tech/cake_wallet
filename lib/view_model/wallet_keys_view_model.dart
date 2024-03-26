@@ -19,6 +19,7 @@ class WalletKeysViewModel = WalletKeysViewModelBase with _$WalletKeysViewModel;
 abstract class WalletKeysViewModelBase with Store {
   WalletKeysViewModelBase(this._appStore)
       : title = _appStore.wallet!.type == WalletType.bitcoin ||
+                _appStore.wallet!.type == WalletType.lightning ||
                 _appStore.wallet!.type == WalletType.litecoin ||
                 _appStore.wallet!.type == WalletType.bitcoinCash
             ? S.current.wallet_seed
@@ -101,6 +102,7 @@ abstract class WalletKeysViewModelBase with Store {
     }
 
     if (_appStore.wallet!.type == WalletType.bitcoin ||
+        _appStore.wallet!.type == WalletType.lightning ||
         _appStore.wallet!.type == WalletType.litecoin ||
         _appStore.wallet!.type == WalletType.bitcoinCash) {
       items.addAll([
@@ -164,6 +166,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'banano-wallet';
       case WalletType.polygon:
         return 'polygon-wallet';
+      case WalletType.lightning:
+        return 'lightning-wallet';
       case WalletType.solana:
         return 'solana-wallet';
       default:

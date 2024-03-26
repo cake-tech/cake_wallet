@@ -31,19 +31,20 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   }) : super(
-            mnemonic: mnemonic,
-            password: password,
-            walletInfo: walletInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
-            networkType: networkParam == null
-                ? bitcoin.bitcoin
-                : networkParam == BitcoinNetwork.mainnet
-                    ? bitcoin.bitcoin
-                    : bitcoin.testnet,
-            initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            seedBytes: seedBytes,
-            currency: CryptoCurrency.btc) {
+          mnemonic: mnemonic,
+          password: password,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfo,
+          networkType: networkParam == null
+              ? bitcoin.bitcoin
+              : networkParam == BitcoinNetwork.mainnet
+                  ? bitcoin.bitcoin
+                  : bitcoin.testnet,
+          initialAddresses: initialAddresses,
+          initialBalance: initialBalance,
+          seedBytes: seedBytes,
+          currency: CryptoCurrency.btc,
+        ) {
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
       electrumClient: electrumClient,

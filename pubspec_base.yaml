@@ -112,6 +112,12 @@ dependencies:
       url: https://github.com/cake-tech/bitcoin_base.git
       ref: cake-update-v2
 
+  breez_sdk:
+    git:
+      url: https://github.com/breez/breez-sdk-flutter.git
+      ref: v0.3.8
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -119,7 +125,7 @@ dev_dependencies:
   logging: ^1.2.0
   mobx_codegen: ^2.1.1
   build_resolvers: ^2.0.9
-  hive_generator: ^1.1.3
+  hive_generator: ^2.0.1
   flutter_launcher_icons: ^0.11.0
   # check flutter_launcher_icons for usage
   pedantic: ^1.8.0
@@ -133,6 +139,8 @@ dependency_overrides:
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
+  flutter_rust_bridge: ^1.82.6
+  uuid: ^4.1.0
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
