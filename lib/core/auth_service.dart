@@ -7,7 +7,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
@@ -35,7 +34,7 @@ class AuthService with Store {
     Routes.restoreOptions,
   ];
 
-  final FlutterSecureStorage secureStorage;
+  final SecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
   final SettingsStore settingsStore;
 
@@ -66,7 +65,7 @@ class AuthService with Store {
 
   Future<bool> authenticate(String pin) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final encodedPin = await readSecureStorage(secureStorage, key);
+    final encodedPin = await secureStorage.read(key: key);
     final decodedPin = decodedPinCode(pin: encodedPin!);
 
     return decodedPin == pin;

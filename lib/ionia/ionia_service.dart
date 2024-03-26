@@ -1,7 +1,7 @@
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_order.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/ionia/ionia_api.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
@@ -16,7 +16,7 @@ class IoniaService {
 
 	static String get clientId => secrets.ioniaClientId;
 
-	final FlutterSecureStorage secureStorage;
+	final SecureStorage secureStorage;
 	final IoniaApi ioniaApi;
 
 	// Create user
