@@ -23,6 +23,11 @@ dependencies:
   bip39: ^1.0.6
   collection: ^1.17.1
 
+dependency_overrides:
+  web3dart:
+    git:
+      url: https://github.com/cake-tech/web3dart.git
+      ref: cake
 
 dev_dependencies:
   flutter_test:

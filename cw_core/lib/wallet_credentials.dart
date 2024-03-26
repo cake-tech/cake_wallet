@@ -9,6 +9,7 @@ abstract class WalletCredentials {
     this.password,
     this.derivationType,
     this.derivationPath,
+    this.hardwareWalletType,
   });
 
   final String name;
@@ -18,4 +19,5 @@ abstract class WalletCredentials {
   DerivationType? derivationType;
   String? derivationPath;
   WalletInfo? walletInfo;
+  HardwareWalletType? hardwareWalletType;
 }

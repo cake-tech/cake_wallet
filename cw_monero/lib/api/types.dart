@@ -17,6 +17,9 @@ typedef RestoreWalletFromKeys = int Function(Pointer<Utf8>, Pointer<Utf8>,
 typedef RestoreWalletFromSpendKey = int Function(Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>,
     Pointer<Utf8>, Pointer<Utf8>, int, int, Pointer<Utf8>);
 
+typedef RestoreWalletFromDevice = int Function(Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>,
+    int, int, Pointer<Utf8>);
+
 typedef IsWalletExist = int Function(Pointer<Utf8>);
 
 typedef LoadWallet = int Function(Pointer<Utf8>, Pointer<Utf8>, int);

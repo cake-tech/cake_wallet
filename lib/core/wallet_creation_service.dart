@@ -101,4 +101,19 @@ class WalletCreationService {
 
     return wallet;
   }
+
+  Future<WalletBase> restoreFromHardwareWallet(WalletCredentials credentials) async {
+    checkIfExists(credentials.name);
+    final password = generateWalletPassword();
+    credentials.password = password;
+    await keyService.saveWalletPassword(password: password, walletName: credentials.name);
+    final wallet = await _service!.restoreFromHardwareWallet(credentials);
+
+    if (wallet.type == WalletType.monero) {
+      await sharedPreferences.setBool(
+          PreferencesKey.moneroWalletUpdateV1Key(wallet.name), _isNewMoneroWalletPasswordUpdated);
+    }
+
+    return wallet;
+  }
 }

@@ -56,7 +56,8 @@ class HavenRestoreWalletFromKeysCredentials extends WalletCredentials {
 class HavenWalletService extends WalletService<
     HavenNewWalletCredentials,
     HavenRestoreWalletFromSeedCredentials,
-    HavenRestoreWalletFromKeysCredentials> {
+    HavenRestoreWalletFromKeysCredentials,
+    HavenNewWalletCredentials> {
   HavenWalletService(this.walletInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
@@ -170,6 +171,11 @@ class HavenWalletService extends WalletService<
     newWalletInfo.name = newName;
 
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+  }
+
+  @override
+  Future<HavenWallet> restoreFromHardwareWallet(HavenNewWalletCredentials credentials) {
+    throw UnimplementedError("Restoring a Haven wallet from a hardware wallet is not yet supported!");
   }
 
   @override

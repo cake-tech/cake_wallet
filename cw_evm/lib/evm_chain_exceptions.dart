@@ -6,6 +6,8 @@ class EVMChainTransactionCreationException implements Exception {
   EVMChainTransactionCreationException(CryptoCurrency currency)
       : exceptionMessage = 'Wrong balance. Not enough ${currency.title} on your balance.';
 
+  EVMChainTransactionCreationException.fromMessage(this.exceptionMessage);
+
   @override
   String toString() => exceptionMessage;
 }

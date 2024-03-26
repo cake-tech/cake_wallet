@@ -77,7 +77,7 @@ abstract class EVMChainClient {
   }
 
   Future<PendingEVMChainTransaction> signTransaction({
-    required EthPrivateKey privateKey,
+    required Credentials privateKey,
     required String toAddress,
     required String amount,
     required int gas,
@@ -85,13 +85,13 @@ abstract class EVMChainClient {
     required CryptoCurrency currency,
     required int exponent,
     String? contractAddress,
+    bool isHardwareWallet = false,
   }) async {
     assert(currency == CryptoCurrency.eth ||
         currency == CryptoCurrency.maticpoly ||
         contractAddress != null);
 
-    bool isEVMCompatibleChain =
-        currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
+    bool isNativeToken = currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
 
     final price = _client!.getGasPrice();
 
@@ -99,16 +99,16 @@ abstract class EVMChainClient {
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
-      amount: isEVMCompatibleChain ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
+      amount: isNativeToken ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
     );
 
-    final signedTransaction =
-        await _client!.signTransaction(privateKey, transaction, chainId: chainId);
+    Uint8List? signedTransaction;
 
     final Function _sendTransaction;
 
-    if (isEVMCompatibleChain) {
-      _sendTransaction = () async => await sendTransaction(signedTransaction);
+    if (isNativeToken) {
+      signedTransaction = await _client!.signTransaction(privateKey, transaction, chainId: chainId);
+      _sendTransaction = () async => await sendTransaction(signedTransaction!);
     } else {
       final erc20 = ERC20(
         client: _client!,
@@ -127,7 +127,7 @@ abstract class EVMChainClient {
     }
 
     return PendingEVMChainTransaction(
-      signedTransaction: signedTransaction,
+      signedTransaction: signedTransaction ?? Uint8List(0),
       amount: amount,
       fee: BigInt.from(gas) * (await price).getInWei,
       sendTransaction: _sendTransaction,
@@ -149,8 +149,9 @@ abstract class EVMChainClient {
     );
   }
 
-  Future<String> sendTransaction(Uint8List signedTransaction) async =>
-      await _client!.sendRawTransaction(prepareSignedTransactionForSending(signedTransaction));
+  Future<String> sendTransaction(Uint8List signedTransaction) async {
+    return await _client!.sendRawTransaction(prepareSignedTransactionForSending(signedTransaction));
+  }
 
   Future getTransactionDetails(String transactionHash) async {
     // Wait for the transaction receipt to become available

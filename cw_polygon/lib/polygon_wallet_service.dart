@@ -87,6 +87,21 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
   }
 
   @override
+  Future<PolygonWallet> restoreFromHardwareWallet(EVMChainRestoreWalletFromHardware credentials) async {
+      final wallet = PolygonWallet(
+        walletInfo: credentials.walletInfo!,
+        password: credentials.password!,
+        client: client,
+      );
+
+      await wallet.init();
+      wallet.addInitialTokens();
+      await wallet.save();
+
+      return wallet;
+    }
+
+  @override
   Future<PolygonWallet> restoreFromSeed(EVMChainRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
     if (!bip39.validateMnemonic(credentials.mnemonic)) {
