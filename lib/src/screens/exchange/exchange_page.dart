@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/debounce.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -41,7 +42,7 @@ import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 
 class ExchangePage extends BasePage {
-  ExchangePage(this.exchangeViewModel, this.authService) {
+  ExchangePage(this.exchangeViewModel, this.authService, this.initialPaymentRequest) {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
         : null;
@@ -52,6 +53,7 @@ class ExchangePage extends BasePage {
 
   final ExchangeViewModel exchangeViewModel;
   final AuthService authService;
+  final PaymentRequest? initialPaymentRequest;
   final depositKey = GlobalKey<ExchangeCardState>();
   final receiveKey = GlobalKey<ExchangeCardState>();
   final _formKey = GlobalKey<FormState>();
@@ -527,6 +529,12 @@ class ExchangePage extends BasePage {
       // exchangeViewModel.changeDepositAmount(
       //   amount: depositAmountController.text);
     });
+
+    if (initialPaymentRequest != null) {
+      exchangeViewModel.receiveCurrency = CryptoCurrency.fromString(initialPaymentRequest!.scheme);
+      exchangeViewModel.depositAmount = initialPaymentRequest!.amount;
+      exchangeViewModel.receiveAddress = initialPaymentRequest!.address;
+    }
 
     _isReactionsSet = true;
   }
