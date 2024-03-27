@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
@@ -10,7 +11,7 @@ class KeyService {
   Future<String> getWalletPassword({required String walletName}) async {
     final key = generateStoreKeyFor(
         key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
-    final encodedPassword = await _secureStorage.read(key: key);
+    final encodedPassword = await readSecureStorage(_secureStorage, key);
     return decodeWalletPassword(password: encodedPassword!);
   }
 

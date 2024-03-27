@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -418,6 +419,34 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     } catch (e) {
       selectedCryptoCurrency = wallet.currency;
     }
+  }
+
+  ContactRecord? newContactAddress () {
+
+    final Set<String> contactAddresses =
+    Set.from(contactListViewModel.contacts.map((contact) => contact.address))
+      ..addAll(contactListViewModel.walletContacts.map((contact) => contact.address));
+
+    for (var output in outputs) {
+      String address;
+      if (output.isParsedAddress) {
+        address = output.parsedAddress.addresses.first;
+      } else {
+        address = output.address;
+      }
+
+      if (address.isNotEmpty && !contactAddresses.contains(address)) {
+
+        return ContactRecord(
+            contactListViewModel.contactSource,
+            Contact(
+              name: '',
+              address: address,
+              type: selectedCryptoCurrency,
+            ));
+      }
+    }
+    return null;
   }
 
   String translateErrorMessage(

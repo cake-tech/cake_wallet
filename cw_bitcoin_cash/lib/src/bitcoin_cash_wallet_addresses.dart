@@ -19,6 +19,7 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
     super.initialAddresses,
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,
+    super.initialAddressPageType,
   }) : super(walletInfo);
 
   @override
