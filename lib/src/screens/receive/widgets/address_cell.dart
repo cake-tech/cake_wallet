@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -81,41 +82,45 @@ class AddressCell extends StatelessWidget {
                 child: Column(
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: name.isNotEmpty ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        if (isChange)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Container(
-                              height: 20,
-                              padding: EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.all(Radius.circular(8.5)),
-                                  color: textColor),
-                              alignment: Alignment.center,
-                              child: Text(
-                                S.of(context).unspent_change,
-                                style: TextStyle(
-                                  color: backgroundColor,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
+                        Row(
+                          children: [
+                            if (isChange)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: Container(
+                                  height: 20,
+                                  padding: EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(8.5)),
+                                      color: textColor),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    S.of(context).unspent_change,
+                                    style: TextStyle(
+                                      color: backgroundColor,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                        if (name.isNotEmpty)
-                          Text(
-                            '$name - ',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: textColor,
-                            ),
-                          ),
+                            if (name.isNotEmpty)
+                              Text(
+                                '$name',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
+                              ),
+                          ],
+                        ),
                         Flexible(
                           child: AutoSizeText(
-                            formattedAddress,
+                            responsiveLayoutUtil.shouldRenderTabletUI ? address : formattedAddress,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(

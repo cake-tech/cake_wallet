@@ -44,6 +44,8 @@ abstract class PrivacySettingsViewModelBase with Store {
       _wallet.type == WalletType.litecoin ||
       _wallet.type == WalletType.bitcoinCash;
 
+  bool get isMoneroWallet => _wallet.type == WalletType.monero;
+
   @computed
   bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;
 
