@@ -27,7 +27,7 @@ abstract class OrderDetailsViewModelBase with Store {
           _provider = WyreBuyProvider(wallet: wallet);
           break;
         case BuyProviderDescription.moonPay:
-          _provider = MoonPayBuyProvider(wallet: wallet);
+          // _provider = MoonPayProvider(wallet: wallet);// TODO: CW-521
           break;
       }
     }
@@ -50,9 +50,9 @@ abstract class OrderDetailsViewModelBase with Store {
   @action
   Future<void> _updateOrder() async {
     try {
-      if (_provider != null && (_provider is MoonPayBuyProvider || _provider is WyreBuyProvider)) {
-        final updatedOrder = _provider is MoonPayBuyProvider
-            ? await (_provider as MoonPayBuyProvider).findOrderById(order.id)
+      if (_provider != null && (_provider is MoonPayProvider || _provider is WyreBuyProvider)) {
+        final updatedOrder = _provider is MoonPayProvider
+            ? await (_provider as MoonPayProvider).findOrderById(order.id)
             : await (_provider as WyreBuyProvider).findOrderById(order.id);
         updatedOrder.from = order.from;
         updatedOrder.to = order.to;
@@ -89,10 +89,10 @@ abstract class OrderDetailsViewModelBase with Store {
           value: order.provider.title)
     );
 
-    if (_provider != null && (_provider is MoonPayBuyProvider || _provider is WyreBuyProvider)) {
+    if (_provider != null && (_provider is MoonPayProvider || _provider is WyreBuyProvider)) {
 
-      final trackUrl = _provider is MoonPayBuyProvider
-          ? (_provider as MoonPayBuyProvider).trackUrl
+      final trackUrl = _provider is MoonPayProvider
+          ? (_provider as MoonPayProvider).trackUrl
           : (_provider as WyreBuyProvider).trackUrl;
 
       if (trackUrl.isNotEmpty ?? false) {

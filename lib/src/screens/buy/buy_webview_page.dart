@@ -60,7 +60,7 @@ class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
       _saveOrder(keyword: 'completed', splitSymbol: '/');
     }
 
-    if (widget.buyViewModel.selectedProvider is MoonPayBuyProvider) {
+    if (widget.buyViewModel.selectedProvider is MoonPayProvider) {
       _saveOrder(keyword: 'transactionId', splitSymbol: '=');
     }
   }
