@@ -152,7 +152,7 @@ class MoonPayProvider extends BuyProvider {
           : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
       'defaultCurrencyCode': _normalizeCurrency(currency),
       'baseCurrencyCode': _normalizeCurrency(currency),
-      'baseCurrencyAmount': amount,
+      'baseCurrencyAmount': amount ?? '0',
       'currencyCode': currencyCode,
       'walletAddress': walletAddress,
       'lockAmount': 'true',
