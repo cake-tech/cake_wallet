@@ -15,3 +15,12 @@ class FailureState extends ExecutionState {
 
   final String error;
 }
+
+class AwaitingConfirmationState extends ExecutionState {
+  AwaitingConfirmationState({this.title, this.message, this.onConfirm, this.onCancel});
+
+  final String? title;
+  final String? message;
+  final Function()? onConfirm;
+  final Function()? onCancel;
+}

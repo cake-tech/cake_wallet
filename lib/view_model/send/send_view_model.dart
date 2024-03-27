@@ -9,12 +9,15 @@ import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/template.dart';
@@ -36,6 +39,8 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:solana/dto.dart';
+import 'package:collection/collection.dart';
 
 part 'send_view_model.g.dart';
 
@@ -78,6 +83,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @observable
   ExecutionState state;
+
+  @observable
+  bool useReplaceByFee = true;
 
   ObservableList<Output> outputs;
 
@@ -150,6 +158,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     return priority;
   }
+
+  int get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate;
+
+  void set customBitcoinFeeRate(int value) => _settingsStore.customBitcoinFeeRate = value;
 
   CryptoCurrency get currency => wallet.currency;
 
@@ -308,6 +320,29 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @action
+  Future<void> replaceByFee(String txId, String newFee) async {
+    state = IsExecutingState();
+
+    final isSufficient = await bitcoin!.isChangeSufficientForFee(wallet, txId, newFee);
+
+    if (!isSufficient) {
+      state = AwaitingConfirmationState(
+          title: S.current.confirm_fee_deduction,
+          message: S.current.confirm_fee_deduction_content,
+          onConfirm: () async {
+            pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
+            state = ExecutedSuccessfullyState();
+          },
+          onCancel: () {
+            state = FailureState('Insufficient change for fee');
+          });
+    } else {
+      pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
+      state = ExecutedSuccessfullyState();
+    }
+  }
+
+  @action
   Future<void> commitTransaction() async {
     if (pendingTransaction == null) {
       throw Exception("Pending transaction doesn't exist. It should not be happened.");
@@ -365,7 +400,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority!);
+        return bitcoin!.createBitcoinTransactionCredentials(outputs,
+            priority: priority!, feeRate: customBitcoinFeeRate, useReplaceByFee: useReplaceByFee);
 
       case WalletType.monero:
         return monero!
@@ -391,8 +427,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
-  String displayFeeRate(dynamic priority) {
+  String displayFeeRate(dynamic priority, int? customValue) {
     final _priority = priority as TransactionPriority;
+
+    if (walletType == WalletType.bitcoin) {
+      final rate = bitcoin!.getFeeRate(wallet, _priority);
+      return bitcoin!
+          .bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
+    }
 
     if (isElectrumWallet) {
       final rate = bitcoin!.getFeeRate(wallet, _priority);
@@ -404,6 +446,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool _isEqualCurrency(String currency) =>
       wallet.balance.keys.any((e) => currency.toLowerCase() == e.title.toLowerCase());
+
+  TransactionPriority? get getBitcoinTransactionPriorityCustom =>
+      bitcoin?.getBitcoinTransactionPriorityCustom();
 
   @action
   void onClose() => _settingsStore.fiatCurrency = fiatFromSettings;

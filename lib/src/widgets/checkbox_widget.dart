@@ -31,7 +31,6 @@ class CheckboxWidgetState extends State<CheckboxWidget> {
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
             height: 24.0,

@@ -61,6 +61,7 @@ Future<void> main(List<String> args) async {
 Future<void> generateBitcoin(bool hasImplementation) async {
   final outputFile = File(bitcoinOutputPath);
   const bitcoinCommonHeaders = """
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -84,6 +85,7 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
+import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:mobx/mobx.dart';
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
@@ -120,7 +122,7 @@ abstract class Bitcoin {
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet, String label);
   Future<void> updateAddress(Object wallet,String address, String label);
-  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate});
+  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, bool useReplaceByFee});
   Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs, {TransactionPriority? priority, required int feeRate});
 
   List<String> getAddresses(Object wallet);
@@ -132,13 +134,14 @@ abstract class Bitcoin {
   String formatterBitcoinAmountToString({required int amount});
   double formatterBitcoinAmountToDouble({required int amount});
   int formatterStringDoubleToBitcoinAmount(String amount);
-  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate);
+  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate, {int? customRate});
 
   List<Unspent> getUnspents(Object wallet);
   Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   TransactionPriority getBitcoinTransactionPriorityMedium();
+  TransactionPriority getBitcoinTransactionPriorityCustom();
   TransactionPriority getLitecoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPrioritySlow();
   TransactionPriority getLitecoinTransactionPrioritySlow();
@@ -147,6 +150,12 @@ abstract class Bitcoin {
   ReceivePageOption getSelectedAddressType(Object wallet);
   List<ReceivePageOption> getBitcoinReceivePageOptions();
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
+
+  Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
+  Future<bool> canReplaceByFee(Object wallet, String transactionHash);
+  Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee);
+  int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});
+  int getFeeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
 }
   """;
 

@@ -16,6 +16,8 @@ abstract class TransactionInfo extends Object with Keyable {
   void changeFiatAmount(String amount);
   String? to;
   String? from;
+  List<String>? inputAddresses;
+  List<String>? outputAddresses;
 
   @override
   dynamic get keyIndex => id;
