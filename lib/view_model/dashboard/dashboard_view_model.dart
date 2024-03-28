@@ -120,6 +120,11 @@ abstract class DashboardViewModelBase with Store {
                 caption: ExchangeProviderDescription.exolix.title,
                 onChanged: () =>
                     tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
+            FilterItem(
+                value: () => tradeFilterStore.displayThorChain,
+                caption: ExchangeProviderDescription.thorChain.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
           ]
         },
         subname = '',
@@ -354,6 +359,9 @@ abstract class DashboardViewModelBase with Store {
 
   @observable
   bool hasSellAction;
+
+  @computed
+  bool get isEnabledBulletinAction => !settingsStore.disableBulletin;
 
   ReactionDisposer? _onMoneroAccountChangeReaction;
 

@@ -31,6 +31,9 @@ class PendingBitcoinTransaction with PendingTransaction {
   @override
   String get feeFormatted => bitcoinAmountToString(amount: fee);
 
+  @override
+  int? get outputCount => _tx.outputs.length;
+
   final List<void Function(ElectrumTransactionInfo transaction)> _listeners;
 
   @override
