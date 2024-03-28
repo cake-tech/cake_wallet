@@ -178,11 +178,8 @@ abstract class SolanaWalletBase
     try {
       estimatedFee = await _client.getEstimatedFee(_walletKeyPair!);
     } catch (e) {
-      log(e.toString());
       estimatedFee = 0.0;
     }
-
-    log('Estimated Fee: $estimatedFee');
   }
 
   @override
