@@ -20,6 +20,7 @@ import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 class RBFDetailsPage extends BasePage {
@@ -88,17 +89,19 @@ class RBFDetailsPage extends BasePage {
               }),
         ),
         Padding(
-          padding: const EdgeInsets.all(24),
-          child: PrimaryButton(
-            onPressed: () async {
-              transactionDetailsViewModel
-                  .replaceByFee(transactionDetailsViewModel.newFee.toString());
-            },
-            text: S.of(context).send,
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-          ),
-        ),
+            padding: const EdgeInsets.all(24),
+            child: Observer(
+                builder: (_) => LoadingPrimaryButton(
+                      onPressed: () async {
+                        transactionDetailsViewModel
+                            .replaceByFee(transactionDetailsViewModel.newFee.toString());
+                      },
+                      text: S.of(context).send,
+                      isLoading:
+                          transactionDetailsViewModel.sendViewModel.state is IsExecutingState,
+                      color: Theme.of(context).primaryColor,
+                      textColor: Colors.white,
+                    ))),
       ],
     );
   }
