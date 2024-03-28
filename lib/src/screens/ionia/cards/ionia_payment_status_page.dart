@@ -1,4 +1,4 @@
-import 'package:cake_wallet/ionia/ionia_gift_card.dart';
+import 'package:cake_wallet/ionia/cake_pay_card.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';

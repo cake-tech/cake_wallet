@@ -1,7 +1,7 @@
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/ionia/ionia_gift_card.dart';
+import 'package:cake_wallet/ionia/cake_pay_card.dart';
 
 part 'ionia_account_view_model.g.dart';
 

@@ -1,7 +1,8 @@
 import 'package:cake_wallet/ionia/ionia_category.dart';
+import 'package:cake_wallet/ionia/cake_pay_card.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
-import 'package:cake_wallet/ionia/ionia_merchant.dart';
+import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
 import 'package:mobx/mobx.dart';
 part 'ionia_gift_cards_list_view_model.g.dart';
 
@@ -19,12 +20,12 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
         merchantState = InitialIoniaMerchantLoadingState(),
         createCardState = IoniaCreateCardState(),
         searchString = '',
-        ioniaMerchantList = <IoniaMerchant>[] {
+        ioniaMerchantList = <Vendor>[] {
   }
 
   final IoniaService ioniaService;
 
-  List<IoniaMerchant> ioniaMerchantList;
+  List<Vendor> ioniaMerchantList;
 
   String searchString;
 
@@ -41,7 +42,7 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   IoniaMerchantState merchantState;
 
   @observable
-  List<IoniaMerchant> ioniaMerchants;
+  List<Vendor> ioniaMerchants;
 
   @observable
   List<IoniaCategory> ioniaCategories;
@@ -67,7 +68,7 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
       return;
     }
     searchString = text;
-    ioniaService.getMerchantsByFilter(search: searchString).then((value) {
+    ioniaService.getVendors().then((value) {
       ioniaMerchants = value;
     });
   }
@@ -86,12 +87,12 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   
   void getMerchants() {
     merchantState = IoniaLoadingMerchantState();
-    ioniaService.getMerchantsByFilter(categories: selectedIndices).then((value) {
-      value.sort((a, b) => a.legalName.toLowerCase().compareTo(b.legalName.toLowerCase()));
+    ioniaService.getVendors().then((value) {
       ioniaMerchants = ioniaMerchantList = value;
       merchantState = IoniaLoadedMerchantState();
     });
-    
+
+
   }
 
   @action

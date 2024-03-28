@@ -1,10 +1,10 @@
-import 'package:cake_wallet/ionia/ionia_merchant.dart';
+import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
 import 'package:cake_wallet/ionia/ionia_order.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/ionia/ionia_api.dart';
-import 'package:cake_wallet/ionia/ionia_gift_card.dart';
+import 'package:cake_wallet/ionia/cake_pay_api.dart';
+import 'package:cake_wallet/ionia/cake_pay_card.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
 
 class IoniaService {
@@ -17,7 +17,7 @@ class IoniaService {
 	static String get clientId => secrets.ioniaClientId;
 
 	final FlutterSecureStorage secureStorage;
-	final IoniaApi ioniaApi;
+	final CakePayApi ioniaApi;
 
 	// Create user
 
@@ -80,10 +80,9 @@ class IoniaService {
 
 	// Get Merchants
 
-	Future<List<IoniaMerchant>> getMerchants() async {
-		final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
-		final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
-		return ioniaApi.getMerchants(username: username, password: password, clientId: clientId);
+	Future<List<Vendor>> getVendors() async {
+		final result = await ioniaApi.getVendors(page: 1, country: 'USA');
+		return result;
 	}
 
 	// Get Merchants By Filter
@@ -92,12 +91,9 @@ class IoniaService {
 		String? search,
 		List<IoniaCategory>? categories,
 		int merchantFilterType = 0}) async {
-		final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
-		final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
+		//final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
+		//final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
 		return ioniaApi.getMerchantsByFilter(
-			username: username,
-			password: password,
-			clientId: clientId,
 			search: search,
 			categories: categories,
 			merchantFilterType: merchantFilterType);

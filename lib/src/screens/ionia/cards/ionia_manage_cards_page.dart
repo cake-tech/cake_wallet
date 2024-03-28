@@ -1,5 +1,6 @@
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
-import 'package:cake_wallet/ionia/ionia_merchant.dart';
+import 'package:cake_wallet/ionia/cake_pay_card.dart';
+import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
@@ -158,7 +159,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
   double thumbHeight = 72;
   bool get isAlwaysShowScrollThumb => merchantsList == null ? false : merchantsList.length > 3;
 
-  List<IoniaMerchant> get merchantsList => widget.cardsListViewModel.ioniaMerchants;
+  List<Vendor> get merchantsList => widget.cardsListViewModel.ioniaMerchants;
 
   final _scrollController = ScrollController();
 
@@ -188,16 +189,16 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
           itemBuilder: (_, index) {
             final merchant = merchantsList[index];
             return CardItem(
-              logoUrl: merchant.logoUrl,
+              logoUrl: merchant.cards.first.cardImageUrl, //TODO: merchant.logoUrl
               onTap: () {
                 Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardPage, arguments: [merchant]);
               },
-              title: merchant.legalName,
-              subTitle: merchant.avaibilityStatus,
+              title: 'merchant.legalName', //TODO: merchant.legalName
+              subTitle: 'merchant.avaibilityStatus',
               backgroundColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
               titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
               subtitleColor: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-              discount: merchant.discount,
+              discount: 0.0, //TODO: merchant.discount
             );
           },
         ),

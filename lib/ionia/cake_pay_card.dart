@@ -68,3 +68,59 @@ class IoniaGiftCard {
     final String logoUrl;
 
 }
+
+class CakePayCard {
+    final int id;
+    final String name;
+    final String? description;
+    final String? termsAndConditions;
+    final String? howToUse;
+    final String? expiryAndValidity;
+    final String? cardImageUrl;
+    final String? country;
+    final String currencyCode;
+    final List<dynamic>? denominationsUsd;
+    final List<dynamic>? denominations;
+    final String? minValueUsd;
+    final String? maxValueUsd;
+    final String? minValue;
+    final String? maxValue;
+
+    CakePayCard({
+        required this.id,
+        required this.name,
+        this.description,
+        this.termsAndConditions,
+        this.howToUse,
+        this.expiryAndValidity,
+        this.cardImageUrl,
+        this.country,
+        required this.currencyCode,
+        this.denominationsUsd,
+        this.denominations,
+        this.minValueUsd,
+        this.maxValueUsd,
+        this.minValue,
+        this.maxValue,
+    });
+
+    factory CakePayCard.fromJson(Map<String, dynamic> json) {
+        return CakePayCard(
+            id: json['id'] as int? ?? 0,
+            name: json['name'] as String? ?? '',
+            description: json['description'] as String?,
+            termsAndConditions: json['terms_and_conditions'] as String?,
+            howToUse: json['how_to_use'] as String?,
+            expiryAndValidity: json['expiry_and_validity'] as String?,
+            cardImageUrl: json['card_image_url'] as String?,
+            country: json['country'] as String?,
+            currencyCode: json['currency_code'] as String? ?? '',
+            denominationsUsd: json['denominations_usd'] as List<dynamic>? ?? [],
+            denominations: json['denominations'] as List<dynamic>? ?? [],
+            minValueUsd: json['min_value_usd'] as String?,
+            maxValueUsd: json['max_value_usd'] as String?,
+            minValue: json['min_value'] as String?,
+            maxValue: json['max_value'] as String?,
+        );
+    }
+}

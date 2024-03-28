@@ -1,4 +1,4 @@
-import 'package:cake_wallet/ionia/ionia_merchant.dart';
+import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ionia_buy_card_view_model.g.dart';
