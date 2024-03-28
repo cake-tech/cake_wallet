@@ -43,6 +43,7 @@
   "already_have_account": "Kuna da asusu?",
   "always": "Koyaushe",
   "amount": "Adadi:",
+  "amount_is_below_minimum_limit": "Zaka iya aika ${amount} wanda yake ƙasa da mafi ƙarancin iyakar ${min}",
   "amount_is_estimate": "Adadin da aka karɓa shine kimantawa",
   "amount_is_guaranteed": "Adadin da aka karɓa yana da garanti",
   "and": "kuma",

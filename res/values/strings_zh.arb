@@ -43,6 +43,7 @@
   "already_have_account": "已经有账号了？",
   "always": "总是",
   "amount": "金额: ",
+  "amount_is_below_minimum_limit": "您只能发送${amount}低于${min}的最小限制",
   "amount_is_estimate": "收款金额为估算值",
   "amount_is_guaranteed": "保证收到的金额",
   "and": "和",

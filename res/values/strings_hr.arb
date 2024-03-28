@@ -43,6 +43,7 @@
   "already_have_account": "Već imate račun?",
   "always": "Uvijek",
   "amount": "Iznos: ",
+  "amount_is_below_minimum_limit": "Možete poslati samo ${amount} koji je ispod minimalne granice od ${min}",
   "amount_is_estimate": "Iznos koji ćete primiti je okviran",
   "amount_is_guaranteed": "Iznos koji ćete primiti je zajamčen",
   "and": "i",

@@ -472,6 +472,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   Future<void> createTrade() async {
     if (isSendAllEnabled) {
       await calculateDepositAllAmount();
+      final amount = double.tryParse(depositAmount);
+
+      if (limits.min != null && amount != null && amount < limits.min!) {
+        tradeState = TradeIsCreatedFailure(
+            title: S.current.trade_not_created,
+            error: S.current.amount_is_below_minimum_limit(
+              amount.toString(),
+              limits.min!.toString(),
+            ));
+        return;
+      }
     }
 
     try {

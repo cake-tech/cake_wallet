@@ -43,6 +43,7 @@
   "already_have_account": "အကောင့်ရှိပြီးသားလား?",
   "always": "အမြဲတမ်း",
   "amount": "ပမာဏ:",
+  "amount_is_below_minimum_limit": "${amount} သာ ${min} ၏နိမ့်ဆုံးကန့်လန့်လ်အောက်တွင်သာသင်သာပေးပို့နိုင်သည်",
   "amount_is_estimate": "ရရှိသည့်ပမာဏသည် ခန့်မှန်းချက်တစ်ခုဖြစ်သည်။",
   "amount_is_guaranteed": "ရရှိသည့်ပမာဏကို အာမခံပါသည်။",
   "and": "နှင့်",

@@ -43,6 +43,7 @@
   "already_have_account": "すでにアカウントをお持ちですか？",
   "always": "いつも",
   "amount": "量: ",
+  "amount_is_below_minimum_limit": "${amount}の最小制限を下回る${min}",
   "amount_is_estimate": "受け取り金額は見積もりです",
   "amount_is_guaranteed": "受け取り金額は保証されています",
   "and": "と",

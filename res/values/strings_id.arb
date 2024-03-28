@@ -43,6 +43,7 @@
   "already_have_account": "Sudah punya akun?",
   "always": "Selalu",
   "amount": "Jumlah: ",
+  "amount_is_below_minimum_limit": "Anda hanya dapat mengirim ${amount} yang berada di bawah batas minimum ${min}",
   "amount_is_estimate": "Jumlah penerimaan diperkirakan",
   "amount_is_guaranteed": "Jumlah penerimaan dijamin",
   "and": "dan",

@@ -43,6 +43,7 @@
   "already_have_account": "پہلے سے ہی اکاؤنٹ ہے؟",
   "always": "ہمیشہ",
   "amount": "رقم کی رقم:",
+  "amount_is_below_minimum_limit": "آپ صرف ${amount} ${min} بھیج سکتے ہیں۔",
   "amount_is_estimate": "وصول شدہ رقم ایک تخمینہ ہے۔",
   "amount_is_guaranteed": "وصول شدہ رقم کی ضمانت ہے۔",
   "and": "اور",

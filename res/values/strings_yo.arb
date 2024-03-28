@@ -43,6 +43,7 @@
   "already_have_account": "Ṣé ẹ ti ní àkáǹtì?",
   "always": "Ní gbogbo àwọn ìgbà",
   "amount": "Iye: ",
+  "amount_is_below_minimum_limit": "O le firanṣẹ nikan ${amount} ${min}",
   "amount_is_estimate": "Ìdíyelé ni iye tó ń bọ̀",
   "amount_is_guaranteed": "ó di dandan pé owó á wọlé",
   "and": "àti",

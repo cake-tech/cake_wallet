@@ -43,6 +43,7 @@
   "already_have_account": "Vous avez déjà un compte ?",
   "always": "toujours",
   "amount": "Montant : ",
+  "amount_is_below_minimum_limit": "Vous ne pouvez envoyer que ${amount} qui est inférieur à la limite minimale de ${min}",
   "amount_is_estimate": "Le montant reçu est estimé",
   "amount_is_guaranteed": "Le montant reçu est garanti",
   "and": "et",

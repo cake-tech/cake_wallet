@@ -43,6 +43,7 @@
   "already_have_account": "Máte už účet?",
   "always": "Vždy",
   "amount": "Částka: ",
+  "amount_is_below_minimum_limit": "Můžete odeslat pouze ${amount}, který je pod minimálním limitem ${min}",
   "amount_is_estimate": "Částka, kterou dostanete, je jen odhad.",
   "amount_is_guaranteed": "Částka, kterou dostanete, je konečná",
   "and": "a",
