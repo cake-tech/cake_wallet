@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:erc20/erc20.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:hex/hex.dart' as hex;
 
 abstract class EVMChainClient {
   final httpClient = Client();
@@ -85,6 +86,7 @@ abstract class EVMChainClient {
     required CryptoCurrency currency,
     required int exponent,
     String? contractAddress,
+    String? data,
   }) async {
     assert(currency == CryptoCurrency.eth ||
         currency == CryptoCurrency.maticpoly ||
@@ -100,6 +102,7 @@ abstract class EVMChainClient {
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
       amount: isEVMCompatibleChain ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
+      data: data != null ? hexToBytes(data) : null,
     );
 
     final signedTransaction =
@@ -140,12 +143,14 @@ abstract class EVMChainClient {
     required EthereumAddress to,
     required EtherAmount amount,
     EtherAmount? maxPriorityFeePerGas,
+    Uint8List? data,
   }) {
     return Transaction(
       from: from,
       to: to,
       maxPriorityFeePerGas: maxPriorityFeePerGas,
       value: amount,
+      data: data,
     );
   }
 
@@ -220,6 +225,10 @@ abstract class EVMChainClient {
     } catch (e) {
       return null;
     }
+  }
+
+  Uint8List hexToBytes(String hexString) {
+    return Uint8List.fromList(hex.HEX.decode(hexString.startsWith('0x') ? hexString.substring(2) : hexString));
   }
 
   void stop() {

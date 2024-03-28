@@ -198,6 +198,7 @@ abstract class ElectrumWalletBase
       int? feeRate,
       BitcoinTransactionPriority? priority,
       {int? inputsCount,
+        String? memo,
       bool? useReplaceByFee}) async {
     final utxos = <UtxoWithAddress>[];
     List<ECPrivate> privateKeys = [];
@@ -260,6 +261,7 @@ abstract class ElectrumWalletBase
       outputs: outputs,
       network: network,
       enableRBF: useReplaceByFee ?? false,
+      memo: memo,
     );
 
     int fee = feeRate != null
@@ -307,7 +309,13 @@ abstract class ElectrumWalletBase
       }
     }
 
-    return EstimatedTxResult(utxos: utxos, privateKeys: privateKeys, fee: fee, amount: amount);
+    return EstimatedTxResult(
+      utxos: utxos,
+      privateKeys: privateKeys,
+      fee: fee,
+      amount: amount,
+      memo: memo,
+    );
   }
 
   @override
@@ -356,6 +364,7 @@ abstract class ElectrumWalletBase
         transactionCredentials.feeRate,
         transactionCredentials.priority,
         useReplaceByFee: transactionCredentials.useReplaceByFee,
+        memo: transactionCredentials.outputs.first.memo,
       );
 
       final txb = BitcoinTransactionBuilder(
@@ -364,6 +373,8 @@ abstract class ElectrumWalletBase
         fee: BigInt.from(estimatedTx.fee),
         network: network,
         enableRBF: transactionCredentials.useReplaceByFee,
+        memo: estimatedTx.memo,
+        outputOrdering: BitcoinOrdering.none,
       );
 
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
@@ -1066,13 +1077,19 @@ class EstimateTxParams {
 }
 
 class EstimatedTxResult {
-  EstimatedTxResult(
-      {required this.utxos, required this.privateKeys, required this.fee, required this.amount});
+  EstimatedTxResult({
+    required this.utxos,
+    required this.privateKeys,
+    required this.fee,
+    required this.amount,
+    this.memo,
+  });
 
   final List<UtxoWithAddress> utxos;
   final List<ECPrivate> privateKeys;
   final int fee;
   final int amount;
+  final String? memo;
 }
 
 BitcoinBaseAddress addressTypeFromStr(String address, BasedUtxoNetwork network) {
