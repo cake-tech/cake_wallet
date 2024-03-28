@@ -194,7 +194,11 @@ abstract class ElectrumWalletBase
 
   bool _isBelowDust(int amount) => amount <= _getDustAmount() && network != BitcoinNetwork.testnet;
 
-  Future<EstimatedTxResult> estimateSendAllTx(List<BitcoinOutput> outputs, int feeRate) async {
+  Future<EstimatedTxResult> estimateSendAllTx(
+    List<BitcoinOutput> outputs,
+    int feeRate, {
+    String? memo,
+  }) async {
     final utxos = <UtxoWithAddress>[];
     List<ECPrivate> privateKeys = [];
     int allInputsAmount = 0;
@@ -275,6 +279,7 @@ abstract class ElectrumWalletBase
     List<BitcoinOutput> outputs,
     int feeRate, {
     int? inputsCount,
+    String? memo,
   }) async {
     final utxos = <UtxoWithAddress>[];
     List<ECPrivate> privateKeys = [];
@@ -340,10 +345,18 @@ abstract class ElectrumWalletBase
     int estimatedSize;
     if (network is BitcoinCashNetwork) {
       estimatedSize = ForkedTransactionBuilder.estimateTransactionSize(
-          utxos: utxos, outputs: outputs, network: network as BitcoinCashNetwork);
+        utxos: utxos,
+        outputs: outputs,
+        network: network as BitcoinCashNetwork,
+        memo: memo,
+      );
     } else {
       estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
-          utxos: utxos, outputs: outputs, network: network);
+        utxos: utxos,
+        outputs: outputs,
+        network: network,
+        memo: memo,
+      );
     }
 
     int fee = feeAmountWithFeeRate(feeRate, 0, 0, size: estimatedSize);
@@ -411,6 +424,7 @@ abstract class ElectrumWalletBase
       privateKeys: privateKeys,
       fee: fee,
       amount: amount,
+      memo: memo,
       hasChange: true,
       isSendAll: false,
     );
@@ -458,24 +472,39 @@ abstract class ElectrumWalletBase
 
       EstimatedTxResult estimatedTx;
       if (sendAll) {
-        estimatedTx = await estimateSendAllTx(outputs, feeRateInt);
+        estimatedTx = await estimateSendAllTx(
+          outputs,
+          feeRateInt,
+          memo: transactionCredentials.outputs.first.memo,
+        );
       } else {
-        estimatedTx = await estimateTxForAmount(credentialsAmount, outputs, feeRateInt);
+        estimatedTx = await estimateTxForAmount(
+          credentialsAmount,
+          outputs,
+          feeRateInt,
+          memo: transactionCredentials.outputs.first.memo,
+        );
       }
 
       BasedBitcoinTransacationBuilder txb;
       if (network is BitcoinCashNetwork) {
         txb = ForkedTransactionBuilder(
-            utxos: estimatedTx.utxos,
-            outputs: outputs,
-            fee: BigInt.from(estimatedTx.fee),
-            network: network);
+          utxos: estimatedTx.utxos,
+          outputs: outputs,
+          fee: BigInt.from(estimatedTx.fee),
+          network: network,
+          memo: estimatedTx.memo,
+          outputOrdering: BitcoinOrdering.none,
+        );
       } else {
         txb = BitcoinTransactionBuilder(
-            utxos: estimatedTx.utxos,
-            outputs: outputs,
-            fee: BigInt.from(estimatedTx.fee),
-            network: network);
+          utxos: estimatedTx.utxos,
+          outputs: outputs,
+          fee: BigInt.from(estimatedTx.fee),
+          network: network,
+          memo: estimatedTx.memo,
+          outputOrdering: BitcoinOrdering.none,
+        );
       }
 
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
@@ -1013,13 +1042,15 @@ class EstimateTxParams {
 }
 
 class EstimatedTxResult {
-  EstimatedTxResult(
-      {required this.utxos,
-      required this.privateKeys,
-      required this.fee,
-      required this.amount,
-      required this.hasChange,
-      required this.isSendAll});
+  EstimatedTxResult({
+    required this.utxos,
+    required this.privateKeys,
+    required this.fee,
+    required this.amount,
+    required this.hasChange,
+    required this.isSendAll,
+    this.memo,
+  });
 
   final List<UtxoWithAddress> utxos;
   final List<ECPrivate> privateKeys;
@@ -1027,6 +1058,7 @@ class EstimatedTxResult {
   final int amount;
   final bool hasChange;
   final bool isSendAll;
+  final String? memo;
 }
 
 BitcoinBaseAddress addressTypeFromStr(String address, BasedUtxoNetwork network) {
