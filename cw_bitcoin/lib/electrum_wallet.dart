@@ -241,10 +241,10 @@ abstract class ElectrumWalletBase
     int estimatedSize;
     if (network is BitcoinCashNetwork) {
       estimatedSize = ForkedTransactionBuilder.estimateTransactionSize(
-          utxos: utxos, outputs: outputs, network: network as BitcoinCashNetwork);
+          utxos: utxos, outputs: outputs, network: network as BitcoinCashNetwork, memo: memo);
     } else {
       estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
-          utxos: utxos, outputs: outputs, network: network);
+          utxos: utxos, outputs: outputs, network: network, memo: memo);
     }
 
     int fee = feeAmountWithFeeRate(feeRate, 0, 0, size: estimatedSize);
@@ -271,6 +271,7 @@ abstract class ElectrumWalletBase
       amount: amount,
       isSendAll: true,
       hasChange: false,
+      memo: memo,
     );
   }
 
@@ -377,7 +378,7 @@ abstract class ElectrumWalletBase
       // If has change that is lower than dust, will end up with tx rejected by network rules, so estimate again without the added change
       outputs.removeLast();
 
-      final estimatedSendAll = await estimateSendAllTx(outputs, feeRate);
+      final estimatedSendAll = await estimateSendAllTx(outputs, feeRate, memo: memo);
 
       if (estimatedSendAll.amount == credentialsAmount) {
         return estimatedSendAll;
@@ -415,6 +416,7 @@ abstract class ElectrumWalletBase
           outputs,
           feeRate,
           inputsCount: utxos.length + 1,
+          memo: memo,
         );
       }
     }
@@ -424,9 +426,9 @@ abstract class ElectrumWalletBase
       privateKeys: privateKeys,
       fee: fee,
       amount: amount,
-      memo: memo,
       hasChange: true,
       isSendAll: false,
+      memo: memo,
     );
   }
 
@@ -437,6 +439,7 @@ abstract class ElectrumWalletBase
       final transactionCredentials = credentials as BitcoinTransactionCredentials;
       final hasMultiDestination = transactionCredentials.outputs.length > 1;
       final sendAll = !hasMultiDestination && transactionCredentials.outputs.first.sendAll;
+      final memo = transactionCredentials.outputs.first.memo;
 
       int credentialsAmount = 0;
 
@@ -475,14 +478,14 @@ abstract class ElectrumWalletBase
         estimatedTx = await estimateSendAllTx(
           outputs,
           feeRateInt,
-          memo: transactionCredentials.outputs.first.memo,
+          memo: memo,
         );
       } else {
         estimatedTx = await estimateTxForAmount(
           credentialsAmount,
           outputs,
           feeRateInt,
-          memo: transactionCredentials.outputs.first.memo,
+          memo: memo,
         );
       }
 
@@ -1063,9 +1066,12 @@ class EstimatedTxResult {
 
 BitcoinBaseAddress addressTypeFromStr(String address, BasedUtxoNetwork network) {
   if (network is BitcoinCashNetwork) {
-    try {
-      return BitcoinCashAddress(address).baseAddress;
-    } catch (_) {}
+    if (!address.startsWith("bitcoincash:") &&
+        (address.startsWith("q") || address.startsWith("p"))) {
+      address = "bitcoincash:$address";
+    }
+
+    return BitcoinCashAddress(address).baseAddress;
   }
 
   if (P2pkhAddress.regex.hasMatch(address)) {
