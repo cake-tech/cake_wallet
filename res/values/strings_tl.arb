@@ -43,7 +43,7 @@
   "already_have_account": "Mayroon nang account?",
   "always": "Palagi",
   "amount": "Halaga:",
-  "amount_is_below_minimum_limit": "Maaari ka lamang magpadala ng ${amount} na nasa ibaba ng minimum na limitasyon ng ${min}",
+  "amount_is_below_minimum_limit": "Ang iyong balanse pagkatapos ng mga bayarin ay mas mababa kaysa sa minimum na halaga na kinakailangan para sa palitan (${min})",
   "amount_is_estimate": "Ang natanggap na halaga ay isang pagtatantya",
   "amount_is_guaranteed": "Ang natanggap na halaga ay garantisado",
   "and": "at",

@@ -43,7 +43,7 @@
   "already_have_account": "Heb je al een account?",
   "always": "altijd",
   "amount": "Bedrag: ",
-  "amount_is_below_minimum_limit": "U kunt alleen ${amount} verzenden die onder de minimale limiet is van ${min}",
+  "amount_is_below_minimum_limit": "Uw saldo na vergoedingen zou lager zijn dan het minimale bedrag dat nodig is voor de uitwisseling (${min})",
   "amount_is_estimate": "Het ontvangen bedrag is een schatting",
   "amount_is_guaranteed": "Het ontvangen bedrag is gegarandeerd",
   "and": "en",

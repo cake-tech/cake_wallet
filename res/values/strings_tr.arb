@@ -43,7 +43,7 @@
   "already_have_account": "Zaten bir hesabınız var mı?",
   "always": "Her Zaman",
   "amount": "Miktar: ",
-  "amount_is_below_minimum_limit": "Sadece ${amount} ${min} minimum sınırının altında olan gönderebilirsiniz.",
+  "amount_is_below_minimum_limit": "Ücretlerden sonra bakiyeniz, değişim için gereken minimum miktardan daha az olur (${min})",
   "amount_is_estimate": "Alacağınız tutar tahminidir",
   "amount_is_guaranteed": "Alacağınız tutar garantilidir",
   "and": "ve",

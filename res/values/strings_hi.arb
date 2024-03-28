@@ -43,7 +43,7 @@
   "already_have_account": "क्या आपके पास पहले से एक खाता मौजूद है?",
   "always": "हमेशा",
   "amount": "रकम: ",
-  "amount_is_below_minimum_limit": "आप केवल ${amount} भेज सकते हैं जो ${min} की न्यूनतम सीमा से नीचे है",
+  "amount_is_below_minimum_limit": "फीस के बाद आपका संतुलन विनिमय के लिए आवश्यक न्यूनतम राशि से कम होगा (${min})",
   "amount_is_estimate": "प्राप्त राशि एक अनुमान है",
   "amount_is_guaranteed": "प्राप्त राशि की गारंटी है",
   "and": "और",

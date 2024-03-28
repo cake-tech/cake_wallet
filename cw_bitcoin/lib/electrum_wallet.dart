@@ -287,47 +287,48 @@ abstract class ElectrumWalletBase
     int allInputsAmount = 0;
 
     int leftAmount = credentialsAmount;
+    final sendingCoins = unspentCoins.where((utx) => utx.isSending).toList();
 
-    for (int i = 0; i < unspentCoins.length; i++) {
-      final utx = unspentCoins[i];
+    for (int i = 0; i < sendingCoins.length; i++) {
+      final utx = sendingCoins[i];
 
-      if (utx.isSending) {
-        allInputsAmount += utx.value;
-        leftAmount = leftAmount - utx.value;
+      allInputsAmount += utx.value;
+      leftAmount = leftAmount - utx.value;
 
-        final address = addressTypeFromStr(utx.address, network);
-        final privkey = generateECPrivate(
-            hd: utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
-            index: utx.bitcoinAddressRecord.index,
-            network: network);
+      final address = addressTypeFromStr(utx.address, network);
+      final privkey = generateECPrivate(
+          hd: utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+          index: utx.bitcoinAddressRecord.index,
+          network: network);
 
-        privateKeys.add(privkey);
+      privateKeys.add(privkey);
 
-        utxos.add(
-          UtxoWithAddress(
-            utxo: BitcoinUtxo(
-              txHash: utx.hash,
-              value: BigInt.from(utx.value),
-              vout: utx.vout,
-              scriptType: _getScriptType(address),
-            ),
-            ownerDetails: UtxoAddressDetails(
-              publicKey: privkey.getPublic().toHex(),
-              address: address,
-            ),
+      utxos.add(
+        UtxoWithAddress(
+          utxo: BitcoinUtxo(
+            txHash: utx.hash,
+            value: BigInt.from(utx.value),
+            vout: utx.vout,
+            scriptType: _getScriptType(address),
           ),
-        );
+          ownerDetails: UtxoAddressDetails(
+            publicKey: privkey.getPublic().toHex(),
+            address: address,
+          ),
+        ),
+      );
 
-        bool amountIsAcquired = leftAmount <= 0;
-        if ((inputsCount == null && amountIsAcquired) || inputsCount == i + 1) {
-          break;
-        }
+      bool amountIsAcquired = leftAmount <= 0;
+      if ((inputsCount == null && amountIsAcquired) || inputsCount == i + 1) {
+        break;
       }
     }
 
     if (utxos.isEmpty) {
       throw BitcoinTransactionNoInputsException();
     }
+
+    final spendingAllCoins = sendingCoins.length == utxos.length;
 
     // How much is being spent - how much is being sent
     int amountLeftForChangeAndFee = allInputsAmount - credentialsAmount;
@@ -375,7 +376,19 @@ abstract class ElectrumWalletBase
       outputs[outputs.length - 1] =
           BitcoinOutput(address: lastOutput.address, value: BigInt.from(amountLeftForChange));
     } else {
+      // Still has inputs to spend before failing
+      if (!spendingAllCoins) {
+        return estimateTxForAmount(
+          credentialsAmount,
+          outputs,
+          feeRate,
+          inputsCount: utxos.length + 1,
+          memo: memo,
+        );
+      }
+
       // If has change that is lower than dust, will end up with tx rejected by network rules, so estimate again without the added change
+
       outputs.removeLast();
 
       final estimatedSendAll = await estimateSendAllTx(outputs, feeRate, memo: memo);
@@ -404,7 +417,7 @@ abstract class ElectrumWalletBase
     }
 
     if (totalAmount > allInputsAmount) {
-      if (unspentCoins.where((utx) => utx.isSending).length == utxos.length) {
+      if (spendingAllCoins) {
         throw BitcoinTransactionWrongBalanceException();
       } else {
         if (amountLeftForChangeAndFee > fee) {

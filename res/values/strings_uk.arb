@@ -43,7 +43,7 @@
   "already_have_account": "Вже є обліковий запис?",
   "always": "Завжди",
   "amount": "Сума: ",
-  "amount_is_below_minimum_limit": "Ви можете надіслати лише ${amount}, що нижче мінімальної межі ${min}",
+  "amount_is_below_minimum_limit": "Ваш баланс після зборів буде меншим, ніж мінімальна сума, необхідна для обміну (${min})",
   "amount_is_estimate": "Отримана сума є приблизною",
   "amount_is_guaranteed": "Отримана сума є гарантованою",
   "and": "і",

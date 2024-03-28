@@ -477,10 +477,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       if (limits.min != null && amount != null && amount < limits.min!) {
         tradeState = TradeIsCreatedFailure(
             title: S.current.trade_not_created,
-            error: S.current.amount_is_below_minimum_limit(
-              amount.toString(),
-              limits.min!.toString(),
-            ));
+            error: S.current.amount_is_below_minimum_limit(limits.min!.toString()));
         return;
       }
     }

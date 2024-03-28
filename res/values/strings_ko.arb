@@ -43,7 +43,7 @@
   "already_have_account": "이미 계정이 있습니까?",
   "always": "언제나",
   "amount": "양: ",
-  "amount_is_below_minimum_limit": "${amount} 이상의 최소 한계 아래에있는 ${min} 만 보낼 수 있습니다.",
+  "amount_is_below_minimum_limit": "수수료 후 잔액은 Exchange (${min})에 필요한 최소 금액보다 적습니다.",
   "amount_is_estimate": "수신 금액은 견적입니다",
   "amount_is_guaranteed": "수령 금액이 보장됩니다.",
   "and": "그리고",

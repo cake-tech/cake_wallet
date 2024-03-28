@@ -43,7 +43,7 @@
   "already_have_account": "¿Ya tienes una cuenta?",
   "always": "siempre",
   "amount": "Cantidad: ",
-  "amount_is_below_minimum_limit": "Solo puede enviar ${amount}, que está por debajo del límite mínimo de ${min}",
+  "amount_is_below_minimum_limit": "Su saldo después de las tarifas sería menor que la cantidad mínima necesaria para el intercambio (${min})",
   "amount_is_estimate": "El monto recibido es un estimado",
   "amount_is_guaranteed": "La cantidad recibida está garantizada",
   "and": "y",

@@ -43,7 +43,7 @@
   "already_have_account": "Already have an account?",
   "always": "Always",
   "amount": "Amount: ",
-  "amount_is_below_minimum_limit": "You can only send ${amount} which is below the minimum limit of ${min}",
+  "amount_is_below_minimum_limit": "Your balance after fees would be less than the minimum amount needed for the exchange (${min})",
   "amount_is_estimate": "The receive amount is an estimate",
   "amount_is_guaranteed": "The receive amount is guaranteed",
   "and": "and",

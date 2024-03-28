@@ -43,7 +43,7 @@
   "already_have_account": "Sie haben bereits ein Konto?",
   "always": "immer",
   "amount": "Betrag: ",
-  "amount_is_below_minimum_limit": "Sie können nur ${amount} senden, was unter der minimalen Grenze von ${min} liegt",
+  "amount_is_below_minimum_limit": "Ihr Saldo nach Gebühren wäre geringer als der für den Austausch benötigte Mindestbetrag (${min})",
   "amount_is_estimate": "Der empfangene Betrag ist eine Schätzung",
   "amount_is_guaranteed": "Der Empfangsbetrag ist garantiert",
   "and": "Und",

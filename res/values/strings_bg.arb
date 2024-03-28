@@ -43,7 +43,7 @@
   "already_have_account": "Вече имате профил?",
   "always": "Винаги",
   "amount": "Сума: ",
-  "amount_is_below_minimum_limit": "Можете да изпращате само ${amount}, което е под минималната граница на ${min}",
+  "amount_is_below_minimum_limit": "Вашето салдо след такси ще бъде по -малко от минималната сума, необходима за борсата (${min})",
   "amount_is_estimate": "Сумата за получаване е ",
   "amount_is_guaranteed": "Сумата за получаване е гарантирана",
   "and": "и",

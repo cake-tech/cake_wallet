@@ -43,7 +43,7 @@
   "already_have_account": "لديك حساب؟",
   "always": "دائماً",
   "amount": "مقدار:",
-  "amount_is_below_minimum_limit": "يمكنك فقط إرسال ${amount} وهو أقل من الحد الأدنى لـ ${min}",
+  "amount_is_below_minimum_limit": "سيكون رصيدك بعد الرسوم أقل من الحد الأدنى للمبلغ اللازم للتبادل (${min})",
   "amount_is_estimate": "المبلغ المستلم هو تقدير",
   "amount_is_guaranteed": "مبلغ الاستلام مضمون",
   "and": "و",
