@@ -140,6 +140,8 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
 
     var allInputsAmount = 0;
 
+    final String? opReturnMemo = outputs.first.memo;
+
     if (unspentCoins.isEmpty) await updateUnspent();
 
     for (final utx in unspentCoins) {
@@ -282,6 +284,8 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       txb.addOutput(changeAddress, changeValue);
     }
 
+    if (opReturnMemo != null) txb.addOutputData(opReturnMemo);
+
     for (var i = 0; i < inputs.length; i++) {
       final input = inputs[i];
       final keyPair = generateKeyPair(
@@ -290,7 +294,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       txb.sign(i, keyPair, input.value);
     }
 
-    // Build the transaction
     final tx = txb.build();
 
     return PendingBitcoinCashTransaction(tx, type,
