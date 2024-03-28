@@ -376,6 +376,9 @@ abstract class ElectrumWalletBase
       outputs[outputs.length - 1] =
           BitcoinOutput(address: lastOutput.address, value: BigInt.from(amountLeftForChange));
     } else {
+      // If has change that is lower than dust, will end up with tx rejected by network rules, so estimate again without the added change
+      outputs.removeLast();
+
       // Still has inputs to spend before failing
       if (!spendingAllCoins) {
         return estimateTxForAmount(
@@ -386,10 +389,6 @@ abstract class ElectrumWalletBase
           memo: memo,
         );
       }
-
-      // If has change that is lower than dust, will end up with tx rejected by network rules, so estimate again without the added change
-
-      outputs.removeLast();
 
       final estimatedSendAll = await estimateSendAllTx(outputs, feeRate, memo: memo);
 
