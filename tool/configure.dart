@@ -1037,7 +1037,7 @@ Future<void> generatePubspec(
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
-  final dependenciesIndex = inputLines.indexWhere((line) => line.toLowerCase() == 'dependencies:');
+  final dependenciesIndex = inputLines.indexWhere((line) => line.toLowerCase().contains('dependencies:'));
   var output = cwCore;
 
   if (hasMonero) {
