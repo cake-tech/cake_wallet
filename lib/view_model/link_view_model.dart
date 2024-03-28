@@ -38,7 +38,7 @@ abstract class LinkViewModelBase with Store {
   String? getRouteToGo() {
     if (isWalletConnectLink) {
       if (!isEVMCompatibleChain(appStore.wallet!.type)) {
-        _nonETHWalletErrorToast(S.current.switchToEVMCompatibleWallet);
+        _errorToast(S.current.switchToEVMCompatibleWallet);
         return null;
       }
       return Routes.walletConnectConnectionsListing;
@@ -88,14 +88,14 @@ abstract class LinkViewModelBase with Store {
     return null;
   }
 
-  Future<void> _nonETHWalletErrorToast(String message) async {
+  Future<void> _errorToast(String message, {double fontSize = 16}) async {
     Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.SNACKBAR,
       backgroundColor: Colors.black,
       textColor: Colors.white,
-      fontSize: 16.0,
+      fontSize: fontSize,
     );
   }
 
@@ -110,7 +110,7 @@ abstract class LinkViewModelBase with Store {
 
       if (isNanoGptLink) {
         if (route == Routes.buySellPage || route == Routes.exchange) {
-          await _nonETHWalletErrorToast(S.current.nano_gpt_thanks_message);
+          await _errorToast(S.current.nano_gpt_thanks_message, fontSize: 14);
         }
       }
 

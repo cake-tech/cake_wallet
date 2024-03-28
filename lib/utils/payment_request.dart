@@ -24,7 +24,6 @@ class PaymentRequest {
     if (scheme == "nano-gpt") {
       // treat as nano so filling out the address works:
       scheme = "nano";
-      // callbackMessage = S.current.nano_gpt_callback_message;
     }
 
     if (nano != null) {
