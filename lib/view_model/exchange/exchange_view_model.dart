@@ -466,6 +466,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> createTrade() async {
+    if (isSendAllEnabled) {
+      await calculateDepositAllAmount();
+    }
+
     try {
       for (var provider in _sortedAvailableProviders.values) {
         if (!(await provider.checkIsAvailable())) continue;
@@ -539,7 +543,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @action
   void enableSendAllAmount() {
     isSendAllEnabled = true;
+    isFixedRateMode = false;
     calculateDepositAllAmount();
+  }
+
+  @action
+  void enableFixedRateMode() {
+    isSendAllEnabled = false;
+    isFixedRateMode = true;
   }
 
   @action
