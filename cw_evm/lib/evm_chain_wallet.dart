@@ -310,6 +310,7 @@ abstract class EVMChainWalletBase
   Future<Map<String, EVMChainTransactionInfo>> fetchTransactions() async {
     final address = _evmChainPrivateKey.address.hex;
     final transactions = await _client.fetchTransactions(address);
+    final internalTransactions = await _client.fetchInternalTransactions(address);
 
     final List<Future<List<EVMChainTransactionModel>>> erc20TokensTransactions = [];
 
@@ -324,6 +325,7 @@ abstract class EVMChainWalletBase
 
     final tokensTransaction = await Future.wait(erc20TokensTransactions);
     transactions.addAll(tokensTransaction.expand((element) => element));
+    transactions.addAll(internalTransactions);
 
     final Map<String, EVMChainTransactionInfo> result = {};
 
@@ -484,7 +486,7 @@ abstract class EVMChainWalletBase
       _transactionsUpdateTimer!.cancel();
     }
 
-    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 15), (_) {
       _updateTransactions();
       _updateBalance();
     });
