@@ -47,7 +47,7 @@ class CardItem extends StatelessWidget {
             child: Row(
               children: [
                 if (logoUrl != null) ...[
-                  ClipOval(
+                  Container(
                     child: Image.network(
                       logoUrl!,
                       width: 40.0,
@@ -65,34 +65,39 @@ class CardItem extends StatelessWidget {
                   ),
                   SizedBox(width: 5),
                 ],
-                Column(
-                  crossAxisAlignment: (subTitle?.isEmpty ?? false)
-                    ? CrossAxisAlignment.center
-                    : CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 200,
-                      child: Text(
-                        title,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: titleColor,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: (subTitle.isEmpty)
+                      ? CrossAxisAlignment.center
+                      : CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        child: Text(
+                          title,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: titleColor,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
                       ),
-                    ),
-                    if (subTitle?.isNotEmpty ?? false)
-                      Padding(
-                        padding: EdgeInsets.only(top: 5),
-                        child: Text(
-                          subTitle,
-                          style: TextStyle(
-                            color: subtitleColor,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: 'Lato')),
-                    )
-                  ],
+                      if (subTitle.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5.0),
+                          child: Container(
+                            child: Text(
+                              subTitle,
+                              maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: subtitleColor,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Lato')),
+                          ),
+                        )
+                    ],
+                  ),
                 ),
               ],
             ),

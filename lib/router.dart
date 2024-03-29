@@ -468,13 +468,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.ioniaCreateAccountPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaCreateAccountPage>());
 
-    case Routes.ioniaManageCardsPage:
+    case Routes.CakePayCardsPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaManageCardsPage>());
 
-    case Routes.ioniaBuyGiftCardPage:
+    case Routes.CakePayBuyCardPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<IoniaBuyGiftCardPage>(param1: args));
+          builder: (_) => getIt.get<CakePayBuyCardPage>(param1: args));
 
     case Routes.ioniaBuyGiftCardDetailPage:
       final args = settings.arguments as List;

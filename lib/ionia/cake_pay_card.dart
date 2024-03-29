@@ -105,10 +105,14 @@ class CakePayCard {
     });
 
     factory CakePayCard.fromJson(Map<String, dynamic> json) {
+
+        final description = stripHtmlIfNeeded(json['description'] as String? ?? '');
+        final decodedDescription = fixEncoding(description);
+
         return CakePayCard(
             id: json['id'] as int? ?? 0,
             name: json['name'] as String? ?? '',
-            description: json['description'] as String?,
+            description: decodedDescription,
             termsAndConditions: json['terms_and_conditions'] as String?,
             howToUse: json['how_to_use'] as String?,
             expiryAndValidity: json['expiry_and_validity'] as String?,
@@ -122,5 +126,14 @@ class CakePayCard {
             minValue: json['min_value'] as String?,
             maxValue: json['max_value'] as String?,
         );
+    }
+
+    static String stripHtmlIfNeeded(String text) {
+        return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
+    }
+
+    static String fixEncoding(String text) {
+        final bytes = latin1.encode(text);
+        return utf8.decode(bytes, allowMalformed: true);
     }
 }

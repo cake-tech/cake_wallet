@@ -3,14 +3,14 @@ import 'package:mobx/mobx.dart';
 
 part 'ionia_buy_card_view_model.g.dart';
 
-class IoniaBuyCardViewModel = IoniaBuyCardViewModelBase with _$IoniaBuyCardViewModel;
+class CakePayBuyCardViewModel = CakePayBuyCardViewModelBase with _$CakePayBuyCardViewModel;
 
-abstract class IoniaBuyCardViewModelBase with Store {
-  IoniaBuyCardViewModelBase({required this.ioniaMerchant}) 
+abstract class CakePayBuyCardViewModelBase with Store {
+  CakePayBuyCardViewModelBase({required this.vendor})
     : isEnablePurchase = false,
       amount = 0;
 
-  final IoniaMerchant ioniaMerchant;
+  final CakePayVendor vendor;
 
   @observable
   double amount;
@@ -22,8 +22,8 @@ abstract class IoniaBuyCardViewModelBase with Store {
   void onAmountChanged(String input) {
     if (input.isEmpty) return;
     amount = double.parse(input.replaceAll(',', '.'));
-    final min = ioniaMerchant.minimumCardPurchase;
-    final max = ioniaMerchant.maximumCardPurchase;
+    final min = 1; //ioniaMerchant.minimumCardPurchase; TODO: uncomment this line
+    final max = 10 ;//ioniaMerchant.maximumCardPurchase;
 
     isEnablePurchase = amount >= min && amount <= max;
   }

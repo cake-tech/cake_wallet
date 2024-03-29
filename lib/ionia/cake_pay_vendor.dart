@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cake_wallet/ionia/ionia_gift_card_instruction.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
@@ -102,33 +104,50 @@ class IoniaMerchant {
   }
 }
 
-class Vendor {
+class CakePayVendor {
   final int id;
   final String name;
   final bool unavailable;
   final String? cakeWarnings;
   final List<String> countries;
-  final List<CakePayCard> cards;
+  final CakePayCard? card;
 
-  Vendor({
+  CakePayVendor({
     required this.id,
     required this.name,
     required this.unavailable,
     this.cakeWarnings,
     required this.countries,
-    required this.cards,
+    this.card,
   });
 
-  factory Vendor.fromJson(Map<String, dynamic> json) {
-    return Vendor(
+  factory CakePayVendor.fromJson(Map<String, dynamic> json) {
+    final name = stripHtmlIfNeeded(json['name'] as String);
+    final decodedName = fixEncoding(name);
+
+    var cardsJson = json['cards'] as List?;
+    CakePayCard? firstCard;
+
+    if (cardsJson != null && cardsJson.isNotEmpty) {
+      firstCard = CakePayCard.fromJson(cardsJson.first as Map<String, dynamic>);
+    }
+
+    return CakePayVendor(
       id: json['id'] as int,
-      name: json['name'] as String,
+      name: decodedName,
       unavailable: json['unavailable'] as bool? ?? false,
       cakeWarnings: json['cake_warnings'] as String?,
       countries: List<String>.from(json['countries'] as List? ?? []),
-      cards: (json['cards'] as List? ?? [])
-          .map((card) => CakePayCard.fromJson(card as Map<String, dynamic>))
-          .toList(),
+      card: firstCard,
     );
+  }
+
+  static String stripHtmlIfNeeded(String text) {
+    return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
+  }
+
+  static String fixEncoding(String text) {
+    final bytes = latin1.encode(text);
+    return utf8.decode(bytes, allowMalformed: true);
   }
 }

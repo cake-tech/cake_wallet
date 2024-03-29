@@ -33,7 +33,7 @@ class IoniaManageCardsPage extends BasePage {
       }
     });
 
-    _cardsListViewModel.getMerchants();
+    _cardsListViewModel.getVendors();
 
   }
   final FocusNode searchFocusNode;
@@ -81,7 +81,7 @@ class IoniaManageCardsPage extends BasePage {
       child: InkWell(
           onTap: () async {
             await showCategoryFilter(context);
-            _cardsListViewModel.getMerchants();
+            _cardsListViewModel.getVendors();
           },
           child: Container(
             width: 32,
@@ -159,7 +159,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
   double thumbHeight = 72;
   bool get isAlwaysShowScrollThumb => merchantsList == null ? false : merchantsList.length > 3;
 
-  List<Vendor> get merchantsList => widget.cardsListViewModel.ioniaMerchants;
+  List<CakePayVendor> get merchantsList => widget.cardsListViewModel.cakePayVendors;
 
   final _scrollController = ScrollController();
 
@@ -187,18 +187,18 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
           itemCount: merchantsList.length,
           separatorBuilder: (_, __) => SizedBox(height: 4),
           itemBuilder: (_, index) {
-            final merchant = merchantsList[index];
+            final vendor = merchantsList[index];
             return CardItem(
-              logoUrl: merchant.cards.first.cardImageUrl, //TODO: merchant.logoUrl
+              logoUrl: vendor.card?.cardImageUrl,
               onTap: () {
-                Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardPage, arguments: [merchant]);
+                Navigator.of(context).pushNamed(Routes.CakePayBuyCardPage, arguments: [vendor]);
               },
-              title: 'merchant.legalName', //TODO: merchant.legalName
-              subTitle: 'merchant.avaibilityStatus',
+              title: vendor.name,
+              subTitle: vendor.card?.description ?? '',
               backgroundColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
               titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
               subtitleColor: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-              discount: 0.0, //TODO: merchant.discount
+              discount: 0.0,
             );
           },
         ),

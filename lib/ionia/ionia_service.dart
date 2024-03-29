@@ -78,10 +78,12 @@ class IoniaService {
 		return ioniaApi.getCards(username: username, password: password, clientId: clientId);
 	}
 
-	// Get Merchants
+	/// Get Available Countries
+	Future<List<String>> getCountries() async => await ioniaApi.getCountries();
 
-	Future<List<Vendor>> getVendors() async {
-		final result = await ioniaApi.getVendors(page: 1, country: 'USA');
+	/// Get Vendors
+	Future<List<CakePayVendor>> getVendors({required int page, required String country}) async {
+		final result = await ioniaApi.getVendors(page: page, country: country);
 		return result;
 	}
 

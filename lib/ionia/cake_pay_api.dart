@@ -10,10 +10,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class CakePayApi {
-  static const testBaseUri = true;
+  static const testBaseUri = false;
 
   static const authorization = 'Basic Y2FrZXdhbGxldDo1ZyIvKnp7K2EwZnZ7KkU6fC0nIg==';
-  static const CSRFToken = 'qMN9zRGwR8FapY0GbriD1mmodJ4OAx9f6k8VMhu3r746UoCLE28uzbFlrlybPoBc';
+  static const CSRFToken = 'ZBZUYt77zaHdoM0RuUcTMUInPMKEH8EekCLCjvumAeUlPpw45JvhmHH9X8fCnDVM';
 
   static const baseTestCakePayUri = 'test.cakepay.com';
   static const baseProdCakePayUri = 'buy.cakepay.com';
@@ -226,7 +226,7 @@ class CakePayApi {
     return bodyJson.map<String>((country) => country['name'] as String).toList();
   }
 
-  Future<List<Vendor>> getVendors({
+  Future<List<CakePayVendor>> getVendors({
     int? page,
     String? country,
     String? countryCode,
@@ -252,10 +252,11 @@ class CakePayApi {
     final uri = Uri.https(baseCakePayUri, vendorsPath, queryParams);
 
     var headers = {
-      'accept': 'application/json',
+      'accept': 'application/json; charset=UTF-8',
       'authorization': authorization,
       'X-CSRFToken': CSRFToken,
     };
+
 
     var response = await http.get(uri, headers: headers);
 
@@ -265,7 +266,7 @@ class CakePayApi {
     final bodyJson = json.decode(response.body) as Map<String, dynamic>;
 
     return (bodyJson['results'] as List)
-        .map((e) => Vendor.fromJson(e as Map<String, dynamic>))
+        .map((e) => CakePayVendor.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 

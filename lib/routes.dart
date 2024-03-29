@@ -64,8 +64,8 @@ class Routes {
   static const ioniaWelcomePage = '/cake_pay_welcome_page';
   static const ioniaCreateAccountPage = '/cake_pay_create_account_page';
   static const ioniaLoginPage = '/cake_pay_login_page';
-  static const ioniaManageCardsPage = '/manage_cards_page';
-  static const ioniaBuyGiftCardPage = '/buy_gift_card_page';
+  static const CakePayCardsPage = '/cake_pay_cards_page';
+  static const CakePayBuyCardPage = '/ake_pay_buy_card_page';
   static const ioniaBuyGiftCardDetailPage = '/buy_gift_card_detail_page';
   static const ioniaVerifyIoniaOtpPage = '/cake_pay_verify_otp_page';
   static const ioniaDebitCardPage = '/debit_card_page';

@@ -4,28 +4,29 @@ import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
 import 'package:mobx/mobx.dart';
+
 part 'ionia_gift_cards_list_view_model.g.dart';
 
-class IoniaGiftCardsListViewModel = IoniaGiftCardsListViewModelBase with _$IoniaGiftCardsListViewModel;
+class IoniaGiftCardsListViewModel = IoniaGiftCardsListViewModelBase
+    with _$IoniaGiftCardsListViewModel;
 
 abstract class IoniaGiftCardsListViewModelBase with Store {
   IoniaGiftCardsListViewModelBase({
     required this.ioniaService,
-  })  :
-        cardState = IoniaNoCardState(),
-        ioniaMerchants = [],
+  })  : cardState = IoniaNoCardState(),
+        cakePayVendors = [],
+        availableCountries = [],
         ioniaCategories = IoniaCategory.allCategories,
         selectedIndices = ObservableList<IoniaCategory>.of([IoniaCategory.all]),
         scrollOffsetFromTop = 0.0,
         merchantState = InitialIoniaMerchantLoadingState(),
         createCardState = IoniaCreateCardState(),
         searchString = '',
-        ioniaMerchantList = <Vendor>[] {
-  }
+        ioniaMerchantList = <CakePayVendor>[] {}
 
   final IoniaService ioniaService;
 
-  List<Vendor> ioniaMerchantList;
+  List<CakePayVendor> ioniaMerchantList;
 
   String searchString;
 
@@ -42,7 +43,10 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   IoniaMerchantState merchantState;
 
   @observable
-  List<Vendor> ioniaMerchants;
+  List<CakePayVendor> cakePayVendors;
+
+  @observable
+  List<String> availableCountries;
 
   @observable
   List<IoniaCategory> ioniaCategories;
@@ -64,12 +68,12 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   @action
   void searchMerchant(String text) {
     if (text.isEmpty) {
-      ioniaMerchants = ioniaMerchantList;
+      cakePayVendors = ioniaMerchantList;
       return;
     }
     searchString = text;
-    ioniaService.getVendors().then((value) {
-      ioniaMerchants = value;
+    ioniaService.getVendors(page: 1, country: 'USA').then((value) {
+      cakePayVendors = value;
     });
   }
 
@@ -84,15 +88,14 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
     }
   }
 
-  
-  void getMerchants() {
+  void getVendors() {
     merchantState = IoniaLoadingMerchantState();
-    ioniaService.getVendors().then((value) {
-      ioniaMerchants = ioniaMerchantList = value;
-      merchantState = IoniaLoadedMerchantState();
-    });
+    ioniaService.getCountries().then((value) => availableCountries = value);
+    final country = availableCountries.isEmpty ? 'USA' : availableCountries.first;
 
-
+    ioniaService.getVendors(page: 1, country: country)
+        .then((value) => cakePayVendors = ioniaMerchantList = value);
+    merchantState = IoniaLoadedMerchantState();
   }
 
   @action
@@ -124,7 +127,9 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
       ioniaCategories = IoniaCategory.allCategories;
     } else {
       ioniaCategories = IoniaCategory.allCategories
-          .where((e) => e.title.toLowerCase().contains(text.toLowerCase()),)
+          .where(
+            (e) => e.title.toLowerCase().contains(text.toLowerCase()),
+          )
           .toList();
     }
   }

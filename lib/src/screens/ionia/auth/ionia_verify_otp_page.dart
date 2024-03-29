@@ -150,7 +150,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
 
   void _onOtpSuccessful(BuildContext context) =>
       Navigator.of(context)
-        .pushNamedAndRemoveUntil(Routes.ioniaManageCardsPage, (route) => route.isFirst);
+        .pushNamedAndRemoveUntil(Routes.CakePayCardsPage, (route) => route.isFirst);
 
   void _verify() async => await _authViewModel.verifyEmail(_codeController.text);
 }

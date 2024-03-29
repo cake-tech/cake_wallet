@@ -80,7 +80,7 @@ class MarketPlacePage extends StatelessWidget {
             });
         break;
       default:
-        Navigator.pushNamed(context, Routes.ioniaManageCardsPage);
+        Navigator.pushNamed(context, Routes.CakePayCardsPage);
 
     //     marketPlaceViewModel.isIoniaUserAuthenticated().then((value) {
     //       if (value) {

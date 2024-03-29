@@ -17,35 +17,61 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
-class IoniaBuyGiftCardPage extends BasePage {
-  IoniaBuyGiftCardPage(
-    this.ioniaBuyCardViewModel,
+class CakePayBuyCardPage extends BasePage {
+  CakePayBuyCardPage(
+    this.cakePayBuyCardViewModel,
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController() {
     _amountController.addListener(() {
-      ioniaBuyCardViewModel.onAmountChanged(_amountController.text);
+      cakePayBuyCardViewModel.onAmountChanged(_amountController.text);
     });
   }
 
-  final IoniaBuyCardViewModel ioniaBuyCardViewModel;
+  final CakePayBuyCardViewModel cakePayBuyCardViewModel;
 
   @override
   String get title => S.current.enter_amount;
 
   @override
-  bool get extendBodyBehindAppBar => true;
+  bool get extendBodyBehindAppBar => false;
 
   @override
-  AppBarStyle get appBarStyle => AppBarStyle.transparent;
+  AppBarStyle get appBarStyle => AppBarStyle.withShadow;
 
   Color get textColor => currentTheme.type == ThemeType.dark ? Colors.white : Color(0xff393939);
 
   final TextEditingController _amountController;
   final FocusNode _amountFieldFocus;
 
+  BoxDecoration getImageDecoration(String imageUrl) {
+    return BoxDecoration(
+      borderRadius: BorderRadius.only(
+        bottomLeft: Radius.circular(24),
+        bottomRight: Radius.circular(24),
+      ),
+      image: DecorationImage(
+        image: NetworkImage(imageUrl),
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
   @override
   Widget body(BuildContext context) {
-    final merchant = ioniaBuyCardViewModel.ioniaMerchant;
+    final cardImageUrl = cakePayBuyCardViewModel.vendor.card?.cardImageUrl;
+    final gradientDecoration = BoxDecoration(
+      borderRadius: BorderRadius.only(
+        bottomLeft: Radius.circular(24),
+        bottomRight: Radius.circular(24),
+      ),
+      gradient: LinearGradient(colors: [
+        Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+        Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
+      ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+    );
+
+    final decoration = cardImageUrl != null ? getImageDecoration(cardImageUrl) : gradientDecoration;
+
     return KeyboardActions(
       disableScroll: true,
       config: KeyboardActionsConfig(
@@ -66,16 +92,7 @@ class IoniaBuyGiftCardPage extends BasePage {
             children: [
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 25),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(24),
-                    bottomRight: Radius.circular(24),
-                  ),
-                  gradient: LinearGradient(colors: [
-                    Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
-                    Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
-                  ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                ),
+                decoration: decoration,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -124,15 +141,21 @@ class IoniaBuyGiftCardPage extends BasePage {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          S.of(context).min_amount(merchant.minimumCardPurchase.toStringAsFixed(2)),
+                          S
+                              .of(context)
+                              .min_amount('merchant.minimumCardPurchase.toStringAsFixed(2)'),
                           style: TextStyle(
-                            color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
+                            color:
+                                Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                           ),
                         ),
                         Text(
-                          S.of(context).max_amount(merchant.maximumCardPurchase.toStringAsFixed(2)),
+                          S
+                              .of(context)
+                              .max_amount('merchant.maximumCardPurchase.toStringAsFixed(2)'),
                           style: TextStyle(
-                            color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
+                            color:
+                                Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                           ),
                         ),
                       ],
@@ -144,14 +167,15 @@ class IoniaBuyGiftCardPage extends BasePage {
               Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
-                  title: merchant.legalName,
-                  backgroundColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor
-                      .withOpacity(0.1),
-                  discount: merchant.discount,
+                  title: 'merchant.legalName',
+                  backgroundColor:
+                      Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.1),
+                  discount: 0,
+                  //merchant.discount, //TODO: uncomment this line
                   titleColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   subtitleColor: Theme.of(context).hintColor,
-                  subTitle: merchant.avaibilityStatus,
-                  logoUrl: merchant.logoUrl,
+                  subTitle: 'merchant.avaibilityStatus',
+                  logoUrl: 'merchant.logoUrl',
                 ),
               )
             ],
@@ -165,12 +189,12 @@ class IoniaBuyGiftCardPage extends BasePage {
                     onPressed: () => Navigator.of(context).pushNamed(
                       Routes.ioniaBuyGiftCardDetailPage,
                       arguments: [
-                        ioniaBuyCardViewModel.amount,
-                        ioniaBuyCardViewModel.ioniaMerchant,
+                        cakePayBuyCardViewModel.amount,
+                        cakePayBuyCardViewModel.vendor,
                       ],
                     ),
                     text: S.of(context).continue_text,
-                    isDisabled: !ioniaBuyCardViewModel.isEnablePurchase,
+                    isDisabled: !cakePayBuyCardViewModel.isEnablePurchase,
                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                   ),
