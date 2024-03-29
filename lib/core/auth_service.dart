@@ -66,7 +66,7 @@ class AuthService with Store {
 
   Future<bool> authenticate(String pin) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final encodedPin = await readSecureStorage(secureStorage, key);
+    final encodedPin = await secureStorage.read(secureStorage, key);
     final decodedPin = decodedPinCode(pin: encodedPin!);
 
     return decodedPin == pin;
