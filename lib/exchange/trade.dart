@@ -31,6 +31,7 @@ class Trade extends HiveObject {
     this.memo,
     this.txId,
     this.isRefund,
+    this.isSendAll,
   }) {
     if (provider != null) providerRaw = provider.raw;
 
@@ -117,6 +118,9 @@ class Trade extends HiveObject {
   @HiveField(20)
   bool? isRefund;
 
+  @HiveField(21)
+  bool? isSendAll;
+
   static Trade fromMap(Map<String, Object?> map) {
     return Trade(
         id: map['id'] as String,
@@ -130,8 +134,8 @@ class Trade extends HiveObject {
         fromWalletAddress: map['from_wallet_address'] as String?,
         memo: map['memo'] as String?,
         txId: map['tx_id'] as String?,
-        isRefund: map['isRefund'] as bool?
-    );
+        isRefund: map['isRefund'] as bool?,
+        isSendAll: map['isSendAll'] as bool?);
   }
 
   Map<String, dynamic> toMap() {
@@ -146,7 +150,8 @@ class Trade extends HiveObject {
       'from_wallet_address': fromWalletAddress,
       'memo': memo,
       'tx_id': txId,
-      'isRefund': isRefund
+      'isRefund': isRefund,
+      'isSendAll': isSendAll,
     };
   }
 

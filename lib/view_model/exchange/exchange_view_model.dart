@@ -508,8 +508,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           else {
             try {
               tradeState = TradeIsCreating();
-              final trade =
-                  await provider.createTrade(request: request, isFixedRateMode: isFixedRateMode);
+              final trade = await provider.createTrade(
+                request: request,
+                isFixedRateMode: isFixedRateMode,
+                isSendAll: isSendAllEnabled,
+              );
               trade.walletId = wallet.id;
               trade.fromWalletAddress = wallet.walletAddresses.address;
 
