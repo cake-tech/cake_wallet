@@ -242,10 +242,18 @@ abstract class ElectrumWalletBase
     int estimatedSize;
     if (network is BitcoinCashNetwork) {
       estimatedSize = ForkedTransactionBuilder.estimateTransactionSize(
-          utxos: utxos, outputs: outputs, network: network as BitcoinCashNetwork, memo: memo);
+        utxos: utxos,
+        outputs: outputs,
+        network: network as BitcoinCashNetwork,
+        memo: memo,
+      );
     } else {
       estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
-          utxos: utxos, outputs: outputs, network: network, memo: memo);
+        utxos: utxos,
+        outputs: outputs,
+        network: network,
+        memo: memo,
+      );
     }
 
     int fee = feeAmountWithFeeRate(feeRate, 0, 0, size: estimatedSize);
@@ -264,7 +272,7 @@ abstract class ElectrumWalletBase
 
     if (credentialsAmount > 0) {
       final amountLeftForFee = amount - credentialsAmount;
-      if (_isBelowDust(amountLeftForFee)) {
+      if (amountLeftForFee > 0 && _isBelowDust(amountLeftForFee)) {
         amount -= amountLeftForFee;
         fee += amountLeftForFee;
       }
