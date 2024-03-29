@@ -195,10 +195,10 @@ abstract class ElectrumWalletBase
   bool _isBelowDust(int amount) => amount <= _getDustAmount() && network != BitcoinNetwork.testnet;
 
   Future<EstimatedTxResult> estimateSendAllTx(
-    int credentialsAmount,
     List<BitcoinOutput> outputs,
     int feeRate, {
     String? memo,
+    int credentialsAmount = 0,
   }) async {
     final utxos = <UtxoWithAddress>[];
     List<ECPrivate> privateKeys = [];
@@ -408,7 +408,6 @@ abstract class ElectrumWalletBase
       }
 
       final estimatedSendAll = await estimateSendAllTx(
-        0,
         outputs,
         feeRate,
         memo: memo,
@@ -510,10 +509,10 @@ abstract class ElectrumWalletBase
       EstimatedTxResult estimatedTx;
       if (sendAll) {
         estimatedTx = await estimateSendAllTx(
-          credentialsAmount,
           outputs,
           feeRateInt,
           memo: memo,
+          credentialsAmount: credentialsAmount,
         );
       } else {
         estimatedTx = await estimateTxForAmount(
