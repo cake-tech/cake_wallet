@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -64,7 +66,7 @@ class AuthService with Store {
 
   Future<bool> authenticate(String pin) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final encodedPin = await secureStorage.read(key: key);
+    final encodedPin = await readSecureStorage(secureStorage, key);
     final decodedPin = decodedPinCode(pin: encodedPin!);
 
     return decodedPin == pin;
@@ -76,7 +78,8 @@ class AuthService with Store {
   }
 
   Future<bool> requireAuth() async {
-    final timestamp = int.tryParse(await secureStorage.read(key: SecureKey.lastAuthTimeMilliseconds) ?? '0');
+    final timestamp =
+        int.tryParse(await secureStorage.read(key: SecureKey.lastAuthTimeMilliseconds) ?? '0');
     final duration = _durationToRequireAuth(timestamp ?? 0);
     final requiredPinInterval = settingsStore.pinTimeOutDuration;
 

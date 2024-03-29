@@ -117,7 +117,11 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
+  Future<Trade> createTrade({
+    required TradeRequest request,
+    required bool isFixedRateMode,
+    required bool isSendAll,
+  }) async {
     final headers = {'Content-Type': 'application/json'};
     final params = {'api_key': apiKey};
     final body = <String, dynamic>{
@@ -162,6 +166,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       amount: request.fromAmount,
       payoutAddress: payoutAddress,
       createdAt: DateTime.now(),
+      isSendAll: isSendAll,
     );
   }
 
