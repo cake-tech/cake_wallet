@@ -45,7 +45,6 @@ class EthereumClient extends EVMChainClient {
   @override
   Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
     try {
-      print("@@@@@@@@@@@@@");
       final response = await httpClient.get(Uri.https("api.etherscan.io", "/api", {
         "module": "account",
         "action": "txlistinternal",
@@ -54,8 +53,6 @@ class EthereumClient extends EVMChainClient {
       }));
 
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
-      print("@@@@@@@@@@@@@");
-      print(jsonResponse);
 
       if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
         return (jsonResponse['result'] as List)
@@ -64,10 +61,7 @@ class EthereumClient extends EVMChainClient {
       }
 
       return [];
-    } catch (e, s) {
-      print("###########");
-      print(e);
-      print(s);
+    } catch (e) {
       log(e.toString());
       return [];
     }
