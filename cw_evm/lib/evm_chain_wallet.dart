@@ -234,7 +234,7 @@ abstract class EVMChainWalletBase
     final CryptoCurrency transactionCurrency =
         balance.keys.firstWhere((element) => element.title == _credentials.currency.title);
 
-    final _erc20Balance = balance[transactionCurrency]!;
+    final erc20Balance = balance[transactionCurrency]!;
     BigInt totalAmount = BigInt.zero;
     int exponent = transactionCurrency is Erc20Token ? transactionCurrency.decimal : 18;
     num amountToEVMChainMultiplier = pow(10, exponent);
@@ -249,7 +249,7 @@ abstract class EVMChainWalletBase
           outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
       totalAmount = BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
 
-      if (_erc20Balance.balance < totalAmount) {
+      if (erc20Balance.balance < totalAmount) {
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
     } else {
@@ -258,18 +258,27 @@ abstract class EVMChainWalletBase
       // then no need to subtract the fees from the amount if send all
       final BigInt allAmount;
       if (transactionCurrency is Erc20Token) {
-        allAmount = _erc20Balance.balance;
+        allAmount = erc20Balance.balance;
       } else {
-        allAmount = _erc20Balance.balance -
-            BigInt.from(calculateEstimatedFee(_credentials.priority!, null));
-      }
-      final totalOriginalAmount =
-          EVMChainFormatter.parseEVMChainAmountToDouble(output.formattedCryptoAmount ?? 0);
-      totalAmount = output.sendAll
-          ? allAmount
-          : BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
+        final estimatedFee = BigInt.from(calculateEstimatedFee(_credentials.priority!, null));
 
-      if (_erc20Balance.balance < totalAmount) {
+        if (estimatedFee > erc20Balance.balance) {
+          throw EVMChainTransactionFeesException();
+        }
+
+        allAmount = erc20Balance.balance - estimatedFee;
+      }
+
+      if (output.sendAll) {
+        totalAmount = allAmount;
+      } else {
+        final totalOriginalAmount =
+            EVMChainFormatter.parseEVMChainAmountToDouble(output.formattedCryptoAmount ?? 0);
+
+        totalAmount = BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
+      }
+
+      if (erc20Balance.balance < totalAmount) {
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
     }
@@ -279,7 +288,7 @@ abstract class EVMChainWalletBase
       toAddress: _credentials.outputs.first.isParsedAddress
           ? _credentials.outputs.first.extractedAddress!
           : _credentials.outputs.first.address,
-      amount: totalAmount.toString(),
+      amount: totalAmount,
       gas: _estimatedGas!,
       priority: _credentials.priority!,
       currency: transactionCurrency,

@@ -82,7 +82,7 @@ abstract class EVMChainClient {
   Future<PendingEVMChainTransaction> signTransaction({
     required EthPrivateKey privateKey,
     required String toAddress,
-    required String amount,
+    required BigInt amount,
     required int gas,
     required EVMChainTransactionPriority priority,
     required CryptoCurrency currency,
@@ -103,7 +103,7 @@ abstract class EVMChainClient {
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
-      amount: isEVMCompatibleChain ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
+      amount: isEVMCompatibleChain ? EtherAmount.inWei(amount) : EtherAmount.zero(),
       data: data != null ? hexToBytes(data) : null,
     );
 
@@ -124,7 +124,7 @@ abstract class EVMChainClient {
       _sendTransaction = () async {
         await erc20.transfer(
           EthereumAddress.fromHex(toAddress),
-          BigInt.parse(amount),
+          amount,
           credentials: privateKey,
           transaction: transaction,
         );
@@ -133,7 +133,7 @@ abstract class EVMChainClient {
 
     return PendingEVMChainTransaction(
       signedTransaction: signedTransaction,
-      amount: amount,
+      amount: amount.toString(),
       fee: BigInt.from(gas) * (await price).getInWei,
       sendTransaction: _sendTransaction,
       exponent: exponent,
