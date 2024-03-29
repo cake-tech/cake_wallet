@@ -69,7 +69,7 @@ class PolygonClient extends EVMChainClient {
 
       if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
         return (jsonResponse['result'] as List)
-            .map((e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'ETH'))
+            .map((e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'MATIC'))
             .toList();
       }
 
