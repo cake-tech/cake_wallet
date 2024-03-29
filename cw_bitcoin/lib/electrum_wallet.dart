@@ -195,7 +195,8 @@ abstract class ElectrumWalletBase
       List<BitcoinOutput> outputs,
       int? feeRate,
       BitcoinTransactionPriority? priority,
-      {int? inputsCount}) async {
+      {int? inputsCount,
+        String? memo}) async {
     final utxos = <UtxoWithAddress>[];
     List<ECPrivate> privateKeys = [];
 
@@ -253,7 +254,11 @@ abstract class ElectrumWalletBase
     }
 
     final estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
-        utxos: utxos, outputs: outputs, network: network);
+      utxos: utxos,
+      outputs: outputs,
+      network: network,
+      memo: memo,
+    );
 
     int fee = feeRate != null
         ? feeAmountWithFeeRate(feeRate, 0, 0, size: estimatedSize)
@@ -300,7 +305,13 @@ abstract class ElectrumWalletBase
       }
     }
 
-    return EstimatedTxResult(utxos: utxos, privateKeys: privateKeys, fee: fee, amount: amount);
+    return EstimatedTxResult(
+      utxos: utxos,
+      privateKeys: privateKeys,
+      fee: fee,
+      amount: amount,
+      memo: memo,
+    );
   }
 
   @override
@@ -348,13 +359,17 @@ abstract class ElectrumWalletBase
         outputs,
         transactionCredentials.feeRate,
         transactionCredentials.priority,
+        memo: transactionCredentials.outputs.first.memo,
       );
 
       final txb = BitcoinTransactionBuilder(
-          utxos: estimatedTx.utxos,
-          outputs: outputs,
-          fee: BigInt.from(estimatedTx.fee),
-          network: network);
+        utxos: estimatedTx.utxos,
+        outputs: outputs,
+        fee: BigInt.from(estimatedTx.fee),
+        network: network,
+        memo: estimatedTx.memo,
+        outputOrdering: BitcoinOrdering.none,
+      );
 
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
         final key = estimatedTx.privateKeys
@@ -888,13 +903,19 @@ class EstimateTxParams {
 }
 
 class EstimatedTxResult {
-  EstimatedTxResult(
-      {required this.utxos, required this.privateKeys, required this.fee, required this.amount});
+  EstimatedTxResult({
+    required this.utxos,
+    required this.privateKeys,
+    required this.fee,
+    required this.amount,
+    this.memo,
+  });
 
   final List<UtxoWithAddress> utxos;
   final List<ECPrivate> privateKeys;
   final int fee;
   final int amount;
+  final String? memo;
 }
 
 BitcoinBaseAddress addressTypeFromStr(String address, BasedUtxoNetwork network) {

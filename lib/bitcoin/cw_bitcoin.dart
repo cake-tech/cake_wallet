@@ -85,7 +85,8 @@ class CWBitcoin extends Bitcoin {
                   sendAll: out.sendAll,
                   extractedAddress: out.extractedAddress,
                   isParsedAddress: out.isParsedAddress,
-                  formattedCryptoAmount: out.formattedCryptoAmount))
+                  formattedCryptoAmount: out.formattedCryptoAmount,
+									memo: out.memo))
               .toList(),
           priority: priority as BitcoinTransactionPriority,
           feeRate: feeRate);
