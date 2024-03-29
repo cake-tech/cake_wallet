@@ -86,7 +86,7 @@ class CWBitcoin extends Bitcoin {
                   extractedAddress: out.extractedAddress,
                   isParsedAddress: out.isParsedAddress,
                   formattedCryptoAmount: out.formattedCryptoAmount,
-									memo: out.memo))
+                  memo: out.memo))
               .toList(),
           priority: priority as BitcoinTransactionPriority,
           feeRate: feeRate);
@@ -123,23 +123,30 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority) async {
-    final electrumWallet = wallet as ElectrumWallet;
-    final sk = ECPrivate.random();
-
-    final p2shAddr = sk.getPublic().toP2pkhInP2sh();
-    final p2wpkhAddr = sk.getPublic().toP2wpkhAddress();
     try {
-      final estimatedTx = await electrumWallet.estimateTxFeeAndInputsToUse(
-          0,
-          true,
-          // Deposit address + change address
-          [p2shAddr, p2wpkhAddr],
-          [
-            BitcoinOutput(address: p2shAddr, value: BigInt.zero),
-            BitcoinOutput(address: p2wpkhAddr, value: BigInt.zero)
-          ],
-          null,
-          priority as BitcoinTransactionPriority);
+      final sk = ECPrivate.random();
+      final electrumWallet = wallet as ElectrumWallet;
+
+      if (wallet.type == WalletType.bitcoinCash) {
+        final p2pkhAddr = sk.getPublic().toP2pkhAddress();
+        final estimatedTx = await electrumWallet.estimateSendAllTx(
+          [BitcoinOutput(address: p2pkhAddr, value: BigInt.zero)],
+          getFeeRate(wallet, priority as BitcoinCashTransactionPriority),
+        );
+
+        return estimatedTx.amount;
+      }
+
+      final p2shAddr = sk.getPublic().toP2pkhInP2sh();
+      final estimatedTx = await electrumWallet.estimateSendAllTx(
+        [BitcoinOutput(address: p2shAddr, value: BigInt.zero)],
+        getFeeRate(
+          wallet,
+          wallet.type == WalletType.litecoin
+              ? priority as LitecoinTransactionPriority
+              : priority as BitcoinTransactionPriority,
+        ),
+      );
 
       return estimatedTx.amount;
     } catch (_) {

@@ -100,7 +100,5 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
   final WalletType _type;
   List<TransactionDetailsListItem> items;
 
-  String get formattedAddress => WalletType.bitcoinCash == _type
-      ? bitcoinCash!.getCashAddrFormat(unspentCoinsItem.address)
-      : unspentCoinsItem.address;
+  String get formattedAddress => unspentCoinsItem.address;
 }

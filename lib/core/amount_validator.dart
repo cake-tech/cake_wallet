@@ -34,6 +34,10 @@ class AmountValidator extends TextValidator {
   late final DecimalAmountValidator decimalAmountValidator;
 
   String? call(String? value) {
+    if (value == null || value.isEmpty) {
+      return S.current.error_text_amount;
+    }
+
     //* Validate for Text(length, symbols, decimals etc)
 
     final textValidation = symbolsAmountValidator(value) ?? decimalAmountValidator(value);

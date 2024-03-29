@@ -109,7 +109,11 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
+  Future<Trade> createTrade({
+    required TradeRequest request,
+    required bool isFixedRateMode,
+    required bool isSendAll,
+  }) async {
     String formattedToAddress = request.toAddress.startsWith('bitcoincash:')
         ? request.toAddress.replaceFirst('bitcoincash:', '')
         : request.toAddress;
@@ -142,7 +146,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
         amount: request.fromAmount,
         state: TradeState.notFound,
         payoutAddress: request.toAddress,
-        memo: memo);
+        memo: memo,
+        isSendAll: isSendAll);
   }
 
   @override
@@ -177,10 +182,12 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final parts = memo?.split(':') ?? [];
 
     final String toChain = parts.length > 1 ? parts[1].split('.')[0] : '';
-    final String toAsset = parts.length > 1 && parts[1].split('.').length > 1 ? parts[1].split('.')[1].split('-')[0] : '';
+    final String toAsset = parts.length > 1 && parts[1].split('.').length > 1
+        ? parts[1].split('.')[1].split('-')[0]
+        : '';
 
     final formattedToChain = CryptoCurrency.fromString(toChain);
-    final toAssetWithChain =  CryptoCurrency.fromString(toAsset, walletCurrency:formattedToChain);
+    final toAssetWithChain = CryptoCurrency.fromString(toAsset, walletCurrency: formattedToChain);
 
     final plannedOutTxs = responseJSON['planned_out_txs'] as List<dynamic>?;
     final isRefund = plannedOutTxs?.any((tx) => tx['refund'] == true) ?? false;
