@@ -48,7 +48,7 @@ class EthereumClient extends EVMChainClient {
       final response = await httpClient.get(Uri.https("api.etherscan.io", "/api", {
         "module": "account",
         "action": "txlistinternal",
-        "address": "0x72067Bf532b21A096D2e2B4953d69554E1a61917",
+        "address": address,
         "apikey": secrets.etherScanApiKey,
       }));
 
