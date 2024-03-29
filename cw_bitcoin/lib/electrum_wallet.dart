@@ -264,8 +264,10 @@ abstract class ElectrumWalletBase
 
     if (credentialsAmount > 0) {
       final amountLeftForFee = amount - credentialsAmount;
-      amount -= amountLeftForFee;
-      fee += amountLeftForFee;
+      if (_isBelowDust(amountLeftForFee)) {
+        amount -= amountLeftForFee;
+        fee += amountLeftForFee;
+      }
     }
 
     outputs[outputs.length - 1] =
