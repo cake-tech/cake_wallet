@@ -27,6 +27,8 @@ abstract class EVMChainClient {
   Future<List<EVMChainTransactionModel>> fetchTransactions(String address,
       {String? contractAddress});
 
+  Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address);
+
   Uint8List prepareSignedTransactionForSending(Uint8List signedTransaction);
 
   //! Common methods across all child classes

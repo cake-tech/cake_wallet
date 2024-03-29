@@ -41,4 +41,29 @@ class EthereumClient extends EVMChainClient {
       return [];
     }
   }
+
+  @override
+  Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
+    try {
+      final response = await httpClient.get(Uri.https("api.etherscan.io", "/api", {
+        "module": "account",
+        "action": "txlistinternal",
+        "address": "0x72067Bf532b21A096D2e2B4953d69554E1a61917",
+        "apikey": secrets.etherScanApiKey,
+      }));
+
+      final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
+        return (jsonResponse['result'] as List)
+            .map((e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'ETH'))
+            .toList();
+      }
+
+      return [];
+    } catch (e) {
+      log(e.toString());
+      return [];
+    }
+  }
 }

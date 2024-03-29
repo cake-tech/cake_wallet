@@ -56,4 +56,28 @@ class PolygonClient extends EVMChainClient {
       return [];
     }
   }
+
+  @override
+  Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
+    try {
+      final response = await httpClient.get(Uri.https("api.polygonscan.io", "/api", {
+        "module": "account",
+        "action": "txlistinternal",
+        "address": address,
+        "apikey": secrets.polygonScanApiKey,
+      }));
+
+      final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
+        return (jsonResponse['result'] as List)
+            .map((e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'ETH'))
+            .toList();
+      }
+
+      return [];
+    } catch (_) {
+      return [];
+    }
+  }
 }
