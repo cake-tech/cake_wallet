@@ -32,7 +32,7 @@ dependencies:
   breez_sdk:
     git:
       url: https://github.com/breez/breez-sdk-flutter.git
-      ref: v0.2.14
+      ref: v0.3.8
   rxdart: ^0.27.5
   unorm_dart: ^0.2.0
   cryptography: ^2.0.5
