@@ -241,8 +241,7 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<bool> hasTaprootInput(Object wallet, String hash) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return await bitcoinWallet.hasTaprootInput(hash);
+  bool hasTaprootInput(PendingTransaction pendingTransaction) {
+    return (pendingTransaction as PendingBitcoinTransaction).hasTaprootInputs;
   }
 }

@@ -22,7 +22,7 @@ MONERO_COM_BUNDLE_ID="com.cakewallet.monero"
 
 CAKEWALLET_NAME="Cake Wallet"
 CAKEWALLET_VERSION="1.8.3"
-CAKEWALLET_BUILD_NUMBER=60
+CAKEWALLET_BUILD_NUMBER=61
 CAKEWALLET_BUNDLE_ID="com.fotolockr.cakewallet"
 
 if ! [[ " ${TYPES[*]} " =~ " ${APP_MACOS_TYPE} " ]]; then

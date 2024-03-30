@@ -311,7 +311,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         if (outputCount > 10) {
           throw Exception("ThorChain does not support more than 10 outputs");
         }
-        if (await _hasTaprootInput(pendingTransaction)) {
+        if (_hasTaprootInput(pendingTransaction)) {
           throw Exception("ThorChain does not support Taproot addresses");
         }
       }
@@ -519,9 +519,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return errorMessage;
   }
 
-  Future<bool> _hasTaprootInput(PendingTransaction? pendingTransaction) async {
+  bool _hasTaprootInput(PendingTransaction? pendingTransaction) {
     if (walletType == WalletType.bitcoin && pendingTransaction != null) {
-      return await bitcoin!.hasTaprootInput(wallet, pendingTransaction.id);
+      return bitcoin!.hasTaprootInput(pendingTransaction);
     }
 
     return false;

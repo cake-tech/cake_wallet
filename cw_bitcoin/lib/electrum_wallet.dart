@@ -7,7 +7,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitcoin_base/bitcoin_base.dart' as bitcoin_base;
 import 'package:collection/collection.dart';
-import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
@@ -545,6 +544,8 @@ abstract class ElectrumWalletBase
         );
       }
 
+      bool hasTaprootInputs = false;
+
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
         final key = estimatedTx.privateKeys
             .firstWhereOrNull((element) => element.getPublic().toHex() == publicKey);
@@ -554,21 +555,25 @@ abstract class ElectrumWalletBase
         }
 
         if (utxo.utxo.isP2tr()) {
+          hasTaprootInputs = true;
           return key.signTapRoot(txDigest, sighash: sighash);
         } else {
           return key.signInput(txDigest, sigHash: sighash);
         }
       });
 
-      return PendingBitcoinTransaction(transaction, type,
-          electrumClient: electrumClient,
-          amount: estimatedTx.amount,
-          fee: estimatedTx.fee,
-          feeRate: feeRateInt.toString(),
-          network: network,
-          hasChange: estimatedTx.hasChange,
-          isSendAll: estimatedTx.isSendAll)
-        ..addListener((transaction) async {
+      return PendingBitcoinTransaction(
+        transaction,
+        type,
+        electrumClient: electrumClient,
+        amount: estimatedTx.amount,
+        fee: estimatedTx.fee,
+        feeRate: feeRateInt.toString(),
+        network: network,
+        hasChange: estimatedTx.hasChange,
+        isSendAll: estimatedTx.isSendAll,
+        hasTaprootInputs: hasTaprootInputs,
+      )..addListener((transaction) async {
           transactionHistory.addOne(transaction);
           await updateBalance();
         });
@@ -1061,24 +1066,6 @@ abstract class ElectrumWalletBase
     }
 
     return BitcoinNetwork.mainnet;
-  }
-
-  Future<bool> hasTaprootInput(String hash) async {
-    final bundle = await getTransactionExpanded(hash: hash, height: 0);
-
-    for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
-      final input = bundle.originalTransaction.inputs[i];
-      final inputTransaction = bundle.ins[i];
-      final vout = input.txIndex;
-      final outTransaction = inputTransaction.outputs[vout];
-      final address = addressFromOutputScript(outTransaction.scriptPubKey, network);
-
-      if (P2trAddress.regex.hasMatch(address)) {
-        return true;
-      }
-    }
-
-    return false;
   }
 }
 

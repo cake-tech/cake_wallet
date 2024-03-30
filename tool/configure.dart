@@ -149,7 +149,7 @@ abstract class Bitcoin {
   ReceivePageOption getSelectedAddressType(Object wallet);
   List<ReceivePageOption> getBitcoinReceivePageOptions();
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
-  Future<bool> hasTaprootInput(Object wallet, String hash);
+  bool hasTaprootInput(PendingTransaction pendingTransaction);
 }
   """;
 
