@@ -7,6 +7,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitcoin_base/bitcoin_base.dart' as bitcoin_base;
 import 'package:collection/collection.dart';
+import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
@@ -1060,6 +1061,24 @@ abstract class ElectrumWalletBase
     }
 
     return BitcoinNetwork.mainnet;
+  }
+
+  Future<bool> hasTaprootInput(String hash) async {
+    final bundle = await getTransactionExpanded(hash: hash, height: 0);
+
+    for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
+      final input = bundle.originalTransaction.inputs[i];
+      final inputTransaction = bundle.ins[i];
+      final vout = input.txIndex;
+      final outTransaction = inputTransaction.outputs[vout];
+      final address = addressFromOutputScript(outTransaction.scriptPubKey, network);
+
+      if (P2trAddress.regex.hasMatch(address)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
 

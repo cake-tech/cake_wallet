@@ -239,4 +239,10 @@ class CWBitcoin extends Bitcoin {
         return SegwitAddresType.p2wpkh;
     }
   }
+
+  @override
+  Future<bool> hasTaprootInput(Object wallet, String hash) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return await bitcoinWallet.hasTaprootInput(hash);
+  }
 }
