@@ -75,6 +75,7 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:hive/hive.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';""";
   const bitcoinCWHeaders = """
+import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
