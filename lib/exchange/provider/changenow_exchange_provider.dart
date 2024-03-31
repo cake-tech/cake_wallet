@@ -133,7 +133,11 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
+  Future<Trade> createTrade({
+    required TradeRequest request,
+    required bool isFixedRateMode,
+    required bool isSendAll,
+  }) async {
     final distributionPath = await DistributionInfo.instance.getDistributionPath();
     final formattedAppVersion = int.tryParse(_settingsStore.appVersion.replaceAll('.', '')) ?? 0;
     final payload = {
@@ -202,7 +206,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         createdAt: DateTime.now(),
         amount: responseJSON['fromAmount']?.toString() ?? request.fromAmount,
         state: TradeState.created,
-        payoutAddress: payoutAddress);
+        payoutAddress: payoutAddress,
+        isSendAll: isSendAll);
   }
 
   @override

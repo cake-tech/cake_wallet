@@ -13,7 +13,8 @@ import 'package:http/http.dart';
 
 class TrocadorExchangeProvider extends ExchangeProvider {
   TrocadorExchangeProvider({this.useTorOnly = false, this.providerStates = const {}})
-      : _lastUsedRateId = '', _provider = [],
+      : _lastUsedRateId = '',
+        _provider = [],
         super(pairList: supportedPairs(_notSupported));
 
   bool useTorOnly;
@@ -23,7 +24,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     'Swapter',
     'StealthEx',
     'Simpleswap',
-    'Swapuz'
+    'Swapuz',
     'ChangeNow',
     'Changehero',
     'FixedFloat',
@@ -144,8 +145,11 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
-
+  Future<Trade> createTrade({
+    required TradeRequest request,
+    required bool isFixedRateMode,
+    required bool isSendAll,
+  }) async {
     final params = {
       'api_key': apiKey,
       'ticker_from': _normalizeCurrency(request.fromCurrency),
@@ -171,7 +175,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       );
       params['id'] = _lastUsedRateId;
     }
-
 
     String firstAvailableProvider = '';
 
@@ -225,7 +228,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         providerName: providerName,
         createdAt: DateTime.tryParse(date)?.toLocal(),
         amount: responseJSON['amount_from']?.toString() ?? request.fromAmount,
-        payoutAddress: payoutAddress);
+        payoutAddress: payoutAddress,
+        isSendAll: isSendAll);
   }
 
   @override

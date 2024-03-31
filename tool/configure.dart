@@ -69,6 +69,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:hive/hive.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';""";
@@ -947,7 +948,11 @@ abstract class Solana {
     required CryptoCurrency currency,
   });
   List<CryptoCurrency> getSPLTokenCurrencies(WalletBase wallet);
-  Future<void> addSPLToken(WalletBase wallet, CryptoCurrency token);
+  Future<void> addSPLToken(
+    WalletBase wallet,
+    CryptoCurrency token,
+    String contractAddress,
+  );
   Future<void> deleteSPLToken(WalletBase wallet, CryptoCurrency token);
   Future<CryptoCurrency?> getSPLToken(WalletBase wallet, String contractAddress);
 
@@ -955,6 +960,7 @@ abstract class Solana {
   double getTransactionAmountRaw(TransactionInfo transactionInfo);
   String getTokenAddress(CryptoCurrency asset);
   List<int>? getValidationLength(CryptoCurrency type);
+  double? getEstimateFees(WalletBase wallet);
 }
 
   """;

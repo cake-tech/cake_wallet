@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:erc20/erc20.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:hex/hex.dart' as hex;
 
 abstract class EVMChainClient {
   final httpClient = Client();
@@ -25,6 +26,8 @@ abstract class EVMChainClient {
 
   Future<List<EVMChainTransactionModel>> fetchTransactions(String address,
       {String? contractAddress});
+
+  Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address);
 
   Uint8List prepareSignedTransactionForSending(Uint8List signedTransaction);
 
@@ -79,12 +82,13 @@ abstract class EVMChainClient {
   Future<PendingEVMChainTransaction> signTransaction({
     required EthPrivateKey privateKey,
     required String toAddress,
-    required String amount,
+    required BigInt amount,
     required int gas,
     required EVMChainTransactionPriority priority,
     required CryptoCurrency currency,
     required int exponent,
     String? contractAddress,
+    String? data,
   }) async {
     assert(currency == CryptoCurrency.eth ||
         currency == CryptoCurrency.maticpoly ||
@@ -99,7 +103,8 @@ abstract class EVMChainClient {
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
-      amount: isEVMCompatibleChain ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
+      amount: isEVMCompatibleChain ? EtherAmount.inWei(amount) : EtherAmount.zero(),
+      data: data != null ? hexToBytes(data) : null,
     );
 
     final signedTransaction =
@@ -119,7 +124,7 @@ abstract class EVMChainClient {
       _sendTransaction = () async {
         await erc20.transfer(
           EthereumAddress.fromHex(toAddress),
-          BigInt.parse(amount),
+          amount,
           credentials: privateKey,
           transaction: transaction,
         );
@@ -128,7 +133,7 @@ abstract class EVMChainClient {
 
     return PendingEVMChainTransaction(
       signedTransaction: signedTransaction,
-      amount: amount,
+      amount: amount.toString(),
       fee: BigInt.from(gas) * (await price).getInWei,
       sendTransaction: _sendTransaction,
       exponent: exponent,
@@ -140,12 +145,14 @@ abstract class EVMChainClient {
     required EthereumAddress to,
     required EtherAmount amount,
     EtherAmount? maxPriorityFeePerGas,
+    Uint8List? data,
   }) {
     return Transaction(
       from: from,
       to: to,
       maxPriorityFeePerGas: maxPriorityFeePerGas,
       value: amount,
+      data: data,
     );
   }
 
@@ -220,6 +227,10 @@ abstract class EVMChainClient {
     } catch (e) {
       return null;
     }
+  }
+
+  Uint8List hexToBytes(String hexString) {
+    return Uint8List.fromList(hex.HEX.decode(hexString.startsWith('0x') ? hexString.substring(2) : hexString));
   }
 
   void stop() {

@@ -2,6 +2,8 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
@@ -12,6 +14,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
@@ -102,8 +105,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   bool get isBatchSending => outputs.length > 1;
-
-  bool get shouldDisplaySendALL => walletType != WalletType.solana;
 
   @computed
   String get pendingTransactionFiatAmount {
@@ -205,6 +206,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get hasFees => wallet.type != WalletType.nano && wallet.type != WalletType.banano;
 
+  @computed
+  bool get hasFeesPriority =>
+      wallet.type != WalletType.nano &&
+      wallet.type != WalletType.banano &&
+      wallet.type != WalletType.solana;
   @observable
   CryptoCurrency selectedCryptoCurrency;
 
@@ -296,14 +302,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @action
-  Future<void> createTransaction() async {
+  Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
     try {
       state = IsExecutingState();
       pendingTransaction = await wallet.createTransaction(_credentials());
+      if (provider is ThorChainExchangeProvider) {
+        final outputCount = pendingTransaction?.outputCount ?? 0;
+        if (outputCount > 10) throw Exception("ThorChain does not support more than 10 outputs");
+      }
       state = ExecutedSuccessfullyState();
+      return pendingTransaction;
     } catch (e) {
-      print('Failed with ${e.toString()}');
-      state = FailureState(e.toString());
+      state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
     }
   }
 
@@ -345,8 +355,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       state = TransactionCommitted();
     } catch (e) {
-      String translatedError = translateErrorMessage(e.toString(), wallet.type, wallet.currency);
-      state = FailureState(translatedError);
+      state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
     }
   }
 
@@ -421,11 +430,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
-  ContactRecord? newContactAddress () {
-
+  ContactRecord? newContactAddress() {
     final Set<String> contactAddresses =
-    Set.from(contactListViewModel.contacts.map((contact) => contact.address))
-      ..addAll(contactListViewModel.walletContacts.map((contact) => contact.address));
+        Set.from(contactListViewModel.contacts.map((contact) => contact.address))
+          ..addAll(contactListViewModel.walletContacts.map((contact) => contact.address));
 
     for (var output in outputs) {
       String address;
@@ -436,7 +444,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       if (address.isNotEmpty && !contactAddresses.contains(address)) {
-
         return ContactRecord(
             contactListViewModel.contactSource,
             Contact(
@@ -450,22 +457,59 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   String translateErrorMessage(
-    String error,
+    Object error,
     WalletType walletType,
     CryptoCurrency currency,
   ) {
+    String errorMessage = error.toString();
+
     if (walletType == WalletType.ethereum ||
         walletType == WalletType.polygon ||
         walletType == WalletType.solana ||
         walletType == WalletType.haven) {
-      if (error.contains('gas required exceeds allowance') ||
-          error.contains('insufficient funds')) {
+      if (errorMessage.contains('gas required exceeds allowance') ||
+          errorMessage.contains('insufficient funds')) {
         return S.current.do_not_have_enough_gas_asset(currency.toString());
       }
 
-      return error;
+      return errorMessage;
     }
 
-    return error;
+    if (walletType == WalletType.bitcoin ||
+        walletType == WalletType.litecoin ||
+        walletType == WalletType.bitcoinCash) {
+      if (error is TransactionWrongBalanceException) {
+        return S.current.tx_wrong_balance_exception(currency.toString());
+      }
+      if (error is TransactionNoInputsException) {
+        return S.current.tx_not_enough_inputs_exception;
+      }
+      if (error is TransactionNoFeeException) {
+        return S.current.tx_zero_fee_exception;
+      }
+      if (error is TransactionNoDustException) {
+        return S.current.tx_no_dust_exception;
+      }
+      if (error is TransactionCommitFailed) {
+        return S.current.tx_commit_failed;
+      }
+      if (error is TransactionCommitFailedDustChange) {
+        return S.current.tx_rejected_dust_change;
+      }
+      if (error is TransactionCommitFailedDustOutput) {
+        return S.current.tx_rejected_dust_output;
+      }
+      if (error is TransactionCommitFailedDustOutputSendAll) {
+        return S.current.tx_rejected_dust_output_send_all;
+      }
+      if (error is TransactionCommitFailedVoutNegative) {
+        return S.current.tx_rejected_vout_negative;
+      }
+      if (error is TransactionNoDustOnChangeException) {
+        return S.current.tx_commit_exception_no_dust_on_change(error.min, error.max);
+      }
+    }
+
+    return errorMessage;
   }
 }
