@@ -11,16 +11,13 @@ import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/template.dart';
@@ -42,8 +39,6 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:solana/dto.dart';
-import 'package:collection/collection.dart';
 
 part 'send_view_model.g.dart';
 

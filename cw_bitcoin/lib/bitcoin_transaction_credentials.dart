@@ -3,7 +3,7 @@ import 'package:cw_core/output_info.dart';
 
 class BitcoinTransactionCredentials {
   BitcoinTransactionCredentials(this.outputs,
-      {required this.priority, this.feeRate, this.useReplaceByFee = false});
+      {required this.priority, this.feeRate, this.useReplaceByFee = true});
 
   final List<OutputInfo> outputs;
   final BitcoinTransactionPriority? priority;
