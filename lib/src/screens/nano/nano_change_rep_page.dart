@@ -23,9 +23,7 @@ class NanoChangeRepPage extends BasePage {
       : _wallet = wallet,
         _settingsStore = settingsStore,
         _addressController = TextEditingController(),
-        _formKey = GlobalKey<FormState>() {
-    // _addressController.text = nano!.getRepresentative(wallet);
-  }
+        _formKey = GlobalKey<FormState>() {}
 
   final TextEditingController _addressController;
   final WalletBase _wallet;
@@ -85,9 +83,9 @@ class NanoChangeRepPage extends BasePage {
                   if (currentNode == null) {
                     currentNode = N2Node(
                       account: currentRepAccount,
-                      alias: "Unknown",
+                      alias: currentRepAccount,
                       score: 0,
-                      uptime: "Unknown",
+                      uptime: "???",
                       weight: 0,
                     );
                   }
@@ -97,25 +95,27 @@ class NanoChangeRepPage extends BasePage {
                       Container(
                         margin: EdgeInsets.only(top: 12),
                         child: Text(
-                          "Current Representative",
-                          // style:
-                          //     AppStyles.textStyleParagraph(context),
+                          S.current.nano_current_rep,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
-                      // Current representative
-                      if (currentNode != null)
-                        _buildSingleRepresentative(
-                          context,
-                          currentNode,
-                          isList: false,
-                        ),
+                      _buildSingleRepresentative(
+                        context,
+                        currentNode,
+                        isList: false,
+                      ),
                       Divider(height: 20),
                       Container(
                         margin: EdgeInsets.only(top: 12),
                         child: Text(
-                          "Pick a new representative",
-                          // style:
-                          //     AppStyles.textStyleParagraph(context),
+                          S.current.nano_pick_new_rep,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ],
@@ -241,19 +241,6 @@ class NanoChangeRepPage extends BasePage {
           ),
           onPressed: () async {
             if (!isList) {
-              // Clipboard.setData(
-              //     ClipboardData(text: StateContainer.of(context).wallet!.representative));
-              // setState(() {
-              //   _addressCopied = true;
-              // });
-              // if (_addressCopiedTimer != null) {
-              //   _addressCopiedTimer!.cancel();
-              // }
-              // _addressCopiedTimer = Timer(const Duration(milliseconds: 800), () {
-              //   setState(() {
-              //     _addressCopied = false;
-              //   });
-              // });
               return;
             }
             _addressController.text = rep.account!;
@@ -276,22 +263,19 @@ class NanoChangeRepPage extends BasePage {
                         style: TextStyle(
                           color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                           fontWeight: FontWeight.w700,
-                          fontSize: 18.0,
-                          fontFamily: 'Nunito Sans',
+                          fontSize: 18,
                         ),
                       ),
                       Container(
                         margin: const EdgeInsets.only(top: 7),
                         child: RichText(
                           text: TextSpan(
-                            text: "voting weight: ${rep.weight.toString()}%",
-                            // text: "${Z.of(context).votingWeight}: ",
+                            text: "${S.current.voting_weight}: ${rep.weight.toString()}%",
                             style: TextStyle(
                               color:
                                   Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                               fontWeight: FontWeight.w700,
                               fontSize: 14.0,
-                              fontFamily: 'Nunito Sans',
                             ),
                           ),
                         ),
@@ -303,15 +287,13 @@ class NanoChangeRepPage extends BasePage {
                             text: '',
                             children: [
                               TextSpan(
-                                // text: "${Z.of(context).uptime}: ",
-                                text: "uptime: ",
+                                text: "${S.current.uptime}: ",
                                 style: TextStyle(
                                   color: Theme.of(context)
                                       .extension<CakeTextTheme>()!
                                       .secondaryTextColor,
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 14.0,
-                                  fontFamily: 'Nunito Sans',
+                                  fontSize: 14,
                                 ),
                               ),
                               TextSpan(
@@ -321,8 +303,7 @@ class NanoChangeRepPage extends BasePage {
                                       .extension<CakeTextTheme>()!
                                       .secondaryTextColor,
                                   fontWeight: FontWeight.w900,
-                                  fontSize: 14.0,
-                                  fontFamily: 'Nunito Sans',
+                                  fontSize: 14,
                                 ),
                               ),
                             ],
@@ -343,7 +324,7 @@ class NanoChangeRepPage extends BasePage {
                       ),
                       Positioned.fill(
                         child: Container(
-                          margin: EdgeInsets.all(14),
+                          margin: EdgeInsets.all(13),
                           color: Theme.of(context).primaryColor,
                         ),
                       ),
@@ -358,7 +339,6 @@ class NanoChangeRepPage extends BasePage {
                             color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
-                            fontFamily: 'Nunito Sans',
                           ),
                         ),
                       ),

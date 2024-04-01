@@ -11,6 +11,7 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
@@ -370,14 +371,12 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
 
-  bool get isRepBad {
+  bool get showRepWarning {
     if (wallet.type != WalletType.nano) {
       return false;
     }
-
-    // nano!.
-
-    return true;
+    
+    return !nano!.isRepOk(wallet);
   }
 
   Future<void> reconnect() async {
