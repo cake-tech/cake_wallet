@@ -7,8 +7,8 @@ class CakePayBuyCardViewModel = CakePayBuyCardViewModelBase with _$CakePayBuyCar
 
 abstract class CakePayBuyCardViewModelBase with Store {
   CakePayBuyCardViewModelBase({required this.vendor})
-    : isEnablePurchase = false,
-      amount = 0;
+      : isEnablePurchase = false,
+        amount = 0;
 
   final CakePayVendor vendor;
 
@@ -22,8 +22,8 @@ abstract class CakePayBuyCardViewModelBase with Store {
   void onAmountChanged(String input) {
     if (input.isEmpty) return;
     amount = double.parse(input.replaceAll(',', '.'));
-    final min = 1; //ioniaMerchant.minimumCardPurchase; TODO: uncomment this line
-    final max = 10 ;//ioniaMerchant.maximumCardPurchase;
+    final min = double.parse(vendor.card?.minValue ?? '0.0');
+    final max = double.parse(vendor.card?.maxValue ?? '0.0');
 
     isEnablePurchase = amount >= min && amount <= max;
   }

@@ -23,8 +23,8 @@ import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 
-class IoniaManageCardsPage extends BasePage {
-  IoniaManageCardsPage(this._cardsListViewModel): searchFocusNode = FocusNode()  {
+class CakePayCardsPage extends BasePage {
+  CakePayCardsPage(this._cardsListViewModel): searchFocusNode = FocusNode()  {
     _searchController.addListener(() {
       if (_searchController.text != _cardsListViewModel.searchString) {
         _searchDebounce.run(() {
@@ -121,7 +121,7 @@ class IoniaManageCardsPage extends BasePage {
           ),
           SizedBox(height: 8),
           Expanded(
-            child: IoniaManageCardsPageBody(
+            child: CakePayCardsPageBody(
               cardsListViewModel: _cardsListViewModel,
             ),
           ),
@@ -142,8 +142,8 @@ class IoniaManageCardsPage extends BasePage {
   }
 }
 
-class IoniaManageCardsPageBody extends StatefulWidget {
-  const IoniaManageCardsPageBody({
+class CakePayCardsPageBody extends StatefulWidget {
+  const CakePayCardsPageBody({
     Key? key,
     required this.cardsListViewModel,
   }) : super(key: key);
@@ -151,10 +151,10 @@ class IoniaManageCardsPageBody extends StatefulWidget {
   final IoniaGiftCardsListViewModel cardsListViewModel;
 
   @override
-  _IoniaManageCardsPageBodyState createState() => _IoniaManageCardsPageBodyState();
+  _CakePayCardsPageBodyState createState() => _CakePayCardsPageBodyState();
 }
 
-class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
+class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
   double get backgroundHeight => MediaQuery.of(context).size.height * 0.75;
   double thumbHeight = 72;
   bool get isAlwaysShowScrollThumb => merchantsList == null ? false : merchantsList.length > 3;
@@ -185,7 +185,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
           padding: EdgeInsets.only(left: 2, right: 22),
           controller: _scrollController,
           itemCount: merchantsList.length,
-          separatorBuilder: (_, __) => SizedBox(height: 4),
+          separatorBuilder: (_, __) => SizedBox(height: 5),
           itemBuilder: (_, index) {
             final vendor = merchantsList[index];
             return CardItem(

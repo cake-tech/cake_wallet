@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
@@ -12,9 +13,11 @@ import 'package:cake_wallet/src/widgets/discount_badge.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/typography.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/cake_pay_purchase_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -24,28 +27,189 @@ import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart'
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
-class IoniaBuyGiftCardDetailPage extends BasePage {
-  IoniaBuyGiftCardDetailPage(this.ioniaPurchaseViewModel);
+class CakePayBuyCardDetailPage extends BasePage {
+  CakePayBuyCardDetailPage(this.cakePayPurchaseViewModel);
 
-  final IoniaMerchPurchaseViewModel ioniaPurchaseViewModel;
+  final CakePayPurchaseViewModel cakePayPurchaseViewModel;
 
   @override
   Widget middle(BuildContext context) {
     return Text(
-      ioniaPurchaseViewModel.ioniaMerchant.legalName,
+      cakePayPurchaseViewModel.vendor.name,
       style: textMediumSemiBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
     );
   }
 
   @override
-  Widget? trailing(BuildContext context)
-    => ioniaPurchaseViewModel.ioniaMerchant.discount > 0
-      ? DiscountBadge(percentage: ioniaPurchaseViewModel.ioniaMerchant.discount)
-      : null;
+  Widget? trailing(BuildContext context) => null;
 
   @override
   Widget body(BuildContext context) {
-    reaction((_) => ioniaPurchaseViewModel.invoiceCreationState, (ExecutionState state) {
+    final logoUrl = cakePayPurchaseViewModel.vendor.card?.cardImageUrl ?? '';
+
+    return ScrollableWithBottomSection(
+      contentPadding: EdgeInsets.zero,
+      content: Observer(builder: (_) {
+        final tipAmount = cakePayPurchaseViewModel.tipAmount;
+        return Column(
+          children: [
+            SizedBox(height: 36),
+            ClipRRect(
+              borderRadius: BorderRadius.horizontal(
+                  left: Radius.circular(20), right: Radius.circular(20)),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withOpacity(0.20)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Container(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.horizontal(
+                                left: Radius.circular(20), right: Radius.circular(20)),
+                            child: Image.network(
+                              logoUrl,
+                              fit: BoxFit.cover,
+                              loadingBuilder:
+                                  (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(child: CircularProgressIndicator());
+                              },
+                              errorBuilder: (context, error, stackTrace) =>
+                                  _PlaceholderContainer(text: 'Logo not found!'),
+                            ),
+                          )),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        child: Column(children: [
+                          Text(
+                            S.of(context).gift_card_amount,
+                            style: textSmall(),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            '\$${cakePayPurchaseViewModel.giftCardAmount.toStringAsFixed(2)}',
+                            style: textXLargeSemiBold(),
+                          ),
+                        ]),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: TextIconButton(
+                label: S.of(context).how_to_use_card,
+                onTap: () => _showHowToUseCard(context, cakePayPurchaseViewModel.vendor),
+              ),
+            ),
+          ],
+        );
+      }),
+      bottomSection: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(bottom: 12),
+            child: Observer(builder: (_) {
+              return LoadingPrimaryButton(
+                isLoading: cakePayPurchaseViewModel.invoiceCreationState is IsExecutingState ||
+                    cakePayPurchaseViewModel.invoiceCommittingState is IsExecutingState,
+                onPressed: () => purchaseCard(context),
+                text: S.of(context).purchase_gift_card,
+                color: Theme.of(context).primaryColor,
+                textColor: Colors.white,
+              );
+            }),
+          ),
+          SizedBox(height: 8),
+          InkWell(
+            onTap: () => _showTermsAndCondition(context),
+            child: Text(S.of(context).settings_terms_and_conditions,
+                style: textMediumSemiBold(
+                  color: Theme.of(context)
+                      .extension<ExchangePageTheme>()!
+                      .firstGradientBottomPanelColor,
+                ).copyWith(fontSize: 12)),
+          ),
+          SizedBox(height: 16)
+        ],
+      ),
+    );
+  }
+
+  void _showTermsAndCondition(BuildContext context) {
+    showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return IoniaAlertModal(
+            title: S.of(context).settings_terms_and_conditions,
+            content: Align(
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                'ioniaPurchaseViewModel.vendor.termsAndConditions',
+
+                ///TODO: implement vendor.termsAndConditions
+                style: textMedium(
+                  color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
+                ),
+              ),
+            ),
+            actionTitle: S.of(context).agree,
+            showCloseButton: false,
+            heightFactor: 0.6,
+          );
+        });
+  }
+
+  Future<void> purchaseCard(BuildContext context) async {
+    await cakePayPurchaseViewModel.createInvoice();
+
+    if (cakePayPurchaseViewModel.invoiceCreationState is ExecutedSuccessfullyState) {
+      await _presentSuccessfulInvoiceCreationPopup(context);
+    }
+  }
+
+  void _showHowToUseCard(
+    BuildContext context,
+    CakePayVendor vendor,
+  ) {
+    showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return IoniaAlertModal(
+            title: S.of(context).how_to_use_card,
+            content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                        Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Text(
+                              vendor.card!.name,
+                              style: textLargeSemiBold(
+                                color:
+                                    Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
+                              ),
+                            )),
+                        Text(
+                          vendor.card!.howToUse ?? '',
+                          style: textMedium(
+                            color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
+                          ),
+                        )
+                      ]),
+            actionTitle: S.current.got_it,
+          );
+        });
+    reaction((_) => cakePayPurchaseViewModel.invoiceCreationState, (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
@@ -61,7 +225,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
       }
     });
 
-    reaction((_) => ioniaPurchaseViewModel.invoiceCommittingState, (ExecutionState state) {
+    reaction((_) => cakePayPurchaseViewModel.invoiceCommittingState, (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
@@ -78,230 +242,24 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
 
       if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.of(context).pushReplacementNamed(
-            Routes.ioniaPaymentStatusPage,
-            arguments: [
-              ioniaPurchaseViewModel.paymentInfo,
-              ioniaPurchaseViewModel.committedInfo]);
+          Navigator.of(context).pushReplacementNamed(Routes.ioniaPaymentStatusPage, arguments: [
+            cakePayPurchaseViewModel.paymentInfo,
+            cakePayPurchaseViewModel.committedInfo
+          ]);
         });
       }
-    });
-
-    return ScrollableWithBottomSection(
-        contentPadding: EdgeInsets.zero,
-        content: Observer(builder: (_) {
-          final tipAmount = ioniaPurchaseViewModel.tipAmount;
-          return Column(
-            children: [
-              SizedBox(height: 36),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 24),
-                margin: EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    colors: [
-                      Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
-                      Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      S.of(context).gift_card_amount,
-                      style: textSmall(),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      '\$${ioniaPurchaseViewModel.giftCardAmount.toStringAsFixed(2)}',
-                      style: textXLargeSemiBold(),
-                    ),
-                    SizedBox(height: 24),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                S.of(context).bill_amount,
-                                style: textSmall(),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                '\$${ioniaPurchaseViewModel.billAmount.toStringAsFixed(2)}',
-                                style: textLargeSemiBold(),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                S.of(context).tip,
-                                style: textSmall(),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                '\$${tipAmount.toStringAsFixed(2)}',
-                                style: textLargeSemiBold(),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if(ioniaPurchaseViewModel.ioniaMerchant.acceptsTips)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24.0, 24.0, 0, 24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      S.of(context).tip,
-                      style: TextStyle(
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Observer(
-                      builder: (_) => TipButtonGroup(
-                        selectedTip: ioniaPurchaseViewModel.selectedTip!.percentage,
-                        tipsList: ioniaPurchaseViewModel.tips,
-                        onSelect: (value) => ioniaPurchaseViewModel.addTip(value),
-                        amount: ioniaPurchaseViewModel.amount,
-                        merchant: ioniaPurchaseViewModel.ioniaMerchant,
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: TextIconButton(
-                  label: S.of(context).how_to_use_card,
-                  onTap: () => _showHowToUseCard(context, ioniaPurchaseViewModel.ioniaMerchant),
-                ),
-              ),
-            ],
-          );
-        }),
-        bottomSection: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(bottom: 12),
-              child: Observer(builder: (_) {
-                return LoadingPrimaryButton(
-                  isLoading: ioniaPurchaseViewModel.invoiceCreationState is IsExecutingState ||
-                      ioniaPurchaseViewModel.invoiceCommittingState is IsExecutingState,
-                  onPressed: () => purchaseCard(context),
-                  text: S.of(context).purchase_gift_card,
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
-                );
-              }),
-            ),
-            SizedBox(height: 8),
-            InkWell(
-              onTap: () => _showTermsAndCondition(context),
-              child: Text(S.of(context).settings_terms_and_conditions,
-                  style: textMediumSemiBold(
-                    color: Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor,
-                  ).copyWith(fontSize: 12)),
-            ),
-            SizedBox(height: 16)
-          ],
-        ),
-    );
-  }
-
-  void _showTermsAndCondition(BuildContext context) {
-    showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-          return IoniaAlertModal(
-            title: S.of(context).settings_terms_and_conditions,
-            content: Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              ioniaPurchaseViewModel.ioniaMerchant.termsAndConditions,
-              style: textMedium(
-                color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
-              ),
-            ),
-          ),
-          actionTitle: S.of(context).agree,
-          showCloseButton: false,
-          heightFactor: 0.6,
-        );
-  }); 
-  }
-
-  Future<void> purchaseCard(BuildContext context) async {
-    await ioniaPurchaseViewModel.createInvoice();
-
-    if (ioniaPurchaseViewModel.invoiceCreationState is ExecutedSuccessfullyState) {
-      await _presentSuccessfulInvoiceCreationPopup(context);
-    }
-  }
-
-  void _showHowToUseCard(
-    BuildContext context,
-    IoniaMerchant merchant,
-  ) {
-    showPopUp<void>(
-        context: context,
-          builder: (BuildContext context) {
-        return  IoniaAlertModal(
-          title: S.of(context).how_to_use_card,
-          content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-                children: merchant.instructions
-                    .map((instruction) {
-                      return [
-                        Padding(
-                            padding: EdgeInsets.all(10),
-                            child: Text(
-                              instruction.header,
-                              style: textLargeSemiBold(
-                                color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
-                              ),
-                            )),
-                        Text(
-                          instruction.body,
-                          style: textMedium(
-                            color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
-                          ),
-                        )
-                      ];
-                    })
-                    .expand((e) => e)
-                    .toList()), 
-          actionTitle: S.current.got_it,
-        ); 
     });
   }
 
   Future<void> _presentSuccessfulInvoiceCreationPopup(BuildContext context) async {
-    if (ioniaPurchaseViewModel.invoice == null) {
+    if (cakePayPurchaseViewModel.invoice == null) {
       return;
     }
-    
-    final amount = ioniaPurchaseViewModel.invoice!.totalAmount;
-    final addresses = ioniaPurchaseViewModel.invoice!.outAddresses;
-    ioniaPurchaseViewModel.sendViewModel.outputs.first.setCryptoAmount(amount);
-    ioniaPurchaseViewModel.sendViewModel.outputs.first.address = addresses.first;
+
+    final amount = cakePayPurchaseViewModel.invoice!.totalAmount;
+    final addresses = cakePayPurchaseViewModel.invoice!.outAddresses;
+    cakePayPurchaseViewModel.sendViewModel.outputs.first.setCryptoAmount(amount);
+    cakePayPurchaseViewModel.sendViewModel.outputs.first.address = addresses.first;
 
     await showPopUp<void>(
       context: context,
@@ -309,20 +267,18 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
         return ConfirmSendingAlert(
             alertTitle: S.of(context).confirm_sending,
             paymentId: S.of(context).payment_id,
-            paymentIdValue: ioniaPurchaseViewModel.invoice!.paymentId,
+            paymentIdValue: cakePayPurchaseViewModel.invoice!.paymentId,
             amount: S.of(context).send_amount,
-            amountValue: '$amount ${ioniaPurchaseViewModel.invoice!.chain}',
-            fiatAmountValue:
-            '~ ${ioniaPurchaseViewModel.sendViewModel.outputs.first.fiatAmount} '
-                '${ioniaPurchaseViewModel.sendViewModel.fiat.title}',
+            amountValue: '$amount ${cakePayPurchaseViewModel.invoice!.chain}',
+            fiatAmountValue: '~ ${cakePayPurchaseViewModel.sendViewModel.outputs.first.fiatAmount} '
+                '${cakePayPurchaseViewModel.sendViewModel.fiat.title}',
             fee: S.of(context).send_fee,
-            feeValue:
-            '${ioniaPurchaseViewModel.sendViewModel.outputs.first.estimatedFee} '
-                '${ioniaPurchaseViewModel.invoice!.chain}',
+            feeValue: '${cakePayPurchaseViewModel.sendViewModel.outputs.first.estimatedFee} '
+                '${cakePayPurchaseViewModel.invoice!.chain}',
             feeFiatAmount:
-            '${ioniaPurchaseViewModel.sendViewModel.outputs.first.estimatedFeeFiatAmount} '
-                '${ioniaPurchaseViewModel.sendViewModel.fiat.title}',
-            outputs: ioniaPurchaseViewModel.sendViewModel.outputs,
+                '${cakePayPurchaseViewModel.sendViewModel.outputs.first.estimatedFeeFiatAmount} '
+                '${cakePayPurchaseViewModel.sendViewModel.fiat.title}',
+            outputs: cakePayPurchaseViewModel.sendViewModel.outputs,
             rightButtonText: S.of(context).ok,
             leftButtonText: S.of(context).cancel,
             alertLeftActionButtonTextColor: Colors.white,
@@ -331,10 +287,38 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
             alertRightActionButtonColor: Theme.of(context).primaryColor,
             actionRightButton: () async {
               Navigator.of(context).pop();
-              await ioniaPurchaseViewModel.commitPaymentInvoice();
+              await cakePayPurchaseViewModel.commitPaymentInvoice();
             },
             actionLeftButton: () => Navigator.of(context).pop());
       },
+    );
+  }
+}
+
+class _PlaceholderContainer extends StatelessWidget {
+  const _PlaceholderContainer({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Center(
+        child: Text(
+          text,
+          style: TextStyle(
+            color: Theme.of(context).extension<PickerTheme>()!.searchHintColor,
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [
+          Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+          Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
+        ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+      ),
     );
   }
 }
@@ -356,34 +340,40 @@ class TipButtonGroup extends StatelessWidget {
   final IoniaMerchant merchant;
 
   bool _isSelected(double value) => selectedTip == value;
+
   Set<double> get filter => tipsList.map((e) => e.percentage).toSet();
+
   bool get _isCustomSelected => !filter.contains(selectedTip);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 50,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: tipsList.length,
-        itemBuilder: (BuildContext context, int index) {
-          final tip = tipsList[index];
-          return Padding(
-            padding: EdgeInsets.only(right: 5),
-            child: TipButton(
-                isSelected: tip.isCustom ? _isCustomSelected :  _isSelected(tip.percentage),
-                onTap: () async {
-                    IoniaTip ioniaTip = tip;
-                    if(tip.isCustom){
-                      final customTip = await Navigator.pushNamed(context, Routes.ioniaCustomTipPage, arguments: [amount, merchant, tip]) as IoniaTip?;
-                      ioniaTip =  customTip ?? tip;
-                    }
-                    onSelect(ioniaTip);
-                },
-                caption: tip.isCustom ? S.of(context).custom : '${tip.percentage.toStringAsFixed(0)}%',
-                subTitle: tip.isCustom ? null : '\$${tip.additionalAmount.toStringAsFixed(2)}',
-              ));
-        }));
+        height: 50,
+        child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: tipsList.length,
+            itemBuilder: (BuildContext context, int index) {
+              final tip = tipsList[index];
+              return Padding(
+                  padding: EdgeInsets.only(right: 5),
+                  child: TipButton(
+                    isSelected: tip.isCustom ? _isCustomSelected : _isSelected(tip.percentage),
+                    onTap: () async {
+                      IoniaTip ioniaTip = tip;
+                      if (tip.isCustom) {
+                        final customTip = await Navigator.pushNamed(
+                            context, Routes.ioniaCustomTipPage,
+                            arguments: [amount, merchant, tip]) as IoniaTip?;
+                        ioniaTip = customTip ?? tip;
+                      }
+                      onSelect(ioniaTip);
+                    },
+                    caption: tip.isCustom
+                        ? S.of(context).custom
+                        : '${tip.percentage.toStringAsFixed(0)}%',
+                    subTitle: tip.isCustom ? null : '\$${tip.additionalAmount.toStringAsFixed(2)}',
+                  ));
+            }));
   }
 }
 
@@ -408,8 +398,8 @@ class TipButton extends StatelessWidget {
     }
 
     return isSelected
-      ? Theme.of(context).dialogTheme.backgroundColor!
-      : Theme.of(context).extension<CakeTextTheme>()!.titleColor;
+        ? Theme.of(context).dialogTheme.backgroundColor!
+        : Theme.of(context).extension<CakeTextTheme>()!.titleColor;
   }
 
   Color subTitleTextColor(BuildContext context) {
@@ -418,15 +408,15 @@ class TipButton extends StatelessWidget {
     }
 
     return isSelected
-      ? Theme.of(context).dialogTheme.backgroundColor!
-      : Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor;
+        ? Theme.of(context).dialogTheme.backgroundColor!
+        : Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor;
   }
 
   Color? backgroundColor(BuildContext context) {
     if (isDark(context)) {
       return isSelected
-        ? null
-        : Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.01);
+          ? null
+          : Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.01);
     }
 
     return isSelected
@@ -443,9 +433,7 @@ class TipButton extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(caption,
-                style: textSmallSemiBold(
-                    color: captionTextColor(context))),
+            Text(caption, style: textSmallSemiBold(color: captionTextColor(context))),
             if (subTitle != null) ...[
               SizedBox(height: 4),
               Text(

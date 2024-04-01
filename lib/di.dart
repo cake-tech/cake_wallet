@@ -88,7 +88,7 @@ import 'package:cake_wallet/src/screens/ionia/ionia.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/cake_pay_purchase_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
@@ -1045,12 +1045,12 @@ Future<void> setup({
 
   getIt.registerFactory(() => IoniaAuthViewModel(ioniaService: getIt.get<IoniaService>()));
 
-  getIt.registerFactoryParam<IoniaMerchPurchaseViewModel, double, IoniaMerchant>(
-      (double amount, merchant) {
-    return IoniaMerchPurchaseViewModel(
+  getIt.registerFactoryParam<CakePayPurchaseViewModel, double, CakePayVendor>(
+      (double amount, vendor) {
+    return CakePayPurchaseViewModel(
         ioniaAnyPayService: getIt.get<IoniaAnyPay>(),
         amount: amount,
-        ioniaMerchant: merchant,
+        vendor: vendor,
         sendViewModel: getIt.get<SendViewModel>());
   });
 
@@ -1080,12 +1080,12 @@ Future<void> setup({
     return CakePayBuyCardPage(getIt.get<CakePayBuyCardViewModel>(param1: vendor));
   });
 
-  getIt.registerFactoryParam<IoniaBuyGiftCardDetailPage, List<dynamic>, void>(
+  getIt.registerFactoryParam<CakePayBuyCardDetailPage, List<dynamic>, void>(
       (List<dynamic> args, _) {
     final amount = args.first as double;
-    final vendor = args.first as CakePayVendor;
-    return IoniaBuyGiftCardDetailPage(
-        getIt.get<IoniaMerchPurchaseViewModel>(param1: amount, param2: vendor));
+    final vendor = args[1] as CakePayVendor;
+    return CakePayBuyCardDetailPage(
+        getIt.get<CakePayPurchaseViewModel>(param1: amount, param2: vendor));
   });
 
   getIt.registerFactoryParam<IoniaGiftCardDetailsViewModel, IoniaGiftCard, void>(
@@ -1127,7 +1127,7 @@ Future<void> setup({
     return IoniaCustomTipPage(getIt.get<IoniaCustomTipViewModel>(param1: args));
   });
 
-  getIt.registerFactory(() => IoniaManageCardsPage(getIt.get<IoniaGiftCardsListViewModel>()));
+  getIt.registerFactory(() => CakePayCardsPage(getIt.get<IoniaGiftCardsListViewModel>()));
 
   getIt.registerFactory(() => IoniaDebitCardPage(getIt.get<IoniaGiftCardsListViewModel>()));
 

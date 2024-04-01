@@ -9,15 +9,15 @@ import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 
-part 'ionia_purchase_merch_view_model.g.dart';
+part 'cake_pay_purchase_view_model.g.dart';
 
-class IoniaMerchPurchaseViewModel = IoniaMerchPurchaseViewModelBase with _$IoniaMerchPurchaseViewModel;
+class CakePayPurchaseViewModel = CakePayPurchaseViewModelBase with _$CakePayPurchaseViewModel;
 
-abstract class IoniaMerchPurchaseViewModelBase with Store {
-  IoniaMerchPurchaseViewModelBase({
+abstract class CakePayPurchaseViewModelBase with Store {
+  CakePayPurchaseViewModelBase({
     required this.ioniaAnyPayService,
     required this.amount,
-    required this.ioniaMerchant,
+    required this.vendor,
     required this.sendViewModel,
   }) : tipAmount = 0.0,
         percentage = 0.0,
@@ -40,7 +40,7 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   @observable
   IoniaTip? selectedTip;
 
-  final IoniaMerchant ioniaMerchant;
+  final CakePayVendor vendor;
 
   final SendViewModel sendViewModel;
 
@@ -65,7 +65,7 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   double get giftCardAmount => double.parse((amount + tipAmount).toStringAsFixed(2));
 
   @computed
-  double get billAmount => double.parse((giftCardAmount * (1 - (ioniaMerchant.discount / 100))).toStringAsFixed(2));
+  double get billAmount => double.parse((giftCardAmount * (1 - ( 1 / 100))).toStringAsFixed(2)); //TODO: check if this is correct vendor.discount
 
   @observable
   double tipAmount;
@@ -80,7 +80,7 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   Future<void> createInvoice() async {
     try {
       invoiceCreationState = IsExecutingState();
-      paymentInfo = await ioniaAnyPayService.purchase(merchId: ioniaMerchant.id.toString(), amount: giftCardAmount);
+      paymentInfo = await ioniaAnyPayService.purchase(merchId: vendor.id.toString(), amount: giftCardAmount);
       invoiceCreationState = ExecutedSuccessfullyState();
     } catch (e) {
       invoiceCreationState = FailureState(e.toString());

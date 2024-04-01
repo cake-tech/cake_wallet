@@ -1,14 +1,13 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class MarketPlacePage extends StatelessWidget {
   MarketPlacePage({
@@ -81,14 +80,6 @@ class MarketPlacePage extends StatelessWidget {
         break;
       default:
         Navigator.pushNamed(context, Routes.CakePayCardsPage);
-
-    //     marketPlaceViewModel.isIoniaUserAuthenticated().then((value) {
-    //       if (value) {
-    //         Navigator.pushNamed(context, Routes.ioniaManageCardsPage);
-    //         return;
-    //       }
-    //       Navigator.of(context).pushNamed(Routes.ioniaWelcomePage);
-    //     });
     }
   }
 }

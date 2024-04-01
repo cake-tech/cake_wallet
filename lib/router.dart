@@ -469,7 +469,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaCreateAccountPage>());
 
     case Routes.CakePayCardsPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaManageCardsPage>());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayCardsPage>());
 
     case Routes.CakePayBuyCardPage:
       final args = settings.arguments as List;
@@ -479,7 +479,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.ioniaBuyGiftCardDetailPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<IoniaBuyGiftCardDetailPage>(param1: args));
+          builder: (_) => getIt.get<CakePayBuyCardDetailPage>(param1: args));
 
     case Routes.ioniaVerifyIoniaOtpPage:
       final args = settings.arguments as List;

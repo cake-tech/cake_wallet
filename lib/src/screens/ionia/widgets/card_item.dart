@@ -1,4 +1,3 @@
-import 'package:cake_wallet/src/widgets/discount_badge.dart';
 import 'package:flutter/material.dart';
 
 class CardItem extends StatelessWidget {
@@ -32,89 +31,71 @@ class CardItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: Stack(
-        children: [
-          Container(
-            padding: EdgeInsets.all(12),
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(20),
-              border: hideBorder ? Border.symmetric(horizontal: BorderSide.none, vertical: BorderSide.none) : Border.all(
-                color: Colors.white.withOpacity(0.20),
-              ),
-            ),
-            child: Row(
-              children: [
-                if (logoUrl != null) ...[
-                  Container(
+      child: Container(
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(20),
+          border: hideBorder
+              ? Border.all(color: Colors.transparent)
+              : Border.all(color: Colors.white.withOpacity(0.20)),
+        ),
+        child: IntrinsicHeight(
+          child: Row(
+            children: [
+              if (logoUrl != null)
+                Expanded(
+                  flex: 2,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.horizontal(left: Radius.circular(20)),
                     child: Image.network(
                       logoUrl!,
-                      width: 40.0,
-                      height: 40.0,
                       fit: BoxFit.cover,
-                      loadingBuilder: (BuildContext _, Widget child, ImageChunkEvent? loadingProgress) {
-                        if (loadingProgress == null) {
-                          return child;
-                        } else {
-                          return _PlaceholderContainer(text: 'Logo');
-                        }
+                      loadingBuilder:
+                          (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(child: CircularProgressIndicator());
                       },
-                      errorBuilder: (_, __, ___) => _PlaceholderContainer(text: '!'),
+                      errorBuilder: (context, error, stackTrace) =>
+                          _PlaceholderContainer(text: '!'),
                     ),
                   ),
-                  SizedBox(width: 5),
-                ],
-                Flexible(
+                ),
+              Expanded(
+                flex: 5,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Column(
-                    crossAxisAlignment: (subTitle.isEmpty)
-                      ? CrossAxisAlignment.center
-                      : CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        child: Text(
-                          title,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: titleColor,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w900,
-                          ),
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: titleColor,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
                         ),
                       ),
-                      if (subTitle.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5.0),
-                          child: Container(
-                            child: Text(
-                              subTitle,
-                              maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: subtitleColor,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: 'Lato')),
-                          ),
-                        )
+                      SizedBox(height: 4),
+                      Text(
+                        subTitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: subtitleColor,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Lato',
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-          if (discount != 0.0)
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: DiscountBadge(
-                  percentage: discount,
-                  isAmount: isAmount,
-                  discountBackground: discountBackground,
-                ),
               ),
-            ),
-        ],
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -128,8 +109,6 @@ class _PlaceholderContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 42,
-      width: 42,
       child: Center(
         child: Text(
           text,
@@ -142,7 +121,6 @@ class _PlaceholderContainer extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(100),
       ),
     );
   }
