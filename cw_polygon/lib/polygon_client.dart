@@ -13,6 +13,7 @@ class PolygonClient extends EVMChainClient {
     required EthereumAddress to,
     required EtherAmount amount,
     EtherAmount? maxPriorityFeePerGas,
+    Uint8List? data,
   }) {
     return Transaction(
       from: from,

@@ -239,4 +239,9 @@ class CWBitcoin extends Bitcoin {
         return SegwitAddresType.p2wpkh;
     }
   }
+
+  @override
+  bool hasTaprootInput(PendingTransaction pendingTransaction) {
+    return (pendingTransaction as PendingBitcoinTransaction).hasTaprootInputs;
+  }
 }

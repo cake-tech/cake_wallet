@@ -544,6 +544,8 @@ abstract class ElectrumWalletBase
         );
       }
 
+      bool hasTaprootInputs = false;
+
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
         final key = estimatedTx.privateKeys
             .firstWhereOrNull((element) => element.getPublic().toHex() == publicKey);
@@ -553,21 +555,25 @@ abstract class ElectrumWalletBase
         }
 
         if (utxo.utxo.isP2tr()) {
+          hasTaprootInputs = true;
           return key.signTapRoot(txDigest, sighash: sighash);
         } else {
           return key.signInput(txDigest, sigHash: sighash);
         }
       });
 
-      return PendingBitcoinTransaction(transaction, type,
-          electrumClient: electrumClient,
-          amount: estimatedTx.amount,
-          fee: estimatedTx.fee,
-          feeRate: feeRateInt.toString(),
-          network: network,
-          hasChange: estimatedTx.hasChange,
-          isSendAll: estimatedTx.isSendAll)
-        ..addListener((transaction) async {
+      return PendingBitcoinTransaction(
+        transaction,
+        type,
+        electrumClient: electrumClient,
+        amount: estimatedTx.amount,
+        fee: estimatedTx.fee,
+        feeRate: feeRateInt.toString(),
+        network: network,
+        hasChange: estimatedTx.hasChange,
+        isSendAll: estimatedTx.isSendAll,
+        hasTaprootInputs: hasTaprootInputs,
+      )..addListener((transaction) async {
           transactionHistory.addOne(transaction);
           await updateBalance();
         });
