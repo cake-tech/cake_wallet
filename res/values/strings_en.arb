@@ -457,6 +457,8 @@
   "remove_node": "Remove node",
   "remove_node_message": "Are you sure that you want to remove selected node?",
   "rename": "Rename",
+  "rep_warning": "Representative Warning",
+  "rep_warning_sub": "Your representative does not appear to be in good standing. Tap here to select a new one",
   "require_for_adding_contacts": "Require for adding contacts",
   "require_for_all_security_and_backup_settings": "Require for all security and backup settings",
   "require_for_assessing_wallet": "Require for accessing wallet",

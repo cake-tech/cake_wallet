@@ -459,6 +459,8 @@
   "remove_node": "Hapus node",
   "remove_node_message": "Apakah Anda yakin ingin menghapus node yang dipilih?",
   "rename": "Ganti nama",
+  "rep_warning": "Peringatan Perwakilan",
+  "rep_warning_sub": "Perwakilan Anda tampaknya tidak bereputasi baik. Ketuk di sini untuk memilih yang baru",
   "require_for_adding_contacts": "Membutuhkan untuk menambahkan kontak",
   "require_for_all_security_and_backup_settings": "Memerlukan untuk semua pengaturan keamanan dan pencadangan",
   "require_for_assessing_wallet": "Diperlukan untuk mengakses dompet",

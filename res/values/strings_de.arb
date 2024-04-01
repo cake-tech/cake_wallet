@@ -458,6 +458,8 @@
   "remove_node": "Knoten entfernen",
   "remove_node_message": "Möchten Sie den ausgewählten Knoten wirklich entfernen?",
   "rename": "Umbenennen",
+  "rep_warning": "Repräsentative Warnung",
+  "rep_warning_sub": "Ihr Vertreter scheint nicht gut zu sein. Tippen Sie hier, um eine neue auszuwählen",
   "require_for_adding_contacts": "Erforderlich zum Hinzufügen von Kontakten",
   "require_for_all_security_and_backup_settings": "Für alle Sicherheits- und Sicherungseinstellungen erforderlich",
   "require_for_assessing_wallet": "Für den Zugriff auf die Wallet erforderlich",

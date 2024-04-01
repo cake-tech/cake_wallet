@@ -459,6 +459,8 @@
   "remove_node": "नोड निकालें",
   "remove_node_message": "क्या आप वाकई चयनित नोड को निकालना चाहते हैं?",
   "rename": "नाम बदलें",
+  "rep_warning": "प्रतिनिधि चेतावनी",
+  "rep_warning_sub": "आपका प्रतिनिधि अच्छी स्थिति में नहीं दिखाई देता है। एक नया चयन करने के लिए यहां टैप करें",
   "require_for_adding_contacts": "संपर्क जोड़ने के लिए आवश्यकता है",
   "require_for_all_security_and_backup_settings": "सभी सुरक्षा और बैकअप सेटिंग्स की आवश्यकता है",
   "require_for_assessing_wallet": "वॉलेट तक पहुँचने के लिए आवश्यकता है",

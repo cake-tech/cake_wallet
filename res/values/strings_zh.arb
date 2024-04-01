@@ -457,6 +457,8 @@
   "remove_node": "删除节点",
   "remove_node_message": "您确定要删除所选节点吗？",
   "rename": "重命名",
+  "rep_warning": "代表性警告",
+  "rep_warning_sub": "您的代表似乎并不信誉良好。点击这里选择一个新的",
   "require_for_adding_contacts": "需要添加联系人",
   "require_for_all_security_and_backup_settings": "需要所有安全和备份设置",
   "require_for_assessing_wallet": "需要访问钱包",

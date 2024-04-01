@@ -459,6 +459,8 @@
   "remove_node": "نوڈ کو ہٹا دیں۔",
   "remove_node_message": "کیا آپ واقعی منتخب نوڈ کو ہٹانا چاہتے ہیں؟",
   "rename": "نام تبدیل کریں۔",
+  "rep_warning": "نمائندہ انتباہ",
+  "rep_warning_sub": "آپ کا نمائندہ اچھ standing ے مقام پر نہیں دکھائی دیتا ہے۔ نیا منتخب کرنے کے لئے یہاں ٹیپ کریں",
   "require_for_adding_contacts": "رابطوں کو شامل کرنے کی ضرورت ہے۔",
   "require_for_all_security_and_backup_settings": "تمام سیکورٹی اور بیک اپ کی ترتیبات کے لیے درکار ہے۔",
   "require_for_assessing_wallet": "بٹوے تک رسائی کے لیے درکار ہے۔",

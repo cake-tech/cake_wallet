@@ -457,6 +457,8 @@
   "remove_node": "Alisin ang node",
   "remove_node_message": "Sigurado ka bang nais mong alisin ang napiling node?",
   "rename": "Palitan ang pangalan",
+  "rep_warning": "Babala ng kinatawan",
+  "rep_warning_sub": "Ang iyong kinatawan ay hindi lilitaw na nasa mabuting kalagayan. Tapikin dito upang pumili ng bago",
   "require_for_adding_contacts": "Nangangailangan para sa pagdaragdag ng mga contact",
   "require_for_all_security_and_backup_settings": "Nangangailangan para sa lahat ng mga setting ng seguridad at backup",
   "require_for_assessing_wallet": "Nangangailangan para sa pag -access ng pitaka",

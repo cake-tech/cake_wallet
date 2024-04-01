@@ -458,6 +458,8 @@
   "remove_node": "Eliminar nodo",
   "remove_node_message": "¿Está seguro de que desea eliminar el nodo seleccionado?",
   "rename": "Rebautizar",
+  "rep_warning": "Advertencia representativa",
+  "rep_warning_sub": "Su representante no parece estar en buena posición. Toque aquí para seleccionar uno nuevo",
   "require_for_adding_contacts": "Requerido para agregar contactos",
   "require_for_all_security_and_backup_settings": "Requerido para todas las configuraciones de seguridad y copia de seguridad",
   "require_for_assessing_wallet": "Requerido para acceder a la billetera",

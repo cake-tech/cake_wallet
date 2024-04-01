@@ -459,6 +459,8 @@
   "remove_node": "Cire node",
   "remove_node_message": "Kuna tabbatar kuna so ku cire wannan node?",
   "rename": "Sake suna",
+  "rep_warning": "Gargadi Wakilin",
+  "rep_warning_sub": "Wakilinku bai bayyana ya kasance cikin kyakkyawan yanayi ba. Matsa nan don zaɓar sabon",
   "require_for_adding_contacts": "Bukatar ƙara lambobin sadarwa",
   "require_for_all_security_and_backup_settings": "Bukatar duk tsaro da saitunan wariyar ajiya",
   "require_for_assessing_wallet": "Bukatar samun damar walat",

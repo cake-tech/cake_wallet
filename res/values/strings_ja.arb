@@ -458,6 +458,8 @@
   "remove_node": "ノードを削除",
   "remove_node_message": "選択したノードを削除してもよろしいですか？",
   "rename": "リネーム",
+  "rep_warning": "代表的な警告",
+  "rep_warning_sub": "あなたの代表者は良好な状態ではないようです。ここをタップして、新しいものを選択します",
   "require_for_adding_contacts": "連絡先の追加に必要",
   "require_for_all_security_and_backup_settings": "すべてのセキュリティおよびバックアップ設定に必須",
   "require_for_assessing_wallet": "ウォレットにアクセスするために必要です",

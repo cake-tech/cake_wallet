@@ -458,6 +458,8 @@
   "remove_node": "노드 제거",
   "remove_node_message": "선택한 노드를 제거 하시겠습니까?",
   "rename": "이름 바꾸기",
+  "rep_warning": "대표 경고",
+  "rep_warning_sub": "귀하의 대표는 양호한 상태가 아닌 것 같습니다. 새 것을 선택하려면 여기를 탭하십시오",
   "require_for_adding_contacts": "연락처 추가에 필요",
   "require_for_all_security_and_backup_settings": "모든 보안 및 백업 설정에 필요",
   "require_for_assessing_wallet": "지갑 접근을 위해 필요",

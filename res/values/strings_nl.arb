@@ -457,6 +457,8 @@
   "remove_node": "Knoop verwijderen",
   "remove_node_message": "Weet u zeker dat u het geselecteerde knooppunt wilt verwijderen?",
   "rename": "Hernoemen",
+  "rep_warning": "Representatieve waarschuwing",
+  "rep_warning_sub": "Uw vertegenwoordiger lijkt niet goed te staan. Tik hier om een ​​nieuwe te selecteren",
   "require_for_adding_contacts": "Vereist voor het toevoegen van contacten",
   "require_for_all_security_and_backup_settings": "Vereist voor alle beveiligings- en back-upinstellingen",
   "require_for_assessing_wallet": "Vereist voor toegang tot portemonnee",

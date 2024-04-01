@@ -191,9 +191,8 @@ class CryptoBalanceWidget extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: DashBoardRoundedCardWidget(
-                  title: "Representative Warning",
-                  subTitle:
-                      "Your representative does not appear to be in good standing. Tap here to select a new one",
+                  title: S.current.rep_warning,
+                  subTitle: S.current.rep_warning_sub,
                   onTap: () => Navigator.of(context).pushNamed(Routes.changeRep),
                   onClose: () {
                     dashboardViewModel.settingsStore.shouldShowRepWarning = false;

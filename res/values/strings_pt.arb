@@ -459,6 +459,8 @@
   "remove_node": "Remover nó",
   "remove_node_message": "Você realmente deseja remover o nó selecionado?",
   "rename": "Renomear",
+  "rep_warning": "Aviso representativo",
+  "rep_warning_sub": "Seu representante não parece estar em boa posição. Toque aqui para selecionar um novo",
   "require_for_adding_contacts": "Requer para adicionar contatos",
   "require_for_all_security_and_backup_settings": "Exigir todas as configurações de segurança e backup",
   "require_for_assessing_wallet": "Requer para acessar a carteira",

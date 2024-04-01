@@ -457,6 +457,8 @@
   "remove_node": "Usuń węzeł",
   "remove_node_message": "Czy na pewno chcesz usunąć wybrany węzeł?",
   "rename": "Zmień nazwę",
+  "rep_warning": "Przedstawicielskie ostrzeżenie",
+  "rep_warning_sub": "Twój przedstawiciel nie wydaje się mieć dobrej opinii. Stuknij tutaj, aby wybrać nowy",
   "require_for_adding_contacts": "Wymagane do dodania kontaktów",
   "require_for_all_security_and_backup_settings": "Wymagaj dla wszystkich ustawień zabezpieczeń i kopii zapasowych",
   "require_for_assessing_wallet": "Wymagaj dostępu do portfela",

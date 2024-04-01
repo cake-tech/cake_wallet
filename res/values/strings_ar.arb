@@ -457,6 +457,8 @@
   "remove_node": "إزالة العقدة",
   "remove_node_message": "هل أنت متأكد أنك تريد إزالة العقدة المحددة؟",
   "rename": "إعادة تسمية",
+  "rep_warning": "تحذير تمثيلي",
+  "rep_warning_sub": "لا يبدو أن ممثلك في وضع جيد. اضغط هنا لاختيار واحدة جديدة",
   "require_for_adding_contacts": "تتطلب إضافة جهات اتصال",
   "require_for_all_security_and_backup_settings": "مطلوب لجميع إعدادات الأمان والنسخ الاحتياطي",
   "require_for_assessing_wallet": "تتطلب الوصول إلى المحفظة",

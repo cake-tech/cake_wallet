@@ -457,6 +457,8 @@
   "remove_node": "Ukloni node",
   "remove_node_message": "Jeste li sigurni da želite ukloniti odabrani node?",
   "rename": "Preimenuj",
+  "rep_warning": "Reprezentativno upozorenje",
+  "rep_warning_sub": "Čini se da vaš predstavnik nije u dobrom stanju. Dodirnite ovdje za odabir novog",
   "require_for_adding_contacts": "Zahtijeva za dodavanje kontakata",
   "require_for_all_security_and_backup_settings": "Zahtijeva za sve postavke sigurnosti i sigurnosne kopije",
   "require_for_assessing_wallet": "Potreban za pristup novčaniku",

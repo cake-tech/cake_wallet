@@ -457,6 +457,8 @@
   "remove_node": "Düğümü kaldır",
   "remove_node_message": "Seçili düğümü kaldırmak istediğinden emin misin?",
   "rename": "Yeniden adlandır",
+  "rep_warning": "Temsilci uyarı",
+  "rep_warning_sub": "Temsilciniz iyi durumda görünmüyor. Yeni bir tane seçmek için buraya dokunun",
   "require_for_adding_contacts": "Kişi eklemek için gerekli",
   "require_for_all_security_and_backup_settings": "Tüm güvenlik ve yedekleme ayarları için iste",
   "require_for_assessing_wallet": "Cüzdana erişmek için gerekli",
