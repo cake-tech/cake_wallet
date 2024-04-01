@@ -224,6 +224,7 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -814,8 +815,11 @@ Future<void> setup({
   getIt
       .registerFactory<DFXBuyProvider>(() => DFXBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory<MoonPaySellProvider>(() => MoonPaySellProvider(
-      settingsStore: getIt.get<AppStore>().settingsStore, wallet: getIt.get<AppStore>().wallet!));
+  getIt.registerFactory<MoonPayProvider>(() => MoonPayProvider(
+        settingsStore: getIt.get<AppStore>().settingsStore,
+        wallet: getIt.get<AppStore>().wallet!,
+        isTestEnvironment: kDebugMode,
+      ));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
         getIt.get<AppStore>().settingsStore,
