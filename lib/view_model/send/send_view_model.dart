@@ -316,7 +316,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       pendingTransaction = await wallet.createTransaction(_credentials());
       if (provider is ThorChainExchangeProvider) {
         final outputCount = pendingTransaction?.outputCount ?? 0;
-        if (outputCount > 10) throw Exception("ThorChain does not support more than 10 outputs");
+        if (outputCount > 10) {
+          throw Exception("ThorChain does not support more than 10 outputs");
+        }
+        if (_hasTaprootInput(pendingTransaction)) {
+          throw Exception("ThorChain does not support Taproot addresses");
+        }
       }
       state = ExecutedSuccessfullyState();
       return pendingTransaction;
@@ -331,6 +336,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
       }
     }
+    return null;
   }
 
   @action
@@ -525,5 +531,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     return errorMessage;
+  }
+
+  bool _hasTaprootInput(PendingTransaction? pendingTransaction) {
+    if (walletType == WalletType.bitcoin && pendingTransaction != null) {
+      return bitcoin!.hasTaprootInput(pendingTransaction);
+    }
+
+    return false;
   }
 }
