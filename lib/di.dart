@@ -1,6 +1,7 @@
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/buy/meld/meld_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
@@ -808,6 +809,12 @@ Future<void> setup({
       .registerFactory<DFXBuyProvider>(() => DFXBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory<MoonPayProvider>(() => MoonPayProvider(
+        settingsStore: getIt.get<AppStore>().settingsStore,
+        wallet: getIt.get<AppStore>().wallet!,
+        isTestEnvironment: kDebugMode,
+      ));
+
+  getIt.registerFactory<MeldProvider>(() => MeldProvider(
         settingsStore: getIt.get<AppStore>().settingsStore,
         wallet: getIt.get<AppStore>().wallet!,
         isTestEnvironment: kDebugMode,
