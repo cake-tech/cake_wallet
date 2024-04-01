@@ -22,6 +22,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         connectionState = InitialExecutionState(),
         useSSL = false,
         address = '',
+        path = '',
         port = '',
         login = '',
         password = '',
@@ -34,6 +35,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @observable
   String address;
+
+  @observable
+  String path;
 
   @observable
   String port;
@@ -84,6 +88,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @action
   void reset() {
     address = '';
+    path = '';
     port = '';
     login = '';
     password = '';
@@ -98,6 +103,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @action
   void setAddress(String val) => address = val;
+
+  @action
+  void setPath(String val) => path = val;
 
   @action
   void setLogin(String val) => login = val;
@@ -121,6 +129,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
     final node = Node(
         uri: uri,
+        path: path,
         type: _walletType,
         login: login,
         password: password,
@@ -151,6 +160,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   Future<void> connect() async {
     final node = Node(
         uri: uri,
+        path: path,
         type: _walletType,
         login: login,
         password: password,

@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
+import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
@@ -183,6 +184,20 @@ class CryptoBalanceWidget extends StatelessWidget {
                 return Container();
               },
             ),
+            Observer(builder: (_) {
+              // final serviceMessage = dashboardViewModel.serviceMessage;
+              // if (serviceMessage.isEmpty) {
+              //   return const SizedBox();
+              // }
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: DashBoardRoundedCardWidget(
+                  onTap: () => null,
+                  title: S.of(context).warning,
+                  subTitle: "translate: Tap here to change it",
+                ),
+              );
+            }),
             Observer(
               builder: (_) {
                 return ListView.separated(
@@ -339,19 +354,19 @@ class BalanceRowWidget extends StatelessWidget {
                           height: 40,
                           width: 40,
                           displayOnError: Container(
-                                height: 30.0,
-                                width: 30.0,
-                                child: Center(
-                                  child: Text(
-                                    currency.title.substring(0, min(currency.title.length, 2)),
-                                    style: TextStyle(fontSize: 11),
-                                  ),
-                                ),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.grey.shade400,
-                                ),
+                            height: 30.0,
+                            width: 30.0,
+                            child: Center(
+                              child: Text(
+                                currency.title.substring(0, min(currency.title.length, 2)),
+                                style: TextStyle(fontSize: 11),
                               ),
+                            ),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.grey.shade400,
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 10),
                         Text(
@@ -410,9 +425,7 @@ class BalanceRowWidget extends StatelessWidget {
                         fontSize: 20,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context)
-                            .extension<BalancePageTheme>()!
-                            .balanceAmountColor,
+                        color: Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
                         height: 1,
                       ),
                       maxLines: 1,

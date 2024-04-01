@@ -795,6 +795,7 @@ import 'package:cw_nano/nano_wallet_service.dart';
 import 'package:cw_nano/nano_transaction_info.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:cw_nano/nano_wallet_creation_credentials.dart';
+import 'package:cw_nano/n2_node.dart';
 // needed for nano_util:
 import 'dart:convert';
 import 'dart:typed_data';
@@ -841,6 +842,8 @@ abstract class Nano {
   Future<bool> updateTransactions(Object wallet);
   BigInt getTransactionAmountRaw(TransactionInfo transactionInfo);
   String getRepresentative(Object wallet);
+  Future<List<N2Node>> getN2Reps(Object wallet);
+  bool isRepOk(Object wallet);
 }
 
 abstract class NanoAccountList {

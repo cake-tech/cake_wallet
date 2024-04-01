@@ -5,10 +5,12 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_nano/n2_node.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -22,7 +24,7 @@ class NanoChangeRepPage extends BasePage {
         _settingsStore = settingsStore,
         _addressController = TextEditingController(),
         _formKey = GlobalKey<FormState>() {
-    _addressController.text = nano!.getRepresentative(wallet);
+    // _addressController.text = nano!.getRepresentative(wallet);
   }
 
   final TextEditingController _addressController;
@@ -41,28 +43,101 @@ class NanoChangeRepPage extends BasePage {
       child: Container(
         padding: EdgeInsets.only(left: 24, right: 24),
         child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.only(bottom: 24.0),
+          topSectionPadding: EdgeInsets.only(bottom: 24),
+          topSection: Column(
+            children: [
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: AddressTextField(
+                      controller: _addressController,
+                      onURIScanned: (uri) {
+                        final paymentRequest = PaymentRequest.fromUri(uri);
+                        _addressController.text = paymentRequest.address;
+                      },
+                      options: [
+                        AddressTextFieldOption.paste,
+                        AddressTextFieldOption.qrCode,
+                      ],
+                      buttonColor: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
+                      validator: AddressValidator(type: CryptoCurrency.nano),
+                    ),
+                  )
+                ],
+              ),
+              FutureBuilder(
+                future: nano!.getN2Reps(_wallet),
+                builder: (context, snapshot) {
+                  if (snapshot.data == null) {
+                    return Container();
+                  }
+
+                  N2Node? currentNode;
+                  String currentRepAccount = nano!.getRepresentative(_wallet);
+
+                  for (final N2Node node in snapshot.data as List<N2Node>) {
+                    if (node.account == currentRepAccount) {
+                      currentNode = node;
+                      break;
+                    }
+                  }
+
+                  if (currentNode == null) {
+                    currentNode = N2Node(
+                      account: currentRepAccount,
+                      alias: "Unknown",
+                      score: 0,
+                      uptime: "Unknown",
+                      weight: 0,
+                    );
+                  }
+
+                  return Column(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(top: 12),
+                        child: Text(
+                          "Current Representative",
+                          // style:
+                          //     AppStyles.textStyleParagraph(context),
+                        ),
+                      ),
+                      // Current representative
+                      if (currentNode != null)
+                        _buildSingleRepresentative(
+                          context,
+                          currentNode,
+                          isList: false,
+                        ),
+                      Divider(height: 20),
+                      Container(
+                        margin: EdgeInsets.only(top: 12),
+                        child: Text(
+                          "Pick a new representative",
+                          // style:
+                          //     AppStyles.textStyleParagraph(context),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+          contentPadding: EdgeInsets.only(bottom: 24),
           content: Container(
             child: Column(
               children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: AddressTextField(
-                        controller: _addressController,
-                        onURIScanned: (uri) {
-                          final paymentRequest = PaymentRequest.fromUri(uri);
-                          _addressController.text = paymentRequest.address;
-                        },
-                        options: [
-                          AddressTextFieldOption.paste,
-                          AddressTextFieldOption.qrCode,
-                        ],
-                        buttonColor: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
-                        validator: AddressValidator(type: CryptoCurrency.nano),
-                      ),
-                    )
-                  ],
+                FutureBuilder(
+                  future: nano!.getN2Reps(_wallet),
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) {
+                      return SizedBox();
+                    }
+                    return Column(
+                      children: _getRepresentativeWidgets(context, snapshot.data as List<N2Node>),
+                    );
+                  },
                 ),
               ],
             ),
@@ -134,5 +209,174 @@ class NanoChangeRepPage extends BasePage {
         ),
       ),
     );
+  }
+
+  List<Widget> _getRepresentativeWidgets(BuildContext context, List<N2Node>? list) {
+    if (list == null) {
+      return [];
+    }
+    final List<Widget> ret = [];
+    for (final N2Node node in list) {
+      if (node.alias != null && node.alias!.trim().isNotEmpty) {
+        ret.add(_buildSingleRepresentative(context, node));
+      }
+    }
+    return ret;
+  }
+
+  Widget _buildSingleRepresentative(BuildContext context, N2Node rep, {bool isList = true}) {
+    return Column(
+      children: <Widget>[
+        if (isList)
+          Divider(
+            height: 2,
+            // color: StateContainer.of(context).curTheme.text15,
+          ),
+        TextButton(
+          style: TextButton.styleFrom(
+            // foregroundColor: StateContainer.of(context).curTheme.text15,
+            padding: EdgeInsets.zero,
+            // highlightColor: StateContainer.of(context).curTheme.text15,
+            // splashColor: StateContainer.of(context).curTheme.text15,
+          ),
+          onPressed: () async {
+            if (!isList) {
+              // Clipboard.setData(
+              //     ClipboardData(text: StateContainer.of(context).wallet!.representative));
+              // setState(() {
+              //   _addressCopied = true;
+              // });
+              // if (_addressCopiedTimer != null) {
+              //   _addressCopiedTimer!.cancel();
+              // }
+              // _addressCopiedTimer = Timer(const Duration(milliseconds: 800), () {
+              //   setState(() {
+              //     _addressCopied = false;
+              //   });
+              // });
+              return;
+            }
+            _addressController.text = rep.account!;
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  margin: const EdgeInsetsDirectional.only(start: 24),
+                  width: MediaQuery.of(context).size.width * 0.50,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        _sanitizeAlias(rep.alias),
+                        style: TextStyle(
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 18.0,
+                          fontFamily: 'Nunito Sans',
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(top: 7),
+                        child: RichText(
+                          text: TextSpan(
+                            text: "voting weight: ${rep.weight.toString()}%",
+                            // text: "${Z.of(context).votingWeight}: ",
+                            style: TextStyle(
+                              color:
+                                  Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14.0,
+                              fontFamily: 'Nunito Sans',
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(top: 4),
+                        child: RichText(
+                          text: TextSpan(
+                            text: '',
+                            children: [
+                              TextSpan(
+                                // text: "${Z.of(context).uptime}: ",
+                                text: "uptime: ",
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .extension<CakeTextTheme>()!
+                                      .secondaryTextColor,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14.0,
+                                  fontFamily: 'Nunito Sans',
+                                ),
+                              ),
+                              TextSpan(
+                                text: rep.uptime,
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .extension<CakeTextTheme>()!
+                                      .secondaryTextColor,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 14.0,
+                                  fontFamily: 'Nunito Sans',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsetsDirectional.only(end: 24, start: 14),
+                  child: Stack(
+                    children: <Widget>[
+                      Icon(
+                        Icons.verified,
+                        color: Theme.of(context).primaryColor,
+                        size: 50,
+                      ),
+                      Positioned.fill(
+                        child: Container(
+                          margin: EdgeInsets.all(14),
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      Container(
+                        alignment: const AlignmentDirectional(-0.03, 0.03),
+                        width: 50,
+                        height: 50,
+                        child: Text(
+                          (rep.score).toString(),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'Nunito Sans',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _sanitizeAlias(String? alias) {
+    if (alias != null) {
+      return alias.replaceAll(RegExp(r'[^a-zA-Z_.!?_;:-]'), '');
+    }
+    return '';
   }
 }

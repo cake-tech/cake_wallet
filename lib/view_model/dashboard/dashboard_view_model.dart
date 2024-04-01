@@ -370,6 +370,16 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
 
+  bool get isRepBad {
+    if (wallet.type != WalletType.nano) {
+      return false;
+    }
+
+    // nano!.
+
+    return true;
+  }
+
   Future<void> reconnect() async {
     final node = appStore.settingsStore.getCurrentNode(wallet.type);
     await wallet.connectToNode(node: node);

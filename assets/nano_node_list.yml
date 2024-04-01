@@ -3,4 +3,6 @@
   useSSL: true
   is_default: true
 -
-  uri: node.perish.co:9076
+  uri: node.nautilus.io
+  useSSL: true
+  path: /rpc
