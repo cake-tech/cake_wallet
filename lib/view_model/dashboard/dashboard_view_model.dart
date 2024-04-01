@@ -121,6 +121,11 @@ abstract class DashboardViewModelBase with Store {
                 caption: ExchangeProviderDescription.exolix.title,
                 onChanged: () =>
                     tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
+            FilterItem(
+                value: () => tradeFilterStore.displayThorChain,
+                caption: ExchangeProviderDescription.thorChain.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
           ]
         },
         subname = '',
@@ -359,6 +364,9 @@ abstract class DashboardViewModelBase with Store {
   @observable
   bool hasSellAction;
 
+  @computed
+  bool get isEnabledBulletinAction => !settingsStore.disableBulletin;
+
   ReactionDisposer? _onMoneroAccountChangeReaction;
 
   ReactionDisposer? _onMoneroBalanceChangeReaction;
@@ -516,13 +524,16 @@ abstract class DashboardViewModelBase with Store {
 
       final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
 
-
       final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
       final currentSha = bytesToHex(hash.bytes);
 
       final hasUpdates = oldSha != currentSha;
 
-      return ServicesResponse.fromJson(json.decode(res.body) as Map<String, dynamic>, hasUpdates, currentSha);
+      return ServicesResponse.fromJson(
+        json.decode(res.body) as Map<String, dynamic>,
+        hasUpdates,
+        currentSha,
+      );
     } catch (_) {
       return ServicesResponse([], false, '');
     }

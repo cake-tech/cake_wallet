@@ -79,7 +79,7 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: cake-update-v2
+      ref: cake-update-v3
       resolved-ref: fb4c0a0b6cf24628ddad7d3cdc58e4c918eff714
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git

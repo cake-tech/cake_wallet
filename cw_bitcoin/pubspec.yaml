@@ -33,7 +33,7 @@ dependencies:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v2
+      ref: cake-update-v3
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils

@@ -1,2 +1,2 @@
-New themes
-Bug fixes and enhancements
+Exchange flow enhancements and fixes
+Generic enhancements and bug fixes

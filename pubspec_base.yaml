@@ -110,7 +110,7 @@ dependencies:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v2
+      ref: cake-update-v3
 
 dev_dependencies:
   flutter_test:

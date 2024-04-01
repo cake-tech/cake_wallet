@@ -7,7 +7,8 @@ class OutputInfo {
 		this.formattedCryptoAmount,
     this.fiatAmount,
     this.note,
-    this.extractedAddress,});
+    this.extractedAddress,
+    this.memo});
 
   	final String? fiatAmount;
   	final String? cryptoAmount;
@@ -17,4 +18,5 @@ class OutputInfo {
   	final bool sendAll;
   	final bool isParsedAddress;
   	final int? formattedCryptoAmount;
+  	final String? memo;
 }

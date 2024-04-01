@@ -18,15 +18,13 @@ class ElectrumWalletSnapshot {
     required this.regularAddressIndex,
     required this.changeAddressIndex,
     required this.addressPageType,
-    required this.network,
     required this.silentAddressIndex,
   });
 
   final String name;
   final String password;
   final WalletType type;
-  final String addressPageType;
-  final BasedUtxoNetwork network;
+  final String? addressPageType;
 
   String mnemonic;
   List<BitcoinAddressRecord> addresses;
@@ -37,7 +35,7 @@ class ElectrumWalletSnapshot {
   int silentAddressIndex;
 
   static Future<ElectrumWalletSnapshot> load(
-      String name, WalletType type, String password, BasedUtxoNetwork? network) async {
+      String name, WalletType type, String password, BasedUtxoNetwork network) async {
     final path = await pathForWallet(name: name, type: type);
     final jsonSource = await read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
@@ -87,8 +85,7 @@ class ElectrumWalletSnapshot {
       balance: balance,
       regularAddressIndex: regularAddressIndexByType,
       changeAddressIndex: changeAddressIndexByType,
-      addressPageType: data['address_page_type'] as String? ?? SegwitAddresType.p2wpkh.toString(),
-      network: data['network_type'] == 'testnet' ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet,
+      addressPageType: data['address_page_type'] as String?,
       silentAddressIndex: silentAddressIndex,
     );
   }

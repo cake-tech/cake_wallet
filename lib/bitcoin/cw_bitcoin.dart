@@ -85,7 +85,8 @@ class CWBitcoin extends Bitcoin {
                   sendAll: out.sendAll,
                   extractedAddress: out.extractedAddress,
                   isParsedAddress: out.isParsedAddress,
-                  formattedCryptoAmount: out.formattedCryptoAmount))
+                  formattedCryptoAmount: out.formattedCryptoAmount,
+                  memo: out.memo))
               .toList(),
           priority: priority as BitcoinTransactionPriority,
           feeRate: feeRate);
@@ -113,11 +114,44 @@ class CWBitcoin extends Bitcoin {
         .map((BaseBitcoinAddressRecord addr) => ElectrumSubAddress(
             id: addr.index,
             name: addr.name,
-            address: electrumWallet.type == WalletType.bitcoinCash ? addr.cashAddr : addr.address,
+            address: addr.address,
             txCount: addr.txCount,
             balance: addr.balance,
             isChange: addr.isHidden))
         .toList();
+  }
+
+  @override
+  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority) async {
+    try {
+      final sk = ECPrivate.random();
+      final electrumWallet = wallet as ElectrumWallet;
+
+      if (wallet.type == WalletType.bitcoinCash) {
+        final p2pkhAddr = sk.getPublic().toP2pkhAddress();
+        final estimatedTx = await electrumWallet.estimateSendAllTx(
+          [BitcoinOutput(address: p2pkhAddr, value: BigInt.zero)],
+          getFeeRate(wallet, priority as BitcoinCashTransactionPriority),
+        );
+
+        return estimatedTx.amount;
+      }
+
+      final p2shAddr = sk.getPublic().toP2pkhInP2sh();
+      final estimatedTx = await electrumWallet.estimateSendAllTx(
+        [BitcoinOutput(address: p2shAddr, value: BigInt.zero)],
+        getFeeRate(
+          wallet,
+          wallet.type == WalletType.litecoin
+              ? priority as LitecoinTransactionPriority
+              : priority as BitcoinTransactionPriority,
+        ),
+      );
+
+      return estimatedTx.amount;
+    } catch (_) {
+      return 0;
+    }
   }
 
   @override
@@ -210,6 +244,11 @@ class CWBitcoin extends Bitcoin {
       default:
         return SegwitAddresType.p2wpkh;
     }
+  }
+
+  @override
+  bool hasTaprootInput(PendingTransaction pendingTransaction) {
+    return (pendingTransaction as PendingBitcoinTransaction).hasTaprootInputs;
   }
 
   List<BitcoinSilentPaymentAddressRecord> getSilentAddresses(Object wallet) {

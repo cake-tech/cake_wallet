@@ -1,3 +1,5 @@
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
@@ -60,7 +62,7 @@ class ExchangePage extends BasePage {
   final _receiveAmountFocus = FocusNode();
   final _receiveAddressFocus = FocusNode();
   final _receiveAmountDebounce = Debounce(Duration(milliseconds: 500));
-  final _depositAmountDebounce = Debounce(Duration(milliseconds: 500));
+  Debounce _depositAmountDebounce = Debounce(Duration(milliseconds: 500));
   var _isReactionsSet = false;
 
   final arrowBottomPurple = Image.asset(
@@ -184,7 +186,13 @@ class ExchangePage extends BasePage {
                               StandardCheckbox(
                                 value: exchangeViewModel.isFixedRateMode,
                                 caption: S.of(context).fixed_rate,
-                                onChanged: (value) => exchangeViewModel.isFixedRateMode = value,
+                                onChanged: (value) {
+                                  if (value) {
+                                    exchangeViewModel.enableFixedRateMode();
+                                  } else {
+                                    exchangeViewModel.isFixedRateMode = false;
+                                  }
+                                },
                               ),
                             ],
                           )),
@@ -384,7 +392,7 @@ class ExchangePage extends BasePage {
         (CryptoCurrency currency) => _onCurrencyChange(currency, exchangeViewModel, depositKey));
 
     reaction((_) => exchangeViewModel.depositAmount, (String amount) {
-      if (depositKey.currentState!.amountController.text != amount) {
+      if (depositKey.currentState!.amountController.text != amount && amount != S.of(context).all) {
         depositKey.currentState!.amountController.text = amount;
       }
     });
@@ -431,7 +439,9 @@ class ExchangePage extends BasePage {
       }
       if (state is TradeIsCreatedSuccessfully) {
         exchangeViewModel.reset();
-        Navigator.of(context).pushNamed(Routes.exchangeConfirm);
+        (exchangeViewModel.tradesStore.trade?.provider == ExchangeProviderDescription.thorChain)
+            ? Navigator.of(context).pushReplacementNamed(Routes.exchangeTrade)
+            : Navigator.of(context).pushReplacementNamed(Routes.exchangeConfirm);
       }
     });
 
@@ -467,7 +477,16 @@ class ExchangePage extends BasePage {
         .addListener(() => exchangeViewModel.depositAddress = depositAddressController.text);
 
     depositAmountController.addListener(() {
-      if (depositAmountController.text != exchangeViewModel.depositAmount) {
+      if (depositAmountController.text != exchangeViewModel.depositAmount &&
+          depositAmountController.text != S.of(context).all) {
+        exchangeViewModel.isSendAllEnabled = false;
+        final isThorChain = exchangeViewModel.selectedProviders
+            .any((provider) => provider is ThorChainExchangeProvider);
+
+        _depositAmountDebounce = isThorChain
+            ? Debounce(Duration(milliseconds: 1000))
+            : Debounce(Duration(milliseconds: 500));
+
         _depositAmountDebounce.run(() {
           exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
           exchangeViewModel.isReceiveAmountEntered = false;
@@ -515,7 +534,7 @@ class ExchangePage extends BasePage {
 
     _receiveAmountFocus.addListener(() {
       if (_receiveAmountFocus.hasFocus) {
-        exchangeViewModel.isFixedRateMode = true;
+        exchangeViewModel.enableFixedRateMode();
       }
       // exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
     });
@@ -589,8 +608,9 @@ class ExchangePage extends BasePage {
               onDispose: disposeBestRateSync,
               hasAllAmount: exchangeViewModel.hasAllAmount,
               allAmount: exchangeViewModel.hasAllAmount
-                  ? () => exchangeViewModel.calculateDepositAllAmount()
+                  ? () => exchangeViewModel.enableSendAllAmount()
                   : null,
+              isAllAmountEnabled: exchangeViewModel.isSendAllEnabled,
               amountFocusNode: _depositAmountFocus,
               addressFocusNode: _depositAddressFocus,
               key: depositKey,
@@ -626,10 +646,12 @@ class ExchangePage extends BasePage {
               },
               imageArrow: arrowBottomPurple,
               currencyButtonColor: Colors.transparent,
-              addressButtonsColor: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-              borderColor: Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderTopPanelColor,
+              addressButtonsColor:
+                  Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+              borderColor:
+                  Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderTopPanelColor,
               currencyValueValidator: (value) {
-                return !exchangeViewModel.isFixedRateMode
+                return !exchangeViewModel.isFixedRateMode && value != S.of(context).all
                     ? AmountValidator(
                         isAutovalidate: true,
                         currency: exchangeViewModel.depositCurrency,
@@ -673,8 +695,10 @@ class ExchangePage extends BasePage {
                   exchangeViewModel.changeReceiveCurrency(currency: currency),
               imageArrow: arrowBottomCakeGreen,
               currencyButtonColor: Colors.transparent,
-              addressButtonsColor: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-              borderColor: Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
+              addressButtonsColor:
+                  Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+              borderColor:
+                  Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
               currencyValueValidator: (value) {
                 return exchangeViewModel.isFixedRateMode
                     ? AmountValidator(

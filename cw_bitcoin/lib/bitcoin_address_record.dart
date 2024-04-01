@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:bitbox/bitbox.dart' as bitbox;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/script_hash.dart' as sh;
@@ -49,8 +48,6 @@ abstract class BaseBitcoinAddressRecord {
 
   int get hashCode => address.hashCode;
 
-  String get cashAddr => bitbox.Address.toCashAddress(address);
-
   BitcoinAddressType type;
 
   String toJSON();
@@ -87,9 +84,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
               .firstWhere((type) => type.toString() == decoded['type'] as String)
           : SegwitAddresType.p2wpkh,
       scriptHash: decoded['scriptHash'] as String?,
-      network: (decoded['network'] as String?) == null
-          ? network
-          : BasedUtxoNetwork.fromName(decoded['network'] as String),
+      network: network,
     );
   }
 
@@ -111,7 +106,6 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         'balance': balance,
         'type': type.toString(),
         'scriptHash': scriptHash,
-        'network': network?.value,
       });
 }
 

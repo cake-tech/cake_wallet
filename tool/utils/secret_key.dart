@@ -34,7 +34,7 @@ class SecretKey {
     SecretKey('chatwootWebsiteToken', () => ''),
     SecretKey('exolixApiKey', () => ''),
     SecretKey('robinhoodApplicationId', () => ''),
-    SecretKey('robinhoodCIdApiSecret', () => ''),
+    SecretKey('exchangeHelperApiKey', () => ''),
     SecretKey('walletConnectProjectId', () => ''),
     SecretKey('moralisApiKey', () => ''),
   ];

@@ -1,6 +1,5 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_core/wallet_addresses.dart';
@@ -32,6 +31,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     int initialSilentAddressIndex = 1,
     bitcoin.HDWallet? masterHd,
+    BitcoinAddressType? initialAddressPageType,
   })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
         addressesByReceiveType =
             ObservableList<BaseBitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
@@ -43,9 +43,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
             .toSet()),
         currentReceiveAddressIndexByType = initialRegularAddressIndex ?? {},
         currentChangeAddressIndexByType = initialChangeAddressIndex ?? {},
-        _addressPageType = walletInfo.addressPageType != null
-            ? BitcoinAddressType.fromValue(walletInfo.addressPageType!)
-            : SegwitAddresType.p2wpkh,
+        _addressPageType = initialAddressPageType ??
+            (walletInfo.addressPageType != null
+                ? BitcoinAddressType.fromValue(walletInfo.addressPageType!)
+                : SegwitAddresType.p2wpkh),
         silentAddresses = ObservableList<BitcoinSilentPaymentAddressRecord>.of(
             (initialSilentAddresses ?? []).toSet()),
         currentSilentAddressIndex = initialSilentAddressIndex,
@@ -75,9 +76,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static const defaultChangeAddressesCount = 17;
   static const gap = 20;
 
-  static String toCashAddr(String address) => bitbox.Address.toCashAddress(address);
-  static String toLegacy(String address) => bitbox.Address.toLegacyAddress(address);
-
   final ObservableList<BitcoinAddressRecord> _addresses;
   late ObservableList<BaseBitcoinAddressRecord> addressesByReceiveType;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
@@ -91,7 +89,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   SilentPaymentOwner? silentAddress;
 
   @observable
-  BitcoinAddressType _addressPageType = SegwitAddresType.p2wpkh;
+  late BitcoinAddressType _addressPageType;
 
   @computed
   BitcoinAddressType get addressPageType => _addressPageType;
@@ -115,7 +113,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     String receiveAddress;
 
-    final typeMatchingReceiveAddresses = receiveAddresses.where(_isAddressPageTypeMatch);
+    final typeMatchingReceiveAddresses =
+        receiveAddresses.where(_isAddressPageTypeMatch).where((addr) => !addr.isUsed);
 
     if ((isEnabledAutoGenerateSubaddress && receiveAddresses.isEmpty) ||
         typeMatchingReceiveAddresses.isEmpty) {
@@ -132,7 +131,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
     }
 
-    return walletInfo.type == WalletType.bitcoinCash ? toCashAddr(receiveAddress) : receiveAddress;
+    return receiveAddress;
   }
 
   @observable
@@ -152,9 +151,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       return;
     }
 
-    if (addr.startsWith('bitcoincash:')) {
-      addr = toLegacy(addr);
-    }
     final addressRecord = _addresses.firstWhere((addressRecord) => addressRecord.address == addr);
 
     previousAddressRecord = addressRecord;
@@ -204,11 +200,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   Future<void> init() async {
-    await _generateInitialAddresses();
-    await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
-    await _generateInitialAddresses(type: P2shAddressType.p2wpkhInP2sh);
-    await _generateInitialAddresses(type: SegwitAddresType.p2tr);
-    await _generateInitialAddresses(type: SegwitAddresType.p2wsh);
+    if (walletInfo.type == WalletType.bitcoinCash) {
+      await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
+    } else if (walletInfo.type == WalletType.litecoin) {
+      await _generateInitialAddresses();
+    } else if (walletInfo.type == WalletType.bitcoin) {
+      await _generateInitialAddresses();
+      await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
+      await _generateInitialAddresses(type: P2shAddressType.p2wpkhInP2sh);
+      await _generateInitialAddresses(type: SegwitAddresType.p2tr);
+      await _generateInitialAddresses(type: SegwitAddresType.p2wsh);
+    }
     updateAddressesByMatch();
     updateReceiveAddresses();
     updateChangeAddresses();
@@ -308,6 +310,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     try {
       addressesMap.clear();
       addressesMap[address] = '';
+
+      allAddressesMap.clear();
+      _addresses.forEach((addressRecord) {
+        allAddressesMap[addressRecord.address] = addressRecord.name;
+      });
       await saveAddressesInBox();
     } catch (e) {
       print(e.toString());
@@ -316,9 +323,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   void updateAddress(String address, String label) {
-    if (address.startsWith('bitcoincash:')) {
-      address = toLegacy(address);
-    }
     final addressRecord =
         _addresses.firstWhere((addressRecord) => addressRecord.address == address);
     addressRecord.setNewName(label);
@@ -354,7 +358,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         addressRecord.isHidden &&
         !addressRecord.isUsed &&
         // TODO: feature to change change address type. For now fixed to p2wpkh, the cheapest type
-        addressRecord.type == SegwitAddresType.p2wpkh);
+        (walletInfo.type != WalletType.bitcoin || addressRecord.type == SegwitAddresType.p2wpkh));
     changeAddresses.addAll(newAddresses);
   }
 
