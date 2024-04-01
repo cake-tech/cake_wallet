@@ -155,6 +155,8 @@ abstract class Bitcoin {
   bool isBitcoinReceivePageOption(ReceivePageOption option);
   BitcoinAddressType getOptionToType(ReceivePageOption option);
   bool hasTaprootInput(PendingTransaction pendingTransaction);
+  bool getScanningActive(Object wallet);
+  void setScanningActive(Object wallet, bool active);
 }
   """;
 
