@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 
@@ -13,7 +14,7 @@ class MoneroAccountEditOrCreateViewModel = MoneroAccountEditOrCreateViewModelBas
     with _$MoneroAccountEditOrCreateViewModel;
 
 abstract class MoneroAccountEditOrCreateViewModelBase with Store {
-  MoneroAccountEditOrCreateViewModelBase(this._moneroAccountList, this._havenAccountList,
+  MoneroAccountEditOrCreateViewModelBase(this._moneroAccountList, this._havenAccountList, this._wowneroAccountList,
       {required WalletBase wallet, AccountListItem? accountListItem})
       : state = InitialExecutionState(),
         isEdit = accountListItem != null,
@@ -31,6 +32,7 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
 
   final MoneroAccountList _moneroAccountList;
   final HavenAccountList? _havenAccountList;
+  final WowneroAccountList? _wowneroAccountList;
   final AccountListItem? _accountListItem;
   final WalletBase _wallet;
 
@@ -41,6 +43,10 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
 
     if (_wallet.type == WalletType.haven) {
       await saveHaven();
+    }
+
+    if (_wallet.type == WalletType.wownero) {
+      await saveWownero();
     }
   }
 
@@ -83,6 +89,32 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
         await _havenAccountList!.addAccount(
           _wallet,
           label: label);
+      }
+
+      await _wallet.save();
+      state = ExecutedSuccessfullyState();
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
+  }
+
+  Future<void> saveWownero() async {
+    if (!(_wallet.type == WalletType.wownero)) {
+      return;
+    }
+
+    try {
+      state = IsExecutingState();
+
+      if (_accountListItem != null) {
+        await _wowneroAccountList!.setLabelAccount(
+            _wallet,
+            accountIndex: _accountListItem!.id,
+            label: label);
+      } else {
+        await _wowneroAccountList!.addAccount(
+            _wallet,
+            label: label);
       }
 
       await _wallet.save();

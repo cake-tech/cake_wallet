@@ -63,7 +63,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool get isReady => address.isNotEmpty && port.isNotEmpty;
 
   bool get hasAuthCredentials =>
-      _walletType == WalletType.monero || _walletType == WalletType.haven;
+      _walletType == WalletType.monero || _walletType == WalletType.haven || _walletType == WalletType.wownero;
 
   bool get hasTestnetSupport => _walletType == WalletType.bitcoin;
 

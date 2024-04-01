@@ -751,6 +751,50 @@ class HaMaterialLocalizations extends GlobalMaterialLocalizations {
 
   @override
   String get scrimOnTapHintRaw => "Scrip on Tap";
+
+  @override
+  // TODO: implement collapsedHint
+  String get collapsedHint => throw UnimplementedError();
+
+  @override
+  // TODO: implement expandedHint
+  String get expandedHint => throw UnimplementedError();
+
+  @override
+  // TODO: implement expansionTileCollapsedHint
+  String get expansionTileCollapsedHint => "Unimplemented";
+
+  @override
+  // TODO: implement expansionTileCollapsedTapHint
+  String get expansionTileCollapsedTapHint => "Unimplemented";
+
+  @override
+  // TODO: implement expansionTileExpandedHint
+  String get expansionTileExpandedHint => "Unimplemented";
+
+  @override
+  // TODO: implement expansionTileExpandedTapHint
+  String get expansionTileExpandedTapHint => "Unimplemented";
+
+  @override
+  // TODO: implement lookUpButtonLabel
+  String get lookUpButtonLabel => "Unimplemented";
+
+  @override
+  // TODO: implement menuDismissLabel
+  String get menuDismissLabel => "Unimplemented";
+
+  @override
+  // TODO: implement scanTextButtonLabel
+  String get scanTextButtonLabel => "Unimplemented";
+
+  @override
+  // TODO: implement searchWebButtonLabel
+  String get searchWebButtonLabel => "Unimplemented";
+
+  @override
+  // TODO: implement shareButtonLabel
+  String get shareButtonLabel => "Unimplemented";
 }
 
 /// Cupertino Support
@@ -955,4 +999,20 @@ class HaCupertinoLocalizations extends GlobalCupertinoLocalizations {
 
   @override
   String get noSpellCheckReplacementsLabel => "";
+
+  @override
+  // TODO: implement lookUpButtonLabel
+  String get lookUpButtonLabel => "Unimplemented";
+
+  @override
+  // TODO: implement menuDismissLabel
+  String get menuDismissLabel => "Unimplemented";
+
+  @override
+  // TODO: implement searchWebButtonLabel
+  String get searchWebButtonLabel => "Unimplemented";
+
+  @override
+  // TODO: implement shareButtonLabel
+  String get shareButtonLabel => "Unimplemented";
 }

@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -93,6 +94,9 @@ abstract class OutputBase with Store {
           case WalletType.haven:
             _amount = haven!.formatterMoneroParseAmount(amount: _cryptoAmount);
             break;
+          case WalletType.wownero:
+            _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
+            break;
           case WalletType.ethereum:
             _amount = ethereum!.formatterEthereumParseAmount(_cryptoAmount);
             break;
@@ -136,6 +140,10 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.haven) {
         return haven!.formatterMoneroAmountToDouble(amount: fee);
+      }
+
+      if (_wallet.type == WalletType.wownero) {
+        return wownero!.formatterWowneroAmountToDouble(amount: fee);
       }
 
       if (_wallet.type == WalletType.ethereum) {
@@ -241,6 +249,9 @@ abstract class OutputBase with Store {
     switch (_wallet.type) {
       case WalletType.monero:
         maximumFractionDigits = 12;
+        break;
+      case WalletType.wownero:
+        maximumFractionDigits = 11;
         break;
       case WalletType.bitcoin:
         maximumFractionDigits = 8;

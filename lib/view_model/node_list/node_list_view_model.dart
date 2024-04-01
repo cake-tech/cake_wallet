@@ -61,6 +61,9 @@ abstract class NodeListViewModelBase with Store {
       case WalletType.monero:
         node = getMoneroDefaultNode(nodes: _nodeSource);
         break;
+      case WalletType.wownero:
+        node = getWowneroDefaultNode(nodes: _nodeSource);
+        break;
       case WalletType.litecoin:
         node = getLitecoinDefaultElectrumServer(nodes: _nodeSource)!;
         break;

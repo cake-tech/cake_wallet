@@ -15,6 +15,7 @@ import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 
 import '../polygon/polygon.dart';
 
@@ -34,7 +35,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   @observable
   String selectedMnemonicLanguage;
 
-  bool get hasLanguageSelector => type == WalletType.monero || type == WalletType.haven;
+  bool get hasLanguageSelector =>
+      type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero;
 
   int get seedPhraseWordsLength {
     switch (type) {
@@ -53,7 +55,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
     }
   }
 
-  bool get hasSeedType => type == WalletType.monero;
+  bool get hasSeedType => type == WalletType.monero || type == WalletType.wownero;
 
   @override
   WalletCredentials getCredentials(dynamic _options) {
@@ -69,6 +71,9 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.haven:
         return haven!
             .createHavenNewWalletCredentials(name: name, language: options!.first as String);
+      case WalletType.wownero:
+        return wownero!.createWowneroNewWalletCredentials(
+            name: name, language: options!.first as String, isPolyseed: options.last as bool);
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(name: name);
       case WalletType.bitcoinCash:

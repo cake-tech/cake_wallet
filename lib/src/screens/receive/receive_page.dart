@@ -102,6 +102,7 @@ class ReceivePage extends BasePage {
     final isElectrumWallet = addressListViewModel.isElectrumWallet;
     return (addressListViewModel.type == WalletType.monero ||
             addressListViewModel.type == WalletType.haven ||
+            addressListViewModel.type == WalletType.wownero ||
             addressListViewModel.type == WalletType.nano ||
         isElectrumWallet)
         ? KeyboardActions(
@@ -145,6 +146,7 @@ class ReceivePage extends BasePage {
                                   walletAddressListViewModel: addressListViewModel,
                                   trailingButtonTap: () async {
                                     if (addressListViewModel.type == WalletType.monero ||
+                                        addressListViewModel.type == WalletType.wownero ||
                                         addressListViewModel.type == WalletType.haven) {
                                       await showPopUp<void>(
                                           context: context,
