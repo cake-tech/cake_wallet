@@ -375,7 +375,11 @@ abstract class DashboardViewModelBase with Store {
     if (wallet.type != WalletType.nano) {
       return false;
     }
-    
+
+    if (!settingsStore.shouldShowRepWarning) {
+      return false;
+    }
+
     return !nano!.isRepOk(wallet);
   }
 

@@ -416,7 +416,6 @@ class NanoClient {
 
   Future<List<NanoTransactionModel>> fetchTransactions(String address) async {
     try {
-      print(_node!.uri);
       final response = await http.post(_node!.uri,
           headers: CAKE_HEADERS,
           body: jsonEncode({

@@ -176,6 +176,9 @@ class NanoChangeRepPage extends BasePage {
 
                                 await nano!.changeRep(_wallet, _addressController.text);
 
+                                // reset this flag whenever we successfully change reps:
+                                _settingsStore.shouldShowRepWarning = true;
+
                                 await showPopUp<void>(
                                     context: context,
                                     builder: (BuildContext context) {
