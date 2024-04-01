@@ -59,6 +59,7 @@ class NodeForm extends StatelessWidget {
     });
 
     _addressController.addListener(() => nodeViewModel.address = _addressController.text);
+    _pathController.addListener(() => nodeViewModel.path = _pathController.text);
     _portController.addListener(() => nodeViewModel.port = _portController.text);
     _loginController.addListener(() => nodeViewModel.login = _loginController.text);
     _passwordController.addListener(() => nodeViewModel.password = _passwordController.text);

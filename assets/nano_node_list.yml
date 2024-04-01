@@ -4,5 +4,9 @@
   is_default: true
 -
   uri: node.nautilus.io
-  useSSL: true
   path: /rpc
+  useSSL: true
+-
+  uri: app.natrium.io
+  path: /api
+  useSSL: true

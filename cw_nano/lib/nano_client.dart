@@ -422,14 +422,11 @@ class NanoClient {
           body: jsonEncode({
             "action": "account_history",
             "account": address,
-            "count": "250", // TODO: pick a number
+            "count": "250",
             // "raw": true,
           }));
-      print(response.body);
-      print("###########################");
       final data = await jsonDecode(response.body);
       final transactions = data["history"] is List ? data["history"] as List<dynamic> : [];
-      print(transactions);
 
       // Map the transactions list to NanoTransactionModel using the factory
       // reversed so that the DateTime is correct when local_timestamp is absent
