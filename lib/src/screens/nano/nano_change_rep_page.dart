@@ -233,14 +233,10 @@ class NanoChangeRepPage extends BasePage {
         if (isList)
           Divider(
             height: 2,
-            // color: StateContainer.of(context).curTheme.text15,
           ),
         TextButton(
           style: TextButton.styleFrom(
-            // foregroundColor: StateContainer.of(context).curTheme.text15,
             padding: EdgeInsets.zero,
-            // highlightColor: StateContainer.of(context).curTheme.text15,
-            // splashColor: StateContainer.of(context).curTheme.text15,
           ),
           onPressed: () async {
             if (!isList) {

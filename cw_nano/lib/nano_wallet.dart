@@ -432,16 +432,7 @@ abstract class NanoWalletBase
       _representativeAddress = await _client.getRepFromPrefs();
       throw Exception("Failed to get representative address $e");
     }
-
-    // var nodes = await _client.getN2Reps();
-    // if (nodes.length > 0) {
-    //   for (var node in nodes) {
-    //     if (node.account == _representativeAddress) {
-    //       repScore = node.score ?? 100;
-    //       break;
-    //     }
-    //   }
-    // }
+    
     repScore = await _client.getRepScore(_representativeAddress!);
   }
 
