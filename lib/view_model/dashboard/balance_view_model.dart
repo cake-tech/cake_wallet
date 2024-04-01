@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -45,6 +46,8 @@ abstract class BalanceViewModelBase with Store {
       : isReversing = false,
         isShowCard = appStore.wallet!.walletInfo.isShowIntroCakePayCard,
         wallet = appStore.wallet! {
+    silentPaymentsScanningActive = hasSilentPayments && bitcoin!.getScanningActive(wallet);
+
     reaction((_) => appStore.wallet, _onWalletChange);
   }
 
@@ -59,6 +62,20 @@ abstract class BalanceViewModelBase with Store {
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
+
+  @computed
+  bool get hasSilentPayments => wallet.type == WalletType.bitcoin;
+
+  @observable
+  bool silentPaymentsScanningActive = false;
+
+  @action
+  void setSilentPaymentsScanning(bool active) {
+    if (hasSilentPayments) {
+      bitcoin!.setScanningActive(wallet, active);
+      silentPaymentsScanningActive = active;
+    }
+  }
 
   @computed
   double get price {

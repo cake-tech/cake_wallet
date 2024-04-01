@@ -610,6 +610,7 @@
   "sign_up": "สมัครสมาชิก",
   "signTransaction": "ลงนามในการทำธุรกรรม",
   "signup_for_card_accept_terms": "ลงทะเบียนสำหรับบัตรและยอมรับเงื่อนไข",
+  "silent_payments_scanning": "การสแกนการชำระเงินแบบเงียบ",
   "slidable": "เลื่อนได้",
   "sort_by": "เรียงตาม",
   "spend_key_private": "คีย์จ่าย (ส่วนตัว)",

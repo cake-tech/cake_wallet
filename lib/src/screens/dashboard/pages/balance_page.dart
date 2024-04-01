@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_wi
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
+import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
@@ -193,21 +194,29 @@ class CryptoBalanceWidget extends StatelessWidget {
                   itemBuilder: (__, index) {
                     final balance =
                         dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index);
-                    return BalanceRowWidget(
-                      availableBalanceLabel:
-                          '${dashboardViewModel.balanceViewModel.availableBalanceLabel}',
-                      availableBalance: balance.availableBalance,
-                      availableFiatBalance: balance.fiatAvailableBalance,
-                      additionalBalanceLabel:
-                          '${dashboardViewModel.balanceViewModel.additionalBalanceLabel}',
-                      additionalBalance: balance.additionalBalance,
-                      additionalFiatBalance: balance.fiatAdditionalBalance,
-                      frozenBalance: balance.frozenBalance,
-                      frozenFiatBalance: balance.fiatFrozenBalance,
-                      currency: balance.asset,
-                      hasAdditionalBalance:
-                          dashboardViewModel.balanceViewModel.hasAdditionalBalance,
-                    );
+                    return Observer(builder: (_) {
+                      return BalanceRowWidget(
+                        availableBalanceLabel:
+                            '${dashboardViewModel.balanceViewModel.availableBalanceLabel}',
+                        availableBalance: balance.availableBalance,
+                        availableFiatBalance: balance.fiatAvailableBalance,
+                        additionalBalanceLabel:
+                            '${dashboardViewModel.balanceViewModel.additionalBalanceLabel}',
+                        additionalBalance: balance.additionalBalance,
+                        additionalFiatBalance: balance.fiatAdditionalBalance,
+                        frozenBalance: balance.frozenBalance,
+                        frozenFiatBalance: balance.fiatFrozenBalance,
+                        currency: balance.asset,
+                        hasAdditionalBalance:
+                            dashboardViewModel.balanceViewModel.hasAdditionalBalance,
+                        hasSilentPayments: dashboardViewModel.balanceViewModel.hasSilentPayments,
+                        silentPaymentsScanningActive:
+                            dashboardViewModel.balanceViewModel.silentPaymentsScanningActive,
+                        setSilentPaymentsScanning: () => dashboardViewModel.balanceViewModel
+                            .setSilentPaymentsScanning(
+                                !dashboardViewModel.balanceViewModel.silentPaymentsScanningActive),
+                      );
+                    });
                   },
                 );
               },
@@ -231,6 +240,9 @@ class BalanceRowWidget extends StatelessWidget {
     required this.frozenFiatBalance,
     required this.currency,
     required this.hasAdditionalBalance,
+    required this.hasSilentPayments,
+    required this.silentPaymentsScanningActive,
+    required this.setSilentPaymentsScanning,
     super.key,
   });
 
@@ -244,6 +256,9 @@ class BalanceRowWidget extends StatelessWidget {
   final String frozenFiatBalance;
   final CryptoCurrency currency;
   final bool hasAdditionalBalance;
+  final bool hasSilentPayments;
+  final bool silentPaymentsScanningActive;
+  final void Function() setSilentPaymentsScanning;
 
   // void _showBalanceDescription(BuildContext context) {
   //   showPopUp<void>(
@@ -339,19 +354,19 @@ class BalanceRowWidget extends StatelessWidget {
                           height: 40,
                           width: 40,
                           displayOnError: Container(
-                                height: 30.0,
-                                width: 30.0,
-                                child: Center(
-                                  child: Text(
-                                    currency.title.substring(0, min(currency.title.length, 2)),
-                                    style: TextStyle(fontSize: 11),
-                                  ),
-                                ),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.grey.shade400,
-                                ),
+                            height: 30.0,
+                            width: 30.0,
+                            child: Center(
+                              child: Text(
+                                currency.title.substring(0, min(currency.title.length, 2)),
+                                style: TextStyle(fontSize: 11),
                               ),
+                            ),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.grey.shade400,
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 10),
                         Text(
@@ -410,9 +425,7 @@ class BalanceRowWidget extends StatelessWidget {
                         fontSize: 20,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context)
-                            .extension<BalancePageTheme>()!
-                            .balanceAmountColor,
+                        color: Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
                         height: 1,
                       ),
                       maxLines: 1,
@@ -476,6 +489,37 @@ class BalanceRowWidget extends StatelessWidget {
                   ),
                 ],
               ),
+            if (hasSilentPayments) ...[
+              Padding(
+                padding: const EdgeInsets.only(right: 8, top: 8),
+                child: Divider(
+                  color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                  thickness: 1,
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  AutoSizeText(
+                    S.of(context).silent_payments_scanning,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
+                      height: 1,
+                    ),
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: StandardSwitch(
+                        value: silentPaymentsScanningActive, onTaped: setSilentPaymentsScanning),
+                  )
+                ],
+              ),
+            ]
           ],
         ),
       ),

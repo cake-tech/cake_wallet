@@ -142,6 +142,33 @@ abstract class ElectrumWalletBase
   bool hasSilentPaymentsScanning = false;
   @observable
   bool nodeSupportsSilentPayments = true;
+  @observable
+  bool silentPaymentsScanningActive = false;
+
+  @action
+  void setSilentPaymentsScanning(bool value) {
+    hasSilentPaymentsScanning = value;
+
+    if (value) {
+      _setInitialHeight().then((_) {
+        if ((currentChainTip ?? 0) > walletInfo.restoreHeight) {
+          _setListeners(walletInfo.restoreHeight, chainTip: currentChainTip);
+        }
+      });
+    } else {
+      _isolate?.then((runningIsolate) => runningIsolate.kill(priority: Isolate.immediate));
+
+      if (electrumClient.isConnected) {
+        syncStatus = SyncedSyncStatus();
+      } else {
+        if (electrumClient.uri != null) {
+          electrumClient.connectToUri(electrumClient.uri!).then((_) {
+            startSync();
+          });
+        }
+      }
+    }
+  }
 
   @observable
   int? currentChainTip;
@@ -260,7 +287,7 @@ abstract class ElectrumWalletBase
     try {
       syncStatus = AttemptingSyncStatus();
 
-      if (hasSilentPaymentsScanning) {
+      if (silentPaymentsScanningActive) {
         try {
           await _setInitialHeight();
         } catch (_) {}
@@ -279,7 +306,7 @@ abstract class ElectrumWalletBase
       Timer.periodic(
           const Duration(minutes: 1), (timer) async => _feeRates = await electrumClient.feeRates());
 
-      if (!hasSilentPaymentsScanning || walletInfo.restoreHeight == currentChainTip) {
+      if (!silentPaymentsScanningActive || walletInfo.restoreHeight == currentChainTip) {
         syncStatus = SyncedSyncStatus();
       }
     } catch (e, stacktrace) {
@@ -1335,7 +1362,9 @@ abstract class ElectrumWalletBase
 
   Future<void> _setInitialHeight() async {
     currentChainTip = await electrumClient.getCurrentBlockChainTip();
-    if (currentChainTip != null) walletInfo.restoreHeight = currentChainTip!;
+    if (currentChainTip != null && walletInfo.restoreHeight == 0) {
+      walletInfo.restoreHeight = currentChainTip!;
+    }
   }
 
   static BasedUtxoNetwork _getNetwork(bitcoin.NetworkType networkType, CryptoCurrency? currency) {
