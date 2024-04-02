@@ -15,8 +15,8 @@ dependencies:
     path: ../cw_core
   cw_evm:
     path: ../cw_evm
-  on_chain: ^1.0.0
-  blockchain_utils: ^1.6.0
+  on_chain: ^3.0.1
+  blockchain_utils: ^2.1.1
   mobx: ^2.3.0+1
   bip39: ^1.0.6
   hive: ^2.2.3

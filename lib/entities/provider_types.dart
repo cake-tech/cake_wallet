@@ -74,7 +74,7 @@ class ProvidersHelper {
           ProviderType.askEachTime,
           ProviderType.onramper,
           ProviderType.robinhood,
-          ProviderType.moonpaySell,
+          ProviderType.moonpay,
         ];
       case WalletType.none:
       case WalletType.haven:
@@ -107,7 +107,7 @@ class ProvidersHelper {
         return [
           ProviderType.askEachTime,
           ProviderType.robinhood,
-          ProviderType.moonpaySell,
+          ProviderType.moonpay,
         ];
       case WalletType.monero:
       case WalletType.nano:

@@ -321,7 +321,7 @@ abstract class TronWalletBase
       toAddress: tronCredentials.outputs.first.isParsedAddress
           ? tronCredentials.outputs.first.extractedAddress!
           : tronCredentials.outputs.first.address,
-      amount: totalAmount.toString(),
+      amount: TronHelper.fromSun(totalAmount),
       currency: transactionCurrency,
       tronBalance: tronBalance,
       sendAll: shouldSendAll,
