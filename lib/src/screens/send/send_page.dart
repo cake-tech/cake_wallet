@@ -477,7 +477,7 @@ class SendPage extends BasePage {
                                       ? '. ${S.of(_dialogContext).waitFewSecondForTxUpdate}' : '';
 
                                   final newContactMessage = newContactAddress != null
-                                      ? '\n${S.of(context).add_contact_to_address_book}' : '';
+                                      ? '\n${S.of(_dialogContext).add_contact_to_address_book}' : '';
 
                                   final alertContent =
                                       "$successMessage$waitMessage$newContactMessage";
