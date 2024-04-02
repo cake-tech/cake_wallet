@@ -1,16 +1,16 @@
+import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
 class MeldProvider extends BuyProvider {
   MeldProvider({
@@ -28,7 +28,6 @@ class MeldProvider extends BuyProvider {
   static const _baseSellProductUrl = 'api.meld.io';
   static const _baseBuyTestUrl = 'api-sb.meld.io';
   static const _baseBuyProductUrl = 'api.meld.io';
-  // static const _cIdBaseUrl = 'exchange-helper.cakewallet.com';
 
   final String baseBuyUrl;
   final String baseSellUrl;
@@ -43,22 +42,9 @@ class MeldProvider extends BuyProvider {
   String get lightIcon => 'assets/images/meld_light.svg';
 
   @override
-  String get darkIcon => 'assets/images/moonpay_dark.png';
-
-  static String themeToMoonPayTheme(ThemeBase theme) {
-    switch (theme.type) {
-      case ThemeType.bright:
-      case ThemeType.light:
-        return 'light';
-      case ThemeType.dark:
-        return 'dark';
-    }
-  }
-
-  static String get _apiKey => secrets.moonPayApiKey;
+  String get darkIcon => 'assets/images/meld_light.svg';
 
   String get currencyCode => walletTypeToCryptoCurrency(wallet.type).title.toLowerCase();
-
 
   static String get _exchangeHelperApiKey => secrets.exchangeHelperApiKey;
 
@@ -71,10 +57,7 @@ class MeldProvider extends BuyProvider {
   }
 
   // BUY:
-  static const _currenciesSuffix = '/v3/currencies';
-  static const _quoteSuffix = '/buy_quote';
-  static const _transactionsSuffix = '/v1/transactions';
-  static const _ipAddressSuffix = '/v4/ip_address';
+  static const _buyWidgetSuffix = "/crypto/session/widget";
 
   Future<Uri> requestBuyUrl({
     required CryptoCurrency currency,
@@ -82,44 +65,34 @@ class MeldProvider extends BuyProvider {
     required String walletAddress,
     String? amount,
   }) async {
-    final params = {
-      'theme': themeToMoonPayTheme(settingsStore.currentTheme),
-      'language': settingsStore.languageCode,
-      'colorCode': settingsStore.currentTheme.type == ThemeType.dark
-          ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
-          : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
-      'defaultCurrencyCode': _normalizeCurrency(currency),
-      'baseCurrencyCode': _normalizeCurrency(currency),
-      'baseCurrencyAmount': amount ?? '0',
-      'currencyCode': currencyCode,
-      'walletAddress': walletAddress,
-      'lockAmount': 'true',
-      'showAllCurrencies': 'false',
-      'showWalletAddressForm': 'false',
-      'enabledPaymentMethods':
-          'credit_debit_card,apple_pay,google_pay,samsung_pay,sepa_bank_transfer,gbp_bank_transfer,gbp_open_banking_payment',
-    };
-
-    if (_apiKey.isNotEmpty) {
-      params['apiKey'] = _apiKey;
+    try {
+      final headers = {
+        'Meld-Version': '2023-12-19',
+        'Content-Type': 'application/json',
+        'Authorization': 'BASIC ${secrets.meldApiKey}',
+      };
+      final body = {
+        "sessionData": {
+          "walletAddress": walletAddress,
+          "countryCode": _normalizeCountryCode(settingsStore.fiatCurrency.countryCode),
+          "sourceCurrencyCode": settingsStore.fiatCurrency.raw,
+          "sourceAmount": amount ?? '60',
+          "destinationCurrencyCode": currencyCode.toUpperCase(),
+          "serviceProvider": "STRIPE"
+        },
+        "sessionType": "BUY",
+        "externalCustomerId": "testcustomer",
+      };
+      final response = await http.post(
+        Uri.https(baseBuyUrl, _buyWidgetSuffix),
+        headers: headers,
+        body: json.encode(body),
+      );
+      return Uri.parse(json.decode(response.body)["widgetUrl"] as String);
+    } catch (e) {
+      print(e);
+      rethrow;
     }
-
-    final originalUri = Uri.https(
-      baseBuyUrl,
-      '',
-      params,
-    );
-
-    if (isTestEnvironment) {
-      return originalUri;
-    }
-
-    return originalUri;
-    // final signature = await getMoonpaySignature('?${originalUri.query}');
-    // final query = Map<String, dynamic>.from(originalUri.queryParameters);
-    // query['signature'] = signature;
-    // final signedUri = originalUri.replace(queryParameters: query);
-    // return signedUri;
   }
 
   @override
@@ -150,11 +123,13 @@ class MeldProvider extends BuyProvider {
     }
   }
 
-  String _normalizeCurrency(CryptoCurrency currency) {
-    if (currency == CryptoCurrency.maticpoly) {
-      return "MATIC_POLYGON";
+  // normalize country codes to ISO-3166:
+  String _normalizeCountryCode(String countryCode) {
+    countryCode = countryCode.toLowerCase();
+    switch (countryCode) {
+      case "usa":
+      default:
+        return "US";
     }
-
-    return currency.toString().toLowerCase();
   }
 }
