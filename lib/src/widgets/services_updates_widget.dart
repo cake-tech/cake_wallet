@@ -10,17 +10,24 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ServicesUpdatesWidget extends StatelessWidget {
+class ServicesUpdatesWidget extends StatefulWidget {
   final Future<ServicesResponse> servicesResponse;
 
   const ServicesUpdatesWidget(this.servicesResponse, {super.key});
+
+  @override
+  State<ServicesUpdatesWidget> createState() => _ServicesUpdatesWidgetState();
+}
+
+class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
+  bool wasOpened = false;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: FutureBuilder<ServicesResponse>(
-        future: servicesResponse,
+        future: widget.servicesResponse,
         builder: (context, state) {
           return InkWell(
             onTap: state.hasData
@@ -29,6 +36,8 @@ class ServicesUpdatesWidget extends StatelessWidget {
                     getIt
                         .get<SharedPreferences>()
                         .setString(PreferencesKey.serviceStatusShaKey, state.data!.currentSha);
+
+                    setState(() => wasOpened = true);
 
                     showModalBottomSheet(
                       context: context,
@@ -102,7 +111,7 @@ class ServicesUpdatesWidget extends StatelessWidget {
                   color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                   width: 30,
                 ),
-                if (state.hasData && state.data!.hasUpdates)
+                if (state.hasData && state.data!.hasUpdates && !wasOpened)
                   Container(
                     height: 7,
                     width: 7,

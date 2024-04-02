@@ -60,6 +60,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get disableSell => _settingsStore.disableSell;
 
   @computed
+  bool get disableBulletin => _settingsStore.disableBulletin;
+
+  @computed
   bool get useEtherscan => _settingsStore.useEtherscan;
 
   @computed
@@ -105,6 +108,9 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setDisableSell(bool value) => _settingsStore.disableSell = value;
+
+  @action
+  void setDisableBulletin(bool value) => _settingsStore.disableBulletin = value;
 
   @action
   void setLookupsTwitter(bool value) => _settingsStore.lookupsTwitter = value;
