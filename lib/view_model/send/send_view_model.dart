@@ -68,9 +68,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         _settingsStore = appStore.settingsStore,
         fiatFromSettings = appStore.settingsStore.fiatCurrency,
         super(appStore: appStore) {
+    if (wallet.type == WalletType.bitcoin &&
+        _settingsStore.priority[wallet.type] == bitcoinTransactionPriorityCustom) {
+      setTransactionPriority(bitcoinTransactionPriorityMedium);
+    }
     final priority = _settingsStore.priority[wallet.type];
     final priorities = priorityForWalletType(wallet.type);
-
     if (!priorityForWalletType(wallet.type).contains(priority) && priorities.isNotEmpty) {
       _settingsStore.priority[wallet.type] = priorities.first;
     }
@@ -457,8 +460,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool _isEqualCurrency(String currency) =>
       wallet.balance.keys.any((e) => currency.toLowerCase() == e.title.toLowerCase());
 
-  TransactionPriority? get getBitcoinTransactionPriorityCustom =>
-      bitcoin?.getBitcoinTransactionPriorityCustom();
+  TransactionPriority get bitcoinTransactionPriorityCustom =>
+      bitcoin!.getBitcoinTransactionPriorityCustom();
+
+  TransactionPriority get bitcoinTransactionPriorityMedium =>
+      bitcoin!.getBitcoinTransactionPriorityMedium();
 
   @action
   void onClose() => _settingsStore.fiatCurrency = fiatFromSettings;

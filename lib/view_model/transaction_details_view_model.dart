@@ -342,7 +342,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     final priorities = priorityForWalletType(wallet.type);
     final selectedItem = priorities.indexOf(sendViewModel.transactionPriority);
     final customItem = priorities.firstWhereOrNull(
-        (element) => element == sendViewModel.getBitcoinTransactionPriorityCustom);
+        (element) => element == sendViewModel.bitcoinTransactionPriorityCustom);
     final customItemIndex = customItem != null ? priorities.indexOf(customItem) : null;
 
     RBFListItems.add(StandardPickerListItem(

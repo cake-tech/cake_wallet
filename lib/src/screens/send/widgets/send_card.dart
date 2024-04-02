@@ -675,7 +675,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     final items = priorityForWalletType(sendViewModel.walletType);
     final selectedItem = items.indexOf(sendViewModel.transactionPriority);
     final customItem = items.firstWhereOrNull(
-        (element) => element == sendViewModel.getBitcoinTransactionPriorityCustom);
+        (element) => element == sendViewModel.bitcoinTransactionPriorityCustom);
     final customItemIndex = customItem != null ? items.indexOf(customItem) : null;
     final isBitcoinWallet = sendViewModel.walletType == WalletType.bitcoin;
     double? customFeeRate = isBitcoinWallet ? sendViewModel.customBitcoinFeeRate.toDouble() : null;
