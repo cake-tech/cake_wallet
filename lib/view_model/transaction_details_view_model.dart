@@ -362,13 +362,13 @@ abstract class TransactionDetailsViewModelBase with Store {
           return setNewFee(priority: transactionPriority);
         }));
 
-    RBFListItems.add(StandardExpandableListItem(
-        title: S.current.inputs,
-        expandableItems: transactionInfo.inputAddresses ?? []));
+    if (transactionInfo.inputAddresses != null || transactionInfo.outputAddresses != null) {
+      RBFListItems.add(StandardExpandableListItem(
+          title: S.current.inputs, expandableItems: transactionInfo.inputAddresses!));
 
-    RBFListItems.add(StandardExpandableListItem(
-        title: S.current.outputs,
-        expandableItems: transactionInfo.outputAddresses ?? []));
+      RBFListItems.add(StandardExpandableListItem(
+          title: S.current.outputs, expandableItems: transactionInfo.outputAddresses!));
+    }
   }
 
   @action
