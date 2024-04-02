@@ -239,7 +239,7 @@ class TronClient {
 
   Future<int> getTRCEstimatedFee(TronAddress ownerAddress) async {
     String contractAddress = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
-    String constantAmount = '1';
+    String constantAmount = '0'; // We're using 0 as the base amount here as we get an error when balance is zero i.e for new wallets.
     final contract = ContractABI.fromJson(trc20Abi, isTron: true);
 
     final function = contract.functionFromName("transfer");
