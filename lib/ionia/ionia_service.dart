@@ -64,7 +64,7 @@ class IoniaService {
 
 	// Create virtual card
 
-	Future<IoniaVirtualCard> createCard() async {
+	Future<CakePayVirtualCard> createCard() async {
 		final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
 		final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
 		return ioniaApi.createCard(username: username, password: password, clientId: clientId);
@@ -72,7 +72,7 @@ class IoniaService {
 
 	// Get virtual card
 
-	Future<IoniaVirtualCard> getCard() async {
+	Future<CakePayVirtualCard> getCard() async {
 		final username = (await secureStorage.read(key: ioniaUsernameStorageKey))!;
 		final password = (await secureStorage.read(key: ioniaPasswordStorageKey))!;
 		return ioniaApi.getCards(username: username, password: password, clientId: clientId);

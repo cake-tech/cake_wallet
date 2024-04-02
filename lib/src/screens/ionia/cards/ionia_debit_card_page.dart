@@ -1,4 +1,4 @@
-import 'package:cake_wallet/ionia/ionia_create_state.dart';
+import 'package:cake_wallet/ionia/cake_pay_states.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
@@ -37,10 +37,10 @@ class IoniaDebitCardPage extends BasePage {
     return Observer(
       builder: (_) {
         final cardState = _cardsListViewModel.cardState;
-        if (cardState is IoniaFetchingCard) {
+        if (cardState is CakePayCardsStateFetching) {
           return Center(child: CircularProgressIndicator());
         }
-        if (cardState is IoniaCardSuccess) {
+        if (cardState is CakePayCardsStateSuccess) {
           return ScrollableWithBottomSection(
             contentPadding: EdgeInsets.zero,
             content: Padding(
@@ -240,7 +240,7 @@ class _IoniaDebitCard extends StatefulWidget {
   }) : super(key: key);
 
   final bool isCardSample;
-  final IoniaVirtualCard? cardInfo;
+  final CakePayVirtualCard? cardInfo;
 
   @override
   _IoniaDebitCardState createState() => _IoniaDebitCardState();

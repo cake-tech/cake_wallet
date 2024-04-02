@@ -4,6 +4,8 @@ import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/dropdown_filter_item.dart';
+import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -12,9 +14,9 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class FilterWidget extends StatelessWidget {
-  FilterWidget({required this.dashboardViewModel});
+  FilterWidget({required this.filterItems});
 
-  final DashboardViewModel dashboardViewModel;
+  final Map<String, List<FilterItem>> filterItems;
 
   @override
   Widget build(BuildContext context) {
@@ -47,12 +49,12 @@ class FilterWidget extends StatelessWidget {
                       padding: EdgeInsets.zero,
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: dashboardViewModel.filterItems.length,
+                      itemCount: filterItems.length,
                       separatorBuilder: (context, _) => sectionDivider,
                       itemBuilder: (_, index1) {
-                        final title = dashboardViewModel.filterItems.keys
+                        final title = filterItems.keys
                             .elementAt(index1);
-                        final section = dashboardViewModel.filterItems.values
+                        final section = filterItems.values
                             .elementAt(index1);
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,6 +79,14 @@ class FilterWidget extends StatelessWidget {
                               itemCount: section.length,
                               itemBuilder: (_, index2) {
                                 final item = section[index2];
+
+                                if (item is DropdownFilterItem) {
+                                  return Observer(
+                                    builder: (_) => DropdownMenu(dropdownMenuEntries: item.items.map((country) => DropdownMenuEntry(
+                                        value: country, label: country))
+                                        .toList()),
+                                  );
+                                }
                                 final content = Observer(
                                     builder: (_) => StandardCheckbox(
                                           value: item.value(),

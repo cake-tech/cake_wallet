@@ -1,8 +1,9 @@
-import 'package:cake_wallet/ionia/ionia_category.dart';
-import 'package:cake_wallet/ionia/cake_pay_card.dart';
-import 'package:cake_wallet/ionia/ionia_service.dart';
-import 'package:cake_wallet/ionia/ionia_create_state.dart';
+import 'package:cake_wallet/ionia/cake_pay_states.dart';
 import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
+import 'package:cake_wallet/ionia/ionia_category.dart';
+import 'package:cake_wallet/ionia/ionia_service.dart';
+import 'package:cake_wallet/view_model/dashboard/dropdown_filter_item.dart';
+import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ionia_gift_cards_list_view_model.g.dart';
@@ -13,20 +14,58 @@ class IoniaGiftCardsListViewModel = IoniaGiftCardsListViewModelBase
 abstract class IoniaGiftCardsListViewModelBase with Store {
   IoniaGiftCardsListViewModelBase({
     required this.ioniaService,
-  })  : cardState = IoniaNoCardState(),
+  })  : cardState = CakePayCardsStateNoCards(),
         cakePayVendors = [],
         availableCountries = [],
+        filterItems = {},
+        displayPrepaidCards = true,
+        displayGiftCards = true,
+        displayDenominationsCards = true,
+        displayCustomValueCards = true,
         ioniaCategories = IoniaCategory.allCategories,
         selectedIndices = ObservableList<IoniaCategory>.of([IoniaCategory.all]),
         scrollOffsetFromTop = 0.0,
-        merchantState = InitialIoniaMerchantLoadingState(),
-        createCardState = IoniaCreateCardState(),
+        merchantState = InitialCakePayVendorLoadingState(),
+        createCardState = CakePayCreateCardState(),
         searchString = '',
-        ioniaMerchantList = <CakePayVendor>[] {}
+        CakePayVendorList = <CakePayVendor>[] {
+    filterItems = {
+      'Filter Option': [
+        FilterItem(
+            value: () => displayPrepaidCards,
+            caption: 'S.current.all_transactions',
+            onChanged: togglePrepaidCards),
+        FilterItem(
+            value: () => displayGiftCards,
+            caption: 'S.current.incoming',
+            onChanged: toggleGiftCards),
+      ],
+      'Value Type': [
+        FilterItem(
+            value: () => displayDenominationsCards,
+            caption: 'S.current.all_trades',
+            onChanged: toggleDenominationsCards),
+        FilterItem(
+            value: () => displayCustomValueCards,
+            caption: 'ExchangeProviderDescription.changeNow.title',
+            onChanged: toggleCustomValueCards),
+      ],
+      'Countries': [
+        DropdownFilterItem(
+          items: availableCountries,
+          caption: 'S.current.all_trades',
+          selectedItem: selectedCountry ??= 'USA',
+          onItemSelected: (String value) => getVendors(),
+        ),
+      ]
+    };
+  }
 
   final IoniaService ioniaService;
 
-  List<CakePayVendor> ioniaMerchantList;
+  List<CakePayVendor> CakePayVendorList;
+
+  Map<String, List<FilterItem>> filterItems;
 
   String searchString;
 
@@ -34,13 +73,16 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   double scrollOffsetFromTop;
 
   @observable
-  IoniaCreateCardState createCardState;
+  CakePayCreateCardState createCardState;
 
   @observable
-  IoniaFetchCardState cardState;
+  CakePayCardsState cardState;
 
   @observable
-  IoniaMerchantState merchantState;
+  CakePayVendorState merchantState;
+
+  @observable
+  String? selectedCountry;
 
   @observable
   List<CakePayVendor> cakePayVendors;
@@ -54,21 +96,33 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   @observable
   ObservableList<IoniaCategory> selectedIndices;
 
+  @observable
+  bool displayPrepaidCards;
+
+  @observable
+  bool displayGiftCards;
+
+  @observable
+  bool displayDenominationsCards;
+
+  @observable
+  bool displayCustomValueCards;
+
   @action
   Future<void> createCard() async {
     try {
-      createCardState = IoniaCreateCardLoading();
+      createCardState = CakePayCreateCardStateLoading();
       await ioniaService.createCard();
-      createCardState = IoniaCreateCardSuccess();
+      createCardState = CakePayCreateCardStateSuccess();
     } catch (e) {
-      createCardState = IoniaCreateCardFailure(error: e.toString());
+      createCardState = CakePayCreateCardStateFailure(error: e.toString());
     }
   }
 
   @action
   void searchMerchant(String text) {
     if (text.isEmpty) {
-      cakePayVendors = ioniaMerchantList;
+      cakePayVendors = CakePayVendorList;
       return;
     }
     searchString = text;
@@ -78,24 +132,30 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   }
 
   Future<void> _getCard() async {
-    cardState = IoniaFetchingCard();
+    cardState = CakePayCardsStateFetching();
     try {
       final card = await ioniaService.getCard();
 
-      cardState = IoniaCardSuccess(card: card);
+      cardState = CakePayCardsStateSuccess(card: card);
     } catch (_) {
-      cardState = IoniaFetchCardFailure();
+      cardState = CakePayCardsStateFailure();
     }
   }
 
-  void getVendors() {
-    merchantState = IoniaLoadingMerchantState();
-    ioniaService.getCountries().then((value) => availableCountries = value);
-    final country = availableCountries.isEmpty ? 'USA' : availableCountries.first;
 
-    ioniaService.getVendors(page: 1, country: country)
-        .then((value) => cakePayVendors = ioniaMerchantList = value);
-    merchantState = IoniaLoadedMerchantState();
+
+  void getVendors() async {
+    merchantState = CakePayVendorLoadingState();
+    if (availableCountries.isEmpty) {
+      availableCountries = await ioniaService.getCountries();
+    }
+
+    selectedCountry = availableCountries.isNotEmpty ? availableCountries.first : 'USA';
+
+    ioniaService
+        .getVendors(page: 1, country: selectedCountry!)
+        .then((value) => cakePayVendors = CakePayVendorList = value);
+    merchantState = CakePayVendorLoadedState();
   }
 
   @action
@@ -138,6 +198,21 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   void resetIoniaCategories() {
     ioniaCategories = IoniaCategory.allCategories;
   }
+
+  @action
+  void setSelectedCountry(String country) => selectedCountry = country;
+
+  @action
+  void togglePrepaidCards() => displayPrepaidCards = !displayPrepaidCards;
+
+  @action
+  void toggleGiftCards() => displayGiftCards = !displayGiftCards;
+
+  @action
+  void toggleDenominationsCards() => displayDenominationsCards = !displayDenominationsCards;
+
+  @action
+  void toggleCustomValueCards() => displayCustomValueCards = !displayCustomValueCards;
 
   void setScrollOffsetFromTop(double scrollOffset) {
     scrollOffsetFromTop = scrollOffset;

@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/email_validator.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/ionia/ionia_create_state.dart';
+import 'package:cake_wallet/ionia/cake_pay_states.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -41,11 +41,11 @@ class IoniaLoginPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    reaction((_) => _authViewModel.signInState, (IoniaCreateAccountState state) {
-      if (state is IoniaCreateStateFailure) {
+    reaction((_) => _authViewModel.signInState, (CakePayCreateAccountState state) {
+      if (state is CakePayAccountCreateStateFailure) {
         _onLoginUserFailure(context, state.error);
       }
-      if (state is IoniaCreateStateSuccess) {
+      if (state is CakePayAccountCreateStateSuccess) {
         _onLoginSuccessful(context, _authViewModel);
       }
     });
@@ -71,7 +71,7 @@ class IoniaLoginPage extends BasePage {
                 builder: (_) => LoadingPrimaryButton(
                   text: S.of(context).login,
                   onPressed: _login,
-                  isLoading: _authViewModel.signInState is IoniaCreateStateLoading,
+                  isLoading: _authViewModel.signInState is CakePayAccountCreateStateLoading,
                   color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                 ),

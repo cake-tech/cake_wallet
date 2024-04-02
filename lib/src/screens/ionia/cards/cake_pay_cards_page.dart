@@ -1,8 +1,9 @@
-import 'package:cake_wallet/ionia/ionia_create_state.dart';
+import 'package:cake_wallet/ionia/cake_pay_states.dart';
 import 'package:cake_wallet/ionia/cake_pay_card.dart';
 import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_menu.dart';
@@ -134,9 +135,7 @@ class CakePayCardsPage extends BasePage {
     return showPopUp<void>(
       context: context,
       builder: (BuildContext context) {
-        return IoniaFilterModal(
-          ioniaGiftCardsListViewModel: _cardsListViewModel,
-        );
+        return FilterWidget(filterItems: _cardsListViewModel.filterItems);
       },
     );
   }
@@ -179,7 +178,7 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
     return Observer(
       builder: (_) {
         final merchantState = widget.cardsListViewModel.merchantState;
-        if (merchantState is IoniaLoadedMerchantState) {
+        if (merchantState is CakePayVendorLoadedState) {
         return Stack(children: [
         ListView.separated(
           padding: EdgeInsets.only(left: 2, right: 22),

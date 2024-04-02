@@ -1,5 +1,5 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/ionia/ionia_create_state.dart';
+import 'package:cake_wallet/ionia/cake_pay_states.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
@@ -31,11 +31,11 @@ class IoniaActivateDebitCardPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    reaction((_) => _cardsListViewModel.createCardState, (IoniaCreateCardState state) {
-      if (state is IoniaCreateCardFailure) {
+    reaction((_) => _cardsListViewModel.createCardState, (CakePayCreateCardState state) {
+      if (state is CakePayCreateCardStateFailure) {
         _onCreateCardFailure(context, state.error);
       }
-      if (state is IoniaCreateCardSuccess) {
+      if (state is CakePayCreateCardStateSuccess) {
         _onCreateCardSuccess(context);
       }
     });
@@ -75,7 +75,7 @@ class IoniaActivateDebitCardPage extends BasePage {
         onPressed: () {
           _cardsListViewModel.createCard();
         },
-        isLoading: _cardsListViewModel.createCardState is IoniaCreateCardLoading,
+        isLoading: _cardsListViewModel.createCardState is CakePayCreateCardStateLoading,
         text: S.of(context).agree_and_continue,
         color: Theme.of(context).primaryColor,
         textColor: Colors.white,

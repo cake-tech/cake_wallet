@@ -1,4 +1,4 @@
-import 'package:cake_wallet/ionia/ionia_create_state.dart';
+import 'package:cake_wallet/ionia/cake_pay_states.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:mobx/mobx.dart';
 
@@ -9,22 +9,22 @@ class IoniaAuthViewModel  = IoniaAuthViewModelBase with _$IoniaAuthViewModel;
 abstract class IoniaAuthViewModelBase with Store {
 
   IoniaAuthViewModelBase({required this.ioniaService}):
-    createUserState = IoniaInitialCreateState(),
-    signInState = IoniaInitialCreateState(),
-    otpState = IoniaOtpSendDisabled(),
+    createUserState = CakePayAccountCreateStateInitial(),
+    signInState = CakePayAccountCreateStateInitial(),
+    otpState = CakePayOtpSendDisabled(),
     email = '',
     otp = '';
 
   final IoniaService ioniaService;
 
   @observable
-  IoniaCreateAccountState createUserState;
+  CakePayCreateAccountState createUserState;
 
   @observable
-  IoniaCreateAccountState signInState;
+  CakePayCreateAccountState signInState;
 
   @observable
-  IoniaOtpState otpState;
+  CakePayOtpState otpState;
 
   @observable
   String email;
@@ -35,22 +35,22 @@ abstract class IoniaAuthViewModelBase with Store {
   @action
   Future<void> verifyEmail(String code) async {
     try {
-      otpState = IoniaOtpValidating();
+      otpState = CakePayOtpValidating();
       await ioniaService.verifyEmail(code);
-      otpState = IoniaOtpSuccess();
+      otpState = CakePayOtpSuccess();
     } catch (_) {
-      otpState = IoniaOtpFailure(error: 'Invalid OTP. Try again');
+      otpState = CakePayOtpFailure(error: 'Invalid OTP. Try again');
     }
   }
 
   @action
   Future<void> createUser(String email) async {
     try {
-      createUserState = IoniaCreateStateLoading();
+      createUserState = CakePayAccountCreateStateLoading();
       await ioniaService.createUser(email);
-      createUserState = IoniaCreateStateSuccess();
+      createUserState = CakePayAccountCreateStateSuccess();
     } catch (e) {
-      createUserState = IoniaCreateStateFailure(error: e.toString());
+      createUserState = CakePayAccountCreateStateFailure(error: e.toString());
     }
   }
 
@@ -58,11 +58,11 @@ abstract class IoniaAuthViewModelBase with Store {
   @action
   Future<void> signIn(String email) async {
     try {
-      signInState = IoniaCreateStateLoading();
+      signInState = CakePayAccountCreateStateLoading();
       await ioniaService.signIn(email);
-      signInState = IoniaCreateStateSuccess();
+      signInState = CakePayAccountCreateStateSuccess();
     } catch (e) {
-      signInState = IoniaCreateStateFailure(error: e.toString());
+      signInState = CakePayAccountCreateStateFailure(error: e.toString());
     }
   }
 

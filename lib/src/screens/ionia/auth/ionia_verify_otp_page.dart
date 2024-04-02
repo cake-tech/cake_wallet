@@ -1,6 +1,6 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/ionia/ionia_create_state.dart';
+import 'package:cake_wallet/ionia/cake_pay_states.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -26,9 +26,9 @@ class IoniaVerifyIoniaOtp extends BasePage {
       final otp = _codeController.text;
       _authViewModel.otp = otp;
       if (otp.length > 3) {
-        _authViewModel.otpState = IoniaOtpSendEnabled();
+        _authViewModel.otpState = CakePayOtpSendEnabled();
       } else {
-        _authViewModel.otpState = IoniaOtpSendDisabled();
+        _authViewModel.otpState = CakePayOtpSendDisabled();
       }
     });
   }
@@ -53,11 +53,11 @@ class IoniaVerifyIoniaOtp extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    reaction((_) => _authViewModel.otpState, (IoniaOtpState state) {
-      if (state is IoniaOtpFailure) {
+    reaction((_) => _authViewModel.otpState, (CakePayOtpState state) {
+      if (state is CakePayOtpFailure) {
         _onOtpFailure(context, state.error);
       }
-      if (state is IoniaOtpSuccess) {
+      if (state is CakePayOtpSuccess) {
         _onOtpSuccessful(context);
       }
     });
@@ -120,8 +120,8 @@ class IoniaVerifyIoniaOtp extends BasePage {
                     builder: (_) => LoadingPrimaryButton(
                       text: S.of(context).continue_text,
                       onPressed: _verify,
-                      isDisabled: _authViewModel.otpState is IoniaOtpSendDisabled,
-                      isLoading: _authViewModel.otpState is IoniaOtpValidating,
+                      isDisabled: _authViewModel.otpState is CakePayOtpSendDisabled,
+                      isLoading: _authViewModel.otpState is CakePayOtpValidating,
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                     ),

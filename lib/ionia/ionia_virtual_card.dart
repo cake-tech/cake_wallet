@@ -1,5 +1,5 @@
-class IoniaVirtualCard {
-	IoniaVirtualCard({
+class CakePayVirtualCard {
+	CakePayVirtualCard({
 		required this.token,
 		required this.createdAt,
 		required this.lastFour,
@@ -11,11 +11,11 @@ class IoniaVirtualCard {
 		required this.fundsLimit,
 		required this.spendLimit});
 	
-	factory IoniaVirtualCard.fromMap(Map<String, dynamic> source) {
+	factory CakePayVirtualCard.fromMap(Map<String, dynamic> source) {
 		final created = source['created'] as String;
 		final createdAt = DateTime.tryParse(created);
 
-		return IoniaVirtualCard(
+		return CakePayVirtualCard(
 			token: source['token'] as String,
 			createdAt: createdAt,
 			lastFour: source['lastFour'] as String,

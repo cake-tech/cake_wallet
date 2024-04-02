@@ -1,4 +1,4 @@
-import 'package:cake_wallet/ionia/ionia_create_state.dart';
+import 'package:cake_wallet/ionia/cake_pay_states.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/ionia/cake_pay_card.dart';
@@ -11,7 +11,7 @@ abstract class IoniaAccountViewModelBase with Store {
   IoniaAccountViewModelBase({required this.ioniaService})
     : email = '',
       giftCards = [],
-      merchantState = InitialIoniaMerchantLoadingState() {
+      merchantState = InitialCakePayVendorLoadingState() {
     ioniaService.getUserEmail().then((email) => this.email = email);
     updateUserGiftCards();
   }
@@ -25,7 +25,7 @@ abstract class IoniaAccountViewModelBase with Store {
   List<IoniaGiftCard> giftCards;
 
   @observable
-  IoniaMerchantState merchantState;
+  CakePayVendorState merchantState;
 
   @computed
   int get countOfMerch => giftCards.where((giftCard) => !giftCard.isEmpty).length;
@@ -43,8 +43,8 @@ abstract class IoniaAccountViewModelBase with Store {
 
   @action
   Future<void> updateUserGiftCards() async {
-    merchantState = IoniaLoadingMerchantState();
+    merchantState = CakePayVendorLoadingState();
     giftCards = await ioniaService.getCurrentUserGiftCardSummaries();
-    merchantState = IoniaLoadedMerchantState();
+    merchantState = CakePayVendorLoadedState();
   }
 }

@@ -1,19 +1,19 @@
 import 'dart:convert';
+
+import 'package:cake_wallet/ionia/cake_pay_card.dart';
 import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
+import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_order.dart';
-import 'package:http/http.dart';
 import 'package:cake_wallet/ionia/ionia_user_credentials.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
-import 'package:cake_wallet/ionia/ionia_category.dart';
-import 'package:cake_wallet/ionia/cake_pay_card.dart';
-import 'dart:convert';
+import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 
 class CakePayApi {
-  static const testBaseUri = false;
+  static const testBaseUri = true;
 
   static const authorization = 'Basic Y2FrZXdhbGxldDo1ZyIvKnp7K2EwZnZ7KkU6fC0nIg==';
-  static const CSRFToken = 'ZBZUYt77zaHdoM0RuUcTMUInPMKEH8EekCLCjvumAeUlPpw45JvhmHH9X8fCnDVM';
+  static const CSRFToken = 'h1EHoAb0riS5lA5BBYDI7REKdBCXJQNuXzZtB0Zx1hh1Q0HG4ztzFGXHrd6kYHfr';
 
   static const baseTestCakePayUri = 'test.cakepay.com';
   static const baseProdCakePayUri = 'buy.cakepay.com';
@@ -22,11 +22,6 @@ class CakePayApi {
 
   static const vendorsPath = '/api/vendors';
   static const countriesPath = '/api/countries';
-
-
-
-
-
 
   static const baseUri = 'api.ionia.io';
   static const pathPrefix = 'cake';
@@ -117,7 +112,7 @@ class CakePayApi {
 
   // Get virtual card
 
-  Future<IoniaVirtualCard> getCards(
+  Future<CakePayVirtualCard> getCards(
       {required String username, required String password, required String clientId}) async {
     final headers = <String, String>{
       'clientId': clientId,
@@ -139,12 +134,12 @@ class CakePayApi {
     }
 
     final virtualCard = data['VirtualCard'] as Map<String, dynamic>;
-    return IoniaVirtualCard.fromMap(virtualCard);
+    return CakePayVirtualCard.fromMap(virtualCard);
   }
 
   // Create virtual card
 
-  Future<IoniaVirtualCard> createCard(
+  Future<CakePayVirtualCard> createCard(
       {required String username, required String password, required String clientId}) async {
     final headers = <String, String>{
       'clientId': clientId,
@@ -165,49 +160,11 @@ class CakePayApi {
       throw Exception(data['message'] as String);
     }
 
-    return IoniaVirtualCard.fromMap(data);
+    return CakePayVirtualCard.fromMap(data);
   }
-
-  // Get Merchants
-
-  // Future<List<IoniaMerchant>> getMerchants({
-  // 	required String username,
-  // 	required String password,
-  // 	required String clientId}) async {
-  //     final headers = <String, String>{
-  // 		'clientId': clientId,
-  // 		'username': username,
-  // 		'password': password};
-  // 	final response = await post(getMerchantsUrl, headers: headers);
-  //
-  // 	if (response.statusCode != 200) {
-  // 		return [];
-  // 	}
-  //
-  // 	final decodedBody = json.decode(response.body) as Map<String, dynamic>;
-  // 	final isSuccessful = decodedBody['Successful'] as bool? ?? false;
-  //
-  // 	if (!isSuccessful) {
-  // 		return [];
-  // 	}
-  //
-  // 	final data = decodedBody['Data'] as List<dynamic>;
-  //   final merch = <IoniaMerchant>[];
-  //
-  //   for (final item in data) {
-  //     try {
-  // 			final element = item as Map<String, dynamic>;
-  // 			merch.add(IoniaMerchant.fromJsonMap(element));
-  // 		} catch(_) {}
-  //   }
-  //
-  //   return merch;
-  // }
 
   Future<List<String>> getCountries() async {
     final uri = Uri.https(baseCakePayUri, countriesPath);
-
-    print(uri);
 
     final headers = {
       'accept': 'application/json',
@@ -256,7 +213,6 @@ class CakePayApi {
       'authorization': authorization,
       'X-CSRFToken': CSRFToken,
     };
-
 
     var response = await http.get(uri, headers: headers);
 

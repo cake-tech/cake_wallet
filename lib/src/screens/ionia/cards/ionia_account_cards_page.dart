@@ -1,6 +1,6 @@
 
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/ionia/ionia_create_state.dart';
+import 'package:cake_wallet/ionia/cake_pay_states.dart';
 import 'package:cake_wallet/ionia/cake_pay_card.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -114,7 +114,7 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
                   _IoniaCardListView(
                     emptyText: S.of(context).gift_card_balance_note,
                     merchList: viewModel.activeMechs,
-                    isLoading: viewModel.merchantState is IoniaLoadingMerchantState,
+                    isLoading: viewModel.merchantState is CakePayVendorLoadingState,
                     onTap: (giftCard) {
                       Navigator.pushNamed(
                         context,
@@ -125,7 +125,7 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
                   _IoniaCardListView(
                     emptyText: S.of(context).gift_card_redeemed_note,
                     merchList: viewModel.redeemedMerchs,
-                    isLoading: viewModel.merchantState is IoniaLoadingMerchantState,
+                    isLoading: viewModel.merchantState is CakePayVendorLoadingState,
                     onTap: (giftCard) {
                       Navigator.pushNamed(
                         context,
