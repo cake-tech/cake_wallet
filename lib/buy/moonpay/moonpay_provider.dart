@@ -7,14 +7,11 @@ import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/device_info.dart';
-import 'package:crypto/crypto.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -53,6 +50,28 @@ class MoonPayProvider extends BuyProvider {
 
   @override
   String get darkIcon => 'assets/images/moonpay_dark.png';
+
+  @override
+  List<WalletType> getSupportedWalletTypes(bool isBuy) {
+    if (isBuy) {
+      return [
+        WalletType.bitcoin,
+        WalletType.bitcoinCash,
+        WalletType.litecoin,
+        WalletType.polygon,
+        WalletType.ethereum,
+        WalletType.litecoin,
+        WalletType.solana,
+        WalletType.nano,
+      ];
+    }
+    return [
+      WalletType.bitcoin,
+      WalletType.ethereum,
+      WalletType.polygon,
+      WalletType.solana,
+    ];
+  }
 
   static String themeToMoonPayTheme(ThemeBase theme) {
     switch (theme.type) {
