@@ -16,7 +16,7 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
     required this.ioniaService,
   })  : cardState = CakePayCardsStateNoCards(),
         cakePayVendors = [],
-        availableCountries = [],
+        availableCountries = ['USA', 'Germany'],
         filterItems = {},
         displayPrepaidCards = true,
         displayGiftCards = true,
@@ -33,21 +33,21 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
       'Filter Option': [
         FilterItem(
             value: () => displayPrepaidCards,
-            caption: 'S.current.all_transactions',
+            caption: 'Prepaid Cards',
             onChanged: togglePrepaidCards),
         FilterItem(
             value: () => displayGiftCards,
-            caption: 'S.current.incoming',
+            caption: 'Gift Cards',
             onChanged: toggleGiftCards),
       ],
       'Value Type': [
         FilterItem(
             value: () => displayDenominationsCards,
-            caption: 'S.current.all_trades',
+            caption: 'Denominations',
             onChanged: toggleDenominationsCards),
         FilterItem(
             value: () => displayCustomValueCards,
-            caption: 'ExchangeProviderDescription.changeNow.title',
+            caption: 'Custom Value',
             onChanged: toggleCustomValueCards),
       ],
       'Countries': [
@@ -55,7 +55,7 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
           items: availableCountries,
           caption: 'S.current.all_trades',
           selectedItem: selectedCountry ??= 'USA',
-          onItemSelected: (String value) => getVendors(),
+          onItemSelected: (String value) => setSelectedCountry(value),
         ),
       ]
     };

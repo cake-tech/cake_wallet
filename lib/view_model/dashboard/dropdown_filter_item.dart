@@ -2,8 +2,8 @@ import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 
 class DropdownFilterItem extends FilterItem {
   DropdownFilterItem({
-    required String caption,
     required this.items,
+    required this.caption,
     required this.selectedItem,
     required this.onItemSelected,
   }) : super(
@@ -13,6 +13,7 @@ class DropdownFilterItem extends FilterItem {
         );
 
   final List<String> items;
+  final String caption;
   final String selectedItem;
   final Function(String) onItemSelected;
 }
