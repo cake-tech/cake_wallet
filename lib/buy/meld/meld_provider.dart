@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/routes.dart';
@@ -11,7 +9,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart' as http;
 
 class MeldProvider extends BuyProvider {
   MeldProvider({
@@ -70,35 +67,6 @@ class MeldProvider extends BuyProvider {
     required SettingsStore settingsStore,
     String? amount,
   }) async {
-    // try {
-    //   final headers = {
-    //     'Meld-Version': '2023-12-19',
-    //     'Content-Type': 'application/json',
-    //     'Authorization': 'BASIC ${secrets.meldApiKey}',
-    //   };
-    //   final body = {
-    //     "sessionData": {
-    //       "walletAddress": walletAddress,
-    //       "countryCode": _normalizeCountryCode(settingsStore.fiatCurrency.countryCode),
-    //       "destinationCurrencyCode": settingsStore.fiatCurrency.raw,
-    //       "sourceAmount": amount ?? '60',
-    //       "sourceCurrencyCode": currencyCode.toUpperCase(),
-    //       "serviceProvider": "STRIPE"
-    //     },
-    //     "sessionType": "SELL",
-    //     "externalCustomerId": "testcustomer",
-    //   };
-    //   final response = await http.post(
-    //     Uri.https(baseBuyUrl, _buyWidgetSuffix),
-    //     headers: headers,
-    //     body: json.encode(body),
-    //   );
-    //   print(response.body);
-    //   return Uri.parse(json.decode(response.body)["widgetUrl"] as String);
-    // } catch (e) {
-    //   print(e);
-    //   rethrow;
-    // }
     final params = {
       "publicKey": secrets.meldApiKey,
       "theme": convertTheme(settingsStore.currentTheme),
@@ -156,16 +124,6 @@ class MeldProvider extends BuyProvider {
       }
     } else {
       throw Exception('Could not launch URL');
-    }
-  }
-
-  // normalize country codes to ISO-3166:
-  String _normalizeCountryCode(String countryCode) {
-    countryCode = countryCode.toLowerCase();
-    switch (countryCode) {
-      case "usa":
-      default:
-        return "US";
     }
   }
 }
