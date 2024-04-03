@@ -130,7 +130,11 @@ class ExolixExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
+  Future<Trade> createTrade({
+    required TradeRequest request,
+    required bool isFixedRateMode,
+    required bool isSendAll,
+  }) async {
     final headers = {'Content-Type': 'application/json'};
     final body = {
       'coinFrom': _normalizeCurrency(request.fromCurrency),
@@ -180,7 +184,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
         createdAt: DateTime.now(),
         amount: amount,
         state: TradeState.created,
-        payoutAddress: payoutAddress);
+        payoutAddress: payoutAddress,
+        isSendAll: isSendAll);
   }
 
   @override

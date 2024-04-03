@@ -186,7 +186,13 @@ class ExchangePage extends BasePage {
                               StandardCheckbox(
                                 value: exchangeViewModel.isFixedRateMode,
                                 caption: S.of(context).fixed_rate,
-                                onChanged: (value) => exchangeViewModel.isFixedRateMode = value,
+                                onChanged: (value) {
+                                  if (value) {
+                                    exchangeViewModel.enableFixedRateMode();
+                                  } else {
+                                    exchangeViewModel.isFixedRateMode = false;
+                                  }
+                                },
                               ),
                             ],
                           )),
@@ -528,7 +534,7 @@ class ExchangePage extends BasePage {
 
     _receiveAmountFocus.addListener(() {
       if (_receiveAmountFocus.hasFocus) {
-        exchangeViewModel.isFixedRateMode = true;
+        exchangeViewModel.enableFixedRateMode();
       }
       // exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
     });

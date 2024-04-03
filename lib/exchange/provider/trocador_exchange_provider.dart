@@ -32,8 +32,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     'Swapter',
     'StealthEx',
     'Simpleswap',
-    'Swapuz'
-        'ChangeNow',
+    'Swapuz',
+    'ChangeNow',
     'Changehero',
     'FixedFloat',
     'LetsExchange',
@@ -167,7 +167,11 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
+  Future<Trade> createTrade({
+    required TradeRequest request,
+    required bool isFixedRateMode,
+    required bool isSendAll,
+  }) async {
     double fromAmt = double.parse(request.fromAmount);
     double toAmt = double.parse(request.toAmount);
     if (request.fromCurrency == CryptoCurrency.btcln) {
@@ -176,7 +180,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     if (request.toCurrency == CryptoCurrency.btcln) {
       toAmt = lightningDoubleToBitcoinDouble(amount: toAmt);
     }
-
     final params = {
       'api_key': apiKey,
       'ticker_from': _normalizeCurrency(request.fromCurrency),
@@ -255,20 +258,20 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     responseAmount ??= fromAmt.toString();
 
     return Trade(
-      id: id,
-      from: request.fromCurrency,
-      to: request.toCurrency,
-      provider: description,
-      inputAddress: inputAddress,
-      refundAddress: refundAddress,
-      state: TradeState.deserialize(raw: status),
-      password: password,
-      providerId: providerId,
-      providerName: providerName,
-      createdAt: DateTime.tryParse(date)?.toLocal(),
-      amount: responseAmount,
-      payoutAddress: payoutAddress,
-    );
+        id: id,
+        from: request.fromCurrency,
+        to: request.toCurrency,
+        provider: description,
+        inputAddress: inputAddress,
+        refundAddress: refundAddress,
+        state: TradeState.deserialize(raw: status),
+        password: password,
+        providerId: providerId,
+        providerName: providerName,
+        createdAt: DateTime.tryParse(date)?.toLocal(),
+        amount: responseJSON['amount_from']?.toString() ?? request.fromAmount,
+        payoutAddress: payoutAddress,
+        isSendAll: isSendAll);
   }
 
   @override

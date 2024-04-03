@@ -15,7 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -43,7 +42,7 @@ class ConnectionSyncPage extends BasePage {
               title: S.current.rescan,
               handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
             ),
-            if (DeviceInfo.instance.isMobile) ...[
+            if (DeviceInfo.instance.isMobile && FeatureFlag.isBackgroundSyncEnabled) ...[
               Observer(builder: (context) {
                 return SettingsPickerCell<SyncMode>(
                     title: S.current.background_sync_mode,
