@@ -20,6 +20,8 @@ import 'package:on_chain/on_chain.dart';
 class TronClient {
   final httpClient = Client();
   TronProvider? _provider;
+  // This is an internal tracker, so we don't have to "refetch".
+  int _nativeTxEstimatedFee = 0;
 
   int get chainId => 1000;
 
@@ -116,6 +118,7 @@ class TronClient {
     TronAddress address,
     TronAddress receiverAddress, {
     int energyUsed = 0,
+    bool isEstimatedFeeFlow = false,
   }) async {
     try {
       // Get the tron chain parameters.
@@ -159,9 +162,9 @@ class TronClient {
       final BigInt accountBandWidth = accountResource.howManyBandwIth;
       log('Account resource bandwidth: ${accountResource.howManyBandwIth.toInt()}');
 
-      if (accountBandWidth >= BigInt.from(neededBandWidth)) {
+      if (accountBandWidth >= BigInt.from(neededBandWidth) && !isEstimatedFeeFlow) {
         log('Account has more bandwidth than required');
-        // neededBandWidth = 0;
+        neededBandWidth = 0;
       }
 
       if (neededEnergy < 0) {
@@ -232,7 +235,14 @@ class TronClient {
       timestamp: block.blockHeader.rawData.timestamp,
     );
 
-    final estimatedFee = await getFeeLimit(rawTransaction, ownerAddress, ownerAddress);
+    final estimatedFee = await getFeeLimit(
+      rawTransaction,
+      ownerAddress,
+      ownerAddress,
+      isEstimatedFeeFlow: true,
+    );
+
+    _nativeTxEstimatedFee = estimatedFee;
 
     return estimatedFee;
   }
@@ -270,6 +280,7 @@ class TronClient {
       ownerAddress,
       ownerAddress,
       energyUsed: request.energyUsed ?? 0,
+      isEstimatedFeeFlow: true,
     );
     return feeLimit;
   }
@@ -290,21 +301,41 @@ class TronClient {
 
     bool isNativeTransaction = currency == CryptoCurrency.trx;
 
+    String totalAmount;
     TransactionRaw rawTransaction;
     if (isNativeTransaction) {
+      if (sendAll) {
+        final accountResource =
+            await _provider!.request(TronRequestGetAccountResource(address: ownerAddress));
+
+        final availableBandWidth = accountResource.howManyBandwIth.toInt();
+
+        // 269 is the current middle ground for bandwidth per transaction
+        if (availableBandWidth >= 269) {
+          totalAmount = amount;
+        } else {
+          final estimatedFee = TronHelper.fromSun(BigInt.from(_nativeTxEstimatedFee));
+          final result = double.parse(amount) - double.parse(estimatedFee);
+
+          totalAmount = result.toString();
+        }
+      } else {
+        totalAmount = amount;
+      }
       rawTransaction = await _signNativeTransaction(
         ownerAddress,
         receiverAddress,
-        amount,
+        totalAmount,
         tronBalance,
+        sendAll,
       );
     } else {
       final tokenAddress = (currency as TronToken).contractAddress;
-
+      totalAmount = amount;
       rawTransaction = await _signTrcTokenTransaction(
         ownerAddress,
         receiverAddress,
-        amount,
+        totalAmount,
         tokenAddress,
         tronBalance,
       );
@@ -319,7 +350,7 @@ class TronClient {
 
     return PendingTronTransaction(
       signedTransaction: signature,
-      amount: amount,
+      amount: totalAmount,
       fee: TronHelper.fromSun(rawTransaction.feeLimit ?? BigInt.zero),
       sendTransaction: sendTx,
     );
@@ -330,10 +361,13 @@ class TronClient {
     TronAddress receiverAddress,
     String amount,
     BigInt tronBalance,
+    bool sendAll,
   ) async {
-    // Fetch the latest Tron block
+    // This is introduce to server as a limit in cases where feeLimit is 0
+    // The transaction signing will fail if the feeLimit is explicitly 0.
+    int defaultFeeLimit = 100000;
+    
     final block = await _provider!.request(TronRequestGetNowBlock());
-
     // Create the transfer contract
     final contract = TransferContract(
       amount: TronHelper.toSun(amount),
@@ -361,7 +395,7 @@ class TronClient {
     );
 
     final feeLimit = await getFeeLimit(rawTransaction, ownerAddress, receiverAddress);
-
+    final feeLimitToUse = feeLimit != 0 ? feeLimit : defaultFeeLimit;
     final tronBalanceInt = tronBalance.toInt();
 
     if (feeLimit > tronBalanceInt) {
@@ -369,8 +403,9 @@ class TronClient {
         'You don\'t have enough TRX to cover the transaction fee for this transaction. Kindly top up.',
       );
     }
+
     rawTransaction = rawTransaction.copyWith(
-      feeLimit: BigInt.from(feeLimit),
+      feeLimit: BigInt.from(feeLimitToUse),
     );
 
     return rawTransaction;

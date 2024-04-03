@@ -278,8 +278,6 @@ abstract class TronWalletBase
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
 
-    bool isNativeTx = transactionCurrency == CryptoCurrency.trx;
-
     BigInt totalAmount = BigInt.zero;
     bool shouldSendAll = false;
     if (hasMultiDestination) {
@@ -301,9 +299,7 @@ abstract class TronWalletBase
       shouldSendAll = output.sendAll;
 
       if (shouldSendAll) {
-        totalAmount = isNativeTx
-            ? (walletBalanceForCurrency - TronHelper.toSun(nativeTxEstimatedFee ?? '0'))
-            : walletBalanceForCurrency;
+        totalAmount = walletBalanceForCurrency;
       } else {
         final totalOriginalAmount = double.parse(output.cryptoAmount ?? '0.0');
         totalAmount = BigInt.from(totalOriginalAmount);
