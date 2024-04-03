@@ -421,7 +421,7 @@ class NanoClient {
           body: jsonEncode({
             "action": "account_history",
             "account": address,
-            "count": "250",
+            "count": "100",
             // "raw": true,
           }));
       final data = await jsonDecode(response.body);
