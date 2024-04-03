@@ -15,10 +15,10 @@ class AddressValidator extends TextValidator {
                 : type == CryptoCurrency.zano && !skipZanoAddressValidation
                     ? ZanoUtils.validateAddress
                     : null,
-            pattern: getPattern(type),
+            pattern: getPattern(type, skipZanoAddressValidation),
             length: getLength(type));
 
-  static String getPattern(CryptoCurrency type) {
+  static String getPattern(CryptoCurrency type, bool skipZanoAddressValidation) {
     if (type is Erc20Token) {
       return '0x[0-9a-zA-Z]';
     }
@@ -126,7 +126,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.btcln:
         return '^(lnbc|LNBC)([0-9]{1,}[a-zA-Z0-9]+)';
       case CryptoCurrency.zano:
-        return r'$.^'; // always false, we use additional validation then
+        return skipZanoAddressValidation ? '[0-9a-zA-Z]' : r'$.^'; // always false, we use additional validation then
       default:
         return '[0-9a-zA-Z]';
     }

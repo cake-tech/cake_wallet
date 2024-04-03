@@ -81,7 +81,7 @@ class CWZano extends Zano {
 
   List<ZanoAsset> getZanoAssets(WalletBase wallet) {
     wallet as ZanoWallet;
-    return wallet.zanoAssets;
+    return wallet.zanoAssets.values.toList();
   }
 
   @override
@@ -216,7 +216,7 @@ class CWZano extends Zano {
       return CryptoCurrency.zano;
     }
     wallet as ZanoWallet;
-    return wallet.zanoAssets.firstWhere((element) => element.ticker == transaction.tokenSymbol);
+    return wallet.zanoAssets.values.firstWhere((element) => element.ticker == transaction.tokenSymbol);
   }
 
   String getZanoAssetAddress(CryptoCurrency asset) => (asset as ZanoAsset).assetId;

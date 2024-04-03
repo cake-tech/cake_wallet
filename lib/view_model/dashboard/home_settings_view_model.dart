@@ -47,20 +47,6 @@ abstract class HomeSettingsViewModelBase with Store {
   @action
   void setPinNativeToken(bool value) => _settingsStore.pinNativeTokenAtTop = value;
 
-  Future<bool> addAsset(String assetId) async {
-    if (_balanceViewModel.wallet.type == WalletType.zano) {
-      try {
-        final asset = await zano!.addZanoAssetById(_balanceViewModel.wallet, assetId);
-        _updateTokensList();
-        _updateFiatPrices(asset);
-        return true;
-      } catch (e) {
-        return false;
-      }
-    }
-    return false;
-  }
-
   Future<void> addToken(CryptoCurrency token) async {
     if (_balanceViewModel.wallet.type == WalletType.ethereum) {
       await ethereum!.addErc20Token(_balanceViewModel.wallet, token);

@@ -1,5 +1,3 @@
-import 'package:cw_core/amount_converter.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_zano/model/zano_asset.dart';
 
 class Balance {
@@ -17,7 +15,7 @@ class Balance {
       required this.unlocked});
 
   @override
-  String toString() => '$assetInfo: ${AmountConverter.amountIntToString(CryptoCurrency.zano, total)}/${AmountConverter.amountIntToString(CryptoCurrency.zano, unlocked)}';
+  String toString() => '$assetInfo: $total/$unlocked';
 
   factory Balance.fromJson(Map<String, dynamic> json) => Balance(
         assetInfo:
