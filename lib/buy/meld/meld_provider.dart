@@ -4,6 +4,7 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -24,40 +25,92 @@ class MeldProvider extends BuyProvider {
 
   final SettingsStore _settingsStore;
 
-  static const _baseSellTestUrl = 'api-sb.meld.io';
-  static const _baseSellProductUrl = 'api.meld.io';
-  static const _baseBuyTestUrl = 'api-sb.meld.io';
-  static const _baseBuyProductUrl = 'api.meld.io';
+  static const _baseSellTestUrl = 'sb.fluidmoney.xyz';
+  static const _baseSellProductUrl = 'fluidmoney.xyz';
+  static const _baseBuyTestUrl = 'sb.fluidmoney.xyz';
+  static const _baseBuyProductUrl = 'fluidmoney.xyz';
 
   final String baseBuyUrl;
   final String baseSellUrl;
 
   @override
-  String get providerDescription => 'Meld provider description here';
+  String get providerDescription =>
+      'Buy crypto with many payment providers like Stripe and PayPal. Available in most countries. Spreads and feed vary.';
+
+  @override
+  String get providerSellDescription =>
+      'Sell crypto with many payment providers like Stripe and PayPal. Available in most countries. Spreads and feed vary.';
 
   @override
   String get title => 'Meld';
 
   @override
-  String get lightIcon => 'assets/images/meld_light.svg';
+  String get lightIcon => 'assets/images/meld_dark.png';
 
   @override
-  String get darkIcon => 'assets/images/meld_light.svg';
+  String get darkIcon => 'assets/images/meld_dark.png';
 
   String get currencyCode => walletTypeToCryptoCurrency(wallet.type).title.toLowerCase();
 
   static String get _exchangeHelperApiKey => secrets.exchangeHelperApiKey;
 
-  Future<Uri> requestSellUrl({
-    required CryptoCurrency currency,
-    required String refundWalletAddress,
-    required SettingsStore settingsStore,
-  }) async {
-    throw UnimplementedError();
+  static String convertTheme(ThemeBase theme) {
+    switch (theme.type) {
+      case ThemeType.bright:
+      case ThemeType.light:
+        return 'lightMode';
+      case ThemeType.dark:
+        return 'darkMode';
+    }
   }
 
-  // BUY:
-  static const _buyWidgetSuffix = "/crypto/session/widget";
+  Future<Uri> requestSellUrl({
+    required CryptoCurrency currency,
+    required String walletAddress,
+    required SettingsStore settingsStore,
+    String? amount,
+  }) async {
+    // try {
+    //   final headers = {
+    //     'Meld-Version': '2023-12-19',
+    //     'Content-Type': 'application/json',
+    //     'Authorization': 'BASIC ${secrets.meldApiKey}',
+    //   };
+    //   final body = {
+    //     "sessionData": {
+    //       "walletAddress": walletAddress,
+    //       "countryCode": _normalizeCountryCode(settingsStore.fiatCurrency.countryCode),
+    //       "destinationCurrencyCode": settingsStore.fiatCurrency.raw,
+    //       "sourceAmount": amount ?? '60',
+    //       "sourceCurrencyCode": currencyCode.toUpperCase(),
+    //       "serviceProvider": "STRIPE"
+    //     },
+    //     "sessionType": "SELL",
+    //     "externalCustomerId": "testcustomer",
+    //   };
+    //   final response = await http.post(
+    //     Uri.https(baseBuyUrl, _buyWidgetSuffix),
+    //     headers: headers,
+    //     body: json.encode(body),
+    //   );
+    //   print(response.body);
+    //   return Uri.parse(json.decode(response.body)["widgetUrl"] as String);
+    // } catch (e) {
+    //   print(e);
+    //   rethrow;
+    // }
+    final params = {
+      "publicKey": secrets.meldApiKey,
+      "theme": convertTheme(settingsStore.currentTheme),
+      "sourceCurrencyCode": currencyCode.toUpperCase(),
+      "destinationCurrencyCode": settingsStore.fiatCurrency.raw,
+      "sourceAmount": amount ?? '100',
+      "walletAddress": walletAddress,
+    };
+
+    final uri = Uri.https(baseBuyUrl, '', params);
+    return uri;
+  }
 
   Future<Uri> requestBuyUrl({
     required CryptoCurrency currency,
@@ -65,34 +118,17 @@ class MeldProvider extends BuyProvider {
     required String walletAddress,
     String? amount,
   }) async {
-    try {
-      final headers = {
-        'Meld-Version': '2023-12-19',
-        'Content-Type': 'application/json',
-        'Authorization': 'BASIC ${secrets.meldApiKey}',
-      };
-      final body = {
-        "sessionData": {
-          "walletAddress": walletAddress,
-          "countryCode": _normalizeCountryCode(settingsStore.fiatCurrency.countryCode),
-          "sourceCurrencyCode": settingsStore.fiatCurrency.raw,
-          "sourceAmount": amount ?? '60',
-          "destinationCurrencyCode": currencyCode.toUpperCase(),
-          "serviceProvider": "STRIPE"
-        },
-        "sessionType": "BUY",
-        "externalCustomerId": "testcustomer",
-      };
-      final response = await http.post(
-        Uri.https(baseBuyUrl, _buyWidgetSuffix),
-        headers: headers,
-        body: json.encode(body),
-      );
-      return Uri.parse(json.decode(response.body)["widgetUrl"] as String);
-    } catch (e) {
-      print(e);
-      rethrow;
-    }
+    final params = {
+      "publicKey": secrets.meldApiKey,
+      "theme": convertTheme(settingsStore.currentTheme),
+      "destinationCurrencyCode": currencyCode.toUpperCase(),
+      "sourceCurrencyCode": settingsStore.fiatCurrency.raw,
+      "sourceAmount": amount ?? '100',
+      "walletAddress": walletAddress,
+    };
+
+    final uri = Uri.https(baseBuyUrl, '', params);
+    return uri;
   }
 
   @override
@@ -107,7 +143,7 @@ class MeldProvider extends BuyProvider {
     } else {
       uri = await requestSellUrl(
         currency: wallet.currency,
-        refundWalletAddress: wallet.walletAddresses.address,
+        walletAddress: wallet.walletAddresses.address,
         settingsStore: _settingsStore,
       );
     }
