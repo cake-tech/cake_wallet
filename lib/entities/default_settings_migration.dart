@@ -1,6 +1,7 @@
 import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -211,6 +212,10 @@ Future<void> defaultSettingsMigration(
           await changeDefaultBitcoinNode(nodes, sharedPreferences);
           break;
 
+        case 30:
+          await disableServiceStatusFiatDisabled(sharedPreferences);
+          break;
+
         default:
           break;
       }
@@ -223,6 +228,18 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+Future<void> disableServiceStatusFiatDisabled(SharedPreferences sharedPreferences) async {
+  final currentFiat =
+      await sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ?? -1;
+  if (currentFiat == -1 || currentFiat == FiatApiMode.enabled.raw) {
+    return;
+  }
+
+  if (currentFiat == FiatApiMode.disabled.raw) {
+    await sharedPreferences.setBool(PreferencesKey.disableBulletinKey, true);
+  }
 }
 
 Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
