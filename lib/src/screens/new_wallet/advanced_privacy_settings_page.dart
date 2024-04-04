@@ -101,6 +101,12 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
               return Column(
                 children: [
                   SettingsSwitcherCell(
+                      title: S.current.disable_bulletin,
+                      value: widget.privacySettingsViewModel.disableBulletin,
+                      onValueChange: (BuildContext _, bool value) {
+                        widget.privacySettingsViewModel.setDisableBulletin(value);
+                      }),
+                  SettingsSwitcherCell(
                     title: S.current.add_custom_node,
                     value: widget.privacySettingsViewModel.addCustomNode,
                     onValueChange: (_, __) => widget.privacySettingsViewModel.toggleAddCustomNode(),

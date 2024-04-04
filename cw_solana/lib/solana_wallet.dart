@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -30,7 +29,6 @@ import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solana/metaplex.dart' as metaplex;
 import 'package:solana/solana.dart';
-import 'package:web3dart/crypto.dart';
 
 part 'solana_wallet.g.dart';
 
@@ -76,6 +74,9 @@ abstract class SolanaWalletBase
   Ed25519HDKeyPairData? _keyPairData;
 
   late SolanaWalletClient _client;
+
+  @observable
+  double? estimatedFee;
 
   Timer? _transactionsUpdateTimer;
 
@@ -134,7 +135,7 @@ abstract class SolanaWalletBase
     assert(mnemonic != null || privateKey != null);
 
     if (privateKey != null) {
-      final privateKeyBytes = hexToBytes(privateKey);
+      final privateKeyBytes = HEX.decode(privateKey);
       return await Wallet.fromPrivateKeyBytes(privateKey: privateKeyBytes);
     }
 
@@ -173,6 +174,14 @@ abstract class SolanaWalletBase
     }
   }
 
+  Future<void> _getEstimatedFees() async {
+    try {
+      estimatedFee = await _client.getEstimatedFee(_walletKeyPair!);
+    } catch (e) {
+      estimatedFee = 0.0;
+    }
+  }
+
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     final solCredentials = credentials as SolanaTransactionCredentials;
@@ -190,6 +199,8 @@ abstract class SolanaWalletBase
 
     double totalAmount = 0.0;
 
+    bool isSendAll = false;
+
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
         throw SolanaTransactionWrongBalanceException(transactionCurrency);
@@ -206,9 +217,15 @@ abstract class SolanaWalletBase
     } else {
       final output = outputs.first;
 
-      final totalOriginalAmount = double.parse(output.cryptoAmount ?? '0.0');
+      isSendAll = output.sendAll;
 
-      totalAmount = output.sendAll ? walletBalanceForCurrency : totalOriginalAmount;
+      if (isSendAll) {
+        totalAmount = walletBalanceForCurrency;
+      } else {
+        final totalOriginalAmount = double.parse(output.cryptoAmount ?? '0.0');
+
+        totalAmount = totalOriginalAmount;
+      }
 
       if (walletBalanceForCurrency < totalAmount) {
         throw SolanaTransactionWrongBalanceException(transactionCurrency);
@@ -230,6 +247,7 @@ abstract class SolanaWalletBase
       destinationAddress: solCredentials.outputs.first.isParsedAddress
           ? solCredentials.outputs.first.extractedAddress!
           : solCredentials.outputs.first.address,
+      isSendAll: isSendAll,
     );
 
     return pendingSolanaTransaction;
@@ -271,7 +289,10 @@ abstract class SolanaWalletBase
   Future<void> _updateSPLTokenTransactions() async {
     List<SolanaTransactionModel> splTokenTransactions = [];
 
-    for (var token in balance.keys) {
+    // Make a copy of keys to avoid concurrent modification
+    var tokenKeys = List<CryptoCurrency>.from(balance.keys);
+
+    for (var token in tokenKeys) {
       if (token is SPLToken) {
         final tokenTxs = await _client.getSPLTokenTransfers(
           token.mintAddress,
@@ -328,6 +349,7 @@ abstract class SolanaWalletBase
         _updateBalance(),
         _updateNativeSOLTransactions(),
         _updateSPLTokenTransactions(),
+        _getEstimatedFees(),
       ]);
 
       syncStatus = SyncedSyncStatus();
@@ -435,18 +457,22 @@ abstract class SolanaWalletBase
     final mintPublicKey = Ed25519HDPublicKey.fromBase58(mintAddress);
 
     // Fetch token's metadata account
-    final token = await solanaClient!.rpcClient.getMetadata(mint: mintPublicKey);
+    try {
+      final token = await solanaClient!.rpcClient.getMetadata(mint: mintPublicKey);
 
-    if (token == null) {
+      if (token == null) {
+        return null;
+      }
+
+      return SPLToken.fromMetadata(
+        name: token.name,
+        mint: token.mint,
+        symbol: token.symbol,
+        mintAddress: mintAddress,
+      );
+    } catch (e) {
       return null;
     }
-
-    return SPLToken.fromMetadata(
-      name: token.name,
-      mint: token.mint,
-      symbol: token.symbol,
-      mintAddress: mintAddress,
-    );
   }
 
   @override
@@ -477,9 +503,9 @@ abstract class SolanaWalletBase
     }
 
     _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 20), (_) {
-      _updateSPLTokenTransactions();
-      _updateNativeSOLTransactions();
       _updateBalance();
+      _updateNativeSOLTransactions();
+      _updateSPLTokenTransactions();
     });
   }
 
@@ -491,7 +517,7 @@ abstract class SolanaWalletBase
     final signature = await _walletKeyPair!.sign(messageBytes);
 
     // Convert the signature to a hexadecimal string
-    final hex = bytesToHex(signature.bytes);
+    final hex = HEX.encode(signature.bytes);
 
     return hex;
   }

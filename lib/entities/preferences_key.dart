@@ -20,6 +20,7 @@ class PreferencesKey {
   static const isAppSecureKey = 'is_app_secure';
   static const disableBuyKey = 'disable_buy';
   static const disableSellKey = 'disable_sell';
+  static const disableBulletinKey = 'disable_bulletin';
   static const defaultBuyProvider = 'default_buy_provider';
   static const walletListOrder = 'wallet_list_order';
   static const walletListAscending = 'wallet_list_ascending';
