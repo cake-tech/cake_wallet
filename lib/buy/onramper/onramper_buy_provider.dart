@@ -7,6 +7,7 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -33,6 +34,29 @@ class OnRamperBuyProvider extends BuyProvider {
 
   @override
   String get darkIcon => 'assets/images/onramper_dark.png';
+
+  @override
+  List<WalletType> getSupportedWalletTypes(bool isBuy) {
+    if (isBuy) {
+      return [
+        WalletType.bitcoin,
+        WalletType.ethereum,
+        WalletType.polygon,
+        WalletType.monero,
+        WalletType.litecoin,
+        WalletType.bitcoinCash,
+        WalletType.nano,
+        WalletType.banano,
+        WalletType.solana,
+      ];
+    }
+    return [
+      WalletType.bitcoin,
+      WalletType.ethereum,
+      WalletType.polygon,
+      WalletType.solana,
+    ];
+  }
 
   String get _apiKey => secrets.onramperApiKey;
 

@@ -73,6 +73,23 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
+  @override
+  List<WalletType> getSupportedWalletTypes(bool isBuy) {
+    if (isBuy) {
+      return [
+        WalletType.bitcoin,
+        WalletType.ethereum,
+        WalletType.polygon,
+        WalletType.monero,
+      ];
+    }
+    return [
+      WalletType.bitcoin,
+      WalletType.ethereum,
+      WalletType.polygon,
+    ];
+  }
+
   String get walletAddress =>
       wallet.walletAddresses.primaryAddress ?? wallet.walletAddresses.address;
 

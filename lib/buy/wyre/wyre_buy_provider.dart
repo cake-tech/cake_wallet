@@ -45,6 +45,11 @@ class WyreBuyProvider extends BuyProvider {
   @override
   String get darkIcon => 'assets/images/robinhood_dark.png';
 
+  @override
+  List<WalletType> getSupportedWalletTypes(bool isBuy) {
+    return [];
+  }
+
   String get trackUrl => isTestEnvironment ? _trackTestUrl : _trackProductUrl;
 
   String baseApiUrl;

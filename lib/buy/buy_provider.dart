@@ -1,6 +1,7 @@
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
 abstract class BuyProvider {
@@ -32,4 +33,6 @@ abstract class BuyProvider {
   Future<Order> findOrderById(String id) => throw UnimplementedError();
 
   Future<BuyAmount> calculateAmount(String amount, String sourceCurrency) => throw UnimplementedError();
+
+  List<WalletType> getSupportedWalletTypes(bool isBuy) => throw UnimplementedError();
 }

@@ -45,6 +45,31 @@ class MeldProvider extends BuyProvider {
   @override
   String get darkIcon => lightIcon;
 
+  @override
+  List<WalletType> getSupportedWalletTypes(bool isBuy) {
+    if (isBuy) {
+      return [
+        WalletType.bitcoin,
+        WalletType.ethereum,
+        WalletType.polygon,
+        WalletType.monero,
+        WalletType.litecoin,
+        WalletType.bitcoinCash,
+        WalletType.nano,
+        WalletType.banano,
+        WalletType.solana,
+      ];
+    }
+    return [
+      WalletType.bitcoin,
+      WalletType.ethereum,
+      WalletType.polygon,
+      WalletType.solana,
+      WalletType.litecoin,
+      WalletType.bitcoinCash,
+    ];
+  }
+
   String get currencyCode => walletTypeToCryptoCurrency(wallet.type).title.toLowerCase();
 
   static String convertTheme(ThemeBase theme) {

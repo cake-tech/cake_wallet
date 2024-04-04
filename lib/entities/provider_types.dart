@@ -54,86 +54,27 @@ extension ProviderTypeName on ProviderType {
 
 class ProvidersHelper {
   static List<ProviderType> getAvailableBuyProviderTypes(WalletType walletType) {
-    switch (walletType) {
-      case WalletType.nano:
-      case WalletType.banano:
-        return [
-          ProviderType.askEachTime,
-          ProviderType.onramper,
-          ProviderType.meld,
-        ];
-      case WalletType.monero:
-        return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.dfx];
-      case WalletType.bitcoin:
-      case WalletType.polygon:
-      case WalletType.ethereum:
-        return [
-          ProviderType.askEachTime,
-          ProviderType.onramper,
-          ProviderType.dfx,
-          ProviderType.robinhood,
-          ProviderType.moonpay,
-          ProviderType.meld,
-        ];
-      case WalletType.litecoin:
-      case WalletType.bitcoinCash:
-        return [
-          ProviderType.askEachTime,
-          ProviderType.onramper,
-          ProviderType.robinhood,
-          ProviderType.moonpay,
-          ProviderType.meld,
-        ];
-      case WalletType.solana:
-        return [
-          ProviderType.askEachTime,
-          ProviderType.onramper,
-          ProviderType.robinhood,
-          ProviderType.meld,
-        ];
-      case WalletType.none:
-      case WalletType.haven:
-        return [];
+    final providers = <ProviderType>[];
+    for (final providerType in ProviderType.values) {
+      final dynamic p = getProviderTypeByType(providerType);
+      final supportedWalletTypes = p.getSupportedWalletTypes(true) as List<WalletType>;
+      if (supportedWalletTypes.contains(walletType)) {
+        providers.add(providerType);
+      }
     }
+    return providers;
   }
 
   static List<ProviderType> getAvailableSellProviderTypes(WalletType walletType) {
-    switch (walletType) {
-      case WalletType.bitcoin:
-      case WalletType.ethereum:
-      case WalletType.polygon:
-        return [
-          ProviderType.askEachTime,
-          ProviderType.onramper,
-          ProviderType.moonpay,
-          ProviderType.dfx,
-          ProviderType.meld,
-        ];
-      case WalletType.litecoin:
-      case WalletType.bitcoinCash:
-        return [
-          ProviderType.askEachTime,
-          ProviderType.moonpay,
-          ProviderType.meld,
-        ];
-      case WalletType.solana:
-        return [
-          ProviderType.askEachTime,
-          ProviderType.onramper,
-          ProviderType.robinhood,
-          ProviderType.moonpay,
-          ProviderType.meld,
-        ];
-      case WalletType.nano:
-        return [
-          ProviderType.meld,
-        ];
-      case WalletType.banano:
-      case WalletType.monero:
-      case WalletType.none:
-      case WalletType.haven:
-        return [];
+    final providers = <ProviderType>[];
+    for (final providerType in ProviderType.values) {
+      final dynamic p = getProviderTypeByType(providerType);
+      final supportedWalletTypes = p.getSupportedWalletTypes(false) as List<WalletType>;
+      if (supportedWalletTypes.contains(walletType)) {
+        providers.add(providerType);
+      }
     }
+    return providers;
   }
 
   static BuyProvider? getProviderByType(ProviderType type) {
@@ -148,6 +89,23 @@ class ProvidersHelper {
         return getIt.get<MoonPayProvider>();
       case ProviderType.meld:
         return getIt.get<MeldProvider>();
+      case ProviderType.askEachTime:
+        return null;
+    }
+  }
+
+  static Type? getProviderTypeByType(ProviderType type) {
+    switch (type) {
+      case ProviderType.robinhood:
+        return RobinhoodBuyProvider;
+      case ProviderType.dfx:
+        return DFXBuyProvider;
+      case ProviderType.onramper:
+        return OnRamperBuyProvider;
+      case ProviderType.moonpay:
+        return MoonPayProvider;
+      case ProviderType.meld:
+        return MeldProvider;
       case ProviderType.askEachTime:
         return null;
     }
