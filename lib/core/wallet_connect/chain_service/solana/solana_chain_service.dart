@@ -100,8 +100,7 @@ class SolanaChainServiceImpl implements ChainService {
   Future<String> solanaSignTransaction(String topic, dynamic parameters) async {
     log('received solana sign transaction request $parameters');
 
-    final solanaSignTx =
-        SolanaSignTransaction.fromJson(parameters as Map<String, dynamic>);
+    final solanaSignTx = SolanaSignTransaction.fromJson(parameters as Map<String, dynamic>);
 
     final String? authError = await requestAuthorization('Confirm request to sign transaction?');
 
