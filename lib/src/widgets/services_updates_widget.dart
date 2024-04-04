@@ -111,7 +111,7 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
                   color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                   width: 30,
                 ),
-                if (state.hasData && state.data!.hasUpdates)
+                if (state.hasData && state.data!.hasUpdates && !wasOpened)
                   Container(
                     height: 7,
                     width: 7,
