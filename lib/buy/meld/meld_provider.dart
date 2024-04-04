@@ -15,17 +15,15 @@ class MeldProvider extends BuyProvider {
     required SettingsStore settingsStore,
     required WalletBase wallet,
     bool isTestEnvironment = false,
-  })  : baseSellUrl = isTestEnvironment ? _baseSellTestUrl : _baseSellProductUrl,
-        baseBuyUrl = isTestEnvironment ? _baseBuyTestUrl : _baseBuyProductUrl,
+  })  : baseSellUrl = isTestEnvironment ? _baseTestUrl : _baseProductUrl,
+        baseBuyUrl = isTestEnvironment ? _baseTestUrl : _baseProductUrl,
         this._settingsStore = settingsStore,
         super(wallet: wallet, isTestEnvironment: isTestEnvironment);
 
   final SettingsStore _settingsStore;
 
-  static const _baseSellTestUrl = 'sb.fluidmoney.xyz';
-  static const _baseSellProductUrl = 'fluidmoney.xyz';
-  static const _baseBuyTestUrl = 'sb.fluidmoney.xyz';
-  static const _baseBuyProductUrl = 'fluidmoney.xyz';
+  static const _baseTestUrl = 'sb.fluidmoney.xyz';
+  static const _baseProductUrl = 'fluidmoney.xyz';
 
   final String baseBuyUrl;
   final String baseSellUrl;
@@ -45,11 +43,9 @@ class MeldProvider extends BuyProvider {
   String get lightIcon => 'assets/images/meld_dark.png';
 
   @override
-  String get darkIcon => 'assets/images/meld_dark.png';
+  String get darkIcon => lightIcon;
 
   String get currencyCode => walletTypeToCryptoCurrency(wallet.type).title.toLowerCase();
-
-  static String get _exchangeHelperApiKey => secrets.exchangeHelperApiKey;
 
   static String convertTheme(ThemeBase theme) {
     switch (theme.type) {
