@@ -70,8 +70,7 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
-  @override
-  List<WalletType> getSupportedWalletTypes(bool isBuy) {
+  static List<WalletType> getSupportedWalletTypes(bool isBuy) {
     if (isBuy) {
       return [
         WalletType.bitcoin,
