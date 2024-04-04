@@ -50,8 +50,8 @@ class ProvidersHelper {
   static List<ProviderType> getAvailableBuyProviderTypes(WalletType walletType) {
     final providers = <ProviderType>[];
     for (final providerType in ProviderType.values) {
-      final dynamic p = getProviderTypeByType(providerType);
-      final supportedWalletTypes = p.getSupportedWalletTypes(true) as List<WalletType>;
+      final Type? p = getProviderTypeByType(providerType);
+      final supportedWalletTypes = (p as BuyProvider).getSupportedWalletTypes(true);
       if (supportedWalletTypes.contains(walletType)) {
         providers.add(providerType);
       }
@@ -62,8 +62,8 @@ class ProvidersHelper {
   static List<ProviderType> getAvailableSellProviderTypes(WalletType walletType) {
     final providers = <ProviderType>[];
     for (final providerType in ProviderType.values) {
-      final dynamic p = getProviderTypeByType(providerType);
-      final supportedWalletTypes = p.getSupportedWalletTypes(false) as List<WalletType>;
+      final Type? p = getProviderTypeByType(providerType);
+      final supportedWalletTypes = (p as BuyProvider).getSupportedWalletTypes(false);
       if (supportedWalletTypes.contains(walletType)) {
         providers.add(providerType);
       }
