@@ -78,7 +78,6 @@ class DFXBuyProvider extends BuyProvider {
         WalletType.ethereum,
         WalletType.polygon,
         WalletType.monero,
-        WalletType.nano,
       ];
     }
     return [
