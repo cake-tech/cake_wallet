@@ -244,4 +244,21 @@ class CWBitcoin extends Bitcoin {
   bool hasTaprootInput(PendingTransaction pendingTransaction) {
     return (pendingTransaction as PendingBitcoinTransaction).hasTaprootInputs;
   }
+
+  @override
+  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
+      {int index = 0, int limit = 5}) async {
+    final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
+    try {
+      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
+    } on LedgerException catch (err) {
+      print(err.message); // TODO: (Konsti) remove
+      throw err;
+    }
+  }
 }

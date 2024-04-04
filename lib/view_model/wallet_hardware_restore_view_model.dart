@@ -1,9 +1,11 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
+import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -31,25 +33,29 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   String name = "";
 
   @observable
-  String? selectedAccount = null;
+  HardwareAccountData? selectedAccount = null;
 
   @observable
   bool isLoadingMoreAccounts = false;
 
   // @observable
-  ObservableList<String> availableAccounts = ObservableList();
+  ObservableList<HardwareAccountData> availableAccounts = ObservableList();
 
   @action
   Future<void> getNextAvailableAccounts(int limit) async {
-    List<String> accounts;
+    List<HardwareAccountData> accounts;
     switch (type) {
+      case WalletType.bitcoin:
+        accounts = await bitcoin!
+            .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
+        break;
       case WalletType.ethereum:
-        accounts =
-            await ethereum!.getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
+        accounts = await ethereum!
+            .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
         break;
       case WalletType.polygon:
-        accounts =
-            await polygon!.getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
+        accounts = await polygon!
+            .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
         break;
       default:
         return;
@@ -62,7 +68,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
 
   @override
   WalletCredentials getCredentials(dynamic _options) {
-    final address = selectedAccount!;
+    final address = selectedAccount!.address; // ToDo: (Konsti) use HardwareAccountData
     WalletCredentials credentials;
     switch (type) {
       case WalletType.ethereum:
@@ -70,8 +76,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
             ethereum!.createEthereumHardwareWalletCredentials(name: name, address: address);
         break;
       case WalletType.polygon:
-        credentials =
-            polygon!.createPolygonHardwareWalletCredentials(name: name, address: address);
+        credentials = polygon!.createPolygonHardwareWalletCredentials(name: name, address: address);
         break;
       default:
         throw Exception('Unexpected type: ${type.toString()}');

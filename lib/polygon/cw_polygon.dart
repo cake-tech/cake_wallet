@@ -172,11 +172,11 @@ class CWPolygon extends Polygon {
   }
 
   @override
-  Future<List<String>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
+  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
       {int index = 0, int limit = 5}) async {
     final hardwareWalletService = EVMChainHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
     try {
-      return await hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
+      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } on LedgerException catch (err) {
       print(err.message); // TODO: (Konsti) remove
       throw err;

@@ -7,6 +7,7 @@ class Routes {
   static const restoreOptions = '/restore_options';
   static const restoreWalletFromSeedKeys = '/restore_wallet_from_seeds_keys';
   static const restoreWalletFromHardwareWallet = '/restore/hardware_wallet';
+  static const debugWalletFromHardwareWallet = '/restore/hardware_wallet/debug';
   static const restoreWalletTypeFromQR = '/restore_wallet_from_qr_code';
   static const restoreWalletChooseDerivation =
       '/restore_wallet_choose_derivation';

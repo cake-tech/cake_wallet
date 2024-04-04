@@ -6,6 +6,7 @@ enum DeviceConnectionType {
 
   static List<DeviceConnectionType> supportedConnectionTypes(WalletType walletType) {
     switch (walletType) {
+      case WalletType.bitcoin:
       case WalletType.ethereum:
       case WalletType.polygon:
         return [DeviceConnectionType.ble, DeviceConnectionType.usb];

@@ -1,11 +1,15 @@
+import 'dart:convert';
+
+import 'package:bitcoin_flutter/bitcoin_flutter.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
-import 'package:ledger_ethereum/ledger_ethereum.dart';
+import 'package:ledger_bitcoin/ledger_bitcoin.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:polyseed/polyseed.dart';
 
 class DebugDevicePage extends BasePage {
   @override
@@ -45,10 +49,8 @@ class DebugDevicePageBodyState extends State<DebugDevicePageBody> {
       return statuses.values.where((status) => status.isDenied).isEmpty;
     },
   );
-  final conLedger = Ledger(options: LedgerOptions(
-    scanMode: ScanMode.balanced,));
 
-  late EthereumLedgerApp eth;
+  late BitcoinLedgerApp btc;
   var devices = <LedgerDevice>[];
   var status = "";
   var counter = 0;
@@ -57,14 +59,14 @@ class DebugDevicePageBodyState extends State<DebugDevicePageBody> {
   @override
   void initState() {
     super.initState();
-    eth = EthereumLedgerApp(conLedger);
+    btc = BitcoinLedgerApp(ledger);
   }
 
   @override
   void dispose() {
     super.dispose();
-    conLedger.close(ConnectionType.ble);
-    conLedger.close(ConnectionType.usb);
+    ledger.close(ConnectionType.ble);
+    ledger.close(ConnectionType.usb);
   }
 
   Future<void> reconnectCurrentDevice() async {
@@ -73,7 +75,7 @@ class DebugDevicePageBodyState extends State<DebugDevicePageBody> {
   }
 
   Future<void> disconnectCurrentDevice() async {
-    await conLedger.disconnect(selectedDevice!);
+    await ledger.disconnect(selectedDevice!);
     setState(() => selectedDevice = null);
   }
 
@@ -97,55 +99,45 @@ class DebugDevicePageBodyState extends State<DebugDevicePageBody> {
                   DebugButton(
                     title: "Get Version",
                     method: "Version",
-                    func: () async => await eth.getVersion(selectedDevice!),
+                    func: () async => await btc.getVersion(selectedDevice!),
                   ),
                   DebugButton(
                     title: "Get Master Fingerprint",
                     method: "Master Fingerprint",
-                    func: () async => {}// await btc.getMasterFingerprint(selectedDevice!),
+                    func: () async => await btc.getMasterFingerprint(selectedDevice!),
                   ),
                   DebugButton(
                     title: "Get XPub",
                     method: "XPub",
-                    func: () async => {}// await btc.getXPubKey(selectedDevice!, derivationPath: "m/84'/0'/0'"),
+                    func: () async => await btc.getXPubKey(selectedDevice!, derivationPath: "m/84'/0'/$counter'"),
                   ),
                   DebugButton(
                     title: "Get Wallet Address",
                     method: "Wallet Address",
                     func: () async {
-                      // setState(() => counter++);
-                      // final derivationPath = "m/44'/60'/$counter'/0/0";
-                      // print(derivationPath);
-                      // return await eth.getAccounts(selectedDevice!, derivationPath);
+                      setState(() => counter++);
+                      final derivationPath = "m/84'/0'/$counter'/1/0";
+                      return await btc.getAccounts(selectedDevice!, accountsDerivationPath: derivationPath);
                       // return await ethereum!.getHardwareWalletAccounts(selectedDevice!);
                       },
                   ),
                   DebugButton(
                     title: "Get Output",
                     method: "OutHash",
-                    func: () async => {}//Address.addressToOutputScript("bc1q4aacwm9f9ayukulk7sq4h75ge0pwp6r8nzvt7h").toHexString(),
-                  ),
-                  DebugButton(
-                    title: "Sign Message",
-                    method: "Sig",
-                    func: () async {}
-                    //   final message = magicHashMessage('CakeWallet');
-                    //   final result = await btc.signMessage(selectedDevice!, message: message);
-                    //   return base64.encode(result);
-                    // },
+                    func: () async => Address.addressToOutputScript("bc1q4aacwm9f9ayukulk7sq4h75ge0pwp6r8nzvt7h").toHexString(),
                   ),
                   DebugButton(
                     title: "Send Money",
                     method: "Sig",
-                    func: () async {}
-                    //   final psbt = PsbtV2();
-                    //   final psbtBuf = base64.decode(
-                    //       "cHNidP8BAHsCAAAAAk1upP3MCirtbu5vaCq+aG+1XAAtCD5H2g4rUYvxZA+7AAAAAAD9////zEm9RNUErupcFctJ+/6BMtZpbdlA8i9MbJ9XRI5cekIFAAAAAP3///8BTRcAAAAAAAAWABSve4dsqS9Jy3P29AFb+ojLwuDoZwAAAAABBAECAQUBAQAAAAA=");
-                    //
-                    //   psbt.deserialize(psbtBuf);
-                    //   final result = await btc.signPsbt(selectedDevice!, psbt: psbt);
-                    //   return result.toHexString();
-                    // },
+                    func: () async {
+                      final psbt = PsbtV2();
+                      final psbtBuf = base64.decode(
+                          "cHNidP8BAgQCAAAAAQQBAQEFAQIAAQ4guw9k8YtRKw7aRz4ILQBctW9ovipob+5u7SoKzP2kbk0BDwQBAAAAAAEEFOTtsQ7Fhx1cOLV55atpgO5+bp4mAQMI6AMAAAAAAAAAAQQUNfeD+mcNch+xHDyyErjY1mf5J2kBAwiIEwAAAAAAAAA=");
+
+                      psbt.deserialize(psbtBuf);
+                      final result = await btc.signPsbt(selectedDevice!, psbt: psbt);
+                      return result.toHexString();
+                    },
                   ),
                   Padding(
                     padding: EdgeInsets.only(top: 20),
