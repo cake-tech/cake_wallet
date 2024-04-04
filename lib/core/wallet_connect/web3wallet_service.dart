@@ -266,7 +266,7 @@ abstract class Web3WalletServiceBase with Store {
   }
 
   @action
-  void _onSessionConnect(SessionConnect? args) async {
+  Future<void> _onSessionConnect(SessionConnect? args) async {
     if (args != null) {
       log('Session Connected $args');
 
