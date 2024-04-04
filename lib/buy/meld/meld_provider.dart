@@ -45,8 +45,7 @@ class MeldProvider extends BuyProvider {
   @override
   String get darkIcon => lightIcon;
 
-  @override
-  List<WalletType> getSupportedWalletTypes(bool isBuy) {
+  static List<WalletType> getSupportedWalletTypes(bool isBuy) {
     if (isBuy) {
       return [
         WalletType.bitcoin,

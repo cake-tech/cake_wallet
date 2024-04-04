@@ -56,8 +56,10 @@ class ProvidersHelper {
   static List<ProviderType> getAvailableBuyProviderTypes(WalletType walletType) {
     final providers = <ProviderType>[];
     for (final providerType in ProviderType.values) {
-      final dynamic p = getProviderTypeByType(providerType);
-      final supportedWalletTypes = p.getSupportedWalletTypes(true) as List<WalletType>;
+      final supportedWalletTypes = getSupportedWalletTypesbyProvider(
+        providerType: providerType,
+        isBuy: true,
+      ) ?? [];
       if (supportedWalletTypes.contains(walletType)) {
         providers.add(providerType);
       }
@@ -68,8 +70,10 @@ class ProvidersHelper {
   static List<ProviderType> getAvailableSellProviderTypes(WalletType walletType) {
     final providers = <ProviderType>[];
     for (final providerType in ProviderType.values) {
-      final dynamic p = getProviderTypeByType(providerType);
-      final supportedWalletTypes = p.getSupportedWalletTypes(false) as List<WalletType>;
+      final supportedWalletTypes = getSupportedWalletTypesbyProvider(
+        providerType: providerType,
+        isBuy: false,
+      ) ?? [];
       if (supportedWalletTypes.contains(walletType)) {
         providers.add(providerType);
       }
@@ -94,18 +98,18 @@ class ProvidersHelper {
     }
   }
 
-  static Type? getProviderTypeByType(ProviderType type) {
-    switch (type) {
+  static List<WalletType>? getSupportedWalletTypesbyProvider({required ProviderType providerType, required bool isBuy}) {
+    switch (providerType) {
       case ProviderType.robinhood:
-        return RobinhoodBuyProvider;
+        return RobinhoodBuyProvider.getSupportedWalletTypes(isBuy);
       case ProviderType.dfx:
-        return DFXBuyProvider;
+        return DFXBuyProvider.getSupportedWalletTypes(isBuy);
       case ProviderType.onramper:
-        return OnRamperBuyProvider;
+        return OnRamperBuyProvider.getSupportedWalletTypes(isBuy);
       case ProviderType.moonpay:
-        return MoonPayProvider;
+        return MoonPayProvider.getSupportedWalletTypes(isBuy);
       case ProviderType.meld:
-        return MeldProvider;
+        return MeldProvider.getSupportedWalletTypes(isBuy);
       case ProviderType.askEachTime:
         return null;
     }

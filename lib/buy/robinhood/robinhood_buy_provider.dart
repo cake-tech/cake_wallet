@@ -33,8 +33,7 @@ class RobinhoodBuyProvider extends BuyProvider {
   @override
   String get darkIcon => 'assets/images/robinhood_dark.png';
 
-  @override
-  List<WalletType> getSupportedWalletTypes(bool isBuy) {
+  static List<WalletType> getSupportedWalletTypes(bool isBuy) {
     if (isBuy) {
       return [
         WalletType.bitcoin,

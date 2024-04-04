@@ -54,8 +54,7 @@ class MoonPayProvider extends BuyProvider {
   @override
   String get darkIcon => 'assets/images/moonpay_dark.png';
 
-  @override
-  List<WalletType> getSupportedWalletTypes(bool isBuy) {
+  static List<WalletType> getSupportedWalletTypes(bool isBuy) {
     if (isBuy) {
       return [
         WalletType.bitcoin,

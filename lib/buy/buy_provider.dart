@@ -33,6 +33,4 @@ abstract class BuyProvider {
   Future<Order> findOrderById(String id) => throw UnimplementedError();
 
   Future<BuyAmount> calculateAmount(String amount, String sourceCurrency) => throw UnimplementedError();
-
-  List<WalletType> getSupportedWalletTypes(bool isBuy) => throw UnimplementedError();
 }
