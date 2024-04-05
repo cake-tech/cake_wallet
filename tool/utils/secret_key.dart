@@ -42,6 +42,7 @@ class SecretKey {
   static final evmChainsSecrets = [
     SecretKey('etherScanApiKey', () => ''),
     SecretKey('polygonScanApiKey', () => ''),
+    SecretKey('moralisApiKey', () => ''),
   ];
 
   static final solanaSecrets = [
