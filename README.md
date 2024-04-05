@@ -8,6 +8,8 @@
 
 Cake Wallet is an open source, non-custodial, and private multi-currency crypto wallet.
 
+![devices](.github/assets/devices.png)
+
 <div align="center">
 
 [<img height="42" src=".github/assets/app-store-badge.svg">](https://apps.apple.com/us/app/cake-wallet/id1334702542?platform=iphone)
