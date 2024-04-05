@@ -1,8 +1,6 @@
-import 'package:cake_wallet/core/seed_validator.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
-abstract interface class ComparableCopy<T> {
+abstract class ComparableCopy<T> {
   /// Compares this object to another object.
   ///
   /// Returns a value like a [Comparator] when comparing `this` to [other].
