@@ -489,9 +489,9 @@ class _PickerState<Item> extends State<Picker<Item>> {
       children: <Widget>[
         Expanded(
           child: Slider(
-            value: widget.sliderValue ?? 0,
+            value: widget.sliderValue ?? 2,
             onChanged: isActivated ? widget.onSliderChanged : null,
-            min: 0,
+            min: 2,
             max: 100,
             divisions: 100,
           ),
