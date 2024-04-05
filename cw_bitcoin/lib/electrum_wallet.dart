@@ -531,7 +531,7 @@ abstract class ElectrumWalletBase
           network: network,
           memo: estimatedTx.memo,
           outputOrdering: BitcoinOrdering.none,
-          enableRBF: transactionCredentials.useReplaceByFee,
+          enableRBF: true,
         );
       } else {
         txb = BitcoinTransactionBuilder(
@@ -541,7 +541,7 @@ abstract class ElectrumWalletBase
           network: network,
           memo: estimatedTx.memo,
           outputOrdering: BitcoinOrdering.none,
-          enableRBF: transactionCredentials.useReplaceByFee,
+          enableRBF: true,
         );
       }
 

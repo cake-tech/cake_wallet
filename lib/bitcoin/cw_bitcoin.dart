@@ -74,7 +74,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Object createBitcoinTransactionCredentials(List<Output> outputs,
-      {required TransactionPriority priority, int? feeRate, bool useReplaceByFee = true}) {
+      {required TransactionPriority priority, int? feeRate}) {
     final bitcoinFeeRate =
         priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
     return BitcoinTransactionCredentials(
@@ -91,8 +91,7 @@ class CWBitcoin extends Bitcoin {
               memo: out.memo))
           .toList(),
       priority: priority as BitcoinTransactionPriority,
-      feeRate: bitcoinFeeRate,
-      useReplaceByFee: useReplaceByFee,
+      feeRate: bitcoinFeeRate
     );
   }
 

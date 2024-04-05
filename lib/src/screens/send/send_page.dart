@@ -8,7 +8,6 @@ import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
-import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
@@ -196,20 +195,6 @@ class SendPage extends BasePage {
                               });
                         },
                       )),
-                  if (sendViewModel.walletType == WalletType.bitcoin)
-                    Padding(
-                        padding: EdgeInsets.only(left: 24, top: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Observer(
-                                builder: (_) => StandardCheckbox(
-                                  value: sendViewModel.useReplaceByFee,
-                                  caption: S.of(context).enable_replace_by_fee,
-                                  onChanged: (value) => sendViewModel.useReplaceByFee = value,
-                                ))
-                          ],
-                        )),
                   Padding(
                     padding: EdgeInsets.only(left: 24, right: 24, bottom: 10),
                     child: Container(
