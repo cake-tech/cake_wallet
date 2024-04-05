@@ -237,7 +237,7 @@ Future<void> disableServiceStatusFiatDisabled(SharedPreferences sharedPreference
     return;
   }
 
-  if (currentFiat == FiatApiMode.disabled.raw) {
+  if (currentFiat == FiatApiMode.disabled.raw || currentFiat == FiatApiMode.torOnly.raw) {
     await sharedPreferences.setBool(PreferencesKey.disableBulletinKey, true);
   }
 }
