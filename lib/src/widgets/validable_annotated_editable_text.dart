@@ -2,7 +2,30 @@ import 'package:cake_wallet/core/seed_validator.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
-class Annotation extends Comparable<Annotation> {
+abstract interface class ComparableCopy<T> {
+  /// Compares this object to another object.
+  ///
+  /// Returns a value like a [Comparator] when comparing `this` to [other].
+  /// That is, it returns a negative integer if `this` is ordered before [other],
+  /// a positive integer if `this` is ordered after [other],
+  /// and zero if `this` and [other] are ordered together.
+  ///
+  /// The [other] argument must be a value that is comparable to this object.
+  int compareTo(T other);
+
+  /// A [Comparator] that compares one comparable to another.
+  ///
+  /// It returns the result of `a.compareTo(b)`.
+  /// The call may fail at run-time
+  /// if `a` is not comparable to the type of `b`.
+  ///
+  /// This utility function is used as the default comparator
+  /// for ordering collections, for example in the [List] sort function.
+  static int compare(Comparable a, Comparable b) => a.compareTo(b);
+}
+
+
+class Annotation extends ComparableCopy<Annotation> {
   Annotation({required this.range, required this.style});
 
   final TextRange range;
@@ -12,7 +35,7 @@ class Annotation extends Comparable<Annotation> {
   int compareTo(Annotation other) => range.start.compareTo(other.range.start);
 }
 
-class TextAnnotation extends Comparable<TextAnnotation> {
+class TextAnnotation extends ComparableCopy<TextAnnotation> {
   TextAnnotation({required this.text, required this.style});
 
   final TextStyle style;

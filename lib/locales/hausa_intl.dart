@@ -751,6 +751,34 @@ class HaMaterialLocalizations extends GlobalMaterialLocalizations {
 
   @override
   String get scrimOnTapHintRaw => "Scrip on Tap";
+  
+  @override
+  // TODO: implement collapsedHint
+  String get collapsedHint => throw UnimplementedError();
+  
+  @override
+  // TODO: implement expandedHint
+  String get expandedHint => throw UnimplementedError();
+  
+  @override
+  // TODO: implement expansionTileCollapsedHint
+  String get expansionTileCollapsedHint => throw UnimplementedError();
+  
+  @override
+  // TODO: implement expansionTileCollapsedTapHint
+  String get expansionTileCollapsedTapHint => throw UnimplementedError();
+  
+  @override
+  // TODO: implement expansionTileExpandedHint
+  String get expansionTileExpandedHint => throw UnimplementedError();
+  
+  @override
+  // TODO: implement expansionTileExpandedTapHint
+  String get expansionTileExpandedTapHint => throw UnimplementedError();
+  
+  @override
+  // TODO: implement scanTextButtonLabel
+  String get scanTextButtonLabel => throw UnimplementedError();
 }
 
 /// Cupertino Support
