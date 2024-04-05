@@ -1,6 +1,4 @@
-// import 'package:local_auth/local_auth.dart';
 import 'package:flutter/services.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_local_authentication/flutter_local_authentication.dart';
 
 class BiometricAuth {
