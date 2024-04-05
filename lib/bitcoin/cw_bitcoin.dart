@@ -264,6 +264,8 @@ class CWBitcoin extends Bitcoin {
     return (option as BitcoinReceivePageOption).toType();
   }
 
+  @override
+  @computed
   bool getScanningActive(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.silentPaymentsScanningActive;
@@ -272,5 +274,10 @@ class CWBitcoin extends Bitcoin {
   void setScanningActive(Object wallet, bool active) {
     final bitcoinWallet = wallet as ElectrumWallet;
     bitcoinWallet.setSilentPaymentsScanning(active);
+  }
+
+  bool isTestnet(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.isTestnet ?? false;
   }
 }

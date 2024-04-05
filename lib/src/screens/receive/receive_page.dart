@@ -102,7 +102,7 @@ class ReceivePage extends BasePage {
     return (addressListViewModel.type == WalletType.monero ||
             addressListViewModel.type == WalletType.haven ||
             addressListViewModel.type == WalletType.nano ||
-        isElectrumWallet)
+            isElectrumWallet)
         ? KeyboardActions(
             config: KeyboardActionsConfig(
                 keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
@@ -164,21 +164,21 @@ class ReceivePage extends BasePage {
                             }
 
                             if (item is WalletAddressListHeader) {
-                                cell = HeaderTile(
-                                    title: S.of(context).addresses,
-                                    walletAddressListViewModel: addressListViewModel,
-                                    showTrailingButton: !addressListViewModel.isAutoGenerateSubaddressEnabled,
-                                    showSearchButton: true,
-                                    trailingButtonTap: () =>
-                                        Navigator.of(context).pushNamed(Routes.newSubaddress),
-                                    trailingIcon: Icon(
-                                      Icons.add,
-                                      size: 20,
-                                      color: Theme.of(context)
-                                          .extension<ReceivePageTheme>()!
-                                          .iconsColor,
-                                    ));
-                              }
+                              cell = HeaderTile(
+                                  title: S.of(context).addresses,
+                                  walletAddressListViewModel: addressListViewModel,
+                                  showTrailingButton:
+                                      !addressListViewModel.isAutoGenerateSubaddressEnabled,
+                                  showSearchButton: true,
+                                  trailingButtonTap: () =>
+                                      Navigator.of(context).pushNamed(Routes.newSubaddress),
+                                  trailingIcon: Icon(
+                                    Icons.add,
+                                    size: 20,
+                                    color:
+                                        Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
+                                  ));
+                            }
 
                             if (item is WalletAddressListItem) {
                               cell = Observer(builder: (_) {
@@ -219,7 +219,7 @@ class ReceivePage extends BasePage {
                                     child: cell,
                                   );
                           })),
-                  if (!addressListViewModel.hasSilentAddresses)
+                  if (!addressListViewModel.isSilentPayments)
                     Padding(
                       padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
                       child: Text(S.of(context).electrum_address_disclaimer,

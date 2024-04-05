@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -20,6 +21,9 @@ abstract class RescanViewModelBase with Store {
 
   @observable
   bool isButtonEnabled;
+
+  @computed
+  bool get isSilentPaymentsScan => bitcoin!.hasSelectedSilentPayments(_wallet);
 
   @action
   Future<void> rescanCurrentWallet({required int restoreHeight}) async {

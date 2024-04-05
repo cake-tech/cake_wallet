@@ -211,10 +211,12 @@ class CryptoBalanceWidget extends StatelessWidget {
                             dashboardViewModel.balanceViewModel.hasAdditionalBalance,
                         hasSilentPayments: dashboardViewModel.balanceViewModel.hasSilentPayments,
                         silentPaymentsScanningActive:
-                            dashboardViewModel.balanceViewModel.silentPaymentsScanningActive,
-                        setSilentPaymentsScanning: () => dashboardViewModel.balanceViewModel
-                            .setSilentPaymentsScanning(
-                                !dashboardViewModel.balanceViewModel.silentPaymentsScanningActive),
+                            dashboardViewModel.silentPaymentsScanningActive,
+                        setSilentPaymentsScanning: () =>
+                            dashboardViewModel.setSilentPaymentsScanning(
+                          !dashboardViewModel.silentPaymentsScanningActive,
+                        ),
+                        isTestnet: dashboardViewModel.isTestnet,
                       );
                     });
                   },
@@ -243,6 +245,7 @@ class BalanceRowWidget extends StatelessWidget {
     required this.hasSilentPayments,
     required this.silentPaymentsScanningActive,
     required this.setSilentPaymentsScanning,
+    required this.isTestnet,
     super.key,
   });
 
@@ -258,6 +261,7 @@ class BalanceRowWidget extends StatelessWidget {
   final bool hasAdditionalBalance;
   final bool hasSilentPayments;
   final bool silentPaymentsScanningActive;
+  final bool isTestnet;
   final void Function() setSilentPaymentsScanning;
 
   // void _showBalanceDescription(BuildContext context) {
@@ -333,14 +337,24 @@ class BalanceRowWidget extends StatelessWidget {
                           maxLines: 1,
                           textAlign: TextAlign.start),
                       SizedBox(height: 6),
-                      Text('${availableFiatBalance}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
-                              height: 1)),
+                      if (isTestnet)
+                        Text(S.current.testnet_coins_no_value,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontFamily: 'Lato',
+                                fontWeight: FontWeight.w400,
+                                color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                height: 1)),
+                      if (!isTestnet)
+                        Text('${availableFiatBalance}',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'Lato',
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                height: 1)),
                     ],
                   ),
                 ),
@@ -432,17 +446,18 @@ class BalanceRowWidget extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 4),
-                    Text(
-                      frozenFiatBalance,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w400,
-                        color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
-                        height: 1,
+                    if (!isTestnet)
+                      Text(
+                        frozenFiatBalance,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'Lato',
+                          fontWeight: FontWeight.w400,
+                          color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                          height: 1,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -476,17 +491,18 @@ class BalanceRowWidget extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 4),
-                  Text(
-                    '${additionalFiatBalance}',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w400,
-                      color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
-                      height: 1,
+                  if (!isTestnet)
+                    Text(
+                      '${additionalFiatBalance}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                        height: 1,
+                      ),
                     ),
-                  ),
                 ],
               ),
             if (hasSilentPayments) ...[

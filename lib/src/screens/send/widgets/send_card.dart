@@ -2,7 +2,6 @@ import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -167,7 +166,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         },
                         options: [
                           AddressTextFieldOption.paste,
-                          if (DeviceInfo.instance.isMobile) AddressTextFieldOption.qrCode,
+                          AddressTextFieldOption.qrCode,
                           AddressTextFieldOption.addressBook
                         ],
                         buttonColor:

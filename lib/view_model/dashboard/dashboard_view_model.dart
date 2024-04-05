@@ -201,6 +201,14 @@ abstract class DashboardViewModelBase with Store {
 
       return true;
     });
+
+    if (hasSilentPayments) {
+      silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
+
+      reaction((_) => wallet.syncStatus, (SyncStatus syncStatus) {
+        silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
+      });
+    }
   }
 
   @observable
@@ -287,13 +295,32 @@ abstract class DashboardViewModelBase with Store {
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
+  @computed
+  bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
+
+  @computed
   bool get hasRescan =>
-      (wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet)) ||
+      wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.monero ||
       wallet.type == WalletType.haven;
 
+  @computed
+  bool get hasSilentPayments => hasRescan && wallet.type == WalletType.bitcoin;
+
   final KeyService keyService;
   final SharedPreferences sharedPreferences;
+
+  @observable
+  bool silentPaymentsScanningActive = false;
+
+  @action
+  void setSilentPaymentsScanning(bool active) {
+    silentPaymentsScanningActive = active;
+
+    if (hasSilentPayments) {
+      bitcoin!.setScanningActive(wallet, active);
+    }
+  }
 
   BalanceViewModel balanceViewModel;
 

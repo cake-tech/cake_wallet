@@ -128,7 +128,7 @@ abstract class Bitcoin {
 
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
-	List<BitcoinSilentPaymentAddressRecord> getSilentAddresses(Object wallet);
+  List<BitcoinSilentPaymentAddressRecord> getSilentAddresses(Object wallet);
 
   Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority);
   List<ElectrumSubAddress> getSubAddresses(Object wallet);
@@ -149,14 +149,15 @@ abstract class Bitcoin {
 
   Future<void> setAddressType(Object wallet, dynamic option);
   BitcoinReceivePageOption getSelectedAddressType(Object wallet);
+  List<BitcoinReceivePageOption> getBitcoinReceivePageOptions();
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
   bool hasSelectedSilentPayments(Object wallet);
-  List<BitcoinReceivePageOption> getBitcoinReceivePageOptions();
   bool isBitcoinReceivePageOption(ReceivePageOption option);
   BitcoinAddressType getOptionToType(ReceivePageOption option);
   bool hasTaprootInput(PendingTransaction pendingTransaction);
   bool getScanningActive(Object wallet);
   void setScanningActive(Object wallet, bool active);
+  bool isTestnet(Object wallet);
 }
   """;
 
@@ -1052,7 +1053,8 @@ Future<void> generatePubspec(
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
-  final dependenciesIndex = inputLines.indexWhere((line) => line.toLowerCase().contains('dependencies:'));
+  final dependenciesIndex =
+      inputLines.indexWhere((line) => line.toLowerCase().contains('dependencies:'));
   var output = cwCore;
 
   if (hasMonero) {

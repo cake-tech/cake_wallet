@@ -12,13 +12,15 @@ class BlockchainHeightWidget extends StatefulWidget {
     this.onHeightChange,
     this.focusNode,
     this.onHeightOrDateEntered,
-    this.hasDatePicker = true})
-      : super(key: key);
+    this.hasDatePicker = true,
+    this.isSilentPaymentsScan = false,
+  }) : super(key: key);
 
   final Function(int)? onHeightChange;
   final Function(bool)? onHeightOrDateEntered;
   final FocusNode? focusNode;
   final bool hasDatePicker;
+  final bool isSilentPaymentsScan;
 
   @override
   State<StatefulWidget> createState() => BlockchainHeightState();
@@ -64,9 +66,10 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                     child: BaseTextFormField(
                       focusNode: widget.focusNode,
                       controller: restoreHeightController,
-                      keyboardType: TextInputType.numberWithOptions(
-                          signed: false, decimal: false),
-                      hintText: S.of(context).widgets_restore_from_blockheight,
+                      keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
+                      hintText: widget.isSilentPaymentsScan
+                          ? S.of(context).silent_payments_scan_from_height
+                          : S.of(context).widgets_restore_from_blockheight,
                     )))
           ],
         ),
@@ -78,8 +81,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
               style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.w500,
-                  color:
-                      Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
             ),
           ),
           Row(
@@ -91,7 +93,9 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                   child: IgnorePointer(
                       child: BaseTextFormField(
                     controller: dateController,
-                    hintText: S.of(context).widgets_restore_from_date,
+                    hintText: widget.isSilentPaymentsScan
+                        ? S.of(context).silent_payments_scan_from_date
+                        : S.of(context).widgets_restore_from_date,
                   )),
                 ),
               ))
@@ -100,13 +104,12 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
           Padding(
             padding: EdgeInsets.only(left: 40, right: 40, top: 24),
             child: Text(
-              S.of(context).restore_from_date_or_blockheight,
+              widget.isSilentPaymentsScan
+                  ? S.of(context).silent_payments_scan_from_date_or_blockheight
+                  : S.of(context).restore_from_date_or_blockheight,
               textAlign: TextAlign.center,
               style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).hintColor
-              ),
+                  fontSize: 12, fontWeight: FontWeight.normal, color: Theme.of(context).hintColor),
             ),
           )
         ]

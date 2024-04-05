@@ -11,7 +11,8 @@ class RescanPage extends BasePage {
       : _blockchainHeightWidgetKey = GlobalKey<BlockchainHeightState>();
 
   @override
-  String get title => S.current.rescan;
+  String get title =>
+      _rescanViewModel.isSilentPaymentsScan ? S.current.silent_payments_scanning : S.current.rescan;
   final GlobalKey<BlockchainHeightState> _blockchainHeightWidgetKey;
   final RescanViewModel _rescanViewModel;
 
@@ -19,20 +20,19 @@ class RescanPage extends BasePage {
   Widget body(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-      child:
-          Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              BlockchainHeightWidget(key: _blockchainHeightWidgetKey,
-                  onHeightOrDateEntered: (value) =>
-                  _rescanViewModel.isButtonEnabled = value),
+      child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        BlockchainHeightWidget(
+          key: _blockchainHeightWidgetKey,
+          onHeightOrDateEntered: (value) => _rescanViewModel.isButtonEnabled = value,
+          isSilentPaymentsScan: _rescanViewModel.isSilentPaymentsScan,
+        ),
         Observer(
             builder: (_) => LoadingPrimaryButton(
-                  isLoading:
-                      _rescanViewModel.state == RescanWalletState.rescaning,
+                  isLoading: _rescanViewModel.state == RescanWalletState.rescaning,
                   text: S.of(context).rescan,
                   onPressed: () async {
                     await _rescanViewModel.rescanCurrentWallet(
-                        restoreHeight:
-                            _blockchainHeightWidgetKey.currentState!.height);
+                        restoreHeight: _blockchainHeightWidgetKey.currentState!.height);
                     Navigator.of(context).pop();
                   },
                   color: Theme.of(context).primaryColor,

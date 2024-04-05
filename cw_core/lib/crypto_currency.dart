@@ -29,6 +29,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.bch,
     CryptoCurrency.bnb,
     CryptoCurrency.btc,
+    CryptoCurrency.tbtc,
     CryptoCurrency.dai,
     CryptoCurrency.dash,
     CryptoCurrency.eos,
@@ -127,6 +128,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const bch = CryptoCurrency(title: 'BCH', fullName: 'Bitcoin Cash', raw: 2, name: 'bch', iconPath: 'assets/images/bch_icon.png', decimals: 8);
   static const bnb = CryptoCurrency(title: 'BNB', tag: 'BSC', fullName: 'Binance Coin', raw: 3, name: 'bnb', iconPath: 'assets/images/bnb_icon.png', decimals: 8);
   static const btc = CryptoCurrency(title: 'BTC', fullName: 'Bitcoin', raw: 4, name: 'btc', iconPath: 'assets/images/btc.png', decimals: 8);
+  static const tbtc = CryptoCurrency(title: 'tBTC', fullName: 'Testnet Bitcoin', raw: 4, name: 'tbtc', iconPath: 'assets/images/tbtc.png', decimals: 8);
   static const dai = CryptoCurrency(title: 'DAI', tag: 'ETH', fullName: 'Dai', raw: 5, name: 'dai', iconPath: 'assets/images/dai_icon.png', decimals: 18);
   static const dash = CryptoCurrency(title: 'DASH', fullName: 'Dash', raw: 6, name: 'dash', iconPath: 'assets/images/dash_icon.png', decimals: 8);
   static const eos = CryptoCurrency(title: 'EOS', fullName: 'EOS', raw: 7, name: 'eos', iconPath: 'assets/images/eos_icon.png', decimals: 4);

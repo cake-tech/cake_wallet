@@ -46,8 +46,6 @@ abstract class BalanceViewModelBase with Store {
       : isReversing = false,
         isShowCard = appStore.wallet!.walletInfo.isShowIntroCakePayCard,
         wallet = appStore.wallet! {
-    silentPaymentsScanningActive = hasSilentPayments && bitcoin!.getScanningActive(wallet);
-
     reaction((_) => appStore.wallet, _onWalletChange);
   }
 
@@ -65,17 +63,6 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   bool get hasSilentPayments => wallet.type == WalletType.bitcoin;
-
-  @observable
-  bool silentPaymentsScanningActive = false;
-
-  @action
-  void setSilentPaymentsScanning(bool active) {
-    if (hasSilentPayments) {
-      bitcoin!.setScanningActive(wallet, active);
-      silentPaymentsScanningActive = active;
-    }
-  }
 
   @computed
   double get price {

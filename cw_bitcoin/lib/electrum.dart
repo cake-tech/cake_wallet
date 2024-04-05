@@ -50,18 +50,24 @@ class ElectrumClient {
   String unterminatedString;
 
   Uri? uri;
+  bool? useSSL;
 
-  Future<void> connectToUri(Uri uri) async {
+  Future<void> connectToUri(Uri uri, {bool? useSSL}) async {
     this.uri = uri;
-    await connect(host: uri.host, port: uri.port);
+    this.useSSL = useSSL;
+    await connect(host: uri.host, port: uri.port, useSSL: useSSL);
   }
 
-  Future<void> connect({required String host, required int port}) async {
+  Future<void> connect({required String host, required int port, bool? useSSL}) async {
     try {
       await socket?.close();
     } catch (_) {}
 
-    socket = await SecureSocket.connect(host, port, timeout: connectionTimeout);
+    if (useSSL == true) {
+      socket = await SecureSocket.connect(host, port, timeout: connectionTimeout);
+    } else {
+      socket = await Socket.connect(host, port, timeout: connectionTimeout);
+    }
     _setIsConnected(true);
 
     socket!.listen((Uint8List event) {
