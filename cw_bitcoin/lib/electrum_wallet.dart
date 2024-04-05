@@ -220,7 +220,7 @@ abstract class ElectrumWalletBase
           chainTip: currentChainTip,
           electrumClient: ElectrumClient(),
           transactionHistoryIds: transactionHistory.transactions.keys.toList(),
-          node: node!,
+          node: ScanNode(node!.uri, node!.useSSL),
           labels: walletAddresses.labels,
         ));
 
@@ -1412,11 +1412,18 @@ abstract class ElectrumWalletBase
   }
 }
 
+class ScanNode {
+  final Uri uri;
+  final bool? useSSL;
+
+  ScanNode(this.uri, this.useSSL);
+}
+
 class ScanData {
   final SendPort sendPort;
   final SilentPaymentOwner silentAddress;
   final int height;
-  final Node node;
+  final ScanNode node;
   final BasedUtxoNetwork network;
   final int chainTip;
   final ElectrumClient electrumClient;
