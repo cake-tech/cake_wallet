@@ -1,12 +1,8 @@
 <div align="center">
 
-<img height="250" src=".github/assets/FullLogo_CakeWallet.png">
+<img height="150" src=".github/assets/Logo_CakeWallet2.png">
 
 </div>
-
-# Cake Wallet
-
-Cake Wallet is an open source, non-custodial, and private multi-currency crypto wallet.
 
 ![devices](.github/assets/devices.png)
 
