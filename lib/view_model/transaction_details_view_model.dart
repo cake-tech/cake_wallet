@@ -13,7 +13,6 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:collection/collection.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -38,12 +37,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       required this.sendViewModel})
       : items = [],
         RBFListItems = [],
-        transactionPriority = bitcoin!.getBitcoinTransactionPriorityMedium(),
-        newFee = bitcoin!.getFeeAmountForPriority(
-            wallet,
-            bitcoin!.getBitcoinTransactionPriorityMedium(),
-            transactionInfo.inputAddresses?.length ?? 1,
-            transactionInfo.outputAddresses?.length ?? 1),
+        newFee = 0,
         isRecipientAddressShown = false,
         showRecipientAddress = settingsStore.shouldSaveRecipientAddress {
     final dateFormat = DateFormatter.withCurrentLocal();
@@ -134,7 +128,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   bool showRecipientAddress;
   bool isRecipientAddressShown;
   int newFee;
-  TransactionPriority transactionPriority;
+  TransactionPriority? transactionPriority;
 
   @observable
   bool _canReplaceByFee = false;
@@ -335,6 +329,14 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void _addBumpFeesListItems(TransactionInfo tx) {
+    transactionPriority = bitcoin!.getBitcoinTransactionPriorityMedium();
+
+    newFee = bitcoin!.getFeeAmountForPriority(
+        wallet,
+        bitcoin!.getBitcoinTransactionPriorityMedium(),
+        transactionInfo.inputAddresses?.length ?? 1,
+        transactionInfo.outputAddresses?.length ?? 1);
+
     RBFListItems.add(StandartListItem(
         title: S.current.old_fee,
         value: tx.feeFormatted() ?? '0.0'));
@@ -347,8 +349,7 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     RBFListItems.add(StandardPickerListItem(
         title: S.current.estimated_new_fee,
-        value:
-            bitcoinAmountToString(amount: newFee) + ' ${walletTypeToCryptoCurrency(wallet.type)}',
+        value: bitcoin!.formatterBitcoinAmountToString(amount: newFee) + ' ${walletTypeToCryptoCurrency(wallet.type)}',
         items: priorityForWalletType(wallet.type),
         customValue: settingsStore.customBitcoinFeeRate.toDouble(),
         selectedIdx: selectedItem,
@@ -356,16 +357,18 @@ abstract class TransactionDetailsViewModelBase with Store {
         displayItem: (dynamic priority, double sliderValue) =>
             sendViewModel.displayFeeRate(priority, sliderValue.round()),
         onSliderChanged: (double newValue) =>
-            setNewFee(value: newValue, priority: transactionPriority),
+            setNewFee(value: newValue, priority: transactionPriority!),
         onItemSelected: (dynamic item) {
           transactionPriority = item as TransactionPriority;
-          return setNewFee(priority: transactionPriority);
+          return setNewFee(priority: transactionPriority!);
         }));
 
-    if (transactionInfo.inputAddresses != null || transactionInfo.outputAddresses != null) {
+    if (transactionInfo.inputAddresses != null) {
       RBFListItems.add(StandardExpandableListItem(
           title: S.current.inputs, expandableItems: transactionInfo.inputAddresses!));
+    }
 
+    if (transactionInfo.outputAddresses != null) {
       RBFListItems.add(StandardExpandableListItem(
           title: S.current.outputs, expandableItems: transactionInfo.outputAddresses!));
     }
@@ -394,7 +397,7 @@ abstract class TransactionDetailsViewModelBase with Store {
             transactionInfo.inputAddresses?.length ?? 1,
             transactionInfo.outputAddresses?.length ?? 1);
 
-    return bitcoinAmountToString(amount: newFee) + ' ${walletTypeToCryptoCurrency(wallet.type)}';
+    return bitcoin!.formatterBitcoinAmountToString(amount: newFee);
   }
 
   void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo.id, newFee);

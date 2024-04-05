@@ -67,8 +67,6 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   int calculateEstimatedFee(TransactionPriority priority, int? amount);
 
-  int? calculateEstimatedFeeWithFeeRate(int feeRate, int? amount, {int? outputsCount, int? size}) => null;
-
 
   // void fetchTransactionsAsync(
   //     void Function(TransactionType transaction) onTransactionLoaded,

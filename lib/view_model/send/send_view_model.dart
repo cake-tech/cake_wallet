@@ -39,6 +39,7 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:collection/collection.dart';
 
 part 'send_view_model.g.dart';
 
@@ -156,6 +157,16 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     return priority;
+  }
+
+
+  int? getCustomPriorityIndex(List<TransactionPriority> priorities) {
+    if (wallet.type == WalletType.bitcoin) {
+      final customItem = priorities.firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
+
+      return customItem != null ? priorities.indexOf(customItem) : null;
+    }
+    return null;
   }
 
   int get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate;
@@ -445,8 +456,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     if (walletType == WalletType.bitcoin) {
       final rate = bitcoin!.getFeeRate(wallet, _priority);
-      return bitcoin!
-          .bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
+      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
     }
 
     if (isElectrumWallet) {

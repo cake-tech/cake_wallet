@@ -23,7 +23,6 @@ import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-import 'package:collection/collection.dart';
 
 class SendCard extends StatefulWidget {
   SendCard({
@@ -674,9 +673,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   Future<void> pickTransactionPriority(BuildContext context) async {
     final items = priorityForWalletType(sendViewModel.walletType);
     final selectedItem = items.indexOf(sendViewModel.transactionPriority);
-    final customItem = items.firstWhereOrNull(
-        (element) => element == sendViewModel.bitcoinTransactionPriorityCustom);
-    final customItemIndex = customItem != null ? items.indexOf(customItem) : null;
+    final customItemIndex = sendViewModel.getCustomPriorityIndex(items);
     final isBitcoinWallet = sendViewModel.walletType == WalletType.bitcoin;
     double? customFeeRate = isBitcoinWallet ? sendViewModel.customBitcoinFeeRate.toDouble() : null;
 
