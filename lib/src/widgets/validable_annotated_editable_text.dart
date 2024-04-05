@@ -19,7 +19,7 @@ abstract class ComparableCopy<T> {
   ///
   /// This utility function is used as the default comparator
   /// for ordering collections, for example in the [List] sort function.
-  static int compare(Comparable a, Comparable b) => a.compareTo(b);
+  static int compare(ComparableCopy a, ComparableCopy b) => a.compareTo(b);
 }
 
 
