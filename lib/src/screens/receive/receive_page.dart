@@ -99,12 +99,7 @@ class ReceivePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final isElectrumWallet = addressListViewModel.isElectrumWallet;
-    return (addressListViewModel.type == WalletType.monero ||
-            addressListViewModel.type == WalletType.haven ||
-            addressListViewModel.type == WalletType.nano ||
-        isElectrumWallet)
-        ? KeyboardActions(
+        return KeyboardActions(
             config: KeyboardActionsConfig(
                 keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
                 keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
@@ -213,32 +208,6 @@ class ReceivePage extends BasePage {
                           })),
                 ],
               ),
-            ))
-        : Padding(
-            padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
-            child: Column(
-              children: [
-                Expanded(
-                  flex: 7,
-                  child: QRWidget(
-                      formKey: _formKey,
-                      heroTag: _heroTag,
-                      addressListViewModel: addressListViewModel,
-                      amountTextFieldFocusNode: _cryptoAmountFocus,
-                      amountController: _amountController,
-                      isLight: currentTheme.type == ThemeType.light),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: SizedBox(),
-                ),
-                Text(S.of(context).electrum_address_disclaimer,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 15,
-                        color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor)),
-              ],
-            ),
-          );
+            ));
   }
 }
