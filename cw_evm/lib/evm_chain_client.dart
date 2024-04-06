@@ -103,7 +103,7 @@ abstract class EVMChainClient {
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
-      amount: isNativeToken ? EtherAmount.inWei(BigInt.parse(amount)) : EtherAmount.zero(),
+      amount: isNativeToken ? EtherAmount.inWei(amount) : EtherAmount.zero(),
       data: data != null ? hexToBytes(data) : null,
     );
 
