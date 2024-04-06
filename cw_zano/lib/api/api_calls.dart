@@ -56,7 +56,8 @@ typedef _stringFunction = Pointer<Utf8> Function();
 
 class ApiCalls {
   static String _convertUTF8ToString({required Pointer<Utf8> pointer}) {
-    final str = pointer.toDartStringAllowingMalformed();
+    final str = pointer.toDartString();
+    //final str = pointer.toDartStringAllowingMalformed();
     calloc.free(pointer);
     return str;
   }

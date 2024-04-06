@@ -13,6 +13,8 @@ class Balance {
       required this.awaitingOut,
       required this.total,
       required this.unlocked});
+      
+  String get assetId => assetInfo.assetId;
 
   @override
   String toString() => '$assetInfo: $total/$unlocked';

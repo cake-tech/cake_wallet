@@ -19,18 +19,20 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
   bool _enabled;
   @HiveField(5)
   final String? iconPath;
+  // @HiveField(6)
+  // final String? tag;
   @HiveField(6)
-  final String? tag;
-  @HiveField(7)
   final String owner;
-  @HiveField(8)
+  @HiveField(7)
   final String metaInfo;
-  @HiveField(9)
+  @HiveField(8)
   final int currentSupply;
-  @HiveField(10)
+  @HiveField(9)
   final bool hiddenSupply;
-  @HiveField(11)
+  @HiveField(10)
   final int totalMaxSupply;
+  @HiveField(11)
+  final bool isInGlobalWhitelist;
 
   bool get enabled => _enabled;
 
@@ -43,45 +45,47 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
     this.decimalPoint = ZanoFormatter.defaultDecimalPoint,
     bool enabled = false,
     this.iconPath,
-    this.tag,
+    //this.tag,
     this.owner = defaultOwner,
     this.metaInfo = '',
     this.currentSupply = 0,
     this.hiddenSupply = false,
     this.totalMaxSupply = 0,
+    this.isInGlobalWhitelist = false,
   })  : _enabled = enabled,
         super(
           name: fullName,
           title: ticker.toUpperCase(),
           fullName: fullName,
-          tag: tag,
+          tag: 'ZANO',
           iconPath: iconPath,
           decimals: decimalPoint,
         );
 
-  ZanoAsset.copyWith(ZanoAsset other, String? icon, String? tag, {String? assetId, bool enabled = false})
+  ZanoAsset.copyWith(ZanoAsset other, String? icon, /*String? tag,*/ {String? assetId, bool enabled = false})
       : this.fullName = other.fullName,
         this.ticker = other.ticker,
         this.assetId = assetId ?? other.assetId,
         this.decimalPoint = other.decimalPoint,
         this._enabled = enabled || other.enabled,
-        this.tag = tag,
+        //this.tag = tag,
         this.iconPath = icon,
         this.currentSupply = other.currentSupply,
         this.hiddenSupply = other.hiddenSupply,
         this.metaInfo = other.metaInfo,
         this.owner = other.owner,
         this.totalMaxSupply = other.totalMaxSupply,
+        this.isInGlobalWhitelist = other.isInGlobalWhitelist,
         super(
           name: other.name,
           title: other.ticker.toUpperCase(),
           fullName: other.name,
-          tag: tag,
+          tag: 'ZANO',
           iconPath: icon,
           decimals: other.decimalPoint,
         );
 
-  factory ZanoAsset.fromJson(Map<String, dynamic> json) => ZanoAsset(
+  factory ZanoAsset.fromJson(Map<String, dynamic> json, {bool isInGlobalWhitelist = false}) => ZanoAsset(
         assetId: json['asset_id'] as String? ?? '',
         currentSupply: json['current_supply'] as int? ?? 0,
         decimalPoint: json['decimal_point'] as int? ?? ZanoFormatter.defaultDecimalPoint,
@@ -91,9 +95,10 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
         owner: json['owner'] as String? ?? '',
         ticker: json['ticker'] as String? ?? '',
         totalMaxSupply: json['total_max_supply'] as int? ?? 0,
+        isInGlobalWhitelist: isInGlobalWhitelist,
       );
 
   static const typeId = ZANO_ASSET_TYPE_ID;
-  static const zanoAssetsBoxName = 'zanoAssetsBox';
+  static const zanoAssetsBoxName = 'ZanoAssetsBox123';    // TODO: change to normal name
   static const defaultOwner = '0000000000000000000000000000000000000000000000000000000000000000';
 }
