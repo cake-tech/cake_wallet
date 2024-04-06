@@ -451,6 +451,7 @@ class SendPage extends BasePage {
                       fee: isEVMCompatibleChain(sendViewModel.walletType)
                           ? S.of(_dialogContext).send_estimated_fee
                           : S.of(_dialogContext).send_fee,
+                      feeRate: sendViewModel.pendingTransaction!.feeRate,
                       feeValue: sendViewModel.pendingTransaction!.feeFormatted,
                       feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                       outputs: sendViewModel.outputs,

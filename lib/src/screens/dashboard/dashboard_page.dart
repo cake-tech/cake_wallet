@@ -103,7 +103,16 @@ class _DashboardPageView extends BasePage {
   Widget get endDrawer => MenuWidget(dashboardViewModel);
 
   @override
-  Widget leading(BuildContext context) => ServicesUpdatesWidget(dashboardViewModel.getServicesStatus());
+  Widget leading(BuildContext context) {
+    return Observer(
+      builder: (context) {
+        if (dashboardViewModel.isEnabledBulletinAction) {
+          return ServicesUpdatesWidget(dashboardViewModel.getServicesStatus());
+        }
+        return const SizedBox();
+      },
+    );
+  }
 
   @override
   Widget middle(BuildContext context) {

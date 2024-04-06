@@ -6,6 +6,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -66,6 +67,8 @@ abstract class OutputBase with Store {
   @observable
   String extractedAddress;
 
+  String? memo;
+
   @computed
   bool get isParsedAddress =>
       parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
@@ -114,6 +117,10 @@ abstract class OutputBase with Store {
   @computed
   double get estimatedFee {
     try {
+      if (_wallet.type == WalletType.solana) {
+        return solana!.getEstimateFees(_wallet) ?? 0.0;
+      }
+
       final fee = _wallet.calculateEstimatedFee(
           _settingsStore.priority[_wallet.type]!, formattedCryptoAmount);
 
@@ -175,6 +182,7 @@ abstract class OutputBase with Store {
     fiatAmount = '';
     address = '';
     note = '';
+    memo = null;
     resetParsedAddress();
   }
 
