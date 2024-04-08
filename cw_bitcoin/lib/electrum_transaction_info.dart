@@ -11,12 +11,11 @@ import 'package:cw_core/wallet_type.dart';
 
 class ElectrumTransactionBundle {
   ElectrumTransactionBundle(this.originalTransaction,
-      {required this.ins, required this.confirmations, this.time, required this.height});
+      {required this.ins, required this.confirmations, this.time});
   final BtcTransaction originalTransaction;
   final List<BtcTransaction> ins;
   final int? time;
   final int confirmations;
-  final int height;
 }
 
 class ElectrumTransactionInfo extends TransactionInfo {
@@ -25,6 +24,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
       required int height,
       required int amount,
       int? fee,
+      List<String>? inputAddresses,
+      List<String>? outputAddresses,
       required TransactionDirection direction,
       required bool isPending,
       required DateTime date,
@@ -32,6 +33,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.id = id;
     this.height = height;
     this.amount = amount;
+    this.inputAddresses = inputAddresses;
+    this.outputAddresses = outputAddresses;
     this.fee = fee;
     this.direction = direction;
     this.date = date;
@@ -100,6 +103,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
     var amount = 0;
     var inputAmount = 0;
     var totalOutAmount = 0;
+    List<String> inputAddresses = [];
+    List<String> outputAddresses = [];
 
     for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
       final input = bundle.originalTransaction.inputs[i];
@@ -108,6 +113,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
       inputAmount += outTransaction.amount.toInt();
       if (addresses.contains(addressFromOutputScript(outTransaction.scriptPubKey, network))) {
         direction = TransactionDirection.outgoing;
+        inputAddresses.add(addressFromOutputScript(outTransaction.scriptPubKey, network));
       }
     }
 
@@ -115,6 +121,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     for (final out in bundle.originalTransaction.outputs) {
       totalOutAmount += out.amount.toInt();
       final addressExists = addresses.contains(addressFromOutputScript(out.scriptPubKey, network));
+      outputAddresses.add(addressFromOutputScript(out.scriptPubKey, network));
 
       if (addressExists) {
         receivedAmounts.add(out.amount.toInt());
@@ -137,6 +144,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
         id: bundle.originalTransaction.txId(),
         height: height,
         isPending: bundle.confirmations == 0,
+        inputAddresses: inputAddresses,
+        outputAddresses: outputAddresses,
         fee: fee,
         direction: direction,
         amount: amount,
@@ -187,6 +196,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
         direction: parseTransactionDirectionFromInt(data['direction'] as int),
         date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
         isPending: data['isPending'] as bool,
+        inputAddresses: data['inputAddresses'] as List<String>,
+        outputAddresses: data['outputAddresses'] as List<String>,
         confirmations: data['confirmations'] as int);
   }
 
@@ -218,6 +229,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
         direction: direction,
         date: date,
         isPending: isPending,
+        inputAddresses: inputAddresses,
+        outputAddresses: outputAddresses,
         confirmations: info.confirmations);
   }
 
@@ -231,6 +244,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['isPending'] = isPending;
     m['confirmations'] = confirmations;
     m['fee'] = fee;
+    m['inputAddresses'] = inputAddresses;
+    m['outputAddresses'] = outputAddresses;
     return m;
   }
 }
