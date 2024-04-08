@@ -1,15 +1,17 @@
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
 
-abstract class CakePayCreateAccountState {}
+abstract class CakePayUserVerificationState {}
 
-class CakePayAccountCreateStateInitial extends CakePayCreateAccountState {}
+class CakePayUserVerificationStateInitial extends CakePayUserVerificationState {}
 
-class CakePayAccountCreateStateSuccess extends CakePayCreateAccountState {}
+class CakePayUserVerificationStateSuccess extends CakePayUserVerificationState {}
 
-class CakePayAccountCreateStateLoading extends CakePayCreateAccountState {}
+class CakePayUserVerificationStatePending extends CakePayUserVerificationState {}
 
-class CakePayAccountCreateStateFailure extends CakePayCreateAccountState {
-  CakePayAccountCreateStateFailure({required this.error});
+class CakePayUserVerificationStateLoading extends CakePayUserVerificationState {}
+
+class CakePayUserVerificationStateFailure extends CakePayUserVerificationState {
+  CakePayUserVerificationStateFailure({required this.error});
 
   final String error;
 }

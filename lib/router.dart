@@ -32,7 +32,7 @@ import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
+import 'package:cake_wallet/src/screens/ionia/auth/cake_pay_account_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
@@ -456,43 +456,36 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 param1: settings.arguments as QrViewData,
               ));
 
-    case Routes.ioniaWelcomePage:
-      return CupertinoPageRoute<void>(
-        fullscreenDialog: true,
-        builder: (_) => getIt.get<IoniaWelcomePage>(),
-      );
-
-    case Routes.ioniaLoginPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaLoginPage>());
-
-    case Routes.ioniaCreateAccountPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaCreateAccountPage>());
-
-    case Routes.CakePayCardsPage:
+    case Routes.cakePayCardsPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayCardsPage>());
 
-    case Routes.CakePayBuyCardPage:
+    case Routes.cakePayBuyCardPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<CakePayBuyCardPage>(param1: args));
 
-    case Routes.ioniaBuyGiftCardDetailPage:
+    case Routes.cakePayBuyCardDetailPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<CakePayBuyCardDetailPage>(param1: args));
 
-    case Routes.ioniaVerifyIoniaOtpPage:
+    case Routes.cakePayWelcomePage:
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<CakePayWelcomePage>(),
+      );
+
+    case Routes.cakePayVerifyOtpPage:
       final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaVerifyIoniaOtp>(param1: args));
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayVerifyOtpPage>(param1: args));
+
+    case Routes.cakePayAccountPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayAccountPage>());
 
     case Routes.ioniaDebitCardPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaDebitCardPage>());
 
     case Routes.ioniaActivateDebitCardPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaActivateDebitCardPage>());
-
-    case Routes.ioniaAccountPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaAccountPage>());
 
     case Routes.ioniaAccountCardsPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaAccountCardsPage>());

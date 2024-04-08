@@ -4,7 +4,7 @@ import 'package:cake_wallet/ionia/cake_pay_card.dart';
 import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_order.dart';
-import 'package:cake_wallet/ionia/ionia_user_credentials.dart';
+import 'package:cake_wallet/ionia/cake_pay_user_credentials.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
@@ -22,16 +22,15 @@ class CakePayApi {
 
   static const vendorsPath = '/api/vendors';
   static const countriesPath = '/api/countries';
+  static const authPath = '/api/auth';
+  static final verifyEmailPath = '/api/verify';
+  static final logoutPath = '/api/logout';
 
   static const baseUri = 'api.ionia.io';
   static const pathPrefix = 'cake';
   static const requestedUUIDHeader = 'requestedUUID';
-  static final createUserUri = Uri.https(baseUri, '/$pathPrefix/CreateUser');
-  static final verifyEmailUri = Uri.https(baseUri, '/$pathPrefix/VerifyEmail');
-  static final signInUri = Uri.https(baseUri, '/$pathPrefix/SignIn');
+
   static final createCardUri = Uri.https(baseUri, '/$pathPrefix/CreateCard');
-  static final getCardsUri = Uri.https(baseUri, '/$pathPrefix/GetCards');
-  static final getMerchantsUrl = Uri.https(baseUri, '/$pathPrefix/GetMerchants');
   static final getMerchantsByFilterUrl = Uri.https(baseUri, '/$pathPrefix/GetMerchantsByFilter');
   static final getPurchaseMerchantsUrl = Uri.https(baseUri, '/$pathPrefix/PurchaseGiftCard');
   static final getCurrentUserGiftCardSummariesUrl =
@@ -40,101 +39,86 @@ class CakePayApi {
   static final getGiftCardUrl = Uri.https(baseUri, '/$pathPrefix/GetGiftCard');
   static final getPaymentStatusUrl = Uri.https(baseUri, '/$pathPrefix/PaymentStatus');
 
-  // Create user
+  /// AuthenticateUser
+  Future<String> authenticateUser({required String email, required String apiKey}) async {
+    try {
+      final uri = Uri.https(baseCakePayUri, authPath);
+      final headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Api-Key $apiKey',
+      };
+      final response = await http.post(uri, headers: headers, body: json.encode({'email': email}));
 
-  Future<String> createUser(String email, {required String clientId}) async {
-    final headers = <String, String>{'clientId': clientId};
-    final query = <String, String>{'emailAddress': email};
-    final uri = createUserUri.replace(queryParameters: query);
-    final response = await put(uri, headers: headers);
+      if (response.statusCode != 200) {
+        throw Exception('Unexpected http status: ${response.statusCode}');
+      }
 
-    if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
-    }
+      final bodyJson = json.decode(response.body) as Map<String, dynamic>;
 
-    final bodyJson = json.decode(response.body) as Map<String, dynamic>;
-    final data = bodyJson['Data'] as Map<String, dynamic>;
-    final isSuccessful = bodyJson['Successful'] as bool;
+      if (bodyJson.containsKey('user') && bodyJson['user']['email'] != null) {
+        return bodyJson['user']['email'] as String;
+      }
 
-    if (!isSuccessful) {
-      throw Exception(data['ErrorMessage'] as String);
-    }
-
-    return data['username'] as String;
-  }
-
-  // Verify email
-
-  Future<IoniaUserCredentials> verifyEmail(
-      {required String email, required String code, required String clientId}) async {
-    final headers = <String, String>{'clientId': clientId, 'EmailAddress': email};
-    final query = <String, String>{'verificationCode': code};
-    final uri = verifyEmailUri.replace(queryParameters: query);
-    final response = await put(uri, headers: headers);
-
-    if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
-    }
-
-    final bodyJson = json.decode(response.body) as Map<String, dynamic>;
-    final data = bodyJson['Data'] as Map<String, dynamic>;
-    final isSuccessful = bodyJson['Successful'] as bool;
-
-    if (!isSuccessful) {
-      throw Exception(bodyJson['ErrorMessage'] as String);
-    }
-
-    final password = data['password'] as String;
-    final username = data['username'] as String;
-    return IoniaUserCredentials(username, password);
-  }
-
-  // Sign In
-
-  Future<void> signIn(String email, {required String clientId}) async {
-    final headers = <String, String>{'clientId': clientId};
-    final query = <String, String>{'emailAddress': email};
-    final uri = signInUri.replace(queryParameters: query);
-    final response = await put(uri, headers: headers);
-
-    if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
-    }
-
-    final bodyJson = json.decode(response.body) as Map<String, dynamic>;
-    final data = bodyJson['Data'] as Map<String, dynamic>;
-    final isSuccessful = bodyJson['Successful'] as bool;
-
-    if (!isSuccessful) {
-      throw Exception(data['ErrorMessage'] as String);
+      throw Exception('Failed to authenticate user with error: $bodyJson');
+    } catch (e) {
+      throw Exception('Failed to authenticate user with error: $e');
     }
   }
 
-  // Get virtual card
-
-  Future<CakePayVirtualCard> getCards(
-      {required String username, required String password, required String clientId}) async {
-    final headers = <String, String>{
-      'clientId': clientId,
-      'username': username,
-      'password': password
+  /// Verify email
+  Future<CakePayUserCredentials> verifyEmail({
+    required String email,
+    required String code,
+    required String apiKey,
+  }) async {
+    final uri = Uri.https(baseCakePayUri, verifyEmailPath);
+    final headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'Api-Key $apiKey',
     };
-    final response = await post(getCardsUri, headers: headers);
+    final query = <String, String>{'email': email, 'otp': code};
+
+    final response = await http.post(uri, headers: headers, body: json.encode(query));
 
     if (response.statusCode != 200) {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
     final bodyJson = json.decode(response.body) as Map<String, dynamic>;
-    final data = bodyJson['Data'] as Map<String, dynamic>;
-    final isSuccessful = bodyJson['Successful'] as bool;
 
-    if (!isSuccessful) {
-      throw Exception(data['message'] as String);
+    if (bodyJson.containsKey('error')) {
+      throw Exception(bodyJson['error'] as String);
     }
 
-    final virtualCard = data['VirtualCard'] as Map<String, dynamic>;
-    return CakePayVirtualCard.fromMap(virtualCard);
+    if (bodyJson.containsKey('token')) {
+      final token = bodyJson['token'] as String;
+      final userEmail = bodyJson['user']['email'] as String;
+      return CakePayUserCredentials(userEmail, token);
+    } else {
+      throw Exception('E-mail verification failed.');
+    }
+  }
+
+  /// Logout
+  Future<void> logoutUser({required String email, required String apiKey}) async {
+    final uri = Uri.https(baseCakePayUri, logoutPath);
+    final headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'Api-Key $apiKey',
+    };
+
+    try {
+      final response = await http.post(uri, headers: headers, body: json.encode({'email': email}));
+
+      if (response.statusCode != 200) {
+        throw Exception('Unexpected http status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Caught exception: $e');
+    }
   }
 
   // Create virtual card

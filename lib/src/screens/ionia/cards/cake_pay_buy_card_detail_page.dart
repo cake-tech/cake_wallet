@@ -1,31 +1,29 @@
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/themes/extensions/picker_theme.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/ionia_alert_model.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
+import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/discount_badge.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/typography.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/cake_pay_purchase_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class CakePayBuyCardDetailPage extends BasePage {
   CakePayBuyCardDetailPage(this.cakePayPurchaseViewModel);
@@ -55,8 +53,8 @@ class CakePayBuyCardDetailPage extends BasePage {
           children: [
             SizedBox(height: 36),
             ClipRRect(
-              borderRadius: BorderRadius.horizontal(
-                  left: Radius.circular(20), right: Radius.circular(20)),
+              borderRadius:
+                  BorderRadius.horizontal(left: Radius.circular(20), right: Radius.circular(20)),
               child: Container(
                 decoration: BoxDecoration(
                   color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
@@ -69,20 +67,20 @@ class CakePayBuyCardDetailPage extends BasePage {
                       flex: 3,
                       child: Container(
                           child: ClipRRect(
-                            borderRadius: BorderRadius.horizontal(
-                                left: Radius.circular(20), right: Radius.circular(20)),
-                            child: Image.network(
-                              logoUrl,
-                              fit: BoxFit.cover,
-                              loadingBuilder:
-                                  (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Center(child: CircularProgressIndicator());
-                              },
-                              errorBuilder: (context, error, stackTrace) =>
-                                  _PlaceholderContainer(text: 'Logo not found!'),
-                            ),
-                          )),
+                        borderRadius: BorderRadius.horizontal(
+                            left: Radius.circular(20), right: Radius.circular(20)),
+                        child: Image.network(
+                          logoUrl,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(child: CircularProgressIndicator());
+                          },
+                          errorBuilder: (context, error, stackTrace) =>
+                              _PlaceholderContainer(text: 'Logo not found!'),
+                        ),
+                      )),
                     ),
                     Expanded(
                       flex: 2,
@@ -171,6 +169,13 @@ class CakePayBuyCardDetailPage extends BasePage {
   }
 
   Future<void> purchaseCard(BuildContext context) async {
+    cakePayPurchaseViewModel.cakePayService.isLogged().then((isLogged) {
+      if (!isLogged) {
+        Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
+        return;
+      }
+    });
+
     await cakePayPurchaseViewModel.createInvoice();
 
     if (cakePayPurchaseViewModel.invoiceCreationState is ExecutedSuccessfullyState) {
@@ -187,25 +192,22 @@ class CakePayBuyCardDetailPage extends BasePage {
         builder: (BuildContext context) {
           return IoniaAlertModal(
             title: S.of(context).how_to_use_card,
-            content: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                        Padding(
-                            padding: EdgeInsets.all(10),
-                            child: Text(
-                              vendor.card!.name,
-                              style: textLargeSemiBold(
-                                color:
-                                    Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
-                              ),
-                            )),
-                        Text(
-                          vendor.card!.howToUse ?? '',
-                          style: textMedium(
-                            color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
-                          ),
-                        )
-                      ]),
+            content: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    vendor.card!.name,
+                    style: textLargeSemiBold(
+                      color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
+                    ),
+                  )),
+              Text(
+                vendor.card!.howToUse ?? '',
+                style: textMedium(
+                  color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
+                ),
+              )
+            ]),
             actionTitle: S.current.got_it,
           );
         });

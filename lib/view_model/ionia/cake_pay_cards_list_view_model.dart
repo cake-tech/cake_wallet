@@ -1,19 +1,18 @@
+import 'package:cake_wallet/ionia/cake_pay_service.dart';
 import 'package:cake_wallet/ionia/cake_pay_states.dart';
 import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
-import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/view_model/dashboard/dropdown_filter_item.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:mobx/mobx.dart';
 
-part 'ionia_gift_cards_list_view_model.g.dart';
+part 'cake_pay_cards_list_view_model.g.dart';
 
-class IoniaGiftCardsListViewModel = IoniaGiftCardsListViewModelBase
-    with _$IoniaGiftCardsListViewModel;
+class CakePayCardsListViewModel = CakePayCardsListViewModelBase with _$CakePayCardsListViewModel;
 
-abstract class IoniaGiftCardsListViewModelBase with Store {
-  IoniaGiftCardsListViewModelBase({
-    required this.ioniaService,
+abstract class CakePayCardsListViewModelBase with Store {
+  CakePayCardsListViewModelBase({
+    required this.cakePayService,
   })  : cardState = CakePayCardsStateNoCards(),
         cakePayVendors = [],
         availableCountries = ['USA', 'Germany'],
@@ -36,9 +35,7 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
             caption: 'Prepaid Cards',
             onChanged: togglePrepaidCards),
         FilterItem(
-            value: () => displayGiftCards,
-            caption: 'Gift Cards',
-            onChanged: toggleGiftCards),
+            value: () => displayGiftCards, caption: 'Gift Cards', onChanged: toggleGiftCards),
       ],
       'Value Type': [
         FilterItem(
@@ -53,7 +50,7 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
       'Countries': [
         DropdownFilterItem(
           items: availableCountries,
-          caption: 'S.current.all_trades',
+          caption: '',
           selectedItem: selectedCountry ??= 'USA',
           onItemSelected: (String value) => setSelectedCountry(value),
         ),
@@ -61,7 +58,7 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
     };
   }
 
-  final IoniaService ioniaService;
+  final CakePayService cakePayService;
 
   List<CakePayVendor> CakePayVendorList;
 
@@ -112,7 +109,7 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   Future<void> createCard() async {
     try {
       createCardState = CakePayCreateCardStateLoading();
-      await ioniaService.createCard();
+      await cakePayService.createCard();
       createCardState = CakePayCreateCardStateSuccess();
     } catch (e) {
       createCardState = CakePayCreateCardStateFailure(error: e.toString());
@@ -126,36 +123,27 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
       return;
     }
     searchString = text;
-    ioniaService.getVendors(page: 1, country: 'USA').then((value) {
+    cakePayService.getVendors(page: 1, country: 'USA').then((value) {
       cakePayVendors = value;
     });
   }
 
-  Future<void> _getCard() async {
-    cardState = CakePayCardsStateFetching();
-    try {
-      final card = await ioniaService.getCard();
-
-      cardState = CakePayCardsStateSuccess(card: card);
-    } catch (_) {
-      cardState = CakePayCardsStateFailure();
-    }
-  }
-
-
-
   void getVendors() async {
     merchantState = CakePayVendorLoadingState();
     if (availableCountries.isEmpty) {
-      availableCountries = await ioniaService.getCountries();
+      availableCountries = await cakePayService.getCountries();
     }
 
     selectedCountry = availableCountries.isNotEmpty ? availableCountries.first : 'USA';
 
-    ioniaService
+    cakePayService
         .getVendors(page: 1, country: selectedCountry!)
         .then((value) => cakePayVendors = CakePayVendorList = value);
     merchantState = CakePayVendorLoadedState();
+  }
+
+  Future<bool> isCakePayUserAuthenticated() async {
+    return await cakePayService.isLogged();
   }
 
   @action

@@ -153,7 +153,7 @@ class IoniaGiftCardDetailPage extends BasePage {
                     onPressed: () => viewModel.redeem().then(
                       (_) {
                         Navigator.of(context).pushNamedAndRemoveUntil(
-                            Routes.CakePayCardsPage, (route) => route.isFirst);
+                            Routes.cakePayCardsPage, (route) => route.isFirst);
                       },
                     ),
                     text: S.of(context).mark_as_redeemed,

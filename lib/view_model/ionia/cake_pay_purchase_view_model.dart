@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:cake_wallet/ionia/cake_pay_service.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/anypay/any_pay_payment.dart';
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
@@ -16,6 +16,7 @@ class CakePayPurchaseViewModel = CakePayPurchaseViewModelBase with _$CakePayPurc
 abstract class CakePayPurchaseViewModelBase with Store {
   CakePayPurchaseViewModelBase({
     required this.ioniaAnyPayService,
+    required this.cakePayService,
     required this.amount,
     required this.vendor,
     required this.sendViewModel,
@@ -45,6 +46,8 @@ abstract class CakePayPurchaseViewModelBase with Store {
   final SendViewModel sendViewModel;
 
   final IoniaAnyPay ioniaAnyPayService;
+
+  final CakePayService cakePayService;
 
   IoniaAnyPayPaymentInfo? paymentInfo;
 

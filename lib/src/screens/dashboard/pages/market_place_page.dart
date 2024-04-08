@@ -5,18 +5,15 @@ import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
 class MarketPlacePage extends StatelessWidget {
   MarketPlacePage({
     required this.dashboardViewModel,
-    required this.marketPlaceViewModel,
   });
 
   final DashboardViewModel dashboardViewModel;
-  final MarketPlaceViewModel marketPlaceViewModel;
   final _scrollController = ScrollController();
 
   @override
@@ -79,7 +76,7 @@ class MarketPlacePage extends StatelessWidget {
             });
         break;
       default:
-        Navigator.pushNamed(context, Routes.CakePayCardsPage);
+        Navigator.pushNamed(context, Routes.cakePayCardsPage);
     }
   }
 }

@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/ionia/cake_pay_card.dart';
-import 'package:cake_wallet/ionia/ionia_service.dart';
+import 'package:cake_wallet/ionia/cake_pay_service.dart';
 import 'package:mobx/mobx.dart';
 part 'ionia_custom_redeem_view_model.g.dart';
 
@@ -15,7 +15,7 @@ abstract class IoniaCustomRedeemViewModelBase with Store {
 
   final IoniaGiftCard giftCard;
 
-  final IoniaService ioniaService;
+  final CakePayService ioniaService;
 
   @observable
   ExecutionState redeemState;

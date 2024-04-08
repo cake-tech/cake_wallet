@@ -1,5 +1,4 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/ionia/cake_pay_states.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
@@ -9,23 +8,24 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/cake_pay_auth_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 
-class IoniaVerifyIoniaOtp extends BasePage {
-  IoniaVerifyIoniaOtp(this._authViewModel, this._email, this.isSignIn)
+class CakePayVerifyOtpPage extends BasePage {
+  CakePayVerifyOtpPage(this._authViewModel, this._email, this.isSignIn)
       : _codeController = TextEditingController(),
         _codeFocus = FocusNode() {
     _codeController.addListener(() {
       final otp = _codeController.text;
       _authViewModel.otp = otp;
-      if (otp.length > 3) {
+      if (otp.length > 5) {
         _authViewModel.otpState = CakePayOtpSendEnabled();
       } else {
         _authViewModel.otpState = CakePayOtpSendDisabled();
@@ -33,7 +33,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
     });
   }
 
-  final IoniaAuthViewModel _authViewModel;
+  final CakePayAuthViewModel _authViewModel;
   final bool isSignIn;
 
   final String _email;
@@ -98,9 +98,8 @@ class IoniaVerifyIoniaOtp extends BasePage {
                   Text(S.of(context).didnt_get_code),
                   SizedBox(width: 20),
                   InkWell(
-                    onTap: () => isSignIn
-                      ? _authViewModel.signIn(_email)
-                      : _authViewModel.createUser(_email),
+                    onTap: () => _authViewModel.logIn(_email),
+                    //isSignIn ? _authViewModel.signIn(_email) : _authViewModel.logIn(_email),
                     child: Text(
                       S.of(context).resend_code,
                       style: textSmallSemiBold(color: Palette.blueCraiola),
@@ -149,8 +148,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
   }
 
   void _onOtpSuccessful(BuildContext context) =>
-      Navigator.of(context)
-        .pushNamedAndRemoveUntil(Routes.CakePayCardsPage, (route) => route.isFirst);
+      Navigator.pushReplacementNamed(context, Routes.cakePayAccountPage);
 
   void _verify() async => await _authViewModel.verifyEmail(_codeController.text);
 }

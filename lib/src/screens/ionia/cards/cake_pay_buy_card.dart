@@ -6,13 +6,11 @@ import 'package:cake_wallet/src/widgets/number_text_fild_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/dashboard/dropdown_filter_item_widget.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -136,27 +134,10 @@ class CakePayBuyCardPage extends BasePage {
                   padding: EdgeInsets.only(bottom: 12),
                   child: PrimaryButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, Routes.ioniaBuyGiftCardDetailPage, arguments: [
+                      Navigator.pushNamed(context, Routes.cakePayBuyCardDetailPage, arguments: [
                         cakePayBuyCardViewModel.amount,
                         cakePayBuyCardViewModel.vendor,
                       ]);
-                      //       marketPlaceViewModel.isIoniaUserAuthenticated().then((value) {
-                      //         if (value) {
-                      //           Navigator.pushNamed(context, Routes.ioniaBuyGiftCardDetailPage, arguments: [
-                      //             cakePayBuyCardViewModel.amount,
-                      //             cakePayBuyCardViewModel.vendor,
-                      //           ]);
-                      //           return;
-                      //         }
-                      //         Navigator.of(context).pushNamed(Routes.ioniaWelcomePage);
-                      //       });
-                      //
-                      // }Navigator.of(context).pushNamed(
-                      //   Routes.ioniaBuyGiftCardDetailPage,
-                      //   arguments: [
-                      //     cakePayBuyCardViewModel.amount,
-                      //     cakePayBuyCardViewModel.vendor,
-                      //   ],
                     },
                     text: 'Buy Now',
                     //TODO: S.of(context).buy_now,
@@ -218,12 +199,15 @@ class _DenominationsAmountWidget extends StatelessWidget {
           children: [
             Expanded(
               flex: 3,
-              child: DropdownMenu(
-                width: 250,
-                  dropdownMenuEntries: denominations
-                      .map((denomination) => DropdownMenuEntry(
-                          value: denomination, label: '$fiatCurrency $denomination'))
-                      .toList()),
+              child: DropdownFilterList(
+                items: denominations,
+                selectedItem: denominations.first,
+                onItemSelected: (value) {
+                  amountController.text = value;
+                  onAmountChanged(value);
+                },
+                caption: '',
+              ),
             ),
             Expanded(
               child: NumberTextField(

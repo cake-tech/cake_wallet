@@ -8,7 +8,7 @@ import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:cake_wallet/typography.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/cake_pay_account_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -18,7 +18,7 @@ import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 class IoniaAccountCardsPage extends BasePage {
   IoniaAccountCardsPage(this.ioniaAccountViewModel);
 
-  final IoniaAccountViewModel ioniaAccountViewModel;
+  final CakePayAccountViewModel ioniaAccountViewModel;
 
   @override
   Widget middle(BuildContext context) {
@@ -39,7 +39,7 @@ class IoniaAccountCardsPage extends BasePage {
 class _IoniaCardTabs extends StatefulWidget {
   _IoniaCardTabs(this.ioniaAccountViewModel);
 
-  final IoniaAccountViewModel ioniaAccountViewModel;
+  final CakePayAccountViewModel ioniaAccountViewModel;
 
   @override
   _IoniaCardTabsState createState() => _IoniaCardTabsState();

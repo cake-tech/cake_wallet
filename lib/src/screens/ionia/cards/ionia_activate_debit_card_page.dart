@@ -8,7 +8,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/cake_pay_cards_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:mobx/mobx.dart';
@@ -17,7 +17,7 @@ class IoniaActivateDebitCardPage extends BasePage {
 
   IoniaActivateDebitCardPage(this._cardsListViewModel);
 
-  final IoniaGiftCardsListViewModel _cardsListViewModel;
+  final CakePayCardsListViewModel _cardsListViewModel;
 
   @override
   Widget middle(BuildContext context) {

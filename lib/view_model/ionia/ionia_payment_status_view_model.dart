@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:cake_wallet/anypay/any_pay_chain.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
-import 'package:cake_wallet/ionia/ionia_service.dart';
+import 'package:cake_wallet/ionia/cake_pay_service.dart';
 import 'package:cake_wallet/ionia/cake_pay_card.dart';
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
@@ -28,7 +28,7 @@ abstract class IoniaPaymentStatusViewModelBase with Store {
 
   static const updateTime = Duration(seconds: 3);
 
-  final IoniaService ioniaService;
+  final CakePayService ioniaService;
   final IoniaAnyPayPaymentInfo paymentInfo;
   final AnyPayPaymentCommittedInfo committedInfo;
 

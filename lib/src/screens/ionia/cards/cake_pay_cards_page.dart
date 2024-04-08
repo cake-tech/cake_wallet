@@ -1,31 +1,27 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/ionia/cake_pay_states.dart';
-import 'package:cake_wallet/ionia/cake_pay_card.dart';
 import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
-import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_menu.dart';
-import 'package:cake_wallet/src/screens/ionia/widgets/ionia_filter_modal.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/utils/debounce.dart';
-import 'package:cake_wallet/typography.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/typography.dart';
+import 'package:cake_wallet/utils/debounce.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/ionia/cake_pay_cards_list_view_model.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class CakePayCardsPage extends BasePage {
-  CakePayCardsPage(this._cardsListViewModel): searchFocusNode = FocusNode()  {
+  CakePayCardsPage(this._cardsListViewModel) : searchFocusNode = FocusNode() {
     _searchController.addListener(() {
       if (_searchController.text != _cardsListViewModel.searchString) {
         _searchDebounce.run(() {
@@ -35,10 +31,10 @@ class CakePayCardsPage extends BasePage {
     });
 
     _cardsListViewModel.getVendors();
-
   }
+
   final FocusNode searchFocusNode;
-  final IoniaGiftCardsListViewModel _cardsListViewModel;
+  final CakePayCardsListViewModel _cardsListViewModel;
 
   final _searchDebounce = Debounce(Duration(milliseconds: 500));
   final _searchController = TextEditingController();
@@ -48,8 +44,7 @@ class CakePayCardsPage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) =>
-          GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -70,9 +65,16 @@ class CakePayCardsPage extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     return _TrailingIcon(
-      asset: 'assets/images/profile.png',
-      onPressed: () => Navigator.pushNamed(context, Routes.ioniaAccountPage),
-    );
+        asset: 'assets/images/profile.png',
+        onPressed: () {
+          _cardsListViewModel.isCakePayUserAuthenticated().then((value) {
+            if (value) {
+              Navigator.pushNamed(context, Routes.cakePayAccountPage);
+              return;
+            }
+            Navigator.pushNamed(context, Routes.cakePayWelcomePage);
+          });
+        });
   }
 
   @override
@@ -131,7 +133,7 @@ class CakePayCardsPage extends BasePage {
     );
   }
 
-  Future <void> showCategoryFilter(BuildContext context) async {
+  Future<void> showCategoryFilter(BuildContext context) async {
     return showPopUp<void>(
       context: context,
       builder: (BuildContext context) {
@@ -147,7 +149,7 @@ class CakePayCardsPageBody extends StatefulWidget {
     required this.cardsListViewModel,
   }) : super(key: key);
 
-  final IoniaGiftCardsListViewModel cardsListViewModel;
+  final CakePayCardsListViewModel cardsListViewModel;
 
   @override
   _CakePayCardsPageBodyState createState() => _CakePayCardsPageBodyState();
@@ -156,6 +158,7 @@ class CakePayCardsPageBody extends StatefulWidget {
 class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
   double get backgroundHeight => MediaQuery.of(context).size.height * 0.75;
   double thumbHeight = 72;
+
   bool get isAlwaysShowScrollThumb => merchantsList == null ? false : merchantsList.length > 3;
 
   List<CakePayVendor> get merchantsList => widget.cardsListViewModel.cakePayVendors;
@@ -166,7 +169,9 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
   void initState() {
     _scrollController.addListener(() {
       final scrollOffsetFromTop = _scrollController.hasClients
-          ? (_scrollController.offset / _scrollController.position.maxScrollExtent * (backgroundHeight - thumbHeight))
+          ? (_scrollController.offset /
+              _scrollController.position.maxScrollExtent *
+              (backgroundHeight - thumbHeight))
           : 0.0;
       widget.cardsListViewModel.setScrollOffsetFromTop(scrollOffsetFromTop);
     });
@@ -175,53 +180,55 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (_) {
-        final merchantState = widget.cardsListViewModel.merchantState;
-        if (merchantState is CakePayVendorLoadedState) {
+    return Observer(builder: (_) {
+      final merchantState = widget.cardsListViewModel.merchantState;
+      if (merchantState is CakePayVendorLoadedState) {
         return Stack(children: [
-        ListView.separated(
-          padding: EdgeInsets.only(left: 2, right: 22),
-          controller: _scrollController,
-          itemCount: merchantsList.length,
-          separatorBuilder: (_, __) => SizedBox(height: 5),
-          itemBuilder: (_, index) {
-            final vendor = merchantsList[index];
-            return CardItem(
-              logoUrl: vendor.card?.cardImageUrl,
-              onTap: () {
-                Navigator.of(context).pushNamed(Routes.CakePayBuyCardPage, arguments: [vendor]);
-              },
-              title: vendor.name,
-              subTitle: vendor.card?.description ?? '',
-              backgroundColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-              titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-              subtitleColor: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-              discount: 0.0,
-            );
-          },
-        ),
-        isAlwaysShowScrollThumb
-            ? CakeScrollbar(
-                backgroundHeight: backgroundHeight,
-                thumbHeight: thumbHeight,
-                rightOffset: 1,
-                width: 3,
-                backgroundColor: Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(0.05),
-                thumbColor: Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(0.5),
-                fromTop: widget.cardsListViewModel.scrollOffsetFromTop,
-              )
-            : Offstage()
-          ]);
-         } 
-         return Center(
-          child: CircularProgressIndicator(
-            backgroundColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor),
+          ListView.separated(
+            padding: EdgeInsets.only(left: 2, right: 22),
+            controller: _scrollController,
+            itemCount: merchantsList.length,
+            separatorBuilder: (_, __) => SizedBox(height: 5),
+            itemBuilder: (_, index) {
+              final vendor = merchantsList[index];
+              return CardItem(
+                logoUrl: vendor.card?.cardImageUrl,
+                onTap: () {
+                  Navigator.of(context).pushNamed(Routes.cakePayBuyCardPage, arguments: [vendor]);
+                },
+                title: vendor.name,
+                subTitle: vendor.card?.description ?? '',
+                backgroundColor:
+                    Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                subtitleColor: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                discount: 0.0,
+              );
+            },
           ),
-        );
+          isAlwaysShowScrollThumb
+              ? CakeScrollbar(
+                  backgroundHeight: backgroundHeight,
+                  thumbHeight: thumbHeight,
+                  rightOffset: 1,
+                  width: 3,
+                  backgroundColor:
+                      Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(0.05),
+                  thumbColor:
+                      Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(0.5),
+                  fromTop: widget.cardsListViewModel.scrollOffsetFromTop,
+                )
+              : Offstage()
+        ]);
       }
-    );
+      return Center(
+        child: CircularProgressIndicator(
+          backgroundColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+          valueColor: AlwaysStoppedAnimation<Color>(
+              Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor),
+        ),
+      );
+    });
   }
 }
 
@@ -233,6 +240,7 @@ class _SearchWidget extends StatelessWidget {
   }) : super(key: key);
   final TextEditingController controller;
   final FocusNode focusNode;
+
   @override
   Widget build(BuildContext context) {
     final searchIcon = ExcludeSemantics(

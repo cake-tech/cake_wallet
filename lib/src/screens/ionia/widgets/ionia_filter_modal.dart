@@ -3,7 +3,7 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/cake_pay_cards_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/palette.dart';
@@ -14,7 +14,7 @@ class IoniaFilterModal extends StatelessWidget {
     ioniaGiftCardsListViewModel.resetIoniaCategories();
   }
 
-  final IoniaGiftCardsListViewModel ioniaGiftCardsListViewModel;
+  final CakePayCardsListViewModel ioniaGiftCardsListViewModel;
 
   @override
   Widget build(BuildContext context) {

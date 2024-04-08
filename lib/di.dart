@@ -68,26 +68,25 @@ import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/cake_pay_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_custom_tip_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_custom_redeem_view_model.dart';
-import 'package:cake_wallet/ionia/ionia_service.dart';
+import 'package:cake_wallet/ionia/cake_pay_service.dart';
 import 'package:cake_wallet/ionia/cake_pay_api.dart';
 import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
+import 'package:cake_wallet/src/screens/ionia/auth/cake_pay_account_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
 import 'package:cake_wallet/src/screens/ionia/ionia.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance_page.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/cake_pay_account_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/cake_pay_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/cake_pay_purchase_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
@@ -1033,22 +1032,21 @@ Future<void> setup({
 
   getIt.registerFactory(() => AnyPayApi());
 
-  getIt.registerFactory<IoniaService>(
-      () => IoniaService(getIt.get<FlutterSecureStorage>(), getIt.get<CakePayApi>()));
+  getIt.registerFactory<CakePayService>(
+      () => CakePayService(getIt.get<FlutterSecureStorage>(), getIt.get<CakePayApi>()));
 
   getIt.registerFactory<IoniaAnyPay>(() => IoniaAnyPay(
-      getIt.get<IoniaService>(), getIt.get<AnyPayApi>(), getIt.get<AppStore>().wallet!));
+      getIt.get<CakePayService>(), getIt.get<AnyPayApi>(), getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory(() => IoniaGiftCardsListViewModel(ioniaService: getIt.get<IoniaService>()));
+  getIt.registerFactory(() => CakePayCardsListViewModel(cakePayService: getIt.get<CakePayService>()));
 
-  getIt.registerFactory(() => MarketPlaceViewModel(getIt.get<IoniaService>()));
-
-  getIt.registerFactory(() => IoniaAuthViewModel(ioniaService: getIt.get<IoniaService>()));
+  getIt.registerFactory(() => CakePayAuthViewModel(cakePayService: getIt.get<CakePayService>()));
 
   getIt.registerFactoryParam<CakePayPurchaseViewModel, double, CakePayVendor>(
       (double amount, vendor) {
     return CakePayPurchaseViewModel(
         ioniaAnyPayService: getIt.get<IoniaAnyPay>(),
+        cakePayService: getIt.get<CakePayService>(),
         amount: amount,
         vendor: vendor,
         sendViewModel: getIt.get<SendViewModel>());
@@ -1059,20 +1057,16 @@ Future<void> setup({
     return CakePayBuyCardViewModel(vendor: vendor);
   });
 
-  getIt.registerFactory(() => IoniaAccountViewModel(ioniaService: getIt.get<IoniaService>()));
+  getIt.registerFactory(() => CakePayAccountViewModel(cakePayService: getIt.get<CakePayService>()));
 
-  getIt.registerFactory(() => IoniaCreateAccountPage(getIt.get<IoniaAuthViewModel>()));
+  getIt.registerFactory(() => CakePayWelcomePage(getIt.get<CakePayAuthViewModel>()));
 
-  getIt.registerFactory(() => IoniaLoginPage(getIt.get<IoniaAuthViewModel>()));
-
-  getIt.registerFactoryParam<IoniaVerifyIoniaOtp, List<dynamic>, void>((List<dynamic> args, _) {
+  getIt.registerFactoryParam<CakePayVerifyOtpPage, List<dynamic>, void>((List<dynamic> args, _) {
     final email = args.first as String;
     final isSignIn = args[1] as bool;
 
-    return IoniaVerifyIoniaOtp(getIt.get<IoniaAuthViewModel>(), email, isSignIn);
+    return CakePayVerifyOtpPage(getIt.get<CakePayAuthViewModel>(), email, isSignIn);
   });
-
-  getIt.registerFactory(() => IoniaWelcomePage());
 
   getIt.registerFactoryParam<CakePayBuyCardPage, List<dynamic>, void>((List<dynamic> args, _) {
     final vendor = args.first as CakePayVendor;
@@ -1091,7 +1085,7 @@ Future<void> setup({
   getIt.registerFactoryParam<IoniaGiftCardDetailsViewModel, IoniaGiftCard, void>(
       (IoniaGiftCard giftCard, _) {
     return IoniaGiftCardDetailsViewModel(
-        ioniaService: getIt.get<IoniaService>(), giftCard: giftCard);
+        ioniaService: getIt.get<CakePayService>(), giftCard: giftCard);
   });
 
   getIt.registerFactoryParam<IoniaCustomTipViewModel, List<dynamic>, void>((List<dynamic> args, _) {
@@ -1115,7 +1109,7 @@ Future<void> setup({
 
   getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>(
       (IoniaGiftCard giftCard, _) =>
-          IoniaCustomRedeemViewModel(giftCard: giftCard, ioniaService: getIt.get<IoniaService>()));
+          IoniaCustomRedeemViewModel(giftCard: giftCard, ioniaService: getIt.get<CakePayService>()));
 
   getIt.registerFactoryParam<IoniaCustomRedeemPage, List<dynamic>, void>((List<dynamic> args, _) {
     final giftCard = args.first as IoniaGiftCard;
@@ -1127,15 +1121,15 @@ Future<void> setup({
     return IoniaCustomTipPage(getIt.get<IoniaCustomTipViewModel>(param1: args));
   });
 
-  getIt.registerFactory(() => CakePayCardsPage(getIt.get<IoniaGiftCardsListViewModel>()));
+  getIt.registerFactory(() => CakePayCardsPage(getIt.get<CakePayCardsListViewModel>()));
 
-  getIt.registerFactory(() => IoniaDebitCardPage(getIt.get<IoniaGiftCardsListViewModel>()));
+  getIt.registerFactory(() => IoniaDebitCardPage(getIt.get<CakePayCardsListViewModel>()));
 
-  getIt.registerFactory(() => IoniaActivateDebitCardPage(getIt.get<IoniaGiftCardsListViewModel>()));
+  getIt.registerFactory(() => IoniaActivateDebitCardPage(getIt.get<CakePayCardsListViewModel>()));
 
-  getIt.registerFactory(() => IoniaAccountPage(getIt.get<IoniaAccountViewModel>()));
+  getIt.registerFactory(() => CakePayAccountPage(getIt.get<CakePayAccountViewModel>()));
 
-  getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
+  getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<CakePayAccountViewModel>()));
 
   getIt.registerFactory(() => AnonPayApi(
       useTorOnly: getIt.get<SettingsStore>().exchangeStatus == ExchangeApiMode.torOnly,
@@ -1164,7 +1158,7 @@ Future<void> setup({
   getIt.registerFactoryParam<IoniaPaymentStatusViewModel, IoniaAnyPayPaymentInfo,
           AnyPayPaymentCommittedInfo>(
       (IoniaAnyPayPaymentInfo paymentInfo, AnyPayPaymentCommittedInfo committedInfo) =>
-          IoniaPaymentStatusViewModel(getIt.get<IoniaService>(),
+          IoniaPaymentStatusViewModel(getIt.get<CakePayService>(),
               paymentInfo: paymentInfo, committedInfo: committedInfo));
 
   getIt.registerFactoryParam<IoniaPaymentStatusPage, IoniaAnyPayPaymentInfo,

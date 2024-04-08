@@ -5,7 +5,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/anypay/any_pay_payment.dart';
 import 'package:cake_wallet/anypay/any_pay_payment_instruction.dart';
-import 'package:cake_wallet/ionia/ionia_service.dart';
+import 'package:cake_wallet/ionia/cake_pay_service.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
 import 'package:cake_wallet/anypay/any_pay_chain.dart';
 import 'package:cake_wallet/anypay/any_pay_trasnaction.dart';
@@ -17,7 +17,7 @@ import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 class IoniaAnyPay {
 	IoniaAnyPay(this.ioniaService, this.anyPayApi, this.wallet);
 
-	final IoniaService ioniaService;
+	final CakePayService ioniaService;
 	final AnyPayApi anyPayApi;
 	final WalletBase wallet;
 

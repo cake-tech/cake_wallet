@@ -6,15 +6,41 @@ import 'package:cake_wallet/src/screens/ionia/widgets/ionia_tile.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/typography.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/cake_pay_account_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
-class IoniaAccountPage extends BasePage {
-  IoniaAccountPage(this.ioniaAccountViewModel);
+class CakePayAccountPage extends BasePage {
+  CakePayAccountPage(this.cakePayAccountViewModel);
 
-  final IoniaAccountViewModel ioniaAccountViewModel;
+  final CakePayAccountViewModel cakePayAccountViewModel;
+
+
+
+  @override
+  Widget leading(BuildContext context) {
+    return MergeSemantics(
+      child: SizedBox(
+        height: 37,
+        width: 37,
+        child: ButtonTheme(
+          minWidth: double.minPositive,
+          child: Semantics(
+            label: S.of(context).seed_alert_back,
+            child: TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateColor.resolveWith(
+                        (states) => Colors.transparent),
+              ),
+              onPressed: () => Navigator.pop(context),
+              child: backButton(context),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget middle(BuildContext context) {
@@ -39,7 +65,7 @@ class IoniaAccountPage extends BasePage {
                 Observer(
                     builder: (_) => RichText(
                           text: TextSpan(
-                            text: '${ioniaAccountViewModel.countOfMerch}',
+                            text: '${cakePayAccountViewModel.countOfMerch}',
                             style: textLargeSemiBold(),
                             children: [
                               TextSpan(
@@ -51,7 +77,7 @@ class IoniaAccountPage extends BasePage {
                 InkWell(
                   onTap: () {
                     Navigator.pushNamed(context, Routes.ioniaAccountCardsPage)
-                    .then((_) => ioniaAccountViewModel.updateUserGiftCards());
+                    .then((_) => cakePayAccountViewModel.updateUserGiftCards());
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -64,69 +90,9 @@ class IoniaAccountPage extends BasePage {
               ],
             ),
           ),
-          SizedBox(height: 8),
-          //Row(
-          //  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //  children: [
-          //    _GradiantContainer(
-          //      padding: EdgeInsets.all(16),
-          //      width: deviceWidth * 0.28,
-          //      content: Column(
-          //        crossAxisAlignment: CrossAxisAlignment.start,
-          //        children: [
-          //          Text(
-          //            S.of(context).total_saving,
-          //            style: textSmall(),
-          //          ),
-          //          SizedBox(height: 8),
-          //          Text(
-          //            '\$100',
-          //            style: textMediumSemiBold(),
-          //          ),
-          //        ],
-          //      ),
-          //    ),
-          //    _GradiantContainer(
-          //      padding: EdgeInsets.all(16),
-          //      width: deviceWidth * 0.28,
-          //      content: Column(
-          //        crossAxisAlignment: CrossAxisAlignment.start,
-          //        children: [
-          //          Text(
-          //            S.of(context).last_30_days,
-          //            style: textSmall(),
-          //          ),
-          //          SizedBox(height: 8),
-          //          Text(
-          //            '\$100',
-          //            style: textMediumSemiBold(),
-          //          ),
-          //        ],
-          //      ),
-          //    ),
-          //    _GradiantContainer(
-          //      padding: EdgeInsets.all(16),
-          //      width: deviceWidth * 0.28,
-          //      content: Column(
-          //        crossAxisAlignment: CrossAxisAlignment.start,
-          //        children: [
-          //          Text(
-          //            S.of(context).avg_savings,
-          //            style: textSmall(),
-          //          ),
-          //          SizedBox(height: 8),
-          //          Text(
-          //            '10%',
-          //            style: textMediumSemiBold(),
-          //          ),
-          //        ],
-          //      ),
-          //    ),
-          //  ],
-          //),
-          SizedBox(height: 40),
+          SizedBox(height: 20),
           Observer(
-            builder: (_) => IoniaTile(title: S.of(context).email_address, subTitle: ioniaAccountViewModel.email ?? ''),
+            builder: (_) => IoniaTile(title: S.of(context).email_address, subTitle: cakePayAccountViewModel.email),
           ),
           Divider()
         ],
@@ -139,7 +105,7 @@ class IoniaAccountPage extends BasePage {
             textColor: Colors.white,
             text: S.of(context).logout,
             onPressed: () {
-              ioniaAccountViewModel.logout();
+              cakePayAccountViewModel.logout();
               Navigator.pushNamedAndRemoveUntil(context, Routes.dashboard, (route) => false);
             },
           ),
