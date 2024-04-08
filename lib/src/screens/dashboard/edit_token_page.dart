@@ -310,8 +310,13 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
               if (text?.isEmpty ?? true) {
                 return S.of(context).field_required;
               }
+
               if (int.tryParse(text!) == null) {
                 return S.of(context).invalid_input;
+              }
+
+              if (int.tryParse(text) == 0) {
+                return S.current.decimals_cannot_be_zero;
               }
 
               return null;
