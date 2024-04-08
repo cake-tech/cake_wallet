@@ -297,9 +297,18 @@ class CWBitcoin extends Bitcoin {
     );
   }
 
-  List<BitcoinSilentPaymentAddressRecord> getSilentAddresses(Object wallet) {
+  List<BitcoinSilentPaymentAddressRecord> getSilentPaymentAddresses(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.walletAddresses.silentAddresses;
+    return bitcoinWallet.walletAddresses.silentAddresses
+        .where((addr) => addr.type != SegwitAddresType.p2tr)
+        .toList();
+  }
+
+  List<BitcoinSilentPaymentAddressRecord> getSilentPaymentReceivedAddresses(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.walletAddresses.silentAddresses
+        .where((addr) => addr.type == SegwitAddresType.p2tr)
+        .toList();
   }
 
   bool isBitcoinReceivePageOption(ReceivePageOption option) {

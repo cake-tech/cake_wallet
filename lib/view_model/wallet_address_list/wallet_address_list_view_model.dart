@@ -318,20 +318,57 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (isElectrumWallet) {
-      final addressItems = bitcoin!.getSubAddresses(wallet).map((subaddress) {
-        final isPrimary = subaddress.id == 0;
+      if (bitcoin!.hasSelectedSilentPayments(wallet)) {
+        final addressItems = bitcoin!.getSilentPaymentAddresses(wallet).map((address) {
+          final isPrimary = address.index == 0;
 
-        return WalletAddressListItem(
-            id: subaddress.id,
+          return WalletAddressListItem(
+            id: address.index,
             isPrimary: isPrimary,
-            name: subaddress.name,
-            address: subaddress.address,
-            txCount: subaddress.txCount,
+            name: address.name,
+            address: address.address,
+            txCount: address.txCount,
             balance: AmountConverter.amountIntToString(
-                walletTypeToCryptoCurrency(type), subaddress.balance),
-            isChange: subaddress.isChange);
-      });
-      addressList.addAll(addressItems);
+                walletTypeToCryptoCurrency(type), address.balance),
+            isChange: address.isHidden,
+          );
+        });
+        addressList.addAll(addressItems);
+        addressList.add(WalletAddressListHeader(title: S.current.received));
+
+        final receivedAddressItems =
+            bitcoin!.getSilentPaymentReceivedAddresses(wallet).map((address) {
+          final isPrimary = address.index == 0;
+
+          return WalletAddressListItem(
+            id: address.index,
+            isPrimary: isPrimary,
+            name: address.name,
+            address: address.address,
+            txCount: address.txCount,
+            balance: AmountConverter.amountIntToString(
+                walletTypeToCryptoCurrency(type), address.balance),
+            isChange: address.isHidden,
+            isOneTimeReceiveAddress: true,
+          );
+        });
+        addressList.addAll(receivedAddressItems);
+      } else {
+        final addressItems = bitcoin!.getSubAddresses(wallet).map((subaddress) {
+          final isPrimary = subaddress.id == 0;
+
+          return WalletAddressListItem(
+              id: subaddress.id,
+              isPrimary: isPrimary,
+              name: subaddress.name,
+              address: subaddress.address,
+              txCount: subaddress.txCount,
+              balance: AmountConverter.amountIntToString(
+                  walletTypeToCryptoCurrency(type), subaddress.balance),
+              isChange: subaddress.isChange);
+        });
+        addressList.addAll(addressItems);
+      }
     }
 
     if (wallet.type == WalletType.ethereum) {

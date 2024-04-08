@@ -129,7 +129,8 @@ abstract class Bitcoin {
 
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
-  List<BitcoinSilentPaymentAddressRecord> getSilentAddresses(Object wallet);
+  List<BitcoinSilentPaymentAddressRecord> getSilentPaymentAddresses(Object wallet);
+  List<BitcoinSilentPaymentAddressRecord> getSilentPaymentReceivedAddresses(Object wallet);
 
   Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority);
   List<ElectrumSubAddress> getSubAddresses(Object wallet);

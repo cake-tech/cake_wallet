@@ -164,20 +164,27 @@ class ReceivePage extends BasePage {
                             }
 
                             if (item is WalletAddressListHeader) {
+                              final hasTitle = item.title != null;
+
                               cell = HeaderTile(
-                                  title: S.of(context).addresses,
-                                  walletAddressListViewModel: addressListViewModel,
-                                  showTrailingButton:
-                                      !addressListViewModel.isAutoGenerateSubaddressEnabled,
-                                  showSearchButton: true,
-                                  trailingButtonTap: () =>
-                                      Navigator.of(context).pushNamed(Routes.newSubaddress),
-                                  trailingIcon: Icon(
-                                    Icons.add,
-                                    size: 20,
-                                    color:
-                                        Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
-                                  ));
+                                title: hasTitle ? item.title! : S.of(context).addresses,
+                                walletAddressListViewModel: addressListViewModel,
+                                showTrailingButton:
+                                    !addressListViewModel.isAutoGenerateSubaddressEnabled &&
+                                        !hasTitle,
+                                showSearchButton: true,
+                                trailingButtonTap: () =>
+                                    Navigator.of(context).pushNamed(Routes.newSubaddress),
+                                trailingIcon: hasTitle
+                                    ? null
+                                    : Icon(
+                                        Icons.add,
+                                        size: 20,
+                                        color: Theme.of(context)
+                                            .extension<ReceivePageTheme>()!
+                                            .iconsColor,
+                                      ),
+                              );
                             }
 
                             if (item is WalletAddressListItem) {
@@ -204,9 +211,13 @@ class ReceivePage extends BasePage {
                                     hasBalance: addressListViewModel.isElectrumWallet,
                                     backgroundColor: backgroundColor,
                                     textColor: textColor,
-                                    onTap: (_) => addressListViewModel.setAddress(item),
-                                    onEdit: () => Navigator.of(context)
-                                        .pushNamed(Routes.newSubaddress, arguments: item));
+                                    onTap: item.isOneTimeReceiveAddress == true
+                                        ? null
+                                        : (_) => addressListViewModel.setAddress(item),
+                                    onEdit: item.isOneTimeReceiveAddress == true
+                                        ? null
+                                        : () => Navigator.of(context)
+                                            .pushNamed(Routes.newSubaddress, arguments: item));
                               });
                             }
 
