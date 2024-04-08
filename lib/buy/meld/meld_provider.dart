@@ -72,7 +72,7 @@ class MeldProvider extends BuyProvider {
       "walletAddress": walletAddress,
     };
 
-    final uri = Uri.https(baseBuyUrl, '', params);
+    final uri = Uri.https(baseSellUrl, '', params);
     return uri;
   }
 
