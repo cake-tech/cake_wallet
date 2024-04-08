@@ -4,8 +4,8 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitcoin_base/bitcoin_base.dart' as bitcoin_base;
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
@@ -36,9 +36,9 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
-import 'package:http/http.dart' as http;
 
 part 'electrum_wallet.g.dart';
 
@@ -52,15 +52,14 @@ abstract class ElectrumWalletBase
       required WalletInfo walletInfo,
       required Box<UnspentCoinsInfo> unspentCoinsInfo,
       required this.networkType,
-      required this.mnemonic,
-      required Uint8List seedBytes,
+      String? xpub,
+      String? mnemonic,
+      Uint8List? seedBytes,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumClient? electrumClient,
       ElectrumBalance? initialBalance,
       CryptoCurrency? currency})
-      : hd = currency == CryptoCurrency.bch
-            ? bitcoinCashHDWallet(seedBytes)
-            : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/0"),
+      : accountHD = getAccountHDWallet(currency, networkType, seedBytes, xpub),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
@@ -77,20 +76,39 @@ abstract class ElectrumWalletBase
         this.unspentCoinsInfo = unspentCoinsInfo,
         this.network = _getNetwork(networkType, currency),
         this.isTestnet = networkType == bitcoin.testnet,
+        this._mnemonic = mnemonic,
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
     transactionHistory = ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
   }
 
+  static bitcoin.HDWallet getAccountHDWallet(CryptoCurrency? currency, bitcoin.NetworkType networkType,
+      Uint8List? seedBytes, String? xpub) {
+
+    if (seedBytes == null && xpub == null) {
+      throw Exception("To create a Wallet you need either a seed or an xpub. This should not happen");
+    }
+
+    if (seedBytes != null) {
+      return currency == CryptoCurrency.bch
+          ? bitcoinCashHDWallet(seedBytes)
+          : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'");
+    }
+
+    return bitcoin.HDWallet.fromBase58(xpub!).derive(0);
+  }
+
   static bitcoin.HDWallet bitcoinCashHDWallet(Uint8List seedBytes) =>
-      bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'/0");
+      bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'");
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
 
-  final bitcoin.HDWallet hd;
-  final String mnemonic;
+  final bitcoin.HDWallet accountHD;
+  final String? _mnemonic;
+  
+  bitcoin.HDWallet get hd => accountHD.derive(0);
 
   @override
   @observable
@@ -119,10 +137,10 @@ abstract class ElectrumWalletBase
       .map((addr) => scriptHash(addr.address, network: network))
       .toList();
 
-  String get xpub => hd.base58!;
+  String get xpub => accountHD.base58!;
 
   @override
-  String get seed => mnemonic;
+  String? get seed => _mnemonic;
 
   bitcoin.NetworkType networkType;
   BasedUtxoNetwork network;
@@ -334,6 +352,8 @@ abstract class ElectrumWalletBase
           ),
         ),
       );
+
+      address.toScriptPubKey();
 
       bool amountIsAcquired = leftAmount <= 0;
       if ((inputsCount == null && amountIsAcquired) || inputsCount == i + 1) {
@@ -583,7 +603,8 @@ abstract class ElectrumWalletBase
   }
 
   String toJSON() => json.encode({
-        'mnemonic': mnemonic,
+        'mnemonic': _mnemonic,
+        'xpub': xpub,
         'account_index': walletAddresses.currentReceiveAddressIndexByType,
         'change_address_index': walletAddresses.currentChangeAddressIndexByType,
         'addresses': walletAddresses.allAddresses.map((addr) => addr.toJSON()).toList(),

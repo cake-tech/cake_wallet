@@ -116,15 +116,10 @@ class DebugDevicePageBodyState extends State<DebugDevicePageBody> {
                     method: "Wallet Address",
                     func: () async {
                       setState(() => counter++);
-                      final derivationPath = "m/84'/0'/$counter'/1/0";
+                      final derivationPath = "m/84'/0'/$counter'";
                       return await btc.getAccounts(selectedDevice!, accountsDerivationPath: derivationPath);
                       // return await ethereum!.getHardwareWalletAccounts(selectedDevice!);
                       },
-                  ),
-                  DebugButton(
-                    title: "Get Output",
-                    method: "OutHash",
-                    func: () async => Address.addressToOutputScript("bc1q4aacwm9f9ayukulk7sq4h75ge0pwp6r8nzvt7h").toHexString(),
                   ),
                   DebugButton(
                     title: "Send Money",
@@ -132,7 +127,7 @@ class DebugDevicePageBodyState extends State<DebugDevicePageBody> {
                     func: () async {
                       final psbt = PsbtV2();
                       final psbtBuf = base64.decode(
-                          "cHNidP8BAgQCAAAAAQQBAQEFAQIAAQ4guw9k8YtRKw7aRz4ILQBctW9ovipob+5u7SoKzP2kbk0BDwQBAAAAAAEEFOTtsQ7Fhx1cOLV55atpgO5+bp4mAQMI6AMAAAAAAAAAAQQUNfeD+mcNch+xHDyyErjY1mf5J2kBAwiIEwAAAAAAAAA=");
+                          "cHNidP8BAgQCAAAAAQQBAQEFAQIAAQ4guw9k8YtRKw7aRz4ILQBctW9ovipob+5u7SoKzP2kbk0BDwQAAAAAARAE/////wEBH+UeAAAAAAAAFgAUp2rS6ZK5wEZWSXYylPoeCj/Rr/EiBgN8TLsZj7AQJvWjBFAbNzeOgwfinbbN22Uf1sbfrjNB+BirTem6VAAAgAAAAIAAAACAAAAAAAAAAAAAAQQU5O2xDsWHHVw4tXnlq2mA7n5uniYBAwjoAwAAAAAAAAABBBQ194P6Zw1yH7EcPLISuNjWZ/knaQEDCIgTAAAAAAAAAA==");
 
                       psbt.deserialize(psbtBuf);
                       final result = await btc.signPsbt(selectedDevice!, psbt: psbt);

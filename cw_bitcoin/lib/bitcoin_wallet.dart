@@ -19,11 +19,12 @@ class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
 abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   BitcoinWalletBase({
-    required String mnemonic,
     required String password,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required Uint8List seedBytes,
+    Uint8List? seedBytes,
+    String? mnemonic,
+    String? xpub,
     String? addressPageType,
     BasedUtxoNetwork? networkParam,
     List<BitcoinAddressRecord>? initialAddresses,
@@ -32,6 +33,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialChangeAddressIndex,
   }) : super(
             mnemonic: mnemonic,
+            xpub: xpub,
             password: password,
             walletInfo: walletInfo,
             unspentCoinsInfo: unspentCoinsInfo,
@@ -51,7 +53,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       mainHd: hd,
-      sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
+      sideHd: accountHD.derive(1),
       network: networkParam ?? network,
     );
     autorun((_) {
@@ -99,6 +101,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     return BitcoinWallet(
       mnemonic: snp.mnemonic,
+      xpub: snp.xpub,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,

@@ -16,7 +16,8 @@ import 'package:collection/collection.dart';
 class BitcoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
-    BitcoinRestoreWalletFromWIFCredentials, BitcoinRestoreWalletFromHardware> {
+    BitcoinRestoreWalletFromWIFCredentials,
+    BitcoinRestoreWalletFromHardware> {
   BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
@@ -100,13 +101,26 @@ class BitcoinWalletService extends WalletService<
   }
 
   @override
-  Future<BitcoinWallet> restoreFromHardwareWallet(BitcoinRestoreWalletFromHardware credentials) {
-    throw UnimplementedError("Restoring a Bitcoin wallet from a hardware wallet is not yet supported!");
+  Future<BitcoinWallet> restoreFromHardwareWallet(BitcoinRestoreWalletFromHardware credentials,
+      {bool? isTestnet}) async {
+
+    final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
+    credentials.walletInfo?.network = network.value;
+
+    final wallet = await BitcoinWallet(password: credentials.password!,
+      xpub: credentials.hwAccountData.xpub,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      networkParam: network,
+    );
+    await wallet.save();
+    await wallet.init();
+    return wallet;
   }
 
   @override
   Future<BitcoinWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials,
-          {bool? isTestnet}) async =>
+      {bool? isTestnet}) async =>
       throw UnimplementedError();
 
   @override

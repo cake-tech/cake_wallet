@@ -26,14 +26,6 @@ class BitcoinHardwareWalletService {
       final derivationPath = "m/84'/0'/$i'";
       final xpub = await bitcoinLedgerApp.getXPubKey(device, derivationPath: derivationPath);
       HDWallet hd = HDWallet.fromBase58(xpub).derive(0);
-      HDWallet hd1 = HDWallet.fromBase58(xpub).derivePath("0");
-      HDWallet hd2 = HDWallet.fromBase58(xpub).derive(1);
-
-      print(xpub);
-      print(hd.base58);
-      print(hd1.base58);
-      print(hd2.base58);
-      print(generateP2WPKHAddress(hd: hd2, index: 0, network: BitcoinNetwork.mainnet)); //bc1qkq9jrlq9clx4n3h0l877ks46x33jlh36xdfh0p
 
       final address = generateP2WPKHAddress(hd: hd, index: 0, network: BitcoinNetwork.mainnet);
 
