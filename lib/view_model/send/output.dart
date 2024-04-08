@@ -125,7 +125,7 @@ abstract class OutputBase with Store {
           _settingsStore.priority[_wallet.type]!, formattedCryptoAmount);
 
       if (_wallet.type == WalletType.bitcoin) {
-        if (_settingsStore.priority[_wallet.type]! == bitcoin!.getBitcoinTransactionPriorityCustom()) {
+        if (_settingsStore.priority[_wallet.type] == bitcoin!.getBitcoinTransactionPriorityCustom()) {
           fee = bitcoin!.getFeeAmountWithFeeRate(
               _settingsStore.customBitcoinFeeRate, formattedCryptoAmount, 1, 1);
         }

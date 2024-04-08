@@ -506,9 +506,9 @@ abstract class SettingsStoreBase with Store {
             key: SecureKey.pinTimeOutDuration, value: pinCodeInterval.value.toString()));
 
     reaction(
-            (_) => customBitcoinFeeRate,
-            (int customBitcoinFeeRate) => _sharedPreferences.setInt(
-            PreferencesKey.customBitcoinFeeRate, customBitcoinFeeRate));
+        (_) => customBitcoinFeeRate,
+        (int customBitcoinFeeRate) =>
+            _sharedPreferences.setInt(PreferencesKey.customBitcoinFeeRate, customBitcoinFeeRate));
 
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
@@ -1170,7 +1170,8 @@ abstract class SettingsStoreBase with Store {
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? disableBuy;
     disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? disableSell;
-    disableBulletin = sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? disableBulletin;
+    disableBulletin =
+        sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? disableBulletin;
     walletListOrder =
         WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     walletListAscending = sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;

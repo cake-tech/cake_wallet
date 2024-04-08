@@ -48,11 +48,13 @@ abstract class TransactionDetailsViewModelBase with Store {
         _addMoneroListItems(tx, dateFormat);
         break;
       case WalletType.bitcoin:
-      case WalletType.litecoin:
-      case WalletType.bitcoinCash:
         _addElectrumListItems(tx, dateFormat);
         _addBumpFeesListItems(tx);
         _checkForRBF();
+        break;
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+        _addElectrumListItems(tx, dateFormat);
         break;
       case WalletType.haven:
         _addHavenListItems(tx, dateFormat);

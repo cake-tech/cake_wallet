@@ -166,6 +166,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return null;
   }
 
+  @computed
   int get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate;
 
   void set customBitcoinFeeRate(int value) => _settingsStore.customBitcoinFeeRate = value;

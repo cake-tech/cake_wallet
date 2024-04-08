@@ -23,47 +23,55 @@ class StandardPickerList<T> extends StatefulWidget {
   final String Function(T item, double sliderValue) displayItem;
   final Function(double) onSliderChanged;
   final Function(T) onItemSelected;
-  String value;
-  int selectedIdx;
-  double customValue;
+  final String value;
+  final int selectedIdx;
+  final double customValue;
 
   @override
   _StandardPickerListState<T> createState() => _StandardPickerListState<T>();
 }
 
 class _StandardPickerListState<T> extends State<StandardPickerList<T>> {
+  late String value;
+  late int selectedIdx;
+  late double customValue;
+
   @override
   void initState() {
     super.initState();
+
+    value = widget.value;
+    selectedIdx = widget.selectedIdx;
+    customValue = widget.customValue;
   }
 
   @override
   Widget build(BuildContext context) {
-    String adaptedDisplayItem(T item) => widget.displayItem(item, widget.customValue);
+    String adaptedDisplayItem(T item) => widget.displayItem(item, customValue);
 
     return Column(
       children: [
-        ListRow(title: '${widget.title}:', value: widget.value),
+        ListRow(title: '${widget.title}:', value: value),
         Padding(
           padding: const EdgeInsets.only(left: 24, right: 24, top: 0, bottom: 24),
           child: Picker(
             items: widget.items,
             displayItem: adaptedDisplayItem,
-            selectedAtIndex: widget.selectedIdx,
+            selectedAtIndex: selectedIdx,
             customItemIndex: widget.customItemIndex,
             headerEnabled: false,
             closeOnItemSelected: false,
             mainAxisAlignment: MainAxisAlignment.center,
-            sliderValue: widget.customValue,
+            sliderValue: customValue,
             isWrapped: false,
             borderColor: Theme.of(context).extension<PickerTheme>()!.dividerColor,
             onSliderChanged: (newValue) {
-              setState(() => widget.customValue = newValue);
-              widget.value = widget.onSliderChanged(newValue).toString();
+              setState(() => customValue = newValue);
+              value = widget.onSliderChanged(newValue).toString();
             },
             onItemSelected: (T item) {
-              setState(() => widget.selectedIdx = widget.items.indexOf(item));
-              widget.value = widget.onItemSelected(item).toString();
+              setState(() => selectedIdx = widget.items.indexOf(item));
+              value = widget.onItemSelected(item).toString();
             },
           ),
         ),

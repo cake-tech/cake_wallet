@@ -130,6 +130,7 @@ abstract class OtherSettingsViewModelBase with Store {
     _settingsStore.priority[_wallet.type] = priority;
   }
 
+  @computed
   double get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate.toDouble();
 
   int? get customPriorityItemIndex {
