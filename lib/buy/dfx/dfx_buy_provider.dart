@@ -29,6 +29,9 @@ class DFXBuyProvider extends BuyProvider {
   String get providerDescription => S.current.dfx_option_description;
 
   @override
+  String get providerSellDescription => providerDescription;
+
+  @override
   String get lightIcon => 'assets/images/dfx_light.png';
 
   @override

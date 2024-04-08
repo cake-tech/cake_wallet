@@ -26,6 +26,9 @@ class OnRamperBuyProvider extends BuyProvider {
   String get providerDescription => S.current.onramper_option_description;
 
   @override
+  String get providerSellDescription => providerDescription;
+
+  @override
   String get lightIcon => 'assets/images/onramper_light.png';
 
   @override
@@ -62,10 +65,9 @@ class OnRamperBuyProvider extends BuyProvider {
 
     primaryColor = getColorStr(Theme.of(context).primaryColor);
     secondaryColor = getColorStr(Theme.of(context).colorScheme.background);
-    primaryTextColor =
-        getColorStr(Theme.of(context).extension<CakeTextTheme>()!.titleColor);
-    secondaryTextColor = getColorStr(
-        Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor);
+    primaryTextColor = getColorStr(Theme.of(context).extension<CakeTextTheme>()!.titleColor);
+    secondaryTextColor =
+        getColorStr(Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor);
     containerColor = getColorStr(Theme.of(context).colorScheme.background);
     cardColor = getColorStr(Theme.of(context).cardColor);
 
@@ -73,8 +75,7 @@ class OnRamperBuyProvider extends BuyProvider {
       cardColor = getColorStr(Colors.white);
     }
 
-    final networkName =
-        wallet.currency.fullName?.toUpperCase().replaceAll(" ", "");
+    final networkName = wallet.currency.fullName?.toUpperCase().replaceAll(" ", "");
 
     return Uri.https(_baseUrl, '', <String, dynamic>{
       'apiKey': _apiKey,
@@ -95,8 +96,7 @@ class OnRamperBuyProvider extends BuyProvider {
   Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
     final uri = requestOnramperUrl(context, isBuyAction);
     if (DeviceInfo.instance.isMobile) {
-      Navigator.of(context)
-          .pushNamed(Routes.webViewPage, arguments: [title, uri]);
+      Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
     } else {
       await launchUrl(uri);
     }

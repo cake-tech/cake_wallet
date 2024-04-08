@@ -37,6 +37,9 @@ class WyreBuyProvider extends BuyProvider {
   String get providerDescription => '';
 
   @override
+  String get providerSellDescription => providerDescription;
+
+  @override
   String get lightIcon => 'assets/images/robinhood_light.png';
 
   @override
