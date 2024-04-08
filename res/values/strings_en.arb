@@ -70,6 +70,7 @@
   "backup": "Backup",
   "backup_file": "Backup file",
   "backup_password": "Backup password",
+  "balance": "Balance",
   "balance_page": "Balance Page",
   "bill_amount": "Bill Amount",
   "billing_address_info": "If asked for a billing address, provide your shipping address",

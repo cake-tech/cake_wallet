@@ -70,6 +70,7 @@
   "backup": "지원",
   "backup_file": "백업 파일",
   "backup_password": "백업 비밀번호",
+  "balance": "균형",
   "balance_page": "잔액 페이지",
   "bill_amount": "청구 금액",
   "billing_address_info": "청구서 수신 주소를 묻는 메시지가 표시되면 배송 주소를 입력하세요.",

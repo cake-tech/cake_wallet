@@ -134,7 +134,7 @@ class AddressCell extends StatelessWidget {
                           mainAxisSize: MainAxisSize.max,
                           children: [
                             Text(
-                              'Balance: $balance',
+                              '${S.of(context).balance}: $txCount',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
