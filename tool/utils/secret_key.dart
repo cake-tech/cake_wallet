@@ -34,7 +34,7 @@ class SecretKey {
     SecretKey('chatwootWebsiteToken', () => ''),
     SecretKey('exolixApiKey', () => ''),
     SecretKey('robinhoodApplicationId', () => ''),
-    SecretKey('robinhoodCIdApiSecret', () => ''),
+    SecretKey('exchangeHelperApiKey', () => ''),
     SecretKey('walletConnectProjectId', () => ''),
     SecretKey('moralisApiKey', () => ''),
   ];
@@ -42,6 +42,10 @@ class SecretKey {
   static final evmChainsSecrets = [
     SecretKey('etherScanApiKey', () => ''),
     SecretKey('polygonScanApiKey', () => ''),
+  ];
+
+  static final solanaSecrets = [
+    SecretKey('ankrApiKey', () => ''),
   ];
 
   final String name;

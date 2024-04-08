@@ -20,9 +20,7 @@ abstract class WalletKeysViewModelBase with Store {
   WalletKeysViewModelBase(this._appStore)
       : title = _appStore.wallet!.type == WalletType.bitcoin ||
                 _appStore.wallet!.type == WalletType.litecoin ||
-                _appStore.wallet!.type == WalletType.bitcoinCash ||
-                _appStore.wallet!.type == WalletType.ethereum ||
-                _appStore.wallet!.type == WalletType.polygon
+                _appStore.wallet!.type == WalletType.bitcoinCash
             ? S.current.wallet_seed
             : S.current.wallet_keys,
         _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
@@ -110,7 +108,8 @@ abstract class WalletKeysViewModelBase with Store {
       ]);
     }
 
-    if (isEVMCompatibleChain(_appStore.wallet!.type)) {
+    if (isEVMCompatibleChain(_appStore.wallet!.type) ||
+        _appStore.wallet!.type == WalletType.solana) {
       items.addAll([
         if (_appStore.wallet!.privateKey != null)
           StandartListItem(title: S.current.private_key, value: _appStore.wallet!.privateKey!),
@@ -165,6 +164,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'banano-wallet';
       case WalletType.polygon:
         return 'polygon-wallet';
+      case WalletType.solana:
+        return 'solana-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
     }

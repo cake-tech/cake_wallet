@@ -56,6 +56,7 @@ import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
 import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
+import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
@@ -269,6 +270,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true,
           builder: (_) =>
               getIt.get<TransactionDetailsPage>(param1: settings.arguments as TransactionInfo));
+
+    case Routes.bumpFeePage:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) =>
+              getIt.get<RBFDetailsPage>(param1: settings.arguments as TransactionInfo));
 
     case Routes.newSubaddress:
       return CupertinoPageRoute<void>(
@@ -547,13 +554,19 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<WebViewPage>(param1: title, param2: url));
 
     case Routes.advancedPrivacySettings:
-      final type = settings.arguments as WalletType;
+      final args = settings.arguments as Map<String, dynamic>;
+      final type = args['type'] as WalletType;
+      final useTestnet = args['useTestnet'] as bool;
+      final toggleTestnet = args['toggleTestnet'] as Function(bool? val);
 
       return CupertinoPageRoute<void>(
           builder: (_) => AdvancedPrivacySettingsPage(
-              getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
-              getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
-              getIt.get<SeedTypeViewModel>()));
+                useTestnet,
+                toggleTestnet,
+                getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
+                getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
+                getIt.get<SeedTypeViewModel>(),
+              ));
 
     case Routes.anonPayInvoicePage:
       final args = settings.arguments as List;

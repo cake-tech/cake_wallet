@@ -144,7 +144,11 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
+  Future<Trade> createTrade({
+    required TradeRequest request,
+    required bool isFixedRateMode,
+    required bool isSendAll,
+  }) async {
     String url = '';
     final body = {
       'affiliateId': affiliateId,
@@ -197,6 +201,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       amount: depositAmount ?? request.fromAmount,
       payoutAddress: settleAddress,
       createdAt: DateTime.now(),
+      isSendAll: isSendAll,
     );
   }
 

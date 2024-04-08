@@ -1,6 +1,7 @@
 import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -23,6 +24,10 @@ import 'package:collection/collection.dart';
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
+const publicBitcoinTestnetElectrumAddress = 'electrum.blockstream.info';
+const publicBitcoinTestnetElectrumPort = '60002';
+const publicBitcoinTestnetElectrumUri =
+    '$publicBitcoinTestnetElectrumAddress:$publicBitcoinTestnetElectrumPort';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
@@ -30,6 +35,8 @@ const polygonDefaultNodeUri = 'polygon-bor.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
+const solanaDefaultNodeUri = 'rpc.ankr.com';
+const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -186,11 +193,29 @@ Future<void> defaultSettingsMigration(
           await rewriteSecureStoragePin(secureStorage: secureStorage);
           break;
         case 26:
-          /// commented out as it was a probable cause for some users to have white screen issues
-          /// maybe due to multiple access on Secure Storage at once
-          /// or long await time on start of the app
-          // await insecureStorageMigration(secureStorage: secureStorage, sharedPreferences: sharedPreferences);
+
+        /// commented out as it was a probable cause for some users to have white screen issues
+        /// maybe due to multiple access on Secure Storage at once
+        /// or long await time on start of the app
+        // await insecureStorageMigration(secureStorage: secureStorage, sharedPreferences: sharedPreferences);
+        case 27:
+          await addSolanaNodeList(nodes: nodes);
+          await changeSolanaCurrentNodeToDefault(
+              sharedPreferences: sharedPreferences, nodes: nodes);
           break;
+
+        case 28:
+          await _updateMoneroPriority(sharedPreferences);
+          break;
+
+        case 29:
+          await changeDefaultBitcoinNode(nodes, sharedPreferences);
+          break;
+
+        case 30:
+          await disableServiceStatusFiatDisabled(sharedPreferences);
+          break;
+
         default:
           break;
       }
@@ -203,6 +228,30 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+Future<void> disableServiceStatusFiatDisabled(SharedPreferences sharedPreferences) async {
+  final currentFiat =
+      await sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ?? -1;
+  if (currentFiat == -1 || currentFiat == FiatApiMode.enabled.raw) {
+    return;
+  }
+
+  if (currentFiat == FiatApiMode.disabled.raw || currentFiat == FiatApiMode.torOnly.raw) {
+    await sharedPreferences.setBool(PreferencesKey.disableBulletinKey, true);
+  }
+}
+
+Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
+  final currentPriority =
+      await sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority) ??
+          monero!.getDefaultTransactionPriority().serialize();
+
+  // was set to automatic but automatic should be 0
+  if (currentPriority == 1) {
+    sharedPreferences.setInt(PreferencesKey.moneroTransactionPriority,
+        monero!.getDefaultTransactionPriority().serialize()); // 0
+  }
 }
 
 Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async {
@@ -328,6 +377,12 @@ Node? getBitcoinDefaultElectrumServer({required Box<Node> nodes}) {
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoin);
 }
 
+Node? getBitcoinTestnetDefaultElectrumServer({required Box<Node> nodes}) {
+  return nodes.values
+          .firstWhereOrNull((Node node) => node.uriRaw == publicBitcoinTestnetElectrumUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoin);
+}
+
 Node? getLitecoinDefaultElectrumServer({required Box<Node> nodes}) {
   return nodes.values
           .firstWhereOrNull((Node node) => node.uriRaw == cakeWalletLitecoinElectrumUri) ??
@@ -382,6 +437,11 @@ Node getMoneroDefaultNode({required Box<Node> nodes}) {
   } catch (_) {
     return nodes.values.first;
   }
+}
+
+Node? getSolanaDefaultNode({required Box<Node> nodes}) {
+  return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == solanaDefaultNodeUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.solana);
 }
 
 Future<void> insecureStorageMigration({
@@ -492,8 +552,15 @@ Future<void> rewriteSecureStoragePin({required FlutterSecureStorage secureStorag
 }
 
 Future<void> changeBitcoinCurrentElectrumServerToDefault(
-    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
-  final server = getBitcoinDefaultElectrumServer(nodes: nodes);
+    {required SharedPreferences sharedPreferences,
+    required Box<Node> nodes,
+    bool? isTestnet}) async {
+  Node? server;
+  if (isTestnet == true) {
+    server = getBitcoinTestnetDefaultElectrumServer(nodes: nodes);
+  } else {
+    server = getBitcoinDefaultElectrumServer(nodes: nodes);
+  }
   final serverId = server?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentBitcoinElectrumSererIdKey, serverId);
@@ -659,6 +726,26 @@ Future<void> changeDefaultMoneroNode(
   }
 }
 
+Future<void> changeDefaultBitcoinNode(
+    Box<Node> nodeSource, SharedPreferences sharedPreferences) async {
+  const cakeWalletBitcoinNodeUriPattern = '.cakewallet.com';
+  final currentBitcoinNodeId =
+      sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
+  final currentBitcoinNode =
+      nodeSource.values.firstWhere((node) => node.key == currentBitcoinNodeId);
+  final needToReplaceCurrentBitcoinNode =
+      currentBitcoinNode.uri.toString().contains(cakeWalletBitcoinNodeUriPattern);
+
+  final newCakeWalletBitcoinNode = Node(uri: newCakeWalletBitcoinUri, type: WalletType.bitcoin);
+
+  await nodeSource.add(newCakeWalletBitcoinNode);
+
+  if (needToReplaceCurrentBitcoinNode) {
+    await sharedPreferences.setInt(
+        PreferencesKey.currentBitcoinElectrumSererIdKey, newCakeWalletBitcoinNode.key as int);
+  }
+}
+
 Future<void> checkCurrentNodes(
     Box<Node> nodeSource, Box<Node> powNodeSource, SharedPreferences sharedPreferences) async {
   final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
@@ -673,6 +760,7 @@ Future<void> checkCurrentNodes(
   final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
   final currentBitcoinCashNodeId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
+  final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
   final currentMoneroNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer =
@@ -691,6 +779,8 @@ Future<void> checkCurrentNodes(
       powNodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
   final currentBitcoinCashNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinCashNodeId);
+  final currentSolanaNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentSolanaNodeId);
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
     await nodeSource.add(newCakeWalletNode);
@@ -749,6 +839,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: polygonDefaultNodeUri, type: WalletType.polygon);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.key as int);
+  }
+
+  if (currentSolanaNodeServer == null) {
+    final node = Node(uri: solanaDefaultNodeUri, type: WalletType.solana);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);
   }
 }
 
@@ -860,4 +956,21 @@ Future<void> changePolygonCurrentNodeToDefault(
   final nodeId = node?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, nodeId);
+}
+
+Future<void> addSolanaNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultSolanaNodes();
+  for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
+}
+
+Future<void> changeSolanaCurrentNodeToDefault(
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+  final node = getSolanaDefaultNode(nodes: nodes);
+  final nodeId = node?.key as int? ?? 0;
+
+  await sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, nodeId);
 }

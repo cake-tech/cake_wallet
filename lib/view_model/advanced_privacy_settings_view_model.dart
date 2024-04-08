@@ -20,6 +20,9 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   @computed
   FiatApiMode get fiatApiMode => _settingsStore.fiatApiMode;
 
+  @computed
+  bool get disableBulletin => _settingsStore.disableBulletin;
+
   @observable
   bool _addCustomNode = false;
 
@@ -27,8 +30,25 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   final SettingsStore _settingsStore;
 
-  bool get hasSeedPhraseLengthOption =>
-      type == WalletType.bitcoinCash || type == WalletType.ethereum;
+  bool get hasSeedPhraseLengthOption {
+    // convert to switch case so that it give a syntax error when adding a new wallet type
+    // thus we don't forget about it
+    switch (type) {
+      case WalletType.ethereum:
+      case WalletType.bitcoinCash:
+      case WalletType.polygon:
+      case WalletType.solana:
+        return true;
+      case WalletType.monero:
+      case WalletType.none:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.haven:
+      case WalletType.nano:
+      case WalletType.banano:
+        return false;
+    }
+  }
 
   bool get hasSeedTypeOption => type == WalletType.monero;
 
@@ -46,6 +66,9 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   @action
   void setExchangeApiMode(ExchangeApiMode value) => _settingsStore.exchangeStatus = value;
+
+  @action
+  void setDisableBulletin(bool value) => _settingsStore.disableBulletin = value;
 
   @action
   void toggleAddCustomNode() => _addCustomNode = !_addCustomNode;
