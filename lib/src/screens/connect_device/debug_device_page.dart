@@ -116,7 +116,7 @@ class DebugDevicePageBodyState extends State<DebugDevicePageBody> {
                     method: "Wallet Address",
                     func: () async {
                       setState(() => counter++);
-                      final derivationPath = "m/84'/0'/$counter'";
+                      final derivationPath = "m/84'/0'/$counter'/0/0";
                       return await btc.getAccounts(selectedDevice!, accountsDerivationPath: derivationPath);
                       // return await ethereum!.getHardwareWalletAccounts(selectedDevice!);
                       },
@@ -127,7 +127,7 @@ class DebugDevicePageBodyState extends State<DebugDevicePageBody> {
                     func: () async {
                       final psbt = PsbtV2();
                       final psbtBuf = base64.decode(
-                          "cHNidP8BAgQCAAAAAQQBAQEFAQIAAQ4guw9k8YtRKw7aRz4ILQBctW9ovipob+5u7SoKzP2kbk0BDwQAAAAAARAE/////wEBH+UeAAAAAAAAFgAUp2rS6ZK5wEZWSXYylPoeCj/Rr/EiBgN8TLsZj7AQJvWjBFAbNzeOgwfinbbN22Uf1sbfrjNB+BirTem6VAAAgAAAAIAAAACAAAAAAAAAAAAAAQQU5O2xDsWHHVw4tXnlq2mA7n5uniYBAwjoAwAAAAAAAAABBBQ194P6Zw1yH7EcPLISuNjWZ/knaQEDCIgTAAAAAAAAAA==");
+                          "cHNidP8BAgQCAAAAAQQBAQEFAQIAAQ4gTW6k/cwKKu1u7m9oKr5ob7VcAC0IPkfaDitRi/FkD7sBDwQAAAAAARAE/////wEA/ekBAQAAAAABA9AYVQLI722H0osKMa/4dvMucrnKV1Myxtlp0l0BoOBDAQAAAAD/////ku6r2ABaHt9N26f/P4eMljX8t1f4lBcFfEwuNm/uXYoBAAAAAP////+YeAl8arEGKOcyrWJAYwSboyCstkhHN8zn7/vy7pkYTAEAAAAA/////wHlHgAAAAAAABYAFKdq0umSucBGVkl2MpT6Hgo/0a/xAkcwRAIgMkiJmNFbEi2I3CQYOwyV/JepCnFQRvj4xghkySpFcJMCIGAypkkWltfj+ucvqUIu27tusDAIAAB+rBhX/GV7hPlEASEDyLmWyTLjLfC9kn8pnW42jW5N6EJo5fObjWWEyfLDu9UCSDBFAiEAg9crVtwBPF+sWk+Th6pLwzDjJGItwsUCvoBPtmMTEb4CIDGuM7WOguV0TP21oidF3bSUZlEAjUHWfWzxLKw+3LofASEDfN16xKb70UZSeQyX5Tlh8iRq7np5Nlz9GYdcSU50sKwCSDBFAiEAvotOblaEiBptRWkvb6bj2MGyRjTphKLBLiHYmrRMTCgCIEKJH+z65uPSSz1NIb0d/u3bU9l0xcWk0idEsXjB+BIiASEDrAEiEtrSNKxbh6F/KPaCTafF2LVjCzb75WB+x4xSuoQAAAAAAQEf5R4AAAAAAAAWABSnatLpkrnARlZJdjKU+h4KP9Gv8SIGA3xMuxmPsBAm9aMEUBs3N46DB+Kdts3bZR/Wxt+uM0H4GKtN6bpUAACAAAAAgAAAAIAAAAAAAAAAAAABBBTk7bEOxYcdXDi1eeWraYDufm6eJgEDCOgDAAAAAAAAAAEEFDX3g/pnDXIfsRw8shK42NZn+SdpAQMIiBMAAAAAAAAA");
 
                       psbt.deserialize(psbtBuf);
                       final result = await btc.signPsbt(selectedDevice!, psbt: psbt);

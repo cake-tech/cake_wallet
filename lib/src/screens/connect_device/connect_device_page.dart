@@ -122,7 +122,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              Padding(
+              Padding( // ToDo: (Konsti) Remove Debug Button
                 padding: EdgeInsets.only(bottom: 20),
                 child: DeviceTile(
                   onPressed: () => Navigator.of(context).pushNamed(Routes.debugWalletFromHardwareWallet),
