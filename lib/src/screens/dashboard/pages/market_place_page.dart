@@ -7,6 +7,7 @@ import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
@@ -65,6 +66,19 @@ class MarketPlacePage extends StatelessWidget {
                       ),
                       title: S.of(context).cake_pay_web_cards_title,
                       subTitle: S.of(context).cake_pay_web_cards_subtitle,
+                    ),
+
+                    Observer(
+                      builder: (context) {
+                        if (!dashboardViewModel.hasSignMessages) {
+                          return const SizedBox();
+                        }
+                        return DashBoardRoundedCardWidget(
+                          onTap: () => Navigator.of(context).pushNamed(Routes.signPage),
+                          title: "T: Sign or verify message",
+                          subTitle: "T: Sign or verify a message using your private key",
+                        );
+                      },
                     ),
                   ],
                 ),

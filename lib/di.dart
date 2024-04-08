@@ -13,7 +13,9 @@ import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
+import 'package:cake_wallet/view_model/dashboard/sign_message_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/nano/nano.dart';
@@ -1203,6 +1205,9 @@ Future<void> setup({
 
   getIt.registerFactory(
       () => WalletConnectConnectionsView(web3walletService: getIt.get<Web3WalletService>()));
+
+  getIt.registerFactoryParam<SignPage, SignViewModel, void>((signViewModel, _) =>
+      SignPage(signViewModel));
 
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
