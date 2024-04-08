@@ -17,7 +17,7 @@ class PendingBitcoinTransaction with PendingTransaction {
     required this.feeRate,
     this.network,
     required this.hasChange,
-    required this.isSendAll,
+    this.isSendAll = false,
     this.hasTaprootInputs = false,
   }) : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
