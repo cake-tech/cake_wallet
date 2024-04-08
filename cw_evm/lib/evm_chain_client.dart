@@ -90,7 +90,6 @@ abstract class EVMChainClient {
     String? contractAddress,
     bool isHardwareWallet = false,
     String? data,
-    bool isHardwareWallet = false,
   }) async {
     assert(currency == CryptoCurrency.eth ||
         currency == CryptoCurrency.maticpoly ||

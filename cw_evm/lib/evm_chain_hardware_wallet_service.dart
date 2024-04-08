@@ -13,7 +13,6 @@ class EVMChainHardwareWalletService {
     final ethereumLedgerApp = EthereumLedgerApp(ledger);
 
     final version = await ethereumLedgerApp.getVersion(device);
-    print(version.version); // TODO: (Konsti) remove
 
     final accounts = <String>[];
     final indexRange = List.generate(limit, (i) => i + index);

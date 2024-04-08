@@ -4,10 +4,12 @@ enum DeviceConnectionType {
   usb,
   ble;
 
-  static List<DeviceConnectionType> supportedConnectionTypes(WalletType walletType) {
+  static List<DeviceConnectionType> supportedConnectionTypes(WalletType walletType,
+      [bool isIOS = false]) {
     switch (walletType) {
       case WalletType.ethereum:
       case WalletType.polygon:
+        if (isIOS) return [DeviceConnectionType.ble];
         return [DeviceConnectionType.ble, DeviceConnectionType.usb];
       default:
         return [];

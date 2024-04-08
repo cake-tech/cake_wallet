@@ -178,11 +178,10 @@ class CWEthereum extends Ethereum {
   Future<List<String>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
       {int index = 0, int limit = 5}) async {
     final hardwareWalletService = EVMChainHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
-    print("getHardwareWalletAccounts $limit"); // TODO: (Konsti) remove
     try {
       return await hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } on LedgerException catch (err) {
-      print(err.message); // TODO: (Konsti) remove
+      print(err.message);
       throw err;
     }
   }

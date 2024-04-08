@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -75,8 +76,11 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   @override
   void initState() {
     super.initState();
-    _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices()); // ToDo: (Konsti) Skip for iOS
     _bleRefresh = ledger.scan().listen((device) => setState(() => bleDevices.add(device)));
+
+    if (Platform.isAndroid) {
+      _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
+    }
   }
 
   @override
@@ -123,11 +127,12 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   child: Container(
                     width: double.infinity,
                     child: Text(
-                      "Bluetooth", // ToDo: (konsti) Use S.of(context)
+                      S.of(context).bluetooth,
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      ),
                     ),
                   ),
                 ),
@@ -151,11 +156,12 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   child: Container(
                     width: double.infinity,
                     child: Text(
-                      "USB", // ToDo: (konsti) Use S.of(context)
+                      S.of(context).usb,
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      ),
                     ),
                   ),
                 ),
