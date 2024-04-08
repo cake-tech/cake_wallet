@@ -314,10 +314,12 @@ class TronClient {
         if (availableBandWidth >= 269) {
           totalAmount = amount;
         } else {
-          final estimatedFee = TronHelper.fromSun(BigInt.from(_nativeTxEstimatedFee));
-          final result = double.parse(amount) - double.parse(estimatedFee);
+          final amountInSun = TronHelper.toSun(amount).toInt();
 
-          totalAmount = result.toString();
+          // 5000 added here is a buffer since we're working with "estimated" value of the fee.
+          final result = amountInSun - (_nativeTxEstimatedFee + 5000);
+
+          totalAmount = TronHelper.fromSun(BigInt.from(result));
         }
       } else {
         totalAmount = amount;
@@ -366,7 +368,7 @@ class TronClient {
     // This is introduce to server as a limit in cases where feeLimit is 0
     // The transaction signing will fail if the feeLimit is explicitly 0.
     int defaultFeeLimit = 100000;
-    
+
     final block = await _provider!.request(TronRequestGetNowBlock());
     // Create the transfer contract
     final contract = TransferContract(

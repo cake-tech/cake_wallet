@@ -302,7 +302,7 @@ abstract class TronWalletBase
         totalAmount = walletBalanceForCurrency;
       } else {
         final totalOriginalAmount = double.parse(output.cryptoAmount ?? '0.0');
-        totalAmount = BigInt.from(totalOriginalAmount);
+        totalAmount =TronHelper.toSun(totalOriginalAmount.toString());
       }
 
       if (walletBalanceForCurrency < totalAmount || totalAmount < BigInt.zero) {
