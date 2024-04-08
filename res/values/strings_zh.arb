@@ -619,6 +619,7 @@
   "signTransaction": "签署交易",
   "signup_for_card_accept_terms": "注册卡并接受条款。",
   "silent_payments": "无声付款",
+  "silent_payments_disclaimer": "新地址不是新的身份。这是重复使用具有不同标签的现有身份。",
   "silent_payments_scan_from_date": "从日期开始扫描",
   "silent_payments_scan_from_date_or_blockheight": "请输入您要开始扫描输入静音付款的块高度，或者使用日期。您可以选择钱包是否继续扫描每个块，或仅检查指定的高度。",
   "silent_payments_scan_from_height": "从块高度扫描",

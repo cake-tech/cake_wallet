@@ -230,16 +230,18 @@ class ReceivePage extends BasePage {
                                     child: cell,
                                   );
                           })),
-                  if (!addressListViewModel.isSilentPayments)
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
-                      child: Text(S.of(context).electrum_address_disclaimer,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 15,
-                              color:
-                                  Theme.of(context).extension<BalancePageTheme>()!.labelTextColor)),
-                    ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
+                    child: Text(
+                        !addressListViewModel.isSilentPayments
+                            ? S.of(context).electrum_address_disclaimer
+                            : S.of(context).silent_payments_disclaimer,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 15,
+                            color:
+                                Theme.of(context).extension<BalancePageTheme>()!.labelTextColor)),
+                  ),
                 ],
               ),
             ))

@@ -619,6 +619,7 @@
   "signTransaction": "Sign Transaction",
   "signup_for_card_accept_terms": "Sign up for the card and accept the terms.",
   "silent_payments": "Silent Payments",
+  "silent_payments_disclaimer": "New addresses are not new identities. It is a re-use of an existing identity with a different label.",
   "silent_payments_scan_from_date": "Scan from date",
   "silent_payments_scan_from_date_or_blockheight": "Please enter the block height you want to start scanning for incoming silent payments, or, use the date instead. You can choose if the wallet continues scanning every block, or checks only the specified height.",
   "silent_payments_scan_from_height": "Scan from block height",

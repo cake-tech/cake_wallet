@@ -622,6 +622,7 @@
   "signTransaction": "Tandatangani Transaksi",
   "signup_for_card_accept_terms": "Daftar untuk kartu dan terima syarat dan ketentuan.",
   "silent_payments": "Pembayaran diam",
+  "silent_payments_disclaimer": "Alamat baru bukanlah identitas baru. Ini adalah penggunaan kembali identitas yang ada dengan label yang berbeda.",
   "silent_payments_scan_from_date": "Pindai dari tanggal",
   "silent_payments_scan_from_date_or_blockheight": "Harap masukkan ketinggian blok yang ingin Anda mulai pemindaian untuk pembayaran diam yang masuk, atau, gunakan tanggal sebagai gantinya. Anda dapat memilih jika dompet terus memindai setiap blok, atau memeriksa hanya ketinggian yang ditentukan.",
   "silent_payments_scan_from_height": "Pindai dari Tinggi Blok",
