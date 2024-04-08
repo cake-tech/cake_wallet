@@ -215,7 +215,6 @@ abstract class EVMChainClient {
 
   Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
     try {
-
       final uri = Uri.https(
         'deep-index.moralis.io',
         '/api/v2.2/erc20/metadata',
@@ -244,16 +243,31 @@ abstract class EVMChainClient {
         name: name,
         symbol: symbol,
         contractAddress: contractAddress,
-        decimal: int.parse(decimal),
+        decimal: int.tryParse(decimal) ?? 0,
         iconPath: iconPath,
       );
     } catch (e) {
+      try {
+        final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
+        final name = await erc20.name();
+        final symbol = await erc20.symbol();
+        final decimal = await erc20.decimals();
+
+        return Erc20Token(
+          name: name,
+          symbol: symbol,
+          contractAddress: contractAddress,
+          decimal: decimal.toInt(),
+        );
+      } catch (_) {}
+
       return null;
     }
   }
 
   Uint8List hexToBytes(String hexString) {
-    return Uint8List.fromList(hex.HEX.decode(hexString.startsWith('0x') ? hexString.substring(2) : hexString));
+    return Uint8List.fromList(
+        hex.HEX.decode(hexString.startsWith('0x') ? hexString.substring(2) : hexString));
   }
 
   void stop() {
