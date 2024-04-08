@@ -175,6 +175,7 @@
   "debit_card": "Debitkarte",
   "debit_card_terms": "Die Speicherung und Nutzung Ihrer Zahlungskartennummer (und Ihrer Zahlungskartennummer entsprechenden Anmeldeinformationen) in dieser digitalen Geldbörse unterliegt den Allgemeinen Geschäftsbedingungen des geltenden Karteninhabervertrags mit dem Zahlungskartenaussteller, gültig ab von Zeit zu Zeit.",
   "decimal_places_error": "Zu viele Nachkommastellen",
+  "decimals_cannot_be_zero": "Token -Dezimalzahl kann nicht Null sein.",
   "default_buy_provider": "Standard-Kaufanbieter",
   "default_sell_provider": "Standard-Verkaufsanbieter",
   "delete": "Löschen",

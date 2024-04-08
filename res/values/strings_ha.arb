@@ -175,6 +175,7 @@
   "debit_card": "Katin Zare kudi",
   "debit_card_terms": "Adana da amfani da lambar katin kuɗin ku (da takaddun shaida masu dacewa da lambar katin kuɗin ku) a cikin wannan walat ɗin dijital suna ƙarƙashin Sharuɗɗa da Sharuɗɗa na yarjejeniya mai amfani da katin tare da mai fitar da katin biyan kuɗi, kamar yadda yake aiki daga lokaci zuwa lokaci.",
   "decimal_places_error": "Wadannan suna da tsawon harsuna",
+  "decimals_cannot_be_zero": "Alamar alama ba zata iya zama sifili ba.",
   "default_buy_provider": "Tsohuwar Siyarwa",
   "default_sell_provider": "Tsohuwar Mai Bayar Siyarwa",
   "delete": "Share",

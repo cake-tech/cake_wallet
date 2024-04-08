@@ -175,6 +175,7 @@
   "debit_card": "Karta debetowa",
   "debit_card_terms": "Przechowywanie i używanie numeru karty płatniczej (oraz danych uwierzytelniających odpowiadających numerowi karty płatniczej) w tym portfelu cyfrowym podlega Warunkom odpowiedniej umowy posiadacza karty z wydawcą karty płatniczej, zgodnie z obowiązującym od od czasu do czasu.",
   "decimal_places_error": "Za dużo miejsc dziesiętnych",
+  "decimals_cannot_be_zero": "Token dziesiętny nie może być zerowy.",
   "default_buy_provider": "Domyślny dostawca zakupu",
   "default_sell_provider": "Domyślny dostawca sprzedaży",
   "delete": "Skasuj",

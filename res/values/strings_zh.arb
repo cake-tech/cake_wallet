@@ -175,6 +175,7 @@
   "debit_card": "借记卡",
   "debit_card_terms": "您的支付卡号（以及与您的支付卡号对应的凭证）在此数字钱包中的存储和使用受适用的持卡人与支付卡发卡机构签订的协议的条款和条件的约束，自时不时。",
   "decimal_places_error": "小数位太多",
+  "decimals_cannot_be_zero": "代币十进制不能为零。",
   "default_buy_provider": "默认购买提供商",
   "default_sell_provider": "默认销售提供商",
   "delete": "删除",

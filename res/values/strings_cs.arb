@@ -175,6 +175,7 @@
   "debit_card": "Debetní karta",
   "debit_card_terms": "Uložení a použití vašeho čísla platební karty (a přihlašovací údaje k vašemu číslu karty) v této digitální peněžence se řídí Obchodními podmínkami smlouvy příslušného držitele karty s vydavatelem karty (v jejich nejaktuálnější verzi).",
   "decimal_places_error": "Příliš mnoho desetinných míst",
+  "decimals_cannot_be_zero": "Desetinná desetinná škola nemůže být nulová.",
   "default_buy_provider": "Výchozí poskytovatel nákupu",
   "default_sell_provider": "Výchozí poskytovatel prodeje",
   "delete": "Smazat",

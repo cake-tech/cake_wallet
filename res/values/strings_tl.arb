@@ -175,6 +175,7 @@
   "debit_card": "Debit card",
   "debit_card_terms": "Ang pag -iimbak at paggamit ng numero ng iyong card ng pagbabayad (at mga kredensyal na naaayon sa iyong numero ng card ng pagbabayad) sa digital na pitaka na ito ay napapailalim sa mga termino at kundisyon ng naaangkop na kasunduan sa cardholder kasama ang nagbigay ng card ng pagbabayad, tulad ng sa oras -oras.",
   "decimal_places_error": "Masyadong maraming mga lugar na desimal",
+  "decimals_cannot_be_zero": "Ang Token Decimal ay hindi maaaring maging zero.",
   "default_buy_provider": "Default na Provider ng Pagbili",
   "default_sell_provider": "Default na Sell Provider",
   "delete": "Tanggalin",

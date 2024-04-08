@@ -175,6 +175,7 @@
   "debit_card": "Debit Card",
   "debit_card_terms": "The storage and usage of your payment card number (and credentials corresponding to your payment card number) in this digital wallet are subject to the Terms and Conditions of the applicable cardholder agreement with the payment card issuer, as in effect from time to time.",
   "decimal_places_error": "Too many decimal places",
+  "decimals_cannot_be_zero": "Token decimal cannot be zero.",
   "default_buy_provider": "Default Buy Provider",
   "default_sell_provider": "Default Sell Provider",
   "delete": "Delete",

@@ -175,6 +175,7 @@
   "debit_card": "Carte de débit",
   "debit_card_terms": "Le stockage et l'utilisation de votre numéro de carte de paiement (et des informations d'identification correspondant à votre numéro de carte de paiement) dans ce portefeuille (wallet) numérique peuvent être soumis aux conditions générales de l'accord du titulaire de carte parfois en vigueur avec l'émetteur de la carte de paiement.",
   "decimal_places_error": "Trop de décimales",
+  "decimals_cannot_be_zero": "La décimale du jeton ne peut pas être nulle.",
   "default_buy_provider": "Fournisseur d'achat par défaut",
   "default_sell_provider": "Fournisseur de vente par défaut",
   "delete": "Effacer",

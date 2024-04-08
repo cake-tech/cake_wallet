@@ -175,6 +175,7 @@
   "debit_card": "Debetkaart",
   "debit_card_terms": "De opslag en het gebruik van uw betaalkaartnummer (en inloggegevens die overeenkomen met uw betaalkaartnummer) in deze digitale portemonnee zijn onderworpen aan de Algemene voorwaarden van de toepasselijke kaarthouderovereenkomst met de uitgever van de betaalkaart, zoals van kracht vanaf tijd tot tijd.",
   "decimal_places_error": "Te veel decimalen",
+  "decimals_cannot_be_zero": "Token decimaal kan niet nul zijn.",
   "default_buy_provider": "Standaard Koopprovider",
   "default_sell_provider": "Standaard verkoopaanbieder",
   "delete": "Delete",

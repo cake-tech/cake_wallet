@@ -175,6 +175,7 @@
   "debit_card": "Ön ödemeli Kart",
   "debit_card_terms": "Ödeme kartı numaranızın (ve kart numaranıza karşılık gelen kimlik bilgilerinin) bu dijital cüzdanda saklanması ve kullanılması, zaman zaman yürürlükte olan ödeme kartı veren kuruluşla yapılan ilgili kart sahibi sözleşmesinin Hüküm ve Koşullarına tabidir.",
   "decimal_places_error": "Çok fazla ondalık basamak",
+  "decimals_cannot_be_zero": "Token oncial sıfır olamaz.",
   "default_buy_provider": "Varsayılan Satın Alma Sağlayıcısı",
   "default_sell_provider": "Varsayılan Satış Sağlayıcısı",
   "delete": "Sil",
