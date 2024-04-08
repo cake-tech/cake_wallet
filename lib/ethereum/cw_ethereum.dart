@@ -181,7 +181,7 @@ class CWEthereum extends Ethereum {
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } on LedgerException catch (err) {
-      print(err.message); // TODO: (Konsti) remove
+      print(err.message);
       throw err;
     }
   }

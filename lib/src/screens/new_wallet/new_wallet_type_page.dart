@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
@@ -74,7 +76,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
     types = filteredTypes = availableWalletTypes
         .where((element) =>
             !widget.isHardwareWallet ||
-            DeviceConnectionType.supportedConnectionTypes(element).isNotEmpty)
+            DeviceConnectionType.supportedConnectionTypes(element, Platform.isIOS).isNotEmpty)
         .toList();
     super.initState();
 
@@ -132,7 +134,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                           isSelected: selected == type,
                           onTap: () => setState(() => selected = type),
                           deviceConnectionTypes: widget.isHardwareWallet
-                              ? DeviceConnectionType.supportedConnectionTypes(type)
+                              ? DeviceConnectionType.supportedConnectionTypes(type, Platform.isIOS)
                               : [],
                         ),
                       ),
