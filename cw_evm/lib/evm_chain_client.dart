@@ -88,6 +88,7 @@ abstract class EVMChainClient {
     required CryptoCurrency currency,
     required int exponent,
     String? contractAddress,
+    bool isHardwareWallet = false,
     String? data,
     bool isHardwareWallet = false,
   }) async {

@@ -16,6 +16,7 @@ import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/exceptions.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
@@ -310,10 +311,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     try {
       state = IsExecutingState();
 
-      print(wallet.isHardwareWallet);
-
       if (wallet.isHardwareWallet) state = IsAwaitingDeviceResponseState();
+
       pendingTransaction = await wallet.createTransaction(_credentials());
+
       if (provider is ThorChainExchangeProvider) {
         final outputCount = pendingTransaction?.outputCount ?? 0;
         if (outputCount > 10) {

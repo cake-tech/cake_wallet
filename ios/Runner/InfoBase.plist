@@ -208,6 +208,10 @@
 	<string>Enable Face ID for fast and secure access to wallets and private keys</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to documents folder for getting access to open/save backup file</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>We need access to Bluetooth in order to connect to your hardware wallet when needed</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>We need access to Bluetooth in order to connect to your hardware wallet when needed</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
