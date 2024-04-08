@@ -1,15 +1,35 @@
-# Cake Wallet for Mobile and Desktop
+<div align="center">
 
-## Open Source Multi-Currency Wallet
+<img height="100" src=".github/assets/Logo_CakeWallet.png">
 
-## Links
+</div>
 
-* Website: https://cakewallet.com
-* App Store (iOS / MacOS): https://cakewallet.com/ios
-* Google Play: https://cakewallet.com/gp
-* F-Droid: https://fdroid.cakelabs.com
-* APK: https://github.com/cake-tech/cake_wallet/releases
-* Linux: https://github.com/cake-tech/cake_wallet/releases
+![devices](.github/assets/devices.png)
+
+<div align="center">
+
+[<img height="42" src=".github/assets/app-store-badge.svg">](https://apps.apple.com/us/app/cake-wallet/id1334702542?platform=iphone)
+[<img height="42" src=".github/assets/google-play-badge.png">](https://play.google.com/store/apps/details?id=com.cakewallet.cake_wallet)
+[<img height="42" src=".github/assets/f-droid-badge.png">](https://fdroid.cakelabs.com)
+[<img height="42" src=".github/assets/mac-store-badge.svg">](https://apps.apple.com/us/app/cake-wallet/id1334702542?platform=mac)
+[<img height="42" src=".github/assets/linux-badge.svg">](https://github.com/cake-tech/cake_wallet/releases)
+
+</div>
+
+# Cake Wallet
+
+Cake Wallet is an open source, non-custodial, and private multi-currency crypto wallet for Android, iOS, macOS, and Linux.
+
+Cake Wallet includes support for several cryptocurrencies, including:
+* Monero (XMR)
+* Bitcoin (BTC)
+* Ethereum (ETH)
+* Litecoin (LTC)
+* Bitcoin Cash (BCH)
+* Polygon (MATIC)
+* Solana (SOL)
+* Nano (XNO)
+* Haven (XHV)
 
 ## Features
 
