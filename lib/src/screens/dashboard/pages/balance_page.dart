@@ -334,7 +334,7 @@ class BalanceRowWidget extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 16,
                               fontFamily: 'Lato',
-                              fontWeight: FontWeight.w500,
+                             fontWeight: FontWeight.w500,
                               color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                               height: 1)),
                     ],
@@ -345,24 +345,28 @@ class BalanceRowWidget extends StatelessWidget {
                   child: Center(
                     child: Column(
                       children: [
-                        CakeImageWidget(
-                          imageUrl: currency.iconPath,
-                          height: 40,
-                          width: 40,
-                          displayOnError: Container(
-                                height: 30.0,
-                                width: 30.0,
-                                child: Center(
-                                  child: Text(
-                                    currency.title.substring(0, min(currency.title.length, 2)),
-                                    style: TextStyle(fontSize: 11),
-                                  ),
-                                ),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.grey.shade400,
+                        Container(
+                          clipBehavior: Clip.antiAlias,
+                          decoration: BoxDecoration(shape: BoxShape.circle),
+                          child: CakeImageWidget(
+                            imageUrl: currency.iconPath,
+                            height: 40,
+                            width: 40,
+                            displayOnError: Container(
+                              height: 30.0,
+                              width: 30.0,
+                              child: Center(
+                                child: Text(
+                                  currency.title.substring(0, min(currency.title.length, 2)),
+                                  style: TextStyle(fontSize: 11),
                                 ),
                               ),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 10),
                         Text(
@@ -421,9 +425,7 @@ class BalanceRowWidget extends StatelessWidget {
                         fontSize: 20,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context)
-                            .extension<BalancePageTheme>()!
-                            .balanceAmountColor,
+                        color: Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
                         height: 1,
                       ),
                       maxLines: 1,

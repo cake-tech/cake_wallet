@@ -90,6 +90,7 @@ import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
 import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
+import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
@@ -303,6 +304,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true,
           builder: (_) =>
               getIt.get<TransactionDetailsPage>(param1: settings.arguments as TransactionInfo));
+
+    case Routes.bumpFeePage:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) =>
+              getIt.get<RBFDetailsPage>(param1: settings.arguments as TransactionInfo));
 
     case Routes.newSubaddress:
       return CupertinoPageRoute<void>(
