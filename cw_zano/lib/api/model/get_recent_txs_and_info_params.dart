@@ -9,5 +9,6 @@ class GetRecentTxsAndInfoParams {
     'offset': offset,
     'count': count,
     'update_provision_info': updateProvisionInfo,
+    'order': 'FROM_BEGIN_TO_END',
   };
 }

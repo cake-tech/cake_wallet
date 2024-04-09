@@ -12,8 +12,6 @@ class ZanoTransactionInfo extends TransactionInfo {
     required this.date,
     required this.isPending,
     required this.amount,
-    required this.accountIndex,
-    required this.addressIndex,
     required this.fee,
     required this.assetId,
     required this.confirmations,
@@ -21,29 +19,35 @@ class ZanoTransactionInfo extends TransactionInfo {
     required this.decimalPoint,
   });
 
-  ZanoTransactionInfo.fromTransfer(Transfer transfer, this.tokenSymbol, this.decimalPoint)
+  ZanoTransactionInfo.fromTransfer(Transfer transfer,
+      {required int confirmations,
+      required bool isIncome,
+      required String assetId,
+      required int amount,
+      this.tokenSymbol = 'ZANO',
+      this.decimalPoint = ZanoFormatter.defaultDecimalPoint})
       : id = transfer.txHash,
         height = transfer.height,
-        direction = transfer.subtransfers.first.isIncome ? TransactionDirection.incoming : TransactionDirection.outgoing,
+        direction = isIncome ? TransactionDirection.incoming : TransactionDirection.outgoing,
         date = DateTime.fromMillisecondsSinceEpoch(transfer.timestamp * 1000),
-        isPending = false,
-        amount = transfer.subtransfers.first.amount,
-        accountIndex = 0,
-        addressIndex = 0,
+        amount = amount,
         fee = transfer.fee,
-        confirmations = 1,
-        assetId = transfer.subtransfers.first.assetId,
-        recipientAddress = transfer.remoteAddresses.isNotEmpty ? transfer.remoteAddresses.first : '';
+        assetId = assetId,
+        confirmations = confirmations,
+        isPending = false,
+        recipientAddress = transfer.remoteAddresses.isNotEmpty ? transfer.remoteAddresses.first : '' {
+    additionalInfo = <String, dynamic>{
+      'comment': transfer.comment,
+    };
+  }
 
   final String id;
   final int height;
   final TransactionDirection direction;
   final DateTime date;
-  final int accountIndex;
   final bool isPending;
   final int amount;
   final int fee;
-  final int addressIndex;
   final int confirmations;
   final int decimalPoint;
   late String recipientAddress;

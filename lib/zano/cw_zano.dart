@@ -1,88 +1,8 @@
 part of 'zano.dart';
 
-/**class CWZanoAccountList extends ZanoAccountList {
-  CWZanoAccountList(this._wallet);
-
-  final Object _wallet;
-
-  @override
-  @computed
-  ObservableList<Account> get accounts {
-    final zanoWallet = _wallet as ZanoWallet;
-    final accounts = zanoWallet.walletAddresses.accountList.accounts
-        .map((acc) => Account(id: acc.id, label: acc.label))
-        .toList();
-    return ObservableList<Account>.of(accounts);
-  }
-
-  @override
-  void update(Object wallet) {
-    final zanoWallet = wallet as ZanoWallet;
-    zanoWallet.walletAddresses.accountList.update();
-  }
-
-  @override
-  void refresh(Object wallet) {
-    final zanoWallet = wallet as ZanoWallet;
-    zanoWallet.walletAddresses.accountList.refresh();
-  }
-
-  @override
-  List<Account> getAll(Object wallet) {
-    final zanoWallet = wallet as ZanoWallet;
-    return zanoWallet.walletAddresses.accountList
-        .getAll()
-        .map((acc) => Account(id: acc.id, label: acc.label))
-        .toList();
-  }
-
-  @override
-  Future<void> addAccount(Object wallet, {required String label}) async {
-    final zanoWallet = wallet as ZanoWallet;
-    await zanoWallet.walletAddresses.accountList.addAccount(label: label);
-  }
-
-  @override
-  Future<void> setLabelAccount(Object wallet,
-      {required int accountIndex, required String label}) async {
-    final zanoWallet = wallet as ZanoWallet;
-    await zanoWallet.walletAddresses.accountList
-        .setLabelAccount(accountIndex: accountIndex, label: label);
-  }
-}*/
-
-/*class CWZanoWalletDetails extends ZanoWalletDetails {
-  CWZanoWalletDetails(this._wallet);
-
-  final Object _wallet;
-
-  // @computed
-  // @override
-  // Account get account {
-  //   final zanoWallet = _wallet as ZanoWallet;
-  //   final acc = zanoWallet.walletAddresses.account as monero_account.Account;
-  //   return Account(id: acc.id, label: acc.label);
-  // }
-
-  // @computed
-  // @override
-  // ZanoBalance get balance {
-  //   final zanoWallet = _wallet as ZanoWallet;
-  //   final balance = zanoWallet.balance;
-  //   return ZanoBalance(fullBalance: balance[CryptoCurrency.zano]!.total, unlockedBalance: balance[CryptoCurrency.zano]!.unlocked);
-  // }
-}*/
-
 class CWZano extends Zano {
-  /**@override
-  ZanoAccountList getAccountList(Object wallet) {
-    return CWZanoAccountList(wallet);
-  }*/
 
-  List<ZanoAsset> getZanoAssets(WalletBase wallet) {
-    wallet as ZanoWallet;
-    return wallet.zanoAssets.values.toList();
-  }
+  List<ZanoAsset> getZanoAssets(WalletBase wallet) => (wallet as ZanoWallet).zanoAssets.values.toList();
 
   @override
   Future<CryptoCurrency> addZanoAssetById(WalletBase wallet, String assetId) async => await (wallet as ZanoWallet).addZanoAssetById(assetId);
@@ -99,15 +19,10 @@ class CWZano extends Zano {
     return await zanoWallet.getZanoAsset(assetId);
   }
 
-  @override
-  TransactionHistoryBase getTransactionHistory(Object wallet) {
-    final zanoWallet = wallet as ZanoWallet;
-    return zanoWallet.transactionHistory;
-  }
-
   // @override
-  // ZanoWalletDetails getZanoWalletDetails(Object wallet) {
-  //   return CWZanoWalletDetails(wallet);
+  // TransactionHistoryBase getTransactionHistory(Object wallet) {
+  //   final zanoWallet = wallet as ZanoWallet;
+  //   return zanoWallet.transactionHistory;
   // }
 
   @override
@@ -155,17 +70,17 @@ class CWZano extends Zano {
     return ZanoNewWalletCredentials(name: name, password: password);
   }
 
-  @override
-  Map<String, String> getKeys(Object wallet) {
-    final zanoWallet = wallet as ZanoWallet;
-    final keys = zanoWallet.keys;
-    return <String, String>{
-      'privateSpendKey': keys.privateSpendKey,
-      'privateViewKey': keys.privateViewKey,
-      'publicSpendKey': keys.publicSpendKey,
-      'publicViewKey': keys.publicViewKey
-    };
-  }
+  // @override
+  // Map<String, String> getKeys(Object wallet) {
+  //   final zanoWallet = wallet as ZanoWallet;
+  //   final keys = zanoWallet.keys;
+  //   return <String, String>{
+  //     'privateSpendKey': keys.privateSpendKey,
+  //     'privateViewKey': keys.privateViewKey,
+  //     'publicSpendKey': keys.publicSpendKey,
+  //     'publicViewKey': keys.publicViewKey
+  //   };
+  // }
 
   @override
   Object createZanoTransactionCredentials({required List<Output> outputs, required TransactionPriority priority, required CryptoCurrency currency}) {
@@ -198,11 +113,11 @@ class CWZano extends Zano {
     return ZanoFormatter.parseAmount(amount);
   }
 
-  @override
-  int getTransactionInfoAccountId(TransactionInfo tx) {
-    final zanoTransactionInfo = tx as ZanoTransactionInfo;
-    return zanoTransactionInfo.accountIndex;
-  }
+  // @override
+  // int getTransactionInfoAccountId(TransactionInfo tx) {
+  //   final zanoTransactionInfo = tx as ZanoTransactionInfo;
+  //   return zanoTransactionInfo.accountIndex;
+  // }
 
   @override
   WalletService createZanoWalletService(Box<WalletInfo> walletInfoSource) {
@@ -216,7 +131,8 @@ class CWZano extends Zano {
       return CryptoCurrency.zano;
     }
     wallet as ZanoWallet;
-    return wallet.zanoAssets.values.firstWhere((element) => element.ticker == transaction.tokenSymbol);
+    final asset = wallet.zanoAssets.values.firstWhereOrNull((element) => element.ticker == transaction.tokenSymbol);
+    return asset ?? CryptoCurrency.zano;
   }
 
   String getZanoAssetAddress(CryptoCurrency asset) => (asset as ZanoAsset).assetId;

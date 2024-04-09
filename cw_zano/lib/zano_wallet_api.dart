@@ -9,6 +9,7 @@ import 'package:cw_zano/api/model/create_wallet_result.dart';
 import 'package:cw_zano/api/model/destination.dart';
 import 'package:cw_zano/api/model/get_address_info_result.dart';
 import 'package:cw_zano/api/model/get_recent_txs_and_info_params.dart';
+import 'package:cw_zano/api/model/get_recent_txs_and_info_result.dart';
 import 'package:cw_zano/api/model/get_wallet_info_result.dart';
 import 'package:cw_zano/api/model/get_wallet_status_result.dart';
 import 'package:cw_zano/api/model/proxy_to_daemon_params.dart';
@@ -31,7 +32,8 @@ mixin ZanoWalletApi {
   static const _maxAttempts = 10;
   //static const _logType = _LogType.json;
   static const _logInfo = true;
-  static const _logJson = false;
+  static const _logError = true;
+  static const _logJson = true;
   static const int _zanoMixinValue = 10;
 
   int _hWallet = 0;
@@ -46,7 +48,10 @@ mixin ZanoWalletApi {
 
   void setPassword(String password) => ApiCalls.setPassword(hWallet: hWallet, password: password);
 
-  void closeWallet() => ApiCalls.closeWallet(hWallet: hWallet);
+  void closeWallet() {
+    _info('close_wallet $hWallet');
+    ApiCalls.closeWallet(hWallet: hWallet);
+  }
 
   Future<bool> setupNode() async {
     _info('init $_defaultNodeUri');
@@ -80,7 +85,8 @@ mixin ZanoWalletApi {
     if (_logJson) debugPrint('get_wallet_status $json');
     await _writeLog('get_wallet_status', 'get_wallet_status result $json');
     if (_logInfo)
-      _info('get_wallet_status connected: ${status.isDaemonConnected} in refresh: ${status.isInLongRefresh} progress: ${status.progress} wallet state: ${status.walletState}');
+      _info(
+          'get_wallet_status connected: ${status.isDaemonConnected} in refresh: ${status.isInLongRefresh} progress: ${status.progress} wallet state: ${status.walletState}');
     return status;
   }
 
@@ -135,7 +141,7 @@ mixin ZanoWalletApi {
         _info('assets_whitelist_get got local whitelist: ${localWhitelist.length} ($localWhitelist); '
             'global whitelist: ${globalWhitelist.length} ($globalWhitelist); '
             'own assets: ${ownAssets.length} ($ownAssets)');
-      return [...localWhitelist, ...globalWhitelist, ...ownAssets];
+      return [...globalWhitelist, ...localWhitelist, ...ownAssets];
     } catch (e) {
       print('[error] assets_whitelist_get $e');
       return [];
@@ -218,22 +224,29 @@ mixin ZanoWalletApi {
     }
   }
 
-  Future<List<Transfer>> getRecentTxsAndInfo() async {
+  Future<GetRecentTxsAndInfoResult> getRecentTxsAndInfo({required int offset, required int count}) async {
+    _info('get_recent_txs_and_info $offset $count');
     try {
-      final json = await invokeMethod('get_recent_txs_and_info', GetRecentTxsAndInfoParams(offset: 0, count: 30));
+      final json = await invokeMethod('get_recent_txs_and_info', GetRecentTxsAndInfoParams(offset: offset, count: count));
       if (_logJson) debugPrint('get_recent_txs_and_info $json');
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
+      final lastItemIndex = map?['result']?['result']?['last_item_index'] as int?;
+      final totalTransfers = map?['result']?['result']?['total_transfers'] as int?;
       final transfers = map?['result']?['result']?['transfers'] as List<dynamic>?;
-      if (transfers == null) {
-        _info('get_recent_txs_and_info empty transfers');
-        return [];
+      if (transfers == null || lastItemIndex == null || totalTransfers == null) {
+        _error('get_recent_txs_and_info empty transfers');
+        return GetRecentTxsAndInfoResult.empty();
       }
-      _info('get_recent_txs_and_info transfers: ${transfers.length}');
-      return transfers.map((e) => Transfer.fromJson(e as Map<String, dynamic>)).toList();
+      _info('get_recent_txs_and_info transfers.length: ${transfers.length}');
+      return GetRecentTxsAndInfoResult(
+        transfers: transfers.map((e) => Transfer.fromJson(e as Map<String, dynamic>)).toList(),
+        lastItemIndex: lastItemIndex,
+        totalTransfers: totalTransfers,
+      );
     } catch (e) {
-      print('[error] get_recent_txs_and_info $e');
-      return [];
+      _error('get_recent_txs_and_info $e');
+      return GetRecentTxsAndInfoResult.empty();
     }
   }
 
@@ -303,7 +316,7 @@ mixin ZanoWalletApi {
         // already connected to this wallet. closing and attempting to reopen
         debugPrint('already connected. closing and reopen wallet');
         closeWallet();
-        await Future.delayed(const Duration(milliseconds: 500));
+        await Future.delayed(const Duration(milliseconds: 2000));
         return await loadWallet(path, password, true);
       }
       throw ZanoWalletException('Error loading wallet, $message ($code)');
@@ -378,9 +391,6 @@ mixin ZanoWalletApi {
     }
   }
 
-  static void _info(String s) {
-    if (_logInfo) {
-      debugPrint('[info] $s');
-    }
-  }
+  static void _info(String s) => _logInfo ? debugPrint('[info] $s') : null;
+  static void _error(String s) => _logError ? debugPrint('[error] $s') : null;
 }

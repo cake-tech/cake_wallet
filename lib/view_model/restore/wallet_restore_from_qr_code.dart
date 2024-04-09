@@ -33,6 +33,7 @@ class WalletRestoreFromQRCode {
     'bitcoincash-wallet': WalletType.bitcoinCash,
     'bitcoincash_wallet': WalletType.bitcoinCash,
     'solana-wallet': WalletType.solana,
+    'zano-wallet': WalletType.zano,
   };
 
   static bool _containsAssetSpecifier(String code) => _extractWalletType(code) != null;

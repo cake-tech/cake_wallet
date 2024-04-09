@@ -168,7 +168,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.solana:
         return S.current.view_transaction_on + 'solscan.io';
       case WalletType.zano:
-        return S.current.view_transaction_on + 'zano';
+        return S.current.view_transaction_on + 'explorer.zano.org';
       default:
         return '';
     }
@@ -314,6 +314,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void _addZanoListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final comment = tx.additionalInfo['comment'] as String?;
     items.addAll([
       StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
       StandartListItem(
@@ -322,6 +323,8 @@ abstract class TransactionDetailsViewModelBase with Store {
       StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
       if (tx.feeFormatted()?.isNotEmpty ?? false)
         StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+      if (comment != null)
+        StandartListItem(title: S.current.transaction_details_title, value: comment),
     ]);
   }
 }

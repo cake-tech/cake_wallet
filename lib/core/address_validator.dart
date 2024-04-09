@@ -300,6 +300,8 @@ class AddressValidator extends TextValidator {
             '|([^0-9a-zA-Z]|^)q[0-9a-zA-Z]{42}([^0-9a-zA-Z]|\$)';
       case CryptoCurrency.sol:
         return '([^0-9a-zA-Z]|^)[1-9A-HJ-NP-Za-km-z]{43,44}([^0-9a-zA-Z]|\$)';
+      case CryptoCurrency.zano:
+        return '[0-9a-zA-Z]{1,100}';
       default:
         if (type.tag == CryptoCurrency.eth.title) {
           return '0x[0-9a-zA-Z]{42}';

@@ -1,5 +1,9 @@
 import 'package:cw_zano/api/model/employed_entries.dart';
 import 'package:cw_zano/api/model/subtransfer.dart';
+import 'package:collection/collection.dart';
+import 'package:cw_zano/model/zano_asset.dart';
+import 'package:cw_zano/model/zano_transaction_info.dart';
+import 'package:cw_zano/zano_wallet.dart';
 
 class Transfer {
   final String comment;
@@ -65,5 +69,50 @@ class Transfer {
         txHash: json['tx_hash'] as String? ?? '',
         txType: json['tx_type'] as int? ?? 0,
         unlockTime: json['unlock_time'] as int? ?? 0,
+      );
+
+  //static const String zanoAssetId = 'd6329b5b1f7c0805b5c345f4957554002a2f557845f64d7645dae0e051a6498a';
+  
+
+  static Map<String, ZanoTransactionInfo> makeMap(List<Transfer> transfers, Map<String, ZanoAsset> zanoAssets, int currentDaemonHeight) => Map.fromIterable(
+        transfers,
+        key: (item) => (item as Transfer).txHash,
+        value: (transfer) {
+          transfer as Transfer;
+          Subtransfer? single = transfer.subtransfers.singleOrNull;
+          if (transfer.subtransfers.length == 2) {
+            final zano = transfer.subtransfers.firstWhereOrNull((element) => element.assetId == ZanoWalletBase.zanoAssetId);
+            if (zano != null && !zano.isIncome && zano.amount == transfer.fee) {
+              single = transfer.subtransfers.firstWhere((element) => element.assetId != ZanoWalletBase.zanoAssetId);
+            }
+          }
+          bool isSimple = single != null;
+          // TODO: for complex transactions we show zano or any other transaction, will fix it later
+          if (!isSimple) {
+            single = transfer.subtransfers.firstWhereOrNull((element) => element.assetId == ZanoWalletBase.zanoAssetId) ?? transfer.subtransfers.first;
+          }
+          if (single.assetId != ZanoWalletBase.zanoAssetId) {
+            final asset = zanoAssets[single.assetId];
+            if (asset != null)
+              return ZanoTransactionInfo.fromTransfer(
+                transfer,
+                confirmations: currentDaemonHeight - transfer.height,
+                isIncome: single.isIncome,
+                assetId: single.assetId,
+                amount: single.amount,
+                tokenSymbol: isSimple ? asset.ticker : '*${asset.ticker}',
+                decimalPoint: asset.decimalPoint,
+              );
+          }
+          final amount = single.isIncome ? single.amount : single.amount - transfer.fee;
+          return ZanoTransactionInfo.fromTransfer(
+            transfer,
+            confirmations: currentDaemonHeight - transfer.height,
+            isIncome: single.isIncome,
+            assetId: single.assetId,
+            amount: amount,
+            tokenSymbol: isSimple ? 'ZANO' : '*ZANO',
+          );
+        },
       );
 }

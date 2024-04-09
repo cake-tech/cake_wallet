@@ -104,7 +104,6 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.digibyte,
     CryptoCurrency.usdtSol,
     CryptoCurrency.zano,
-    CryptoCurrency.ctZano,
   ];
 
   static const havenCurrencies = [
@@ -220,7 +219,6 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const digibyte = CryptoCurrency(title: 'DGB', fullName: 'DigiByte', raw: 90, name: 'dgb', iconPath: 'assets/images/digibyte.png', decimals: 8);
   static const usdtSol = CryptoCurrency(title: 'USDT', tag: 'SOL', fullName: 'USDT Tether', raw: 91, name: 'usdtsol', iconPath: 'assets/images/usdt_icon.png', decimals: 6);
   static const zano = CryptoCurrency(title: 'ZANO', tag: 'ZANO', fullName: 'Zano', raw: 92, name: 'zano', iconPath: 'assets/images/zano_icon.png', decimals: 12);
-  static const ctZano = CryptoCurrency(title: 'CT', tag: 'ZANO', fullName: 'Confidential token', raw: 93, name: 'ctzano', iconPath: 'assets/images/zano_icon.png', decimals: 12);
 
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =

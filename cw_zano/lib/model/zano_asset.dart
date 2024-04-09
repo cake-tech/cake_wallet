@@ -43,7 +43,7 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
     this.ticker = '',
     required this.assetId,
     this.decimalPoint = ZanoFormatter.defaultDecimalPoint,
-    bool enabled = false,
+    bool enabled = true,
     this.iconPath,
     //this.tag,
     this.owner = defaultOwner,
@@ -62,12 +62,12 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
           decimals: decimalPoint,
         );
 
-  ZanoAsset.copyWith(ZanoAsset other, String? icon, /*String? tag,*/ {String? assetId, bool enabled = false})
+  ZanoAsset.copyWith(ZanoAsset other, {String? icon, /*String? tag,*/ String? assetId, bool enabled = true})
       : this.fullName = other.fullName,
         this.ticker = other.ticker,
         this.assetId = assetId ?? other.assetId,
         this.decimalPoint = other.decimalPoint,
-        this._enabled = enabled || other.enabled,
+        this._enabled = enabled && other.enabled,
         //this.tag = tag,
         this.iconPath = icon,
         this.currentSupply = other.currentSupply,
@@ -83,6 +83,7 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
           tag: 'ZANO',
           iconPath: icon,
           decimals: other.decimalPoint,
+          enabled: enabled,
         );
 
   factory ZanoAsset.fromJson(Map<String, dynamic> json, {bool isInGlobalWhitelist = false}) => ZanoAsset(
@@ -99,6 +100,6 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
       );
 
   static const typeId = ZANO_ASSET_TYPE_ID;
-  static const zanoAssetsBoxName = 'ZanoAssetsBox123';    // TODO: change to normal name
+  static const zanoAssetsBoxName = 'zanoAssetsBox';    
   static const defaultOwner = '0000000000000000000000000000000000000000000000000000000000000000';
 }
