@@ -4,7 +4,7 @@
 
 If you need to report a vulnerability, please either:
 
-* Use the Security advisory reporter: https://github.com/cake-tech/cake_wallet/security/advisories/new
+* Open a security advisory: https://github.com/cake-tech/cake_wallet/security/advisories/new
 * Send an email to `dev@cakewallet.com` with details on the vulnerability
 
 ## Supported Versions
