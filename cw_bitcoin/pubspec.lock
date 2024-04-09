@@ -70,8 +70,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: master
-      resolved-ref: ea65073efbaf395a5557e8cd7bd72f195cd7eb11
+      ref: Add-Support-For-OP-Return-data
+      resolved-ref: "57b78afb85bd2c30d3cdb9f7884f3878a62be442"
       url: "https://github.com/cake-tech/bitbox-flutter.git"
     source: git
     version: "1.0.1"

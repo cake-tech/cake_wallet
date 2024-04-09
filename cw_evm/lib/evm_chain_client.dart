@@ -1,20 +1,21 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
-import 'package:cw_core/node.dart';
-import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/crypto_currency.dart';
-
-import 'package:cw_evm/evm_erc20_balance.dart';
+import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
-import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
+import 'package:cw_evm/evm_erc20_balance.dart';
+import 'package:cw_evm/pending_evm_chain_transaction.dart';
+import 'package:cw_evm/.secrets.g.dart' as secrets;
 import 'package:flutter/services.dart';
-
-import 'package:http/http.dart';
-import 'package:erc20/erc20.dart';
-import 'package:web3dart/web3dart.dart';
 import 'package:hex/hex.dart' as hex;
+import 'package:http/http.dart';
+import 'package:web3dart/web3dart.dart';
+
+import 'contract/erc20.dart';
 
 abstract class EVMChainClient {
   final httpClient = Client();
@@ -107,13 +108,12 @@ abstract class EVMChainClient {
       data: data != null ? hexToBytes(data) : null,
     );
 
-    Uint8List? signedTransaction;
+    Uint8List signedTransaction;
 
     final Function _sendTransaction;
 
     if (isNativeToken) {
       signedTransaction = await _client!.signTransaction(privateKey, transaction, chainId: chainId);
-      _sendTransaction = () async => await sendTransaction(signedTransaction!);
     } else {
       final erc20 = ERC20(
         client: _client!,
@@ -121,18 +121,19 @@ abstract class EVMChainClient {
         chainId: chainId,
       );
 
-      _sendTransaction = () async {
-        await erc20.transfer(
-          EthereumAddress.fromHex(toAddress),
-          amount,
-          credentials: privateKey,
-          transaction: transaction,
-        );
-      };
+      signedTransaction = await erc20.transfer(
+        EthereumAddress.fromHex(toAddress),
+        amount,
+        credentials: privateKey,
+        transaction: transaction,
+      );
     }
 
+    _sendTransaction = () async => await sendTransaction(signedTransaction);
+
+
     return PendingEVMChainTransaction(
-      signedTransaction: signedTransaction ?? Uint8List(0),
+      signedTransaction: signedTransaction,
       amount: amount.toString(),
       fee: BigInt.from(gas) * (await price).getInWei,
       sendTransaction: _sendTransaction,
@@ -212,26 +213,61 @@ abstract class EVMChainClient {
     return EVMChainERC20Balance(balance, exponent: exponent);
   }
 
-  Future<Erc20Token?> getErc20Token(String contractAddress) async {
+  Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
     try {
-      final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
-      final name = await erc20.name();
-      final symbol = await erc20.symbol();
-      final decimal = await erc20.decimals();
+      final uri = Uri.https(
+        'deep-index.moralis.io',
+        '/api/v2.2/erc20/metadata',
+        {
+          "chain": chainName,
+          "addresses": contractAddress,
+        },
+      );
+
+      final response = await httpClient.get(
+        uri,
+        headers: {
+          "Accept": "application/json",
+          "X-API-Key": secrets.moralisApiKey,
+        },
+      );
+
+      final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
+
+      final name = decodedResponse['name'] ?? '';
+      final symbol = decodedResponse['symbol'] ?? '';
+      final decimal = decodedResponse['decimals'] ?? '0';
+      final iconPath = decodedResponse['logo'] ?? '';
 
       return Erc20Token(
         name: name,
         symbol: symbol,
         contractAddress: contractAddress,
-        decimal: decimal.toInt(),
+        decimal: int.tryParse(decimal) ?? 0,
+        iconPath: iconPath,
       );
     } catch (e) {
+      try {
+        final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
+        final name = await erc20.name();
+        final symbol = await erc20.symbol();
+        final decimal = await erc20.decimals();
+
+        return Erc20Token(
+          name: name,
+          symbol: symbol,
+          contractAddress: contractAddress,
+          decimal: decimal.toInt(),
+        );
+      } catch (_) {}
+
       return null;
     }
   }
 
   Uint8List hexToBytes(String hexString) {
-    return Uint8List.fromList(hex.HEX.decode(hexString.startsWith('0x') ? hexString.substring(2) : hexString));
+    return Uint8List.fromList(
+        hex.HEX.decode(hexString.startsWith('0x') ? hexString.substring(2) : hexString));
   }
 
   void stop() {

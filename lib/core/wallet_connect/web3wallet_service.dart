@@ -133,13 +133,27 @@ abstract class Web3WalletServiceBase with Store {
     if (appStore.wallet!.type == WalletType.solana) {
       for (final cId in SolanaChainId.values) {
         final node = appStore.settingsStore.getCurrentNode(appStore.wallet!.type);
-        final rpcUri = node.uri;
-        final webSocketUri = 'wss://${node.uriRaw}/ws${node.uri.path}';
+
+        Uri? rpcUri;
+        String webSocketUrl;
+        bool isModifiedNodeUri = false;
+
+        if (node.uriRaw == 'rpc.ankr.com') {
+          isModifiedNodeUri = true;
+          
+          //A better way to handle this instead of adding this to the general secrets?
+          String ankrApiKey = secrets.ankrApiKey;
+
+          rpcUri = Uri.https(node.uriRaw, '/solana/$ankrApiKey');
+          webSocketUrl = 'wss://${node.uriRaw}/solana/ws/$ankrApiKey';
+        } else {
+          webSocketUrl = 'wss://${node.uriRaw}';
+        }
 
         SolanaChainServiceImpl(
           reference: cId,
-          rpcUrl: rpcUri,
-          webSocketUrl: webSocketUri,
+          rpcUrl: isModifiedNodeUri ? rpcUri! : node.uri,
+          webSocketUrl: webSocketUrl,
           wcKeyService: walletKeyService,
           bottomSheetService: _bottomSheetHandler,
           wallet: _web3Wallet,
