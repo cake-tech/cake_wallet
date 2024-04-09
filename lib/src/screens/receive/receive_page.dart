@@ -162,7 +162,7 @@ class ReceivePage extends BasePage {
                                 cell = HeaderTile(
                                     title: S.of(context).addresses,
                                     walletAddressListViewModel: addressListViewModel,
-                                    showTrailingButton: !addressListViewModel.isAutoGenerateSubaddressEnabled,
+                                    showTrailingButton: true,
                                     showSearchButton: true,
                                     trailingButtonTap: () =>
                                         Navigator.of(context).pushNamed(Routes.newSubaddress),
