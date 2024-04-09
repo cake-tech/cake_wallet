@@ -69,7 +69,7 @@ import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
@@ -890,7 +890,8 @@ Future<void> setup({
       (onSuccessfulPinSetup, _) => SetupPinCodePage(getIt.get<SetupPinCodeViewModel>(),
           onSuccessfulPinSetup: onSuccessfulPinSetup));
 
-  getIt.registerFactory(() => RescanViewModel(getIt.get<AppStore>().wallet!));
+  getIt.registerFactory(
+      () => RescanViewModel(getIt.get<AppStore>().wallet!, getIt.get<SettingsStore>()));
 
   getIt.registerFactory(() => RescanPage(getIt.get<RescanViewModel>()));
 
@@ -1048,7 +1049,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => IoniaGiftCardsListViewModel(ioniaService: getIt.get<IoniaService>()));
 
-  getIt.registerFactory(() => MarketPlaceViewModel(getIt.get<IoniaService>()));
+  getIt.registerFactory(() => CakeFeaturesViewModel(getIt.get<IoniaService>()));
 
   getIt.registerFactory(() => IoniaAuthViewModel(ioniaService: getIt.get<IoniaService>()));
 
@@ -1145,9 +1146,9 @@ Future<void> setup({
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
 
   getIt.registerFactoryParam<RBFDetailsPage, TransactionInfo, void>(
-          (TransactionInfo transactionInfo, _) => RBFDetailsPage(
+      (TransactionInfo transactionInfo, _) => RBFDetailsPage(
           transactionDetailsViewModel:
-          getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
+              getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
 
   getIt.registerFactory(() => AnonPayApi(
       useTorOnly: getIt.get<SettingsStore>().exchangeStatus == ExchangeApiMode.torOnly,

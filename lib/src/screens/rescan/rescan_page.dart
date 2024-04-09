@@ -1,3 +1,6 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/view_model/rescan_view_model.dart';
@@ -35,6 +38,10 @@ class RescanPage extends BasePage {
                   isLoading: _rescanViewModel.state == RescanWalletState.rescaning,
                   text: S.of(context).rescan,
                   onPressed: () async {
+                    if (_rescanViewModel.isSilentPaymentsScan) {
+                      return _toggleSilentPaymentsScanning(context);
+                    }
+
                     await _rescanViewModel.rescanCurrentWallet(
                         restoreHeight: _blockchainHeightWidgetKey.currentState!.height);
                     Navigator.of(context).pop();
@@ -45,5 +52,30 @@ class RescanPage extends BasePage {
                 ))
       ]),
     );
+  }
+
+  Future<void> _toggleSilentPaymentsScanning(BuildContext context) async {
+    final needsToSwitch = bitcoin!.getNodeIsCakeElectrs(_rescanViewModel.wallet) == false;
+
+    if (needsToSwitch) {
+      return showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) => AlertWithTwoActions(
+                alertTitle: S.of(context).change_current_node_title,
+                alertContent: S.of(context).confirm_silent_payments_switch_node,
+                rightButtonText: S.of(context).ok,
+                leftButtonText: S.of(context).cancel,
+                actionRightButton: () async {
+                  _rescanViewModel.rescanCurrentWallet(
+                      restoreHeight: _blockchainHeightWidgetKey.currentState!.height);
+                  Navigator.of(context).pop();
+                },
+                actionLeftButton: () => Navigator.of(context).pop(),
+              ));
+    }
+
+    await _rescanViewModel.rescanCurrentWallet(
+        restoreHeight: _blockchainHeightWidgetKey.currentState!.height);
+    Navigator.of(context).pop();
   }
 }

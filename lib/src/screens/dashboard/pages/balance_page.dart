@@ -209,13 +209,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                         currency: balance.asset,
                         hasAdditionalBalance:
                             dashboardViewModel.balanceViewModel.hasAdditionalBalance,
-                        hasSilentPayments: dashboardViewModel.balanceViewModel.hasSilentPayments,
-                        silentPaymentsScanningActive:
-                            dashboardViewModel.silentPaymentsScanningActive,
-                        setSilentPaymentsScanning: () =>
-                            dashboardViewModel.setSilentPaymentsScanning(
-                          !dashboardViewModel.silentPaymentsScanningActive,
-                        ),
                         isTestnet: dashboardViewModel.isTestnet,
                       );
                     });
@@ -242,9 +235,6 @@ class BalanceRowWidget extends StatelessWidget {
     required this.frozenFiatBalance,
     required this.currency,
     required this.hasAdditionalBalance,
-    required this.hasSilentPayments,
-    required this.silentPaymentsScanningActive,
-    required this.setSilentPaymentsScanning,
     required this.isTestnet,
     super.key,
   });
@@ -259,10 +249,7 @@ class BalanceRowWidget extends StatelessWidget {
   final String frozenFiatBalance;
   final CryptoCurrency currency;
   final bool hasAdditionalBalance;
-  final bool hasSilentPayments;
-  final bool silentPaymentsScanningActive;
   final bool isTestnet;
-  final void Function() setSilentPaymentsScanning;
 
   // void _showBalanceDescription(BuildContext context) {
   //   showPopUp<void>(
@@ -505,37 +492,6 @@ class BalanceRowWidget extends StatelessWidget {
                     ),
                 ],
               ),
-            if (hasSilentPayments) ...[
-              Padding(
-                padding: const EdgeInsets.only(right: 8, top: 8),
-                child: Divider(
-                  color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-                  thickness: 1,
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  AutoSizeText(
-                    S.of(context).silent_payments_scanning,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w400,
-                      color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
-                      height: 1,
-                    ),
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: StandardSwitch(
-                        value: silentPaymentsScanningActive, onTaped: setSilentPaymentsScanning),
-                  )
-                ],
-              ),
-            ]
           ],
         ),
       ),

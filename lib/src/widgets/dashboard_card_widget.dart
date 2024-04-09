@@ -2,19 +2,24 @@ import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class DashBoardRoundedCardWidget extends StatelessWidget {
-
-
   DashBoardRoundedCardWidget({
     required this.onTap,
     required this.title,
     required this.subTitle,
+    this.hint,
+    this.svgPicture,
+    this.icon,
   });
 
   final VoidCallback onTap;
   final String title;
   final String subTitle;
+  final Widget? hint;
+  final SvgPicture? svgPicture;
+  final Icon? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -35,32 +40,52 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
                 color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
               ),
             ),
-            child:
-                Column(
+            child: Column(
+              children: [
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: TextStyle(
+                              color:
+                                  Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w900,
+                            ),
+                            softWrap: true,
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            subTitle,
+                            style: TextStyle(
+                                color: Theme.of(context)
+                                    .extension<DashboardPageTheme>()!
+                                    .cardTextColor,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Lato'),
+                            softWrap: true,
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 5),
-                    Text(
-                      subTitle,
-                      style: TextStyle(
-                          color:  Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Lato'),
-                    )
+                    if (svgPicture != null) svgPicture!,
+                    if (icon != null) icon!
                   ],
                 ),
+                if (hint != null) ...[
+                  SizedBox(height: 10),
+                  hint!,
+                ]
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 }
-
