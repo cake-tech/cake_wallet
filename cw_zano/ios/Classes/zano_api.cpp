@@ -304,9 +304,9 @@ extern "C"
         return plain_wallet::is_wallet_exist(path);
     }
 
-    void close_wallet(uint64_t hwallet)
+    char *close_wallet(uint64_t hwallet)
     {
-        plain_wallet::close_wallet(hwallet);
+        return strdup(plain_wallet::close_wallet(hwallet).c_str());
     }
 
 

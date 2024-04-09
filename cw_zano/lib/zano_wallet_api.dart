@@ -24,16 +24,14 @@ import 'package:path_provider/path_provider.dart';
 
 import 'api/model/store_result.dart';
 
-//enum _LogType { none, simple, json }
 
 mixin ZanoWalletApi {
   static const _defaultNodeUri = '195.201.107.230:33336';
   static const _statusDelivered = 'delivered';
   static const _maxAttempts = 10;
-  //static const _logType = _LogType.json;
   static const _logInfo = true;
   static const _logError = true;
-  static const _logJson = true;
+  static const _logJson = false;
   static const int _zanoMixinValue = 10;
 
   int _hWallet = 0;
@@ -48,9 +46,10 @@ mixin ZanoWalletApi {
 
   void setPassword(String password) => ApiCalls.setPassword(hWallet: hWallet, password: password);
 
-  void closeWallet() {
-    _info('close_wallet $hWallet');
-    ApiCalls.closeWallet(hWallet: hWallet);
+  void closeWallet([int? walletToClose]) {
+    _info('close_wallet ${walletToClose ?? hWallet}');
+    final result = ApiCalls.closeWallet(hWallet: walletToClose ?? hWallet);
+    _info('close_wallet result $result');
   }
 
   Future<bool> setupNode() async {
@@ -301,7 +300,7 @@ mixin ZanoWalletApi {
     return result;
   }
 
-  Future<CreateWalletResult> loadWallet(String path, String password, [bool secondAttempt = false]) async {
+  Future<CreateWalletResult> loadWallet(String path, String password, [int attempt = 0]) async {
     _info('load_wallet path $path password ${_shorten(password)}');
     await _writeLog('load_wallet', 'load_wallet path $path password ${_shorten(password)}');
     final json = ApiCalls.loadWallet(path: path, password: password);
@@ -311,13 +310,12 @@ mixin ZanoWalletApi {
     if (map?['error'] != null) {
       final code = map?['error']!['code'] ?? '';
       final message = map?['error']!['message'] ?? '';
-      if (code == Consts.errorAlreadyExists && !secondAttempt) {
-        // TODO: that's not the best solution!
-        // already connected to this wallet. closing and attempting to reopen
-        debugPrint('already connected. closing and reopen wallet');
-        closeWallet();
-        await Future.delayed(const Duration(milliseconds: 2000));
-        return await loadWallet(path, password, true);
+      if (code == Consts.errorAlreadyExists && attempt < 5) {
+        // already connected to this wallet. closing and trying to reopen
+        _info('already connected. closing and reopen wallet (attempt $attempt)');
+        closeWallet(attempt);
+        await Future.delayed(const Duration(milliseconds: 500));
+        return await loadWallet(path, password, attempt + 1);
       }
       throw ZanoWalletException('Error loading wallet, $message ($code)');
     }
