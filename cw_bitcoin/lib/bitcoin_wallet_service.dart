@@ -107,6 +107,9 @@ class BitcoinWalletService extends WalletService<
     final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
     credentials.walletInfo?.network = network.value;
 
+    print(credentials.derivationPath);
+    credentials.walletInfo?.derivationPath = credentials.derivationPath;
+
     final wallet = await BitcoinWallet(password: credentials.password!,
       xpub: credentials.hwAccountData.xpub,
       walletInfo: credentials.walletInfo!,

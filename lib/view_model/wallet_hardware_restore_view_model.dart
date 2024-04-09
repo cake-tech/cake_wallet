@@ -10,7 +10,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
@@ -71,6 +70,10 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
     final address = selectedAccount!.address; // ToDo: (Konsti) use HardwareAccountData
     WalletCredentials credentials;
     switch (type) {
+      case WalletType.bitcoin:
+        credentials =
+            bitcoin!.createBitcoinHardwareWalletCredentials(name: name, accountData: selectedAccount!);
+        break;
       case WalletType.ethereum:
         credentials =
             ethereum!.createEthereumHardwareWalletCredentials(name: name, address: address);
@@ -90,8 +93,6 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   @override
   Future<WalletBase> process(WalletCredentials credentials) async {
     walletCreationService.changeWalletType(type: type);
-    final cred = credentials as EVMChainRestoreWalletFromHardware;
-    credentials.walletInfo?.address = cred.address;
     return walletCreationService.restoreFromHardwareWallet(credentials);
   }
 }

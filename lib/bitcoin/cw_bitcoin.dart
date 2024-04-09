@@ -24,6 +24,14 @@ class CWBitcoin extends Bitcoin {
       BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo);
 
   @override
+  WalletCredentials createBitcoinHardwareWalletCredentials(
+          {required String name,
+          required HardwareAccountData accountData,
+          WalletInfo? walletInfo}) =>
+      BitcoinRestoreWalletFromHardware(
+          name: name, hwAccountData: accountData, walletInfo: walletInfo);
+
+  @override
   List<String> getWordList() => wordlist;
 
   @override
@@ -78,21 +86,20 @@ class CWBitcoin extends Bitcoin {
     final bitcoinFeeRate =
         priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
     return BitcoinTransactionCredentials(
-      outputs
-          .map((out) => OutputInfo(
-              fiatAmount: out.fiatAmount,
-              cryptoAmount: out.cryptoAmount,
-              address: out.address,
-              note: out.note,
-              sendAll: out.sendAll,
-              extractedAddress: out.extractedAddress,
-              isParsedAddress: out.isParsedAddress,
-              formattedCryptoAmount: out.formattedCryptoAmount,
-              memo: out.memo))
-          .toList(),
-      priority: priority as BitcoinTransactionPriority,
-      feeRate: bitcoinFeeRate
-    );
+        outputs
+            .map((out) => OutputInfo(
+                fiatAmount: out.fiatAmount,
+                cryptoAmount: out.cryptoAmount,
+                address: out.address,
+                note: out.note,
+                sendAll: out.sendAll,
+                extractedAddress: out.extractedAddress,
+                isParsedAddress: out.isParsedAddress,
+                formattedCryptoAmount: out.formattedCryptoAmount,
+                memo: out.memo))
+            .toList(),
+        priority: priority as BitcoinTransactionPriority,
+        feeRate: bitcoinFeeRate);
   }
 
   @override

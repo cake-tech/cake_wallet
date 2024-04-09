@@ -93,7 +93,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     final snp = await ElectrumWalletSnapshot.load(
         name, walletInfo.type, password, BitcoinCashNetwork.mainnet);
     return BitcoinCashWallet(
-      mnemonic: snp.mnemonic,
+      mnemonic: snp.mnemonic!,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
@@ -118,7 +118,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         }
       }).toList(),
       initialBalance: snp.balance,
-      seedBytes: await Mnemonic.toSeed(snp.mnemonic),
+      seedBytes: await Mnemonic.toSeed(snp.mnemonic!),
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: P2pkhAddressType.p2pkh,
