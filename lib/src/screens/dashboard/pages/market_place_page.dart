@@ -68,6 +68,8 @@ class MarketPlacePage extends StatelessWidget {
                       subTitle: S.of(context).cake_pay_web_cards_subtitle,
                     ),
 
+                    SizedBox(height: 20),
+
                     Observer(
                       builder: (context) {
                         if (!dashboardViewModel.hasSignMessages) {

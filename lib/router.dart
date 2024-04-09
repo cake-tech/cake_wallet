@@ -15,6 +15,7 @@ import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
@@ -61,6 +62,7 @@ import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_vi
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
@@ -151,7 +153,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final walletNewVM = getIt.get<WalletNewVM>(param1: type);
       final seedTypeViewModel = getIt.get<SeedTypeViewModel>();
 
-      return CupertinoPageRoute<void>(builder: (_) => NewWalletPage(walletNewVM, seedTypeViewModel));
+      return CupertinoPageRoute<void>(
+          builder: (_) => NewWalletPage(walletNewVM, seedTypeViewModel));
 
     case Routes.setupPin:
       Function(PinCodeState<PinCodeWidget>, String)? callback;
@@ -257,8 +260,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.bumpFeePage:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) =>
-              getIt.get<RBFDetailsPage>(param1: settings.arguments as TransactionInfo));
+          builder: (_) => getIt.get<RBFDetailsPage>(param1: settings.arguments as TransactionInfo));
 
     case Routes.newSubaddress:
       return CupertinoPageRoute<void>(
@@ -400,8 +402,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.buySellPage:
       final args = settings.arguments as bool;
-      return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<BuySellOptionsPage>(param1: args));
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuySellOptionsPage>(param1: args));
 
     case Routes.buyWebView:
       final args = settings.arguments as List;
@@ -424,8 +425,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.preSeedPage:
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<PreSeedPage>(
-              param1: settings.arguments as int));
+          builder: (_) => getIt.get<PreSeedPage>(param1: settings.arguments as int));
 
     case Routes.backup:
       return CupertinoPageRoute<void>(
@@ -646,6 +646,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.torPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<TorPage>());
+
+    case Routes.signPage:
+      return MaterialPageRoute<void>(
+        builder: (_) => SignPage(
+          getIt.get<SignViewModel>(),
+        ),
+      );
 
     default:
       return MaterialPageRoute<void>(
