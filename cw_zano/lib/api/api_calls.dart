@@ -1,6 +1,5 @@
 import 'dart:ffi';
 
-import 'package:cw_zano/api/utf8.dart';
 import 'package:cw_zano/api/utf8_box.dart';
 import 'package:cw_zano/api/zano_api.dart';
 import 'package:ffi/ffi.dart';

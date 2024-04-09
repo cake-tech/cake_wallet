@@ -53,7 +53,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
 
   @override
   Future<ZanoWallet> create(WalletCredentials credentials, {bool? isTestnet}) async {
-    print('zanowallet service create isTestnet $isTestnet'); // TODO: remove
+    print('zanowallet service create isTestnet $isTestnet');
     return await ZanoWalletBase.create(credentials: credentials);
   }
 

@@ -8,5 +8,4 @@ class ZanoTransactionCredentials {
   final List<OutputInfo> outputs;
   final MoneroTransactionPriority priority;
   final CryptoCurrency currency;
-  //final String assetType;
 }

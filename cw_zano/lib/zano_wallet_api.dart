@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_zano/api/api_calls.dart';
@@ -14,21 +13,18 @@ import 'package:cw_zano/api/model/get_wallet_info_result.dart';
 import 'package:cw_zano/api/model/get_wallet_status_result.dart';
 import 'package:cw_zano/api/model/proxy_to_daemon_params.dart';
 import 'package:cw_zano/api/model/proxy_to_daemon_result.dart';
+import 'package:cw_zano/api/model/store_result.dart';
 import 'package:cw_zano/api/model/transfer.dart';
 import 'package:cw_zano/api/model/transfer_params.dart';
 import 'package:cw_zano/api/model/transfer_result.dart';
 import 'package:cw_zano/model/zano_asset.dart';
 import 'package:cw_zano/zano_wallet_exceptions.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
-
-import 'api/model/store_result.dart';
-
 
 mixin ZanoWalletApi {
   static const _defaultNodeUri = '195.201.107.230:33336';
   static const _statusDelivered = 'delivered';
-  static const _maxAttempts = 10;
+  static const _maxInvokeAttempts = 10;
   static const _logInfo = true;
   static const _logError = true;
   static const _logJson = false;
@@ -47,13 +43,13 @@ mixin ZanoWalletApi {
   void setPassword(String password) => ApiCalls.setPassword(hWallet: hWallet, password: password);
 
   void closeWallet([int? walletToClose]) {
-    _info('close_wallet ${walletToClose ?? hWallet}');
+    info('close_wallet ${walletToClose ?? hWallet}');
     final result = ApiCalls.closeWallet(hWallet: walletToClose ?? hWallet);
-    _info('close_wallet result $result');
+    info('close_wallet result $result');
   }
 
   Future<bool> setupNode() async {
-    _info('init $_defaultNodeUri');
+    info('init $_defaultNodeUri');
     final result = ApiCalls.setupNode(
       address: _defaultNodeUri,
       login: '',
@@ -61,43 +57,43 @@ mixin ZanoWalletApi {
       useSSL: false,
       isLightWallet: false,
     );
-    _info('init result $result');
+    info('init result $result');
     return result;
   }
 
   Future<GetWalletInfoResult> getWalletInfo() async {
     final json = ApiCalls.getWalletInfo(hWallet);
     final result = GetWalletInfoResult.fromJson(jsonDecode(json) as Map<String, dynamic>);
-    if (_logJson) debugPrint('get_wallet_info $json');
-    await _writeLog('get_wallet_info', 'get_wallet_info result $json');
-    _info('get_wallet_info got ${result.wi.balances.length} balances: ${result.wi.balances} seed: ${_shorten(result.wiExtended.seed)}');
+    _json('get_wallet_info', json);
+    //await _writeLog('get_wallet_info', 'get_wallet_info result $json');
+    info('get_wallet_info got ${result.wi.balances.length} balances: ${result.wi.balances} seed: ${_shorten(result.wiExtended.seed)}');
     return result;
   }
 
   Future<GetWalletStatusResult> getWalletStatus() async {
     final json = ApiCalls.getWalletStatus(hWallet: hWallet);
     if (json == Consts.errorWalletWrongId) {
-      print('wrong wallet id');
+      error('wrong wallet id');
       throw ZanoWalletException('Wrong wallet id');
     }
     final status = GetWalletStatusResult.fromJson(jsonDecode(json) as Map<String, dynamic>);
-    if (_logJson) debugPrint('get_wallet_status $json');
-    await _writeLog('get_wallet_status', 'get_wallet_status result $json');
+    _json('get_wallet_status', json);
+    //await _writeLog('get_wallet_status', 'get_wallet_status result $json');
     if (_logInfo)
-      _info(
+      info(
           'get_wallet_status connected: ${status.isDaemonConnected} in refresh: ${status.isInLongRefresh} progress: ${status.progress} wallet state: ${status.walletState}');
     return status;
   }
 
   Future<String> invokeMethod(String methodName, Object params) async {
-    await _writeLog(methodName, 'invoke method $methodName params: ${jsonEncode(params)} hWallet: $hWallet');
+    //await _writeLog(methodName, 'invoke method $methodName params: ${jsonEncode(params)} hWallet: $hWallet');
     var invokeResult =
         ApiCalls.asyncCall(methodName: 'invoke', hWallet: hWallet, params: '{"method": "$methodName","params": ${jsonEncode(params)}}');
     Map<String, dynamic> map;
     try {
       map = jsonDecode(invokeResult) as Map<String, dynamic>;
     } catch (e) {
-      debugPrint('exception in parsing json in invokeMethod: $invokeResult');
+      error('exception in parsing json in invokeMethod: $invokeResult');
       rethrow;
     }
     int attempts = 0;
@@ -109,23 +105,23 @@ mixin ZanoWalletApi {
         try {
           map = jsonDecode(result) as Map<String, dynamic>;
         } catch (e) {
-          debugPrint('exception in parsing json in invokeMethod: $result');
+          error('exception in parsing json in invokeMethod: $result');
           rethrow;
         }
         if (map['status'] != null && map['status'] == _statusDelivered && map['result'] != null) {
-          await _writeLog(methodName, 'invoke method $methodName result $result');
+          //await _writeLog(methodName, 'invoke method $methodName result $result');
           return result;
         }
-      } while (++attempts < _maxAttempts);
+      } while (++attempts < _maxInvokeAttempts);
     }
-    await _writeLog(methodName, 'invoke method $methodName result: $invokeResult');
+    //await _writeLog(methodName, 'invoke method $methodName result: $invokeResult');
     return invokeResult;
   }
 
   Future<List<ZanoAsset>> getAssetsWhitelist() async {
     try {
       final json = await invokeMethod('assets_whitelist_get', '{}');
-      if (_logJson) debugPrint('assets_whitelist_get $json');
+      _json('assets_whitelist_get', json);
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
       List<ZanoAsset> assets(String type, bool isGlobalWhitelist) =>
@@ -137,12 +133,12 @@ mixin ZanoWalletApi {
       final globalWhitelist = assets('global_whitelist', true);
       final ownAssets = assets('own_assets', false);
       if (_logInfo)
-        _info('assets_whitelist_get got local whitelist: ${localWhitelist.length} ($localWhitelist); '
+        info('assets_whitelist_get got local whitelist: ${localWhitelist.length} ($localWhitelist); '
             'global whitelist: ${globalWhitelist.length} ($globalWhitelist); '
             'own assets: ${ownAssets.length} ($ownAssets)');
       return [...globalWhitelist, ...localWhitelist, ...ownAssets];
     } catch (e) {
-      print('[error] assets_whitelist_get $e');
+      error('assets_whitelist_get $e');
       return [];
     }
   }
@@ -150,19 +146,19 @@ mixin ZanoWalletApi {
   Future<ZanoAsset?> addAssetsWhitelist(String assetId) async {
     try {
       final json = await invokeMethod('assets_whitelist_add', AssetIdParams(assetId: assetId));
-      if (_logJson) print('assets_whitelist_add $assetId $json');
+      _json('assets_whitelist_add $assetId', json);
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
       if (map!['result']!['result']!['status']! == 'OK') {
         final assetDescriptor = ZanoAsset.fromJson(map['result']!['result']!['asset_descriptor']! as Map<String, dynamic>);
-        _info('assets_whitelist_add added ${assetDescriptor.fullName} ${assetDescriptor.ticker}');
+        info('assets_whitelist_add added ${assetDescriptor.fullName} ${assetDescriptor.ticker}');
         return assetDescriptor;
       } else {
-        _info('assets_whitelist_add status ${map['result']!['result']!['status']!}');
+        info('assets_whitelist_add status ${map['result']!['result']!['status']!}');
         return null;
       }
     } catch (e) {
-      print('[error] assets_whitelist_add $e');
+      error('assets_whitelist_add $e');
       return null;
     }
   }
@@ -170,13 +166,13 @@ mixin ZanoWalletApi {
   Future<bool> removeAssetsWhitelist(String assetId) async {
     try {
       final json = await invokeMethod('assets_whitelist_remove', AssetIdParams(assetId: assetId));
-      if (_logJson) print('assets_whitelist_remove $assetId $json');
+      _json('assets_whitelist_remove $assetId', json);
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
-      _info('assets_whitelist_remove status ${map!['result']!['result']!['status']!}');
-      return (map!['result']!['result']!['status']! == 'OK');
+      info('assets_whitelist_remove status ${map!['result']!['result']!['status']!}');
+      return (map['result']!['result']!['status']! == 'OK');
     } catch (e) {
-      print('[error] assets_whitelist_remove $e');
+      error('assets_whitelist_remove $e');
       return false;
     }
   }
@@ -192,21 +188,21 @@ mixin ZanoWalletApi {
     final methodName = 'get_asset_info';
     final params = AssetIdParams(assetId: assetId);
     final result = await _proxyToDaemon('/json_rpc', '{"method": "$methodName","params": ${jsonEncode(params)}}');
-    if (_logJson) print('$methodName $assetId ${result?.body}');
+    _json('$methodName $assetId', result?.body ?? '');
     if (result == null) {
       debugPrint('get_asset_info empty result');
       return null;
     }
     final map = jsonDecode(result.body) as Map<String, dynamic>?;
     if (map!['error'] != null) {
-      _info('get_asset_info $assetId error ${map['error']!['code']} ${map['error']!['message']}');
+      info('get_asset_info $assetId error ${map['error']!['code']} ${map['error']!['message']}');
       return null;
     } else if (map['result']!['status']! == 'OK') {
       final assetDescriptor = ZanoAsset.fromJson(map['result']!['asset_descriptor']! as Map<String, dynamic>);
-      _info('get_asset_info $assetId ${assetDescriptor.fullName} ${assetDescriptor.ticker}');
+      info('get_asset_info $assetId ${assetDescriptor.fullName} ${assetDescriptor.ticker}');
       return assetDescriptor;
     } else {
-      _info('get_asset_info $assetId status ${map['result']!['status']!}');
+      info('get_asset_info $assetId status ${map['result']!['status']!}');
       return null;
     }
   }
@@ -218,33 +214,33 @@ mixin ZanoWalletApi {
       _checkForErrors(map);
       return StoreResult.fromJson(map!['result']['result'] as Map<String, dynamic>);
     } catch (e) {
-      print('[error] store $e');
+      error('store $e');
       return null;
     }
   }
 
   Future<GetRecentTxsAndInfoResult> getRecentTxsAndInfo({required int offset, required int count}) async {
-    _info('get_recent_txs_and_info $offset $count');
+    info('get_recent_txs_and_info $offset $count');
     try {
       final json = await invokeMethod('get_recent_txs_and_info', GetRecentTxsAndInfoParams(offset: offset, count: count));
-      if (_logJson) debugPrint('get_recent_txs_and_info $json');
+      _json('get_recent_txs_and_info', json);
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
       final lastItemIndex = map?['result']?['result']?['last_item_index'] as int?;
       final totalTransfers = map?['result']?['result']?['total_transfers'] as int?;
       final transfers = map?['result']?['result']?['transfers'] as List<dynamic>?;
       if (transfers == null || lastItemIndex == null || totalTransfers == null) {
-        _error('get_recent_txs_and_info empty transfers');
+        error('get_recent_txs_and_info empty transfers');
         return GetRecentTxsAndInfoResult.empty();
       }
-      _info('get_recent_txs_and_info transfers.length: ${transfers.length}');
+      info('get_recent_txs_and_info transfers.length: ${transfers.length}');
       return GetRecentTxsAndInfoResult(
         transfers: transfers.map((e) => Transfer.fromJson(e as Map<String, dynamic>)).toList(),
         lastItemIndex: lastItemIndex,
         totalTransfers: totalTransfers,
       );
     } catch (e) {
-      _error('get_recent_txs_and_info $e');
+      error('get_recent_txs_and_info $e');
       return GetRecentTxsAndInfoResult.empty();
     }
   }
@@ -256,11 +252,11 @@ mixin ZanoWalletApi {
   String _shorten(String s) => s.length > 10 ? '${s.substring(0, 4)}...${s.substring(s.length - 4)}' : s;
 
   Future<CreateWalletResult> createWallet(String path, String password) async {
-    _info('create_wallet path $path password ${_shorten(password)}');
-    await _writeLog('create_wallet', 'create_wallet path $path password ${_shorten(password)}');
+    info('create_wallet path $path password ${_shorten(password)}');
+    //await _writeLog('create_wallet', 'create_wallet path $path password ${_shorten(password)}');
     final json = ApiCalls.createWallet(path: path, password: password);
-    if (_logJson) debugPrint('create_wallet $json');
-    await _writeLog('create_wallet', 'create_wallet result $json');
+    _json('create_wallet', json);
+    //await _writeLog('create_wallet', 'create_wallet result $json');
     final map = jsonDecode(json) as Map<String, dynamic>?;
     if (map?['error'] != null) {
       final code = map!['error']!['code'] ?? '';
@@ -271,16 +267,16 @@ mixin ZanoWalletApi {
       throw ZanoWalletException('Error creating wallet file, empty response');
     }
     final result = CreateWalletResult.fromJson(map!['result'] as Map<String, dynamic>);
-    _info('create_wallet ${result.name} ${result.seed}');
+    info('create_wallet ${result.name} ${result.seed}');
     return result;
   }
 
   Future<CreateWalletResult> restoreWalletFromSeed(String path, String password, String seed) async {
-    _info('restore_wallet path $path password ${_shorten(password)} seed ${_shorten(seed)}');
-    await _writeLog('restore_wallet', 'restore_wallet path $path password ${_shorten(password)} seed ${_shorten(seed)}');
+    info('restore_wallet path $path password ${_shorten(password)} seed ${_shorten(seed)}');
+    //await _writeLog('restore_wallet', 'restore_wallet path $path password ${_shorten(password)} seed ${_shorten(seed)}');
     final json = ApiCalls.restoreWalletFromSeed(path: path, password: password, seed: seed);
-    if (_logJson) debugPrint('restore_wallet $json');
-    await _writeLog('restore_wallet', 'restore_wallet result $json');
+    _json('restore_wallet', json);
+    //await _writeLog('restore_wallet', 'restore_wallet result $json');
     final map = jsonDecode(json) as Map<String, dynamic>?;
     if (map?['error'] != null) {
       final code = map!['error']!['code'] ?? '';
@@ -296,23 +292,23 @@ mixin ZanoWalletApi {
       throw RestoreFromKeysException('Error restoring wallet, empty response');
     }
     final result = CreateWalletResult.fromJson(map!['result'] as Map<String, dynamic>);
-    _info('restore_wallet ${result.name} ${result.wi.address}');
+    info('restore_wallet ${result.name} ${result.wi.address}');
     return result;
   }
 
   Future<CreateWalletResult> loadWallet(String path, String password, [int attempt = 0]) async {
-    _info('load_wallet path $path password ${_shorten(password)}');
-    await _writeLog('load_wallet', 'load_wallet path $path password ${_shorten(password)}');
+    info('load_wallet path $path password ${_shorten(password)}');
+    //await _writeLog('load_wallet', 'load_wallet path $path password ${_shorten(password)}');
     final json = ApiCalls.loadWallet(path: path, password: password);
-    if (_logJson) debugPrint('load_wallet $json');
-    await _writeLog('load_wallet', 'load_wallet result $json');
+    _json('load_wallet', json);
+    //await _writeLog('load_wallet', 'load_wallet result $json');
     final map = jsonDecode(json) as Map<String, dynamic>?;
     if (map?['error'] != null) {
       final code = map?['error']!['code'] ?? '';
       final message = map?['error']!['message'] ?? '';
-      if (code == Consts.errorAlreadyExists && attempt < 5) {
+      if (code == Consts.errorAlreadyExists && attempt <= 5) {
         // already connected to this wallet. closing and trying to reopen
-        _info('already connected. closing and reopen wallet (attempt $attempt)');
+        info('already connected. closing and reopen wallet (attempt $attempt)');
         closeWallet(attempt);
         await Future.delayed(const Duration(milliseconds: 500));
         return await loadWallet(path, password, attempt + 1);
@@ -323,7 +319,7 @@ mixin ZanoWalletApi {
       throw ZanoWalletException('Error loading wallet, empty response');
     }
     final result = CreateWalletResult.fromJson(map!['result'] as Map<String, dynamic>);
-    _info('load_wallet ${result.name} ${result.wi.address}');
+    info('load_wallet ${result.name} ${result.wi.address}');
     return result;
   }
 
@@ -338,14 +334,14 @@ mixin ZanoWalletApi {
       hideReceiver: true,
     );
     final json = await invokeMethod('transfer', params);
-    if (_logJson) debugPrint('transfer $json');
+    _json('transfer', json);
     final map = jsonDecode(json);
     final resultMap = map['result'] as Map<String, dynamic>?;
     if (resultMap != null) {
       final transferResultMap = resultMap['result'] as Map<String, dynamic>?;
       if (transferResultMap != null) {
         final transferResult = TransferResult.fromJson(transferResultMap);
-        debugPrint('transfer success hash ${transferResult.txHash}');
+        info('transfer success hash ${transferResult.txHash}');
         return transferResult;
       } else {
         final errorCode = resultMap['error']['code'];
@@ -374,7 +370,7 @@ mixin ZanoWalletApi {
     }
   }
 
-  Future<void> _writeLog(String method, String logMessage) async {
+  /*Future<void> _writeLog(String method, String logMessage) async {
     final dir = await getDownloadsDirectory();
     final logFile = File('${dir!.path}/$method.txt');
     final date = DateTime.now();
@@ -382,13 +378,9 @@ mixin ZanoWalletApi {
     String removeCRandLF(String input) => input.replaceAll(RegExp('\r|\n'), '');
     await logFile.writeAsString('${twoDigits(date.hour)}:${twoDigits(date.minute)}:${twoDigits(date.second)} ${removeCRandLF(logMessage)}\n',
         mode: FileMode.append);
-    RegExp regExp = RegExp(r'"fee":\s*(\d+(?:\.\d+)?)');
-    final matches = regExp.allMatches(logMessage);
-    if (matches.isNotEmpty) {
-      await logFile.writeAsString('         ' + matches.map((element) => '${element.group(0)}').join(', ') + '\n', mode: FileMode.append);
-    }
-  }
+  }*/
 
-  static void _info(String s) => _logInfo ? debugPrint('[info] $s') : null;
-  static void _error(String s) => _logError ? debugPrint('[error] $s') : null;
+  static void info(String s) => _logInfo ? debugPrint('[info] $s') : null;
+  static void error(String s) => _logError ? debugPrint('[error] $s') : null;
+  static void _json(String methodName, String json) => _logJson ? debugPrint('$methodName $json') : null;
 }
