@@ -511,6 +511,7 @@
   "save_backup_password_alert": "I -save ang backup password",
   "save_to_downloads": "I -save sa mga pag -download",
   "saved_the_trade_id": "Nai -save ko ang trade ID",
+  "scan_one_block": "I -scan ang isang bloke",
   "scan_qr_code": "I -scan ang QR Code",
   "scan_qr_code_to_get_address": "I -scan ang QR code upang makuha ang address",
   "scan_qr_on_device": "I-scan ang QR code na ito sa ibang device",

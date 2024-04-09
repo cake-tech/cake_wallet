@@ -335,4 +335,12 @@ class CWBitcoin extends Bitcoin {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.isTestnet ?? false;
   }
+
+  @override
+  int getHeightByDate({required DateTime date}) => getBitcoinHeightByDate(date: date);
+
+  void rescan(Object wallet, {required int height, bool? doSingleScan}) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
+  }
 }

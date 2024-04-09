@@ -1,3 +1,5 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/date_picker.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +16,8 @@ class BlockchainHeightWidget extends StatefulWidget {
     this.onHeightOrDateEntered,
     this.hasDatePicker = true,
     this.isSilentPaymentsScan = false,
+    this.toggleSingleScan,
+    this.doSingleScan = false,
   }) : super(key: key);
 
   final Function(int)? onHeightChange;
@@ -21,6 +25,8 @@ class BlockchainHeightWidget extends StatefulWidget {
   final FocusNode? focusNode;
   final bool hasDatePicker;
   final bool isSilentPaymentsScan;
+  final bool doSingleScan;
+  final Function()? toggleSingleScan;
 
   @override
   State<StatefulWidget> createState() => BlockchainHeightState();
@@ -101,6 +107,30 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
               ))
             ],
           ),
+          if (widget.isSilentPaymentsScan)
+            Padding(
+              padding: EdgeInsets.only(top: 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    S.of(context).scan_one_block,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: StandardSwitch(
+                      value: widget.doSingleScan,
+                      onTaped: () => widget.toggleSingleScan?.call(),
+                    ),
+                  )
+                ],
+              ),
+            ),
           Padding(
             padding: EdgeInsets.only(left: 40, right: 40, top: 24),
             child: Text(
@@ -126,7 +156,12 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
         lastDate: now);
 
     if (date != null) {
-      final height = monero!.getHeightByDate(date: date);
+      int height;
+      if (widget.isSilentPaymentsScan) {
+        height = bitcoin!.getHeightByDate(date: date);
+      } else {
+        height = monero!.getHeightByDate(date: date);
+      }
       setState(() {
         dateController.text = DateFormat('yyyy-MM-dd').format(date);
         restoreHeightController.text = '$height';

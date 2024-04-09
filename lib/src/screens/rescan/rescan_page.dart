@@ -21,11 +21,15 @@ class RescanPage extends BasePage {
     return Padding(
       padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
       child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        BlockchainHeightWidget(
-          key: _blockchainHeightWidgetKey,
-          onHeightOrDateEntered: (value) => _rescanViewModel.isButtonEnabled = value,
-          isSilentPaymentsScan: _rescanViewModel.isSilentPaymentsScan,
-        ),
+        Observer(
+            builder: (_) => BlockchainHeightWidget(
+                  key: _blockchainHeightWidgetKey,
+                  onHeightOrDateEntered: (value) => _rescanViewModel.isButtonEnabled = value,
+                  isSilentPaymentsScan: _rescanViewModel.isSilentPaymentsScan,
+                  doSingleScan: _rescanViewModel.doSingleScan,
+                  toggleSingleScan: () =>
+                      _rescanViewModel.doSingleScan = !_rescanViewModel.doSingleScan,
+                )),
         Observer(
             builder: (_) => LoadingPrimaryButton(
                   isLoading: _rescanViewModel.state == RescanWalletState.rescaning,

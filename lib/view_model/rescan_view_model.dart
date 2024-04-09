@@ -12,7 +12,8 @@ enum RescanWalletState { rescaning, none }
 abstract class RescanViewModelBase with Store {
   RescanViewModelBase(this._wallet)
       : state = RescanWalletState.none,
-        isButtonEnabled = false;
+        isButtonEnabled = false,
+        doSingleScan = false;
 
   final WalletBase _wallet;
 
@@ -22,14 +23,21 @@ abstract class RescanViewModelBase with Store {
   @observable
   bool isButtonEnabled;
 
+  @observable
+  bool doSingleScan;
+
   @computed
-  bool get isSilentPaymentsScan => bitcoin!.hasSelectedSilentPayments(_wallet);
+  bool get isSilentPaymentsScan => _wallet.type == WalletType.bitcoin;
 
   @action
   Future<void> rescanCurrentWallet({required int restoreHeight}) async {
     state = RescanWalletState.rescaning;
-    _wallet.rescan(height: restoreHeight);
-    if (_wallet.type != WalletType.bitcoin) _wallet.transactionHistory.clear();
+    if (_wallet.type != WalletType.bitcoin) {
+      _wallet.rescan(height: restoreHeight);
+      _wallet.transactionHistory.clear();
+    } else {
+      bitcoin!.rescan(_wallet, height: restoreHeight, doSingleScan: doSingleScan);
+    }
     state = RescanWalletState.none;
   }
 }

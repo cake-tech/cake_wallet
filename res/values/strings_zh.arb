@@ -511,6 +511,7 @@
   "save_backup_password_alert": "保存备份密码",
   "save_to_downloads": "保存到下载",
   "saved_the_trade_id": "我已经保存了交易编号",
+  "scan_one_block": "扫描一个街区",
   "scan_qr_code": "扫描二维码",
   "scan_qr_code_to_get_address": "扫描二维码获取地址",
   "scan_qr_on_device": "在另一台设备上扫描此二维码",

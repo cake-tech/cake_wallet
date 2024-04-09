@@ -201,7 +201,7 @@ abstract class ElectrumWalletBase
   }
 
   @action
-  Future<void> _setListeners(int height, {int? chainTip}) async {
+  Future<void> _setListeners(int height, {int? chainTip, bool? doSingleScan}) async {
     final currentChainTip = chainTip ?? await electrumClient.getCurrentBlockChainTip() ?? 0;
     syncStatus = AttemptingSyncStatus();
 
@@ -223,6 +223,7 @@ abstract class ElectrumWalletBase
           transactionHistoryIds: transactionHistory.transactions.keys.toList(),
           node: ScanNode(node!.uri, node!.useSSL),
           labels: walletAddresses.labels,
+          isSingleScan: doSingleScan ?? false,
         ));
 
     await for (var message in receivePort) {
@@ -981,9 +982,10 @@ abstract class ElectrumWalletBase
 
   @action
   @override
-  Future<void> rescan({required int height, int? chainTip, ScanData? scanData}) async {
+  Future<void> rescan(
+      {required int height, int? chainTip, ScanData? scanData, bool? doSingleScan}) async {
     silentPaymentsScanningActive = true;
-    _setListeners(height);
+    _setListeners(height, doSingleScan: doSingleScan);
   }
 
   @override
@@ -1606,6 +1608,7 @@ class ScanData {
   final ElectrumClient electrumClient;
   final List<String> transactionHistoryIds;
   final Map<String, String> labels;
+  final bool isSingleScan;
 
   ScanData({
     required this.sendPort,
@@ -1617,6 +1620,7 @@ class ScanData {
     required this.electrumClient,
     required this.transactionHistoryIds,
     required this.labels,
+    required this.isSingleScan,
   });
 
   factory ScanData.fromHeight(ScanData scanData, int newHeight) {
@@ -1630,6 +1634,7 @@ class ScanData {
       transactionHistoryIds: scanData.transactionHistoryIds,
       electrumClient: scanData.electrumClient,
       labels: scanData.labels,
+      isSingleScan: scanData.isSingleScan,
     );
   }
 }
@@ -1689,11 +1694,17 @@ Future<void> startRefresh(ScanData scanData) async {
   while (true) {
     lastKnownBlockHeight = syncHeight;
 
-    final syncingStatus =
-        SyncingSyncStatus.fromHeightValues(currentChainTip, initialSyncHeight, syncHeight);
+    SyncingSyncStatus syncingStatus;
+    if (scanData.isSingleScan) {
+      syncingStatus = SyncingSyncStatus(1, 0);
+    } else {
+      syncingStatus =
+          SyncingSyncStatus.fromHeightValues(currentChainTip, initialSyncHeight, syncHeight);
+    }
+
     scanData.sendPort.send(SyncResponse(syncHeight, syncingStatus));
 
-    if (syncingStatus.blocksLeft <= 0) {
+    if (syncingStatus.blocksLeft <= 0 || (scanData.isSingleScan && scanData.height != syncHeight)) {
       scanData.sendPort.send(SyncResponse(currentChainTip, SyncedSyncStatus()));
       return;
     }
@@ -1701,7 +1712,8 @@ Future<void> startRefresh(ScanData scanData) async {
     try {
       final electrumClient = await getElectrumConnection();
 
-      final scanningBlockCount = scanData.network == BitcoinNetwork.testnet ? 50 : 10;
+      final scanningBlockCount =
+          scanData.isSingleScan ? 1 : (scanData.network == BitcoinNetwork.testnet ? 1 : 10);
 
       Map<String, dynamic>? tweaks;
       try {
@@ -1743,8 +1755,7 @@ Future<void> startRefresh(ScanData scanData) async {
                 scanData.silentAddress.b_scan,
                 scanData.silentAddress.B_spend,
                 outputPubkeys.values
-                    .map((o) => getScriptFromOutput(
-                        o["pubkey"].toString(), int.parse(o["amount"].toString())))
+                    .map((o) => getScriptFromOutput(o[0].toString(), int.parse(o[1].toString())))
                     .toList(),
                 precomputedLabels: scanData.labels,
               );
@@ -1770,9 +1781,9 @@ Future<void> startRefresh(ScanData scanData) async {
                 int? amount;
                 int? pos;
                 outputPubkeys.entries.firstWhere((k) {
-                  final matches = k.value["pubkey"] == key;
+                  final matches = k.value[0] == key;
                   if (matches) {
-                    amount = int.parse(k.value["amount"].toString());
+                    amount = int.parse(k.value[1].toString());
                     pos = int.parse(k.key.toString());
                     return true;
                   }

@@ -242,3 +242,32 @@ Future<int> getHavenCurrentHeight() async {
     throw Exception('Failed to load current blockchain height');
   }
 }
+
+// Data taken from https://timechaincalendar.com/
+const bitcoinDates = {
+  "2024-04": 837182,
+  "2024-03": 832623,
+  "2024-02": 828319,
+  "2024-01": 823807,
+  "2023-12": 819206,
+  "2023-11": 814765,
+  "2023-10": 810098,
+  "2023-09": 805675,
+  "2023-08": 801140,
+  "2023-07": 796640,
+  "2023-06": 792330,
+  "2023-05": 787733,
+  "2023-04": 783403,
+  "2023-03": 778740,
+  "2023-02": 774525,
+  "2023-01": 769810,
+};
+
+int getBitcoinHeightByDate({required DateTime date}) {
+  String closestKey =
+      bitcoinDates.keys.firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
+
+  final oldestHeight = bitcoinDates.values.last;
+
+  return bitcoinDates[closestKey] ?? oldestHeight;
+}

@@ -511,6 +511,7 @@
   "save_backup_password_alert": "Запазване на паролата за възстановяване",
   "save_to_downloads": "Запазване в Изтегляния",
   "saved_the_trade_id": "Запазих trade ID-то",
+  "scan_one_block": "Сканирайте един блок",
   "scan_qr_code": "Сканирайте QR кода, за да получите адреса",
   "scan_qr_code_to_get_address": "Сканирайте QR кода, за да получите адреса",
   "scan_qr_on_device": "Сканирайте този QR код на друго устройство",
