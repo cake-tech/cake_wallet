@@ -528,7 +528,7 @@ abstract class SolanaWalletBase
   }
 
   @override
-  Future<String> verifyMessage(String message, String signature, {String? address}) async {
+  Future<bool> verifyMessage(String message, String signature, {String? address}) async {
     throw UnimplementedError();
   }
 

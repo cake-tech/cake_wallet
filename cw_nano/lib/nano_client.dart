@@ -5,7 +5,6 @@ import 'package:cw_core/nano_account_info_response.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_transaction_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:nanodart/nanodart.dart';
 import 'package:cw_core/node.dart';
 import 'package:nanoutil/nanoutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -120,8 +119,8 @@ class NanoClient {
     };
 
     // sign the change block:
-    final String hash = NanoBlocks.computeStateHash(
-      NanoAccountType.NANO,
+    final String hash = NanoSignatures.computeStateHash(
+      NanoBasedCurrency.NANO,
       changeBlock["account"]!,
       changeBlock["previous"]!,
       changeBlock["representative"]!,
@@ -233,7 +232,7 @@ class NanoClient {
     }
     final String representative = infoResponse.representative;
     // link = destination address:
-    final String link = NanoAccounts.extractPublicKey(destinationAddress);
+    final String link = NanoDerivations.addressToPublicKey(destinationAddress);
     final String linkAsAccount = destinationAddress;
 
     // construct the send block:
@@ -247,8 +246,8 @@ class NanoClient {
     };
 
     // sign the send block:
-    final String hash = NanoBlocks.computeStateHash(
-      NanoAccountType.NANO,
+    final String hash = NanoSignatures.computeStateHash(
+      NanoBasedCurrency.NANO,
       sendBlock["account"]!,
       sendBlock["previous"]!,
       sendBlock["representative"]!,
@@ -303,7 +302,7 @@ class NanoClient {
     // link = send block hash:
     final String link = blockHash;
     // this "linkAsAccount" is meaningless:
-    final String linkAsAccount = NanoAccounts.createAccount(NanoAccountType.NANO, blockHash);
+    final String linkAsAccount = NanoDerivations.publicKeyToAddress(blockHash, currency: NanoBasedCurrency.NANO);
 
     // construct the receive block:
     Map<String, String> receiveBlock = {
@@ -317,8 +316,8 @@ class NanoClient {
     };
 
     // sign the receive block:
-    final String hash = NanoBlocks.computeStateHash(
-      NanoAccountType.NANO,
+    final String hash = NanoSignatures.computeStateHash(
+      NanoBasedCurrency.NANO,
       receiveBlock["account"]!,
       receiveBlock["previous"]!,
       receiveBlock["representative"]!,
@@ -330,7 +329,7 @@ class NanoClient {
     // get PoW for the receive block:
     String? work;
     if (openBlock) {
-      work = await requestWork(NanoAccounts.extractPublicKey(destinationAddress));
+      work = await requestWork(NanoDerivations.addressToPublicKey(destinationAddress));
     } else {
       work = await requestWork(frontier);
     }

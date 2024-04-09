@@ -88,7 +88,7 @@ class DFXBuyProvider extends BuyProvider {
   }
 
   Future<String> signUp() async {
-    final signMessage = getSignature(await getSignMessage());
+    final signMessage = await getSignature(await getSignMessage());
 
     final requestBody = jsonEncode({
       'wallet': walletName,
@@ -116,7 +116,7 @@ class DFXBuyProvider extends BuyProvider {
   }
 
   Future<String> signIn() async {
-    final signMessage = getSignature(await getSignMessage());
+    final signMessage = await getSignature(await getSignMessage());
 
     final requestBody = jsonEncode({
       'address': walletAddress,
@@ -142,11 +142,11 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
-  String getSignature(String message) {
+  Future<String> getSignature(String message) async {
     switch (wallet.type) {
       case WalletType.ethereum:
       case WalletType.polygon:
-        return wallet.signMessage(message);
+        return await wallet.signMessage(message);
       case WalletType.monero:
       case WalletType.litecoin:
       case WalletType.bitcoin:

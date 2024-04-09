@@ -34,15 +34,15 @@ class RobinhoodBuyProvider extends BuyProvider {
 
   String get _apiSecret => secrets.exchangeHelperApiKey;
 
-  String getSignature(String message) {
+  Future<String> getSignature(String message) async {
     switch (wallet.type) {
       case WalletType.ethereum:
       case WalletType.polygon:
-        return wallet.signMessage(message);
+        return await wallet.signMessage(message);
       case WalletType.litecoin:
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
-        return wallet.signMessage(message, address: wallet.walletAddresses.address);
+        return await wallet.signMessage(message, address: wallet.walletAddresses.address);
       default:
         throw Exception("WalletType is not available for Robinhood ${wallet.type}");
     }
@@ -53,7 +53,7 @@ class RobinhoodBuyProvider extends BuyProvider {
     final valid_until = (DateTime.now().millisecondsSinceEpoch / 1000).round() + 10;
     final message = "$_apiSecret:${valid_until}";
 
-    final signature = getSignature(message);
+    final signature = await getSignature(message);
 
     final uri = Uri.https(_cIdBaseUrl, "/api/robinhood");
 

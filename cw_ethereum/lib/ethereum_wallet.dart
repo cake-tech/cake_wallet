@@ -124,6 +124,11 @@ class EthereumWallet extends EVMChainWallet {
     throw UnimplementedError();
   }
 
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address}) async {
+    throw UnimplementedError();
+  }
+
   static Future<EthereumWallet> open(
       {required String name, required String password, required WalletInfo walletInfo}) async {
     final path = await pathForWallet(name: name, type: walletInfo.type);
