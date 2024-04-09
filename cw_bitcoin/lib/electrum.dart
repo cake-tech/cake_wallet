@@ -64,7 +64,8 @@ class ElectrumClient {
     } catch (_) {}
 
     if (useSSL == true) {
-      socket = await SecureSocket.connect(host, port, timeout: connectionTimeout);
+      socket = await SecureSocket.connect(host, port,
+          timeout: connectionTimeout, onBadCertificate: (_) => true);
     } else {
       socket = await Socket.connect(host, port, timeout: connectionTimeout);
     }
@@ -418,7 +419,9 @@ class ElectrumClient {
 
   Future<void> close() async {
     _aliveTimer?.cancel();
-    await socket?.close();
+    try {
+      await socket?.close();
+    } catch (_) {}
     onConnectionStatusChange = null;
   }
 

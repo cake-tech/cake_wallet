@@ -158,6 +158,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
   }
 
   factory ElectrumTransactionInfo.fromJson(Map<String, dynamic> data, WalletType type) {
+    final inputAddresses = data['inputAddresses'] as List<dynamic>;
+    final outputAddresses = data['outputAddresses'] as List<dynamic>;
     return ElectrumTransactionInfo(
       type,
       id: data['id'] as String,
@@ -168,8 +170,10 @@ class ElectrumTransactionInfo extends TransactionInfo {
       date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
       isPending: data['isPending'] as bool,
       confirmations: data['confirmations'] as int,
-      inputAddresses: data['inputAddresses'] as List<String>,
-      outputAddresses: data['outputAddresses'] as List<String>,
+      inputAddresses:
+          inputAddresses.isEmpty ? [] : inputAddresses.map((e) => e.toString()).toList(),
+      outputAddresses:
+          outputAddresses.isEmpty ? [] : outputAddresses.map((e) => e.toString()).toList(),
       to: data['to'] as String?,
       unspents: data['unspents'] != null
           ? (data['unspents'] as List<dynamic>)

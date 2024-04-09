@@ -322,30 +322,31 @@ abstract class ElectrumWalletBase
   Node? node;
 
   @action
-  Future<void> _electrumConnect(Node node, {bool? attemptedReconnect}) async {
+  @override
+  Future<void> connectToNode({required Node node}) async {
     this.node = node;
 
     try {
       syncStatus = ConnectingSyncStatus();
-      await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
+
+      if (!electrumClient.isConnected) {
+        await electrumClient.close();
+      }
+
       electrumClient.onConnectionStatusChange = (bool isConnected) async {
-        if (!isConnected) {
+        if (isConnected) {
+          syncStatus = ConnectedSyncStatus();
+        } else if (isConnected == false) {
           syncStatus = LostConnectionSyncStatus();
-          if (attemptedReconnect == false) {
-            await _electrumConnect(node, attemptedReconnect: true);
-          }
         }
       };
-      syncStatus = ConnectedSyncStatus();
+
+      await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
     } catch (e) {
       print(e.toString());
       syncStatus = FailedSyncStatus();
     }
   }
-
-  @action
-  @override
-  Future<void> connectToNode({required Node node}) => _electrumConnect(node);
 
   int get _dustAmount => 546;
 
@@ -1420,6 +1421,7 @@ abstract class ElectrumWalletBase
   Future<void> updateTransactions() async {
     try {
       if (_isTransactionUpdating) {
+        _isTransactionUpdating = false;
         return;
       }
 
@@ -1713,7 +1715,7 @@ Future<void> startRefresh(ScanData scanData) async {
       final electrumClient = await getElectrumConnection();
 
       final scanningBlockCount =
-          scanData.isSingleScan ? 1 : (scanData.network == BitcoinNetwork.testnet ? 1 : 10);
+          scanData.isSingleScan ? 1 : (scanData.network == BitcoinNetwork.testnet ? 50 : 10);
 
       Map<String, dynamic>? tweaks;
       try {
