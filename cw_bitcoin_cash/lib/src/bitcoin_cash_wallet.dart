@@ -175,4 +175,15 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     final HD = index == null ? hd : hd.derive(index);
     return base64Encode(HD.signMessage(message));
   }
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {
+    final index = address != null
+        ? walletAddresses.allAddresses
+            .firstWhere((element) => element.address == AddressUtils.toLegacyAddress(address))
+            .index
+        : null;
+    final HD = index == null ? hd : hd.derive(index);
+    return HD.verify(message: message, signature: base64Decode(signature));
+  }
 }

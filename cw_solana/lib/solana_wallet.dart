@@ -527,5 +527,10 @@ abstract class SolanaWalletBase
     return signSolanaMessage(message);
   }
 
+  @override
+  Future<String> verifyMessage(String message, String signature, {String? address}) async {
+    throw UnimplementedError();
+  }
+
   SolanaClient? get solanaClient => _client.getSolanaClient;
 }

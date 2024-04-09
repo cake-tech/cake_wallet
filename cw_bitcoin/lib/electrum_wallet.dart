@@ -1229,6 +1229,15 @@ abstract class ElectrumWalletBase
     return base64Encode(HD.signMessage(message));
   }
 
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {
+    final index = address != null
+        ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
+        : null;
+    final HD = index == null ? hd : hd.derive(index);
+    return HD.verify(message: message, signature: base64Decode(signature));
+  }
+
   static BasedUtxoNetwork _getNetwork(bitcoin.NetworkType networkType, CryptoCurrency? currency) {
     if (networkType == bitcoin.bitcoin && currency == CryptoCurrency.bch) {
       return BitcoinCashNetwork.mainnet;
