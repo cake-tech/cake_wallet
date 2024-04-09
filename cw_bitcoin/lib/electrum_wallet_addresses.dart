@@ -386,12 +386,31 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   void updateAddress(String address, String label) {
-    final addressRecord =
-        _addresses.firstWhere((addressRecord) => addressRecord.address == address);
-    addressRecord.setNewName(label);
-    final index = _addresses.indexOf(addressRecord);
-    _addresses.remove(addressRecord);
-    _addresses.insert(index, addressRecord);
+    BaseBitcoinAddressRecord? foundAddress;
+    _addresses.forEach((addressRecord) {
+      if (addressRecord.address == address) {
+        foundAddress = addressRecord;
+      }
+    });
+    silentAddresses.forEach((addressRecord) {
+      if (addressRecord.address == address) {
+        foundAddress = addressRecord;
+      }
+    });
+
+    if (foundAddress != null) {
+      foundAddress!.setNewName(label);
+
+      if (foundAddress is BitcoinAddressRecord) {
+        final index = _addresses.indexOf(foundAddress);
+        _addresses.remove(foundAddress);
+        _addresses.insert(index, foundAddress as BitcoinAddressRecord);
+      } else {
+        final index = silentAddresses.indexOf(foundAddress as BitcoinSilentPaymentAddressRecord);
+        silentAddresses.remove(foundAddress);
+        silentAddresses.insert(index, foundAddress as BitcoinSilentPaymentAddressRecord);
+      }
+    }
   }
 
   @action
@@ -537,4 +556,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   bool _isAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) => addr.type == type;
   bool _isUnusedReceiveAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) =>
       !addr.isHidden && !addr.isUsed && addr.type == type;
+
+  @action
+  void deleteSilentPaymentAddress(String address) {
+    final addressRecord = silentAddresses.firstWhere((addressRecord) =>
+        addressRecord.type == SilentPaymentsAddresType.p2sp && addressRecord.address == address);
+
+    silentAddresses.remove(addressRecord);
+    updateAddressesByMatch();
+  }
 }

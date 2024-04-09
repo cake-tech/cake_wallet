@@ -14,18 +14,22 @@ class AddressCell extends StatelessWidget {
       required this.textColor,
       this.onTap,
       this.onEdit,
+      this.onDelete,
       this.txCount,
       this.balance,
       this.isChange = false,
       this.hasBalance = false});
 
-  factory AddressCell.fromItem(WalletAddressListItem item,
-          {required bool isCurrent,
-          required Color backgroundColor,
-          required Color textColor,
-          Function(String)? onTap,
-          bool hasBalance = false,
-          Function()? onEdit}) =>
+  factory AddressCell.fromItem(
+    WalletAddressListItem item, {
+    required bool isCurrent,
+    required Color backgroundColor,
+    required Color textColor,
+    Function(String)? onTap,
+    bool hasBalance = false,
+    Function()? onEdit,
+    Function()? onDelete,
+  }) =>
       AddressCell(
           address: item.address,
           name: item.name ?? '',
@@ -35,6 +39,7 @@ class AddressCell extends StatelessWidget {
           textColor: textColor,
           onTap: onTap,
           onEdit: onEdit,
+          onDelete: onDelete,
           txCount: item.txCount,
           balance: item.balance,
           isChange: item.isChange,
@@ -48,6 +53,7 @@ class AddressCell extends StatelessWidget {
   final Color textColor;
   final Function(String)? onTap;
   final Function()? onEdit;
+  final Function()? onDelete;
   final int? txCount;
   final String? balance;
   final bool isChange;
@@ -63,7 +69,8 @@ class AddressCell extends StatelessWidget {
     } else {
       return formatIfCashAddr.substring(0, addressPreviewLength) +
           '...' +
-          formatIfCashAddr.substring(formatIfCashAddr.length - addressPreviewLength, formatIfCashAddr.length);
+          formatIfCashAddr.substring(
+              formatIfCashAddr.length - addressPreviewLength, formatIfCashAddr.length);
     }
   }
 
@@ -175,7 +182,7 @@ class AddressCell extends StatelessWidget {
 
   ActionPane _actionPane(BuildContext context) => ActionPane(
         motion: const ScrollMotion(),
-        extentRatio: 0.3,
+        extentRatio: onDelete != null ? 0.4 : 0.3,
         children: [
           SlidableAction(
             onPressed: (_) => onEdit?.call(),
@@ -184,6 +191,14 @@ class AddressCell extends StatelessWidget {
             icon: Icons.edit,
             label: S.of(context).edit,
           ),
+          if (onDelete != null)
+            SlidableAction(
+              onPressed: (_) => onDelete!.call(),
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              icon: Icons.delete,
+              label: S.of(context).delete,
+            ),
         ],
       );
 }

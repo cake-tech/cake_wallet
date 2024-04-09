@@ -365,4 +365,9 @@ class CWBitcoin extends Bitcoin {
 
     return node?.uri.host == '198.58.111.154' && node?.uri.port == 50002;
   }
+
+  void deleteSilentPaymentAddress(Object wallet, String address) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    bitcoinWallet.walletAddresses.deleteSilentPaymentAddress(address);
+  }
 }

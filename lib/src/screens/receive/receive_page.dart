@@ -206,18 +206,23 @@ class ReceivePage extends BasePage {
                                         .extension<ReceivePageTheme>()!
                                         .tilesTextColor;
 
-                                return AddressCell.fromItem(item,
-                                    isCurrent: isCurrent,
-                                    hasBalance: addressListViewModel.isElectrumWallet,
-                                    backgroundColor: backgroundColor,
-                                    textColor: textColor,
-                                    onTap: item.isOneTimeReceiveAddress == true
-                                        ? null
-                                        : (_) => addressListViewModel.setAddress(item),
-                                    onEdit: item.isOneTimeReceiveAddress == true
-                                        ? null
-                                        : () => Navigator.of(context)
-                                            .pushNamed(Routes.newSubaddress, arguments: item));
+                                return AddressCell.fromItem(
+                                  item,
+                                  isCurrent: isCurrent,
+                                  hasBalance: addressListViewModel.isElectrumWallet,
+                                  backgroundColor: backgroundColor,
+                                  textColor: textColor,
+                                  onTap: item.isOneTimeReceiveAddress == true
+                                      ? null
+                                      : (_) => addressListViewModel.setAddress(item),
+                                  onEdit: item.isOneTimeReceiveAddress == true || item.isPrimary
+                                      ? null
+                                      : () => Navigator.of(context)
+                                          .pushNamed(Routes.newSubaddress, arguments: item),
+                                  onDelete: !addressListViewModel.isSilentPayments || item.isPrimary
+                                      ? null
+                                      : () => addressListViewModel.deleteAddress(item),
+                                );
                               });
                             }
 

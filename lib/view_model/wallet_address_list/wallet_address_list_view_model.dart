@@ -320,7 +320,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (isElectrumWallet) {
       if (bitcoin!.hasSelectedSilentPayments(wallet)) {
         final addressItems = bitcoin!.getSilentPaymentAddresses(wallet).map((address) {
-          final isPrimary = address.index == 0;
+          // Silent Payments index 0 is change per BIP
+          final isPrimary = address.index == 1;
 
           return WalletAddressListItem(
             id: address.index,
@@ -495,6 +496,13 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       }
     } catch (e) {
       amount = '';
+    }
+  }
+
+  @action
+  void deleteAddress(ListItem item) {
+    if (wallet.type == WalletType.bitcoin && item is WalletAddressListItem) {
+      bitcoin!.deleteSilentPaymentAddress(wallet, item.address);
     }
   }
 }
