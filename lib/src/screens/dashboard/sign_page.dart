@@ -1,79 +1,37 @@
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/restore/wallet_restore_from_keys_form.dart';
-import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_form.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/sign_form.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/verify_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
-import 'package:cake_wallet/view_model/restore/restore_mode.dart';
-import 'package:cake_wallet/view_model/seed_type_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
-import 'package:cw_core/nano_account_info_response.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
-import 'package:polyseed/polyseed.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class SignPage extends BasePage {
   SignPage(this.signViewModel)
-      : walletRestoreFromSeedFormKey = GlobalKey<WalletRestoreFromSeedFormState>(),
-        walletRestoreFromKeysFormKey = GlobalKey<WalletRestoreFromKeysFromState>(),
+      : signFormKey = GlobalKey<SignFormState>(),
+        verifyFormKey = GlobalKey<VerifyFormState>(),
         _pages = [],
-        _blockHeightFocusNode = FocusNode(),
         _controller = PageController(initialPage: 0) {
-    // walletRestoreViewModel.availableModes.forEach((mode) {
-    //   switch (mode) {
-    //     case WalletRestoreMode.seed:
-    //       _pages.add(WalletRestoreFromSeedForm(
-    //           seedTypeViewModel: seedTypeViewModel,
-    //           displayBlockHeightSelector:
-    //               walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
-    //           displayLanguageSelector: walletRestoreViewModel.hasSeedLanguageSelector,
-    //           type: walletRestoreViewModel.type,
-    //           key: walletRestoreFromSeedFormKey,
-    //           blockHeightFocusNode: _blockHeightFocusNode,
-    //           onHeightOrDateEntered: (value) {
-    //           },
-    //           onSeedChange: (String seed) {
-    //             final isPolyseed =
-    //                 walletRestoreViewModel.type == WalletType.monero && Polyseed.isValidSeed(seed);
-    //             _validateOnChange(isPolyseed: isPolyseed);
-    //           },
-    //           onLanguageChange: (String language) {
-    //             final isPolyseed = language.startsWith("POLYSEED_");
-    //             _validateOnChange(isPolyseed: isPolyseed);
-    //           }));
-    //       break;
-    //     case WalletRestoreMode.keys:
-    //       _pages.add(WalletRestoreFromKeysFrom(
-    //           key: walletRestoreFromKeysFormKey,
-    //           walletRestoreViewModel: walletRestoreViewModel,
-    //           onPrivateKeyChange: (String seed) {
-    //             if (walletRestoreViewModel.type == WalletType.nano ||
-    //                 walletRestoreViewModel.type == WalletType.banano) {
-    //             }
-    //           },
-    //           displayPrivateKeyField: walletRestoreViewModel.hasRestoreFromPrivateKey,
-    //           onHeightOrDateEntered: (value) => walletRestoreViewModel.isButtonEnabled = value));
-    //       break;
-    //     default:
-    //       break;
-    //   }
-    // });
+    _pages.add(SignForm(
+      key: signFormKey,
+      type: signViewModel.wallet.type,
+      includeAddress: signViewModel.signIncludesAddress,
+    ));
+    _pages.add(VerifyForm(
+      key: verifyFormKey,
+      type: signViewModel.wallet.type,
+    ));
   }
 
   @override
@@ -91,29 +49,45 @@ class SignPage extends BasePage {
   final SignViewModel signViewModel;
   final PageController _controller;
   final List<Widget> _pages;
-  final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
-  final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
-  final FocusNode _blockHeightFocusNode;
-  DerivationType derivationType = DerivationType.unknown;
-  String? derivationPath = null;
+  final GlobalKey<SignFormState> signFormKey;
+  final GlobalKey<VerifyFormState> verifyFormKey;
 
   @override
   Widget body(BuildContext context) {
-    // reaction((_) => walletRestoreViewModel.state, (ExecutionState state) {
-    //   if (state is FailureState) {
-    //     WidgetsBinding.instance.addPostFrameCallback((_) {
-    //       showPopUp<void>(
-    //           context: context,
-    //           builder: (_) {
-    //             return AlertWithOneAction(
-    //                 alertTitle: S.current.new_wallet,
-    //                 alertContent: state.error,
-    //                 buttonText: S.of(context).ok,
-    //                 buttonAction: () => Navigator.of(context).pop());
-    //           });
-    //     });
-    //   }
-    // });
+    reaction((_) => signViewModel.state, (ExecutionState state) {
+      if (state is FailureState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showPopUp<void>(
+              context: context,
+              builder: (_) {
+                return AlertWithOneAction(
+                  alertTitle: S.current.error,
+                  alertContent: state.error,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop(),
+                );
+              });
+        });
+      }
+      if (state is ExecutedSuccessfullyState) {
+        if (signViewModel.isSigning) {
+          signFormKey.currentState!.signatureController.text = state.payload as String;
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showPopUp<void>(
+                context: context,
+                builder: (_) {
+                  return AlertWithOneAction(
+                    alertTitle: S.current.successful,
+                    alertContent: "T: The message was successfully verified",
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop(),
+                  );
+                });
+          });
+        }
+      }
+    });
 
     // reaction((_) => walletRestoreViewModel.mode, (WalletRestoreMode mode) {
     //   walletRestoreViewModel.isButtonEnabled = false;
@@ -138,7 +112,7 @@ class SignPage extends BasePage {
         nextFocus: false,
         actions: [
           KeyboardActionsItem(
-            focusNode: _blockHeightFocusNode,
+            focusNode: FocusNode(),
             toolbarButtons: [(_) => KeyboardDoneButton()],
           )
         ],
@@ -156,8 +130,7 @@ class SignPage extends BasePage {
                 Expanded(
                   child: PageView.builder(
                     onPageChanged: (page) {
-                      // walletRestoreViewModel.mode =
-                      //     page == 0 ? WalletRestoreMode.seed : WalletRestoreMode.keys;
+                      signViewModel.isSigning = page == 0;
                     },
                     controller: _controller,
                     itemCount: _pages.length,
@@ -190,30 +163,30 @@ class SignPage extends BasePage {
                             onPressed: () async {
                               await _confirmForm(context);
                             },
-                            text: S.of(context).restore_recover,
+                            text: signViewModel.isSigning ? "T: Sign Message" : "T: Verify Message",
                             color: Theme.of(context)
                                 .extension<WalletListTheme>()!
                                 .createNewWalletButtonBackgroundColor,
                             textColor: Theme.of(context)
                                 .extension<WalletListTheme>()!
                                 .restoreWalletButtonTextColor,
-                            // isLoading: walletRestoreViewModel.state is IsExecutingState,
-                            // isDisabled: !walletRestoreViewModel.isButtonEnabled,
+                            isLoading: signViewModel.state is IsExecutingState,
+                            // isDisabled: !signViewModel.isButtonEnabled,
                           );
                         },
                       ),
-                      const SizedBox(height: 25),
-                      GestureDetector(
-                        onTap: () {
-                          // Navigator.of(context)
-                          //     .pushNamed(Routes.advancedPrivacySettings, arguments: {
-                          //   'type': walletRestoreViewModel.type,
-                          //   'useTestnet': walletRestoreViewModel.useTestnet,
-                          //   'toggleTestnet': walletRestoreViewModel.toggleUseTestnet
-                          // });
-                        },
-                        child: Text(S.of(context).advanced_settings),
-                      ),
+                      // const SizedBox(height: 25),
+                      // GestureDetector(
+                      //   onTap: () {
+                      //     // Navigator.of(context)
+                      //     //     .pushNamed(Routes.advancedPrivacySettings, arguments: {
+                      //     //   'type': walletRestoreViewModel.type,
+                      //     //   'useTestnet': walletRestoreViewModel.useTestnet,
+                      //     //   'toggleTestnet': walletRestoreViewModel.toggleUseTestnet
+                      //     // });
+                      //   },
+                      //   child: Text(S.of(context).advanced_settings),
+                      // ),
                     ],
                   ),
                 )
@@ -225,39 +198,28 @@ class SignPage extends BasePage {
     );
   }
 
-  void _validateOnChange({bool isPolyseed = false}) {}
-
   Future<void> _confirmForm(BuildContext context) async {
-    // // Dismissing all visible keyboard to provide context for navigation
-    // FocusManager.instance.primaryFocus?.unfocus();
-
-    // late BuildContext? formContext;
-    // late GlobalKey<FormState>? formKey;
-    // late String name;
-    // if (walletRestoreViewModel.mode == WalletRestoreMode.seed) {
-    //   formContext = walletRestoreFromSeedFormKey.currentContext;
-    //   formKey = walletRestoreFromSeedFormKey.currentState!.formKey;
-    //   name = walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.value.text;
-    // } else if (walletRestoreViewModel.mode == WalletRestoreMode.keys) {
-    //   formContext = walletRestoreFromKeysFormKey.currentContext;
-    //   formKey = walletRestoreFromKeysFormKey.currentState!.formKey;
-    //   name = walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.value.text;
-    // }
+    FocusManager.instance.primaryFocus?.unfocus();
 
     // if (!formKey!.currentState!.validate()) {
     //   return;
     // }
-  }
 
-  Future<void> showNameExistsAlert(BuildContext context) {
-    return showPopUp<void>(
-        context: context,
-        builder: (_) {
-          return AlertWithOneAction(
-              alertTitle: '',
-              alertContent: S.of(context).wallet_name_exists,
-              buttonText: S.of(context).ok,
-              buttonAction: () => Navigator.of(context).pop());
-        });
+    if (signViewModel.isSigning) {
+      String message = signFormKey.currentState!.messageController.text;
+      String? address;
+      if (signViewModel.signIncludesAddress) {
+        address = signFormKey.currentState!.addressController.text;
+      }
+      await signViewModel.sign(message, address: address);
+    } else {
+      String message = verifyFormKey.currentState!.messageController.text;
+      String signature = verifyFormKey.currentState!.signatureController.text;
+      String? address;
+      // if (signViewModel.signIncludesAddress) {
+      //   address = signFormKey.currentState!.addressController.text;
+      // }
+      await signViewModel.verify(message, signature, address: address);
+    }
   }
 }

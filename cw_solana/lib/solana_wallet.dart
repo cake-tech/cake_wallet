@@ -522,5 +522,10 @@ abstract class SolanaWalletBase
     return hex;
   }
 
+  @override
+  Future<String> signMessage(String message, {String? address}) async {
+    return signSolanaMessage(message);
+  }
+
   SolanaClient? get solanaClient => _client.getSolanaClient;
 }

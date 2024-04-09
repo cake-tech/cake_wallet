@@ -371,7 +371,7 @@ abstract class DashboardViewModelBase with Store {
   bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
 
   @computed
-  bool get hasSignMessages => [WalletType.monero].contains(wallet.type);
+  bool get hasSignMessages => [WalletType.monero, WalletType.solana].contains(wallet.type);
 
   Future<void> reconnect() async {
     final node = appStore.settingsStore.getCurrentNode(wallet.type);

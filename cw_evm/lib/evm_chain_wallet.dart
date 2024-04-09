@@ -524,7 +524,7 @@ abstract class EVMChainWalletBase
   }
 
   @override
-  String signMessage(String message, {String? address}) =>
+  Future<String> signMessage(String message, {String? address}) async =>
       bytesToHex(_evmChainPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
 
   Web3Client? getWeb3Client() => _client.getWeb3Client();
