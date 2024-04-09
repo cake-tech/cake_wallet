@@ -370,10 +370,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         }
 
         if (addressRecord.address != address) {
-          print([
-            addressRecord.address,
-            addressRecord.name.isEmpty ? "Silent Payments" : addressRecord.name
-          ]);
           addressesMap[addressRecord.address] = addressRecord.name.isEmpty
               ? "Silent Payments"
               : "Silent Payments - " + addressRecord.name;
