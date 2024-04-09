@@ -76,7 +76,8 @@ class CWEthereum extends Ethereum {
                 sendAll: out.sendAll,
                 extractedAddress: out.extractedAddress,
                 isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount))
+                formattedCryptoAmount: out.formattedCryptoAmount,
+                memo: out.memo))
             .toList(),
         priority: priority as EVMChainTransactionPriority,
         currency: currency,
@@ -130,7 +131,7 @@ class CWEthereum extends Ethereum {
   @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {
     final ethereumWallet = wallet as EthereumWallet;
-    return await ethereumWallet.getErc20Token(contractAddress);
+    return await ethereumWallet.getErc20Token(contractAddress, 'eth');
   }
 
   @override

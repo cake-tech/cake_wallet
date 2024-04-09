@@ -59,6 +59,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
   final TextEditingController _tokenNameController = TextEditingController();
   final TextEditingController _tokenSymbolController = TextEditingController();
   final TextEditingController _tokenDecimalController = TextEditingController();
+  final TextEditingController _tokenIconPathController = TextEditingController();
 
   final FocusNode _contractAddressFocusNode = FocusNode();
   final FocusNode _tokenNameFocusNode = FocusNode();
@@ -83,6 +84,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
       _tokenNameController.text = widget.token!.name;
       _tokenSymbolController.text = widget.token!.title;
       _tokenDecimalController.text = widget.token!.decimals.toString();
+      _tokenIconPathController.text = widget.token?.iconPath ?? '';
     }
 
     if (widget.initialContractAddress != null) {
@@ -195,12 +197,15 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate() &&
                           (!_showDisclaimer || _disclaimerChecked)) {
-                        await widget.homeSettingsViewModel.addToken(Erc20Token(
-                          name: _tokenNameController.text,
-                          symbol: _tokenSymbolController.text,
+                        await widget.homeSettingsViewModel.addToken(
+                          token: CryptoCurrency(
+                            name: _tokenNameController.text,
+                            title: _tokenSymbolController.text.toUpperCase(),
+                            decimals: int.parse(_tokenDecimalController.text),
+                            iconPath: _tokenIconPathController.text,
+                          ),
                           contractAddress: _contractAddressController.text,
-                          decimal: int.parse(_tokenDecimalController.text),
-                        ));
+                        );
                         if (context.mounted) {
                           Navigator.pop(context);
                         }
@@ -226,6 +231,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
       if (token != null) {
         if (_tokenNameController.text.isEmpty) _tokenNameController.text = token.name;
         if (_tokenSymbolController.text.isEmpty) _tokenSymbolController.text = token.title;
+        if (_tokenIconPathController.text.isEmpty)
+          _tokenIconPathController.text = token.iconPath ?? '';
         if (_tokenDecimalController.text.isEmpty)
           _tokenDecimalController.text = token.decimals.toString();
       }
@@ -303,8 +310,13 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
               if (text?.isEmpty ?? true) {
                 return S.of(context).field_required;
               }
+
               if (int.tryParse(text!) == null) {
                 return S.of(context).invalid_input;
+              }
+
+              if (int.tryParse(text) == 0) {
+                return S.current.decimals_cannot_be_zero;
               }
 
               return null;
