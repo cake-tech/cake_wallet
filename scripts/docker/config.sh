@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x -e
 
 export API=21
 export WORKDIR=/opt/android

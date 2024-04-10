@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x -e
 
 WORKDIR=/opt/android
 CW_EXRTERNAL_DIR=${WORKDIR}/output/android
