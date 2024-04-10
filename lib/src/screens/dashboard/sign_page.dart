@@ -175,18 +175,6 @@ class SignPage extends BasePage {
                           );
                         },
                       ),
-                      // const SizedBox(height: 25),
-                      // GestureDetector(
-                      //   onTap: () {
-                      //     // Navigator.of(context)
-                      //     //     .pushNamed(Routes.advancedPrivacySettings, arguments: {
-                      //     //   'type': walletRestoreViewModel.type,
-                      //     //   'useTestnet': walletRestoreViewModel.useTestnet,
-                      //     //   'toggleTestnet': walletRestoreViewModel.toggleUseTestnet
-                      //     // });
-                      //   },
-                      //   child: Text(S.of(context).advanced_settings),
-                      // ),
                     ],
                   ),
                 )
@@ -201,10 +189,6 @@ class SignPage extends BasePage {
   Future<void> _confirmForm(BuildContext context) async {
     FocusManager.instance.primaryFocus?.unfocus();
 
-    // if (!formKey!.currentState!.validate()) {
-    //   return;
-    // }
-
     if (signViewModel.isSigning) {
       String message = signFormKey.currentState!.messageController.text;
       String? address;
@@ -215,10 +199,7 @@ class SignPage extends BasePage {
     } else {
       String message = verifyFormKey.currentState!.messageController.text;
       String signature = verifyFormKey.currentState!.signatureController.text;
-      String? address;
-      // if (signViewModel.signIncludesAddress) {
-      //   address = signFormKey.currentState!.addressController.text;
-      // }
+      String address = verifyFormKey.currentState!.addressController.text;
       await signViewModel.verify(message, signature, address: address);
     }
   }

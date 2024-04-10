@@ -78,17 +78,10 @@ class VerifyFormState extends State<VerifyForm> {
               selectedCurrency: walletTypeToCryptoCurrency(widget.type),
             ),
             const SizedBox(height: 20),
-            GestureDetector(
-              onTap: () async {
-                final text = signatureController.text;
-                Clipboard.setData(ClipboardData(text: text));
-                showBar<void>(context, S.of(context).transaction_details_copied(text));
-              },
-              child: BaseTextFormField(
-                enabled: false,
-                controller: signatureController,
-                hintText: "T: Signature",
-              ),
+            AddressTextField(
+              controller: signatureController,
+              placeholder: "T: Signature",
+              options: [AddressTextFieldOption.paste],
             ),
           ],
         ),

@@ -491,7 +491,7 @@ abstract class NanoWalletBase
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    return NanoSignatures.sign(message!, privateKey!);
+    return NanoSignatures.sign(message, privateKey!);
   }
 
   @override

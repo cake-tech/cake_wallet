@@ -36,12 +36,16 @@ abstract class SignViewModelBase with Store {
 
   @action
   Future<void> verify(String message, String signature, {String? address}) async {
-    // state = IsExecutingState();
-    // try {
-    //   final signature = await wallet.verifyMessage(message, address: address);
-    //   state = ExecutedSuccessfullyState(payload: signature);
-    // } catch (e) {
-    //   state = FailureState(e.toString());
-    // }
+    state = IsExecutingState();
+    try {
+      final sig = await wallet.verifyMessage(message, signature, address: address);
+      if (sig) {
+        state = ExecutedSuccessfullyState();
+      } else {
+        state = FailureState('T: The signature is not valid for the message given');
+      }
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
   }
 }
