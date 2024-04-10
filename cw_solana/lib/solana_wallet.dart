@@ -464,11 +464,17 @@ abstract class SolanaWalletBase
         return null;
       }
 
+      String? iconPath;
+      try {
+        iconPath = await _client.getIconImageFromTokenUri(token.uri);
+      } catch (_) {}
+
       return SPLToken.fromMetadata(
         name: token.name,
         mint: token.mint,
         symbol: token.symbol,
         mintAddress: mintAddress,
+        iconPath: iconPath,
       );
     } catch (e) {
       return null;
