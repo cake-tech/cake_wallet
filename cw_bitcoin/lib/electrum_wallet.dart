@@ -238,9 +238,15 @@ abstract class ElectrumWalletBase
 
             final existingTxInfo = transactionHistory.transactions[txid];
             if (existingTxInfo != null) {
+              existingTxInfo.amount = tx.amount;
+              existingTxInfo.confirmations = tx.confirmations;
+              existingTxInfo.height = tx.height;
+
               final newUnspents = tx.unspents!
                   .where((unspent) => !(existingTxInfo.unspents?.any((element) =>
-                          element.hash.contains(unspent.hash) && element.vout == unspent.vout) ??
+                          element.hash.contains(unspent.hash) &&
+                          element.vout == unspent.vout &&
+                          element.value == unspent.value) ??
                       false))
                   .toList();
 
@@ -290,11 +296,13 @@ abstract class ElectrumWalletBase
     try {
       syncStatus = AttemptingSyncStatus();
 
-      if (silentPaymentsScanningActive) {
+      if (hasSilentPaymentsScanning) {
         try {
           await _setInitialHeight();
         } catch (_) {}
+      }
 
+      if (silentPaymentsScanningActive) {
         if ((currentChainTip ?? 0) > walletInfo.restoreHeight) {
           _setListeners(walletInfo.restoreHeight, chainTip: currentChainTip);
         }
@@ -412,11 +420,14 @@ abstract class ElectrumWalletBase
     List<ECPrivateInfo> inputPrivKeyInfos = [];
     List<ECPublic> inputPubKeys = [];
     bool spendsSilentPayment = false;
+    bool spendsCPFP = false;
 
     for (int i = 0; i < unspentCoins.length; i++) {
       final utx = unspentCoins[i];
 
       if (utx.isSending) {
+        spendsCPFP = utx.confirmations == 0;
+
         allInputsAmount += utx.value;
 
         final address = addressTypeFromStr(utx.address, network);
@@ -523,6 +534,7 @@ abstract class ElectrumWalletBase
       hasChange: false,
       memo: memo,
       spendsSilentPayment: spendsSilentPayment,
+      spendsCPFP: spendsCPFP,
     );
   }
 
@@ -540,12 +552,14 @@ abstract class ElectrumWalletBase
     List<ECPublic> inputPubKeys = [];
     int allInputsAmount = 0;
     bool spendsSilentPayment = false;
+    bool spendsCPFP = false;
 
     int leftAmount = credentialsAmount;
     final sendingCoins = unspentCoins.where((utx) => utx.isSending).toList();
 
     for (int i = 0; i < sendingCoins.length; i++) {
       final utx = sendingCoins[i];
+      spendsCPFP = utx.confirmations == 0;
 
       allInputsAmount += utx.value;
       leftAmount = leftAmount - utx.value;
@@ -725,6 +739,7 @@ abstract class ElectrumWalletBase
       isSendAll: false,
       memo: memo,
       spendsSilentPayment: spendsSilentPayment,
+      spendsCPFP: spendsCPFP,
     );
   }
 
@@ -802,7 +817,7 @@ abstract class ElectrumWalletBase
           network: network,
           memo: estimatedTx.memo,
           outputOrdering: BitcoinOrdering.none,
-          enableRBF: true,
+          enableRBF: !estimatedTx.spendsCPFP,
         );
       } else {
         txb = BitcoinTransactionBuilder(
@@ -812,7 +827,7 @@ abstract class ElectrumWalletBase
           network: network,
           memo: estimatedTx.memo,
           outputOrdering: BitcoinOrdering.none,
-          enableRBF: true,
+          enableRBF: !estimatedTx.spendsCPFP,
         );
       }
 
@@ -1021,6 +1036,7 @@ abstract class ElectrumWalletBase
                 final tx = await fetchTransactionInfo(
                     hash: coin.hash, height: 0, myAddresses: addressesSet);
                 coin.isChange = tx?.direction == TransactionDirection.outgoing;
+                coin.confirmations = tx?.confirmations;
                 updatedUnspentCoins.add(coin);
               } catch (_) {}
             }))));
@@ -1425,6 +1441,12 @@ abstract class ElectrumWalletBase
         return;
       }
 
+      transactionHistory.transactions.values.forEach((tx) {
+        if (tx.unspents != null && currentChainTip != null) {
+          tx.confirmations = currentChainTip! - tx.height + 1;
+        }
+      });
+
       _isTransactionUpdating = true;
       await fetchTransactions();
       walletAddresses.updateReceiveAddresses();
@@ -1526,22 +1548,6 @@ abstract class ElectrumWalletBase
 
   Future<void> updateBalance() async {
     balance[currency] = await _fetchBalances();
-
-    if (hasSilentPaymentsScanning) {
-      // Update balance stored from scanned silent payment transactions
-      try {
-        transactionHistory.transactions.values.forEach((tx) {
-          if (tx.unspents != null) {
-            balance[currency]!.confirmed += tx.unspents!
-                .where(
-                    (unspent) => unspent.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord)
-                .map((e) => e.value)
-                .reduce((value, element) => value + element);
-          }
-        });
-      } catch (_) {}
-    }
-
     await save();
   }
 
@@ -1660,15 +1666,9 @@ Future<void> startRefresh(ScanData scanData) async {
     return electrumClient;
   }
 
-  Future<int> getNodeHeightOrUpdate(int baseHeight) async {
-    if (cachedBlockchainHeight < baseHeight || cachedBlockchainHeight == 0) {
-      final electrumClient = await getElectrumConnection();
-
-      cachedBlockchainHeight =
-          await electrumClient.getCurrentBlockChainTip() ?? cachedBlockchainHeight;
-    }
-
-    return cachedBlockchainHeight;
+  Future<int> getUpdatedNodeHeight() async {
+    final electrumClient = await getElectrumConnection();
+    return await electrumClient.getCurrentBlockChainTip() ?? cachedBlockchainHeight;
   }
 
   var lastKnownBlockHeight = 0;
@@ -1700,14 +1700,14 @@ Future<void> startRefresh(ScanData scanData) async {
     if (scanData.isSingleScan) {
       syncingStatus = SyncingSyncStatus(1, 0);
     } else {
-      syncingStatus =
-          SyncingSyncStatus.fromHeightValues(currentChainTip, initialSyncHeight, syncHeight);
+      syncingStatus = SyncingSyncStatus.fromHeightValues(
+          await getUpdatedNodeHeight(), initialSyncHeight, syncHeight);
     }
 
     scanData.sendPort.send(SyncResponse(syncHeight, syncingStatus));
 
     if (syncingStatus.blocksLeft <= 0 || (scanData.isSingleScan && scanData.height != syncHeight)) {
-      scanData.sendPort.send(SyncResponse(currentChainTip, SyncedSyncStatus()));
+      scanData.sendPort.send(SyncResponse(await getUpdatedNodeHeight(), SyncedSyncStatus()));
       return;
     }
 
@@ -1806,12 +1806,12 @@ Future<void> startRefresh(ScanData scanData) async {
                   WalletType.bitcoin,
                   id: tx.hash,
                   height: syncHeight,
-                  amount: 0, // will be added later via unspent
+                  amount: amount!,
                   fee: 0,
                   direction: TransactionDirection.incoming,
                   isPending: false,
                   date: DateTime.now(),
-                  confirmations: currentChainTip - syncHeight - 1,
+                  confirmations: await getUpdatedNodeHeight() - int.parse(blockHeight) + 1,
                   to: value.label != null
                       ? SilentPaymentAddress(
                           version: scanData.silentAddress.version,
@@ -1857,6 +1857,7 @@ class EstimatedTxResult {
     required this.isSendAll,
     this.memo,
     required this.spendsSilentPayment,
+    required this.spendsCPFP,
   });
 
   final List<UtxoWithAddress> utxos;
@@ -1867,6 +1868,7 @@ class EstimatedTxResult {
   final bool hasChange;
   final bool isSendAll;
   final String? memo;
+  final bool spendsCPFP;
 }
 
 BitcoinBaseAddress addressTypeFromStr(String address, BasedUtxoNetwork network) {
