@@ -129,7 +129,7 @@ class CWPolygon extends Polygon {
   @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {
     final polygonWallet = wallet as PolygonWallet;
-    return await polygonWallet.getErc20Token(contractAddress);
+    return await polygonWallet.getErc20Token(contractAddress, 'polygon');
   }
 
   @override
