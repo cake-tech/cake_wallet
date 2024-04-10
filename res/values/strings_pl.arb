@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "Niepoprawny PIN",
   "authenticated": "Uwierzytelniony",
   "authentication": "Uwierzytelnianie",
+  "auto_generate_addresses": "Auto generują adresy",
   "auto_generate_subaddresses": "Automatycznie generuj podadresy",
   "automatic": "Automatyczny",
   "available_balance": "Dostępne środki",

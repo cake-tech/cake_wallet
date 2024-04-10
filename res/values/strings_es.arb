@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "Contraseña PIN",
   "authenticated": "Autenticados",
   "authentication": "Autenticación",
+  "auto_generate_addresses": "Auto Generar direcciones",
   "auto_generate_subaddresses": "Generar subdirecciones automáticamente",
   "automatic": "Automático",
   "available_balance": "Balance disponible",

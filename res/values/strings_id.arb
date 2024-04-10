@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "PIN yang salah",
   "authenticated": "Terotentikasi",
   "authentication": "Otentikasi",
+  "auto_generate_addresses": "Auto menghasilkan alamat",
   "auto_generate_subaddresses": "Menghasilkan subalamat secara otomatis",
   "automatic": "Otomatis",
   "available_balance": "Saldo Tersedia",

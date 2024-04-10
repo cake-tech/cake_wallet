@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "Incorrect PIN",
   "authenticated": "Authenticated",
   "authentication": "Authenticatie",
+  "auto_generate_addresses": "Auto -genereer adressen",
   "auto_generate_subaddresses": "Automatisch subadressen genereren",
   "automatic": "automatisch",
   "available_balance": "Beschikbaar saldo",

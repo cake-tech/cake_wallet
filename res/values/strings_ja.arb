@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "間違ったPIN",
   "authenticated": "認証済み",
   "authentication": "認証",
+  "auto_generate_addresses": "Autoはアドレスを生成します",
   "auto_generate_subaddresses": "Autoはサブアドレスを生成します",
   "automatic": "自動",
   "available_balance": "利用可能残高",

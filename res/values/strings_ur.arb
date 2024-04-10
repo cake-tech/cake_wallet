@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "غلط PIN",
   "authenticated": "تصدیق شدہ",
   "authentication": "تصدیق",
+  "auto_generate_addresses": "آٹو پیدا کرنے والے پتے",
   "auto_generate_subaddresses": "آٹو سب ایڈریس تیار کرتا ہے",
   "automatic": "خودکار",
   "available_balance": "دستیاب بیلنس",

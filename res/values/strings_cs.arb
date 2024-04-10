@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "Nesprávný PIN",
   "authenticated": "Ověřeno",
   "authentication": "Ověřování",
+  "auto_generate_addresses": "Automatické generování adres",
   "auto_generate_subaddresses": "Automaticky generovat podadresy",
   "automatic": "Automatický",
   "available_balance": "Dostupný zůstatek",

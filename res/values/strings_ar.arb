@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "PIN خطأ",
   "authenticated": "تم المصادقة",
   "authentication": "المصادقة",
+  "auto_generate_addresses": "تلقائي توليد العناوين",
   "auto_generate_subaddresses": "تلقائي توليد subddresses",
   "automatic": "تلقائي",
   "available_balance": "الرصيد المتوفر",

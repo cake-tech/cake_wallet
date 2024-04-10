@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "ပင်နံပါတ် မှားနေသည်။",
   "authenticated": "အစစ်အမှန်",
   "authentication": "စစ်ဆေးခြင်း",
+  "auto_generate_addresses": "Auto Generate လိပ်စာများ",
   "auto_generate_subaddresses": "အော်တို Generate Subaddresses",
   "automatic": "အလိုအလျောက်",
   "available_balance": "လက်ကျန်ငွေ ရရှိနိုင်",

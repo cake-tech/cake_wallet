@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "Некорректный PIN",
   "authenticated": "Аутентифицировано",
   "authentication": "Аутентификация",
+  "auto_generate_addresses": "Авто генерируйте адреса",
   "auto_generate_subaddresses": "Авто генерируйте Subaddresses",
   "automatic": "автоматический",
   "available_balance": "Доступный баланс",

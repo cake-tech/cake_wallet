@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "PIN non corretto",
   "authenticated": "Autenticato",
   "authentication": "Autenticazione",
+  "auto_generate_addresses": "Auto Genera indirizzi",
   "auto_generate_subaddresses": "Genera automaticamente sottindirizzi",
   "automatic": "Automatico",
   "available_balance": "Saldo Disponibile",

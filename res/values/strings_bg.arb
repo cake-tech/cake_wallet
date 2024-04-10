@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "Грешен PIN",
   "authenticated": "Удостоверено",
   "authentication": "Удостоверяване",
+  "auto_generate_addresses": "Автоматично генериране на адреси",
   "auto_generate_subaddresses": "Автоматично генериране на подадреси",
   "automatic": "Автоматично",
   "available_balance": "Наличен баланс",

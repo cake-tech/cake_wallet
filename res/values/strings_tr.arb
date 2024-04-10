@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "Hatalı PIN",
   "authenticated": "Doğrulandı",
   "authentication": "Doğrulama",
+  "auto_generate_addresses": "Otomatik Adres Oluşturma",
   "auto_generate_subaddresses": "Alt adresleri otomatik olarak oluştur",
   "automatic": "Otomatik",
   "available_balance": "Kullanılabilir Bakiye",

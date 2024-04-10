@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "รหัสผ่านไม่ถูกต้อง",
   "authenticated": "ได้รับการยืนยันสิทธิ์",
   "authentication": "การยืนยันสิทธิ์",
+  "auto_generate_addresses": "สร้างที่อยู่อัตโนมัติ",
   "auto_generate_subaddresses": "Auto สร้าง subaddresses",
   "automatic": "อัตโนมัติ",
   "available_balance": "ยอดคงเหลือที่ใช้งานได้",

@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "Pogrešan PIN",
   "authenticated": "Autentificiran",
   "authentication": "Autentifikacija",
+  "auto_generate_addresses": "Automatsko generiranje adresa",
   "auto_generate_subaddresses": "Automatski generirajte podadrese",
   "automatic": "Automatski",
   "available_balance": "Raspoloživ iznos",

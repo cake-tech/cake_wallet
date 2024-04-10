@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "잘못된 PIN",
   "authenticated": "인증",
   "authentication": "입증",
+  "auto_generate_addresses": "자동 생성 주소",
   "auto_generate_subaddresses": "자동 생성 서브 아드 드레스",
   "automatic": "자동적 인",
   "available_balance": "사용 가능한 잔액",

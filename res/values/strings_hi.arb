@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "गलत पिन",
   "authenticated": "प्रमाणीकृत",
   "authentication": "प्रमाणीकरण",
+  "auto_generate_addresses": "ऑटो उत्पन्न पते",
   "auto_generate_subaddresses": "स्वचालित रूप से उप-पते उत्पन्न करें",
   "automatic": "स्वचालित",
   "available_balance": "उपलब्ध शेष राशि",

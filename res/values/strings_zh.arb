@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "PIN码错误",
   "authenticated": "已认证",
   "authentication": "认证方式",
+  "auto_generate_addresses": "自动生成地址",
   "auto_generate_subaddresses": "自动生成子辅助",
   "automatic": "自动的",
   "available_balance": "可用余额",

@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "Maling pin",
   "authenticated": "Napatunayan",
   "authentication": "Pagpapatunay",
+  "auto_generate_addresses": "Auto bumuo ng mga address",
   "auto_generate_subaddresses": "Ang Auto ay bumubuo ng mga subaddresses",
   "automatic": "Awtomatiko",
   "available_balance": "Magagamit na balanse",

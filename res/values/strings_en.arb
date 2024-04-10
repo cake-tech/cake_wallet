@@ -59,6 +59,7 @@
   "auth_store_incorrect_password": "Wrong PIN",
   "authenticated": "Authenticated",
   "authentication": "Authentication",
+  "auto_generate_addresses": "Auto generate addresses",
   "auto_generate_subaddresses": "Auto generate subaddresses",
   "automatic": "Automatic",
   "available_balance": "Available Balance",
