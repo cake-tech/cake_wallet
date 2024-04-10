@@ -44,7 +44,7 @@ class CakePayBuyCardPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final logoUrl = cakePayBuyCardViewModel.vendor.card?.cardImageUrl ?? '';
+    final card = cakePayBuyCardViewModel.card;
 
     return KeyboardActions(
       disableScroll: true,
@@ -70,7 +70,7 @@ class CakePayBuyCardPage extends BasePage {
                     borderRadius: BorderRadius.horizontal(
                         left: Radius.circular(20), right: Radius.circular(20)),
                     child: Image.network(
-                      logoUrl,
+                      card.cardImageUrl ?? '',
                       fit: BoxFit.cover,
                       loadingBuilder:
                           (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
@@ -86,18 +86,17 @@ class CakePayBuyCardPage extends BasePage {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(cakePayBuyCardViewModel.vendor.card?.name ?? '',
+                    Text(card.name ?? '',
                         style: TextStyle(
                           color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                           fontSize: 24,
                           fontWeight: FontWeight.w600,
                         )),
                     SizedBox(height: 36),
-                    cakePayBuyCardViewModel.vendor.card!.denominations.isNotEmpty
+                    card.denominations.isNotEmpty
                         ? _DenominationsAmountWidget(
-                            fiatCurrency:
-                                cakePayBuyCardViewModel.vendor.card?.fiatCurrency.title ?? '',
-                            denominations: cakePayBuyCardViewModel.vendor.card!.denominations,
+                            fiatCurrency: card.fiatCurrency.title ?? '',
+                            denominations: card.denominations,
                             amountFieldFocus: _amountFieldFocus,
                             amountController: _amountController,
                             quantityFieldFocus: _quantityFieldFocus,
@@ -105,17 +104,16 @@ class CakePayBuyCardPage extends BasePage {
                             onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
                           )
                         : _EnterAmountWidget(
-                            minValue: cakePayBuyCardViewModel.vendor.card?.minValue ?? '-',
-                            maxValue: cakePayBuyCardViewModel.vendor.card?.maxValue ?? '-',
-                            fiatCurrency:
-                                cakePayBuyCardViewModel.vendor.card?.fiatCurrency.title ?? '',
+                            minValue: card.minValue ?? '-',
+                            maxValue: card.maxValue ?? '-',
+                            fiatCurrency: card.fiatCurrency.title ?? '',
                             amountFieldFocus: _amountFieldFocus,
                             amountController: _amountController,
                             onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
                           ),
                     SizedBox(height: 20),
                     Text(
-                      cakePayBuyCardViewModel.vendor.card?.description ?? '',
+                      card.description ?? '',
                       style: TextStyle(
                         color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                         fontSize: 18,
@@ -136,7 +134,7 @@ class CakePayBuyCardPage extends BasePage {
                     onPressed: () {
                       Navigator.pushNamed(context, Routes.cakePayBuyCardDetailPage, arguments: [
                         cakePayBuyCardViewModel.amount,
-                        cakePayBuyCardViewModel.vendor,
+                        card,
                       ]);
                     },
                     text: 'Buy Now',

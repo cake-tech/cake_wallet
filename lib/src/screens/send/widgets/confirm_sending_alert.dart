@@ -217,14 +217,18 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text(
-                                paymentIdValue!,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: 'Lato',
-                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                                  decoration: TextDecoration.none,
+                              Container(
+                                width: 160,
+                                child: Text(
+                                  paymentIdValue!,
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'Lato',
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                    decoration: TextDecoration.none,
+                                  ),
                                 ),
                               ),
                             ],

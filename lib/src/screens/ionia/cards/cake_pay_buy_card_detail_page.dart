@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/ionia/cake_pay_card.dart';
 import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/palette.dart';
@@ -33,7 +34,7 @@ class CakePayBuyCardDetailPage extends BasePage {
   @override
   Widget middle(BuildContext context) {
     return Text(
-      cakePayPurchaseViewModel.vendor.name,
+      cakePayPurchaseViewModel.card.name,
       style: textMediumSemiBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
     );
   }
@@ -43,7 +44,52 @@ class CakePayBuyCardDetailPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final logoUrl = cakePayPurchaseViewModel.vendor.card?.cardImageUrl ?? '';
+    final card = cakePayPurchaseViewModel.card;
+
+    reaction((_) => cakePayPurchaseViewModel.orderCreationState, (ExecutionState state) {
+      if (state is FailureState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithOneAction(
+                    alertTitle: S.of(context).error,
+                    alertContent: state.error,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop());
+              });
+        });
+      }
+
+      if (state is ExecutedSuccessfullyState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await _showConfirmSendingAlert(context);
+        });
+      }
+    });
+
+    reaction((_) => cakePayPurchaseViewModel.invoiceCommittingState, (ExecutionState state) {
+      if (state is FailureState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithOneAction(
+                    alertTitle: S.of(context).error,
+                    alertContent: state.error,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop());
+              });
+        });
+      }
+
+      if (state is ExecutedSuccessfullyState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).pushReplacementNamed(Routes.ioniaPaymentStatusPage,
+              arguments: [cakePayPurchaseViewModel.order, cakePayPurchaseViewModel.committedInfo]);
+        });
+      }
+    });
 
     return ScrollableWithBottomSection(
       contentPadding: EdgeInsets.zero,
@@ -70,7 +116,7 @@ class CakePayBuyCardDetailPage extends BasePage {
                         borderRadius: BorderRadius.horizontal(
                             left: Radius.circular(20), right: Radius.circular(20)),
                         child: Image.network(
-                          logoUrl,
+                          card.cardImageUrl ?? '',
                           fit: BoxFit.cover,
                           loadingBuilder: (BuildContext context, Widget child,
                               ImageChunkEvent? loadingProgress) {
@@ -107,7 +153,7 @@ class CakePayBuyCardDetailPage extends BasePage {
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: TextIconButton(
                 label: S.of(context).how_to_use_card,
-                onTap: () => _showHowToUseCard(context, cakePayPurchaseViewModel.vendor),
+                onTap: () => _showHowToUseCard(context, card),
               ),
             ),
           ],
@@ -119,7 +165,7 @@ class CakePayBuyCardDetailPage extends BasePage {
             padding: EdgeInsets.only(bottom: 12),
             child: Observer(builder: (_) {
               return LoadingPrimaryButton(
-                isLoading: cakePayPurchaseViewModel.invoiceCreationState is IsExecutingState ||
+                isLoading: cakePayPurchaseViewModel.orderCreationState is IsExecutingState ||
                     cakePayPurchaseViewModel.invoiceCommittingState is IsExecutingState,
                 onPressed: () => purchaseCard(context),
                 text: S.of(context).purchase_gift_card,
@@ -169,23 +215,17 @@ class CakePayBuyCardDetailPage extends BasePage {
   }
 
   Future<void> purchaseCard(BuildContext context) async {
-    cakePayPurchaseViewModel.cakePayService.isLogged().then((isLogged) {
-      if (!isLogged) {
-        Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
-        return;
-      }
-    });
-
-    await cakePayPurchaseViewModel.createInvoice();
-
-    if (cakePayPurchaseViewModel.invoiceCreationState is ExecutedSuccessfullyState) {
-      await _presentSuccessfulInvoiceCreationPopup(context);
+    bool isLogged = await cakePayPurchaseViewModel.cakePayService.isLogged();
+    if (!isLogged) {
+      Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
+    } else {
+      await cakePayPurchaseViewModel.createOrder();
     }
   }
 
   void _showHowToUseCard(
     BuildContext context,
-    CakePayVendor vendor,
+    CakePayCard card,
   ) {
     showPopUp<void>(
         context: context,
@@ -196,13 +236,13 @@ class CakePayBuyCardDetailPage extends BasePage {
               Padding(
                   padding: EdgeInsets.all(10),
                   child: Text(
-                    vendor.card!.name,
+                    card.name,
                     style: textLargeSemiBold(
                       color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
                     ),
                   )),
               Text(
-                vendor.card!.howToUse ?? '',
+                card.howToUse ?? '',
                 style: textMedium(
                   color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
                 ),
@@ -211,57 +251,14 @@ class CakePayBuyCardDetailPage extends BasePage {
             actionTitle: S.current.got_it,
           );
         });
-    reaction((_) => cakePayPurchaseViewModel.invoiceCreationState, (ExecutionState state) {
-      if (state is FailureState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertWithOneAction(
-                    alertTitle: S.of(context).error,
-                    alertContent: state.error,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
-              });
-        });
-      }
-    });
-
-    reaction((_) => cakePayPurchaseViewModel.invoiceCommittingState, (ExecutionState state) {
-      if (state is FailureState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertWithOneAction(
-                    alertTitle: S.of(context).error,
-                    alertContent: state.error,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
-              });
-        });
-      }
-
-      if (state is ExecutedSuccessfullyState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.of(context).pushReplacementNamed(Routes.ioniaPaymentStatusPage, arguments: [
-            cakePayPurchaseViewModel.paymentInfo,
-            cakePayPurchaseViewModel.committedInfo
-          ]);
-        });
-      }
-    });
   }
 
-  Future<void> _presentSuccessfulInvoiceCreationPopup(BuildContext context) async {
-    if (cakePayPurchaseViewModel.invoice == null) {
+  Future<void> _showConfirmSendingAlert(BuildContext context) async {
+    if (cakePayPurchaseViewModel.order == null) {
       return;
     }
 
-    final amount = cakePayPurchaseViewModel.invoice!.totalAmount;
-    final addresses = cakePayPurchaseViewModel.invoice!.outAddresses;
-    cakePayPurchaseViewModel.sendViewModel.outputs.first.setCryptoAmount(amount);
-    cakePayPurchaseViewModel.sendViewModel.outputs.first.address = addresses.first;
+    final order = cakePayPurchaseViewModel.order;
 
     await showPopUp<void>(
       context: context,
@@ -269,24 +266,19 @@ class CakePayBuyCardDetailPage extends BasePage {
         return ConfirmSendingAlert(
             alertTitle: S.of(context).confirm_sending,
             paymentId: S.of(context).payment_id,
-            paymentIdValue: cakePayPurchaseViewModel.invoice!.paymentId,
+            paymentIdValue: order?.orderId,
             amount: S.of(context).send_amount,
-            amountValue: '$amount ${cakePayPurchaseViewModel.invoice!.chain}',
-            fiatAmountValue: '~ ${cakePayPurchaseViewModel.sendViewModel.outputs.first.fiatAmount} '
-                '${cakePayPurchaseViewModel.sendViewModel.fiat.title}',
+            amountValue: cakePayPurchaseViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+            fiatAmountValue:
+                cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
             fee: S.of(context).send_fee,
-            feeValue: '${cakePayPurchaseViewModel.sendViewModel.outputs.first.estimatedFee} '
-                '${cakePayPurchaseViewModel.invoice!.chain}',
+            feeValue: cakePayPurchaseViewModel.sendViewModel.pendingTransaction!.feeFormatted,
             feeFiatAmount:
-                '${cakePayPurchaseViewModel.sendViewModel.outputs.first.estimatedFeeFiatAmount} '
-                '${cakePayPurchaseViewModel.sendViewModel.fiat.title}',
+                cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+            feeRate: cakePayPurchaseViewModel.sendViewModel.pendingTransaction!.feeRate,
             outputs: cakePayPurchaseViewModel.sendViewModel.outputs,
-            rightButtonText: S.of(context).ok,
+            rightButtonText: S.of(context).send,
             leftButtonText: S.of(context).cancel,
-            alertLeftActionButtonTextColor: Colors.white,
-            alertRightActionButtonTextColor: Colors.white,
-            alertLeftActionButtonColor: Palette.brightOrange,
-            alertRightActionButtonColor: Theme.of(context).primaryColor,
             actionRightButton: () async {
               Navigator.of(context).pop();
               await cakePayPurchaseViewModel.commitPaymentInvoice();

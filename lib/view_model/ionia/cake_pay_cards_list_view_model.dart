@@ -15,8 +15,7 @@ abstract class CakePayCardsListViewModelBase with Store {
     required this.cakePayService,
   })  : cardState = CakePayCardsStateNoCards(),
         cakePayVendors = [],
-        availableCountries = ['USA', 'Germany'],
-        filterItems = {},
+        availableCountries = [],
         displayPrepaidCards = true,
         displayGiftCards = true,
         displayDenominationsCards = true,
@@ -24,45 +23,51 @@ abstract class CakePayCardsListViewModelBase with Store {
         ioniaCategories = IoniaCategory.allCategories,
         selectedIndices = ObservableList<IoniaCategory>.of([IoniaCategory.all]),
         scrollOffsetFromTop = 0.0,
-        merchantState = InitialCakePayVendorLoadingState(),
+        vendorsState = InitialCakePayVendorLoadingState(),
         createCardState = CakePayCreateCardState(),
         searchString = '',
         CakePayVendorList = <CakePayVendor>[] {
-    filterItems = {
-      'Filter Option': [
-        FilterItem(
-            value: () => displayPrepaidCards,
-            caption: 'Prepaid Cards',
-            onChanged: togglePrepaidCards),
-        FilterItem(
-            value: () => displayGiftCards, caption: 'Gift Cards', onChanged: toggleGiftCards),
-      ],
-      'Value Type': [
-        FilterItem(
-            value: () => displayDenominationsCards,
-            caption: 'Denominations',
-            onChanged: toggleDenominationsCards),
-        FilterItem(
-            value: () => displayCustomValueCards,
-            caption: 'Custom Value',
-            onChanged: toggleCustomValueCards),
-      ],
-      'Countries': [
-        DropdownFilterItem(
-          items: availableCountries,
-          caption: '',
-          selectedItem: selectedCountry ??= 'USA',
-          onItemSelected: (String value) => setSelectedCountry(value),
-        ),
-      ]
-    };
+    initialization();
+  }
+
+  void initialization() async {
+    await getCountries();
+    selectedCountry = availableCountries.first;
+    getVendors();
   }
 
   final CakePayService cakePayService;
 
   List<CakePayVendor> CakePayVendorList;
 
-  Map<String, List<FilterItem>> filterItems;
+  Map<String, List<FilterItem>> get createFilterItems => {
+        'Filter Option': [
+          FilterItem(
+              value: () => displayPrepaidCards,
+              caption: 'Prepaid Cards',
+              onChanged: togglePrepaidCards),
+          FilterItem(
+              value: () => displayGiftCards, caption: 'Gift Cards', onChanged: toggleGiftCards),
+        ],
+        'Value Type': [
+          FilterItem(
+              value: () => displayDenominationsCards,
+              caption: 'Denominations',
+              onChanged: toggleDenominationsCards),
+          FilterItem(
+              value: () => displayCustomValueCards,
+              caption: 'Custom Value',
+              onChanged: toggleCustomValueCards),
+        ],
+        'Countries': [
+          DropdownFilterItem(
+            items: availableCountries,
+            caption: '',
+            selectedItem: selectedCountry ??= 'USA',
+            onItemSelected: (String value) => setSelectedCountry(value),
+          ),
+        ]
+      };
 
   String searchString;
 
@@ -76,7 +81,7 @@ abstract class CakePayCardsListViewModelBase with Store {
   CakePayCardsState cardState;
 
   @observable
-  CakePayVendorState merchantState;
+  CakePayVendorState vendorsState;
 
   @observable
   String? selectedCountry;
@@ -128,18 +133,16 @@ abstract class CakePayCardsListViewModelBase with Store {
     });
   }
 
+  Future<void> getCountries() async {
+    availableCountries = await cakePayService.getCountries();
+  }
+
   void getVendors() async {
-    merchantState = CakePayVendorLoadingState();
-    if (availableCountries.isEmpty) {
-      availableCountries = await cakePayService.getCountries();
-    }
-
-    selectedCountry = availableCountries.isNotEmpty ? availableCountries.first : 'USA';
-
+    vendorsState = CakePayVendorLoadingState();
     cakePayService
         .getVendors(page: 1, country: selectedCountry!)
         .then((value) => cakePayVendors = CakePayVendorList = value);
-    merchantState = CakePayVendorLoadedState();
+    vendorsState = CakePayVendorLoadedState();
   }
 
   Future<bool> isCakePayUserAuthenticated() async {

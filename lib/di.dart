@@ -16,7 +16,6 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/cake_pay_card.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
@@ -1035,20 +1034,16 @@ Future<void> setup({
   getIt.registerFactory<CakePayService>(
       () => CakePayService(getIt.get<FlutterSecureStorage>(), getIt.get<CakePayApi>()));
 
-  getIt.registerFactory<IoniaAnyPay>(() => IoniaAnyPay(
-      getIt.get<CakePayService>(), getIt.get<AnyPayApi>(), getIt.get<AppStore>().wallet!));
-
   getIt.registerFactory(() => CakePayCardsListViewModel(cakePayService: getIt.get<CakePayService>()));
 
   getIt.registerFactory(() => CakePayAuthViewModel(cakePayService: getIt.get<CakePayService>()));
 
-  getIt.registerFactoryParam<CakePayPurchaseViewModel, double, CakePayVendor>(
-      (double amount, vendor) {
+  getIt.registerFactoryParam<CakePayPurchaseViewModel, double, CakePayCard>(
+      (double amount, CakePayCard card) {
     return CakePayPurchaseViewModel(
-        ioniaAnyPayService: getIt.get<IoniaAnyPay>(),
         cakePayService: getIt.get<CakePayService>(),
         amount: amount,
-        vendor: vendor,
+        card: card,
         sendViewModel: getIt.get<SendViewModel>());
   });
 
@@ -1077,9 +1072,9 @@ Future<void> setup({
   getIt.registerFactoryParam<CakePayBuyCardDetailPage, List<dynamic>, void>(
       (List<dynamic> args, _) {
     final amount = args.first as double;
-    final vendor = args[1] as CakePayVendor;
+    final card = args[1] as CakePayCard;
     return CakePayBuyCardDetailPage(
-        getIt.get<CakePayPurchaseViewModel>(param1: amount, param2: vendor));
+        getIt.get<CakePayPurchaseViewModel>(param1: amount, param2: card));
   });
 
   getIt.registerFactoryParam<IoniaGiftCardDetailsViewModel, IoniaGiftCard, void>(

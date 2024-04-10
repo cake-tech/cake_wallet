@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:cake_wallet/ionia/cake_pay_card.dart';
 import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
-import 'package:cake_wallet/ionia/ionia_order.dart';
+import 'package:cake_wallet/ionia/cake_pay_order.dart';
 import 'package:cake_wallet/ionia/cake_pay_user_credentials.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
 import 'package:http/http.dart';
@@ -25,6 +25,7 @@ class CakePayApi {
   static const authPath = '/api/auth';
   static final verifyEmailPath = '/api/verify';
   static final logoutPath = '/api/logout';
+  static final createOrderPath = '/api/order';
 
   static const baseUri = 'api.ionia.io';
   static const pathPrefix = 'cake';
@@ -101,6 +102,53 @@ class CakePayApi {
     }
   }
 
+  /// createOrder
+  Future<CakePayOrder> createOrder({
+    required String apiKey,
+    required int cardId,
+    required String price,
+    required int quantity,
+    //required String externalOrderId,
+    required String userEmail,
+    required String token,
+    //required bool sendEmail
+  }) async {
+    final uri = Uri.https(baseCakePayUri, createOrderPath);
+
+    final headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'Api-Key $apiKey',
+    };
+    final query = <String, dynamic>{
+      'card_id': cardId,
+      'price': price,
+      'quantity': quantity.toString(),
+      //'external_order_id': externalOrderId, //TODO: fix me
+      'user_email': userEmail,
+      'token': token,
+      'send_email': true
+    }; // TODO: fix me
+
+    try {
+      final response = await http.post(uri, headers: headers, body: json.encode(query));
+
+      if (response.statusCode != 201) {
+        throw Exception('Unexpected http status: ${response.statusCode}');
+      }
+
+      final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+
+      if (bodyJson.containsKey('error')) {
+        throw Exception(bodyJson['error'] as String);
+      }
+
+      return CakePayOrder.fromMap(bodyJson);
+    } catch (e) {
+      throw Exception('Failed to create order with error: $e');
+    }
+  }
+
   /// Logout
   Future<void> logoutUser({required String email, required String apiKey}) async {
     final uri = Uri.https(baseCakePayUri, logoutPath);
@@ -167,6 +215,7 @@ class CakePayApi {
     return bodyJson.map<String>((country) => country['name'] as String).toList();
   }
 
+  /// Get Vendors
   Future<List<CakePayVendor>> getVendors({
     int? page,
     String? country,
@@ -251,41 +300,6 @@ class CakePayApi {
     }
 
     return merch;
-  }
-
-  // Purchase Gift Card
-
-  Future<IoniaOrder> purchaseGiftCard(
-      {required String requestedUUID,
-      required String merchId,
-      required double amount,
-      required String currency,
-      required String username,
-      required String password,
-      required String clientId}) async {
-    final headers = <String, String>{
-      'clientId': clientId,
-      'username': username,
-      'password': password,
-      requestedUUIDHeader: requestedUUID,
-      'Content-Type': 'application/json'
-    };
-    final body = <String, dynamic>{'Amount': amount, 'Currency': currency, 'MerchantId': merchId};
-    final response = await post(getPurchaseMerchantsUrl, headers: headers, body: json.encode(body));
-
-    if (response.statusCode != 200) {
-      throw Exception('Unexpected response');
-    }
-
-    final decodedBody = json.decode(response.body) as Map<String, dynamic>;
-    final isSuccessful = decodedBody['Successful'] as bool? ?? false;
-
-    if (!isSuccessful) {
-      throw Exception(decodedBody['ErrorMessage'] as String);
-    }
-
-    final data = decodedBody['Data'] as Map<String, dynamic>;
-    return IoniaOrder.fromMap(data);
   }
 
   // Get Current User Gift Card Summaries

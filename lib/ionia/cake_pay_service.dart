@@ -1,11 +1,11 @@
-import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
-import 'package:cake_wallet/ionia/ionia_order.dart';
-import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/ionia/cake_pay_api.dart';
 import 'package:cake_wallet/ionia/cake_pay_card.dart';
+import 'package:cake_wallet/ionia/cake_pay_order.dart';
+import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
+import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class CakePayService {
   CakePayService(this.secureStorage, this.cakePayApi);
@@ -14,7 +14,9 @@ class CakePayService {
   static const cakePayUsernameStorageKey = 'cake_pay_username';
   static const cakePayUserTokenKey = 'cake_pay_user_token';
 
-  static String get cakePayApiKey => secrets.testCakePayApiKey;
+  static String get testCakePayApiKey => secrets.testCakePayApiKey;
+
+  static String get cakePayApiKey => secrets.cakePayApiKey;
 
   final FlutterSecureStorage secureStorage;
   final CakePayApi cakePayApi;
@@ -30,16 +32,16 @@ class CakePayService {
 
   /// LogIn
   Future<void> logIn(String email) async {
-    final userName = await cakePayApi.authenticateUser(email: email, apiKey: cakePayApiKey);
-     await secureStorage.write(key: cakePayEmailStorageKey, value: userName);
-      await secureStorage.write(key: cakePayUsernameStorageKey, value: userName);
+    final userName = await cakePayApi.authenticateUser(email: email, apiKey: testCakePayApiKey);
+    await secureStorage.write(key: cakePayEmailStorageKey, value: userName);
+    await secureStorage.write(key: cakePayUsernameStorageKey, value: userName);
   }
 
   /// Verify email
   Future<void> verifyEmail(String code) async {
     final email = (await secureStorage.read(key: cakePayEmailStorageKey))!;
     final credentials =
-        await cakePayApi.verifyEmail(email: email, code: code, apiKey: cakePayApiKey);
+        await cakePayApi.verifyEmail(email: email, code: code, apiKey: testCakePayApiKey);
     await secureStorage.write(key: cakePayUserTokenKey, value: credentials.token);
     await secureStorage.write(key: cakePayUsernameStorageKey, value: credentials.username);
   }
@@ -59,7 +61,7 @@ class CakePayService {
   Future<void> logout(String email) async {
     await secureStorage.delete(key: cakePayUsernameStorageKey);
     await secureStorage.delete(key: cakePayUserTokenKey);
-    await cakePayApi.logoutUser(email: email, apiKey: cakePayApiKey);
+    await cakePayApi.logoutUser(email: email, apiKey: testCakePayApiKey);
   }
 
   // Create virtual card
@@ -67,7 +69,8 @@ class CakePayService {
   Future<CakePayVirtualCard> createCard() async {
     final username = (await secureStorage.read(key: cakePayUsernameStorageKey))!;
     final password = (await secureStorage.read(key: cakePayUserTokenKey))!;
-    return cakePayApi.createCard(username: username, password: password, clientId: cakePayApiKey);
+    return cakePayApi.createCard(
+        username: username, password: password, clientId: testCakePayApiKey);
   }
 
   // Get Merchants By Filter
@@ -80,21 +83,18 @@ class CakePayService {
         search: search, categories: categories, merchantFilterType: merchantFilterType);
   }
 
-  // Purchase Gift Card
-
-  Future<IoniaOrder> purchaseGiftCard(
-      {required String merchId, required double amount, required String currency}) async {
-    final username = (await secureStorage.read(key: cakePayUsernameStorageKey))!;
-    final password = (await secureStorage.read(key: cakePayUserTokenKey))!;
-    final deviceId = '';
-    return cakePayApi.purchaseGiftCard(
-        requestedUUID: deviceId,
-        merchId: merchId,
-        amount: amount,
-        currency: currency,
-        username: username,
-        password: password,
-        clientId: cakePayApiKey);
+  /// Purchase Gift Card
+  Future<CakePayOrder> createOrder(
+      {required int cardId, required String price, required int quantity}) async {
+    final userEmail = (await secureStorage.read(key: cakePayEmailStorageKey))!;
+    final token = (await secureStorage.read(key: cakePayUserTokenKey))!;
+    return await cakePayApi.createOrder(
+        apiKey: testCakePayApiKey,
+        cardId: cardId,
+        price: price,
+        quantity: quantity,
+        token: token,
+        userEmail: userEmail);
   }
 
   // Get Current User Gift Card Summaries
@@ -103,7 +103,7 @@ class CakePayService {
     final username = (await secureStorage.read(key: cakePayUsernameStorageKey))!;
     final password = (await secureStorage.read(key: cakePayUserTokenKey))!;
     return cakePayApi.getCurrentUserGiftCardSummaries(
-        username: username, password: password, clientId: cakePayApiKey);
+        username: username, password: password, clientId: testCakePayApiKey);
   }
 
   // Charge Gift Card
@@ -114,7 +114,7 @@ class CakePayService {
     await cakePayApi.chargeGiftCard(
         username: username,
         password: password,
-        clientId: cakePayApiKey,
+        clientId: testCakePayApiKey,
         giftCardId: giftCardId,
         amount: amount);
   }
@@ -131,7 +131,7 @@ class CakePayService {
     final username = (await secureStorage.read(key: cakePayUsernameStorageKey))!;
     final password = (await secureStorage.read(key: cakePayUserTokenKey))!;
     return cakePayApi.getGiftCard(
-        username: username, password: password, clientId: cakePayApiKey, id: id);
+        username: username, password: password, clientId: testCakePayApiKey, id: id);
   }
 
   // Payment Status
@@ -142,7 +142,7 @@ class CakePayService {
     return cakePayApi.getPaymentStatus(
         username: username,
         password: password,
-        clientId: cakePayApiKey,
+        clientId: testCakePayApiKey,
         orderId: orderId,
         paymentId: paymentId);
   }

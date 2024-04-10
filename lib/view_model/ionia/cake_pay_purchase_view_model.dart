@@ -1,13 +1,12 @@
-import 'package:cake_wallet/ionia/cake_pay_service.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/anypay/any_pay_payment.dart';
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/ionia/ionia_anypay.dart';
-import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
+import 'package:cake_wallet/ionia/cake_pay_card.dart';
+import 'package:cake_wallet/ionia/cake_pay_order.dart';
+import 'package:cake_wallet/ionia/cake_pay_service.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
-import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:mobx/mobx.dart';
 
 part 'cake_pay_purchase_view_model.g.dart';
 
@@ -15,14 +14,14 @@ class CakePayPurchaseViewModel = CakePayPurchaseViewModelBase with _$CakePayPurc
 
 abstract class CakePayPurchaseViewModelBase with Store {
   CakePayPurchaseViewModelBase({
-    required this.ioniaAnyPayService,
     required this.cakePayService,
     required this.amount,
-    required this.vendor,
+    required this.card,
     required this.sendViewModel,
-  }) : tipAmount = 0.0,
+  })  : tipAmount = 0.0,
         percentage = 0.0,
-        invoiceCreationState = InitialExecutionState(),
+        walletType = sendViewModel.walletType,
+        orderCreationState = InitialExecutionState(),
         invoiceCommittingState = InitialExecutionState(),
         tips = <IoniaTip>[
           IoniaTip(percentage: 0, originalAmount: amount),
@@ -34,6 +33,8 @@ abstract class CakePayPurchaseViewModelBase with Store {
     selectedTip = tips.first;
   }
 
+  final WalletType walletType;
+
   final double amount;
 
   List<IoniaTip> tips;
@@ -41,22 +42,32 @@ abstract class CakePayPurchaseViewModelBase with Store {
   @observable
   IoniaTip? selectedTip;
 
-  final CakePayVendor vendor;
+  final CakePayCard card;
 
   final SendViewModel sendViewModel;
 
-  final IoniaAnyPay ioniaAnyPayService;
-
   final CakePayService cakePayService;
 
-  IoniaAnyPayPaymentInfo? paymentInfo;
-
-  AnyPayPayment? get invoice => paymentInfo?.anyPayPayment;
+  CakePayOrder? order;
 
   AnyPayPaymentCommittedInfo? committedInfo;
 
+  CryptoPaymentData? get cryptoPaymentData {
+    if (order == null) return null;
+
+    if (WalletType.monero == walletType) {
+      return order!.paymentData.xmr;
+    }
+
+    if (WalletType.bitcoin == walletType) {
+      return order!.paymentData.btc;
+    }
+
+    return null;
+  }
+
   @observable
-  ExecutionState invoiceCreationState;
+  ExecutionState orderCreationState;
 
   @observable
   ExecutionState invoiceCommittingState;
@@ -68,7 +79,8 @@ abstract class CakePayPurchaseViewModelBase with Store {
   double get giftCardAmount => double.parse((amount + tipAmount).toStringAsFixed(2));
 
   @computed
-  double get billAmount => double.parse((giftCardAmount * (1 - ( 1 / 100))).toStringAsFixed(2)); //TODO: check if this is correct vendor.discount
+  double get billAmount => double.parse((giftCardAmount * (1 - (1 / 100)))
+      .toStringAsFixed(2)); //TODO: check if this is correct vendor.discount
 
   @observable
   double tipAmount;
@@ -80,25 +92,44 @@ abstract class CakePayPurchaseViewModelBase with Store {
   }
 
   @action
-  Future<void> createInvoice() async {
+  Future<void> createOrder() async {
     try {
-      invoiceCreationState = IsExecutingState();
-      paymentInfo = await ioniaAnyPayService.purchase(merchId: vendor.id.toString(), amount: giftCardAmount);
-      invoiceCreationState = ExecutedSuccessfullyState();
+      orderCreationState = IsExecutingState();
+      order = await cakePayService.createOrder(
+          cardId: card.id, price: giftCardAmount.toString(), quantity: 1);
+      await confirmSending();
+      orderCreationState = ExecutedSuccessfullyState();
     } catch (e) {
-      invoiceCreationState = FailureState(e.toString());
+      orderCreationState = FailureState(
+          sendViewModel.translateErrorMessage(e, walletType, sendViewModel.wallet.currency));
+    }
+  }
+
+  @action
+  Future<void> confirmSending() async {
+    try {
+      if (order == null || cryptoPaymentData == null) return;
+
+      sendViewModel.clearOutputs();
+      final output = sendViewModel.outputs.first;
+      output.address = cryptoPaymentData?.address ?? '';
+      output.setCryptoAmount(cryptoPaymentData?.price ?? '');
+
+      await sendViewModel.createTransaction();
+    } catch (e) {
+      throw e;
     }
   }
 
   @action
   Future<void> commitPaymentInvoice() async {
     try {
-      if (invoice == null) {
-        throw Exception('Invoice is created. Invoince is null');
+      if (order == null) {
+        throw Exception('Order is not created yet');
       }
 
       invoiceCommittingState = IsExecutingState();
-      committedInfo = await ioniaAnyPayService.commitInvoice(invoice!);
+      //committedInfo = await ioniaAnyPayService.commitInvoice(order!);
       invoiceCommittingState = ExecutedSuccessfullyState(payload: committedInfo!);
     } catch (e) {
       invoiceCommittingState = FailureState(e.toString());

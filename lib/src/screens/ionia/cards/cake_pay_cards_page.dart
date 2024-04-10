@@ -29,8 +29,6 @@ class CakePayCardsPage extends BasePage {
         });
       }
     });
-
-    _cardsListViewModel.getVendors();
   }
 
   final FocusNode searchFocusNode;
@@ -137,7 +135,7 @@ class CakePayCardsPage extends BasePage {
     return showPopUp<void>(
       context: context,
       builder: (BuildContext context) {
-        return FilterWidget(filterItems: _cardsListViewModel.filterItems);
+        return FilterWidget(filterItems: _cardsListViewModel.createFilterItems);
       },
     );
   }
@@ -181,7 +179,7 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
-      final merchantState = widget.cardsListViewModel.merchantState;
+      final merchantState = widget.cardsListViewModel.vendorsState;
       if (merchantState is CakePayVendorLoadedState) {
         return Stack(children: [
           ListView.separated(
