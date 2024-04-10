@@ -77,6 +77,7 @@ class Transfer {
         key: (item) => (item as Transfer).txHash,
         value: (transfer) {
           transfer as Transfer;
+          // Simple (only one subtransfer OR two subtransfers and the second is Zano, outgoing and amount equals to fee) or complex?
           Subtransfer? single = transfer.subtransfers.singleOrNull;
           if (transfer.subtransfers.length == 2) {
             final zano = transfer.subtransfers.firstWhereOrNull((element) => element.assetId == ZanoWalletBase.zanoAssetId);

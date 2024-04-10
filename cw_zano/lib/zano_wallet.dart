@@ -128,6 +128,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
 
   static Future<void> _parseCreateWalletResult(CreateWalletResult result, ZanoWallet wallet) async {
     wallet.hWallet = result.walletId;
+    wallet.seed = result.seed;
     ZanoWalletApi.info('setting hWallet = ${result.walletId}');
     wallet.walletAddresses.address = result.wi.address;
     for (final item in result.wi.balances) {
@@ -240,8 +241,12 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     try {
       final transfers = <Transfer>[];
       late GetRecentTxsAndInfoResult result;
+      bool first = true;
       do {
         result = await getRecentTxsAndInfo(offset: _lastTxIndex, count: _txChunkSize);
+        // TODO: that's for debug purposes
+        if (first && result.transfers.isEmpty) break;
+        first = false;
         _lastTxIndex += result.transfers.length;
         transfers.addAll(result.transfers);
       } while (result.lastItemIndex + 1 < result.totalTransfers);

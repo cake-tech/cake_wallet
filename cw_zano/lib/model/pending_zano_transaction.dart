@@ -42,6 +42,6 @@ class PendingZanoTransaction with PendingTransaction {
   @override
   Future<void> commit() async {
     await zanoWallet.transfer(destinations, fee, comment);
-    await zanoWallet.fetchTransactions();
+    zanoWallet.fetchTransactions();
   }
 }
