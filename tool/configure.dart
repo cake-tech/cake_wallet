@@ -120,6 +120,7 @@ abstract class Bitcoin {
   WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
   WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();
   Map<String, String> getWalletKeys(Object wallet);
   List<TransactionPriority> getTransactionPriorities();
