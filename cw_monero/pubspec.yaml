@@ -22,6 +22,10 @@ dependencies:
   polyseed: ^0.0.2
   cw_core:
     path: ../cw_core
+  monero:
+    git:
+      url: https://git.mrcyjanek.net/mrcyjanek/monero.dart
+      ref: master
 
 dev_dependencies:
   flutter_test:

@@ -12,6 +12,7 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -32,6 +33,7 @@ import 'package:cw_monero/pending_monero_transaction.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
+import 'package:monero/monero.dart' as monero;
 
 part 'monero_wallet.g.dart';
 
@@ -417,10 +419,18 @@ abstract class MoneroWalletBase
       final coinCount = countOfCoins();
       for (var i = 0; i < coinCount; i++) {
         final coin = getCoin(i);
-        if (coin.spent == 0) {
-          final unspent = MoneroUnspent.fromCoinsInfoRow(coin);
+        final coinSpent = monero.CoinsInfo_spent(coin);
+        if (coinSpent == 0) {
+          final unspent = MoneroUnspent(
+            monero.CoinsInfo_address(coin),
+            monero.CoinsInfo_hash(coin),
+            monero.CoinsInfo_keyImage(coin),
+            monero.CoinsInfo_amount(coin),
+            monero.CoinsInfo_frozen(coin),
+            monero.CoinsInfo_unlocked(coin),
+          );
           if (unspent.hash.isNotEmpty) {
-            unspent.isChange = transaction_history.getTransaction(unspent.hash).direction == 1;
+            unspent.isChange = transaction_history.getTransaction(unspent.hash) == 1;
           }
           unspentCoins.add(unspent);
         }
@@ -541,7 +551,17 @@ abstract class MoneroWalletBase
 
   List<MoneroTransactionInfo> _getAllTransactionsOfAccount(int? accountIndex) => transaction_history
       .getAllTransactions()
-      .map((row) => MoneroTransactionInfo.fromRow(row))
+      .map((row) => MoneroTransactionInfo(
+        row.hash,
+        row.blockheight,
+        row.isSpend ? TransactionDirection.outgoing : TransactionDirection.incoming,
+        row.timeStamp,
+        row.isPending,
+        row.amount, 
+        row.accountIndex, 
+        0,
+        row.fee, 
+        row.confirmations))
       .where((element) => element.accountIndex == (accountIndex ?? 0))
       .toList();
 

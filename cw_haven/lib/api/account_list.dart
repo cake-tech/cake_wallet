@@ -4,7 +4,6 @@ import 'package:cw_haven/api/signatures.dart';
 import 'package:cw_haven/api/types.dart';
 import 'package:cw_haven/api/haven_api.dart';
 import 'package:cw_haven/api/structs/account_row.dart';
-import 'package:flutter/foundation.dart';
 import 'package:cw_haven/api/wallet.dart';
 
 final accountSizeNative = havenApi
@@ -72,12 +71,11 @@ void _setLabelForAccount(Map<String, dynamic> args) {
 }
 
 Future<void> addAccount({required String label}) async {
-  await compute(_addAccount, label);
+  _addAccount(label);
   await store();
 }
 
 Future<void> setLabelForAccount({required int accountIndex, required String label}) async {
-    await compute(
-        _setLabelForAccount, {'accountIndex': accountIndex, 'label': label});
+    _setLabelForAccount({'accountIndex': accountIndex, 'label': label});
     await store();
 }
