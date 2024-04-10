@@ -38,59 +38,60 @@ class NanoChangeRepPage extends BasePage {
   Widget body(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Container(
-        padding: EdgeInsets.only(left: 24, right: 24),
-        child: ScrollableWithBottomSection(
-          topSectionPadding: EdgeInsets.only(bottom: 24),
-          topSection: Column(
-            children: [
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: AddressTextField(
-                      controller: _addressController,
-                      onURIScanned: (uri) {
-                        final paymentRequest = PaymentRequest.fromUri(uri);
-                        _addressController.text = paymentRequest.address;
-                      },
-                      options: [
-                        AddressTextFieldOption.paste,
-                        AddressTextFieldOption.qrCode,
-                      ],
-                      buttonColor: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
-                      validator: AddressValidator(type: CryptoCurrency.nano),
-                    ),
-                  )
-                ],
-              ),
-              FutureBuilder(
-                future: nano!.getN2Reps(_wallet),
-                builder: (context, snapshot) {
-                  if (snapshot.data == null) {
-                    return Container();
-                  }
+      child: FutureBuilder(
+        future: nano!.getN2Reps(_wallet),
+        builder: (context, snapshot) {
+          if (snapshot.data == null) {
+            return SizedBox();
+          }
 
-                  N2Node? currentNode;
-                  String currentRepAccount = nano!.getRepresentative(_wallet);
+          N2Node? currentNode;
+          String currentRepAccount = nano!.getRepresentative(_wallet);
 
-                  for (final N2Node node in snapshot.data as List<N2Node>) {
-                    if (node.account == currentRepAccount) {
-                      currentNode = node;
-                      break;
-                    }
-                  }
+          for (final N2Node node in snapshot.data as List<N2Node>) {
+            if (node.account == currentRepAccount) {
+              currentNode = node;
+              break;
+            }
+          }
 
-                  if (currentNode == null) {
-                    currentNode = N2Node(
-                      account: currentRepAccount,
-                      alias: currentRepAccount,
-                      score: 0,
-                      uptime: "???",
-                      weight: 0,
-                    );
-                  }
+          if (currentNode == null) {
+            currentNode = N2Node(
+              account: currentRepAccount,
+              alias: currentRepAccount,
+              score: 0,
+              uptime: "???",
+              weight: 0,
+            );
+          }
 
-                  return Column(
+          return Container(
+            padding: EdgeInsets.only(left: 24, right: 24),
+            child: ScrollableWithBottomSection(
+              topSectionPadding: EdgeInsets.only(bottom: 24),
+              topSection: Column(
+                children: [
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: AddressTextField(
+                          controller: _addressController,
+                          onURIScanned: (uri) {
+                            final paymentRequest = PaymentRequest.fromUri(uri);
+                            _addressController.text = paymentRequest.address;
+                          },
+                          options: [
+                            AddressTextFieldOption.paste,
+                            AddressTextFieldOption.qrCode,
+                          ],
+                          buttonColor:
+                              Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
+                          validator: AddressValidator(type: CryptoCurrency.nano),
+                        ),
+                      )
+                    ],
+                  ),
+                  Column(
                     children: [
                       Container(
                         margin: EdgeInsets.only(top: 12),
@@ -119,99 +120,88 @@ class NanoChangeRepPage extends BasePage {
                         ),
                       ),
                     ],
-                  );
-                },
+                  ),
+                ],
               ),
-            ],
-          ),
-          contentPadding: EdgeInsets.only(bottom: 24),
-          content: Container(
-            child: Column(
-              children: <Widget>[
-                FutureBuilder(
-                  future: nano!.getN2Reps(_wallet),
-                  builder: (context, snapshot) {
-                    if (snapshot.data == null) {
-                      return SizedBox();
-                    }
-                    return Column(
-                      children: _getRepresentativeWidgets(context, snapshot.data as List<N2Node>),
-                    );
-                  },
+              contentPadding: EdgeInsets.only(bottom: 24),
+              content: Container(
+                child: Column(
+                  children: _getRepresentativeWidgets(context, snapshot.data as List<N2Node>),
                 ),
-              ],
-            ),
-          ),
-          bottomSectionPadding: EdgeInsets.only(bottom: 24),
-          bottomSection: Observer(
-              builder: (_) => Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Flexible(
-                          child: Container(
-                        padding: EdgeInsets.only(right: 8.0),
-                        child: LoadingPrimaryButton(
-                          onPressed: () async {
-                            if (_formKey.currentState != null &&
-                                !_formKey.currentState!.validate()) {
-                              return;
-                            }
-
-                            final confirmed = await showPopUp<bool>(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertWithTwoActions(
-                                          alertTitle: S.of(context).change_rep,
-                                          alertContent: S.of(context).change_rep_message,
-                                          rightButtonText: S.of(context).change,
-                                          leftButtonText: S.of(context).cancel,
-                                          actionRightButton: () => Navigator.pop(context, true),
-                                          actionLeftButton: () => Navigator.pop(context, false));
-                                    }) ??
-                                false;
-
-                            if (confirmed) {
-                              try {
-                                _settingsStore.defaultNanoRep = _addressController.text;
-
-                                await nano!.changeRep(_wallet, _addressController.text);
-
-                                // reset this flag whenever we successfully change reps:
-                                _settingsStore.shouldShowRepWarning = true;
-
-                                await showPopUp<void>(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertWithOneAction(
-                                          alertTitle: S.of(context).successful,
-                                          alertContent: S.of(context).change_rep_successful,
-                                          buttonText: S.of(context).ok,
-                                          buttonAction: () => Navigator.pop(context));
-                                    });
-                              } catch (e) {
-                                await showPopUp<void>(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertWithOneAction(
-                                          alertTitle: S.of(context).error,
-                                          alertContent: e.toString(),
-                                          buttonText: S.of(context).ok,
-                                          buttonAction: () => Navigator.pop(context));
-                                    });
-                                throw e;
-                              }
-                            }
-                          },
-                          text: S.of(context).change,
-                          color: Theme.of(context).primaryColor,
-                          textColor: Colors.white,
-                        ),
+              ),
+              bottomSectionPadding: EdgeInsets.only(bottom: 24),
+              bottomSection: Observer(
+                  builder: (_) => Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Flexible(
+                              child: Container(
+                            padding: EdgeInsets.only(right: 8.0),
+                            child: LoadingPrimaryButton(
+                              onPressed: () => _onSubmit(context),
+                              text: S.of(context).change,
+                              color: Theme.of(context).primaryColor,
+                              textColor: Colors.white,
+                            ),
+                          )),
+                        ],
                       )),
-                    ],
-                  )),
-        ),
+            ),
+          );
+        },
       ),
     );
+  }
+
+  Future<void> _onSubmit(BuildContext context) async {
+    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final confirmed = await showPopUp<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithTwoActions(
+                  alertTitle: S.of(context).change_rep,
+                  alertContent: S.of(context).change_rep_message,
+                  rightButtonText: S.of(context).change,
+                  leftButtonText: S.of(context).cancel,
+                  actionRightButton: () => Navigator.pop(context, true),
+                  actionLeftButton: () => Navigator.pop(context, false));
+            }) ??
+        false;
+
+    if (confirmed) {
+      try {
+        _settingsStore.defaultNanoRep = _addressController.text;
+
+        await nano!.changeRep(_wallet, _addressController.text);
+
+        // reset this flag whenever we successfully change reps:
+        _settingsStore.shouldShowRepWarning = true;
+
+        await showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                  alertTitle: S.of(context).successful,
+                  alertContent: S.of(context).change_rep_successful,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.pop(context));
+            });
+      } catch (e) {
+        await showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                  alertTitle: S.of(context).error,
+                  alertContent: e.toString(),
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.pop(context));
+            });
+        throw e;
+      }
+    }
   }
 
   List<Widget> _getRepresentativeWidgets(BuildContext context, List<N2Node>? list) {

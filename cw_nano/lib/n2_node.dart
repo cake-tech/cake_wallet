@@ -2,10 +2,6 @@ double? _toDouble(num v) {
   return double.tryParse(v.toString());
 }
 
-BigInt _toBigInt(num v) {
-  return BigInt.from(v);
-}
-
 N2Node _$N2NodeFromJson(Map<String, dynamic> json) => N2Node(
       weight: _toDouble(json['weight'] as num),
       uptime: json['uptime'] as String?,
@@ -23,7 +19,13 @@ Map<String, dynamic> _$N2NodeToJson(N2Node instance) => <String, dynamic>{
     };
 
 class N2Node {
-  N2Node({this.weight, this.uptime, this.score, this.account, this.alias});
+  N2Node({
+    this.weight,
+    this.uptime,
+    this.score,
+    this.account,
+    this.alias,
+  });
 
   factory N2Node.fromJson(Map<String, dynamic> json) => _$N2NodeFromJson(json);
   String? uptime;
