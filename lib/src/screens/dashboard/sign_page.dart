@@ -79,7 +79,7 @@ class SignPage extends BasePage {
                 builder: (_) {
                   return AlertWithOneAction(
                     alertTitle: S.current.successful,
-                    alertContent: "T: The message was successfully verified",
+                    alertContent: S.current.message_verified,
                     buttonText: S.of(context).ok,
                     buttonAction: () => Navigator.of(context).pop(),
                   );
@@ -163,7 +163,9 @@ class SignPage extends BasePage {
                             onPressed: () async {
                               await _confirmForm(context);
                             },
-                            text: signViewModel.isSigning ? "T: Sign Message" : "T: Verify Message",
+                            text: signViewModel.isSigning
+                                ? S.current.sign_message
+                                : S.current.verify_message,
                             color: Theme.of(context)
                                 .extension<WalletListTheme>()!
                                 .createNewWalletButtonBackgroundColor,

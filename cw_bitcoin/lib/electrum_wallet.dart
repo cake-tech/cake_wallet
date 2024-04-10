@@ -1226,7 +1226,7 @@ abstract class ElectrumWalletBase
         ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
         : null;
     final HD = index == null ? hd : hd.derive(index);
-    return base64Encode(HD.signMessage(message));
+    return base64Encode(HD.sign(message));
   }
 
   @override
@@ -1235,8 +1235,6 @@ abstract class ElectrumWalletBase
         ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
         : null;
     final HD = index == null ? hd : hd.derive(index);
-    print(message);
-    print(signature);
     return HD.verify(message: message, signature: base64Decode(signature));
   }
 

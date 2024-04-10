@@ -80,7 +80,7 @@ class VerifyFormState extends State<VerifyForm> {
             const SizedBox(height: 20),
             AddressTextField(
               controller: signatureController,
-              placeholder: "T: Signature",
+              placeholder: S.current.signature,
               options: [AddressTextFieldOption.paste],
             ),
           ],

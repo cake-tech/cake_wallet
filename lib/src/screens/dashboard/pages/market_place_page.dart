@@ -77,8 +77,8 @@ class MarketPlacePage extends StatelessWidget {
                         }
                         return DashBoardRoundedCardWidget(
                           onTap: () => Navigator.of(context).pushNamed(Routes.signPage),
-                          title: "T: Sign or verify message",
-                          subTitle: "T: Sign or verify a message using your private key",
+                          title: S.current.sign_verify_message,
+                          subTitle: S.current.sign_verify_message_sub,
                         );
                       },
                     ),

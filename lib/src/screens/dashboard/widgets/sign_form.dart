@@ -95,7 +95,7 @@ class SignFormState extends State<SignForm> {
             child: BaseTextFormField(
               enabled: false,
               controller: signatureController,
-              hintText: "T: Signature",
+              hintText: S.current.signature,
             ),
           ),
         ],

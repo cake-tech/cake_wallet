@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -42,7 +43,7 @@ abstract class SignViewModelBase with Store {
       if (sig) {
         state = ExecutedSuccessfullyState();
       } else {
-        state = FailureState('T: The signature is not valid for the message given');
+        state = FailureState(S.current.signature_invalid_error);
       }
     } catch (e) {
       state = FailureState(e.toString());
