@@ -55,6 +55,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
     required String mint,
     required String symbol,
     required String mintAddress,
+    String? iconPath
   }) {
     return SPLToken(
       name: name,
@@ -62,7 +63,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
       mintAddress: mintAddress,
       decimal: 0,
       mint: mint,
-      iconPath: '',
+      iconPath: iconPath,
     );
   }
 
