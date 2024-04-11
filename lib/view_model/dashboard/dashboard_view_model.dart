@@ -374,7 +374,6 @@ abstract class DashboardViewModelBase with Store {
   bool get hasSignMessages => [
         WalletType.monero,
         WalletType.haven,
-        WalletType.solana,
         WalletType.litecoin,
         WalletType.bitcoin,
         WalletType.bitcoinCash,

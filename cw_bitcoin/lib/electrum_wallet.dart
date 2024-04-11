@@ -6,6 +6,12 @@ import 'dart:math';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitcoin_base/bitcoin_base.dart' as bitcoin_base;
+import 'package:blockchain_utils/base58/base58_base.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:blockchain_utils/crypto/crypto/cdsa/curve/curves.dart';
+import 'package:blockchain_utils/crypto/crypto/cdsa/ecdsa/signature.dart';
+import 'package:blockchain_utils/signer/bitcoin_signer.dart';
+import 'package:blockchain_utils/string/string.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -40,6 +46,9 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:http/http.dart' as http;
+import 'package:bip32/bip32.dart' as bip32;
+import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:hex/hex.dart';
 
 part 'electrum_wallet.g.dart';
 
@@ -1222,20 +1231,110 @@ abstract class ElectrumWalletBase
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    final index = address != null
-        ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
-        : null;
-    final HD = index == null ? hd : hd.derive(index);
-    return base64Encode(HD.sign(message));
+    // final index = address != null
+    //     ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
+    //     : null;
+    // final HD = index == null ? hd : hd.derive(index);
+    // final HD = hd.derive(0);
+    // return base64Encode(HD.signMessage(message));
+    // hd.privKey
+    final priv = ECPrivate.fromHex(hd.privKey!);
+    String messagePrefix = '\x18Bitcoin Signed Message:\n';
+    return priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
   }
+
+  // Uint8List? recoverPublicKey(String signature, String messageHash) {
+  //   try {
+  //     // Convert the signature from hex to bytes
+  //     final signatureBytes = HEX.decode(signature);
+
+  //     // Convert the message hash from hex to bytes
+  //     final messageHashBytes = HEX.decode(messageHash);
+
+  //     // Create a BitcoinSignature object from the signature bytes
+  //     final bitcoinSignature = BitcoinSignatures.fromCompact(signatureBytes);
+
+  //     // Recover the public key using the signature and message hash
+  //     final recoveredPublicKey = bitcoinSignature.recoverPublicKey(messageHashBytes);
+
+  //     // Convert the recovered public key to compressed format
+  //     final compressedPublicKey = recoveredPublicKey.compressed;
+
+  //     return compressedPublicKey;
+  //   } catch (e) {
+  //     // Return null if an error occurs during the recovery process
+  //     return null;
+  //   }
+  // }
 
   @override
   Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {
-    final index = address != null
-        ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
-        : null;
-    final HD = index == null ? hd : hd.derive(index);
-    return HD.verify(message: message, signature: base64Decode(signature));
+    if (address == null) {
+      return false;
+    }
+
+    // final decode = List<int>.unmodifiable(Base58Decoder.decode(address));
+
+    // /// Extract script bytes excluding version and checksum.
+    // final List<int> scriptBytes = decode.sublist(1, decode.length - Base58Const.checksumByteLen);
+
+    // scriptBytes == hash160 (public key)
+
+    String messagePrefix = '\x18Bitcoin Signed Message:\n';
+
+    // ECDSASignature signature = ECDSASignature.fromBytes(ascii.encode(signature), generator)
+    // final btcSigner = BitcoinVerifier.fromKeyBytes([]);
+    //  btcSigner.verifyKey.verify(signature, digest)
+
+    print("@@@@@@@@@111111111111");
+
+    // final messageHash = QuickCrypto.sha256Hash(
+    //     BitcoinSignerUtils.magicMessage(utf8.encode(message), messagePrefix));
+
+    final messageHash = BitcoinSignerUtils.magicMessage(utf8.encode(message), messagePrefix);
+
+    // final generator = ProjectiveECCPoint.infinity(Curves.curveSecp256k1);
+    final generator = Curves.generatorSecp256k1;
+
+    print("@@@@@@@@@@@@@@@@@@@@@");
+
+    print(signature);
+
+    final sig = ECDSASignature.fromBytes(utf8.encode(signature), generator);
+
+    print("######################");
+
+    final sigBytes = utf8.encode(signature);
+
+    print(sigBytes[0]);
+
+    final pubKey = sig.recoverPublicKey(messageHash, generator, sigBytes[0]);
+
+    final recoveredPub = ECPublic.fromBytes(pubKey!.toBytes());
+
+    final recoveredAddress = recoveredPub.toP2pkhInP2sh();
+
+    print("$address $recoveredAddress");
+
+    if (recoveredAddress.toAddress(network) == address) {
+      return true;
+    }
+
+    // ECPublic pub = ECPublic.fromBytes(pubKey!.toBytes());
+
+    // return pub.verify(
+    //   utf8.encode(message),
+    //   sigBytes,
+    //   messagePrefix: messagePrefix,
+    // );
+
+    // final index = address != null
+    //     ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
+    //     : null;
+    // final HD = index == null ? hd : hd.derive(index);
+    // final HD = hd.derive(0);
+    // return HD.verify(message: message, signature: base64Decode(signature));
+    return false;
   }
 
   static BasedUtxoNetwork _getNetwork(bitcoin.NetworkType networkType, CryptoCurrency? currency) {

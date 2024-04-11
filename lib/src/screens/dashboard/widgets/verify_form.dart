@@ -82,6 +82,7 @@ class VerifyFormState extends State<VerifyForm> {
               controller: signatureController,
               placeholder: S.current.signature,
               options: [AddressTextFieldOption.paste],
+              buttonColor: Theme.of(context).hintColor,
             ),
           ],
         ),
