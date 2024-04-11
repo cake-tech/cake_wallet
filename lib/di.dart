@@ -1038,8 +1038,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => CakePayAuthViewModel(cakePayService: getIt.get<CakePayService>()));
 
-  getIt.registerFactoryParam<CakePayPurchaseViewModel, double, CakePayCard>(
-      (double amount, CakePayCard card) {
+  getIt.registerFactoryParam<CakePayPurchaseViewModel, List<double>, CakePayCard>(
+      (List<double> amount, CakePayCard card) {
     return CakePayPurchaseViewModel(
         cakePayService: getIt.get<CakePayService>(),
         amount: amount,
@@ -1071,10 +1071,10 @@ Future<void> setup({
 
   getIt.registerFactoryParam<CakePayBuyCardDetailPage, List<dynamic>, void>(
       (List<dynamic> args, _) {
-    final amount = args.first as double;
+    final totalAmounts = args.first as List<double>;
     final card = args[1] as CakePayCard;
     return CakePayBuyCardDetailPage(
-        getIt.get<CakePayPurchaseViewModel>(param1: amount, param2: card));
+        getIt.get<CakePayPurchaseViewModel>(param1: totalAmounts, param2: card));
   });
 
   getIt.registerFactoryParam<IoniaGiftCardDetailsViewModel, IoniaGiftCard, void>(

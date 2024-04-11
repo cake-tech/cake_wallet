@@ -18,26 +18,13 @@ abstract class CakePayPurchaseViewModelBase with Store {
     required this.amount,
     required this.card,
     required this.sendViewModel,
-  })  : tipAmount = 0.0,
-        percentage = 0.0,
-        walletType = sendViewModel.walletType,
+  })  : walletType = sendViewModel.walletType,
         orderCreationState = InitialExecutionState(),
-        invoiceCommittingState = InitialExecutionState(),
-        tips = <IoniaTip>[
-          IoniaTip(percentage: 0, originalAmount: amount),
-          IoniaTip(percentage: 15, originalAmount: amount),
-          IoniaTip(percentage: 18, originalAmount: amount),
-          IoniaTip(percentage: 20, originalAmount: amount),
-          IoniaTip(percentage: 0, originalAmount: amount, isCustom: true),
-        ] {
-    selectedTip = tips.first;
-  }
+        invoiceCommittingState = InitialExecutionState();
 
   final WalletType walletType;
 
-  final double amount;
-
-  List<IoniaTip> tips;
+  final List<double> amount;
 
   @observable
   IoniaTip? selectedTip;
@@ -72,31 +59,21 @@ abstract class CakePayPurchaseViewModelBase with Store {
   @observable
   ExecutionState invoiceCommittingState;
 
-  @observable
-  double percentage;
+  @computed
+  double get giftCardAmount => amount[0];
 
   @computed
-  double get giftCardAmount => double.parse((amount + tipAmount).toStringAsFixed(2));
+  int get giftQuantity => amount[1].round();
 
   @computed
-  double get billAmount => double.parse((giftCardAmount * (1 - (1 / 100)))
-      .toStringAsFixed(2)); //TODO: check if this is correct vendor.discount
-
-  @observable
-  double tipAmount;
-
-  @action
-  void addTip(IoniaTip tip) {
-    tipAmount = tip.additionalAmount;
-    selectedTip = tip;
-  }
+  double get totalAmount => giftCardAmount * giftQuantity;
 
   @action
   Future<void> createOrder() async {
     try {
       orderCreationState = IsExecutingState();
       order = await cakePayService.createOrder(
-          cardId: card.id, price: giftCardAmount.toString(), quantity: 1);
+          cardId: card.id, price: giftCardAmount.toString(), quantity: giftQuantity);
       await confirmSending();
       orderCreationState = ExecutedSuccessfullyState();
     } catch (e) {

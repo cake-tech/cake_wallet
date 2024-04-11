@@ -124,20 +124,62 @@ class CakePayBuyCardDetailPage extends BasePage {
                     ),
                     Expanded(
                       flex: 2,
-                      child: Container(
-                        child: Column(children: [
-                          Text(
-                            S.of(context).gift_card_amount,
-                            style: textSmall(
-                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            '\$${cakePayPurchaseViewModel.giftCardAmount.toStringAsFixed(2)}',
-                            style: textXLargeSemiBold(
-                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-                          ),
-                        ]),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          child: Column(children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'Value:',
+                                  style: textLarge(
+                                      color:
+                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  '\$${cakePayPurchaseViewModel.giftCardAmount.toStringAsFixed(2)}',
+                                  style: textLarge(
+                                      color:
+                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Text(
+                                  'Quantity:',
+                                  style: textLarge(
+                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  '${cakePayPurchaseViewModel.giftQuantity.toStringAsFixed(2)}',
+                                  style: textLarge(
+                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Text(
+                                  'Total:',
+                                  style: textLarge(
+                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  '\$${cakePayPurchaseViewModel.totalAmount.toStringAsFixed(2)}',
+                                  style: textLarge(
+                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 4),
+                          ]),
+                        ),
                       ),
                     )
                   ],
@@ -277,7 +319,7 @@ class CakePayBuyCardDetailPage extends BasePage {
             leftButtonText: S.of(context).cancel,
             actionRightButton: () async {
               Navigator.of(context).pop();
-              await cakePayPurchaseViewModel.commitPaymentInvoice();
+             // await cakePayPurchaseViewModel.commitPaymentInvoice();//TODO: implement commitPaymentInvoice
             },
             actionLeftButton: () => Navigator.of(context).pop());
       },

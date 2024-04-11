@@ -136,7 +136,9 @@ class CakePayBuyCardPage extends BasePage {
                   child: PrimaryButton(
                     onPressed: () {
                       Navigator.pushNamed(context, Routes.cakePayBuyCardDetailPage, arguments: [
-                        cakePayBuyCardViewModel.amount,
+                        [cakePayBuyCardViewModel.amount,
+                        cakePayBuyCardViewModel.quantity.toDouble(),
+                        cakePayBuyCardViewModel.totalAmount],
                         card,
                       ]);
                     },
