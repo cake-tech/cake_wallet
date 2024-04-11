@@ -23,7 +23,8 @@ class CakePayBuyCardPage extends BasePage {
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController(),
         _quantityFieldFocus = FocusNode(),
-        _quantityController = TextEditingController() {
+        _quantityController =
+            TextEditingController(text: cakePayBuyCardViewModel.quantity.toString()) {
     _amountController.addListener(() {
       cakePayBuyCardViewModel.onAmountChanged(_amountController.text);
     });
@@ -95,18 +96,20 @@ class CakePayBuyCardPage extends BasePage {
                     SizedBox(height: 36),
                     card.denominations.isNotEmpty
                         ? _DenominationsAmountWidget(
-                            fiatCurrency: card.fiatCurrency.title ?? '',
+                            fiatCurrency: card.fiatCurrency.title,
                             denominations: card.denominations,
                             amountFieldFocus: _amountFieldFocus,
                             amountController: _amountController,
                             quantityFieldFocus: _quantityFieldFocus,
                             quantityController: _quantityController,
                             onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
+                            onQuantityChanged: cakePayBuyCardViewModel.onQuantityChanged,
+                            cakePayBuyCardViewModel: cakePayBuyCardViewModel,
                           )
                         : _EnterAmountWidget(
                             minValue: card.minValue ?? '-',
                             maxValue: card.maxValue ?? '-',
-                            fiatCurrency: card.fiatCurrency.title ?? '',
+                            fiatCurrency: card.fiatCurrency.title,
                             amountFieldFocus: _amountFieldFocus,
                             amountController: _amountController,
                             onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
@@ -161,7 +164,9 @@ class _DenominationsAmountWidget extends StatelessWidget {
     required this.amountController,
     required this.quantityFieldFocus,
     required this.quantityController,
+    required this.cakePayBuyCardViewModel,
     required this.onAmountChanged,
+    required this.onQuantityChanged,
   });
 
   final String fiatCurrency;
@@ -170,55 +175,106 @@ class _DenominationsAmountWidget extends StatelessWidget {
   final TextEditingController amountController;
   final FocusNode quantityFieldFocus;
   final TextEditingController quantityController;
+  final CakePayBuyCardViewModel cakePayBuyCardViewModel;
   final Function(String) onAmountChanged;
+  final Function(int?) onQuantityChanged;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Choose a card value below:', //TODO: S.of(context).choose_card_value,
-                style: TextStyle(
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                  fontSize: 14,
-                )),
-            Text('Quantity:', //TODO: S.of(context).quantity,
-                style: TextStyle(
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                  fontSize: 14,
-                )),
-          ],
-        ),
-        SizedBox(height: 4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              flex: 3,
-              child: DropdownFilterList(
-                items: denominations,
-                selectedItem: denominations.first,
-                onItemSelected: (value) {
-                  amountController.text = value;
-                  onAmountChanged(value);
-                },
-                caption: '',
+        IntrinsicHeight(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                flex: 12,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Choose a card value below:', //TODO: S.of(context).choose_card_value,
+                        style: TextStyle(
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                          fontSize: 14,
+                        )),
+                    const SizedBox(height: 4),
+                    DropdownFilterList(
+                      items: denominations,
+                      selectedItem: denominations.first,
+                      textStyle: TextStyle(
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      onItemSelected: (value) {
+                        amountController.text = value;
+                        onAmountChanged(value);
+                      },
+                      caption: '',
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: NumberTextField(
-                controller: amountController,
-                focusNode: amountFieldFocus,
-                min: 0,
-                max: 999,
-                onChanged: (value) {
-                  onAmountChanged(value.toString());
-                },
+              Expanded(child: const SizedBox()),
+              Expanded(
+                flex: 5,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Quantity:', //TODO: S.of(context).quantity,
+                        style: TextStyle(
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                          fontSize: 14,
+                        )),
+                    const SizedBox(height: 4),
+                    NumberTextField(
+                      controller: quantityController,
+                      focusNode: quantityFieldFocus,
+                      min: 1,
+                      max: 99,
+                      onChanged: (value) => onQuantityChanged(value),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              Expanded(child: const SizedBox()),
+              Expanded(
+                  flex: 5,
+                  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text('Total:', //TODO: S.of(context).total,
+                          style: TextStyle(
+                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                            fontSize: 14,
+                          )),
+                      const SizedBox(height: 4),
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .extension<PickerTheme>()!
+                                .searchBackgroundFillColor,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Observer(
+                              builder: (_) => Center(
+                                child: Text(
+                                      cakePayBuyCardViewModel.totalAmount.toString(),
+                                      style: TextStyle(
+                                        color:
+                                            Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                              )),
+                        ),
+                      ),
+                    ],
+                  )),
+            ],
+          ),
         )
       ],
     );

@@ -58,38 +58,38 @@ class CakePayAccountPage extends BasePage {
       contentPadding: EdgeInsets.all(24),
       content: Column(
         children: [
-          _GradiantContainer(
-            content: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Observer(
-                    builder: (_) => RichText(
-                          text: TextSpan(
-                            text: '${cakePayAccountViewModel.countOfMerch}',
-                            style: textLargeSemiBold(),
-                            children: [
-                              TextSpan(
-                                  text: ' ${S.of(context).active_cards}',
-                                  style: textSmall(color: Colors.white.withOpacity(0.7))),
-                            ],
-                          ),
-                        )),
-                InkWell(
-                  onTap: () {
-                    Navigator.pushNamed(context, Routes.ioniaAccountCardsPage)
-                    .then((_) => cakePayAccountViewModel.updateUserGiftCards());
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      S.of(context).view_all,
-                      style: textSmallSemiBold(),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
+          // _GradiantContainer(
+          //   content: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       Observer(
+          //           builder: (_) => RichText(
+          //                 text: TextSpan(
+          //                   text: '${cakePayAccountViewModel.countOfMerch}',
+          //                   style: textLargeSemiBold(),
+          //                   children: [
+          //                     TextSpan(
+          //                         text: ' ${S.of(context).active_cards}',
+          //                         style: textSmall(color: Colors.white.withOpacity(0.7))),
+          //                   ],
+          //                 ),
+          //               )),
+          //       InkWell(
+          //         onTap: () {
+          //           Navigator.pushNamed(context, Routes.ioniaAccountCardsPage)
+          //           .then((_) => cakePayAccountViewModel.updateUserGiftCards());
+          //         },
+          //         child: Padding(
+          //           padding: const EdgeInsets.all(8.0),
+          //           child: Text(
+          //             S.of(context).view_all,
+          //             style: textSmallSemiBold(),
+          //           ),
+          //         ),
+          //       )
+          //     ],
+          //   ),
+          // ),
           SizedBox(height: 20),
           Observer(
             builder: (_) => IoniaTile(title: S.of(context).email_address, subTitle: cakePayAccountViewModel.email),

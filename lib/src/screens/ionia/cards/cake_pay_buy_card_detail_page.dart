@@ -1,9 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/ionia/cake_pay_card.dart';
-import 'package:cake_wallet/ionia/cake_pay_vendor.dart';
-import 'package:cake_wallet/ionia/ionia_tip.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/ionia_alert_model.dart';
@@ -17,8 +14,6 @@ import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/cake_pay_purchase_view_model.dart';
@@ -94,7 +89,6 @@ class CakePayBuyCardDetailPage extends BasePage {
     return ScrollableWithBottomSection(
       contentPadding: EdgeInsets.zero,
       content: Observer(builder: (_) {
-        final tipAmount = cakePayPurchaseViewModel.tipAmount;
         return Column(
           children: [
             SizedBox(height: 36),
@@ -103,7 +97,7 @@ class CakePayBuyCardDetailPage extends BasePage {
                   BorderRadius.horizontal(left: Radius.circular(20), right: Radius.circular(20)),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                  color: Theme.of(context).extension<PickerTheme>()!.searchBackgroundFillColor,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: Colors.white.withOpacity(0.20)),
                 ),
@@ -134,12 +128,14 @@ class CakePayBuyCardDetailPage extends BasePage {
                         child: Column(children: [
                           Text(
                             S.of(context).gift_card_amount,
-                            style: textSmall(),
+                            style: textSmall(
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                           ),
                           SizedBox(height: 4),
                           Text(
                             '\$${cakePayPurchaseViewModel.giftCardAmount.toStringAsFixed(2)}',
-                            style: textXLargeSemiBold(),
+                            style: textXLargeSemiBold(
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                           ),
                         ]),
                       ),
@@ -312,148 +308,6 @@ class _PlaceholderContainer extends StatelessWidget {
           Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
           Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
         ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-      ),
-    );
-  }
-}
-
-class TipButtonGroup extends StatelessWidget {
-  const TipButtonGroup({
-    Key? key,
-    required this.selectedTip,
-    required this.onSelect,
-    required this.tipsList,
-    required this.amount,
-    required this.merchant,
-  }) : super(key: key);
-
-  final Function(IoniaTip) onSelect;
-  final double selectedTip;
-  final List<IoniaTip> tipsList;
-  final double amount;
-  final IoniaMerchant merchant;
-
-  bool _isSelected(double value) => selectedTip == value;
-
-  Set<double> get filter => tipsList.map((e) => e.percentage).toSet();
-
-  bool get _isCustomSelected => !filter.contains(selectedTip);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        height: 50,
-        child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: tipsList.length,
-            itemBuilder: (BuildContext context, int index) {
-              final tip = tipsList[index];
-              return Padding(
-                  padding: EdgeInsets.only(right: 5),
-                  child: TipButton(
-                    isSelected: tip.isCustom ? _isCustomSelected : _isSelected(tip.percentage),
-                    onTap: () async {
-                      IoniaTip ioniaTip = tip;
-                      if (tip.isCustom) {
-                        final customTip = await Navigator.pushNamed(
-                            context, Routes.ioniaCustomTipPage,
-                            arguments: [amount, merchant, tip]) as IoniaTip?;
-                        ioniaTip = customTip ?? tip;
-                      }
-                      onSelect(ioniaTip);
-                    },
-                    caption: tip.isCustom
-                        ? S.of(context).custom
-                        : '${tip.percentage.toStringAsFixed(0)}%',
-                    subTitle: tip.isCustom ? null : '\$${tip.additionalAmount.toStringAsFixed(2)}',
-                  ));
-            }));
-  }
-}
-
-class TipButton extends StatelessWidget {
-  const TipButton({
-    required this.caption,
-    required this.onTap,
-    this.subTitle,
-    this.isSelected = false,
-  });
-
-  final String caption;
-  final String? subTitle;
-  final bool isSelected;
-  final void Function() onTap;
-
-  bool isDark(BuildContext context) => Theme.of(context).brightness == Brightness.dark;
-
-  Color captionTextColor(BuildContext context) {
-    if (isDark(context)) {
-      return Theme.of(context).extension<CakeTextTheme>()!.titleColor;
-    }
-
-    return isSelected
-        ? Theme.of(context).dialogTheme.backgroundColor!
-        : Theme.of(context).extension<CakeTextTheme>()!.titleColor;
-  }
-
-  Color subTitleTextColor(BuildContext context) {
-    if (isDark(context)) {
-      return Theme.of(context).extension<CakeTextTheme>()!.titleColor;
-    }
-
-    return isSelected
-        ? Theme.of(context).dialogTheme.backgroundColor!
-        : Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor;
-  }
-
-  Color? backgroundColor(BuildContext context) {
-    if (isDark(context)) {
-      return isSelected
-          ? null
-          : Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.01);
-    }
-
-    return isSelected
-        ? null
-        : Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.1);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        height: 49,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(caption, style: textSmallSemiBold(color: captionTextColor(context))),
-            if (subTitle != null) ...[
-              SizedBox(height: 4),
-              Text(
-                subTitle!,
-                style: textXxSmallSemiBold(
-                  color: subTitleTextColor(context),
-                ),
-              ),
-            ]
-          ],
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: backgroundColor(context),
-          gradient: isSelected
-              ? LinearGradient(
-                  colors: [
-                    Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
-                    Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : null,
-        ),
       ),
     );
   }

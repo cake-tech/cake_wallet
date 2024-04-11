@@ -8,27 +8,42 @@ class CakePayBuyCardViewModel = CakePayBuyCardViewModelBase with _$CakePayBuyCar
 
 abstract class CakePayBuyCardViewModelBase with Store {
   CakePayBuyCardViewModelBase({required this.vendor})
-      : isEnablePurchase = false,
-        amount = 0,
+      : amount = vendor.card!.denominations.isNotEmpty
+            ? double.parse(vendor.card!.denominations.first)
+            : 0,
+        quantity = 1,
+        min = double.parse(vendor.card!.minValue ?? '0'),
+        max = double.parse(vendor.card!.maxValue ?? '0'),
         card = vendor.card!;
 
   final CakePayVendor vendor;
 
-  CakePayCard card;
+  final CakePayCard card;
+
+  final double min;
+  final double max;
+
+  bool get isDenominationSelected => card.denominations.isNotEmpty;
 
   @observable
   double amount;
 
   @observable
-  bool isEnablePurchase;
+  int quantity;
+
+  @computed
+  bool get isEnablePurchase =>
+      (amount >= min && amount <= max) || (isDenominationSelected && quantity > 0);
+
+  @computed
+  double get totalAmount => amount * quantity;
+
+  @action
+  void onQuantityChanged(int? input) => quantity = input ?? 1;
 
   @action
   void onAmountChanged(String input) {
     if (input.isEmpty) return;
     amount = double.parse(input.replaceAll(',', '.'));
-    final min = double.parse(card.minValue ?? '0.0');
-    final max = double.parse(card.maxValue ?? '0.0');
-
-    isEnablePurchase = amount >= min && amount <= max;
   }
 }
