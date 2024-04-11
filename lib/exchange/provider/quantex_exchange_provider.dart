@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -11,10 +10,6 @@ import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/utils/device_info.dart';
-import 'package:cake_wallet/utils/distribution_info.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:http/http.dart';
 
@@ -38,6 +33,7 @@ class QuantexExchangeProvider extends ExchangeProvider {
   ];
 
   static final apiKey = secrets.quantexApiKey;
+  static final markup = secrets.quantexExchangeMarkup;
 
   static const apiAuthority = 'api.myquantex.com';
   static const getRate = '/api/swap/get-rate';
@@ -138,7 +134,6 @@ class QuantexExchangeProvider extends ExchangeProvider {
     required bool isSendAll,
   }) async {
     try {
-      print("@@@@@@@@@@@@@@@@@@@");
       final headers = <String, String>{
         // 'Content-Type': 'application/json',
         // 'Authorization': 'Bearer Cake=$apiKey',
@@ -151,22 +146,17 @@ class QuantexExchangeProvider extends ExchangeProvider {
         'amount_send': request.fromAmount,
         'recipient': request.toAddress,
         'ref': 'cake',
-        'markup': "0",
+        'markup': markup,
       };
-
-      print(request.fromAmount);
-
+      
       String? fromNetwork = _networkFor(request.fromCurrency);
       String? toNetwork = _networkFor(request.toCurrency);
       if (fromNetwork != null) body['coin_send_network'] = fromNetwork;
       if (toNetwork != null) body['coin_receive_network'] = toNetwork;
 
-      print("22222222222222222");
-
       final uri = Uri.https(apiAuthority, createOrder, params);
       final response = await post(uri, body: body, headers: headers);
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
-      print(responseBody);
 
       if (response.statusCode == 400 || responseBody["success"] == false) {
         final error = responseBody['errors'][0]['msg'] as String;
@@ -198,55 +188,54 @@ class QuantexExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> findTradeById({required String id}) async {
-    throw UnimplementedError();
-    // final headers = {apiHeaderKey: apiKey};
-    // final params = <String, String>{'id': id};
-    // final uri = Uri.https(apiAuthority, findTradeByIdPath, params);
-    // final response = await get(uri, headers: headers);
+    try {
+      final headers = <String, String>{};
+      final params = <String, dynamic>{};
+      var body = <String, dynamic>{
+        'order_id': id,
+      };
 
-    // if (response.statusCode == 404) throw TradeNotFoundException(id, provider: description);
+      final uri = Uri.https(apiAuthority, createOrder, params);
+      final response = await post(uri, body: body, headers: headers);
+      final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
-    // if (response.statusCode == 400) {
-    //   final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    //   final error = responseJSON['message'] as String;
+      if (response.statusCode == 400 || responseBody["success"] == false) {
+        final error = responseBody['errors'][0]['msg'] as String;
+        throw TradeNotCreatedException(description, description: error);
+      }
 
-    //   throw TradeNotFoundException(id, provider: description, description: error);
-    // }
+      if (response.statusCode != 200)
+        throw Exception('Unexpected http status: ${response.statusCode}');
 
-    // if (response.statusCode != 200)
-    //   throw Exception('Unexpected http status: ${response.statusCode}');
+      final responseData = responseBody['data'] as Map<String, dynamic>;
+      final fromCurrency = responseData['coin_send'] as String;
+      final from = CryptoCurrency.fromString(fromCurrency);
+      final toCurrency = responseData['coin_receive'] as String;
+      final to = CryptoCurrency.fromString(toCurrency);
+      final inputAddress = responseData['server_address'] as String;
+      final status = responseData['status'] as String;
+      final state = TradeState.deserialize(raw: status);
+      final response_id = responseData['order_id'] as String;
+      final expectedSendAmount = responseData['amount_send'] as String;
 
-    // final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    // final fromCurrency = responseJSON['fromCurrency'] as String;
-    // final from = CryptoCurrency.fromString(fromCurrency);
-    // final toCurrency = responseJSON['toCurrency'] as String;
-    // final to = CryptoCurrency.fromString(toCurrency);
-    // final inputAddress = responseJSON['payinAddress'] as String;
-    // final expectedSendAmount = responseJSON['expectedAmountFrom'].toString();
-    // final status = responseJSON['status'] as String;
-    // final state = TradeState.deserialize(raw: status);
-    // final extraId = responseJSON['payinExtraId'] as String?;
-    // final outputTransaction = responseJSON['payoutHash'] as String?;
-    // final expiredAtRaw = responseJSON['validUntil'] as String?;
-    // final payoutAddress = responseJSON['payoutAddress'] as String;
-    // final expiredAt = DateTime.tryParse(expiredAtRaw ?? '')?.toLocal();
-
-    // return Trade(
-    //   id: id,
-    //   from: from,
-    //   to: to,
-    //   provider: description,
-    //   inputAddress: inputAddress,
-    //   amount: expectedSendAmount,
-    //   state: state,
-    //   extraId: extraId,
-    //   expiredAt: expiredAt,
-    //   outputTransaction: outputTransaction,
-    //   payoutAddress: payoutAddress,
-    // );
+      return Trade(
+        id: response_id,
+        from: from,
+        to: to,
+        provider: description,
+        inputAddress: inputAddress,
+        amount: expectedSendAmount,
+        state: state,
+      );
+    } catch (e) {
+      print("error getting trade: ${e.toString()}");
+      throw TradeNotFoundException(
+        id,
+        provider: description,
+        description: e.toString(),
+      );
+    }
   }
-
-  String _getFlow(bool isFixedRate) => isFixedRate ? 'fixed-rate' : 'standard';
 
   String _normalizeCurrency(CryptoCurrency currency) {
     switch (currency) {
