@@ -98,6 +98,18 @@ abstract class CakePayPurchaseViewModelBase with Store {
     }
   }
 
+  Future<void> simulatePayment() async {
+    try {
+      if (order == null) {
+        throw Exception('Order is not created yet');
+      }
+
+      await cakePayService.simulatePayment(orderId: order!.orderId);
+    } catch (e) {
+      orderCreationState = FailureState(e.toString());
+    }
+  }
+
   @action
   Future<void> commitPaymentInvoice() async {
     try {

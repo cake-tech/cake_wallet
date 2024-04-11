@@ -123,6 +123,10 @@ class CakePayService {
         userEmail: userEmail);
   }
 
+  ///Simulate Purchase Gift Card
+  Future<void> simulatePayment({required String orderId}) async => await cakePayApi.simulatePayment(
+      CSRFToken: CSRFToken, authorization: authorization, orderId: orderId);
+
   // Get Current User Gift Card Summaries
 
   Future<List<IoniaGiftCard>> getCurrentUserGiftCardSummaries() async {

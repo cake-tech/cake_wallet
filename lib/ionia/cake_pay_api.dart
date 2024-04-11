@@ -23,6 +23,7 @@ class CakePayApi {
   static final verifyEmailPath = '/api/verify';
   static final logoutPath = '/api/logout';
   static final createOrderPath = '/api/order';
+  static final simulatePaymentPath = '/api/simulate_payment';
 
   static const baseUri = 'api.ionia.io';
   static const pathPrefix = 'cake';
@@ -146,6 +147,31 @@ class CakePayApi {
     }
   }
 
+  ///Simulate Payment
+  Future<void> simulatePayment(
+      {required String CSRFToken, required String authorization, required String orderId}) async {
+    final uri = Uri.https(baseCakePayUri, simulatePaymentPath + '/$orderId');
+
+    final headers = {
+      'accept': 'application/json',
+      'authorization': authorization,
+      'X-CSRFToken': CSRFToken,
+    };
+
+    final response = await http.get(uri, headers: headers);
+
+    print('Response: ${response.statusCode}');
+
+    if (response.statusCode != 200) {
+      throw Exception('Unexpected http status: ${response.statusCode}');
+    }
+
+    final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+
+    throw Exception( 'You just bot a gift card with id: ${bodyJson['order_id']}');
+  }
+
+
   /// Logout
   Future<void> logoutUser({required String email, required String apiKey}) async {
     final uri = Uri.https(baseCakePayUri, logoutPath);
@@ -192,6 +218,7 @@ class CakePayApi {
     return CakePayVirtualCard.fromMap(data);
   }
 
+  /// Get Countries
   Future<List<String>> getCountries(
       {required String CSRFToken, required String authorization}) async {
     final uri = Uri.https(baseCakePayUri, countriesPath);
