@@ -1022,11 +1022,16 @@ extern "C"
         m_coins->thaw(index);
     }
 
-    // Sign Messages //
+    // Sign & Verify Messages //
 
     char *sign_message(char *message, char *address = "")
     {
         return strdup(get_current_wallet()->signMessage(std::string(message), std::string(address)).c_str());
+    }
+
+    bool verify_message(char *message, char *address, char *signature)
+    {
+        return get_current_wallet()->verifySignedMessage(std::string(message), std::string(address), std::string(signature));
     }
 
 #ifdef __cplusplus

@@ -131,6 +131,10 @@ final signMessageNative = moneroApi
     .lookup<NativeFunction<sign_message>>('sign_message')
     .asFunction<SignMessage>();
 
+final verifyMessageNative = moneroApi
+    .lookup<NativeFunction<verify_message>>('verify_message')
+    .asFunction<VerifyMessage>();
+
 int getSyncingHeight() => getSyncingHeightNative();
 
 bool isNeededToRefresh() => isNeededToRefreshNative() != 0;
@@ -396,4 +400,17 @@ String signMessage(String message, {String address = ""}) {
   calloc.free(addressPointer);
 
   return signature;
+}
+
+bool verifyMessage(String message, String address, String signature) {
+  final messagePointer = message.toNativeUtf8();
+  final addressPointer = address.toNativeUtf8();
+  final signaturePointer = address.toNativeUtf8();
+
+  final isVerified = verifyMessageNative(messagePointer, addressPointer, signaturePointer);
+  calloc.free(messagePointer);
+  calloc.free(addressPointer);
+  calloc.free(signaturePointer);
+
+  return isVerified != 0;
 }

@@ -151,3 +151,5 @@ typedef freeze_coin = Void Function(Int32 index);
 typedef thaw_coin = Void Function(Int32 index);
 
 typedef sign_message = Pointer<Utf8> Function(Pointer<Utf8> message, Pointer<Utf8> address);
+
+typedef verify_message = Int8 Function(Pointer<Utf8> message, Pointer<Utf8> address, Pointer<Utf8> signature);
