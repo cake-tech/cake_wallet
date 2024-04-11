@@ -13,7 +13,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_nano/file.dart';
 import 'package:cw_core/nano_account.dart';
-import 'package:cw_nano/n2_node.dart';
+import 'package:cw_core/n2_node.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';

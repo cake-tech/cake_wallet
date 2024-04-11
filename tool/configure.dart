@@ -795,6 +795,7 @@ import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/nano_account_info_response.dart';
+import 'package:cw_core/n2_node.dart';
 import 'package:mobx/mobx.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -807,7 +808,6 @@ import 'package:cw_nano/nano_wallet_service.dart';
 import 'package:cw_nano/nano_transaction_info.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:cw_nano/nano_wallet_creation_credentials.dart';
-import 'package:cw_nano/n2_node.dart';
 // needed for nano_util:
 import 'dart:convert';
 import 'dart:typed_data';

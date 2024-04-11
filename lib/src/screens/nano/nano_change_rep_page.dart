@@ -10,7 +10,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_nano/n2_node.dart';
+import 'package:cw_core/n2_node.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
