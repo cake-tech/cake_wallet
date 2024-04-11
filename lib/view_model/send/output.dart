@@ -121,11 +121,19 @@ abstract class OutputBase with Store {
         return solana!.getEstimateFees(_wallet) ?? 0.0;
       }
 
-      final fee = _wallet.calculateEstimatedFee(
+      int? fee = _wallet.calculateEstimatedFee(
           _settingsStore.priority[_wallet.type]!, formattedCryptoAmount);
 
-      if (_wallet.type == WalletType.bitcoin ||
-          _wallet.type == WalletType.litecoin ||
+      if (_wallet.type == WalletType.bitcoin) {
+        if (_settingsStore.priority[_wallet.type] == bitcoin!.getBitcoinTransactionPriorityCustom()) {
+          fee = bitcoin!.getFeeAmountWithFeeRate(
+              _settingsStore.customBitcoinFeeRate, formattedCryptoAmount, 1, 1);
+        }
+
+        return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
+      }
+
+      if (_wallet.type == WalletType.litecoin ||
           _wallet.type == WalletType.bitcoinCash) {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }

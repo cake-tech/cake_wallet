@@ -439,11 +439,16 @@ abstract class EVMChainWalletBase
 
   Future<void> addErc20Token(Erc20Token token) async {
     String? iconPath;
-    try {
-      iconPath = CryptoCurrency.all
-          .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
-          .iconPath;
-    } catch (_) {}
+
+    if (token.iconPath == null || token.iconPath!.isEmpty) {
+      try {
+        iconPath = CryptoCurrency.all
+            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+            .iconPath;
+      } catch (_) {}
+    } else {
+      iconPath = token.iconPath;
+    }
 
     final newToken = createNewErc20TokenObject(token, iconPath);
 
@@ -466,8 +471,8 @@ abstract class EVMChainWalletBase
     _updateBalance();
   }
 
-  Future<Erc20Token?> getErc20Token(String contractAddress) async =>
-      await _client.getErc20Token(contractAddress);
+  Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async =>
+      await _client.getErc20Token(contractAddress, chainName);
 
   void _onNewTransaction() {
     _updateBalance();

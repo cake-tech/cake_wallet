@@ -43,7 +43,7 @@ class SolanaChainServiceImpl implements ChainService {
             SolanaClient(
               rpcUrl: rpcUrl,
               websocketUrl: Uri.parse(webSocketUrl),
-              timeout: const Duration(minutes: 2),
+              timeout: const Duration(minutes: 5),
             ) {
     for (final String event in getEvents()) {
       wallet.registerEventEmitter(chainId: getChainId(), event: event);
@@ -121,10 +121,13 @@ class SolanaChainServiceImpl implements ChainService {
         return '';
       }
 
-      String signature = sign.signatures.first.toBase58();
+      String signature = await solanaClient.sendAndConfirmTransaction(
+        message: message,
+        signers: [ownerKeyPair!],
+        commitment: Commitment.confirmed,
+      );
 
       print(signature);
-      print(signature.runtimeType);
 
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
