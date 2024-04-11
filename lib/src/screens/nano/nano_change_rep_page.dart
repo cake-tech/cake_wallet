@@ -34,6 +34,22 @@ class NanoChangeRepPage extends BasePage {
   @override
   String get title => S.current.change_rep;
 
+  N2Node getCurrentRepNode(List<N2Node> nodes) {
+    final currentRepAccount = nano!.getRepresentative(_wallet);
+    final currentNode = nodes.firstWhere(
+      (node) => node.account == currentRepAccount,
+      orElse: () => N2Node(
+        account: currentRepAccount,
+        alias: currentRepAccount,
+        score: 0,
+        uptime: "???",
+        weight: 0,
+      ),
+    );
+
+    return currentNode;
+  }
+
   @override
   Widget body(BuildContext context) {
     return Form(
@@ -43,26 +59,6 @@ class NanoChangeRepPage extends BasePage {
         builder: (context, snapshot) {
           if (snapshot.data == null) {
             return SizedBox();
-          }
-
-          N2Node? currentNode;
-          String currentRepAccount = nano!.getRepresentative(_wallet);
-
-          for (final N2Node node in snapshot.data as List<N2Node>) {
-            if (node.account == currentRepAccount) {
-              currentNode = node;
-              break;
-            }
-          }
-
-          if (currentNode == null) {
-            currentNode = N2Node(
-              account: currentRepAccount,
-              alias: currentRepAccount,
-              score: 0,
-              uptime: "???",
-              weight: 0,
-            );
           }
 
           return Container(
@@ -105,7 +101,7 @@ class NanoChangeRepPage extends BasePage {
                       ),
                       _buildSingleRepresentative(
                         context,
-                        currentNode,
+                        getCurrentRepNode(snapshot.data as List<N2Node>),
                         isList: false,
                       ),
                       Divider(height: 20),
