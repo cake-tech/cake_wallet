@@ -1,5 +1,6 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -36,15 +37,12 @@ class _DropdownFilterListState extends State<DropdownFilterList> {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-        border: Border.all(
-          color: Theme.of(context).extension<FilterTheme>()!.checkboxBoundsColor,
-        ),
+        color: Theme.of(context).extension<PickerTheme>()!.searchBackgroundFillColor,
         borderRadius: BorderRadius.circular(10),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          dropdownColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+          dropdownColor: Theme.of(context).extension<PickerTheme>()!.searchBackgroundFillColor,
           borderRadius: BorderRadius.circular(10),
           isExpanded: true,
           items: widget.items
@@ -53,10 +51,7 @@ class _DropdownFilterListState extends State<DropdownFilterList> {
                     value: item,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text(
-                        item,
-                        style: widget.textStyle
-                      ),
+                      child: Text(item, style: widget.textStyle),
                     ),
                   ))
               .toList(),

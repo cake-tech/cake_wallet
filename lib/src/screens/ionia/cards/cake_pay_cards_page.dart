@@ -25,7 +25,7 @@ class CakePayCardsPage extends BasePage {
     _searchController.addListener(() {
       if (_searchController.text != _cardsListViewModel.searchString) {
         _searchDebounce.run(() {
-          _cardsListViewModel.searchMerchant(_searchController.text);
+          _cardsListViewModel.getVendors(text: _searchController.text);
         });
       }
     });

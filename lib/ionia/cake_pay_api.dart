@@ -12,9 +12,6 @@ import 'package:http/http.dart' as http;
 class CakePayApi {
   static const testBaseUri = true;
 
-  static const authorization = 'Basic Y2FrZXdhbGxldDo1ZyIvKnp7K2EwZnZ7KkU6fC0nIg==';
-  static const CSRFToken = 'h1EHoAb0riS5lA5BBYDI7REKdBCXJQNuXzZtB0Zx1hh1Q0HG4ztzFGXHrd6kYHfr';
-
   static const baseTestCakePayUri = 'test.cakepay.com';
   static const baseProdCakePayUri = 'buy.cakepay.com';
 
@@ -195,7 +192,8 @@ class CakePayApi {
     return CakePayVirtualCard.fromMap(data);
   }
 
-  Future<List<String>> getCountries() async {
+  Future<List<String>> getCountries(
+      {required String CSRFToken, required String authorization}) async {
     final uri = Uri.https(baseCakePayUri, countriesPath);
 
     final headers = {
@@ -217,6 +215,8 @@ class CakePayApi {
 
   /// Get Vendors
   Future<List<CakePayVendor>> getVendors({
+    required String CSRFToken,
+    required String authorization,
     int? page,
     String? country,
     String? countryCode,

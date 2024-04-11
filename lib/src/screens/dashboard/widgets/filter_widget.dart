@@ -3,8 +3,6 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/filter_tile.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dropdown_filter_item.dart';
 import 'package:cake_wallet/view_model/dashboard/dropdown_filter_item_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
@@ -80,11 +78,14 @@ class FilterWidget extends StatelessWidget {
                             final item = section[index2];
 
                             if (item is DropdownFilterItem) {
-                              return  DropdownFilterList(
-                                items: item.items,
-                                caption: item.caption,
-                                selectedItem: item.selectedItem,
-                                onItemSelected: item.onItemSelected,
+                              return  Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                                child: DropdownFilterList(
+                                  items: item.items,
+                                  caption: item.caption,
+                                  selectedItem: item.selectedItem,
+                                  onItemSelected: item.onItemSelected,
+                                ),
                               );
                             }
                             final content = Observer(

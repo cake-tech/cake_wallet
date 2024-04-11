@@ -16,6 +16,8 @@ abstract class CakePayCardsListViewModelBase with Store {
   })  : cardState = CakePayCardsStateNoCards(),
         cakePayVendors = [],
         availableCountries = [],
+        page = 1,
+        selectedCountry = 'USA',
         displayPrepaidCards = true,
         displayGiftCards = true,
         displayDenominationsCards = true,
@@ -63,13 +65,15 @@ abstract class CakePayCardsListViewModelBase with Store {
           DropdownFilterItem(
             items: availableCountries,
             caption: '',
-            selectedItem: selectedCountry ??= 'USA',
+            selectedItem: selectedCountry,
             onItemSelected: (String value) => setSelectedCountry(value),
           ),
         ]
       };
 
   String searchString;
+
+  int page;
 
   @observable
   double scrollOffsetFromTop;
@@ -84,7 +88,7 @@ abstract class CakePayCardsListViewModelBase with Store {
   CakePayVendorState vendorsState;
 
   @observable
-  String? selectedCountry;
+  String selectedCountry;
 
   @observable
   List<CakePayVendor> cakePayVendors;
@@ -121,26 +125,23 @@ abstract class CakePayCardsListViewModelBase with Store {
     }
   }
 
-  @action
-  void searchMerchant(String text) {
-    if (text.isEmpty) {
-      cakePayVendors = CakePayVendorList;
-      return;
-    }
-    searchString = text;
-    cakePayService.getVendors(page: 1, country: 'USA').then((value) {
-      cakePayVendors = value;
-    });
-  }
-
   Future<void> getCountries() async {
     availableCountries = await cakePayService.getCountries();
   }
 
-  void getVendors() async {
+  @action
+  Future<void> getVendors({String? text}) async {
     vendorsState = CakePayVendorLoadingState();
+    searchString = text ?? '';
     cakePayService
-        .getVendors(page: 1, country: selectedCountry!)
+        .getVendors(
+            country: selectedCountry,
+            page: page,
+            search: searchString,
+            giftCards: displayGiftCards,
+            prepaidCards: displayPrepaidCards,
+            custom: displayCustomValueCards,
+            onDemand: displayDenominationsCards)
         .then((value) => cakePayVendors = CakePayVendorList = value);
     vendorsState = CakePayVendorLoadedState();
   }

@@ -18,15 +18,41 @@ class CakePayService {
 
   static String get cakePayApiKey => secrets.cakePayApiKey;
 
+  static String get CSRFToken => secrets.CSRFToken;
+
+  static String get authorization => secrets.authorization;
+
   final FlutterSecureStorage secureStorage;
   final CakePayApi cakePayApi;
 
   /// Get Available Countries
-  Future<List<String>> getCountries() async => await cakePayApi.getCountries();
+  Future<List<String>> getCountries() async =>
+      await cakePayApi.getCountries(CSRFToken: CSRFToken, authorization: authorization);
 
   /// Get Vendors
-  Future<List<CakePayVendor>> getVendors({required int page, required String country}) async {
-    final result = await cakePayApi.getVendors(page: page, country: country);
+  Future<List<CakePayVendor>> getVendors({
+    int? page,
+    String? country,
+    String? countryCode,
+    String? search,
+    List<String>? vendorIds,
+    bool? giftCards,
+    bool? prepaidCards,
+    bool? onDemand,
+    bool? custom,
+  }) async {
+    final result = await cakePayApi.getVendors(
+        CSRFToken: CSRFToken,
+        authorization: authorization,
+        page: page,
+        country: country,
+        countryCode: countryCode,
+        search: search,
+        vendorIds: vendorIds,
+        giftCards: giftCards,
+        prepaidCards: prepaidCards,
+        onDemand: onDemand,
+        custom: custom);
     return result;
   }
 
