@@ -297,6 +297,7 @@ class CWBitcoin extends Bitcoin {
     );
   }
 
+  @override
   List<BitcoinSilentPaymentAddressRecord> getSilentPaymentAddresses(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.walletAddresses.silentAddresses
@@ -304,6 +305,7 @@ class CWBitcoin extends Bitcoin {
         .toList();
   }
 
+  @override
   List<BitcoinSilentPaymentAddressRecord> getSilentPaymentReceivedAddresses(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.walletAddresses.silentAddresses
@@ -311,10 +313,12 @@ class CWBitcoin extends Bitcoin {
         .toList();
   }
 
+  @override
   bool isBitcoinReceivePageOption(ReceivePageOption option) {
     return option is BitcoinReceivePageOption;
   }
 
+  @override
   BitcoinAddressType getOptionToType(ReceivePageOption option) {
     return (option as BitcoinReceivePageOption).toType();
   }
@@ -326,6 +330,7 @@ class CWBitcoin extends Bitcoin {
     return bitcoinWallet.silentPaymentsScanningActive;
   }
 
+  @override
   Future<void> setScanningActive(Object wallet, SettingsStore settingsStore, bool active) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     // TODO: always when setting to scanning active, will force switch nodes. Remove when not needed anymore
@@ -338,6 +343,7 @@ class CWBitcoin extends Bitcoin {
     bitcoinWallet.setSilentPaymentsScanning(active);
   }
 
+  @override
   bool isTestnet(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.isTestnet ?? false;
@@ -346,6 +352,7 @@ class CWBitcoin extends Bitcoin {
   @override
   int getHeightByDate({required DateTime date}) => getBitcoinHeightByDate(date: date);
 
+  @override
   Future<void> rescan(Object wallet, SettingsStore settingsStore,
       {required int height, bool? doSingleScan}) async {
     final bitcoinWallet = wallet as ElectrumWallet;
@@ -359,6 +366,7 @@ class CWBitcoin extends Bitcoin {
     bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
   }
 
+  @override
   bool getNodeIsCakeElectrs(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     final node = bitcoinWallet.node;
@@ -366,6 +374,7 @@ class CWBitcoin extends Bitcoin {
     return node?.uri.host == '198.58.111.154' && node?.uri.port == 50002;
   }
 
+  @override
   void deleteSilentPaymentAddress(Object wallet, String address) {
     final bitcoinWallet = wallet as ElectrumWallet;
     bitcoinWallet.walletAddresses.deleteSilentPaymentAddress(address);

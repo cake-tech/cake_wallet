@@ -42,6 +42,7 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:http/http.dart' as http;
+import 'package:sp_scanner/sp_scanner.dart';
 
 part 'electrum_wallet.g.dart';
 
@@ -223,6 +224,10 @@ abstract class ElectrumWalletBase
           transactionHistoryIds: transactionHistory.transactions.keys.toList(),
           node: ScanNode(node!.uri, node!.useSSL),
           labels: walletAddresses.labels,
+          labelIndexes: walletAddresses.silentAddresses
+              .where((addr) => addr.type == SilentPaymentsAddresType.p2sp && addr.index >= 1)
+              .map((addr) => addr.index)
+              .toList(),
           isSingleScan: doSingleScan ?? false,
         ));
 
@@ -238,6 +243,10 @@ abstract class ElectrumWalletBase
 
             final existingTxInfo = transactionHistory.transactions[txid];
             if (existingTxInfo != null) {
+              final addressRecord =
+                  walletAddresses.silentAddresses.firstWhere((addr) => addr.address == tx.to);
+              addressRecord.txCount += 1;
+
               existingTxInfo.amount = tx.amount;
               existingTxInfo.confirmations = tx.confirmations;
               existingTxInfo.height = tx.height;
@@ -1616,6 +1625,7 @@ class ScanData {
   final ElectrumClient electrumClient;
   final List<String> transactionHistoryIds;
   final Map<String, String> labels;
+  final List<int> labelIndexes;
   final bool isSingleScan;
 
   ScanData({
@@ -1628,6 +1638,7 @@ class ScanData {
     required this.electrumClient,
     required this.transactionHistoryIds,
     required this.labels,
+    required this.labelIndexes,
     required this.isSingleScan,
   });
 
@@ -1642,6 +1653,7 @@ class ScanData {
       transactionHistoryIds: scanData.transactionHistoryIds,
       electrumClient: scanData.electrumClient,
       labels: scanData.labels,
+      labelIndexes: scanData.labelIndexes,
       isSingleScan: scanData.isSingleScan,
     );
   }
@@ -1714,8 +1726,9 @@ Future<void> startRefresh(ScanData scanData) async {
     try {
       final electrumClient = await getElectrumConnection();
 
+    // TODO: hardcoded values, if timed out decrease amount of blocks per request?
       final scanningBlockCount =
-          scanData.isSingleScan ? 1 : (scanData.network == BitcoinNetwork.testnet ? 50 : 10);
+          scanData.isSingleScan ? 1 : (scanData.network == BitcoinNetwork.testnet ? 25 : 10);
 
       Map<String, dynamic>? tweaks;
       try {
@@ -1752,14 +1765,16 @@ Future<void> startRefresh(ScanData scanData) async {
             final tweak = details["tweak"].toString();
 
             try {
-              final spb = SilentPaymentBuilder(receiverTweak: tweak);
-              final addToWallet = spb.scanOutputs(
-                scanData.silentAddress.b_scan,
-                scanData.silentAddress.B_spend,
-                outputPubkeys.values
-                    .map((o) => getScriptFromOutput(o[0].toString(), int.parse(o[1].toString())))
-                    .toList(),
-                precomputedLabels: scanData.labels,
+              final addToWallet = scanOutputs(
+                outputPubkeys.values.map((o) => o[0].toString()).toList(),
+                tweak,
+                Receiver(
+                  scanData.silentAddress.b_scan.toHex(),
+                  scanData.silentAddress.B_spend.toHex(),
+                  scanData.network == BitcoinNetwork.testnet,
+                  scanData.labelIndexes,
+                  scanData.labelIndexes.length,
+                ),
               );
 
               if (addToWallet.isEmpty) {
@@ -1767,64 +1782,72 @@ Future<void> startRefresh(ScanData scanData) async {
                 continue;
               }
 
-              addToWallet.forEach((key, value) async {
-                final t_k = value.tweak;
+              addToWallet.forEach((label, value) async {
+                (value as Map<String, dynamic>).forEach((output, tweak) async {
+                  final t_k = tweak.toString();
 
-                final addressRecord = BitcoinSilentPaymentAddressRecord(
-                  value.output.address.toAddress(scanData.network),
-                  index: 0,
-                  isHidden: false,
-                  isUsed: true,
-                  network: scanData.network,
-                  silentPaymentTweak: t_k,
-                  type: SegwitAddresType.p2tr,
-                );
+                  final receivingOutputAddress = ECPublic.fromHex(output)
+                      .toTaprootAddress(tweak: false)
+                      .toAddress(scanData.network);
 
-                int? amount;
-                int? pos;
-                outputPubkeys.entries.firstWhere((k) {
-                  final matches = k.value[0] == key;
-                  if (matches) {
-                    amount = int.parse(k.value[1].toString());
-                    pos = int.parse(k.key.toString());
-                    return true;
-                  }
-                  return false;
+                  final receivedAddressRecord = BitcoinSilentPaymentAddressRecord(
+                    receivingOutputAddress,
+                    index: 0,
+                    isHidden: false,
+                    isUsed: true,
+                    network: scanData.network,
+                    silentPaymentTweak: t_k,
+                    type: SegwitAddresType.p2tr,
+                  );
+
+                  int? amount;
+                  int? pos;
+                  outputPubkeys.entries.firstWhere((k) {
+                    final matches = k.value[0] == output;
+                    if (matches) {
+                      amount = int.parse(k.value[1].toString());
+                      pos = int.parse(k.key.toString());
+                      return true;
+                    }
+                    return false;
+                  });
+
+                  final json = <String, dynamic>{
+                    'address_record': receivedAddressRecord.toJSON(),
+                    'tx_hash': txid,
+                    'value': amount!,
+                    'tx_pos': pos!,
+                    'silent_payment_tweak': t_k,
+                  };
+
+                  final tx = BitcoinUnspent.fromJSON(receivedAddressRecord, json);
+
+                  final silentPaymentAddress = SilentPaymentAddress(
+                    version: scanData.silentAddress.version,
+                    B_scan: scanData.silentAddress.B_scan,
+                    B_spend: label == "None"
+                        ? scanData.silentAddress.B_spend
+                        : scanData.silentAddress.B_spend
+                            .tweakAdd(BigintUtils.fromBytes(BytesUtils.fromHexString(label))),
+                    hrp: scanData.silentAddress.hrp,
+                  );
+
+                  final txInfo = ElectrumTransactionInfo(
+                    WalletType.bitcoin,
+                    id: tx.hash,
+                    height: syncHeight,
+                    amount: amount!,
+                    fee: 0,
+                    direction: TransactionDirection.incoming,
+                    isPending: false,
+                    date: DateTime.now(),
+                    confirmations: await getUpdatedNodeHeight() - int.parse(blockHeight) + 1,
+                    to: silentPaymentAddress.toString(),
+                    unspents: [tx],
+                  );
+
+                  scanData.sendPort.send({txInfo.id: txInfo});
                 });
-
-                final json = <String, dynamic>{
-                  'address_record': addressRecord.toJSON(),
-                  'tx_hash': txid,
-                  'value': amount!,
-                  'tx_pos': pos!,
-                  'silent_payment_tweak': t_k,
-                };
-
-                final tx = BitcoinUnspent.fromJSON(addressRecord, json);
-
-                final txInfo = ElectrumTransactionInfo(
-                  WalletType.bitcoin,
-                  id: tx.hash,
-                  height: syncHeight,
-                  amount: amount!,
-                  fee: 0,
-                  direction: TransactionDirection.incoming,
-                  isPending: false,
-                  date: DateTime.now(),
-                  confirmations: await getUpdatedNodeHeight() - int.parse(blockHeight) + 1,
-                  to: value.label != null
-                      ? SilentPaymentAddress(
-                          version: scanData.silentAddress.version,
-                          B_scan: scanData.silentAddress.B_scan.tweakAdd(
-                              BigintUtils.fromBytes(BytesUtils.fromHexString(value.tweak))),
-                          B_spend: scanData.silentAddress.B_spend,
-                          hrp: scanData.silentAddress.hrp,
-                        ).toString()
-                      : scanData.silentAddress.toString(),
-                  unspents: [tx],
-                );
-
-                scanData.sendPort.send({txInfo.id: txInfo});
               });
             } catch (_) {}
           }

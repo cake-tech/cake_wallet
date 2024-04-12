@@ -89,6 +89,7 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:cw_core/get_height_by_date.dart';
+import 'package:cw_core/node.dart';
 import 'package:mobx/mobx.dart';
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
@@ -160,7 +161,7 @@ abstract class Bitcoin {
   BitcoinAddressType getOptionToType(ReceivePageOption option);
   bool hasTaprootInput(PendingTransaction pendingTransaction);
   bool getScanningActive(Object wallet);
-  void setScanningActive(Object wallet, bool active);
+  Future<void> setScanningActive(Object wallet, SettingsStore settingsStore, bool active);
   bool isTestnet(Object wallet);
 
   Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
@@ -169,7 +170,10 @@ abstract class Bitcoin {
   int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});
   int getFeeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
   int getHeightByDate({required DateTime date});
-  void rescan(Object wallet, {required int height, bool? doSingleScan});
+  Future<void> rescan(Object wallet, SettingsStore settingsStore,
+      {required int height, bool? doSingleScan});
+  bool getNodeIsCakeElectrs(Object wallet);
+  void deleteSilentPaymentAddress(Object wallet, String address);
 }
   """;
 

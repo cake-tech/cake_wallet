@@ -60,7 +60,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       if (silentAddresses.length == 0)
         silentAddresses.add(BitcoinSilentPaymentAddressRecord(
           silentAddress.toString(),
-          index: 1,
+          index: 0,
           isHidden: false,
           name: "",
           silentPaymentTweak: null,
@@ -268,7 +268,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (addressPageType == SilentPaymentsAddresType.p2sp && silentAddress != null) {
       final currentSilentAddressIndex = silentAddresses
               .where((addressRecord) => addressRecord.type != SegwitAddresType.p2tr)
-              .length +
+              .length -
           1;
 
       this.currentSilentAddressIndex = currentSilentAddressIndex;
