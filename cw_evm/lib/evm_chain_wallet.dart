@@ -228,7 +228,8 @@ abstract class EVMChainWalletBase
 
     String? hexOpReturnMemo;
     if (opReturnMemo != null) {
-      hexOpReturnMemo = '0x${opReturnMemo.codeUnits.map((char) => char.toRadixString(16).padLeft(2, '0')).join()}';
+      hexOpReturnMemo =
+          '0x${opReturnMemo.codeUnits.map((char) => char.toRadixString(16).padLeft(2, '0')).join()}';
     }
 
     final CryptoCurrency transactionCurrency =
@@ -531,6 +532,9 @@ abstract class EVMChainWalletBase
   @override
   String signMessage(String message, {String? address}) =>
       bytesToHex(_evmChainPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
+
+  Future<bool> isExternallyOwnedAccount(String address) async =>
+      await _client.isExternallyOwnedAccount(address);
 
   Web3Client? getWeb3Client() => _client.getWeb3Client();
 }

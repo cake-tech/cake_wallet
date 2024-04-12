@@ -156,10 +156,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return priority;
   }
 
-
   int? getCustomPriorityIndex(List<TransactionPriority> priorities) {
     if (wallet.type == WalletType.bitcoin) {
-      final customItem = priorities.firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
+      final customItem = priorities
+          .firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
 
       return customItem != null ? priorities.indexOf(customItem) : null;
     }
@@ -324,6 +324,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
     try {
       state = IsExecutingState();
+
+      final isEOAAddress = await _isExternallyOwnedAccountAddress(wallet.walletAddresses.address);
+      if (!isEOAAddress) {
+        throw Exception("Please pass in a valid ethereum address");
+      }
+
       pendingTransaction = await wallet.createTransaction(_credentials());
       if (provider is ThorChainExchangeProvider) {
         final outputCount = pendingTransaction?.outputCount ?? 0;
@@ -579,5 +585,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     return false;
+  }
+
+  Future<bool> _isExternallyOwnedAccountAddress(String address) async {
+    if (walletType == WalletType.ethereum) {
+      return await ethereum!.isExternallyOwnedAccountAddress(wallet, address);
+    }
+
+    if (walletType == WalletType.polygon) {
+      return await polygon!.isExternallyOwnedAccountAddress(wallet, address);
+    }
+
+    return true;
   }
 }
