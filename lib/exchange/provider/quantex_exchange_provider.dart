@@ -65,8 +65,8 @@ class QuantexExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
   }) async {
     try {
-      final uri = Uri.https(apiAuthority, getCoins, {});
-      final response = await get(uri, headers: {});
+      final uri = Uri.https(apiAuthority, getCoins);
+      final response = await get(uri);
 
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
@@ -135,7 +135,6 @@ class QuantexExchangeProvider extends ExchangeProvider {
   }) async {
     try {
       final headers = <String, String>{
-        // 'Content-Type': 'application/json',
         // 'Authorization': 'Bearer Cake=$apiKey',
         // 'X-Amz-Date': DateTime.now().toUtc().toIso8601String(),
       };
@@ -148,7 +147,7 @@ class QuantexExchangeProvider extends ExchangeProvider {
         'ref': 'cake',
         'markup': markup,
       };
-      
+
       String? fromNetwork = _networkFor(request.fromCurrency);
       String? toNetwork = _networkFor(request.toCurrency);
       if (fromNetwork != null) body['coin_send_network'] = fromNetwork;
@@ -240,7 +239,7 @@ class QuantexExchangeProvider extends ExchangeProvider {
   String _normalizeCurrency(CryptoCurrency currency) {
     switch (currency) {
       default:
-        return currency.title.toLowerCase();
+        return currency.title.toUpperCase();
     }
   }
 
