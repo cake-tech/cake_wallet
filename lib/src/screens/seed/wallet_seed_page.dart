@@ -22,7 +22,6 @@ class WalletSeedPage extends BasePage {
       : seedController = TextEditingController(),
         nameController = TextEditingController();
 
-
   final imageLight = Image.asset('assets/images/crypto_lock_light.png');
   final imageDark = Image.asset('assets/images/crypto_lock.png');
 
@@ -32,23 +31,20 @@ class WalletSeedPage extends BasePage {
   final bool isNewWalletCreated;
   final WalletSeedViewModel walletSeedViewModel;
 
-
-
   @override
   void onClose(BuildContext context) async {
-
     if (isNewWalletCreated) {
       final confirmed = await showPopUp<bool>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithTwoActions(
-                alertTitle: S.of(context).seed_alert_title,
-                alertContent: S.of(context).seed_alert_content,
-                leftButtonText: S.of(context).seed_alert_back,
-                rightButtonText: S.of(context).seed_alert_yes,
-                actionLeftButton: () => Navigator.of(context).pop(false),
-                actionRightButton: () => Navigator.of(context).pop(true));
-          }) ??
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithTwoActions(
+                    alertTitle: S.of(context).seed_alert_title,
+                    alertContent: S.of(context).seed_alert_content,
+                    leftButtonText: S.of(context).seed_alert_back,
+                    rightButtonText: S.of(context).seed_alert_yes,
+                    actionLeftButton: () => Navigator.of(context).pop(false),
+                    actionRightButton: () => Navigator.of(context).pop(true));
+              }) ??
           false;
 
       if (confirmed) {
@@ -68,24 +64,24 @@ class WalletSeedPage extends BasePage {
   Widget trailing(BuildContext context) {
     return isNewWalletCreated
         ? GestureDetector(
-      onTap: () => onClose(context),
-      child: Container(
-        width: 100,
-        height: 32,
-        alignment: Alignment.center,
-        margin: EdgeInsets.only(left: 10),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(16)),
-            color: Theme.of(context).cardColor),
-        child: Text(
-          S.of(context).seed_language_next,
-          style: TextStyle(
-              fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context)
-              .extension<CakeTextTheme>()!
-              .buttonTextColor),
-        ),
-      ),
-    )
+            onTap: () => onClose(context),
+            child: Container(
+              width: 100,
+              height: 32,
+              alignment: Alignment.center,
+              margin: EdgeInsets.only(left: 10),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                  color: Theme.of(context).cardColor),
+              child: Text(
+                S.of(context).seed_language_next,
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor),
+              ),
+            ),
+          )
         : Offstage();
   }
 
@@ -94,7 +90,6 @@ class WalletSeedPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-
     final image = currentTheme.type == ThemeType.dark ? imageDark : imageLight;
 
     TextFormField(
@@ -106,9 +101,9 @@ class WalletSeedPage extends BasePage {
         autofillHints: [AutofillHints.password],
         //initialValue: walletSeedViewModel.seed,
         controller: seedController
-      //walletSeedViewModel.seed,
+        //walletSeedViewModel.seed,
 
-    );
+        );
 
     return WillPopScope(
         onWillPop: () async => false,
@@ -116,7 +111,8 @@ class WalletSeedPage extends BasePage {
           padding: EdgeInsets.all(24),
           alignment: Alignment.center,
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+            constraints:
+                BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -131,7 +127,7 @@ class WalletSeedPage extends BasePage {
                       TextFormField(
                         //initialValue: walletSeedViewModel.name,
                         controller: nameController,
-                         autofillHints: [AutofillHints.newUsername],
+                        autofillHints: [AutofillHints.newUsername],
                         style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -147,7 +143,8 @@ class WalletSeedPage extends BasePage {
                           style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.normal,
-                              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+                              color:
+                                  Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
                         ),
                       )
                     ],
@@ -157,64 +154,66 @@ class WalletSeedPage extends BasePage {
                   children: <Widget>[
                     isNewWalletCreated
                         ? Padding(
-                      padding: EdgeInsets.only(bottom: 43, left: 43, right: 43),
-                      child: Text(
-                        S.of(context).seed_reminder,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.normal,
-                            color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
-                      ),
-                    )
+                            padding: EdgeInsets.only(bottom: 43, left: 43, right: 43),
+                            child: Text(
+                              S.of(context).seed_reminder,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal,
+                                  color: Theme.of(context)
+                                      .extension<TransactionTradeTheme>()!
+                                      .detailsTitlesColor),
+                            ),
+                          )
                         : Offstage(),
                     Row(
                       mainAxisSize: MainAxisSize.max,
                       children: <Widget>[
                         Flexible(
                             child: Container(
-                              padding: EdgeInsets.only(right: 8.0),
-                              child: PrimaryButton(
+                          padding: EdgeInsets.only(right: 8.0),
+                          child: PrimaryButton(
+                              onPressed: () {
+                                ShareUtil.share(
+                                  text: walletSeedViewModel.seed,
+                                  context: context,
+                                );
+                              },
+                              text: S.of(context).save,
+                              color: Colors.green,
+                              textColor: Colors.white),
+                        )),
+                        Flexible(
+                            child: Container(
+                          padding: EdgeInsets.only(left: 8.0),
+                          child: Builder(
+                              builder: (context) => PrimaryButton(
                                   onPressed: () {
-                                    ShareUtil.share(
-                                      text: walletSeedViewModel.seed,
-                                      context: context,
-                                    );
+                                    ClipboardUtil.setSensitiveDataToClipboard(
+                                        ClipboardData(text: walletSeedViewModel.seed));
+                                    showBar<void>(context, S.of(context).copied_to_clipboard);
                                   },
-                                  text: S.of(context).save,
-                                  color: Colors.green,
-                                  textColor: Colors.white),
-                            )),
+                                  text: S.of(context).copy,
+                                  color:
+                                      Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
+                                  textColor: Colors.white)),
+                        )),
                         Flexible(
                             child: Container(
-                              padding: EdgeInsets.only(left: 8.0),
-                              child: Builder(
-                                  builder: (context) => PrimaryButton(
-                                      onPressed: () {
-                                        ClipboardUtil.setSensitiveDataToClipboard(
-                                            ClipboardData(text: walletSeedViewModel.seed));
-                                        showBar<void>(context, S.of(context).copied_to_clipboard);
-                                      },
-                                      text: S.of(context).copy,
-                                      color: Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
-                                      textColor: Colors.white)),
-                            )),
-                        Flexible(
-                            child: Container(
-                              padding: EdgeInsets.only(left: 8.0),
-                              child: Builder(
-                                  builder: (context) => PrimaryButton(
-                                      onPressed: () async {
+                          padding: EdgeInsets.only(left: 8.0),
+                          child: Builder(
+                              builder: (context) => PrimaryButton(
+                                  onPressed: () async {
+                                    nameController.text = walletSeedViewModel.name;
+                                    seedController.text = walletSeedViewModel.seed;
 
-                                          nameController.text = walletSeedViewModel.name;
-                                          seedController.text = walletSeedViewModel.seed;
-
-                                        TextInput.finishAutofillContext();
-                                      },
-                                      text: "Save2",
-                                      color: Colors.blue,
-                                      textColor: Colors.white)),
-                            ))
+                                    TextInput.finishAutofillContext();
+                                  },
+                                  text: "Save2",
+                                  color: Colors.blue,
+                                  textColor: Colors.white)),
+                        ))
                       ],
                     )
                   ],
