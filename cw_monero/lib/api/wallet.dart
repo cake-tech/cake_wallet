@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
 import 'package:monero/monero.dart' as monero;
@@ -13,9 +14,10 @@ bool isNewTransactionExist() => false;
 
 String getFilename() => monero.Wallet_filename(wptr!);
 
+// TODO(mrcyjanek): Cake polyseed support
 String getSeed() => monero.Wallet_seed(wptr!, seedOffset: '');
 
-String getAddress({int accountIndex = 0, int addressIndex = 0}) => monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
+String getAddress({int accountIndex = 0, int addressIndex = 1}) => monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
 
 int getFullBalance({int accountIndex = 0}) => monero.Wallet_balance(wptr!, accountIndex: accountIndex);
 
@@ -34,7 +36,16 @@ bool setupNodeSync(
     bool useSSL = false,
     bool isLightWallet = false,
     String? socksProxyAddress}) {
-
+  print('''
+{
+  wptr!,
+  daemonAddress: $address,
+  useSsl: $useSSL,
+  proxyAddress: $socksProxyAddress ?? '',
+  daemonUsername: $login ?? '',
+  daemonPassword: $password ?? ''
+}
+''');
   monero.Wallet_init(
     wptr!,
     daemonAddress: address,
@@ -49,8 +60,10 @@ bool setupNodeSync(
   
   final status = monero.Wallet_status(wptr!);
 
-  if (status == 0) {
-    throw SetupWalletException(message: monero.Wallet_errorString(wptr!));
+  if (status != 0) {
+    final error = monero.Wallet_errorString(wptr!);
+    print("error: $error");
+    throw SetupWalletException(message: error);
   }
 
   return status == 0;
@@ -81,7 +94,6 @@ void setPasswordSync(String password) {
 }
 
 void closeCurrentWallet() {
-  monero.Wallet_store(wptr!);
   monero.Wallet_stop(wptr!);
 }
 

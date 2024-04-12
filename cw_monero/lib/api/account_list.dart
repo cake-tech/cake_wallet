@@ -2,15 +2,15 @@ import 'package:cw_monero/api/wallet.dart';
 import 'package:monero/monero.dart' as monero;
 
 monero.wallet? wptr = null;
-monero.SubaddressAccount? account;
+monero.SubaddressAccount? subaddressAccount;
 
 bool isUpdating = false;
 
 void refreshAccounts() {
   try {
     isUpdating = true;
-    account = monero.Wallet_subaddressAccount(wptr!);
-    monero.SubaddressAccount_refresh(account!);
+    subaddressAccount = monero.Wallet_subaddressAccount(wptr!);
+    monero.SubaddressAccount_refresh(subaddressAccount!);
     isUpdating = false;
   } catch (e) {
     isUpdating = false;
@@ -20,10 +20,15 @@ void refreshAccounts() {
 
 List<monero.SubaddressAccountRow> getAllAccount() {
   // final size = monero.Wallet_numSubaddressAccounts(wptr!);
-  final size = monero.SubaddressAccount_getAll_size(wptr!);
-
+  refreshAccounts();
+  int size = monero.SubaddressAccount_getAll_size(subaddressAccount!);
+  print("size: $size");
+  if (size == 0) {
+    monero.Wallet_addSubaddressAccount(wptr!);
+    return getAllAccount();
+  }
   return List.generate(size, (index) {
-    return monero.SubaddressAccount_getAll_byIndex(wptr!, index: index);
+    return monero.SubaddressAccount_getAll_byIndex(subaddressAccount!, index: index);
   });
 }
 

@@ -26,12 +26,13 @@ void createWalletSync(
      required String password,
      required String language,
      int nettype = 0}) {
-  wptr = monero.WalletManager_createWallet(wmPtr, path: path, password: password, language: language);
+  wptr = monero.WalletManager_createWallet(wmPtr, path: path, password: password, language: language, networkType: 0);
 
   final status = monero.Wallet_status(wptr!);
   if (status != 0) {
     throw WalletCreationException(message: monero.Wallet_errorString(wptr!));
   }
+  monero.Wallet_store(wptr!, path: path);
 
   // is the line below needed?
   // setupNodeSync(address: "node.moneroworld.com:18089");
@@ -47,10 +48,6 @@ void restoreWalletFromSeedSync(
     required String seed,
     int nettype = 0,
     int restoreHeight = 0}) {
-  final pathPointer = path.toNativeUtf8();
-  final passwordPointer = password.toNativeUtf8();
-  final seedPointer = seed.toNativeUtf8();
-  final errorMessagePointer = ''.toNativeUtf8();
 
   wptr = monero.WalletManager_recoveryWallet(
     wmPtr,
@@ -59,12 +56,14 @@ void restoreWalletFromSeedSync(
     mnemonic: seed,
     restoreHeight: restoreHeight,
     seedOffset: '',
+    networkType: 0,
   );
   
   final status = monero.Wallet_status(wptr!);
 
   if (status != 0) {
-    throw WalletRestoreFromSeedException(message: monero.Wallet_errorString(wptr!));
+    final error = monero.Wallet_errorString(wptr!);
+    throw WalletRestoreFromSeedException(message: error);
   }
 }
 
@@ -92,6 +91,7 @@ void restoreWalletFromKeysSync(
     addressString: address,
     viewKeyString: viewKey,
     spendKeyString: spendKey,
+    nettype: 0,
   );
   
   final status = monero.Wallet_status(wptr!);
@@ -123,6 +123,7 @@ void restoreWalletFromSpendKeySync(
     addressString: '',
     spendKeyString: spendKey,
     viewKeyString: '',
+    nettype: 0,
   );
 
   final status = monero.Wallet_status(wptr!);

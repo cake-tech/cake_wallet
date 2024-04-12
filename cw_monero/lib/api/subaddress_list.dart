@@ -3,12 +3,12 @@ import 'package:cw_monero/api/wallet.dart';
 import 'package:monero/monero.dart' as monero;
 
 bool isUpdating = false;
-monero.AddressBook? addressbook = null;
+monero.Subaddress? subaddressPtr = null;
 void refreshSubaddresses({required int accountIndex}) {
   try {
     isUpdating = true;
-    addressbook = monero.Wallet_subaddressAccount(wptr!);
-    monero.AddressBook_refresh(addressbook!);
+    subaddressPtr = monero.Wallet_subaddress(wptr!);
+    monero.Subaddress_refresh(subaddressPtr!,accountIndex: accountIndex, label: '');
     isUpdating = false;
   } catch (e) {
     isUpdating = false;
@@ -17,15 +17,21 @@ void refreshSubaddresses({required int accountIndex}) {
 }
 
 List<monero.SubaddressRow> getAllSubaddresses() {
-  final size = monero.AddressBook_getAll_size(addressbook!);
+  monero.Subaddress_refresh(subaddressPtr!, 
+  accountIndex: 0,
+  label: '' // BUG: by me (mrcyjanek), it isn't used, will remove.
+  );
+  final size = monero.Subaddress_getAll_size(subaddressPtr!);
+
 
   return List.generate(size, (index) {
-    return monero.Subaddress_getAll_byIndex(wptr!, index: index);
+    return monero.Subaddress_getAll_byIndex(subaddressAccount!, index: index);
   });
 }
 
 void addSubaddressSync({required int accountIndex, required String label}) {
   monero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex, label: label);
+  refreshSubaddresses(accountIndex: accountIndex);
 }
 
 void setLabelForSubaddressSync(
