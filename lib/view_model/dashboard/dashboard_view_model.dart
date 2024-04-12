@@ -373,13 +373,10 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get hasSignMessages => [
         WalletType.monero,
-        WalletType.haven,
         WalletType.litecoin,
         WalletType.bitcoin,
         WalletType.bitcoinCash,
         WalletType.ethereum,
-        WalletType.nano,
-        WalletType.banano,
       ].contains(wallet.type);
 
   Future<void> reconnect() async {

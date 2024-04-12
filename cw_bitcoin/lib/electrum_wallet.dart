@@ -1243,30 +1243,6 @@ abstract class ElectrumWalletBase
     return priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
   }
 
-  // Uint8List? recoverPublicKey(String signature, String messageHash) {
-  //   try {
-  //     // Convert the signature from hex to bytes
-  //     final signatureBytes = HEX.decode(signature);
-
-  //     // Convert the message hash from hex to bytes
-  //     final messageHashBytes = HEX.decode(messageHash);
-
-  //     // Create a BitcoinSignature object from the signature bytes
-  //     final bitcoinSignature = BitcoinSignatures.fromCompact(signatureBytes);
-
-  //     // Recover the public key using the signature and message hash
-  //     final recoveredPublicKey = bitcoinSignature.recoverPublicKey(messageHashBytes);
-
-  //     // Convert the recovered public key to compressed format
-  //     final compressedPublicKey = recoveredPublicKey.compressed;
-
-  //     return compressedPublicKey;
-  //   } catch (e) {
-  //     // Return null if an error occurs during the recovery process
-  //     return null;
-  //   }
-  // }
-
   @override
   Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {
     if (address == null) {
@@ -1281,42 +1257,35 @@ abstract class ElectrumWalletBase
     // scriptBytes == hash160 (public key)
 
     String messagePrefix = '\x18Bitcoin Signed Message:\n';
-
     // ECDSASignature signature = ECDSASignature.fromBytes(ascii.encode(signature), generator)
     // final btcSigner = BitcoinVerifier.fromKeyBytes([]);
     //  btcSigner.verifyKey.verify(signature, digest)
-
     print("@@@@@@@@@111111111111");
-
-    // final messageHash = QuickCrypto.sha256Hash(
-    //     BitcoinSignerUtils.magicMessage(utf8.encode(message), messagePrefix));
-
-    final messageHash = BitcoinSignerUtils.magicMessage(utf8.encode(message), messagePrefix);
-
-    // final generator = ProjectiveECCPoint.infinity(Curves.curveSecp256k1);
+    final messageHash = QuickCrypto.sha256Hash(
+        BitcoinSignerUtils.magicMessage(utf8.encode(message), messagePrefix));
     final generator = Curves.generatorSecp256k1;
-
-    print("@@@@@@@@@@@@@@@@@@@@@");
-
+    final sigDecodedBytes = hex.decode(signature);
     print(signature);
-
-    final sig = ECDSASignature.fromBytes(utf8.encode(signature), generator);
-
+    final sig = ECDSASignature.fromBytes(sigDecodedBytes, generator);
     print("######################");
-
-    final sigBytes = utf8.encode(signature);
-
-    print(sigBytes[0]);
-
-    final pubKey = sig.recoverPublicKey(messageHash, generator, sigBytes[0]);
-
+    // final sigBytes = utf8.encode(signature);
+    // print(sigBytes[0]);
+    final pubKey = sig.recoverPublicKey(messageHash, generator, sigDecodedBytes[0]);
     final recoveredPub = ECPublic.fromBytes(pubKey!.toBytes());
+    print("recovered!: ${HEX.encode(pubKey.toBytes())} actual: ${hd.pubKey}");
+    // final recoveredAddress = recoveredPub.toP2wpkhAddress().toAddress(network);
+    // final recoveredAddress = recoveredPub.toP2wshAddress().toAddress(network);
+    // final recoveredAddress = recoveredPub.toP2wpkhInP2sh().toAddress(network);
 
-    final recoveredAddress = recoveredPub.toP2pkhInP2sh();
+    final recoveredAddress = recoveredPub.toP2wpkhAddress().toAddress(network);
+    print("ACTUAL: $address");
+    print(recoveredPub.toHash160());
+    print(recoveredPub.toP2wshInP2sh().toAddress(network));
+    print(recoveredPub.toP2wpkhAddress().toAddress(network));
 
-    print("$address $recoveredAddress");
+    // print("$address $recoveredAddress");
 
-    if (recoveredAddress.toAddress(network) == address) {
+    if (recoveredAddress == address) {
       return true;
     }
 

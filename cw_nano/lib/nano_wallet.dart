@@ -505,9 +505,7 @@ abstract class NanoWalletBase
     //     nd.NanoHelpers.hexToBytes(privateKey!),
     //   ),
     // );
-    // return nd.NanoSignatures.signBlock(hash(message), privateKey!);
-    return nd.NanoSignatures.signBlock(
-        "AEC75F807DCE45AFA787DE7B395BE498A885525569DD614162E0C80FD4F27EE9", privateKey!);
+    return nd.NanoSignatures.signBlock(hash(message), privateKey!);
   }
 
   @override
@@ -516,17 +514,6 @@ abstract class NanoWalletBase
       return false;
     }
     String publicKey = NanoDerivations.addressToPublicKey(address);
-    // return NanoSignatures.verify(message, signature, publicKey);
-
-    print(publicKey);
-    print("adasdasdadaadadada");
-
-    var msg = "AEC75F807DCE45AFA787DE7B395BE498A885525569DD614162E0C80FD4F27EE9";
-    return nd.Signature.detachedVerify(
-      // nd.NanoHelpers.hexToBytes(hash(message)),
-      nd.NanoHelpers.hexToBytes(msg),
-      nd.NanoHelpers.hexToBytes(signature),
-      nd.NanoHelpers.hexToBytes(publicKey),
-    );
+    return NanoSignatures.verify(message, signature, publicKey);
   }
 }
