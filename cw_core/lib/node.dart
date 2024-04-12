@@ -21,6 +21,7 @@ class Node extends HiveObject with Keyable {
     this.trusted = false,
     this.socksProxyAddress,
     String? uri,
+    String? path,
     WalletType? type,
   }) {
     if (uri != null) {
@@ -29,10 +30,14 @@ class Node extends HiveObject with Keyable {
     if (type != null) {
       this.type = type;
     }
+    if (path != null) {
+      this.path = path;
+    }
   }
 
   Node.fromMap(Map<String, Object?> map)
       : uriRaw = map['uri'] as String? ?? '',
+        path = map['path'] as String? ?? '',
         login = map['login'] as String?,
         password = map['password'] as String?,
         useSSL = map['useSSL'] as bool?,
@@ -63,6 +68,9 @@ class Node extends HiveObject with Keyable {
   @HiveField(6)
   String? socksProxyAddress;
 
+  @HiveField(7, defaultValue: '')
+  String? path;
+
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
@@ -79,9 +87,9 @@ class Node extends HiveObject with Keyable {
       case WalletType.nano:
       case WalletType.banano:
         if (isSSL) {
-          return Uri.https(uriRaw, '');
+          return Uri.https(uriRaw, path ?? '');
         } else {
-          return Uri.http(uriRaw, '');
+          return Uri.http(uriRaw, path ?? '');
         }
       case WalletType.ethereum:
       case WalletType.polygon:
@@ -103,7 +111,8 @@ class Node extends HiveObject with Keyable {
           other.typeRaw == typeRaw &&
           other.useSSL == useSSL &&
           other.trusted == trusted &&
-          other.socksProxyAddress == socksProxyAddress);
+          other.socksProxyAddress == socksProxyAddress &&
+          other.path == path);
 
   @override
   int get hashCode =>
@@ -113,7 +122,8 @@ class Node extends HiveObject with Keyable {
       typeRaw.hashCode ^
       useSSL.hashCode ^
       trusted.hashCode ^
-      socksProxyAddress.hashCode;
+      socksProxyAddress.hashCode ^
+      path.hashCode;
 
   @override
   dynamic get keyIndex {

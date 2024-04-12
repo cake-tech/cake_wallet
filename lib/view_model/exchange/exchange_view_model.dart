@@ -470,6 +470,18 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> createTrade() async {
+    if (isSendAllEnabled) {
+      await calculateDepositAllAmount();
+      final amount = double.tryParse(depositAmount);
+
+      if (limits.min != null && amount != null && amount < limits.min!) {
+        tradeState = TradeIsCreatedFailure(
+            title: S.current.trade_not_created,
+            error: S.current.amount_is_below_minimum_limit(limits.min!.toString()));
+        return;
+      }
+    }
+
     try {
       for (var provider in _sortedAvailableProviders.values) {
         if (!(await provider.checkIsAvailable())) continue;
@@ -496,8 +508,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           else {
             try {
               tradeState = TradeIsCreating();
-              final trade =
-                  await provider.createTrade(request: request, isFixedRateMode: isFixedRateMode);
+              final trade = await provider.createTrade(
+                request: request,
+                isFixedRateMode: isFixedRateMode,
+                isSendAll: isSendAllEnabled,
+              );
               trade.walletId = wallet.id;
               trade.fromWalletAddress = wallet.walletAddresses.address;
 
@@ -551,25 +566,24 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @action
   void enableSendAllAmount() {
     isSendAllEnabled = true;
+    isFixedRateMode = false;
     calculateDepositAllAmount();
   }
 
   @action
+  void enableFixedRateMode() {
+    isSendAllEnabled = false;
+    isFixedRateMode = true;
+  }
+
+  @action
   Future<void> calculateDepositAllAmount() async {
-    if (wallet.type == WalletType.litecoin || wallet.type == WalletType.bitcoinCash) {
-      final availableBalance = wallet.balance[wallet.currency]!.available;
-      final priority = _settingsStore.priority[wallet.type]!;
-      final fee = wallet.calculateEstimatedFee(priority, null);
-
-      if (availableBalance < fee || availableBalance == 0) return;
-
-      final amount = availableBalance - fee;
-      changeDepositAmount(amount: bitcoin!.formatterBitcoinAmountToString(amount: amount));
-    } else if (wallet.type == WalletType.bitcoin) {
+    if (wallet.type == WalletType.litecoin ||
+        wallet.type == WalletType.bitcoin ||
+        wallet.type == WalletType.bitcoinCash) {
       final priority = _settingsStore.priority[wallet.type]!;
 
-      final amount = await bitcoin!.estimateFakeSendAllTxAmount(
-          wallet, bitcoin!.deserializeBitcoinTransactionPriority(priority.raw));
+      final amount = await bitcoin!.estimateFakeSendAllTxAmount(wallet, priority);
 
       changeDepositAmount(amount: bitcoin!.formatterBitcoinAmountToString(amount: amount));
     }

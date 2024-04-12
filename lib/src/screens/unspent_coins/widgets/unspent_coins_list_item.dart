@@ -27,10 +27,12 @@ class UnspentCoinsListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final unselectedItemColor = Theme.of(context).cardColor;
     final selectedItemColor = Theme.of(context).primaryColor;
-    final itemColor = isSending ? selectedItemColor : unselectedItemColor;
-
-    final amountColor =
-        isSending ? Colors.white : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor;
+    final itemColor = isSending
+        ? selectedItemColor
+        : unselectedItemColor;
+    final amountColor = isSending
+        ? Colors.white
+        : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor;
     final addressColor = isSending
         ? Colors.white.withOpacity(0.5)
         : Theme.of(context).extension<CakeTextTheme>()!.buttonSecondaryTextColor;
@@ -85,7 +87,7 @@ class UnspentCoinsListItem extends StatelessWidget {
                             child: Text(
                               S.of(context).frozen,
                               style: TextStyle(
-                                  color: amountColor, fontSize: 7, fontWeight: FontWeight.w600),
+                                  color: Colors.black, fontSize: 7, fontWeight: FontWeight.w600),
                             )),
                     ],
                   ),

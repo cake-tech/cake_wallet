@@ -101,7 +101,10 @@ class SendPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   double _sendCardHeight(BuildContext context) {
-    final double initialHeight = sendViewModel.hasCoinControl ? 500 : 465;
+    double initialHeight = 450;
+    if (sendViewModel.hasCoinControl) {
+      initialHeight += 35;
+    }
 
     if (!responsiveLayoutUtil.shouldRenderMobileUI) {
       return initialHeight - 66;
@@ -191,7 +194,7 @@ class SendPage extends BasePage {
                         },
                       )),
                   Padding(
-                    padding: EdgeInsets.only(top: 10, left: 24, right: 24, bottom: 10),
+                    padding: EdgeInsets.only(left: 24, right: 24, bottom: 10),
                     child: Container(
                       height: 10,
                       child: Observer(
@@ -427,6 +430,7 @@ class SendPage extends BasePage {
                       fee: isEVMCompatibleChain(sendViewModel.walletType)
                           ? S.of(_dialogContext).send_estimated_fee
                           : S.of(_dialogContext).send_fee,
+                      feeRate: sendViewModel.pendingTransaction!.feeRate,
                       feeValue: sendViewModel.pendingTransaction!.feeFormatted,
                       feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                       outputs: sendViewModel.outputs,
@@ -457,8 +461,7 @@ class SendPage extends BasePage {
                                       : '';
 
                                   final newContactMessage = newContactAddress != null
-                                      ? '\n${S.of(context).add_contact_to_address_book}'
-                                      : '';
+                                      ? '\n${S.of(_dialogContext).add_contact_to_address_book}' : '';
 
                                   String alertContent =
                                       "$successMessage$waitMessage$newContactMessage";

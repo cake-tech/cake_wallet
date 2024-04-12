@@ -105,6 +105,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     output.address = trade.inputAddress ?? '';
     output.setCryptoAmount(trade.amount);
     if (_provider is ThorChainExchangeProvider) output.memo = trade.memo;
+    if (trade.isSendAll == true) output.sendAll = true;
     sendViewModel.selectedCryptoCurrency = trade.from;
     final pendingTransaction = await sendViewModel.createTransaction(provider: _provider);
     if (_provider is ThorChainExchangeProvider) {
@@ -116,6 +117,8 @@ abstract class ExchangeTradeViewModelBase with Store {
   @action
   Future<void> _updateTrade() async {
     try {
+      final agreedAmount = tradesStore.trade!.amount;
+      final isSendAll = tradesStore.trade!.isSendAll;
       final updatedTrade = await _provider!.findTradeById(id: trade.id);
 
       if (updatedTrade.createdAt == null && trade.createdAt != null)
@@ -124,6 +127,8 @@ abstract class ExchangeTradeViewModelBase with Store {
       if (updatedTrade.amount.isEmpty) updatedTrade.amount = trade.amount;
 
       trade = updatedTrade;
+      trade.amount = agreedAmount;
+      trade.isSendAll = isSendAll;
 
       _updateItems();
     } catch (e) {
@@ -137,9 +142,9 @@ abstract class ExchangeTradeViewModelBase with Store {
     final tagTo = tradesStore.trade!.to.tag != null ? '${tradesStore.trade!.to.tag}' + ' ' : '';
     items.clear();
 
-   if(trade.provider != ExchangeProviderDescription.thorChain)
-    items.add(ExchangeTradeItem(
-        title: "${trade.provider.title} ${S.current.id}", data: '${trade.id}', isCopied: true));
+    if (trade.provider != ExchangeProviderDescription.thorChain)
+      items.add(ExchangeTradeItem(
+          title: "${trade.provider.title} ${S.current.id}", data: '${trade.id}', isCopied: true));
 
     if (trade.extraId != null) {
       final title = trade.from == CryptoCurrency.xrp
