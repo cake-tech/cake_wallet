@@ -371,7 +371,8 @@ class CWBitcoin extends Bitcoin {
     final bitcoinWallet = wallet as ElectrumWallet;
     final node = bitcoinWallet.node;
 
-    return node?.uri.host == '198.58.111.154' && node?.uri.port == 50002;
+    return node?.uri.host == '198.58.111.154' &&
+        node?.uri.port == (wallet.network == BitcoinNetwork.testnet ? 50002 : 50001);
   }
 
   @override
