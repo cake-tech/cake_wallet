@@ -1419,10 +1419,11 @@ abstract class SettingsStoreBase with Store {
     powNodes[walletType] = node;
   }
 
-  void initializeTrocadorProviderStates() {
-    for (var provider in TrocadorExchangeProvider.availableProviders) {
-      final savedState = _sharedPreferences.getBool(provider) ?? true;
-      trocadorProviderStates[provider] = savedState;
+  void initializeTrocadorProviderStates() async{
+    final availableProviders = await TrocadorExchangeProvider().fetchProviders();
+    for (var provider in availableProviders) {
+      final savedState = _sharedPreferences.getBool(provider.name) ?? true;
+      trocadorProviderStates[provider.name] = savedState;
     }
   }
 

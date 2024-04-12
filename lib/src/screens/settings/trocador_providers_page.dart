@@ -15,23 +15,46 @@ class TrocadorProvidersPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final availableProviders = TrocadorExchangeProvider.availableProviders;
-    final providerStates = trocadorProvidersViewModel.providerStates;
     return Container(
       padding: EdgeInsets.only(top: 10),
-      child: ListView.builder(
-        itemCount: availableProviders.length,
-        itemBuilder: (_, index) {
-          String provider = availableProviders[index];
-          return Observer(
-              builder: (_) => SettingsSwitcherCell(
-                  title: provider,
-                  value: providerStates[provider] ?? false,
-                  onValueChange: (BuildContext _, bool value) {
-                    trocadorProvidersViewModel.toggleProviderState(provider);
-                  }));
+      child: FutureBuilder<List<TrocadorPartners>>(
+        future: trocadorProvidersViewModel.fetchTrocadorPartners(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            if (trocadorProvidersViewModel.providerStates.isNotEmpty) {
+              return buildProvidersList();
+            } else {
+              return Center(child: Text('Error: ${snapshot.error.toString()}'));
+            }
+          } else if (snapshot.hasData) {
+            final providers = snapshot.data!;
+            return buildProvidersList(providers: providers);
+          } else {
+            return Center(child: Text('No providers found'));
+          }
         },
       ),
+    );
+  }
+
+  Widget buildProvidersList({List<TrocadorPartners>? providers}) {
+    final providerStates = trocadorProvidersViewModel.providerStates;
+    return ListView.builder(
+      itemCount: providers?.length ?? providerStates.length,
+      itemBuilder: (_, index) {
+        final providerName = providers?[index].name ?? providerStates.keys.elementAt(index);
+        return Observer(
+          builder: (_) => SettingsSwitcherCell(
+            title: providerName,
+            value: providerStates[providerName] ?? true,
+            onValueChange: (BuildContext _, bool value) {
+              trocadorProvidersViewModel.toggleProviderState(providerName);
+            },
+          ),
+        );
+      },
     );
   }
 }

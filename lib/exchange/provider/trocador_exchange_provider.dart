@@ -20,21 +20,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   bool useTorOnly;
   final Map<String, bool> providerStates;
 
-  static const List<String> availableProviders = [
-    'Swapter',
-    'StealthEx',
-    'Simpleswap',
-    'Swapuz',
-    'ChangeNow',
-    'Changehero',
-    'FixedFloat',
-    'LetsExchange',
-    'Exolix',
-    'Godex',
-    'Exch',
-    'CoinCraddle'
-  ];
-
   static const List<CryptoCurrency> _notSupported = [
     CryptoCurrency.stx,
     CryptoCurrency.zaddr,
@@ -48,6 +33,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   static const createTradePath = 'api/new_trade';
   static const tradePath = 'api/trade';
   static const coinPath = 'api/coin';
+  static const providersListPath = '/api/exchanges';
 
   String _lastUsedRateId;
   List<dynamic> _provider;
@@ -268,6 +254,22 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     });
   }
 
+  Future<List<TrocadorPartners>> fetchProviders() async {
+    final uri = await _getUri(providersListPath, {'api_key': apiKey});
+    final response = await get(uri);
+
+    if (response.statusCode != 200)
+      throw Exception('Unexpected http status: ${response.statusCode}');
+
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+
+    final providersJsonList = responseJSON['list'] as List<dynamic>;
+
+    return providersJsonList
+        .map((providerJson) => TrocadorPartners.fromJson(providerJson as Map<String, dynamic>))
+        .toList();
+  }
+
   String _networkFor(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.eth:
@@ -321,5 +323,31 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     } catch (e) {
       return Uri.https(clearNetAuthority, path, queryParams);
     }
+  }
+}
+
+class TrocadorPartners {
+  final String name;
+  final String rating;
+  final double insurance;
+  final bool enabledMarkup;
+  final double eta;
+
+  TrocadorPartners({
+    required this.name,
+    required this.rating,
+    required this.insurance,
+    required this.enabledMarkup,
+    required this.eta,
+  });
+
+  factory TrocadorPartners.fromJson(Map<String, dynamic> json) {
+    return TrocadorPartners(
+      name: json['name'] as String,
+      rating: json['rating'] as String,
+      insurance: json['insurance'] as double,
+      enabledMarkup: json['enabledmarkup'] as bool,
+      eta: json['eta'] as double,
+    );
   }
 }

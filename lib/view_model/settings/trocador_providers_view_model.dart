@@ -1,3 +1,4 @@
+import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:mobx/mobx.dart';
 
@@ -9,6 +10,9 @@ abstract class TrocadorProvidersViewModelBase with Store {
   TrocadorProvidersViewModelBase(this._settingsStore);
 
   final SettingsStore _settingsStore;
+
+  Future<List<TrocadorPartners>> fetchTrocadorPartners() async =>
+      await TrocadorExchangeProvider().fetchProviders();
 
   @computed
   Map<String, bool> get providerStates => _settingsStore.trocadorProviderStates;
