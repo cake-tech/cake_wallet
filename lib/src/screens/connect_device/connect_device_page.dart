@@ -67,16 +67,18 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     },
   );
 
+  var bleIsEnabled = true;
   var bleDevices = <LedgerDevice>[];
   var usbDevices = <LedgerDevice>[];
 
-  late Timer _usbRefreshTimer;
-  late StreamSubscription<LedgerDevice> _bleRefresh;
+  late Timer? _usbRefreshTimer = null;
+  late Timer? _bleRefreshTimer = null;
+  late StreamSubscription<LedgerDevice>? _bleRefresh = null;
 
   @override
   void initState() {
     super.initState();
-    _bleRefresh = ledger.scan().listen((device) => setState(() => bleDevices.add(device)));
+    _bleRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshBleDevices());
 
     if (Platform.isAndroid) {
       _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
@@ -86,13 +88,26 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   @override
   void dispose() {
     super.dispose();
-    _usbRefreshTimer.cancel();
-    _bleRefresh.cancel();
+    _bleRefreshTimer?.cancel();
+    _usbRefreshTimer?.cancel();
+    _bleRefresh?.cancel();
   }
 
   Future<void> _refreshUsbDevices() async {
     final dev = await ledger.listUsbDevices();
     if (usbDevices.length != dev.length) setState(() => usbDevices = dev);
+  }
+
+  Future<void> _refreshBleDevices() async {
+    final isBleEnabled = await Permission.bluetooth.serviceStatus.isEnabled;
+
+    setState(() => bleIsEnabled = isBleEnabled);
+
+    if (isBleEnabled) {
+      _bleRefresh = ledger.scan().listen((device) => setState(() => bleDevices.add(device)));
+      _bleRefreshTimer?.cancel();
+      _bleRefreshTimer = null;
+    }
   }
 
   Future<void> _connectToDevice(LedgerDevice device) async {
@@ -113,7 +128,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
               Padding(
                 padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
                 child: Text(
-                  S.of(context).connect_your_hardware_wallet,
+                  Platform.isIOS
+                      ? S.of(context).connect_your_hardware_wallet_ios
+                      : S.of(context).connect_your_hardware_wallet,
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -121,6 +138,19 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   textAlign: TextAlign.center,
                 ),
               ),
+
+              if (!bleIsEnabled)
+                Padding(
+                  padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                  child: Text(
+                    S.of(context).ledger_please_enable_bluetooth,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               if (bleDevices.length > 0) ...[
                 Padding(
                   padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
@@ -129,9 +159,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                     child: Text(
                       S.of(context).bluetooth,
                       style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                       ),
                     ),
                   ),
@@ -158,9 +188,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                     child: Text(
                       S.of(context).usb,
                       style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                       ),
                     ),
                   ),

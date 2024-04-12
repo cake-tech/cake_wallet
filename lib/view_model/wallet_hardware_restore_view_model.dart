@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
@@ -10,6 +11,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:mobx/mobx.dart';
 
 part 'wallet_hardware_restore_view_model.g.dart';
@@ -36,28 +38,42 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   @observable
   bool isLoadingMoreAccounts = false;
 
+  @observable
+  String? error = null;
+
   // @observable
   ObservableList<String> availableAccounts = ObservableList();
 
   @action
   Future<void> getNextAvailableAccounts(int limit) async {
-    List<String> accounts;
-    switch (type) {
-      case WalletType.ethereum:
-        accounts =
-            await ethereum!.getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
-        break;
-      case WalletType.polygon:
-        accounts =
-            await polygon!.getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
-        break;
-      default:
-        return;
+    List<String> accounts = [];
+    try {
+      print("getNextAvailableAccounts");
+
+      switch (type) {
+        case WalletType.ethereum:
+          accounts =
+          await ethereum!.getHardwareWalletAccounts(
+              ledgerViewModel, index: _nextIndex, limit: limit);
+          break;
+        case WalletType.polygon:
+          accounts =
+          await polygon!.getHardwareWalletAccounts(
+              ledgerViewModel, index: _nextIndex, limit: limit);
+          break;
+        default:
+          return;
+      }
+
+      availableAccounts.addAll(accounts);
+      _nextIndex += limit;
+    } on LedgerException catch (e) {
+      error = ledgerViewModel.interpretErrorCode(e.errorCode.toRadixString(16));
+    } catch (e) {
+      error = S.current.ledger_connection_error;
     }
 
-    availableAccounts.addAll(accounts);
     isLoadingMoreAccounts = false;
-    _nextIndex += limit;
   }
 
   @override

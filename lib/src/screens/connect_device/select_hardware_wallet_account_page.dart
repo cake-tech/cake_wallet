@@ -3,16 +3,19 @@ import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 class SelectHardwareWalletAccountPage extends BasePage {
   SelectHardwareWalletAccountPage(this._walletHardwareRestoreVM);
@@ -48,7 +51,7 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
   @override
   void initState() {
     super.initState();
-
+    _setEffects(context);
     if (_walletHardwareRestoreVM.availableAccounts.length == 0) _loadMoreAccounts();
   }
 
@@ -218,5 +221,37 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
 
   Future<void> _confirmForm() async {
     await _walletHardwareRestoreVM.create();
+  }
+
+  bool _effectsInstalled = false;
+
+  void _setEffects(BuildContext context) {
+    if (_effectsInstalled) return;
+
+    reaction((_) => _walletHardwareRestoreVM.error, (String? error) {
+
+      if (error != null) {
+
+        if (error == S.current.ledger_connection_error)
+          Navigator.of(context).pop();
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithOneAction(
+                    alertTitle: S.of(context).error,
+                    alertContent: error,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () {
+                      _walletHardwareRestoreVM.error = null;
+                      Navigator.of(context).pop();
+                    });
+              });
+        });
+      }
+    });
+
+    _effectsInstalled = true;
   }
 }
