@@ -150,15 +150,15 @@ abstract class ElectrumWalletBase
   bool silentPaymentsScanningActive = false;
 
   @action
-  void setSilentPaymentsScanning(bool active) {
+  Future<void> setSilentPaymentsScanning(bool active) async {
     silentPaymentsScanningActive = active;
 
     if (active) {
-      _setInitialHeight().then((_) {
-        if ((currentChainTip ?? 0) > walletInfo.restoreHeight) {
-          _setListeners(walletInfo.restoreHeight, chainTip: currentChainTip);
-        }
-      });
+      await _setInitialHeight();
+
+      if ((currentChainTip ?? 0) > walletInfo.restoreHeight) {
+        _setListeners(walletInfo.restoreHeight, chainTip: currentChainTip);
+      }
     } else {
       _isolate?.then((runningIsolate) => runningIsolate.kill(priority: Isolate.immediate));
 
@@ -166,9 +166,8 @@ abstract class ElectrumWalletBase
         syncStatus = SyncedSyncStatus();
       } else {
         if (electrumClient.uri != null) {
-          electrumClient.connectToUri(electrumClient.uri!).then((_) {
-            startSync();
-          });
+          await electrumClient.connectToUri(electrumClient.uri!);
+          startSync();
         }
       }
     }
@@ -242,11 +241,10 @@ abstract class ElectrumWalletBase
                 [unspent.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord]));
 
             final existingTxInfo = transactionHistory.transactions[txid];
-            if (existingTxInfo != null) {
-              final addressRecord =
-                  walletAddresses.silentAddresses.firstWhere((addr) => addr.address == tx.to);
-              addressRecord.txCount += 1;
+            final txAlreadyExisted = existingTxInfo != null;
 
+            // Updating tx after re-scanned
+            if (txAlreadyExisted) {
               existingTxInfo.amount = tx.amount;
               existingTxInfo.confirmations = tx.confirmations;
               existingTxInfo.height = tx.height;
@@ -276,6 +274,10 @@ abstract class ElectrumWalletBase
                 transactionHistory.addOne(existingTxInfo);
               }
             } else {
+              final addressRecord =
+                  walletAddresses.silentAddresses.firstWhere((addr) => addr.address == tx.to);
+              addressRecord.txCount += 1;
+
               transactionHistory.addMany(message);
             }
 
@@ -1726,7 +1728,7 @@ Future<void> startRefresh(ScanData scanData) async {
     try {
       final electrumClient = await getElectrumConnection();
 
-    // TODO: hardcoded values, if timed out decrease amount of blocks per request?
+      // TODO: hardcoded values, if timed out decrease amount of blocks per request?
       final scanningBlockCount =
           scanData.isSingleScan ? 1 : (scanData.network == BitcoinNetwork.testnet ? 25 : 10);
 
@@ -1798,6 +1800,7 @@ Future<void> startRefresh(ScanData scanData) async {
                     network: scanData.network,
                     silentPaymentTweak: t_k,
                     type: SegwitAddresType.p2tr,
+                    txCount: 1,
                   );
 
                   int? amount;
