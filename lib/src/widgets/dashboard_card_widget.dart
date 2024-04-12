@@ -33,7 +33,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
       child: Stack(
         children: [
           Container(
-            padding: EdgeInsets.fromLTRB(20, 20, 40, 20),
+            padding: EdgeInsets.all(20),
             width: double.infinity,
             decoration: BoxDecoration(
               color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
