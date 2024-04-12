@@ -27,7 +27,6 @@ import 'package:cw_nano/nano_wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:nanoutil/nanoutil.dart';
-import 'package:nanodart/nanodart.dart' as nd;
 
 part 'nano_wallet.g.dart';
 
@@ -499,22 +498,9 @@ abstract class NanoWalletBase
     await Directory(currentDirPath).delete(recursive: true);
   }
 
-  String hash(String message) {
-    return nd.NanoHelpers.byteToHex(
-      nd.Blake2b.digest256([nd.NanoHelpers.stringToBytesUtf8(message)]),
-    ).toUpperCase();
-  }
-
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    // return NanoSignatures.sign(message, privateKey!);
-    // return nd.NanoHelpers.byteToHex(
-    //   nd.Signature.detached(
-    //     nd.NanoHelpers.hexToBytes(hash(message)),
-    //     nd.NanoHelpers.hexToBytes(privateKey!),
-    //   ),
-    // );
-    return nd.NanoSignatures.signBlock(hash(message), privateKey!);
+    return NanoSignatures.sign(message, privateKey!);
   }
 
   @override

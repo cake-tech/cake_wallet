@@ -1231,14 +1231,11 @@ abstract class ElectrumWalletBase
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    // final index = address != null
-    //     ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
-    //     : null;
-    // final HD = index == null ? hd : hd.derive(index);
-    // final HD = hd.derive(0);
-    // return base64Encode(HD.signMessage(message));
-    // hd.privKey
-    final priv = ECPrivate.fromHex(hd.privKey!);
+    final index = address != null
+        ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
+        : null;
+    final HD = index == null ? hd : hd.derive(index);
+    final priv = ECPrivate.fromHex(HD.privKey!);
     String messagePrefix = '\x18Bitcoin Signed Message:\n';
     return priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
   }
@@ -1249,60 +1246,35 @@ abstract class ElectrumWalletBase
       return false;
     }
 
-    // final decode = List<int>.unmodifiable(Base58Decoder.decode(address));
-
-    // /// Extract script bytes excluding version and checksum.
-    // final List<int> scriptBytes = decode.sublist(1, decode.length - Base58Const.checksumByteLen);
-
-    // scriptBytes == hash160 (public key)
-
     String messagePrefix = '\x18Bitcoin Signed Message:\n';
-    // ECDSASignature signature = ECDSASignature.fromBytes(ascii.encode(signature), generator)
-    // final btcSigner = BitcoinVerifier.fromKeyBytes([]);
-    //  btcSigner.verifyKey.verify(signature, digest)
-    print("@@@@@@@@@111111111111");
     final messageHash = QuickCrypto.sha256Hash(
         BitcoinSignerUtils.magicMessage(utf8.encode(message), messagePrefix));
     final generator = Curves.generatorSecp256k1;
     final sigDecodedBytes = hex.decode(signature);
-    print(signature);
     final sig = ECDSASignature.fromBytes(sigDecodedBytes, generator);
-    print("######################");
-    // final sigBytes = utf8.encode(signature);
-    // print(sigBytes[0]);
     final pubKey = sig.recoverPublicKey(messageHash, generator, sigDecodedBytes[0]);
     final recoveredPub = ECPublic.fromBytes(pubKey!.toBytes());
-    print("recovered!: ${HEX.encode(pubKey.toBytes())} actual: ${hd.pubKey}");
-    // final recoveredAddress = recoveredPub.toP2wpkhAddress().toAddress(network);
-    // final recoveredAddress = recoveredPub.toP2wshAddress().toAddress(network);
-    // final recoveredAddress = recoveredPub.toP2wpkhInP2sh().toAddress(network);
 
-    final recoveredAddress = recoveredPub.toP2wpkhAddress().toAddress(network);
-    print("ACTUAL: $address");
-    print(recoveredPub.toHash160());
-    print(recoveredPub.toP2wshInP2sh().toAddress(network));
-    print(recoveredPub.toP2wpkhAddress().toAddress(network));
+    // get the address type:
+    final baseAddress = addressTypeFromStr(address, network);
+    String? recoveredAddress;
 
-    // print("$address $recoveredAddress");
+    if (baseAddress is P2pkAddress) {
+      recoveredAddress = recoveredPub.toP2pkAddress().toAddress(network);
+    } else if (baseAddress is P2pkhAddress) {
+      recoveredAddress = recoveredPub.toP2pkhAddress().toAddress(network);
+    } else if (baseAddress is P2wshAddress) {
+      recoveredAddress = recoveredPub.toP2wshAddress().toAddress(network);
+    } else if (baseAddress is P2wpkhAddress) {
+      recoveredAddress = recoveredPub.toP2wpkhAddress().toAddress(network);
+    } else {
+      return false;
+    }
 
     if (recoveredAddress == address) {
       return true;
     }
 
-    // ECPublic pub = ECPublic.fromBytes(pubKey!.toBytes());
-
-    // return pub.verify(
-    //   utf8.encode(message),
-    //   sigBytes,
-    //   messagePrefix: messagePrefix,
-    // );
-
-    // final index = address != null
-    //     ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
-    //     : null;
-    // final HD = index == null ? hd : hd.derive(index);
-    // final HD = hd.derive(0);
-    // return HD.verify(message: message, signature: base64Decode(signature));
     return false;
   }
 

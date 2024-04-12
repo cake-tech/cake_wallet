@@ -21,6 +21,7 @@ abstract class SignViewModelBase with Store {
 
   bool get signIncludesAddress => [
         WalletType.monero,
+        WalletType.bitcoin,
         WalletType.haven,
       ].contains(wallet.type);
 

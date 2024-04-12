@@ -475,8 +475,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: dd63c20a3d8956bba26732a36e14fda24ccef284
-      resolved-ref: dd63c20a3d8956bba26732a36e14fda24ccef284
+      ref: "59c021b08bdd3324607ebebd5c8e2c488aa80a37"
+      resolved-ref: "59c021b08bdd3324607ebebd5c8e2c488aa80a37"
       url: "https://github.com/perishllc/nanoutil.git"
     source: git
     version: "1.0.2"
