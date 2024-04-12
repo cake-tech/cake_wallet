@@ -1359,40 +1359,50 @@ abstract class ElectrumWalletBase
       final addressesSet = walletAddresses.allAddresses.map((addr) => addr.address).toSet();
       currentChainTip ??= await electrumClient.getCurrentBlockChainTip() ?? 0;
 
-      await Future.wait(ADDRESS_TYPES.map((type) {
-        final addressesByType = walletAddresses.allAddresses.where((addr) => addr.type == type);
-
-        return Future.wait(addressesByType.map((addressRecord) async {
-          final history = await _fetchAddressHistory(addressRecord, addressesSet, currentChainTip!);
-
-          if (history.isNotEmpty) {
-            addressRecord.txCount = history.length;
-            historiesWithDetails.addAll(history);
-
-            final matchedAddresses =
-                addressesByType.where((addr) => addr.isHidden == addressRecord.isHidden);
-
-            final isLastUsedAddress =
-                history.isNotEmpty && addressRecord.address == matchedAddresses.last.address;
-
-            if (isLastUsedAddress) {
-              await walletAddresses.discoverAddresses(
-                  matchedAddresses.toList(),
-                  addressRecord.isHidden,
-                  (address, addressesSet) =>
-                      _fetchAddressHistory(address, addressesSet, currentChainTip!)
-                          .then((history) => history.isNotEmpty ? address.address : null),
-                  type: type);
-            }
-          }
-        }));
-      }));
+      await Future.wait(ADDRESS_TYPES.map(
+          (type) => fetchTransactionsForAddressType(addressesSet, historiesWithDetails, type)));
 
       return historiesWithDetails;
     } catch (e) {
       print(e.toString());
       return {};
     }
+  }
+
+  Future<void> fetchTransactionsForAddressType(
+    Set<String> addressesSet,
+    Map<String, ElectrumTransactionInfo> historiesWithDetails,
+    BitcoinAddressType type,
+  ) async {
+    final addressesByType = walletAddresses.allAddresses.where((addr) => addr.type == type);
+    final hiddenAddresses = addressesByType.where((addr) => addr.isHidden == true);
+    final receiveAddresses = addressesByType.where((addr) => addr.isHidden == false);
+
+    await Future.wait(addressesByType.map((addressRecord) async {
+      final history = await _fetchAddressHistory(addressRecord, addressesSet, currentChainTip!);
+
+      if (history.isNotEmpty) {
+        addressRecord.txCount = history.length;
+        historiesWithDetails.addAll(history);
+
+        final matchedAddresses = addressRecord.isHidden ? hiddenAddresses : receiveAddresses;
+        final isLastUsedAddress = history.isNotEmpty && matchedAddresses.last == addressRecord;
+
+        if (isLastUsedAddress) {
+          // The last address by gap limit is used, discover new addresses for the same address type
+          await walletAddresses.discoverAddresses(
+            matchedAddresses.toList(),
+            addressRecord.isHidden,
+            (address, addressesSet) => _fetchAddressHistory(address, addressesSet, currentChainTip!)
+                .then((history) => history.isNotEmpty ? address.address : null),
+            type: type,
+          );
+
+          // Continue until the last address by this address type is not used yet
+          await fetchTransactionsForAddressType(addressesSet, historiesWithDetails, type);
+        }
+      }
+    }));
   }
 
   Future<Map<String, ElectrumTransactionInfo>> _fetchAddressHistory(
