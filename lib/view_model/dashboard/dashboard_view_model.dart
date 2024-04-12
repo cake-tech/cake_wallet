@@ -319,7 +319,7 @@ abstract class DashboardViewModelBase with Store {
     silentPaymentsScanningActive = active;
 
     if (hasSilentPayments) {
-      bitcoin!.setScanningActive(wallet, settingsStore, active);
+      bitcoin!.setScanningActive(wallet, active);
     }
   }
 

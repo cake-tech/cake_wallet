@@ -39,7 +39,7 @@ abstract class RescanViewModelBase with Store {
       wallet.rescan(height: restoreHeight);
       wallet.transactionHistory.clear();
     } else {
-      bitcoin!.rescan(wallet, settingsStore, height: restoreHeight, doSingleScan: doSingleScan);
+      bitcoin!.rescan(wallet, height: restoreHeight, doSingleScan: doSingleScan);
     }
     state = RescanWalletState.none;
   }

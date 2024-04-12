@@ -161,7 +161,7 @@ abstract class Bitcoin {
   BitcoinAddressType getOptionToType(ReceivePageOption option);
   bool hasTaprootInput(PendingTransaction pendingTransaction);
   bool getScanningActive(Object wallet);
-  Future<void> setScanningActive(Object wallet, SettingsStore settingsStore, bool active);
+  Future<void> setScanningActive(Object wallet, bool active);
   bool isTestnet(Object wallet);
 
   Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
@@ -170,8 +170,7 @@ abstract class Bitcoin {
   int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});
   int getFeeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
   int getHeightByDate({required DateTime date});
-  Future<void> rescan(Object wallet, SettingsStore settingsStore,
-      {required int height, bool? doSingleScan});
+  Future<void> rescan(Object wallet, {required int height, bool? doSingleScan});
   bool getNodeIsCakeElectrs(Object wallet);
   void deleteSilentPaymentAddress(Object wallet, String address);
 }

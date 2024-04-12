@@ -331,15 +331,20 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<void> setScanningActive(Object wallet, SettingsStore settingsStore, bool active) async {
+  Future<void> setScanningActive(Object wallet, bool active) async {
     final bitcoinWallet = wallet as ElectrumWallet;
+
     // TODO: always when setting to scanning active, will force switch nodes. Remove when not needed anymore
     if (!getNodeIsCakeElectrs(wallet)) {
-      final node = Node(useSSL: false, uri: '198.58.111.154:50002');
+      final node = Node(
+        useSSL: false,
+        uri: '198.58.111.154:${(wallet.network == BitcoinNetwork.testnet ? 50002 : 50001)}',
+      );
       node.type = WalletType.bitcoin;
-      settingsStore.nodes[WalletType.bitcoin] = node;
+
       await bitcoinWallet.connectToNode(node: node);
     }
+
     bitcoinWallet.setSilentPaymentsScanning(active);
   }
 
@@ -353,14 +358,15 @@ class CWBitcoin extends Bitcoin {
   int getHeightByDate({required DateTime date}) => getBitcoinHeightByDate(date: date);
 
   @override
-  Future<void> rescan(Object wallet, SettingsStore settingsStore,
-      {required int height, bool? doSingleScan}) async {
+  Future<void> rescan(Object wallet, {required int height, bool? doSingleScan}) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     // TODO: always when setting to scanning active, will force switch nodes. Remove when not needed anymore
     if (!getNodeIsCakeElectrs(wallet)) {
-      final node = Node(useSSL: false, uri: '198.58.111.154:50002');
+      final node = Node(
+        useSSL: false,
+        uri: '198.58.111.154:${(wallet.network == BitcoinNetwork.testnet ? 50002 : 50001)}',
+      );
       node.type = WalletType.bitcoin;
-      settingsStore.nodes[WalletType.bitcoin] = node;
       await bitcoinWallet.connectToNode(node: node);
     }
     bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
