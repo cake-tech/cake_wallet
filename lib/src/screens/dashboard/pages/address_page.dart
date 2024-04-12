@@ -163,12 +163,7 @@ class AddressPage extends BasePage {
                 if (addressListViewModel.hasAddressList) {
                   return SelectButton(
                     text: addressListViewModel.buttonTitle,
-                    onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled &&
-                            (WalletType.monero == addressListViewModel.wallet.type ||
-                                WalletType.haven == addressListViewModel.wallet.type)
-                        ? await showPopUp<void>(
-                            context: context, builder: (_) => getIt.get<MoneroAccountListPage>())
-                        : Navigator.of(context).pushNamed(Routes.receive),
+                    onTap: () async => Navigator.of(context).pushNamed(Routes.receive),
                     textColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
                     color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                     borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
@@ -176,17 +171,11 @@ class AddressPage extends BasePage {
                     textSize: 14,
                     height: 50,
                   );
-                } else if (dashboardViewModel.isAutoGenerateSubaddressesEnabled ||
-                    addressListViewModel.isElectrumWallet) {
-                  return Text(S.of(context).electrum_address_disclaimer,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 15,
-                          color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor));
-                } else {
+                }
+              else {
                   return const SizedBox();
                 }
-              })
+              }),
             ],
           ),
         ));

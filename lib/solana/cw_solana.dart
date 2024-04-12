@@ -86,6 +86,7 @@ class CWSolana extends Solana {
       decimal: token.decimals,
       mint: token.name.toUpperCase(),
       enabled: token.enabled,
+      iconPath: token.iconPath,
     );
 
     await (wallet as SolanaWallet).addSPLToken(splToken);

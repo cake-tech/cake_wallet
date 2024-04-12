@@ -12,9 +12,11 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
     this.hint,
     this.svgPicture,
     this.icon,
+    this.onClose,
   });
 
   final VoidCallback onTap;
+  final VoidCallback? onClose;
   final String title;
   final String subTitle;
   final Widget? hint;
@@ -31,7 +33,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
       child: Stack(
         children: [
           Container(
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.fromLTRB(20, 20, 40, 20),
             width: double.infinity,
             decoration: BoxDecoration(
               color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
@@ -84,6 +86,16 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
               ],
             ),
           ),
+          if (onClose != null)
+            Positioned(
+              top: 10,
+              right: 10,
+              child: IconButton(
+                icon: Icon(Icons.close),
+                onPressed: onClose,
+                color: Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
+              ),
+            ),
         ],
       ),
     );

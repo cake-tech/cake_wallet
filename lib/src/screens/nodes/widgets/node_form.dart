@@ -16,6 +16,7 @@ class NodeForm extends StatelessWidget {
     required this.formKey,
     this.editingNode,
   })  : _addressController = TextEditingController(text: editingNode?.uri.host.toString()),
+        _pathController = TextEditingController(text: editingNode?.path.toString()),
         _portController = TextEditingController(text: editingNode?.uri.port.toString()),
         _loginController = TextEditingController(text: editingNode?.login),
         _passwordController = TextEditingController(text: editingNode?.password),
@@ -23,6 +24,7 @@ class NodeForm extends StatelessWidget {
     if (editingNode != null) {
       nodeViewModel
         ..setAddress((editingNode!.uri.host.toString()))
+        ..setPath((editingNode!.path.toString()))
         ..setPort((editingNode!.uri.port.toString()))
         ..setPassword((editingNode!.password ?? ''))
         ..setLogin((editingNode!.login ?? ''))
@@ -57,6 +59,7 @@ class NodeForm extends StatelessWidget {
     });
 
     _addressController.addListener(() => nodeViewModel.address = _addressController.text);
+    _pathController.addListener(() => nodeViewModel.path = _pathController.text);
     _portController.addListener(() => nodeViewModel.port = _portController.text);
     _loginController.addListener(() => nodeViewModel.login = _loginController.text);
     _passwordController.addListener(() => nodeViewModel.password = _passwordController.text);
@@ -69,6 +72,7 @@ class NodeForm extends StatelessWidget {
   final Node? editingNode;
 
   final TextEditingController _addressController;
+  final TextEditingController _pathController;
   final TextEditingController _portController;
   final TextEditingController _loginController;
   final TextEditingController _passwordController;
@@ -95,6 +99,18 @@ class NodeForm extends StatelessWidget {
           Row(
             children: <Widget>[
               Expanded(
+                child: BaseTextFormField(
+                  controller: _pathController,
+                  hintText: "/path",
+                  validator: NodePathValidator(),
+                ),
+              )
+            ],
+          ),
+          SizedBox(height: 10.0),
+          Row(
+            children: <Widget>[
+              Expanded(
                   child: BaseTextFormField(
                 controller: _portController,
                 hintText: S.of(context).node_port,
@@ -105,7 +121,7 @@ class NodeForm extends StatelessWidget {
           ),
           SizedBox(height: 10.0),
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 20),
+            padding: EdgeInsets.only(top: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
@@ -123,6 +139,7 @@ class NodeForm extends StatelessWidget {
               ],
             ),
           ),
+          SizedBox(height: 10.0),
           if (nodeViewModel.hasAuthCredentials) ...[
             Row(
               children: <Widget>[

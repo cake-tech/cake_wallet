@@ -213,10 +213,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       return S.current.addresses;
     }
 
-    if (isAutoGenerateSubaddressEnabled) {
-      return hasAccounts ? S.current.accounts : S.current.account;
-    }
-
     return hasAccounts ? S.current.accounts_subaddresses : S.current.addresses;
   }
 
