@@ -14,7 +14,7 @@ class N2Node {
   String? alias;
 
   factory N2Node.fromJson(Map<String, dynamic> json) => N2Node(
-        weight: double.tryParse((json['weight'] as num).toString()),
+        weight: double.tryParse((json['weight'] as num?).toString()),
         uptime: json['uptime'] as String?,
         score: json['score'] as int?,
         account: json['rep_address'] as String?,
