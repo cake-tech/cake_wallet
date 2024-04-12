@@ -95,18 +95,20 @@ class NodeForm extends StatelessWidget {
               )
             ],
           ),
-          SizedBox(height: 10.0),
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: BaseTextFormField(
-                  controller: _pathController,
-                  hintText: "/path",
-                  validator: NodePathValidator(),
-                ),
-              )
-            ],
-          ),
+          // if () ...[
+          //   SizedBox(height: 10.0),
+          //   Row(
+          //     children: <Widget>[
+          //       Expanded(
+          //         child: BaseTextFormField(
+          //           controller: _pathController,
+          //           hintText: "/path",
+          //           validator: NodePathValidator(),
+          //         ),
+          //       )
+          //     ],
+          //   ),
+          // ],
           SizedBox(height: 10.0),
           Row(
             children: <Widget>[
