@@ -64,6 +64,7 @@ class MeldProvider extends BuyProvider {
     String? amount,
   }) async {
     final params = {
+      "transactionType": "SELL",
       "publicKey": secrets.meldApiKey,
       "theme": convertTheme(settingsStore.currentTheme),
       "sourceCurrencyCode": currencyCode.toUpperCase(),
@@ -83,6 +84,7 @@ class MeldProvider extends BuyProvider {
     String? amount,
   }) async {
     final params = {
+      "transactionType": "BUY",
       "publicKey": secrets.meldApiKey,
       "theme": convertTheme(settingsStore.currentTheme),
       "destinationCurrencyCode": currencyCode.toUpperCase(),
