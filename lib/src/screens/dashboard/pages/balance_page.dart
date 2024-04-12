@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
+import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
@@ -183,6 +184,22 @@ class CryptoBalanceWidget extends StatelessWidget {
                 return Container();
               },
             ),
+            Observer(builder: (_) {
+              if (!dashboardViewModel.showRepWarning) {
+                return const SizedBox();
+              }
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: DashBoardRoundedCardWidget(
+                  title: S.current.rep_warning,
+                  subTitle: S.current.rep_warning_sub,
+                  onTap: () => Navigator.of(context).pushNamed(Routes.changeRep),
+                  onClose: () {
+                    dashboardViewModel.settingsStore.shouldShowRepWarning = false;
+                  },
+                ),
+              );
+            }),
             Observer(
               builder: (_) {
                 return ListView.separated(
