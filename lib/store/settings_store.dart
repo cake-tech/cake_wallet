@@ -79,6 +79,7 @@ abstract class SettingsStoreBase with Store {
       required Map<WalletType, Node> nodes,
       required Map<WalletType, Node> powNodes,
       required this.shouldShowYatPopup,
+      required this.shouldShowRepWarning,
       required this.isBitcoinBuyEnabled,
       required this.actionlistDisplayMode,
       required this.pinTimeOutDuration,
@@ -224,6 +225,9 @@ abstract class SettingsStoreBase with Store {
         (_) => shouldShowYatPopup,
         (bool shouldShowYatPopup) =>
             sharedPreferences.setBool(PreferencesKey.shouldShowYatPopup, shouldShowYatPopup));
+
+    reaction((_) => shouldShowRepWarning,
+        (bool val) => sharedPreferences.setBool(PreferencesKey.shouldShowRepWarning, val));
 
     defaultBuyProviders.observe((change) {
       final String key = 'buyProvider_${change.key.toString()}';
@@ -535,6 +539,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldShowYatPopup;
+
+  @observable
+  bool shouldShowRepWarning;
 
   @observable
   bool shouldShowMarketPlaceInDashboard;
@@ -878,6 +885,8 @@ abstract class SettingsStoreBase with Store {
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
+    final shouldShowRepWarning =
+        sharedPreferences.getBool(PreferencesKey.shouldShowRepWarning) ?? true;
 
     final generateSubaddresses =
         sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey);
@@ -1034,75 +1043,77 @@ abstract class SettingsStoreBase with Store {
         '';
 
     return SettingsStore(
-        secureStorage: secureStorage,
-        sharedPreferences: sharedPreferences,
-        initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
-        nodes: nodes,
-        powNodes: powNodes,
-        appVersion: packageInfo.version,
-        deviceName: deviceName,
-        isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-        initialFiatCurrency: currentFiatCurrency,
-        initialBalanceDisplayMode: currentBalanceDisplayMode,
-        initialSaveRecipientAddress: shouldSaveRecipientAddress,
-        initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
-        initialMoneroSeedType: moneroSeedType,
-        initialAppSecure: isAppSecure,
-        initialDisableBuy: disableBuy,
-        initialDisableSell: disableSell,
-        initialDisableBulletin: disableBulletin,
-        initialWalletListOrder: walletListOrder,
-        initialWalletListAscending: walletListAscending,
-        initialFiatMode: currentFiatApiMode,
-        initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
-        initialCake2FAPresetOptions: selectedCake2FAPreset,
-        initialUseTOTP2FA: useTOTP2FA,
-        initialTotpSecretKey: totpSecretKey,
-        initialFailedTokenTrial: tokenTrialNumber,
-        initialExchangeStatus: exchangeStatus,
-        initialTheme: savedTheme,
-        actionlistDisplayMode: actionListDisplayMode,
-        initialPinLength: pinLength,
-        pinTimeOutDuration: pinCodeTimeOutDuration,
-        seedPhraseLength: seedPhraseWordCount,
-        initialLanguageCode: savedLanguageCode,
-        sortBalanceBy: sortBalanceBy,
-        pinNativeTokenAtTop: pinNativeTokenAtTop,
-        useEtherscan: useEtherscan,
-        usePolygonScan: usePolygonScan,
-        defaultNanoRep: defaultNanoRep,
-        defaultBananoRep: defaultBananoRep,
-        lookupsTwitter: lookupsTwitter,
-        lookupsMastodon: lookupsMastodon,
-        lookupsYatService: lookupsYatService,
-        lookupsUnstoppableDomains: lookupsUnstoppableDomains,
-        lookupsOpenAlias: lookupsOpenAlias,
-        lookupsENS: lookupsENS,
-        customBitcoinFeeRate: customBitcoinFeeRate,
-        initialMoneroTransactionPriority: moneroTransactionPriority,
-        initialBitcoinTransactionPriority: bitcoinTransactionPriority,
-        initialHavenTransactionPriority: havenTransactionPriority,
-        initialLitecoinTransactionPriority: litecoinTransactionPriority,
-        initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
-        initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
-        initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
-        initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
-        initialShouldRequireTOTP2FAForSendsToInternalWallets:
-            shouldRequireTOTP2FAForSendsToInternalWallets,
-        initialShouldRequireTOTP2FAForExchangesToInternalWallets:
-            shouldRequireTOTP2FAForExchangesToInternalWallets,
-        initialShouldRequireTOTP2FAForExchangesToExternalWallets:
-            shouldRequireTOTP2FAForExchangesToExternalWallets,
-        initialShouldRequireTOTP2FAForAddingContacts: shouldRequireTOTP2FAForAddingContacts,
-        initialShouldRequireTOTP2FAForCreatingNewWallets: shouldRequireTOTP2FAForCreatingNewWallets,
-        initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings:
-            shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-        initialEthereumTransactionPriority: ethereumTransactionPriority,
-        initialPolygonTransactionPriority: polygonTransactionPriority,
-        backgroundTasks: backgroundTasks,
-        initialSyncMode: savedSyncMode,
-        initialSyncAll: savedSyncAll,
-        shouldShowYatPopup: shouldShowYatPopup);
+      secureStorage: secureStorage,
+      sharedPreferences: sharedPreferences,
+      initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
+      nodes: nodes,
+      powNodes: powNodes,
+      appVersion: packageInfo.version,
+      deviceName: deviceName,
+      isBitcoinBuyEnabled: isBitcoinBuyEnabled,
+      initialFiatCurrency: currentFiatCurrency,
+      initialBalanceDisplayMode: currentBalanceDisplayMode,
+      initialSaveRecipientAddress: shouldSaveRecipientAddress,
+      initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
+      initialMoneroSeedType: moneroSeedType,
+      initialAppSecure: isAppSecure,
+      initialDisableBuy: disableBuy,
+      initialDisableSell: disableSell,
+      initialDisableBulletin: disableBulletin,
+      initialWalletListOrder: walletListOrder,
+      initialWalletListAscending: walletListAscending,
+      initialFiatMode: currentFiatApiMode,
+      initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
+      initialCake2FAPresetOptions: selectedCake2FAPreset,
+      initialUseTOTP2FA: useTOTP2FA,
+      initialTotpSecretKey: totpSecretKey,
+      initialFailedTokenTrial: tokenTrialNumber,
+      initialExchangeStatus: exchangeStatus,
+      initialTheme: savedTheme,
+      actionlistDisplayMode: actionListDisplayMode,
+      initialPinLength: pinLength,
+      pinTimeOutDuration: pinCodeTimeOutDuration,
+      seedPhraseLength: seedPhraseWordCount,
+      initialLanguageCode: savedLanguageCode,
+      sortBalanceBy: sortBalanceBy,
+      pinNativeTokenAtTop: pinNativeTokenAtTop,
+      useEtherscan: useEtherscan,
+      usePolygonScan: usePolygonScan,
+      defaultNanoRep: defaultNanoRep,
+      defaultBananoRep: defaultBananoRep,
+      lookupsTwitter: lookupsTwitter,
+      lookupsMastodon: lookupsMastodon,
+      lookupsYatService: lookupsYatService,
+      lookupsUnstoppableDomains: lookupsUnstoppableDomains,
+      lookupsOpenAlias: lookupsOpenAlias,
+      lookupsENS: lookupsENS,
+      customBitcoinFeeRate: customBitcoinFeeRate,
+      initialMoneroTransactionPriority: moneroTransactionPriority,
+      initialBitcoinTransactionPriority: bitcoinTransactionPriority,
+      initialHavenTransactionPriority: havenTransactionPriority,
+      initialLitecoinTransactionPriority: litecoinTransactionPriority,
+      initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
+      initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
+      initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
+      initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
+      initialShouldRequireTOTP2FAForSendsToInternalWallets:
+          shouldRequireTOTP2FAForSendsToInternalWallets,
+      initialShouldRequireTOTP2FAForExchangesToInternalWallets:
+          shouldRequireTOTP2FAForExchangesToInternalWallets,
+      initialShouldRequireTOTP2FAForExchangesToExternalWallets:
+          shouldRequireTOTP2FAForExchangesToExternalWallets,
+      initialShouldRequireTOTP2FAForAddingContacts: shouldRequireTOTP2FAForAddingContacts,
+      initialShouldRequireTOTP2FAForCreatingNewWallets: shouldRequireTOTP2FAForCreatingNewWallets,
+      initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings:
+          shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+      initialEthereumTransactionPriority: ethereumTransactionPriority,
+      initialPolygonTransactionPriority: polygonTransactionPriority,
+      backgroundTasks: backgroundTasks,
+      initialSyncMode: savedSyncMode,
+      initialSyncAll: savedSyncAll,
+      shouldShowYatPopup: shouldShowYatPopup,
+      shouldShowRepWarning: shouldShowRepWarning,
+    );
   }
 
   Future<void> reload({required Box<Node> nodeSource}) async {
@@ -1198,6 +1209,8 @@ abstract class SettingsStoreBase with Store {
     languageCode = sharedPreferences.getString(PreferencesKey.currentLanguageCode) ?? languageCode;
     shouldShowYatPopup =
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? shouldShowYatPopup;
+    shouldShowRepWarning =
+        sharedPreferences.getBool(PreferencesKey.shouldShowRepWarning) ?? shouldShowRepWarning;
     sortBalanceBy = SortBalanceBy
         .values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? sortBalanceBy.index];
     pinNativeTokenAtTop = sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
