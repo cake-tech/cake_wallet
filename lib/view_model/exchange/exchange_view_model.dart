@@ -144,16 +144,21 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   final ExchangeTemplateStore _exchangeTemplateStore;
   final TradesStore tradesStore;
   final SharedPreferences sharedPreferences;
+  late TrocadorExchangeProvider trocadorProvider;
 
-  List<ExchangeProvider> get _allProviders => [
-        ChangeNowExchangeProvider(settingsStore: _settingsStore),
-        SideShiftExchangeProvider(),
-        SimpleSwapExchangeProvider(),
-        TrocadorExchangeProvider(
-            useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
-        ThorChainExchangeProvider(tradesStore: trades),
-        if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
-      ];
+  List<ExchangeProvider> get _allProviders {
+    trocadorProvider = TrocadorExchangeProvider(
+        useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates);
+    updateTrocadorProviderStates(trocadorProvider);
+    return [
+      ChangeNowExchangeProvider(settingsStore: _settingsStore),
+      SideShiftExchangeProvider(),
+      SimpleSwapExchangeProvider(),
+      trocadorProvider,
+      ThorChainExchangeProvider(tradesStore: trades),
+      if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
+    ];
+  }
 
   @observable
   ExchangeProvider? provider;
@@ -723,6 +728,15 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       PreferencesKey.exchangeProvidersSelection,
       json.encode(exchangeProvidersSelection),
     );
+  }
+
+  @action
+  Future<void> updateTrocadorProviderStates(TrocadorExchangeProvider trocadorProvider) async {
+    final availableProviders = await trocadorProvider.fetchProviders();
+    for (var provider in availableProviders) {
+      final savedState = sharedPreferences.getBool(provider.name) ?? true;
+      _settingsStore.trocadorProviderStates[provider.name] = savedState;
+    }
   }
 
   bool get isAvailableInSelected {
