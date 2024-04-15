@@ -611,7 +611,6 @@ abstract class Ethereum {
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
 
-  String getReceivingAddressFromCredentials(Object credentials);
   Future<bool> isExternallyOwnedAccountAddress(WalletBase wallet, String address);
 }
   """;
@@ -707,7 +706,6 @@ abstract class Polygon {
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
 
-  String getReceivingAddressFromCredentials(Object credentials);
   Future<bool> isExternallyOwnedAccountAddress(WalletBase wallet, String address);
 }
   """;

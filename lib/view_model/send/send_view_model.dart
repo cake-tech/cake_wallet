@@ -336,7 +336,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           throw Exception("THORChain does not support Taproot addresses");
         }
 
-        final isEOAAddress = await _isExternallyOwnedAccountAddress(_credentials());
+        final isEOAAddress = await _isExternallyOwnedAccountAddress();
         if (!isEOAAddress) {
           throw Exception("THORChain does not support sending to a contract address");
         }
@@ -590,14 +590,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return false;
   }
 
-  Future<bool> _isExternallyOwnedAccountAddress(Object credentials) async {
+  Future<bool> _isExternallyOwnedAccountAddress() async {
+    final receivingAddress =
+        outputs.first.isParsedAddress ? outputs.first.extractedAddress : outputs.first.address;
+
     if (walletType == WalletType.ethereum) {
-      final receivingAddress = ethereum!.getReceivingAddressFromCredentials(credentials);
       return await ethereum!.isExternallyOwnedAccountAddress(wallet, receivingAddress);
     }
 
     if (walletType == WalletType.polygon) {
-      final receivingAddress = polygon!.getReceivingAddressFromCredentials(credentials);
       return await polygon!.isExternallyOwnedAccountAddress(wallet, receivingAddress);
     }
 
