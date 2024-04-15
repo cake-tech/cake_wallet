@@ -38,11 +38,16 @@ abstract class PreExistingSeedsViewModelBase with Store {
   @observable
   bool useNewSeed;
 
+  @observable
+  String? parentAddress;
+
   @action
   Future<String?> getSelectedWalletMnemonic() async {
     if (selectedWallet == null) return null;
 
     final wallet = await _walletLoadingService.load(selectedWallet!.type, selectedWallet!.name);
+
+    parentAddress = wallet.walletAddresses.address;
 
     return wallet.seed;
   }
@@ -63,9 +68,24 @@ abstract class PreExistingSeedsViewModelBase with Store {
   void updateWalletInfoSourceList() {
     wallets.clear();
 
-    final filteredInfoSource = _walletInfoSource.values.where(
-      (element) => isBIP39Wallet(element.type) || element.type == type,
-    );
+    // For the list to be displayed, we'll filter based on four conditions
+    final filteredInfoSource = _walletInfoSource.values.where((element) {
+      // Condition 1: Wallets that are BIP39 seed type
+      bool isBIP39 = isBIP39Wallet(element.type);
+
+      // Condition 2: Wallets that are not the same as the selected WalletType
+      bool isDifferentType = element.type != type;
+
+      // Condition 3: Wallets whose parentAddress property is null
+      bool isUniqueSeed = element.parentAddress == null;
+
+      // Condition 4: Wallets that have not been used to create the selectedType before
+      bool isUnusedSeed = !_walletInfoSource.values
+          .any((info) => info.type == type && info.parentAddress == element.address);
+
+      // Finally, we check to see if all conditions are met.
+      return isBIP39 && isDifferentType && isUniqueSeed && isUnusedSeed;
+    });
 
     wallets.addAll(
       filteredInfoSource.map(

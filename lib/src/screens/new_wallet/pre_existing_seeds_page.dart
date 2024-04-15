@@ -1,4 +1,4 @@
-import 'package:cake_wallet/core/new_wallet_page_arguments.dart';
+import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -106,16 +106,17 @@ class PreExistingSeedBody extends StatelessWidget {
     if (preExistingSeedsViewModel.useNewSeed) {
       Navigator.of(context).pushNamed(
         Routes.newWallet,
-        arguments: NewWalletPageArguments(type: preExistingSeedsViewModel.type),
+        arguments: NewWalletArguments(type: preExistingSeedsViewModel.type),
       );
     } else {
       final mnemonic = await preExistingSeedsViewModel.getSelectedWalletMnemonic();
       print(mnemonic);
       Navigator.of(context).pushNamed(
         Routes.newWallet,
-        arguments: NewWalletPageArguments(
+        arguments: NewWalletArguments(
           type: preExistingSeedsViewModel.type,
           mnemonic: mnemonic,
+          parentAddress: preExistingSeedsViewModel.parentAddress,
         ),
       );
     }

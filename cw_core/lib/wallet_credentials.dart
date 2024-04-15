@@ -9,10 +9,12 @@ abstract class WalletCredentials {
     this.password,
     this.derivationType,
     this.derivationPath,
+    this.parentAddress,
   });
 
   final String name;
   final int? height;
+  String? parentAddress;
   int? seedPhraseLength;
   String? password;
   DerivationType? derivationType;

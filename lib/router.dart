@@ -1,6 +1,6 @@
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
-import 'package:cake_wallet/core/new_wallet_page_arguments.dart';
+import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
@@ -153,9 +153,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => PreExistingSeedsPage(walletNewVM));
 
     case Routes.newWallet:
-      final args = settings.arguments as NewWalletPageArguments;
+      final args = settings.arguments as NewWalletArguments;
 
-      final walletNewVM = getIt.get<WalletNewVM>(param1: args.type, param2: args.mnemonic);
+      final walletNewVM = getIt.get<WalletNewVM>(param1: args);
       final seedTypeViewModel = getIt.get<SeedTypeViewModel>();
 
       return CupertinoPageRoute<void>(

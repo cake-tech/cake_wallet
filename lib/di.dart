@@ -5,6 +5,7 @@ import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
+import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
@@ -356,14 +357,13 @@ Future<void> setup({
       getIt.get<KeyService>(),
       (WalletType type) => getIt.get<WalletService>(param1: type)));
 
-  getIt.registerFactoryParam<WalletNewVM, WalletType, String?>(
-    (type, mnemonic) => WalletNewVM(
+  getIt.registerFactoryParam<WalletNewVM, NewWalletArguments, void>(
+    (newWalletArgs, _) => WalletNewVM(
       getIt.get<AppStore>(),
-      getIt.get<WalletCreationService>(param1: type),
+      getIt.get<WalletCreationService>(param1:newWalletArgs.type),
       _walletInfoSource,
-      getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
-      type: type,
-      mnemonic: mnemonic,
+      getIt.get<AdvancedPrivacySettingsViewModel>(param1:newWalletArgs.type),
+    newWalletArguments: newWalletArgs,
     ),
   );
 
@@ -662,7 +662,7 @@ Future<void> setup({
     return WalletEditPage(
         walletEditViewModel: getIt.get<WalletEditViewModel>(param1: walletListViewModel),
         authService: getIt.get<AuthService>(),
-        walletNewVM: getIt.get<WalletNewVM>(param1: editingWallet.type),
+        walletNewVM: getIt.get<WalletNewVM>(param1: NewWalletArguments(type: editingWallet.type)),
         editingWallet: editingWallet);
   });
 

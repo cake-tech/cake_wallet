@@ -1,4 +1,4 @@
-import 'package:cake_wallet/core/new_wallet_page_arguments.dart';
+import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
 import 'package:cake_wallet/routes.dart';
@@ -171,7 +171,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
     } else if (!isBIP39Wallet(selected!) || !widget.newWalletTypeViewModel.hasExisitingWallet) {
       Navigator.of(context).pushNamed(
         Routes.newWallet,
-        arguments: NewWalletPageArguments(type: selected!),
+        arguments: NewWalletArguments(type: selected!),
       );
     } else {
       Navigator.of(context).pushNamed(Routes.preExistingSeedsPage, arguments: selected!);

@@ -10,9 +10,16 @@ class CWSolana extends Solana {
   @override
   WalletCredentials createSolanaNewWalletCredentials({
     required String name,
+    String? mnemonic,
+    String? parentAddress,
     WalletInfo? walletInfo,
   }) =>
-      SolanaNewWalletCredentials(name: name, walletInfo: walletInfo);
+      SolanaNewWalletCredentials(
+        name: name,
+        walletInfo: walletInfo,
+        parentAddress: parentAddress,
+        mnemonic: mnemonic,
+      );
 
   @override
   WalletCredentials createSolanaRestoreWalletFromSeedCredentials({

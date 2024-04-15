@@ -1,11 +1,13 @@
 import 'package:cw_core/wallet_type.dart';
 
-class NewWalletPageArguments {
+class NewWalletArguments {
   final WalletType type;
   final String? mnemonic;
+  final String? parentAddress;
 
-  NewWalletPageArguments({
+  NewWalletArguments({
     required this.type,
+    this.parentAddress,
     this.mnemonic,
   });
 }

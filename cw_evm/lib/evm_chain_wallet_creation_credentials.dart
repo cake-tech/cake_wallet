@@ -5,8 +5,9 @@ class EVMChainNewWalletCredentials extends WalletCredentials {
   EVMChainNewWalletCredentials({
     required String name,
     WalletInfo? walletInfo,
+    String? parentAddress,
     this.mnemonic,
-  }) : super(name: name, walletInfo: walletInfo);
+  }) : super(name: name, walletInfo: walletInfo, parentAddress: parentAddress);
 
   final String? mnemonic;
 }
