@@ -28,7 +28,7 @@ dependencies:
   bitbox:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git
-      ref: master
+      ref: Add-Support-For-OP-Return-data
   breez_sdk:
     git:
       url: https://github.com/breez/breez-sdk-flutter.git

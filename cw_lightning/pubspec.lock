@@ -78,11 +78,20 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: master
-      resolved-ref: ea65073efbaf395a5557e8cd7bd72f195cd7eb11
+      ref: Add-Support-For-OP-Return-data
+      resolved-ref: "57b78afb85bd2c30d3cdb9f7884f3878a62be442"
       url: "https://github.com/cake-tech/bitbox-flutter.git"
     source: git
     version: "1.0.1"
+  bitcoin_base:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: cake-update-v2
+      resolved-ref: "3fd81d238b990bb767fc7a4fdd5053a22a142e2e"
+      url: "https://github.com/cake-tech/bitcoin_base.git"
+    source: git
+    version: "4.2.0"
   bitcoin_flutter:
     dependency: "direct main"
     description:
@@ -92,6 +101,14 @@ packages:
       url: "https://github.com/cake-tech/bitcoin_flutter.git"
     source: git
     version: "2.1.0"
+  blockchain_utils:
+    dependency: transitive
+    description:
+      name: blockchain_utils
+      sha256: "38ef5f4a22441ac4370aed9071dc71c460acffc37c79b344533f67d15f24c13c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -104,11 +121,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v0.2.14"
-      resolved-ref: "695948a0776b49445fced722a07024edd65ca5cc"
+      ref: "v0.3.8"
+      resolved-ref: "34b4e5e2a8398ffad32834864d4a8cc130364e74"
       url: "https://github.com/breez/breez-sdk-flutter.git"
     source: git
-    version: "0.2.14"
+    version: "0.3.8"
   bs58check:
     dependency: transitive
     description:
