@@ -583,6 +583,8 @@
   "send_your_wallet": "Uw portemonnee",
   "sending": "Bezig met verzenden",
   "sent": "Verzonden",
+  "service_health_disabled": "De gezondheidstoestand van de service is uitgeschakeld",
+  "service_health_disabled_message": "Dit is de pagina Service Health Status, u kunt deze pagina instellingen inschakelen -> Privacy",
   "settings": "Instellingen",
   "settings_all": "ALLE",
   "settings_allow_biometrical_authentication": "Biometrische authenticatie toestaan",

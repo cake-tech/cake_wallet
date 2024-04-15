@@ -585,6 +585,8 @@
   "send_your_wallet": "Walat ɗin ku",
   "sending": "Aika",
   "sent": "Aika",
+  "service_health_disabled": "An kashe matsayin lafiyar sabis",
+  "service_health_disabled_message": "Wannan shafin sabis na lafiyar sabis ne, zaka iya kunna wannan shafin a karkashin saiti -> Sirri",
   "settings": "Saiti",
   "settings_all": "DUK",
   "settings_allow_biometrical_authentication": "Bada izinin tantance sawun yatsa",

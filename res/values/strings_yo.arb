@@ -584,6 +584,8 @@
   "send_your_wallet": "Àpamọ́wọ́ yín",
   "sending": "Ó ń ránṣẹ́",
   "sent": "Owó t'á ti ránṣẹ́",
+  "service_health_disabled": "Ipo Ilera ti Iṣẹ",
+  "service_health_disabled_message": "Eyi ni oju-iwe Ipo Ilera Iṣẹ, o le mu oju-iwe yii ṣiṣẹ labẹ Eto -> Asiri",
   "settings": "Awọn aseṣe",
   "settings_all": "Gbogbo",
   "settings_allow_biometrical_authentication": "Fi àyè gba ìfẹ̀rílàdí biometrical",

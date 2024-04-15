@@ -584,6 +584,8 @@
   "send_your_wallet": "Ваш гаманець",
   "sending": "Відправлення",
   "sent": "Відправлені",
+  "service_health_disabled": "Статус охорони здоров’я послуг відключений",
+  "service_health_disabled_message": "Це сторінка стану здоров’я послуг, ви можете включити цю сторінку в налаштуваннях -> конфіденційність",
   "settings": "Налаштування",
   "settings_all": "ВСІ",
   "settings_allow_biometrical_authentication": "Включити біометричну аутентифікацію",

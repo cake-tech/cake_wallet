@@ -583,6 +583,8 @@
   "send_your_wallet": "Iyong pitaka",
   "sending": "Pagpapadala",
   "sent": "Ipinadala",
+  "service_health_disabled": "Ang katayuan sa kalusugan ng serbisyo ay hindi pinagana",
+  "service_health_disabled_message": "Ito ang pahina ng Katayuan ng Kalusugan ng Serbisyo, maaari mong paganahin ang pahinang ito sa ilalim ng Mga Setting -> Pagkapribado",
   "settings": "Mga setting",
   "settings_all": "Lahat",
   "settings_allow_biometrical_authentication": "Payagan ang pagpapatunay ng biometrical",
