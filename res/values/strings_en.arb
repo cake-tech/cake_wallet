@@ -583,6 +583,8 @@
   "send_your_wallet": "Your wallet",
   "sending": "Sending",
   "sent": "Sent",
+  "service_health_disabled": "Service Health Bulletin is disabled",
+  "service_health_disabled_message": "This is the service health bulletin page, you can enable this page under Settings -> Privacy",
   "settings": "Settings",
   "settings_all": "ALL",
   "settings_allow_biometrical_authentication": "Allow biometrical authentication",

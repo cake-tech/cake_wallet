@@ -586,6 +586,8 @@
   "send_your_wallet": "Dompetmu",
   "sending": "Mengirim",
   "sent": "Dikirim",
+  "service_health_disabled": "Buletin Kesehatan Layanan dinonaktifkan",
+  "service_health_disabled_message": "Ini adalah halaman Buletin Kesehatan Layanan, Anda dapat mengaktifkan halaman ini di bawah Pengaturan -> Privasi",
   "settings": "Pengaturan",
   "settings_all": "SEMUA",
   "settings_allow_biometrical_authentication": "Izinkan otentikasi biometrik",

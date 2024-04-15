@@ -583,6 +583,8 @@
   "send_your_wallet": "محفظتك",
   "sending": "يتم الإرسال",
   "sent": "تم الأرسال",
+  "service_health_disabled": "تم تعطيل نشرة صحة الخدمة",
+  "service_health_disabled_message": "هذه هي صفحة نشرة صحة الخدمة ، يمكنك تمكين هذه الصفحة ضمن الإعدادات -> الخصوصية",
   "settings": "إعدادات",
   "settings_all": "الكل",
   "settings_allow_biometrical_authentication": "السماح بالمصادقة البيومترية",

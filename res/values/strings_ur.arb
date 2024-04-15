@@ -585,6 +585,8 @@
   "send_your_wallet": "آپ کا بٹوہ",
   "sending": "بھیج رہا ہے۔",
   "sent": "بھیجا",
+  "service_health_disabled": "سروس ہیلتھ بلیٹن غیر فعال ہے",
+  "service_health_disabled_message": "یہ سروس ہیلتھ بلیٹن پیج ہے ، آپ اس صفحے کو ترتیبات کے تحت اہل بنا سکتے ہیں -> رازداری",
   "settings": "ترتیبات",
   "settings_all": "تمام",
   "settings_allow_biometrical_authentication": "بایومیٹریکل تصدیق کی اجازت دیں۔",

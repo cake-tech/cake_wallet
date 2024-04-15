@@ -583,6 +583,8 @@
   "send_your_wallet": "Votre portefeuille (wallet)",
   "sending": "Envoi",
   "sent": "Envoyés",
+  "service_health_disabled": "Le bulletin de santé du service est handicapé",
+  "service_health_disabled_message": "Ceci est la page du Bulletin de santé du service, vous pouvez activer cette page sous Paramètres -> Confidentialité",
   "settings": "Paramètres",
   "settings_all": "TOUT",
   "settings_allow_biometrical_authentication": "Autoriser l'authentification biométrique",
