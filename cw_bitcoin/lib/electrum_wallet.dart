@@ -1236,7 +1236,7 @@ abstract class ElectrumWalletBase
         : null;
     final HD = index == null ? hd : hd.derive(index);
     final priv = ECPrivate.fromHex(HD.privKey!);
-    print(priv.prive.publicKey.pubKey.toHex());
+    print(priv.getPublic().toHex());
     String messagePrefix = '\x18Bitcoin Signed Message:\n';
     return priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
   }
@@ -1247,36 +1247,49 @@ abstract class ElectrumWalletBase
       return false;
     }
 
+    final sigDecodedBytes = hex.decode(signature);
+
+    if (sigDecodedBytes.length != 64 && sigDecodedBytes.length != 65) {
+      throw ArgumentException(
+          "bitcoin signature must be 64 bytes without recover-id or 65 bytes with recover-id");
+    }
+
     String messagePrefix = '\x18Bitcoin Signed Message:\n';
     final messageHash = QuickCrypto.sha256Hash(
         BitcoinSignerUtils.magicMessage(utf8.encode(message), messagePrefix));
-    final generator = Curves.generatorSecp256k1;
-    final sigDecodedBytes = hex.decode(signature);
-    final sig = ECDSASignature.fromBytes(sigDecodedBytes, generator);
-    final pubKey = sig.recoverPublicKey(messageHash, generator, sigDecodedBytes[0]);
-    final recoveredPub = ECPublic.fromBytes(pubKey!.toBytes());
 
-    // get the address type:
-    final baseAddress = addressTypeFromStr(address, network);
-    String? recoveredAddress;
-    
-    
-    if (baseAddress is P2pkAddress) {
-      recoveredAddress = recoveredPub.toP2pkAddress().toAddress(network);
-    } else if (baseAddress is P2pkhAddress) {
-      recoveredAddress = recoveredPub.toP2pkhAddress().toAddress(network);
-    } else if (baseAddress is P2wshAddress) {
-      recoveredAddress = recoveredPub.toP2wshAddress().toAddress(network);
-    } else if (baseAddress is P2wpkhAddress) {
-      recoveredAddress = recoveredPub.toP2wpkhAddress().toAddress(network); 
+    List<int> correctSignature =
+        sigDecodedBytes.length == 65 ? sigDecodedBytes.sublist(1) : List.from(sigDecodedBytes);
+    List<int> rBytes = correctSignature.sublist(0, 32);
+    List<int> sBytes = correctSignature.sublist(32);
+    final sig = ECDSASignature(BigintUtils.fromBytes(rBytes), BigintUtils.fromBytes(sBytes));
+
+    List<int> possibleRecoverIds = [0, 1, 2, 3];
+    if (sigDecodedBytes.length == 65) {
+      possibleRecoverIds = [sigDecodedBytes[0]];
     }
 
-    print("@@@@@@@@@@@@@@@@@@@@@@@@");
-    print("address: $address recoveredAddress: $recoveredAddress");
-    print(recoveredPub.publicKey.toHex());
-    
-    if (recoveredAddress == address) {
-      return true;
+    final baseAddress = addressTypeFromStr(address, network);
+
+    for (int recoveryId in possibleRecoverIds) {
+      final pubKey = sig.recoverPublicKey(messageHash, Curves.generatorSecp256k1, recoveryId);
+      final recoveredPub = ECPublic.fromBytes(pubKey!.toBytes());
+
+      String? recoveredAddress;
+
+      if (baseAddress is P2pkAddress) {
+        recoveredAddress = recoveredPub.toP2pkAddress().toAddress(network);
+      } else if (baseAddress is P2pkhAddress) {
+        recoveredAddress = recoveredPub.toP2pkhAddress().toAddress(network);
+      } else if (baseAddress is P2wshAddress) {
+        recoveredAddress = recoveredPub.toP2wshAddress().toAddress(network);
+      } else if (baseAddress is P2wpkhAddress) {
+        recoveredAddress = recoveredPub.toP2wpkhAddress().toAddress(network);
+      }
+
+      if (recoveredAddress == address) {
+        return true;
+      }
     }
 
     return false;
