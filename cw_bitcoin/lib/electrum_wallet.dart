@@ -1236,6 +1236,7 @@ abstract class ElectrumWalletBase
         : null;
     final HD = index == null ? hd : hd.derive(index);
     final priv = ECPrivate.fromHex(HD.privKey!);
+    print(priv.prive.publicKey.pubKey.toHex());
     String messagePrefix = '\x18Bitcoin Signed Message:\n';
     return priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
   }
@@ -1258,7 +1259,8 @@ abstract class ElectrumWalletBase
     // get the address type:
     final baseAddress = addressTypeFromStr(address, network);
     String? recoveredAddress;
-
+    
+    
     if (baseAddress is P2pkAddress) {
       recoveredAddress = recoveredPub.toP2pkAddress().toAddress(network);
     } else if (baseAddress is P2pkhAddress) {
@@ -1266,11 +1268,13 @@ abstract class ElectrumWalletBase
     } else if (baseAddress is P2wshAddress) {
       recoveredAddress = recoveredPub.toP2wshAddress().toAddress(network);
     } else if (baseAddress is P2wpkhAddress) {
-      recoveredAddress = recoveredPub.toP2wpkhAddress().toAddress(network);
-    } else {
-      return false;
+      recoveredAddress = recoveredPub.toP2wpkhAddress().toAddress(network); 
     }
 
+    print("@@@@@@@@@@@@@@@@@@@@@@@@");
+    print("address: $address recoveredAddress: $recoveredAddress");
+    print(recoveredPub.publicKey.toHex());
+    
     if (recoveredAddress == address) {
       return true;
     }
