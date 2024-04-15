@@ -18,7 +18,6 @@ import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
-import 'package:cake_wallet/cake_pay/ionia_tip.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -44,9 +43,6 @@ import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/ionia_custom_redeem_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/ionia_gift_card_detail_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/ionia_more_options_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/settings/tor_page.dart';
@@ -72,17 +68,13 @@ import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_auth_view_model.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
-import 'package:cake_wallet/view_model/cake_pay/ionia_custom_tip_view_model.dart';
-import 'package:cake_wallet/view_model/cake_pay/ionia_custom_redeem_view_model.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_service.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_api.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/ionia_account_cards_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/cake_pay_account_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/ionia_custom_tip_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance_page.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_account_view_model.dart';
@@ -220,11 +212,6 @@ import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
-import 'package:cake_wallet/view_model/cake_pay/ionia_gift_card_details_view_model.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/ionia_payment_status_page.dart';
-import 'package:cake_wallet/view_model/cake_pay/ionia_payment_status_view_model.dart';
-import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
-import 'package:cake_wallet/cake_pay/ionia_any_pay_payment_info.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -1079,54 +1066,9 @@ Future<void> setup({
         getIt.get<CakePayPurchaseViewModel>(param1: totalAmounts, param2: card));
   });
 
-  getIt.registerFactoryParam<IoniaGiftCardDetailsViewModel, IoniaGiftCard, void>(
-      (IoniaGiftCard giftCard, _) {
-    return IoniaGiftCardDetailsViewModel(
-        ioniaService: getIt.get<CakePayService>(), giftCard: giftCard);
-  });
-
-  getIt.registerFactoryParam<IoniaCustomTipViewModel, List<dynamic>, void>((List<dynamic> args, _) {
-    final amount = args[0] as double;
-    final merchant = args[1] as IoniaMerchant;
-    final tip = args[2] as IoniaTip;
-
-    return IoniaCustomTipViewModel(amount: amount, tip: tip, ioniaMerchant: merchant);
-  });
-
-  getIt.registerFactoryParam<IoniaGiftCardDetailPage, IoniaGiftCard, void>(
-      (IoniaGiftCard giftCard, _) {
-    return IoniaGiftCardDetailPage(getIt.get<IoniaGiftCardDetailsViewModel>(param1: giftCard));
-  });
-
-  getIt.registerFactoryParam<IoniaMoreOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
-    final giftCard = args.first as IoniaGiftCard;
-
-    return IoniaMoreOptionsPage(giftCard);
-  });
-
-  getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>(
-      (IoniaGiftCard giftCard, _) =>
-          IoniaCustomRedeemViewModel(giftCard: giftCard, ioniaService: getIt.get<CakePayService>()));
-
-  getIt.registerFactoryParam<IoniaCustomRedeemPage, List<dynamic>, void>((List<dynamic> args, _) {
-    final giftCard = args.first as IoniaGiftCard;
-
-    return IoniaCustomRedeemPage(getIt.get<IoniaCustomRedeemViewModel>(param1: giftCard));
-  });
-
-  getIt.registerFactoryParam<IoniaCustomTipPage, List<dynamic>, void>((List<dynamic> args, _) {
-    return IoniaCustomTipPage(getIt.get<IoniaCustomTipViewModel>(param1: args));
-  });
-
   getIt.registerFactory(() => CakePayCardsPage(getIt.get<CakePayCardsListViewModel>()));
 
-  getIt.registerFactory(() => IoniaDebitCardPage(getIt.get<CakePayCardsListViewModel>()));
-
-  getIt.registerFactory(() => IoniaActivateDebitCardPage(getIt.get<CakePayCardsListViewModel>()));
-
   getIt.registerFactory(() => CakePayAccountPage(getIt.get<CakePayAccountViewModel>()));
-
-  getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<CakePayAccountViewModel>()));
 
   getIt.registerFactoryParam<RBFDetailsPage, TransactionInfo, void>(
           (TransactionInfo transactionInfo, _) => RBFDetailsPage(
@@ -1156,18 +1098,6 @@ Future<void> setup({
   getIt.registerFactoryParam<AnonpayDetailsPage, AnonpayInvoiceInfo, void>(
       (AnonpayInvoiceInfo anonpayInvoiceInfo, _) => AnonpayDetailsPage(
           anonpayDetailsViewModel: getIt.get<AnonpayDetailsViewModel>(param1: anonpayInvoiceInfo)));
-
-  getIt.registerFactoryParam<IoniaPaymentStatusViewModel, IoniaAnyPayPaymentInfo,
-          AnyPayPaymentCommittedInfo>(
-      (IoniaAnyPayPaymentInfo paymentInfo, AnyPayPaymentCommittedInfo committedInfo) =>
-          IoniaPaymentStatusViewModel(getIt.get<CakePayService>(),
-              paymentInfo: paymentInfo, committedInfo: committedInfo));
-
-  getIt.registerFactoryParam<IoniaPaymentStatusPage, IoniaAnyPayPaymentInfo,
-          AnyPayPaymentCommittedInfo>(
-      (IoniaAnyPayPaymentInfo paymentInfo, AnyPayPaymentCommittedInfo committedInfo) =>
-          IoniaPaymentStatusPage(
-              getIt.get<IoniaPaymentStatusViewModel>(param1: paymentInfo, param2: committedInfo)));
 
   getIt.registerFactoryParam<HomeSettingsPage, BalanceViewModel, void>((balanceViewModel, _) =>
       HomeSettingsPage(getIt.get<HomeSettingsViewModel>(param1: balanceViewModel)));

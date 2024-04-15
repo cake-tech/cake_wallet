@@ -31,12 +31,7 @@ import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/ionia_account_cards_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/cake_pay_account_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/ionia_custom_redeem_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/ionia_custom_tip_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/ionia_gift_card_detail_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/ionia_more_options_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/advanced_privacy_settings_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
@@ -110,9 +105,6 @@ import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/ionia_payment_status_page.dart';
-import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
-import 'package:cake_wallet/cake_pay/ionia_any_pay_payment_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 
@@ -487,42 +479,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.cakePayAccountPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayAccountPage>());
-
-    case Routes.ioniaDebitCardPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaDebitCardPage>());
-
-    case Routes.ioniaActivateDebitCardPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaActivateDebitCardPage>());
-
-    case Routes.ioniaAccountCardsPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaAccountCardsPage>());
-
-    case Routes.ioniaCustomTipPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaCustomTipPage>(param1: args));
-
-    case Routes.ioniaGiftCardDetailPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<IoniaGiftCardDetailPage>(param1: args.first));
-
-    case Routes.ioniaCustomRedeemPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<IoniaCustomRedeemPage>(param1: args));
-
-    case Routes.ioniaMoreOptionsPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<IoniaMoreOptionsPage>(param1: args));
-
-    case Routes.ioniaPaymentStatusPage:
-      final args = settings.arguments as List;
-      final paymentInfo = args.first as IoniaAnyPayPaymentInfo;
-      final commitedInfo = args[1] as AnyPayPaymentCommittedInfo;
-      return CupertinoPageRoute<void>(
-          builder: (_) =>
-              getIt.get<IoniaPaymentStatusPage>(param1: paymentInfo, param2: commitedInfo));
 
     case Routes.webViewPage:
       final args = settings.arguments as List;

@@ -1,11 +1,9 @@
 import 'dart:async';
 
-import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
-import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_service.dart';
-import 'package:cake_wallet/cake_pay/ionia_tip.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -131,7 +129,7 @@ abstract class CakePayPurchaseViewModelBase with Store {
 
       orderCommittingState = IsExecutingState();
       //committedInfo = await ioniaAnyPayService.commitInvoice(order!);
-     // invoiceCommittingState = ExecutedSuccessfullyState(payload: committedInfo!);
+      // invoiceCommittingState = ExecutedSuccessfullyState(payload: committedInfo!);
     } catch (e) {
       orderCommittingState = FailureState(e.toString());
     }

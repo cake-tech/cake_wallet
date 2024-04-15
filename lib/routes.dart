@@ -68,15 +68,7 @@ class Routes {
   static const cakePayBuyCardPage = '/cake_pay_buy_card_page';
   static const cakePayBuyCardDetailPage = '/cake_pay_buy_card_detail_page';
   static const cakePayVerifyOtpPage = '/cake_pay_verify_otp_page';
-  static const ioniaDebitCardPage = '/debit_card_page';
-  static const ioniaActivateDebitCardPage = '/activate_debit_card_page';
   static const cakePayAccountPage = '/cake_pay_account_page';
-  static const ioniaAccountCardsPage = 'ionia_account_cards_page';
-  static const ioniaCustomTipPage = 'ionia_custom_tip_page';
-  static const ioniaGiftCardDetailPage = '/ionia_gift_card_detail_page';
-  static const ioniaPaymentStatusPage = '/ionia_payment_status_page';
-  static const ioniaMoreOptionsPage = '/ionia_more_options_page';
-  static const ioniaCustomRedeemPage = '/ionia_custom_redeem_page';
   static const webViewPage = '/web_view_page';
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';

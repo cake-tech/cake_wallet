@@ -5,8 +5,8 @@ import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:flutter/material.dart';
 
-class IoniaAlertModal extends StatelessWidget {
-  const IoniaAlertModal({
+class CakePayAlertModal extends StatelessWidget {
+  const CakePayAlertModal({
     Key? key,
     required this.title,
     required this.content,

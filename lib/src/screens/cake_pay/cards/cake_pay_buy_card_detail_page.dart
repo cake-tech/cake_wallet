@@ -3,7 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/widgets/ionia_alert_model.dart';
+import 'package:cake_wallet/src/screens/cake_pay/widgets/cake_pay_alert_modal.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -232,7 +232,7 @@ class CakePayBuyCardDetailPage extends BasePage {
     showPopUp<void>(
         context: context,
         builder: (BuildContext context) {
-          return IoniaAlertModal(
+          return CakePayAlertModal(
             title: S.of(context).settings_terms_and_conditions,
             content: Align(
               alignment: Alignment.bottomLeft,
@@ -268,7 +268,7 @@ class CakePayBuyCardDetailPage extends BasePage {
     showPopUp<void>(
         context: context,
         builder: (BuildContext context) {
-          return IoniaAlertModal(
+          return CakePayAlertModal(
             title: S.of(context).how_to_use_card,
             content: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Padding(

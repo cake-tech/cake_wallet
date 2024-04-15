@@ -1,12 +1,8 @@
 import 'dart:convert';
 
-import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
-import 'package:cake_wallet/cake_pay/ionia_category.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_user_credentials.dart';
-import 'package:cake_wallet/cake_pay/ionia_virtual_card.dart';
-import 'package:http/http.dart';
+import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
 import 'package:http/http.dart' as http;
 
 class CakePayApi {
@@ -24,19 +20,6 @@ class CakePayApi {
   static final logoutPath = '/api/logout';
   static final createOrderPath = '/api/order';
   static final simulatePaymentPath = '/api/simulate_payment';
-
-  static const baseUri = 'api.cake_pay.io';
-  static const pathPrefix = 'cake';
-  static const requestedUUIDHeader = 'requestedUUID';
-
-  static final createCardUri = Uri.https(baseUri, '/$pathPrefix/CreateCard');
-  static final getMerchantsByFilterUrl = Uri.https(baseUri, '/$pathPrefix/GetMerchantsByFilter');
-  static final getPurchaseMerchantsUrl = Uri.https(baseUri, '/$pathPrefix/PurchaseGiftCard');
-  static final getCurrentUserGiftCardSummariesUrl =
-      Uri.https(baseUri, '/$pathPrefix/GetCurrentUserGiftCardSummaries');
-  static final changeGiftCardUrl = Uri.https(baseUri, '/$pathPrefix/ChargeGiftCard');
-  static final getGiftCardUrl = Uri.https(baseUri, '/$pathPrefix/GetGiftCard');
-  static final getPaymentStatusUrl = Uri.https(baseUri, '/$pathPrefix/PaymentStatus');
 
   /// AuthenticateUser
   Future<String> authenticateUser({required String email, required String apiKey}) async {
@@ -168,9 +151,8 @@ class CakePayApi {
 
     final bodyJson = json.decode(response.body) as Map<String, dynamic>;
 
-    throw Exception( 'You just bot a gift card with id: ${bodyJson['order_id']}');
+    throw Exception('You just bot a gift card with id: ${bodyJson['order_id']}');
   }
-
 
   /// Logout
   Future<void> logoutUser({required String email, required String apiKey}) async {
@@ -190,32 +172,6 @@ class CakePayApi {
     } catch (e) {
       print('Caught exception: $e');
     }
-  }
-
-  // Create virtual card
-
-  Future<CakePayVirtualCard> createCard(
-      {required String username, required String password, required String clientId}) async {
-    final headers = <String, String>{
-      'clientId': clientId,
-      'username': username,
-      'password': password
-    };
-    final response = await post(createCardUri, headers: headers);
-
-    if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
-    }
-
-    final bodyJson = json.decode(response.body) as Map<String, dynamic>;
-    final data = bodyJson['Data'] as Map<String, dynamic>;
-    final isSuccessful = bodyJson['Successful'] as bool? ?? false;
-
-    if (!isSuccessful) {
-      throw Exception(data['message'] as String);
-    }
-
-    return CakePayVirtualCard.fromMap(data);
   }
 
   /// Get Countries
@@ -284,198 +240,5 @@ class CakePayApi {
     return (bodyJson['results'] as List)
         .map((e) => CakePayVendor.fromJson(e as Map<String, dynamic>))
         .toList();
-  }
-
-  // Get Merchants By Filter
-
-  Future<List<IoniaMerchant>> getMerchantsByFilter(
-      {String? search, List<IoniaCategory>? categories, int merchantFilterType = 0}) async {
-    // MerchantFilterType: {All = 0, Nearby = 1, Popular = 2, Online = 3, MyFaves = 4, Search = 5}
-
-    final headers = <String, String>{'Content-Type': 'application/json'};
-    final body = <String, dynamic>{'MerchantFilterType': merchantFilterType};
-
-    if (search != null) {
-      body['SearchCriteria'] = search;
-    }
-
-    if (categories != null) {
-      body['Categories'] = categories.map((e) => e.ids).expand((e) => e).toList();
-    }
-
-    final response = await post(getMerchantsByFilterUrl, headers: headers, body: json.encode(body));
-
-    if (response.statusCode != 200) {
-      return [];
-    }
-
-    final decodedBody = json.decode(response.body) as Map<String, dynamic>;
-    final isSuccessful = decodedBody['Successful'] as bool? ?? false;
-
-    if (!isSuccessful) {
-      return [];
-    }
-
-    final data = decodedBody['Data'] as List<dynamic>;
-    final merch = <IoniaMerchant>[];
-
-    for (final item in data) {
-      try {
-        final element = item['Merchant'] as Map<String, dynamic>;
-        merch.add(IoniaMerchant.fromJsonMap(element));
-      } catch (_) {}
-    }
-
-    return merch;
-  }
-
-  // Get Current User Gift Card Summaries
-
-  Future<List<IoniaGiftCard>> getCurrentUserGiftCardSummaries(
-      {required String username, required String password, required String clientId}) async {
-    final headers = <String, String>{
-      'clientId': clientId,
-      'username': username,
-      'password': password
-    };
-    final response = await post(getCurrentUserGiftCardSummariesUrl, headers: headers);
-
-    if (response.statusCode != 200) {
-      return [];
-    }
-
-    final decodedBody = json.decode(response.body) as Map<String, dynamic>;
-    final isSuccessful = decodedBody['Successful'] as bool? ?? false;
-
-    if (!isSuccessful) {
-      return [];
-    }
-
-    final data = decodedBody['Data'] as List<dynamic>;
-    final cards = <IoniaGiftCard>[];
-
-    for (final item in data) {
-      try {
-        final element = item as Map<String, dynamic>;
-        cards.add(IoniaGiftCard.fromJsonMap(element));
-      } catch (_) {}
-    }
-
-    return cards;
-  }
-
-  // Charge Gift Card
-
-  Future<void> chargeGiftCard(
-      {required String username,
-      required String password,
-      required String clientId,
-      required int giftCardId,
-      required double amount}) async {
-    final headers = <String, String>{
-      'clientId': clientId,
-      'username': username,
-      'password': password,
-      'Content-Type': 'application/json'
-    };
-    final body = <String, dynamic>{'Id': giftCardId, 'Amount': amount};
-    final response = await post(changeGiftCardUrl, headers: headers, body: json.encode(body));
-
-    if (response.statusCode != 200) {
-      throw Exception(
-          'Failed to update Gift Card with ID ${giftCardId};Incorrect response status: ${response.statusCode};');
-    }
-
-    final decodedBody = json.decode(response.body) as Map<String, dynamic>;
-    final isSuccessful = decodedBody['Successful'] as bool? ?? false;
-
-    if (!isSuccessful) {
-      final data = decodedBody['Data'] as Map<String, dynamic>;
-      final msg = data['Message'] as String? ?? '';
-
-      if (msg.isNotEmpty) {
-        throw Exception(msg);
-      }
-
-      throw Exception('Failed to update Gift Card with ID ${giftCardId};');
-    }
-  }
-
-  // Get Gift Card
-
-  Future<IoniaGiftCard> getGiftCard(
-      {required String username,
-      required String password,
-      required String clientId,
-      required int id}) async {
-    final headers = <String, String>{
-      'clientId': clientId,
-      'username': username,
-      'password': password,
-      'Content-Type': 'application/json'
-    };
-    final body = <String, dynamic>{'Id': id};
-    final response = await post(getGiftCardUrl, headers: headers, body: json.encode(body));
-
-    if (response.statusCode != 200) {
-      throw Exception(
-          'Failed to get Gift Card with ID ${id};Incorrect response status: ${response.statusCode};');
-    }
-
-    final decodedBody = json.decode(response.body) as Map<String, dynamic>;
-    final isSuccessful = decodedBody['Successful'] as bool? ?? false;
-
-    if (!isSuccessful) {
-      final msg = decodedBody['ErrorMessage'] as String ?? '';
-
-      if (msg.isNotEmpty) {
-        throw Exception(msg);
-      }
-
-      throw Exception('Failed to get Gift Card with ID ${id};');
-    }
-
-    final data = decodedBody['Data'] as Map<String, dynamic>;
-    return IoniaGiftCard.fromJsonMap(data);
-  }
-
-  // Payment Status
-
-  Future<int> getPaymentStatus(
-      {required String username,
-      required String password,
-      required String clientId,
-      required String orderId,
-      required String paymentId}) async {
-    final headers = <String, String>{
-      'clientId': clientId,
-      'username': username,
-      'password': password,
-      'Content-Type': 'application/json'
-    };
-    final body = <String, dynamic>{'order_id': orderId, 'paymentId': paymentId};
-    final response = await post(getPaymentStatusUrl, headers: headers, body: json.encode(body));
-
-    if (response.statusCode != 200) {
-      throw Exception(
-          'Failed to get Payment Status for order_id ${orderId} paymentId ${paymentId};Incorrect response status: ${response.statusCode};');
-    }
-
-    final decodedBody = json.decode(response.body) as Map<String, dynamic>;
-    final isSuccessful = decodedBody['Successful'] as bool? ?? false;
-
-    if (!isSuccessful) {
-      final msg = decodedBody['ErrorMessage'] as String ?? '';
-
-      if (msg.isNotEmpty) {
-        throw Exception(msg);
-      }
-
-      throw Exception(
-          'Failed to get Payment Status for order_id ${orderId} paymentId ${paymentId}');
-    }
-
-    final data = decodedBody['Data'] as Map<String, dynamic>;
-    return data['gift_card_id'] as int;
   }
 }

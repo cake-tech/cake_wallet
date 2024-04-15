@@ -3,8 +3,8 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
-class IoniaTile extends StatelessWidget {
-  const IoniaTile({
+class CakePayTile extends StatelessWidget {
+  const CakePayTile({
     Key? key,
     required this.title,
     required this.subTitle,

@@ -1,7 +1,6 @@
 import 'package:cake_wallet/cake_pay/cake_pay_service.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_states.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
-import 'package:cake_wallet/cake_pay/ionia_category.dart';
 import 'package:cake_wallet/view_model/dashboard/dropdown_filter_item.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:mobx/mobx.dart';
@@ -22,8 +21,6 @@ abstract class CakePayCardsListViewModelBase with Store {
         displayGiftCards = true,
         displayDenominationsCards = true,
         displayCustomValueCards = true,
-        ioniaCategories = IoniaCategory.allCategories,
-        selectedIndices = ObservableList<IoniaCategory>.of([IoniaCategory.all]),
         scrollOffsetFromTop = 0.0,
         vendorsState = InitialCakePayVendorLoadingState(),
         createCardState = CakePayCreateCardState(),
@@ -97,12 +94,6 @@ abstract class CakePayCardsListViewModelBase with Store {
   List<String> availableCountries;
 
   @observable
-  List<IoniaCategory> ioniaCategories;
-
-  @observable
-  ObservableList<IoniaCategory> selectedIndices;
-
-  @observable
   bool displayPrepaidCards;
 
   @observable
@@ -113,17 +104,6 @@ abstract class CakePayCardsListViewModelBase with Store {
 
   @observable
   bool displayCustomValueCards;
-
-  @action
-  Future<void> createCard() async {
-    try {
-      createCardState = CakePayCreateCardStateLoading();
-      await cakePayService.createCard();
-      createCardState = CakePayCreateCardStateSuccess();
-    } catch (e) {
-      createCardState = CakePayCreateCardStateFailure(error: e.toString());
-    }
-  }
 
   Future<void> getCountries() async {
     availableCountries = await cakePayService.getCountries();
@@ -148,47 +128,6 @@ abstract class CakePayCardsListViewModelBase with Store {
 
   Future<bool> isCakePayUserAuthenticated() async {
     return await cakePayService.isLogged();
-  }
-
-  @action
-  void setSelectedFilter(IoniaCategory category) {
-    if (category == IoniaCategory.all) {
-      selectedIndices.clear();
-      selectedIndices.add(category);
-      return;
-    }
-
-    if (category != IoniaCategory.all) {
-      selectedIndices.remove(IoniaCategory.all);
-    }
-
-    if (selectedIndices.contains(category)) {
-      selectedIndices.remove(category);
-
-      if (selectedIndices.isEmpty) {
-        selectedIndices.add(IoniaCategory.all);
-      }
-      return;
-    }
-    selectedIndices.add(category);
-  }
-
-  @action
-  void onSearchFilter(String text) {
-    if (text.isEmpty) {
-      ioniaCategories = IoniaCategory.allCategories;
-    } else {
-      ioniaCategories = IoniaCategory.allCategories
-          .where(
-            (e) => e.title.toLowerCase().contains(text.toLowerCase()),
-          )
-          .toList();
-    }
-  }
-
-  @action
-  void resetIoniaCategories() {
-    ioniaCategories = IoniaCategory.allCategories;
   }
 
   @action

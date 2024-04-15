@@ -1,4 +1,4 @@
-import 'package:cake_wallet/cake_pay/ionia_virtual_card.dart';
+import 'cake_pay_card.dart';
 
 abstract class CakePayUserVerificationState {}
 
@@ -55,7 +55,7 @@ class CakePayCardsStateFailure extends CakePayCardsState {}
 class CakePayCardsStateSuccess extends CakePayCardsState {
   CakePayCardsStateSuccess({required this.card});
 
-  final CakePayVirtualCard card;
+  final CakePayCard card;
 }
 
 abstract class CakePayVendorState {}
