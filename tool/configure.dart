@@ -795,6 +795,7 @@ import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/nano_account_info_response.dart';
+import 'package:cw_core/n2_node.dart';
 import 'package:mobx/mobx.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -853,6 +854,8 @@ abstract class Nano {
   Future<bool> updateTransactions(Object wallet);
   BigInt getTransactionAmountRaw(TransactionInfo transactionInfo);
   String getRepresentative(Object wallet);
+  Future<List<N2Node>> getN2Reps(Object wallet);
+  bool isRepOk(Object wallet);
 }
 
 abstract class NanoAccountList {
