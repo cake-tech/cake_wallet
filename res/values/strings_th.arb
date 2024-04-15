@@ -583,6 +583,8 @@
   "send_your_wallet": "กระเป๋าของคุณ",
   "sending": "กำลังส่ง",
   "sent": "ส่ง",
+  "service_health_disabled": "Service Health Bulletin ถูกปิดใช้งาน",
+  "service_health_disabled_message": "นี่คือหน้า Service Health Bulletin คุณสามารถเปิดใช้งานหน้านี้ภายใต้การตั้งค่า -> ความเป็นส่วนตัว",
   "settings": "การตั้งค่า",
   "settings_all": "ทั้งหมด",
   "settings_allow_biometrical_authentication": "อนุญาตให้ใช้การยืนยันตัวตนทางระบบชีวภาพ",
