@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/ionia/cake_pay_card.dart';
@@ -39,6 +41,8 @@ abstract class CakePayPurchaseViewModelBase with Store {
 
   AnyPayPaymentCommittedInfo? committedInfo;
 
+  Timer? _timer;
+
   CryptoPaymentData? get cryptoPaymentData {
     if (order == null) return null;
 
@@ -59,6 +63,16 @@ abstract class CakePayPurchaseViewModelBase with Store {
   @observable
   ExecutionState invoiceCommittingState;
 
+  @observable
+  bool isOrderExpired = false;
+
+  DateTime? expirationTime;
+
+  Duration? remainingTime;
+
+  @observable
+  String formattedRemainingTime = '';
+
   @computed
   double get giftCardAmount => amount[0];
 
@@ -75,6 +89,9 @@ abstract class CakePayPurchaseViewModelBase with Store {
       order = await cakePayService.createOrder(
           cardId: card.id, price: giftCardAmount.toString(), quantity: giftQuantity);
       await confirmSending();
+      expirationTime = order!.paymentData.expirationTime;
+      updateRemainingTime();
+      _startExpirationTimer();
       orderCreationState = ExecutedSuccessfullyState();
     } catch (e) {
       orderCreationState = FailureState(
@@ -123,5 +140,49 @@ abstract class CakePayPurchaseViewModelBase with Store {
     } catch (e) {
       invoiceCommittingState = FailureState(e.toString());
     }
+  }
+
+  @action
+  void updateRemainingTime() {
+    if (expirationTime == null) {
+      formattedRemainingTime = '';
+      return;
+    }
+
+    remainingTime = expirationTime!.difference(DateTime.now());
+
+    isOrderExpired = remainingTime!.isNegative;
+
+    if (isOrderExpired) {
+      disposeExpirationTimer();
+      orderCreationState = FailureState('Order has expired.');
+    } else {
+      formattedRemainingTime = formatDuration(remainingTime!);
+    }
+  }
+
+  void _startExpirationTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(Duration(seconds: 1), (_) {
+      updateRemainingTime();
+    });
+  }
+
+  String formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  void disposeExpirationTimer() {
+    _timer?.cancel();
+    remainingTime = null;
+    formattedRemainingTime = '';
+    expirationTime = null;
+  }
+
+  void dispose() {
+    disposeExpirationTimer();
   }
 }

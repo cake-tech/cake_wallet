@@ -295,16 +295,31 @@ class CakePayBuyCardDetailPage extends BasePage {
     if (cakePayPurchaseViewModel.order == null) {
       return;
     }
+    ReactionDisposer? disposer;
+
+    disposer = reaction((_) => cakePayPurchaseViewModel.isOrderExpired, (bool isExpired) {
+      if (isExpired) {
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
+        if (disposer != null) {
+          disposer();
+        }
+      }
+    });
+
 
     final order = cakePayPurchaseViewModel.order;
 
     await showPopUp<void>(
       context: context,
       builder: (_) {
-        return ConfirmSendingAlert(
+        return Observer(builder: (_) => ConfirmSendingAlert(
             alertTitle: S.of(context).confirm_sending,
             paymentId: S.of(context).payment_id,
             paymentIdValue: order?.orderId,
+            expirationTime: cakePayPurchaseViewModel.formattedRemainingTime,
+            onDispose: () => _handleDispose(disposer),
             amount: S.of(context).send_amount,
             amountValue: cakePayPurchaseViewModel.sendViewModel.pendingTransaction!.amountFormatted,
             fiatAmountValue:
@@ -322,9 +337,15 @@ class CakePayBuyCardDetailPage extends BasePage {
               cakePayPurchaseViewModel.simulatePayment();
              // await cakePayPurchaseViewModel.commitPaymentInvoice();//TODO: implement commitPaymentInvoice
             },
-            actionLeftButton: () => Navigator.of(context).pop());
+            actionLeftButton: () => Navigator.of(context).pop()));
       },
     );
+  }
+  void _handleDispose(ReactionDisposer? disposer) {
+    cakePayPurchaseViewModel.dispose();
+    if (disposer != null) {
+      disposer();  // Dispose of the MobX reaction
+    }
   }
 }
 
