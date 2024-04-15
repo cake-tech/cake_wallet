@@ -51,14 +51,25 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       body: Observer(
         builder: (_) {
-          final dashboardPageView = _DashboardPageView(
-            balancePage: balancePage,
-            bottomSheetService: bottomSheetService,
-            dashboardViewModel: dashboardViewModel,
-            addressListViewModel: addressListViewModel,
+          final dashboardPageView = RefreshIndicator(
+            displacement: screenHeight * 0.1,
+            onRefresh: () async => await dashboardViewModel.refreshDashboard(),
+            child: SingleChildScrollView(
+              physics: AlwaysScrollableScrollPhysics(),
+              child: Container(
+                height: screenHeight,
+                child: _DashboardPageView(
+                  balancePage: balancePage,
+                  bottomSheetService: bottomSheetService,
+                  dashboardViewModel: dashboardViewModel,
+                  addressListViewModel: addressListViewModel,
+                ),
+              ),
+            ),
           );
 
           if (DeviceInfo.instance.isDesktop) {
