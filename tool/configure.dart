@@ -92,6 +92,7 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
+import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:mobx/mobx.dart';
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
@@ -140,13 +141,14 @@ abstract class Bitcoin {
   String formatterBitcoinAmountToString({required int amount});
   double formatterBitcoinAmountToDouble({required int amount});
   int formatterStringDoubleToBitcoinAmount(String amount);
-  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate);
+  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate, {int? customRate});
 
   List<Unspent> getUnspents(Object wallet);
   Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   TransactionPriority getBitcoinTransactionPriorityMedium();
+  TransactionPriority getBitcoinTransactionPriorityCustom();
   TransactionPriority getLitecoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPrioritySlow();
   TransactionPriority getLitecoinTransactionPrioritySlow();
@@ -156,6 +158,12 @@ abstract class Bitcoin {
   List<ReceivePageOption> getBitcoinReceivePageOptions();
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
   bool hasTaprootInput(PendingTransaction pendingTransaction);
+
+  Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
+  Future<bool> canReplaceByFee(Object wallet, String transactionHash);
+  Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee);
+  int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});
+  int getFeeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
 }
   """;
 
@@ -859,6 +867,7 @@ import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/nano_account_info_response.dart';
+import 'package:cw_core/n2_node.dart';
 import 'package:mobx/mobx.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -917,6 +926,8 @@ abstract class Nano {
   Future<bool> updateTransactions(Object wallet);
   BigInt getTransactionAmountRaw(TransactionInfo transactionInfo);
   String getRepresentative(Object wallet);
+  Future<List<N2Node>> getN2Reps(Object wallet);
+  bool isRepOk(Object wallet);
 }
 
 abstract class NanoAccountList {

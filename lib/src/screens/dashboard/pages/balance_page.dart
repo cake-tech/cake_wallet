@@ -198,6 +198,22 @@ class CryptoBalanceWidget extends StatelessWidget {
                 return Container();
               },
             ),
+            Observer(builder: (_) {
+              if (!dashboardViewModel.showRepWarning) {
+                return const SizedBox();
+              }
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: DashBoardRoundedCardWidget(
+                  title: S.current.rep_warning,
+                  subTitle: S.current.rep_warning_sub,
+                  onTap: () => Navigator.of(context).pushNamed(Routes.changeRep),
+                  onClose: () {
+                    dashboardViewModel.settingsStore.shouldShowRepWarning = false;
+                  },
+                ),
+              );
+            }),
             Observer(
               builder: (_) {
                 return ListView.separated(
@@ -338,7 +354,7 @@ class BalanceRowWidget extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 16,
                               fontFamily: 'Lato',
-                              fontWeight: FontWeight.w500,
+                             fontWeight: FontWeight.w500,
                               color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                               height: 1)),
                     ],
@@ -349,22 +365,26 @@ class BalanceRowWidget extends StatelessWidget {
                   child: Center(
                     child: Column(
                       children: [
-                        CakeImageWidget(
-                          imageUrl: currency.iconPath,
-                          height: 40,
-                          width: 40,
-                          displayOnError: Container(
-                            height: 30.0,
-                            width: 30.0,
-                            child: Center(
-                              child: Text(
-                                currency.title.substring(0, min(currency.title.length, 2)),
-                                style: TextStyle(fontSize: 11),
+                        Container(
+                          clipBehavior: Clip.antiAlias,
+                          decoration: BoxDecoration(shape: BoxShape.circle),
+                          child: CakeImageWidget(
+                            imageUrl: currency.iconPath,
+                            height: 40,
+                            width: 40,
+                            displayOnError: Container(
+                              height: 30.0,
+                              width: 30.0,
+                              child: Center(
+                                child: Text(
+                                  currency.title.substring(0, min(currency.title.length, 2)),
+                                  style: TextStyle(fontSize: 11),
+                                ),
                               ),
-                            ),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.grey.shade400,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.grey.shade400,
+                              ),
                             ),
                           ),
                         ),

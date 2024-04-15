@@ -41,5 +41,6 @@ abstract class WalletAddresses {
     }
   }
 
-  bool containsAddress(String address) => allAddressesMap.containsKey(address);
+  bool containsAddress(String address) =>
+      addressesMap.containsKey(address) || allAddressesMap.containsKey(address);
 }

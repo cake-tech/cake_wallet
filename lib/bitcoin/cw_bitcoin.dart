@@ -74,22 +74,26 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Object createBitcoinTransactionCredentials(List<Output> outputs,
-          {required TransactionPriority priority, int? feeRate}) =>
-      BitcoinTransactionCredentials(
-          outputs
-              .map((out) => OutputInfo(
-                  fiatAmount: out.fiatAmount,
-                  cryptoAmount: out.cryptoAmount,
-                  address: out.address,
-                  note: out.note,
-                  sendAll: out.sendAll,
-                  extractedAddress: out.extractedAddress,
-                  isParsedAddress: out.isParsedAddress,
-                  formattedCryptoAmount: out.formattedCryptoAmount,
-                  memo: out.memo))
-              .toList(),
-          priority: priority as BitcoinTransactionPriority,
-          feeRate: feeRate);
+      {required TransactionPriority priority, int? feeRate}) {
+    final bitcoinFeeRate =
+        priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
+    return BitcoinTransactionCredentials(
+      outputs
+          .map((out) => OutputInfo(
+              fiatAmount: out.fiatAmount,
+              cryptoAmount: out.cryptoAmount,
+              address: out.address,
+              note: out.note,
+              sendAll: out.sendAll,
+              extractedAddress: out.extractedAddress,
+              isParsedAddress: out.isParsedAddress,
+              formattedCryptoAmount: out.formattedCryptoAmount,
+              memo: out.memo))
+          .toList(),
+      priority: priority as BitcoinTransactionPriority,
+      feeRate: bitcoinFeeRate
+    );
+  }
 
   @override
   Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs,
@@ -172,8 +176,9 @@ class CWBitcoin extends Bitcoin {
   int formatterStringDoubleToBitcoinAmount(String amount) => stringDoubleToBitcoinAmount(amount);
 
   @override
-  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate) =>
-      (priority as BitcoinTransactionPriority).labelWithRate(rate);
+  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate,
+          {int? customRate}) =>
+      (priority as BitcoinTransactionPriority).labelWithRate(rate, customRate);
 
   @override
   List<BitcoinUnspent> getUnspents(Object wallet) {
@@ -198,6 +203,9 @@ class CWBitcoin extends Bitcoin {
 
   @override
   TransactionPriority getBitcoinTransactionPriorityMedium() => BitcoinTransactionPriority.medium;
+
+  @override
+  TransactionPriority getBitcoinTransactionPriorityCustom() => BitcoinTransactionPriority.custom;
 
   @override
   TransactionPriority getLitecoinTransactionPriorityMedium() => LitecoinTransactionPriority.medium;
@@ -243,5 +251,44 @@ class CWBitcoin extends Bitcoin {
   @override
   bool hasTaprootInput(PendingTransaction pendingTransaction) {
     return (pendingTransaction as PendingBitcoinTransaction).hasTaprootInputs;
+  }
+
+  @override
+  Future<PendingBitcoinTransaction> replaceByFee(
+      Object wallet, String transactionHash, String fee) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return await bitcoinWallet.replaceByFee(transactionHash, int.parse(fee));
+  }
+
+  @override
+  Future<bool> canReplaceByFee(Object wallet, String transactionHash) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.canReplaceByFee(transactionHash);
+  }
+
+  @override
+  Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.isChangeSufficientForFee(txId, int.parse(newFee));
+  }
+
+  @override
+  int getFeeAmountForPriority(
+      Object wallet, TransactionPriority priority, int inputsCount, int outputsCount,
+      {int? size}) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.feeAmountForPriority(
+        priority as BitcoinTransactionPriority, inputsCount, outputsCount);
+  }
+
+  @override
+  int getFeeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount,
+      {int? size}) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.feeAmountWithFeeRate(
+      feeRate,
+      inputsCount,
+      outputsCount,
+    );
   }
 }

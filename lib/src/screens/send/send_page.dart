@@ -100,7 +100,10 @@ class SendPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   double _sendCardHeight(BuildContext context) {
-    final double initialHeight = sendViewModel.hasCoinControl ? 500 : 465;
+    double initialHeight = 450;
+    if (sendViewModel.hasCoinControl) {
+      initialHeight += 35;
+    }
 
     if (!responsiveLayoutUtil.shouldRenderMobileUI) {
       return initialHeight - 66;
@@ -190,7 +193,7 @@ class SendPage extends BasePage {
                         },
                       )),
                   Padding(
-                    padding: EdgeInsets.only(top: 10, left: 24, right: 24, bottom: 10),
+                    padding: EdgeInsets.only(left: 24, right: 24, bottom: 10),
                     child: Container(
                       height: 10,
                       child: Observer(
@@ -456,7 +459,7 @@ class SendPage extends BasePage {
                                       ? '. ${S.of(_dialogContext).waitFewSecondForTxUpdate}' : '';
 
                                   final newContactMessage = newContactAddress != null
-                                      ? '\n${S.of(context).add_contact_to_address_book}' : '';
+                                      ? '\n${S.of(_dialogContext).add_contact_to_address_book}' : '';
 
                                   final alertContent =
                                       "$successMessage$waitMessage$newContactMessage";

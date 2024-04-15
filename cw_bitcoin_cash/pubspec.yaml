@@ -28,7 +28,7 @@ dependencies:
   bitbox:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git
-      ref: master
+      ref: Add-Support-For-OP-Return-data
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base.git
