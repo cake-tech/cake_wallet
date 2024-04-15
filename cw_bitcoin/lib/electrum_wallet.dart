@@ -125,6 +125,9 @@ abstract class ElectrumWalletBase
   @override
   String get seed => mnemonic;
 
+  @override
+  String get privateKey => hd.privKey!;
+
   bitcoin.NetworkType networkType;
   BasedUtxoNetwork network;
 

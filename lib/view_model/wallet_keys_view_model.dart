@@ -104,6 +104,8 @@ abstract class WalletKeysViewModelBase with Store {
         _appStore.wallet!.type == WalletType.litecoin ||
         _appStore.wallet!.type == WalletType.bitcoinCash) {
       items.addAll([
+        if (_appStore.wallet!.privateKey != null)
+          StandartListItem(title: S.current.private_key, value: _appStore.wallet!.privateKey!),
         StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
