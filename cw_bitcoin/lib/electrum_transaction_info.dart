@@ -158,8 +158,10 @@ class ElectrumTransactionInfo extends TransactionInfo {
   }
 
   factory ElectrumTransactionInfo.fromJson(Map<String, dynamic> data, WalletType type) {
-    final inputAddresses = data['inputAddresses'] as List<dynamic>;
-    final outputAddresses = data['outputAddresses'] as List<dynamic>;
+    final inputAddresses = data['inputAddresses'] as List<dynamic>? ?? [];
+    final outputAddresses = data['outputAddresses'] as List<dynamic>? ?? [];
+    final unspents = data['unspents'] as List<dynamic>? ?? [];
+
     return ElectrumTransactionInfo(
       type,
       id: data['id'] as String,
@@ -175,13 +177,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
       outputAddresses:
           outputAddresses.isEmpty ? [] : outputAddresses.map((e) => e.toString()).toList(),
       to: data['to'] as String?,
-      unspents: data['unspents'] != null
-          ? (data['unspents'] as List<dynamic>)
-              .map((unspent) => BitcoinUnspent.fromJSON(
-                  BitcoinSilentPaymentAddressRecord.fromJSON(unspent['address_record'].toString()),
-                  unspent as Map<String, dynamic>))
-              .toList()
-          : null,
+      unspents: unspents
+          .map((unspent) => BitcoinUnspent.fromJSON(
+              BitcoinSilentPaymentAddressRecord.fromJSON(unspent['address_record'].toString()),
+              unspent as Map<String, dynamic>))
+          .toList(),
     );
   }
 
