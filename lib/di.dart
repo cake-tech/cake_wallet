@@ -14,6 +14,8 @@ import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/nano/nano.dart';
@@ -493,6 +495,7 @@ Future<void> setup({
       getIt.get<BottomSheetService>(),
       getIt.get<WalletConnectKeyService>(),
       appStore,
+      getIt.get<SharedPreferences>()
     );
     web3WalletService.create();
     return web3WalletService;
@@ -921,7 +924,8 @@ Future<void> setup({
         transactionInfo: transactionInfo,
         transactionDescriptionBox: _transactionDescriptionBox,
         wallet: wallet,
-        settingsStore: getIt.get<SettingsStore>());
+        settingsStore: getIt.get<SettingsStore>(),
+        sendViewModel: getIt.get<SendViewModel>());
   });
 
   getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(
@@ -1143,6 +1147,11 @@ Future<void> setup({
   getIt.registerFactory(() => IoniaAccountPage(getIt.get<IoniaAccountViewModel>()));
 
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
+
+  getIt.registerFactoryParam<RBFDetailsPage, TransactionInfo, void>(
+          (TransactionInfo transactionInfo, _) => RBFDetailsPage(
+          transactionDetailsViewModel:
+          getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
 
   getIt.registerFactory(() => AnonPayApi(
       useTorOnly: getIt.get<SettingsStore>().exchangeStatus == ExchangeApiMode.torOnly,

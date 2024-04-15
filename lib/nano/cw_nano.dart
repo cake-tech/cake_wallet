@@ -186,6 +186,16 @@ class CWNano extends Nano {
   String getRepresentative(Object wallet) {
     return (wallet as NanoWallet).representative;
   }
+
+  @override
+  Future<List<N2Node>> getN2Reps(Object wallet) async {
+    return (wallet as NanoWallet).getN2Reps();
+  }
+
+  @override
+  bool isRepOk(Object wallet) {
+    return (wallet as NanoWallet).isRepOk;
+  }
 }
 
 class CWNanoUtil extends NanoUtil {

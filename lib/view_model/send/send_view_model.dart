@@ -39,6 +39,7 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:collection/collection.dart';
 
 part 'send_view_model.g.dart';
 
@@ -68,9 +69,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         _settingsStore = appStore.settingsStore,
         fiatFromSettings = appStore.settingsStore.fiatCurrency,
         super(appStore: appStore) {
+    if (wallet.type == WalletType.bitcoin &&
+        _settingsStore.priority[wallet.type] == bitcoinTransactionPriorityCustom) {
+      setTransactionPriority(bitcoinTransactionPriorityMedium);
+    }
     final priority = _settingsStore.priority[wallet.type];
     final priorities = priorityForWalletType(wallet.type);
-
     if (!priorityForWalletType(wallet.type).contains(priority) && priorities.isNotEmpty) {
       _settingsStore.priority[wallet.type] = priorities.first;
     }
@@ -151,6 +155,21 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     return priority;
   }
+
+  int? getCustomPriorityIndex(List<TransactionPriority> priorities) {
+    if (wallet.type == WalletType.bitcoin) {
+      final customItem = priorities
+          .firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
+
+      return customItem != null ? priorities.indexOf(customItem) : null;
+    }
+    return null;
+  }
+
+  @computed
+  int get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate;
+
+  void set customBitcoinFeeRate(int value) => _settingsStore.customBitcoinFeeRate = value;
 
   CryptoCurrency get currency => wallet.currency;
 
@@ -308,12 +327,41 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       pendingTransaction = await wallet.createTransaction(_credentials());
       if (provider is ThorChainExchangeProvider) {
         final outputCount = pendingTransaction?.outputCount ?? 0;
-        if (outputCount > 10) throw Exception("ThorChain does not support more than 10 outputs");
+        if (outputCount > 10) {
+          throw Exception("ThorChain does not support more than 10 outputs");
+        }
+        if (_hasTaprootInput(pendingTransaction)) {
+          throw Exception("ThorChain does not support Taproot addresses");
+        }
       }
       state = ExecutedSuccessfullyState();
       return pendingTransaction;
     } catch (e) {
       state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
+    }
+    return null;
+  }
+
+  @action
+  Future<void> replaceByFee(String txId, String newFee) async {
+    state = IsExecutingState();
+
+    final isSufficient = await bitcoin!.isChangeSufficientForFee(wallet, txId, newFee);
+
+    if (!isSufficient) {
+      state = AwaitingConfirmationState(
+          title: S.current.confirm_fee_deduction,
+          message: S.current.confirm_fee_deduction_content,
+          onConfirm: () async {
+            pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
+            state = ExecutedSuccessfullyState();
+          },
+          onCancel: () {
+            state = FailureState('Insufficient change for fee');
+          });
+    } else {
+      pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
+      state = ExecutedSuccessfullyState();
     }
   }
 
@@ -374,7 +422,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        return bitcoin!.createBitcoinTransactionCredentials(outputs, priority: priority!);
+        return bitcoin!.createBitcoinTransactionCredentials(outputs,
+            priority: priority!, feeRate: customBitcoinFeeRate);
 
       case WalletType.monero:
         return monero!
@@ -400,8 +449,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
-  String displayFeeRate(dynamic priority) {
+  String displayFeeRate(dynamic priority, int? customValue) {
     final _priority = priority as TransactionPriority;
+
+    if (walletType == WalletType.bitcoin) {
+      final rate = bitcoin!.getFeeRate(wallet, _priority);
+      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
+    }
 
     if (isElectrumWallet) {
       final rate = bitcoin!.getFeeRate(wallet, _priority);
@@ -413,6 +467,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool _isEqualCurrency(String currency) =>
       wallet.balance.keys.any((e) => currency.toLowerCase() == e.title.toLowerCase());
+
+  TransactionPriority get bitcoinTransactionPriorityCustom =>
+      bitcoin!.getBitcoinTransactionPriorityCustom();
+
+  TransactionPriority get bitcoinTransactionPriorityMedium =>
+      bitcoin!.getBitcoinTransactionPriorityMedium();
 
   @action
   void onClose() => _settingsStore.fiatCurrency = fiatFromSettings;
@@ -443,7 +503,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         address = output.address;
       }
 
-      if (address.isNotEmpty && !contactAddresses.contains(address)) {
+      if (address.isNotEmpty &&
+          !contactAddresses.contains(address) &&
+          selectedCryptoCurrency.raw != -1) {
         return ContactRecord(
             contactListViewModel.contactSource,
             Contact(
@@ -511,5 +573,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     return errorMessage;
+  }
+
+  bool _hasTaprootInput(PendingTransaction? pendingTransaction) {
+    if (walletType == WalletType.bitcoin && pendingTransaction != null) {
+      return bitcoin!.hasTaprootInput(pendingTransaction);
+    }
+
+    return false;
   }
 }

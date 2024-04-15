@@ -46,6 +46,10 @@ abstract class ResponsiveLayoutUtilBase with Store, WidgetsBindingObserver {
         (orientation == Orientation.portrait && screenWidth < screenHeight) ||
         (orientation == Orientation.landscape && screenWidth < screenHeight);
   }
+
+  bool get shouldRenderTabletUI {
+    return screenWidth > _kMobileThreshold && screenWidth < kDesktopMaxDashBoardWidthConstraint;
+  }
 }
 
 _ResponsiveLayoutUtil _singletonResponsiveLayoutUtil = _ResponsiveLayoutUtil();
