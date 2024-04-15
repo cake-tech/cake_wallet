@@ -27,8 +27,11 @@ import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:solana/base58.dart';
 import 'package:solana/metaplex.dart' as metaplex;
 import 'package:solana/solana.dart';
+import 'package:solana/src/crypto/ed25519_hd_keypair.dart';
+import 'package:cryptography/cryptography.dart';
 
 part 'solana_wallet.g.dart';
 
@@ -521,21 +524,46 @@ abstract class SolanaWalletBase
 
     // Sign the message bytes with the wallet's private key
     final signature = await _walletKeyPair!.sign(messageBytes);
-
-    // Convert the signature to a hexadecimal string
-    final hex = HEX.encode(signature.bytes);
-
-    return hex;
+    return signature.toString();
   }
 
   @override
   Future<String> signMessage(String message, {String? address}) async {
-    return signSolanaMessage(message);
+    return HEX.encode(utf8.encode(await signSolanaMessage(message))).toUpperCase();
+  }
+
+  List<List<int>> bytesFromSigString(String signatureString) {
+    final regex = RegExp(r'Signature\(\[(.+)\], publicKey: (.+)\)');
+    final match = regex.firstMatch(signatureString);
+
+    if (match != null) {
+      final bytesString = match.group(1)!;
+      final base58EncodedPublicKeyString = match.group(2)!;
+      final sigBytes = bytesString.split(', ').map(int.parse).toList();
+
+      List<int> pubKeyBytes = base58decode(base58EncodedPublicKeyString);
+
+      return [sigBytes, pubKeyBytes];
+    } else {
+      throw const FormatException('Invalid Signature string format');
+    }
   }
 
   @override
   Future<bool> verifyMessage(String message, String signature, {String? address}) async {
-    throw UnimplementedError();
+    String signatureString = utf8.decode(HEX.decode(signature));
+
+    List<List<int>> bytes = bytesFromSigString(signatureString);
+
+    final messageBytes = utf8.encode(message);
+    final sigBytes = bytes[0];
+    final pubKeyBytes = bytes[1];
+
+    return await verifySignature(
+      message: messageBytes,
+      signature: sigBytes,
+      publicKey: Ed25519HDPublicKey(pubKeyBytes),
+    );
   }
 
   SolanaClient? get solanaClient => _client.getSolanaClient;
