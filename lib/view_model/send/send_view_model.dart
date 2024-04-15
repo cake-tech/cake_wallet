@@ -325,9 +325,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     try {
       state = IsExecutingState();
 
-      final isEOAAddress = await _isExternallyOwnedAccountAddress(wallet.walletAddresses.address);
+      final isEOAAddress = await _isExternallyOwnedAccountAddress(_credentials());
       if (!isEOAAddress) {
-        throw Exception("Please pass in a valid ethereum address");
+        throw Exception("Receiving address is not valid");
       }
 
       pendingTransaction = await wallet.createTransaction(_credentials());
@@ -587,13 +587,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return false;
   }
 
-  Future<bool> _isExternallyOwnedAccountAddress(String address) async {
+  Future<bool> _isExternallyOwnedAccountAddress(Object credentials) async {
     if (walletType == WalletType.ethereum) {
-      return await ethereum!.isExternallyOwnedAccountAddress(wallet, address);
+      final receivingAddress = ethereum!.getReceivingAddressFromCredentials(credentials);
+      return await ethereum!.isExternallyOwnedAccountAddress(wallet, receivingAddress);
     }
 
     if (walletType == WalletType.polygon) {
-      return await polygon!.isExternallyOwnedAccountAddress(wallet, address);
+      final receivingAddress = polygon!.getReceivingAddressFromCredentials(credentials);
+      return await polygon!.isExternallyOwnedAccountAddress(wallet, receivingAddress);
     }
 
     return true;

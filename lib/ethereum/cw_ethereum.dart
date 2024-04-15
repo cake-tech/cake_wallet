@@ -158,6 +158,11 @@ class CWEthereum extends Ethereum {
 
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
+  String getReceivingAddressFromCredentials(Object credentials) {
+    final creds = credentials as EVMChainTransactionCredentials;
+    return creds.outputs.first.address;
+  }
+
   Future<bool> isExternallyOwnedAccountAddress(WalletBase wallet, String address) async {
     return await (wallet as EthereumWallet).isExternallyOwnedAccount(address);
   }
