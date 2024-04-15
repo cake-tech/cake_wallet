@@ -325,19 +325,20 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     try {
       state = IsExecutingState();
 
-      final isEOAAddress = await _isExternallyOwnedAccountAddress(_credentials());
-      if (!isEOAAddress) {
-        throw Exception("Receiving address is not valid");
-      }
-
       pendingTransaction = await wallet.createTransaction(_credentials());
       if (provider is ThorChainExchangeProvider) {
         final outputCount = pendingTransaction?.outputCount ?? 0;
         if (outputCount > 10) {
-          throw Exception("ThorChain does not support more than 10 outputs");
+          throw Exception("THORChain does not support more than 10 outputs");
         }
+
         if (_hasTaprootInput(pendingTransaction)) {
-          throw Exception("ThorChain does not support Taproot addresses");
+          throw Exception("THORChain does not support Taproot addresses");
+        }
+
+        final isEOAAddress = await _isExternallyOwnedAccountAddress(_credentials());
+        if (!isEOAAddress) {
+          throw Exception("THORChain does not support sending to a contract address");
         }
       }
       state = ExecutedSuccessfullyState();
