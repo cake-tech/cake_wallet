@@ -134,10 +134,7 @@ class QuantexExchangeProvider extends ExchangeProvider {
     required bool isSendAll,
   }) async {
     try {
-      final headers = <String, String>{
-        // 'Authorization': 'Bearer Cake=$apiKey',
-        // 'X-Amz-Date': DateTime.now().toUtc().toIso8601String(),
-      };
+      final headers = <String, String>{};
       final params = <String, dynamic>{};
       var body = <String, dynamic>{
         'coin_send': _normalizeCurrency(request.fromCurrency),
