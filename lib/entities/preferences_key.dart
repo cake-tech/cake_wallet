@@ -45,6 +45,7 @@ class PreferencesKey {
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
+  static const shouldShowRepWarning = 'should_show_rep_warning';
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
   static const syncModeKey = 'sync_mode';
   static const syncAllKey = 'sync_all';
@@ -75,4 +76,7 @@ class PreferencesKey {
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';
   static const serviceStatusShaKey = 'service_status_sha_key';
+  static const walletConnectPairingTopicsList = 'wallet_connect_pairing_topics_list';
+  static String walletConnectPairingTopicsListForWallet(String publicKey) =>
+      '${PreferencesKey.walletConnectPairingTopicsList}_${publicKey}';
 }
