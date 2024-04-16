@@ -222,6 +222,7 @@ Future<void> defaultSettingsMigration(
 
         case 32:
           await updateBtcNanoWalletInfos(walletInfoSource);
+          break;
 
         default:
           break;
