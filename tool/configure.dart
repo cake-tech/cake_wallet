@@ -592,7 +592,7 @@ abstract class Ethereum {
   WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo});
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
-  WalletCredentials createEthereumHardwareWalletCredentials({required String name, required String address, WalletInfo? walletInfo});
+  WalletCredentials createEthereumHardwareWalletCredentials({required String name, required HardwareAccountData hwAccountData, WalletInfo? walletInfo});
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
@@ -696,7 +696,7 @@ abstract class Polygon {
   WalletCredentials createPolygonNewWalletCredentials({required String name, WalletInfo? walletInfo});
   WalletCredentials createPolygonRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createPolygonRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
-  WalletCredentials createPolygonHardwareWalletCredentials({required String name, required String address, WalletInfo? walletInfo});
+  WalletCredentials createPolygonHardwareWalletCredentials({required String name, required HardwareAccountData hwAccountData, WalletInfo? walletInfo});
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);

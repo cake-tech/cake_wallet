@@ -52,6 +52,8 @@ class LedgerViewModel {
         return S.current.ledger_error_tx_rejected_by_user;
       case "5515":
         return S.current.ledger_error_device_locked;
+      case "6d02": // UNKNOWN_APDU
+      case "6511":
       case "6e00":
         return S.current.ledger_error_wrong_app;
       default:

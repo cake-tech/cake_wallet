@@ -33,10 +33,11 @@ class CWEthereum extends Ethereum {
   @override
   WalletCredentials createEthereumHardwareWalletCredentials({
     required String name,
-    required String address,
+    required HardwareAccountData hwAccountData,
     WalletInfo? walletInfo,
   }) =>
-      EVMChainRestoreWalletFromHardware(name: name, address: address, walletInfo: walletInfo);
+      EVMChainRestoreWalletFromHardware(
+          name: name, hwAccountData: hwAccountData, walletInfo: walletInfo);
 
   @override
   String getAddress(WalletBase wallet) => (wallet as EthereumWallet).walletAddresses.address;
@@ -170,8 +171,10 @@ class CWEthereum extends Ethereum {
 
   @override
   void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device) {
-    ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials)
-        .setLedger(ledger, device.connectionType == ConnectionType.usb ? device : null);
+    ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedger(
+        ledger,
+        device.connectionType == ConnectionType.usb ? device : null,
+        wallet.walletInfo.derivationPath);
   }
 
   @override
