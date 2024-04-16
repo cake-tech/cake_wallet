@@ -19,10 +19,11 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
   @override
   EthereumAddress get address => EthereumAddress.fromHex(_address);
 
-  void setLedger(Ledger setLedger, [LedgerDevice? setLedgerDevice]) {
+  void setLedger(Ledger setLedger, [LedgerDevice? setLedgerDevice, String? derivationPath]) {
     ledger = setLedger;
     ledgerDevice = setLedgerDevice;
-    ethereumLedgerApp = EthereumLedgerApp(ledger!);
+    ethereumLedgerApp =
+        EthereumLedgerApp(ledger!, derivationPath: derivationPath ?? "m/44'/60'/0'/0/0");
   }
 
   @override

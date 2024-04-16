@@ -85,6 +85,11 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
   @override
   Future<EthereumWallet> restoreFromHardwareWallet(
       EVMChainRestoreWalletFromHardware credentials) async {
+    credentials.walletInfo!.derivationPath =
+        "m/44'/60'/${credentials.hwAccountData.accountIndex}'/0/0";
+    credentials.walletInfo!.hardwareWalletType = credentials.hardwareWalletType;
+    credentials.walletInfo!.address = credentials.hwAccountData.address;
+
     final wallet = EthereumWallet(
       walletInfo: credentials.walletInfo!,
       password: credentials.password!,

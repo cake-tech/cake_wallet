@@ -87,19 +87,25 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
   }
 
   @override
-  Future<PolygonWallet> restoreFromHardwareWallet(EVMChainRestoreWalletFromHardware credentials) async {
-      final wallet = PolygonWallet(
-        walletInfo: credentials.walletInfo!,
-        password: credentials.password!,
-        client: client,
-      );
+  Future<PolygonWallet> restoreFromHardwareWallet(
+      EVMChainRestoreWalletFromHardware credentials) async {
+    credentials.walletInfo!.derivationPath =
+        "m/44'/60'/${credentials.hwAccountData.accountIndex}'/0/0";
+    credentials.walletInfo!.hardwareWalletType = credentials.hardwareWalletType;
+    credentials.walletInfo!.address = credentials.hwAccountData.address;
 
-      await wallet.init();
-      wallet.addInitialTokens();
-      await wallet.save();
+    final wallet = PolygonWallet(
+      walletInfo: credentials.walletInfo!,
+      password: credentials.password!,
+      client: client,
+    );
 
-      return wallet;
-    }
+    await wallet.init();
+    wallet.addInitialTokens();
+    await wallet.save();
+
+    return wallet;
+  }
 
   @override
   Future<PolygonWallet> restoreFromSeed(EVMChainRestoreWalletFromSeedCredentials credentials,

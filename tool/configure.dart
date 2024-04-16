@@ -544,6 +544,7 @@ import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -582,7 +583,7 @@ abstract class Ethereum {
   WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo});
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
-  WalletCredentials createEthereumHardwareWalletCredentials({required String name, required String address, WalletInfo? walletInfo});
+  WalletCredentials createEthereumHardwareWalletCredentials({required String name, required HardwareAccountData hwAccountData, WalletInfo? walletInfo});
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
@@ -619,7 +620,7 @@ abstract class Ethereum {
   String getTokenAddress(CryptoCurrency asset);
   
   void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device);
-  Future<List<String>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
+  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
 }
   """;
 
@@ -647,6 +648,7 @@ import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -685,7 +687,7 @@ abstract class Polygon {
   WalletCredentials createPolygonNewWalletCredentials({required String name, WalletInfo? walletInfo});
   WalletCredentials createPolygonRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createPolygonRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
-  WalletCredentials createPolygonHardwareWalletCredentials({required String name, required String address, WalletInfo? walletInfo});
+  WalletCredentials createPolygonHardwareWalletCredentials({required String name, required HardwareAccountData hwAccountData, WalletInfo? walletInfo});
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
@@ -722,7 +724,7 @@ abstract class Polygon {
   String getTokenAddress(CryptoCurrency asset);
   
   void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device);
-  Future<List<String>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
+  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
 }
   """;
 
