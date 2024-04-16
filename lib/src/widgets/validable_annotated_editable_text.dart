@@ -1,29 +1,14 @@
 import 'package:flutter/material.dart';
 
-abstract class ComparableCopy<T> {
-  /// Compares this object to another object.
-  ///
-  /// Returns a value like a [Comparator] when comparing `this` to [other].
-  /// That is, it returns a negative integer if `this` is ordered before [other],
-  /// a positive integer if `this` is ordered after [other],
-  /// and zero if `this` and [other] are ordered together.
-  ///
-  /// The [other] argument must be a value that is comparable to this object.
-  int compareTo(T other);
 
-  /// A [Comparator] that compares one comparable to another.
-  ///
-  /// It returns the result of `a.compareTo(b)`.
-  /// The call may fail at run-time
-  /// if `a` is not comparable to the type of `b`.
-  ///
-  /// This utility function is used as the default comparator
-  /// for ordering collections, for example in the [List] sort function.
-  static int compare(ComparableCopy a, ComparableCopy b) => a.compareTo(b);
+extension Compare<T> on Comparable<T> {
+  bool operator <=(T other) => compareTo(other) <= 0;
+  bool operator >=(T other) => compareTo(other) >= 0;
+  bool operator <(T other) => compareTo(other) < 0;
+  bool operator >(T other) => compareTo(other) > 0;
 }
 
-
-class Annotation extends ComparableCopy<Annotation> {
+class Annotation implements Comparable<Annotation> {
   Annotation({required this.range, required this.style});
 
   final TextRange range;
@@ -33,7 +18,7 @@ class Annotation extends ComparableCopy<Annotation> {
   int compareTo(Annotation other) => range.start.compareTo(other.range.start);
 }
 
-class TextAnnotation extends ComparableCopy<TextAnnotation> {
+class TextAnnotation implements Comparable<TextAnnotation> {
   TextAnnotation({required this.text, required this.style});
 
   final TextStyle style;

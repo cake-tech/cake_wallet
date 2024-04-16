@@ -1002,21 +1002,21 @@ String get todayLabel => 'Oyọ';
   
   @override
   // TODO: implement clearButtonLabel
-  String get clearButtonLabel => throw UnimplementedError();
+  String get clearButtonLabel => "clearButtonLabel";
   
   @override
   // TODO: implement lookUpButtonLabel
-  String get lookUpButtonLabel => throw UnimplementedError();
+  String get lookUpButtonLabel => "lookUpButtonLabel";
   
   @override
   // TODO: implement menuDismissLabel
-  String get menuDismissLabel => throw UnimplementedError();
+  String get menuDismissLabel => "menuDismissLabel";
   
   @override
   // TODO: implement searchWebButtonLabel
-  String get searchWebButtonLabel => throw UnimplementedError();
+  String get searchWebButtonLabel => "searchWebButtonLabel";
   
   @override
   // TODO: implement shareButtonLabel
-  String get shareButtonLabel => throw UnimplementedError();
+  String get shareButtonLabel => "shareButtonLabel";
 }
