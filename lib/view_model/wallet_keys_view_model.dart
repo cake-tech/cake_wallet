@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -105,7 +106,15 @@ abstract class WalletKeysViewModelBase with Store {
         _appStore.wallet!.type == WalletType.lightning ||
         _appStore.wallet!.type == WalletType.litecoin ||
         _appStore.wallet!.type == WalletType.bitcoinCash) {
+      // final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
+
       items.addAll([
+        // if (keys['wif'] != null)
+        //   StandartListItem(title: "WIF", value: keys['wif']!),
+        // if (keys['privateKey'] != null)
+        //   StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
+        // if (keys['publicKey'] != null)
+        //   StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
         StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
