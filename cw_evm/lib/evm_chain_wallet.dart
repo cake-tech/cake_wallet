@@ -224,10 +224,17 @@ abstract class EVMChainWalletBase
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
 
+    final String? opReturnMemo = outputs.first.memo;
+
+    String? hexOpReturnMemo;
+    if (opReturnMemo != null) {
+      hexOpReturnMemo = '0x${opReturnMemo.codeUnits.map((char) => char.toRadixString(16).padLeft(2, '0')).join()}';
+    }
+
     final CryptoCurrency transactionCurrency =
         balance.keys.firstWhere((element) => element.title == _credentials.currency.title);
 
-    final _erc20Balance = balance[transactionCurrency]!;
+    final erc20Balance = balance[transactionCurrency]!;
     BigInt totalAmount = BigInt.zero;
     int exponent = transactionCurrency is Erc20Token ? transactionCurrency.decimal : 18;
     num amountToEVMChainMultiplier = pow(10, exponent);
@@ -242,7 +249,7 @@ abstract class EVMChainWalletBase
           outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
       totalAmount = BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
 
-      if (_erc20Balance.balance < totalAmount) {
+      if (erc20Balance.balance < totalAmount) {
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
     } else {
@@ -251,18 +258,27 @@ abstract class EVMChainWalletBase
       // then no need to subtract the fees from the amount if send all
       final BigInt allAmount;
       if (transactionCurrency is Erc20Token) {
-        allAmount = _erc20Balance.balance;
+        allAmount = erc20Balance.balance;
       } else {
-        allAmount = _erc20Balance.balance -
-            BigInt.from(calculateEstimatedFee(_credentials.priority!, null));
-      }
-      final totalOriginalAmount =
-          EVMChainFormatter.parseEVMChainAmountToDouble(output.formattedCryptoAmount ?? 0);
-      totalAmount = output.sendAll
-          ? allAmount
-          : BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
+        final estimatedFee = BigInt.from(calculateEstimatedFee(_credentials.priority!, null));
 
-      if (_erc20Balance.balance < totalAmount) {
+        if (estimatedFee > erc20Balance.balance) {
+          throw EVMChainTransactionFeesException();
+        }
+
+        allAmount = erc20Balance.balance - estimatedFee;
+      }
+
+      if (output.sendAll) {
+        totalAmount = allAmount;
+      } else {
+        final totalOriginalAmount =
+            EVMChainFormatter.parseEVMChainAmountToDouble(output.formattedCryptoAmount ?? 0);
+
+        totalAmount = BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
+      }
+
+      if (erc20Balance.balance < totalAmount) {
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
     }
@@ -272,13 +288,14 @@ abstract class EVMChainWalletBase
       toAddress: _credentials.outputs.first.isParsedAddress
           ? _credentials.outputs.first.extractedAddress!
           : _credentials.outputs.first.address,
-      amount: totalAmount.toString(),
+      amount: totalAmount,
       gas: _estimatedGas!,
       priority: _credentials.priority!,
       currency: transactionCurrency,
       exponent: exponent,
       contractAddress:
           transactionCurrency is Erc20Token ? transactionCurrency.contractAddress : null,
+      data: hexOpReturnMemo,
     );
 
     return pendingEVMChainTransaction;
@@ -310,6 +327,7 @@ abstract class EVMChainWalletBase
   Future<Map<String, EVMChainTransactionInfo>> fetchTransactions() async {
     final address = _evmChainPrivateKey.address.hex;
     final transactions = await _client.fetchTransactions(address);
+    final internalTransactions = await _client.fetchInternalTransactions(address);
 
     final List<Future<List<EVMChainTransactionModel>>> erc20TokensTransactions = [];
 
@@ -324,6 +342,7 @@ abstract class EVMChainWalletBase
 
     final tokensTransaction = await Future.wait(erc20TokensTransactions);
     transactions.addAll(tokensTransaction.expand((element) => element));
+    transactions.addAll(internalTransactions);
 
     final Map<String, EVMChainTransactionInfo> result = {};
 
@@ -420,11 +439,16 @@ abstract class EVMChainWalletBase
 
   Future<void> addErc20Token(Erc20Token token) async {
     String? iconPath;
-    try {
-      iconPath = CryptoCurrency.all
-          .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
-          .iconPath;
-    } catch (_) {}
+
+    if (token.iconPath == null || token.iconPath!.isEmpty) {
+      try {
+        iconPath = CryptoCurrency.all
+            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+            .iconPath;
+      } catch (_) {}
+    } else {
+      iconPath = token.iconPath;
+    }
 
     final newToken = createNewErc20TokenObject(token, iconPath);
 
@@ -447,8 +471,8 @@ abstract class EVMChainWalletBase
     _updateBalance();
   }
 
-  Future<Erc20Token?> getErc20Token(String contractAddress) async =>
-      await _client.getErc20Token(contractAddress);
+  Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async =>
+      await _client.getErc20Token(contractAddress, chainName);
 
   void _onNewTransaction() {
     _updateBalance();
@@ -484,7 +508,7 @@ abstract class EVMChainWalletBase
       _transactionsUpdateTimer!.cancel();
     }
 
-    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 15), (_) {
       _updateTransactions();
       _updateBalance();
     });

@@ -46,6 +46,8 @@ abstract class ContactListViewModelBase with Store {
             name,
             walletTypeToCryptoCurrency(info.type),
           ));
+          // Only one contact address per wallet
+          return;
         });
       } else if (info.address != null) {
         walletContacts.add(WalletContact(

@@ -12,16 +12,15 @@ import 'package:permission_handler/permission_handler.dart';
 
 part 'node_create_or_edit_view_model.g.dart';
 
-class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
-    with _$NodeCreateOrEditViewModel;
+class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase with _$NodeCreateOrEditViewModel;
 
 abstract class NodeCreateOrEditViewModelBase with Store {
-  NodeCreateOrEditViewModelBase(
-      this._nodeSource, this._walletType, this._settingsStore)
+  NodeCreateOrEditViewModelBase(this._nodeSource, this._walletType, this._settingsStore)
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
         useSSL = false,
         address = '',
+        path = '',
         port = '',
         login = '',
         password = '',
@@ -34,6 +33,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @observable
   String address;
+
+  @observable
+  String path;
 
   @observable
   String port;
@@ -84,6 +86,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @action
   void reset() {
     address = '';
+    path = '';
     port = '';
     login = '';
     password = '';
@@ -98,6 +101,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @action
   void setAddress(String val) => address = val;
+
+  @action
+  void setPath(String val) => path = val;
 
   @action
   void setLogin(String val) => login = val;
@@ -121,6 +127,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
     final node = Node(
         uri: uri,
+        path: path,
         type: _walletType,
         login: login,
         password: password,
@@ -151,6 +158,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   Future<void> connect() async {
     final node = Node(
         uri: uri,
+        path: path,
         type: _walletType,
         login: login,
         password: password,
@@ -183,7 +191,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   Future<void> scanQRCodeForNewNode(BuildContext context) async {
     try {
       bool isCameraPermissionGranted =
-      await PermissionHandler.checkPermission(Permission.camera, context);
+          await PermissionHandler.checkPermission(Permission.camera, context);
       if (!isCameraPermissionGranted) return;
       String code = await presentQRScanner();
 
@@ -198,7 +206,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       }
 
       final userInfo = uri.userInfo.split(':');
-   
+
       if (userInfo.length < 2) {
         throw Exception('Unexpected scan QR code value: Value is invalid');
       }
@@ -207,8 +215,11 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       final rpcPassword = userInfo[1];
       final ipAddress = uri.host;
       final port = uri.port.toString();
+      final path = uri.path;
+
 
       setAddress(ipAddress);
+      setPath(path);
       setPassword(rpcPassword);
       setLogin(rpcUser);
       setPort(port);

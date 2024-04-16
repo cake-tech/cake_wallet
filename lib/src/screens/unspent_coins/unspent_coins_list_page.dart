@@ -46,9 +46,6 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                 itemBuilder: (_, int index) {
                   return Observer(builder: (_) {
                     final item = unspentCoinsListViewModel.items[index];
-                    final address = unspentCoinsListViewModel.wallet.type == WalletType.bitcoinCash
-                        ? bitcoinCash!.getCashAddrFormat(item.address)
-                        : item.address;
 
                     return GestureDetector(
                         onTap: () => Navigator.of(context).pushNamed(Routes.unspentCoinsDetails,
@@ -56,7 +53,7 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                         child: UnspentCoinsListItem(
                             note: item.note,
                             amount: item.amount,
-                            address: address,
+                            address: item.address,
                             isSending: item.isSending,
                             isFrozen: item.isFrozen,
                             isChange: item.isChange,

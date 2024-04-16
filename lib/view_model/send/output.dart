@@ -6,6 +6,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -66,6 +67,8 @@ abstract class OutputBase with Store {
   @observable
   String extractedAddress;
 
+  String? memo;
+
   @computed
   bool get isParsedAddress =>
       parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
@@ -114,11 +117,23 @@ abstract class OutputBase with Store {
   @computed
   double get estimatedFee {
     try {
-      final fee = _wallet.calculateEstimatedFee(
+      if (_wallet.type == WalletType.solana) {
+        return solana!.getEstimateFees(_wallet) ?? 0.0;
+      }
+
+      int? fee = _wallet.calculateEstimatedFee(
           _settingsStore.priority[_wallet.type]!, formattedCryptoAmount);
 
-      if (_wallet.type == WalletType.bitcoin ||
-          _wallet.type == WalletType.litecoin ||
+      if (_wallet.type == WalletType.bitcoin) {
+        if (_settingsStore.priority[_wallet.type] == bitcoin!.getBitcoinTransactionPriorityCustom()) {
+          fee = bitcoin!.getFeeAmountWithFeeRate(
+              _settingsStore.customBitcoinFeeRate, formattedCryptoAmount, 1, 1);
+        }
+
+        return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
+      }
+
+      if (_wallet.type == WalletType.litecoin ||
           _wallet.type == WalletType.bitcoinCash) {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
@@ -175,6 +190,7 @@ abstract class OutputBase with Store {
     fiatAmount = '';
     address = '';
     note = '';
+    memo = null;
     resetParsedAddress();
   }
 

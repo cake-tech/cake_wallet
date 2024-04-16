@@ -10,6 +10,7 @@ class BiometricAuth {
       return await _localAuth.authenticate(
           localizedReason: S.current.biometric_auth_reason,
           options: AuthenticationOptions(
+            biometricOnly: true,
             useErrorDialogs: true,
             stickyAuth: false));
     } on PlatformException catch (e) {
