@@ -6,7 +6,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:breez_sdk/breez_sdk.dart';
 import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
-import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
@@ -183,7 +182,12 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     } catch (_) {}
 
     try {
-      await sdk.connect(config: breezConfig, seed: seedBytes);
+      await sdk.connect(
+        req: ConnectRequest(
+          config: breezConfig,
+          seed: seedBytes,
+        ),
+      );
     } catch (e) {
       print("Error connecting to Breez: $e");
     }

@@ -26,7 +26,7 @@ dependencies:
   path_provider: ^2.0.11
   mobx: ^2.1.4
   flutter_mobx: ^2.0.6+5
-  flutter_slidable: ^2.0.0
+  flutter_slidable: ^3.0.1
   share_plus: ^4.0.10
   # date_range_picker: ^1.0.6
   #https://api.flutter.dev/flutter/material/showDateRangePicker.html
@@ -115,13 +115,13 @@ dependencies:
   breez_sdk:
     git:
       url: https://github.com/breez/breez-sdk-flutter.git
-      ref: v0.3.8
+      ref: v0.4.0-rc2
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner: ^2.3.3
+  build_runner: ^2.4.7
   logging: ^1.2.0
   mobx_codegen: ^2.1.1
   build_resolvers: ^2.0.9
