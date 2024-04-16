@@ -210,7 +210,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
   static Future<Map<String, String>?>? lookupAddressByName(String name) async {
     final uri = Uri.https(_baseURL, '$_nameLookUpPath$name');
-    print(uri);
     final response = await http.get(uri);
 
     if (response.statusCode != 200) {
