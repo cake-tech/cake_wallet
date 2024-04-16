@@ -110,7 +110,6 @@ class PreExistingSeedBody extends StatelessWidget {
       );
     } else {
       final mnemonic = await preExistingSeedsViewModel.getSelectedWalletMnemonic();
-      print(mnemonic);
       Navigator.of(context).pushNamed(
         Routes.newWallet,
         arguments: NewWalletArguments(
