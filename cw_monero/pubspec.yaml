@@ -25,7 +25,7 @@ dependencies:
   monero:
     git:
       url: https://git.mrcyjanek.net/mrcyjanek/monero.dart
-      ref: master
+      ref: ada81417cb53d8b0e34022df1dd3d9dc1fe62ab5
 
 dev_dependencies:
   flutter_test:

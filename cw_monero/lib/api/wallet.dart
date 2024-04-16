@@ -6,12 +6,19 @@ import 'package:monero/monero.dart' as monero;
 
 int _boolToInt(bool value) => value ? 1 : 0;
 
-int getSyncingHeight() => monero.Wallet_blockChainHeight(wptr!);
+int getSyncingHeight() => monero.MONERO_cw_WalletListener_height(getWlptr());
 
-bool isNeededToRefresh() => false; // TODO(mrcyjanek): ?
+bool isNeededToRefresh() {
+  final ret = monero.MONERO_cw_WalletListener_isNeedToRefresh(getWlptr());
+  monero.MONERO_cw_WalletListener_resetNeedToRefresh(getWlptr());
+  return ret;
+}
 
-bool isNewTransactionExist() => false;
-
+bool isNewTransactionExist() {
+  final ret = monero.MONERO_cw_WalletListener_isNewTransactionExist(getWlptr());
+  monero.MONERO_cw_WalletListener_resetIsNewTransactionExist(getWlptr());
+  return ret;
+}
 String getFilename() => monero.Wallet_filename(wptr!);
 
 // TODO(mrcyjanek): Cake polyseed support

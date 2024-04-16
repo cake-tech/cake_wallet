@@ -2,6 +2,18 @@ import 'package:cw_monero/api/wallet.dart';
 import 'package:monero/monero.dart' as monero;
 
 monero.wallet? wptr = null;
+
+int _wlptrForW = 0;
+monero.WalletListener? _wlptr = null;
+
+monero.WalletListener getWlptr() {
+  if (wptr!.address == _wlptrForW) return _wlptr!;
+  _wlptrForW = wptr!.address;
+  _wlptr = monero.MONERO_cw_getWalletListener(wptr!);
+  return _wlptr!;
+}
+
+
 monero.SubaddressAccount? subaddressAccount;
 
 bool isUpdating = false;

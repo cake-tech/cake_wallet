@@ -1,14 +1,23 @@
+
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/wallet.dart';
 import 'package:monero/monero.dart' as monero;
 
 bool isUpdating = false;
-monero.Subaddress? subaddressPtr = null;
+
+class SubaddressInfoMetadata {
+  SubaddressInfoMetadata({
+    required this.accountIndex,
+  });
+  int accountIndex;
+}
+
+SubaddressInfoMetadata? subaddress = null;
+
 void refreshSubaddresses({required int accountIndex}) {
   try {
     isUpdating = true;
-    subaddressPtr = monero.Wallet_subaddress(wptr!);
-    monero.Subaddress_refresh(subaddressPtr!,accountIndex: accountIndex, label: '');
+    subaddress = SubaddressInfoMetadata(accountIndex: accountIndex);
     isUpdating = false;
   } catch (e) {
     isUpdating = false;
@@ -16,17 +25,29 @@ void refreshSubaddresses({required int accountIndex}) {
   }
 }
 
-List<monero.SubaddressRow> getAllSubaddresses() {
-  monero.Subaddress_refresh(subaddressPtr!, 
-  accountIndex: 0,
-  label: '' // BUG: by me (mrcyjanek), it isn't used, will remove.
-  );
-  final size = monero.Subaddress_getAll_size(subaddressPtr!);
-
-
-  return List.generate(size, (index) {
-    return monero.Subaddress_getAll_byIndex(subaddressAccount!, index: index);
+class Subaddress {
+  Subaddress({
+    required this.addressIndex,
+    required this.accountIndex,
   });
+  String get address => monero.Wallet_address(
+        wptr!,
+        accountIndex: accountIndex,
+        addressIndex: addressIndex,
+    );
+  final int addressIndex;
+  final int accountIndex;
+  String get label => monero.Wallet_getSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
+}
+
+List<Subaddress> getAllSubaddresses() {
+  final size = monero.Wallet_numSubaddresses(wptr!, accountIndex: subaddress!.accountIndex);
+  return List.generate(size, (index) {
+    return Subaddress(
+      accountIndex: subaddress!.accountIndex,
+      addressIndex: index,
+    );
+  }).reversed.toList();
 }
 
 void addSubaddressSync({required int accountIndex, required String label}) {

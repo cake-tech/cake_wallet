@@ -1,6 +1,6 @@
 # TODO(mrcyjanek): Cleanup, this is borrowed from unnamed_monero_wallet repo.
 
-MONERO_C_TAG=v0.18.3.3-RC21
+MONERO_C_TAG=v0.18.3.3-RC27
 LIBCPP_SHARED_SO_TAG=latest-RC1
 LIBCPP_SHARED_SO_NDKVERSION=r17c
 

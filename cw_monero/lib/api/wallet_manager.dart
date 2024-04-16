@@ -1,4 +1,6 @@
 
+import 'dart:ffi';
+
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/wallet_creation_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
@@ -7,7 +9,6 @@ import 'package:cw_monero/api/exceptions/wallet_restore_from_seed_exception.dart
 import 'package:cw_monero/api/wallet.dart';
 import 'package:ffi/ffi.dart';
 import 'package:monero/monero.dart' as monero;
-import 'dart:ffi';
 
 monero.WalletManager? _wmPtr;
 final monero.WalletManager wmPtr = Pointer.fromAddress((() {
@@ -135,12 +136,20 @@ void restoreWalletFromSpendKeySync(
   storeSync();
 }
 
+String _lastOpenedWallet = "";
+
 void loadWallet({
   required String path,
   required String password,
   int nettype = 0}) {
   try {
-    wptr ??= monero.WalletManager_openWallet(wmPtr, path: path, password: password);
+    if (wptr == null || path != _lastOpenedWallet) {
+      if (wptr != null) {
+        monero.Wallet_store(wptr!);
+      }
+      wptr = monero.WalletManager_openWallet(wmPtr, path: path, password: password);
+      _lastOpenedWallet = path;
+    }
   } catch (e) {
     print(e);
   }

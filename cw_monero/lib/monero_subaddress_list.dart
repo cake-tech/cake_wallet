@@ -1,9 +1,8 @@
-import 'package:flutter/services.dart';
-import 'package:mobx/mobx.dart';
+import 'package:cw_core/subaddress.dart';
 import 'package:cw_monero/api/coins_info.dart';
 import 'package:cw_monero/api/subaddress_list.dart' as subaddress_list;
-import 'package:cw_core/subaddress.dart';
-import 'package:monero/monero.dart' as monero;
+import 'package:flutter/services.dart';
+import 'package:mobx/mobx.dart';
 
 part 'monero_subaddress_list.g.dart';
 
@@ -51,10 +50,10 @@ abstract class MoneroSubaddressListBase with Store {
       subaddresses = [primary] + rest.toList();
     }
 
-    return subaddresses.map((subaddressRow) {
-      final label = monero.SubaddressRow_getLabel(subaddressRow);
-      final id = monero.SubaddressRow_getRowId(subaddressRow);
-      final address = monero.SubaddressRow_getAddress(subaddressRow);
+    return subaddresses.map((s) {
+      final address = s.address;
+      final label = s.label;
+      final id = s.addressIndex;
       final hasDefaultAddressName =
           label.toLowerCase() == 'Primary account'.toLowerCase() ||
               label.toLowerCase() == 'Untitled account'.toLowerCase();
@@ -125,7 +124,7 @@ abstract class MoneroSubaddressListBase with Store {
   Future<List<Subaddress>> _getAllUnusedAddresses(
       {required int accountIndex, required String label}) async {
     final allAddresses = subaddress_list.getAllSubaddresses();
-    final lastAddress = monero.SubaddressRow_getAddress(allAddresses.last);
+    final lastAddress = allAddresses.last.address;
     if (allAddresses.isEmpty || _usedAddresses.contains(lastAddress)) {
       final isAddressUnused = await _newSubaddress(accountIndex: accountIndex, label: label);
       if (!isAddressUnused) {
@@ -134,10 +133,10 @@ abstract class MoneroSubaddressListBase with Store {
     }
 
     return allAddresses
-        .map((subaddressRow) {
-          final id = monero.SubaddressRow_getRowId(subaddressRow);
-          final address = monero.SubaddressRow_getAddress(subaddressRow);
-          final label = monero.SubaddressRow_getLabel(subaddressRow);
+        .map((s) {
+          final id = s.addressIndex;
+          final address = s.address;
+          final label = s.label;
           return Subaddress(
             id: id,
             address: address,
@@ -154,8 +153,8 @@ abstract class MoneroSubaddressListBase with Store {
 
     return subaddress_list
         .getAllSubaddresses()
-        .where((subaddressRow) {
-          final address = monero.SubaddressRow_getAddress(subaddressRow);
+        .where((s) {
+          final address = s.address;
           return !_usedAddresses.contains(address);
         })
         .isNotEmpty;

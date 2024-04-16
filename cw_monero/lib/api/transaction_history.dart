@@ -1,10 +1,8 @@
-import 'dart:ffi';
 
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/creation_transaction_exception.dart';
 import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
-import 'package:ffi/ffi.dart';
 import 'package:monero/monero.dart' as monero;
 
 
@@ -39,16 +37,6 @@ PendingTransactionDescription createTransactionSync(
     String? amount,
     int accountIndex = 0,
     List<String> preferredInputs = const []}) {
-  final amountPointer = amount != null ? amount.toNativeUtf8() : nullptr;
-
-  final int preferredInputsSize = preferredInputs.length;
-  final List<Pointer<Utf8>> preferredInputsPointers =
-      preferredInputs.map((output) => output.toNativeUtf8()).toList();
-  final Pointer<Pointer<Utf8>> preferredInputsPointerPointer = calloc(preferredInputsSize);
-
-  for (int i = 0; i < preferredInputsSize; i++) {
-    preferredInputsPointerPointer[i] = preferredInputsPointers[i];
-  }
 
   final amt = amount == null ? 0 : monero.Wallet_amountFromString(amount);
   final pendingTx = monero.Wallet_createTransaction(
@@ -74,12 +62,17 @@ PendingTransactionDescription createTransactionSync(
     throw CreationTransactionException(message: message);
   }
 
+  final rAmt = monero.PendingTransaction_amount(pendingTx);
+  final rFee = monero.PendingTransaction_fee(pendingTx);
+  final rHash = monero.PendingTransaction_txid(pendingTx, '');
+  final rTxKey = rHash;
+
   return PendingTransactionDescription(
-      amount: monero.PendingTransaction_amount(wptr!),
-      fee: monero.PendingTransaction_fee(wptr!),
-      hash: monero.PendingTransaction_txid(wptr!, ''),
+      amount: rAmt,
+      fee: rFee,
+      hash: rHash,
       hex: '',
-      txKey: monero.PendingTransaction_txid(wptr!, ''),
+      txKey: rTxKey,
       pointerAddress: pendingTx.address,
     );
 }
