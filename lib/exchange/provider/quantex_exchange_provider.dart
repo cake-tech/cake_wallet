@@ -76,7 +76,7 @@ class QuantexExchangeProvider extends ExchangeProvider {
       final coinsInfo = responseJSON['data'] as List<dynamic>;
 
       for (var coin in coinsInfo) {
-        if (coin['id'].toString().toLowerCase() == _normalizeCurrency(from)) {
+        if (coin['id'].toString().toUpperCase() == _normalizeCurrency(from)) {
           return Limits(
             min: double.parse(coin['min'].toString()),
             max: double.parse(coin['max'].toString()),
