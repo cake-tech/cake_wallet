@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
+import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/mastodon/mastodon_api.dart';
 import 'package:cake_wallet/nostr/nostr_api.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -160,6 +161,15 @@ class AddressResolver {
           }
         }
       }
+
+      final thorChainAddress = await ThorChainExchangeProvider.lookupAddressByName(text);
+      if (thorChainAddress != null) {
+        String? address = thorChainAddress[ticker.toUpperCase()];
+        if (address != null) {
+          return ParsedAddress.thorChainAddress(address: address, name: text);
+        }
+      }
+
       final formattedName = OpenaliasRecord.formatDomainName(text);
       final domainParts = formattedName.split('.');
       final name = domainParts.last;
