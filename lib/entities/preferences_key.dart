@@ -20,6 +20,7 @@ class PreferencesKey {
   static const isAppSecureKey = 'is_app_secure';
   static const disableBuyKey = 'disable_buy';
   static const disableSellKey = 'disable_sell';
+  static const disableBulletinKey = 'disable_bulletin';
   static const defaultBuyProvider = 'default_buy_provider';
   static const walletListOrder = 'wallet_list_order';
   static const walletListAscending = 'wallet_list_ascending';
@@ -41,8 +42,10 @@ class PreferencesKey {
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
+  static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
+  static const shouldShowRepWarning = 'should_show_rep_warning';
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
   static const syncModeKey = 'sync_mode';
   static const syncAllKey = 'sync_all';
@@ -73,4 +76,7 @@ class PreferencesKey {
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';
   static const serviceStatusShaKey = 'service_status_sha_key';
+  static const walletConnectPairingTopicsList = 'wallet_connect_pairing_topics_list';
+  static String walletConnectPairingTopicsListForWallet(String publicKey) =>
+      '${PreferencesKey.walletConnectPairingTopicsList}_${publicKey}';
 }

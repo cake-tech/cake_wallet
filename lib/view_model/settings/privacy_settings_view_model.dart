@@ -44,6 +44,8 @@ abstract class PrivacySettingsViewModelBase with Store {
       _wallet.type == WalletType.litecoin ||
       _wallet.type == WalletType.bitcoinCash;
 
+  bool get isMoneroWallet => _wallet.type == WalletType.monero;
+
   @computed
   bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;
 
@@ -58,6 +60,9 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @computed
   bool get disableSell => _settingsStore.disableSell;
+
+  @computed
+  bool get disableBulletin => _settingsStore.disableBulletin;
 
   @computed
   bool get useEtherscan => _settingsStore.useEtherscan;
@@ -105,6 +110,9 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setDisableSell(bool value) => _settingsStore.disableSell = value;
+
+  @action
+  void setDisableBulletin(bool value) => _settingsStore.disableBulletin = value;
 
   @action
   void setLookupsTwitter(bool value) => _settingsStore.lookupsTwitter = value;

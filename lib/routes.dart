@@ -12,6 +12,7 @@ class Routes {
   static const dashboard = '/dashboard';
   static const send = '/send';
   static const transactionDetails = '/transaction_info';
+  static const bumpFeePage = '/bump_fee_page';
   static const receive = '/receive';
   static const newSubaddress = '/new_subaddress';
   static const walletEdit = '/walletEdit';

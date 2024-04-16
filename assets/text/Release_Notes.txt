@@ -1,5 +1,7 @@
-Monero enhancements
-Bitcoin support different address types (Taproot, Segwit P2WPKH/P2WSH, Legacy)
-In-App live status page for the app services
-Add Exolix exchange provider
-Bug fixes and enhancements
+Add Replace-By-Fee to boost pending Bitcoin transactions
+Enable WalletConnect for Solana
+WalletConnect Enhancements
+Enhancements for ERC-20 tokens and Solana tokens
+Enhancements for Nano wallet
+UI enhancements
+Bug fixes

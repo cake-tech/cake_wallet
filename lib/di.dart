@@ -13,6 +13,7 @@ import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/nano/nano.dart';
@@ -198,6 +199,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -491,6 +493,7 @@ Future<void> setup({
       getIt.get<BottomSheetService>(),
       getIt.get<WalletConnectKeyService>(),
       appStore,
+      getIt.get<SharedPreferences>()
     );
     web3WalletService.create();
     return web3WalletService;
@@ -806,8 +809,11 @@ Future<void> setup({
   getIt
       .registerFactory<DFXBuyProvider>(() => DFXBuyProvider(wallet: getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory<MoonPaySellProvider>(() => MoonPaySellProvider(
-      settingsStore: getIt.get<AppStore>().settingsStore, wallet: getIt.get<AppStore>().wallet!));
+  getIt.registerFactory<MoonPayProvider>(() => MoonPayProvider(
+        settingsStore: getIt.get<AppStore>().settingsStore,
+        wallet: getIt.get<AppStore>().wallet!,
+        isTestEnvironment: kDebugMode,
+      ));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
         getIt.get<AppStore>().settingsStore,
@@ -910,7 +916,8 @@ Future<void> setup({
         transactionInfo: transactionInfo,
         transactionDescriptionBox: _transactionDescriptionBox,
         wallet: wallet,
-        settingsStore: getIt.get<SettingsStore>());
+        settingsStore: getIt.get<SettingsStore>(),
+        sendViewModel: getIt.get<SendViewModel>());
   });
 
   getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(
@@ -1132,6 +1139,11 @@ Future<void> setup({
   getIt.registerFactory(() => IoniaAccountPage(getIt.get<IoniaAccountViewModel>()));
 
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
+
+  getIt.registerFactoryParam<RBFDetailsPage, TransactionInfo, void>(
+          (TransactionInfo transactionInfo, _) => RBFDetailsPage(
+          transactionDetailsViewModel:
+          getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
 
   getIt.registerFactory(() => AnonPayApi(
       useTorOnly: getIt.get<SettingsStore>().exchangeStatus == ExchangeApiMode.torOnly,

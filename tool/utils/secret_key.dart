@@ -34,14 +34,16 @@ class SecretKey {
     SecretKey('chatwootWebsiteToken', () => ''),
     SecretKey('exolixApiKey', () => ''),
     SecretKey('robinhoodApplicationId', () => ''),
-    SecretKey('robinhoodCIdApiSecret', () => ''),
+    SecretKey('exchangeHelperApiKey', () => ''),
     SecretKey('walletConnectProjectId', () => ''),
     SecretKey('moralisApiKey', () => ''),
+    SecretKey('ankrApiKey', () => ''),
   ];
 
   static final evmChainsSecrets = [
     SecretKey('etherScanApiKey', () => ''),
     SecretKey('polygonScanApiKey', () => ''),
+    SecretKey('moralisApiKey', () => ''),
   ];
 
   static final solanaSecrets = [

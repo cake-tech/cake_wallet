@@ -115,8 +115,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
-    final snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password,
-        walletInfo.network != null ? BasedUtxoNetwork.fromName(walletInfo.network!) : null);
+    final network = walletInfo.network != null
+        ? BasedUtxoNetwork.fromName(walletInfo.network!)
+        : BitcoinNetwork.mainnet;
+    final snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password, network);
 
     walletInfo.derivationInfo ??= DerivationInfo(
       derivationType: snp.derivationType ?? DerivationType.electrum2,
@@ -149,7 +151,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,
-      networkParam: snp.network,
+      networkParam: network,
     );
   }
 }

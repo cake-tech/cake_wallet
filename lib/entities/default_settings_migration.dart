@@ -1,6 +1,7 @@
 import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -211,9 +212,16 @@ Future<void> defaultSettingsMigration(
           await changeDefaultBitcoinNode(nodes, sharedPreferences);
           break;
 
-        case 31:
-          await updateBtcNanoWalletInfos(walletInfoSource);
+        case 30:
+          await disableServiceStatusFiatDisabled(sharedPreferences);
           break;
+
+        case 31:
+          await updateNanoNodeList(nodes: nodes);
+          break;
+
+        case 32:
+          await updateBtcNanoWalletInfos(walletInfoSource);
 
         default:
           break;
@@ -227,6 +235,44 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+Future<void> updateNanoNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultNanoNodes();
+  var listOfNewEndpoints = <String>[
+    "app.natrium.io",
+    "rainstorm.city",
+    "node.somenano.com",
+    "nanoslo.0x.no",
+    "www.bitrequest.app",
+  ];
+  // add new nodes:
+  for (final node in nodeList) {
+    if (listOfNewEndpoints.contains(node.uriRaw)) {
+      await nodes.add(node);
+    }
+  }
+
+  // update the nautilus node:
+  final nautilusNode =
+      nodes.values.firstWhereOrNull((element) => element.uriRaw == "node.perish.co");
+  if (nautilusNode != null) {
+    nautilusNode.uriRaw = "node.nautilus.io";
+    nautilusNode.path = "/api";
+    nautilusNode.useSSL = true;
+    await nautilusNode.save();
+  }
+}
+
+Future<void> disableServiceStatusFiatDisabled(SharedPreferences sharedPreferences) async {
+  final currentFiat = await sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ?? -1;
+  if (currentFiat == -1 || currentFiat == FiatApiMode.enabled.raw) {
+    return;
+  }
+
+  if (currentFiat == FiatApiMode.disabled.raw || currentFiat == FiatApiMode.torOnly.raw) {
+    await sharedPreferences.setBool(PreferencesKey.disableBulletinKey, true);
+  }
 }
 
 Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {

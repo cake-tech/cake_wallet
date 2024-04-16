@@ -18,7 +18,7 @@ class CakeImageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     try {
-      if (imageUrl == null) return _displayOnError!;
+      if (imageUrl == null || imageUrl!.isEmpty) return _displayOnError!;
 
       if (imageUrl!.contains('assets/images')) {
         return Image.asset(

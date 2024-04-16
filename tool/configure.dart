@@ -63,6 +63,7 @@ Future<void> generateBitcoin(bool hasImplementation) async {
   const bitcoinCommonHeaders = """
 import 'dart:typed_data';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -71,8 +72,8 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
-import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:hive/hive.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as btc;
@@ -83,6 +84,7 @@ import 'package:hive/hive.dart';
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/bitcoin_derivations.dart';
 import 'package:cw_bitcoin/electrum.dart';
+import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
@@ -95,6 +97,7 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:cw_bitcoin/script_hash.dart';
+import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:mobx/mobx.dart';
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
@@ -143,18 +146,20 @@ abstract class Bitcoin {
   List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
 
+  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority);
   List<ElectrumSubAddress> getSubAddresses(Object wallet);
 
   String formatterBitcoinAmountToString({required int amount});
   double formatterBitcoinAmountToDouble({required int amount});
   int formatterStringDoubleToBitcoinAmount(String amount);
-  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate);
+  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate, {int? customRate});
 
   List<Unspent> getUnspents(Object wallet);
   Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   TransactionPriority getBitcoinTransactionPriorityMedium();
+  TransactionPriority getBitcoinTransactionPriorityCustom();
   TransactionPriority getLitecoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPrioritySlow();
   TransactionPriority getLitecoinTransactionPrioritySlow();
@@ -166,6 +171,13 @@ abstract class Bitcoin {
   ReceivePageOption getSelectedAddressType(Object wallet);
   List<ReceivePageOption> getBitcoinReceivePageOptions();
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
+  bool hasTaprootInput(PendingTransaction pendingTransaction);
+
+  Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
+  Future<bool> canReplaceByFee(Object wallet, String transactionHash);
+  Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee);
+  int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});
+  int getFeeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
 }
   """;
 
@@ -802,6 +814,7 @@ import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/nano_account_info_response.dart';
+import 'package:cw_core/n2_node.dart';
 import 'package:mobx/mobx.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -860,6 +873,8 @@ abstract class Nano {
   Future<bool> updateTransactions(Object wallet);
   BigInt getTransactionAmountRaw(TransactionInfo transactionInfo);
   String getRepresentative(Object wallet);
+  Future<List<N2Node>> getN2Reps(Object wallet);
+  bool isRepOk(Object wallet);
 }
 
 abstract class NanoAccountList {
@@ -966,7 +981,11 @@ abstract class Solana {
     required CryptoCurrency currency,
   });
   List<CryptoCurrency> getSPLTokenCurrencies(WalletBase wallet);
-  Future<void> addSPLToken(WalletBase wallet, CryptoCurrency token);
+  Future<void> addSPLToken(
+    WalletBase wallet,
+    CryptoCurrency token,
+    String contractAddress,
+  );
   Future<void> deleteSPLToken(WalletBase wallet, CryptoCurrency token);
   Future<CryptoCurrency?> getSPLToken(WalletBase wallet, String contractAddress);
 
@@ -974,6 +993,7 @@ abstract class Solana {
   double getTransactionAmountRaw(TransactionInfo transactionInfo);
   String getTokenAddress(CryptoCurrency asset);
   List<int>? getValidationLength(CryptoCurrency type);
+  double? getEstimateFees(WalletBase wallet);
 }
 
   """;
@@ -1056,7 +1076,7 @@ Future<void> generatePubspec(
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
-  final dependenciesIndex = inputLines.indexWhere((line) => line.toLowerCase() == 'dependencies:');
+  final dependenciesIndex = inputLines.indexWhere((line) => line.toLowerCase().contains('dependencies:'));
   var output = cwCore;
 
   if (hasMonero) {
