@@ -124,12 +124,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
-    final snp = await ElectrumWalletSnapshot.load(
-      name,
-      walletInfo.type,
-      password,
-      BitcoinNetwork.mainnet
-    );
+    final snp =
+        await ElectrumWalletSnapshot.load(name, walletInfo.type, password, BitcoinNetwork.mainnet);
     return LightningWallet(
       mnemonic: snp.mnemonic,
       password: password,
@@ -158,10 +154,17 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       print("Error initializing Breez: $e");
     }
 
+    Uint8List deviceKey = Uint8List(0);
+    Uint8List deviceCert = Uint8List(0);
+    GreenlightCredentials greenlightCredentials = GreenlightCredentials(
+      deviceKey: deviceKey,
+      deviceCert: deviceCert,
+    );
+
     NodeConfig breezNodeConfig = NodeConfig.greenlight(
       config: GreenlightNodeConfig(
-        partnerCredentials: null,
-        inviteCode: secrets.breezInviteCode,
+        partnerCredentials: greenlightCredentials,
+        inviteCode: null,
       ),
     );
     Config breezConfig = await sdk.defaultConfig(
