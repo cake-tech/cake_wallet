@@ -1236,7 +1236,6 @@ abstract class ElectrumWalletBase
         : null;
     final HD = index == null ? hd : hd.derive(index);
     final priv = ECPrivate.fromHex(HD.privKey!);
-    print(priv.getPublic().toHex());
     String messagePrefix = '\x18Bitcoin Signed Message:\n';
     return priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
   }
@@ -1251,7 +1250,7 @@ abstract class ElectrumWalletBase
 
     if (sigDecodedBytes.length != 64 && sigDecodedBytes.length != 65) {
       throw ArgumentException(
-          "bitcoin signature must be 64 bytes without recover-id or 65 bytes with recover-id");
+          "litecoin signature must be 64 bytes without recover-id or 65 bytes with recover-id");
     }
 
     String messagePrefix = '\x18Bitcoin Signed Message:\n';
