@@ -583,6 +583,8 @@
   "send_your_wallet": "Вашият портфейл",
   "sending": "Изпращане",
   "sent": "Изпратени",
+  "service_health_disabled": "Service Health Bulletin е деактивиран",
+  "service_health_disabled_message": "Това е страницата на Bulletin на Service Health, можете да активирате тази страница в Настройки -> Поверителност",
   "settings": "Настройки",
   "settings_all": "Всичко",
   "settings_allow_biometrical_authentication": "Позволяване на биометрично удостоверяване.",

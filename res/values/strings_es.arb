@@ -584,6 +584,8 @@
   "send_your_wallet": "Tu billetera",
   "sending": "Enviando",
   "sent": "Expedido",
+  "service_health_disabled": "El boletín de salud del servicio está deshabilitado",
+  "service_health_disabled_message": "Esta es la página del Boletín de Salud del Servicio, puede habilitar esta página en Configuración -> Privacidad",
   "settings": "Configuraciones",
   "settings_all": "TODOS",
   "settings_allow_biometrical_authentication": "Permitir autenticación biométrica",

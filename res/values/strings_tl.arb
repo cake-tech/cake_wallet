@@ -583,6 +583,8 @@
   "send_your_wallet": "Iyong pitaka",
   "sending": "Pagpapadala",
   "sent": "Ipinadala",
+  "service_health_disabled": "Hindi pinagana ang Bulletin ng Serbisyo sa Kalusugan",
+  "service_health_disabled_message": "Ito ang pahina ng Bulletin ng Serbisyo ng Bulletin, maaari mong paganahin ang pahinang ito sa ilalim ng Mga Setting -> Pagkapribado",
   "settings": "Mga setting",
   "settings_all": "Lahat",
   "settings_allow_biometrical_authentication": "Payagan ang pagpapatunay ng biometrical",

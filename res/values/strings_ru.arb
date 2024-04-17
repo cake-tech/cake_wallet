@@ -584,6 +584,8 @@
   "send_your_wallet": "Ваш кошелёк",
   "sending": "Отправка",
   "sent": "Отправленные",
+  "service_health_disabled": "Бюллетень для здоровья обслуживания инвалид",
+  "service_health_disabled_message": "Это страница бюллетени обслуживания услуг, вы можете включить эту страницу в соответствии с настройками -> Конфиденциальность",
   "settings": "Настройки",
   "settings_all": "ВСЕ",
   "settings_allow_biometrical_authentication": "Включить биометрическую аутентификацию",

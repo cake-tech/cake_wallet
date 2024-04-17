@@ -583,6 +583,8 @@
   "send_your_wallet": "Twój portfel",
   "sending": "Wysyłanie",
   "sent": "Wysłano",
+  "service_health_disabled": "Biuletyn zdrowia usług jest wyłączony",
+  "service_health_disabled_message": "To jest strona Biuletynu Zdrowie Service, możesz włączyć tę stronę w Ustawieniach -> Prywatność",
   "settings": "Ustawienia",
   "settings_all": "Wszystkie",
   "settings_allow_biometrical_authentication": "Zezwalaj na uwierzytelnianie biometryczne",

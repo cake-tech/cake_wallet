@@ -583,6 +583,8 @@
   "send_your_wallet": "Vaše peněženka",
   "sending": "Odesílání",
   "sent": "Odesláno",
+  "service_health_disabled": "Bulletin zdraví služeb je deaktivován",
+  "service_health_disabled_message": "Toto je stránka Bulletin Service Health Bulletin, můžete tuto stránku povolit v rámci nastavení -> Ochrana osobních údajů",
   "settings": "Nastavení",
   "settings_all": "VŠE",
   "settings_allow_biometrical_authentication": "Povolit biometrické ověření",

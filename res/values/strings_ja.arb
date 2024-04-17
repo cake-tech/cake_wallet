@@ -584,6 +584,8 @@
   "send_your_wallet": "あなたの財布",
   "sending": "送信",
   "sent": "送信済み",
+  "service_health_disabled": "サービスヘルス速報は無効です",
+  "service_health_disabled_message": "これはService Health Bulletinページです。設定の下でこのページを有効にすることができます - >プライバシー",
   "settings": "設定",
   "settings_all": "すべて",
   "settings_allow_biometrical_authentication": "生体認証を許可する",

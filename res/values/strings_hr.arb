@@ -583,6 +583,8 @@
   "send_your_wallet": "Tvoj novčanik",
   "sending": "Slanje",
   "sent": "Poslano",
+  "service_health_disabled": "Zdravstveni bilten usluge je onemogućen",
+  "service_health_disabled_message": "Ovo je stranica zdravstvenog biltena o usluzi, možete omogućiti ovu stranicu pod postavkama -> privatnost",
   "settings": "Postavke",
   "settings_all": "SVE",
   "settings_allow_biometrical_authentication": "Dopusti biometrijsku autentifikaciju",
