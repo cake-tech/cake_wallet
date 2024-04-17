@@ -1,2 +1,2 @@
-Exchange flow enhancements and fixes
-Generic enhancements and bug fixes
+UI enhancements
+Bug fixes

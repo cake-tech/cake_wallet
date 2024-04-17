@@ -578,4 +578,8 @@ abstract class DashboardViewModelBase with Store {
       return ServicesResponse([], false, '');
     }
   }
+
+  Future<void> refreshDashboard() async {
+    reconnect();
+  }
 }
