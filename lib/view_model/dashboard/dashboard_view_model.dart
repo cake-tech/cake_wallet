@@ -378,6 +378,7 @@ abstract class DashboardViewModelBase with Store {
         WalletType.bitcoin,
         WalletType.bitcoinCash,
         WalletType.ethereum,
+        WalletType.polygon,
         WalletType.solana,
       ].contains(wallet.type);
 
