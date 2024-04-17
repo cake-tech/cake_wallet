@@ -241,6 +241,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     final index = _addresses.indexOf(addressRecord);
     _addresses.remove(addressRecord);
     _addresses.insert(index, addressRecord);
+
+    updateAddressesByMatch();
   }
 
   @action

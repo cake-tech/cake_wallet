@@ -32,7 +32,17 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     'Exolix',
     'Godex',
     'Exch',
-    'CoinCraddle'
+    'CoinCraddle',
+    'Alfacash',
+    'LocalMonero',
+    'XChange',
+    'NeroSwap',
+    'Changee',
+    'BitcoinVN',
+    'EasyBit',
+    'WizardSwap',
+    'Quantex',
+    'SwapSpace',
   ];
 
   static const List<CryptoCurrency> _notSupported = [
