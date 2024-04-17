@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -400,6 +401,10 @@ class SendPage extends BasePage {
       return;
     }
 
+    if (sendViewModel.isElectrumWallet) {
+      bitcoin!.updateFeeRates(sendViewModel.wallet);
+    }
+
     reaction((_) => sendViewModel.state, (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -456,10 +461,12 @@ class SendPage extends BasePage {
                                       sendViewModel.selectedCryptoCurrency.toString());
 
                                   final waitMessage = sendViewModel.walletType == WalletType.solana
-                                      ? '. ${S.of(_dialogContext).waitFewSecondForTxUpdate}' : '';
+                                      ? '. ${S.of(_dialogContext).waitFewSecondForTxUpdate}'
+                                      : '';
 
                                   final newContactMessage = newContactAddress != null
-                                      ? '\n${S.of(_dialogContext).add_contact_to_address_book}' : '';
+                                      ? '\n${S.of(_dialogContext).add_contact_to_address_book}'
+                                      : '';
 
                                   final alertContent =
                                       "$successMessage$waitMessage$newContactMessage";

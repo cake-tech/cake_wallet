@@ -187,7 +187,7 @@ class CWBitcoin extends Bitcoin {
 
   Future<void> updateUnspents(Object wallet) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    await bitcoinWallet.updateUnspent();
+    await bitcoinWallet.updateAllUnspents();
   }
 
   WalletService createBitcoinWalletService(
@@ -385,5 +385,11 @@ class CWBitcoin extends Bitcoin {
   void deleteSilentPaymentAddress(Object wallet, String address) {
     final bitcoinWallet = wallet as ElectrumWallet;
     bitcoinWallet.walletAddresses.deleteSilentPaymentAddress(address);
+  }
+
+  @override
+  Future<void> updateFeeRates(Object wallet) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    await bitcoinWallet.updateFeeRates();
   }
 }

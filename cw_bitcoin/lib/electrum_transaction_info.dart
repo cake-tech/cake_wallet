@@ -18,7 +18,7 @@ class ElectrumTransactionBundle {
 }
 
 class ElectrumTransactionInfo extends TransactionInfo {
-  List<BitcoinUnspent>? unspents;
+  List<BitcoinSilentPaymentsUnspent>? unspents;
 
   ElectrumTransactionInfo(this.type,
       {required String id,
@@ -178,9 +178,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
           outputAddresses.isEmpty ? [] : outputAddresses.map((e) => e.toString()).toList(),
       to: data['to'] as String?,
       unspents: unspents
-          .map((unspent) => BitcoinUnspent.fromJSON(
-              BitcoinSilentPaymentAddressRecord.fromJSON(unspent['address_record'].toString()),
-              unspent as Map<String, dynamic>))
+          .map((unspent) =>
+              BitcoinSilentPaymentsUnspent.fromJSON(null, unspent as Map<String, dynamic>))
           .toList(),
     );
   }

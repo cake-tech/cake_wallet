@@ -173,6 +173,7 @@ abstract class Bitcoin {
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan});
   bool getNodeIsCakeElectrs(Object wallet);
   void deleteSilentPaymentAddress(Object wallet, String address);
+  Future<void> updateFeeRates(Object wallet);
 }
   """;
 

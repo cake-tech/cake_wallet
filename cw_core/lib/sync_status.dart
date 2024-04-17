@@ -31,6 +31,11 @@ class SyncedSyncStatus extends SyncStatus {
   double progress() => 1.0;
 }
 
+class SyncronizingSyncStatus extends SyncStatus {
+  @override
+  double progress() => 0.0;
+}
+
 class NotConnectedSyncStatus extends SyncStatus {
   const NotConnectedSyncStatus();
 
@@ -43,10 +48,7 @@ class AttemptingSyncStatus extends SyncStatus {
   double progress() => 0.0;
 }
 
-class FailedSyncStatus extends SyncStatus {
-  @override
-  double progress() => 1.0;
-}
+class FailedSyncStatus extends NotConnectedSyncStatus {}
 
 class ConnectingSyncStatus extends SyncStatus {
   @override
@@ -58,21 +60,14 @@ class ConnectedSyncStatus extends SyncStatus {
   double progress() => 0.0;
 }
 
-class UnsupportedSyncStatus extends SyncStatus {
-  @override
-  double progress() => 1.0;
-}
+class UnsupportedSyncStatus extends NotConnectedSyncStatus {}
 
-class TimedOutSyncStatus extends SyncStatus {
-  @override
-  double progress() => 1.0;
+class TimedOutSyncStatus extends NotConnectedSyncStatus {
   @override
   String toString() => 'Timed out';
 }
 
-class LostConnectionSyncStatus extends SyncStatus {
-  @override
-  double progress() => 1.0;
+class LostConnectionSyncStatus extends NotConnectedSyncStatus {
   @override
   String toString() => 'Reconnecting';
 }

@@ -57,7 +57,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           b_spend: ECPrivate.fromHex(masterHd.derivePath(SPEND_PATH).privKey!),
           hrp: network == BitcoinNetwork.testnet ? 'tsp' : 'sp');
 
-      if (silentAddresses.length == 0)
+      if (silentAddresses.length == 0) {
         silentAddresses.add(BitcoinSilentPaymentAddressRecord(
           silentAddress.toString(),
           index: 0,
@@ -67,6 +67,16 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           network: network,
           type: SilentPaymentsAddresType.p2sp,
         ));
+        silentAddresses.add(BitcoinSilentPaymentAddressRecord(
+          silentAddress!.toLabeledSilentPaymentAddress(0).toString(),
+          index: 0,
+          isHidden: true,
+          name: "",
+          silentPaymentTweak: BytesUtils.toHexString(silentAddress!.generateLabel(0)),
+          network: network,
+          type: SilentPaymentsAddresType.p2sp,
+        ));
+      }
     }
 
     updateAddressesByMatch();
@@ -446,7 +456,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   Future<void> discoverAddresses(List<BitcoinAddressRecord> addressList, bool isHidden,
-      Future<String?> Function(BitcoinAddressRecord, Set<String>) getAddressHistory,
+      Future<String?> Function(BitcoinAddressRecord) getAddressHistory,
       {BitcoinAddressType type = SegwitAddresType.p2wpkh}) async {
     if (!isHidden) {
       _validateSideHdAddresses(addressList.toList());
@@ -456,8 +466,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         startIndex: addressList.length, isHidden: isHidden, type: type);
     addAddresses(newAddresses);
 
-    final addressesWithHistory = await Future.wait(newAddresses
-        .map((addr) => getAddressHistory(addr, _addresses.map((e) => e.address).toSet())));
+    final addressesWithHistory = await Future.wait(newAddresses.map(getAddressHistory));
     final isLastAddressUsed = addressesWithHistory.last == addressList.last.address;
 
     if (isLastAddressUsed) {

@@ -36,14 +36,15 @@ class ElectrumClient {
         _errors = {},
         unterminatedString = '';
 
-  static const connectionTimeout = Duration(seconds: 300);
-  static const aliveTimerDuration = Duration(seconds: 300);
+  static const connectionTimeout = Duration(seconds: 10);
+  static const aliveTimerDuration = Duration(seconds: 10);
 
   bool get isConnected => _isConnected;
   Socket? socket;
   void Function(bool)? onConnectionStatusChange;
   int _id;
   final Map<String, SocketTask> _tasks;
+  Map<String, SocketTask> get tasks => _tasks;
   final Map<String, String> _errors;
   bool _isConnected;
   Timer? _aliveTimer;
@@ -277,11 +278,18 @@ class ElectrumClient {
   Future<Map<String, dynamic>> getHeader({required int height}) async =>
       await call(method: 'blockchain.block.get_header', params: [height]) as Map<String, dynamic>;
 
-  Future<Map<String, dynamic>> getTweaks({required int height, required int count}) async =>
-      await callWithTimeout(
-          method: 'blockchain.block.tweaks',
-          params: [height, count],
-          timeout: 10000) as Map<String, dynamic>;
+  BehaviorSubject<Object>? tweaksSubscribe({required int height}) {
+    _id += 1;
+    return subscribe<Object>(
+      id: 'blockchain.tweaks.subscribe',
+      method: 'blockchain.tweaks.subscribe',
+      params: [height],
+    );
+  }
+
+  Future<Map<String, dynamic>> getTweaks({required int height}) async =>
+      await callWithTimeout(method: 'blockchain.tweaks.get', params: [height], timeout: 10000)
+          as Map<String, dynamic>;
 
   Future<double> estimatefee({required int p}) =>
       call(method: 'blockchain.estimatefee', params: [p]).then((dynamic result) {
@@ -325,9 +333,6 @@ class ElectrumClient {
       });
 
   Future<List<int>> feeRates({BasedUtxoNetwork? network}) async {
-    if (network == BitcoinNetwork.testnet) {
-      return [1, 1, 1];
-    }
     try {
       final topDoubleString = await estimatefee(p: 1);
       final middleDoubleString = await estimatefee(p: 5);
@@ -349,13 +354,19 @@ class ElectrumClient {
   //   "hex": "00000020890208a0ae3a3892aa047c5468725846577cfcd9b512b50000000000000000005dc2b02f2d297a9064ee103036c14d678f9afc7e3d9409cf53fd58b82e938e8ecbeca05a2d2103188ce804c4"
   // }
   Future<int?> getCurrentBlockChainTip() =>
-      call(method: 'blockchain.headers.subscribe').then((result) {
+      callWithTimeout(method: 'blockchain.headers.subscribe').then((result) {
         if (result is Map<String, dynamic>) {
           return result["height"] as int;
         }
 
         return null;
       });
+
+  BehaviorSubject<Object>? chainTipSubscribe() {
+    _id += 1;
+    return subscribe<Object>(
+        id: 'blockchain.headers.subscribe', method: 'blockchain.headers.subscribe');
+  }
 
   BehaviorSubject<Object>? chainTipUpdate() {
     _id += 1;
@@ -455,6 +466,11 @@ class ElectrumClient {
         final id = 'blockchain.scripthash.subscribe:$scripthash';
 
         _tasks[id]?.subject?.add(params.last);
+        break;
+      case 'blockchain.tweaks.subscribe':
+      case 'blockchain.headers.subscribe':
+        final params = request['params'] as List<dynamic>;
+        _tasks[method]?.subject?.add(params.last);
         break;
       default:
         break;

@@ -64,18 +64,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       ),
     );
 
-    hasSilentPaymentsScanning = true;
-
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
-    });
-
-    reaction((_) => walletAddresses.addressPageType, (BitcoinAddressType addressPageType) {
-      final prev = hasSilentPaymentsScanning;
-      hasSilentPaymentsScanning = addressPageType == SilentPaymentsAddresType.p2sp;
-      if (prev != hasSilentPaymentsScanning) {
-        startSync();
-      }
     });
   }
 

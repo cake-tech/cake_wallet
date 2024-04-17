@@ -23,7 +23,7 @@ class ElectrumBalance extends Balance {
   }
 
   int confirmed;
-  final int unconfirmed;
+  int unconfirmed;
   final int frozen;
 
   @override

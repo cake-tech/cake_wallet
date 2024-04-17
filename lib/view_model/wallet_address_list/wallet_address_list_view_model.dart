@@ -316,8 +316,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (isElectrumWallet) {
       if (bitcoin!.hasSelectedSilentPayments(wallet)) {
         final addressItems = bitcoin!.getSilentPaymentAddresses(wallet).map((address) {
-          // Silent Payments index 0 is change per BIP
-          final isPrimary = address.index == 1;
+          final isPrimary = address.index == 0;
 
           return WalletAddressListItem(
             id: address.index,
@@ -335,11 +334,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
         final receivedAddressItems =
             bitcoin!.getSilentPaymentReceivedAddresses(wallet).map((address) {
-          final isPrimary = address.index == 0;
-
           return WalletAddressListItem(
             id: address.index,
-            isPrimary: isPrimary,
+            isPrimary: false,
             name: address.name,
             address: address.address,
             txCount: address.txCount,
