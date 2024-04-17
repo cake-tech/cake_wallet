@@ -469,10 +469,12 @@ abstract class SolanaWalletBase
         iconPath = await _client.getIconImageFromTokenUri(token.uri);
       } catch (_) {}
 
+      String filteredTokenSymbol = token.symbol.replaceFirst(RegExp('^\\\$'), '');
+
       return SPLToken.fromMetadata(
         name: token.name,
         mint: token.mint,
-        symbol: token.symbol,
+        symbol: filteredTokenSymbol,
         mintAddress: mintAddress,
         iconPath: iconPath,
       );
