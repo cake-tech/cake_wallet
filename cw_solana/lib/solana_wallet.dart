@@ -27,6 +27,7 @@ import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:solana/base58.dart';
 import 'package:solana/metaplex.dart' as metaplex;
 import 'package:solana/solana.dart';
 
@@ -262,32 +263,12 @@ abstract class SolanaWalletBase
 
     final transactions = await _client.fetchTransactions(address);
 
-    final Map<String, SolanaTransactionInfo> result = {};
-
-    for (var transactionModel in transactions) {
-      result[transactionModel.id] = SolanaTransactionInfo(
-        id: transactionModel.id,
-        to: transactionModel.to,
-        from: transactionModel.from,
-        blockTime: transactionModel.blockTime,
-        direction: transactionModel.isOutgoingTx
-            ? TransactionDirection.outgoing
-            : TransactionDirection.incoming,
-        solAmount: transactionModel.amount,
-        isPending: false,
-        txFee: transactionModel.fee,
-        tokenSymbol: transactionModel.tokenSymbol,
-      );
-    }
-
-    transactionHistory.addMany(result);
-
-    await transactionHistory.save();
+    await _addTransactionsToTransactionHistory(transactions);
   }
 
   /// Fetches the SPL Tokens transactions linked to the token account Public Key
   Future<void> _updateSPLTokenTransactions() async {
-    List<SolanaTransactionModel> splTokenTransactions = [];
+    // List<SolanaTransactionModel> splTokenTransactions = [];
 
     // Make a copy of keys to avoid concurrent modification
     var tokenKeys = List<CryptoCurrency>.from(balance.keys);
@@ -301,13 +282,20 @@ abstract class SolanaWalletBase
           _walletKeyPair!,
         );
 
-        splTokenTransactions.addAll(tokenTxs);
+        // splTokenTransactions.addAll(tokenTxs);
+        await _addTransactionsToTransactionHistory(tokenTxs);
       }
     }
 
+    // await _addTransactionsToTransactionHistory(splTokenTransactions);
+  }
+
+  Future<void> _addTransactionsToTransactionHistory(
+    List<SolanaTransactionModel> transactions,
+  ) async {
     final Map<String, SolanaTransactionInfo> result = {};
 
-    for (var transactionModel in splTokenTransactions) {
+    for (var transactionModel in transactions) {
       result[transactionModel.id] = SolanaTransactionInfo(
         id: transactionModel.id,
         to: transactionModel.to,
