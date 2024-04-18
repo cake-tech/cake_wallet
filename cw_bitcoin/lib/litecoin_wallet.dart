@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:blockchain_utils/crypto/crypto/cdsa/curve/curves.dart';
 import 'package:blockchain_utils/crypto/crypto/cdsa/ecdsa/signature.dart';
 import 'package:blockchain_utils/crypto/quick_crypto.dart';
@@ -139,6 +140,18 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     return priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
   }
 
+  List<int> _magicPrefix(List<int> message, List<int> messagePrefix) {
+    final encodeLength = IntUtils.encodeVarint(message.length);
+
+    return [...messagePrefix, ...encodeLength, ...message];
+  }
+
+  List<int> magicMessage(List<int> message, String messagePrefix) {
+    final prefixBytes = StringUtils.encode(messagePrefix);
+    final magic = _magicPrefix(message, prefixBytes);
+    return QuickCrypto.sha256Hash(magic);
+  }
+
   @override
   Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {
     if (address == null) {
@@ -153,8 +166,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     String messagePrefix = '\x19Litecoin Signed Message:\n';
-    final messageHash = QuickCrypto.sha256Hash(
-        BitcoinSignerUtils.magicMessage(utf8.encode(message), messagePrefix));
+    final messageHash = QuickCrypto.sha256Hash(magicMessage(utf8.encode(message), messagePrefix));
 
     List<int> correctSignature =
         sigDecodedBytes.length == 65 ? sigDecodedBytes.sublist(1) : List.from(sigDecodedBytes);
