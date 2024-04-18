@@ -23,7 +23,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:collection/collection.dart';
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
-const cakeWalletBitcoinElectrumUri = '198.58.111.154:50002';
+const cakeWalletBitcoinElectrumUri = '198.58.111.154:50001';
 const publicBitcoinTestnetElectrumAddress = '198.58.111.154';
 const publicBitcoinTestnetElectrumPort = '50002';
 const publicBitcoinTestnetElectrumUri =
@@ -36,7 +36,7 @@ const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'rpc.ankr.com';
-const newCakeWalletBitcoinUri = '198.58.111.154:50002';
+const newCakeWalletBitcoinUri = '198.58.111.154:50001';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -766,7 +766,8 @@ Future<void> changeDefaultBitcoinNode(
   final needToReplaceCurrentBitcoinNode =
       currentBitcoinNode.uri.toString().contains(cakeWalletBitcoinNodeUriPattern);
 
-  final newCakeWalletBitcoinNode = Node(uri: newCakeWalletBitcoinUri, type: WalletType.bitcoin);
+  final newCakeWalletBitcoinNode =
+      Node(uri: newCakeWalletBitcoinUri, type: WalletType.bitcoin, useSSL: false);
 
   await nodeSource.add(newCakeWalletBitcoinNode);
 
@@ -819,7 +820,7 @@ Future<void> checkCurrentNodes(
 
   if (currentBitcoinElectrumServer == null) {
     final cakeWalletElectrum =
-        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: true);
+        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false);
     await nodeSource.add(cakeWalletElectrum);
     await sharedPreferences.setInt(
         PreferencesKey.currentBitcoinElectrumSererIdKey, cakeWalletElectrum.key as int);
@@ -892,7 +893,7 @@ Future<void> resetBitcoinElectrumServer(
 
   if (cakeWalletNode == null) {
     cakeWalletNode =
-        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: true);
+        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false);
     await nodeSource.add(cakeWalletNode);
   }
 
