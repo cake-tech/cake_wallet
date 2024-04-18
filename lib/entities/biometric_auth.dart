@@ -1,28 +1,32 @@
+import 'package:local_auth/local_auth.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_local_authentication/flutter_local_authentication.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class BiometricAuth {
-  final _flutterLocalAuthenticationPlugin = FlutterLocalAuthentication();
+  final _localAuth = LocalAuthentication();
 
   Future<bool> isAuthenticated() async {
     try {
-      final authenticated = await _flutterLocalAuthenticationPlugin.authenticate();
-      return authenticated;
-    } catch (e) {
+      return await _localAuth.authenticate(
+          localizedReason: S.current.biometric_auth_reason,
+          options: AuthenticationOptions(
+            biometricOnly: true,
+            useErrorDialogs: true,
+            stickyAuth: false));
+    } on PlatformException catch (e) {
       print(e);
     }
+
     return false;
   }
 
   Future<bool> canCheckBiometrics() async {
-    bool canAuthenticate;
     try {
-      canAuthenticate = await _flutterLocalAuthenticationPlugin.canAuthenticate();
-    } catch (error) {
-      print("Exception checking support. $error");
-      canAuthenticate = false;
+      return await _localAuth.canCheckBiometrics;
+    } on PlatformException catch (e) {
+      print(e);
     }
 
-    return canAuthenticate;
+    return false;
   }
 }
