@@ -228,7 +228,7 @@ abstract class EVMChainWalletBase
 
     String? hexOpReturnMemo;
     if (opReturnMemo != null) {
-      hexOpReturnMemo ='0x${opReturnMemo.codeUnits.map((char) => char.toRadixString(16).padLeft(2, '0')).join()}';
+      hexOpReturnMemo = '0x${opReturnMemo.codeUnits.map((char) => char.toRadixString(16).padLeft(2, '0')).join()}';
     }
 
     final CryptoCurrency transactionCurrency =
