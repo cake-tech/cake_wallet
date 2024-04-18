@@ -493,6 +493,7 @@ Future<void> setup({
       getIt.get<BottomSheetService>(),
       getIt.get<WalletConnectKeyService>(),
       appStore,
+      getIt.get<SharedPreferences>()
     );
     web3WalletService.create();
     return web3WalletService;
