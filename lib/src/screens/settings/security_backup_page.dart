@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/routes.dart';
@@ -60,7 +58,7 @@ class SecurityBackupPage extends BasePage {
                   .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
-          if (DeviceInfo.instance.isMobile || Platform.isMacOS || Platform.isLinux)
+          if (DeviceInfo.instance.isMobile)
             Observer(builder: (_) {
               return SettingsSwitcherCell(
                   title: S.current.settings_allow_biometrical_authentication,
