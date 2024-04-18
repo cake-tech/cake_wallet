@@ -23,6 +23,7 @@ class BiometricAuth {
       print("Exception checking support. $error");
       canAuthenticate = false;
     }
+
     return canAuthenticate;
   }
 }

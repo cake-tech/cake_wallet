@@ -33,7 +33,6 @@ dependencies:
   dio: ^4.0.6
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  local_auth: ^2.1.0
   local_auth_android: 1.0.21
   flutter_local_authentication:
     git:
