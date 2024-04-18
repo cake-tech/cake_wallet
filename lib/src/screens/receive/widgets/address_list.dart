@@ -19,7 +19,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 class AddressList extends StatelessWidget {
   const AddressList({
     super.key,
-    // required this.onTapPicker,
     required this.addressListViewModel,
     this.onSelect,
   });
@@ -43,7 +42,7 @@ class AddressList extends StatelessWidget {
 
           if (item is WalletAccountListHeader) {
             cell = HeaderTile(
-                showTrailingButton: editable,
+                showTrailingButton: true,
                 walletAddressListViewModel: addressListViewModel,
                 trailingButtonTap: () async {
                   if (addressListViewModel.type == WalletType.monero ||
