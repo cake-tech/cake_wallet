@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cw_core/nano_account_info_response.dart';
+import 'package:cw_core/n2_node.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_transaction_model.dart';
 import 'package:http/http.dart' as http;
@@ -15,6 +16,8 @@ class NanoClient {
     "Content-Type": "application/json",
     "nano-app": "cake-wallet"
   };
+
+  static const String N2_REPS_ENDPOINT = "https://rpc.nano.to";
 
   NanoClient() {
     SharedPreferences.getInstance().then((value) => prefs = value);
@@ -418,7 +421,7 @@ class NanoClient {
           body: jsonEncode({
             "action": "account_history",
             "account": address,
-            "count": "250", // TODO: pick a number
+            "count": "100",
             // "raw": true,
           }));
       final data = await jsonDecode(response.body);
@@ -432,6 +435,39 @@ class NanoClient {
     } catch (e) {
       print(e);
       return [];
+    }
+  }
+
+  Future<List<N2Node>> getN2Reps() async {
+    final response = await http.post(
+      Uri.parse(N2_REPS_ENDPOINT),
+      headers: CAKE_HEADERS,
+      body: jsonEncode({"action": "reps"}),
+    );
+    try {
+      final List<N2Node> nodes = (json.decode(response.body) as List<dynamic>)
+          .map((dynamic e) => N2Node.fromJson(e as Map<String, dynamic>))
+          .toList();
+      return nodes;
+    } catch (error) {
+      return [];
+    }
+  }
+
+  Future<int> getRepScore(String rep) async {
+    final response = await http.post(
+      Uri.parse(N2_REPS_ENDPOINT),
+      headers: CAKE_HEADERS,
+      body: jsonEncode({
+        "action": "rep_info",
+        "account": rep,
+      }),
+    );
+    try {
+      final N2Node node = N2Node.fromJson(json.decode(response.body) as Map<String, dynamic>);
+      return node.score ?? 100;
+    } catch (error) {
+      return 100;
     }
   }
 }
