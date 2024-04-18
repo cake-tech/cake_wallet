@@ -10,6 +10,7 @@ class StandardPickerListItem<T> extends TransactionDetailsListItem {
       required this.onItemSelected,
       required this.selectedIdx,
       required this.customItemIndex,
+      this.maxValue,
       required this.customValue})
       : super(title: title, value: value);
 
@@ -18,6 +19,7 @@ class StandardPickerListItem<T> extends TransactionDetailsListItem {
   final Function(double) onSliderChanged;
   final Function(T) onItemSelected;
   final int selectedIdx;
+  final double? maxValue;
   final int customItemIndex;
   double customValue;
 }

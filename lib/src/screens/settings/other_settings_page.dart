@@ -37,6 +37,7 @@ class OtherSettingsPage extends BasePage {
                     customItemIndex: _otherSettingsViewModel.customPriorityItemIndex,
                     onItemSelected: _otherSettingsViewModel.onDisplayBitcoinPrioritySelected,
                     customValue: _otherSettingsViewModel.customBitcoinFeeRate,
+                    maxValue: _otherSettingsViewModel.maxCustomFeeRate?.toDouble(),
                   ) :
                   SettingsPickerCell(
                     title: S.current.settings_fee_priority,

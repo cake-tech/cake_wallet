@@ -166,6 +166,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return null;
   }
 
+  int? get maxCustomFeeRate {
+    if (wallet.type == WalletType.bitcoin) {
+      return bitcoin!.getMaxCustomFeeRate(wallet);
+    }
+    return null;
+  }
+
   @computed
   int get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate;
 
