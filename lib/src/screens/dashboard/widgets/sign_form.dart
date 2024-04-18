@@ -75,7 +75,7 @@ class SignFormState extends State<SignForm> {
                     const SizedBox(height: 20),
                     AddressTextField(
                       controller: addressController,
-                      options: [AddressTextFieldOption.paste, AddressTextFieldOption.addressBook],
+                      options: [AddressTextFieldOption.paste, AddressTextFieldOption.walletAddresses],
                       buttonColor: Theme.of(context).hintColor,
                       onSelectedContact: (contact) {
                         addressController.text = contact.address;

@@ -51,59 +51,11 @@ class SignPage extends BasePage {
   final List<Widget> _pages;
   final GlobalKey<SignFormState> signFormKey;
   final GlobalKey<VerifyFormState> verifyFormKey;
+  bool _isEffectsInstalled = false;
 
   @override
   Widget body(BuildContext context) {
-    reaction((_) => signViewModel.state, (ExecutionState state) {
-      if (state is FailureState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (_) {
-                return AlertWithOneAction(
-                  alertTitle: S.current.error,
-                  alertContent: state.error,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop(),
-                );
-              });
-        });
-      }
-      if (state is ExecutedSuccessfullyState) {
-        if (signViewModel.isSigning) {
-          signFormKey.currentState!.signatureController.text = state.payload as String;
-        } else {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            showPopUp<void>(
-                context: context,
-                builder: (_) {
-                  return AlertWithOneAction(
-                    alertTitle: S.current.successful,
-                    alertContent: S.current.message_verified,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop(),
-                  );
-                });
-          });
-        }
-      }
-    });
-
-    // reaction((_) => walletRestoreViewModel.mode, (WalletRestoreMode mode) {
-    //   walletRestoreViewModel.isButtonEnabled = false;
-
-    //   walletRestoreFromSeedFormKey
-    //       .currentState!.blockchainHeightKey.currentState!.restoreHeightController.text = '';
-    //   walletRestoreFromSeedFormKey
-    //       .currentState!.blockchainHeightKey.currentState!.dateController.text = '';
-    //   walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.text = '';
-
-    //   walletRestoreFromKeysFormKey
-    //       .currentState!.blockchainHeightKey.currentState!.restoreHeightController.text = '';
-    //   walletRestoreFromKeysFormKey
-    //       .currentState!.blockchainHeightKey.currentState!.dateController.text = '';
-    //   walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text = '';
-    // });
+    _setEffects(context);
 
     return KeyboardActions(
       config: KeyboardActionsConfig(
@@ -173,7 +125,7 @@ class SignPage extends BasePage {
                                 .extension<WalletListTheme>()!
                                 .restoreWalletButtonTextColor,
                             isLoading: signViewModel.state is IsExecutingState,
-                            // isDisabled: !signViewModel.isButtonEnabled,
+                            isDisabled: signViewModel.state is IsExecutingState,
                           );
                         },
                       ),
@@ -186,6 +138,48 @@ class SignPage extends BasePage {
         ),
       ),
     );
+  }
+
+  void _setEffects(BuildContext context) async {
+    if (_isEffectsInstalled) {
+      return;
+    }
+    _isEffectsInstalled = true;
+
+    reaction((_) => signViewModel.state, (ExecutionState state) {
+      if (state is FailureState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showPopUp<void>(
+              context: context,
+              builder: (_) {
+                return AlertWithOneAction(
+                  alertTitle: S.current.error,
+                  alertContent: state.error,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop(),
+                );
+              });
+        });
+      }
+      if (state is ExecutedSuccessfullyState) {
+        if (signViewModel.isSigning) {
+          signFormKey.currentState!.signatureController.text = state.payload as String;
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showPopUp<void>(
+                context: context,
+                builder: (_) {
+                  return AlertWithOneAction(
+                    alertTitle: S.current.successful,
+                    alertContent: S.current.message_verified,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop(),
+                  );
+                });
+          });
+        }
+      }
+    });
   }
 
   Future<void> _confirmForm(BuildContext context) async {

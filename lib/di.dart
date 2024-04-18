@@ -14,6 +14,7 @@ import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
+import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
@@ -756,6 +757,8 @@ Future<void> setup({
 
   getIt.registerFactoryParam<ContactPage, ContactRecord?, void>(
       (ContactRecord? contact, _) => ContactPage(getIt.get<ContactViewModel>(param1: contact)));
+
+  getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
 
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();

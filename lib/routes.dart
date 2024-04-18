@@ -29,6 +29,7 @@ class Routes {
   static const nanoAccountCreation = '/nano_account_new';
   static const addressBook = '/address_book';
   static const pickerAddressBook = '/picker_address_book';
+  static const pickerWalletAddress = '/picker_wallet_address';
   static const addressBookAddContact = '/address_book_add_contact';
   static const showKeys = '/show_keys';
   static const exchangeConfirm = '/exchange_confirm';

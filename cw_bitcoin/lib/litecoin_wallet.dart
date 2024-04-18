@@ -9,6 +9,7 @@ import 'package:blockchain_utils/exception/exception.dart';
 import 'package:blockchain_utils/hex/hex.dart';
 import 'package:blockchain_utils/numbers/bigint_utils.dart';
 import 'package:blockchain_utils/signer/bitcoin_signer.dart';
+import 'package:blockchain_utils/signer/ecdsa_signing_key.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -137,13 +138,37 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final HD = index == null ? hd : hd.derive(index);
     final priv = ECPrivate.fromHex(HD.privKey!);
     String messagePrefix = '\x19Litecoin Signed Message:\n';
-    return priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
+
+    final privateKey = ECDSAPrivateKey.fromBytes(
+      priv.toBytes(),
+      Curves.generatorSecp256k1,
+    );
+    final signature =
+        signLitecoinMessage(utf8.encode(message), messagePrefix, privateKey: privateKey);
+    return BytesUtils.toHexString(signature);
   }
 
   List<int> _magicPrefix(List<int> message, List<int> messagePrefix) {
     final encodeLength = IntUtils.encodeVarint(message.length);
 
     return [...messagePrefix, ...encodeLength, ...message];
+  }
+
+  List<int> signLitecoinMessage(List<int> message, String messagePrefix,
+      {required ECDSAPrivateKey privateKey}) {
+    final messgaeHash = QuickCrypto.sha256Hash(magicMessage(message, messagePrefix));
+    final signingKey = EcdsaSigningKey(privateKey);
+    ECDSASignature ecdsaSign =
+        signingKey.signDigestDeterminstic(digest: messgaeHash, hashFunc: () => SHA256());
+    final n = Curves.generatorSecp256k1.order! >> 1;
+    BigInt newS;
+    if (ecdsaSign.s.compareTo(n) > 0) {
+      newS = Curves.generatorSecp256k1.order! - ecdsaSign.s;
+    } else {
+      newS = ecdsaSign.s;
+    }
+    final newSignature = ECDSASignature(ecdsaSign.r, newS);
+    return newSignature.toBytes(BitcoinSignerUtils.baselen);
   }
 
   List<int> magicMessage(List<int> message, String messagePrefix) {

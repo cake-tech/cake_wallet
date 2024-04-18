@@ -19,6 +19,7 @@ import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
+import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
@@ -376,6 +377,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final selectedCurrency = settings.arguments as CryptoCurrency?;
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<ContactListPage>(param1: selectedCurrency));
+
+    case Routes.pickerWalletAddress:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<AddressListPage>());
 
     case Routes.addressBookAddContact:
       return CupertinoPageRoute<void>(
