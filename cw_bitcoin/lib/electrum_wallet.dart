@@ -48,6 +48,8 @@ part 'electrum_wallet.g.dart';
 
 class ElectrumWallet = ElectrumWalletBase with _$ElectrumWallet;
 
+const int TWEAKS_COUNT = 25;
+
 abstract class ElectrumWalletBase
     extends WalletBase<ElectrumBalance, ElectrumTransactionHistory, ElectrumTransactionInfo>
     with Store {
@@ -154,8 +156,6 @@ abstract class ElectrumWalletBase
     silentPaymentsScanningActive = active;
 
     if (active) {
-      await _setInitialHeight();
-
       if ((await getCurrentChainTip()) > walletInfo.restoreHeight) {
         _setListeners(walletInfo.restoreHeight, chainTipParam: _currentChainTip);
       }
@@ -1855,19 +1855,22 @@ Future<void> startRefresh(ScanData scanData) async {
     final electrumClient = await getElectrumConnection();
 
     if (tweaksSubscription == null) {
-      try {
-        tweaksSubscription = await electrumClient.tweaksSubscribe(height: syncHeight);
+      final count = scanData.isSingleScan ? 1 : TWEAKS_COUNT;
 
-        tweaksSubscription?.listen((t) {
+      try {
+        tweaksSubscription = await electrumClient.tweaksSubscribe(height: syncHeight, count: count);
+
+        tweaksSubscription?.listen((t) async {
           final tweaks = t as Map<String, dynamic>;
 
-          if (tweaks["message"] != null) {
+          if (tweaks["message"] != null && !scanData.isSingleScan) {
             // re-subscribe to continue receiving messages
-            electrumClient.tweaksSubscribe(height: syncHeight);
+            electrumClient.tweaksSubscribe(height: syncHeight, count: count);
             return;
           }
 
           final blockHeight = tweaks.keys.first;
+          final tweakHeight = int.parse(blockHeight);
 
           try {
             final blockTweaks = tweaks[blockHeight] as Map<String, dynamic>;
@@ -1901,13 +1904,13 @@ Future<void> startRefresh(ScanData scanData) async {
                 final txInfo = ElectrumTransactionInfo(
                   WalletType.bitcoin,
                   id: txid,
-                  height: syncHeight,
+                  height: tweakHeight,
                   amount: 0,
                   fee: 0,
                   direction: TransactionDirection.incoming,
                   isPending: false,
                   date: DateTime.now(),
-                  confirmations: scanData.chainTip - int.parse(blockHeight) + 1,
+                  confirmations: scanData.chainTip - tweakHeight + 1,
                   unspents: [],
                 );
 
@@ -1961,7 +1964,7 @@ Future<void> startRefresh(ScanData scanData) async {
             }
           } catch (_) {}
 
-          syncHeight = int.parse(blockHeight);
+          syncHeight = tweakHeight;
           scanData.sendPort.send(
             SyncResponse(
               syncHeight,
@@ -1973,11 +1976,10 @@ Future<void> startRefresh(ScanData scanData) async {
             ),
           );
 
-          if (int.parse(blockHeight) >= scanData.chainTip) {
+          if (int.parse(blockHeight) >= scanData.chainTip || scanData.isSingleScan) {
             scanData.sendPort.send(SyncResponse(syncHeight, SyncedSyncStatus()));
+            await tweaksSubscription!.close();
           }
-
-          return;
         });
       } catch (e) {
         if (e is RequestFailedTimeoutException) {

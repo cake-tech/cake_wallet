@@ -264,10 +264,14 @@ const bitcoinDates = {
 };
 
 int getBitcoinHeightByDate({required DateTime date}) {
-  String closestKey =
-      bitcoinDates.keys.firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
+  String dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}';
+  int startBlock = bitcoinDates[dateKey] ?? bitcoinDates.values.last;
 
-  final oldestHeight = bitcoinDates.values.last;
+  DateTime startOfMonth = DateTime(date.year, date.month);
+  int daysDifference = date.difference(startOfMonth).inDays;
 
-  return bitcoinDates[closestKey] ?? oldestHeight;
+  // approximately 6 blocks per hour, 24 hours per day
+  int estimatedBlocksSinceStartOfMonth = (daysDifference * 24 * 6);
+
+  return startBlock + estimatedBlocksSinceStartOfMonth;
 }

@@ -8,8 +8,6 @@ import 'package:cw_bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
-const int TWEAKS_COUNT = 20;
-
 String jsonrpcparams(List<Object> params) {
   final _params = params.map((val) => '"${val.toString()}"').join(',');
   return '[$_params]';
@@ -280,12 +278,12 @@ class ElectrumClient {
   Future<Map<String, dynamic>> getHeader({required int height}) async =>
       await call(method: 'blockchain.block.get_header', params: [height]) as Map<String, dynamic>;
 
-  BehaviorSubject<Object>? tweaksSubscribe({required int height}) {
+  BehaviorSubject<Object>? tweaksSubscribe({required int height, required int count}) {
     _id += 1;
     return subscribe<Object>(
-      id: 'blockchain.tweaks.subscribe:${height + TWEAKS_COUNT}',
+      id: 'blockchain.tweaks.subscribe:${height + count}',
       method: 'blockchain.tweaks.subscribe',
-      params: [height, TWEAKS_COUNT],
+      params: [height, count],
     );
   }
 
