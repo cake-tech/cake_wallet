@@ -610,8 +610,6 @@ abstract class Ethereum {
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled);
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
-
-  Future<bool> isExternallyOwnedAccountAddress(WalletBase wallet, String address);
 }
   """;
 
@@ -705,8 +703,6 @@ abstract class Polygon {
   void updatePolygonScanUsageState(WalletBase wallet, bool isEnabled);
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
-
-  Future<bool> isExternallyOwnedAccountAddress(WalletBase wallet, String address);
 }
   """;
 

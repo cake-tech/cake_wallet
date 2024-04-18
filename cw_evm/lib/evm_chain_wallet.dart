@@ -533,8 +533,5 @@ abstract class EVMChainWalletBase
   String signMessage(String message, {String? address}) =>
       bytesToHex(_evmChainPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
 
-  Future<bool> isExternallyOwnedAccount(String address) async =>
-      await _client.isExternallyOwnedAccount(address);
-
   Web3Client? getWeb3Client() => _client.getWeb3Client();
 }

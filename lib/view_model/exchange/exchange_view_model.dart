@@ -796,21 +796,52 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
 
       final currenciesToCheckPattern = RegExp('0x[0-9a-zA-Z]');
-      final inputAddress = trade.inputAddress ?? '';
-      if (currenciesToCheckPattern.hasMatch(inputAddress)) {
-        final isEOAAddress = await _isExternallyOwnedAccountAddress(inputAddress);
-        print('Is EOA Address: $isEOAAddress');
+
+      // Perform checks for payOutAddress
+      final isPayOutAddressAccordingToPattern = currenciesToCheckPattern.hasMatch(payoutAddress);
+
+      if (isPayOutAddressAccordingToPattern) {
+        final isPayOutAddressEOA = await _isExternallyOwnedAccountAddress(payoutAddress);
+
         return CreateTradeResult(
-          result: isEOAAddress,
-          errorMessage: !isEOAAddress ? S.current.thorchain_contract_address_not_supported : null,
+          result: isPayOutAddressEOA,
+          errorMessage:
+              !isPayOutAddressEOA ? S.current.thorchain_contract_address_not_supported : null,
+        );
+      }
+
+      // Perform checks for fromWalletAddress
+      final isFromWalletAddressAddressAccordingToPattern =
+          currenciesToCheckPattern.hasMatch(fromWalletAddress);
+
+      if (isFromWalletAddressAddressAccordingToPattern) {
+        final isFromWalletAddressEOA = await _isExternallyOwnedAccountAddress(fromWalletAddress);
+
+        return CreateTradeResult(
+          result: isFromWalletAddressEOA,
+          errorMessage:
+              !isFromWalletAddressEOA ? S.current.thorchain_contract_address_not_supported : null,
         );
       }
     }
     return CreateTradeResult(result: true);
   }
 
+  String _normalizeReceiveCurrency(CryptoCurrency receiveCurrency) {
+    switch (receiveCurrency) {
+      case CryptoCurrency.eth:
+        return 'eth';
+      case CryptoCurrency.maticpoly:
+        return 'polygon';
+      default:
+        return receiveCurrency.tag ?? '';
+    }
+  }
+
   Future<bool> _isExternallyOwnedAccountAddress(String receivingAddress) async {
-    final isEOAAddress = !(await _isContractAddress('eth', receivingAddress));
+    final normalizedReceiveCurrency = _normalizeReceiveCurrency(receiveCurrency);
+
+    final isEOAAddress = !(await _isContractAddress(normalizedReceiveCurrency, receivingAddress));
     return isEOAAddress;
   }
 
@@ -848,4 +879,3 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
   }
 }
-

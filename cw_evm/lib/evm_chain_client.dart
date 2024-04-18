@@ -44,16 +44,6 @@ abstract class EVMChainClient {
       return false;
     }
   }
-  
-  /// Checks to see if a passed in address is either an Externally Owned Account(EOA) address or a Contract Address.
-  /// 
-  /// The [getCode] method on the Web3Client fetches the bytecode at a specific address
-  /// An EOA address would come back empty.
-  /// A Contract Address would come back non-empty, fetching the bytecode for that contract.
-  Future<bool> isExternallyOwnedAccount(String address) async {
-    final result = await _client!.getCode(EthereumAddress.fromHex(address));
-    return result.isEmpty;
-  }
 
   void setListeners(EthereumAddress userAddress, Function() onNewTransaction) async {
     // _client?.pendingTransactions().listen((transactionHash) async {

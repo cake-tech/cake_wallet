@@ -155,8 +155,4 @@ class CWPolygon extends Polygon {
   }
 
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
-
-  Future<bool> isExternallyOwnedAccountAddress(WalletBase wallet, String address) async {
-    return await (wallet as PolygonWallet).isExternallyOwnedAccount(address);
-  }
 }
