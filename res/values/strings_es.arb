@@ -757,6 +757,7 @@
   "tx_rejected_dust_output_send_all": "Transacción rechazada por reglas de red, baja cantidad de salida (polvo). Verifique el saldo de monedas seleccionadas bajo control de monedas.",
   "tx_rejected_vout_negative": "No es suficiente saldo para pagar las tarifas de esta transacción. Verifique el saldo de monedas bajo control de monedas.",
   "tx_wrong_balance_exception": "No tiene suficiente ${currency} para enviar esta cantidad.",
+  "tx_wrong_balance_with_amount_exception": "No tiene suficiente ${currency} para enviar la cantidad total de ${amount}",
   "tx_zero_fee_exception": "No se puede enviar transacciones con 0 tarifa. Intente aumentar la tasa o verificar su conexión para las últimas estimaciones.",
   "unavailable_balance": "Saldo no disponible",
   "unavailable_balance_description": "Saldo no disponible: este total incluye fondos que están bloqueados en transacciones pendientes y aquellos que usted ha congelado activamente en su configuración de control de monedas. Los saldos bloqueados estarán disponibles una vez que se completen sus respectivas transacciones, mientras que los saldos congelados permanecerán inaccesibles para las transacciones hasta que usted decida descongelarlos.",

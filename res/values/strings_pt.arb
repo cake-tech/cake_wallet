@@ -758,6 +758,7 @@
   "tx_rejected_dust_output_send_all": "Transação rejeitada por regras de rede, baixa quantidade de saída (poeira). Por favor, verifique o saldo de moedas selecionadas sob controle de moedas.",
   "tx_rejected_vout_negative": "Não há saldo suficiente para pagar as taxas desta transação. Por favor, verifique o saldo de moedas sob controle de moedas.",
   "tx_wrong_balance_exception": "Você não tem o suficiente ${currency} para enviar esse valor.",
+  "tx_wrong_balance_with_amount_exception": "Você não tem o suficiente ${currency} para enviar o valor total de ${amount}",
   "tx_zero_fee_exception": "Não pode enviar transação com taxa 0. Tente aumentar a taxa ou verificar sua conexão para obter as estimativas mais recentes.",
   "unavailable_balance": "Saldo indisponível",
   "unavailable_balance_description": "Saldo Indisponível: Este total inclui fundos bloqueados em transações pendentes e aqueles que você congelou ativamente nas configurações de controle de moedas. Os saldos bloqueados ficarão disponíveis assim que suas respectivas transações forem concluídas, enquanto os saldos congelados permanecerão inacessíveis para transações até que você decida descongelá-los.",

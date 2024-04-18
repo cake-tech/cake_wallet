@@ -541,6 +541,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         walletType == WalletType.litecoin ||
         walletType == WalletType.bitcoinCash) {
       if (error is TransactionWrongBalanceException) {
+        if (error.amount != null)
+          return S.current
+              .tx_wrong_balance_with_amount_exception(currency.toString(), error.amount.toString());
+
         return S.current.tx_wrong_balance_exception(currency.toString());
       }
       if (error is TransactionNoInputsException) {

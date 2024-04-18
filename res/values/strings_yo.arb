@@ -757,6 +757,7 @@
   "tx_rejected_dust_output_send_all": "Idunadura kọ nipasẹ awọn ofin nẹtiwọọki, iye ti o wuwe kekere (eruku). Jọwọ ṣayẹwo dọgbadọgba ti awọn owo ti a yan labẹ iṣakoso owo.",
   "tx_rejected_vout_negative": "Iwontunws.funfun ti o to lati sanwo fun awọn idiyele iṣowo yii. Jọwọ ṣayẹwo iwọntunwọnsi ti awọn owo labẹ iṣakoso owo.",
   "tx_wrong_balance_exception": "O ko ni to ${currency} lati firanṣẹ iye yii.",
+  "tx_wrong_balance_with_amount_exception": "O ko ni to ${currency} Lati firanṣẹ lapapọ iye ${amount}",
   "tx_zero_fee_exception": "Ko le firanṣẹ idunadura pẹlu ọya 0. Gbiyanju jijẹ oṣuwọn tabi ṣayẹwo asopọ rẹ fun awọn iṣiro tuntun.",
   "unavailable_balance": "Iwontunwonsi ti ko si",
   "unavailable_balance_description": "Iwontunws.funfun ti ko si: Lapapọ yii pẹlu awọn owo ti o wa ni titiipa ni awọn iṣowo isunmọ ati awọn ti o ti didi ni itara ninu awọn eto iṣakoso owo rẹ. Awọn iwọntunwọnsi titiipa yoo wa ni kete ti awọn iṣowo oniwun wọn ba ti pari, lakoko ti awọn iwọntunwọnsi tio tutunini ko ni iraye si fun awọn iṣowo titi iwọ o fi pinnu lati mu wọn kuro.",

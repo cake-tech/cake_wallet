@@ -352,6 +352,8 @@ abstract class ElectrumWalletBase
 
       updateAllUnspents().then(checkFinishedAllUpdates);
       updateBalance().then(checkFinishedAllUpdates);
+
+      updateFeeRates();
     } catch (e, stacktrace) {
       print(stacktrace);
       print(e.toString());
@@ -410,220 +412,33 @@ abstract class ElectrumWalletBase
 
   bool _isBelowDust(int amount) => amount <= _dustAmount && network != BitcoinNetwork.testnet;
 
-  void _createSilentPayments(
-    List<BitcoinOutput> outputs,
-    List<ECPublic> inputPubKeys,
-    List<Outpoint> vinOutpoints,
-    List<ECPrivateInfo> inputPrivKeyInfos,
-  ) {
-    List<SilentPaymentDestination> silentPaymentDestinations = [];
-
-    for (final out in outputs) {
-      final address = out.address;
-      final amount = out.value;
-
-      if (address is SilentPaymentAddress) {
-        silentPaymentDestinations.add(
-          SilentPaymentDestination.fromAddress(address.toAddress(network), amount.toInt()),
-        );
-      }
-    }
-
-    if (silentPaymentDestinations.isNotEmpty) {
-      final spb = SilentPaymentBuilder(pubkeys: inputPubKeys, outpoints: vinOutpoints);
-      final sendingOutputs = spb.createOutputs(inputPrivKeyInfos, silentPaymentDestinations);
-
-      final outputsAdded = [];
-
-      for (var i = 0; i < outputs.length; i++) {
-        final out = outputs[i];
-
-        final silentOutputs = sendingOutputs[out.address.toAddress(network)];
-        if (silentOutputs != null) {
-          final silentOutput =
-              silentOutputs.firstWhereOrNull((element) => !outputsAdded.contains(element));
-
-          if (silentOutput != null) {
-            outputs[i] = BitcoinOutput(
-              address: silentOutput.address,
-              value: BigInt.from(silentOutput.amount),
-            );
-
-            outputsAdded.add(silentOutput);
-          }
-        }
-      }
-    }
-  }
-
-  Future<EstimatedTxResult> estimateSendAllTx(
-    List<BitcoinOutput> outputs,
-    int feeRate, {
-    String? memo,
-    int credentialsAmount = 0,
-    bool hasSilentPayment = false,
-  }) async {
-    final utxos = <UtxoWithAddress>[];
-    int allInputsAmount = 0;
-
-    List<Outpoint> vinOutpoints = [];
-    List<ECPrivateInfo> inputPrivKeyInfos = [];
-    List<ECPublic> inputPubKeys = [];
-    bool spendsSilentPayment = false;
-    bool spendsCPFP = false;
-
-    for (int i = 0; i < unspentCoins.length; i++) {
-      final utx = unspentCoins[i];
-
-      if (utx.isSending && !utx.isFrozen) {
-        if (hasSilentPayment) {
-          // Check inputs for shared secret derivation
-          if (utx.bitcoinAddressRecord.type == SegwitAddresType.p2wsh) {
-            throw BitcoinTransactionSilentPaymentsNotSupported();
-          }
-        }
-
-        if (!spendsCPFP) spendsCPFP = utx.confirmations == 0;
-
-        allInputsAmount += utx.value;
-
-        final address = addressTypeFromStr(utx.address, network);
-
-        ECPrivate? privkey;
-        bool? isSilentPayment = false;
-
-        if (utx.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
-          final unspentAddress = utx.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
-          privkey = walletAddresses.silentAddress!.b_spend.tweakAdd(
-            BigintUtils.fromBytes(
-              BytesUtils.fromHexString(unspentAddress.silentPaymentTweak!),
-            ),
-          );
-          spendsSilentPayment = true;
-          isSilentPayment = true;
-        } else {
-          privkey = generateECPrivate(
-            hd: utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
-            index: utx.bitcoinAddressRecord.index,
-            network: network,
-          );
-        }
-
-        inputPrivKeyInfos.add(ECPrivateInfo(
-          privkey,
-          address.type == SegwitAddresType.p2tr,
-          tweak: !isSilentPayment,
-        ));
-        inputPubKeys.add(privkey.getPublic());
-        vinOutpoints.add(Outpoint(txid: utx.hash, index: utx.vout));
-
-        utxos.add(
-          UtxoWithAddress(
-            utxo: BitcoinUtxo(
-              txHash: utx.hash,
-              value: BigInt.from(utx.value),
-              vout: utx.vout,
-              scriptType: _getScriptType(address),
-              isSilentPayment: isSilentPayment,
-            ),
-            ownerDetails: UtxoAddressDetails(
-              publicKey: privkey.getPublic().toHex(),
-              address: address,
-            ),
-          ),
-        );
-      }
-    }
-
-    if (utxos.isEmpty) {
-      throw BitcoinTransactionNoInputsException();
-    }
-
-    if (hasSilentPayment == true) {
-      _createSilentPayments(outputs, inputPubKeys, vinOutpoints, inputPrivKeyInfos);
-    }
-
-    int estimatedSize;
-    if (network is BitcoinCashNetwork) {
-      estimatedSize = ForkedTransactionBuilder.estimateTransactionSize(
-        utxos: utxos,
-        outputs: outputs,
-        network: network as BitcoinCashNetwork,
-        memo: memo,
-      );
-    } else {
-      estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
-        utxos: utxos,
-        outputs: outputs,
-        network: network,
-        memo: memo,
-      );
-    }
-
-    int fee = feeAmountWithFeeRate(feeRate, 0, 0, size: estimatedSize);
-
-    if (fee == 0) {
-      throw BitcoinTransactionNoFeeException();
-    }
-
-    // Here, when sending all, the output amount equals to the input value - fee to fully spend every input on the transaction and have no amount left for change
-    int amount = allInputsAmount - fee;
-
-    if (amount <= 0) {
-      throw BitcoinTransactionWrongBalanceException();
-    }
-
-    // Attempting to send less than the dust limit
-    if (_isBelowDust(amount)) {
-      throw BitcoinTransactionNoDustException();
-    }
-
-    if (credentialsAmount > 0) {
-      final amountLeftForFee = amount - credentialsAmount;
-      if (amountLeftForFee > 0 && _isBelowDust(amountLeftForFee)) {
-        amount -= amountLeftForFee;
-        fee += amountLeftForFee;
-      }
-    }
-
-    outputs[outputs.length - 1] =
-        BitcoinOutput(address: outputs.last.address, value: BigInt.from(amount));
-
-    return EstimatedTxResult(
-      utxos: utxos,
-      inputPrivKeyInfos: inputPrivKeyInfos,
-      fee: fee,
-      amount: amount,
-      isSendAll: true,
-      hasChange: false,
-      memo: memo,
-      spendsSilentPayment: spendsSilentPayment,
-      spendsCPFP: spendsCPFP,
-    );
-  }
-
-  Future<EstimatedTxResult> estimateTxForAmount(
-    int credentialsAmount,
-    List<BitcoinOutput> outputs,
-    int feeRate, {
+  UtxoDetails _createUTXOS({
+    required bool sendAll,
+    required int credentialsAmount,
+    required bool paysToSilentPayment,
     int? inputsCount,
-    String? memo,
-    bool hasSilentPayment = false,
-  }) async {
-    final utxos = <UtxoWithAddress>[];
+  }) {
+    List<UtxoWithAddress> utxos = [];
     List<Outpoint> vinOutpoints = [];
     List<ECPrivateInfo> inputPrivKeyInfos = [];
-    List<ECPublic> inputPubKeys = [];
     int allInputsAmount = 0;
     bool spendsSilentPayment = false;
     bool spendsCPFP = false;
 
     int leftAmount = credentialsAmount;
-    final sendingCoins = unspentCoins.where((utx) => utx.isSending).toList();
+    final availableInputs = unspentCoins.where((utx) => utx.isSending && !utx.isFrozen).toList();
 
-    for (int i = 0; i < sendingCoins.length; i++) {
-      final utx = sendingCoins[i];
-      spendsCPFP = utx.confirmations == 0;
+    for (int i = 0; i < availableInputs.length; i++) {
+      final utx = availableInputs[i];
+
+      if (paysToSilentPayment) {
+        // Check inputs for shared secret derivation
+        if (utx.bitcoinAddressRecord.type == SegwitAddresType.p2wsh) {
+          throw BitcoinTransactionSilentPaymentsNotSupported();
+        }
+      }
+
+      spendsCPFP = (utx.confirmations ?? 0) <= 0;
 
       allInputsAmount += utx.value;
       leftAmount = leftAmount - utx.value;
@@ -649,13 +464,12 @@ abstract class ElectrumWalletBase
         );
       }
 
+      vinOutpoints.add(Outpoint(txid: utx.hash, index: utx.vout));
       inputPrivKeyInfos.add(ECPrivateInfo(
         privkey,
         address.type == SegwitAddresType.p2tr,
         tweak: !isSilentPayment,
       ));
-      inputPubKeys.add(privkey.getPublic());
-      vinOutpoints.add(Outpoint(txid: utx.hash, index: utx.vout));
 
       utxos.add(
         UtxoWithAddress(
@@ -673,9 +487,12 @@ abstract class ElectrumWalletBase
         ),
       );
 
-      bool amountIsAcquired = leftAmount <= 0;
-      if ((inputsCount == null && amountIsAcquired) || inputsCount == i + 1) {
-        break;
+      // sendAll continues for all inputs
+      if (!sendAll) {
+        bool amountIsAcquired = leftAmount <= 0;
+        if ((inputsCount == null && amountIsAcquired) || inputsCount == i + 1) {
+          break;
+        }
       }
     }
 
@@ -683,14 +500,110 @@ abstract class ElectrumWalletBase
       throw BitcoinTransactionNoInputsException();
     }
 
-    if (hasSilentPayment == true) {
-      _createSilentPayments(outputs, inputPubKeys, vinOutpoints, inputPrivKeyInfos);
+    return UtxoDetails(
+      availableInputs: availableInputs,
+      utxos: utxos,
+      vinOutpoints: vinOutpoints,
+      inputPrivKeyInfos: inputPrivKeyInfos,
+      allInputsAmount: allInputsAmount,
+      spendsSilentPayment: spendsSilentPayment,
+      spendsCPFP: spendsCPFP,
+    );
+  }
+
+  Future<EstimatedTxResult> estimateSendAllTx(
+    List<BitcoinOutput> outputs,
+    int feeRate, {
+    String? memo,
+    int credentialsAmount = 0,
+    bool hasSilentPayment = false,
+  }) async {
+    final utxoDetails = _createUTXOS(
+      sendAll: true,
+      credentialsAmount: credentialsAmount,
+      paysToSilentPayment: hasSilentPayment,
+    );
+
+    int estimatedSize;
+    if (network is BitcoinCashNetwork) {
+      estimatedSize = ForkedTransactionBuilder.estimateTransactionSize(
+        utxos: utxoDetails.utxos,
+        outputs: outputs,
+        network: network as BitcoinCashNetwork,
+        memo: memo,
+      );
+    } else {
+      estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
+        utxos: utxoDetails.utxos,
+        outputs: outputs,
+        network: network,
+        memo: memo,
+        inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+        vinOutpoints: utxoDetails.vinOutpoints,
+      );
     }
 
-    final spendingAllCoins = sendingCoins.length == utxos.length;
+    int fee = feeAmountWithFeeRate(feeRate, 0, 0, size: estimatedSize);
+
+    if (fee == 0) {
+      throw BitcoinTransactionNoFeeException();
+    }
+
+    // Here, when sending all, the output amount equals to the input value - fee to fully spend every input on the transaction and have no amount left for change
+    int amount = utxoDetails.allInputsAmount - fee;
+
+    if (amount <= 0) {
+      throw BitcoinTransactionWrongBalanceException(amount: utxoDetails.allInputsAmount + fee);
+    }
+
+    // Attempting to send less than the dust limit
+    if (_isBelowDust(amount)) {
+      throw BitcoinTransactionNoDustException();
+    }
+
+    if (credentialsAmount > 0) {
+      final amountLeftForFee = amount - credentialsAmount;
+      if (amountLeftForFee > 0 && _isBelowDust(amountLeftForFee)) {
+        amount -= amountLeftForFee;
+        fee += amountLeftForFee;
+      }
+    }
+
+    outputs[outputs.length - 1] =
+        BitcoinOutput(address: outputs.last.address, value: BigInt.from(amount));
+
+    return EstimatedTxResult(
+      utxos: utxoDetails.utxos,
+      inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+      fee: fee,
+      amount: amount,
+      isSendAll: true,
+      hasChange: false,
+      memo: memo,
+      spendsSilentPayment: utxoDetails.spendsSilentPayment,
+      spendsCPFP: utxoDetails.spendsCPFP,
+    );
+  }
+
+  Future<EstimatedTxResult> estimateTxForAmount(
+    int credentialsAmount,
+    List<BitcoinOutput> outputs,
+    int feeRate, {
+    int? inputsCount,
+    String? memo,
+    bool hasSilentPayment = false,
+  }) async {
+    final utxoDetails = _createUTXOS(
+      sendAll: false,
+      credentialsAmount: credentialsAmount,
+      inputsCount: inputsCount,
+      paysToSilentPayment: hasSilentPayment,
+    );
+
+    final spendingAllCoins = utxoDetails.availableInputs.length == utxoDetails.utxos.length;
 
     // How much is being spent - how much is being sent
-    int amountLeftForChangeAndFee = allInputsAmount - credentialsAmount;
+    int amountLeftForChangeAndFee = utxoDetails.allInputsAmount - credentialsAmount;
 
     if (amountLeftForChangeAndFee <= 0) {
       if (!spendingAllCoins) {
@@ -698,11 +611,12 @@ abstract class ElectrumWalletBase
           credentialsAmount,
           outputs,
           feeRate,
-          inputsCount: utxos.length + 1,
+          inputsCount: utxoDetails.utxos.length + 1,
           memo: memo,
           hasSilentPayment: hasSilentPayment,
         );
       }
+
       throw BitcoinTransactionWrongBalanceException();
     }
 
@@ -716,17 +630,19 @@ abstract class ElectrumWalletBase
     int estimatedSize;
     if (network is BitcoinCashNetwork) {
       estimatedSize = ForkedTransactionBuilder.estimateTransactionSize(
-        utxos: utxos,
+        utxos: utxoDetails.utxos,
         outputs: outputs,
         network: network as BitcoinCashNetwork,
         memo: memo,
       );
     } else {
       estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
-        utxos: utxos,
+        utxos: utxoDetails.utxos,
         outputs: outputs,
         network: network,
         memo: memo,
+        inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+        vinOutpoints: utxoDetails.vinOutpoints,
       );
     }
 
@@ -755,7 +671,7 @@ abstract class ElectrumWalletBase
           credentialsAmount,
           outputs,
           feeRate,
-          inputsCount: utxos.length + 1,
+          inputsCount: utxoDetails.utxos.length + 1,
           memo: memo,
         );
       }
@@ -771,7 +687,7 @@ abstract class ElectrumWalletBase
       }
 
       // Estimate to user how much is needed to send to cover the fee
-      final maxAmountWithReturningChange = allInputsAmount - _dustAmount - fee - 1;
+      final maxAmountWithReturningChange = utxoDetails.allInputsAmount - _dustAmount - fee - 1;
       throw BitcoinTransactionNoDustOnChangeException(
         bitcoinAmountToString(amount: maxAmountWithReturningChange),
         bitcoinAmountToString(amount: estimatedSendAll.amount),
@@ -789,7 +705,7 @@ abstract class ElectrumWalletBase
       throw BitcoinTransactionWrongBalanceException();
     }
 
-    if (totalAmount > allInputsAmount) {
+    if (totalAmount > utxoDetails.allInputsAmount) {
       if (spendingAllCoins) {
         throw BitcoinTransactionWrongBalanceException();
       } else {
@@ -797,12 +713,11 @@ abstract class ElectrumWalletBase
           outputs.removeLast();
         }
 
-        outputs.removeLast();
         return estimateTxForAmount(
           credentialsAmount,
           outputs,
           feeRate,
-          inputsCount: utxos.length + 1,
+          inputsCount: utxoDetails.utxos.length + 1,
           memo: memo,
           hasSilentPayment: hasSilentPayment,
         );
@@ -810,15 +725,15 @@ abstract class ElectrumWalletBase
     }
 
     return EstimatedTxResult(
-      utxos: utxos,
-      inputPrivKeyInfos: inputPrivKeyInfos,
+      utxos: utxoDetails.utxos,
+      inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
       fee: fee,
       amount: amount,
       hasChange: true,
       isSendAll: false,
       memo: memo,
-      spendsSilentPayment: spendsSilentPayment,
-      spendsCPFP: spendsCPFP,
+      spendsSilentPayment: utxoDetails.spendsSilentPayment,
+      spendsCPFP: utxoDetails.spendsCPFP,
     );
   }
 
@@ -2066,4 +1981,24 @@ BitcoinAddressType _getScriptType(BitcoinBaseAddress type) {
   } else {
     return SegwitAddresType.p2wpkh;
   }
+}
+
+class UtxoDetails {
+  final List<BitcoinUnspent> availableInputs;
+  final List<UtxoWithAddress> utxos;
+  final List<Outpoint> vinOutpoints;
+  final List<ECPrivateInfo> inputPrivKeyInfos;
+  final int allInputsAmount;
+  final bool spendsSilentPayment;
+  final bool spendsCPFP;
+
+  UtxoDetails({
+    required this.availableInputs,
+    required this.utxos,
+    required this.vinOutpoints,
+    required this.inputPrivKeyInfos,
+    required this.allInputsAmount,
+    required this.spendsSilentPayment,
+    required this.spendsCPFP,
+  });
 }

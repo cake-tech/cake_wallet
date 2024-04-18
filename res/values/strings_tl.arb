@@ -756,6 +756,7 @@
   "tx_rejected_dust_output_send_all": "Ang transaksyon na tinanggihan ng mga patakaran sa network, mababang halaga ng output (alikabok). Mangyaring suriin ang balanse ng mga barya na napili sa ilalim ng kontrol ng barya.",
   "tx_rejected_vout_negative": "Hindi sapat na balanse upang magbayad para sa mga bayarin ng transaksyon na ito. Mangyaring suriin ang balanse ng mga barya sa ilalim ng kontrol ng barya.",
   "tx_wrong_balance_exception": "Wala kang sapat na ${currency} upang maipadala ang halagang ito.",
+  "tx_wrong_balance_with_amount_exception": "Wala kang sapat ${currency} Upang ipadala ang kabuuang halaga ng ${amount}",
   "tx_zero_fee_exception": "Hindi maaaring magpadala ng transaksyon na may 0 bayad. Subukan ang pagtaas ng rate o pagsuri sa iyong koneksyon para sa pinakabagong mga pagtatantya.",
   "unavailable_balance": "Hindi available na balanse",
   "unavailable_balance_description": "Hindi Available na Balanse: Kasama sa kabuuang ito ang mga pondong naka-lock sa mga nakabinbing transaksyon at ang mga aktibong na-freeze mo sa iyong mga setting ng kontrol ng coin. Magiging available ang mga naka-lock na balanse kapag nakumpleto na ang kani-kanilang mga transaksyon, habang ang mga nakapirming balanse ay nananatiling hindi naa-access para sa mga transaksyon hanggang sa magpasya kang i-unfreeze ang mga ito.",

@@ -756,6 +756,7 @@
   "tx_rejected_dust_output_send_all": "Transakcija odbijena mrežnim pravilima, niska količina izlaza (prašina). Molimo provjerite ravnotežu kovanica odabranih pod kontrolom novčića.",
   "tx_rejected_vout_negative": "Nema dovoljno salda za plaćanje naknada ove transakcije. Molimo provjerite ravnotežu kovanica pod kontrolom novčića.",
   "tx_wrong_balance_exception": "Nemate dovoljno ${currency} da biste poslali ovaj iznos.",
+  "tx_wrong_balance_with_amount_exception": "Nemate dovoljno ${currency} za slanje ukupne količine ${amount}",
   "tx_zero_fee_exception": "Ne mogu poslati transakciju s 0 naknade. Pokušajte povećati stopu ili provjeriti vezu za najnovije procjene.",
   "unavailable_balance": "Nedostupno stanje",
   "unavailable_balance_description": "Nedostupno stanje: Ovaj ukupni iznos uključuje sredstva koja su zaključana u transakcijama na čekanju i ona koja ste aktivno zamrznuli u postavkama kontrole novčića. Zaključani saldi postat će dostupni kada se dovrše njihove transakcije, dok zamrznuti saldi ostaju nedostupni za transakcije sve dok ih ne odlučite odmrznuti.",

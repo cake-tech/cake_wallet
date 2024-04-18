@@ -757,6 +757,7 @@
   "tx_rejected_dust_output_send_all": "네트워크 규칙, 낮은 출력 금액 (먼지)에 의해 거부 된 거래. 동전 제어에서 선택한 동전의 균형을 확인하십시오.",
   "tx_rejected_vout_negative": "이 거래 수수료를 지불하기에 잔액이 충분하지 않습니다. 동전 통제하에 동전의 균형을 확인하십시오.",
   "tx_wrong_balance_exception": "이 금액을 보내기에 충분한 ${currency}가 충분하지 않습니다.",
+  "tx_wrong_balance_with_amount_exception": "충분하지 않습니다 ${currency} 총 ${amount} 총 금액을 보내십시오.",
   "tx_zero_fee_exception": "0 수수료로 거래를 보낼 수 없습니다. 최신 견적에 대해서는 속도를 높이거나 연결을 확인하십시오.",
   "unavailable_balance": "사용할 수 없는 잔액",
   "unavailable_balance_description": "사용할 수 없는 잔액: 이 총계에는 보류 중인 거래에 잠겨 있는 자금과 코인 관리 설정에서 적극적으로 동결된 자금이 포함됩니다. 잠긴 잔액은 해당 거래가 완료되면 사용할 수 있게 되며, 동결된 잔액은 동결을 해제하기 전까지 거래에 액세스할 수 없습니다.",

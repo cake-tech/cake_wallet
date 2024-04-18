@@ -756,6 +756,7 @@
   "tx_rejected_dust_output_send_all": "交易被网络规则，低输出量（灰尘）拒绝。请检查在硬币控制下选择的硬币的余额。",
   "tx_rejected_vout_negative": "没有足够的余额来支付此交易费用。请检查硬币控制下的硬币余额。",
   "tx_wrong_balance_exception": "您没有足够的${currency}来发送此金额。",
+  "tx_wrong_balance_with_amount_exception": "您没有足够的${currency} ${amount}",
   "tx_zero_fee_exception": "无法以0费用发送交易。尝试提高速率或检查连接以获取最新估计。",
   "unavailable_balance": "不可用余额",
   "unavailable_balance_description": "不可用余额：此总额包括锁定在待处理交易中的资金以及您在硬币控制设置中主动冻结的资金。一旦各自的交易完成，锁定的余额将变得可用，而冻结的余额在您决定解冻之前仍然无法进行交易。",

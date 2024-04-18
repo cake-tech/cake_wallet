@@ -757,6 +757,7 @@
   "tx_rejected_dust_output_send_all": "Transaktion durch Netzwerkregeln, niedriger Ausgangsmenge (Staub) abgelehnt. Bitte überprüfen Sie den Gleichgewicht der unter Münzkontrolle ausgewählten Münzen.",
   "tx_rejected_vout_negative": "Nicht genug Guthaben, um die Gebühren dieser Transaktion zu bezahlen. Bitte überprüfen Sie den Restbetrag der Münzen unter Münzkontrolle.",
   "tx_wrong_balance_exception": "Sie haben nicht genug ${currency}, um diesen Betrag zu senden.",
+  "tx_wrong_balance_with_amount_exception": "Sie haben nicht genug ${currency}, um die Gesamtmenge von ${amount} zu senden",
   "tx_zero_fee_exception": "Transaktion kann nicht mit 0 Gebühren gesendet werden. Versuchen Sie, die Rate zu erhöhen oder Ihre Verbindung auf die neuesten Schätzungen zu überprüfen.",
   "unavailable_balance": "Nicht verfügbares Guthaben",
   "unavailable_balance_description": "Nicht verfügbares Guthaben: Diese Summe umfasst Gelder, die in ausstehenden Transaktionen gesperrt sind, und solche, die Sie in Ihren Münzkontrolleinstellungen aktiv eingefroren haben. Gesperrte Guthaben werden verfügbar, sobald die entsprechenden Transaktionen abgeschlossen sind, während eingefrorene Guthaben für Transaktionen nicht zugänglich bleiben, bis Sie sich dazu entschließen, sie wieder freizugeben.",

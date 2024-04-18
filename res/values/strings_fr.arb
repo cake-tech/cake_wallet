@@ -756,6 +756,7 @@
   "tx_rejected_dust_output_send_all": "Transaction rejetée par les règles du réseau, faible quantité de sortie (poussière). Veuillez vérifier le solde des pièces sélectionnées sous le contrôle des pièces de monnaie.",
   "tx_rejected_vout_negative": "Pas assez de solde pour payer les frais de cette transaction. Veuillez vérifier le solde des pièces sous le contrôle des pièces.",
   "tx_wrong_balance_exception": "Vous n'avez pas assez ${currency} pour envoyer ce montant.",
+  "tx_wrong_balance_with_amount_exception": "Vous n'avez pas assez ${currency} pour envoyer le montant total de ${amount}",
   "tx_zero_fee_exception": "Impossible d'envoyer une transaction avec 0 frais. Essayez d'augmenter le taux ou de vérifier votre connexion pour les dernières estimations.",
   "unavailable_balance": "Solde indisponible",
   "unavailable_balance_description": "Solde indisponible : ce total comprend les fonds bloqués dans les transactions en attente et ceux que vous avez activement gelés dans vos paramètres de contrôle des pièces. Les soldes bloqués deviendront disponibles une fois leurs transactions respectives terminées, tandis que les soldes gelés resteront inaccessibles aux transactions jusqu'à ce que vous décidiez de les débloquer.",
