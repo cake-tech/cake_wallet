@@ -23,7 +23,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:collection/collection.dart';
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
-const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
+const cakeWalletBitcoinElectrumUri = '198.58.111.154:50002';
 const publicBitcoinTestnetElectrumAddress = '198.58.111.154';
 const publicBitcoinTestnetElectrumPort = '50002';
 const publicBitcoinTestnetElectrumUri =
@@ -36,7 +36,7 @@ const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'rpc.ankr.com';
-const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
+const newCakeWalletBitcoinUri = '198.58.111.154:50002';
 
 Future<void> defaultSettingsMigration(
     {required int version,
