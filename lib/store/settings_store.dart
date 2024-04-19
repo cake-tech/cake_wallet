@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
+import 'package:cake_wallet/entities/automatic_backup_mode.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
@@ -106,7 +107,7 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsUnstoppableDomains,
       required this.lookupsOpenAlias,
       required this.lookupsENS,
-      required this.automaticBackups,
+      required this.autoBackupMode,
       required this.customBitcoinFeeRate,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
@@ -432,8 +433,10 @@ abstract class SettingsStoreBase with Store {
     reaction((_) => lookupsENS,
         (bool looksUpENS) => _sharedPreferences.setBool(PreferencesKey.lookupsENS, looksUpENS));
 
-    reaction((_) => automaticBackups,
-        (bool value) => _sharedPreferences.setBool(PreferencesKey.automaticBackups, value));
+    reaction(
+        (_) => autoBackupMode,
+        (AutomaticBackupMode mode) =>
+            sharedPreferences.setInt(PreferencesKey.autoBackupMode, mode.serialize()));
 
     // secure storage keys:
     reaction(
@@ -698,7 +701,7 @@ abstract class SettingsStoreBase with Store {
   bool lookupsENS;
 
   @observable
-  bool automaticBackups;
+  AutomaticBackupMode autoBackupMode;
 
   @observable
   SyncMode currentSyncMode;
@@ -857,7 +860,9 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
     final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
-    final automaticBackups = sharedPreferences.getBool(PreferencesKey.automaticBackups) ?? false;
+    final autoBackupMode = AutomaticBackupMode.deserialize(
+        raw: sharedPreferences.getInt(PreferencesKey.autoBackupMode) ??
+            AutomaticBackupMode.disabled.raw);
     final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
 
     // If no value
@@ -1095,7 +1100,7 @@ abstract class SettingsStoreBase with Store {
       lookupsUnstoppableDomains: lookupsUnstoppableDomains,
       lookupsOpenAlias: lookupsOpenAlias,
       lookupsENS: lookupsENS,
-      automaticBackups: automaticBackups,
+      autoBackupMode: autoBackupMode,
       customBitcoinFeeRate: customBitcoinFeeRate,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialBitcoinTransactionPriority: bitcoinTransactionPriority,
@@ -1234,7 +1239,9 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
     lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
-    automaticBackups = sharedPreferences.getBool(PreferencesKey.automaticBackups) ?? false;
+    autoBackupMode = AutomaticBackupMode.deserialize(
+        raw: sharedPreferences.getInt(PreferencesKey.autoBackupMode) ??
+            AutomaticBackupMode.disabled.raw);
     customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =

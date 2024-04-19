@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/automatic_backup_mode.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -26,6 +27,9 @@ abstract class SecuritySettingsViewModelBase with Store {
   @computed
   PinCodeRequiredDuration get pinCodeRequiredDuration => _settingsStore.pinTimeOutDuration;
 
+  @computed
+  AutomaticBackupMode get autoBackupMode => _settingsStore.autoBackupMode;
+
   @action
   Future<bool> biometricAuthenticated() async {
     return await _biometricAuth.canCheckBiometrics() && await _biometricAuth.isAuthenticated();
@@ -40,6 +44,5 @@ abstract class SecuritySettingsViewModelBase with Store {
       _settingsStore.pinTimeOutDuration = duration;
 
   @action
-  void setAutomaticBackups(bool value) =>
-      _settingsStore.automaticBackups = value;
+  void setAutomaticBackupMode(AutomaticBackupMode mode) => _settingsStore.autoBackupMode = mode;
 }

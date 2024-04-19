@@ -57,6 +57,7 @@ abstract class BackupViewModelBase with Store {
   Future<BackupExportFile?> exportBackup() async {
     try {
       state = IsExecutingState();
+      
       final backupContent = await backupService.exportBackup(backupPassword);
       state = ExecutedSuccessfullyState();
       final now = DateTime.now();

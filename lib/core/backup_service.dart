@@ -236,7 +236,7 @@ class BackupService {
     final lookupsUnstoppableDomains = data[PreferencesKey.lookupsUnstoppableDomains] as bool?;
     final lookupsOpenAlias = data[PreferencesKey.lookupsOpenAlias] as bool?;
     final lookupsENS = data[PreferencesKey.lookupsENS] as bool?;
-    final automaticBackups = data[PreferencesKey.automaticBackups] as bool?;
+    final autoBackupMode = data[PreferencesKey.autoBackupMode] as int?;
     final syncAll = data[PreferencesKey.syncAllKey] as bool?;
     final syncMode = data[PreferencesKey.syncModeKey] as int?;
     final autoGenerateSubaddressStatus =
@@ -353,7 +353,7 @@ class BackupService {
 
     if (lookupsENS != null) await _sharedPreferences.setBool(PreferencesKey.lookupsENS, lookupsENS);
 
-    if (automaticBackups != null) await _sharedPreferences.setBool(PreferencesKey.automaticBackups, automaticBackups);
+    if (autoBackupMode != null) await _sharedPreferences.setInt(PreferencesKey.autoBackupMode, autoBackupMode);
 
     if (syncAll != null) await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
 
@@ -501,7 +501,7 @@ class BackupService {
           _sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains),
       PreferencesKey.lookupsOpenAlias: _sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias),
       PreferencesKey.lookupsENS: _sharedPreferences.getBool(PreferencesKey.lookupsENS),
-      PreferencesKey.automaticBackups: _sharedPreferences.getBool(PreferencesKey.automaticBackups),
+      PreferencesKey.autoBackupMode: _sharedPreferences.getInt(PreferencesKey.autoBackupMode),
       PreferencesKey.syncModeKey: _sharedPreferences.getInt(PreferencesKey.syncModeKey),
       PreferencesKey.syncAllKey: _sharedPreferences.getBool(PreferencesKey.syncAllKey),
       PreferencesKey.autoGenerateSubaddressStatusKey:
