@@ -194,7 +194,8 @@ class _DenominationsAmountWidget extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Choose a card value below:', //TODO: S.of(context).choose_card_value,
+                    Text('Choose a card value:', //TODO: S.of(context).choose_card_value,
+                        maxLines: 1,
                         style: TextStyle(
                           color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                           fontSize: 14,
@@ -202,10 +203,11 @@ class _DenominationsAmountWidget extends StatelessWidget {
                     const SizedBox(height: 4),
                     DropdownFilterList(
                       items: denominations,
+                      itemPrefix: fiatCurrency,
                       selectedItem: denominations.first,
                       textStyle: TextStyle(
                         color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                        fontSize: 24,
+                        fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
                       onItemSelected: (value) {
@@ -219,11 +221,12 @@ class _DenominationsAmountWidget extends StatelessWidget {
               ),
               Expanded(child: const SizedBox()),
               Expanded(
-                flex: 5,
+                flex: 6,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Quantity:', //TODO: S.of(context).quantity,
+                        maxLines: 1,
                         style: TextStyle(
                           color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                           fontSize: 14,
@@ -241,11 +244,12 @@ class _DenominationsAmountWidget extends StatelessWidget {
               ),
               Expanded(child: const SizedBox()),
               Expanded(
-                  flex: 5,
+                  flex: 9,
                   child: Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text('Total:', //TODO: S.of(context).total,
+                          maxLines: 1,
                           style: TextStyle(
                             color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                             fontSize: 14,
@@ -262,11 +266,11 @@ class _DenominationsAmountWidget extends StatelessWidget {
                           child: Observer(
                               builder: (_) => Center(
                                 child: Text(
-                                      cakePayBuyCardViewModel.totalAmount.toString(),
+                                      '$fiatCurrency ${cakePayBuyCardViewModel.totalAmount}',
                                       style: TextStyle(
                                         color:
                                             Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                                        fontSize: 24,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),

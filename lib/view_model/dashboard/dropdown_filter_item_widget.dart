@@ -8,6 +8,7 @@ class DropdownFilterList extends StatefulWidget {
   DropdownFilterList({
     Key? key,
     required this.items,
+    this.itemPrefix,
     this.textStyle,
     required this.caption,
     required this.selectedItem,
@@ -15,6 +16,7 @@ class DropdownFilterList extends StatefulWidget {
   }) : super(key: key);
 
   final List<String> items;
+  final String? itemPrefix;
   final TextStyle? textStyle;
   final String caption;
   final String selectedItem;
@@ -51,7 +53,7 @@ class _DropdownFilterListState extends State<DropdownFilterList> {
                     value: item,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text(item, style: widget.textStyle),
+                      child: Text('${widget.itemPrefix ?? ''} $item', style: widget.textStyle),
                     ),
                   ))
               .toList(),

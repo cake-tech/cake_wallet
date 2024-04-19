@@ -59,7 +59,7 @@ class _NumberTextFieldState extends State<NumberTextField> {
       style: TextStyle(
           color: Theme.of(context).extension<PickerTheme>()!.searchHintColor,
           fontWeight: FontWeight.w600,
-          fontSize: 24),
+          fontSize: 18),
       textAlign: TextAlign.center,
       textAlignVertical: TextAlignVertical.center,
       controller: _controller,
