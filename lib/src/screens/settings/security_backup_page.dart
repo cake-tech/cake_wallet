@@ -26,15 +26,17 @@ class SecurityBackupPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return Container(
-        padding: EdgeInsets.only(top: 10),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
+      padding: EdgeInsets.only(top: 10),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
           SettingsCellWithArrow(
             title: S.current.show_keys,
             handler: (_) => _authService.authenticateAction(
               context,
               route: Routes.showKeys,
-              conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                  .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+              conditionToDetermineIfToUse2FA:
+                  _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
           SettingsCellWithArrow(
@@ -42,8 +44,8 @@ class SecurityBackupPage extends BasePage {
             handler: (_) => _authService.authenticateAction(
               context,
               route: Routes.backup,
-              conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                  .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+              conditionToDetermineIfToUse2FA:
+                  _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
           SettingsCellWithArrow(
@@ -54,8 +56,8 @@ class SecurityBackupPage extends BasePage {
               arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
                 setupPinContext.close();
               },
-              conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                  .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+              conditionToDetermineIfToUse2FA:
+                  _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
           if (DeviceInfo.instance.isMobile)
@@ -65,17 +67,18 @@ class SecurityBackupPage extends BasePage {
                   value: _securitySettingsViewModel.allowBiometricalAuthentication,
                   onValueChange: (BuildContext context, bool value) {
                     if (value) {
-                      _authService.authenticateAction(context,
-                          onAuthSuccess: (isAuthenticatedSuccessfully) async {
-                        if (isAuthenticatedSuccessfully) {
-                          if (await _securitySettingsViewModel.biometricAuthenticated()) {
+                      _authService.authenticateAction(
+                        context,
+                        onAuthSuccess: (isAuthenticatedSuccessfully) async {
+                          if (isAuthenticatedSuccessfully) {
+                            if (await _securitySettingsViewModel.biometricAuthenticated()) {
+                              _securitySettingsViewModel
+                                  .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
+                            }
+                          } else {
                             _securitySettingsViewModel
                                 .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
                           }
-                        } else {
-                          _securitySettingsViewModel
-                              .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
-                        }
                         },
                         conditionToDetermineIfToUse2FA: _securitySettingsViewModel
                             .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
@@ -85,6 +88,14 @@ class SecurityBackupPage extends BasePage {
                     }
                   });
             }),
+          Observer(builder: (_) {
+            return SettingsSwitcherCell(
+                title: "T: Automatic backups",
+                value: _securitySettingsViewModel.allowBiometricalAuthentication,
+                onValueChange: (BuildContext context, bool value) {
+                  _securitySettingsViewModel.setAutomaticBackups(value);
+                });
+          }),
           Observer(builder: (_) {
             return SettingsPickerCell<PinCodeRequiredDuration>(
               title: S.current.require_pin_after,
@@ -101,11 +112,11 @@ class SecurityBackupPage extends BasePage {
                 title: _securitySettingsViewModel.useTotp2FA
                     ? S.current.modify_2fa
                     : S.current.setup_2fa,
-            handler: (_) => _authService.authenticateAction(
-              context,
-              route: _securitySettingsViewModel.useTotp2FA
-                  ? Routes.modify2FAPage
-                  : Routes.setup2faInfoPage,
+                handler: (_) => _authService.authenticateAction(
+                  context,
+                  route: _securitySettingsViewModel.useTotp2FA
+                      ? Routes.modify2FAPage
+                      : Routes.setup2faInfoPage,
                   conditionToDetermineIfToUse2FA: _securitySettingsViewModel
                       .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
                 ),
@@ -115,6 +126,5 @@ class SecurityBackupPage extends BasePage {
         ],
       ),
     );
-    
   }
 }

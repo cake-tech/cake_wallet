@@ -38,4 +38,8 @@ abstract class SecuritySettingsViewModelBase with Store {
   @action
   void setPinCodeRequiredDuration(PinCodeRequiredDuration duration) =>
       _settingsStore.pinTimeOutDuration = duration;
+
+  @action
+  void setAutomaticBackups(bool value) =>
+      _settingsStore.automaticBackups = value;
 }

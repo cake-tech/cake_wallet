@@ -106,6 +106,7 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsUnstoppableDomains,
       required this.lookupsOpenAlias,
       required this.lookupsENS,
+      required this.automaticBackups,
       required this.customBitcoinFeeRate,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
@@ -431,6 +432,9 @@ abstract class SettingsStoreBase with Store {
     reaction((_) => lookupsENS,
         (bool looksUpENS) => _sharedPreferences.setBool(PreferencesKey.lookupsENS, looksUpENS));
 
+    reaction((_) => automaticBackups,
+        (bool value) => _sharedPreferences.setBool(PreferencesKey.automaticBackups, value));
+
     // secure storage keys:
     reaction(
         (_) => allowBiometricalAuthentication,
@@ -694,6 +698,9 @@ abstract class SettingsStoreBase with Store {
   bool lookupsENS;
 
   @observable
+  bool automaticBackups;
+
+  @observable
   SyncMode currentSyncMode;
 
   @observable
@@ -850,6 +857,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
     final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
+    final automaticBackups = sharedPreferences.getBool(PreferencesKey.automaticBackups) ?? false;
     final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
 
     // If no value
@@ -1087,6 +1095,7 @@ abstract class SettingsStoreBase with Store {
       lookupsUnstoppableDomains: lookupsUnstoppableDomains,
       lookupsOpenAlias: lookupsOpenAlias,
       lookupsENS: lookupsENS,
+      automaticBackups: automaticBackups,
       customBitcoinFeeRate: customBitcoinFeeRate,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialBitcoinTransactionPriority: bitcoinTransactionPriority,
@@ -1225,6 +1234,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
     lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
+    automaticBackups = sharedPreferences.getBool(PreferencesKey.automaticBackups) ?? false;
     customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =

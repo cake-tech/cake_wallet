@@ -63,6 +63,10 @@ class PreferencesKey {
   static const lookupsUnstoppableDomains = 'looks_up_mastodon';
   static const lookupsOpenAlias = 'looks_up_mastodon';
   static const lookupsENS = 'looks_up_ens';
+  static const automaticBackups = 'automatic_backups';
+  static const showAutomaticBackupWarning = 'show_automatic_backups_warning';
+
+
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
