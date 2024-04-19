@@ -148,7 +148,7 @@ class CakePayVerifyOtpPage extends BasePage {
   }
 
   void _onOtpSuccessful(BuildContext context) =>
-      Navigator.pushReplacementNamed(context, Routes.cakePayAccountPage);
+      Navigator.pop(context);
 
   void _verify() async => await _authViewModel.verifyEmail(_codeController.text);
 }
