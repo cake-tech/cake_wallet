@@ -1029,7 +1029,7 @@ extern "C"
 
     bool verify_message(char *message, char *address, char *signature)
     {
-        return get_current_wallet()->verifySignedMessage(std::string(message), std::string(address), std::string(verifySignedMessage));
+        return get_current_wallet()->verifySignedMessage(std::string(message), std::string(address), std::string(signature));
     }
 
 #ifdef __cplusplus

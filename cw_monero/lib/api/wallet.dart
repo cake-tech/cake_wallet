@@ -405,7 +405,7 @@ String signMessage(String message, {String address = ""}) {
 bool verifyMessage(String message, String address, String signature) {
   final messagePointer = message.toNativeUtf8();
   final addressPointer = address.toNativeUtf8();
-  final signaturePointer = address.toNativeUtf8();
+  final signaturePointer = signature.toNativeUtf8();
 
   final isVerified = verifyMessageNative(messagePointer, addressPointer, signaturePointer);
   calloc.free(messagePointer);
