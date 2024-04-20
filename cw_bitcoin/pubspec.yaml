@@ -35,6 +35,9 @@ dependencies:
       url: https://github.com/cake-tech/bitcoin_base.git
       ref: cake-update-v2
   blockchain_utils: ^2.1.1
+  cw_mweb:
+    path: ../cw_mweb
+  grpc: ^3.2.4
 
 dev_dependencies:
   flutter_test:

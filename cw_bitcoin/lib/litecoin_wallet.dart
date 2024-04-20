@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
@@ -14,6 +15,8 @@ import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/litecoin_network.dart';
+import 'package:cw_mweb/cw_mweb.dart';
+import 'package:cw_mweb/mwebd.pb.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 
 part 'litecoin_wallet.g.dart';
@@ -101,6 +104,18 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,
     );
+  }
+
+  @action
+  @override
+  Future<void> startSync() async {
+    super.startSync();
+    final stub = CwMweb.stub();
+    Timer.periodic(
+      const Duration(seconds: 1), (timer) async {
+        final resp = await stub.status(StatusRequest());
+        print(resp.blockHeaderHeight);
+      });
   }
 
   @override
