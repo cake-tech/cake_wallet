@@ -7,7 +7,6 @@ import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_restore_from_keys_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_restore_from_seed_exception.dart';
 import 'package:cw_monero/api/wallet.dart';
-import 'package:ffi/ffi.dart';
 import 'package:monero/monero.dart' as monero;
 
 monero.WalletManager? _wmPtr;
@@ -77,13 +76,7 @@ void restoreWalletFromKeysSync(
     required String spendKey,
     int nettype = 0,
     int restoreHeight = 0}) {
-  final pathPointer = path.toNativeUtf8();
-  final passwordPointer = password.toNativeUtf8();
-  final languagePointer = language.toNativeUtf8();
-  final addressPointer = address.toNativeUtf8();
-  final viewKeyPointer = viewKey.toNativeUtf8();
-  final spendKeyPointer = spendKey.toNativeUtf8();
-  final errorMessagePointer = ''.toNativeUtf8();
+
   wptr = monero.WalletManager_createWalletFromKeys(
     wmPtr,
     path: path,
@@ -109,28 +102,35 @@ void restoreWalletFromSpendKeySync(
       required String spendKey,
       int nettype = 0,
       int restoreHeight = 0}) {
-  final pathPointer = path.toNativeUtf8();
-  final passwordPointer = password.toNativeUtf8();
-  final seedPointer = seed.toNativeUtf8();
-  final languagePointer = language.toNativeUtf8();
-  final spendKeyPointer = spendKey.toNativeUtf8();
-  final errorMessagePointer = ''.toNativeUtf8();
 
-  wptr = monero.WalletManager_createWalletFromKeys(
+  // wptr = monero.WalletManager_createWalletFromKeys(
+  //   wmPtr,
+  //   path: path,
+  //   password: password,
+  //   restoreHeight: restoreHeight,
+  //   addressString: '',
+  //   spendKeyString: spendKey,
+  //   viewKeyString: '',
+  //   nettype: 0,
+  // );
+
+  wptr = monero.WalletManager_createWalletFromPolyseed(
     wmPtr,
     path: path,
     password: password,
+    mnemonic: seed,
+    seedOffset: '',
+    newWallet: false,
     restoreHeight: restoreHeight,
-    addressString: '',
-    spendKeyString: spendKey,
-    viewKeyString: '',
-    nettype: 0,
+    kdfRounds: 1,
   );
 
   final status = monero.Wallet_status(wptr!);
 
-  if (status == 0) {
-    throw WalletRestoreFromKeysException(message: monero.Wallet_errorString(wptr!));
+  if (status != 0) {
+    final err = monero.Wallet_errorString(wptr!);
+    print("err: $err");
+    throw WalletRestoreFromKeysException(message: err);
   }
 
   storeSync();

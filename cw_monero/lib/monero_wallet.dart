@@ -552,16 +552,23 @@ abstract class MoneroWalletBase
   List<MoneroTransactionInfo> _getAllTransactionsOfAccount(int? accountIndex) => transaction_history
       .getAllTransactions()
       .map((row) => MoneroTransactionInfo(
-        row.hash,
-        row.blockheight,
-        row.isSpend ? TransactionDirection.outgoing : TransactionDirection.incoming,
-        row.timeStamp,
-        row.isPending,
-        row.amount, 
-        row.accountIndex, 
-        0,
-        row.fee, 
-        row.confirmations))
+          row.hash,
+          row.blockheight,
+          row.isSpend ? TransactionDirection.outgoing : TransactionDirection.incoming,
+          row.timeStamp,
+          row.isPending,
+          row.amount, 
+          row.accountIndex, 
+          0,
+          row.fee, 
+          row.confirmations,
+          
+        )..additionalInfo = <String, dynamic>{
+            'key': row.key,
+            'accountIndex': row.accountIndex,
+            'addressIndex': row.addressIndex
+          },
+      )
       .where((element) => element.accountIndex == (accountIndex ?? 0))
       .toList();
 

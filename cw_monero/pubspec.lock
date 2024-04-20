@@ -414,8 +414,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: ada81417cb53d8b0e34022df1dd3d9dc1fe62ab5
-      resolved-ref: ada81417cb53d8b0e34022df1dd3d9dc1fe62ab5
+      ref: e2149153ecbaa6cc4d7d3970d8fa8ce1099b63af
+      resolved-ref: e2149153ecbaa6cc4d7d3970d8fa8ce1099b63af
       url: "https://git.mrcyjanek.net/mrcyjanek/monero.dart"
     source: git
     version: "0.0.0"

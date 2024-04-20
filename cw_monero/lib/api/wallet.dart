@@ -4,10 +4,12 @@ import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
 import 'package:monero/monero.dart' as monero;
 
-int _boolToInt(bool value) => value ? 1 : 0;
-
-int getSyncingHeight() => monero.MONERO_cw_WalletListener_height(getWlptr());
-
+int getSyncingHeight() {
+  // final height = monero.MONERO_cw_WalletListener_height(getWlptr());
+  final h2 = monero.Wallet_blockChainHeight(wptr!);
+  // print("height: $height / $h2");
+  return h2;
+}
 bool isNeededToRefresh() {
   final ret = monero.MONERO_cw_WalletListener_isNeedToRefresh(getWlptr());
   monero.MONERO_cw_WalletListener_resetNeedToRefresh(getWlptr());
@@ -22,7 +24,14 @@ bool isNewTransactionExist() {
 String getFilename() => monero.Wallet_filename(wptr!);
 
 // TODO(mrcyjanek): Cake polyseed support
-String getSeed() => monero.Wallet_seed(wptr!, seedOffset: '');
+String getSeed() {
+  final legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+  final polyseed = monero.Wallet_getPolyseed(wptr!, passphrase: '');
+  if (polyseed == "") {
+    return legacy;
+  }
+  return polyseed;
+}
 
 String getAddress({int accountIndex = 0, int addressIndex = 1}) => monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
 
@@ -62,8 +71,6 @@ bool setupNodeSync(
     daemonPassword: password ?? ''
   );
   // monero.Wallet_init3(wptr!, argv0: '', defaultLogBaseName: 'moneroc', console: true);
-  monero.Wallet_startRefresh(wptr!);
-  monero.Wallet_refreshAsync(wptr!);
   
   final status = monero.Wallet_status(wptr!);
 
@@ -76,7 +83,10 @@ bool setupNodeSync(
   return status == 0;
 }
 
-void startRefreshSync() {}
+void startRefreshSync() {
+  monero.Wallet_refreshAsync(wptr!);
+  monero.Wallet_startRefresh(wptr!);
+}
 
 Future<bool> connectToNode() async {
   return true;
