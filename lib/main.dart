@@ -207,7 +207,6 @@ Future<void> initialSetup(
       unspentCoinsInfoSource: unspentCoinsInfoSource,
       secureStorage: secureStorage);
   await bootstrap(navigatorKey);
-  monero?.onStartup();
 }
 
 class App extends StatefulWidget {

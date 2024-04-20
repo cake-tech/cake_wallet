@@ -26,7 +26,6 @@ class CwMoneroPlugin: MethodCallHandler {
     val main = Handler(Looper.getMainLooper());
 
     init {
-      System.loadLibrary("cw_monero")
     }
 
     @JvmStatic
