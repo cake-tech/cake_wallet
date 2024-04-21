@@ -111,7 +111,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<void> startSync() async {
     await super.startSync();
-    final stub = CwMweb.stub();
+    final stub = await CwMweb.stub();
     Timer.periodic(
       const Duration(milliseconds: 1500), (timer) async {
         final height = await electrumClient.getCurrentBlockChainTip() ?? 0;

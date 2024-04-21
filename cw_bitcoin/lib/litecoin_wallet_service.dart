@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
@@ -11,7 +10,6 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_mweb/cw_mweb.dart';
 import 'package:collection/collection.dart';
 
 class LitecoinWalletService extends WalletService<
@@ -28,8 +26,6 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
-    final appDir = await getApplicationSupportDirectory();
-    await CwMweb.start(appDir.path);
     final wallet = await LitecoinWalletBase.create(
         mnemonic: await generateMnemonic(),
         password: credentials.password!,
@@ -47,8 +43,6 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> openWallet(String name, String password) async {
-    final appDir = await getApplicationSupportDirectory();
-    await CwMweb.start(appDir.path);
     final walletInfo = walletInfoSource.values.firstWhereOrNull(
         (info) => info.id == WalletBase.idFor(name, getType()))!;
 
