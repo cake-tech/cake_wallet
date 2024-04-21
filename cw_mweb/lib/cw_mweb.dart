@@ -3,15 +3,16 @@ import 'cw_mweb_platform_interface.dart';
 import 'mwebd.pbgrpc.dart';
 
 class CwMweb {
-  static Future<bool?> start(String dataDir) {
-    return CwMwebPlatform.instance.start(dataDir);
+  static var port;
+
+  static start(String dataDir) async {
+    port = port ?? await CwMwebPlatform.instance.start(dataDir);
   }
 
   static stub() {
-    final channel = ClientChannel('127.0.0.1',
-      port: 12345,
+    return RpcClient(ClientChannel('127.0.0.1',
+      port: port,
       options: const ChannelOptions(
-        credentials: ChannelCredentials.insecure()));
-    return RpcClient(channel);
+        credentials: ChannelCredentials.insecure())));
   }
 }

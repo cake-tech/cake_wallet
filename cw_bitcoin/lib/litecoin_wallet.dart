@@ -3,6 +3,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -109,12 +110,23 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @action
   @override
   Future<void> startSync() async {
-    super.startSync();
+    await super.startSync();
     final stub = CwMweb.stub();
     Timer.periodic(
-      const Duration(seconds: 1), (timer) async {
+      const Duration(milliseconds: 1500), (timer) async {
+        final height = await electrumClient.getCurrentBlockChainTip() ?? 0;
         final resp = await stub.status(StatusRequest());
-        print(resp.blockHeaderHeight);
+        if (resp.blockHeaderHeight < height) {
+          int h = resp.blockHeaderHeight;
+          syncStatus = SyncingSyncStatus(height - h, h / height);
+        } else if (resp.mwebHeaderHeight < height) {
+          int h = resp.mwebHeaderHeight;
+          syncStatus = SyncingSyncStatus(height - h, h / height);
+        } else if (resp.mwebUtxosHeight < height) {
+          syncStatus = SyncingSyncStatus(1, 0.999);
+        } else {
+          syncStatus = SyncedSyncStatus();
+        }
       });
   }
 
