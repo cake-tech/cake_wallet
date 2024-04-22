@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:convert/convert.dart';
+import 'package:crypto/crypto.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
@@ -137,9 +138,20 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           syncStatus = SyncedSyncStatus();
         }
       });
+    processMwebUtxos();
+  }
+
+  final Map<String, Utxo> mwebUtxos = {};
+
+  Future<void> processMwebUtxos() async {
+    final stub = await CwMweb.stub();
     final scanSecret = mwebHd.derive(0x80000000).privKey!;
     final req = UtxosRequest(scanSecret: hex.decode(scanSecret));
     await for (var utxo in stub.utxos(req)) {
+      final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
+      if (!mwebAddrs.contains(utxo.address)) continue;
+      mwebUtxos[utxo.outputId] = utxo;
+
       final status = await stub.status(StatusRequest());
       var date = DateTime.now();
       var confirmations = 0;
@@ -158,6 +170,44 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       transactionHistory.addOne(tx);
       await transactionHistory.save();
     }
+  }
+
+  Future<void> checkMwebUtxosSpent() async {
+    final List<String> outputIds = [];
+    mwebUtxos.forEach((outputId, utxo) {
+      if (utxo.height > 0)
+        outputIds.add(outputId);
+    });
+    final stub = await CwMweb.stub();
+    final resp = await stub.spent(SpentRequest(outputId: outputIds));
+    final spent = resp.outputId;
+    if (spent.isEmpty) return;
+    final status = await stub.status(StatusRequest());
+    final height = await electrumClient.getCurrentBlockChainTip();
+    if (height == null || status.mwebUtxosHeight != height) return;
+    final date = await electrumClient.getBlockTime(height: height);
+    int amount = 0;
+    Set<String> inputAddresses = {};
+    var output = AccumulatorSink<Digest>();
+    var input = sha256.startChunkedConversion(output);
+    for (final outputId in spent) {
+      input.add(hex.decode(outputId));
+      amount += mwebUtxos[outputId]!.value.toInt();
+      inputAddresses.add(mwebUtxos[outputId]!.address);
+      mwebUtxos.remove(outputId);
+    }
+    input.close();
+    var digest = output.events.single;
+    final tx = ElectrumTransactionInfo(WalletType.litecoin,
+      id: digest.toString(), height: height,
+      amount: amount, fee: 0,
+      direction: TransactionDirection.outgoing,
+      isPending: false,
+      date: date, confirmations: 1,
+      inputAddresses: inputAddresses.toList(),
+      outputAddresses: []);
+    transactionHistory.addOne(tx);
+    await transactionHistory.save();
   }
 
   @override
