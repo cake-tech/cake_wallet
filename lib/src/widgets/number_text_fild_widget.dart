@@ -1,4 +1,5 @@
-import 'package:cake_wallet/themes/extensions/picker_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -56,72 +57,44 @@ class _NumberTextFieldState extends State<NumberTextField> {
 
   @override
   Widget build(BuildContext context) => TextField(
-      style: TextStyle(
-          color: Theme.of(context).extension<PickerTheme>()!.searchHintColor,
-          fontWeight: FontWeight.w600,
-          fontSize: 18),
+      style: textMediumSemiBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+      enableInteractiveSelection: false,
       textAlign: TextAlign.center,
-      textAlignVertical: TextAlignVertical.center,
+      textAlignVertical: TextAlignVertical.bottom,
       controller: _controller,
       focusNode: _focusNode,
       textInputAction: TextInputAction.done,
       keyboardType: TextInputType.number,
       maxLength: widget.max.toString().length + (widget.min.isNegative ? 1 : 0),
       decoration: InputDecoration(
-          border: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Colors.white.withOpacity(0.2),
-            ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
-                color: Theme.of(context).extension<PickerTheme>()!.searchBorderColor ??
-                    Colors.transparent,
-              )),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: Colors.transparent,
-              )),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.all(0),
+          fillColor: Colors.transparent,
           counterText: '',
           isDense: true,
           filled: true,
-          fillColor: Theme.of(context).extension<PickerTheme>()!.searchBackgroundFillColor,
-          contentPadding: widget.contentPadding.copyWith(right: 0),
           suffixIconConstraints: BoxConstraints(
               maxHeight: widget.arrowsHeight,
               maxWidth: widget.arrowsWidth + widget.contentPadding.right),
-          suffixIcon: Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(widget.borderWidth),
-                      bottomRight: Radius.circular(widget.borderWidth))),
-              clipBehavior: Clip.antiAlias,
-              alignment: Alignment.centerRight,
-              margin: EdgeInsets.only(
-                  top: widget.borderWidth,
-                  right: widget.borderWidth,
-                  bottom: widget.borderWidth,
-                  left: widget.contentPadding.right),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Expanded(
-                    child: Material(
-                        type: MaterialType.transparency,
-                        child: InkWell(
-                            child: Opacity(
-                                opacity: _canGoUp ? 1 : .5, child: const Icon(Icons.arrow_drop_up)),
-                            onTap: _canGoUp ? () => _update(true) : null))),
-                Expanded(
-                    child: Material(
-                        type: MaterialType.transparency,
-                        child: InkWell(
-                            child: Opacity(
-                                opacity: _canGoDown ? 1 : .5,
-                                child: const Icon(Icons.arrow_drop_down)),
-                            onTap: _canGoDown ? () => _update(false) : null))),
-              ]))),
+          prefixIconConstraints: BoxConstraints(
+              maxHeight: widget.arrowsHeight,
+              maxWidth: widget.arrowsWidth + widget.contentPadding.left),
+          prefixIcon: Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                  child: Container(
+                    width: widget.arrowsWidth,
+                      alignment: Alignment.bottomCenter,
+                      child: Icon(Icons.arrow_left_outlined, size: widget.arrowsWidth)),
+                  onTap: _canGoDown ? () => _update(false) : null)),
+          suffixIcon: Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                  child: Container(
+                    width: widget.arrowsWidth,
+                    alignment: Alignment.bottomCenter,
+                      child: Icon(Icons.arrow_right_outlined, size: widget.arrowsWidth)),
+                  onTap: _canGoUp ? () => _update(true) : null))),
       maxLines: 1,
       onChanged: (value) {
         final intValue = int.tryParse(value);

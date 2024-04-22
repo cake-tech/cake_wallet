@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -94,7 +95,7 @@ class CakePayAccountPage extends BasePage {
           Observer(
             builder: (_) => CakePayTile(title: S.of(context).email_address, subTitle: cakePayAccountViewModel.email),
           ),
-          Divider()
+          StandardListSeparator(),
         ],
       ),
       bottomSectionPadding: EdgeInsets.all(30),

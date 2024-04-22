@@ -37,24 +37,24 @@ class _DropdownFilterListState extends State<DropdownFilterList> {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).extension<PickerTheme>()!.searchBackgroundFillColor,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: DropdownButtonHideUnderline(
+    return DropdownButtonHideUnderline(
+      child: Container(
         child: DropdownButton<String>(
+          icon: Container(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Icon(Icons.arrow_drop_down, color: Theme.of(context).extension<PickerTheme>()!.searchIconColor),
+              ],
+            ),
+          ),
           dropdownColor: Theme.of(context).extension<PickerTheme>()!.searchBackgroundFillColor,
           borderRadius: BorderRadius.circular(10),
-          isExpanded: true,
           items: widget.items
               .map((item) => DropdownMenuItem<String>(
-                    alignment: Alignment.center,
+                    alignment: Alignment.bottomCenter,
                     value: item,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text('${widget.itemPrefix ?? ''} $item', style: widget.textStyle),
-                    ),
+                    child: Text('${widget.itemPrefix ?? ''} $item', style: widget.textStyle),
                   ))
               .toList(),
           value: selectedValue,

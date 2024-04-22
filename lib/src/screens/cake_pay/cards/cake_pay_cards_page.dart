@@ -15,6 +15,7 @@ import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/debounce.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_cards_list_view_model.dart';
 import 'package:flutter/material.dart';
@@ -182,11 +183,16 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
       final merchantState = widget.cardsListViewModel.vendorsState;
       if (merchantState is CakePayVendorLoadedState) {
         return Stack(children: [
-          ListView.separated(
-            padding: EdgeInsets.only(left: 2, right: 22),
+          GridView.builder(
             controller: _scrollController,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: responsiveLayoutUtil.shouldRenderTabletUI ? 3 : 2,
+              childAspectRatio: 1.5,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            padding: EdgeInsets.only(left: 2, right: 22),
             itemCount: merchantsList.length,
-            separatorBuilder: (_, __) => SizedBox(height: 5),
             itemBuilder: (_, index) {
               final vendor = merchantsList[index];
               return CardItem(

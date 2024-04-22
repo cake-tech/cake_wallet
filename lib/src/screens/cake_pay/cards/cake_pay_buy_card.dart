@@ -1,17 +1,19 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/cake_pay/widgets/image_placeholder.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/number_text_fild_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cake_wallet/view_model/dashboard/dropdown_filter_item_widget.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/dropdown_filter_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -31,6 +33,9 @@ class CakePayBuyCardPage extends BasePage {
   }
 
   final CakePayBuyCardViewModel cakePayBuyCardViewModel;
+
+  @override
+  String get title => cakePayBuyCardViewModel.card.name;
 
   @override
   bool get extendBodyBehindAppBar => true;
@@ -65,65 +70,102 @@ class CakePayBuyCardPage extends BasePage {
           contentPadding: EdgeInsets.zero,
           content: Column(
             children: [
-              Container(
-                  height: responsiveLayoutUtil.screenHeight * 0.3,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.horizontal(
-                        left: Radius.circular(20), right: Radius.circular(20)),
-                    child: Image.network(
-                      card.cardImageUrl ?? '',
-                      fit: BoxFit.cover,
-                      loadingBuilder:
-                          (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(child: CircularProgressIndicator());
-                      },
-                      errorBuilder: (context, error, stackTrace) =>
-                          _PlaceholderContainer(text: 'Logo not found!'),
-                    ),
-                  )),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(card.name ?? '',
-                        style: TextStyle(
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
-                        )),
-                    SizedBox(height: 36),
-                    card.denominations.isNotEmpty
-                        ? _DenominationsAmountWidget(
-                            fiatCurrency: card.fiatCurrency.title,
-                            denominations: card.denominations,
-                            amountFieldFocus: _amountFieldFocus,
-                            amountController: _amountController,
-                            quantityFieldFocus: _quantityFieldFocus,
-                            quantityController: _quantityController,
-                            onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
-                            onQuantityChanged: cakePayBuyCardViewModel.onQuantityChanged,
-                            cakePayBuyCardViewModel: cakePayBuyCardViewModel,
-                          )
-                        : _EnterAmountWidget(
-                            minValue: card.minValue ?? '-',
-                            maxValue: card.maxValue ?? '-',
-                            fiatCurrency: card.fiatCurrency.title,
-                            amountFieldFocus: _amountFieldFocus,
-                            amountController: _amountController,
-                            onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
-                          ),
-                    SizedBox(height: 20),
-                    Text(
-                      card.description ?? '',
-                      style: TextStyle(
-                        color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w400,
+              ClipRRect(
+                borderRadius:
+                    BorderRadius.horizontal(left: Radius.circular(20), right: Radius.circular(20)),
+                child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
+                          Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
                     ),
-                  ],
+                    height: responsiveLayoutUtil.screenHeight * 0.3,
+                    width: double.infinity,
+                    child: Column(
+                      children: [
+                        Expanded(flex: 4, child: const SizedBox()),
+                        Expanded(
+                          flex: 7,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            child: Image.network(
+                              card.cardImageUrl ?? '',
+                              fit: BoxFit.cover,
+                              loadingBuilder: (BuildContext context, Widget child,
+                                  ImageChunkEvent? loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(child: CircularProgressIndicator());
+                              },
+                              errorBuilder: (context, error, stackTrace) =>
+                                  ImagePlaceholder(text: 'Logo not found!'),
+                            ),
+                          ),
+                        ),
+                        Expanded(child: const SizedBox()),
+                      ],
+                    )),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Container(
+                  height: responsiveLayoutUtil.screenHeight * 0.5,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(S.of(context).enter_amount,
+                            style: TextStyle(
+                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                            )),
+                      ),
+                      card.denominations.isNotEmpty
+                          ? Expanded(
+                              flex: 2,
+                              child: _DenominationsAmountWidget(
+                                fiatCurrency: card.fiatCurrency.title,
+                                denominations: card.denominations,
+                                amountFieldFocus: _amountFieldFocus,
+                                amountController: _amountController,
+                                quantityFieldFocus: _quantityFieldFocus,
+                                quantityController: _quantityController,
+                                onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
+                                onQuantityChanged: cakePayBuyCardViewModel.onQuantityChanged,
+                                cakePayBuyCardViewModel: cakePayBuyCardViewModel,
+                              ),
+                            )
+                          : Expanded(
+                              flex: 2,
+                              child: _EnterAmountWidget(
+                                minValue: card.minValue ?? '-',
+                                maxValue: card.maxValue ?? '-',
+                                fiatCurrency: card.fiatCurrency.title,
+                                amountFieldFocus: _amountFieldFocus,
+                                amountController: _amountController,
+                                onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
+                              ),
+                            ),
+                      Expanded(
+                        flex: 5,
+                        child: Text(
+                          card.description ?? '',
+                          style: TextStyle(
+                            color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -136,9 +178,11 @@ class CakePayBuyCardPage extends BasePage {
                   child: PrimaryButton(
                     onPressed: () {
                       Navigator.pushNamed(context, Routes.cakePayBuyCardDetailPage, arguments: [
-                        [cakePayBuyCardViewModel.amount,
-                        cakePayBuyCardViewModel.quantity.toDouble(),
-                        cakePayBuyCardViewModel.totalAmount],
+                        [
+                          cakePayBuyCardViewModel.amount,
+                          cakePayBuyCardViewModel.quantity.toDouble(),
+                          cakePayBuyCardViewModel.totalAmount
+                        ],
                         card,
                       ]);
                     },
@@ -183,105 +227,118 @@ class _DenominationsAmountWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        IntrinsicHeight(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Expanded(
+          flex: 12,
+          child: Column(
             children: [
               Expanded(
-                flex: 12,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Choose a card value:', //TODO: S.of(context).choose_card_value,
-                        maxLines: 1,
-                        style: TextStyle(
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                          fontSize: 14,
-                        )),
-                    const SizedBox(height: 4),
-                    DropdownFilterList(
-                      items: denominations,
-                      itemPrefix: fiatCurrency,
-                      selectedItem: denominations.first,
-                      textStyle: TextStyle(
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      onItemSelected: (value) {
-                        amountController.text = value;
-                        onAmountChanged(value);
-                      },
-                      caption: '',
-                    ),
-                  ],
+                child: DropdownFilterList(
+                  items: denominations,
+                  itemPrefix: fiatCurrency,
+                  selectedItem: denominations.first,
+                  textStyle: textMediumSemiBold(
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                  onItemSelected: (value) {
+                    amountController.text = value;
+                    onAmountChanged(value);
+                  },
+                  caption: '',
                 ),
               ),
-              Expanded(child: const SizedBox()),
+              const SizedBox(height: 4),
               Expanded(
-                flex: 6,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Quantity:', //TODO: S.of(context).quantity,
-                        maxLines: 1,
-                        style: TextStyle(
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                          fontSize: 14,
-                        )),
-                    const SizedBox(height: 4),
-                    NumberTextField(
-                      controller: quantityController,
-                      focusNode: quantityFieldFocus,
-                      min: 1,
-                      max: 99,
-                      onChanged: (value) => onQuantityChanged(value),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                          width: 1.0,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
                     ),
-                  ],
+                  ),
+                  child: Text('Choose a card value:', //TODO: S.of(context).choose_card_value,
+                      maxLines: 1,
+                      style: textSmall(
+                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
                 ),
               ),
-              Expanded(child: const SizedBox()),
-              Expanded(
-                  flex: 9,
-                  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text('Total:', //TODO: S.of(context).total,
-                          maxLines: 1,
-                          style: TextStyle(
-                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                            fontSize: 14,
-                          )),
-                      const SizedBox(height: 4),
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .extension<PickerTheme>()!
-                                .searchBackgroundFillColor,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Observer(
-                              builder: (_) => Center(
-                                child: Text(
-                                      '$fiatCurrency ${cakePayBuyCardViewModel.totalAmount}',
-                                      style: TextStyle(
-                                        color:
-                                            Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                              )),
-                        ),
-                      ),
-                    ],
-                  )),
             ],
           ),
-        )
+        ),
+        Expanded(child: const SizedBox()),
+        Expanded(
+          flex: 8,
+          child: Column(
+            children: [
+              Expanded(
+                child: NumberTextField(
+                  controller: quantityController,
+                  focusNode: quantityFieldFocus,
+                  min: 1,
+                  max: 99,
+                  onChanged: (value) => onQuantityChanged(value),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                          width: 1.0,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+                    ),
+                  ),
+                  child: Text('Quantity:', //TODO: S.of(context).quantity,
+                      maxLines: 1,
+                      style: textSmall(
+                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(child: const SizedBox()),
+        Expanded(
+            flex: 12,
+            child: Column(
+              children: [
+                Expanded(
+                  child: Container(
+                      alignment: Alignment.bottomCenter,
+                      child: Observer(
+                          builder: (_) => Text(
+                              '$fiatCurrency ${cakePayBuyCardViewModel.totalAmount}',
+                              maxLines: 1,
+                              style: textMediumSemiBold(
+                                  color:
+                                      Theme.of(context).extension<CakeTextTheme>()!.titleColor)))),
+                ),
+                const SizedBox(height: 4),
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                            width: 1.0,
+                            color:
+                                Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+                      ),
+                    ),
+                    child: Text('Total:', //TODO: S.of(context).total,
+                        maxLines: 1,
+                        style: textSmall(
+                            color:
+                                Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
+                  ),
+                ),
+              ],
+            )),
       ],
     );
   }
@@ -308,115 +365,43 @@ class _EnterAmountWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(S.of(context).enter_amount,
-                style: TextStyle(
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                  fontSize: 14,
-                )),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(S.of(context).min_amount(minValue) + ' $fiatCurrency',
-                    style: TextStyle(
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                      fontSize: 14,
-                    )),
-                SizedBox(width: 10),
-                Text(S.of(context).max_amount(maxValue) + ' $fiatCurrency',
-                    style: TextStyle(
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                      fontSize: 14,
-                    )),
-              ],
-            ),
-          ],
-        ),
-        SizedBox(height: 4),
-        TextField(
-          focusNode: amountFieldFocus,
-          style: TextStyle(
-              color: Theme.of(context).extension<PickerTheme>()!.searchHintColor,
-              fontWeight: FontWeight.w600,
-              fontSize: 24),
+        BaseTextFormField(
           controller: amountController,
           keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
+          hintText: '0.00',
+          maxLines: null,
+          prefixIcon: Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Text(
+              '$fiatCurrency: ',
+              style: textMediumSemiBold(
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+            ),
+          ),
+          textStyle:
+              textMediumSemiBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+          placeholderTextStyle: textMediumSemiBold(
+              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
           inputFormatters: [
             FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
             FilteringTextInputFormatter.allow(
               RegExp(r'^\d+(\.|\,)?\d{0,2}'),
             ),
           ],
-          decoration: InputDecoration(
-            filled: true,
-            contentPadding: EdgeInsets.only(
-              top: 10,
-              left: 10,
-            ),
-            fillColor: Theme.of(context).extension<PickerTheme>()!.searchBackgroundFillColor,
-            alignLabelWithHint: true,
-            floatingLabelBehavior: FloatingLabelBehavior.never,
-            prefixIcon: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                fiatCurrency,
-                style: TextStyle(
-                  color: Theme.of(context).extension<PickerTheme>()!.searchHintColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            border: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors.white.withOpacity(0.2),
-              ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(
-                  color: Theme.of(context).extension<PickerTheme>()!.searchBorderColor ??
-                      Colors.transparent,
-                )),
-            focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(
-                  color: Colors.transparent,
-                )),
-          ),
+        ),
+        SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(S.of(context).min_amount(minValue) + ' $fiatCurrency',
+                style: textSmall(
+                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
+            Text(S.of(context).max_amount(maxValue) + ' $fiatCurrency',
+                style: textSmall(
+                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
+          ],
         ),
       ],
-    );
-  }
-}
-
-class _PlaceholderContainer extends StatelessWidget {
-  const _PlaceholderContainer({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Center(
-        child: Text(
-          text,
-          style: TextStyle(
-            color: Theme.of(context).extension<PickerTheme>()!.searchHintColor,
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [
-          Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
-          Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
-        ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-      ),
     );
   }
 }

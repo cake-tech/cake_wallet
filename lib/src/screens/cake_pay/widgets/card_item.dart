@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'image_placeholder.dart';
+
 class CardItem extends StatelessWidget {
   CardItem({
     required this.title,
@@ -29,98 +31,63 @@ class CardItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(20),
-          border: hideBorder
-              ? Border.all(color: Colors.transparent)
-              : Border.all(color: Colors.white.withOpacity(0.20)),
-        ),
-        child: IntrinsicHeight(
-          child: Row(
+    return Theme(
+      data: ThemeData(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+      ),
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(20),
+            border: hideBorder
+                ? Border.all(color: Colors.transparent)
+                : Border.all(color: Colors.white.withOpacity(0.20)),
+          ),
+          child: Column(
             children: [
+              Expanded(child: const SizedBox()),
               if (logoUrl != null)
                 Expanded(
-                  flex: 2,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.horizontal(left: Radius.circular(20)),
-                    child: Image.network(
-                      logoUrl!,
-                      fit: BoxFit.cover,
-                      loadingBuilder:
-                          (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(child: CircularProgressIndicator());
-                      },
-                      errorBuilder: (context, error, stackTrace) =>
-                          _PlaceholderContainer(text: '!'),
+                  flex: 7,
+                  child: AspectRatio(
+                    aspectRatio: 1.8,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      child: Image.network(
+                        logoUrl!,
+                        fit: BoxFit.cover,
+                        loadingBuilder:
+                            (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(child: CircularProgressIndicator());
+                        },
+                        errorBuilder: (context, error, stackTrace) => ImagePlaceholder(text: '!'),
+                      ),
                     ),
                   ),
                 ),
               Expanded(
-                flex: 5,
+                flex: 3,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: titleColor,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        subTitle,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: subtitleColor,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Lato',
-                        ),
-                      ),
-                    ],
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: titleColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _PlaceholderContainer extends StatelessWidget {
-  const _PlaceholderContainer({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Center(
-        child: Text(
-          text,
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 12,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
       ),
     );
   }
