@@ -17,6 +17,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     WalletInfo walletInfo, {
     required super.mainHd,
     required super.sideHd,
+    required this.mwebHd,
     required super.network,
     required super.electrumClient,
     super.initialAddresses,
@@ -24,13 +25,14 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     super.initialChangeAddressIndex,
   }) : super(walletInfo);
 
+  final HDWallet mwebHd;
   List<String> mweb_addrs = [];
 
   Future<void> topUpMweb(int index) async {
     while (mweb_addrs.length - index < 1000) {
       final length = mweb_addrs.length;
-      final scanSecret = mainHd.derive(0).privKey!;
-      final spendPubkey = mainHd.derive(1).pubKey!;
+      final scanSecret = mwebHd.derive(0x80000000).privKey!;
+      final spendPubkey = mwebHd.derive(0x80000001).pubKey!;
       final stub = await CwMweb.stub();
       final resp = await stub.addresses(AddressRequest(
         fromIndex: length,

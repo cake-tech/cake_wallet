@@ -35,7 +35,7 @@ abstract class ReceiveOptionViewModelBase with Store {
         break;
       default:
         _options = ReceivePageOptions;
-    };
+    }
   }
 
   final WalletBase _wallet;
