@@ -26,11 +26,11 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }) : super(walletInfo);
 
   final HDWallet mwebHd;
-  List<String> mweb_addrs = [];
+  List<String> mwebAddrs = [];
 
   Future<void> topUpMweb(int index) async {
-    while (mweb_addrs.length - index < 1000) {
-      final length = mweb_addrs.length;
+    while (mwebAddrs.length - index < 1000) {
+      final length = mwebAddrs.length;
       final scanSecret = mwebHd.derive(0x80000000).privKey!;
       final spendPubkey = mwebHd.derive(0x80000001).pubKey!;
       final stub = await CwMweb.stub();
@@ -40,8 +40,8 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
         scanSecret: hex.decode(scanSecret),
         spendPubkey: hex.decode(spendPubkey),
       ));
-      if (mweb_addrs.length == length) {
-        mweb_addrs.addAll(resp.address);
+      if (mwebAddrs.length == length) {
+        mwebAddrs.addAll(resp.address);
       }
     }
   }
@@ -50,7 +50,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   String getAddress({required int index, required HDWallet hd, BitcoinAddressType? addressType}) {
     if (addressType == SegwitAddresType.mweb) {
       topUpMweb(index);
-      return hd == sideHd ? mweb_addrs[0] : mweb_addrs[index+1];
+      return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index+1];
     }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }
