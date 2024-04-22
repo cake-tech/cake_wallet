@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'package:convert/convert.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -11,6 +14,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -36,7 +40,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     ElectrumBalance? initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
-  }) : super(
+  }) : mwebHd = bitcoin.HDWallet.fromSeed(seedBytes,
+            network: litecoinNetwork).derivePath("m/1000'"),
+       super(
             mnemonic: mnemonic,
             password: password,
             walletInfo: walletInfo,
@@ -54,13 +60,15 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       mainHd: hd,
       sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
-      mwebHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/1000'"),
+      mwebHd: mwebHd,
       network: network,
     );
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
   }
+
+  final bitcoin.HDWallet mwebHd;
 
   static Future<LitecoinWallet> create(
       {required String mnemonic,
@@ -129,6 +137,25 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           syncStatus = SyncedSyncStatus();
         }
       });
+    final scanSecret = mwebHd.derive(0x80000000).privKey!;
+    final req = UtxosRequest(scanSecret: hex.decode(scanSecret));
+    await for (var utxo in stub.utxos(req)) {
+      final status = await stub.status(StatusRequest());
+      var date = DateTime.now();
+      var confirmations = 0;
+      if (utxo.height > 0) {
+        date = await electrumClient.getBlockTime(height: utxo.height);
+        confirmations = status.blockHeaderHeight - utxo.height + 1;
+      }
+      final tx = ElectrumTransactionInfo(WalletType.litecoin,
+        id: utxo.outputId, height: utxo.height,
+        amount: utxo.value.toInt(),
+        direction: TransactionDirection.incoming,
+        isPending: utxo.height == 0,
+        date: date, confirmations: confirmations);
+      transactionHistory.addOne(tx);
+      await transactionHistory.save();
+    }
   }
 
   @override

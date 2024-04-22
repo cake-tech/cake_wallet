@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:convert/convert.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/script_hash.dart';
@@ -263,8 +264,12 @@ class ElectrumClient {
       await call(method: 'blockchain.transaction.get_merkle', params: [hash, height])
           as Map<String, dynamic>;
 
-  Future<Map<String, dynamic>> getHeader({required int height}) async =>
-      await call(method: 'blockchain.block.get_header', params: [height]) as Map<String, dynamic>;
+  Future<DateTime> getBlockTime({required int height}) async {
+    final header = await call(method: 'blockchain.block.header', params: [height]) as String;
+    final bd = ByteData.sublistView(Uint8List.fromList(hex.decode(header)));
+    final timestamp = bd.getUint32(68, Endian.little) * 1000;
+    return DateTime.fromMillisecondsSinceEpoch(timestamp, isUtc: true);
+  }
 
   Future<double> estimatefee({required int p}) =>
       call(method: 'blockchain.estimatefee', params: [p]).then((dynamic result) {
