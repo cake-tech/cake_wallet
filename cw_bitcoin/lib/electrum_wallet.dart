@@ -430,7 +430,7 @@ abstract class ElectrumWalletBase
     }
 
     if (silentPaymentDestinations.isNotEmpty) {
-      final spb = SilentPaymentBuilder(pubkeys: inputPubKeys, outpoints: vinOutpoints);
+      final spb = SilentPaymentBuilder(pubkeys: inputPubKeys, vinOutpoints: vinOutpoints);
       final sendingOutputs = spb.createOutputs(inputPrivKeyInfos, silentPaymentDestinations);
 
       final outputsAdded = [];

@@ -822,6 +822,9 @@ Future<void> checkCurrentNodes(
     final cakeWalletElectrum =
         Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false);
     await nodeSource.add(cakeWalletElectrum);
+    final cakeWalletElectrumTestnet =
+        Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
+    await nodeSource.add(cakeWalletElectrumTestnet);
     await sharedPreferences.setInt(
         PreferencesKey.currentBitcoinElectrumSererIdKey, cakeWalletElectrum.key as int);
   }
@@ -894,6 +897,9 @@ Future<void> resetBitcoinElectrumServer(
   if (cakeWalletNode == null) {
     cakeWalletNode =
         Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false);
+    final cakeWalletElectrumTestnet =
+        Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
+    await nodeSource.add(cakeWalletElectrumTestnet);
     await nodeSource.add(cakeWalletNode);
   }
 
