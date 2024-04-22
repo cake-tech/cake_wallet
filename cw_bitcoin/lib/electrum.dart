@@ -268,7 +268,7 @@ class ElectrumClient {
     final header = await call(method: 'blockchain.block.header', params: [height]) as String;
     final bd = ByteData.sublistView(Uint8List.fromList(hex.decode(header)));
     final timestamp = bd.getUint32(68, Endian.little) * 1000;
-    return DateTime.fromMillisecondsSinceEpoch(timestamp, isUtc: true);
+    return DateTime.fromMillisecondsSinceEpoch(timestamp);
   }
 
   Future<double> estimatefee({required int p}) =>

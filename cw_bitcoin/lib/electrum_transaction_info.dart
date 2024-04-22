@@ -196,8 +196,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
         direction: parseTransactionDirectionFromInt(data['direction'] as int),
         date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
         isPending: data['isPending'] as bool,
-        inputAddresses: data['inputAddresses'] as List<String>,
-        outputAddresses: data['outputAddresses'] as List<String>,
+        inputAddresses: List<String>.from(data['inputAddresses'] as List),
+        outputAddresses: List<String>.from(data['outputAddresses'] as List),
         confirmations: data['confirmations'] as int);
   }
 

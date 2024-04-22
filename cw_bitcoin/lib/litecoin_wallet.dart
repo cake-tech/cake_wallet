@@ -149,10 +149,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
       final tx = ElectrumTransactionInfo(WalletType.litecoin,
         id: utxo.outputId, height: utxo.height,
-        amount: utxo.value.toInt(),
+        amount: utxo.value.toInt(), fee: 0,
         direction: TransactionDirection.incoming,
         isPending: utxo.height == 0,
-        date: date, confirmations: confirmations);
+        date: date, confirmations: confirmations,
+        inputAddresses: [],
+        outputAddresses: [utxo.address]);
       transactionHistory.addOne(tx);
       await transactionHistory.save();
     }
