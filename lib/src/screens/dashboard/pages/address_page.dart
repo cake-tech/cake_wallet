@@ -219,7 +219,8 @@ class AddressPage extends BasePage {
           }
           break;
         default:
-          if (addressListViewModel.type == WalletType.bitcoin) {
+          if (addressListViewModel.type == WalletType.bitcoin ||
+              addressListViewModel.type == WalletType.litecoin) {
             addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
           }
       }

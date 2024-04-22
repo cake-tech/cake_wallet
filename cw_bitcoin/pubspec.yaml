@@ -31,9 +31,7 @@ dependencies:
   unorm_dart: ^0.2.0
   cryptography: ^2.0.5
   bitcoin_base:
-    git:
-      url: https://github.com/cake-tech/bitcoin_base.git
-      ref: cake-update-v2
+    path: ../../bitcoin_base
   blockchain_utils: ^2.1.1
   cw_mweb:
     path: ../cw_mweb

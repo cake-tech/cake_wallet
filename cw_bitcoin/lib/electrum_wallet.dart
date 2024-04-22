@@ -1337,6 +1337,8 @@ BitcoinBaseAddress addressTypeFromStr(String address, BasedUtxoNetwork network) 
     return P2wshAddress.fromAddress(address: address, network: network);
   } else if (P2trAddress.regex.hasMatch(address)) {
     return P2trAddress.fromAddress(address: address, network: network);
+  } else if (MwebAddress.regex.hasMatch(address)) {
+    return MwebAddress.fromAddress(address: address, network: network);
   } else {
     return P2wpkhAddress.fromAddress(address: address, network: network);
   }
@@ -1351,6 +1353,8 @@ BitcoinAddressType _getScriptType(BitcoinBaseAddress type) {
     return SegwitAddresType.p2wsh;
   } else if (type is P2trAddress) {
     return SegwitAddresType.p2tr;
+  } else if (type is MwebAddress) {
+    return SegwitAddresType.mweb;
   } else {
     return SegwitAddresType.p2wpkh;
   }

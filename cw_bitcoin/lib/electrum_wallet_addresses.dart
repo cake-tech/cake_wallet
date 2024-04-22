@@ -16,6 +16,7 @@ const List<BitcoinAddressType> ADDRESS_TYPES = [
   P2pkhAddressType.p2pkh,
   SegwitAddresType.p2tr,
   SegwitAddresType.p2wsh,
+  SegwitAddresType.mweb,
   P2shAddressType.p2wpkhInP2sh,
 ];
 
@@ -154,6 +155,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.litecoin) {
       await _generateInitialAddresses();
+      await _generateInitialAddresses(type: SegwitAddresType.mweb);
     } else if (walletInfo.type == WalletType.bitcoin) {
       await _generateInitialAddresses();
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
@@ -216,6 +218,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   String getAddress(
           {required int index, required bitcoin.HDWallet hd, BitcoinAddressType? addressType}) =>
       '';
+
+  Future<String> getAddressAsync(
+          {required int index, required bitcoin.HDWallet hd, BitcoinAddressType? addressType}) async =>
+      getAddress(index: index, hd: hd, addressType: addressType);
 
   @override
   Future<void> updateAddressesInBox() async {
@@ -328,7 +334,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     for (var i = startIndex; i < count + startIndex; i++) {
       final address = BitcoinAddressRecord(
-        getAddress(index: i, hd: _getHd(isHidden), addressType: type ?? addressPageType),
+        await getAddressAsync(index: i, hd: _getHd(isHidden), addressType: type ?? addressPageType),
         index: i,
         isHidden: isHidden,
         type: type ?? addressPageType,
