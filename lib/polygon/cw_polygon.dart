@@ -140,8 +140,14 @@ class CWPolygon extends Polygon {
     }
 
     wallet as PolygonWallet;
-    return wallet.erc20Currencies.firstWhere(
-        (element) => transaction.tokenSymbol.toLowerCase() == element.symbol.toLowerCase());
+    try {
+      final tokenCurrency = wallet.erc20Currencies.firstWhere(
+        (element) => transaction.tokenSymbol.toLowerCase() == element.symbol.toLowerCase(),
+      );
+      return tokenCurrency;
+    } catch (e) {
+      return CryptoCurrency.maticpoly;
+    }
   }
 
   @override
