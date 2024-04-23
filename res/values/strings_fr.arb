@@ -627,6 +627,7 @@
   "sign_up": "S'inscrire",
   "sign_verify_message": "Signer ou vérifier le message",
   "sign_verify_message_sub": "Signez ou vérifiez un message en utilisant votre clé privée",
+  "sign_verify_title": "Signe / vérifier",
   "signature": "Signature",
   "signature_invalid_error": "La signature n'est pas valable pour le message donné",
   "signTransaction": "Signer une transaction",

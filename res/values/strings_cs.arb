@@ -627,6 +627,7 @@
   "sign_up": "Registrovat se",
   "sign_verify_message": "Podepište nebo ověřte zprávu",
   "sign_verify_message_sub": "Podepište nebo ověřte zprávu pomocí soukromého klíče",
+  "sign_verify_title": "Podepsat / ověřit",
   "signature": "Podpis",
   "signature_invalid_error": "Podpis není platný pro danou zprávu",
   "signTransaction": "Podepsat transakci",

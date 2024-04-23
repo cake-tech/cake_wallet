@@ -630,6 +630,7 @@
   "sign_up": "Daftar",
   "sign_verify_message": "Tanda tangan atau verifikasi pesan",
   "sign_verify_message_sub": "Menandatangani atau memverifikasi pesan menggunakan kunci pribadi Anda",
+  "sign_verify_title": "Tanda / verifikasi",
   "signature": "Tanda tangan",
   "signature_invalid_error": "Tanda tangan tidak valid untuk pesan yang diberikan",
   "signTransaction": "Tandatangani Transaksi",

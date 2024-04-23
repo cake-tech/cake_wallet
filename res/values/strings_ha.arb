@@ -629,6 +629,7 @@
   "sign_up": "Shiga",
   "sign_verify_message": "Shiga ko Tabbatar da Saƙo",
   "sign_verify_message_sub": "Shiga ko tabbatar da saƙo ta amfani da Maɓallinku na sirri",
+  "sign_verify_title": "Sa hannu / Tabbatar",
   "signature": "Sa hannu",
   "signature_invalid_error": "Sa hannu ba shi da inganci ga sakon da aka bayar",
   "signTransaction": "Sa hannu Ma'amala",

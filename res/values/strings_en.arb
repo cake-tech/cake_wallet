@@ -627,6 +627,7 @@
   "sign_up": "Sign Up",
   "sign_verify_message": "Sign or verify message",
   "sign_verify_message_sub": "Sign or verify a message using your private key",
+  "sign_verify_title": "Sign / Verify",
   "signature": "Signature",
   "signature_invalid_error": "The signature is not valid for the message given",
   "signTransaction": "Sign Transaction",

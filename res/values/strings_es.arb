@@ -628,6 +628,7 @@
   "sign_up": "Registrarse",
   "sign_verify_message": "Firmar o verificar el mensaje",
   "sign_verify_message_sub": "Firmar o verificar un mensaje usando su clave privada",
+  "sign_verify_title": "Firmar / verificar",
   "signature": "Firma",
   "signature_invalid_error": "La firma no es válida para el mensaje dado",
   "signTransaction": "Firmar transacción",

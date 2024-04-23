@@ -627,6 +627,7 @@
   "sign_up": "اشتراك",
   "sign_verify_message": "توقيع أو التحقق من الرسالة",
   "sign_verify_message_sub": "قم بتوقيع أو التحقق من رسالة باستخدام المفتاح الخاص بك",
+  "sign_verify_title": "تسجيل / تحقق",
   "signature": "إمضاء",
   "signature_invalid_error": "التوقيع غير صالح للرسالة المقدمة",
   "signTransaction": " ﺔﻠﻣﺎﻌﻤﻟﺍ ﻊﻴﻗﻮﺗ",

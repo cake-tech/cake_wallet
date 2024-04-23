@@ -627,6 +627,7 @@
   "sign_up": "Prijavite se",
   "sign_verify_message": "Potpisati ili provjeriti poruku",
   "sign_verify_message_sub": "Potpišite ili provjerite poruku pomoću privatnog ključa",
+  "sign_verify_title": "Potpisati / provjeriti",
   "signature": "Potpis",
   "signature_invalid_error": "Potpis ne vrijedi za danu poruku",
   "signTransaction": "Potpišite transakciju",

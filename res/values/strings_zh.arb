@@ -627,6 +627,7 @@
   "sign_up": "注册",
   "sign_verify_message": "签名或验证消息",
   "sign_verify_message_sub": "使用您的私钥签名或验证消息",
+  "sign_verify_title": "签名 /验证",
   "signature": "签名",
   "signature_invalid_error": "签名对于给出的消息无效",
   "signTransaction": "签署交易",

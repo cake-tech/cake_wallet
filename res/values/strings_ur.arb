@@ -629,6 +629,7 @@
   "sign_up": "سائن اپ",
   "sign_verify_message": "پیغام پر دستخط کریں یا تصدیق کریں",
   "sign_verify_message_sub": "اپنی نجی کلید کا استعمال کرتے ہوئے کسی پیغام پر دستخط کریں یا اس کی تصدیق کریں",
+  "sign_verify_title": "سائن / تصدیق کریں",
   "signature": "دستخط",
   "signature_invalid_error": "دستخط دیئے گئے پیغام کے لئے درست نہیں ہے",
   "signTransaction": "۔ﮟﯾﺮﮐ ﻂﺨﺘﺳﺩ ﺮﭘ ﻦﯾﺩ ﻦﯿﻟ",

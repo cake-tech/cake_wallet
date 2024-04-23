@@ -627,6 +627,7 @@
   "sign_up": "Mag -sign up",
   "sign_verify_message": "Mag -sign o i -verify ang mensahe",
   "sign_verify_message_sub": "Mag -sign o i -verify ang isang mensahe gamit ang iyong pribadong key",
+  "sign_verify_title": "Mag -sign / Mag -verify",
   "signature": "Lagda",
   "signature_invalid_error": "Ang lagda ay hindi wasto para sa ibinigay na mensahe",
   "signTransaction": "Mag-sign Transaksyon",

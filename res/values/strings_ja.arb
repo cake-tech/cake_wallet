@@ -628,6 +628,7 @@
   "sign_up": "サインアップ",
   "sign_verify_message": "メッセージに署名または確認します",
   "sign_verify_message_sub": "秘密鍵を使用してメッセージに署名または確認します",
+  "sign_verify_title": "署名 /検証",
   "signature": "サイン",
   "signature_invalid_error": "署名は、指定されたメッセージに対して無効です",
   "signTransaction": "トランザクションに署名する",
