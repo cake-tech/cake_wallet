@@ -583,6 +583,8 @@
   "send_your_wallet": "သင့်ပိုက်ဆံအိတ်",
   "sending": "ပေးပို့ခြင်း။",
   "sent": "ပို့လိုက်ပါတယ်။",
+  "service_health_disabled": "ဝန်ဆောင်မှုကျန်းမာရေးစာစောင်အားပိတ်ထားသည်",
+  "service_health_disabled_message": "ဤသည်မှာ 0 န်ဆောင်မှုကျန်းမာရေးစာစောင်စာမျက်နှာတွင်ဤစာမျက်နှာကို Settings အောက်တွင်ဖွင့်ထားနိုင်သည်",
   "settings": "ဆက်တင်များ",
   "settings_all": "အားလုံး",
   "settings_allow_biometrical_authentication": "ဇီဝဗေဒဆိုင်ရာ အထောက်အထားစိစစ်ခြင်းကို ခွင့်ပြုပါ။",

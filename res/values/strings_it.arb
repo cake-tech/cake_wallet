@@ -585,6 +585,8 @@
   "send_your_wallet": "Il tuo portafoglio",
   "sending": "Invio",
   "sent": "Inviato",
+  "service_health_disabled": "Il Bollettino sanitario di servizio è disabilitato",
+  "service_health_disabled_message": "Questa è la pagina del Bollettino sanitario del servizio, è possibile abilitare questa pagina in Impostazioni -> Privacy",
   "settings": "Impostazioni",
   "settings_all": "TUTTO",
   "settings_allow_biometrical_authentication": "Consenti autenticazione biometrica",

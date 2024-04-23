@@ -583,6 +583,8 @@
   "send_your_wallet": "Cüzdanın",
   "sending": "Gönderiliyor",
   "sent": "Gönderildi",
+  "service_health_disabled": "Service Health Bülten devre dışı bırakıldı",
+  "service_health_disabled_message": "Bu Hizmet Sağlığı Bülten Sayfası, bu sayfayı Ayarlar -> Gizlilik altında etkinleştirebilirsiniz",
   "settings": "ayarlar",
   "settings_all": "HEPSİ",
   "settings_allow_biometrical_authentication": "Biyometrik doğrulamaya izin ver",

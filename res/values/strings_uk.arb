@@ -584,6 +584,8 @@
   "send_your_wallet": "Ваш гаманець",
   "sending": "Відправлення",
   "sent": "Відправлені",
+  "service_health_disabled": "Вісник охорони здоров'я інвалідів",
+  "service_health_disabled_message": "Це сторінка бюлетеня Health Service, ви можете включити цю сторінку в налаштуваннях -> конфіденційність",
   "settings": "Налаштування",
   "settings_all": "ВСІ",
   "settings_allow_biometrical_authentication": "Включити біометричну аутентифікацію",
