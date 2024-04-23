@@ -25,6 +25,7 @@ import 'package:cw_bitcoin/litecoin_network.dart';
 import 'package:cw_mweb/cw_mweb.dart';
 import 'package:cw_mweb/mwebd.pb.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
+import 'package:queue/queue.dart';
 
 part 'litecoin_wallet.g.dart';
 
@@ -157,7 +158,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       var date = DateTime.now();
       var confirmations = 0;
       if (utxo.height > 0) {
-        date = await electrumClient.getBlockTime(height: utxo.height);
+        while (true) try {
+          date = await electrumClient.getBlockTime(height: utxo.height);
+          break;
+        } catch (err) {
+          await Future.delayed(Duration(seconds: 1));
+        }
         confirmations = status.blockHeaderHeight - utxo.height + 1;
       }
       final tx = ElectrumTransactionInfo(WalletType.litecoin,
@@ -169,9 +175,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         inputAddresses: [],
         outputAddresses: [utxo.address]);
       transactionHistory.addOne(tx);
-      await transactionHistory.save();
-      await updateUnspent();
-      await updateBalance();
+      queueUpdate(1);
     }
   }
 
@@ -227,20 +231,35 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<void> updateBalance() async {
-    await super.updateBalance();
-    var confirmed = balance[currency]!.confirmed;
-    var unconfirmed = balance[currency]!.unconfirmed;
+  Future<ElectrumBalance> fetchBalances() async {
+    final balance = await super.fetchBalances();
+    var confirmed = balance.confirmed;
+    var unconfirmed = balance.unconfirmed;
     mwebUtxos.values.forEach((utxo) {
       if (utxo.height > 0)
         confirmed += utxo.value.toInt();
       else
         unconfirmed += utxo.value.toInt();
     });
-    balance[currency] = ElectrumBalance(
-        confirmed: confirmed, unconfirmed: unconfirmed,
-        frozen: balance[currency]!.frozen);
-    await save();
+    return ElectrumBalance(confirmed: confirmed,
+        unconfirmed: unconfirmed, frozen: balance.frozen);
+  }
+
+  @override
+  Future<void> updateBalance({int delay = 1}) async {
+    queueUpdate(delay);
+  }
+
+  Timer? _debounceTimer;
+  final _debounceQueue = Queue();
+
+  void queueUpdate(int delay) {
+    if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
+    _debounceTimer = Timer(Duration(seconds: delay), () =>
+      _debounceQueue.add(() async {
+        await updateUnspent();
+        await super.updateBalance();
+      }));
   }
 
   @override

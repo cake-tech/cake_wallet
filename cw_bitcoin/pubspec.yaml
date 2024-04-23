@@ -36,6 +36,7 @@ dependencies:
   cw_mweb:
     path: ../cw_mweb
   grpc: ^3.2.4
+  queue: ^3.1.0+2
 
 dev_dependencies:
   flutter_test:

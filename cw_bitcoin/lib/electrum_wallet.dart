@@ -157,7 +157,7 @@ abstract class ElectrumWalletBase
       await updateTransactions();
       _subscribeForUpdates();
       await updateUnspent();
-      await updateBalance();
+      await updateBalance(delay: 5);
       _feeRates = await electrumClient.feeRates(network: network);
 
       Timer.periodic(
@@ -1196,7 +1196,7 @@ abstract class ElectrumWalletBase
     });
   }
 
-  Future<ElectrumBalance> _fetchBalances() async {
+  Future<ElectrumBalance> fetchBalances() async {
     final addresses = walletAddresses.allAddresses.toList();
     final balanceFutures = <Future<Map<String, dynamic>>>[];
     for (var i = 0; i < addresses.length; i++) {
@@ -1240,8 +1240,8 @@ abstract class ElectrumWalletBase
         confirmed: totalConfirmed, unconfirmed: totalUnconfirmed, frozen: totalFrozen);
   }
 
-  Future<void> updateBalance() async {
-    balance[currency] = await _fetchBalances();
+  Future<void> updateBalance({int delay = 1}) async {
+    balance[currency] = await fetchBalances();
     await save();
   }
 
