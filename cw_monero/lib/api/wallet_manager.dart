@@ -114,15 +114,14 @@ void restoreWalletFromSpendKeySync(
   //   nettype: 0,
   // );
 
-  wptr = monero.WalletManager_createWalletFromPolyseed(
+  wptr = monero.WalletManager_createDeterministicWalletFromSpendKey(
     wmPtr,
     path: path,
     password: password,
-    mnemonic: seed,
-    seedOffset: '',
-    newWallet: false,
+    language: language,
+    spendKeyString: spendKey,
+    newWallet: true, // TODO(mrcyjanek): safe to remove
     restoreHeight: restoreHeight,
-    kdfRounds: 1,
   );
 
   final status = monero.Wallet_status(wptr!);
@@ -132,6 +131,8 @@ void restoreWalletFromSpendKeySync(
     print("err: $err");
     throw WalletRestoreFromKeysException(message: err);
   }
+
+  monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
 
   storeSync();
 }

@@ -134,10 +134,9 @@ void commitTransactionFromPointerAddress({required int address}) =>
 void commitTransaction({required monero.PendingTransaction transactionPointer}) {
   
   final txCommit = monero.PendingTransaction_commit(transactionPointer, filename: '', overwrite: false);
-  final status = monero.PendingTransaction_status(transactionPointer.cast());
 
   final String? error = (() {
-    final status = monero.Wallet_status(wptr!);
+    final status = monero.PendingTransaction_status(transactionPointer.cast());
     if (status == 0) {
       return null;
     }

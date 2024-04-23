@@ -23,14 +23,18 @@ bool isNewTransactionExist() {
 }
 String getFilename() => monero.Wallet_filename(wptr!);
 
-// TODO(mrcyjanek): Cake polyseed support
 String getSeed() {
-  final legacy = monero.Wallet_seed(wptr!, seedOffset: '');
-  final polyseed = monero.Wallet_getPolyseed(wptr!, passphrase: '');
-  if (polyseed == "") {
-    return legacy;
+  // monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
+  final cakepolyseed = monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed");
+  if (cakepolyseed != "") {
+    return cakepolyseed;
   }
-  return polyseed;
+  final polyseed = monero.Wallet_getPolyseed(wptr!, passphrase: '');
+  if (polyseed != "") {
+    return polyseed;
+  }
+  final legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+  return legacy;
 }
 
 String getAddress({int accountIndex = 0, int addressIndex = 1}) => monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);

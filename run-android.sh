@@ -4,7 +4,7 @@
 get_current_branch() {
     if git rev-parse --git-dir > /dev/null 2>&1; then
         branch=$(git rev-parse --abbrev-ref HEAD)
-        echo "$branch"
+        echo "$branch" | tr '-' '_'
     else
         echo "Error: Not a git repository."
         return 1

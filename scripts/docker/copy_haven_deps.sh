@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x -e
+set -x
 
 WORKDIR=/opt/android
 CW_DIR=${WORKDIR}/cake_wallet

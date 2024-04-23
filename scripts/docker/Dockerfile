@@ -4,7 +4,7 @@ LABEL authors="konsti"
 ENV MONERO_BRANCH=release-v0.18.2.2-android
 RUN apt-get update && \
     echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
-    apt-get install -y dialog apt-utils curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang bison
+    apt-get install -y dialog apt-utils curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang bison ccache
 
 RUN mkdir /opt/android/
 
@@ -56,5 +56,7 @@ RUN ./build_zmq.sh
 COPY entrypoint.sh /opt/android/cakewallet/
 COPY build_monero.sh /opt/android/cakewallet/
 COPY copy_monero_deps.sh /opt/android/cakewallet/
+COPY build_haven.sh /opt/android/cakewallet/
+COPY copy_haven_deps.sh /opt/android/cakewallet/
 
 ENTRYPOINT ["./entrypoint.sh"]
