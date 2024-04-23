@@ -740,7 +740,7 @@ abstract class ElectrumWalletBase
 
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
-  Future<void> updateUnspent() async {
+  Future<void> updateUnspentCoins() async {
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
     final addressesSet = walletAddresses.allAddresses.map((addr) => addr.address).toSet();
@@ -759,6 +759,10 @@ abstract class ElectrumWalletBase
             }))));
 
     unspentCoins = updatedUnspentCoins;
+  }
+
+  Future<void> updateUnspent() async {
+    await updateUnspentCoins();
 
     if (unspentCoinsInfo.isEmpty) {
       unspentCoins.forEach((coin) => _addCoinInfo(coin));

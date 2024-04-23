@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
@@ -169,6 +170,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         outputAddresses: [utxo.address]);
       transactionHistory.addOne(tx);
       await transactionHistory.save();
+      await updateUnspent();
+      await updateBalance();
     }
   }
 
@@ -208,6 +211,36 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       outputAddresses: []);
     transactionHistory.addOne(tx);
     await transactionHistory.save();
+  }
+
+  @override
+  Future<void> updateUnspentCoins() async {
+    await super.updateUnspentCoins();
+    await checkMwebUtxosSpent();
+    final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
+    mwebUtxos.forEach((outputId, utxo) {
+      final addressRecord = walletAddresses.allAddresses.firstWhere(
+          (addressRecord) => addressRecord.address == utxo.address);
+      unspentCoins.add(BitcoinUnspent(addressRecord, outputId,
+          utxo.value.toInt(), mwebAddrs.indexOf(utxo.address)));
+    });
+  }
+
+  @override
+  Future<void> updateBalance() async {
+    await super.updateBalance();
+    var confirmed = balance[currency]!.confirmed;
+    var unconfirmed = balance[currency]!.unconfirmed;
+    mwebUtxos.values.forEach((utxo) {
+      if (utxo.height > 0)
+        confirmed += utxo.value.toInt();
+      else
+        unconfirmed += utxo.value.toInt();
+    });
+    balance[currency] = ElectrumBalance(
+        confirmed: confirmed, unconfirmed: unconfirmed,
+        frozen: balance[currency]!.frozen);
+    await save();
   }
 
   @override
