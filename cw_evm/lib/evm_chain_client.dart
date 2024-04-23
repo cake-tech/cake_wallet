@@ -89,7 +89,6 @@ abstract class EVMChainClient {
     required CryptoCurrency currency,
     required int exponent,
     String? contractAddress,
-    bool isHardwareWallet = false,
     String? data,
   }) async {
     assert(currency == CryptoCurrency.eth ||
