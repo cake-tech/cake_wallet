@@ -301,7 +301,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device) {
-    throw UnimplementedError();
+    (wallet as BitcoinWallet).setLedger(ledger, device);
   }
 
   @override
@@ -311,7 +311,7 @@ class CWBitcoin extends Bitcoin {
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } on LedgerException catch (err) {
-      print(err.message); // TODO: (Konsti) remove
+      print(err.message);
       throw err;
     }
   }

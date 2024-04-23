@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
@@ -37,6 +38,8 @@ class LedgerViewModel {
 
   void setLedger(WalletBase wallet) {
     switch (wallet.type) {
+      case WalletType.bitcoin:
+        return bitcoin!.setLedger(wallet, ledger, device);
       case WalletType.ethereum:
         return ethereum!.setLedger(wallet, ledger, device);
       case WalletType.polygon:

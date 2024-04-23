@@ -20,7 +20,6 @@ import 'package:cake_wallet/src/screens/buy/buy_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
-import 'package:cake_wallet/src/screens/connect_device/debug_device_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
@@ -165,9 +164,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final walletVM = getIt.get<WalletHardwareRestoreViewModel>(param1: type);
 
       return CupertinoPageRoute<void>(builder: (_) => SelectHardwareWalletAccountPage(walletVM));
-
-    case Routes.debugWalletFromHardwareWallet:
-      return CupertinoPageRoute<void>(builder: (_) => DebugDevicePage());
 
     case Routes.setupPin:
       Function(PinCodeState<PinCodeWidget>, String)? callback;

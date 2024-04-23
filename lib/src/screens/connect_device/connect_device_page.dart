@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
@@ -88,10 +87,10 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
 
   @override
   void dispose() {
-    super.dispose();
     _bleRefreshTimer?.cancel();
     _usbRefreshTimer?.cancel();
     _bleRefresh?.cancel();
+    super.dispose();
   }
 
   Future<void> _refreshUsbDevices() async {
@@ -137,13 +136,6 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                       fontWeight: FontWeight.w500,
                       color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                   textAlign: TextAlign.center,
-                ),
-              ),
-              Padding( // ToDo: (Konsti) Remove Debug Button
-                padding: EdgeInsets.only(bottom: 20),
-                child: DeviceTile(
-                  onPressed: () => Navigator.of(context).pushNamed(Routes.debugWalletFromHardwareWallet),
-                  title: "Debug Devices",
                 ),
               ),
               if (!bleIsEnabled)

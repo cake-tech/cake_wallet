@@ -29,9 +29,13 @@ class BitcoinHardwareWalletService {
 
       final address = generateP2WPKHAddress(hd: hd, index: 0, network: BitcoinNetwork.mainnet);
 
-      final account = HardwareAccountData(
-          address: address, accountIndex: i, masterFingerprint: masterFp, xpub: xpub);
-      accounts.add(account);
+      accounts.add(HardwareAccountData(
+        address: address,
+        accountIndex: i,
+        derivationPath: derivationPath,
+        masterFingerprint: masterFp,
+        xpub: xpub,
+      ));
     }
 
     return accounts;

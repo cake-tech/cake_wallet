@@ -20,9 +20,14 @@ class EVMChainHardwareWalletService {
 
     for (final i in indexRange) {
       final derivationPath = "m/44'/60'/$i'/0/0";
-      final address = await ethereumLedgerApp.getAccounts(device, accountsDerivationPath: derivationPath);
+      final address =
+          await ethereumLedgerApp.getAccounts(device, accountsDerivationPath: derivationPath);
 
-      accounts.add(HardwareAccountData(address: address.first, accountIndex: i));
+      accounts.add(HardwareAccountData(
+        address: address.first,
+        accountIndex: i,
+        derivationPath: derivationPath,
+      ));
     }
 
     return accounts;

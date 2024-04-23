@@ -1,8 +1,13 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:convert/convert.dart';
+
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import 'package:cw_bitcoin/psbt_transaction_builder.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_bitcoin/ledger_bitcoin.dart';
+import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
@@ -32,20 +37,20 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   }) : super(
-            mnemonic: mnemonic,
-            xpub: xpub,
-            password: password,
-            walletInfo: walletInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
-            networkType: networkParam == null
-                ? bitcoin.bitcoin
-                : networkParam == BitcoinNetwork.mainnet
-                    ? bitcoin.bitcoin
-                    : bitcoin.testnet,
-            initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            seedBytes: seedBytes,
-            currency: CryptoCurrency.btc) {
+      mnemonic: mnemonic,
+      xpub: xpub,
+      password: password,
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfo,
+      networkType: networkParam == null
+          ? bitcoin.bitcoin
+          : networkParam == BitcoinNetwork.mainnet
+          ? bitcoin.bitcoin
+          : bitcoin.testnet,
+      initialAddresses: initialAddresses,
+      initialBalance: initialBalance,
+      seedBytes: seedBytes,
+      currency: CryptoCurrency.btc) {
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
       electrumClient: electrumClient,
@@ -113,5 +118,50 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       addressPageType: snp.addressPageType,
       networkParam: network,
     );
+  }
+
+  Ledger? _ledger;
+  LedgerDevice? _ledgerDevice;
+  BitcoinLedgerApp? _bitcoinLedgerApp;
+
+  void setLedger(Ledger setLedger, LedgerDevice setLedgerDevice) {
+    _ledger = setLedger;
+    _ledgerDevice = setLedgerDevice;
+    _bitcoinLedgerApp = BitcoinLedgerApp(_ledger!, derivationPath: walletInfo.derivationPath!);
+  }
+
+  @override
+  Future<BtcTransaction> buildHardwareWalletTransaction({
+    required List<BitcoinBaseOutput> outputs,
+    required BigInt fee,
+    required BasedUtxoNetwork network,
+    required List<UtxoWithAddress> utxos,
+    required Map<String, PublicKeyWithDerivationPath> publicKeys,
+    String? memo,
+    bool enableRBF = false,
+    BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
+    BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
+  }) async {
+    final masterFingerprint = await _bitcoinLedgerApp!.getMasterFingerprint(_ledgerDevice!);
+
+    final psbtReadyInputs = <PSBTReadyUtxoWithAddress>[];
+    for (final utxo in utxos) {
+      final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
+      final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
+
+      psbtReadyInputs.add(PSBTReadyUtxoWithAddress(
+          utxo: utxo.utxo,
+          rawTx: rawTx,
+          ownerDetails: utxo.ownerDetails,
+          ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
+          ownerMasterFingerprint: masterFingerprint,
+          ownerPublicKey: publicKeyAndDerivationPath.publicKey,
+      ));
+    }
+
+    final psbt = PSBTTransactionBuild(inputs: psbtReadyInputs, outputs: outputs);
+
+    final rawHex = await _bitcoinLedgerApp!.signPsbt(_ledgerDevice!, psbt: psbt.psbt);
+    return BtcTransaction.fromRaw(hex.encode(rawHex));
   }
 }
