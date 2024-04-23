@@ -160,10 +160,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return priority;
   }
 
-
   int? getCustomPriorityIndex(List<TransactionPriority> priorities) {
     if (wallet.type == WalletType.bitcoin) {
-      final customItem = priorities.firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
+      final customItem = priorities
+          .firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
 
       return customItem != null ? priorities.indexOf(customItem) : null;
     }
@@ -518,7 +518,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         address = output.address;
       }
 
-      if (address.isNotEmpty && !contactAddresses.contains(address)) {
+      if (address.isNotEmpty &&
+          !contactAddresses.contains(address) &&
+          selectedCryptoCurrency.raw != -1) {
         return ContactRecord(
             contactListViewModel.contactSource,
             Contact(
