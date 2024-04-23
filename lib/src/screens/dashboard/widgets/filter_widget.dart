@@ -79,12 +79,21 @@ class FilterWidget extends StatelessWidget {
 
                             if (item is DropdownFilterItem) {
                               return  Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                                child: DropdownFilterList(
-                                  items: item.items,
-                                  caption: item.caption,
-                                  selectedItem: item.selectedItem,
-                                  onItemSelected: item.onItemSelected,
+                                padding: EdgeInsets.fromLTRB(8, 0, 8, 16),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                          width: 1.0,
+                                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+                                    ),
+                                  ),
+                                  child: DropdownFilterList(
+                                    items: item.items,
+                                    caption: item.caption,
+                                    selectedItem: item.selectedItem,
+                                    onItemSelected: item.onItemSelected,
+                                  ),
                                 ),
                               );
                             }

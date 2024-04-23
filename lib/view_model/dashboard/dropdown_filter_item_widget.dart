@@ -1,7 +1,4 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
 
 class DropdownFilterList extends StatefulWidget {
@@ -40,6 +37,7 @@ class _DropdownFilterListState extends State<DropdownFilterList> {
     return DropdownButtonHideUnderline(
       child: Container(
         child: DropdownButton<String>(
+          isExpanded: true,
           icon: Container(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
