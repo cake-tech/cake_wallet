@@ -174,6 +174,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         date: date, confirmations: confirmations,
         inputAddresses: [],
         outputAddresses: [utxo.address]);
+      if (transactionHistory.transactions[utxo.outputId] == null) {
+        final addressRecord = walletAddresses.allAddresses.firstWhere(
+            (addressRecord) => addressRecord.address == utxo.address);
+        addressRecord.txCount++;
+        addressRecord.balance += utxo.value.toInt();
+      }
       transactionHistory.addOne(tx);
       queueUpdate(1);
     }
@@ -199,8 +205,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     var input = sha256.startChunkedConversion(output);
     for (final outputId in spent) {
       input.add(hex.decode(outputId));
-      amount += mwebUtxos[outputId]!.value.toInt();
-      inputAddresses.add(mwebUtxos[outputId]!.address);
+      final utxo = mwebUtxos[outputId]!;
+      final addressRecord = walletAddresses.allAddresses.firstWhere(
+          (addressRecord) => addressRecord.address == utxo.address);
+      if (!inputAddresses.contains(utxo.address))
+        addressRecord.txCount++;
+      addressRecord.balance -= utxo.value.toInt();
+      amount += utxo.value.toInt();
+      inputAddresses.add(utxo.address);
       mwebUtxos.remove(outputId);
     }
     input.close();
