@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cw_core/nano_account_info_response.dart';
+import 'package:cw_core/nano_block_info_response.dart';
 import 'package:cw_core/n2_node.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_transaction_model.dart';
@@ -94,6 +95,27 @@ class NanoClient {
       return AccountInfoResponse.fromJson(data as Map<String, dynamic>);
     } catch (e) {
       print("error while getting account info");
+      return null;
+    }
+  }
+
+  Future<BlockContentsResponse?> getBlockContents(String block) async {
+    try {
+      final response = await http.post(
+        _node!.uri,
+        headers: CAKE_HEADERS,
+        body: jsonEncode(
+          {
+            "action": "block_info",
+            "json_block": "true",
+            "hash": block,
+          },
+        ),
+      );
+      final data = await jsonDecode(response.body);
+      return BlockContentsResponse.fromJson(data["contents"] as Map<String, dynamic>);
+    } catch (e) {
+      print("error while getting block info $e");
       return null;
     }
   }
@@ -297,6 +319,35 @@ class NanoClient {
       representative = infoData.representative;
     }
 
+    if (!openBlock) {
+      // get the block info of the frontier block:
+      BlockContentsResponse? frontierContents = await getBlockContents(frontier);
+
+      if (frontierContents == null) {
+        throw Exception("error while getting frontier block info");
+      }
+
+      final String frontierHash = NanoSignatures.computeStateHash(
+        NanoBasedCurrency.NANO,
+        frontierContents.account,
+        frontierContents.previous,
+        frontierContents.representative,
+        BigInt.parse(frontierContents.balance),
+        frontierContents.link,
+      );
+
+      bool valid = await NanoSignatures.verify(
+        frontierHash,
+        frontierContents.signature,
+        destinationAddress,
+      );
+
+      if (!valid) {
+        throw Exception(
+            "Frontier block signature is invalid! Potentially malicious block detected!");
+      }
+    }
+
     // first get the account balance:
     final BigInt currentBalance = (await getBalance(destinationAddress)).currentBalance;
     final BigInt txAmount = BigInt.parse(amountRaw);
@@ -305,7 +356,8 @@ class NanoClient {
     // link = send block hash:
     final String link = blockHash;
     // this "linkAsAccount" is meaningless:
-    final String linkAsAccount = NanoDerivations.publicKeyToAddress(blockHash, currency: NanoBasedCurrency.NANO);
+    final String linkAsAccount =
+        NanoDerivations.publicKeyToAddress(blockHash, currency: NanoBasedCurrency.NANO);
 
     // construct the receive block:
     Map<String, String> receiveBlock = {

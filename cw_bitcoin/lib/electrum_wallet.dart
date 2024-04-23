@@ -1250,7 +1250,7 @@ abstract class ElectrumWalletBase
 
     if (sigDecodedBytes.length != 64 && sigDecodedBytes.length != 65) {
       throw ArgumentException(
-          "litecoin signature must be 64 bytes without recover-id or 65 bytes with recover-id");
+          "signature must be 64 bytes without recover-id or 65 bytes with recover-id");
     }
 
     String messagePrefix = '\x18Bitcoin Signed Message:\n';

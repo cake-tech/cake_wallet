@@ -432,7 +432,7 @@ abstract class NanoWalletBase
       _representativeAddress = await _client.getRepFromPrefs();
       throw Exception("Failed to get representative address $e");
     }
-    
+
     repScore = await _client.getRepScore(_representativeAddress!);
   }
 
@@ -500,7 +500,7 @@ abstract class NanoWalletBase
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    return NanoSignatures.sign(message, privateKey!);
+    return NanoSignatures.signMessage(message, privateKey!);
   }
 
   @override
@@ -508,7 +508,6 @@ abstract class NanoWalletBase
     if (address == null) {
       return false;
     }
-    String publicKey = NanoDerivations.addressToPublicKey(address);
-    return NanoSignatures.verify(message, signature, publicKey);
+    return await NanoSignatures.verifyMessage(message, signature, address);
   }
 }

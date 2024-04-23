@@ -37,7 +37,7 @@ class SignPage extends BasePage {
   @override
   Widget middle(BuildContext context) => Observer(
       builder: (_) => Text(
-            "Sign / Verify",
+            "T: Sign / Verify",
             style: TextStyle(
               fontSize: 18.0,
               fontWeight: FontWeight.bold,

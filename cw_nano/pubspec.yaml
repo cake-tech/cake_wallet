@@ -24,7 +24,7 @@ dependencies:
   nanoutil:
     git:
       url: https://github.com/perishllc/nanoutil.git
-      ref: dd63c20a3d8956bba26732a36e14fda24ccef284
+      ref: c01a9c552917008d8fbc6b540db657031625b04f
   cw_core:
     path: ../cw_core
 

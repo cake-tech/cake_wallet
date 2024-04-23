@@ -6,6 +6,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -346,6 +347,14 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       final primaryAddress = solana!.getAddress(wallet);
 
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+    }
+
+    if (wallet.type == WalletType.nano) {
+      addressList.add(WalletAddressListItem(
+        isPrimary: true,
+        name: null,
+        address: wallet.walletAddresses.address,
+      ));
     }
 
     if (searchText.isNotEmpty) {
