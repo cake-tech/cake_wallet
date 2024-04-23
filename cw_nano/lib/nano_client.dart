@@ -294,7 +294,6 @@ class NanoClient {
 
   Future<void> receiveBlock({
     required String blockHash,
-    required String source,
     required String amountRaw,
     required String destinationAddress,
     required String privateKey,
@@ -319,9 +318,15 @@ class NanoClient {
       representative = infoData.representative;
     }
 
+    if ((BigInt.tryParse(amountRaw) ?? BigInt.zero) <= BigInt.zero) {
+      throw Exception("amountRaw must be greater than zero");
+    }
+
+    BlockContentsResponse? frontierContents;
+
     if (!openBlock) {
       // get the block info of the frontier block:
-      BlockContentsResponse? frontierContents = await getBlockContents(frontier);
+      frontierContents = await getBlockContents(frontier);
 
       if (frontierContents == null) {
         throw Exception("error while getting frontier block info");
@@ -349,7 +354,12 @@ class NanoClient {
     }
 
     // first get the account balance:
-    final BigInt currentBalance = (await getBalance(destinationAddress)).currentBalance;
+    late BigInt currentBalance;
+    if (!openBlock) {
+      currentBalance = BigInt.parse(frontierContents!.balance);
+    } else {
+      currentBalance = BigInt.zero;
+    }
     final BigInt txAmount = BigInt.parse(amountRaw);
     final BigInt balanceAfterTx = currentBalance + txAmount;
 
@@ -448,10 +458,8 @@ class NanoClient {
     for (final blockHash in blocks.keys) {
       final block = blocks[blockHash];
       final String amountRaw = block["amount"] as String;
-      final String source = block["source"] as String;
       await receiveBlock(
         blockHash: blockHash,
-        source: source,
         amountRaw: amountRaw,
         privateKey: privateKey,
         destinationAddress: destinationAddress,
