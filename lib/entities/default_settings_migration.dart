@@ -33,7 +33,7 @@ const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
 const polygonDefaultNodeUri = 'polygon-bor.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
-const nanoDefaultNodeUri = 'rpc.nano.to';
+const nanoDefaultNodeUri = 'nano.nownodes.io';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'rpc.ankr.com';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
@@ -218,6 +218,10 @@ Future<void> defaultSettingsMigration(
 
         case 31:
           await updateNanoNodeList(nodes: nodes);
+          break;
+
+        case 32:
+          await changeDefaultNanoNode(nodes, sharedPreferences);
           break;
 
         default:
@@ -773,6 +777,25 @@ Future<void> changeDefaultBitcoinNode(
   if (needToReplaceCurrentBitcoinNode) {
     await sharedPreferences.setInt(
         PreferencesKey.currentBitcoinElectrumSererIdKey, newCakeWalletBitcoinNode.key as int);
+  }
+}
+
+Future<void> changeDefaultNanoNode(
+    Box<Node> nodeSource, SharedPreferences sharedPreferences) async {
+  const oldNanoNodeUriPattern = 'rpc.nano.to';
+  final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
+  final currentNanoNode = nodeSource.values.firstWhere((node) => node.key == currentNanoNodeId);
+
+  final newCakeWalletNode = Node(
+    uri: nanoDefaultNodeUri,
+    type: WalletType.nano,
+    useSSL: true,
+  );
+
+  await nodeSource.add(newCakeWalletNode);
+
+  if (currentNanoNode.uri.toString().contains(oldNanoNodeUriPattern)) {
+    await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, newCakeWalletNode.key as int);
   }
 }
 
