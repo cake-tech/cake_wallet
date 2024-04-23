@@ -93,9 +93,16 @@ class CakePayAccountPage extends BasePage {
           // ),
           SizedBox(height: 20),
           Observer(
-            builder: (_) => CakePayTile(title: S.of(context).email_address, subTitle: cakePayAccountViewModel.email),
+            builder: (_) => Container(decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                    width: 1.0,
+                    color:
+                    Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+              ),
+            ),
+                child: CakePayTile(title: S.of(context).email_address, subTitle: cakePayAccountViewModel.email)),
           ),
-          StandardListSeparator(),
         ],
       ),
       bottomSectionPadding: EdgeInsets.all(30),

@@ -365,29 +365,39 @@ class _EnterAmountWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        BaseTextFormField(
-          controller: amountController,
-          keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
-          hintText: '0.00',
-          maxLines: null,
-          prefixIcon: Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Text(
-              '$fiatCurrency: ',
-              style: textMediumSemiBold(
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+        Container(
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                  width: 1.0,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
             ),
           ),
-          textStyle:
-              textMediumSemiBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-          placeholderTextStyle: textMediumSemiBold(
-              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
-          inputFormatters: [
-            FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
-            FilteringTextInputFormatter.allow(
-              RegExp(r'^\d+(\.|\,)?\d{0,2}'),
+          child: BaseTextFormField(
+            controller: amountController,
+            keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
+            hintText: '0.00',
+            maxLines: null,
+            borderColor: Colors.transparent,
+            prefixIcon: Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(
+                '$fiatCurrency: ',
+                style: textMediumSemiBold(
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+              ),
             ),
-          ],
+            textStyle:
+                textMediumSemiBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+            placeholderTextStyle: textMediumSemiBold(
+                color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+            inputFormatters: [
+              FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
+              FilteringTextInputFormatter.allow(
+                RegExp(r'^\d+(\.|\,)?\d{0,2}'),
+              ),
+            ],
+          ),
         ),
         SizedBox(height: 4),
         Row(
