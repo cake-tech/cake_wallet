@@ -597,7 +597,6 @@ abstract class Ethereum {
     required TransactionPriority priority,
     required CryptoCurrency currency,
     int? feeRate,
-    Ledger? ledger,
   });
 
   Object createEthereumTransactionCredentialsRaw(
@@ -701,7 +700,6 @@ abstract class Polygon {
     required TransactionPriority priority,
     required CryptoCurrency currency,
     int? feeRate,
-    Ledger? ledger,
   });
 
   Object createPolygonTransactionCredentialsRaw(

@@ -27,10 +27,8 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
   }
 
   @override
-  MsgSignature signToEcSignature(Uint8List payload, {int? chainId, bool isEIP1559 = false}) {
-    // TODO: (Konsti) implement waitFor signToSignature
+  MsgSignature signToEcSignature(Uint8List payload, {int? chainId, bool isEIP1559 = false}) =>
     throw UnimplementedError("EvmLedgerCredentials.signToEcSignature");
-  }
 
   @override
   Future<MsgSignature> signToSignature(Uint8List payload,
@@ -72,9 +70,7 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
 
   @override
   Future<Uint8List> signPersonalMessage(Uint8List payload, {int? chainId}) async {
-    if (ledgerDevice == null && ledger?.devices.isNotEmpty != true) {
-      throw DeviceNotConnectedException();
-    }
+    if (isNotConnected) throw DeviceNotConnectedException();
 
     final sig = await ethereumLedgerApp!.signMessage(device, payload);
 
@@ -87,15 +83,11 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
   }
 
   @override
-  Uint8List signPersonalMessageToUint8List(Uint8List payload, {int? chainId}) {
-    // TODO: (Konsti) implement waitFor signToSignature
+  Uint8List signPersonalMessageToUint8List(Uint8List payload, {int? chainId}) =>
     throw UnimplementedError("EvmLedgerCredentials.signPersonalMessageToUint8List");
-  }
 
   Future<void> provideERC20Info(String erc20ContractAddress, int chainId) async {
-    if (ledgerDevice == null && ledger?.devices.isNotEmpty != true) {
-      throw DeviceNotConnectedException();
-    }
+    if (isNotConnected) throw DeviceNotConnectedException();
 
     try {
       await ethereumLedgerApp!.getAndProvideERC20TokenInformation(device,
@@ -104,6 +96,8 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
       if (e.errorCode != -28672) rethrow;
     }
   }
+
+  bool get isNotConnected => (ledgerDevice ?? ledger?.devices.firstOrNull) == null;
 
   LedgerDevice get device => ledgerDevice ?? ledger!.devices.first;
 }
