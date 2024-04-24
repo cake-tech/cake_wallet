@@ -21,6 +21,7 @@ import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:cw_bitcoin/litecoin_network.dart';
+import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_bitcoin/utils.dart';
@@ -156,8 +157,10 @@ abstract class ElectrumWalletBase
       syncStatus = AttemptingSyncStatus();
       await updateTransactions();
       _subscribeForUpdates();
-      await updateUnspent();
-      await updateBalance(delay: 5);
+      if (!(this is LitecoinWallet)) {
+        await updateUnspent();
+        await updateBalance();
+      }
       _feeRates = await electrumClient.feeRates(network: network);
 
       Timer.periodic(
@@ -1240,7 +1243,7 @@ abstract class ElectrumWalletBase
         confirmed: totalConfirmed, unconfirmed: totalUnconfirmed, frozen: totalFrozen);
   }
 
-  Future<void> updateBalance({int delay = 1}) async {
+  Future<void> updateBalance() async {
     balance[currency] = await fetchBalances();
     await save();
   }

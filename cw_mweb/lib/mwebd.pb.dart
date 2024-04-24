@@ -51,6 +51,7 @@ class StatusResponse extends $pb.GeneratedMessage {
     $core.int? blockHeaderHeight,
     $core.int? mwebHeaderHeight,
     $core.int? mwebUtxosHeight,
+    $core.int? blockTime,
   }) {
     final $result = create();
     if (blockHeaderHeight != null) {
@@ -62,6 +63,9 @@ class StatusResponse extends $pb.GeneratedMessage {
     if (mwebUtxosHeight != null) {
       $result.mwebUtxosHeight = mwebUtxosHeight;
     }
+    if (blockTime != null) {
+      $result.blockTime = blockTime;
+    }
     return $result;
   }
   StatusResponse._() : super();
@@ -72,6 +76,7 @@ class StatusResponse extends $pb.GeneratedMessage {
     ..a<$core.int>(1, _omitFieldNames ? '' : 'blockHeaderHeight', $pb.PbFieldType.O3)
     ..a<$core.int>(2, _omitFieldNames ? '' : 'mwebHeaderHeight', $pb.PbFieldType.O3)
     ..a<$core.int>(3, _omitFieldNames ? '' : 'mwebUtxosHeight', $pb.PbFieldType.O3)
+    ..a<$core.int>(4, _omitFieldNames ? '' : 'blockTime', $pb.PbFieldType.OU3)
     ..hasRequiredFields = false
   ;
 
@@ -122,6 +127,15 @@ class StatusResponse extends $pb.GeneratedMessage {
   $core.bool hasMwebUtxosHeight() => $_has(2);
   @$pb.TagNumber(3)
   void clearMwebUtxosHeight() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get blockTime => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set blockTime($core.int v) { $_setUnsignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasBlockTime() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearBlockTime() => clearField(4);
 }
 
 class UtxosRequest extends $pb.GeneratedMessage {
@@ -194,6 +208,7 @@ class Utxo extends $pb.GeneratedMessage {
     $fixnum.Int64? value,
     $core.String? address,
     $core.String? outputId,
+    $core.int? blockTime,
   }) {
     final $result = create();
     if (height != null) {
@@ -208,6 +223,9 @@ class Utxo extends $pb.GeneratedMessage {
     if (outputId != null) {
       $result.outputId = outputId;
     }
+    if (blockTime != null) {
+      $result.blockTime = blockTime;
+    }
     return $result;
   }
   Utxo._() : super();
@@ -219,6 +237,7 @@ class Utxo extends $pb.GeneratedMessage {
     ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'value', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
     ..aOS(3, _omitFieldNames ? '' : 'address')
     ..aOS(4, _omitFieldNames ? '' : 'outputId')
+    ..a<$core.int>(5, _omitFieldNames ? '' : 'blockTime', $pb.PbFieldType.OU3)
     ..hasRequiredFields = false
   ;
 
@@ -278,6 +297,15 @@ class Utxo extends $pb.GeneratedMessage {
   $core.bool hasOutputId() => $_has(3);
   @$pb.TagNumber(4)
   void clearOutputId() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.int get blockTime => $_getIZ(4);
+  @$pb.TagNumber(5)
+  set blockTime($core.int v) { $_setUnsignedInt32(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasBlockTime() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearBlockTime() => clearField(5);
 }
 
 class AddressRequest extends $pb.GeneratedMessage {

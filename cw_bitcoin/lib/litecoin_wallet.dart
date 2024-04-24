@@ -25,7 +25,6 @@ import 'package:cw_bitcoin/litecoin_network.dart';
 import 'package:cw_mweb/cw_mweb.dart';
 import 'package:cw_mweb/mwebd.pb.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:queue/queue.dart';
 
 part 'litecoin_wallet.g.dart';
 
@@ -149,7 +148,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final stub = await CwMweb.stub();
     final scanSecret = mwebHd.derive(0x80000000).privKey!;
     final req = UtxosRequest(scanSecret: hex.decode(scanSecret));
+    var initDone = false;
     await for (var utxo in stub.utxos(req)) {
+      if (utxo.address.isEmpty) {
+        await updateUnspent();
+        await updateBalance();
+        initDone = true;
+      }
       final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
       if (!mwebAddrs.contains(utxo.address)) continue;
       mwebUtxos[utxo.outputId] = utxo;
@@ -158,12 +163,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       var date = DateTime.now();
       var confirmations = 0;
       if (utxo.height > 0) {
-        while (true) try {
-          date = await electrumClient.getBlockTime(height: utxo.height);
-          break;
-        } catch (err) {
-          await Future.delayed(Duration(seconds: 1));
-        }
+        date = DateTime.fromMillisecondsSinceEpoch(utxo.blockTime * 1000);
         confirmations = status.blockHeaderHeight - utxo.height + 1;
       }
       final tx = ElectrumTransactionInfo(WalletType.litecoin,
@@ -179,9 +179,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             (addressRecord) => addressRecord.address == utxo.address);
         addressRecord.txCount++;
         addressRecord.balance += utxo.value.toInt();
+        addressRecord.setAsUsed();
       }
       transactionHistory.addOne(tx);
-      queueUpdate(1);
+      if (initDone) {
+        await updateUnspent();
+        await updateBalance();
+      }
     }
   }
 
@@ -197,8 +201,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (spent.isEmpty) return;
     final status = await stub.status(StatusRequest());
     final height = await electrumClient.getCurrentBlockChainTip();
-    if (height == null || status.mwebUtxosHeight != height) return;
-    final date = await electrumClient.getBlockTime(height: height);
+    if (height == null || status.blockHeaderHeight != height) return;
+    if (status.mwebUtxosHeight != height) return;
     int amount = 0;
     Set<String> inputAddresses = {};
     var output = AccumulatorSink<Digest>();
@@ -222,7 +226,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       amount: amount, fee: 0,
       direction: TransactionDirection.outgoing,
       isPending: false,
-      date: date, confirmations: 1,
+      date: DateTime.fromMillisecondsSinceEpoch(status.blockTime * 1000),
+      confirmations: 1,
       inputAddresses: inputAddresses.toList(),
       outputAddresses: []);
     transactionHistory.addOne(tx);
@@ -255,23 +260,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     });
     return ElectrumBalance(confirmed: confirmed,
         unconfirmed: unconfirmed, frozen: balance.frozen);
-  }
-
-  @override
-  Future<void> updateBalance({int delay = 1}) async {
-    queueUpdate(delay);
-  }
-
-  Timer? _debounceTimer;
-  final _debounceQueue = Queue();
-
-  void queueUpdate(int delay) {
-    if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
-    _debounceTimer = Timer(Duration(seconds: delay), () =>
-      _debounceQueue.add(() async {
-        await updateUnspent();
-        await super.updateBalance();
-      }));
   }
 
   @override
