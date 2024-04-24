@@ -1246,7 +1246,13 @@ abstract class ElectrumWalletBase
       return false;
     }
 
-    final sigDecodedBytes = hex.decode(signature);
+    List<int> sigDecodedBytes = [];
+    
+    if (signature.endsWith('=')) {
+      sigDecodedBytes = base64.decode(signature);
+    } else {
+      sigDecodedBytes = hex.decode(signature);
+    }
 
     if (sigDecodedBytes.length != 64 && sigDecodedBytes.length != 65) {
       throw ArgumentException(
