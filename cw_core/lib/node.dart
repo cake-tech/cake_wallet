@@ -6,6 +6,8 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/io_client.dart' as ioc;
+import 'package:cw_core/.secrets.g.dart' as secrets;
+
 // import 'package:tor/tor.dart';
 
 part 'node.g.dart';
@@ -200,9 +202,18 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestNanoNode() async {
+
+    var headers = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (uri.host == 'nano.nownodes.io') {
+      headers['api-key'] = secrets.nowNodesApiKey;
+    }
+
     http.Response response = await http.post(
       uri,
-      headers: {'Content-type': 'application/json'},
+      headers: headers,
       body: json.encode(
         {
           "action": "block_count",

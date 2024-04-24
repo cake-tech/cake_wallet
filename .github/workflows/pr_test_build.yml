@@ -151,7 +151,7 @@ jobs:
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const nano2ApiKey = '${{ secrets.NANO2_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
-          echo "const nowNodesNanoApiKey = '${{ secrets.NOW_NODES_NANO_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+          echo "const nowNodesApiKey = '${{ secrets.NOW_NODES_API_KEY }}';" >> cw_core/.secrets.g.dart
 
       - name: Rename app
         run: |

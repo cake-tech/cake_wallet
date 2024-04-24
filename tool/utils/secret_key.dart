@@ -40,6 +40,10 @@ class SecretKey {
     SecretKey('ankrApiKey', () => ''),
   ];
 
+  static final coreSecrets = [
+    SecretKey('nowNodesApiKey', () => ''),
+  ];
+
   static final evmChainsSecrets = [
     SecretKey('etherScanApiKey', () => ''),
     SecretKey('polygonScanApiKey', () => ''),
@@ -49,6 +53,11 @@ class SecretKey {
   static final solanaSecrets = [
     SecretKey('ankrApiKey', () => ''),
   ];
+
+  static final nanoSecrets = [
+    SecretKey('nano2ApiKey', () => ''),
+  ];
+  
 
   final String name;
   final String Function() generate;
