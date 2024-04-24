@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/routes.dart';
