@@ -584,6 +584,8 @@
   "send_your_wallet": "Ihre Wallet",
   "sending": "Senden",
   "sent": "Versendet",
+  "service_health_disabled": "Service Health Bulletin ist behindert",
+  "service_health_disabled_message": "Dies ist die Seite \"Service Health Bulletin\", können Sie diese Seite unter Einstellungen -> Privatsphäre aktivieren",
   "settings": "Einstellungen",
   "settings_all": "ALLE",
   "settings_allow_biometrical_authentication": "Biometrische Authentifizierung zulassen",

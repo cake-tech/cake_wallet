@@ -583,6 +583,8 @@
   "send_your_wallet": "你的钱包",
   "sending": "正在发送",
   "sent": "已发送",
+  "service_health_disabled": "服务健康公告被禁用",
+  "service_health_disabled_message": "这是服务健康公告页面，您可以在设置 - >隐私下启用此页面",
   "settings": "设置",
   "settings_all": "全部",
   "settings_allow_biometrical_authentication": "允许生物识别认证",
