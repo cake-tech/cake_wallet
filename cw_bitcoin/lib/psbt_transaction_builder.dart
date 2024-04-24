@@ -22,7 +22,7 @@ class PSBTTransactionBuild {
       psbt.setInputPreviousTxId(i, Uint8List.fromList(hex.decode(input.utxo.txHash).reversed.toList()));
       psbt.setInputOutputIndex(i, input.utxo.vout);
       psbt.setInputSequence(i, 0xffffffff);
-      psbt.setInputWitnessUtxo(i, bigIntToUint64LE(input.utxo.value),
+      psbt.setInputWitnessUtxo(i, Uint8List.fromList(bigIntToUint64LE(input.utxo.value)),
           Uint8List.fromList(ownerAddress.toScriptPubKey().toBytes()));
       psbt.setInputNonWitnessUtxo(i, Uint8List.fromList(hex.decode(input.rawTx)));
       psbt.setInputBip32Derivation(
