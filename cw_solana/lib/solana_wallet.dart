@@ -27,6 +27,7 @@ import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:solana/base58.dart';
 import 'package:solana/metaplex.dart' as metaplex;
 import 'package:solana/solana.dart';
 
@@ -108,7 +109,17 @@ abstract class SolanaWalletBase
   String? get seed => _mnemonic;
 
   @override
-  String get privateKey => HEX.encode(_keyPairData!.bytes);
+  String get privateKey {
+    final privateKeyBytes = _keyPairData!.bytes;
+
+    final publicKeyBytes = _keyPairData!.publicKey.bytes;
+
+    final encodedBytes = privateKeyBytes + publicKeyBytes;
+
+    final privateKey = base58encode(encodedBytes);
+
+    return privateKey;
+  }
 
   Future<void> init() async {
     final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${SPLToken.boxName}";
@@ -135,8 +146,8 @@ abstract class SolanaWalletBase
     assert(mnemonic != null || privateKey != null);
 
     if (privateKey != null) {
-      final privateKeyBytes = HEX.decode(privateKey);
-      return await Wallet.fromPrivateKeyBytes(privateKey: privateKeyBytes);
+      final privateKeyBytes = base58decode(privateKey);
+      return await Wallet.fromPrivateKeyBytes(privateKey: privateKeyBytes.take(32).toList());
     }
 
     return Wallet.fromMnemonic(mnemonic!, account: 0, change: 0);
