@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -52,7 +53,7 @@ class _DropdownFilterListState extends State<DropdownFilterList> {
               .map((item) => DropdownMenuItem<String>(
                     alignment: Alignment.bottomCenter,
                     value: item,
-                    child: Text('${widget.itemPrefix ?? ''} $item', style: widget.textStyle),
+                    child: AutoSizeText('${widget.itemPrefix ?? ''} $item', style: widget.textStyle),
                   ))
               .toList(),
           value: selectedValue,

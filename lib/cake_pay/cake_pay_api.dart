@@ -233,7 +233,7 @@ class CakePayApi {
     var response = await http.get(uri, headers: headers);
 
     if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw Exception(response.body);
     }
     final bodyJson = json.decode(response.body) as Map<String, dynamic>;
 

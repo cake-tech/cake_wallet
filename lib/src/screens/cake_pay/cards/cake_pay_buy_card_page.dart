@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -155,12 +156,14 @@ class CakePayBuyCardPage extends BasePage {
                             ),
                       Expanded(
                         flex: 5,
-                        child: Text(
-                          card.description ?? '',
-                          style: TextStyle(
-                            color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w400,
+                        child: SingleChildScrollView(
+                          child: Text(
+                            card.description ?? '',
+                            style: TextStyle(
+                              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
                         ),
                       ),
@@ -311,7 +314,7 @@ class _DenominationsAmountWidget extends StatelessWidget {
                   child: Container(
                       alignment: Alignment.bottomCenter,
                       child: Observer(
-                          builder: (_) => Text(
+                          builder: (_) => AutoSizeText(
                               '$fiatCurrency ${cakePayBuyCardViewModel.totalAmount}',
                               maxLines: 1,
                               style: textMediumSemiBold(

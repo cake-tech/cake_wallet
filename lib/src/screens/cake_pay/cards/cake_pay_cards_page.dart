@@ -1,11 +1,11 @@
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_states.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/card_menu.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
@@ -26,6 +26,7 @@ class CakePayCardsPage extends BasePage {
     _searchController.addListener(() {
       if (_searchController.text != _cardsListViewModel.searchString) {
         _searchDebounce.run(() {
+          _cardsListViewModel.page = 1;
           _cardsListViewModel.getVendors(text: _searchController.text);
         });
       }
@@ -83,6 +84,7 @@ class CakePayCardsPage extends BasePage {
       child: InkWell(
           onTap: () async {
             await showCategoryFilter(context);
+            _cardsListViewModel.page = 1;
             _cardsListViewModel.getVendors();
           },
           child: Container(
@@ -173,6 +175,13 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
               (backgroundHeight - thumbHeight))
           : 0.0;
       widget.cardsListViewModel.setScrollOffsetFromTop(scrollOffsetFromTop);
+
+      double threshold = 200.0;
+      bool isNearBottom =
+          _scrollController.offset >= _scrollController.position.maxScrollExtent - threshold;
+      if (isNearBottom && !_scrollController.position.outOfRange) {
+        widget.cardsListViewModel.fetchNextPage();
+      }
     });
     super.initState();
   }
@@ -182,6 +191,7 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
     return Observer(builder: (_) {
       final merchantState = widget.cardsListViewModel.vendorsState;
       if (merchantState is CakePayVendorLoadedState) {
+        bool isLoadingMore = widget.cardsListViewModel.isLoadingNextPage;
         return Stack(children: [
           GridView.builder(
             controller: _scrollController,
@@ -192,9 +202,12 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
               mainAxisSpacing: 10,
             ),
             padding: EdgeInsets.only(left: 2, right: 22),
-            itemCount: merchantsList.length,
+            itemCount: widget.cardsListViewModel.cakePayVendors.length + (isLoadingMore ? 1 : 0),
             itemBuilder: (_, index) {
-              final vendor = merchantsList[index];
+              if (index >= widget.cardsListViewModel.cakePayVendors.length) {
+                return _VendorLoadedIndicator();
+              }
+              final vendor = widget.cardsListViewModel.cakePayVendors[index];
               return CardItem(
                 logoUrl: vendor.card?.cardImageUrl,
                 onTap: () {
@@ -225,14 +238,21 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
               : Offstage()
         ]);
       }
-      return Center(
-        child: CircularProgressIndicator(
-          backgroundColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-          valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor),
-        ),
-      );
+      return _VendorLoadedIndicator();
     });
+  }
+}
+
+class _VendorLoadedIndicator extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: CircularProgressIndicator(
+        backgroundColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+        valueColor: AlwaysStoppedAnimation<Color>(
+            Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor),
+      ),
+    );
   }
 }
 

@@ -85,6 +85,12 @@ abstract class CakePayCardsListViewModelBase with Store {
   CakePayVendorState vendorsState;
 
   @observable
+  bool hasMoreDataToFetch = true;
+
+  @observable
+  bool isLoadingNextPage = false;
+
+  @observable
   String selectedCountry;
 
   @observable
@@ -110,20 +116,51 @@ abstract class CakePayCardsListViewModelBase with Store {
   }
 
   @action
-  Future<void> getVendors({String? text}) async {
+  Future<void> getVendors({
+    String? text,
+    int? currentPage,
+  }) async {
     vendorsState = CakePayVendorLoadingState();
     searchString = text ?? '';
-    cakePayService
-        .getVendors(
-            country: selectedCountry,
-            page: page,
-            search: searchString,
-            giftCards: displayGiftCards,
-            prepaidCards: displayPrepaidCards,
-            custom: displayCustomValueCards,
-            onDemand: displayDenominationsCards)
-        .then((value) => cakePayVendors = CakePayVendorList = value);
+    var newVendors = await cakePayService.getVendors(
+        country: selectedCountry,
+        page: currentPage ?? page,
+        search: searchString,
+        giftCards: displayGiftCards,
+        prepaidCards: displayPrepaidCards,
+        custom: displayCustomValueCards,
+        onDemand: displayDenominationsCards);
+
+    cakePayVendors = CakePayVendorList = newVendors;
+
     vendorsState = CakePayVendorLoadedState();
+  }
+
+  @action
+  Future<void> fetchNextPage() async {
+    if (vendorsState is CakePayVendorLoadingState || !hasMoreDataToFetch || isLoadingNextPage)
+      return;
+
+    isLoadingNextPage = true;
+    page++;
+    try {
+      var newVendors = await cakePayService.getVendors(
+          country: selectedCountry,
+          page: page,
+          search: searchString,
+          giftCards: displayGiftCards,
+          prepaidCards: displayPrepaidCards,
+          custom: displayCustomValueCards,
+          onDemand: displayDenominationsCards);
+
+      cakePayVendors.addAll(newVendors);
+    } catch (error) {
+      if (error.toString().contains('detail":"Invalid page."')) {
+        hasMoreDataToFetch = false;
+      }
+    } finally {
+      isLoadingNextPage = false;
+    }
   }
 
   Future<bool> isCakePayUserAuthenticated() async {
