@@ -60,7 +60,7 @@ class SecurityBackupPage extends BasePage {
                   .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
-          if (DeviceInfo.instance.isMobile || Platform.isMacOS || Platform.isLinux)
+          if (DeviceInfo.instance.isMobile)
             Observer(builder: (_) {
               return SettingsSwitcherCell(
                   title: S.current.settings_allow_biometrical_authentication,
