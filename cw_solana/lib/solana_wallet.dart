@@ -27,7 +27,6 @@ import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:solana/base58.dart';
 import 'package:solana/metaplex.dart' as metaplex;
 import 'package:solana/solana.dart';
 
@@ -448,7 +447,12 @@ abstract class SolanaWalletBase
 
   Future<SPLToken?> getSPLToken(String mintAddress) async {
     // Convert SPL token mint address to public key
-    final mintPublicKey = Ed25519HDPublicKey.fromBase58(mintAddress);
+    final Ed25519HDPublicKey mintPublicKey;
+    try {
+      mintPublicKey = Ed25519HDPublicKey.fromBase58(mintAddress);
+    } catch (_) {
+      return null;
+    }
 
     // Fetch token's metadata account
     try {
