@@ -157,7 +157,7 @@ abstract class ElectrumWalletBase
       syncStatus = AttemptingSyncStatus();
       await updateTransactions();
       _subscribeForUpdates();
-      if (!(this is LitecoinWallet)) {
+      if (this is! LitecoinWallet) {
         await updateUnspent();
         await updateBalance();
       }

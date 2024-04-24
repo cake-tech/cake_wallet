@@ -242,8 +242,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     mwebUtxos.forEach((outputId, utxo) {
       final addressRecord = walletAddresses.allAddresses.firstWhere(
           (addressRecord) => addressRecord.address == utxo.address);
-      unspentCoins.add(BitcoinUnspent(addressRecord, outputId,
-          utxo.value.toInt(), mwebAddrs.indexOf(utxo.address)));
+      final unspent = BitcoinUnspent(addressRecord, outputId,
+          utxo.value.toInt(), mwebAddrs.indexOf(utxo.address));
+      if (unspent.vout == 0) unspent.isChange = true;
+      unspentCoins.add(unspent);
     });
   }
 

@@ -62,4 +62,11 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     }
     return getAddress(index: index, hd: hd, addressType: addressType);
   }
+
+  @action
+  @override
+  Future<String> getChangeAddress() async {
+    await topUpMweb(0);
+    return mwebAddrs[0];
+  }
 }
