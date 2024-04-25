@@ -142,8 +142,10 @@ class CWEthereum extends Ethereum {
     }
 
     wallet as EthereumWallet;
-    return wallet.erc20Currencies
-        .firstWhere((element) => transaction.tokenSymbol == element.symbol);
+
+    return wallet.erc20Currencies.firstWhere(
+      (element) => transaction.tokenSymbol == element.symbol,
+    );
   }
 
   @override

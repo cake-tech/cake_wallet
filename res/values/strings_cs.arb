@@ -660,6 +660,7 @@
   "template_name": "Název šablony",
   "third_intro_content": "Yat existuje i mimo Cake Wallet. Jakákoliv adresa peněženky na světě může být nahrazena Yatem!",
   "third_intro_title": "Yat dobře spolupracuje s ostatními",
+  "thorchain_contract_address_not_supported": "Thorchain nepodporuje odeslání na adresu smlouvy",
   "thorchain_taproot_address_not_supported": "Poskytovatel Thorchain nepodporuje adresy Taproot. Změňte adresu nebo vyberte jiného poskytovatele.",
   "time": "${minutes}m ${seconds}s",
   "tip": "Spropitné:",

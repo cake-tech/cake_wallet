@@ -662,6 +662,7 @@
   "template_name": "टेम्पलेट नाम",
   "third_intro_content": "Yats Cake Wallet के बाहर भी रहता है। धरती पर किसी भी वॉलेट पते को Yat से बदला जा सकता है!",
   "third_intro_title": "Yat दूसरों के साथ अच्छा खेलता है",
+  "thorchain_contract_address_not_supported": "थोरचेन एक अनुबंध पते पर भेजने का समर्थन नहीं करता है",
   "thorchain_taproot_address_not_supported": "थोरचेन प्रदाता टैपरोट पते का समर्थन नहीं करता है। कृपया पता बदलें या एक अलग प्रदाता का चयन करें।",
   "time": "${minutes}m ${seconds}s",
   "tip": "टिप:",

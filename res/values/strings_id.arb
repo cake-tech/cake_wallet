@@ -663,6 +663,7 @@
   "template_name": "Nama Templat",
   "third_intro_content": "Yats hidup di luar Cake Wallet juga. Setiap alamat dompet di dunia dapat diganti dengan Yat!",
   "third_intro_title": "Yat bermain baik dengan yang lain",
+  "thorchain_contract_address_not_supported": "Thorchain tidak mendukung pengiriman ke alamat kontrak",
   "thorchain_taproot_address_not_supported": "Penyedia Thorchain tidak mendukung alamat Taproot. Harap ubah alamatnya atau pilih penyedia yang berbeda.",
   "time": "${minutes}m ${seconds}s",
   "tip": "Tip:",

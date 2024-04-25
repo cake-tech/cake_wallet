@@ -468,7 +468,13 @@ abstract class EVMChainWalletBase
     await token.delete();
 
     balance.remove(token);
+    await _removeTokenTransactionsInHistory(token);
     _updateBalance();
+  }
+
+  Future<void> _removeTokenTransactionsInHistory(Erc20Token token) async {
+    transactionHistory.transactions.removeWhere((key, value) => value.tokenSymbol == token.title);
+    await transactionHistory.save();
   }
 
   Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async =>
