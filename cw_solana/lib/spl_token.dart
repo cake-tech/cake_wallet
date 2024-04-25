@@ -19,7 +19,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
   @HiveField(3)
   final int decimal;
 
-  @HiveField(4, defaultValue: false)
+  @HiveField(4, defaultValue: true)
   bool _enabled;
 
   @HiveField(5)
@@ -39,7 +39,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
     required this.mint,
     this.iconPath,
     this.tag = 'SOL',
-    bool enabled = false,
+    bool enabled = true,
   })  : _enabled = enabled,
         super(
           name: mint.toLowerCase(),
