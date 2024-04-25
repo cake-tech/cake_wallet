@@ -661,6 +661,7 @@
   "template_name": "Vorlagenname",
   "third_intro_content": "Yats leben auch außerhalb von Cake Wallet. Jede Wallet-Adresse auf der Welt kann durch ein Yat ersetzt werden!",
   "third_intro_title": "Yat spielt gut mit anderen",
+  "thorchain_contract_address_not_supported": "Thorchain unterstützt das Senden an eine Vertragsadresse nicht",
   "thorchain_taproot_address_not_supported": "Der Thorchain -Anbieter unterstützt keine Taproot -Adressen. Bitte ändern Sie die Adresse oder wählen Sie einen anderen Anbieter aus.",
   "time": "${minutes}m ${seconds}s",
   "tip": "Hinweis:",

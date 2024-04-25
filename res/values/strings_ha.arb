@@ -662,6 +662,7 @@
   "template_name": "Sunan Samfura",
   "third_intro_content": "Yats suna zaune a wajen Kek Wallet, kuma. Ana iya maye gurbin kowane adireshin walat a duniya da Yat!",
   "third_intro_title": "Yat yana wasa da kyau tare da wasu",
+  "thorchain_contract_address_not_supported": "Thorchain baya goyon bayan aika zuwa adireshin kwangila",
   "thorchain_taproot_address_not_supported": "Mai ba da tallafi na ThorChain baya goyan bayan adreshin taproot. Da fatan za a canza adireshin ko zaɓi mai bayarwa daban.",
   "time": "${minutes}m ${seconds}s",
   "tip": "Tukwici:",
