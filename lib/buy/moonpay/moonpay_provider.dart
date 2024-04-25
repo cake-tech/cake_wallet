@@ -14,7 +14,6 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/device_info.dart';
-import 'package:crypto/crypto.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -30,7 +29,7 @@ class MoonPayProvider extends BuyProvider {
   })  : baseSellUrl = isTestEnvironment ? _baseSellTestUrl : _baseSellProductUrl,
         baseBuyUrl = isTestEnvironment ? _baseBuyTestUrl : _baseBuyProductUrl,
         this._settingsStore = settingsStore,
-        super(wallet: wallet, isTestEnvironment: isTestEnvironment);
+        super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: null);
 
   final SettingsStore _settingsStore;
 
