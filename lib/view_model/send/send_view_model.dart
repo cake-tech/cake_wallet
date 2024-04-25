@@ -16,7 +16,6 @@ import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/exceptions.dart';
-import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
@@ -337,10 +336,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (provider is ThorChainExchangeProvider) {
         final outputCount = pendingTransaction?.outputCount ?? 0;
         if (outputCount > 10) {
-          throw Exception("ThorChain does not support more than 10 outputs");
+          throw Exception("THORChain does not support more than 10 outputs");
         }
+
         if (_hasTaprootInput(pendingTransaction)) {
-          throw Exception("ThorChain does not support Taproot addresses");
+          throw Exception("THORChain does not support Taproot addresses");
         }
       }
       state = ExecutedSuccessfullyState();
@@ -426,7 +426,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void setTransactionPriority(TransactionPriority priority) =>
       _settingsStore.priority[wallet.type] = priority;
 
-  Object _credentials([Ledger? ledger]) {
+  Object _credentials() {
     final priority = _settingsStore.priority[wallet.type];
 
     if (priority == null && wallet.type != WalletType.nano && wallet.type != WalletType.solana) {
@@ -450,12 +450,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       case WalletType.ethereum:
         return ethereum!.createEthereumTransactionCredentials(outputs,
-            priority: priority!, currency: selectedCryptoCurrency, ledger: ledger);
+            priority: priority!, currency: selectedCryptoCurrency);
       case WalletType.nano:
         return nano!.createNanoTransactionCredentials(outputs);
       case WalletType.polygon:
         return polygon!.createPolygonTransactionCredentials(outputs,
-            priority: priority!, currency: selectedCryptoCurrency, ledger: ledger);
+            priority: priority!, currency: selectedCryptoCurrency);
       case WalletType.solana:
         return solana!
             .createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);

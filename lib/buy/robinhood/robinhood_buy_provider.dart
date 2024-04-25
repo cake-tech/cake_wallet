@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
@@ -16,8 +15,8 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class RobinhoodBuyProvider extends BuyProvider {
-  RobinhoodBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
-      : super(wallet: wallet, isTestEnvironment: isTestEnvironment);
+  RobinhoodBuyProvider({required WalletBase wallet, bool isTestEnvironment = false, LedgerViewModel? ledgerVM})
+      : super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: ledgerVM);
 
   static const _baseUrl = 'applink.robinhood.com';
   static const _cIdBaseUrl = 'exchange-helper.cakewallet.com';
@@ -89,7 +88,7 @@ class RobinhoodBuyProvider extends BuyProvider {
 
   Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
     if (wallet.isHardwareWallet) {
-      if (!getIt.get<LedgerViewModel>().isConnected) {
+      if (!ledgerVM!.isConnected) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
                 walletType: wallet.walletInfo.type,
@@ -98,7 +97,7 @@ class RobinhoodBuyProvider extends BuyProvider {
                   Navigator.of(context).pop();
                 }));
       } else {
-        getIt.get<LedgerViewModel>().setLedger(wallet);
+        ledgerVM!.setLedger(wallet);
       }
     }
 

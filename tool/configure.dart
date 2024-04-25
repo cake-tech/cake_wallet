@@ -607,7 +607,6 @@ abstract class Ethereum {
     required TransactionPriority priority,
     required CryptoCurrency currency,
     int? feeRate,
-    Ledger? ledger,
   });
 
   Object createEthereumTransactionCredentialsRaw(
@@ -711,7 +710,6 @@ abstract class Polygon {
     required TransactionPriority priority,
     required CryptoCurrency currency,
     int? feeRate,
-    Ledger? ledger,
   });
 
   Object createPolygonTransactionCredentialsRaw(
@@ -1089,7 +1087,8 @@ Future<void> generatePubspec(
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
-  final dependenciesIndex = inputLines.indexWhere((line) => line.toLowerCase().contains('dependencies:'));
+  final dependenciesIndex =
+      inputLines.indexWhere((line) => line.toLowerCase().contains('dependencies:'));
   var output = cwCore;
 
   if (hasMonero) {

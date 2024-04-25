@@ -89,7 +89,6 @@ abstract class EVMChainClient {
     required CryptoCurrency currency,
     required int exponent,
     String? contractAddress,
-    bool isHardwareWallet = false,
     String? data,
   }) async {
     assert(currency == CryptoCurrency.eth ||
@@ -234,14 +233,17 @@ abstract class EVMChainClient {
 
       final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
 
+
+      final symbol = (decodedResponse['symbol'] ?? '') as String;
+      String filteredSymbol = symbol.replaceFirst(RegExp('^\\\$'), '');
+
       final name = decodedResponse['name'] ?? '';
-      final symbol = decodedResponse['symbol'] ?? '';
       final decimal = decodedResponse['decimals'] ?? '0';
       final iconPath = decodedResponse['logo'] ?? '';
 
       return Erc20Token(
         name: name,
-        symbol: symbol,
+        symbol: filteredSymbol,
         contractAddress: contractAddress,
         decimal: int.tryParse(decimal) ?? 0,
         iconPath: iconPath,
