@@ -18,7 +18,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         super(pairList: supportedPairs(_notSupported));
 
   bool useTorOnly;
-  final Map<String, bool> providerStates;
+  Map<String, bool> providerStates;
   
   static const List<CryptoCurrency> _notSupported = [
     CryptoCurrency.stx,

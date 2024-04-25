@@ -1452,19 +1452,19 @@ abstract class SettingsStoreBase with Store {
 
     trocadorProviderStates.addAll(newStates);
 
-    saveMapToString(PreferencesKey.trocadorProviderStatesKey, trocadorProviderStates);
+    await saveMapToString(PreferencesKey.trocadorProviderStatesKey, trocadorProviderStates);
   }
 
   @action
-  void setTrocadorProviderState(String providerName, bool state) {
+  Future<void> setTrocadorProviderState(String providerName, bool state) async {
     trocadorProviderStates[providerName] = state;
-    saveMapToString(PreferencesKey.trocadorProviderStatesKey, trocadorProviderStates);
+    await saveMapToString(PreferencesKey.trocadorProviderStatesKey, trocadorProviderStates);
   }
 
-  void saveMapToString(String key, Map<String, bool> map) {
+  Future<void> saveMapToString(String key, Map<String, bool> map) async {
     Map<String, bool> regularMap = Map<String, bool>.from(map);
     String serializedData = json.encode(regularMap);
-    _sharedPreferences.setString(key, serializedData);
+    await _sharedPreferences.setString(key, serializedData);
   }
 
   static Future<String?> _getDeviceName() async {
