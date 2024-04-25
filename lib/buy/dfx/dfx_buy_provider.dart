@@ -23,7 +23,7 @@ class DFXBuyProvider extends BuyProvider {
   static const walletName = 'CakeWallet';
 
   @override
-  String get title => 'DFX Connect';
+  String get title => 'DFX.swiss';
 
   @override
   String get providerDescription => S.current.dfx_option_description;
@@ -198,7 +198,7 @@ class DFXBuyProvider extends BuyProvider {
           context: context,
           builder: (BuildContext context) {
             return AlertWithOneAction(
-                alertTitle: "DFX Connect",
+                alertTitle: "DFX.swiss",
                 alertContent: S.of(context).buy_provider_unavailable + ': $e',
                 buttonText: S.of(context).ok,
                 buttonAction: () => Navigator.of(context).pop());
