@@ -61,7 +61,8 @@ abstract class ElectrumWalletBase
       CryptoCurrency? currency})
       : hd = currency == CryptoCurrency.bch
             ? bitcoinCashHDWallet(seedBytes)
-            : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/0"),
+            : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
+                .derivePath(walletInfo.derivationInfo?.derivationPath ?? "m/0'/0"),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
@@ -592,6 +593,8 @@ abstract class ElectrumWalletBase
             ? SegwitAddresType.p2wpkh.toString()
             : walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON(),
+        'derivationTypeIndex': walletInfo.derivationInfo?.derivationType?.index,
+        'derivationPath': walletInfo.derivationInfo?.derivationPath,
       });
 
   int feeRate(TransactionPriority priority) {

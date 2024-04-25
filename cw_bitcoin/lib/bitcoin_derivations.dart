@@ -1,11 +1,11 @@
 import 'package:cw_core/wallet_info.dart';
 
 Map<DerivationType, List<DerivationInfo>> bitcoin_derivations = {
-  DerivationType.electrum2: [
+  DerivationType.electrum: [
     DerivationInfo(
-      derivationType: DerivationType.bip39,
-      derivationPath: "m/0'/1",
-      description: "Electrum 2",
+      derivationType: DerivationType.electrum,
+      derivationPath: "m/0'/0",
+      description: "Electrum",
       script_type: "p2wpkh",
     ),
   ],

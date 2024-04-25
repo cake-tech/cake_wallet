@@ -260,10 +260,10 @@ class CWBitcoin extends Bitcoin {
   Future<List<DerivationType>> compareDerivationMethods(
       {required String mnemonic, required Node node}) async {
     if (await checkIfMnemonicIsElectrum2(mnemonic)) {
-      return [DerivationType.electrum2];
+      return [DerivationType.electrum];
     }
 
-    return [DerivationType.bip39, DerivationType.electrum2];
+    return [DerivationType.bip39, DerivationType.electrum];
   }
 
   int _countOccurrences(String str, String charToCount) {
@@ -286,7 +286,7 @@ class CWBitcoin extends Bitcoin {
 
     for (DerivationType dType in bitcoin_derivations.keys) {
       late Uint8List seedBytes;
-      if (dType == DerivationType.electrum2) {
+      if (dType == DerivationType.electrum) {
         seedBytes = await mnemonicToSeedBytes(mnemonic);
       } else if (dType == DerivationType.bip39) {
         seedBytes = bip39.mnemonicToSeed(mnemonic);
@@ -300,7 +300,7 @@ class CWBitcoin extends Bitcoin {
             description: dInfo.description,
             script_type: dInfo.script_type,
           );
-          var node = bip32.BIP32.fromSeed(seedBytes);
+          var hd = bip32.BIP32.fromSeed(seedBytes);
 
           String derivationPath = dInfoCopy.derivationPath!;
           int derivationDepth = _countOccurrences(derivationPath, "/");
@@ -308,29 +308,67 @@ class CWBitcoin extends Bitcoin {
             derivationPath += "/0/0";
             dInfoCopy.derivationPath = dInfoCopy.derivationPath! + "/0";
           }
-          node = node.derivePath(derivationPath);
+          hd = hd.derivePath(derivationPath);
+
+          // var hd = btc.HDWallet.fromSeed(
+          //   seedBytes,
+          //   network: node.type == WalletType.bitcoin ? btc.bitcoin : litecoinNetwork,
+          // ).derivePath(dInfoCopy.derivationPath!);
+
+          // if (addressType == P2pkhAddressType.p2pkh)
+          //   return generateP2PKHAddress(hd: hd, index: index, network: network);
+          //
+          // if (addressType == SegwitAddresType.p2tr)
+          //   return generateP2TRAddress(hd: hd, index: index, network: network);
+          //
+          // if (addressType == SegwitAddresType.p2wsh)
+          //   return generateP2WSHAddress(hd: hd, index: index, network: network);
+          //
+          // if (addressType == P2shAddressType.p2wpkhInP2sh)
+          //   return generateP2SHAddress(hd: hd, index: index, network: network);
 
           String? address;
           switch (dInfoCopy.script_type) {
             case "p2wpkh":
+              // address = generateP2WPKHAddress(
+              //     hd: hd,
+              //     index: 0,
+              //     network: node.type == WalletType.bitcoin
+              //         ? BitcoinNetwork.mainnet
+              //         : LitecoinNetwork.mainnet);
               address = btc
                   .P2WPKH(
-                    data: new btc.PaymentData(pubkey: node.publicKey),
+                    data: new btc.PaymentData(pubkey: hd.publicKey),
                     network: btc.bitcoin,
                   )
                   .data
                   .address;
               break;
             case "p2pkh":
-            default:
+              // address = generateP2PKHAddress(
+              //     hd: hd,
+              //     index: 0,
+              //     network: node.type == WalletType.bitcoin
+              //         ? BitcoinNetwork.mainnet
+              //         : LitecoinNetwork.mainnet);
               address = btc
                   .P2PKH(
-                    data: new btc.PaymentData(pubkey: node.publicKey),
-                    network: btc.bitcoin,
-                  )
+                data: new btc.PaymentData(pubkey: hd.publicKey),
+                network: btc.bitcoin,
+              )
                   .data
                   .address;
               break;
+            // case "p2wpkh-p2sh":
+            //   address = generateP2SHAddress(
+            //       hd: hd,
+            //       index: 0,
+            //       network: node.type == WalletType.bitcoin
+            //           ? BitcoinNetwork.mainnet
+            //           : LitecoinNetwork.mainnet);
+            //   break;
+            default:
+              continue;
           }
 
           final sh = scriptHash(address!, network: BitcoinNetwork.mainnet);
@@ -339,7 +377,7 @@ class CWBitcoin extends Bitcoin {
           final balance = await electrumClient.getBalance(sh);
           dInfoCopy.balance = balance.entries.first.value.toString();
           dInfoCopy.address = address;
-          dInfoCopy.height = history.length;
+          dInfoCopy.transactionsCount = history.length;
 
           list.add(dInfoCopy);
         } catch (e) {
@@ -349,7 +387,7 @@ class CWBitcoin extends Bitcoin {
     }
 
     // sort the list such that derivations with the most transactions are first:
-    list.sort((a, b) => b.height.compareTo(a.height));
+    list.sort((a, b) => b.transactionsCount.compareTo(a.transactionsCount));
 
     return list;
   }

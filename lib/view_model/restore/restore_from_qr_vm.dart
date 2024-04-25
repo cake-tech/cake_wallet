@@ -101,7 +101,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
               name: name,
               mnemonic: restoreWallet.mnemonicSeed ?? '',
               password: password,
-              derivationType: derivationInfo.derivationType!,
+              derivationType: derivationInfo!.derivationType!,
               derivationPath: derivationInfo.derivationPath!,
             );
           case WalletType.bitcoinCash:
@@ -115,7 +115,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
                 name: name,
                 mnemonic: restoreWallet.mnemonicSeed ?? '',
                 password: password,
-                derivationType: derivationInfo.derivationType!);
+                derivationType: derivationInfo!.derivationType!);
           case WalletType.polygon:
             return polygon!.createPolygonRestoreWalletFromSeedCredentials(
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);

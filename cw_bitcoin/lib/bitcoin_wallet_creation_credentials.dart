@@ -10,10 +10,6 @@ class BitcoinNewWalletCredentials extends WalletCredentials {
       : super(
           name: name,
           walletInfo: walletInfo,
-          derivationInfo: DerivationInfo(
-            derivationType: derivationType,
-            derivationPath: derivationPath,
-          ),
         );
 }
 

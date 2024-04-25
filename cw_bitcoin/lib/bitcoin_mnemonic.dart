@@ -65,8 +65,7 @@ String bufferToBin(Uint8List data) {
   return q2;
 }
 
-String encode(Uint8List originalData) {
-  final data = Uint8List.fromList(originalData); // Create a modifiable copy
+String encode(Uint8List data) {
   final dataBitLen = data.length * 8;
   final wordBitLen = logBase(wordlist.length, 2).ceil();
   final wordCount = (dataBitLen / wordBitLen).floor();
@@ -98,9 +97,10 @@ Future<String> generateElectrumMnemonic({int strength = 264, String prefix = seg
   var result = '';
 
   do {
-    final originalBytes = await secRandom(byteCount);
-    // create a modifiable copy, however I'm not sure why this is necessary
-    final bytes = Uint8List.fromList(originalBytes);
+    // final originalBytes = await secRandom(byteCount);
+    // // create a modifiable copy, however I'm not sure why this is necessary
+    // final bytes = Uint8List.fromList(originalBytes);
+    final bytes = await secRandom(byteCount);
     maskBytes(bytes, strength);
     result = encode(bytes);
   } while (!prefixMatches(result, [prefix]).first);

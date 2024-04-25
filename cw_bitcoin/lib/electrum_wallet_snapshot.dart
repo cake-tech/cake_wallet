@@ -51,8 +51,9 @@ class ElectrumWalletSnapshot {
     var regularAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
     var changeAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
 
-    final derivationType = data['derivationType'] as DerivationType? ?? DerivationType.bip39;
-    final derivationPath = data['derivationPath'] as String? ?? "m/0'/1";
+    final derivationType =
+        DerivationType.values[(data['derivationTypeIndex'] as int?) ?? DerivationType.electrum.index];
+    final derivationPath = data['derivationPath'] as String? ?? "m/0'/0";
 
     try {
       regularAddressIndexByType = {

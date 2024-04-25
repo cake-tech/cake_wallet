@@ -767,7 +767,7 @@ Future<void> updateBtcNanoWalletInfos(Box<WalletInfo> walletsInfoSource) async {
         derivationPath: walletInfo.derivationPath,
         derivationType: walletInfo.derivationType,
         address: walletInfo.address,
-        height: walletInfo.restoreHeight,
+        transactionsCount: walletInfo.restoreHeight,
       );
       await walletInfo.save();
     }

@@ -101,7 +101,7 @@ class WalletRestoreChooseDerivationPage extends BasePage {
                                 ),
                           ),
                           Text(
-                            "${S.current.transactions}: ${derivation.height}",
+                            "${S.current.transactions}: ${derivation.transactionsCount}",
                             style: Theme.of(context).primaryTextTheme.labelMedium!.copyWith(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,

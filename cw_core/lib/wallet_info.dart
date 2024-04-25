@@ -17,9 +17,7 @@ enum DerivationType {
   @HiveField(3)
   bip39,
   @HiveField(4)
-  electrum1,
-  @HiveField(5)
-  electrum2,
+  electrum,
 }
 @HiveType(typeId: DerivationInfo.typeId)
 class DerivationInfo extends HiveObject {
@@ -28,7 +26,7 @@ class DerivationInfo extends HiveObject {
     this.derivationPath,
     this.balance = "",
     this.address = "",
-    this.height = 0,
+    this.transactionsCount = 0,
     this.script_type,
     this.description,
   });
@@ -37,7 +35,7 @@ class DerivationInfo extends HiveObject {
 
   String balance;
   String address;
-  int height;
+  int transactionsCount;
   DerivationType? derivationType;
   String? derivationPath;
   final String? script_type;

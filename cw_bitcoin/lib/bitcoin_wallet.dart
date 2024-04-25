@@ -89,7 +89,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       case DerivationType.bip39:
         seedBytes = await bip39.mnemonicToSeed(mnemonic);
         break;
-      case DerivationType.electrum2:
+      case DerivationType.electrum:
       default:
         seedBytes = await mnemonicToSeedBytes(mnemonic);
         break;
@@ -121,7 +121,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password, network);
 
     walletInfo.derivationInfo ??= DerivationInfo(
-      derivationType: snp.derivationType ?? DerivationType.electrum2,
+      derivationType: snp.derivationType ?? DerivationType.electrum,
       derivationPath: snp.derivationPath,
     );
 
@@ -131,7 +131,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     late Uint8List seedBytes;
 
     switch (walletInfo.derivationInfo!.derivationType) {
-      case DerivationType.electrum2:
+      case DerivationType.electrum:
         seedBytes = await mnemonicToSeedBytes(snp.mnemonic);
         break;
       case DerivationType.bip39:

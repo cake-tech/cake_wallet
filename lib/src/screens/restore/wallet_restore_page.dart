@@ -360,7 +360,7 @@ class WalletRestorePage extends BasePage {
       int derivationsWithHistory = 0;
       int derivationWithHistoryIndex = 0;
       for (int i = 0; i < derivations.length; i++) {
-        if (derivations[i].height > 0) {
+        if (derivations[i].transactionsCount > 0) {
           derivationsWithHistory++;
           derivationWithHistoryIndex = i;
         }

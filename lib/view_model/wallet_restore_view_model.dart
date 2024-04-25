@@ -204,6 +204,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
     switch (walletType) {
       case WalletType.bitcoin:
+      case WalletType.litecoin:
         String? mnemonic = credentials['seed'] as String?;
         return bitcoin!.getDerivationsFromMnemonic(mnemonic: mnemonic!, node: node);
       case WalletType.nano:
@@ -226,7 +227,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             derivationType: DerivationType.nano,
             balance: nanoUtil!.getRawAsUsableString(standardInfo!.balance, nanoUtil!.rawPerNano),
             address: standardInfo.address!,
-            height: standardInfo.confirmationHeight,
+            transactionsCount: standardInfo.confirmationHeight,
           ));
         }
 
@@ -235,7 +236,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             derivationType: DerivationType.bip39,
             balance: nanoUtil!.getRawAsUsableString(bip39Info!.balance, nanoUtil!.rawPerNano),
             address: bip39Info.address!,
-            height: bip39Info.confirmationHeight,
+            transactionsCount: bip39Info.confirmationHeight,
           ));
         }
         break;
@@ -254,6 +255,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
     switch (type) {
       case WalletType.bitcoin:
+      case WalletType.litecoin:
         return bitcoin!.compareDerivationMethods(mnemonic: mnemonic!, node: node);
       case WalletType.nano:
         return nanoUtil!.compareDerivationMethods(
