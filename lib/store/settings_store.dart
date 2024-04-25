@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
@@ -434,7 +435,7 @@ abstract class SettingsStoreBase with Store {
     // secure storage keys:
     reaction(
         (_) => allowBiometricalAuthentication,
-        (bool biometricalAuthentication) => secureStorage.write(
+        (bool biometricalAuthentication) => writeSecureStorage(secureStorage,
             key: SecureKey.allowBiometricalAuthenticationKey,
             value: biometricalAuthentication.toString()));
 
