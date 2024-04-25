@@ -291,6 +291,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       String? memo,
       required int feeRate}) async {
 
+    final spendsMweb = utxos.any((utxo) => utxo.utxo.scriptType == SegwitAddresType.mweb);
+    final paysToMweb = outputs.any((output) =>
+        output.toOutput.scriptPubKey.getAddressType() == SegwitAddresType.mweb);
+    if (!spendsMweb && !paysToMweb) {
+      return await super.calcFee(utxos: utxos, outputs: outputs,
+          network: network, memo: memo, feeRate: feeRate);
+    }
     final txb = BitcoinTransactionBuilder(utxos: utxos,
         outputs: outputs, fee: BigInt.zero, network: network);
     final scanSecret = mwebHd.derive(0x80000000).privKey!;

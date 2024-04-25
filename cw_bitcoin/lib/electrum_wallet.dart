@@ -1250,6 +1250,7 @@ abstract class ElectrumWalletBase
       totalConfirmed += confirmed;
       totalUnconfirmed += unconfirmed;
 
+      addressRecord.balance = confirmed + unconfirmed;
       if (confirmed > 0 || unconfirmed > 0) {
         addressRecord.setAsUsed();
       }
