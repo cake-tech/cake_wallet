@@ -17,9 +17,8 @@ class DFXBuyProvider extends BuyProvider {
       : super(wallet: wallet, isTestEnvironment: isTestEnvironment);
 
   static const _baseUrl = 'api.dfx.swiss';
-  static const _authPath = '/v1/auth/signMessage';
-  static const _signUpPath = '/v1/auth/signUp';
-  static const _signInPath = '/v1/auth/signIn';
+  // static const _signMessagePath = '/v1/auth/signMessage';
+  static const _authPath = '/v1/auth';
   static const walletName = 'CakeWallet';
 
   @override
@@ -73,21 +72,25 @@ class DFXBuyProvider extends BuyProvider {
   String get walletAddress =>
       wallet.walletAddresses.primaryAddress ?? wallet.walletAddresses.address;
 
-  Future<String> getSignMessage() async {
-    final uri = Uri.https(_baseUrl, _authPath, {'address': walletAddress});
+  Future<String> getSignMessage() async =>
+      "By_signing_this_message,_you_confirm_that_you_are_the_sole_owner_of_the_provided_Blockchain_address._Your_ID:_$walletAddress";
 
-    var response = await http.get(uri, headers: {'accept': 'application/json'});
+  // // Lets keep this just in case, but we can avoid this API Call
+  // Future<String> getSignMessage() async {
+  //  final uri = Uri.https(_baseUrl, _signMessagePath, {'address': walletAddress});
+  //
+  //  final response = await http.get(uri, headers: {'accept': 'application/json'});
+  //
+  //  if (response.statusCode == 200) {
+  //    final responseBody = jsonDecode(response.body);
+  //    return responseBody['message'] as String;
+  //  } else {
+  //    throw Exception(
+  //      'Failed to get sign message. Status: ${response.statusCode} ${response.body}');
+  //  }
+  // }
 
-    if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body);
-      return responseBody['message'] as String;
-    } else {
-      throw Exception(
-          'Failed to get sign message. Status: ${response.statusCode} ${response.body}');
-    }
-  }
-
-  Future<String> signUp() async {
+  Future<String> auth() async {
     final signMessage = getSignature(await getSignMessage());
 
     final requestBody = jsonEncode({
@@ -96,7 +99,7 @@ class DFXBuyProvider extends BuyProvider {
       'signature': signMessage,
     });
 
-    final uri = Uri.https(_baseUrl, _signUpPath);
+    final uri = Uri.https(_baseUrl, _authPath);
     var response = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
@@ -112,33 +115,6 @@ class DFXBuyProvider extends BuyProvider {
       throw Exception(message);
     } else {
       throw Exception('Failed to sign up. Status: ${response.statusCode} ${response.body}');
-    }
-  }
-
-  Future<String> signIn() async {
-    final signMessage = getSignature(await getSignMessage());
-
-    final requestBody = jsonEncode({
-      'address': walletAddress,
-      'signature': signMessage,
-    });
-
-    final uri = Uri.https(_baseUrl, _signInPath);
-    var response = await http.post(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-      body: requestBody,
-    );
-
-    if (response.statusCode == 201) {
-      final responseBody = jsonDecode(response.body);
-      return responseBody['accessToken'] as String;
-    } else if (response.statusCode == 403) {
-      final responseBody = jsonDecode(response.body);
-      final message = responseBody['message'] ?? 'Service unavailable in your country';
-      throw Exception(message);
-    } else {
-      throw Exception('Failed to sign in. Status: ${response.statusCode} ${response.body}');
     }
   }
 
@@ -164,17 +140,7 @@ class DFXBuyProvider extends BuyProvider {
       final blockchain = this.blockchain;
       final actionType = isBuyAction == true ? '/buy' : '/sell';
 
-      String accessToken;
-
-      try {
-        accessToken = await signUp();
-      } on Exception catch (e) {
-        if (e.toString().contains('409')) {
-          accessToken = await signIn();
-        } else {
-          rethrow;
-        }
-      }
+      final accessToken = await auth();
 
       final uri = Uri.https('services.dfx.swiss', actionType, {
         'session': accessToken,
