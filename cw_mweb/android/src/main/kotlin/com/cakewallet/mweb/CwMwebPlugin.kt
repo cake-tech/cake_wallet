@@ -9,6 +9,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
 import mwebd.Mwebd
+import mwebd.Server
 
 /** CwMwebPlugin */
 class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
@@ -17,6 +18,7 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
+  private var server: Server? = null
   private var port: Long? = null
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -27,7 +29,8 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
     if (call.method == "start") {
       val dataDir = call.argument("dataDir") ?: ""
-      port = port ?: Mwebd.newServer("", dataDir, "").start(0)
+      server = server ?: Mwebd.newServer("", dataDir, "")
+      port = port ?: server?.start(0)
       result.success(port)
     } else {
       result.notImplemented()
@@ -36,5 +39,6 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
     channel.setMethodCallHandler(null)
+    server?.stop()
   }
 }
