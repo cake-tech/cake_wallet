@@ -15,6 +15,7 @@ class StandardPickerList<T> extends StatefulWidget {
     required this.selectedIdx,
     required this.customItemIndex,
     required this.customValue,
+    this.maxValue,
   }) : super(key: key);
 
   final String title;
@@ -26,6 +27,7 @@ class StandardPickerList<T> extends StatefulWidget {
   final String value;
   final int selectedIdx;
   final double customValue;
+  final double? maxValue;
 
   @override
   _StandardPickerListState<T> createState() => _StandardPickerListState<T>();
@@ -59,6 +61,7 @@ class _StandardPickerListState<T> extends State<StandardPickerList<T>> {
             displayItem: adaptedDisplayItem,
             selectedAtIndex: selectedIdx,
             customItemIndex: widget.customItemIndex,
+            maxValue: widget.maxValue,
             headerEnabled: false,
             closeOnItemSelected: false,
             mainAxisAlignment: MainAxisAlignment.center,
