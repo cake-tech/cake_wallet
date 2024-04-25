@@ -7,11 +7,12 @@ part 'trocador_providers_view_model.g.dart';
 class TrocadorProvidersViewModel = TrocadorProvidersViewModelBase with _$TrocadorProvidersViewModel;
 
 abstract class TrocadorProvidersViewModelBase with Store {
-  TrocadorProvidersViewModelBase(this._settingsStore) {
+  TrocadorProvidersViewModelBase(this._settingsStore, this.trocadorExchangeProvider) {
     fetchTrocadorPartners();
   }
 
   final SettingsStore _settingsStore;
+  final TrocadorExchangeProvider trocadorExchangeProvider;
 
   @observable
   ObservableFuture<Map<String, bool>>? fetchProvidersFuture;
@@ -22,7 +23,7 @@ abstract class TrocadorProvidersViewModelBase with Store {
   @action
   Future<void> fetchTrocadorPartners() async {
     fetchProvidersFuture =
-        ObservableFuture(TrocadorExchangeProvider().fetchProviders().then((providers) {
+        ObservableFuture(trocadorExchangeProvider.fetchProviders().then((providers) {
       var providerNames = providers.map((e) => e.name).toList();
       return _settingsStore
           .updateAllTrocadorProviderStates(providerNames)
