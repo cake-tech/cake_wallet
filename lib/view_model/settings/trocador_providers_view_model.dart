@@ -7,12 +7,28 @@ part 'trocador_providers_view_model.g.dart';
 class TrocadorProvidersViewModel = TrocadorProvidersViewModelBase with _$TrocadorProvidersViewModel;
 
 abstract class TrocadorProvidersViewModelBase with Store {
-  TrocadorProvidersViewModelBase(this._settingsStore);
+  TrocadorProvidersViewModelBase(this._settingsStore) {
+    fetchTrocadorPartners();
+  }
 
   final SettingsStore _settingsStore;
 
-  Future<List<TrocadorPartners>> fetchTrocadorPartners() async =>
-      await TrocadorExchangeProvider().fetchProviders();
+  @observable
+  ObservableFuture<Map<String, bool>>? fetchProvidersFuture;
+
+  @computed
+  bool get isLoading => fetchProvidersFuture?.status == FutureStatus.pending;
+
+  @action
+  Future<void> fetchTrocadorPartners() async {
+    fetchProvidersFuture =
+        ObservableFuture(TrocadorExchangeProvider().fetchProviders().then((providers) {
+      var providerNames = providers.map((e) => e.name).toList();
+      return _settingsStore
+          .updateAllTrocadorProviderStates(providerNames)
+          .then((_) => _settingsStore.trocadorProviderStates);
+    }));
+  }
 
   @computed
   Map<String, bool> get providerStates => _settingsStore.trocadorProviderStates;
@@ -20,6 +36,6 @@ abstract class TrocadorProvidersViewModelBase with Store {
   @action
   void toggleProviderState(String providerName) {
     final currentState = providerStates[providerName] ?? false;
-    _settingsStore.saveTrocadorProviderState(providerName, !currentState);
+    _settingsStore.setTrocadorProviderState(providerName, !currentState);
   }
 }

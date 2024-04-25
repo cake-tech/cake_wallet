@@ -328,10 +328,10 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
 class TrocadorPartners {
   final String name;
-  final String rating;
-  final double insurance;
-  final bool enabledMarkup;
-  final double eta;
+  final String? rating;
+  final double? insurance;
+  final bool? enabledMarkup;
+  final double? eta;
 
   TrocadorPartners({
     required this.name,
@@ -343,11 +343,11 @@ class TrocadorPartners {
 
   factory TrocadorPartners.fromJson(Map<String, dynamic> json) {
     return TrocadorPartners(
-      name: json['name'] as String,
-      rating: json['rating'] as String,
-      insurance: json['insurance'] as double,
-      enabledMarkup: json['enabledmarkup'] as bool,
-      eta: json['eta'] as double,
+      name: json['name'] as String? ?? '',
+      rating: json['rating'] as String?,
+      insurance: json['insurance'] as double?,
+      enabledMarkup: json['enabledmarkup'] as bool?,
+      eta: json['eta'] as double?,
     );
   }
 }
