@@ -660,6 +660,7 @@
   "template_name": "Pangalan ng Template",
   "third_intro_content": "Ang mga yats ay nakatira sa labas ng cake wallet, din. Ang anumang address ng pitaka sa mundo ay maaaring mapalitan ng isang yat!",
   "third_intro_title": "Si Yat ay mahusay na gumaganap sa iba",
+  "thorchain_contract_address_not_supported": "Hindi sinusuportahan ng Thorchain ang pagpapadala sa isang address ng kontrata",
   "thorchain_taproot_address_not_supported": "Ang Tagabigay ng Thorchain ay hindi sumusuporta sa mga address ng taproot. Mangyaring baguhin ang address o pumili ng ibang provider.",
   "time": "${minutes} m ${seconds} s",
   "tip": "Tip:",
