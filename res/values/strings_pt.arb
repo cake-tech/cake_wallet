@@ -662,6 +662,7 @@
   "template_name": "Nome do modelo",
   "third_intro_content": "Yats também mora fora da Cake Wallet. Qualquer endereço de carteira na Terra pode ser substituído por um Yat!",
   "third_intro_title": "Yat joga bem com os outros",
+  "thorchain_contract_address_not_supported": "Thorchain não suporta o envio para um endereço de contrato",
   "thorchain_taproot_address_not_supported": "O provedor de Thorchain não suporta endereços de raiz de Tap. Altere o endereço ou selecione um provedor diferente.",
   "time": "${minutes}m ${seconds}s",
   "tip": "Dica:",

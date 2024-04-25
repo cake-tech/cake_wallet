@@ -12,7 +12,7 @@ import 'package:cw_core/.secrets.g.dart' as secrets;
 
 part 'node.g.dart';
 
-Uri createUriFromElectrumAddress(String address) => Uri.tryParse('tcp://$address')!;
+Uri createUriFromElectrumAddress(String address, String path) => Uri.tryParse('tcp://$address$path')!;
 
 @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
@@ -85,7 +85,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        return createUriFromElectrumAddress(uriRaw);
+        return createUriFromElectrumAddress(uriRaw, path ?? '');
       case WalletType.nano:
       case WalletType.banano:
         if (isSSL) {
@@ -96,7 +96,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.solana:
-        return Uri.https(uriRaw, '');
+        return Uri.https(uriRaw, path ?? '');
       default:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
