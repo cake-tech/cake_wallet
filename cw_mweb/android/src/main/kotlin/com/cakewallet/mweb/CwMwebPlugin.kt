@@ -17,6 +17,7 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
+  private var port: Long? = null
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "cw_mweb")
@@ -26,7 +27,8 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
     if (call.method == "start") {
       val dataDir = call.argument("dataDir") ?: ""
-      result.success(Mwebd.newServer("", dataDir, "").start(0))
+      port = port ?: Mwebd.newServer("", dataDir, "").start(0)
+      result.success(port)
     } else {
       result.notImplemented()
     }

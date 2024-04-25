@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -278,5 +281,46 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     return 0;
+  }
+
+  @override
+  Future<int> calcFee({
+      required List<UtxoWithAddress> utxos,
+      required List<BitcoinBaseOutput> outputs,
+      required BasedUtxoNetwork network,
+      String? memo,
+      required int feeRate}) async {
+
+    final txb = BitcoinTransactionBuilder(utxos: utxos,
+        outputs: outputs, fee: BigInt.zero, network: network);
+    final scanSecret = mwebHd.derive(0x80000000).privKey!;
+    final spendSecret = mwebHd.derive(0x80000001).privKey!;
+    final stub = await CwMweb.stub();
+    final resp = await stub.create(CreateRequest(
+        rawTx: txb.buildTransaction((a, b, c, d) => '').toBytes(),
+        scanSecret: hex.decode(scanSecret),
+        spendSecret: hex.decode(spendSecret),
+        feeRatePerKb: Int64(feeRate * 1000),
+        dryRun: true));
+    final tx = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
+    final posUtxos = utxos.where((utxo) => tx.inputs.any((input) =>
+        input.txId == utxo.utxo.txHash && input.txIndex == utxo.utxo.vout)).toList();
+    final preOutputSum = outputs.fold<int>(0, (acc, output) => acc + output.toOutput.amount.toInt());
+    final posOutputSum = tx.outputs.fold<int>(0, (acc, output) => acc + output.amount.toInt());
+    final mwebInputSum = utxos.sumOfUtxosValue() - posUtxos.sumOfUtxosValue();
+    final expectedPegin = max(0, preOutputSum - mwebInputSum.toInt());
+    var fee = posOutputSum - expectedPegin;
+    if (expectedPegin > 0) {
+      fee += await super.calcFee(utxos: posUtxos, outputs: tx.outputs.map((output) =>
+          BitcoinScriptOutput(script: output.scriptPubKey, value: output.amount)).toList(),
+          network: network, memo: memo, feeRate: feeRate) + feeRate * 41;
+    }
+    return fee;
+  }
+
+  @override
+  Future<PendingTransaction> createTransaction(Object credentials) async {
+    final tx = await super.createTransaction(credentials);
+    return tx;
   }
 }

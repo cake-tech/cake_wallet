@@ -392,24 +392,13 @@ abstract class ElectrumWalletBase
       value: BigInt.from(amountLeftForChangeAndFee),
     ));
 
-    int estimatedSize;
-    if (network is BitcoinCashNetwork) {
-      estimatedSize = ForkedTransactionBuilder.estimateTransactionSize(
-        utxos: utxos,
-        outputs: outputs,
-        network: network as BitcoinCashNetwork,
-        memo: memo,
-      );
-    } else {
-      estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
-        utxos: utxos,
-        outputs: outputs,
-        network: network,
-        memo: memo,
-      );
-    }
-
-    int fee = feeAmountWithFeeRate(feeRate, 0, 0, size: estimatedSize);
+    int fee = await calcFee(
+      utxos: utxos,
+      outputs: outputs,
+      network: network,
+      memo: memo,
+      feeRate: feeRate,
+    );
 
     if (fee == 0) {
       throw BitcoinTransactionNoFeeException();
@@ -497,6 +486,33 @@ abstract class ElectrumWalletBase
       memo: memo,
       spendsUnconfirmedTX: spendsUnconfirmedTX,
     );
+  }
+
+  Future<int> calcFee({
+      required List<UtxoWithAddress> utxos,
+      required List<BitcoinBaseOutput> outputs,
+      required BasedUtxoNetwork network,
+      String? memo,
+      required int feeRate}) async {
+
+    int estimatedSize;
+    if (network is BitcoinCashNetwork) {
+      estimatedSize = ForkedTransactionBuilder.estimateTransactionSize(
+        utxos: utxos,
+        outputs: outputs,
+        network: network,
+        memo: memo,
+      );
+    } else {
+      estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
+        utxos: utxos,
+        outputs: outputs,
+        network: network,
+        memo: memo,
+      );
+    }
+
+    return feeAmountWithFeeRate(feeRate, 0, 0, size: estimatedSize);
   }
 
   @override
