@@ -38,7 +38,6 @@ class SecretKey {
     SecretKey('walletConnectProjectId', () => ''),
     SecretKey('moralisApiKey', () => ''),
     SecretKey('ankrApiKey', () => ''),
-    SecretKey('quantexApiKey', () => ''),
     SecretKey('quantexExchangeMarkup', () => ''),
   ];
 

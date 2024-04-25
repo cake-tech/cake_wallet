@@ -32,7 +32,6 @@ class QuantexExchangeProvider extends ExchangeProvider {
         .toList())
   ];
 
-  static final apiKey = secrets.quantexApiKey;
   static final markup = secrets.quantexExchangeMarkup;
 
   static const apiAuthority = 'api.myquantex.com';

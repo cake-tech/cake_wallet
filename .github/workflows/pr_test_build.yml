@@ -150,7 +150,6 @@ jobs:
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
-          echo "const quantexApiKey = '${{ secrets.QUANTEX_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const quantexExchangeMarkup = '${{ secrets.QUANTEX_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
 
       - name: Rename app
