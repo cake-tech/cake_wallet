@@ -661,6 +661,7 @@
   "template_name": "Orukọ Awoṣe",
   "third_intro_content": "A sì lè lo Yats níta Cake Wallet. A lè rọ́pò Àdírẹ́sì kankan àpamọ́wọ́ fún Yat!",
   "third_intro_title": "Àlàáfíà ni Yat àti àwọn ìmíìn jọ wà",
+  "thorchain_contract_address_not_supported": "Thorchain ko ṣe atilẹyin fifiranṣẹ si adirẹsi adehun kan",
   "thorchain_taproot_address_not_supported": "Olupese Trockchain ko ṣe atilẹyin awọn adirẹsi Taproot. Jọwọ yi adirẹsi pada tabi yan olupese ti o yatọ.",
   "time": "${minutes}ìṣj ${seconds}ìṣs",
   "tip": "Owó àfikún:",

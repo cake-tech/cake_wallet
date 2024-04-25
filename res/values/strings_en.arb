@@ -660,6 +660,7 @@
   "template_name": "Template Name",
   "third_intro_content": "Yats live outside of Cake Wallet, too. Any wallet address on earth can be replaced with a Yat!",
   "third_intro_title": "Yat plays nicely with others",
+  "thorchain_contract_address_not_supported": "THORChain does not support sending to a contract address",
   "thorchain_taproot_address_not_supported": "The ThorChain provider does not support Taproot addresses. Please change the address or select a different provider.",
   "time": "${minutes}m ${seconds}s",
   "tip": "Tip:",

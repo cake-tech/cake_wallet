@@ -661,6 +661,7 @@
   "template_name": "Назва шаблону",
   "third_intro_content": "Yat знаходиться за межами Cake Wallet. Будь-яку адресу гаманця на землі можна замінити на Yat!",
   "third_intro_title": "Yat добре взаємодіє з іншими",
+  "thorchain_contract_address_not_supported": "Thorchain не підтримує надсилання на адресу контракту",
   "thorchain_taproot_address_not_supported": "Постачальник Thorchain не підтримує адреси Taproot. Будь ласка, змініть адресу або виберіть іншого постачальника.",
   "time": "${minutes}хв ${seconds}сек",
   "tip": "Порада:",

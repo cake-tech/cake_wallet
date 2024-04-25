@@ -660,6 +660,7 @@
   "template_name": "Naziv predloška",
   "third_intro_content": "Yats žive i izvan Cake Wallet -a. Bilo koja adresa novčanika na svijetu može se zamijeniti Yat!",
   "third_intro_title": "Yat se lijepo igra s drugima",
+  "thorchain_contract_address_not_supported": "Thorchain ne podržava slanje na adresu ugovora",
   "thorchain_taproot_address_not_supported": "Thorchain pružatelj ne podržava Taproot adrese. Promijenite adresu ili odaberite drugog davatelja usluga.",
   "time": "${minutes}m ${seconds}s",
   "tip": "Savjet:",

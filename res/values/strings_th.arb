@@ -660,6 +660,7 @@
   "template_name": "ชื่อแม่แบบ",
   "third_intro_content": "Yat อาศัยอยู่นอก Cake Wallet ด้วย ที่อยู่กระเป๋าใดๆ ทั่วโลกสามารถแทนด้วย Yat ได้อีกด้วย!",
   "third_intro_title": "Yat ปฏิบัติตนอย่างดีกับผู้อื่น",
+  "thorchain_contract_address_not_supported": "Thorchain ไม่สนับสนุนการส่งไปยังที่อยู่สัญญา",
   "thorchain_taproot_address_not_supported": "ผู้ให้บริการ Thorchain ไม่รองรับที่อยู่ taproot โปรดเปลี่ยนที่อยู่หรือเลือกผู้ให้บริการอื่น",
   "time": "${minutes}m ${seconds}s",
   "tip": "เพิ่มค่าตอบแทน:",

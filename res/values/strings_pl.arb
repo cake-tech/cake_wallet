@@ -660,6 +660,7 @@
   "template_name": "Nazwa szablonu",
   "third_intro_content": "Yats mieszkają również poza Cake Wallet. Każdy adres portfela na ziemi można zastąpić Yat!",
   "third_intro_title": "Yat ładnie bawi się z innymi",
+  "thorchain_contract_address_not_supported": "Thorchain nie wspiera wysyłania na adres umowy",
   "thorchain_taproot_address_not_supported": "Dostawca Thorchain nie obsługuje adresów TAPROOT. Zmień adres lub wybierz innego dostawcę.",
   "time": "${minutes}m ${seconds}s",
   "tip": "wskazówka:",
