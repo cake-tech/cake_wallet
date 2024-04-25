@@ -15,6 +15,7 @@ class SettingsPriorityPickerCell<ItemType> extends StandardListRow {
       this.isGridView = false,
       this.matchingCriteria,
       this.customValue,
+      this.maxValue,
       this.customItemIndex,
       this.onItemSelected})
       : super(
@@ -34,6 +35,7 @@ class SettingsPriorityPickerCell<ItemType> extends StandardListRow {
                         displayItem: (ItemType item) => displayItem!(item, sliderValue.round()),
                         selectedAtIndex: selectedAtIndex,
                         customItemIndex: customItemIndex,
+                        maxValue: maxValue,
                         headerEnabled: false,
                         closeOnItemSelected: false,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -61,6 +63,7 @@ class SettingsPriorityPickerCell<ItemType> extends StandardListRow {
   final bool isGridView;
   final bool Function(ItemType, String)? matchingCriteria;
   double? customValue;
+  double? maxValue;
   int? customItemIndex;
 
   @override

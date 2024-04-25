@@ -164,6 +164,7 @@ abstract class Bitcoin {
   Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee);
   int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});
   int getFeeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
+  int getMaxCustomFeeRate(Object wallet);
 }
   """;
 
@@ -1134,7 +1135,8 @@ Future<void> generatePubspec(
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
-  final dependenciesIndex = inputLines.indexWhere((line) => line.toLowerCase().contains('dependencies:'));
+  final dependenciesIndex =
+      inputLines.indexWhere((line) => line.toLowerCase().contains('dependencies:'));
   var output = cwCore;
 
   if (hasMonero) {

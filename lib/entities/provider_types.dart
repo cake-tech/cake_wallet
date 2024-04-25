@@ -22,7 +22,7 @@ extension ProviderTypeName on ProviderType {
       case ProviderType.robinhood:
         return 'Robinhood Connect';
       case ProviderType.dfx:
-        return 'DFX Connect';
+        return 'DFX.swiss';
       case ProviderType.onramper:
         return 'Onramper';
       case ProviderType.moonpay:
