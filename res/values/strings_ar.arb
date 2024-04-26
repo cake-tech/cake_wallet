@@ -660,6 +660,7 @@
   "template_name": "اسم القالب",
   "third_intro_content": "يعيش Yats خارج Cake Wallet أيضًا. يمكن استبدال أي عنوان محفظة على وجه الأرض بـ Yat!",
   "third_intro_title": "يتماشي Yat بلطف مع الآخرين",
+  "thorchain_contract_address_not_supported": "لا يدعم Thorchain الإرسال إلى عنوان العقد",
   "thorchain_taproot_address_not_supported": "لا يدعم مزود Thorchain عناوين Taproot. يرجى تغيير العنوان أو تحديد مزود مختلف.",
   "time": "${minutes}د ${seconds}س",
   "tip": "بقشيش:",
