@@ -95,6 +95,7 @@ class WalletRestorePage extends BasePage {
   final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
   final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
   final FocusNode _blockHeightFocusNode;
+
   // DerivationType derivationType = DerivationType.unknown;
   // String? derivationPath = null;
   DerivationInfo? derivationInfo;
@@ -372,7 +373,12 @@ class WalletRestorePage extends BasePage {
       } else if (derivationsWithHistory == 1) {
         dInfo = derivations[derivationWithHistoryIndex];
       } else if (derivationsWithHistory == 0 && derivations.isNotEmpty) {
-        dInfo = derivations.first;
+        dInfo = DerivationInfo(
+          derivationType: DerivationType.bip39,
+          derivationPath: "m/84'/0'/0'",
+          description: "Standard BIP84 native segwit",
+          scriptType: "p2wpkh",
+        );
       }
 
       if (dInfo == null) {
