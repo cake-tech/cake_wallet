@@ -30,6 +30,7 @@ Future<String?> readSecureStorage(FlutterSecureStorage secureStorage, String key
 Future<void> writeSecureStorage(FlutterSecureStorage secureStorage,
     {required String key, required String value}) async {
   // delete the value before writing on macOS because of a weird bug
+  // https://github.com/mogol/flutter_secure_storage/issues/581
   if (Platform.isMacOS) {
     await secureStorage.delete(key: key);
   }
