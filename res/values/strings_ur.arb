@@ -662,6 +662,7 @@
   "template_name": "ٹیمپلیٹ کا نام",
   "third_intro_content": "Yats بھی Cake والیٹ سے باہر رہتے ہیں۔ زمین پر کسی بھی بٹوے کے پتے کو Yat سے تبدیل کیا جا سکتا ہے!",
   "third_intro_title": "Yat دوسروں کے ساتھ اچھی طرح کھیلتا ہے۔",
+  "thorchain_contract_address_not_supported": "تھورچین معاہدے کے پتے بھیجنے کی حمایت نہیں کرتا ہے",
   "thorchain_taproot_address_not_supported": "تھورچین فراہم کنندہ ٹیپروٹ پتے کی حمایت نہیں کرتا ہے۔ براہ کرم پتہ تبدیل کریں یا ایک مختلف فراہم کنندہ کو منتخب کریں۔",
   "time": "${minutes}m ${seconds}s",
   "tip": "ٹپ:",
