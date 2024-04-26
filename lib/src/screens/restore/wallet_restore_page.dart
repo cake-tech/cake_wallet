@@ -355,48 +355,38 @@ class WalletRestorePage extends BasePage {
 
     walletRestoreViewModel.state = IsExecutingState();
 
-    List<DerivationType> derivationTypes =
-        await walletRestoreViewModel.getDerivationTypes(_credentials());
     DerivationInfo? dInfo;
 
-    if (derivationTypes.length > 1) {
-      // push screen to choose the derivation type:
-      List<DerivationInfo> derivations =
-          await walletRestoreViewModel.getDerivationInfo(_credentials());
+    // get info about the different derivations:
+    List<DerivationInfo> derivations =
+        await walletRestoreViewModel.getDerivationInfo(_credentials());
 
-      int derivationsWithHistory = 0;
-      int derivationWithHistoryIndex = 0;
-      for (int i = 0; i < derivations.length; i++) {
-        if (derivations[i].transactionsCount > 0) {
-          derivationsWithHistory++;
-          derivationWithHistoryIndex = i;
-        }
+    int derivationsWithHistory = 0;
+    int derivationWithHistoryIndex = 0;
+    for (int i = 0; i < derivations.length; i++) {
+      if (derivations[i].transactionsCount > 0) {
+        derivationsWithHistory++;
+        derivationWithHistoryIndex = i;
       }
-
-            //   dInfo = await Navigator.of(context).pushNamed(Routes.restoreWalletChooseDerivation,
-            // arguments: derivations) as DerivationInfo?;
-
-      if (derivationsWithHistory > 1) {
-        dInfo = await Navigator.of(context).pushNamed(Routes.restoreWalletChooseDerivation,
-            arguments: derivations) as DerivationInfo?;
-      } else if (derivationsWithHistory == 1) {
-        dInfo = derivations[derivationWithHistoryIndex];
-      } else if (derivationsWithHistory == 0 && derivations.isNotEmpty) {
-        dInfo = DerivationInfo(
-          derivationType: DerivationType.bip39,
-          derivationPath: "m/84'/0'/0'/0",
-          description: "Standard BIP84 native segwit",
-          scriptType: "p2wpkh",
-        );
-      }
-
-      if (dInfo == null) {
-        walletRestoreViewModel.state = InitialExecutionState();
-        return;
-      }
-
-      this.derivationInfo = dInfo;
     }
+
+    if (derivationsWithHistory > 1) {
+      dInfo = await Navigator.of(context).pushNamed(
+        Routes.restoreWalletChooseDerivation,
+        arguments: derivations,
+      ) as DerivationInfo?;
+    } else if (derivationsWithHistory == 1) {
+      dInfo = derivations[derivationWithHistoryIndex];
+    } else if (derivationsWithHistory == 0 && derivations.isNotEmpty) {
+      dInfo = derivations.first;
+    }
+
+    if (dInfo == null) {
+      walletRestoreViewModel.state = InitialExecutionState();
+      return;
+    }
+
+    this.derivationInfo = dInfo;
 
     // get the default derivation for this wallet type:
     if (this.derivationInfo == null) {

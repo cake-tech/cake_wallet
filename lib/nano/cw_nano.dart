@@ -106,7 +106,6 @@ class CWNano extends Nano {
     required String mnemonic,
     required DerivationType derivationType,
   }) {
-    
     if (mnemonic.split(" ").length == 12) {
       derivationType = DerivationType.bip39;
     }
@@ -126,7 +125,6 @@ class CWNano extends Nano {
     required String seedKey,
     required DerivationType derivationType,
   }) {
-
     if (seedKey.length == 128) {
       derivationType = DerivationType.bip39;
     }
@@ -192,7 +190,6 @@ class CWNano extends Nano {
 }
 
 class CWNanoUtil extends NanoUtil {
-
   @override
   bool isValidBip39Seed(String seed) {
     return NanoDerivations.isValidBip39Seed(seed);
@@ -345,5 +342,55 @@ class CWNanoUtil extends NanoUtil {
     } catch (e) {
       return [DerivationType.nano, DerivationType.bip39];
     }
+  }
+
+  @override
+  Future<List<DerivationInfo>> getDerivationsFromMnemonic({
+    String? mnemonic,
+    String? seedKey,
+    required Node node,
+  }) async {
+    List<DerivationInfo> list = [];
+
+    List<DerivationType> possibleDerivationTypes = await compareDerivationMethods(
+      mnemonic: mnemonic,
+      privateKey: seedKey,
+      node: node,
+    );
+    if (possibleDerivationTypes.length == 1) {
+      return [DerivationInfo(derivationType: possibleDerivationTypes.first)];
+    }
+
+    AccountInfoResponse? bip39Info = await nanoUtil!.getInfoFromSeedOrMnemonic(
+      DerivationType.bip39,
+      mnemonic: mnemonic,
+      seedKey: seedKey,
+      node: node,
+    );
+    AccountInfoResponse? standardInfo = await nanoUtil!.getInfoFromSeedOrMnemonic(
+      DerivationType.nano,
+      mnemonic: mnemonic,
+      seedKey: seedKey,
+      node: node,
+    );
+
+    if (standardInfo?.confirmationHeight != null && standardInfo!.confirmationHeight > 0) {
+      list.add(DerivationInfo(
+        derivationType: DerivationType.nano,
+        balance: nanoUtil!.getRawAsUsableString(standardInfo.balance, nanoUtil!.rawPerNano),
+        address: standardInfo.address!,
+        transactionsCount: standardInfo.confirmationHeight,
+      ));
+    }
+
+    if (bip39Info?.confirmationHeight != null && bip39Info!.confirmationHeight > 0) {
+      list.add(DerivationInfo(
+        derivationType: DerivationType.bip39,
+        balance: nanoUtil!.getRawAsUsableString(bip39Info.balance, nanoUtil!.rawPerNano),
+        address: bip39Info.address!,
+        transactionsCount: bip39Info.confirmationHeight,
+      ));
+    }
+    return list;
   }
 }

@@ -287,6 +287,18 @@ class CWBitcoin extends Bitcoin {
   }) async {
     List<DerivationInfo> list = [];
 
+    // var types = await compareDerivationMethods(mnemonic: mnemonic, node: node);
+    // if (types.length == 1 && types.first == DerivationType.electrum) {
+    //   return [
+    //     DerivationInfo(
+    //       derivationType: DerivationType.electrum,
+    //       derivationPath: "m/0'/0",
+    //       description: "Electrum",
+    //       scriptType: "p2wpkh",
+    //     )
+    //   ];
+    // }
+
     final electrumClient = ElectrumClient();
     await electrumClient.connectToUri(node.uri);
 
@@ -322,20 +334,18 @@ class CWBitcoin extends Bitcoin {
           );
 
           String rootPath = dInfoCopy.derivationPath!;
-          int rootDepth = _countOccurrences(rootPath, "/");
-          String pathForAccount0Index0 = rootPath;
-
-          // for BIP44/BIP49, we need to specify the index 0 for the first address:
-          if (rootDepth == 3) {
-            pathForAccount0Index0 += "/0/0";
+          int depth = _countOccurrences(rootPath, "/");
+          String pathForIndex0 = rootPath;
+          if (depth == 3) {
+            pathForIndex0 = rootPath + "/0/0";
           } else {
-            pathForAccount0Index0 += "/0";
+            pathForIndex0 = rootPath + "/0";
           }
 
           final hd = btc.HDWallet.fromSeed(
             seedBytes,
             network: networkType,
-          ).derivePath(pathForAccount0Index0);
+          ).derivePath(pathForIndex0);
 
           String? address;
           switch (dInfoCopy.scriptType) {
@@ -359,7 +369,6 @@ class CWBitcoin extends Bitcoin {
           dInfoCopy.balance = balance.entries.first.value.toString();
           dInfoCopy.address = address;
           dInfoCopy.transactionsCount = history.length;
-          dInfoCopy.derivationPath = pathForAccount0Index0;
 
           list.add(dInfoCopy);
         } catch (e) {

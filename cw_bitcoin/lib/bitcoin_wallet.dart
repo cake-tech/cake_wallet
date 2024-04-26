@@ -47,10 +47,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             initialBalance: initialBalance,
             seedBytes: seedBytes,
             currency: CryptoCurrency.btc) {
-    // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
-    // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
-    String derivationPath = walletInfo.derivationInfo!.derivationPath!;
-    String sideDerivationPath = derivationPath.substring(0, derivationPath.length - 1) + "1";
+    String derivationPath = walletInfo.derivationInfo!.derivationPath! + "/0";
+    String sideDerivationPath = walletInfo.derivationInfo!.derivationPath! + "/1";
     final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,

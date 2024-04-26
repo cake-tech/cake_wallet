@@ -914,6 +914,11 @@ abstract class NanoUtil {
     String? privateKey,
     required Node node,
   });
+  Future<List<DerivationInfo>> getDerivationsFromMnemonic({
+    String? mnemonic,
+    String? seedKey,
+    required Node node,
+  });
 }
   """;
 
