@@ -371,6 +371,8 @@ class WalletRestorePage extends BasePage {
             arguments: derivations) as DerivationInfo?;
       } else if (derivationsWithHistory == 1) {
         dInfo = derivations[derivationWithHistoryIndex];
+      } else if (derivationsWithHistory == 0 && derivations.isNotEmpty) {
+        dInfo = derivations.first;
       }
 
       if (dInfo == null) {
