@@ -473,7 +473,6 @@ abstract class ElectrumWalletBase
           outputs.removeLast();
         }
 
-        outputs.removeLast();
         return estimateTxForAmount(
           credentialsAmount,
           outputs,
@@ -1156,7 +1155,6 @@ abstract class ElectrumWalletBase
   Future<void> updateTransactions() async {
     try {
       if (_isTransactionUpdating) {
-        _isTransactionUpdating = false;
         return;
       }
 
