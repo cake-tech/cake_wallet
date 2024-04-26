@@ -21,9 +21,11 @@ class BitcoinRestoreWalletFromSeedCredentials extends WalletCredentials {
     WalletInfo? walletInfo,
     required DerivationType derivationType,
     required String derivationPath,
+    String? passphrase,
   }) : super(
             name: name,
             password: password,
+            passphrase: passphrase,
             walletInfo: walletInfo,
             derivationInfo: DerivationInfo(
               derivationType: derivationType,

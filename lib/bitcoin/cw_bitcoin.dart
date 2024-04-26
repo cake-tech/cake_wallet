@@ -7,13 +7,16 @@ class CWBitcoin extends Bitcoin {
     required String password,
     required DerivationType derivationType,
     required String derivationPath,
+    String? passphrase,
   }) =>
       BitcoinRestoreWalletFromSeedCredentials(
-          name: name,
-          mnemonic: mnemonic,
-          password: password,
-          derivationType: derivationType,
-          derivationPath: derivationPath);
+        name: name,
+        mnemonic: mnemonic,
+        password: password,
+        derivationType: derivationType,
+        derivationPath: derivationPath,
+        passphrase: passphrase,
+      );
 
   @override
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials(

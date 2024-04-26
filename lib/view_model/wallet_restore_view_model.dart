@@ -76,6 +76,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   @override
   WalletCredentials getCredentials(dynamic options) {
     final password = generateWalletPassword();
+    String? passphrase = options['passphrase'] as String?;
     final height = options['height'] as int? ?? 0;
     name = options['name'] as String;
     DerivationInfo? derivationInfo = options["derivationInfo"] as DerivationInfo?;
@@ -87,18 +88,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           return monero!.createMoneroRestoreWalletFromSeedCredentials(
               name: name, height: height, mnemonic: seed, password: password);
         case WalletType.bitcoin:
-          return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
-            name: name,
-            mnemonic: seed,
-            password: password,
-            derivationType: derivationInfo!.derivationType!,
-            derivationPath: derivationInfo.derivationPath!,
-          );
         case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
             password: password,
+            passphrase: passphrase,
             derivationType: derivationInfo!.derivationType!,
             derivationPath: derivationInfo.derivationPath!,
           );
