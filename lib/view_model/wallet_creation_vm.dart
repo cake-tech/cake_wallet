@@ -71,7 +71,7 @@ abstract class WalletCreationVMBase with Store {
         dirPath: dirPath,
         address: '',
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
-        derivationInfo: credentials.derivationInfo ?? getDefaultDerivation(),
+        derivationInfo: credentials.derivationInfo ?? getDefaultCreationDerivation(),
       );
 
       credentials.walletInfo = walletInfo;
@@ -89,7 +89,7 @@ abstract class WalletCreationVMBase with Store {
     }
   }
 
-  DerivationInfo? getDefaultDerivation() {
+  DerivationInfo? getDefaultCreationDerivation() {
     switch (this.type) {
       case WalletType.nano:
         return DerivationInfo(
@@ -100,6 +100,23 @@ abstract class WalletCreationVMBase with Store {
         return DerivationInfo(
           derivationType: DerivationType.electrum,
           derivationPath: "m/0'/0",
+        );
+      default:
+        return null;
+    }
+  }
+
+  DerivationInfo? getMostCommonDerivation() {
+    switch (this.type) {
+      case WalletType.nano:
+        return DerivationInfo(
+          derivationType: DerivationType.nano,
+        );
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        return DerivationInfo(
+          derivationType: DerivationType.electrum,
+          derivationPath: "m/84'/0'/0'/0",
         );
       default:
         return null;

@@ -377,8 +377,6 @@ class WalletRestorePage extends BasePage {
       ) as DerivationInfo?;
     } else if (derivationsWithHistory == 1) {
       dInfo = derivations[derivationWithHistoryIndex];
-    } else if (derivationsWithHistory == 0 && derivations.isNotEmpty) {
-      dInfo = derivations.first;
     }
 
     if (dInfo == null) {
@@ -390,7 +388,7 @@ class WalletRestorePage extends BasePage {
 
     // get the default derivation for this wallet type:
     if (this.derivationInfo == null) {
-      this.derivationInfo = walletRestoreViewModel.getDefaultDerivation();
+      this.derivationInfo = walletRestoreViewModel.getMostCommonDerivation();
     }
 
     walletRestoreViewModel.state = InitialExecutionState();
