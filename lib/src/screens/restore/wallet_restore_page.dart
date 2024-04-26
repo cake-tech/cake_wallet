@@ -373,6 +373,9 @@ class WalletRestorePage extends BasePage {
         }
       }
 
+            //   dInfo = await Navigator.of(context).pushNamed(Routes.restoreWalletChooseDerivation,
+            // arguments: derivations) as DerivationInfo?;
+
       if (derivationsWithHistory > 1) {
         dInfo = await Navigator.of(context).pushNamed(Routes.restoreWalletChooseDerivation,
             arguments: derivations) as DerivationInfo?;
@@ -381,7 +384,7 @@ class WalletRestorePage extends BasePage {
       } else if (derivationsWithHistory == 0 && derivations.isNotEmpty) {
         dInfo = DerivationInfo(
           derivationType: DerivationType.bip39,
-          derivationPath: "m/84'/0'/0'",
+          derivationPath: "m/84'/0'/0'/0",
           description: "Standard BIP84 native segwit",
           scriptType: "p2wpkh",
         );
