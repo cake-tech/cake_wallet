@@ -411,7 +411,7 @@
   "outputs": "Виходи",
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "Недійсна подія сполучення",
-  "passphrase": "Пропуск",
+  "passphrase": "Пасофрази (необов’язково)",
   "password": "Пароль",
   "paste": "Вставити",
   "pause_wallet_creation": "Можливість створення гаманця Haven зараз призупинено.",

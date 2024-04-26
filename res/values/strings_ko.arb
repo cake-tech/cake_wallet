@@ -411,7 +411,7 @@
   "outputs": "출력",
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "잘못된 이벤트 페어링",
-  "passphrase": "패스 프레이즈",
+  "passphrase": "암호화 (선택 사항)",
   "password": "암호",
   "paste": "풀",
   "pause_wallet_creation": "Haven Wallet 생성 기능이 현재 일시 중지되었습니다.",

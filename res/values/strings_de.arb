@@ -411,7 +411,7 @@
   "outputs": "Ausgänge",
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "Paarung ungültiges Ereignis",
-  "passphrase": "Passphrase",
+  "passphrase": "Passphrase (optional)",
   "password": "Passwort",
   "paste": "Einfügen",
   "pause_wallet_creation": "Die Möglichkeit, Haven Wallet zu erstellen, ist derzeit pausiert.",

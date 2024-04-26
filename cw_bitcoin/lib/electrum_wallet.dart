@@ -55,6 +55,7 @@ abstract class ElectrumWalletBase
       required this.networkType,
       required this.mnemonic,
       required Uint8List seedBytes,
+      this.passphrase,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumClient? electrumClient,
       ElectrumBalance? initialBalance,
@@ -93,6 +94,7 @@ abstract class ElectrumWalletBase
 
   final bitcoin.HDWallet hd;
   final String mnemonic;
+  final String? passphrase;
 
   @override
   @observable
@@ -586,6 +588,7 @@ abstract class ElectrumWalletBase
 
   String toJSON() => json.encode({
         'mnemonic': mnemonic,
+        'passphrase': passphrase ?? '',
         'account_index': walletAddresses.currentReceiveAddressIndexByType,
         'change_address_index': walletAddresses.currentChangeAddressIndexByType,
         'addresses': walletAddresses.allAddresses.map((addr) => addr.toJSON()).toList(),

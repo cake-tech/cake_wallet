@@ -411,7 +411,7 @@
   "outputs": "Uitgangen",
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "Koppelen Ongeldige gebeurtenis",
-  "passphrase": "Wachtwoordzin",
+  "passphrase": "PassaspHRASE (optioneel)",
   "password": "Wachtwoord",
   "paste": "Plakken",
   "pause_wallet_creation": "De mogelijkheid om Haven Wallet te maken is momenteel onderbroken.",
