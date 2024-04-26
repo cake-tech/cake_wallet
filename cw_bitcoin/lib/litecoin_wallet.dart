@@ -8,6 +8,7 @@ import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
+import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
@@ -308,13 +309,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final fee = utxos.sumOfUtxosValue() - preOutputSum;
     final txb = BitcoinTransactionBuilder(utxos: utxos,
         outputs: outputs, fee: fee, network: network);
-    final scanSecret = mwebHd.derive(0x80000000).privKey!;
-    final spendSecret = mwebHd.derive(0x80000001).privKey!;
     final stub = await CwMweb.stub();
     final resp = await stub.create(CreateRequest(
         rawTx: txb.buildTransaction((a, b, c, d) => '').toBytes(),
-        scanSecret: hex.decode(scanSecret),
-        spendSecret: hex.decode(spendSecret),
+        scanSecret: hex.decode(mwebHd.derive(0x80000000).privKey!),
+        spendSecret: hex.decode(mwebHd.derive(0x80000001).privKey!),
         feeRatePerKb: Int64(feeRate * 1000),
         dryRun: true));
     final tx = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
@@ -334,7 +333,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-    final tx = await super.createTransaction(credentials);
+    final tx = await super.createTransaction(credentials) as PendingBitcoinTransaction;
+    final stub = await CwMweb.stub();
+    final resp = await stub.create(CreateRequest(
+        rawTx: hex.decode(tx.hex),
+        scanSecret: hex.decode(mwebHd.derive(0x80000000).privKey!),
+        spendSecret: hex.decode(mwebHd.derive(0x80000001).privKey!),
+        feeRatePerKb: Int64.parseInt(tx.feeRate) * 1000));
+    tx.hexOverride = hex.encode(resp.rawTx);
     return tx;
   }
 }
