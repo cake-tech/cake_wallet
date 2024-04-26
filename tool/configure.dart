@@ -169,7 +169,7 @@ abstract class Bitcoin {
   Future<List<DerivationType>> compareDerivationMethods(
       {required String mnemonic, required Node node});
   Future<List<DerivationInfo>> getDerivationsFromMnemonic(
-      {required String mnemonic, required Node node});
+      {required String mnemonic, required Node node, String? passphrase});
   Future<void> setAddressType(Object wallet, dynamic option);
   ReceivePageOption getSelectedAddressType(Object wallet);
   List<ReceivePageOption> getBitcoinReceivePageOptions();

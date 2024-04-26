@@ -20,6 +20,7 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
       {Key? key,
       required this.displayLanguageSelector,
       required this.displayBlockHeightSelector,
+      required this.displayPassphrase,
       required this.type,
       required this.seedTypeViewModel,
       this.blockHeightFocusNode,
@@ -31,6 +32,7 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
   final WalletType type;
   final bool displayLanguageSelector;
   final bool displayBlockHeightSelector;
+  final bool displayPassphrase;
   final SeedTypeViewModel seedTypeViewModel;
   final FocusNode? blockHeightFocusNode;
   final Function(bool)? onHeightOrDateEntered;
@@ -48,6 +50,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
         formKey = GlobalKey<FormState>(),
         languageController = TextEditingController(),
         nameTextEditingController = TextEditingController(),
+        passphraseController = TextEditingController(),
         seedTypeController = TextEditingController();
 
   final GlobalKey<SeedWidgetState> seedWidgetStateKey;
@@ -55,6 +58,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   final TextEditingController languageController;
   final TextEditingController nameTextEditingController;
   final TextEditingController seedTypeController;
+  final TextEditingController passphraseController;
   final GlobalKey<FormState> formKey;
   late ReactionDisposer moneroSeedTypeReaction;
   String language;
@@ -194,6 +198,13 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 key: blockchainHeightKey,
                 onHeightOrDateEntered: widget.onHeightOrDateEntered,
                 hasDatePicker: widget.type == WalletType.monero),
+          if (widget.displayPassphrase) ...[
+            const SizedBox(height: 10),
+            BaseTextFormField(
+              hintText: S.current.passphrase,
+              controller: passphraseController,
+            ),
+          ]
         ]));
   }
 

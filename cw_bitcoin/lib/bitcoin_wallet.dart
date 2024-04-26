@@ -70,6 +70,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    String? passphrase,
     String? addressPageType,
     BasedUtxoNetwork? network,
     List<BitcoinAddressRecord>? initialAddresses,
@@ -81,7 +82,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     switch (walletInfo.derivationInfo?.derivationType) {
       case DerivationType.bip39:
-        seedBytes = await bip39.mnemonicToSeed(mnemonic);
+        seedBytes = await bip39.mnemonicToSeed(
+          mnemonic,
+          passphrase: passphrase ?? "",
+        );
         break;
       case DerivationType.electrum:
       default:

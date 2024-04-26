@@ -33,6 +33,7 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     final wallet = await BitcoinWalletBase.create(
       mnemonic: await generateElectrumMnemonic(),
       password: credentials.password!,
+      passphrase: credentials.passphrase,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       network: network,
@@ -116,6 +117,7 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
 
     final wallet = await BitcoinWalletBase.create(
       password: credentials.password!,
+      passphrase: credentials.passphrase,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,

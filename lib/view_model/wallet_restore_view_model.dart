@@ -67,6 +67,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   final bool hasBlockchainHeightLanguageSelector;
   final bool hasRestoreFromPrivateKey;
 
+  bool get hasPassphrase => [WalletType.bitcoin].contains(type);
+
   @observable
   WalletRestoreMode mode;
 
@@ -201,7 +203,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
         String? mnemonic = credentials['seed'] as String?;
-        return bitcoin!.getDerivationsFromMnemonic(mnemonic: mnemonic!, node: node);
+        String? passphrase = credentials['passphrase'] as String?;
+        return bitcoin!.getDerivationsFromMnemonic(
+          mnemonic: mnemonic!,
+          node: node,
+          passphrase: passphrase,
+        );
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['private_key'] as String?;
