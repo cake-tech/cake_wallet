@@ -97,9 +97,6 @@ Future<String> generateElectrumMnemonic({int strength = 264, String prefix = seg
   var result = '';
 
   do {
-    // final originalBytes = await secRandom(byteCount);
-    // // create a modifiable copy, however I'm not sure why this is necessary
-    // final bytes = Uint8List.fromList(originalBytes);
     final bytes = await secRandom(byteCount);
     maskBytes(bytes, strength);
     result = encode(bytes);

@@ -45,30 +45,25 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             initialBalance: initialBalance,
             seedBytes: seedBytes,
             currency: CryptoCurrency.btc) {
-
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
     // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
+    String derivationPath = walletInfo.derivationInfo!.derivationPath!;
+    String sideDerivationPath = derivationPath.substring(0, derivationPath.length - 1) + "1";
+    final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
       electrumClient: electrumClient,
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
-      // mainHd: hd,
-      // sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
-        mainHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-            .derivePath(walletInfo.derivationInfo!.derivationPath!),
-        sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath(walletInfo
-                .derivationInfo!.derivationPath!
-                .substring(0, walletInfo.derivationInfo!.derivationPath!.length - 1) +
-            "1"),
+      mainHd: hd.derivePath(derivationPath),
+      sideHd: hd.derivePath(sideDerivationPath),
       network: networkParam ?? network,
     );
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
   }
-
 
   static Future<BitcoinWallet> create({
     required String mnemonic,
@@ -82,7 +77,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   }) async {
-
     late Uint8List seedBytes;
 
     switch (walletInfo.derivationInfo?.derivationType) {

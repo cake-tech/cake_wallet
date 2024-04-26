@@ -27,18 +27,32 @@ class DerivationInfo extends HiveObject {
     this.balance = "",
     this.address = "",
     this.transactionsCount = 0,
-    this.script_type,
+    this.scriptType,
     this.description,
   });
 
   static const typeId = DERIVATION_INFO_TYPE_ID;
 
-  String balance;
+
+  @HiveField(0)
   String address;
+
+  @HiveField(1)
+  String balance;
+
+  @HiveField(2)
   int transactionsCount;
+
+  @HiveField(3)
   DerivationType? derivationType;
+
+  @HiveField(4)
   String? derivationPath;
-  final String? script_type;
+
+  @HiveField(5)
+  final String? scriptType;
+
+  @HiveField(6)
   final String? description;
 }
 

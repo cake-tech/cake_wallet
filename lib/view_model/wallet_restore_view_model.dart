@@ -113,10 +113,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
               name: name, mnemonic: seed, password: password);
         case WalletType.nano:
           return nano!.createNanoRestoreWalletFromSeedCredentials(
-              name: name,
-              mnemonic: seed,
-              password: password,
-              derivationType: derivationInfo!.derivationType!,
+            name: name,
+            mnemonic: seed,
+            password: password,
+            derivationType: derivationInfo!.derivationType!,
           );
         case WalletType.polygon:
           return polygon!.createPolygonRestoreWalletFromSeedCredentials(
@@ -274,7 +274,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     if (mode == WalletRestoreMode.keys) {
       return walletCreationService.restoreFromKeys(credentials, isTestnet: useTestnet);
     }
-
     return walletCreationService.restoreFromSeed(credentials, isTestnet: useTestnet);
   }
 }
