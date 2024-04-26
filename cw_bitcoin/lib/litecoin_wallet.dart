@@ -298,6 +298,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return await super.calcFee(utxos: utxos, outputs: outputs,
           network: network, memo: memo, feeRate: feeRate);
     }
+    if (outputs.length == 1 && outputs[0].toOutput.amount == BigInt.zero) {
+      outputs = [BitcoinScriptOutput(
+          script: outputs[0].toOutput.scriptPubKey,
+          value: utxos.sumOfUtxosValue())];
+    }
     final txb = BitcoinTransactionBuilder(utxos: utxos,
         outputs: outputs, fee: BigInt.zero, network: network);
     final scanSecret = mwebHd.derive(0x80000000).privKey!;
