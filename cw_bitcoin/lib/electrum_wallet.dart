@@ -1037,9 +1037,11 @@ abstract class ElectrumWalletBase
 
         return Future.wait(addressesByType.map((addressRecord) async {
           final history = await _fetchAddressHistory(addressRecord, addressesSet, currentHeight);
+          final balance = await electrumClient.getBalance(addressRecord.scriptHash!);
 
           if (history.isNotEmpty) {
             addressRecord.txCount = history.length;
+            addressRecord.balance = balance['confirmed'] as int? ?? 0;
             historiesWithDetails.addAll(history);
 
             final matchedAddresses =
