@@ -303,8 +303,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           script: outputs[0].toOutput.scriptPubKey,
           value: utxos.sumOfUtxosValue())];
     }
+    final preOutputSum = outputs.fold<BigInt>(BigInt.zero,
+        (acc, output) => acc + output.toOutput.amount);
+    final fee = utxos.sumOfUtxosValue() - preOutputSum;
     final txb = BitcoinTransactionBuilder(utxos: utxos,
-        outputs: outputs, fee: BigInt.zero, network: network);
+        outputs: outputs, fee: fee, network: network);
     final scanSecret = mwebHd.derive(0x80000000).privKey!;
     final spendSecret = mwebHd.derive(0x80000001).privKey!;
     final stub = await CwMweb.stub();
@@ -317,17 +320,16 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final tx = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
     final posUtxos = utxos.where((utxo) => tx.inputs.any((input) =>
         input.txId == utxo.utxo.txHash && input.txIndex == utxo.utxo.vout)).toList();
-    final preOutputSum = outputs.fold<int>(0, (acc, output) => acc + output.toOutput.amount.toInt());
     final posOutputSum = tx.outputs.fold<int>(0, (acc, output) => acc + output.amount.toInt());
     final mwebInputSum = utxos.sumOfUtxosValue() - posUtxos.sumOfUtxosValue();
-    final expectedPegin = max(0, preOutputSum - mwebInputSum.toInt());
-    var fee = posOutputSum - expectedPegin;
-    if (expectedPegin > 0) {
-      fee += await super.calcFee(utxos: posUtxos, outputs: tx.outputs.map((output) =>
+    final expectedPegin = max(0, (preOutputSum - mwebInputSum).toInt());
+    var feeIncrease = posOutputSum - expectedPegin;
+    if (expectedPegin > 0 && fee == 0) {
+      feeIncrease += await super.calcFee(utxos: posUtxos, outputs: tx.outputs.map((output) =>
           BitcoinScriptOutput(script: output.scriptPubKey, value: output.amount)).toList(),
           network: network, memo: memo, feeRate: feeRate) + feeRate * 41;
     }
-    return fee;
+    return fee.toInt() + feeIncrease;
   }
 
   @override
