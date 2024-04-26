@@ -390,16 +390,12 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   String setNewFee({double? value, required TransactionPriority priority}) {
     newFee = priority == bitcoin!.getBitcoinTransactionPriorityCustom() && value != null
-        ? bitcoin!.getFeeAmountWithFeeRate(
-            wallet,
-            value.round(),
-            transactionInfo.inputAddresses?.length ?? 1,
-            transactionInfo.outputAddresses?.length ?? 1)
+        ? bitcoin!.getEstimatedFeeWithFeeRate(wallet, value.round(), transactionInfo.amount)
         : bitcoin!.getFeeAmountForPriority(
-            wallet,
-            priority,
-            transactionInfo.inputAddresses?.length ?? 1,
-            transactionInfo.outputAddresses?.length ?? 1);
+        wallet,
+        priority,
+        transactionInfo.inputAddresses?.length ?? 1,
+        transactionInfo.outputAddresses?.length ?? 1);
 
     return bitcoin!.formatterBitcoinAmountToString(amount: newFee);
   }
