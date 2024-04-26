@@ -3,8 +3,20 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/core/create_trade_result.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:hive/hive.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -33,14 +45,6 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
-import 'package:intl/intl.dart';
-import 'package:mobx/mobx.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'exchange_view_model.g.dart';
 
@@ -516,10 +520,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               trade.walletId = wallet.id;
               trade.fromWalletAddress = wallet.walletAddresses.address;
 
-              if (!isCanCreateTrade(trade)) {
+              final canCreateTrade = await isCanCreateTrade(trade);
+              if (!canCreateTrade.result) {
                 tradeState = TradeIsCreatedFailure(
-                    title: S.current.trade_not_created,
-                    error: S.current.thorchain_taproot_address_not_supported);
+                  title: S.current.trade_not_created,
+                  error: canCreateTrade.errorMessage ?? '',
+                );
                 return;
               }
 
@@ -776,16 +782,100 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   int get receiveMaxDigits => receiveCurrency.decimals;
 
-  bool isCanCreateTrade(Trade trade) {
+  Future<CreateTradeResult> isCanCreateTrade(Trade trade) async {
     if (trade.provider == ExchangeProviderDescription.thorChain) {
       final payoutAddress = trade.payoutAddress ?? '';
       final fromWalletAddress = trade.fromWalletAddress ?? '';
       final tapRootPattern = RegExp(P2trAddress.regex.pattern);
 
       if (tapRootPattern.hasMatch(payoutAddress) || tapRootPattern.hasMatch(fromWalletAddress)) {
-        return false;
+        return CreateTradeResult(
+          result: false,
+          errorMessage: S.current.thorchain_taproot_address_not_supported,
+        );
+      }
+
+      final currenciesToCheckPattern = RegExp('0x[0-9a-zA-Z]');
+
+      // Perform checks for payOutAddress
+      final isPayOutAddressAccordingToPattern = currenciesToCheckPattern.hasMatch(payoutAddress);
+
+      if (isPayOutAddressAccordingToPattern) {
+        final isPayOutAddressEOA = await _isExternallyOwnedAccountAddress(payoutAddress);
+
+        return CreateTradeResult(
+          result: isPayOutAddressEOA,
+          errorMessage:
+              !isPayOutAddressEOA ? S.current.thorchain_contract_address_not_supported : null,
+        );
+      }
+
+      // Perform checks for fromWalletAddress
+      final isFromWalletAddressAddressAccordingToPattern =
+          currenciesToCheckPattern.hasMatch(fromWalletAddress);
+
+      if (isFromWalletAddressAddressAccordingToPattern) {
+        final isFromWalletAddressEOA = await _isExternallyOwnedAccountAddress(fromWalletAddress);
+
+        return CreateTradeResult(
+          result: isFromWalletAddressEOA,
+          errorMessage:
+              !isFromWalletAddressEOA ? S.current.thorchain_contract_address_not_supported : null,
+        );
       }
     }
-    return true;
+    return CreateTradeResult(result: true);
+  }
+
+  String _normalizeReceiveCurrency(CryptoCurrency receiveCurrency) {
+    switch (receiveCurrency) {
+      case CryptoCurrency.eth:
+        return 'eth';
+      case CryptoCurrency.maticpoly:
+        return 'polygon';
+      default:
+        return receiveCurrency.tag ?? '';
+    }
+  }
+
+  Future<bool> _isExternallyOwnedAccountAddress(String receivingAddress) async {
+    final normalizedReceiveCurrency = _normalizeReceiveCurrency(receiveCurrency);
+
+    final isEOAAddress = !(await _isContractAddress(normalizedReceiveCurrency, receivingAddress));
+    return isEOAAddress;
+  }
+
+  Future<bool> _isContractAddress(String chainName, String contractAddress) async {
+    final httpClient = http.Client();
+
+    final uri = Uri.https(
+      'deep-index.moralis.io',
+      '/api/v2.2/erc20/metadata',
+      {
+        "chain": chainName,
+        "addresses": contractAddress,
+      },
+    );
+
+    try {
+      final response = await httpClient.get(
+        uri,
+        headers: {
+          "Accept": "application/json",
+          "X-API-Key": secrets.moralisApiKey,
+        },
+      );
+
+      final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
+
+      final name = decodedResponse['name'] as String?;
+
+      bool isContractAddress = name!.isNotEmpty;
+
+      return isContractAddress;
+    } catch (e) {
+      print(e);
+      return false;
+    }
   }
 }

@@ -348,12 +348,14 @@ abstract class TransactionDetailsViewModelBase with Store {
     final customItem = priorities.firstWhereOrNull(
         (element) => element == sendViewModel.bitcoinTransactionPriorityCustom);
     final customItemIndex = customItem != null ? priorities.indexOf(customItem) : null;
+    final maxCustomFeeRate = sendViewModel.maxCustomFeeRate?.toDouble();
 
     RBFListItems.add(StandardPickerListItem(
         title: S.current.estimated_new_fee,
         value: bitcoin!.formatterBitcoinAmountToString(amount: newFee) + ' ${walletTypeToCryptoCurrency(wallet.type)}',
         items: priorityForWalletType(wallet.type),
         customValue: settingsStore.customBitcoinFeeRate.toDouble(),
+        maxValue: maxCustomFeeRate,
         selectedIdx: selectedItem,
         customItemIndex: customItemIndex ?? 0,
         displayItem: (dynamic priority, double sliderValue) =>

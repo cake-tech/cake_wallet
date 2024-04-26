@@ -660,6 +660,7 @@
   "template_name": "şablon adı",
   "third_intro_content": "Yat'lar Cake Wallet'ın dışında da çalışabilir. Dünya üzerindeki herhangi bir cüzdan adresi Yat ile değiştirilebilir!",
   "third_intro_title": "Yat diğerleriyle iyi çalışır",
+  "thorchain_contract_address_not_supported": "Thorchain bir sözleşme adresine göndermeyi desteklemiyor",
   "thorchain_taproot_address_not_supported": "Thorchain sağlayıcısı Taproot adreslerini desteklemiyor. Lütfen adresi değiştirin veya farklı bir sağlayıcı seçin.",
   "time": "${minutes}d ${seconds}s",
   "tip": "Bahşiş:",
