@@ -36,6 +36,7 @@ class PendingBitcoinTransaction with PendingTransaction {
   final bool hasTaprootInputs;
   String? idOverride;
   String? hexOverride;
+  List<String>? outputs;
 
   @override
   String get id => idOverride ?? _tx.txId();
@@ -110,5 +111,7 @@ class PendingBitcoinTransaction with PendingTransaction {
       date: DateTime.now(),
       isPending: true,
       confirmations: 0,
+      inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
+      outputAddresses: outputs,
       fee: fee);
 }

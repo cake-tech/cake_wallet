@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:collection/collection.dart';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:fixnum/fixnum.dart';
@@ -122,6 +123,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     );
   }
 
+  int mwebUtxosHeight = 0;
+
   @action
   @override
   Future<void> startSync() async {
@@ -141,6 +144,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           syncStatus = SyncingSyncStatus(1, 0.999);
         } else {
           syncStatus = SyncedSyncStatus();
+        }
+        if (resp.mwebUtxosHeight > mwebUtxosHeight) {
+          mwebUtxosHeight = resp.mwebUtxosHeight;
+          await checkMwebUtxosSpent();
         }
       });
     processMwebUtxos();
@@ -170,14 +177,19 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         date = DateTime.fromMillisecondsSinceEpoch(utxo.blockTime * 1000);
         confirmations = status.blockHeaderHeight - utxo.height + 1;
       }
-      final tx = ElectrumTransactionInfo(WalletType.litecoin,
-        id: utxo.outputId, height: utxo.height,
-        amount: utxo.value.toInt(), fee: 0,
-        direction: TransactionDirection.incoming,
-        isPending: utxo.height == 0,
-        date: date, confirmations: confirmations,
-        inputAddresses: [],
-        outputAddresses: [utxo.address]);
+      var tx = transactionHistory.transactions.values.firstWhereOrNull(
+          (tx) => tx.outputAddresses?.contains(utxo.outputId) ?? false);
+      if (tx == null)
+        tx = ElectrumTransactionInfo(WalletType.litecoin,
+          id: utxo.outputId, height: utxo.height,
+          amount: utxo.value.toInt(), fee: 0,
+          direction: TransactionDirection.incoming,
+          isPending: utxo.height == 0,
+          date: date, confirmations: confirmations,
+          inputAddresses: [],
+          outputAddresses: [utxo.address]);
+      tx.isPending = utxo.height == 0;
+      tx.confirmations = confirmations;
       if (transactionHistory.transactions[utxo.outputId] == null) {
         final addressRecord = walletAddresses.allAddresses.firstWhere(
             (addressRecord) => addressRecord.address == utxo.address);
@@ -194,11 +206,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> checkMwebUtxosSpent() async {
-    final List<String> outputIds = [];
-    mwebUtxos.forEach((outputId, utxo) {
-      if (utxo.height > 0)
-        outputIds.add(outputId);
-    });
+    while ((await Future.wait(transactionHistory.transactions.values
+        .where((tx) => tx.direction == TransactionDirection.outgoing && tx.isPending)
+        .map(checkPendingTransaction))).any((x) => x));
+    final outputIds = mwebUtxos.values
+        .where((utxo) => utxo.height > 0)
+        .map((utxo) => utxo.outputId).toList();
     final stub = await CwMweb.stub();
     final resp = await stub.spent(SpentRequest(outputId: outputIds));
     final spent = resp.outputId;
@@ -212,8 +225,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     var output = AccumulatorSink<Digest>();
     var input = sha256.startChunkedConversion(output);
     for (final outputId in spent) {
-      input.add(hex.decode(outputId));
-      final utxo = mwebUtxos[outputId]!;
+      final utxo = mwebUtxos[outputId];
+      if (utxo == null) continue;
       final addressRecord = walletAddresses.allAddresses.firstWhere(
           (addressRecord) => addressRecord.address == utxo.address);
       if (!inputAddresses.contains(utxo.address))
@@ -222,7 +235,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       amount += utxo.value.toInt();
       inputAddresses.add(utxo.address);
       mwebUtxos.remove(outputId);
+      input.add(hex.decode(outputId));
     }
+    if (inputAddresses.isEmpty) return;
     input.close();
     var digest = output.events.single;
     final tx = ElectrumTransactionInfo(WalletType.litecoin,
@@ -236,6 +251,33 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       outputAddresses: []);
     transactionHistory.addOne(tx);
     await transactionHistory.save();
+  }
+
+  Future<bool> checkPendingTransaction(ElectrumTransactionInfo tx) async {
+    if (!tx.isPending) return false;
+    final outputId = <String>[], target = <String>{};
+    final isHash = RegExp(r'^[a-f0-9]{64}$').hasMatch;
+    final spendingOutputIds = tx.inputAddresses?.where(isHash) ?? [];
+    final payingToOutputIds = tx.outputAddresses?.where(isHash) ?? [];
+    outputId.addAll(spendingOutputIds);
+    outputId.addAll(payingToOutputIds);
+    target.addAll(spendingOutputIds);
+    for (final outputId in payingToOutputIds) {
+      final spendingTx = transactionHistory.transactions.values.firstWhereOrNull(
+          (tx) => tx.inputAddresses?.contains(outputId) ?? false);
+      if (spendingTx != null && !spendingTx.isPending)
+        target.add(outputId);
+    }
+    if (outputId.isEmpty) return false;
+    final stub = await CwMweb.stub();
+    final resp = await stub.spent(SpentRequest(outputId: outputId));
+    if (resp.outputId.toSet() != target) return false;
+    final status = await stub.status(StatusRequest());
+    if (!tx.isPending) return false;
+    tx.height = status.mwebUtxosHeight;
+    tx.confirmations = 1;
+    tx.isPending = false;
+    return true;
   }
 
   @override
@@ -341,6 +383,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         spendSecret: hex.decode(mwebHd.derive(0x80000001).privKey!),
         feeRatePerKb: Int64.parseInt(tx.feeRate) * 1000));
     tx.hexOverride = hex.encode(resp.rawTx);
+    tx.outputs = resp.outputId;
     return tx;
   }
 }
