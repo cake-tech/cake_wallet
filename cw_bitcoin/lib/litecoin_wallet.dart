@@ -188,6 +188,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           date: date, confirmations: confirmations,
           inputAddresses: [],
           outputAddresses: [utxo.address]);
+      tx.height = utxo.height;
       tx.isPending = utxo.height == 0;
       tx.confirmations = confirmations;
       if (transactionHistory.transactions[utxo.outputId] == null) {
@@ -271,7 +272,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (outputId.isEmpty) return false;
     final stub = await CwMweb.stub();
     final resp = await stub.spent(SpentRequest(outputId: outputId));
-    if (resp.outputId.toSet() != target) return false;
+    if (!setEquals(resp.outputId.toSet(), target)) return false;
     final status = await stub.status(StatusRequest());
     if (!tx.isPending) return false;
     tx.height = status.mwebUtxosHeight;
