@@ -381,13 +381,8 @@ class WalletRestorePage extends BasePage {
             arguments: derivations) as DerivationInfo?;
       } else if (derivationsWithHistory == 1) {
         dInfo = derivations[derivationWithHistoryIndex];
-      } else if (derivationsWithHistory == 0 && derivations.isNotEmpty) {
-        dInfo = DerivationInfo(
-          derivationType: DerivationType.bip39,
-          derivationPath: "m/84'/0'/0'/0",
-          description: "Standard BIP84 native segwit",
-          scriptType: "p2wpkh",
-        );
+      } else {
+        dInfo = walletRestoreViewModel.getCommonRestoreDerivation();
       }
 
       if (dInfo == null) {
