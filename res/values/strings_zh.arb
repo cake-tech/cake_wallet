@@ -660,6 +660,7 @@
   "template_name": "模板名称",
   "third_intro_content": "Yats 也住在 Cake Wallet 之外。 地球上任何一個錢包地址都可以用一個Yat來代替！",
   "third_intro_title": "Yat 和別人玩得很好",
+  "thorchain_contract_address_not_supported": "Thorchain不支持发送到合同地址",
   "thorchain_taproot_address_not_supported": "Thorchain提供商不支持Taproot地址。请更改地址或选择其他提供商。",
   "time": "${minutes}m ${seconds}s",
   "tip": "提示:",

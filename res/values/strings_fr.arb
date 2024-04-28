@@ -660,6 +660,7 @@
   "template_name": "Nom du modèle",
   "third_intro_content": "Les Yats existent aussi en dehors de Cake Wallet. Toute adresse sur terre peut être remplacée par un Yat !",
   "third_intro_title": "Yat est universel",
+  "thorchain_contract_address_not_supported": "Thorchain ne prend pas en charge l'envoi à une adresse de contrat",
   "thorchain_taproot_address_not_supported": "Le fournisseur de Thorchain ne prend pas en charge les adresses de tapoot. Veuillez modifier l'adresse ou sélectionner un autre fournisseur.",
   "time": "${minutes}m ${seconds}s",
   "tip": "Pourboire :",
