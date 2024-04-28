@@ -196,10 +196,10 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
           GridView.builder(
             controller: _scrollController,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: responsiveLayoutUtil.shouldRenderTabletUI ? 3 : 2,
-              childAspectRatio: 1.5,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
+              crossAxisCount: responsiveLayoutUtil.shouldRenderTabletUI ? 2 : 1,
+              childAspectRatio: 5,
+              crossAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5,
+              mainAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5,
             ),
             padding: EdgeInsets.only(left: 2, right: 22),
             itemCount: widget.cardsListViewModel.cakePayVendors.length + (isLoadingMore ? 1 : 0),

@@ -41,47 +41,58 @@ class CardItem extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(10),
             border: hideBorder
                 ? Border.all(color: Colors.transparent)
                 : Border.all(color: Colors.white.withOpacity(0.20)),
           ),
-          child: Column(
+          child: Row(
             children: [
-              Expanded(child: const SizedBox()),
               if (logoUrl != null)
-                Expanded(
-                  flex: 7,
-                  child: AspectRatio(
-                    aspectRatio: 1.8,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      child: Image.network(
-                        logoUrl!,
-                        fit: BoxFit.cover,
-                        loadingBuilder:
-                            (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(child: CircularProgressIndicator());
-                        },
-                        errorBuilder: (context, error, stackTrace) => ImagePlaceholder(text: '!'),
-                      ),
+                AspectRatio(
+                  aspectRatio: 1.8,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    child: Image.network(
+                      logoUrl!,
+                      fit: BoxFit.cover,
+                      loadingBuilder:
+                          (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(child: CircularProgressIndicator());
+                      },
+                      errorBuilder: (context, error, stackTrace) => ImagePlaceholder(text: '!'),
                     ),
                   ),
                 ),
               Expanded(
-                flex: 3,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  child: Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: titleColor,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: titleColor,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        subTitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: titleColor,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

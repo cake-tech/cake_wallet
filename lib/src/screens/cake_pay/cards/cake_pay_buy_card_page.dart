@@ -114,12 +114,13 @@ class CakePayBuyCardPage extends BasePage {
                     )),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Container(
                   height: responsiveLayoutUtil.screenHeight * 0.5,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      SizedBox(height: 24),
                       Expanded(
                         child: Text(S.of(context).enter_amount,
                             style: TextStyle(
