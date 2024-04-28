@@ -58,7 +58,8 @@ class WalletInfo extends HiveObject {
       this.yatLastUsedAddressRaw,
       this.showIntroCakePayCard,
       this.derivationType,
-      this.derivationPath)
+      this.derivationPath,
+      this.parentAddress)
       : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
@@ -76,22 +77,25 @@ class WalletInfo extends HiveObject {
     String yatLastUsedAddressRaw = '',
     DerivationType? derivationType,
     String? derivationPath,
+    String? parentAddress,
   }) {
     return WalletInfo(
-        id,
-        name,
-        type,
-        isRecovery,
-        restoreHeight,
-        date.millisecondsSinceEpoch,
-        dirPath,
-        path,
-        address,
-        yatEid,
-        yatLastUsedAddressRaw,
-        showIntroCakePayCard,
-        derivationType,
-        derivationPath);
+      id,
+      name,
+      type,
+      isRecovery,
+      restoreHeight,
+      date.millisecondsSinceEpoch,
+      dirPath,
+      path,
+      address,
+      yatEid,
+      yatLastUsedAddressRaw,
+      showIntroCakePayCard,
+      derivationType,
+      derivationPath,
+      parentAddress,
+    );
   }
 
   static const typeId = WALLET_INFO_TYPE_ID;
@@ -153,6 +157,9 @@ class WalletInfo extends HiveObject {
 
   @HiveField(19)
   String? network;
+
+  @HiveField(20)
+  String? parentAddress;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
 

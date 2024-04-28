@@ -10,9 +10,16 @@ class CWEthereum extends Ethereum {
   @override
   WalletCredentials createEthereumNewWalletCredentials({
     required String name,
+    String? mnemonic,
+    String? parentAddress,
     WalletInfo? walletInfo,
   }) =>
-      EVMChainNewWalletCredentials(name: name, walletInfo: walletInfo);
+      EVMChainNewWalletCredentials(
+        name: name,
+        mnemonic: mnemonic,
+        parentAddress: parentAddress,
+        walletInfo: walletInfo,
+      );
 
   @override
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({
