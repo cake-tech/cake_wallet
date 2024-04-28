@@ -83,9 +83,12 @@ class CakePayCardsPage extends BasePage {
       label: S.of(context).filter_by,
       child: InkWell(
           onTap: () async {
+            _cardsListViewModel.storeInitialFilterStates();
             await showCategoryFilter(context);
-            _cardsListViewModel.page = 1;
-            _cardsListViewModel.getVendors();
+            if (_cardsListViewModel.hasFiltersChanged) {
+              _cardsListViewModel.page = 1;
+              _cardsListViewModel.getVendors();
+            }
           },
           child: Container(
             width: 32,

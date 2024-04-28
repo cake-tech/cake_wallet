@@ -72,6 +72,16 @@ abstract class CakePayCardsListViewModelBase with Store {
 
   int page;
 
+  late String _initialSelectedCountry;
+
+  late bool _initialDisplayPrepaidCards;
+
+  late bool _initialDisplayGiftCards;
+
+  late bool _initialDisplayDenominationsCards;
+
+  late bool _initialDisplayCustomValueCards;
+
   @observable
   double scrollOffsetFromTop;
 
@@ -91,9 +101,6 @@ abstract class CakePayCardsListViewModelBase with Store {
   bool isLoadingNextPage = false;
 
   @observable
-  String selectedCountry;
-
-  @observable
   List<CakePayVendor> cakePayVendors;
 
   @observable
@@ -110,6 +117,16 @@ abstract class CakePayCardsListViewModelBase with Store {
 
   @observable
   bool displayCustomValueCards;
+
+  @observable
+  String selectedCountry;
+
+  bool get hasFiltersChanged =>
+      selectedCountry != _initialSelectedCountry ||
+          displayPrepaidCards != _initialDisplayPrepaidCards ||
+          displayGiftCards != _initialDisplayGiftCards ||
+          displayDenominationsCards != _initialDisplayDenominationsCards ||
+          displayCustomValueCards != _initialDisplayCustomValueCards;
 
   Future<void> getCountries() async {
     availableCountries = await cakePayService.getCountries();
@@ -165,6 +182,14 @@ abstract class CakePayCardsListViewModelBase with Store {
 
   Future<bool> isCakePayUserAuthenticated() async {
     return await cakePayService.isLogged();
+  }
+
+  void storeInitialFilterStates() {
+    _initialSelectedCountry = selectedCountry;
+    _initialDisplayPrepaidCards = displayPrepaidCards;
+    _initialDisplayGiftCards = displayGiftCards;
+    _initialDisplayDenominationsCards = displayDenominationsCards;
+    _initialDisplayCustomValueCards = displayCustomValueCards;
   }
 
   @action
