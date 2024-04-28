@@ -16,6 +16,8 @@ abstract class BuyProvider {
 
   String get providerDescription;
 
+  String get providerSellDescription;
+
   String get lightIcon;
 
   String get darkIcon;

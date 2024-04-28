@@ -25,6 +25,9 @@ class RobinhoodBuyProvider extends BuyProvider {
   String get providerDescription => S.current.robinhood_option_description;
 
   @override
+  String get providerSellDescription => providerDescription;
+
+  @override
   String get lightIcon => 'assets/images/robinhood_light.png';
 
   @override

@@ -46,6 +46,9 @@ class MoonPayProvider extends BuyProvider {
       'MoonPay offers a fast and simple way to buy and sell cryptocurrencies';
 
   @override
+  String get providerSellDescription => providerDescription;
+
+  @override
   String get title => 'MoonPay';
 
   @override
