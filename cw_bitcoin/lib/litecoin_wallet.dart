@@ -10,6 +10,7 @@ import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
+import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
@@ -278,6 +279,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     tx.height = status.mwebUtxosHeight;
     tx.confirmations = 1;
     tx.isPending = false;
+    await transactionHistory.save();
     return true;
   }
 
@@ -366,7 +368,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final mwebInputSum = utxos.sumOfUtxosValue() - posUtxos.sumOfUtxosValue();
     final expectedPegin = max(0, (preOutputSum - mwebInputSum).toInt());
     var feeIncrease = posOutputSum - expectedPegin;
-    if (expectedPegin > 0 && fee == 0) {
+    if (expectedPegin > 0 && fee == BigInt.zero) {
       feeIncrease += await super.calcFee(utxos: posUtxos, outputs: tx.outputs.map((output) =>
           BitcoinScriptOutput(script: output.scriptPubKey, value: output.amount)).toList(),
           network: network, memo: memo, feeRate: feeRate) + feeRate * 41;
@@ -383,7 +385,18 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         scanSecret: hex.decode(mwebHd.derive(0x80000000).privKey!),
         spendSecret: hex.decode(mwebHd.derive(0x80000001).privKey!),
         feeRatePerKb: Int64.parseInt(tx.feeRate) * 1000));
-    tx.hexOverride = hex.encode(resp.rawTx);
+    final tx2 = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
+    tx.hexOverride = tx2.copyWith(witnesses: tx2.inputs.asMap().entries.map((e) {
+      final utxo = unspentCoins.firstWhere((utxo) =>
+          utxo.hash == e.value.txId && utxo.vout == e.value.txIndex);
+      final key = generateECPrivate(hd: utxo.bitcoinAddressRecord.isHidden ?
+          walletAddresses.sideHd : walletAddresses.mainHd,
+          index: utxo.bitcoinAddressRecord.index, network: network);
+      final digest = tx2.getTransactionSegwitDigit(txInIndex: e.key,
+          script: key.getPublic().toP2pkhAddress().toScriptPubKey(),
+          amount: BigInt.from(utxo.value));
+      return TxWitnessInput(stack: [key.signInput(digest), key.getPublic().toHex()]);
+    }).toList()).toHex();
     tx.outputs = resp.outputId;
     return tx;
   }
