@@ -399,6 +399,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return TxWitnessInput(stack: [key.signInput(digest), key.getPublic().toHex()]);
     }).toList()).toHex();
     tx.outputs = resp.outputId;
-    return tx;
+    return tx..addListener((transaction) async {
+      transaction.inputAddresses?.forEach(mwebUtxos.remove);
+      await updateUnspent();
+      await updateBalance();
+    });
   }
 }
