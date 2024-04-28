@@ -55,7 +55,7 @@ class CakePayCardsPage extends BasePage {
   @override
   Widget middle(BuildContext context) {
     return Text(
-      S.of(context).gift_cards,
+      'Cake Pay',
       style: textMediumSemiBold(
         color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
       ),

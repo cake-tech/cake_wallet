@@ -190,8 +190,7 @@ class CakePayBuyCardPage extends BasePage {
                         card,
                       ]);
                     },
-                    text: 'Buy Now',
-                    //TODO: S.of(context).buy_now,
+                    text: S.of(context).buy_now,
                     isDisabled: !cakePayBuyCardViewModel.isEnablePurchase,
                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
