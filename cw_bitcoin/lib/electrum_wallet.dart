@@ -792,7 +792,6 @@ abstract class ElectrumWalletBase
           coin.isFrozen = coinInfo.isFrozen;
           coin.isSending = coinInfo.isSending;
           coin.note = coinInfo.note;
-          coin.bitcoinAddressRecord.balance += coinInfo.value;
         } else {
           _addCoinInfo(coin);
         }

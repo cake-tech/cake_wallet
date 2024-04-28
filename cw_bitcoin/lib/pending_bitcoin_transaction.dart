@@ -1,3 +1,4 @@
+import 'package:grpc/grpc.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -91,8 +92,8 @@ class PendingBitcoinTransaction with PendingTransaction {
       final stub = await CwMweb.stub();
       final resp = await stub.broadcast(BroadcastRequest(rawTx: BytesUtils.fromHexString(hex)));
       idOverride = resp.txid;
-    } catch (e) {
-      throw BitcoinTransactionCommitFailed();
+    } on GrpcError catch (e) {
+      throw BitcoinTransactionCommitFailed(errorMessage: e.message);
     } else {
       await _commit();
     }

@@ -133,6 +133,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final stub = await CwMweb.stub();
     Timer.periodic(
       const Duration(milliseconds: 1500), (timer) async {
+        if (syncStatus is FailedSyncStatus) return;
         final height = await electrumClient.getCurrentBlockChainTip() ?? 0;
         final resp = await stub.status(StatusRequest());
         if (resp.blockHeaderHeight < height) {
@@ -145,10 +146,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           syncStatus = SyncingSyncStatus(1, 0.999);
         } else {
           syncStatus = SyncedSyncStatus();
-        }
-        if (resp.mwebUtxosHeight > mwebUtxosHeight) {
-          mwebUtxosHeight = resp.mwebUtxosHeight;
-          await checkMwebUtxosSpent();
+          if (resp.mwebUtxosHeight > mwebUtxosHeight) {
+            mwebUtxosHeight = resp.mwebUtxosHeight;
+            await checkMwebUtxosSpent();
+          }
         }
       });
     processMwebUtxos();
@@ -192,7 +193,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       tx.height = utxo.height;
       tx.isPending = utxo.height == 0;
       tx.confirmations = confirmations;
-      if (transactionHistory.transactions[utxo.outputId] == null) {
+      if (transactionHistory.transactions[tx.id] == null) {
         final addressRecord = walletAddresses.allAddresses.firstWhere(
             (addressRecord) => addressRecord.address == utxo.address);
         addressRecord.txCount++;
