@@ -106,8 +106,9 @@ class CWNano extends Nano {
     required String mnemonic,
     required DerivationType derivationType,
   }) {
-    if (mnemonic.split(" ").length == 12) {
-      derivationType = DerivationType.bip39;
+    
+    if (mnemonic.split(" ").length == 12 && derivationType != DerivationType.bip39) {
+      throw Exception("Invalid mnemonic for derivation type!");
     }
 
     return NanoRestoreWalletFromSeedCredentials(
@@ -125,8 +126,9 @@ class CWNano extends Nano {
     required String seedKey,
     required DerivationType derivationType,
   }) {
-    if (seedKey.length == 128) {
-      derivationType = DerivationType.bip39;
+
+    if (seedKey.length == 128 && derivationType != DerivationType.bip39) {
+      throw Exception("Invalid seed key length for derivation type!");
     }
 
     return NanoRestoreWalletFromKeysCredentials(

@@ -387,7 +387,7 @@ class WalletRestorePage extends BasePage {
       } else {
         // if we have multiple possible derivations, and none have histories
         // we just default to the most common one:
-        dInfo = walletRestoreViewModel.getMostCommonDerivation();
+        dInfo = walletRestoreViewModel.getCommonRestoreDerivation();
       }
     }
 
