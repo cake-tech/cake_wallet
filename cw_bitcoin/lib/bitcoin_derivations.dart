@@ -64,7 +64,7 @@ Map<DerivationType, List<DerivationInfo>> bitcoin_derivations = {
       description: "Samourai Deposit",
       scriptType: "p2wpkh",
     ),
-      DerivationInfo(
+    DerivationInfo(
       derivationType: DerivationType.bip39,
       derivationPath: "m/84'/0'/0'",
       description: "Samourai Deposit",
@@ -104,6 +104,12 @@ Map<DerivationType, List<DerivationInfo>> bitcoin_derivations = {
       derivationType: DerivationType.bip39,
       derivationPath: "m/84'/0'/2147483647'",
       description: "Samourai Ricochet native segwit",
+      scriptType: "p2wpkh",
+    ),
+    DerivationInfo(
+      derivationType: DerivationType.bip39,
+      derivationPath: "m/84'/2'/0'",
+      description: "Default Litecoin",
       scriptType: "p2wpkh",
     ),
   ],
