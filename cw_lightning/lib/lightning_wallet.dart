@@ -154,8 +154,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       print("Error initializing Breez: $e");
     }
 
-    Uint8List deviceKey = Uint8List(0);
-    Uint8List deviceCert = Uint8List(0);
+    Uint8List deviceKey = base64.decode(secrets.greenlightKey);
+    Uint8List deviceCert = base64.decode(secrets.greenlightCert);
     GreenlightCredentials greenlightCredentials = GreenlightCredentials(
       deviceKey: deviceKey,
       deviceCert: deviceCert,
