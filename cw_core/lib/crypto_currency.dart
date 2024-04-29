@@ -10,7 +10,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     this.fullName,
     this.iconPath,
     this.tag,
-    this.enabled = true,
+    this.enabled = false,
     })
       : super(title: title, raw: raw);
 
