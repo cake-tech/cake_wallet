@@ -169,6 +169,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return null;
   }
 
+  int? get maxCustomFeeRate {
+    if (wallet.type == WalletType.bitcoin) {
+      return bitcoin!.getMaxCustomFeeRate(wallet);
+    }
+    return null;
+  }
+
   @computed
   int get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate;
 
@@ -568,7 +575,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return S.current.tx_no_dust_exception;
       }
       if (error is TransactionCommitFailed) {
-        return S.current.tx_commit_failed;
+        return "${S.current.tx_commit_failed}${error.errorMessage != null ? "\n\n${error.errorMessage}" : ""}";
       }
       if (error is TransactionCommitFailedDustChange) {
         return S.current.tx_rejected_dust_change;

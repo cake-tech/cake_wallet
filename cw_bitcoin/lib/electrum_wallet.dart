@@ -223,10 +223,14 @@ abstract class ElectrumWalletBase
 
     int allInputsAmount = 0;
 
+    bool spendsUnconfirmedTX = false;
+
     for (int i = 0; i < unspentCoins.length; i++) {
       final utx = unspentCoins[i];
 
-      if (utx.isSending) {
+      if (utx.isSending && !utx.isFrozen) {
+        if (!spendsUnconfirmedTX) spendsUnconfirmedTX = utx.confirmations == 0;
+
         allInputsAmount += utx.value;
 
         final address = addressTypeFromStr(utx.address, network);
@@ -292,6 +296,10 @@ abstract class ElectrumWalletBase
     // Here, when sending all, the output amount equals to the input value - fee to fully spend every input on the transaction and have no amount left for change
     int amount = allInputsAmount - fee;
 
+    if (amount <= 0) {
+      throw BitcoinTransactionWrongBalanceException();
+    }
+
     // Attempting to send less than the dust limit
     if (_isBelowDust(amount)) {
       throw BitcoinTransactionNoDustException();
@@ -317,6 +325,7 @@ abstract class ElectrumWalletBase
       isSendAll: true,
       hasChange: false,
       memo: memo,
+      spendsUnconfirmedTX: spendsUnconfirmedTX,
     );
   }
 
@@ -326,18 +335,26 @@ abstract class ElectrumWalletBase
     int feeRate, {
     int? inputsCount,
     String? memo,
+    bool? useUnconfirmed,
   }) async {
     final utxos = <UtxoWithAddress>[];
     final privateKeys = <ECPrivate>[];
     final publicKeys = <String, PublicKeyWithDerivationPath>{};
 
     int allInputsAmount = 0;
+    bool spendsUnconfirmedTX = false;
 
     int leftAmount = credentialsAmount;
-    final sendingCoins = unspentCoins.where((utx) => utx.isSending).toList();
+    final sendingCoins = unspentCoins.where((utx) => utx.isSending && !utx.isFrozen).toList();
+    final unconfirmedCoins = sendingCoins.where((utx) => utx.confirmations == 0).toList();
 
     for (int i = 0; i < sendingCoins.length; i++) {
       final utx = sendingCoins[i];
+
+      final isUncormirmed = utx.confirmations == 0;
+      if (useUnconfirmed != true && isUncormirmed) continue;
+
+      if (!spendsUnconfirmedTX) spendsUnconfirmedTX = isUncormirmed;
 
       allInputsAmount += utx.value;
       leftAmount = leftAmount - utx.value;
@@ -386,11 +403,23 @@ abstract class ElectrumWalletBase
     }
 
     final spendingAllCoins = sendingCoins.length == utxos.length;
+    final spendingAllConfirmedCoins =
+        !spendsUnconfirmedTX && utxos.length == sendingCoins.length - unconfirmedCoins.length;
 
     // How much is being spent - how much is being sent
     int amountLeftForChangeAndFee = allInputsAmount - credentialsAmount;
 
     if (amountLeftForChangeAndFee <= 0) {
+      if (!spendingAllCoins) {
+        return estimateTxForAmount(
+          credentialsAmount,
+          outputs,
+          feeRate,
+          inputsCount: utxos.length + 1,
+          memo: memo,
+          useUnconfirmed: useUnconfirmed ?? spendingAllConfirmedCoins,
+        );
+      }
       throw BitcoinTransactionWrongBalanceException();
     }
 
@@ -444,6 +473,7 @@ abstract class ElectrumWalletBase
           feeRate,
           inputsCount: utxos.length + 1,
           memo: memo,
+          useUnconfirmed: useUnconfirmed ?? spendingAllConfirmedCoins,
         );
       }
 
@@ -490,6 +520,7 @@ abstract class ElectrumWalletBase
           feeRate,
           inputsCount: utxos.length + 1,
           memo: memo,
+          useUnconfirmed: useUnconfirmed ?? spendingAllConfirmedCoins,
         );
       }
     }
@@ -503,6 +534,7 @@ abstract class ElectrumWalletBase
       hasChange: true,
       isSendAll: false,
       memo: memo,
+      spendsUnconfirmedTX: spendsUnconfirmedTX,
     );
   }
 
@@ -602,7 +634,7 @@ abstract class ElectrumWalletBase
           network: network,
           memo: estimatedTx.memo,
           outputOrdering: BitcoinOrdering.none,
-          enableRBF: true,
+          enableRBF: !estimatedTx.spendsUnconfirmedTX,
         );
       } else {
         txb = BitcoinTransactionBuilder(
@@ -612,7 +644,7 @@ abstract class ElectrumWalletBase
           network: network,
           memo: estimatedTx.memo,
           outputOrdering: BitcoinOrdering.none,
-          enableRBF: true,
+          enableRBF: !estimatedTx.spendsUnconfirmedTX,
         );
       }
 
@@ -806,6 +838,7 @@ abstract class ElectrumWalletBase
                 final tx = await fetchTransactionInfo(
                     hash: coin.hash, height: 0, myAddresses: addressesSet);
                 coin.isChange = tx?.direction == TransactionDirection.outgoing;
+                coin.confirmations = tx?.confirmations;
                 updatedUnspentCoins.add(coin);
               } catch (_) {}
             }))));
@@ -830,6 +863,7 @@ abstract class ElectrumWalletBase
           coin.isFrozen = coinInfo.isFrozen;
           coin.isSending = coinInfo.isSending;
           coin.note = coinInfo.note;
+          coin.bitcoinAddressRecord.balance += coinInfo.value;
         } else {
           _addCoinInfo(coin);
         }
@@ -1122,9 +1156,11 @@ abstract class ElectrumWalletBase
 
         return Future.wait(addressesByType.map((addressRecord) async {
           final history = await _fetchAddressHistory(addressRecord, addressesSet, currentHeight);
+          final balance = await electrumClient.getBalance(addressRecord.scriptHash!);
 
           if (history.isNotEmpty) {
             addressRecord.txCount = history.length;
+            addressRecord.balance = balance['confirmed'] as int? ?? 0;
             historiesWithDetails.addAll(history);
 
             final matchedAddresses =
@@ -1356,6 +1392,7 @@ class EstimatedTxResult {
     required this.hasChange,
     required this.isSendAll,
     this.memo,
+    required this.spendsUnconfirmedTX,
   });
 
   final List<UtxoWithAddress> utxos;
@@ -1366,6 +1403,7 @@ class EstimatedTxResult {
   final bool hasChange;
   final bool isSendAll;
   final String? memo;
+  final bool spendsUnconfirmedTX;
 }
 
 class PublicKeyWithDerivationPath {
