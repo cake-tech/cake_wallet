@@ -1,6 +1,6 @@
 import 'package:cw_core/wallet_info.dart';
 
-Map<DerivationType, List<DerivationInfo>> bitcoin_derivations = {
+Map<DerivationType, List<DerivationInfo>> electrum_derivations = {
   DerivationType.electrum: [
     DerivationInfo(
       derivationType: DerivationType.electrum,

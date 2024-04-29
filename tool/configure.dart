@@ -84,7 +84,7 @@ import 'package:hive/hive.dart';
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/litecoin_network.dart';
-import 'package:cw_bitcoin/bitcoin_derivations.dart';
+import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
@@ -912,6 +912,11 @@ abstract class NanoUtil {
   Future<List<DerivationType>> compareDerivationMethods({
     String? mnemonic,
     String? privateKey,
+    required Node node,
+  });
+  Future<List<DerivationInfo>> getDerivationsFromMnemonic({
+    String? mnemonic,
+    String? seedKey,
     required Node node,
   });
 }

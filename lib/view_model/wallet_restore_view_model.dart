@@ -212,63 +212,15 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['private_key'] as String?;
-        AccountInfoResponse? bip39Info = await nanoUtil!.getInfoFromSeedOrMnemonic(
-            DerivationType.bip39,
-            mnemonic: mnemonic,
-            seedKey: seedKey,
-            node: node);
-        AccountInfoResponse? standardInfo = await nanoUtil!.getInfoFromSeedOrMnemonic(
-          DerivationType.nano,
+        return nanoUtil!.getDerivationsFromMnemonic(
           mnemonic: mnemonic,
           seedKey: seedKey,
           node: node,
         );
-
-        if (standardInfo?.balance != null) {
-          list.add(DerivationInfo(
-            derivationType: DerivationType.nano,
-            balance: nanoUtil!.getRawAsUsableString(standardInfo!.balance, nanoUtil!.rawPerNano),
-            address: standardInfo.address!,
-            transactionsCount: standardInfo.confirmationHeight,
-          ));
-        }
-
-        if (bip39Info?.balance != null) {
-          list.add(DerivationInfo(
-            derivationType: DerivationType.bip39,
-            balance: nanoUtil!.getRawAsUsableString(bip39Info!.balance, nanoUtil!.rawPerNano),
-            address: bip39Info.address!,
-            transactionsCount: bip39Info.confirmationHeight,
-          ));
-        }
-        break;
       default:
         break;
     }
     return list;
-  }
-
-  Future<List<DerivationType>> getDerivationTypes(dynamic options) async {
-    final seedKey = options['private_key'] as String?;
-    final mnemonic = options['seed'] as String?;
-    WalletType walletType = options['walletType'] as WalletType;
-    var appStore = getIt.get<AppStore>();
-    var node = appStore.settingsStore.getCurrentNode(walletType);
-
-    switch (type) {
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
-        return bitcoin!.compareDerivationMethods(mnemonic: mnemonic!, node: node);
-      case WalletType.nano:
-        return nanoUtil!.compareDerivationMethods(
-          mnemonic: mnemonic,
-          privateKey: seedKey,
-          node: node,
-        );
-      default:
-        break;
-    }
-    return [DerivationType.def];
   }
 
   @override
