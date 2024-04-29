@@ -99,7 +99,7 @@ abstract class WalletCreationVMBase with Store {
       case WalletType.litecoin:
         return DerivationInfo(
           derivationType: DerivationType.electrum,
-          derivationPath: "m/0'/0",
+          derivationPath: "m/0'",
         );
       default:
         return null;

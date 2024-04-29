@@ -33,23 +33,27 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   }) : super(
-            mnemonic: mnemonic,
-            password: password,
-            walletInfo: walletInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
-            networkType: litecoinNetwork,
-            initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            seedBytes: seedBytes,
-            currency: CryptoCurrency.ltc) {
+          mnemonic: mnemonic,
+          password: password,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfo,
+          networkType: litecoinNetwork,
+          initialAddresses: initialAddresses,
+          initialBalance: initialBalance,
+          seedBytes: seedBytes,
+          currency: CryptoCurrency.ltc,
+        ) {
+    String derivationPath = walletInfo.derivationInfo!.derivationPath! + "/0";
+    String sideDerivationPath = walletInfo.derivationInfo!.derivationPath! + "/1";
+    final hd2 = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
     walletAddresses = LitecoinWalletAddresses(
       walletInfo,
       electrumClient: electrumClient,
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
-      mainHd: hd,
-      sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
+      mainHd: hd2.derivePath(derivationPath),
+      sideHd: hd2.derivePath(sideDerivationPath),
       network: network,
     );
     autorun((_) {

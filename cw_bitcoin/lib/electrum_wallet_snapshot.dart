@@ -56,7 +56,7 @@ class ElectrumWalletSnapshot {
 
     final derivationType =
         DerivationType.values[(data['derivationTypeIndex'] as int?) ?? DerivationType.electrum.index];
-    final derivationPath = data['derivationPath'] as String? ?? "m/0'/0";
+    final derivationPath = data['derivationPath'] as String? ?? "m/0'";
 
     try {
       regularAddressIndexByType = {

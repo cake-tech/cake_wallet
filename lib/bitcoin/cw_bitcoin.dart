@@ -292,7 +292,7 @@ class CWBitcoin extends Bitcoin {
       return [
         DerivationInfo(
           derivationType: DerivationType.electrum,
-          derivationPath: "m/0'/0",
+          derivationPath: "m/0'",
           description: "Electrum",
           scriptType: "p2wpkh",
         )
@@ -333,27 +333,19 @@ class CWBitcoin extends Bitcoin {
             scriptType: dInfo.scriptType,
           );
 
-          String derivationPath = dInfoCopy.derivationPath!;
-          int derivationDepth = _countOccurrences(derivationPath, "/");
-
-          // the correct derivation depth is dependant on the derivation type:
-          // the derivation paths defined in electrum_derivations are at the ROOT level, i.e.:
-          // electrum's format doesn't specify subaddresses, just subaccounts:
-
-          // for BIP44
-          if (derivationDepth == 3) {
-            // we add "/0/0" so that we generate account 0, index 0 and correctly get balance
-            derivationPath += "/0/0";
-            // we don't support sub-ACCOUNTS in bitcoin like we do monero, and so the path dInfoCopy
-            // expects should be ACCOUNT 0, index unspecified:
-            dInfoCopy.derivationPath = dInfoCopy.derivationPath! + "/0";
+          String rootPath = dInfoCopy.derivationPath!;
+          int depth = _countOccurrences(rootPath, "/");
+          String pathForIndex0 = rootPath;
+          if (depth == 3) {
+            pathForIndex0 = rootPath + "/0/0";
+          } else {
+            pathForIndex0 = rootPath + "/0";
           }
 
-          // var hd = bip32.BIP32.fromSeed(seedBytes).derivePath(derivationPath);
           final hd = btc.HDWallet.fromSeed(
             seedBytes,
             network: networkType,
-          ).derivePath(derivationPath);
+          ).derivePath(pathForIndex0);
 
           String? address;
           switch (dInfoCopy.scriptType) {

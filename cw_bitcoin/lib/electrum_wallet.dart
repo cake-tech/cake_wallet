@@ -63,7 +63,7 @@ abstract class ElectrumWalletBase
       : hd = currency == CryptoCurrency.bch
             ? bitcoinCashHDWallet(seedBytes)
             : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-                .derivePath(walletInfo.derivationInfo?.derivationPath ?? "m/0'/0"),
+                .derivePath(walletInfo.derivationInfo?.derivationPath ?? "m/0'"),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
