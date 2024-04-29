@@ -675,6 +675,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     final selectedItem = items.indexOf(sendViewModel.transactionPriority);
     final customItemIndex = sendViewModel.getCustomPriorityIndex(items);
     final isBitcoinWallet = sendViewModel.walletType == WalletType.bitcoin;
+    final maxCustomFeeRate = sendViewModel.maxCustomFeeRate?.toDouble();
     double? customFeeRate = isBitcoinWallet ? sendViewModel.customBitcoinFeeRate.toDouble() : null;
 
     await showPopUp<void>(
@@ -689,6 +690,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   sendViewModel.displayFeeRate(priority, customFeeRate?.round()),
               selectedAtIndex: selectedIdx,
               customItemIndex: customItemIndex,
+              maxValue: maxCustomFeeRate,
               title: S.of(context).please_select,
               headerEnabled: !isBitcoinWallet,
               closeOnItemSelected: !isBitcoinWallet,

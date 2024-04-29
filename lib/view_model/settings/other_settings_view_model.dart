@@ -140,6 +140,13 @@ abstract class OtherSettingsViewModelBase with Store {
     return customItem != null ? priorities.indexOf(customItem) : null;
   }
 
+  int? get maxCustomFeeRate {
+    if (_wallet.type == WalletType.bitcoin) {
+      return bitcoin!.getMaxCustomFeeRate(_wallet);
+    }
+    return null;
+  }
+
   @action
   ProviderType onBuyProviderTypeSelected(ProviderType buyProviderType) =>
       _settingsStore.defaultBuyProviders[walletType] = buyProviderType;
