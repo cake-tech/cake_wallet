@@ -17,8 +17,7 @@ class NanoBalance extends Balance {
         receivableBalance = stringAmountToBigInt(formattedReceivableBalance),
         super(0, 0);
 
-  NanoBalance.fromRawString(
-      {required String currentBalance, required String receivableBalance})
+  NanoBalance.fromRawString({required String currentBalance, required String receivableBalance})
       : currentBalance = BigInt.parse(currentBalance),
         receivableBalance = BigInt.parse(receivableBalance),
         super(0, 0);
@@ -31,5 +30,15 @@ class NanoBalance extends Balance {
   @override
   String get formattedAdditionalBalance {
     return NanoAmounts.getRawAsUsableString(receivableBalance.toString(), NanoAmounts.rawPerNano);
+  }
+
+  @override
+  String get formattedFullBalance {
+    final totalBalanceInDouble = currentBalance.toDouble() + receivableBalance.toDouble();
+
+    return NanoAmounts.getRawAsUsableString(
+      (totalBalanceInDouble).toString(),
+      NanoAmounts.rawPerNano,
+    );
   }
 }

@@ -18,21 +18,26 @@ import 'package:mobx/mobx.dart';
 part 'balance_view_model.g.dart';
 
 class BalanceRecord {
-  const BalanceRecord(
-      {required this.availableBalance,
-      required this.additionalBalance,
-      required this.frozenBalance,
-      required this.fiatAvailableBalance,
-      required this.fiatAdditionalBalance,
-      required this.fiatFrozenBalance,
-      required this.asset,
-      required this.formattedAssetTitle});
+  const BalanceRecord({
+    required this.availableBalance,
+    required this.additionalBalance,
+    required this.frozenBalance,
+    required this.fiatAvailableBalance,
+    required this.fiatAdditionalBalance,
+    required this.fiatFrozenBalance,
+    required this.asset,
+    required this.formattedAssetTitle,
+    required this.fullBalance,
+    required this.fiatFullBalance,
+  });
   final String fiatAdditionalBalance;
   final String fiatAvailableBalance;
   final String fiatFrozenBalance;
   final String additionalBalance;
   final String availableBalance;
   final String frozenBalance;
+  final String fullBalance;
+  final String fiatFullBalance;
   final CryptoCurrency asset;
   final String formattedAssetTitle;
 }
@@ -126,6 +131,9 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.solana:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
         return S.current.xmr_available_balance;
       default:
         return S.current.confirmed;
@@ -146,6 +154,22 @@ abstract class BalanceViewModelBase with Store {
         return S.current.receivable_balance;
       default:
         return S.current.unconfirmed;
+    }
+  }
+
+  @computed
+  String get fullBalanceLabel {
+    switch (wallet.type) {
+      case WalletType.monero:
+      case WalletType.haven:
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.nano:
+      case WalletType.banano:
+        return S.current.xmr_full_balance;
+      default:
+        return S.current.xmr_full_balance;
     }
   }
 
@@ -226,57 +250,73 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   Map<CryptoCurrency, BalanceRecord> get balances {
-    return wallet.balance.map((key, value) {
-      if (displayMode == BalanceDisplayMode.hiddenBalance) {
-        return MapEntry(
+    return wallet.balance.map(
+      (key, value) {
+        if (displayMode == BalanceDisplayMode.hiddenBalance) {
+          return MapEntry(
             key,
             BalanceRecord(
-                availableBalance: '---',
-                additionalBalance: '---',
-                frozenBalance: '---',
-                fiatAdditionalBalance: isFiatDisabled ? '' : '---',
-                fiatAvailableBalance: isFiatDisabled ? '' : '---',
-                fiatFrozenBalance: isFiatDisabled ? '' : '---',
-                asset: key,
-                formattedAssetTitle: _formatterAsset(key)));
-      }
-      final fiatCurrency = settingsStore.fiatCurrency;
-      final price = fiatConvertationStore.prices[key] ?? 0;
+              availableBalance: '---',
+              additionalBalance: '---',
+              frozenBalance: '---',
+              fullBalance: '---',
+              fiatAdditionalBalance: isFiatDisabled ? '' : '---',
+              fiatAvailableBalance: isFiatDisabled ? '' : '---',
+              fiatFrozenBalance: isFiatDisabled ? '' : '---',
+              fiatFullBalance: isFiatDisabled ? '' : '---',
+              asset: key,
+              formattedAssetTitle: _formatterAsset(key),
+            ),
+          );
+        }
+        final fiatCurrency = settingsStore.fiatCurrency;
+        final price = fiatConvertationStore.prices[key] ?? 0;
 
-      // if (price == null) {
-      //   throw Exception('Price is null for: $key');
-      // }
+        // if (price == null) {
+        //   throw Exception('Price is null for: $key');
+        // }
 
-      final additionalFiatBalance = isFiatDisabled
-          ? ''
-          : (fiatCurrency.toString() +
-              ' ' +
-              _getFiatBalance(price: price, cryptoAmount: value.formattedAdditionalBalance));
+        final additionalFiatBalance = isFiatDisabled
+            ? ''
+            : (fiatCurrency.toString() +
+                ' ' +
+                _getFiatBalance(price: price, cryptoAmount: value.formattedAdditionalBalance));
 
-      final availableFiatBalance = isFiatDisabled
-          ? ''
-          : (fiatCurrency.toString() +
-              ' ' +
-              _getFiatBalance(price: price, cryptoAmount: value.formattedAvailableBalance));
+        final availableFiatBalance = isFiatDisabled
+            ? ''
+            : (fiatCurrency.toString() +
+                ' ' +
+                _getFiatBalance(price: price, cryptoAmount: value.formattedAvailableBalance));
 
-      final frozenFiatBalance = isFiatDisabled
-          ? ''
-          : (fiatCurrency.toString() +
-              ' ' +
-              _getFiatBalance(price: price, cryptoAmount: getFormattedFrozenBalance(value)));
+        final frozenFiatBalance = isFiatDisabled
+            ? ''
+            : (fiatCurrency.toString() +
+                ' ' +
+                _getFiatBalance(price: price, cryptoAmount: getFormattedFrozenBalance(value)));
 
-      return MapEntry(
+        final fullFiatBalance = isFiatDisabled
+            ? ''
+            : (fiatCurrency.toString() +
+                ' ' +
+                _getFiatBalance(price: price, cryptoAmount: value.formattedFullBalance));
+
+        return MapEntry(
           key,
           BalanceRecord(
-              availableBalance: value.formattedAvailableBalance,
-              additionalBalance: value.formattedAdditionalBalance,
-              frozenBalance: getFormattedFrozenBalance(value),
-              fiatAdditionalBalance: additionalFiatBalance,
-              fiatAvailableBalance: availableFiatBalance,
-              fiatFrozenBalance: frozenFiatBalance,
-              asset: key,
-              formattedAssetTitle: _formatterAsset(key)));
-    });
+            availableBalance: value.formattedAvailableBalance,
+            additionalBalance: value.formattedAdditionalBalance,
+            frozenBalance: getFormattedFrozenBalance(value),
+            fullBalance: value.formattedFullBalance,
+            fiatAdditionalBalance: additionalFiatBalance,
+            fiatAvailableBalance: availableFiatBalance,
+            fiatFrozenBalance: frozenFiatBalance,
+            fiatFullBalance: fullFiatBalance,
+            asset: key,
+            formattedAssetTitle: _formatterAsset(key),
+          ),
+        );
+      },
+    );
   }
 
   @computed

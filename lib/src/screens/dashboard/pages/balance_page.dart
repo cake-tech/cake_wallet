@@ -219,6 +219,9 @@ class CryptoBalanceWidget extends StatelessWidget {
                           '${dashboardViewModel.balanceViewModel.additionalBalanceLabel}',
                       additionalBalance: balance.additionalBalance,
                       additionalFiatBalance: balance.fiatAdditionalBalance,
+                      fullBalanceLabel: '${dashboardViewModel.balanceViewModel.fullBalanceLabel}',
+                      fullBalance: balance.fullBalance,
+                      fullFiatBalance: balance.fiatFullBalance,
                       frozenBalance: balance.frozenBalance,
                       frozenFiatBalance: balance.fiatFrozenBalance,
                       currency: balance.asset,
@@ -246,6 +249,9 @@ class BalanceRowWidget extends StatelessWidget {
     required this.additionalFiatBalance,
     required this.frozenBalance,
     required this.frozenFiatBalance,
+    required this.fullBalanceLabel,
+    required this.fullBalance,
+    required this.fullFiatBalance,
     required this.currency,
     required this.hasAdditionalBalance,
     super.key,
@@ -259,6 +265,9 @@ class BalanceRowWidget extends StatelessWidget {
   final String additionalFiatBalance;
   final String frozenBalance;
   final String frozenFiatBalance;
+  final String fullBalanceLabel;
+  final String fullBalance;
+  final String fullFiatBalance;
   final CryptoCurrency currency;
   final bool hasAdditionalBalance;
 
@@ -340,7 +349,7 @@ class BalanceRowWidget extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 16,
                               fontFamily: 'Lato',
-                             fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w500,
                               color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                               height: 1)),
                     ],
@@ -484,6 +493,49 @@ class BalanceRowWidget extends StatelessWidget {
                   SizedBox(height: 4),
                   Text(
                     '${additionalFiatBalance}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                      height: 1,
+                    ),
+                  ),
+                ],
+              ),
+            if (hasAdditionalBalance)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 24),
+                  Text(
+                    '${fullBalanceLabel}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                      height: 1,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  AutoSizeText(
+                    fullBalance,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
+                      height: 1,
+                    ),
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    '${fullFiatBalance}',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 12,

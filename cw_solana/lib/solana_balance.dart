@@ -13,6 +13,9 @@ class SolanaBalance extends Balance {
   @override
   String get formattedAvailableBalance => _balanceFormatted();
 
+  @override
+  String get formattedFullBalance => _balanceFormatted();
+
   String _balanceFormatted() {
     String stringBalance = balance.toString();
     if (stringBalance.toString().length >= 6) {
