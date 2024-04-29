@@ -393,7 +393,7 @@ class WalletRestorePage extends BasePage {
 
     this.derivationInfo = dInfo;
     if (this.derivationInfo == null) {
-      walletRestoreViewModel.state = InitialExecutionState();
+      this.derivationInfo = walletRestoreViewModel.getDefaultDerivation();
       return;
     }
 
