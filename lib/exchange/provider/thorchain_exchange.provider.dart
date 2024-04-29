@@ -213,7 +213,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final response = await http.get(uri);
 
     if (response.statusCode != 200) {
-      throw Exception('Unexpected HTTP status: ${response.statusCode}');
+      return null;
     }
 
     final body = json.decode(response.body) as Map<String, dynamic>;

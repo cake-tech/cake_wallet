@@ -164,7 +164,9 @@ class AddressResolver {
 
       final thorChainAddress = await ThorChainExchangeProvider.lookupAddressByName(text);
       if (thorChainAddress != null) {
-        String? address = thorChainAddress[ticker.toUpperCase()];
+
+        String? address = thorChainAddress[ticker.toUpperCase()] ??
+            (ticker == 'rune' ? thorChainAddress['THOR'] : null);
         if (address != null) {
           return ParsedAddress.thorChainAddress(address: address, name: text);
         }
