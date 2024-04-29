@@ -368,6 +368,7 @@
   "new_template": "新模板",
   "new_wallet": "新钱包",
   "newConnection": "新连接",
+  "no_cards_found": "找不到卡",
   "no_id_needed": "不需要 ID！",
   "no_id_required": "不需要身份证。充值并在任何地方消费",
   "no_relay_on_domain": "用户域没有中继或中继不可用。请选择要使用的继电器。",

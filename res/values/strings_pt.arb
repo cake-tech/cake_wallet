@@ -369,6 +369,7 @@
   "new_template": "Novo modelo",
   "new_wallet": "Nova carteira",
   "newConnection": "Nova conexão",
+  "no_cards_found": "Nenhum cartão encontrado",
   "no_id_needed": "Nenhum ID necessário!",
   "no_id_required": "Não é necessário ID. Recarregue e gaste em qualquer lugar",
   "no_relay_on_domain": "Não há uma retransmissão para o domínio do usuário ou a retransmissão está indisponível. Escolha um relé para usar.",

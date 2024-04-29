@@ -368,6 +368,7 @@
   "new_template": "Nieuwe sjabloon",
   "new_wallet": "Nieuwe portemonnee",
   "newConnection": "Nieuwe verbinding",
+  "no_cards_found": "Geen kaarten gevonden",
   "no_id_needed": "Geen ID nodig!",
   "no_id_required": "Geen ID vereist. Opwaarderen en overal uitgeven",
   "no_relay_on_domain": "Er is geen relay voor het domein van de gebruiker of de relay is niet beschikbaar. Kies een relais dat u wilt gebruiken.",

@@ -368,6 +368,7 @@
   "new_template": "Nowy szablon",
   "new_wallet": "Nowy portfel",
   "newConnection": "Nowe połączenie",
+  "no_cards_found": "Nie znaleziono żadnych kart",
   "no_id_needed": "Nie potrzeba Dowodu!",
   "no_id_required": "Nie wymagamy Dowodu. Doładuj i wydawaj gdziekolwiek",
   "no_relay_on_domain": "Brak przekaźnika dla domeny użytkownika lub przekaźnik jest niedostępny. Wybierz przekaźnik, którego chcesz użyć.",

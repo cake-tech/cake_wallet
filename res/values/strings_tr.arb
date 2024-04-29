@@ -368,6 +368,7 @@
   "new_template": "Yeni Şablon",
   "new_wallet": "Yeni Cüzdan",
   "newConnection": "Yeni bağlantı",
+  "no_cards_found": "Kart bulunamadı",
   "no_id_needed": "Kimlik gerekmez!",
   "no_id_required": "Kimlik gerekmez. Para yükleyin ve istediğiniz yerde harcayın",
   "no_relay_on_domain": "Kullanıcının alanı için bir geçiş yok veya geçiş kullanılamıyor. Lütfen kullanmak için bir röle seçin.",

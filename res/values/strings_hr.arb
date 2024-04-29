@@ -368,6 +368,7 @@
   "new_template": "novi predložak",
   "new_wallet": "Novi novčanik",
   "newConnection": "Nova veza",
+  "no_cards_found": "Nisu pronađene kartice",
   "no_id_needed": "Nije potreban ID!",
   "no_id_required": "Nije potreban ID. Nadopunite i potrošite bilo gdje",
   "no_relay_on_domain": "Ne postoji relej za korisničku domenu ili je relej nedostupan. Odaberite relej za korištenje.",

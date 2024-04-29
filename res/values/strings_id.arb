@@ -368,6 +368,7 @@
   "new_template": "Template Baru",
   "new_wallet": "Dompet Baru",
   "newConnection": "Koneksi Baru",
+  "no_cards_found": "Tidak ada kartu yang ditemukan",
   "no_id_needed": "Tidak perlu ID!",
   "no_id_required": "Tidak perlu ID. Isi ulang dan belanja di mana saja",
   "no_relay_on_domain": "Tidak ada relai untuk domain pengguna atau relai tidak tersedia. Silakan pilih relai yang akan digunakan.",

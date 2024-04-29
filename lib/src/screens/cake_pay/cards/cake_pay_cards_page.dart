@@ -195,6 +195,11 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
       final merchantState = widget.cardsListViewModel.vendorsState;
       if (merchantState is CakePayVendorLoadedState) {
         bool isLoadingMore = widget.cardsListViewModel.isLoadingNextPage;
+        final vendors = widget.cardsListViewModel.cakePayVendors;
+
+        if (vendors.isEmpty) {
+          return Center(child: Text(S.of(context).no_cards_found));
+        }
         return Stack(children: [
           GridView.builder(
             controller: _scrollController,
@@ -205,12 +210,12 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
               mainAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5,
             ),
             padding: EdgeInsets.only(left: 2, right: 22),
-            itemCount: widget.cardsListViewModel.cakePayVendors.length + (isLoadingMore ? 1 : 0),
+            itemCount: vendors.length + (isLoadingMore ? 1 : 0),
             itemBuilder: (_, index) {
-              if (index >= widget.cardsListViewModel.cakePayVendors.length) {
+              if (index >= vendors.length) {
                 return _VendorLoadedIndicator();
               }
-              final vendor = widget.cardsListViewModel.cakePayVendors[index];
+              final vendor = vendors[index];
               return CardItem(
                 logoUrl: vendor.card?.cardImageUrl,
                 onTap: () {

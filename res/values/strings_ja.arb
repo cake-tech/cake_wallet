@@ -369,6 +369,7 @@
   "new_template": "新しいテンプレート",
   "new_wallet": "新しいウォレット",
   "newConnection": "新しい接続",
+  "no_cards_found": "カードは見つかりません",
   "no_id_needed": "IDは必要ありません！",
   "no_id_required": "IDは必要ありません。どこにでも補充して使用できます",
   "no_relay_on_domain": "ユーザーのドメインのリレーが存在しないか、リレーが使用できません。使用するリレーを選択してください。",

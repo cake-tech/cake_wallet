@@ -368,6 +368,7 @@
   "new_template": "Nueva plantilla",
   "new_wallet": "Nueva billetera",
   "newConnection": "Nueva conexión",
+  "no_cards_found": "No se encuentran cartas",
   "no_id_needed": "¡No se necesita identificación!",
   "no_id_required": "No se requiere identificación. Recargue y gaste en cualquier lugar",
   "no_relay_on_domain": "No hay una retransmisión para el dominio del usuario o la retransmisión no está disponible. Elija un relé para usar.",

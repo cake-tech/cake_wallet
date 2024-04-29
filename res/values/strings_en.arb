@@ -368,6 +368,7 @@
   "new_template": "New Template",
   "new_wallet": "New Wallet",
   "newConnection": "New Connection",
+  "no_cards_found": "No cards found",
   "no_id_needed": "No ID needed!",
   "no_id_required": "No ID required. Top up and spend anywhere",
   "no_relay_on_domain": "There isn't a relay for user's domain or the relay is unavailable. Please choose a relay to use.",

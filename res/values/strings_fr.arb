@@ -368,6 +368,7 @@
   "new_template": "Nouveau Modèle",
   "new_wallet": "Nouveau Portefeuille (Wallet)",
   "newConnection": "Nouvelle connexion",
+  "no_cards_found": "Pas de cartes trouvées",
   "no_id_needed": "Aucune pièce d'identité nécessaire !",
   "no_id_required": "Aucune pièce d'identité requise. Rechargez et dépensez n'importe où",
   "no_relay_on_domain": "Il n'existe pas de relais pour le domaine de l'utilisateur ou le relais n'est pas disponible. Veuillez choisir un relais à utiliser.",

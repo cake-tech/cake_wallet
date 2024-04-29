@@ -368,6 +368,7 @@
   "new_template": "Nová šablona",
   "new_wallet": "Nová peněženka",
   "newConnection": "Nové připojení",
+  "no_cards_found": "Žádné karty nenalezeny",
   "no_id_needed": "Žádné ID není potřeba!",
   "no_id_required": "Žádní ID není potřeba. Dobijte si a utrácejte kdekoliv",
   "no_relay_on_domain": "Pro doménu uživatele neexistuje přenos nebo je přenos nedostupný. Vyberte relé, které chcete použít.",

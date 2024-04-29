@@ -235,7 +235,12 @@ class CakePayApi {
     if (response.statusCode != 200) {
       throw Exception(response.body);
     }
-    final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+
+    final bodyJson = json.decode(response.body);
+
+    if (bodyJson is List<dynamic> && bodyJson.isEmpty) {
+      return [];
+    }
 
     return (bodyJson['results'] as List)
         .map((e) => CakePayVendor.fromJson(e as Map<String, dynamic>))
