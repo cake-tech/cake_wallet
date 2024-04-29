@@ -113,11 +113,17 @@ abstract class WalletCreationVMBase with Store {
           derivationType: DerivationType.nano,
         );
       case WalletType.bitcoin:
-      case WalletType.litecoin:
         return DerivationInfo(
           derivationType: DerivationType.bip39,
           derivationPath: "m/84'/0'/0'/0",
           description: "Standard BIP84 native segwit",
+          scriptType: "p2wpkh",
+        );
+      case WalletType.litecoin:
+        return DerivationInfo(
+          derivationType: DerivationType.bip39,
+          derivationPath: "m/84'/2'/0'/0",
+          description: "Standard BIP84 native segwit (litecoin)",
           scriptType: "p2wpkh",
         );
       default:

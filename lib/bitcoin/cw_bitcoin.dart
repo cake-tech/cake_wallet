@@ -287,6 +287,18 @@ class CWBitcoin extends Bitcoin {
   }) async {
     List<DerivationInfo> list = [];
 
+    List<DerivationType> types = await compareDerivationMethods(mnemonic: mnemonic, node: node);
+    if (types.length == 1 && types.first == DerivationType.electrum) {
+      return [
+        DerivationInfo(
+          derivationType: DerivationType.electrum,
+          derivationPath: "m/0'/0",
+          description: "Electrum",
+          scriptType: "p2wpkh",
+        )
+      ];
+    }
+
     final electrumClient = ElectrumClient();
     await electrumClient.connectToUri(node.uri);
 
