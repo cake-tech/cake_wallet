@@ -11,6 +11,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:collection/collection.dart';
+import 'package:bip39/bip39.dart' as bip39;
 
 class LitecoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
@@ -100,7 +101,7 @@ class LitecoinWalletService extends WalletService<
   @override
   Future<LitecoinWallet> restoreFromSeed(
       BitcoinRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
-    if (!validateMnemonic(credentials.mnemonic)) {
+    if (!validateMnemonic(credentials.mnemonic) && !bip39.validateMnemonic(credentials.mnemonic)) {
       throw LitecoinMnemonicIsIncorrectException();
     }
 

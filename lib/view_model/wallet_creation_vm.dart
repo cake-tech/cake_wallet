@@ -99,14 +99,14 @@ abstract class WalletCreationVMBase with Store {
       case WalletType.litecoin:
         return DerivationInfo(
           derivationType: DerivationType.electrum,
-          derivationPath: "m/0'/0",
+          derivationPath: "m/0'",
         );
       default:
         return null;
     }
   }
 
-  DerivationInfo? getMostCommonDerivation() {
+  DerivationInfo? getCommonRestoreDerivation() {
     switch (this.type) {
       case WalletType.nano:
         return DerivationInfo(
@@ -115,8 +115,10 @@ abstract class WalletCreationVMBase with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
         return DerivationInfo(
-          derivationType: DerivationType.electrum,
+          derivationType: DerivationType.bip39,
           derivationPath: "m/84'/0'/0'/0",
+          description: "Standard BIP84 native segwit",
+          scriptType: "p2wpkh",
         );
       default:
         return null;

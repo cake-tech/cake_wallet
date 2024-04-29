@@ -379,19 +379,23 @@ class WalletRestorePage extends BasePage {
       dInfo = derivations[derivationWithHistoryIndex];
     }
 
+    // get the default derivation for this wallet type:
     if (dInfo == null) {
-      walletRestoreViewModel.state = InitialExecutionState();
-      return;
+      // we only return 1 derivation if we're pretty sure we know which one to use:
+      if (derivations.length == 1) {
+        dInfo = derivations.first;
+      } else {
+        // if we have multiple possible derivations, and none have histories
+        // we just default to the most common one:
+        dInfo = walletRestoreViewModel.getMostCommonDerivation();
+      }
     }
 
     this.derivationInfo = dInfo;
-
-    // get the default derivation for this wallet type:
     if (this.derivationInfo == null) {
-      this.derivationInfo = walletRestoreViewModel.getMostCommonDerivation();
+      walletRestoreViewModel.state = InitialExecutionState();
+      return;
     }
-
-    walletRestoreViewModel.state = InitialExecutionState();
 
     walletRestoreViewModel.create(options: _credentials());
   }
