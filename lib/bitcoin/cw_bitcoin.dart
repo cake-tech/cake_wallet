@@ -316,7 +316,7 @@ class CWBitcoin extends Bitcoin {
         break;
     }
 
-    for (DerivationType dType in bitcoin_derivations.keys) {
+    for (DerivationType dType in electrum_derivations.keys) {
       late Uint8List seedBytes;
       if (dType == DerivationType.electrum) {
         seedBytes = await mnemonicToSeedBytes(mnemonic);
@@ -324,7 +324,7 @@ class CWBitcoin extends Bitcoin {
         seedBytes = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
       }
 
-      for (DerivationInfo dInfo in bitcoin_derivations[dType]!) {
+      for (DerivationInfo dInfo in electrum_derivations[dType]!) {
         try {
           DerivationInfo dInfoCopy = DerivationInfo(
             derivationType: dInfo.derivationType,
@@ -337,7 +337,7 @@ class CWBitcoin extends Bitcoin {
           int derivationDepth = _countOccurrences(derivationPath, "/");
 
           // the correct derivation depth is dependant on the derivation type:
-          // the derivation paths defined in bitcoin_derivations are at the ROOT level, i.e.:
+          // the derivation paths defined in electrum_derivations are at the ROOT level, i.e.:
           // electrum's format doesn't specify subaddresses, just subaccounts:
 
           // for BIP44
