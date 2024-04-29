@@ -411,6 +411,7 @@
   "outputs": "Výstupy",
   "overwrite_amount": "Přepsat částku",
   "pairingInvalidEvent": "Neplatná událost párování",
+  "passphrase": "Passphrase (volitelné)",
   "password": "Heslo",
   "paste": "Vložit",
   "pause_wallet_creation": "Možnost vytvářet Haven Wallet je momentálně pozastavena.",

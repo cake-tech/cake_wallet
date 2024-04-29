@@ -53,9 +53,11 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
   WalletCredentials getCredentialsFromRestoredWallet(
       dynamic options, RestoredWallet restoreWallet) {
     final password = generateWalletPassword();
+    String? passphrase;
     DerivationInfo? derivationInfo;
     if (options != null) {
       derivationInfo = options["derivationInfo"] as DerivationInfo?;
+      passphrase = options["passphrase"] as String?;
     }
     derivationInfo ??= getDefaultDerivation();
 
@@ -91,31 +93,37 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
         switch (restoreWallet.type) {
           case WalletType.monero:
             return monero!.createMoneroRestoreWalletFromSeedCredentials(
-                name: name,
-                height: restoreWallet.height ?? 0,
-                mnemonic: restoreWallet.mnemonicSeed ?? '',
-                password: password);
+              name: name,
+              height: restoreWallet.height ?? 0,
+              mnemonic: restoreWallet.mnemonicSeed ?? '',
+              password: password,
+            );
           case WalletType.bitcoin:
           case WalletType.litecoin:
             return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
               name: name,
               mnemonic: restoreWallet.mnemonicSeed ?? '',
               password: password,
+              passphrase: passphrase,
               derivationType: derivationInfo!.derivationType!,
               derivationPath: derivationInfo.derivationPath!,
             );
           case WalletType.bitcoinCash:
             return bitcoinCash!.createBitcoinCashRestoreWalletFromSeedCredentials(
-                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
+              name: name,
+              mnemonic: restoreWallet.mnemonicSeed ?? '',
+              password: password,
+            );
           case WalletType.ethereum:
             return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
           case WalletType.nano:
             return nano!.createNanoRestoreWalletFromSeedCredentials(
-                name: name,
-                mnemonic: restoreWallet.mnemonicSeed ?? '',
-                password: password,
-                derivationType: derivationInfo!.derivationType!);
+              name: name,
+              mnemonic: restoreWallet.mnemonicSeed ?? '',
+              password: password,
+              derivationType: derivationInfo!.derivationType!,
+            );
           case WalletType.polygon:
             return polygon!.createPolygonRestoreWalletFromSeedCredentials(
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);

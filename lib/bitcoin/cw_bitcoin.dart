@@ -7,13 +7,16 @@ class CWBitcoin extends Bitcoin {
     required String password,
     required DerivationType derivationType,
     required String derivationPath,
+    String? passphrase,
   }) =>
       BitcoinRestoreWalletFromSeedCredentials(
-          name: name,
-          mnemonic: mnemonic,
-          password: password,
-          derivationType: derivationType,
-          derivationPath: derivationPath);
+        name: name,
+        mnemonic: mnemonic,
+        password: password,
+        derivationType: derivationType,
+        derivationPath: derivationPath,
+        passphrase: passphrase,
+      );
 
   @override
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials(
@@ -277,8 +280,11 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<List<DerivationInfo>> getDerivationsFromMnemonic(
-      {required String mnemonic, required Node node}) async {
+  Future<List<DerivationInfo>> getDerivationsFromMnemonic({
+    required String mnemonic,
+    required Node node,
+    String? passphrase,
+  }) async {
     List<DerivationInfo> list = [];
 
     final electrumClient = ElectrumClient();
@@ -303,7 +309,7 @@ class CWBitcoin extends Bitcoin {
       if (dType == DerivationType.electrum) {
         seedBytes = await mnemonicToSeedBytes(mnemonic);
       } else if (dType == DerivationType.bip39) {
-        seedBytes = bip39.mnemonicToSeed(mnemonic);
+        seedBytes = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
       }
 
       for (DerivationInfo dInfo in bitcoin_derivations[dType]!) {

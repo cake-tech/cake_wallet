@@ -18,6 +18,7 @@ class ElectrumWalletSnapshot {
     required this.regularAddressIndex,
     required this.changeAddressIndex,
     required this.addressPageType,
+    this.passphrase,
     this.derivationType,
     this.derivationPath,
   });
@@ -32,6 +33,7 @@ class ElectrumWalletSnapshot {
   ElectrumBalance balance;
   Map<String, int> regularAddressIndex;
   Map<String, int> changeAddressIndex;
+  String? passphrase;
   DerivationType? derivationType;
   String? derivationPath;
 
@@ -42,6 +44,7 @@ class ElectrumWalletSnapshot {
     final data = json.decode(jsonSource) as Map;
     final addressesTmp = data['addresses'] as List? ?? <Object>[];
     final mnemonic = data['mnemonic'] as String;
+    final passphrase = data['passphrase'] as String? ?? '';
     final addresses = addressesTmp
         .whereType<String>()
         .map((addr) => BitcoinAddressRecord.fromJSON(addr, network))
@@ -74,6 +77,7 @@ class ElectrumWalletSnapshot {
       name: name,
       type: type,
       password: password,
+      passphrase: passphrase,
       mnemonic: mnemonic,
       addresses: addresses,
       balance: balance,

@@ -411,6 +411,7 @@
   "outputs": "Wyjścia",
   "overwrite_amount": "Nadpisz ilość",
   "pairingInvalidEvent": "Nieprawidłowe zdarzenie parowania",
+  "passphrase": "PassPhraza (opcjonalnie)",
   "password": "Hasło",
   "paste": "Wklej",
   "pause_wallet_creation": "Możliwość utworzenia Portfela Haven jest obecnie wstrzymana.",

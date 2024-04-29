@@ -31,8 +31,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     ElectrumBalance? initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
+    String? passphrase,
   }) : super(
             mnemonic: mnemonic,
+            passphrase: passphrase,
             password: password,
             walletInfo: walletInfo,
             unspentCoinsInfo: unspentCoinsInfo,
@@ -70,6 +72,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    String? passphrase,
     String? addressPageType,
     BasedUtxoNetwork? network,
     List<BitcoinAddressRecord>? initialAddresses,
@@ -81,7 +84,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     switch (walletInfo.derivationInfo?.derivationType) {
       case DerivationType.bip39:
-        seedBytes = await bip39.mnemonicToSeed(mnemonic);
+        seedBytes = await bip39.mnemonicToSeed(
+          mnemonic,
+          passphrase: passphrase ?? "",
+        );
         break;
       case DerivationType.electrum:
       default:
@@ -90,6 +96,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
     return BitcoinWallet(
       mnemonic: mnemonic,
+      passphrase: passphrase ?? "",
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
@@ -130,13 +137,17 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         break;
       case DerivationType.bip39:
       default:
-        seedBytes = await bip39.mnemonicToSeed(snp.mnemonic);
+        seedBytes = await bip39.mnemonicToSeed(
+          snp.mnemonic,
+          passphrase: snp.passphrase ?? '',
+        );
         break;
     }
 
     return BitcoinWallet(
       mnemonic: snp.mnemonic,
       password: password,
+      passphrase: snp.passphrase,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp.addresses,

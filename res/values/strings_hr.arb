@@ -411,6 +411,7 @@
   "outputs": "Izlazi",
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "Nevažeći događaj uparivanja",
+  "passphrase": "Prolaznica (neobavezno)",
   "password": "Lozinka",
   "paste": "Zalijepi",
   "pause_wallet_creation": "Mogućnost stvaranja novčanika Haven trenutno je pauzirana.",

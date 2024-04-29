@@ -19,6 +19,7 @@ enum DerivationType {
   @HiveField(4)
   electrum,
 }
+
 @HiveType(typeId: DerivationInfo.typeId)
 class DerivationInfo extends HiveObject {
   DerivationInfo({
@@ -33,11 +34,10 @@ class DerivationInfo extends HiveObject {
 
   static const typeId = DERIVATION_INFO_TYPE_ID;
 
-
-  @HiveField(0)
+  @HiveField(0, defaultValue: '')
   String address;
 
-  @HiveField(1)
+  @HiveField(1, defaultValue: '')
   String balance;
 
   @HiveField(2)
@@ -90,19 +90,20 @@ class WalletInfo extends HiveObject {
     DerivationInfo? derivationInfo,
   }) {
     return WalletInfo(
-        id,
-        name,
-        type,
-        isRecovery,
-        restoreHeight,
-        date.millisecondsSinceEpoch,
-        dirPath,
-        path,
-        address,
-        yatEid,
-        yatLastUsedAddressRaw,
-        showIntroCakePayCard,
-        derivationInfo);
+      id,
+      name,
+      type,
+      isRecovery,
+      restoreHeight,
+      date.millisecondsSinceEpoch,
+      dirPath,
+      path,
+      address,
+      yatEid,
+      yatLastUsedAddressRaw,
+      showIntroCakePayCard,
+      derivationInfo,
+    );
   }
 
   static const typeId = WALLET_INFO_TYPE_ID;
@@ -154,10 +155,10 @@ class WalletInfo extends HiveObject {
   List<String>? usedAddresses;
 
   @HiveField(16)
-  DerivationType? derivationType;// no longer used
+  DerivationType? derivationType; // no longer used
 
   @HiveField(17)
-  String? derivationPath;// no longer used
+  String? derivationPath; // no longer used
 
   @HiveField(18)
   String? addressPageType;

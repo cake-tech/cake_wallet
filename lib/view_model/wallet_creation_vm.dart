@@ -106,6 +106,25 @@ abstract class WalletCreationVMBase with Store {
     }
   }
 
+  DerivationInfo? getCommonRestoreDerivation() {
+    switch (this.type) {
+      case WalletType.nano:
+        return DerivationInfo(
+          derivationType: DerivationType.nano,
+        );
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        return DerivationInfo(
+          derivationType: DerivationType.bip39,
+          derivationPath: "m/84'/0'/0'/0",
+          description: "Standard BIP84 native segwit",
+          scriptType: "p2wpkh",
+        );
+      default:
+        return null;
+    }
+  }
+
   WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();
 
   Future<WalletBase> process(WalletCredentials credentials) => throw UnimplementedError();

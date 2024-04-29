@@ -54,7 +54,19 @@ Map<DerivationType, List<DerivationInfo>> bitcoin_derivations = {
     ),
     DerivationInfo(
       derivationType: DerivationType.bip39,
-      derivationPath: "m/44'|49'|84'/0'/0'",
+      derivationPath: "m/44'/0'/0'",
+      description: "Samourai Deposit",
+      scriptType: "p2wpkh",
+    ),
+    DerivationInfo(
+      derivationType: DerivationType.bip39,
+      derivationPath: "m/49'/0'/0'",
+      description: "Samourai Deposit",
+      scriptType: "p2wpkh",
+    ),
+      DerivationInfo(
+      derivationType: DerivationType.bip39,
+      derivationPath: "m/84'/0'/0'",
       description: "Samourai Deposit",
       scriptType: "p2wpkh",
     ),

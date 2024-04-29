@@ -3,7 +3,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
-import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -33,6 +32,7 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     final wallet = await BitcoinWalletBase.create(
       mnemonic: await generateElectrumMnemonic(),
       password: credentials.password!,
+      passphrase: credentials.passphrase,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       network: network,
@@ -116,6 +116,7 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
 
     final wallet = await BitcoinWalletBase.create(
       password: credentials.password!,
+      passphrase: credentials.passphrase,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
@@ -124,9 +125,5 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     await wallet.save();
     await wallet.init();
     return wallet;
-  }
-
-  static Future<dynamic> getInfoFromSeed({required String seed, required Node node}) async {
-    throw UnimplementedError();
   }
 }

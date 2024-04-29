@@ -411,6 +411,7 @@
   "outputs": "เอาต์พุต",
   "overwrite_amount": "เขียนทับจำนวน",
   "pairingInvalidEvent": "การจับคู่เหตุการณ์ที่ไม่ถูกต้อง",
+  "passphrase": "ข้อความรหัสผ่าน (ไม่บังคับ)",
   "password": "รหัสผ่าน",
   "paste": "วาง",
   "pause_wallet_creation": "ขณะนี้ความสามารถในการสร้าง Haven Wallet ถูกหยุดชั่วคราว",
