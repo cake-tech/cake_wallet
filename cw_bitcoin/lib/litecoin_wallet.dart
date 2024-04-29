@@ -188,15 +188,20 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           direction: TransactionDirection.incoming,
           isPending: utxo.height == 0,
           date: date, confirmations: confirmations,
-          inputAddresses: [],
-          outputAddresses: [utxo.address]);
+          inputAddresses: [], outputAddresses: [utxo.outputId]);
       tx.height = utxo.height;
       tx.isPending = utxo.height == 0;
       tx.confirmations = confirmations;
-      if (transactionHistory.transactions[tx.id] == null) {
+      var isNew = transactionHistory.transactions[tx.id] == null;
+      if (!(tx.outputAddresses?.contains(utxo.address) ?? false)) {
+        tx.outputAddresses?.add(utxo.address);
+        isNew = true;
+      }
+      if (isNew) {
         final addressRecord = walletAddresses.allAddresses.firstWhere(
             (addressRecord) => addressRecord.address == utxo.address);
-        addressRecord.txCount++;
+        if (!(tx.inputAddresses?.contains(utxo.address) ?? false))
+          addressRecord.txCount++;
         addressRecord.balance += utxo.value.toInt();
         addressRecord.setAsUsed();
       }
@@ -400,7 +405,20 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }).toList()).toHex();
     tx.outputs = resp.outputId;
     return tx..addListener((transaction) async {
-      transaction.inputAddresses?.forEach(mwebUtxos.remove);
+      final addresses = <String>{};
+      transaction.inputAddresses?.forEach((id) {
+        final utxo = mwebUtxos.remove(id);
+        if (utxo == null) return;
+        final addressRecord = walletAddresses.allAddresses.firstWhere(
+            (addressRecord) => addressRecord.address == utxo.address);
+        if (!addresses.contains(utxo.address)) {
+          addressRecord.txCount++;
+          addresses.add(utxo.address);
+        }
+        addressRecord.balance -= utxo.value.toInt();
+      });
+      transaction.inputAddresses?.addAll(addresses);
+      transactionHistory.addOne(transaction);
       await updateUnspent();
       await updateBalance();
     });
