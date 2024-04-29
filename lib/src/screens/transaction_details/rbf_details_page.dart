@@ -74,6 +74,7 @@ class RBFDetailsPage extends BasePage {
                     selectedIdx: item.selectedIdx,
                     customItemIndex: item.customItemIndex,
                     customValue: item.customValue,
+                    maxValue: item.maxValue,
                   );
                 }
 
