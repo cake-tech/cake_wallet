@@ -131,7 +131,7 @@ class CWEthereum extends Ethereum {
   @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {
     final ethereumWallet = wallet as EthereumWallet;
-    return await ethereumWallet.getErc20Token(contractAddress);
+    return await ethereumWallet.getErc20Token(contractAddress, 'eth');
   }
 
   @override
@@ -142,8 +142,10 @@ class CWEthereum extends Ethereum {
     }
 
     wallet as EthereumWallet;
-    return wallet.erc20Currencies
-        .firstWhere((element) => transaction.tokenSymbol == element.symbol);
+
+    return wallet.erc20Currencies.firstWhere(
+      (element) => transaction.tokenSymbol == element.symbol,
+    );
   }
 
   @override

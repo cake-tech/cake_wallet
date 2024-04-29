@@ -55,6 +55,7 @@ abstract class HomeSettingsViewModelBase with Store {
         symbol: token.title,
         decimal: token.decimals,
         contractAddress: contractAddress,
+        iconPath: token.iconPath,
       );
 
       await ethereum!.addErc20Token(_balanceViewModel.wallet, erc20token);
@@ -66,6 +67,7 @@ abstract class HomeSettingsViewModelBase with Store {
         symbol: token.title,
         decimal: token.decimals,
         contractAddress: contractAddress,
+        iconPath: token.iconPath,
       );
       await polygon!.addErc20Token(_balanceViewModel.wallet, polygonToken);
     }

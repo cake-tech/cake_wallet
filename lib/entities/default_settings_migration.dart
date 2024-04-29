@@ -215,9 +215,13 @@ Future<void> defaultSettingsMigration(
           await disableServiceStatusFiatDisabled(sharedPreferences);
           break;
         case 31:
+          await updateNanoNodeList(nodes: nodes);
+          break;
+        case 32:
           await addTronNodeList(nodes: nodes);
           await changeTronCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
+
         default:
           break;
       }
@@ -230,6 +234,33 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+Future<void> updateNanoNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultNanoNodes();
+  var listOfNewEndpoints = <String>[
+    "app.natrium.io",
+    "rainstorm.city",
+    "node.somenano.com",
+    "nanoslo.0x.no",
+    "www.bitrequest.app",
+  ];
+  // add new nodes:
+  for (final node in nodeList) {
+    if (listOfNewEndpoints.contains(node.uriRaw)) {
+      await nodes.add(node);
+    }
+  }
+
+  // update the nautilus node:
+  final nautilusNode =
+      nodes.values.firstWhereOrNull((element) => element.uriRaw == "node.perish.co");
+  if (nautilusNode != null) {
+    nautilusNode.uriRaw = "node.nautilus.io";
+    nautilusNode.path = "/api";
+    nautilusNode.useSSL = true;
+    await nautilusNode.save();
+  }
 }
 
 Future<void> disableServiceStatusFiatDisabled(SharedPreferences sharedPreferences) async {
