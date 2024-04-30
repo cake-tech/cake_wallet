@@ -159,7 +159,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       ));
     }
 
-    final psbt = PSBTTransactionBuild(inputs: psbtReadyInputs, outputs: outputs);
+    final psbt = PSBTTransactionBuild(inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF);
 
     final rawHex = await _bitcoinLedgerApp!.signPsbt(_ledgerDevice!, psbt: psbt.psbt);
     return BtcTransaction.fromRaw(hex.encode(rawHex));
