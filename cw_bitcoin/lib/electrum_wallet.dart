@@ -56,10 +56,15 @@ abstract class ElectrumWalletBase
       String? xpub,
       String? mnemonic,
       Uint8List? seedBytes,
+      this.passphrase,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumClient? electrumClient,
       ElectrumBalance? initialBalance,
       CryptoCurrency? currency})
+      : hd = currency == CryptoCurrency.bch
+            ? bitcoinCashHDWallet(seedBytes)
+            : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
+                .derivePath(walletInfo.derivationInfo?.derivationPath ?? "m/0'/0"),
       : accountHD = getAccountHDWallet(currency, networkType, seedBytes, xpub),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
@@ -108,8 +113,9 @@ abstract class ElectrumWalletBase
 
   final bitcoin.HDWallet accountHD;
   final String? _mnemonic;
-  
+
   bitcoin.HDWallet get hd => accountHD.derive(0);
+  final String? passphrase;
 
   @override
   @observable
@@ -666,7 +672,6 @@ abstract class ElectrumWalletBase
         }
       });
 
-      print(transaction);
       return PendingBitcoinTransaction(
         transaction,
         type,
@@ -702,6 +707,7 @@ abstract class ElectrumWalletBase
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
         'xpub': xpub,
+        'passphrase': passphrase ?? '',
         'account_index': walletAddresses.currentReceiveAddressIndexByType,
         'change_address_index': walletAddresses.currentChangeAddressIndexByType,
         'addresses': walletAddresses.allAddresses.map((addr) => addr.toJSON()).toList(),
@@ -709,6 +715,8 @@ abstract class ElectrumWalletBase
             ? SegwitAddresType.p2wpkh.toString()
             : walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON(),
+        'derivationTypeIndex': walletInfo.derivationInfo?.derivationType?.index,
+        'derivationPath': walletInfo.derivationInfo?.derivationPath,
       });
 
   int feeRate(TransactionPriority priority) {

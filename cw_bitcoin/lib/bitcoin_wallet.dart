@@ -17,6 +17,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
+import 'package:bip39/bip39.dart' as bip39;
 
 part 'bitcoin_wallet.g.dart';
 
@@ -36,8 +37,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     ElectrumBalance? initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
+    String? passphrase,
   }) : super(
       mnemonic: mnemonic,
+      passphrase: passphrase,
       xpub: xpub,
       password: password,
       walletInfo: walletInfo,
@@ -45,18 +48,25 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       networkType: networkParam == null
           ? bitcoin.bitcoin
           : networkParam == BitcoinNetwork.mainnet
-          ? bitcoin.bitcoin
-          : bitcoin.testnet,
+              ? bitcoin.bitcoin
+              : bitcoin.testnet,
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
       seedBytes: seedBytes,
       currency: CryptoCurrency.btc) {
+    // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
+    // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
+    String derivationPath = walletInfo.derivationInfo!.derivationPath!;
+    String sideDerivationPath = derivationPath.substring(0, derivationPath.length - 1) + "1";
+    final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
       electrumClient: electrumClient,
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
+      mainHd: hd.derivePath(derivationPath),
+      sideHd: hd.derivePath(sideDerivationPath),
       mainHd: hd,
       sideHd: accountHD.derive(1),
       network: networkParam ?? network,
@@ -71,6 +81,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    String? passphrase,
     String? addressPageType,
     BasedUtxoNetwork? network,
     List<BitcoinAddressRecord>? initialAddresses,
@@ -78,14 +89,29 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   }) async {
+    late Uint8List seedBytes;
+
+    switch (walletInfo.derivationInfo?.derivationType) {
+      case DerivationType.bip39:
+        seedBytes = await bip39.mnemonicToSeed(
+          mnemonic,
+          passphrase: passphrase ?? "",
+        );
+        break;
+      case DerivationType.electrum:
+      default:
+        seedBytes = await mnemonicToSeedBytes(mnemonic);
+        break;
+    }
     return BitcoinWallet(
       mnemonic: mnemonic,
+      passphrase: passphrase ?? "",
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
-      seedBytes: await mnemonicToSeedBytes(mnemonic),
+      seedBytes: seedBytes,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
@@ -104,15 +130,39 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         : BitcoinNetwork.mainnet;
     final snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password, network);
 
+    walletInfo.derivationInfo ??= DerivationInfo(
+      derivationType: snp.derivationType ?? DerivationType.electrum,
+      derivationPath: snp.derivationPath,
+    );
+
+    // set the default if not present:
+    walletInfo.derivationInfo!.derivationPath = snp.derivationPath ?? "m/0'/1";
+
+    late Uint8List seedBytes;
+
+    switch (walletInfo.derivationInfo!.derivationType) {
+      case DerivationType.electrum:
+        seedBytes = await mnemonicToSeedBytes(snp.mnemonic);
+        break;
+      case DerivationType.bip39:
+      default:
+        seedBytes = await bip39.mnemonicToSeed(
+          snp.mnemonic,
+          passphrase: snp.passphrase ?? '',
+        );
+        break;
+    }
+
     return BitcoinWallet(
       mnemonic: snp.mnemonic,
       xpub: snp.xpub,
       password: password,
+      passphrase: snp.passphrase,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp.addresses,
       initialBalance: snp.balance,
-      seedBytes: snp.mnemonic != null ? await mnemonicToSeedBytes(snp.mnemonic!) : null,
+      seedBytes: snp.mnemonic != null ? seedBytes : null,
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,
