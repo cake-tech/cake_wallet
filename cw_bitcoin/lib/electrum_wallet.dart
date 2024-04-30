@@ -569,8 +569,9 @@ abstract class ElectrumWalletBase
       }
     }
 
-    outputs[outputs.length - 1] =
-        BitcoinOutput(address: outputs.last.address, value: BigInt.from(amount));
+    if (outputs.length == 1) {
+      outputs[0] = BitcoinOutput(address: outputs.last.address, value: BigInt.from(amount));
+    }
 
     return EstimatedTxResult(
       utxos: utxoDetails.utxos,
