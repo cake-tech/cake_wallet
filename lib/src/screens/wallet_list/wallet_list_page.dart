@@ -343,7 +343,9 @@ class WalletListBodyState extends State<WalletListBody> {
             });
           }
         } catch (e) {
-          changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+          if (this.mounted) {
+            changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+          }
         }
       },
       conditionToDetermineIfToUse2FA:

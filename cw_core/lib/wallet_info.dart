@@ -18,11 +18,11 @@ enum DerivationType {
   @HiveField(3)
   bip39,
   @HiveField(4)
-  electrum1,
-  @HiveField(5)
-  electrum2,
+  electrum,
 }
 
+@HiveType(typeId: DerivationInfo.typeId)
+class DerivationInfo extends HiveObject {
 @HiveType(typeId: HARDWARE_WALLET_TYPE_TYPE_ID)
 enum HardwareWalletType {
   @HiveField(0)
@@ -31,43 +31,57 @@ enum HardwareWalletType {
 
 class DerivationInfo {
   DerivationInfo({
-    required this.derivationType,
+    this.derivationType,
     this.derivationPath,
     this.balance = "",
     this.address = "",
-    this.height = 0,
-    this.script_type,
+    this.transactionsCount = 0,
+    this.scriptType,
     this.description,
   });
 
-  String balance;
+  static const typeId = DERIVATION_INFO_TYPE_ID;
+
+  @HiveField(0, defaultValue: '')
   String address;
-  int height;
-  final DerivationType derivationType;
-  final String? derivationPath;
-  final String? script_type;
+
+  @HiveField(1, defaultValue: '')
+  String balance;
+
+  @HiveField(2)
+  int transactionsCount;
+
+  @HiveField(3)
+  DerivationType? derivationType;
+
+  @HiveField(4)
+  String? derivationPath;
+
+  @HiveField(5)
+  final String? scriptType;
+
+  @HiveField(6)
   final String? description;
 }
 
 @HiveType(typeId: WalletInfo.typeId)
 class WalletInfo extends HiveObject {
   WalletInfo(
-    this.id,
-    this.name,
-    this.type,
-    this.isRecovery,
-    this.restoreHeight,
-    this.timestamp,
-    this.dirPath,
-    this.path,
-    this.address,
-    this.yatEid,
-    this.yatLastUsedAddressRaw,
-    this.showIntroCakePayCard,
-    this.derivationType,
-    this.derivationPath,
-    this.hardwareWalletType,
-  ) : _yatLastUsedAddressController = StreamController<String>.broadcast();
+      this.id,
+      this.name,
+      this.type,
+      this.isRecovery,
+      this.restoreHeight,
+      this.timestamp,
+      this.dirPath,
+      this.path,
+      this.address,
+      this.yatEid,
+      this.yatLastUsedAddressRaw,
+      this.showIntroCakePayCard,
+      this.derivationInfo,
+      this.hardwareWalletType,
+    ): _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
     required String id,
@@ -82,8 +96,7 @@ class WalletInfo extends HiveObject {
     bool? showIntroCakePayCard,
     String yatEid = '',
     String yatLastUsedAddressRaw = '',
-    DerivationType? derivationType,
-    String? derivationPath,
+    DerivationInfo? derivationInfo,
     HardwareWalletType? hardwareWalletType,
   }) {
     return WalletInfo(
@@ -99,8 +112,7 @@ class WalletInfo extends HiveObject {
       yatEid,
       yatLastUsedAddressRaw,
       showIntroCakePayCard,
-      derivationType,
-      derivationPath,
+      derivationInfo,
       hardwareWalletType,
     );
   }
@@ -154,10 +166,10 @@ class WalletInfo extends HiveObject {
   List<String>? usedAddresses;
 
   @HiveField(16)
-  DerivationType? derivationType;
+  DerivationType? derivationType; // no longer used
 
   @HiveField(17)
-  String? derivationPath;
+  String? derivationPath; // no longer used
 
   @HiveField(18)
   String? addressPageType;
@@ -166,6 +178,9 @@ class WalletInfo extends HiveObject {
   String? network;
 
   @HiveField(20)
+  DerivationInfo? derivationInfo;
+
+  @HiveField(21)
   HardwareWalletType? hardwareWalletType;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
