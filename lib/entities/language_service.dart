@@ -28,7 +28,8 @@ class LanguageService {
     'ur': 'اردو (Urdu)',
     'id': 'Bahasa Indonesia (Indonesian)',
     'yo': 'Yorùbá (Yoruba)',
-    'ha': 'Hausa Najeriya (Nigeria)'
+    'ha': 'Hausa Najeriya (Nigeria)',
+    'tl': 'Filipino (Tagalog)'
   };
 
   static const Map<String, String> localeCountryCode = {
@@ -56,7 +57,8 @@ class LanguageService {
     'ur': 'pak',
     'id': 'idn',
     'yo': 'nga',
-    'ha': 'hau'
+    'ha': 'hau',
+    'tl': 'phl'
   };
 
   static final list = <String, String>{};

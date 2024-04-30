@@ -12,8 +12,11 @@ abstract class UnspentCoinsItemBase with Store {
     required this.isFrozen,
     required this.note,
     required this.isSending,
+    required this.isChange,
     required this.amountRaw,
-    required this.vout});
+    required this.vout,
+    required this.keyImage
+  });
 
   @observable
   String address;
@@ -34,8 +37,14 @@ abstract class UnspentCoinsItemBase with Store {
   bool isSending;
 
   @observable
+  bool isChange;
+
+  @observable
   int amountRaw;
 
   @observable
   int vout;
+
+  @observable
+  String? keyImage;
 }

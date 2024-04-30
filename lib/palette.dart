@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class Palette {
   static const Color green = Color.fromRGBO(39, 206, 80, 1.0);
   static const Color red = Color.fromRGBO(255, 51, 51, 1.0);
-  static const Color darkRed = Color.fromRGBO(204, 38, 38, 1.0);
+  static const Color darkRed = Color.fromRGBO(205, 0, 0, 1.0);
   static const Color blueAlice = Color.fromRGBO(229, 247, 255, 1.0);
   static const Color lightBlue = Color.fromRGBO(172, 203, 238, 1.0);
   static const Color lavender = Color.fromRGBO(237, 245, 252, 1.0);
@@ -15,11 +15,15 @@ class Palette {
   static const Color nightBlue = Color.fromRGBO(46, 57, 96, 1.0);
   static const Color moderateOrangeYellow = Color.fromRGBO(245, 134, 82, 1.0);
   static const Color moderateOrange = Color.fromRGBO(235, 117, 63, 1.0);
+  static const Color moneroOrange = Color.fromRGBO(255, 102, 0, 1.0);
+  static const Color moneroLightOrange = Color.fromRGBO(250, 240, 246, 1.0);
+  static const Color bitcoinOrange = Color.fromRGBO(242, 169, 0, 1.0);
   static const Color shineGreen = Color.fromRGBO(76, 189, 87, 1.0);
   static const Color moderateGreen = Color.fromRGBO(45, 158, 56, 1.0);
   static const Color cornflower = Color.fromRGBO(85, 147, 240, 1.0);
   static const Color royalBlue = Color.fromRGBO(43, 114, 221, 1.0);
   static const Color lightRed = Color.fromRGBO(227, 87, 87, 1.0);
+  static const Color veryLightRed = Color.fromRGBO(239, 156, 156, 1.0);
   static const Color persianRed = Color.fromRGBO(206, 55, 55, 1.0);
   static const Color blueCraiola = Color.fromRGBO(69, 110, 255, 1.0);
   static const Color blueGreyCraiola = Color.fromRGBO(106, 177, 207, 1.0);
@@ -48,6 +52,7 @@ class Palette {
   static const Color paleCornflowerBlue = Color.fromRGBO(185, 196, 237, 1.0);
   static const Color manatee = Color.fromRGBO(153, 161, 176, 1.0);
   static const Color stateGray = Color.fromRGBO(68, 74, 89, 1.0);
+  static const Color highContrastGray = Color.fromRGBO(76, 76, 76, 1.0);
   static const Color frostySky = Color.fromRGBO(0, 184, 250, 1.0);
 }
 
@@ -90,4 +95,11 @@ class PaletteDark {
   static const Color lightPurpleBlue = Color.fromRGBO(120, 133, 170, 1.0);
   static const Color indicatorVioletBlue = Color.fromRGBO(59, 72, 119, 1.0);
   static const Color granite = Color.fromRGBO(48, 51, 60, 1.0);
+  static const Color matrixGreen = Color.fromRGBO(18, 229, 90, 1.0);
+  static const Color moneroOrange = Color.fromRGBO(255, 102, 0, 1.0);
+  static const Color moneroCard = Color.fromRGBO(20, 21, 24, 1.0);
+  static const Color red = Color.fromRGBO(195, 0, 0, 1.0);
+  static const Color darkPurple = Color.fromRGBO(109, 14, 210, 1.0);
+  static const Color cakeBlue = Color.fromRGBO(0, 184, 250, 1.0);
+  static const Color darkBlue = Color.fromRGBO(0, 123, 168, 1.0);
 }

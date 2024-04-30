@@ -68,7 +68,7 @@ class HavenWalletService extends WalletService<
   WalletType getType() => WalletType.haven;
 
   @override
-  Future<HavenWallet> create(HavenNewWalletCredentials credentials) async {
+  Future<HavenWallet> create(HavenNewWalletCredentials credentials, {bool? isTestnet}) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       await haven_wallet_manager.createWallet(
@@ -149,11 +149,32 @@ class HavenWalletService extends WalletService<
     if (isExist) {
       await file.delete(recursive: true);
     }
+
+    final walletInfo = walletInfoSource.values
+        .firstWhere((info) => info.id == WalletBase.idFor(wallet, getType()));
+    await walletInfoSource.delete(walletInfo.key);
+  }
+
+  @override
+  Future<void> rename(
+      String currentName, String password, String newName) async {
+    final currentWalletInfo = walletInfoSource.values.firstWhere(
+        (info) => info.id == WalletBase.idFor(currentName, getType()));
+    final currentWallet = HavenWallet(walletInfo: currentWalletInfo);
+
+    await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
+
+    final newWalletInfo = currentWalletInfo;
+    newWalletInfo.id = WalletBase.idFor(newName, getType());
+    newWalletInfo.name = newName;
+
+    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
   }
 
   @override
   Future<HavenWallet> restoreFromKeys(
-      HavenRestoreWalletFromKeysCredentials credentials) async {
+      HavenRestoreWalletFromKeysCredentials credentials, {bool? isTestnet}) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       await haven_wallet_manager.restoreFromKeys(
@@ -177,7 +198,7 @@ class HavenWalletService extends WalletService<
 
   @override
   Future<HavenWallet> restoreFromSeed(
-      HavenRestoreWalletFromSeedCredentials credentials) async {
+      HavenRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       await haven_wallet_manager.restoreFromSeed(

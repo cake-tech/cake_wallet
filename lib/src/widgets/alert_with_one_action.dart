@@ -7,7 +7,9 @@ class AlertWithOneAction extends BaseAlertDialog {
     required this.alertContent,
     required this.buttonText,
     required this.buttonAction,
-    this.alertBarrierDismissible = true
+    this.alertBarrierDismissible = true,
+    this.headerTitleText,
+    this.headerImageProfileUrl
   });
 
   final String alertTitle;
@@ -15,6 +17,8 @@ class AlertWithOneAction extends BaseAlertDialog {
   final String buttonText;
   final VoidCallback buttonAction;
   final bool alertBarrierDismissible;
+  final String? headerTitleText;
+  final String? headerImageProfileUrl;
 
   @override
   String get titleText => alertTitle;
@@ -26,15 +30,18 @@ class AlertWithOneAction extends BaseAlertDialog {
   bool get barrierDismissible => alertBarrierDismissible;
 
   @override
+  String? get headerImageUrl => headerImageProfileUrl;
+
+  @override
+  String? get headerText => headerTitleText;
+
+  @override
   Widget actionButtons(BuildContext context) {
     return Container(
       width: 300,
       height: 52,
       padding: EdgeInsets.only(left: 12, right: 12),
-      color: Theme.of(context)
-          .accentTextTheme!
-          .bodyMedium!
-          .backgroundColor!,
+      color: Theme.of(context).dialogBackgroundColor,
       child: ButtonTheme(
         minWidth: double.infinity,
         child: TextButton(
@@ -48,10 +55,7 @@ class AlertWithOneAction extends BaseAlertDialog {
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context)
-                    .primaryTextTheme!
-                    .bodyMedium!
-                    .backgroundColor!,
+                color: Theme.of(context).primaryColor,
                 decoration: TextDecoration.none,
               ),
             )),

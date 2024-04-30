@@ -1,5 +1,5 @@
 import 'package:cake_wallet/buy/buy_provider.dart';
-import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/wyre/wyre_buy_provider.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -61,8 +61,7 @@ abstract class BuyViewModelBase with Store {
     String _url = '';
 
     try {
-      _url = await selectedProvider
-            !.requestUrl(doubleAmount.toString(), fiatCurrency.title);
+      _url = await selectedProvider!.requestUrl(doubleAmount.toString(), fiatCurrency.title);
     } catch (e) {
       print(e.toString());
     }
@@ -92,18 +91,6 @@ abstract class BuyViewModelBase with Store {
 
     if (wallet.type == WalletType.bitcoin) {
       _providerList.add(WyreBuyProvider(wallet: wallet));
-    }
-
-    var isMoonPayEnabled = false;
-    try {
-      isMoonPayEnabled = await MoonPayBuyProvider.onEnabled();
-    } catch (e) {
-      isMoonPayEnabled = false;
-      print(e.toString());
-    }
-
-    if (isMoonPayEnabled) {
-      _providerList.add(MoonPayBuyProvider(wallet: wallet));
     }
 
     items = _providerList.map((provider) =>

@@ -1,4 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
 part 'wallet_type.g.dart';
@@ -7,11 +8,16 @@ const walletTypes = [
   WalletType.monero,
   WalletType.bitcoin,
   WalletType.litecoin,
-  WalletType.haven
+  WalletType.haven,
+  WalletType.ethereum,
+  WalletType.bitcoinCash,
+  WalletType.nano,
+  WalletType.banano,
+  WalletType.polygon,
+  WalletType.solana,
 ];
-const walletTypeTypeId = 5;
 
-@HiveType(typeId: walletTypeTypeId)
+@HiveType(typeId: WALLET_TYPE_TYPE_ID)
 enum WalletType {
   @HiveField(0)
   monero,
@@ -26,7 +32,25 @@ enum WalletType {
   litecoin,
 
   @HiveField(4)
-  haven
+  haven,
+
+  @HiveField(5)
+  ethereum,
+
+  @HiveField(6)
+  nano,
+
+  @HiveField(7)
+  banano,
+
+  @HiveField(8)
+  bitcoinCash,
+
+  @HiveField(9)
+  polygon,
+
+  @HiveField(10)
+  solana
 }
 
 int serializeToInt(WalletType type) {
@@ -39,6 +63,18 @@ int serializeToInt(WalletType type) {
       return 2;
     case WalletType.haven:
       return 3;
+    case WalletType.ethereum:
+      return 4;
+    case WalletType.nano:
+      return 5;
+    case WalletType.banano:
+      return 6;
+    case WalletType.bitcoinCash:
+      return 7;
+    case WalletType.polygon:
+      return 8;
+    case WalletType.solana:
+      return 9;
     default:
       return -1;
   }
@@ -54,6 +90,18 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.litecoin;
     case 3:
       return WalletType.haven;
+    case 4:
+      return WalletType.ethereum;
+    case 5:
+      return WalletType.nano;
+    case 6:
+      return WalletType.banano;
+    case 7:
+      return WalletType.bitcoinCash;
+    case 8:
+      return WalletType.polygon;
+    case 9:
+      return WalletType.solana;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
@@ -69,6 +117,18 @@ String walletTypeToString(WalletType type) {
       return 'Litecoin';
     case WalletType.haven:
       return 'Haven';
+    case WalletType.ethereum:
+      return 'Ethereum';
+    case WalletType.bitcoinCash:
+      return 'Bitcoin Cash';
+    case WalletType.nano:
+      return 'Nano';
+    case WalletType.banano:
+      return 'Banano';
+    case WalletType.polygon:
+      return 'Polygon';
+    case WalletType.solana:
+      return 'Solana';
     default:
       return '';
   }
@@ -77,13 +137,25 @@ String walletTypeToString(WalletType type) {
 String walletTypeToDisplayName(WalletType type) {
   switch (type) {
     case WalletType.monero:
-      return 'Monero';
+      return 'Monero (XMR)';
     case WalletType.bitcoin:
-      return 'Bitcoin (Electrum)';
+      return 'Bitcoin (BTC)';
     case WalletType.litecoin:
-      return 'Litecoin (Electrum)';
+      return 'Litecoin (LTC)';
     case WalletType.haven:
-      return 'Haven';
+      return 'Haven (XHV)';
+    case WalletType.ethereum:
+      return 'Ethereum (ETH)';
+    case WalletType.bitcoinCash:
+      return 'Bitcoin Cash (BCH)';
+    case WalletType.nano:
+      return 'Nano (XNO)';
+    case WalletType.banano:
+      return 'Banano (BAN)';
+    case WalletType.polygon:
+      return 'Polygon (MATIC)';
+    case WalletType.solana:
+      return 'Solana (SOL)';
     default:
       return '';
   }
@@ -99,7 +171,20 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.ltc;
     case WalletType.haven:
       return CryptoCurrency.xhv;
+    case WalletType.ethereum:
+      return CryptoCurrency.eth;
+    case WalletType.bitcoinCash:
+      return CryptoCurrency.bch;
+    case WalletType.nano:
+      return CryptoCurrency.nano;
+    case WalletType.banano:
+      return CryptoCurrency.banano;
+    case WalletType.polygon:
+      return CryptoCurrency.maticpoly;
+    case WalletType.solana:
+      return CryptoCurrency.sol;
     default:
-      throw Exception('Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
+      throw Exception(
+          'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
   }
 }

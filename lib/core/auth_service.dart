@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -25,6 +29,10 @@ class AuthService with Store {
     Routes.setupPin,
     Routes.setup_2faPage,
     Routes.modify2FAPage,
+    Routes.newWallet,
+    Routes.newWalletType,
+    Routes.addressBookAddContact,
+    Routes.restoreOptions,
   ];
 
   final FlutterSecureStorage secureStorage;
@@ -34,6 +42,11 @@ class AuthService with Store {
   Future<void> setPassword(String password) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final encodedPassword = encodedPinCode(pin: password);
+    // secure storage has a weird bug on macOS, where overwriting a key doesn't work, unless
+    // we delete what's there first:
+    if (Platform.isMacOS) {
+      await secureStorage.delete(key: key);
+    }
     await secureStorage.write(key: key, value: encodedPassword);
   }
 
@@ -53,7 +66,7 @@ class AuthService with Store {
 
   Future<bool> authenticate(String pin) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final encodedPin = await secureStorage.read(key: key);
+    final encodedPin = await readSecureStorage(secureStorage, key);
     final decodedPin = decodedPinCode(pin: encodedPin!);
 
     return decodedPin == pin;
@@ -61,11 +74,12 @@ class AuthService with Store {
 
   void saveLastAuthTime() {
     int timestamp = DateTime.now().millisecondsSinceEpoch;
-    sharedPreferences.setInt(PreferencesKey.lastAuthTimeMilliseconds, timestamp);
+    secureStorage.write(key: SecureKey.lastAuthTimeMilliseconds, value: timestamp.toString());
   }
 
-  bool requireAuth() {
-    final timestamp = sharedPreferences.getInt(PreferencesKey.lastAuthTimeMilliseconds);
+  Future<bool> requireAuth() async {
+    final timestamp =
+        int.tryParse(await secureStorage.read(key: SecureKey.lastAuthTimeMilliseconds) ?? '0');
     final duration = _durationToRequireAuth(timestamp ?? 0);
     final requiredPinInterval = settingsStore.pinTimeOutDuration;
 
@@ -81,30 +95,34 @@ class AuthService with Store {
   }
 
   Future<void> authenticateAction(BuildContext context,
-      {Function(bool)? onAuthSuccess, String? route, Object? arguments}) async {
+      {Function(bool)? onAuthSuccess,
+      String? route,
+      Object? arguments,
+      required bool conditionToDetermineIfToUse2FA}) async {
     assert(route != null || onAuthSuccess != null,
         'Either route or onAuthSuccess param must be passed.');
 
-    if (!requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
-      if (onAuthSuccess != null) {
-        onAuthSuccess(true);
-      } else {
-        Navigator.of(context).pushNamed(
-          route ?? '',
-          arguments: arguments,
-        );
+    if (!conditionToDetermineIfToUse2FA) {
+      if (!(await requireAuth()) && !_alwaysAuthenticateRoutes.contains(route)) {
+        if (onAuthSuccess != null) {
+          onAuthSuccess(true);
+        } else {
+          Navigator.of(context).pushNamed(
+            route ?? '',
+            arguments: arguments,
+          );
+        }
+        return;
       }
-      return;
     }
 
-    
     Navigator.of(context).pushNamed(Routes.auth,
         arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
       if (!isAuthenticatedSuccessfully) {
         onAuthSuccess?.call(false);
         return;
       } else {
-        if (settingsStore.useTOTP2FA) {
+        if (settingsStore.useTOTP2FA && conditionToDetermineIfToUse2FA) {
           auth.close(
             route: Routes.totpAuthCodePage,
             arguments: TotpAuthArgumentsModel(
@@ -131,8 +149,6 @@ class AuthService with Store {
           }
         }
       }
-      
-      });
-  
+    });
   }
 }

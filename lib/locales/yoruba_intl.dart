@@ -736,6 +736,21 @@ String get keyboardKeyMetaWindows => 'Windows';
 
   @override
   String get keyboardKeySpace => 'Space';
+
+  @override
+  String get bottomSheetLabel => "Bottom Sheet";
+
+  @override
+  String get currentDateLabel => "Current Date";
+
+  @override
+  String get keyboardKeyShift => "Shift";
+
+  @override
+  String get scrimLabel => "Scrim";
+
+  @override
+  String get scrimOnTapHintRaw => "Scrip on Tap";
 }
 
 /// Cupertino Support
@@ -937,4 +952,7 @@ String get todayLabel => 'Oyọ';
 
   static const LocalizationsDelegate<CupertinoLocalizations> delegate =
       _YoCupertinoLocalizationsDelegate();
+
+  @override
+  String get noSpellCheckReplacementsLabel => "";
 }

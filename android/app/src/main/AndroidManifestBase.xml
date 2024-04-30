@@ -3,10 +3,12 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 
     <application
         android:name=".Application"
@@ -14,6 +16,8 @@
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
         android:fullBackupContent="false"
+        android:versionCode="__versionCode__"
+        android:versionName="__versionName__"
         android:requestLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
@@ -22,12 +26,7 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize"
-            android:screenOrientation="portrait"
             android:exported="true">
-            <meta-data
-                    android:name="io.flutter.embedding.android.SplashScreenDrawable"
-                    android:resource="@drawable/launch_background"
-            />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -45,6 +44,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="__APP_SCHEME__" />
                 <data android:scheme="bitcoin" />
                 <data android:scheme="bitcoin-wallet" />
                 <data android:scheme="bitcoin_wallet" />
@@ -54,14 +54,27 @@
                 <data android:scheme="litecoin" />
                 <data android:scheme="litecoin-wallet" />
                 <data android:scheme="litecoin_wallet" />
+                <data android:scheme="ethereum" />
+                <data android:scheme="ethereum-wallet" />
+                <data android:scheme="ethereum_wallet" />
+                <data android:scheme="nano" />
+                <data android:scheme="nano-wallet" />
+                <data android:scheme="nano_wallet" />
+                <data android:scheme="bitcoincash" />
+                <data android:scheme="bitcoincash-wallet" />
+                <data android:scheme="bitcoincash_wallet" />
+                <data android:scheme="polygon" />
+                <data android:scheme="polygon-wallet" />
+                <data android:scheme="polygon_wallet" />
+                <data android:scheme="solana-wallet" />
             </intent-filter>
         </activity>
         <meta-data
                 android:name="flutterEmbedding"
                 android:value="2" />
         <provider
-            android:name="com.pichillilorenzo.flutter_inappwebview.InAppWebViewFileProvider"
-            android:authorities="${applicationId}.flutter_inappwebview.fileprovider"
+            android:name="com.pichillilorenzo.flutter_inappwebview_android.InAppWebViewFileProvider"
+            android:authorities="${applicationId}.flutter_inappwebview_android.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

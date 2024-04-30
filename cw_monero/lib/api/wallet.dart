@@ -8,7 +8,6 @@ import 'package:cw_monero/api/types.dart';
 import 'package:cw_monero/api/monero_api.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 
 int _boolToInt(bool value) => value ? 1 : 0;
 
@@ -128,6 +127,10 @@ final trustedDaemonNative = moneroApi
     .lookup<NativeFunction<trusted_daemon>>('trusted_daemon')
     .asFunction<TrustedDaemon>();
 
+final signMessageNative = moneroApi
+    .lookup<NativeFunction<sign_message>>('sign_message')
+    .asFunction<SignMessage>();
+
 int getSyncingHeight() => getSyncingHeightNative();
 
 bool isNeededToRefresh() => isNeededToRefreshNative() != 0;
@@ -158,9 +161,11 @@ bool setupNodeSync(
     String? login,
     String? password,
     bool useSSL = false,
-    bool isLightWallet = false}) {
+    bool isLightWallet = false,
+    String? socksProxyAddress}) {
   final addressPointer = address.toNativeUtf8();
   Pointer<Utf8>? loginPointer;
+  Pointer<Utf8>? socksProxyAddressPointer;
   Pointer<Utf8>? passwordPointer;
 
   if (login != null) {
@@ -171,6 +176,10 @@ bool setupNodeSync(
     passwordPointer = password.toNativeUtf8();
   }
 
+  if (socksProxyAddress != null) {
+    socksProxyAddressPointer = socksProxyAddress.toNativeUtf8();
+  }
+
   final errorMessagePointer = ''.toNativeUtf8();
   final isSetupNode = setupNodeNative(
           addressPointer,
@@ -178,6 +187,7 @@ bool setupNodeSync(
           passwordPointer,
           _boolToInt(useSSL),
           _boolToInt(isLightWallet),
+      socksProxyAddressPointer,
           errorMessagePointer) !=
       0;
 
@@ -289,7 +299,7 @@ class SyncListener {
 
       final bchHeight = await getNodeHeightOrUpdate(syncHeight);
 
-      if (_lastKnownBlockHeight == syncHeight || syncHeight == null) {
+      if (_lastKnownBlockHeight == syncHeight) {
         return;
       }
 
@@ -304,7 +314,7 @@ class SyncListener {
       }
 
       // 1. Actual new height; 2. Blocks left to finish; 3. Progress in percents;
-      onNewBlock?.call(syncHeight, left, ptc);
+      onNewBlock.call(syncHeight, left, ptc);
     });
   }
 
@@ -328,13 +338,15 @@ bool _setupNodeSync(Map<String, Object?> args) {
   final password = (args['password'] ?? '') as String;
   final useSSL = args['useSSL'] as bool;
   final isLightWallet = args['isLightWallet'] as bool;
+  final socksProxyAddress = (args['socksProxyAddress'] ?? '') as String;
 
   return setupNodeSync(
       address: address,
       login: login,
       password: password,
       useSSL: useSSL,
-      isLightWallet: isLightWallet);
+      isLightWallet: isLightWallet,
+      socksProxyAddress: socksProxyAddress);
 }
 
 bool _isConnected(Object _) => isConnectedSync();
@@ -348,13 +360,15 @@ Future<void> setupNode(
         String? login,
         String? password,
         bool useSSL = false,
+        String? socksProxyAddress,
         bool isLightWallet = false}) =>
     compute<Map<String, Object?>, void>(_setupNodeSync, {
       'address': address,
       'login': login ,
       'password': password,
       'useSSL': useSSL,
-      'isLightWallet': isLightWallet
+      'isLightWallet': isLightWallet,
+      'socksProxyAddress': socksProxyAddress
     });
 
 Future<void> store() => compute<int, void>(_storeSync, 0);
@@ -372,3 +386,14 @@ String getSubaddressLabel(int accountIndex, int addressIndex) {
 Future setTrustedDaemon(bool trusted) async => setTrustedDaemonNative(_boolToInt(trusted));
 
 Future<bool> trustedDaemon() async => trustedDaemonNative() != 0;
+
+String signMessage(String message, {String address = ""}) {
+  final messagePointer = message.toNativeUtf8();
+  final addressPointer = address.toNativeUtf8();
+
+  final signature = convertUTF8ToString(pointer: signMessageNative(messagePointer, addressPointer));
+  calloc.free(messagePointer);
+  calloc.free(addressPointer);
+
+  return signature;
+}

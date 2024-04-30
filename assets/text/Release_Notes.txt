@@ -1,6 +1,3 @@
-Opt-in to Cake 2FA for security. More info: https://guides.cakewallet.com/docs/advanced-features/authentication/#cake-2fa
-Auto generate restore height for Monero restore QR codes
-Hausa and Yoruba languages
-Additional privacy settings
-Update Monero to 0.18.2.2
-Refactoring and bug fixes
+Support restoring Non-Electrum Bitcoin Wallets (check supported derivation paths https://github.com/cake-tech/cake_wallet/blob/main/cw_bitcoin/lib/bitcoin_derivations.dart)
+Bitcoin enhancements and bug fixes
+Generic bug fixes and enhancements

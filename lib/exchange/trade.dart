@@ -1,8 +1,9 @@
-import 'package:hive/hive.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/format_amount.dart';
+import 'package:cw_core/hive_type_ids.dart';
+import 'package:hive/hive.dart';
 
 part 'trade.g.dart';
 
@@ -26,22 +27,22 @@ class Trade extends HiveObject {
     this.password,
     this.providerId,
     this.providerName,
+    this.fromWalletAddress,
+    this.memo,
+    this.txId,
+    this.isRefund,
+    this.isSendAll,
   }) {
-    if (provider != null) {
-      providerRaw = provider.raw;
-    }
-    if (from != null) {
-      fromRaw = from.raw;
-    }
-    if (to != null) {
-      toRaw = to.raw;
-    }
-    if (state != null) {
-      stateRaw = state.raw;
-    }
+    if (provider != null) providerRaw = provider.raw;
+
+    if (from != null) fromRaw = from.raw;
+
+    if (to != null) toRaw = to.raw;
+
+    if (state != null) stateRaw = state.raw;
   }
 
-  static const typeId = 3;
+  static const typeId = TRADE_TYPE_ID;
   static const boxName = 'Trades';
   static const boxKey = 'tradesBoxKey';
 
@@ -105,6 +106,21 @@ class Trade extends HiveObject {
   @HiveField(16)
   String? providerName;
 
+  @HiveField(17)
+  String? fromWalletAddress;
+
+  @HiveField(18)
+  String? memo;
+
+  @HiveField(19)
+  String? txId;
+
+  @HiveField(20)
+  bool? isRefund;
+
+  @HiveField(21)
+  bool? isSendAll;
+
   static Trade fromMap(Map<String, Object?> map) {
     return Trade(
         id: map['id'] as String,
@@ -114,7 +130,12 @@ class Trade extends HiveObject {
         createdAt:
             map['date'] != null ? DateTime.fromMillisecondsSinceEpoch(map['date'] as int) : null,
         amount: map['amount'] as String,
-        walletId: map['wallet_id'] as String);
+        walletId: map['wallet_id'] as String,
+        fromWalletAddress: map['from_wallet_address'] as String?,
+        memo: map['memo'] as String?,
+        txId: map['tx_id'] as String?,
+        isRefund: map['isRefund'] as bool?,
+        isSendAll: map['isSendAll'] as bool?);
   }
 
   Map<String, dynamic> toMap() {
@@ -125,7 +146,12 @@ class Trade extends HiveObject {
       'output': to.serialize(),
       'date': createdAt != null ? createdAt!.millisecondsSinceEpoch : null,
       'amount': amount,
-      'wallet_id': walletId
+      'wallet_id': walletId,
+      'from_wallet_address': fromWalletAddress,
+      'memo': memo,
+      'tx_id': txId,
+      'isRefund': isRefund,
+      'isSendAll': isSendAll,
     };
   }
 

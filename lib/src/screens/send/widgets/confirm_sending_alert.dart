@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:flutter/material.dart';
@@ -7,26 +8,27 @@ import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:flutter/scheduler.dart';
 
 class ConfirmSendingAlert extends BaseAlertDialog {
-  ConfirmSendingAlert({
-    required this.alertTitle,
-    this.paymentId,
-    this.paymentIdValue,
-    required this.amount,
-    required this.amountValue,
-    required this.fiatAmountValue,
-    required this.fee,
-    required this.feeValue,
-    required this.feeFiatAmount,
-    required this.outputs,
-    required this.leftButtonText,
-    required this.rightButtonText,
-    required this.actionLeftButton,
-    required this.actionRightButton,
-    this.alertBarrierDismissible = true,
-    this.alertLeftActionButtonTextColor,
-    this.alertRightActionButtonTextColor,
-    this.alertLeftActionButtonColor,
-    this.alertRightActionButtonColor});
+  ConfirmSendingAlert(
+      {required this.alertTitle,
+      this.paymentId,
+      this.paymentIdValue,
+      required this.amount,
+      required this.amountValue,
+      required this.fiatAmountValue,
+      required this.fee,
+      this.feeRate,
+      required this.feeValue,
+      required this.feeFiatAmount,
+      required this.outputs,
+      required this.leftButtonText,
+      required this.rightButtonText,
+      required this.actionLeftButton,
+      required this.actionRightButton,
+      this.alertBarrierDismissible = true,
+      this.alertLeftActionButtonTextColor,
+      this.alertRightActionButtonTextColor,
+      this.alertLeftActionButtonColor,
+      this.alertRightActionButtonColor});
 
   final String alertTitle;
   final String? paymentId;
@@ -35,6 +37,7 @@ class ConfirmSendingAlert extends BaseAlertDialog {
   final String amountValue;
   final String fiatAmountValue;
   final String fee;
+  final String? feeRate;
   final String feeValue;
   final String feeFiatAmount;
   final List<Output> outputs;
@@ -89,23 +92,24 @@ class ConfirmSendingAlert extends BaseAlertDialog {
       amountValue: amountValue,
       fiatAmountValue: fiatAmountValue,
       fee: fee,
+      feeRate: feeRate,
       feeValue: feeValue,
       feeFiatAmount: feeFiatAmount,
-      outputs: outputs
-  );
+      outputs: outputs);
 }
 
 class ConfirmSendingAlertContent extends StatefulWidget {
-  ConfirmSendingAlertContent({
-    this.paymentId,
-    this.paymentIdValue,
-    required this.amount,
-    required this.amountValue,
-    required this.fiatAmountValue,
-    required this.fee,
-    required this.feeValue,
-    required this.feeFiatAmount,
-    required this.outputs});
+  ConfirmSendingAlertContent(
+      {this.paymentId,
+      this.paymentIdValue,
+      required this.amount,
+      required this.amountValue,
+      required this.fiatAmountValue,
+      required this.fee,
+      this.feeRate,
+      required this.feeValue,
+      required this.feeFiatAmount,
+      required this.outputs});
 
   final String? paymentId;
   final String? paymentIdValue;
@@ -113,35 +117,37 @@ class ConfirmSendingAlertContent extends StatefulWidget {
   final String amountValue;
   final String fiatAmountValue;
   final String fee;
+  final String? feeRate;
   final String feeValue;
   final String feeFiatAmount;
   final List<Output> outputs;
 
   @override
   ConfirmSendingAlertContentState createState() => ConfirmSendingAlertContentState(
-    paymentId: paymentId,
-    paymentIdValue: paymentIdValue,
-    amount: amount,
-    amountValue: amountValue,
-    fiatAmountValue: fiatAmountValue,
-    fee: fee,
-    feeValue: feeValue,
-    feeFiatAmount: feeFiatAmount,
-    outputs: outputs
-  );
+      paymentId: paymentId,
+      paymentIdValue: paymentIdValue,
+      amount: amount,
+      amountValue: amountValue,
+      fiatAmountValue: fiatAmountValue,
+      fee: fee,
+      feeRate: feeRate,
+      feeValue: feeValue,
+      feeFiatAmount: feeFiatAmount,
+      outputs: outputs);
 }
 
 class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> {
-  ConfirmSendingAlertContentState({
-    this.paymentId,
-    this.paymentIdValue,
-    required this.amount,
-    required this.amountValue,
-    required this.fiatAmountValue,
-    required this.fee,
-    required this.feeValue,
-    required this.feeFiatAmount,
-    required this.outputs})
+  ConfirmSendingAlertContentState(
+      {this.paymentId,
+      this.paymentIdValue,
+      required this.amount,
+      required this.amountValue,
+      required this.fiatAmountValue,
+      required this.fee,
+      this.feeRate,
+      required this.feeValue,
+      required this.feeFiatAmount,
+      required this.outputs})
       : recipientTitle = '' {
     recipientTitle = outputs.length > 1
         ? S.current.transaction_details_recipient_address
@@ -154,6 +160,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
   final String amountValue;
   final String fiatAmountValue;
   final String fee;
+  final String? feeRate;
   final String feeValue;
   final String feeFiatAmount;
   final List<Output> outputs;
@@ -169,8 +176,9 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
   Widget build(BuildContext context) {
     controller.addListener(() {
       fromTop = controller.hasClients
-          ? (controller.offset / controller.position.maxScrollExtent *
-            (backgroundHeight - thumbHeight))
+          ? (controller.offset /
+              controller.position.maxScrollExtent *
+              (backgroundHeight - thumbHeight))
           : 0;
       setState(() {});
     });
@@ -181,102 +189,92 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
       });
     });
 
-    return Stack(
-      alignment: Alignment.center,
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-            height: 200,
-            child: SingleChildScrollView(
-                controller: controller,
-                child: Column(
-                  children: <Widget>[
-                    if (paymentIdValue != null && paymentId != null)
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 32),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              paymentId!,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.normal,
-                                fontFamily: 'Lato',
-                                color: Theme.of(context).primaryTextTheme!
-                                    .titleLarge!.color!,
-                                decoration: TextDecoration.none,
-                              ),
+    return Stack(alignment: Alignment.center, clipBehavior: Clip.none, children: [
+      Container(
+          height: feeRate != null ? 250 : 200,
+          child: SingleChildScrollView(
+              controller: controller,
+              child: Column(
+                children: <Widget>[
+                  if (paymentIdValue != null && paymentId != null)
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 32),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            paymentId!,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                              fontFamily: 'Lato',
+                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                              decoration: TextDecoration.none,
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  paymentIdValue!,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: 'Lato',
-                                    color: Theme.of(context).primaryTextTheme!
-                                        .titleLarge!.color!,
-                                    decoration: TextDecoration.none,
-                                  ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                paymentIdValue!,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Lato',
+                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                  decoration: TextDecoration.none,
                                 ),
-                              ],
-                            )
-                          ],
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        amount,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                          fontFamily: 'Lato',
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                          decoration: TextDecoration.none,
                         ),
                       ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          amount,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal,
-                            fontFamily: 'Lato',
-                            color: Theme.of(context)
-                                .primaryTextTheme!
-                                .titleLarge!
-                                .color!,
-                            decoration: TextDecoration.none,
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              amountValue,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'Lato',
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .titleLarge!
-                                    .color,
-                                decoration: TextDecoration.none,
-                              ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            amountValue,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Lato',
+                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                              decoration: TextDecoration.none,
                             ),
-                            Text(
-                              fiatAmountValue,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'Lato',
-                                color: PaletteDark.pigeonBlue,
-                                decoration: TextDecoration.none,
-                              ),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
+                          ),
+                          Text(
+                            fiatAmountValue,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Lato',
+                              color: PaletteDark.pigeonBlue,
+                              decoration: TextDecoration.none,
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                  if (feeValue.isNotEmpty && feeValue != "0")
                     Padding(
                         padding: EdgeInsets.only(top: 16),
                         child: Row(
@@ -290,7 +288,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 fontSize: 16,
                                 fontWeight: FontWeight.normal,
                                 fontFamily: 'Lato',
-                                color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                 decoration: TextDecoration.none,
                               ),
                             ),
@@ -303,7 +301,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Lato',
-                                    color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                     decoration: TextDecoration.none,
                                   ),
                                 ),
@@ -320,106 +318,127 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                               ],
                             )
                           ],
-                        )
-                    ),
+                        )),
+                  if (feeRate != null && feeRate!.isNotEmpty)
                     Padding(
-                      padding: EdgeInsets.only(top: 16),
-                      child: Column(
-                        children: [
-                          Text(
-                            '$recipientTitle:',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
-                              fontFamily: 'Lato',
-                              color: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .titleLarge!
-                                  .color!,
-                              decoration: TextDecoration.none,
+                        padding: EdgeInsets.only(top: 16),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              S.current.send_estimated_fee,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.normal,
+                                fontFamily: 'Lato',
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                decoration: TextDecoration.none,
+                              ),
                             ),
+                            Text(
+                              "$feeRate sat/byte",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Lato',
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                decoration: TextDecoration.none,
+                              ),
+                            )
+                          ],
+                        )),
+                  Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: Column(
+                      children: [
+                        Text(
+                          '$recipientTitle:',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.normal,
+                            fontFamily: 'Lato',
+                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                            decoration: TextDecoration.none,
                           ),
-                          outputs.length > 1
-                              ? ListView.builder(
-                              padding: EdgeInsets.only(top: 0),
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: outputs.length,
-                              itemBuilder: (context, index) {
-                                final item = outputs[index];
-                                final _address = item.isParsedAddress
-                                    ? item.extractedAddress
-                                    : item.address;
-                                final _amount =
-                                item.cryptoAmount.replaceAll(',', '.');
+                        ),
+                        outputs.length > 1
+                            ? ListView.builder(
+                                padding: EdgeInsets.only(top: 0),
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: outputs.length,
+                                itemBuilder: (context, index) {
+                                  final item = outputs[index];
+                                  final _address =
+                                      item.isParsedAddress ? item.extractedAddress : item.address;
+                                  final _amount = item.cryptoAmount.replaceAll(',', '.');
 
-                                return Column(
-                                  children: [
-                                    if (item.isParsedAddress) Padding(
-                                        padding: EdgeInsets.only(top: 8),
-                                        child: Text(
-                                          item.parsedAddress.name,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            fontFamily: 'Lato',
-                                            color: PaletteDark.pigeonBlue,
-                                            decoration: TextDecoration.none,
-                                          ),
-                                        )
-                                    ),
-                                    Padding(
-                                        padding: EdgeInsets.only(top: 8),
-                                        child: Text(
-                                          _address,
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w600,
-                                            fontFamily: 'Lato',
-                                            color: PaletteDark.pigeonBlue,
-                                            decoration: TextDecoration.none,
-                                          ),
-                                        )
-                                    ),
-                                    Padding(
-                                        padding: EdgeInsets.only(top: 8),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              _amount,
+                                  return Column(
+                                    children: [
+                                      if (item.isParsedAddress)
+                                        Padding(
+                                            padding: EdgeInsets.only(top: 8),
+                                            child: Text(
+                                              item.parsedAddress.name,
+                                              textAlign: TextAlign.center,
                                               style: TextStyle(
-                                                fontSize: 10,
+                                                fontSize: 14,
                                                 fontWeight: FontWeight.w600,
                                                 fontFamily: 'Lato',
                                                 color: PaletteDark.pigeonBlue,
                                                 decoration: TextDecoration.none,
                                               ),
-                                            )
-                                          ],
-                                        )
-                                    )
-                                  ],
-                                );
-                              })
-                              : Column(
-                              children: [
-                                if (outputs.first.isParsedAddress) Padding(
-                                    padding: EdgeInsets.only(top: 8),
-                                    child: Text(
-                                      outputs.first.parsedAddress.name,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        fontFamily: 'Lato',
-                                        color: PaletteDark.pigeonBlue,
-                                        decoration: TextDecoration.none,
-                                      ),
-                                    )
-                                ),
+                                            )),
+                                      Padding(
+                                          padding: EdgeInsets.only(top: 8),
+                                          child: Text(
+                                            _address,
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              fontFamily: 'Lato',
+                                              color: PaletteDark.pigeonBlue,
+                                              decoration: TextDecoration.none,
+                                            ),
+                                          )),
+                                      Padding(
+                                          padding: EdgeInsets.only(top: 8),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                _amount,
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontFamily: 'Lato',
+                                                  color: PaletteDark.pigeonBlue,
+                                                  decoration: TextDecoration.none,
+                                                ),
+                                              )
+                                            ],
+                                          ))
+                                    ],
+                                  );
+                                })
+                            : Column(children: [
+                                if (outputs.first.isParsedAddress)
+                                  Padding(
+                                      padding: EdgeInsets.only(top: 8),
+                                      child: Text(
+                                        outputs.first.parsedAddress.name,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'Lato',
+                                          color: PaletteDark.pigeonBlue,
+                                          decoration: TextDecoration.none,
+                                        ),
+                                      )),
                                 Padding(
                                     padding: EdgeInsets.only(top: 8),
                                     child: Text(
@@ -433,24 +452,19 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                         color: PaletteDark.pigeonBlue,
                                         decoration: TextDecoration.none,
                                       ),
-                                    )
-                                ),
-                              ]
-                          )
-                        ],
-                      ),
-                    )
-                  ],
-                )
-            )
-        ),
-        if (showScrollbar) CakeScrollbar(
-              backgroundHeight: backgroundHeight,
-              thumbHeight: thumbHeight,
-              fromTop: fromTop,
-              rightOffset: -15
-          )
-      ]
-    );
+                                    )),
+                              ])
+                      ],
+                    ),
+                  )
+                ],
+              ))),
+      if (showScrollbar)
+        CakeScrollbar(
+            backgroundHeight: backgroundHeight,
+            thumbHeight: thumbHeight,
+            fromTop: fromTop,
+            rightOffset: -15)
+    ]);
   }
 }

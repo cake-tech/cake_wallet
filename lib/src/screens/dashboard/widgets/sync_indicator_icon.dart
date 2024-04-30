@@ -1,3 +1,5 @@
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
@@ -18,6 +20,7 @@ class SyncIndicatorIcon extends StatelessWidget {
   static const String created = 'created';
   static const String fetching = 'fetching';
   static const String finished = 'finished';
+  static const String success = 'success';
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +29,7 @@ class SyncIndicatorIcon extends StatelessWidget {
     if (boolMode) {
       indicatorColor = isSynced
           ? PaletteDark.brightGreen
-          : Theme.of(context).textTheme!.bodySmall!.color!;
+          : Theme.of(context).extension<SyncIndicatorTheme>()!.notSyncedIconColor;
     } else {
       switch (value.toLowerCase()) {
         case waiting:
@@ -34,7 +37,7 @@ class SyncIndicatorIcon extends StatelessWidget {
           break;
         case actionRequired:
           indicatorColor =
-              Theme.of(context).textTheme!.displayMedium!.decorationColor!;
+              Theme.of(context).extension<ReceivePageTheme>()!.currentTileBackgroundColor;
           break;
         case created:
           indicatorColor = PaletteDark.brightGreen;
@@ -43,6 +46,7 @@ class SyncIndicatorIcon extends StatelessWidget {
           indicatorColor = Colors.red;
           break;
         case finished:
+        case success:
           indicatorColor = PaletteDark.brightGreen;
           break;
         default:

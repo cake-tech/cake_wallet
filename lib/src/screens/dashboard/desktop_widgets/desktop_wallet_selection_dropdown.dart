@@ -1,10 +1,12 @@
 import 'package:another_flushbar/flushbar.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/desktop_dropdown_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/dropdown_item_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -30,20 +32,26 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
   final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
+  final ethereumIcon = Image.asset('assets/images/eth_icon.png', height: 24, width: 24);
+  final polygonIcon = Image.asset('assets/images/matic_icon.png', height: 24, width: 24);
+  final bitcoinCashIcon = Image.asset('assets/images/bch_icon.png', height: 24, width: 24);
+  final nanoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
+  final bananoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
+  final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
         'assets/images/new_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       );
 
   Image _restoreWalletImage(BuildContext context) => Image.asset(
         'assets/images/restore_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).primaryTextTheme!.titleLarge!.color!,
+        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       );
 
   Flushbar<void>? _progressBar;
@@ -93,8 +101,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         onChanged: (item) {
           item?.onSelected();
         },
-        dropdownColor: themeData.textTheme!.bodyLarge?.decorationColor,
-        style: TextStyle(color: themeData.primaryTextTheme!.titleLarge?.color),
+        dropdownColor: themeData.extension<CakeMenuTheme>()!.backgroundColor,
+        style: TextStyle(color: themeData.extension<CakeTextTheme>()!.titleColor),
         selectedItemBuilder: (context) => dropDownItems.map((item) => item.child).toList(),
         value: dropDownItems.firstWhere((element) => element.isSelected),
         underline: const SizedBox(),
@@ -116,8 +124,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
                   alertContent: S.of(context).change_wallet_alert_content(selectedWallet.name),
                   leftButtonText: S.of(context).cancel,
                   rightButtonText: S.of(context).change,
-                  actionLeftButton: () => Navigator.of(context).pop(false),
-                  actionRightButton: () => Navigator.of(context).pop(true));
+                  actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+                  actionRightButton: () => Navigator.of(dialogContext).pop(true));
             }) ??
         false;
 
@@ -136,6 +144,18 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return litecoinIcon;
       case WalletType.haven:
         return havenIcon;
+      case WalletType.ethereum:
+        return ethereumIcon;
+      case WalletType.bitcoinCash:
+        return bitcoinCashIcon;
+      case WalletType.nano:
+        return nanoIcon;
+      case WalletType.banano:
+        return bananoIcon;
+      case WalletType.polygon:
+        return polygonIcon;
+      case WalletType.solana:
+        return solanaIcon;
       default:
         return nonWalletTypeIcon;
     }
@@ -149,22 +169,40 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
       }
 
       try {
-        changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
+        if (context.mounted) {
+          changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
+        }
         await widget.walletListViewModel.loadWallet(wallet);
         hideProgressText();
         setState(() {});
       } catch (e) {
-        changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+        if (context.mounted) {
+          changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+        }
       }
-    });
+      },
+      conditionToDetermineIfToUse2FA:
+          widget.walletListViewModel.shouldRequireTOTP2FAForAccessingWallet,
+    );
   }
 
   void _navigateToCreateWallet() {
     if (isSingleCoin) {
-      Navigator.of(context)
-          .pushNamed(Routes.newWallet, arguments: widget.walletListViewModel.currentWalletType);
+      widget._authService.authenticateAction(
+        context,
+        route: Routes.newWallet,
+        arguments: widget.walletListViewModel.currentWalletType,
+        conditionToDetermineIfToUse2FA: widget
+            .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+      );
     } else {
-      Navigator.of(context).pushNamed(Routes.newWalletType);
+      widget._authService.authenticateAction(
+        context,
+        route: Routes.newWalletType,
+        conditionToDetermineIfToUse2FA: widget
+            .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+      );
+     
     }
   }
 

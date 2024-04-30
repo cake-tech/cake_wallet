@@ -10,18 +10,18 @@ const _fiatApiOnionAuthority = 'n4z7bdcmwk2oyddxvzaap3x2peqcplh3pzdy7tpkk5ejz5n4
 const _fiatApiPath = '/v2/rates';
 
 Future<double> _fetchPrice(Map<String, dynamic> args) async {
-  final crypto = args['crypto'] as CryptoCurrency;
-  final fiat = args['fiat'] as FiatCurrency;
+  final crypto = args['crypto'] as String;
+  final fiat = args['fiat'] as String;
   final torOnly = args['torOnly'] as bool;
 
   final Map<String, String> queryParams = {
     'interval_count': '1',
-    'base': crypto.toString(),
-    'quote': fiat.toString(),
+    'base': crypto.split(".").first,
+    'quote': fiat,
     'key': secrets.fiatApiKey,
   };
 
-  double price = 0.0;
+  num price = 0.0;
 
   try {
     late final Uri uri;
@@ -41,12 +41,12 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
     final results = responseJSON['results'] as Map<String, dynamic>;
 
     if (results.isNotEmpty) {
-      price = results.values.first as double;
+      price = results.values.first as num;
     }
 
-    return price;
+    return price.toDouble();
   } catch (e) {
-    return price;
+    return price.toDouble();
   }
 }
 
@@ -96,7 +96,11 @@ Future<double?> _fetchHistoricalPrice(Map<String, dynamic> args) async {
 }
 
 Future<double> _fetchPriceAsync(CryptoCurrency crypto, FiatCurrency fiat, bool torOnly) async =>
-    compute(_fetchPrice, {'fiat': fiat, 'crypto': crypto, 'torOnly': torOnly});
+    compute(_fetchPrice, {
+      'fiat': fiat.toString(),
+      'crypto': crypto.toString(),
+      'torOnly': torOnly,
+    });
 
 Future<double?> _fetchHistoricalAsync(
         CryptoCurrency crypto, FiatCurrency fiat, bool torOnly, DateTime date) async =>

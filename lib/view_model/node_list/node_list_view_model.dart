@@ -52,7 +52,11 @@ abstract class NodeListViewModelBase with Store {
 
     switch (_appStore.wallet!.type) {
       case WalletType.bitcoin:
-        node = getBitcoinDefaultElectrumServer(nodes: _nodeSource)!;
+        if (_appStore.wallet!.isTestnet == true) {
+          node = getBitcoinTestnetDefaultElectrumServer(nodes: _nodeSource)!;
+        } else {
+          node = getBitcoinDefaultElectrumServer(nodes: _nodeSource)!;
+        }
         break;
       case WalletType.monero:
         node = getMoneroDefaultNode(nodes: _nodeSource);
@@ -62,6 +66,21 @@ abstract class NodeListViewModelBase with Store {
         break;
       case WalletType.haven:
         node = getHavenDefaultNode(nodes: _nodeSource)!;
+        break;
+      case WalletType.ethereum:
+        node = getEthereumDefaultNode(nodes: _nodeSource)!;
+        break;
+      case WalletType.bitcoinCash:
+        node = getBitcoinCashDefaultElectrumServer(nodes: _nodeSource)!;
+        break;
+      case WalletType.nano:
+        node = getNanoDefaultNode(nodes: _nodeSource)!;
+        break;
+      case WalletType.polygon:
+        node = getPolygonDefaultNode(nodes: _nodeSource)!;
+        break;
+      case WalletType.solana:
+        node = getSolanaDefaultNode(nodes: _nodeSource)!;
         break;
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.type}');
@@ -73,6 +92,7 @@ abstract class NodeListViewModelBase with Store {
   @action
   Future<void> delete(Node node) async => node.delete();
 
+  @action
   Future<void> setAsCurrent(Node node) async => settingsStore.nodes[_appStore.wallet!.type] = node;
 
   @action

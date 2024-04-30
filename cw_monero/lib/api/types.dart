@@ -1,5 +1,7 @@
 import 'dart:ffi';
+import 'package:cw_monero/api/structs/coins_info_row.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
+import 'package:cw_monero/api/structs/transaction_info_row.dart';
 import 'package:cw_monero/api/structs/ut8_box.dart';
 import 'package:ffi/ffi.dart';
 
@@ -11,6 +13,9 @@ typedef RestoreWalletFromSeed = int Function(
 
 typedef RestoreWalletFromKeys = int Function(Pointer<Utf8>, Pointer<Utf8>,
     Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, int, int, Pointer<Utf8>);
+
+typedef RestoreWalletFromSpendKey = int Function(Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>,
+    Pointer<Utf8>, Pointer<Utf8>, int, int, Pointer<Utf8>);
 
 typedef IsWalletExist = int Function(Pointer<Utf8>);
 
@@ -35,7 +40,7 @@ typedef GetNodeHeight = int Function();
 typedef IsConnected = int Function();
 
 typedef SetupNode = int Function(
-    Pointer<Utf8>, Pointer<Utf8>?, Pointer<Utf8>?, int, int, Pointer<Utf8>);
+    Pointer<Utf8>, Pointer<Utf8>?, Pointer<Utf8>?, int, int, Pointer<Utf8>?, Pointer<Utf8>);
 
 typedef StartRefresh = void Function();
 
@@ -80,6 +85,8 @@ typedef AccountSetLabel = void Function(int accountIndex, Pointer<Utf8> label);
 
 typedef TransactionsRefresh = void Function();
 
+typedef GetTransaction = Pointer<TransactionInfoRow> Function(Pointer<Utf8> txId);
+
 typedef GetTxKey = Pointer<Utf8>? Function(Pointer<Utf8> txId);
 
 typedef TransactionsCount = int Function();
@@ -92,6 +99,8 @@ typedef TransactionCreate = int Function(
     Pointer<Utf8> amount,
     int priorityRaw,
     int subaddrAccount,
+    Pointer<Pointer<Utf8>> preferredInputs,
+    int preferredInputsSize,
     Pointer<Utf8Box> error,
     Pointer<PendingTransactionRaw> pendingTransaction);
 
@@ -102,6 +111,8 @@ typedef TransactionCreateMultDest = int Function(
     int size,
     int priorityRaw,
     int subaddrAccount,
+    Pointer<Pointer<Utf8>> preferredInputs,
+    int preferredInputsSize,
     Pointer<Utf8Box> error,
     Pointer<PendingTransactionRaw> pendingTransaction);
 
@@ -128,3 +139,15 @@ typedef GetSubaddressLabel = Pointer<Utf8> Function(
 typedef SetTrustedDaemon = void Function(int);
 
 typedef TrustedDaemon = int Function();
+
+typedef RefreshCoins = void Function(int);
+
+typedef CoinsCount = int Function();
+
+typedef GetCoin = Pointer<CoinsInfoRow> Function(int);
+
+typedef FreezeCoin = void Function(int);
+
+typedef ThawCoin = void Function(int);
+
+typedef SignMessage = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>);

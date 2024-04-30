@@ -1,7 +1,11 @@
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 
 class CheckBoxPicker extends StatefulWidget {
   CheckBoxPicker({
@@ -53,14 +57,11 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(30)),
             child: Container(
-              color: Theme.of(context)
-                  .accentTextTheme!
-                  .titleLarge!
-                  .color!,
+              color: Theme.of(context).dialogTheme.backgroundColor,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(context).size.height * 0.65,
-                  maxWidth: ResponsiveLayoutUtil.kPopupWidth,
+                  maxWidth: ResponsiveLayoutUtilBase.kPopupWidth,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -90,24 +91,18 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
 
   Widget itemsList() {
     return Container(
-      color: Theme.of(context)
-          .accentTextTheme!
-          .titleLarge!
-          .backgroundColor!,
+      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
       child: ListView.separated(
         padding: EdgeInsets.zero,
         controller: controller,
         shrinkWrap: true,
         separatorBuilder: (context, index) => widget.isSeparated
             ? Divider(
-                color: Theme.of(context)
-                    .accentTextTheme!
-                    .titleLarge!
-                    .backgroundColor!,
+                color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
                 height: 1,
               )
             : const SizedBox(),
-        itemCount: items == null || items.isEmpty ? 0 : items.length,
+        itemCount: items.isEmpty ? 0 : items.length,
         itemBuilder: (context, index) => buildItem(index),
       ),
     );
@@ -118,47 +113,51 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
 
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).pop();
+        if (item.isDisabled) {
+          return;
+        }
+
+        bool newValue = !item.value;
+        item.value = newValue;
+        widget.onChanged(index, newValue);
+        setState(() {});
       },
       child: Container(
         height: 55,
-        color: Theme.of(context)
-            .accentTextTheme!
-            .titleLarge!
-            .color!,
+        color: Theme.of(context).dialogTheme.backgroundColor,
         padding: EdgeInsets.only(left: 24, right: 24),
-        child: CheckboxListTile(
-          value: item.value,
-          activeColor: item.value
-              ? Palette.blueCraiola
-              : Theme.of(context)
-                  .accentTextTheme!
-                  .titleMedium!
-                  .decorationColor!,
-          checkColor: Colors.white,
-          title: widget.displayItem?.call(item) ??
-              Text(
-                item.title,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w600,
-                  color: item.isDisabled
-                      ? Colors.grey.withOpacity(0.5)
-                      : Theme.of(context).primaryTextTheme!.titleLarge!.color!,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-          onChanged: (bool? value) {
-            if (value == null) {
-              return;
-            }
+        child: Row(
+          children: [
+            StandardCheckbox(
+              value: item.value,
+              gradientBackground: true,
+              borderColor: Theme.of(context).dividerColor,
+              iconColor: Colors.white,
+              onChanged: (bool? value) {
+                if (value == null || item.isDisabled) {
+                  return;
+                }
 
-            item.value = value;
-            widget.onChanged(index, value);
-            setState(() {});
-          },
-          controlAffinity: ListTileControlAffinity.leading,
+                item.value = value;
+                widget.onChanged(index, value);
+                setState(() {});
+              },
+            ),
+            SizedBox(width: 16),
+            widget.displayItem?.call(item) ??
+                Text(
+                  item.title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w600,
+                    color: item.isDisabled
+                        ? Colors.grey.withOpacity(0.5)
+                        : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    decoration: TextDecoration.none,
+                  ),
+                )
+          ],
         ),
       ),
     );

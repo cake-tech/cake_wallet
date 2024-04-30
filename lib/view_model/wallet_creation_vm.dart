@@ -1,4 +1,6 @@
 import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -22,6 +24,12 @@ abstract class WalletCreationVMBase with Store {
         name = '';
 
   @observable
+  bool _useTestnet = false;
+
+  @computed
+  bool get useTestnet => _useTestnet;
+
+  @observable
   String name;
 
   @observable
@@ -33,18 +41,16 @@ abstract class WalletCreationVMBase with Store {
   final Box<WalletInfo> _walletInfoSource;
   final AppStore _appStore;
 
-  bool nameExists(String name)
-    => walletCreationService.exists(name);
+  bool nameExists(String name) => walletCreationService.exists(name);
 
-  bool typeExists(WalletType type)
-    => walletCreationService.typeExists(type);
+  bool typeExists(WalletType type) => walletCreationService.typeExists(type);
 
   Future<void> create({dynamic options, RestoredWallet? restoreWallet}) async {
     final type = restoreWallet?.type ?? this.type;
     try {
       state = IsExecutingState();
       if (name.isEmpty) {
-            name = await generateName();
+        name = await generateName();
       }
 
       walletCreationService.checkIfExists(name);
@@ -53,39 +59,92 @@ abstract class WalletCreationVMBase with Store {
       final credentials = restoreWallet != null
           ? getCredentialsFromRestoredWallet(options, restoreWallet)
           : getCredentials(options);
+
       final walletInfo = WalletInfo.external(
-          id: WalletBase.idFor(name, type),
-          name: name,
-          type: type,
-          isRecovery: isRecovery,
-          restoreHeight: credentials.height ?? 0,
-          date: DateTime.now(),
-          path: path,
-          dirPath: dirPath,
-          address: '',
-          showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven);
+        id: WalletBase.idFor(name, type),
+        name: name,
+        type: type,
+        isRecovery: isRecovery,
+        restoreHeight: credentials.height ?? 0,
+        date: DateTime.now(),
+        path: path,
+        dirPath: dirPath,
+        address: '',
+        showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
+        derivationInfo: credentials.derivationInfo ?? getDefaultDerivation(),
+      );
+
       credentials.walletInfo = walletInfo;
       final wallet = restoreWallet != null
           ? await processFromRestoredWallet(credentials, restoreWallet)
           : await process(credentials);
       walletInfo.address = wallet.walletAddresses.address;
       await _walletInfoSource.add(walletInfo);
-      _appStore.changeCurrentWallet(wallet);
+      await _appStore.changeCurrentWallet(wallet);
+      getIt.get<BackgroundTasks>().registerSyncTask();
       _appStore.authenticationStore.allowed();
       state = ExecutedSuccessfullyState();
     } catch (e) {
       state = FailureState(e.toString());
     }
   }
-  WalletCredentials getCredentials(dynamic options) =>
+
+  DerivationInfo? getDefaultDerivation() {
+    switch (this.type) {
+      case WalletType.nano:
+        return DerivationInfo(
+          derivationType: DerivationType.nano,
+        );
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        return DerivationInfo(
+          derivationType: DerivationType.electrum,
+          derivationPath: "m/0'/0",
+        );
+      default:
+        return null;
+    }
+  }
+
+  DerivationInfo? getCommonRestoreDerivation() {
+    switch (this.type) {
+      case WalletType.nano:
+        return DerivationInfo(
+          derivationType: DerivationType.nano,
+        );
+      case WalletType.bitcoin:
+        return DerivationInfo(
+          derivationType: DerivationType.bip39,
+          derivationPath: "m/84'/0'/0'/0",
+          description: "Standard BIP84 native segwit",
+          scriptType: "p2wpkh",
+        );
+      case WalletType.litecoin:
+        return DerivationInfo(
+          derivationType: DerivationType.bip39,
+          derivationPath: "m/84'/2'/0'/0",
+          description: "Standard BIP84 native segwit (litecoin)",
+          scriptType: "p2wpkh",
+        );
+      default:
+        return null;
+    }
+  }
+
+  WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();
+
+  Future<WalletBase> process(WalletCredentials credentials) => throw UnimplementedError();
+
+  WalletCredentials getCredentialsFromRestoredWallet(
+          dynamic options, RestoredWallet restoreWallet) =>
       throw UnimplementedError();
 
-  Future<WalletBase> process(WalletCredentials credentials) =>
+  Future<WalletBase> processFromRestoredWallet(
+          WalletCredentials credentials, RestoredWallet restoreWallet) =>
       throw UnimplementedError();
 
-  WalletCredentials getCredentialsFromRestoredWallet(dynamic options, RestoredWallet restoreWallet) =>
-      throw UnimplementedError();
-
-  Future<WalletBase> processFromRestoredWallet(WalletCredentials credentials, RestoredWallet restoreWallet) =>
-      throw UnimplementedError();
+  @action
+  void toggleUseTestnet(bool? value) {
+    _useTestnet = value ?? !_useTestnet;
+  }
 }

@@ -1,6 +1,9 @@
+import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
+import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
@@ -12,6 +15,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class ExchangeCard extends StatefulWidget {
   ExchangeCard(
@@ -20,7 +24,6 @@ class ExchangeCard extends StatefulWidget {
       required this.initialAddress,
       required this.initialWalletName,
       required this.initialIsAmountEditable,
-      required this.initialIsAddressEditable,
       required this.isAmountEstimated,
       required this.currencies,
       required this.onCurrencySelected,
@@ -28,12 +31,14 @@ class ExchangeCard extends StatefulWidget {
       this.currencyValueValidator,
       this.addressTextFieldValidator,
       this.title = '',
+      this.initialIsAddressEditable = true,
       this.hasRefundAddress = false,
       this.isMoneroWallet = false,
       this.currencyButtonColor = Colors.transparent,
       this.addressButtonsColor = Colors.transparent,
       this.borderColor = Colors.transparent,
       this.hasAllAmount = false,
+      this.isAllAmountEnabled = false,
       this.amountFocusNode,
       this.addressFocusNode,
       this.allAmount,
@@ -59,9 +64,11 @@ class ExchangeCard extends StatefulWidget {
   final Color borderColor;
   final FormFieldValidator<String>? currencyValueValidator;
   final FormFieldValidator<String>? addressTextFieldValidator;
+  final FormFieldValidator<String> allAmountValidator = AllAmountValidator();
   final FocusNode? amountFocusNode;
   final FocusNode? addressFocusNode;
   final bool hasAllAmount;
+  final bool isAllAmountEnabled;
   final VoidCallback? allAmount;
   final void Function(BuildContext context)? onPushPasteButton;
   final void Function(BuildContext context)? onPushAddressBookButton;
@@ -73,15 +80,15 @@ class ExchangeCard extends StatefulWidget {
 
 class ExchangeCardState extends State<ExchangeCard> {
   ExchangeCardState()
-    : _title = '',
-    _min = '',
-    _max = '',
-    _isAmountEditable = false,
-    _isAddressEditable = false,
-    _walletName = '',
-    _selectedCurrency = CryptoCurrency.btc,
-    _isAmountEstimated = false,
-    _isMoneroWallet = false;
+      : _title = '',
+        _min = '',
+        _max = '',
+        _isAmountEditable = false,
+        _isAddressEditable = false,
+        _walletName = '',
+        _selectedCurrency = CryptoCurrency.btc,
+        _isAmountEstimated = false,
+        _isMoneroWallet = false;
 
   final addressController = TextEditingController();
   final amountController = TextEditingController();
@@ -157,16 +164,21 @@ class ExchangeCardState extends State<ExchangeCard> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isAllAmountEnabled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        amountController.text = S.of(context).all;
+      });
+    }
+
     final copyImage = Image.asset('assets/images/copy_content.png',
         height: 16,
         width: 16,
-        color: Theme.of(context).primaryTextTheme!.displaySmall!.color!);
+        color: Theme.of(context).extension<SendPageTheme>()!.estimatedFeeColor);
 
     return Container(
       width: double.infinity,
       color: Colors.transparent,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
-          Widget>[
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
@@ -175,7 +187,7 @@ class ExchangeCardState extends State<ExchangeCard> {
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).textTheme!.headlineSmall!.color!),
+                  color: Theme.of(context).extension<QRCodeTheme>()!.qrCodeColor),
             )
           ],
         ),
@@ -199,46 +211,38 @@ class ExchangeCardState extends State<ExchangeCard> {
                           ),
                           Text(_selectedCurrency.toString(),
                               style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: Colors.white))
+                                  fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white))
                         ]),
                   ),
                 ),
-                _selectedCurrency.tag != null ? Padding(
-                  padding: const EdgeInsets.only(right:3.0),
-                  child: Container(
-                    height: 32,
-                    decoration: BoxDecoration(
-                        color: widget.addressButtonsColor ??
-                            Theme.of(context)
-                                .primaryTextTheme!
-                                .headlineMedium!
-                                .color!,
-                        borderRadius:
-                        BorderRadius.all(Radius.circular(6))),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(6.0),
-                        child: Text(_selectedCurrency.tag!,
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context)
-                                    .primaryTextTheme!
-                                    .headlineMedium!
-                                    .decorationColor!)),
+                if (_selectedCurrency.tag != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 3.0),
+                    child: Container(
+                      height: 32,
+                      decoration: BoxDecoration(
+                          color: widget.addressButtonsColor ??
+                              Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+                          borderRadius: BorderRadius.all(Radius.circular(6))),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child: Text(_selectedCurrency.tag!,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context)
+                                      .extension<SendPageTheme>()!
+                                      .textFieldButtonIconColor)),
+                        ),
                       ),
                     ),
                   ),
-                ) : Container(),
                 Padding(
                   padding: const EdgeInsets.only(right: 4.0),
                   child: Text(':',
                       style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: Colors.white)),
+                          fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white)),
                 ),
                 Expanded(
                   child: Row(
@@ -252,29 +256,25 @@ class ExchangeCardState extends State<ExchangeCard> {
                               controller: amountController,
                               enabled: _isAmountEditable,
                               textAlign: TextAlign.left,
-                              keyboardType: TextInputType.numberWithOptions(
-                                  signed: false, decimal: true),
+                              keyboardType:
+                                  TextInputType.numberWithOptions(signed: false, decimal: true),
                               inputFormatters: [
-                                FilteringTextInputFormatter.deny(
-                                    RegExp('[\\-|\\ ]'))
+                                FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
                               ],
                               hintText: '0.0000',
                               borderColor: Colors.transparent,
                               //widget.borderColor,
                               textStyle: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white),
+                                  fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
                               placeholderTextStyle: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: Theme.of(context)
-                                      .accentTextTheme!
-                                      .displayLarge!
-                                      .decorationColor!),
+                                      .extension<ExchangePageTheme>()!
+                                      .hintTextColor),
                               validator: _isAmountEditable
-                                  ? widget.currencyValueValidator
-                                  : null),
+                                      ? widget.currencyValueValidator
+                                      : null),
                         ),
                       ),
                       if (widget.hasAllAmount)
@@ -283,11 +283,9 @@ class ExchangeCardState extends State<ExchangeCard> {
                           width: 32,
                           decoration: BoxDecoration(
                               color: Theme.of(context)
-                                  .primaryTextTheme!
-                                  .headlineMedium!
-                                  .color!,
-                              borderRadius:
-                              BorderRadius.all(Radius.circular(6))),
+                                  .extension<SendPageTheme>()!
+                                  .textFieldButtonColor,
+                              borderRadius: BorderRadius.all(Radius.circular(6))),
                           child: InkWell(
                             onTap: () => widget.allAmount?.call(),
                             child: Center(
@@ -297,9 +295,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
                                       color: Theme.of(context)
-                                          .primaryTextTheme!
-                                          .headlineMedium!
-                                          .decorationColor!)),
+                                          .extension<SendPageTheme>()!
+                                          .textFieldButtonIconColor)),
                             ),
                           ),
                         )
@@ -308,48 +305,30 @@ class ExchangeCardState extends State<ExchangeCard> {
                 ),
               ],
             )),
-        Divider(
-            height: 1,
-            color: Theme.of(context)
-                .primaryTextTheme!
-                .headlineSmall!
-                .decorationColor!),
+        Divider(height: 1, color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
         Padding(
           padding: EdgeInsets.only(top: 5),
           child: Container(
               height: 15,
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    _min != null
-                        ? Text(
-                            S
-                                .of(context)
-                                .min_value(_min ?? '', _selectedCurrency.toString()),
-                            style: TextStyle(
-                                fontSize: 10,
-                                height: 1.2,
-                                color: Theme.of(context)
-                                    .accentTextTheme!
-                                    .displayLarge!
-                                    .decorationColor!),
-                          )
-                        : Offstage(),
-                    _min != null ? SizedBox(width: 10) : Offstage(),
-                    _max != null
-                        ? Text(
-                            S
-                                .of(context)
-                                .max_value(_max ?? '', _selectedCurrency.toString()),
-                            style: TextStyle(
-                                fontSize: 10,
-                                height: 1.2,
-                                color: Theme.of(context)
-                                    .accentTextTheme!
-                                    .displayLarge!
-                                    .decorationColor!))
-                        : Offstage(),
-                  ])),
+              child: Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+                _min != null
+                    ? Text(
+                        S.of(context).min_value(_min ?? '', _selectedCurrency.toString()),
+                        style: TextStyle(
+                            fontSize: 10,
+                            height: 1.2,
+                            color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
+                      )
+                    : Offstage(),
+                _min != null ? SizedBox(width: 10) : Offstage(),
+                _max != null
+                    ? Text(S.of(context).max_value(_max ?? '', _selectedCurrency.toString()),
+                        style: TextStyle(
+                            fontSize: 10,
+                            height: 1.2,
+                            color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor))
+                    : Offstage(),
+              ])),
         ),
         !_isAddressEditable && widget.hasRefundAddress
             ? Padding(
@@ -359,15 +338,12 @@ class ExchangeCardState extends State<ExchangeCard> {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context)
-                          .accentTextTheme!
-                          .displayLarge!
-                          .decorationColor!),
+                      color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
                 ))
             : Offstage(),
         _isAddressEditable
             ? FocusTraversalOrder(
-                order: NumericFocusOrder(2),         
+                order: NumericFocusOrder(2),
                 child: Padding(
                   padding: EdgeInsets.only(top: 20),
                   child: AddressTextField(
@@ -376,59 +352,47 @@ class ExchangeCardState extends State<ExchangeCard> {
                       onURIScanned: (uri) {
                         final paymentRequest = PaymentRequest.fromUri(uri);
                         addressController.text = paymentRequest.address;
-            
+
                         if (amountController.text.isNotEmpty) {
                           _showAmountPopup(context, paymentRequest);
                           return;
                         }
                         widget.amountFocusNode?.requestFocus();
-                          amountController.text = paymentRequest.amount;
+                        amountController.text = paymentRequest.amount;
                       },
-                      placeholder: widget.hasRefundAddress
-                          ? S.of(context).refund_address
-                          : null,
+                      placeholder: widget.hasRefundAddress ? S.of(context).refund_address : null,
                       options: [
                         AddressTextFieldOption.paste,
                         AddressTextFieldOption.qrCode,
                         AddressTextFieldOption.addressBook,
                       ],
                       isBorderExist: false,
-                      textStyle: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white),
+                      textStyle:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
                       hintStyle: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context)
-                              .accentTextTheme!
-                              .displayLarge!
-                              .decorationColor!),
+                          color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
                       buttonColor: widget.addressButtonsColor,
                       validator: widget.addressTextFieldValidator,
                       onPushPasteButton: widget.onPushPasteButton,
                       onPushAddressBookButton: widget.onPushAddressBookButton,
-                      selectedCurrency: _selectedCurrency
-                  ),
-            
+                      selectedCurrency: _selectedCurrency),
                 ),
-            )
+              )
             : Padding(
                 padding: EdgeInsets.only(top: 10),
                 child: Builder(
                     builder: (context) => Stack(children: <Widget>[
-                    FocusTraversalOrder(
-                      order: NumericFocusOrder(3),
-                      child: BaseTextFormField(
-                          controller: addressController,
-                          borderColor: Colors.transparent,
-                          suffixIcon:
-                              SizedBox(width: _isMoneroWallet ? 80 : 36),
-                          textStyle: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white),
-                          validator: widget.addressTextFieldValidator),
+                          FocusTraversalOrder(
+                            order: NumericFocusOrder(3),
+                            child: BaseTextFormField(
+                                controller: addressController,
+                                borderColor: Colors.transparent,
+                                suffixIcon: SizedBox(width: _isMoneroWallet ? 80 : 36),
+                                textStyle: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                                validator: widget.addressTextFieldValidator),
                           ),
                           Positioned(
                               top: 2,
@@ -443,40 +407,35 @@ class ExchangeCardState extends State<ExchangeCard> {
                                             width: 34,
                                             height: 34,
                                             padding: EdgeInsets.only(top: 0),
-                                            child: InkWell(
-                                              onTap: () async {
-                                                final contact =
-                                                    await Navigator.of(context)
-                                                    .pushNamed(
-                                                  Routes.pickerAddressBook,
-                                                  arguments: widget.initialCurrency,
-                                                );
+                                            child: Semantics(
+                                              label: S.of(context).address_book,
+                                              child: InkWell(
+                                                onTap: () async {
+                                                  final contact =
+                                                      await Navigator.of(context).pushNamed(
+                                                    Routes.pickerAddressBook,
+                                                    arguments: widget.initialCurrency,
+                                                  );
 
-                                                if (contact is ContactBase &&
-                                                    contact.address != null) {
-                                                  setState(() =>
-                                                      addressController.text =
-                                                          contact.address);
-                                                  widget.onPushAddressBookButton
-                                                      ?.call(context);
-                                                }
-                                              },
-                                              child: Container(
-                                                  padding: EdgeInsets.all(8),
-                                                  decoration: BoxDecoration(
-                                                      color: widget
-                                                          .addressButtonsColor,
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  6))),
-                                                  child: Image.asset(
-                                                    'assets/images/open_book.png',
-                                                    color: Theme.of(context)
-                                                        .primaryTextTheme!
-                                                        .headlineMedium!
-                                                        .decorationColor!,
-                                                  )),
+                                                  if (contact is ContactBase) {
+                                                    setState(() =>
+                                                        addressController.text = contact.address);
+                                                    widget.onPushAddressBookButton?.call(context);
+                                                  }
+                                                },
+                                                child: Container(
+                                                    padding: EdgeInsets.all(8),
+                                                    decoration: BoxDecoration(
+                                                        color: widget.addressButtonsColor,
+                                                        borderRadius:
+                                                            BorderRadius.all(Radius.circular(6))),
+                                                    child: Image.asset(
+                                                      'assets/images/open_book.png',
+                                                      color: Theme.of(context)
+                                                          .extension<SendPageTheme>()!
+                                                          .textFieldButtonIconColor,
+                                                    )),
+                                              ),
                                             )),
                                       ),
                                     Padding(
@@ -485,22 +444,20 @@ class ExchangeCardState extends State<ExchangeCard> {
                                             width: 34,
                                             height: 34,
                                             padding: EdgeInsets.only(top: 0),
-                                            child: InkWell(
-                                              onTap: () {
-                                                Clipboard.setData(ClipboardData(
-                                                    text: addressController
-                                                        .text));
-                                                showBar<void>(
-                                                    context,
-                                                    S
-                                                        .of(context)
-                                                        .copied_to_clipboard);
-                                              },
-                                              child: Container(
-                                                  padding: EdgeInsets.fromLTRB(
-                                                      8, 8, 0, 8),
-                                                  color: Colors.transparent,
-                                                  child: copyImage),
+                                            child: Semantics(
+                                              label: S.of(context).copy_address,
+                                              child: InkWell(
+                                                onTap: () {
+                                                  Clipboard.setData(
+                                                      ClipboardData(text: addressController.text));
+                                                  showBar<void>(
+                                                      context, S.of(context).copied_to_clipboard);
+                                                },
+                                                child: Container(
+                                                    padding: EdgeInsets.fromLTRB(8, 8, 0, 8),
+                                                    color: Colors.transparent,
+                                                    child: copyImage),
+                                              ),
                                             )))
                                   ])))
                         ])),
@@ -511,17 +468,16 @@ class ExchangeCardState extends State<ExchangeCard> {
 
   void _presentPicker(BuildContext context) {
     showPopUp<void>(
-        builder: (_) => CurrencyPicker(
-            selectedAtIndex: widget.currencies.indexOf(_selectedCurrency),
-            items: widget.currencies,
-            hintText: S.of(context).search_currency,
-            isMoneroWallet: _isMoneroWallet,
-            isConvertFrom: widget.hasRefundAddress,
-            onItemSelected: (Currency item) =>
-                widget.onCurrencySelected != null
-                    ? widget.onCurrencySelected(item as CryptoCurrency)
-                    : null),
-        context: context);
+      context: context,
+      builder: (_) => CurrencyPicker(
+        selectedAtIndex: widget.currencies.indexOf(_selectedCurrency),
+        items: widget.currencies,
+        hintText: S.of(context).search_currency,
+        isMoneroWallet: _isMoneroWallet,
+        isConvertFrom: widget.hasRefundAddress,
+        onItemSelected: (Currency item) => widget.onCurrencySelected(item as CryptoCurrency),
+      ),
+    );
   }
 
   void _showAmountPopup(BuildContext context, PaymentRequest paymentRequest) {
@@ -529,17 +485,16 @@ class ExchangeCardState extends State<ExchangeCard> {
         context: context,
         builder: (dialogContext) {
           return AlertWithTwoActions(
-              alertTitle: S.of(context).overwrite_amount,
-              alertContent: S.of(context).qr_payment_amount,
-              rightButtonText: S.of(context).ok,
-              leftButtonText: S.of(context).cancel,
+              alertTitle: S.of(dialogContext).overwrite_amount,
+              alertContent: S.of(dialogContext).qr_payment_amount,
+              rightButtonText: S.of(dialogContext).ok,
+              leftButtonText: S.of(dialogContext).cancel,
               actionRightButton: () {
                 widget.amountFocusNode?.requestFocus();
                 amountController.text = paymentRequest.amount;
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
               actionLeftButton: () => Navigator.of(dialogContext).pop());
-        }
-    );
+        });
   }
 }

@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.fotolockr.cakewallet.monero_sync_task</string>
+	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -31,6 +35,10 @@
             <array>
                 <string>cakewallet</string>
             </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
         </dict>
         <dict>
             <key>CFBundleTypeRole</key>
@@ -92,6 +100,96 @@
                 <string>litecoin-wallet</string>
             </array>
         </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>ethereum</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>ethereum</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>ethereum-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>ethereum-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>nano</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>nano</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>nano-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>nano-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>bitcoincash</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>bitcoincash</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>bitcoincash-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>bitcoincash-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>polygon</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>polygon</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>polygon-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>polygon-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>solana-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>solana-wallet</string>
+            </array>
+        </dict>
     </array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
@@ -103,7 +201,7 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Used for scan QR code</string>
+	<string>Used for scanning QR code and can be used to capture images for identification purposes by third-party providers.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>We need access to documents folder for getting access to open/save backup file</string>
 	<key>NSFaceIDUsageDescription</key>
@@ -113,6 +211,7 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
+		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

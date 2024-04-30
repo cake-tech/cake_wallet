@@ -1,15 +1,22 @@
+import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
+import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -31,21 +38,24 @@ import 'package:cw_core/crypto_currency.dart';
 class SendPage extends BasePage {
   SendPage({
     required this.sendViewModel,
+    required this.authService,
     this.initialPaymentRequest,
   }) : _formKey = GlobalKey<FormState>();
 
   final SendViewModel sendViewModel;
+  final AuthService authService;
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
   final PaymentRequest? initialPaymentRequest;
 
   bool _effectsInstalled = false;
+  ContactRecord? newContactAddress;
 
   @override
   String get title => S.current.send;
 
   @override
-  Color get titleColor => Colors.white;
+  bool get gradientAll => true;
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -55,14 +65,15 @@ class SendPage extends BasePage {
 
   @override
   Widget? leading(BuildContext context) {
-    final _backButton = Icon(Icons.arrow_back_ios,
-      color: titleColor,
+    final _backButton = Icon(
+      Icons.arrow_back_ios,
+      color: titleColor(context),
       size: 16,
     );
-    final _closeButton = currentTheme.type == ThemeType.dark
-        ? closeButtonImageDarkTheme : closeButtonImage;
+    final _closeButton =
+        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
 
-    bool isMobileView = ResponsiveLayoutUtil.instance.isMobile(context);
+    bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
     return MergeSemantics(
       child: SizedBox(
@@ -71,11 +82,10 @@ class SendPage extends BasePage {
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
-            label: !isMobileView ? 'Close' : 'Back',
+            label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.transparent),
+                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
               child: !isMobileView ? _closeButton : _backButton,
@@ -90,9 +100,12 @@ class SendPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   double _sendCardHeight(BuildContext context) {
-    final double initialHeight = sendViewModel.isElectrumWallet ? 490 : 465;
+    double initialHeight = 480;
+    if (sendViewModel.hasCoinControl) {
+      initialHeight += 55;
+    }
 
-    if (!ResponsiveLayoutUtil.instance.isMobile(context)) {
+    if (!responsiveLayoutUtil.shouldRenderMobileUI) {
       return initialHeight - 66;
     }
     return initialHeight;
@@ -111,11 +124,12 @@ class SendPage extends BasePage {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Padding(
-          padding: const EdgeInsets.only(right:8.0),
-          child: Observer(builder: (_) => SyncIndicatorIcon(isSynced: sendViewModel.isReadyForSend),),
+          padding: const EdgeInsets.only(right: 8.0),
+          child: Observer(
+            builder: (_) => SyncIndicatorIcon(isSynced: sendViewModel.isReadyForSend),
+          ),
         ),
-        if (supMiddle != null)
-          supMiddle
+        if (supMiddle != null) supMiddle
       ],
     );
   }
@@ -146,10 +160,10 @@ class SendPage extends BasePage {
     _setEffects(context);
 
     return GestureDetector(
-      onLongPress: () => sendViewModel.balanceViewModel.isReversing =
-          !sendViewModel.balanceViewModel.isReversing,
-      onLongPressUp: () => sendViewModel.balanceViewModel.isReversing =
-          !sendViewModel.balanceViewModel.isReversing,
+      onLongPress: () =>
+          sendViewModel.balanceViewModel.isReversing = !sendViewModel.balanceViewModel.isReversing,
+      onLongPressUp: () =>
+          sendViewModel.balanceViewModel.isReversing = !sendViewModel.balanceViewModel.isReversing,
       child: Form(
         key: _formKey,
         child: ScrollableWithBottomSection(
@@ -179,8 +193,7 @@ class SendPage extends BasePage {
                         },
                       )),
                   Padding(
-                    padding: EdgeInsets.only(
-                        top: 10, left: 24, right: 24, bottom: 10),
+                    padding: EdgeInsets.only(left: 24, right: 24, bottom: 10),
                     child: Container(
                       height: 10,
                       child: Observer(
@@ -197,117 +210,114 @@ class SendPage extends BasePage {
                                       dotWidth: 6.0,
                                       dotHeight: 6.0,
                                       dotColor: Theme.of(context)
-                                          .primaryTextTheme
-                                          !.displaySmall!
-                                          .backgroundColor!,
+                                          .extension<SendPageTheme>()!
+                                          .indicatorDotColor,
                                       activeDotColor: Theme.of(context)
-                                          .primaryTextTheme
-                                          !.displayMedium!
-                                          .backgroundColor!),
+                                          .extension<SendPageTheme>()!
+                                          .templateBackgroundColor),
                                 )
                               : Offstage();
                         },
                       ),
                     ),
                   ),
-                  if (sendViewModel.hasMultiRecipient)
-                    Container(
-                      height: 40,
-                      width: double.infinity,
-                      padding: EdgeInsets.only(left: 24),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Observer(
-                          builder: (_) {
-                            final templates = sendViewModel.templates;
-                            final itemCount = templates.length;
+                  Container(
+                    height: 40,
+                    width: double.infinity,
+                    padding: EdgeInsets.only(left: 24),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Observer(
+                        builder: (_) {
+                          final templates = sendViewModel.templates;
+                          final itemCount = templates.length;
 
-                            return Row(
-                              children: <Widget>[
-                                AddTemplateButton(
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.sendTemplate),
-                                  currentTemplatesLength: templates.length,
-                                ),
-                                ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  itemCount: itemCount,
-                                  itemBuilder: (context, index) {
-                                    final template = templates[index];
-                                    return TemplateTile(
-                                      key: UniqueKey(),
-                                      to: template.name,
-                                      amount: template.isCurrencySelected
-                                          ? template.amount
-                                          : template.amountFiat,
-                                      from: template.isCurrencySelected
-                                          ? template.cryptoCurrency
-                                          : template.fiatCurrency,
-                                      onTap: () async {
-                                        final fiatFromTemplate = FiatCurrency
-                                            .all
-                                            .singleWhere((element) =>
-                                                element.title ==
-                                                template.fiatCurrency);
-                                        final output = _defineCurrentOutput();
-                                        output.address = template.address;
-                                        if (template.isCurrencySelected) {
-                                          output
-                                              .setCryptoAmount(template.amount);
-                                        } else {
-                                          sendViewModel.setFiatCurrency(
-                                              fiatFromTemplate);
-                                          output.setFiatAmount(
-                                              template.amountFiat);
+                          return Row(
+                            children: <Widget>[
+                              AddTemplateButton(
+                                onTap: () => Navigator.of(context).pushNamed(Routes.sendTemplate),
+                                currentTemplatesLength: templates.length,
+                              ),
+                              ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: itemCount,
+                                itemBuilder: (context, index) {
+                                  final template = templates[index];
+                                  return TemplateTile(
+                                    key: UniqueKey(),
+                                    to: template.name,
+                                    hasMultipleRecipients: template.additionalRecipients != null &&
+                                        template.additionalRecipients!.length > 1,
+                                    amount: template.isCurrencySelected
+                                        ? template.amount
+                                        : template.amountFiat,
+                                    from: template.isCurrencySelected
+                                        ? template.cryptoCurrency
+                                        : template.fiatCurrency,
+                                    onTap: () async {
+                                      if (template.additionalRecipients?.isNotEmpty ?? false) {
+                                        sendViewModel.clearOutputs();
+
+                                        for (int i = 0;
+                                            i < template.additionalRecipients!.length;
+                                            i++) {
+                                          Output output;
+                                          try {
+                                            output = sendViewModel.outputs[i];
+                                          } catch (e) {
+                                            sendViewModel.addOutput();
+                                            output = sendViewModel.outputs[i];
+                                          }
+
+                                          await _setInputsFromTemplate(
+                                            context,
+                                            output: output,
+                                            template: template.additionalRecipients![i],
+                                          );
                                         }
-                                        output.resetParsedAddress();
-                                        await output
-                                            .fetchParsedAddress(context);
-                                      },
-                                      onRemove: () {
-                                        showPopUp<void>(
-                                          context: context,
-                                          builder: (dialogContext) {
-                                            return AlertWithTwoActions(
-                                                alertTitle:
-                                                    S.of(context).template,
-                                                alertContent: S
-                                                    .of(context)
-                                                    .confirm_delete_template,
-                                                rightButtonText:
-                                                    S.of(context).delete,
-                                                leftButtonText:
-                                                    S.of(context).cancel,
-                                                actionRightButton: () {
-                                                  Navigator.of(dialogContext)
-                                                      .pop();
-                                                  sendViewModel
-                                                      .sendTemplateViewModel
-                                                      .removeTemplate(
-                                                          template: template);
-                                                },
-                                                actionLeftButton: () =>
-                                                    Navigator.of(dialogContext)
-                                                        .pop());
-                                          },
+                                      } else {
+                                        final output = _defineCurrentOutput();
+                                        await _setInputsFromTemplate(
+                                          context,
+                                          output: output,
+                                          template: template,
                                         );
-                                      },
-                                    );
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                                      }
+                                    },
+                                    onRemove: () {
+                                      showPopUp<void>(
+                                        context: context,
+                                        builder: (dialogContext) {
+                                          return AlertWithTwoActions(
+                                              alertTitle: S.of(context).template,
+                                              alertContent: S.of(context).confirm_delete_template,
+                                              rightButtonText: S.of(context).delete,
+                                              leftButtonText: S.of(context).cancel,
+                                              actionRightButton: () {
+                                                Navigator.of(dialogContext).pop();
+                                                sendViewModel.sendTemplateViewModel
+                                                    .removeTemplate(template: template);
+                                              },
+                                              actionLeftButton: () =>
+                                                  Navigator.of(dialogContext).pop());
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          );
+                        },
                       ),
-                    )
+                    ),
+                  ),
                 ],
               ),
             ),
-            bottomSectionPadding:
-                EdgeInsets.only(left: 24, right: 24, bottom: 24),
+            bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
             bottomSection: Column(
               children: [
                 if (sendViewModel.hasCurrecyChanger)
@@ -316,43 +326,33 @@ class SendPage extends BasePage {
                           padding: EdgeInsets.only(bottom: 12),
                           child: PrimaryButton(
                             onPressed: () => presentCurrencyPicker(context),
-                            text:
-                                'Change your asset (${sendViewModel.selectedCryptoCurrency})',
+                            text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
                             color: Colors.transparent,
-                            textColor: Theme.of(context)
-                                .accentTextTheme
-                                !.displaySmall!
-                                .decorationColor!,
+                            textColor:
+                                Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
                           ))),
-                if (sendViewModel.hasMultiRecipient)
+                if (sendViewModel.sendTemplateViewModel.hasMultiRecipient)
                   Padding(
                       padding: EdgeInsets.only(bottom: 12),
                       child: PrimaryButton(
                         onPressed: () {
                           sendViewModel.addOutput();
                           Future.delayed(const Duration(milliseconds: 250), () {
-                            controller
-                                .jumpToPage(sendViewModel.outputs.length - 1);
+                            controller.jumpToPage(sendViewModel.outputs.length - 1);
                           });
                         },
                         text: S.of(context).add_receiver,
                         color: Colors.transparent,
-                        textColor: Theme.of(context)
-                            .accentTextTheme
-                            !.displaySmall!
-                            .decorationColor!,
+                        textColor: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
                         isDottedBorder: true,
-                        borderColor: Theme.of(context)
-                            .primaryTextTheme
-                            !.displaySmall!
-                            .decorationColor!,
+                        borderColor:
+                            Theme.of(context).extension<SendPageTheme>()!.templateDottedBorderColor,
                       )),
                 Observer(
                   builder: (_) {
                     return LoadingPrimaryButton(
                       onPressed: () async {
-                        if (_formKey.currentState != null &&
-                            !_formKey.currentState!.validate()) {
+                        if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                           if (sendViewModel.outputs.length > 1) {
                             showErrorValidationAlert(context);
                           }
@@ -361,21 +361,27 @@ class SendPage extends BasePage {
                         }
 
                         final notValidItems = sendViewModel.outputs
-                            .where((item) =>
-                                item.address.isEmpty ||
-                                item.cryptoAmount.isEmpty)
+                            .where((item) => item.address.isEmpty || item.cryptoAmount.isEmpty)
                             .toList();
 
-                        if (notValidItems.isNotEmpty ?? false) {
+                        if (notValidItems.isNotEmpty) {
                           showErrorValidationAlert(context);
                           return;
                         }
 
-                        await sendViewModel.createTransaction();
+                        final check = sendViewModel.shouldDisplayTotp();
+                        authService.authenticateAction(
+                          context,
+                          conditionToDetermineIfToUse2FA: check,
+                          onAuthSuccess: (value) async {
+                            if (value) {
+                              await sendViewModel.createTransaction();
+                            }
+                          },
+                        );
                       },
                       text: S.of(context).send,
-                      color:
-                          Theme.of(context).accentTextTheme!.bodyLarge!.color!,
+                      color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       isLoading: sendViewModel.state is IsExecutingState ||
                           sendViewModel.state is TransactionCommitting,
@@ -414,52 +420,86 @@ class SendPage extends BasePage {
           if (context.mounted) {
             showPopUp<void>(
                 context: context,
-                builder: (BuildContext context) {
+                builder: (BuildContext _dialogContext) {
                   return ConfirmSendingAlert(
-                      alertTitle: S.of(context).confirm_sending,
-                      amount: S.of(context).send_amount,
-                      amountValue:
-                          sendViewModel.pendingTransaction!.amountFormatted,
-                      fiatAmountValue:
-                          sendViewModel.pendingTransactionFiatAmountFormatted,
-                      fee: S.of(context).send_fee,
+                      alertTitle: S.of(_dialogContext).confirm_sending,
+                      amount: S.of(_dialogContext).send_amount,
+                      amountValue: sendViewModel.pendingTransaction!.amountFormatted,
+                      fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
+                      fee: isEVMCompatibleChain(sendViewModel.walletType)
+                          ? S.of(_dialogContext).send_estimated_fee
+                          : S.of(_dialogContext).send_fee,
+                      feeRate: sendViewModel.pendingTransaction!.feeRate,
                       feeValue: sendViewModel.pendingTransaction!.feeFormatted,
-                      feeFiatAmount: sendViewModel
-                          .pendingTransactionFeeFiatAmountFormatted,
+                      feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                       outputs: sendViewModel.outputs,
-                      rightButtonText: S.of(context).ok,
-                      leftButtonText: S.of(context).cancel,
+                      rightButtonText: S.of(_dialogContext).send,
+                      leftButtonText: S.of(_dialogContext).cancel,
                       actionRightButton: () {
-                        Navigator.of(context).pop();
+                        Navigator.of(_dialogContext).pop();
                         sendViewModel.commitTransaction();
                         showPopUp<void>(
                             context: context,
-                            builder: (BuildContext context) {
+                            builder: (BuildContext _dialogContext) {
                               return Observer(builder: (_) {
                                 final state = sendViewModel.state;
 
                                 if (state is FailureState) {
-                                  Navigator.of(context).pop();
+                                  Navigator.of(_dialogContext).pop();
                                 }
 
                                 if (state is TransactionCommitted) {
-                                  return AlertWithOneAction(
-                                      alertTitle: '',
-                                      alertContent: S.of(context).send_success(
-                                          sendViewModel.selectedCryptoCurrency
-                                              .toString()),
-                                      buttonText: S.of(context).ok,
-                                      buttonAction: () {
-                                        Navigator.of(context).pop();
-                                        RequestReviewHandler.requestReview();
-                                      });
+                                  newContactAddress =
+                                      newContactAddress ?? sendViewModel.newContactAddress();
+
+                                  final successMessage = S.of(_dialogContext).send_success(
+                                      sendViewModel.selectedCryptoCurrency.toString());
+
+                                  final waitMessage = sendViewModel.walletType == WalletType.solana
+                                      ? '. ${S.of(_dialogContext).waitFewSecondForTxUpdate}' : '';
+
+                                  final newContactMessage = newContactAddress != null
+                                      ? '\n${S.of(_dialogContext).add_contact_to_address_book}' : '';
+
+                                  final alertContent =
+                                      "$successMessage$waitMessage$newContactMessage";
+
+                                  if (newContactAddress != null) {
+                                    return AlertWithTwoActions(
+                                        alertTitle: '',
+                                        alertContent: alertContent,
+                                        rightButtonText: S.of(_dialogContext).add_contact,
+                                        leftButtonText: S.of(_dialogContext).ignor,
+                                        actionRightButton: () {
+                                          Navigator.of(_dialogContext).pop();
+                                          RequestReviewHandler.requestReview();
+                                          Navigator.of(context).pushNamed(
+                                              Routes.addressBookAddContact,
+                                              arguments: newContactAddress);
+                                          newContactAddress = null;
+                                        },
+                                        actionLeftButton: () {
+                                          Navigator.of(_dialogContext).pop();
+                                          RequestReviewHandler.requestReview();
+                                          newContactAddress = null;
+                                        });
+                                  } else {
+                                    return AlertWithOneAction(
+                                        alertTitle: '',
+                                        alertContent: alertContent,
+                                        buttonText: S.of(_dialogContext).ok,
+                                        buttonAction: () {
+                                          Navigator.of(_dialogContext).pop();
+                                          RequestReviewHandler.requestReview();
+                                        });
+                                  }
                                 }
 
                                 return Offstage();
                               });
                             });
                       },
-                      actionLeftButton: () => Navigator.of(context).pop());
+                      actionLeftButton: () => Navigator.of(_dialogContext).pop());
                 });
           }
         });
@@ -473,6 +513,25 @@ class SendPage extends BasePage {
     });
 
     _effectsInstalled = true;
+  }
+
+  Future<void> _setInputsFromTemplate(BuildContext context,
+      {required Output output, required Template template}) async {
+    output.address = template.address;
+
+    if (template.isCurrencySelected) {
+      sendViewModel.setSelectedCryptoCurrency(template.cryptoCurrency);
+      output.setCryptoAmount(template.amount);
+    } else {
+      final fiatFromTemplate =
+          FiatCurrency.all.singleWhere((element) => element.title == template.fiatCurrency);
+
+      sendViewModel.setFiatCurrency(fiatFromTemplate);
+      output.setFiatAmount(template.amountFiat);
+    }
+
+    output.resetParsedAddress();
+    await output.fetchParsedAddress(context);
   }
 
   Output _defineCurrentOutput() {
@@ -500,12 +559,11 @@ class SendPage extends BasePage {
         builder: (_) => Picker(
               items: sendViewModel.currencies,
               displayItem: (Object item) => item.toString(),
-              selectedAtIndex: sendViewModel.currencies
-                  .indexOf(sendViewModel.selectedCryptoCurrency),
+              selectedAtIndex:
+                  sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
               title: S.of(context).please_select,
               mainAxisAlignment: MainAxisAlignment.center,
-              onItemSelected: (CryptoCurrency cur) =>
-                  sendViewModel.selectedCryptoCurrency = cur,
+              onItemSelected: (CryptoCurrency cur) => sendViewModel.selectedCryptoCurrency = cur,
             ),
         context: context);
   }

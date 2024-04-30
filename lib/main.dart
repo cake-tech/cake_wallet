@@ -5,7 +5,11 @@ import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/locales/locale.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cw_core/address_info.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cw_core/hive_type_ids.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,7 +40,7 @@ import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/cake_hive.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -56,100 +60,121 @@ Future<void> main() async {
       return true;
     };
 
-    final appDir = await getApplicationDocumentsDirectory();
-    await Hive.close();
-    Hive.init(appDir.path);
+    await CakeHive.close();
 
-    if (!Hive.isAdapterRegistered(Contact.typeId)) {
-      Hive.registerAdapter(ContactAdapter());
-    }
+    await initializeAppConfigs();
 
-    if (!Hive.isAdapterRegistered(Node.typeId)) {
-      Hive.registerAdapter(NodeAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(TransactionDescription.typeId)) {
-      Hive.registerAdapter(TransactionDescriptionAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(Trade.typeId)) {
-      Hive.registerAdapter(TradeAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(WalletInfo.typeId)) {
-      Hive.registerAdapter(WalletInfoAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(walletTypeTypeId)) {
-      Hive.registerAdapter(WalletTypeAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(Template.typeId)) {
-      Hive.registerAdapter(TemplateAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(ExchangeTemplate.typeId)) {
-      Hive.registerAdapter(ExchangeTemplateAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(Order.typeId)) {
-      Hive.registerAdapter(OrderAdapter());
-    }
-
-    if (!isMoneroOnly && !Hive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
-      Hive.registerAdapter(UnspentCoinsInfoAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(AnonpayInvoiceInfo.typeId)) {
-      Hive.registerAdapter(AnonpayInvoiceInfoAdapter());
-    }
-
-    final secureStorage = FlutterSecureStorage();
-    final transactionDescriptionsBoxKey =
-        await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
-    final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
-    final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
-    final contacts = await Hive.openBox<Contact>(Contact.boxName);
-    final nodes = await Hive.openBox<Node>(Node.boxName);
-    final transactionDescriptions = await Hive.openBox<TransactionDescription>(
-        TransactionDescription.boxName,
-        encryptionKey: transactionDescriptionsBoxKey);
-    final trades = await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
-    final orders = await Hive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
-    final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
-    final templates = await Hive.openBox<Template>(Template.boxName);
-    final exchangeTemplates = await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
-    final anonpayInvoiceInfo = await Hive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
-    Box<UnspentCoinsInfo>? unspentCoinsInfoSource;
-
-    if (!isMoneroOnly) {
-      unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
-    }
-
-    await initialSetup(
-        sharedPreferences: await SharedPreferences.getInstance(),
-        nodes: nodes,
-        walletInfoSource: walletInfoSource,
-        contactSource: contacts,
-        tradesSource: trades,
-        ordersSource: orders,
-        unspentCoinsInfoSource: unspentCoinsInfoSource,
-        // fiatConvertationService: fiatConvertationService,
-        templates: templates,
-        exchangeTemplates: exchangeTemplates,
-        transactionDescriptions: transactionDescriptions,
-        secureStorage: secureStorage,
-        anonpayInvoiceInfo: anonpayInvoiceInfo,
-        initialMigrationVersion: 19);
     runApp(App());
   }, (error, stackTrace) async {
     ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }
 
+Future<void> initializeAppConfigs() async {
+  final appDir = await getApplicationDocumentsDirectory();
+  CakeHive.init(appDir.path);
+
+  if (!CakeHive.isAdapterRegistered(Contact.typeId)) {
+    CakeHive.registerAdapter(ContactAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(Node.typeId)) {
+    CakeHive.registerAdapter(NodeAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(TransactionDescription.typeId)) {
+    CakeHive.registerAdapter(TransactionDescriptionAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(Trade.typeId)) {
+    CakeHive.registerAdapter(TradeAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(AddressInfo.typeId)) {
+    CakeHive.registerAdapter(AddressInfoAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(WalletInfo.typeId)) {
+    CakeHive.registerAdapter(WalletInfoAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(DERIVATION_TYPE_TYPE_ID)) {
+    CakeHive.registerAdapter(DerivationTypeAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(DERIVATION_INFO_TYPE_ID)) {
+    CakeHive.registerAdapter(DerivationInfoAdapter());
+  }
+  
+  if (!CakeHive.isAdapterRegistered(WALLET_TYPE_TYPE_ID)) {
+    CakeHive.registerAdapter(WalletTypeAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(Template.typeId)) {
+    CakeHive.registerAdapter(TemplateAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(ExchangeTemplate.typeId)) {
+    CakeHive.registerAdapter(ExchangeTemplateAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(Order.typeId)) {
+    CakeHive.registerAdapter(OrderAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
+    CakeHive.registerAdapter(UnspentCoinsInfoAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(AnonpayInvoiceInfo.typeId)) {
+    CakeHive.registerAdapter(AnonpayInvoiceInfoAdapter());
+  }
+
+  final secureStorage = FlutterSecureStorage(
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+  );
+  final transactionDescriptionsBoxKey =
+      await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
+  final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
+  final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
+  final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
+  final nodes = await CakeHive.openBox<Node>(Node.boxName);
+  final powNodes =
+      await CakeHive.openBox<Node>(Node.boxName + "pow"); // must be different from Node.boxName
+  final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
+      TransactionDescription.boxName,
+      encryptionKey: transactionDescriptionsBoxKey);
+  final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+  final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
+  final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+  final templates = await CakeHive.openBox<Template>(Template.boxName);
+  final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+  final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
+  final unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+
+  await initialSetup(
+    sharedPreferences: await SharedPreferences.getInstance(),
+    nodes: nodes,
+    powNodes: powNodes,
+    walletInfoSource: walletInfoSource,
+    contactSource: contacts,
+    tradesSource: trades,
+    ordersSource: orders,
+    unspentCoinsInfoSource: unspentCoinsInfoSource,
+    // fiatConvertationService: fiatConvertationService,
+    templates: templates,
+    exchangeTemplates: exchangeTemplates,
+    transactionDescriptions: transactionDescriptions,
+    secureStorage: secureStorage,
+    anonpayInvoiceInfo: anonpayInvoiceInfo,
+    initialMigrationVersion: 32,
+  );
+}
+
 Future<void> initialSetup(
     {required SharedPreferences sharedPreferences,
     required Box<Node> nodes,
+    required Box<Node> powNodes,
     required Box<WalletInfo> walletInfoSource,
     required Box<Contact> contactSource,
     required Box<Trade> tradesSource,
@@ -160,7 +185,7 @@ Future<void> initialSetup(
     required Box<TransactionDescription> transactionDescriptions,
     required FlutterSecureStorage secureStorage,
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
-    Box<UnspentCoinsInfo>? unspentCoinsInfoSource,
+    required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
     int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
@@ -170,10 +195,12 @@ Future<void> initialSetup(
       walletInfoSource: walletInfoSource,
       contactSource: contactSource,
       tradeSource: tradesSource,
-      nodes: nodes);
+      nodes: nodes,
+      powNodes: powNodes);
   await setup(
       walletInfoSource: walletInfoSource,
       nodeSource: nodes,
+      powNodeSource: powNodes,
       contactSource: contactSource,
       tradesSource: tradesSource,
       templates: templates,
@@ -181,7 +208,8 @@ Future<void> initialSetup(
       transactionDescriptionBox: transactionDescriptions,
       ordersSource: ordersSource,
       anonpayInvoiceInfoSource: anonpayInvoiceInfo,
-      unspentCoinsInfoSource: unspentCoinsInfoSource);
+      unspentCoinsInfoSource: unspentCoinsInfoSource,
+      secureStorage: secureStorage);
   await bootstrap(navigatorKey);
   monero?.onStartup();
 }
@@ -192,10 +220,7 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> with SingleTickerProviderStateMixin {
-  AppState() : yatStore = getIt.get<YatStore>() {
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-  }
+  AppState() : yatStore = getIt.get<YatStore>();
 
   YatStore yatStore;
   StreamSubscription? stream;
@@ -287,7 +312,41 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
             locale: Locale(settingsStore.languageCode),
             onGenerateRoute: (settings) => Router.createRoute(settings),
             initialRoute: initialRoute,
+            home: _Home(),
           ));
     });
+  }
+}
+
+class _Home extends StatefulWidget {
+  const _Home();
+
+  @override
+  State<_Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<_Home> {
+  @override
+  void didChangeDependencies() {
+    _setOrientation(context);
+
+    super.didChangeDependencies();
+  }
+
+  void _setOrientation(BuildContext context) {
+    if (!DeviceInfo.instance.isDesktop) {
+      if (responsiveLayoutUtil.shouldRenderMobileUI) {
+        SystemChrome.setPreferredOrientations(
+            [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+      } else {
+        SystemChrome.setPreferredOrientations(
+            [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox.shrink();
   }
 }

@@ -1,10 +1,14 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:collection/collection.dart';
+import 'package:cake_wallet/utils/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 part 'node_create_or_edit_view_model.g.dart';
 
@@ -16,16 +20,22 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         connectionState = InitialExecutionState(),
         useSSL = false,
         address = '',
+        path = '',
         port = '',
         login = '',
         password = '',
-        trusted = false;
+        trusted = false,
+        useSocksProxy = false,
+        socksProxyAddress = '';
 
   @observable
   ExecutionState state;
 
   @observable
   String address;
+
+  @observable
+  String path;
 
   @observable
   String port;
@@ -45,11 +55,37 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @observable
   bool trusted;
 
+  @observable
+  bool useSocksProxy;
+
+  @observable
+  String socksProxyAddress;
+
   @computed
   bool get isReady => address.isNotEmpty && port.isNotEmpty;
 
   bool get hasAuthCredentials =>
       _walletType == WalletType.monero || _walletType == WalletType.haven;
+
+  bool get hasTestnetSupport => _walletType == WalletType.bitcoin;
+
+  bool get hasPathSupport {
+    switch (_walletType) {
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.banano:
+      case WalletType.nano:
+        return true;
+      case WalletType.none:
+      case WalletType.monero:
+      case WalletType.haven:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+      case WalletType.bitcoin:
+        return false;
+    }
+  }
 
   String get uri {
     var uri = address;
@@ -68,11 +104,14 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @action
   void reset() {
     address = '';
+    path = '';
     port = '';
     login = '';
     password = '';
     useSSL = false;
     trusted = false;
+    useSocksProxy = false;
+    socksProxyAddress = '';
   }
 
   @action
@@ -80,6 +119,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @action
   void setAddress(String val) => address = val;
+
+  @action
+  void setPath(String val) => path = val;
 
   @action
   void setLogin(String val) => login = val;
@@ -94,14 +136,22 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   void setTrusted(bool val) => trusted = val;
 
   @action
+  void setSocksProxy(bool val) => useSocksProxy = val;
+
+  @action
+  void setSocksProxyAddress(String val) => socksProxyAddress = val;
+
+  @action
   Future<void> save({Node? editingNode, bool saveAsCurrent = false}) async {
     final node = Node(
         uri: uri,
+        path: path,
         type: _walletType,
         login: login,
         password: password,
         useSSL: useSSL,
-        trusted: trusted);
+        trusted: trusted,
+        socksProxyAddress: socksProxyAddress);
     try {
       state = IsExecutingState();
       if (editingNode != null) {
@@ -126,11 +176,13 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   Future<void> connect() async {
     final node = Node(
         uri: uri,
+        path: path,
         type: _walletType,
         login: login,
         password: password,
         useSSL: useSSL,
-        trusted: trusted);
+        trusted: trusted,
+        socksProxyAddress: socksProxyAddress);
     try {
       connectionState = IsExecutingState();
       final isAlive = await node.requestNode();
@@ -152,4 +204,44 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @action
   void setAsCurrent(Node node) => _settingsStore.nodes[_walletType] = node;
+
+  @action
+  Future<void> scanQRCodeForNewNode(BuildContext context) async {
+    try {
+      bool isCameraPermissionGranted =
+          await PermissionHandler.checkPermission(Permission.camera, context);
+      if (!isCameraPermissionGranted) return;
+      String code = await presentQRScanner();
+
+      if (code.isEmpty) {
+        throw Exception('Unexpected scan QR code value: value is empty');
+      }
+
+      final uri = Uri.tryParse(code);
+
+      if (uri == null) {
+        throw Exception('Unexpected scan QR code value: Value is invalid');
+      }
+
+      final userInfo = uri.userInfo.split(':');
+
+      if (userInfo.length < 2) {
+        throw Exception('Unexpected scan QR code value: Value is invalid');
+      }
+
+      final rpcUser = userInfo[0];
+      final rpcPassword = userInfo[1];
+      final ipAddress = uri.host;
+      final port = uri.port.toString();
+      final path = uri.path;
+
+      setAddress(ipAddress);
+      setPath(path);
+      setPassword(rpcPassword);
+      setLogin(rpcUser);
+      setPort(port);
+    } on Exception catch (e) {
+      connectionState = FailureState(e.toString());
+    }
+  }
 }

@@ -1,0 +1,9 @@
+-
+  uri: rpc.nano.to
+  useSSL: true
+  is_default: true
+-
+  uri: workers.perish.co
+-
+  uri: worker.nanoriver.cc
+  useSSL: true
