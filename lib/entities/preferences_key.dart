@@ -65,6 +65,9 @@ class PreferencesKey {
   static const lookupsENS = 'looks_up_ens';
   static const autoBackupMode = 'automatic_backup_mode';
   static const showAutomaticBackupWarning = 'show_automatic_backups_warning';
+  static const showAutomaticBackupWarningAccessTime = 'show_automatic_backups_warning_access_time';
+  static const lastTimeAutoBackedUp = 'last_time_auto_backed_up';
+
 
 
 

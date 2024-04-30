@@ -14,6 +14,7 @@ import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
+import 'package:cake_wallet/utils/alert_scheduler.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/nano/nano.dart';
@@ -489,12 +490,8 @@ Future<void> setup({
   getIt.registerLazySingleton<WalletConnectKeyService>(() => KeyServiceImpl());
 
   getIt.registerLazySingleton<Web3WalletService>(() {
-    final Web3WalletService web3WalletService = Web3WalletService(
-      getIt.get<BottomSheetService>(),
-      getIt.get<WalletConnectKeyService>(),
-      appStore,
-      getIt.get<SharedPreferences>()
-    );
+    final Web3WalletService web3WalletService = Web3WalletService(getIt.get<BottomSheetService>(),
+        getIt.get<WalletConnectKeyService>(), appStore, getIt.get<SharedPreferences>());
     web3WalletService.create();
     return web3WalletService;
   });
@@ -1141,9 +1138,9 @@ Future<void> setup({
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
 
   getIt.registerFactoryParam<RBFDetailsPage, TransactionInfo, void>(
-          (TransactionInfo transactionInfo, _) => RBFDetailsPage(
+      (TransactionInfo transactionInfo, _) => RBFDetailsPage(
           transactionDetailsViewModel:
-          getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
+              getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
 
   getIt.registerFactory(() => AnonPayApi(
       useTorOnly: getIt.get<SettingsStore>().exchangeStatus == ExchangeApiMode.torOnly,
@@ -1207,6 +1204,9 @@ Future<void> setup({
 
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
+
+  getIt.registerFactory<AlertScheduler>(
+      () => AlertScheduler(sharedPreferences: getIt.get<SharedPreferences>()));
 
   _isSetupFinished = true;
 }
