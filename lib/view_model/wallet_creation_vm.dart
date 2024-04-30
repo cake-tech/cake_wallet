@@ -89,9 +89,9 @@ abstract class WalletCreationVMBase with Store {
         dirPath: dirPath,
         address: '',
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
-        derivationPath: credentials.derivationPath,
-        derivationType: credentials.derivationType,
+        derivationInfo: credentials.derivationInfo ?? getDefaultDerivation(),
       );
+
       credentials.walletInfo = walletInfo;
       final wallet = restoreWallet != null
           ? await processFromRestoredWallet(credentials, restoreWallet)
@@ -104,6 +104,48 @@ abstract class WalletCreationVMBase with Store {
       state = ExecutedSuccessfullyState();
     } catch (e) {
       state = FailureState(e.toString());
+    }
+  }
+
+  DerivationInfo? getDefaultDerivation() {
+    switch (this.type) {
+      case WalletType.nano:
+        return DerivationInfo(
+          derivationType: DerivationType.nano,
+        );
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        return DerivationInfo(
+          derivationType: DerivationType.electrum,
+          derivationPath: "m/0'/0",
+        );
+      default:
+        return null;
+    }
+  }
+
+  DerivationInfo? getCommonRestoreDerivation() {
+    switch (this.type) {
+      case WalletType.nano:
+        return DerivationInfo(
+          derivationType: DerivationType.nano,
+        );
+      case WalletType.bitcoin:
+        return DerivationInfo(
+          derivationType: DerivationType.bip39,
+          derivationPath: "m/84'/0'/0'/0",
+          description: "Standard BIP84 native segwit",
+          scriptType: "p2wpkh",
+        );
+      case WalletType.litecoin:
+        return DerivationInfo(
+          derivationType: DerivationType.bip39,
+          derivationPath: "m/84'/2'/0'/0",
+          description: "Standard BIP84 native segwit (litecoin)",
+          scriptType: "p2wpkh",
+        );
+      default:
+        return null;
     }
   }
 

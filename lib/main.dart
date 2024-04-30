@@ -106,6 +106,10 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(DerivationTypeAdapter());
   }
 
+  if (!CakeHive.isAdapterRegistered(DERIVATION_INFO_TYPE_ID)) {
+    CakeHive.registerAdapter(DerivationInfoAdapter());
+  }
+  
   if (!CakeHive.isAdapterRegistered(WALLET_TYPE_TYPE_ID)) {
     CakeHive.registerAdapter(WalletTypeAdapter());
   }
@@ -165,7 +169,7 @@ Future<void> initializeAppConfigs() async {
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
-    initialMigrationVersion: 31,
+    initialMigrationVersion: 32,
   );
 }
 

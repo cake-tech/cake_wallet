@@ -13,6 +13,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:collection/collection.dart';
+import 'package:bip39/bip39.dart' as bip39;
 
 class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials, BitcoinRestoreWalletFromWIFCredentials> {
@@ -31,8 +32,9 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     credentials.walletInfo?.network = network.value;
 
     final wallet = await BitcoinWalletBase.create(
-      mnemonic: await generateMnemonic(),
+      mnemonic: await generateElectrumMnemonic(),
       password: credentials.password!,
+      passphrase: credentials.passphrase,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       network: network,
@@ -111,7 +113,7 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
   @override
   Future<BitcoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    if (!validateMnemonic(credentials.mnemonic)) {
+    if (!validateMnemonic(credentials.mnemonic) && !bip39.validateMnemonic(credentials.mnemonic)) {
       throw BitcoinMnemonicIsIncorrectException();
     }
 
@@ -120,6 +122,7 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
 
     final wallet = await BitcoinWalletBase.create(
       password: credentials.password!,
+      passphrase: credentials.passphrase,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,

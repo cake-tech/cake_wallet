@@ -96,6 +96,7 @@ class CWNano extends Nano {
       NanoNewWalletCredentials(
         name: name,
         password: password,
+        derivationType: DerivationType.nano,
       );
 
   @override
@@ -103,15 +104,10 @@ class CWNano extends Nano {
     required String name,
     required String password,
     required String mnemonic,
-    DerivationType? derivationType,
+    required DerivationType derivationType,
   }) {
-    if (derivationType == null) {
-      // figure out the derivation type as best we can, otherwise set it to "unknown"
-      if (mnemonic.split(" ").length == 12) {
-        derivationType = DerivationType.bip39;
-      } else {
-        derivationType = DerivationType.unknown;
-      }
+    if (mnemonic.split(" ").length == 12 && derivationType != DerivationType.bip39) {
+      throw Exception("Invalid mnemonic for derivation type!");
     }
 
     return NanoRestoreWalletFromSeedCredentials(
@@ -127,15 +123,10 @@ class CWNano extends Nano {
     required String name,
     required String password,
     required String seedKey,
-    DerivationType? derivationType,
+    required DerivationType derivationType,
   }) {
-    if (derivationType == null) {
-      // figure out the derivation type as best we can, otherwise set it to "unknown"
-      if (seedKey.length == 64) {
-        derivationType = DerivationType.nano;
-      } else {
-        derivationType = DerivationType.unknown;
-      }
+    if (seedKey.length == 128 && derivationType != DerivationType.bip39) {
+      throw Exception("Invalid seed key length for derivation type!");
     }
 
     return NanoRestoreWalletFromKeysCredentials(
@@ -199,7 +190,6 @@ class CWNano extends Nano {
 }
 
 class CWNanoUtil extends NanoUtil {
-
   @override
   bool isValidBip39Seed(String seed) {
     return NanoDerivations.isValidBip39Seed(seed);
@@ -352,5 +342,55 @@ class CWNanoUtil extends NanoUtil {
     } catch (e) {
       return [DerivationType.nano, DerivationType.bip39];
     }
+  }
+
+  @override
+  Future<List<DerivationInfo>> getDerivationsFromMnemonic({
+    String? mnemonic,
+    String? seedKey,
+    required Node node,
+  }) async {
+    List<DerivationInfo> list = [];
+
+    List<DerivationType> possibleDerivationTypes = await compareDerivationMethods(
+      mnemonic: mnemonic,
+      privateKey: seedKey,
+      node: node,
+    );
+    if (possibleDerivationTypes.length == 1) {
+      return [DerivationInfo(derivationType: possibleDerivationTypes.first)];
+    }
+
+    AccountInfoResponse? bip39Info = await nanoUtil!.getInfoFromSeedOrMnemonic(
+      DerivationType.bip39,
+      mnemonic: mnemonic,
+      seedKey: seedKey,
+      node: node,
+    );
+    AccountInfoResponse? standardInfo = await nanoUtil!.getInfoFromSeedOrMnemonic(
+      DerivationType.nano,
+      mnemonic: mnemonic,
+      seedKey: seedKey,
+      node: node,
+    );
+
+    if (standardInfo?.confirmationHeight != null && standardInfo!.confirmationHeight > 0) {
+      list.add(DerivationInfo(
+        derivationType: DerivationType.nano,
+        balance: nanoUtil!.getRawAsUsableString(standardInfo.balance, nanoUtil!.rawPerNano),
+        address: standardInfo.address!,
+        transactionsCount: standardInfo.confirmationHeight,
+      ));
+    }
+
+    if (bip39Info?.confirmationHeight != null && bip39Info!.confirmationHeight > 0) {
+      list.add(DerivationInfo(
+        derivationType: DerivationType.bip39,
+        balance: nanoUtil!.getRawAsUsableString(bip39Info.balance, nanoUtil!.rawPerNano),
+        address: bip39Info.address!,
+        transactionsCount: bip39Info.confirmationHeight,
+      ));
+    }
+    return list;
   }
 }

@@ -30,11 +30,11 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   @override
   Future<WalletBase> create(NanoNewWalletCredentials credentials, {bool? isTestnet}) async {
     // nano standard:
-    DerivationType derivationType = DerivationType.nano;
     String seedKey = NanoSeeds.generateSeed();
     String mnemonic = NanoDerivations.standardSeedToMnemonic(seedKey);
 
-    credentials.walletInfo!.derivationType = derivationType;
+    // ensure default if not present:
+    credentials.walletInfo!.derivationInfo ??= DerivationInfo(derivationType: DerivationType.nano);
 
     final wallet = NanoWallet(
       walletInfo: credentials.walletInfo!,
@@ -95,9 +95,6 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       }
     }
 
-    DerivationType derivationType = credentials.derivationType ?? DerivationType.nano;
-    credentials.walletInfo!.derivationType = derivationType;
-
     String? mnemonic;
 
     // we can't derive the mnemonic from the key in all cases, only if it's a "nano" seed
@@ -136,9 +133,10 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       }
     }
 
-    DerivationType derivationType = credentials.derivationType ?? DerivationType.nano;
+    DerivationType derivationType =
+        credentials.walletInfo?.derivationInfo?.derivationType ?? DerivationType.nano;
 
-    credentials.walletInfo!.derivationType = derivationType;
+    credentials.walletInfo!.derivationInfo ??= DerivationInfo(derivationType: derivationType);
 
     final wallet = await NanoWallet(
       password: credentials.password!,

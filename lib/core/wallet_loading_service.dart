@@ -1,9 +1,13 @@
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WalletLoadingService {
@@ -36,15 +40,43 @@ class WalletLoadingService {
   }
 
   Future<WalletBase> load(WalletType type, String name, {String? password}) async {
-    final walletService = walletServiceFactory.call(type);
-    final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
-    final wallet = await walletService.openWallet(name, walletPassword);
+    try {
+      final walletService = walletServiceFactory.call(type);
+      final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+      final wallet = await walletService.openWallet(name, walletPassword);
 
-    if (type == WalletType.monero) {
-      await updateMoneroWalletPassword(wallet);
+      if (type == WalletType.monero) {
+        await updateMoneroWalletPassword(wallet);
+      }
+
+      return wallet;
+    } catch (error, stack) {
+      ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+
+      // try opening another wallet that is not corrupted to give user access to the app
+      final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+
+      for (var walletInfo in walletInfoSource.values) {
+        try {
+          final walletService = walletServiceFactory.call(walletInfo.type);
+          final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+          final wallet = await walletService.openWallet(walletInfo.name, walletPassword);
+
+          if (walletInfo.type == WalletType.monero) {
+            await updateMoneroWalletPassword(wallet);
+          }
+
+          await sharedPreferences.setString(PreferencesKey.currentWalletName, wallet.name);
+          await sharedPreferences.setInt(
+              PreferencesKey.currentWalletType, serializeToInt(wallet.type));
+
+          return wallet;
+        } catch (_) {}
+      }
+
+      // if all user's wallets are corrupted throw exception
+      throw error;
     }
-
-    return wallet;
   }
 
   Future<void> updateMoneroWalletPassword(WalletBase wallet) async {

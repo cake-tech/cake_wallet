@@ -27,6 +27,7 @@ import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:solana/base58.dart';
 import 'package:solana/metaplex.dart' as metaplex;
 import 'package:solana/solana.dart';
 
@@ -114,7 +115,17 @@ abstract class SolanaWalletBase
   String? get seed => _mnemonic;
 
   @override
-  String get privateKey => HEX.encode(_keyPairData!.bytes);
+  String get privateKey {
+    final privateKeyBytes = _keyPairData!.bytes;
+
+    final publicKeyBytes = _keyPairData!.publicKey.bytes;
+
+    final encodedBytes = privateKeyBytes + publicKeyBytes;
+
+    final privateKey = base58encode(encodedBytes);
+
+    return privateKey;
+  }
 
   Future<void> init() async {
     final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${SPLToken.boxName}";
@@ -141,8 +152,8 @@ abstract class SolanaWalletBase
     assert(mnemonic != null || privateKey != null);
 
     if (privateKey != null) {
-      final privateKeyBytes = HEX.decode(privateKey);
-      return await Wallet.fromPrivateKeyBytes(privateKey: privateKeyBytes);
+      final privateKeyBytes = base58decode(privateKey);
+      return await Wallet.fromPrivateKeyBytes(privateKey: privateKeyBytes.take(32).toList());
     }
 
     return Wallet.fromMnemonic(mnemonic!, account: 0, change: 0);
@@ -268,32 +279,12 @@ abstract class SolanaWalletBase
 
     final transactions = await _client.fetchTransactions(address);
 
-    final Map<String, SolanaTransactionInfo> result = {};
-
-    for (var transactionModel in transactions) {
-      result[transactionModel.id] = SolanaTransactionInfo(
-        id: transactionModel.id,
-        to: transactionModel.to,
-        from: transactionModel.from,
-        blockTime: transactionModel.blockTime,
-        direction: transactionModel.isOutgoingTx
-            ? TransactionDirection.outgoing
-            : TransactionDirection.incoming,
-        solAmount: transactionModel.amount,
-        isPending: false,
-        txFee: transactionModel.fee,
-        tokenSymbol: transactionModel.tokenSymbol,
-      );
-    }
-
-    transactionHistory.addMany(result);
-
-    await transactionHistory.save();
+    await _addTransactionsToTransactionHistory(transactions);
   }
 
   /// Fetches the SPL Tokens transactions linked to the token account Public Key
   Future<void> _updateSPLTokenTransactions() async {
-    List<SolanaTransactionModel> splTokenTransactions = [];
+    // List<SolanaTransactionModel> splTokenTransactions = [];
 
     // Make a copy of keys to avoid concurrent modification
     var tokenKeys = List<CryptoCurrency>.from(balance.keys);
@@ -307,13 +298,20 @@ abstract class SolanaWalletBase
           _walletKeyPair!,
         );
 
-        splTokenTransactions.addAll(tokenTxs);
+        // splTokenTransactions.addAll(tokenTxs);
+        await _addTransactionsToTransactionHistory(tokenTxs);
       }
     }
 
+    // await _addTransactionsToTransactionHistory(splTokenTransactions);
+  }
+
+  Future<void> _addTransactionsToTransactionHistory(
+    List<SolanaTransactionModel> transactions,
+  ) async {
     final Map<String, SolanaTransactionInfo> result = {};
 
-    for (var transactionModel in splTokenTransactions) {
+    for (var transactionModel in transactions) {
       result[transactionModel.id] = SolanaTransactionInfo(
         id: transactionModel.id,
         to: transactionModel.to,
@@ -457,12 +455,23 @@ abstract class SolanaWalletBase
     await token.delete();
 
     balance.remove(token);
+    await _removeTokenTransactionsInHistory(token);
     _updateBalance();
+  }
+
+  Future<void> _removeTokenTransactionsInHistory(SPLToken token) async {
+    transactionHistory.transactions.removeWhere((key, value) => value.tokenSymbol == token.title);
+    await transactionHistory.save();
   }
 
   Future<SPLToken?> getSPLToken(String mintAddress) async {
     // Convert SPL token mint address to public key
-    final mintPublicKey = Ed25519HDPublicKey.fromBase58(mintAddress);
+    final Ed25519HDPublicKey mintPublicKey;
+    try {
+      mintPublicKey = Ed25519HDPublicKey.fromBase58(mintAddress);
+    } catch (_) {
+      return null;
+    }
 
     // Fetch token's metadata account
     try {
@@ -477,10 +486,12 @@ abstract class SolanaWalletBase
         iconPath = await _client.getIconImageFromTokenUri(token.uri);
       } catch (_) {}
 
+      String filteredTokenSymbol = token.symbol.replaceFirst(RegExp('^\\\$'), '');
+
       return SPLToken.fromMetadata(
         name: token.name,
         mint: token.mint,
-        symbol: token.symbol,
+        symbol: filteredTokenSymbol,
         mintAddress: mintAddress,
         iconPath: iconPath,
       );
