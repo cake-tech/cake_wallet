@@ -30,6 +30,7 @@ class LitecoinWalletService extends WalletService<
     final wallet = await LitecoinWalletBase.create(
         mnemonic: await generateElectrumMnemonic(),
         password: credentials.password!,
+        passphrase: credentials.passphrase,
         walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.save();
@@ -107,6 +108,7 @@ class LitecoinWalletService extends WalletService<
 
     final wallet = await LitecoinWalletBase.create(
         password: credentials.password!,
+        passphrase: credentials.passphrase,
         mnemonic: credentials.mnemonic,
         walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource);
