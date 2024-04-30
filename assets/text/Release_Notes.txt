@@ -1,7 +1,3 @@
-Add Replace-By-Fee to boost pending Bitcoin transactions
-Enable WalletConnect for Solana
-WalletConnect Enhancements
-Enhancements for ERC-20 tokens and Solana tokens
-Enhancements for Nano wallet
-UI enhancements
-Bug fixes
+Support restoring Non-Electrum Bitcoin Wallets (check supported derivation paths https://github.com/cake-tech/cake_wallet/blob/main/cw_bitcoin/lib/bitcoin_derivations.dart)
+Bitcoin enhancements and bug fixes
+Generic bug fixes and enhancements
