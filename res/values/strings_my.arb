@@ -411,6 +411,7 @@
   "outputs": "ထုတ်လုပ်မှု",
   "overwrite_amount": "ပမာဏကို ထပ်ရေးပါ။",
   "pairingInvalidEvent": "မမှန်ကန်သောဖြစ်ရပ်ကို တွဲချိတ်ခြင်း။",
+  "passphrase": "passphrase (optional)",
   "password": "စကားဝှက်",
   "paste": "ငါးပိ",
   "pause_wallet_creation": "Haven Wallet ဖန်တီးနိုင်မှုကို လောလောဆယ် ခေတ္တရပ်ထားသည်။",

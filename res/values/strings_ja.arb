@@ -412,6 +412,7 @@
   "outputs": "出力",
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "ペアリング無効イベント",
+  "passphrase": "パスフレーズ（オプション）",
   "password": "パスワード",
   "paste": "ペースト",
   "pause_wallet_creation": "Haven Wallet を作成する機能は現在一時停止されています。",

@@ -411,6 +411,7 @@
   "outputs": "çıktılar",
   "overwrite_amount": "Miktarın üzerine yaz",
   "pairingInvalidEvent": "Geçersiz Etkinliği Eşleştirme",
+  "passphrase": "Passfrase (isteğe bağlı)",
   "password": "Parola",
   "paste": "Yapıştır",
   "pause_wallet_creation": "Haven Cüzdanı oluşturma yeteneği şu anda duraklatıldı.",
