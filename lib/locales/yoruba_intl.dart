@@ -998,4 +998,24 @@ class YoCupertinoLocalizations extends GlobalCupertinoLocalizations {
 
   @override
   String get noSpellCheckReplacementsLabel => "";
+
+  @override
+  // TODO: implement clearButtonLabel
+  String get clearButtonLabel => "clearButtonLabel";
+
+  @override
+  // TODO: implement lookUpButtonLabel
+  String get lookUpButtonLabel => "lookUpButtonLabel";
+
+  @override
+  // TODO: implement menuDismissLabel
+  String get menuDismissLabel => "menuDismissLabel";
+
+  @override
+  // TODO: implement searchWebButtonLabel
+  String get searchWebButtonLabel => "searchWebButtonLabel";
+
+  @override
+  // TODO: implement shareButtonLabel
+  String get shareButtonLabel => "shareButtonLabel";
 }
