@@ -174,7 +174,7 @@ class CWEthereum extends Ethereum {
     ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedger(
         ledger,
         device.connectionType == ConnectionType.usb ? device : null,
-        wallet.walletInfo.derivationPath);
+        wallet.walletInfo.derivationInfo?.derivationPath);
   }
 
   @override

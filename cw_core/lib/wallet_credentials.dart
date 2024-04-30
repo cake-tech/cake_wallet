@@ -9,11 +9,11 @@ abstract class WalletCredentials {
     this.password,
     this.passphrase,
     this.derivationInfo,
+    this.hardwareWalletType,
   }) {
     if (this.walletInfo != null && derivationInfo != null) {
       this.walletInfo!.derivationInfo = derivationInfo;
     }
-    this.hardwareWalletType,
   }
 
   final String name;

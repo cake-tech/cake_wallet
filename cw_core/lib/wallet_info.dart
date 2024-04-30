@@ -21,15 +21,14 @@ enum DerivationType {
   electrum,
 }
 
-@HiveType(typeId: DerivationInfo.typeId)
-class DerivationInfo extends HiveObject {
 @HiveType(typeId: HARDWARE_WALLET_TYPE_TYPE_ID)
 enum HardwareWalletType {
   @HiveField(0)
   ledger,
 }
 
-class DerivationInfo {
+@HiveType(typeId: DerivationInfo.typeId)
+class DerivationInfo extends HiveObject {
   DerivationInfo({
     this.derivationType,
     this.derivationPath,
