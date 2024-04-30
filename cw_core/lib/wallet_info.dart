@@ -47,7 +47,7 @@ class DerivationInfo extends HiveObject {
   @HiveField(1, defaultValue: '')
   String balance;
 
-  @HiveField(2)
+  @HiveField(2, defaultValue: 0)
   int transactionsCount;
 
   @HiveField(3)
