@@ -41,7 +41,7 @@ class DisplaySettingsPage extends BasePage {
                 },
               ),
           SettingsSwitcherCell(
-            title: S.current.historical_fiat_amount,
+            title: S.current.historical_fiat_rate,
             value: _displaySettingsViewModel.showHistoricalFiatAmount,
             onValueChange: (_, bool value) {
               _displaySettingsViewModel.setShowHistoricalFiatAmount(value);

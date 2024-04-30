@@ -137,7 +137,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       items.insert(
           index + 1,
           StandartListItem(
-              title: S.current.historical_fiat_amount,
+              title: 'S.current.historical_fiat_amount',
               value: description.historicalFiatRate!.toStringAsFixed(2) +
                   ' ' +
                   settingsStore.fiatCurrency.toString()));
@@ -152,7 +152,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   final SendViewModel sendViewModel;
 
   final List<TransactionDetailsListItem> items;
-  final List<TransactionDetailsListItem> RBFListItems
+  final List<TransactionDetailsListItem> RBFListItems;
   bool showRecipientAddress;
   bool isRecipientAddressShown;
   int newFee;
