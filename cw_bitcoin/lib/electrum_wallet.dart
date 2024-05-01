@@ -1263,7 +1263,7 @@ abstract class ElectrumWalletBase
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => _onError = onError;
 
   @override
-  String signMessage(String message, {String? address = null}) {
+  Future<String> signMessage(String message, {String? address = null}) async {
     final index = address != null
         ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
         : null;

@@ -14,8 +14,10 @@ import 'package:hive/hive.dart';
 import 'package:collection/collection.dart';
 import 'package:bip39/bip39.dart' as bip39;
 
-class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
-    BitcoinRestoreWalletFromSeedCredentials, BitcoinRestoreWalletFromWIFCredentials> {
+class BitcoinWalletService extends WalletService<
+    BitcoinNewWalletCredentials,
+    BitcoinRestoreWalletFromSeedCredentials,
+    BitcoinRestoreWalletFromWIFCredentials, BitcoinNewWalletCredentials> {
   BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
@@ -97,6 +99,11 @@ class BitcoinWalletService extends WalletService<BitcoinNewWalletCredentials,
     newWalletInfo.name = newName;
 
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+  }
+
+  @override
+  Future<BitcoinWallet> restoreFromHardwareWallet(BitcoinNewWalletCredentials credentials) {
+    throw UnimplementedError("Restoring a Bitcoin wallet from a hardware wallet is not yet supported!");
   }
 
   @override
