@@ -26,7 +26,7 @@ class LightningWalletService extends WalletService<BitcoinNewWalletCredentials,
   @override
   Future<LightningWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
     final wallet = await LightningWalletBase.create(
-      mnemonic: await generateMnemonic(),
+      mnemonic: await generateElectrumMnemonic(),
       password: credentials.password!,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
