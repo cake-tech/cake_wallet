@@ -411,6 +411,7 @@
   "outputs": "Mga output",
   "overwrite_amount": "Overwrite na halaga",
   "pairingInvalidEvent": "Pagpares ng Di-wastong Kaganapan",
+  "passphrase": "Passphrase (opsyonal)",
   "password": "Password",
   "paste": "I -paste",
   "pause_wallet_creation": "Kasalukuyang naka-pause ang kakayahang gumawa ng Haven Wallet.",

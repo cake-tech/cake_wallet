@@ -19,7 +19,11 @@ class TransactionNoDustOnChangeException implements Exception {
   final String min;
 }
 
-class TransactionCommitFailed implements Exception {}
+class TransactionCommitFailed implements Exception {
+  final String? errorMessage;
+
+  TransactionCommitFailed({this.errorMessage});
+}
 
 class TransactionCommitFailedDustChange implements Exception {}
 
