@@ -6,6 +6,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/alert_scheduler.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
 import 'package:mobx/mobx.dart';
+import 'package:path_provider/path_provider.dart';
 
 class AutoBackupViewModel {
   AutoBackupViewModel({
@@ -31,7 +32,9 @@ class AutoBackupViewModel {
       if (autoBackupMode == AutomaticBackupMode.daily && duration.inDays >= 1 ||
           autoBackupMode == AutomaticBackupMode.weekly && duration.inDays >= 7) {
         final backup = await backupViewModel.exportBackup();
-        await backupViewModel.saveBackupFileLocally(backup!);
+        final appDir = await getApplicationDocumentsDirectory();
+        final backupDir = "${appDir.path}/Backups/${backup!.name}";
+        await backupViewModel.saveBackupFileLocally(backup, fullPathOverride: backupDir);
       }
       state = ExecutedSuccessfullyState();
     } catch (e) {

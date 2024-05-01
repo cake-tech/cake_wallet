@@ -46,15 +46,6 @@ class SecurityBackupPage extends BasePage {
             ),
           ),
           SettingsCellWithArrow(
-            title: S.current.create_backup,
-            handler: (_) => _authService.authenticateAction(
-              context,
-              route: Routes.backup,
-              conditionToDetermineIfToUse2FA:
-                  _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-            ),
-          ),
-          SettingsCellWithArrow(
             title: S.current.settings_change_pin,
             handler: (_) => _authService.authenticateAction(
               context,
@@ -65,6 +56,23 @@ class SecurityBackupPage extends BasePage {
               conditionToDetermineIfToUse2FA:
                   _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
+          ),
+          Observer(
+            builder: (context) {
+              return SettingsCellWithArrow(
+                title: _securitySettingsViewModel.useTotp2FA
+                    ? S.current.modify_2fa
+                    : S.current.setup_2fa,
+                handler: (_) => _authService.authenticateAction(
+                  context,
+                  route: _securitySettingsViewModel.useTotp2FA
+                      ? Routes.modify2FAPage
+                      : Routes.setup2faInfoPage,
+                  conditionToDetermineIfToUse2FA: _securitySettingsViewModel
+                      .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+                ),
+              );
+            },
           ),
           if (DeviceInfo.instance.isMobile || Platform.isMacOS || Platform.isLinux)
             Observer(builder: (_) {
@@ -95,17 +103,6 @@ class SecurityBackupPage extends BasePage {
                   });
             }),
           Observer(builder: (_) {
-            return SettingsChoicesCell(
-              ChoicesListItem<AutomaticBackupMode>(
-                title: "T: Automatic backups",
-                items: AutomaticBackupMode.all,
-                selectedItem: _securitySettingsViewModel.autoBackupMode,
-                onItemSelected: (AutomaticBackupMode mode) =>
-                    _securitySettingsViewModel.setAutomaticBackupMode(mode),
-              ),
-            );
-          }),
-          Observer(builder: (_) {
             return SettingsPickerCell<PinCodeRequiredDuration>(
               title: S.current.require_pin_after,
               items: PinCodeRequiredDuration.values,
@@ -115,22 +112,41 @@ class SecurityBackupPage extends BasePage {
               },
             );
           }),
-          Observer(
-            builder: (context) {
-              return SettingsCellWithArrow(
-                title: _securitySettingsViewModel.useTotp2FA
-                    ? S.current.modify_2fa
-                    : S.current.setup_2fa,
-                handler: (_) => _authService.authenticateAction(
-                  context,
-                  route: _securitySettingsViewModel.useTotp2FA
-                      ? Routes.modify2FAPage
-                      : Routes.setup2faInfoPage,
-                  conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                      .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+          Container(
+            padding: const EdgeInsets.only(top: 12, bottom: 12, right: 6),
+            margin: const EdgeInsets.only(left: 24, right: 24, top: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            ),
+            child: Column(
+              children: [
+                SettingsCellWithArrow(
+                  title: S.current.create_backup,
+                  handler: (_) => _authService.authenticateAction(
+                    context,
+                    route: Routes.backup,
+                    conditionToDetermineIfToUse2FA: _securitySettingsViewModel
+                        .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0),
+                  ),
                 ),
-              );
-            },
+                Observer(builder: (_) {
+                  return SettingsChoicesCell(
+                    bgColor: Colors.black.withOpacity(0),
+                    ChoicesListItem<AutomaticBackupMode>(
+                      title: "T: Automatic backups",
+                      items: AutomaticBackupMode.all,
+                      selectedItem: _securitySettingsViewModel.autoBackupMode,
+                      onItemSelected: (AutomaticBackupMode mode) =>
+                          _securitySettingsViewModel.setAutomaticBackupMode(mode),
+                    ),
+                  );
+                }),
+              ],
+            ),
           ),
         ],
       ),

@@ -57,7 +57,7 @@ abstract class BackupViewModelBase with Store {
   Future<BackupExportFile?> exportBackup() async {
     try {
       state = IsExecutingState();
-      
+
       final backupContent = await backupService.exportBackup(backupPassword);
       state = ExecutedSuccessfullyState();
       final now = DateTime.now();
@@ -73,9 +73,9 @@ abstract class BackupViewModelBase with Store {
     }
   }
 
-  Future<String> saveBackupFileLocally(BackupExportFile backup) async {
+  Future<String> saveBackupFileLocally(BackupExportFile backup, {String? fullPathOverride}) async {
     final appDir = await getApplicationDocumentsDirectory();
-    final path = '${appDir.path}/${backup.name}';
+    String path = fullPathOverride ?? '${appDir.path}/${backup.name}';
     final backupFile = File(path);
     await backupFile.writeAsBytes(backup.content);
     return path;
