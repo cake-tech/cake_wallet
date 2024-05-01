@@ -17,6 +17,7 @@ import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/alert_scheduler.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
+import 'package:cake_wallet/view_model/auto_backup_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -409,20 +410,22 @@ class _DashboardPageView extends BasePage {
   }
 
   void _showBackupWarningPopup(BuildContext context) async {
+    final alertScheduler = await getIt.get<AlertScheduler>();
+    final autoBackupViewModel = getIt.get<AutoBackupViewModel>();
     // only show the warning message if the user has disabled automatic backups:
-    bool autobackupsEnabled =
-        dashboardViewModel.settingsStore.autoBackupMode != AutomaticBackupMode.disabled;
+    final autoBackupMode = dashboardViewModel.settingsStore.autoBackupMode;
+    bool autobackupsEnabled = autoBackupMode != AutomaticBackupMode.disabled;
+
     if (autobackupsEnabled) {
+      await autoBackupViewModel.runBackup();
       return;
     }
 
-    bool shouldShowWarning = await getIt.get<AlertScheduler>().shouldShowAlert(
-          enabledPk: PreferencesKey.showAutomaticBackupWarning,
-          lastAccessedPk: PreferencesKey.showAutomaticBackupWarningAccessTime,
-          frequency: AlertFrequency.weekly,
-        );
-
-    shouldShowWarning = true;
+    bool shouldShowWarning = await alertScheduler.shouldShowAlert(
+      enabledPk: PreferencesKey.showAutomaticBackupWarning,
+      lastAccessedPk: PreferencesKey.showAutomaticBackupWarningAccessTime,
+      frequency: AlertFrequency.weekly,
+    );
 
     if (shouldShowWarning) {
       showPopUp<void>(
@@ -433,8 +436,8 @@ class _DashboardPageView extends BasePage {
               alertContent:
                   "T: Automatic backups are disabled, and the last time you backed up your wallet was more than a week ago. We recommend you back up your wallet now.",
               rightButtonText: S.current.backup,
-              centerButtonText: "T: don't show again",
-              leftButtonText: "T: remind me later",
+              centerButtonText: "T: Don't show again",
+              leftButtonText: "T: Remind me later",
               actionCenterButton: () async {
                 await dashboardViewModel.dontShowBackupWarning();
                 Navigator.of(dialogContext).pop();
@@ -443,7 +446,8 @@ class _DashboardPageView extends BasePage {
                 Navigator.of(dialogContext).pop();
               },
               actionRightButton: () async {
-                Navigator.of(context).pushNamed(Routes.securityBackupPage);
+                Navigator.of(dialogContext).pop();
+                Navigator.of(context).pushNamed(Routes.backup);
               },
             );
           });

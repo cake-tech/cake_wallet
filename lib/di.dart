@@ -15,6 +15,7 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/utils/alert_scheduler.dart';
+import 'package:cake_wallet/view_model/auto_backup_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/nano/nano.dart';
@@ -1207,6 +1208,11 @@ Future<void> setup({
 
   getIt.registerFactory<AlertScheduler>(
       () => AlertScheduler(sharedPreferences: getIt.get<SharedPreferences>()));
+
+  getIt.registerFactory<AutoBackupViewModel>(() => AutoBackupViewModel(
+        backupViewModel: getIt.get<BackupViewModel>(),
+        settingsStore: getIt.get<SettingsStore>(),
+      ));
 
   _isSetupFinished = true;
 }

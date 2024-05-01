@@ -7,6 +7,14 @@ class AlertScheduler {
 
   SharedPreferences sharedPreferences;
 
+
+  Future<Duration> accessTimeDifference(String lastAccessedPk) async {
+    final accessTime = DateTime.fromMillisecondsSinceEpoch(
+        sharedPreferences.getInt(lastAccessedPk) ?? DateTime.now().millisecondsSinceEpoch);
+
+    return DateTime.now().difference(accessTime);
+  }
+
   Future<bool> shouldShowAlert({
     required AlertFrequency frequency,
     required String lastAccessedPk,
@@ -18,10 +26,7 @@ class AlertScheduler {
       return false;
     }
 
-    final accessTime = DateTime.fromMillisecondsSinceEpoch(
-        sharedPreferences.getInt(lastAccessedPk) ?? DateTime.now().millisecondsSinceEpoch);
-
-    final duration = DateTime.now().difference(accessTime);
+    final duration = await accessTimeDifference(lastAccessedPk);
 
     bool shouldShow = false;
 
