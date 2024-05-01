@@ -32,11 +32,11 @@ class AlertFrequency extends EnumerableItem<int> with Serializable<int> {
   String toString() {
     switch (this) {
       case AlertFrequency.daily:
-        return "T: Daily";
+        return S.current.daily;
       case AlertFrequency.weekly:
-        return "T: Weekly";
+        return S.current.weekly;
       case AlertFrequency.monthly:
-        return "T: Monthly";
+        return S.current.monthly;
       default:
         return '';
     }

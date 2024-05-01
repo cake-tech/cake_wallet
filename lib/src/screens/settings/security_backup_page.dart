@@ -137,7 +137,7 @@ class SecurityBackupPage extends BasePage {
                   return SettingsChoicesCell(
                     bgColor: Colors.black.withOpacity(0),
                     ChoicesListItem<AutomaticBackupMode>(
-                      title: "T: Automatic backups",
+                      title: S.current.automatic_backups,
                       items: AutomaticBackupMode.all,
                       selectedItem: _securitySettingsViewModel.autoBackupMode,
                       onItemSelected: (AutomaticBackupMode mode) =>

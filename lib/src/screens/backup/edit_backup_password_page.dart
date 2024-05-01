@@ -65,8 +65,7 @@ class EditBackupPasswordPage extends BasePage {
         builder: (dialogContext) {
           return AlertWithOneAction(
             alertTitle: S.of(context).save_backup_password_alert,
-            alertContent:
-                "T: password must contain at least 8 characters, 1 uppercase and lowercase letters and a number",
+            alertContent: S.current.backup_password_requirements,
             buttonText: S.of(context).ok,
             buttonAction: () async {
               Navigator.of(dialogContext).pop();

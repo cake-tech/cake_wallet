@@ -433,11 +433,10 @@ class _DashboardPageView extends BasePage {
           builder: (dialogContext) {
             return AlertWithThreeActions(
               alertTitle: S.current.export_backup,
-              alertContent:
-                  "T: Automatic backups are disabled, and the last time you backed up your wallet was more than a week ago. We recommend you back up your wallet now.",
+              alertContent: S.current.auto_backup_warning,
               rightButtonText: S.current.backup,
-              centerButtonText: "T: Don't show again",
-              leftButtonText: "T: Remind me later",
+              centerButtonText: S.current.dont_show_again,
+              leftButtonText: S.current.remind_me_later,
               actionCenterButton: () async {
                 await dashboardViewModel.dontShowBackupWarning();
                 Navigator.of(dialogContext).pop();

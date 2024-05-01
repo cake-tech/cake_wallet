@@ -34,9 +34,9 @@ class AutomaticBackupMode extends EnumerableItem<int> with Serializable<int> {
       case AutomaticBackupMode.disabled:
         return S.current.disabled;
       case AutomaticBackupMode.weekly:
-        return "T: Weekly";
+        return S.current.weekly;
       case AutomaticBackupMode.daily:
-        return "T: Daily";
+        return S.current.daily;
       default:
         return '';
     }
