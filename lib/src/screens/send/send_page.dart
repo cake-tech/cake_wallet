@@ -102,7 +102,7 @@ class SendPage extends BasePage {
   double _sendCardHeight(BuildContext context) {
     double initialHeight = 480;
     if (sendViewModel.hasCoinControl) {
-      initialHeight += 35;
+      initialHeight += 55;
     }
 
     if (!responsiveLayoutUtil.shouldRenderMobileUI) {

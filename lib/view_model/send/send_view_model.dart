@@ -423,7 +423,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Object _credentials() {
     final priority = _settingsStore.priority[wallet.type];
 
-    if (priority == null && wallet.type != WalletType.nano && wallet.type != WalletType.solana) {
+    if (priority == null && wallet.type != WalletType.nano && wallet.type != WalletType.banano && wallet.type != WalletType.solana) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }
 
