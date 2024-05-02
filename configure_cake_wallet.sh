@@ -1,3 +1,5 @@
+#!/bin/bash
+
 IOS="ios"
 ANDROID="android"
 

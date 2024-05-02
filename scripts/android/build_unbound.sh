@@ -9,7 +9,7 @@ EXPAT_SRC_DIR=$WORKDIR/libexpat
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
 PREFIX=$WORKDIR/prefix_${arch}
-TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/darwin-x86_64
+TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64
 PATH="${TOOLCHAIN_BASE_DIR}_${arch}/bin:${ORIGINAL_PATH}"
 
 cd $WORKDIR
@@ -38,7 +38,7 @@ UNBOUND_SRC_DIR=$WORKDIR/unbound-1.16.2
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
 PREFIX=$WORKDIR/prefix_${arch}
-TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/darwin-x86_64
+TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64
 
 case $arch in
 	"aarch")   TOOLCHAIN_BIN_PATH=${TOOLCHAIN_BASE_DIR}_${arch}/arm-linux-androideabi/bin;;

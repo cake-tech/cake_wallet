@@ -10,7 +10,7 @@ case $APP_ANDROID_TYPE in
                 CONFIG_ARGS="--monero"
                 ;;
         $CAKEWALLET)
-                CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana" # TODO: fix and add back --haven
+                CONFIG_ARGS="--monero --bitcoin --haven --ethereum --polygon --nano --bitcoinCash --solana" # TODO: fix and add back --haven
                 ;;
         $HAVEN)
                 CONFIG_ARGS="--haven"

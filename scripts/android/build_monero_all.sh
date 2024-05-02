@@ -41,8 +41,8 @@ else
 fi
 
 unxz -f ../monero_c/release/monero/x86_64-linux-android_libwallet2_api_c.so.xz
-unxz -f ../monero_c/release/wownero/x86_64-linux-android_libwallet2_api_c.so.xz
+# unxz -f ../monero_c/release/wownero/x86_64-linux-android_libwallet2_api_c.so.xz
 unxz -f ../monero_c/release/monero/arm-linux-androideabi_libwallet2_api_c.so.xz
-unxz -f ../monero_c/release/wownero/arm-linux-androideabi_libwallet2_api_c.so.xz
+# unxz -f ../monero_c/release/wownero/arm-linux-androideabi_libwallet2_api_c.so.xz
 unxz -f ../monero_c/release/monero/aarch64-linux-android_libwallet2_api_c.so.xz
-unxz -f ../monero_c/release/wownero/aarch64-linux-android_libwallet2_api_c.so.xz
+# unxz -f ../monero_c/release/wownero/aarch64-linux-android_libwallet2_api_c.so.xz
