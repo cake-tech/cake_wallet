@@ -24,9 +24,8 @@ echo $OPENSSL_SHA256 $OPENSSL_FILE_PATH | sha256sum -c - || exit 1
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
 PREFIX=$WORKDIR/prefix_${arch}
-TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64
+TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/darwin-x86_64
 PATH="${TOOLCHAIN}/bin:${ORIGINAL_PATH}"
-
 case $arch in
 	"aarch")   X_ARCH="android-arm";;
 	"aarch64") X_ARCH="android-arm64";;

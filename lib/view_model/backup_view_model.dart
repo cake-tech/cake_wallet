@@ -3,6 +3,7 @@ import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/store/secret_store.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobx/mobx.dart';
@@ -73,7 +74,7 @@ abstract class BackupViewModelBase with Store {
   }
 
   Future<String> saveBackupFileLocally(BackupExportFile backup) async {
-    final appDir = await getApplicationDocumentsDirectory();
+    final appDir = await getAppDir();
     final path = '${appDir.path}/${backup.name}';
     final backupFile = File(path);
     await backupFile.writeAsBytes(backup.content);
@@ -81,7 +82,7 @@ abstract class BackupViewModelBase with Store {
   }
 
   Future<void> removeBackupFileLocally(BackupExportFile backup) async {
-    final appDir = await getApplicationDocumentsDirectory();
+    final appDir = await getAppDir();
     final path = '${appDir.path}/${backup.name}';
     final backupFile = File(path);
     await backupFile.delete();

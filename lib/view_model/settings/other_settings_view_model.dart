@@ -12,6 +12,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
 import 'package:collection/collection.dart';
+import 'package:cake_wallet/utils/package_info.dart';
 
 part 'other_settings_view_model.g.dart';
 

@@ -148,7 +148,7 @@ abstract class WalletKeysViewModelBase with Store {
       return await haven!.getCurrentHeight();
     }
     if (_appStore.wallet!.type == WalletType.monero) {
-      return monero_wallet.getCurrentHeight();
+      return await monero!.getCurrentHeight();
     }
     return null;
   }

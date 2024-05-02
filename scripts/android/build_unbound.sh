@@ -9,12 +9,12 @@ EXPAT_SRC_DIR=$WORKDIR/libexpat
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
 PREFIX=$WORKDIR/prefix_${arch}
-TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64
+TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/darwin-x86_64
 PATH="${TOOLCHAIN_BASE_DIR}_${arch}/bin:${ORIGINAL_PATH}"
 
 cd $WORKDIR
 rm -rf $EXPAT_SRC_DIR
-git clone https://github.com/libexpat/libexpat.git -b ${EXPAT_VERSION} ${EXPAT_SRC_DIR}
+git clone https://github.com/libexpat/libexpat.git --depth=1 -b ${EXPAT_VERSION} ${EXPAT_SRC_DIR}
 cd $EXPAT_SRC_DIR
 test `git rev-parse HEAD` = ${EXPAT_HASH} || exit 1
 cd $EXPAT_SRC_DIR/expat
@@ -38,7 +38,7 @@ UNBOUND_SRC_DIR=$WORKDIR/unbound-1.16.2
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
 PREFIX=$WORKDIR/prefix_${arch}
-TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64
+TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/darwin-x86_64
 
 case $arch in
 	"aarch")   TOOLCHAIN_BIN_PATH=${TOOLCHAIN_BASE_DIR}_${arch}/arm-linux-androideabi/bin;;
@@ -49,7 +49,7 @@ PATH="${TOOLCHAIN_BIN_PATH}:${TOOLCHAIN_BASE_DIR}_${arch}/bin:${ORIGINAL_PATH}"
 echo $PATH
 cd $WORKDIR
 rm -rf $UNBOUND_SRC_DIR
-git clone https://github.com/NLnetLabs/unbound.git -b ${UNBOUND_VERSION} ${UNBOUND_SRC_DIR}
+git clone https://github.com/NLnetLabs/unbound.git --depth=1 -b ${UNBOUND_VERSION} ${UNBOUND_SRC_DIR}
 cd $UNBOUND_SRC_DIR
 test `git rev-parse HEAD` = ${UNBOUND_HASH} || exit 1
 
