@@ -182,7 +182,7 @@ class CWEthereum extends Ethereum {
       {int index = 0, int limit = 5}) async {
     final hardwareWalletService = EVMChainHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
     try {
-      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
+      return await hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } on LedgerException catch (err) {
       print(err.message);
       throw err;

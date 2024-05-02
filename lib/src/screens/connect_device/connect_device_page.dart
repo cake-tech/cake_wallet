@@ -138,6 +138,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   textAlign: TextAlign.center,
                 ),
               ),
+
               if (!bleIsEnabled)
                 Padding(
                   padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),

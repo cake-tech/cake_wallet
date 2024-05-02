@@ -170,7 +170,7 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                             width: 24,
                           ),
                           text:
-                              "${address.substring(0, 6)}...${address.substring(address.length - 6)}",
+                          "${address.substring(0, 6)}...${address.substring(address.length - 6)}",
                           showTrailingIcon: false,
                           height: 54,
                           isSelected: _walletHardwareRestoreVM.selectedAccount == acc,
