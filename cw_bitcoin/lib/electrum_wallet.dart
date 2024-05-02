@@ -55,13 +55,15 @@ abstract class ElectrumWalletBase
       required this.networkType,
       required this.mnemonic,
       required Uint8List seedBytes,
+      this.passphrase,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumClient? electrumClient,
       ElectrumBalance? initialBalance,
       CryptoCurrency? currency})
       : hd = currency == CryptoCurrency.bch
             ? bitcoinCashHDWallet(seedBytes)
-            : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/0"),
+            : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
+                .derivePath(walletInfo.derivationInfo?.derivationPath ?? "m/0'/0"),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
@@ -92,6 +94,7 @@ abstract class ElectrumWalletBase
 
   final bitcoin.HDWallet hd;
   final String mnemonic;
+  final String? passphrase;
 
   @override
   @observable
@@ -617,6 +620,7 @@ abstract class ElectrumWalletBase
 
   String toJSON() => json.encode({
         'mnemonic': mnemonic,
+        'passphrase': passphrase ?? '',
         'account_index': walletAddresses.currentReceiveAddressIndexByType,
         'change_address_index': walletAddresses.currentChangeAddressIndexByType,
         'addresses': walletAddresses.allAddresses.map((addr) => addr.toJSON()).toList(),
@@ -624,6 +628,8 @@ abstract class ElectrumWalletBase
             ? SegwitAddresType.p2wpkh.toString()
             : walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON(),
+        'derivationTypeIndex': walletInfo.derivationInfo?.derivationType?.index,
+        'derivationPath': walletInfo.derivationInfo?.derivationPath,
       });
 
   int feeRate(TransactionPriority priority) {

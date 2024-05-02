@@ -411,6 +411,7 @@
   "outputs": "Изходи",
   "overwrite_amount": "Промени сума",
   "pairingInvalidEvent": "Невалидно събитие при сдвояване",
+  "passphrase": "Passphrase (по избор)",
   "password": "Парола",
   "paste": "Поставяне",
   "pause_wallet_creation": "Възможността за създаване на Haven Wallet в момента е на пауза.",

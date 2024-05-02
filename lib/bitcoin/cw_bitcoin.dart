@@ -1,13 +1,22 @@
 part of 'bitcoin.dart';
 
 class CWBitcoin extends Bitcoin {
-  @override
-  TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;
-
-  @override
-  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials(
-          {required String name, required String mnemonic, required String password}) =>
-      BitcoinRestoreWalletFromSeedCredentials(name: name, mnemonic: mnemonic, password: password);
+  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({
+    required String name,
+    required String mnemonic,
+    required String password,
+    required DerivationType derivationType,
+    required String derivationPath,
+    String? passphrase,
+  }) =>
+      BitcoinRestoreWalletFromSeedCredentials(
+        name: name,
+        mnemonic: mnemonic,
+        password: password,
+        derivationType: derivationType,
+        derivationPath: derivationPath,
+        passphrase: passphrase,
+      );
 
   @override
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials(
@@ -22,6 +31,9 @@ class CWBitcoin extends Bitcoin {
   WalletCredentials createBitcoinNewWalletCredentials(
           {required String name, WalletInfo? walletInfo}) =>
       BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo);
+
+  @override
+  TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;
 
   @override
   List<String> getWordList() => wordlist;
@@ -78,21 +90,20 @@ class CWBitcoin extends Bitcoin {
     final bitcoinFeeRate =
         priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
     return BitcoinTransactionCredentials(
-      outputs
-          .map((out) => OutputInfo(
-              fiatAmount: out.fiatAmount,
-              cryptoAmount: out.cryptoAmount,
-              address: out.address,
-              note: out.note,
-              sendAll: out.sendAll,
-              extractedAddress: out.extractedAddress,
-              isParsedAddress: out.isParsedAddress,
-              formattedCryptoAmount: out.formattedCryptoAmount,
-              memo: out.memo))
-          .toList(),
-      priority: priority as BitcoinTransactionPriority,
-      feeRate: bitcoinFeeRate
-    );
+        outputs
+            .map((out) => OutputInfo(
+                fiatAmount: out.fiatAmount,
+                cryptoAmount: out.cryptoAmount,
+                address: out.address,
+                note: out.note,
+                sendAll: out.sendAll,
+                extractedAddress: out.extractedAddress,
+                isParsedAddress: out.isParsedAddress,
+                formattedCryptoAmount: out.formattedCryptoAmount,
+                memo: out.memo))
+            .toList(),
+        priority: priority as BitcoinTransactionPriority,
+        feeRate: bitcoinFeeRate);
   }
 
   @override
@@ -246,6 +257,137 @@ class CWBitcoin extends Bitcoin {
       default:
         return SegwitAddresType.p2wpkh;
     }
+  }
+
+  @override
+  Future<List<DerivationType>> compareDerivationMethods(
+      {required String mnemonic, required Node node}) async {
+    if (await checkIfMnemonicIsElectrum2(mnemonic)) {
+      return [DerivationType.electrum];
+    }
+
+    return [DerivationType.bip39, DerivationType.electrum];
+  }
+
+  int _countOccurrences(String str, String charToCount) {
+    int count = 0;
+    for (int i = 0; i < str.length; i++) {
+      if (str[i] == charToCount) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  @override
+  Future<List<DerivationInfo>> getDerivationsFromMnemonic({
+    required String mnemonic,
+    required Node node,
+    String? passphrase,
+  }) async {
+    List<DerivationInfo> list = [];
+
+    List<DerivationType> types = await compareDerivationMethods(mnemonic: mnemonic, node: node);
+    if (types.length == 1 && types.first == DerivationType.electrum) {
+      return [
+        DerivationInfo(
+          derivationType: DerivationType.electrum,
+          derivationPath: "m/0'/0",
+          description: "Electrum",
+          scriptType: "p2wpkh",
+        )
+      ];
+    }
+
+    final electrumClient = ElectrumClient();
+    await electrumClient.connectToUri(node.uri);
+
+    late BasedUtxoNetwork network;
+    btc.NetworkType networkType;
+    switch (node.type) {
+      case WalletType.litecoin:
+        network = LitecoinNetwork.mainnet;
+        networkType = litecoinNetwork;
+        break;
+      case WalletType.bitcoin:
+      default:
+        network = BitcoinNetwork.mainnet;
+        networkType = btc.bitcoin;
+        break;
+    }
+
+    for (DerivationType dType in electrum_derivations.keys) {
+      late Uint8List seedBytes;
+      if (dType == DerivationType.electrum) {
+        seedBytes = await mnemonicToSeedBytes(mnemonic);
+      } else if (dType == DerivationType.bip39) {
+        seedBytes = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
+      }
+
+      for (DerivationInfo dInfo in electrum_derivations[dType]!) {
+        try {
+          DerivationInfo dInfoCopy = DerivationInfo(
+            derivationType: dInfo.derivationType,
+            derivationPath: dInfo.derivationPath,
+            description: dInfo.description,
+            scriptType: dInfo.scriptType,
+          );
+
+          String derivationPath = dInfoCopy.derivationPath!;
+          int derivationDepth = _countOccurrences(derivationPath, "/");
+
+          // the correct derivation depth is dependant on the derivation type:
+          // the derivation paths defined in electrum_derivations are at the ROOT level, i.e.:
+          // electrum's format doesn't specify subaddresses, just subaccounts:
+
+          // for BIP44
+          if (derivationDepth == 3) {
+            // we add "/0/0" so that we generate account 0, index 0 and correctly get balance
+            derivationPath += "/0/0";
+            // we don't support sub-ACCOUNTS in bitcoin like we do monero, and so the path dInfoCopy
+            // expects should be ACCOUNT 0, index unspecified:
+            dInfoCopy.derivationPath = dInfoCopy.derivationPath! + "/0";
+          }
+
+          // var hd = bip32.BIP32.fromSeed(seedBytes).derivePath(derivationPath);
+          final hd = btc.HDWallet.fromSeed(
+            seedBytes,
+            network: networkType,
+          ).derivePath(derivationPath);
+
+          String? address;
+          switch (dInfoCopy.scriptType) {
+            case "p2wpkh":
+              address = generateP2WPKHAddress(hd: hd, network: network);
+              break;
+            case "p2pkh":
+              address = generateP2PKHAddress(hd: hd, network: network);
+              break;
+            case "p2wpkh-p2sh":
+              address = generateP2SHAddress(hd: hd, network: network);
+              break;
+            default:
+              continue;
+          }
+
+          final sh = scriptHash(address, network: network);
+          final history = await electrumClient.getHistory(sh);
+
+          final balance = await electrumClient.getBalance(sh);
+          dInfoCopy.balance = balance.entries.first.value.toString();
+          dInfoCopy.address = address;
+          dInfoCopy.transactionsCount = history.length;
+
+          list.add(dInfoCopy);
+        } catch (e) {
+          print(e);
+        }
+      }
+    }
+
+    // sort the list such that derivations with the most transactions are first:
+    list.sort((a, b) => b.transactionsCount.compareTo(a.transactionsCount));
+    return list;
   }
 
   @override

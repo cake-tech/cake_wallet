@@ -51,10 +51,12 @@ class AddressResolver {
     }
 
     final match = RegExp(addressPattern).firstMatch(raw);
-    return match?.group(0)?.replaceAllMapped(RegExp('[^0-9a-zA-Z]|bitcoincash:|nano_'),
+    return match?.group(0)?.replaceAllMapped(RegExp('[^0-9a-zA-Z]|bitcoincash:|nano_|ban_'),
         (Match match) {
       String group = match.group(0)!;
-      if (group.startsWith('bitcoincash:') || group.startsWith('nano_')) {
+      if (group.startsWith('bitcoincash:') ||
+          group.startsWith('nano_') ||
+          group.startsWith('ban_')) {
         return group;
       }
       return '';
