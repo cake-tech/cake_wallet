@@ -52,6 +52,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   StreamSubscription<Uri?>? stream;
   ReactionDisposer? _walletReactionDisposer;
+  ReactionDisposer? _deepLinksReactionDisposer;
   Uri? launchUri;
 
   @override
@@ -76,6 +77,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   void dispose() {
     stream?.cancel();
     _walletReactionDisposer?.call();
+    _deepLinksReactionDisposer?.call();
     super.dispose();
   }
 
@@ -97,6 +99,23 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     if (uri == null || !mounted) return;
 
     launchUri = uri;
+
+    _deepLinksReactionDisposer = reaction(
+      (_) => widget.authenticationStore.state,
+      (AuthenticationState state) {
+        if (state == AuthenticationState.allowed) {
+          if (widget.appStore.wallet == null) {
+            waitForWalletInstance(context, launchUri!);
+            launchUri = null;
+          } else if (_getRouteToGo() != null) {
+            _navigateToDeepLinkScreen();
+            launchUri = null;
+          }
+          _deepLinksReactionDisposer?.call();
+          _deepLinksReactionDisposer = null;
+        }
+      },
+    );
   }
 
   @override
@@ -172,35 +191,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           },
         );
       });
-    } else if (_isValidPaymentUri()) {
-      if (widget.authenticationStore.state == AuthenticationState.uninitialized) {
-        launchUri = null;
-      } else {
-        if (widget.appStore.wallet == null) {
-          waitForWalletInstance(context, launchUri!);
-          launchUri = null;
-        } else {
-          widget.navigatorKey.currentState?.pushNamed(
-            Routes.send,
-            arguments: PaymentRequest.fromUri(launchUri),
-          );
-          launchUri = null;
-        }
-      }
-      launchUri = null;
-    } else if (isWalletConnectLink) {
-      if (isEVMCompatibleChain(widget.appStore.wallet!.type)) {
-        widget.navigatorKey.currentState?.pushNamed(
-          Routes.walletConnectConnectionsListing,
-          arguments: launchUri,
-        );
-        launchUri = null;
-      } else {
-        _nonETHWalletErrorToast(S.current.switchToEVMCompatibleWallet);
-      }
     }
 
-    launchUri = null;
     return WillPopScope(
       onWillPop: () async => false,
       child: widget.child,
@@ -252,13 +244,10 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.mounted) {
         _walletReactionDisposer = reaction(
-              (_) => widget.appStore.wallet,
-              (WalletBase? wallet) {
+          (_) => widget.appStore.wallet,
+          (WalletBase? wallet) {
             if (wallet != null) {
-              widget.navigatorKey.currentState?.pushNamed(
-                Routes.send,
-                arguments: PaymentRequest.fromUri(tempLaunchUri),
-              );
+              _navigateToDeepLinkScreen();
               _walletReactionDisposer?.call();
               _walletReactionDisposer = null;
             }
@@ -266,5 +255,12 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         );
       }
     });
+  }
+
+  void _navigateToDeepLinkScreen() {
+    widget.navigatorKey.currentState?.pushNamed(
+      _getRouteToGo()!,
+      arguments: isWalletConnectLink ? launchUri : PaymentRequest.fromUri(launchUri),
+    );
   }
 }
