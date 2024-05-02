@@ -158,7 +158,6 @@ jobs:
       - name: Build
         run: |
           cd /opt/android/cake_wallet
-          make libs
           flutter build apk --release --split-per-abi
 
       #            - name: Push to App Center
