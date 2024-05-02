@@ -61,11 +61,8 @@ abstract class ElectrumWalletBase
       ElectrumClient? electrumClient,
       ElectrumBalance? initialBalance,
       CryptoCurrency? currency})
-      : hd = currency == CryptoCurrency.bch
-            ? bitcoinCashHDWallet(seedBytes)
-            : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-                .derivePath(walletInfo.derivationInfo?.derivationPath ?? "m/0'/0"),
-      : accountHD = getAccountHDWallet(currency, networkType, seedBytes, xpub),
+      : accountHD =
+            getAccountHDWallet(currency, networkType, seedBytes, xpub, walletInfo.derivationInfo),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
@@ -89,17 +86,22 @@ abstract class ElectrumWalletBase
     transactionHistory = ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
   }
 
-  static bitcoin.HDWallet getAccountHDWallet(CryptoCurrency? currency, bitcoin.NetworkType networkType,
-      Uint8List? seedBytes, String? xpub) {
-
+  static bitcoin.HDWallet getAccountHDWallet(
+      CryptoCurrency? currency,
+      bitcoin.NetworkType networkType,
+      Uint8List? seedBytes,
+      String? xpub,
+      DerivationInfo? derivationInfo) {
     if (seedBytes == null && xpub == null) {
-      throw Exception("To create a Wallet you need either a seed or an xpub. This should not happen");
+      throw Exception(
+          "To create a Wallet you need either a seed or an xpub. This should not happen");
     }
 
     if (seedBytes != null) {
       return currency == CryptoCurrency.bch
           ? bitcoinCashHDWallet(seedBytes)
-          : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'");
+          : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
+              .derivePath(derivationInfo?.derivationPath ?? "m/0'/0");
     }
 
     return bitcoin.HDWallet.fromBase58(xpub!);
@@ -369,7 +371,8 @@ abstract class ElectrumWalletBase
 
       final hd =
           utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd;
-      final derivationPath = "${walletInfo.derivationPath ?? "m/0'"}/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}/${utx.bitcoinAddressRecord.index}";
+      final derivationPath =
+          "${walletInfo.derivationPath ?? "m/0'"}/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}/${utx.bitcoinAddressRecord.index}";
       final pubKeyHex = hd.derive(utx.bitcoinAddressRecord.index).pubKey!;
 
       publicKeys[address.pubKeyHash()] = PublicKeyWithDerivationPath(pubKeyHex, derivationPath);
@@ -626,9 +629,9 @@ abstract class ElectrumWalletBase
           isSendAll: estimatedTx.isSendAll,
           hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot
         )..addListener((transaction) async {
-          transactionHistory.addOne(transaction);
-          await updateBalance();
-        });
+            transactionHistory.addOne(transaction);
+            await updateBalance();
+          });
       }
 
       BasedBitcoinTransacationBuilder txb;
@@ -701,8 +704,9 @@ abstract class ElectrumWalletBase
     String? memo,
     bool enableRBF = false,
     BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
-    BitcoinOrdering outputOrdering= BitcoinOrdering.bip69,
-  }) async => throw UnimplementedError();
+    BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
+  }) async =>
+      throw UnimplementedError();
 
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,

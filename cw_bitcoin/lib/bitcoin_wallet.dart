@@ -56,17 +56,15 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       currency: CryptoCurrency.btc) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
     // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
-    String derivationPath = walletInfo.derivationInfo!.derivationPath!;
-    String sideDerivationPath = derivationPath.substring(0, derivationPath.length - 1) + "1";
-    final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
+    // String derivationPath = walletInfo.derivationInfo!.derivationPath!;
+    // String sideDerivationPath = derivationPath.substring(0, derivationPath.length - 1) + "1";
+    // final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
       electrumClient: electrumClient,
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
-      mainHd: hd.derivePath(derivationPath),
-      sideHd: hd.derivePath(sideDerivationPath),
       mainHd: hd,
       sideHd: accountHD.derive(1),
       network: networkParam ?? network,
@@ -138,19 +136,21 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     // set the default if not present:
     walletInfo.derivationInfo!.derivationPath = snp.derivationPath ?? "m/0'/1";
 
-    late Uint8List seedBytes;
+    Uint8List? seedBytes = null;
 
-    switch (walletInfo.derivationInfo!.derivationType) {
-      case DerivationType.electrum:
-        seedBytes = await mnemonicToSeedBytes(snp.mnemonic);
-        break;
-      case DerivationType.bip39:
-      default:
-        seedBytes = await bip39.mnemonicToSeed(
-          snp.mnemonic,
-          passphrase: snp.passphrase ?? '',
-        );
-        break;
+    if (snp.mnemonic != null) {
+      switch (walletInfo.derivationInfo!.derivationType) {
+        case DerivationType.electrum:
+          seedBytes = await mnemonicToSeedBytes(snp.mnemonic!);
+          break;
+        case DerivationType.bip39:
+        default:
+          seedBytes = await bip39.mnemonicToSeed(
+            snp.mnemonic!,
+            passphrase: snp.passphrase ?? '',
+          );
+          break;
+      }
     }
 
     return BitcoinWallet(
