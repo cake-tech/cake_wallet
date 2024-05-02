@@ -173,14 +173,13 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       nodeConfig: breezNodeConfig,
     );
 
-    // Customize the config object according to your needs
     String workingDir = (await getApplicationDocumentsDirectory()).path;
     workingDir = "$workingDir/wallets/lightning/${walletInfo.name}/breez/";
     new Directory(workingDir).createSync(recursive: true);
     breezConfig = breezConfig.copyWith(workingDir: workingDir);
 
+    // disconnect if already connected
     try {
-      // disconnect if already connected
       await sdk.disconnect();
     } catch (_) {}
 
@@ -211,7 +210,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       _isTransactionUpdating = false;
     });
 
-    // // TODO: get actual nds service url:
+    // TODO: get actual nds service url:
     // if (Platform.isAndroid || Platform.isIOS) {
     //   String platform = Platform.isAndroid ? "android" : "ios";
     //   String token = "TODO";
