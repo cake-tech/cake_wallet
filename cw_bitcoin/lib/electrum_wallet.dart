@@ -101,7 +101,7 @@ abstract class ElectrumWalletBase
       return currency == CryptoCurrency.bch
           ? bitcoinCashHDWallet(seedBytes)
           : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-              .derivePath(derivationInfo?.derivationPath ?? "m/0'/0");
+              .derivePath(derivationInfo?.derivationPath ?? "m/0'");
     }
 
     return bitcoin.HDWallet.fromBase58(xpub!);

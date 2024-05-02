@@ -300,7 +300,7 @@ class CWBitcoin extends Bitcoin {
       return [
         DerivationInfo(
           derivationType: DerivationType.electrum,
-          derivationPath: "m/0'/0",
+          derivationPath: "m/0'",
           description: "Electrum",
           scriptType: "p2wpkh",
         )
@@ -352,9 +352,6 @@ class CWBitcoin extends Bitcoin {
           if (derivationDepth == 3) {
             // we add "/0/0" so that we generate account 0, index 0 and correctly get balance
             derivationPath += "/0/0";
-            // we don't support sub-ACCOUNTS in bitcoin like we do monero, and so the path dInfoCopy
-            // expects should be ACCOUNT 0, index unspecified:
-            dInfoCopy.derivationPath = dInfoCopy.derivationPath! + "/0";
           }
 
           // var hd = bip32.BIP32.fromSeed(seedBytes).derivePath(derivationPath);
