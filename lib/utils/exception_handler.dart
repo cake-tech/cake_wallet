@@ -11,7 +11,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
 import 'package:cake_wallet/utils/package_info.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
@@ -21,7 +20,7 @@ class ExceptionHandler {
 
   static void _saveException(String? error, StackTrace? stackTrace, {String? library}) async {
     if (_file == null) {
-      final appDocDir = await getApplicationDocumentsDirectory();
+      final appDocDir = await getAppDir();
 
       _file = File('${appDocDir.path}/error.txt');
     }
@@ -53,7 +52,8 @@ class ExceptionHandler {
 
   static void _sendExceptionFile() async {
     try {
-      final appDocDir = await getAppDir();
+      if (_file == null) {
+        final appDocDir = await getAppDir();
 
         _file = File('${appDocDir.path}/error.txt');
       }
