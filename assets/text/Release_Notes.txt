@@ -1,3 +1,1 @@
-Support restoring Non-Electrum Bitcoin Wallets (check supported derivation paths https://github.com/cake-tech/cake_wallet/blob/main/cw_bitcoin/lib/bitcoin_derivations.dart)
-Bitcoin enhancements and bug fixes
-Generic bug fixes and enhancements
+Bitcoin Bug fixes and enhancements
