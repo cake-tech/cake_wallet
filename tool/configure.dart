@@ -1087,10 +1087,11 @@ Future<void> generatePubspec(
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
-  final dependenciesIndex = inputLines.indexWhere(
-	(line) => Platform.isWindows
-	? line.toLowerCase() == 'dependencies:\r' // On Windows it could contains `\r` (Carriage Return)
-	: line.toLowerCase() == 'dependencies:');
+  final dependenciesIndex = inputLines.indexWhere((line) => Platform.isWindows
+      // On Windows it could contains `\r` (Carriage Return). It could be fixed in newer dart versions.
+      ? line.toLowerCase() == 'dependencies:\r' ||
+          line.toLowerCase() == 'dependencies:'
+      : line.toLowerCase() == 'dependencies:');
   var output = cwCore;
 
   if (hasMonero) {

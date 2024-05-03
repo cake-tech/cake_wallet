@@ -161,3 +161,6 @@ macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png
 macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png
 macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png
 macos/Runner/Configs/AppInfo.xcconfig
+
+# Monero.dart (Monero_C)
+scripts/monero_c

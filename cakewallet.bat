@@ -1,12 +1,12 @@
 @echo off
-set cw_win_app_config=--bitcoin --ethereum
+set cw_win_app_config=--monero --bitcoin --ethereum
 set cw_root=%cd%
 set cw_archive_name=Cake Wallet.zip
 set cw_archive_path=%cw_root%\%cw_archive_name%
 set secrets_file_path=lib\.secrets.g.dart
-set release_dir=build\windows\runner\Release
-set tools_root=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Redist\MSVC\14.36.32532\x64\Microsoft.VC143.CRT
-
+set release_dir=build\windows\x64\runner\Release
+@REM Path could be different
+if [%~1]==[] (set tools_root=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Redist\MSVC\14.38.33135\x64\Microsoft.VC143.CRT) else (set tools_root=%1)
 echo === Generating pubspec.yaml ===
 copy /Y pubspec_description.yaml pubspec.yaml > nul
 call flutter pub get > nul
@@ -20,7 +20,7 @@ IF NOT EXIST "%secrets_file_path%" (
 ) ELSE (echo === Using previously/already generated secrets file: %secrets_file_path% ===)
 
 echo === Generating mobx models ===
-for /d %%i in (cw_core cw_bitcoin cw_ethereum cw_monero .) do (
+for /d %%i in (cw_core cw_monero cw_bitcoin cw_ethereum cw_evm .) do (
     cd %%i
     call flutter pub get > nul
     call dart run build_runner build --delete-conflicting-outputs > nul
