@@ -399,7 +399,6 @@ abstract class ElectrumWalletBase
         ),
       );
 
-      address.toScriptPubKey();
 
       bool amountIsAcquired = leftAmount <= 0;
       if ((inputsCount == null && amountIsAcquired) || inputsCount == i + 1) {

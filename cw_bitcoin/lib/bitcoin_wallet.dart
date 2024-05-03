@@ -163,7 +163,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp.addresses,
       initialBalance: snp.balance,
-      seedBytes: snp.mnemonic != null ? seedBytes : null,
+      seedBytes: seedBytes,
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,
@@ -178,7 +178,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   void setLedger(Ledger setLedger, LedgerDevice setLedgerDevice) {
     _ledger = setLedger;
     _ledgerDevice = setLedgerDevice;
-    _bitcoinLedgerApp = BitcoinLedgerApp(_ledger!, derivationPath: walletInfo.derivationPath!);
+    _bitcoinLedgerApp = BitcoinLedgerApp(_ledger!, derivationPath: walletInfo.derivationInfo!.derivationPath!);
   }
 
   @override
