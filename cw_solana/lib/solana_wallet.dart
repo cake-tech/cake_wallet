@@ -146,8 +146,13 @@ abstract class SolanaWalletBase
     assert(mnemonic != null || privateKey != null);
 
     if (privateKey != null) {
-      final privateKeyBytes = base58decode(privateKey);
-      return await Wallet.fromPrivateKeyBytes(privateKey: privateKeyBytes.take(32).toList());
+      try {
+        final privateKeyBytes = base58decode(privateKey);
+        return await Wallet.fromPrivateKeyBytes(privateKey: privateKeyBytes.take(32).toList());
+      } catch (_) {
+        final privateKeyBytes = HEX.decode(privateKey);
+        return await Wallet.fromPrivateKeyBytes(privateKey: privateKeyBytes);
+      }
     }
 
     return Wallet.fromMnemonic(mnemonic!, account: 0, change: 0);
