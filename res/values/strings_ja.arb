@@ -426,6 +426,7 @@
   "payment_was_received": "お支払いを受け取りました。",
   "pending": " (保留中)",
   "percentageOf": "of ${amount}",
+  "pick_auto_backup_dir": "自動バックアップフォルダーを選択します",
   "pin_at_top": "${token} を上部に固定します",
   "pin_is_incorrect": "PINが間違っています",
   "pin_number": "PIN番号",

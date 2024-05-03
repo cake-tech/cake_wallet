@@ -425,6 +425,7 @@
   "payment_was_received": "تم استلام الدفع الخاص بك.",
   "pending": "  (في الإنتظار)",
   "percentageOf": "من ${amount}",
+  "pick_auto_backup_dir": "اختر مجلد النسخ الاحتياطية التلقائية",
   "pin_at_top": "تثبيت ${token} في الأعلى",
   "pin_is_incorrect": "رقم ال PIN غير صحيح",
   "pin_number": "الرقم السري",

@@ -425,6 +425,7 @@
   "payment_was_received": "Vaše platba byla přijata.",
   "pending": " (čeká)",
   "percentageOf": "z ${amount}",
+  "pick_auto_backup_dir": "Vyberte složku automatických záloh",
   "pin_at_top": "špendlík ${token} nahoře",
   "pin_is_incorrect": "PIN není správný",
   "pin_number": "Číslo PIN",

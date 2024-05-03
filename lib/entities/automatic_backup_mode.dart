@@ -42,7 +42,7 @@ class AutomaticBackupMode extends EnumerableItem<int> with Serializable<int> {
       case AutomaticBackupMode.daily:
         return S.current.daily;
       case AutomaticBackupMode.minutely:
-        return "Every minute (TESTING ONLY)";
+        return "TESTING";
       default:
         return '';
     }

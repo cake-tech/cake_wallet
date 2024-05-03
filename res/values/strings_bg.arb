@@ -425,6 +425,7 @@
   "payment_was_received": "Плащането бе получено.",
   "pending": " (чакащи)",
   "percentageOf": "от ${amount}",
+  "pick_auto_backup_dir": "Изберете Автоматична папка за архивиране",
   "pin_at_top": "закачете ${token} отгоре",
   "pin_is_incorrect": "Грешен PIN",
   "pin_number": "PIN код",

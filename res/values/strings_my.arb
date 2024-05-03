@@ -425,6 +425,7 @@
   "payment_was_received": "သင့်ငွေပေးချေမှုကို လက်ခံရရှိခဲ့သည်။",
   "pending": " (ဆိုင်းငံ့)",
   "percentageOf": "${amount} ၏",
+  "pick_auto_backup_dir": "အလိုအလျောက် backups ဖိုင်တွဲကိုရွေးပါ",
   "pin_at_top": "အပေါ်တွင် ${token} ပင်ထိုးပါ။",
   "pin_is_incorrect": "ပင်နံပါတ် မမှန်ပါ။",
   "pin_number": "လျှို့ဝှက်နံပါတ်",

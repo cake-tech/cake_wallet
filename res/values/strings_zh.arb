@@ -425,6 +425,7 @@
   "payment_was_received": "您的付款已收到。",
   "pending": " (待定)",
   "percentageOf": "${amount}",
+  "pick_auto_backup_dir": "选择自动备份文件夹",
   "pin_at_top": "将 ${token} 固定在顶部",
   "pin_is_incorrect": "PIN码不正确",
   "pin_number": "PIN 码",

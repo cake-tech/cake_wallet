@@ -426,6 +426,7 @@
   "payment_was_received": "आपका भुगतान प्राप्त हुआ था।",
   "pending": " (अपूर्ण)",
   "percentageOf": "${amount} का",
+  "pick_auto_backup_dir": "स्वचालित बैकअप फ़ोल्डर चुनें",
   "pin_at_top": "शीर्ष पर ${token} पिन करें",
   "pin_is_incorrect": "पिन गलत है",
   "pin_number": "पिन नंबर",

@@ -52,6 +52,8 @@ abstract class AutoBackupViewModelBase with Store {
         if (backupDirPath.isEmpty) {
           if (Platform.isAndroid) {
             backupDirPath = "/storage/emulated/0/Documents/Cake Wallet/backups/";
+          } else if (Platform.isIOS){
+            backupDirPath = "/Documents/Cake Wallet/backups/";// CONFIRM THIS PATH
           } else {
             throw Exception("No backup directory set");
           }

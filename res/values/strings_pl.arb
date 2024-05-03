@@ -425,6 +425,7 @@
   "payment_was_received": "Twoja płatność została otrzymana.",
   "pending": " (w oczekiwaniu)",
   "percentageOf": "z ${amount}",
+  "pick_auto_backup_dir": "Wybierz folder automatycznych tworzenia kopii zapasowych",
   "pin_at_top": "przypnij ${token} na górze",
   "pin_is_incorrect": "PIN jest niepoprawny",
   "pin_number": "Numer PIN",

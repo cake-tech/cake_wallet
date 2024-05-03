@@ -426,6 +426,7 @@
   "payment_was_received": "Àránṣẹ́ yín ti dé.",
   "pending": " pípẹ́",
   "percentageOf": "láti ${amount}",
+  "pick_auto_backup_dir": "Mu folda Aladani Aifọwọyi",
   "pin_at_top": "pin ${tokini} ni oke",
   "pin_is_incorrect": "òǹkà ìdánimọ̀ àdáni kò yẹ́",
   "pin_number": "Òǹkà ìdánimọ̀ àdáni",

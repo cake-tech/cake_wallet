@@ -425,6 +425,7 @@
   "payment_was_received": "결제가 접수되었습니다.",
   "pending": " (보류 중)",
   "percentageOf": "${amount} 중",
+  "pick_auto_backup_dir": "자동 백업 폴더를 선택하십시오",
   "pin_at_top": "상단에 ${token} 고정",
   "pin_is_incorrect": "PIN이 잘못되었습니다",
   "pin_number": "PIN 번호",

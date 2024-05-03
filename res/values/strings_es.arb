@@ -426,6 +426,7 @@
   "pending": " (pendiente)",
   "percentageOf": "de ${amount}",
   "personalizado": "personalizado",
+  "pick_auto_backup_dir": "Elija la carpeta de copias de seguridad automáticas",
   "pin_at_top": "pin ${token} en la parte superior",
   "pin_is_incorrect": "PIN es incorrecto",
   "pin_number": "Número PIN",

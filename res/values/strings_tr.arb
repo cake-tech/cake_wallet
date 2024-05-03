@@ -425,6 +425,7 @@
   "payment_was_received": "Ödemeniz alındı.",
   "pending": " (bekleyen)",
   "percentageOf": "of ${amount}",
+  "pick_auto_backup_dir": "Otomatik yedekleme klasörünü seçin",
   "pin_at_top": "${token} üstte sabitle",
   "pin_is_incorrect": "PIN kodu hatalı",
   "pin_number": "PIN kodu",

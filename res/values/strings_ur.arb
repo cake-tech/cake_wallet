@@ -427,6 +427,7 @@
   "payment_was_received": "آپ کی ادائیگی موصول ہو گئی۔",
   "pending": "  (زیر التواء)",
   "percentageOf": "${amount} کا",
+  "pick_auto_backup_dir": "خودکار بیک اپ فولڈر منتخب کریں",
   "pin_at_top": "اوپر ${token} کو پن کریں۔",
   "pin_is_incorrect": "PIN غلط ہے۔",
   "pin_number": "پن نمبر",

@@ -427,6 +427,7 @@
   "payment_was_received": "Pembayaran Anda telah diterima.",
   "pending": " (pending)",
   "percentageOf": "dari ${amount}",
+  "pick_auto_backup_dir": "Pilih folder cadangan otomatis",
   "pin_at_top": "sematkan ${token} di atas",
   "pin_is_incorrect": "PIN salah",
   "pin_number": "Nomor PIN",

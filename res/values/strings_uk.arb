@@ -425,6 +425,7 @@
   "payment_was_received": "Ваш платіж отримано.",
   "pending": " (в очікуванні)",
   "percentageOf": "${amount}",
+  "pick_auto_backup_dir": "Виберіть папку автоматичного резервного копіювання",
   "pin_at_top": "закріпити ${token} зверху",
   "pin_is_incorrect": "Некоректний PIN",
   "pin_number": "PIN-код",

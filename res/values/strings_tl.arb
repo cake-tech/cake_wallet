@@ -425,6 +425,7 @@
   "payment_was_received": "Natanggap ang iyong pagbabayad.",
   "pending": "(Pending)",
   "percentageOf": "ng ${amount}",
+  "pick_auto_backup_dir": "Pumili ng awtomatikong folder ng backup",
   "pin_at_top": "Pin ${token} sa tuktok",
   "pin_is_incorrect": "Mali ang pin",
   "pin_number": "Numero ng pin",

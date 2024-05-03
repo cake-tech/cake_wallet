@@ -425,6 +425,7 @@
   "payment_was_received": "การชำระเงินของคุณได้รับการรับทราบแล้ว",
   "pending": " (อยู่ระหว่างดำเนินการ)",
   "percentageOf": "${amount} ของ",
+  "pick_auto_backup_dir": "เลือกโฟลเดอร์สำรองข้อมูลอัตโนมัติ",
   "pin_at_top": "ปักหมุด ${token} ที่ด้านบน",
   "pin_is_incorrect": "PIN ไม่ถูกต้อง",
   "pin_number": "หมายเลข PIN",

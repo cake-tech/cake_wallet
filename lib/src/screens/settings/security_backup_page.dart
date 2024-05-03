@@ -15,6 +15,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:flutter/material.dart';
@@ -146,15 +147,16 @@ class SecurityBackupPage extends BasePage {
                     ),
                   );
                 }),
-                PrimaryButton(
-                  color: Colors.orange,
-                  textColor: Colors.white,
-                  text: "test",
-                  // child: Text("T: Pick automatic backups directory"),
-                  onPressed: () {
-                    _securitySettingsViewModel.pickAutomaticBackupsDirectory();
-                  },
-                ),
+                if (FeatureFlag.isBackupFolderPickerEnabled) ...[
+                  PrimaryButton(
+                    color: Theme.of(context).primaryColor,
+                    textColor: Colors.white,
+                    text: S.current.pick_auto_backup_dir,
+                    onPressed: () {
+                      _securitySettingsViewModel.pickAutomaticBackupsDirectory();
+                    },
+                  ),
+                ],
               ],
             ),
           ),

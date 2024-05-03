@@ -425,6 +425,7 @@
   "payment_was_received": "Vaša uplata je primljena.",
   "pending": " (u tijeku)",
   "percentageOf": "od ${amount}",
+  "pick_auto_backup_dir": "Odaberite mapu automatske sigurnosne kopije",
   "pin_at_top": "prikvači ${token} na vrh",
   "pin_is_incorrect": "Netočan PIN",
   "pin_number": "PIN broj",
