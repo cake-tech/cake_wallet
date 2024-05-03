@@ -311,6 +311,7 @@
   "hidden_balance": "ยอดคงเหลือซ่อนอยู่",
   "hide_details": "ซ่อนรายละเอียด",
   "high_contrast_theme": "ธีมความคมชัดสูง",
+  "historical_fiat_amount": "จำนวนเงิน fiat ในอดีต",
   "historical_fiat_rate": "อัตราคำสั่งในอดีต",
   "home_screen_settings": "การตั้งค่าหน้าจอหลัก",
   "how_to_use": "วิธีใช้",

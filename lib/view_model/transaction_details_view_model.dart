@@ -109,7 +109,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       if (fiatHistoricalRate != null && fiatHistoricalRate.isNotEmpty) {
         final formattedFiatValue = fiatHistoricalRate.split(' ').reversed.join(' ');
       items.add(StandartListItem(
-          title: 'S.current.historical_fiat_amount', value: formattedFiatValue));
+          title: S.current.historical_fiat_amount, value: formattedFiatValue));
     }
 
     final type = wallet.type;

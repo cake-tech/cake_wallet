@@ -40,6 +40,7 @@ class DisplaySettingsPage extends BasePage {
                   _displaySettingsViewModel.setShouldShowMarketPlaceInDashbaord(value);
                 },
               ),
+              if (!_displaySettingsViewModel.disabledFiatApiMode)
           SettingsSwitcherCell(
             title: S.current.historical_fiat_rate,
             value: _displaySettingsViewModel.showHistoricalFiatAmount,

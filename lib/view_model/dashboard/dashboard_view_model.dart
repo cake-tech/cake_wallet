@@ -552,9 +552,8 @@ abstract class DashboardViewModelBase with Store {
 
   String? getFormattedFiatAmount(TransactionInfo transaction) {
     final description = getTransactionDescription(transaction);
-    if (settingsStore.fiatApiMode == FiatApiMode.disabled) return '';
-
     if (settingsStore.showHistoricalFiatAmount) {
+      if (settingsStore.fiatApiMode == FiatApiMode.disabled) return '';
       final fiatName = settingsStore.fiatCurrency.toString();
       final fiatRate = double.tryParse(description.historicalRates[fiatName] ?? '');
       final formattedHistoricalRate = (fiatRate != null && fiatRate < 0.01)
