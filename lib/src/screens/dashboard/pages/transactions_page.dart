@@ -82,21 +82,27 @@ class TransactionsPage extends StatelessWidget {
                         }
 
                         if (item is TransactionListItem) {
+                          if (item.hasTokens && item.assetOfTransaction == null) {
+                            return Container();
+                          }
+
                           final transaction = item.transaction;
 
                           return Observer(
-                              builder: (_) => TransactionRow(
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.transactionDetails, arguments: transaction),
-                                  direction: transaction.direction,
-                                  formattedDate: DateFormat('HH:mm').format(transaction.date),
-                                  formattedAmount: item.formattedCryptoAmount,
-                                  formattedFiatAmount:
-                                      dashboardViewModel.balanceViewModel.isFiatDisabled
-                                          ? ''
-                                          : item.formattedFiatAmount,
-                                  isPending: transaction.isPending,
-                                  title: item.formattedTitle + item.formattedStatus));
+                            builder: (_) => TransactionRow(
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed(Routes.transactionDetails, arguments: transaction),
+                              direction: transaction.direction,
+                              formattedDate: DateFormat('HH:mm').format(transaction.date),
+                              formattedAmount: item.formattedCryptoAmount,
+                              formattedFiatAmount:
+                                  dashboardViewModel.balanceViewModel.isFiatDisabled
+                                      ? ''
+                                      : item.formattedFiatAmount,
+                              isPending: transaction.isPending,
+                              title: item.formattedTitle + item.formattedStatus,
+                            ),
+                          );
                         }
 
                         if (item is AnonpayTransactionListItem) {
