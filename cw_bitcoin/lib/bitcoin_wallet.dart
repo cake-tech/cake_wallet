@@ -178,7 +178,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   void setLedger(Ledger setLedger, LedgerDevice setLedgerDevice) {
     _ledger = setLedger;
     _ledgerDevice = setLedgerDevice;
-    _bitcoinLedgerApp = BitcoinLedgerApp(_ledger!, derivationPath: walletInfo.derivationPath!);
+    _bitcoinLedgerApp = BitcoinLedgerApp(_ledger!, derivationPath: walletInfo.derivationInfo!.derivationPath!);
   }
 
   @override
