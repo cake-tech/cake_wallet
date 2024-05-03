@@ -28,6 +28,7 @@
 		33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC11122044BFA00003C045 /* MainFlutterWindow.swift */; };
 		4171CB1F5A4EA2E4DC33F52F /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B38D1DBC56DBD386923BC063 /* Pods_Runner.framework */; };
 		9F565D5929954F53009A75FB /* secRandom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F565D5729954F53009A75FB /* secRandom.swift */; };
+		CED5DBE42BE59BBF0065028F /* monero_libwallet2_api_c.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = CED5DBE32BE59BBF0065028F /* monero_libwallet2_api_c.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,16 @@
 			name = "Bundle Framework";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CED5DBE02BE59B230065028F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				CED5DBE42BE59BBF0065028F /* monero_libwallet2_api_c.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -59,7 +70,7 @@
 		2A820A13B0719E9E0CD6686F /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		333000ED22D3DE5D00554162 /* Warnings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Warnings.xcconfig; sourceTree = "<group>"; };
 		335BBD1A22A9A15E00E9071D /* GeneratedPluginRegistrant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeneratedPluginRegistrant.swift; sourceTree = "<group>"; };
-		33CC10ED2044A3C60003C045 /* Monero.com.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Monero.com.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		33CC10ED2044A3C60003C045 /* .app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = .app; sourceTree = BUILT_PRODUCTS_DIR; };
 		33CC10F02044A3C60003C045 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		33CC10F22044A3C60003C045 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Runner/Assets.xcassets; sourceTree = "<group>"; };
 		33CC10F52044A3C60003C045 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
@@ -76,6 +87,7 @@
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		9F565D5729954F53009A75FB /* secRandom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = secRandom.swift; path = CakeWallet/secRandom.swift; sourceTree = "<group>"; };
 		B38D1DBC56DBD386923BC063 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CED5DBE32BE59BBF0065028F /* monero_libwallet2_api_c.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = monero_libwallet2_api_c.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +116,7 @@
 		33CC10E42044A3C60003C045 = {
 			isa = PBXGroup;
 			children = (
+				CED5DBE32BE59BBF0065028F /* monero_libwallet2_api_c.dylib */,
 				9F565D5729954F53009A75FB /* secRandom.swift */,
 				33FAB671232836740065AC1E /* Runner */,
 				33CEB47122A05771004F2AC0 /* Flutter */,
@@ -116,7 +129,7 @@
 		33CC10EE2044A3C60003C045 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				33CC10ED2044A3C60003C045 /* Monero.com.app */,
+				33CC10ED2044A3C60003C045 /* .app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -189,6 +202,7 @@
 				33CC110E2044A8840003C045 /* Bundle Framework */,
 				3399D490228B24CF009A79C7 /* ShellScript */,
 				5592D00118C2EA3C5E0B5FDF /* [CP] Embed Pods Frameworks */,
+				CED5DBE02BE59B230065028F /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -197,7 +211,7 @@
 			);
 			name = Runner;
 			productName = Runner;
-			productReference = 33CC10ED2044A3C60003C045 /* Monero.com.app */;
+			productReference = 33CC10ED2044A3C60003C045 /* .app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
