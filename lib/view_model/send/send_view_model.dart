@@ -423,7 +423,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Object _credentials() {
     final priority = _settingsStore.priority[wallet.type];
 
-    if (priority == null && wallet.type != WalletType.nano && wallet.type != WalletType.solana) {
+    if (priority == null && wallet.type != WalletType.nano && wallet.type != WalletType.banano && wallet.type != WalletType.solana) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }
 
@@ -562,7 +562,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return S.current.tx_no_dust_exception;
       }
       if (error is TransactionCommitFailed) {
-        return S.current.tx_commit_failed;
+        return "${S.current.tx_commit_failed}${error.errorMessage != null ? "\n\n${error.errorMessage}" : ""}";
       }
       if (error is TransactionCommitFailedDustChange) {
         return S.current.tx_rejected_dust_change;

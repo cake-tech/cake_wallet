@@ -411,6 +411,7 @@
   "outputs": "Salidas",
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "Evento de emparejamiento no válido",
+  "passphrase": "Passfrase (opcional)",
   "password": "Contraseña",
   "paste": "Pegar",
   "pause_wallet_creation": "La capacidad para crear Haven Wallet está actualmente pausada.",

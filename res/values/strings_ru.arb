@@ -412,6 +412,7 @@
   "outputs": "Выходы",
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "Недействительное событие сопряжения",
+  "passphrase": "Passfrase (необязательно)",
   "password": "Пароль",
   "paste": "Вставить",
   "pause_wallet_creation": "Возможность создания Haven Wallet в настоящее время приостановлена.",
