@@ -80,7 +80,7 @@ Future<double?> _fetchHistoricalPrice(Map<String, dynamic> args) async {
     final data = json.decode(response.body) as Map<String, dynamic>;
     final errors = data['errors'] as Map<String, dynamic>;
 
-    if (errors.isNotEmpty) return 0.0;
+    if (errors.isNotEmpty) return null;
 
     final results = data['results'] as Map<String, dynamic>;
 

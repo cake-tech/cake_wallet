@@ -10,6 +10,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'fiat_historical_rate_update.dart';
 
 ReactionDisposer? _onCurrentFiatCurrencyChangeDisposer;
+ReactionDisposer? _onHistoricalRateUpdateDisposer;
 
 void startCurrentFiatApiModeChangeReaction(AppStore appStore, SettingsStore settingsStore,
     FiatConversionStore fiatConversionStore, Box<TransactionDescription> transactionDescription) {
@@ -29,6 +30,19 @@ void startCurrentFiatApiModeChangeReaction(AppStore appStore, SettingsStore sett
       await historicalRateUpdate(
           appStore, settingsStore, fiatConversionStore, transactionDescription);
     }
+  });
+}
 
+void startHistoricalRateUpdateReaction(AppStore appStore, SettingsStore settingsStore,
+    FiatConversionStore fiatConversionStore, Box<TransactionDescription> transactionDescription) {
+  _onHistoricalRateUpdateDisposer?.reaction.dispose();
+  _onHistoricalRateUpdateDisposer = reaction((_) => settingsStore.showHistoricalFiatAmount,
+      (bool showHistoricalFiatAmount) async {
+    if (appStore.wallet == null || settingsStore.fiatApiMode == FiatApiMode.disabled) {
+      return;
+    }
+
+    await historicalRateUpdate(
+        appStore, settingsStore, fiatConversionStore, transactionDescription);
   });
 }

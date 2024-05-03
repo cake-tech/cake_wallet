@@ -98,7 +98,8 @@ class TransactionsPage extends StatelessWidget {
                                   formattedAmount: item.formattedCryptoAmount,
                                   formattedFiatAmount: dashboardViewModel.balanceViewModel.isFiatDisabled ? '' : formattedFiatValue,
                                   isPending: transaction.isPending,
-                                  isHistoricalRate: dashboardViewModel.settingsStore.showHistoricalFiatAmount,
+                                  isHistoricalRate: dashboardViewModel.settingsStore.showHistoricalFiatAmount &&
+                                      historicalFiatValue !=null && historicalFiatValue.isNotEmpty,
                                   title: item.formattedTitle + item.formattedStatus));
                         }
 

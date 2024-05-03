@@ -36,6 +36,7 @@ Future<void> bootstrap(GlobalKey<NavigatorState> navigatorKey) async {
       appStore, settingsStore, fiatConversionStore, transactionDescription);
   startCurrentFiatChangeReaction(appStore, settingsStore, fiatConversionStore, transactionDescription);
   startCurrentFiatApiModeChangeReaction(appStore, settingsStore, fiatConversionStore, transactionDescription);
+  startHistoricalRateUpdateReaction(appStore, settingsStore, fiatConversionStore, transactionDescription);
   startOnCurrentNodeChangeReaction(appStore);
   startFiatRateUpdate(appStore, settingsStore, fiatConversionStore);
 }
