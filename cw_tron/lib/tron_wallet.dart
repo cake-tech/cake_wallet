@@ -551,7 +551,7 @@ abstract class TronWalletBase
   }
 
   @override
-  String signMessage(String message, {String? address}) =>
+  Future<String> signMessage(String message, {String? address}) async =>
       _tronPrivateKey.signPersonalMessage(ascii.encode(message));
 
   String getTronBase58AddressFromHex(String hexAddress) {
