@@ -49,7 +49,7 @@ Future<void> historicalRateUpdate(
 
             description ??= TransactionDescription(id: tx.id);
             Map<String, String> rates = description.historicalRates;
-            rates[fiatName] = result.toStringAsFixed(4);
+            rates[fiatName] = (result * tx.amount).toString();
             description.historicalRates = rates;
             await transactionDescription.put(tx.id, description);
           } catch (e) {

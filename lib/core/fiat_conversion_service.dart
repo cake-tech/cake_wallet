@@ -85,7 +85,7 @@ Future<double?> _fetchHistoricalPrice(Map<String, dynamic> args) async {
     final results = data['results'] as Map<String, dynamic>;
 
     if (results.isNotEmpty) {
-      return (results.values.first as double) / 100000;
+      return (results.values.first as double) / 100000000;
 
     } else {
       return null;
