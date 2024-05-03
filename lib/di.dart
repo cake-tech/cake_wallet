@@ -1198,6 +1198,8 @@ Future<void> setup({
     ),
   );
 
+  getIt.registerSingleton<Box<TransactionDescription>>(transactionDescriptionBox);
+
   getIt.registerFactoryParam<ManageNodesPage, bool, void>((bool isPow, _) {
     if (isPow) {
       return ManageNodesPage(isPow, powNodeListViewModel: getIt.get<PowNodeListViewModel>());

@@ -102,6 +102,16 @@ abstract class TransactionDetailsViewModelBase with Store {
       }
     }
 
+    final description = dashboardViewModel.getTransactionDescription(transactionInfo);
+
+
+      final fiatHistoricalRate = dashboardViewModel.getFormattedFiatAmount(transactionInfo);
+      if (fiatHistoricalRate != null && fiatHistoricalRate.isNotEmpty) {
+        final formattedFiatValue = fiatHistoricalRate.split(' ').reversed.join(' ');
+      items.add(StandartListItem(
+          title: 'S.current.historical_fiat_amount', value: formattedFiatValue));
+    }
+
     final type = wallet.type;
 
     items.add(BlockExplorerListItem(
@@ -112,8 +122,6 @@ abstract class TransactionDetailsViewModelBase with Store {
             launch(_explorerUrl(type, tx.id));
           } catch (e) {}
         }));
-
-    final description = dashboardViewModel.getTransactionDescription(transactionInfo);
 
     items.add(TextFieldListItem(
         title: S.current.note_tap_to_change,
@@ -128,20 +136,6 @@ abstract class TransactionDetailsViewModelBase with Store {
           }
         }));
 
-    if (settingsStore.showHistoricalFiatAmount &&
-        description.historicalFiatRate != null &&
-        description.historicalFiatRate! > 0 && settingsStore.fiatApiMode != FiatApiMode.disabled) {
-      final index =
-          items.indexWhere((element) => element.title == S.current.transaction_details_fee);
-
-      items.insert(
-          index + 1,
-          StandartListItem(
-              title: 'S.current.historical_fiat_amount',
-              value: description.historicalFiatRate!.toStringAsFixed(2) +
-                  ' ' +
-                  settingsStore.fiatCurrency.toString()));
-    }
   }
 
   final TransactionInfo transactionInfo;

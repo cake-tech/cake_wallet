@@ -1,4 +1,3 @@
-
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
@@ -79,7 +78,7 @@ abstract class DashboardViewModelBase with Store {
       required this.settingsStore,
       required this.yatStore,
       required this.ordersStore,
-  required this.transactionDescriptionBox,
+      required this.transactionDescriptionBox,
       required this.anonpayTransactionsStore,
       required this.sharedPreferences,
       required this.keyService})
@@ -160,31 +159,6 @@ abstract class DashboardViewModelBase with Store {
 
     final _wallet = wallet;
 
-
-   reaction((_) => settingsStore.fiatCurrency,
-            (FiatCurrency fiatCurrency) {
-          _wallet.transactionHistory.transactions.values.forEach((tx) {
-            _getHistoricalFiatRate(tx);
-          });
-        });
-
-    reaction((_) => settingsStore.fiatApiMode,
-            (FiatApiMode fiatApiMode) {
-          _wallet.transactionHistory.transactions.values.forEach((tx) {
-            _getHistoricalFiatRate(tx);
-          });
-        });
-
-
-     reaction((_) => settingsStore.showHistoricalFiatAmount,
-            (bool showHistoricalFiatAmount) {
-      if (showHistoricalFiatAmount) {
-        _wallet.transactionHistory.transactions.values.forEach((tx) {
-          _getHistoricalFiatRate(tx);
-        });
-      }
-        });
-
     if (_wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(_wallet).label;
 
@@ -204,15 +178,12 @@ abstract class DashboardViewModelBase with Store {
       final sortedTransactions = [..._accountTransactions];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
 
-
       transactions = ObservableList.of(sortedTransactions.map((transaction) {
-        _getHistoricalFiatRate(transaction);
         return TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             settingsStore: appStore.settingsStore);
       }));
-
     } else {
       final sortedTransactions = [...wallet.transactionHistory.transactions.values];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
@@ -222,7 +193,7 @@ abstract class DashboardViewModelBase with Store {
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             settingsStore: appStore.settingsStore);
-      } ));
+      }));
     }
 
     // TODO: nano sub-account generation is disabled:
@@ -243,14 +214,11 @@ abstract class DashboardViewModelBase with Store {
         return false;
       }
 
-          _getHistoricalFiatRate(transaction);
-
       final wallet = _wallet;
       if (wallet.type == WalletType.monero) {
         return monero!.getTransactionInfoAccountId(transaction) ==
             monero!.getCurrentAccount(wallet).id;
       }
-
 
       return true;
     });
@@ -515,7 +483,6 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void _onMoneroTransactionsUpdate(WalletBase wallet) {
-
     transactions.clear();
 
     final _accountTransactions = monero!
@@ -536,52 +503,6 @@ abstract class DashboardViewModelBase with Store {
     hasExchangeAction = !isHaven;
     hasBuyAction = !isHaven;
     hasSellAction = !isHaven;
-  }
-
-  Future<void> _getHistoricalFiatRate(TransactionInfo transactionInfo) async {
-    if (FiatApiMode.disabled == settingsStore.fiatApiMode
-    || !settingsStore.showHistoricalFiatAmount) return;
-    final description = getTransactionDescription(transactionInfo);
-
-
-    if (description.historicalFiat != settingsStore.fiatCurrency.toString()
-        || description.historicalFiatRate == null) {
-      if (description.key == 0) description.delete();
-      description.historicalFiatRate = null;
-      transactionDescriptionBox.put(description.id, description);
-      final fiat = settingsStore.fiatCurrency;
-
-      final historicalFiatRate = await FiatConversionService.fetchHistoricalPrice(
-          crypto: wallet.currency,
-          fiat: fiat,
-          torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
-          date: transactionInfo.date);
-      var formattedFiatAmount = 0.0;
-      switch (wallet.type) {
-        case WalletType.bitcoin:
-        case WalletType.litecoin:
-          formattedFiatAmount = bitcoinAmountToDouble(amount: transactionInfo.amount);
-          break;
-        case WalletType.monero:
-        case WalletType.haven:
-          formattedFiatAmount = moneroAmountToDouble(amount: transactionInfo.amount);
-          break;
-        default:
-          formattedFiatAmount;
-      }
-      description.historicalFiatRaw = settingsStore.fiatCurrency.toString();
-
-      if (historicalFiatRate != null) {
-        final historicalFiatAmountFormatted = formattedFiatAmount * historicalFiatRate;
-        if (description.key == 0) description.delete();
-          description.historicalFiatRate = historicalFiatAmountFormatted;
-          transactionDescriptionBox.put(description.id, description);
-      } else {
-        if (description.key == 0) description.delete();
-        description.historicalFiatRate = null;
-        transactionDescriptionBox.put(description.id, description);
-      }
-    }
   }
 
   TransactionDescription getTransactionDescription(TransactionInfo transactionInfo) =>
@@ -627,6 +548,25 @@ abstract class DashboardViewModelBase with Store {
     }
 
     return affectedWallets;
+  }
+
+  String? getFormattedFiatAmount(TransactionInfo transaction) {
+    final description = getTransactionDescription(transaction);
+    if (settingsStore.fiatApiMode == FiatApiMode.disabled) return '';
+
+    if (settingsStore.showHistoricalFiatAmount) {
+      final fiatName = settingsStore.fiatCurrency.toString();
+      final fiatRate = double.tryParse(description.historicalRates[fiatName] ?? '');
+      final formattedHistoricalRate = (fiatRate != null && fiatRate < 0.01)
+          ? '$fiatName < 0.01'
+          : fiatRate != null
+              ? '$fiatName ${fiatRate.toStringAsFixed(2)}'
+              : '';
+
+      return formattedHistoricalRate;
+    }
+
+    return null;
   }
 
   Future<ServicesResponse> getServicesStatus() async {

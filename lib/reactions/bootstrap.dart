@@ -4,6 +4,7 @@ import 'package:cake_wallet/reactions/on_current_fiat_api_mode_change.dart';
 import 'package:cake_wallet/reactions/on_current_node_change.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -14,12 +15,14 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
 
 Future<void> bootstrap(GlobalKey<NavigatorState> navigatorKey) async {
   final appStore = getIt.get<AppStore>();
   final authenticationStore = getIt.get<AuthenticationStore>();
   final settingsStore = getIt.get<SettingsStore>();
   final fiatConversionStore = getIt.get<FiatConversionStore>();
+  final transactionDescription = getIt.get<Box<TransactionDescription>>();
 
   final currentWalletName = getIt
       .get<SharedPreferences>()
@@ -30,9 +33,9 @@ Future<void> bootstrap(GlobalKey<NavigatorState> navigatorKey) async {
 
   startAuthenticationStateChange(authenticationStore, navigatorKey);
   startCurrentWalletChangeReaction(
-      appStore, settingsStore, fiatConversionStore);
-  startCurrentFiatChangeReaction(appStore, settingsStore, fiatConversionStore);
-  startCurrentFiatApiModeChangeReaction(appStore, settingsStore, fiatConversionStore);
+      appStore, settingsStore, fiatConversionStore, transactionDescription);
+  startCurrentFiatChangeReaction(appStore, settingsStore, fiatConversionStore, transactionDescription);
+  startCurrentFiatApiModeChangeReaction(appStore, settingsStore, fiatConversionStore, transactionDescription);
   startOnCurrentNodeChangeReaction(appStore);
   startFiatRateUpdate(appStore, settingsStore, fiatConversionStore);
 }

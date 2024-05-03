@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
 
@@ -9,8 +11,7 @@ class TransactionDescription extends HiveObject {
       {required this.id,
       this.recipientAddress,
       this.transactionNote,
-      this.historicalFiatRaw,
-      this.historicalFiatRate});
+      this.historicalRatesJson});
 
   static const typeId = TRANSACTION_TYPE_ID;
   static const boxName = 'TransactionDescriptions';
@@ -26,12 +27,15 @@ class TransactionDescription extends HiveObject {
   String? transactionNote;
 
   @HiveField(3)
-  String? historicalFiatRaw;
+  String? historicalRatesJson;
 
-  @HiveField(4)
-  double? historicalFiatRate;
 
   String get note => transactionNote ?? '';
 
-  String get historicalFiat => historicalFiatRaw ?? '';
+  Map<String, String> get historicalRates =>
+      historicalRatesJson != null ? Map<String, String>.from(jsonDecode(historicalRatesJson!) as Map<dynamic, dynamic>) : {};
+
+  set historicalRates(Map<String, String> value) {
+    historicalRatesJson = jsonEncode(value);
+  }
 }

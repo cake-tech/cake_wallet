@@ -47,6 +47,24 @@ class DisplaySettingsPage extends BasePage {
               _displaySettingsViewModel.setShowHistoricalFiatAmount(value);
             },
                 ),
+              //if (!isHaven) it does not work correctly
+              if (!_displaySettingsViewModel.disabledFiatApiMode)
+                SettingsPickerCell<FiatCurrency>(
+                  title: S.current.settings_currency,
+                  searchHintText: S.current.search_currency,
+                  items: FiatCurrency.all,
+                  selectedItem: _displaySettingsViewModel.fiatCurrency,
+                  onItemSelected: (FiatCurrency currency) =>
+                      _displaySettingsViewModel.setFiatCurrency(currency),
+                  images: FiatCurrency.all
+                      .map((e) => Image.asset("assets/images/flags/${e.countryCode}.png"))
+                      .toList(),
+                  isGridView: true,
+                  matchingCriteria: (FiatCurrency currency, String searchText) {
+                    return currency.title.toLowerCase().contains(searchText) ||
+                        currency.fullName.toLowerCase().contains(searchText);
+                  },
+                ),
               SettingsPickerCell<String>(
                 title: S.current.settings_change_language,
                 searchHintText: S.current.search_language,

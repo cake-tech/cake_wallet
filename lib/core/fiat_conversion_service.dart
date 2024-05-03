@@ -65,8 +65,6 @@ Future<double?> _fetchHistoricalPrice(Map<String, dynamic> args) async {
     'interval_minutes': intervalFromNow.toString()
   };
 
-  double price = 0.0;
-
   try {
     late final Uri uri;
     if (torOnly) {
@@ -86,9 +84,13 @@ Future<double?> _fetchHistoricalPrice(Map<String, dynamic> args) async {
 
     final results = data['results'] as Map<String, dynamic>;
 
-    if (results.isNotEmpty) price = results.values.first as double;
+    if (results.isNotEmpty) {
+      return (results.values.first as double) / 100000;
 
-    return price;
+    } else {
+      return null;
+    }
+
   } catch (e) {
     print(e.toString());
     return null;
