@@ -175,7 +175,9 @@ abstract class OutputBase with Store {
   @computed
   String get estimatedFeeFiatAmount {
     try {
-      final currency = (isEVMCompatibleChain(_wallet.type) || _wallet.type == WalletType.tron)
+      final currency = (isEVMCompatibleChain(_wallet.type) ||
+              _wallet.type == WalletType.solana ||
+              _wallet.type == WalletType.tron)
           ? _wallet.currency
           : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(

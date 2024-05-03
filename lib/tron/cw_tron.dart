@@ -60,8 +60,17 @@ class CWTron extends Tron {
       (wallet as TronWallet).tronTokenCurrencies;
 
   @override
-  Future<void> addTronToken(WalletBase wallet, CryptoCurrency token) async =>
-      await (wallet as TronWallet).addTronToken(token as TronToken);
+  Future<void> addTronToken(WalletBase wallet, CryptoCurrency token, String contractAddress) async {
+      final tronToken = TronToken(
+      name: token.name,
+      symbol: token.title,
+     contractAddress: contractAddress,
+      decimal: token.decimals,
+      enabled: token.enabled,
+      iconPath: token.iconPath,
+    );
+    await (wallet as TronWallet).addTronToken(tronToken);
+  }
 
   @override
   Future<void> deleteTronToken(WalletBase wallet, CryptoCurrency token) async =>

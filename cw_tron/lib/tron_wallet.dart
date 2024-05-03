@@ -154,12 +154,9 @@ abstract class TronWalletBase
   }
 
   Future<void> initTronTokensBox() async {
-    final boxName = "${walletInfo.name.replaceAll(" ", "_")}_ ${TronToken.boxName}";
-    if (await CakeHive.boxExists(boxName)) {
-      tronTokensBox = await CakeHive.openBox<TronToken>(boxName);
-    } else {
-      tronTokensBox = await CakeHive.openBox<TronToken>(boxName.replaceAll(" ", ""));
-    }
+    final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${TronToken.boxName}";
+
+    tronTokensBox = await CakeHive.openBox<TronToken>(boxName);
   }
 
   String idFor(String name, WalletType type) => '${walletTypeToString(type).toLowerCase()}_$name';
@@ -256,7 +253,7 @@ abstract class TronWalletBase
     try {
       syncStatus = AttemptingSyncStatus();
       await _updateBalance();
-      await fetchAllTransactions();
+      await fetchTransactions();
       fetchTrc20ExcludedTransactions();
 
       syncStatus = SyncedSyncStatus();
@@ -302,7 +299,7 @@ abstract class TronWalletBase
         totalAmount = walletBalanceForCurrency;
       } else {
         final totalOriginalAmount = double.parse(output.cryptoAmount ?? '0.0');
-        totalAmount =TronHelper.toSun(totalOriginalAmount.toString());
+        totalAmount = TronHelper.toSun(totalOriginalAmount.toString());
       }
 
       if (walletBalanceForCurrency < totalAmount || totalAmount < BigInt.zero) {
@@ -327,9 +324,7 @@ abstract class TronWalletBase
   }
 
   @override
-  Future<Map<String, TronTransactionInfo>> fetchTransactions() async => {};
-
-  Future<void> fetchAllTransactions() async {
+  Future<Map<String, TronTransactionInfo>> fetchTransactions() async {
     final address = _tronAddress;
 
     final transactions = await _client.fetchTransactions(address);
@@ -376,6 +371,8 @@ abstract class TronWalletBase
     transactionHistory.addMany(result);
 
     await transactionHistory.save();
+
+    return transactionHistory.transactions;
   }
 
   Future<void> fetchTrc20ExcludedTransactions() async {
@@ -505,7 +502,13 @@ abstract class TronWalletBase
     await token.delete();
 
     balance.remove(token);
+    await _removeTokenTransactionsInHistory(token);
     _updateBalance();
+  }
+
+  Future<void> _removeTokenTransactionsInHistory(TronToken token) async {
+    transactionHistory.transactions.removeWhere((key, value) => value.tokenSymbol == token.title);
+    await transactionHistory.save();
   }
 
   Future<TronToken?> getTronToken(String contractAddress) async =>
@@ -542,7 +545,7 @@ abstract class TronWalletBase
 
     _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 20), (_) async {
       _updateBalance();
-      await fetchAllTransactions();
+      await fetchTransactions();
       fetchTrc20ExcludedTransactions();
     });
   }

@@ -81,7 +81,7 @@ abstract class HomeSettingsViewModelBase with Store {
     }
 
     if (_balanceViewModel.wallet.type == WalletType.tron) {
-      await tron!.addTronToken(_balanceViewModel.wallet, token);
+      await tron!.addTronToken(_balanceViewModel.wallet, token, contractAddress);
     }
 
     _updateTokensList();
@@ -156,7 +156,8 @@ abstract class HomeSettingsViewModelBase with Store {
     }
 
     if (_balanceViewModel.wallet.type == WalletType.tron) {
-      tron!.addTronToken(_balanceViewModel.wallet, token);
+      final address = tron!.getTokenAddress(token);
+      tron!.addTronToken(_balanceViewModel.wallet, token, address);
     }
 
     _refreshTokensList();

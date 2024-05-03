@@ -4,8 +4,10 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -35,6 +37,11 @@ class TransactionListItem extends ActionListItem with Keyable {
   @override
   dynamic get keyIndex => transaction.id;
 
+  bool get hasTokens =>
+      isEVMCompatibleChain(balanceViewModel.wallet.type) ||
+      balanceViewModel.wallet.type == WalletType.solana ||
+      balanceViewModel.wallet.type == WalletType.tron;
+
   String get formattedCryptoAmount {
     return displayMode == BalanceDisplayMode.hiddenBalance ? '---' : transaction.amountFormatted();
   }
@@ -62,6 +69,45 @@ class TransactionListItem extends ActionListItem with Keyable {
       }
     }
     return transaction.isPending ? S.current.pending : '';
+  }
+
+  CryptoCurrency? get assetOfTransaction  {
+    if (balanceViewModel.wallet.type == WalletType.ethereum) {
+      try {
+        final asset = ethereum!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        return asset;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    if (balanceViewModel.wallet.type == WalletType.polygon) {
+      try {
+        final asset = polygon!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        return asset;
+      } catch (e) {
+        return null;
+      }
+    }
+    if (balanceViewModel.wallet.type == WalletType.solana) {
+      try {
+        final asset = solana!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        return asset;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    if (balanceViewModel.wallet.type == WalletType.tron) {
+      try {
+        final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        return asset;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    return null;
   }
 
   String get formattedFiatAmount {

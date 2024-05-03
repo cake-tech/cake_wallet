@@ -180,7 +180,7 @@ abstract class ExchangeTradeViewModelBase with Store {
 
     bool _isTronToken() =>
         wallet.currency == CryptoCurrency.trx &&
-        tradesStore.trade!.from.tag == CryptoCurrency.trx.tag;
+        tradesStore.trade!.from.tag == CryptoCurrency.trx.title;
 
     bool _isSplToken() =>
         wallet.currency == CryptoCurrency.sol &&

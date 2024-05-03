@@ -1071,7 +1071,7 @@ abstract class Tron {
   });
 
   List<CryptoCurrency> getTronTokenCurrencies(WalletBase wallet);
-  Future<void> addTronToken(WalletBase wallet, CryptoCurrency token);
+  Future<void> addTronToken(WalletBase wallet, CryptoCurrency token, String contractAddress);
   Future<void> deleteTronToken(WalletBase wallet, CryptoCurrency token);
   Future<CryptoCurrency?> getTronToken(WalletBase wallet, String contractAddress);
   
