@@ -218,14 +218,12 @@ Future<void> defaultSettingsMigration(
           await updateNanoNodeList(nodes: nodes);
           break;
         case 32:
+          await updateBtcNanoWalletInfos(walletInfoSource);
+          break;
+        case 33:
           await addTronNodeList(nodes: nodes);
           await changeTronCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
-
-        case 32:
-          await updateBtcNanoWalletInfos(walletInfoSource);
-          break;
-
         default:
           break;
       }
