@@ -7,6 +7,7 @@ class AutomaticBackupMode extends EnumerableItem<int> with Serializable<int> {
 
   static const all = [
     AutomaticBackupMode.disabled,
+    AutomaticBackupMode.minutely,
     AutomaticBackupMode.weekly,
     AutomaticBackupMode.daily
   ];
@@ -14,6 +15,7 @@ class AutomaticBackupMode extends EnumerableItem<int> with Serializable<int> {
   static const disabled = AutomaticBackupMode(raw: 0, title: 'Disabled');
   static const weekly = AutomaticBackupMode(raw: 1, title: 'Weekly');
   static const daily = AutomaticBackupMode(raw: 2, title: 'Daily');
+  static const minutely = AutomaticBackupMode(raw: 3, title: 'Minutely');
 
   static AutomaticBackupMode deserialize({required int raw}) {
     switch (raw) {
@@ -23,6 +25,8 @@ class AutomaticBackupMode extends EnumerableItem<int> with Serializable<int> {
         return weekly;
       case 2:
         return daily;
+      case 3:
+        return minutely;
       default:
         throw Exception('Unexpected token: $raw for AutomaticBackupMode deserialize');
     }
@@ -37,6 +41,8 @@ class AutomaticBackupMode extends EnumerableItem<int> with Serializable<int> {
         return S.current.weekly;
       case AutomaticBackupMode.daily:
         return S.current.daily;
+      case AutomaticBackupMode.minutely:
+        return "Every minute (TESTING ONLY)";
       default:
         return '';
     }

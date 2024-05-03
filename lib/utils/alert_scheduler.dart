@@ -15,6 +15,10 @@ class AlertScheduler {
     return DateTime.now().difference(accessTime);
   }
 
+  Future<void> updateAccessTime(String lastAccessedPk) async {
+    await sharedPreferences.setInt(lastAccessedPk, DateTime.now().millisecondsSinceEpoch);
+  }
+
   Future<bool> shouldShowAlert({
     required AlertFrequency frequency,
     required String lastAccessedPk,

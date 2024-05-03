@@ -109,6 +109,7 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsOpenAlias,
       required this.lookupsENS,
       required this.autoBackupMode,
+      required this.autoBackupDir,
       required this.customBitcoinFeeRate,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
@@ -439,6 +440,9 @@ abstract class SettingsStoreBase with Store {
         (AutomaticBackupMode mode) =>
             sharedPreferences.setInt(PreferencesKey.autoBackupMode, mode.serialize()));
 
+    reaction((_) => autoBackupDir,
+        (String value) => sharedPreferences.setString(PreferencesKey.autoBackupDir, value));
+
     // secure storage keys:
     reaction(
         (_) => allowBiometricalAuthentication,
@@ -709,6 +713,9 @@ abstract class SettingsStoreBase with Store {
   AutomaticBackupMode autoBackupMode;
 
   @observable
+  String autoBackupDir;
+
+  @observable
   SyncMode currentSyncMode;
 
   @observable
@@ -868,6 +875,7 @@ abstract class SettingsStoreBase with Store {
     final autoBackupMode = AutomaticBackupMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.autoBackupMode) ??
             AutomaticBackupMode.disabled.raw);
+    final autoBackupDir = sharedPreferences.getString(PreferencesKey.autoBackupDir) ?? "";
     final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
 
     // If no value
@@ -1106,6 +1114,7 @@ abstract class SettingsStoreBase with Store {
       lookupsOpenAlias: lookupsOpenAlias,
       lookupsENS: lookupsENS,
       autoBackupMode: autoBackupMode,
+      autoBackupDir: autoBackupDir,
       customBitcoinFeeRate: customBitcoinFeeRate,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialBitcoinTransactionPriority: bitcoinTransactionPriority,
@@ -1247,6 +1256,7 @@ abstract class SettingsStoreBase with Store {
     autoBackupMode = AutomaticBackupMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.autoBackupMode) ??
             AutomaticBackupMode.disabled.raw);
+    autoBackupDir = sharedPreferences.getString(PreferencesKey.autoBackupDir) ?? "";
     customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =

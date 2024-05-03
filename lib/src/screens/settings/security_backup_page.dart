@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arro
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
@@ -113,7 +114,7 @@ class SecurityBackupPage extends BasePage {
             );
           }),
           Container(
-            padding: const EdgeInsets.only(top: 12, bottom: 12, right: 6),
+            padding: const EdgeInsets.only(top: 2, bottom: 2, right: 6),
             margin: const EdgeInsets.only(left: 24, right: 24, top: 10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -145,6 +146,15 @@ class SecurityBackupPage extends BasePage {
                     ),
                   );
                 }),
+                PrimaryButton(
+                  color: Colors.orange,
+                  textColor: Colors.white,
+                  text: "test",
+                  // child: Text("T: Pick automatic backups directory"),
+                  onPressed: () {
+                    _securitySettingsViewModel.pickAutomaticBackupsDirectory();
+                  },
+                ),
               ],
             ),
           ),
