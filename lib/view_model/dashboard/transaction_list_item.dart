@@ -71,42 +71,31 @@ class TransactionListItem extends ActionListItem with Keyable {
     return transaction.isPending ? S.current.pending : '';
   }
 
-  CryptoCurrency? get assetOfTransaction  {
-    if (balanceViewModel.wallet.type == WalletType.ethereum) {
-      try {
+  CryptoCurrency? get assetOfTransaction {
+    try {
+      if (balanceViewModel.wallet.type == WalletType.ethereum) {
         final asset = ethereum!.assetOfTransaction(balanceViewModel.wallet, transaction);
         return asset;
-      } catch (e) {
-        return null;
       }
-    }
 
-    if (balanceViewModel.wallet.type == WalletType.polygon) {
-      try {
+      if (balanceViewModel.wallet.type == WalletType.polygon) {
         final asset = polygon!.assetOfTransaction(balanceViewModel.wallet, transaction);
         return asset;
-      } catch (e) {
-        return null;
       }
-    }
-    if (balanceViewModel.wallet.type == WalletType.solana) {
-      try {
+
+      if (balanceViewModel.wallet.type == WalletType.solana) {
         final asset = solana!.assetOfTransaction(balanceViewModel.wallet, transaction);
         return asset;
-      } catch (e) {
-        return null;
       }
-    }
 
-    if (balanceViewModel.wallet.type == WalletType.tron) {
-      try {
+      if (balanceViewModel.wallet.type == WalletType.tron) {
         final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
         return asset;
-      } catch (e) {
-        return null;
       }
+    } catch (e) {
+      return null;
     }
-
+    
     return null;
   }
 
