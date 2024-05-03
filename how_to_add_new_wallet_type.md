@@ -294,7 +294,6 @@ Now you can run the codebase and successfully create a wallet for type walletX s
 2. Check On/Off ramp providers that support the new wallet currency and add them accordingly in `provider_types.dart`
 3. Add support for wallet uri scheme to restore from QR for both Android in `AndroidManifestBase.xml` and iOS in `InfoBase.plist`
 4. Make sure no imports are using the wallet internal package files directly, instead use the proxy layers that is created in the main lib `lib/cw_ethereum.dart` for example. (i.e try building Monero.com if you get compilation errors, then you probably missed something)
-5. 
 
 
 Copyright (C) 2018-2023 Cake Labs LLC
