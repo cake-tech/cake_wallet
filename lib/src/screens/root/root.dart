@@ -95,10 +95,17 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     }
   }
 
-  void handleDeepLinking(Uri? uri) {
+  void handleDeepLinking(Uri? uri) async {
     if (uri == null || !mounted) return;
 
     launchUri = uri;
+
+    bool requireAuth = await widget.authService.requireAuth();
+
+    if (!requireAuth && widget.authenticationStore.state == AuthenticationState.allowed) {
+      _navigateToDeepLinkScreen();
+      return;
+    }
 
     _deepLinksReactionDisposer = reaction(
       (_) => widget.authenticationStore.state,
@@ -106,10 +113,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         if (state == AuthenticationState.allowed) {
           if (widget.appStore.wallet == null) {
             waitForWalletInstance(context, launchUri!);
-            launchUri = null;
-          } else if (_getRouteToGo() != null) {
+          } else {
             _navigateToDeepLinkScreen();
-            launchUri = null;
           }
           _deepLinksReactionDisposer?.call();
           _deepLinksReactionDisposer = null;
@@ -258,9 +263,14 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   }
 
   void _navigateToDeepLinkScreen() {
-    widget.navigatorKey.currentState?.pushNamed(
-      _getRouteToGo()!,
-      arguments: isWalletConnectLink ? launchUri : PaymentRequest.fromUri(launchUri),
-    );
+    if (_getRouteToGo() != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.navigatorKey.currentState?.pushNamed(
+          _getRouteToGo()!,
+          arguments: isWalletConnectLink ? launchUri : PaymentRequest.fromUri(launchUri),
+        );
+        launchUri = null;
+      });
+    }
   }
 }
