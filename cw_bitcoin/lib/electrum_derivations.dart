@@ -4,7 +4,7 @@ Map<DerivationType, List<DerivationInfo>> electrum_derivations = {
   DerivationType.electrum: [
     DerivationInfo(
       derivationType: DerivationType.electrum,
-      derivationPath: "m/0'/0",
+      derivationPath: "m/0'",
       description: "Electrum",
       scriptType: "p2wpkh",
     ),

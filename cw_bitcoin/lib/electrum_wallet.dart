@@ -101,7 +101,7 @@ abstract class ElectrumWalletBase
       return currency == CryptoCurrency.bch
           ? bitcoinCashHDWallet(seedBytes)
           : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-              .derivePath(derivationInfo?.derivationPath ?? "m/0'");
+              .derivePath(_hardenedDerivationPath(derivationInfo?.derivationPath ?? "m/0'"));
     }
 
     return bitcoin.HDWallet.fromBase58(xpub!);
@@ -245,7 +245,9 @@ abstract class ElectrumWalletBase
         final hd =
             utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd;
         final derivationPath =
-            "${walletInfo.derivationPath ?? "m/0'"}/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}/${utx.bitcoinAddressRecord.index}";
+            "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? "m/0'")}"
+            "/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}"
+            "/${utx.bitcoinAddressRecord.index}";
         final pubKeyHex = hd.derive(utx.bitcoinAddressRecord.index).pubKey!;
 
         publicKeys[address.pubKeyHash()] = PublicKeyWithDerivationPath(pubKeyHex, derivationPath);
@@ -372,7 +374,9 @@ abstract class ElectrumWalletBase
       final hd =
           utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd;
       final derivationPath =
-          "${walletInfo.derivationPath ?? "m/0'"}/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}/${utx.bitcoinAddressRecord.index}";
+          "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? "m/0'")}"
+          "/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}"
+          "/${utx.bitcoinAddressRecord.index}";
       final pubKeyHex = hd.derive(utx.bitcoinAddressRecord.index).pubKey!;
 
       publicKeys[address.pubKeyHash()] = PublicKeyWithDerivationPath(pubKeyHex, derivationPath);
@@ -398,7 +402,6 @@ abstract class ElectrumWalletBase
           ),
         ),
       );
-
 
       bool amountIsAcquired = leftAmount <= 0;
       if ((inputsCount == null && amountIsAcquired) || inputsCount == i + 1) {
@@ -1376,6 +1379,9 @@ abstract class ElectrumWalletBase
 
     return BitcoinNetwork.mainnet;
   }
+
+  static String _hardenedDerivationPath(String derivationPath) =>
+      derivationPath.substring(0, derivationPath.lastIndexOf("'") + 1);
 }
 
 class EstimateTxParams {
