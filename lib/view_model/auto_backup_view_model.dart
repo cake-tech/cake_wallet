@@ -9,6 +9,7 @@ import 'package:cake_wallet/utils/alert_scheduler.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
+import 'package:path_provider/path_provider.dart';
 
 part 'auto_backup_view_model.g.dart';
 
@@ -52,10 +53,9 @@ abstract class AutoBackupViewModelBase with Store {
         if (backupDirPath.isEmpty) {
           if (Platform.isAndroid) {
             backupDirPath = "/storage/emulated/0/Documents/Cake Wallet/backups/";
-          } else if (Platform.isIOS){
-            backupDirPath = "/Documents/Cake Wallet/backups/";// CONFIRM THIS PATH
           } else {
-            throw Exception("No backup directory set");
+            String path = (await getDownloadsDirectory())!.path;
+            backupDirPath = "$path/Cake Wallet/backups/";
           }
         }
 
