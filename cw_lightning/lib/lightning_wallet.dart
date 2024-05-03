@@ -65,14 +65,17 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         ) {
     _balance[CryptoCurrency.btcln] =
         initialBalance ?? LightningBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
+            String derivationPath = walletInfo.derivationInfo!.derivationPath!;
+    String sideDerivationPath = derivationPath.substring(0, derivationPath.length - 1) + "1";
+    final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
       electrumClient: electrumClient,
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
-      mainHd: hd,
-      sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
+      mainHd: hd.derivePath(derivationPath),
+      sideHd: hd.derivePath(sideDerivationPath),
       network: network,
     );
 
