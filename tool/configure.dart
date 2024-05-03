@@ -8,6 +8,7 @@ const bitcoinCashOutputPath = 'lib/bitcoin_cash/bitcoin_cash.dart';
 const nanoOutputPath = 'lib/nano/nano.dart';
 const polygonOutputPath = 'lib/polygon/polygon.dart';
 const solanaOutputPath = 'lib/solana/solana.dart';
+const tronOutputPath = 'lib/tron/tron.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
 const pubspecOutputPath = 'pubspec.yaml';
@@ -23,6 +24,7 @@ Future<void> main(List<String> args) async {
   final hasBanano = args.contains('${prefix}banano');
   final hasPolygon = args.contains('${prefix}polygon');
   final hasSolana = args.contains('${prefix}solana');
+  final hasTron = args.contains('${prefix}tron');
 
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
@@ -32,6 +34,7 @@ Future<void> main(List<String> args) async {
   await generateNano(hasNano);
   await generatePolygon(hasPolygon);
   await generateSolana(hasSolana);
+  await generateTron(hasTron);
   // await generateBanano(hasEthereum);
 
   await generatePubspec(
@@ -44,6 +47,7 @@ Future<void> main(List<String> args) async {
     hasBitcoinCash: hasBitcoinCash,
     hasPolygon: hasPolygon,
     hasSolana: hasSolana,
+    hasTron: hasTron,
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -55,6 +59,7 @@ Future<void> main(List<String> args) async {
     hasBitcoinCash: hasBitcoinCash,
     hasPolygon: hasPolygon,
     hasSolana: hasSolana,
+    hasTron: hasTron,
   );
 }
 
@@ -1024,6 +1029,79 @@ abstract class Solana {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateTron(bool hasImplementation) async {
+  final outputFile = File(tronOutputPath);
+  const tronCommonHeaders = """
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+
+""";
+  const tronCWHeaders = """
+import 'package:cw_evm/evm_chain_mnemonics.dart';
+import 'package:cw_tron/tron_transaction_credentials.dart';
+import 'package:cw_tron/tron_transaction_info.dart';
+import 'package:cw_tron/tron_wallet_creation_credentials.dart';
+
+import 'package:cw_tron/tron_client.dart';
+import 'package:cw_tron/tron_token.dart';
+import 'package:cw_tron/tron_wallet.dart';
+import 'package:cw_tron/tron_wallet_service.dart';
+
+""";
+  const tronCwPart = "part 'cw_tron.dart';";
+  const tronContent = """
+abstract class Tron {
+  List<String> getTronWordList(String language);
+  WalletService createTronWalletService(Box<WalletInfo> walletInfoSource);
+  WalletCredentials createTronNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  WalletCredentials createTronRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  WalletCredentials createTronRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
+  String getAddress(WalletBase wallet);
+
+  Object createTronTransactionCredentials(
+    List<Output> outputs, {
+    required CryptoCurrency currency,
+  });
+
+  List<CryptoCurrency> getTronTokenCurrencies(WalletBase wallet);
+  Future<void> addTronToken(WalletBase wallet, CryptoCurrency token, String contractAddress);
+  Future<void> deleteTronToken(WalletBase wallet, CryptoCurrency token);
+  Future<CryptoCurrency?> getTronToken(WalletBase wallet, String contractAddress);
+  
+  double getTransactionAmountRaw(TransactionInfo transactionInfo);
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
+  String getTokenAddress(CryptoCurrency asset);
+  String getTronBase58Address(String hexAddress, WalletBase wallet);
+
+  String? getTronNativeEstimatedFee(WalletBase wallet);
+  String? getTronTRC20EstimatedFee(WalletBase wallet);
+}
+  """;
+
+  const tronEmptyDefinition = 'Tron? tron;\n';
+  const tronCWDefinition = 'Tron? tron = CWTron();\n';
+
+  final output = '$tronCommonHeaders\n' +
+      (hasImplementation ? '$tronCWHeaders\n' : '\n') +
+      (hasImplementation ? '$tronCwPart\n\n' : '\n') +
+      (hasImplementation ? tronCWDefinition : tronEmptyDefinition) +
+      '\n' +
+      tronContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generatePubspec(
     {required bool hasMonero,
     required bool hasBitcoin,
@@ -1033,7 +1111,8 @@ Future<void> generatePubspec(
     required bool hasBanano,
     required bool hasBitcoinCash,
     required bool hasPolygon,
-    required bool hasSolana}) async {
+    required bool hasSolana,
+    required bool hasTron}) async {
   const cwCore = """
   cw_core:
     path: ./cw_core
@@ -1082,6 +1161,10 @@ Future<void> generatePubspec(
   cw_evm:
     path: ./cw_evm
     """;
+  const cwTron = """
+  cw_tron:
+    path: ./cw_tron
+    """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
@@ -1121,6 +1204,10 @@ Future<void> generatePubspec(
     output += '\n$cwSolana';
   }
 
+  if (hasTron) {
+    output += '\n$cwTron';
+  }
+
   if (hasHaven && !hasMonero) {
     output += '\n$cwSharedExternal\n$cwHaven';
   } else if (hasHaven) {
@@ -1152,7 +1239,8 @@ Future<void> generateWalletTypes(
     required bool hasBanano,
     required bool hasBitcoinCash,
     required bool hasPolygon,
-    required bool hasSolana}) async {
+    required bool hasSolana,
+    required bool hasTron}) async {
   final walletTypesFile = File(walletTypesPath);
 
   if (walletTypesFile.existsSync()) {
@@ -1189,6 +1277,10 @@ Future<void> generateWalletTypes(
 
   if (hasSolana) {
     outputContent += '\tWalletType.solana,\n';
+  }
+
+  if (hasTron) {
+    outputContent += '\tWalletType.tron,\n';
   }
 
   if (hasNano) {

@@ -12,6 +12,7 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/exceptions.dart';
@@ -50,7 +51,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void onWalletChange(wallet) {
     currencies = wallet.balance.keys.toList();
     selectedCryptoCurrency = wallet.currency;
-    hasMultipleTokens = isEVMCompatibleChain(wallet.type) || wallet.type == WalletType.solana;
+    hasMultipleTokens = isEVMCompatibleChain(wallet.type) ||
+        wallet.type == WalletType.solana ||
+        wallet.type == WalletType.tron;
   }
 
   SendViewModelBase(
@@ -64,7 +67,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         currencies = appStore.wallet!.balance.keys.toList(),
         selectedCryptoCurrency = appStore.wallet!.currency,
         hasMultipleTokens = isEVMCompatibleChain(appStore.wallet!.type) ||
-            appStore.wallet!.type == WalletType.solana,
+            appStore.wallet!.type == WalletType.solana ||
+            appStore.wallet!.type == WalletType.tron,
         outputs = ObservableList<Output>(),
         _settingsStore = appStore.settingsStore,
         fiatFromSettings = appStore.settingsStore.fiatCurrency,
@@ -109,6 +113,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   bool get isBatchSending => outputs.length > 1;
+
+  bool get shouldDisplaySendALL => walletType != WalletType.solana || walletType != WalletType.tron;
 
   @computed
   String get pendingTransactionFiatAmount {
@@ -236,7 +242,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get hasFeesPriority =>
       wallet.type != WalletType.nano &&
       wallet.type != WalletType.banano &&
-      wallet.type != WalletType.solana;
+      wallet.type != WalletType.solana &&
+      wallet.type != WalletType.tron;
+      
   @observable
   CryptoCurrency selectedCryptoCurrency;
 
@@ -423,7 +431,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Object _credentials() {
     final priority = _settingsStore.priority[wallet.type];
 
-    if (priority == null && wallet.type != WalletType.nano && wallet.type != WalletType.banano && wallet.type != WalletType.solana) {
+    if (priority == null && wallet.type != WalletType.nano && wallet.type != WalletType.banano && wallet.type != WalletType.solana  &&
+        wallet.type != WalletType.tron) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }
 
@@ -453,6 +462,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.solana:
         return solana!
             .createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);
+      case WalletType.tron:
+        return tron!.createTronTransactionCredentials(outputs, currency: selectedCryptoCurrency);
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }

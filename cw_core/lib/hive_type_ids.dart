@@ -16,3 +16,4 @@ const POW_NODE_TYPE_ID              = 14;
 const DERIVATION_TYPE_TYPE_ID       = 15;
 const SPL_TOKEN_TYPE_ID             = 16;
 const DERIVATION_INFO_TYPE_ID       = 17;
+const TRON_TOKEN_TYPE_ID            = 18;

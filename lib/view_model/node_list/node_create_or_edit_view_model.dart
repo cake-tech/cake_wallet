@@ -76,6 +76,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       case WalletType.solana:
       case WalletType.banano:
       case WalletType.nano:
+      case WalletType.tron:
         return true;
       case WalletType.none:
       case WalletType.monero:

@@ -13,6 +13,7 @@ import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -873,6 +874,8 @@ Future<void> setup({
         return polygon!.createPolygonWalletService(_walletInfoSource);
       case WalletType.solana:
         return solana!.createSolanaWalletService(_walletInfoSource);
+      case WalletType.tron:
+        return tron!.createTronWalletService(_walletInfoSource);
       default:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }
