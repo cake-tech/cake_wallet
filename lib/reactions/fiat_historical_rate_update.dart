@@ -2,17 +2,17 @@ import 'dart:async';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:hive/hive.dart';
 
 Future<void> historicalRateUpdate(
-    AppStore appStore,
+    WalletBase wallet,
     SettingsStore settingsStore,
     FiatConversionStore fiatConversionStore,
     Box<TransactionDescription> transactionDescription) async {
-  final transactions = appStore.wallet!.transactionHistory.transactions.values.toList();
+  final transactions = wallet.transactionHistory.transactions.values.toList();
 
   const int batchSize = 10;
   const Duration delayBetweenBatches = Duration(milliseconds: 2);
@@ -40,7 +40,7 @@ Future<void> historicalRateUpdate(
             !description.historicalRates.containsKey(fiatName)) {
           try {
             final result = await FiatConversionService.fetchHistoricalPrice(
-                crypto: appStore.wallet!.currency,
+                crypto: wallet.currency,
                 fiat: settingsStore.fiatCurrency,
                 torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
                 date: tx.date);

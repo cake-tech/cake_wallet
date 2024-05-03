@@ -28,7 +28,7 @@ void startCurrentFiatApiModeChangeReaction(AppStore appStore, SettingsStore sett
 
     if (settingsStore.showHistoricalFiatAmount) {
       await historicalRateUpdate(
-          appStore, settingsStore, fiatConversionStore, transactionDescription);
+          appStore.wallet!, settingsStore, fiatConversionStore, transactionDescription);
     }
   });
 }
@@ -43,6 +43,6 @@ void startHistoricalRateUpdateReaction(AppStore appStore, SettingsStore settings
     }
 
     await historicalRateUpdate(
-        appStore, settingsStore, fiatConversionStore, transactionDescription);
+        appStore.wallet!, settingsStore, fiatConversionStore, transactionDescription);
   });
 }

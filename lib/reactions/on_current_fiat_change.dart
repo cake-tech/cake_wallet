@@ -30,7 +30,7 @@ void startCurrentFiatChangeReaction(AppStore appStore, SettingsStore settingsSto
 
     if (settingsStore.showHistoricalFiatAmount) {
       await historicalRateUpdate(
-          appStore, settingsStore, fiatConversionStore, transactionDescription);
+          appStore.wallet!, settingsStore, fiatConversionStore, transactionDescription);
     }
 
 

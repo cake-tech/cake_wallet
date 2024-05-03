@@ -68,7 +68,7 @@ void startCurrentWalletChangeReaction(
 
       final node = settingsStore.getCurrentNode(wallet.type);
 
-      startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
+      startWalletSyncStatusChangeReaction(wallet, fiatConversionStore, settingsStore, transactionDescription);
       startCheckConnectionReaction(wallet, settingsStore);
       await getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
       await getIt
@@ -112,7 +112,7 @@ void startCurrentWalletChangeReaction(
 
       if (settingsStore.showHistoricalFiatAmount) {
         await historicalRateUpdate(
-            appStore, settingsStore, fiatConversionStore, transactionDescription);
+            appStore.wallet!, settingsStore, fiatConversionStore, transactionDescription);
       }
 
       fiatConversionStore.prices[wallet.currency] = 0;

@@ -1,6 +1,10 @@
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -9,15 +13,17 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import 'fiat_historical_rate_update.dart';
+
 ReactionDisposer? _onWalletSyncStatusChangeReaction;
 
 void startWalletSyncStatusChangeReaction(
-    WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-            TransactionInfo> wallet,
-    FiatConversionStore fiatConversionStore) {
+    WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
+    FiatConversionStore fiatConversionStore,
+    SettingsStore settingsStore,
+    Box<TransactionDescription> transactionDescription) {
   _onWalletSyncStatusChangeReaction?.reaction.dispose();
-  _onWalletSyncStatusChangeReaction =
-      reaction((_) => wallet.syncStatus, (SyncStatus status) async {
+  _onWalletSyncStatusChangeReaction = reaction((_) => wallet.syncStatus, (SyncStatus status) async {
     try {
       if (status is ConnectedSyncStatus) {
         await wallet.startSync();
@@ -31,8 +37,15 @@ void startWalletSyncStatusChangeReaction(
       }
       if (status is SyncedSyncStatus || status is FailedSyncStatus) {
         await WakelockPlus.disable();
+
+        if (settingsStore.fiatApiMode != FiatApiMode.disabled) {
+          if (settingsStore.showHistoricalFiatAmount) {
+            await historicalRateUpdate(
+                wallet, settingsStore, fiatConversionStore, transactionDescription);
+          }
+        }
       }
-    } catch(e) {
+    } catch (e) {
       print(e.toString());
     }
   });
