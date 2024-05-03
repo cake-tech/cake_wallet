@@ -154,9 +154,11 @@ class WalletInfo extends HiveObject {
   @HiveField(15)
   List<String>? usedAddresses;
 
+  @deprecated
   @HiveField(16)
   DerivationType? derivationType; // no longer used
 
+  @deprecated
   @HiveField(17)
   String? derivationPath; // no longer used
 
