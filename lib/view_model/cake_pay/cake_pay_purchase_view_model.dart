@@ -18,9 +18,7 @@ abstract class CakePayPurchaseViewModelBase with Store {
     required this.amount,
     required this.card,
     required this.sendViewModel,
-  })  : walletType = sendViewModel.walletType,
-        orderCreationState = InitialExecutionState(),
-        orderCommittingState = InitialExecutionState();
+  })  : walletType = sendViewModel.walletType;
 
   final WalletType walletType;
 
@@ -55,12 +53,6 @@ abstract class CakePayPurchaseViewModelBase with Store {
   }
 
   @observable
-  ExecutionState orderCreationState;
-
-  @observable
-  ExecutionState orderCommittingState;
-
-  @observable
   bool isOrderExpired = false;
 
   @observable
@@ -78,16 +70,14 @@ abstract class CakePayPurchaseViewModelBase with Store {
   @action
   Future<void> createOrder() async {
     try {
-      orderCreationState = IsExecutingState();
       order = await cakePayService.createOrder(
           cardId: card.id, price: giftCardAmount.toString(), quantity: giftQuantity);
       await confirmSending();
       expirationTime = order!.paymentData.expirationTime;
       updateRemainingTime();
       _startExpirationTimer();
-      orderCreationState = ExecutedSuccessfullyState();
     } catch (e) {
-      orderCreationState = FailureState(
+      sendViewModel.state = FailureState(
           sendViewModel.translateErrorMessage(e, walletType, sendViewModel.wallet.currency));
     }
   }
@@ -108,33 +98,6 @@ abstract class CakePayPurchaseViewModelBase with Store {
     }
   }
 
-  Future<void> simulatePayment() async {
-    try {
-      if (order == null) {
-        throw Exception('Order is not created yet');
-      }
-
-      await cakePayService.simulatePayment(orderId: order!.orderId);
-    } catch (e) {
-      orderCreationState = FailureState(e.toString());
-    }
-  }
-
-  @action
-  Future<void> commitPaymentInvoice() async {
-    try {
-      if (order == null) {
-        throw Exception('Order is not created yet');
-      }
-
-      orderCommittingState = IsExecutingState();
-      //committedInfo = await ioniaAnyPayService.commitInvoice(order!);
-      // invoiceCommittingState = ExecutedSuccessfullyState(payload: committedInfo!);
-    } catch (e) {
-      orderCommittingState = FailureState(e.toString());
-    }
-  }
-
   @action
   void updateRemainingTime() {
     if (expirationTime == null) {
@@ -148,7 +111,7 @@ abstract class CakePayPurchaseViewModelBase with Store {
 
     if (isOrderExpired) {
       disposeExpirationTimer();
-      orderCreationState = FailureState('Order has expired.');
+      sendViewModel.state = FailureState('Order has expired.');
     } else {
       formattedRemainingTime = formatDuration(remainingTime!);
     }

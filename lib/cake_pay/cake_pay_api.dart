@@ -6,7 +6,7 @@ import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
 import 'package:http/http.dart' as http;
 
 class CakePayApi {
-  static const testBaseUri = true;
+  static const testBaseUri = false;
 
   static const baseTestCakePayUri = 'test.cakepay.com';
   static const baseProdCakePayUri = 'buy.cakepay.com';
@@ -89,13 +89,10 @@ class CakePayApi {
     required int cardId,
     required String price,
     required int quantity,
-    //required String externalOrderId,
     required String userEmail,
     required String token,
-    //required bool sendEmail
   }) async {
     final uri = Uri.https(baseCakePayUri, createOrderPath);
-
     final headers = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -104,29 +101,28 @@ class CakePayApi {
     final query = <String, dynamic>{
       'card_id': cardId,
       'price': price,
-      'quantity': quantity.toString(),
-      //'external_order_id': externalOrderId, //TODO: fix me
+      'quantity': quantity,
       'user_email': userEmail,
       'token': token,
       'send_email': true
-    }; // TODO: fix me
+    };
 
     try {
       final response = await http.post(uri, headers: headers, body: json.encode(query));
 
       if (response.statusCode != 201) {
-        throw Exception('Unexpected http status: ${response.statusCode}');
+        final responseBody = json.decode(response.body);
+        if (responseBody is List) {
+          throw '${responseBody[0]}';
+        } else {
+          throw Exception('Unexpected error: $responseBody');
+        }
       }
 
       final bodyJson = json.decode(response.body) as Map<String, dynamic>;
-
-      if (bodyJson.containsKey('error')) {
-        throw Exception(bodyJson['error'] as String);
-      }
-
       return CakePayOrder.fromMap(bodyJson);
     } catch (e) {
-      throw Exception('Failed to create order with error: $e');
+      throw Exception('${e}');
     }
   }
 

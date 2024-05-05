@@ -105,7 +105,7 @@ class CakePayBuyCardPage extends BasePage {
                                 return Center(child: CircularProgressIndicator());
                               },
                               errorBuilder: (context, error, stackTrace) =>
-                                  ImagePlaceholder(text: 'Logo not found!'),
+                                  CakePayCardImagePlaceholder(),
                             ),
                           ),
                         ),

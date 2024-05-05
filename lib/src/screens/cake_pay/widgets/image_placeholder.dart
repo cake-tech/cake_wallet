@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 
-class ImagePlaceholder extends StatelessWidget {
-  const ImagePlaceholder({required this.text});
+class CakePayCardImagePlaceholder extends StatelessWidget {
+  const CakePayCardImagePlaceholder({this.text});
 
-  final String text;
+  final String? text;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Center(
-        child: Text(
-          text,
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 12,
-            fontWeight: FontWeight.w900,
+    return AspectRatio(
+      aspectRatio: 1.8,
+      child: Container(
+        child: Center(
+          child: Text(
+            text ?? 'Image not found!',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+            ),
           ),
         ),
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
+        decoration: BoxDecoration(
+          color: Colors.white,
+        ),
       ),
     );
   }

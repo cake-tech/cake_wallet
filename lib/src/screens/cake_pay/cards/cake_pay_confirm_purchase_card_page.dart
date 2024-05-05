@@ -4,6 +4,7 @@ import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/cake_pay_alert_modal.dart';
+import 'package:cake_wallet/src/screens/cake_pay/widgets/image_placeholder.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -17,6 +18,7 @@ import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_purchase_view_model.dart';
+import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -37,54 +39,13 @@ class CakePayBuyCardDetailPage extends BasePage {
   @override
   Widget? trailing(BuildContext context) => null;
 
+  bool _effectsInstalled = false;
+
   @override
   Widget body(BuildContext context) {
+    _setEffects(context);
+
     final card = cakePayPurchaseViewModel.card;
-
-    reaction((_) => cakePayPurchaseViewModel.orderCreationState, (ExecutionState state) {
-      if (state is FailureState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertWithOneAction(
-                    alertTitle: S.of(context).error,
-                    alertContent: state.error,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
-              });
-        });
-      }
-
-      if (state is ExecutedSuccessfullyState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          await _showConfirmSendingAlert(context);
-        });
-      }
-    });
-
-    reaction((_) => cakePayPurchaseViewModel.orderCommittingState, (ExecutionState state) {
-      if (state is FailureState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertWithOneAction(
-                    alertTitle: S.of(context).error,
-                    alertContent: state.error,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
-              });
-        });
-      }
-
-      if (state is ExecutedSuccessfullyState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          // Navigator.of(context).pushReplacementNamed(Routes.ioniaPaymentStatusPage,
-          //     arguments: [cakePayPurchaseViewModel.order, cakePayPurchaseViewModel.committedInfo]);
-        });
-      }
-    });
 
     return ScrollableWithBottomSection(
       contentPadding: EdgeInsets.zero,
@@ -118,7 +79,7 @@ class CakePayBuyCardDetailPage extends BasePage {
                             return Center(child: CircularProgressIndicator());
                           },
                           errorBuilder: (context, error, stackTrace) =>
-                              _PlaceholderContainer(text: 'Logo not found!'),
+                              CakePayCardImagePlaceholder(),
                         ),
                       )),
                     ),
@@ -151,13 +112,15 @@ class CakePayBuyCardDetailPage extends BasePage {
                                 Text(
                                   'Quantity:',
                                   style: textLarge(
-                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                      color:
+                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                                 ),
                                 SizedBox(width: 4),
                                 Text(
                                   '${cakePayPurchaseViewModel.giftQuantity.toStringAsFixed(2)}',
                                   style: textLarge(
-                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                      color:
+                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                                 ),
                               ],
                             ),
@@ -167,13 +130,15 @@ class CakePayBuyCardDetailPage extends BasePage {
                                 Text(
                                   'Total:',
                                   style: textLarge(
-                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                      color:
+                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                                 ),
                                 SizedBox(width: 4),
                                 Text(
                                   '\$${cakePayPurchaseViewModel.totalAmount.toStringAsFixed(2)}',
                                   style: textLarge(
-                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                      color:
+                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                                 ),
                               ],
                             ),
@@ -203,8 +168,7 @@ class CakePayBuyCardDetailPage extends BasePage {
             padding: EdgeInsets.only(bottom: 12),
             child: Observer(builder: (_) {
               return LoadingPrimaryButton(
-                isLoading: cakePayPurchaseViewModel.orderCreationState is IsExecutingState ||
-                    cakePayPurchaseViewModel.orderCommittingState is IsExecutingState,
+                isLoading: cakePayPurchaseViewModel.sendViewModel.state is IsExecutingState,
                 onPressed: () => purchaseCard(context),
                 text: S.of(context).purchase_gift_card,
                 color: Theme.of(context).primaryColor,
@@ -308,71 +272,87 @@ class CakePayBuyCardDetailPage extends BasePage {
       }
     });
 
-
     final order = cakePayPurchaseViewModel.order;
+    final pendingTransaction = cakePayPurchaseViewModel.sendViewModel.pendingTransaction!;
 
     await showPopUp<void>(
       context: context,
       builder: (_) {
-        return Observer(builder: (_) => ConfirmSendingAlert(
-            alertTitle: S.of(context).confirm_sending,
-            paymentId: S.of(context).payment_id,
-            paymentIdValue: order?.orderId,
-            expirationTime: cakePayPurchaseViewModel.formattedRemainingTime,
-            onDispose: () => _handleDispose(disposer),
-            amount: S.of(context).send_amount,
-            amountValue: cakePayPurchaseViewModel.sendViewModel.pendingTransaction!.amountFormatted,
-            fiatAmountValue:
-                cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
-            fee: S.of(context).send_fee,
-            feeValue: cakePayPurchaseViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-            feeFiatAmount:
-                cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
-            feeRate: cakePayPurchaseViewModel.sendViewModel.pendingTransaction!.feeRate,
-            outputs: cakePayPurchaseViewModel.sendViewModel.outputs,
-            rightButtonText: S.of(context).send,
-            leftButtonText: S.of(context).cancel,
-            actionRightButton: () async {
-              Navigator.of(context).pop();
-              cakePayPurchaseViewModel.simulatePayment();
-             // await cakePayPurchaseViewModel.commitPaymentInvoice();//TODO: implement commitPaymentInvoice
-            },
-            actionLeftButton: () => Navigator.of(context).pop()));
+        return Observer(
+            builder: (_) => ConfirmSendingAlert(
+                alertTitle: S.of(context).confirm_sending,
+                paymentId: S.of(context).payment_id,
+                paymentIdValue: order?.orderId,
+                expirationTime: cakePayPurchaseViewModel.formattedRemainingTime,
+                onDispose: () => _handleDispose(disposer),
+                amount: S.of(context).send_amount,
+                amountValue: pendingTransaction.amountFormatted,
+                fiatAmountValue:
+                    cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                fee: S.of(context).send_fee,
+                feeValue: pendingTransaction.feeFormatted,
+                feeFiatAmount:
+                    cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                feeRate: pendingTransaction.feeRate,
+                outputs: cakePayPurchaseViewModel.sendViewModel.outputs,
+                rightButtonText: S.of(context).send,
+                leftButtonText: S.of(context).cancel,
+                actionRightButton: () async {
+                  Navigator.of(context).pop();
+                  await cakePayPurchaseViewModel.sendViewModel.commitTransaction();
+                },
+                actionLeftButton: () => Navigator.of(context).pop()));
       },
     );
   }
+
+  void _setEffects(BuildContext context) {
+    if (_effectsInstalled) {
+      return;
+    }
+
+    reaction((_) => cakePayPurchaseViewModel.sendViewModel.state, (ExecutionState state) {
+      if (state is FailureState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showStateAlert(context, S.of(context).error, state.error);
+        });
+      }
+
+      if (state is ExecutedSuccessfullyState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await _showConfirmSendingAlert(context);
+        });
+      }
+
+      if (state is TransactionCommitted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          cakePayPurchaseViewModel.sendViewModel.clearOutputs();
+          if (context.mounted) {
+            showStateAlert(context, S.of(context).sending, S.of(context).transaction_sent);
+          }
+        });
+      }
+    });
+
+    _effectsInstalled = true;
+  }
+
+  void showStateAlert(BuildContext context, String title, String content) {
+    showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithOneAction(
+              alertTitle: title,
+              alertContent: content,
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop());
+        });
+  }
+
   void _handleDispose(ReactionDisposer? disposer) {
     cakePayPurchaseViewModel.dispose();
     if (disposer != null) {
-      disposer();  // Dispose of the MobX reaction
+      disposer();
     }
-  }
-}
-
-class _PlaceholderContainer extends StatelessWidget {
-  const _PlaceholderContainer({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Center(
-        child: Text(
-          text,
-          style: TextStyle(
-            color: Theme.of(context).extension<PickerTheme>()!.searchHintColor,
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [
-          Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
-          Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
-        ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-      ),
-    );
   }
 }

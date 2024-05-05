@@ -61,7 +61,7 @@ class CardItem extends StatelessWidget {
                         if (loadingProgress == null) return child;
                         return Center(child: CircularProgressIndicator());
                       },
-                      errorBuilder: (context, error, stackTrace) => ImagePlaceholder(text: '!'),
+                      errorBuilder: (context, error, stackTrace) => CakePayCardImagePlaceholder(),
                     ),
                   ),
                 ),

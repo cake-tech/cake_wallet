@@ -55,7 +55,7 @@ class CakePayService {
 
   /// LogIn
   Future<void> logIn(String email) async {
-    final userName = await cakePayApi.authenticateUser(email: email, apiKey: testCakePayApiKey);
+    final userName = await cakePayApi.authenticateUser(email: email, apiKey: cakePayApiKey);
     await secureStorage.write(key: cakePayEmailStorageKey, value: userName);
     await secureStorage.write(key: cakePayUsernameStorageKey, value: userName);
   }
@@ -64,7 +64,7 @@ class CakePayService {
   Future<void> verifyEmail(String code) async {
     final email = (await secureStorage.read(key: cakePayEmailStorageKey))!;
     final credentials =
-        await cakePayApi.verifyEmail(email: email, code: code, apiKey: testCakePayApiKey);
+        await cakePayApi.verifyEmail(email: email, code: code, apiKey: cakePayApiKey);
     await secureStorage.write(key: cakePayUserTokenKey, value: credentials.token);
     await secureStorage.write(key: cakePayUsernameStorageKey, value: credentials.username);
   }
@@ -84,7 +84,7 @@ class CakePayService {
   Future<void> logout(String email) async {
     await secureStorage.delete(key: cakePayUsernameStorageKey);
     await secureStorage.delete(key: cakePayUserTokenKey);
-    await cakePayApi.logoutUser(email: email, apiKey: testCakePayApiKey);
+    await cakePayApi.logoutUser(email: email, apiKey: cakePayApiKey);
   }
 
   /// Purchase Gift Card
@@ -93,7 +93,7 @@ class CakePayService {
     final userEmail = (await secureStorage.read(key: cakePayEmailStorageKey))!;
     final token = (await secureStorage.read(key: cakePayUserTokenKey))!;
     return await cakePayApi.createOrder(
-        apiKey: testCakePayApiKey,
+        apiKey: cakePayApiKey,
         cardId: cardId,
         price: price,
         quantity: quantity,
