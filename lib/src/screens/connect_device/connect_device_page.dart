@@ -78,7 +78,11 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   @override
   void initState() {
     super.initState();
-    _bleRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshBleDevices());
+    Future.delayed(
+      Duration(seconds: 1),
+      () => _bleRefresh = ledger.scan().listen((device) => setState(() => bleDevices.add(device))),
+    );
+    // _bleRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshBleDevices());
 
     if (Platform.isAndroid) {
       _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
@@ -138,7 +142,6 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   textAlign: TextAlign.center,
                 ),
               ),
-
               if (!bleIsEnabled)
                 Padding(
                   padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),

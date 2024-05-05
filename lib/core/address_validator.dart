@@ -295,7 +295,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.sol:
         return '([^0-9a-zA-Z]|^)[1-9A-HJ-NP-Za-km-z]{43,44}([^0-9a-zA-Z]|\$)';
       case CryptoCurrency.trx:
-        return '^(T|t)[1-9A-HJ-NP-Za-km-z]{33}\$';
+        return '(T|t)[1-9A-HJ-NP-Za-km-z]{33}';
       default:
         if (type.tag == CryptoCurrency.eth.title) {
           return '0x[0-9a-zA-Z]{42}';
@@ -305,6 +305,9 @@ class AddressValidator extends TextValidator {
         }
         if (type.tag == CryptoCurrency.sol.title) {
           return '([^0-9a-zA-Z]|^)[1-9A-HJ-NP-Za-km-z]{43,44}([^0-9a-zA-Z]|\$)';
+        }
+        if (type.tag == CryptoCurrency.trx.title) {
+          return '(T|t)[1-9A-HJ-NP-Za-km-z]{33}';
         }
 
         return null;
