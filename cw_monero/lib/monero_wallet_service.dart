@@ -55,7 +55,7 @@ class MoneroRestoreWalletFromKeysCredentials extends WalletCredentials {
 }
 
 class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
-    MoneroRestoreWalletFromSeedCredentials, MoneroRestoreWalletFromKeysCredentials> {
+    MoneroRestoreWalletFromSeedCredentials, MoneroRestoreWalletFromKeysCredentials, MoneroNewWalletCredentials> {
   MoneroWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
@@ -225,6 +225,11 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
       print('MoneroWalletsManager Error: $e');
       rethrow;
     }
+  }
+
+  @override
+  Future<MoneroWallet> restoreFromHardwareWallet(MoneroNewWalletCredentials credentials) {
+    throw UnimplementedError("Restoring a Monero wallet from a hardware wallet is not yet supported!");
   }
 
   @override

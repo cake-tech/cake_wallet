@@ -1,237 +1,240 @@
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
+import 'package:cake_wallet/anypay/anypay_api.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
-import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
+import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
+import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/core/backup_service.dart';
+import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
-import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
+import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
+import 'package:cake_wallet/entities/biometric_auth.dart';
+import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cw_core/receive_page_option.dart';
+import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/exchange/exchange_template.dart';
+import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
+import 'package:cake_wallet/ionia/ionia_api.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
+import 'package:cake_wallet/ionia/ionia_merchant.dart';
+import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/src/screens/backup/backup_page.dart';
+import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_options_page.dart';
+import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
+import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
+import 'package:cake_wallet/src/screens/contact/contact_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/balance_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
+import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
+import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
+import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
+import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
+import 'package:cake_wallet/src/screens/faq/faq_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.dart';
+import 'package:cake_wallet/src/screens/ionia/ionia.dart';
+import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
+import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dart';
+import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
+import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
+import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
+import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
+import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
+import 'package:cake_wallet/src/screens/receive/receive_page.dart';
+import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
+import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
+import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
+import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
+import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
+import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
+import 'package:cake_wallet/src/screens/send/send_page.dart';
+import 'package:cake_wallet/src/screens/send/send_template_page.dart';
+import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
-import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
-import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/settings/tor_page.dart';
+import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
-import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_info_page.dart';
-import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_info_page.dart';
+import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
+import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
+import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
+import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
 import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
-import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
-import 'package:cake_wallet/utils/device_info.dart';
-import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
-import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
-import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
-import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_custom_tip_view_model.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_custom_redeem_view_model.dart';
-import 'package:cake_wallet/ionia/ionia_service.dart';
-import 'package:cake_wallet/ionia/ionia_api.dart';
-import 'package:cake_wallet/ionia/ionia_merchant.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/haven/haven.dart';
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
-import 'package:cake_wallet/src/screens/ionia/ionia.dart';
-import 'package:cake_wallet/src/screens/dashboard/pages/balance_page.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
-import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
-import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
-import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
-import 'package:cake_wallet/view_model/seed_type_view_model.dart';
-import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
-import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
-import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
-import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
-import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
-import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
-import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
-import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
-import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
-import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
-import 'package:cw_core/erc20_token.dart';
-import 'package:cw_core/nano_account.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cake_wallet/core/backup_service.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cake_wallet/entities/biometric_auth.dart';
-import 'package:cake_wallet/entities/contact_record.dart';
-import 'package:cake_wallet/buy/order.dart';
-import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:cake_wallet/entities/contact.dart';
-import 'package:cw_core/node.dart';
-import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
-import 'package:cake_wallet/src/screens/backup/backup_page.dart';
-import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
-import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
-import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
-import 'package:cake_wallet/src/screens/contact/contact_page.dart';
-import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
-import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
-import 'package:cake_wallet/src/screens/faq/faq_page.dart';
-import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
-import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
-import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
-import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
-import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
-import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
-import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
-import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
-import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
-import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
-import 'package:cake_wallet/src/screens/send/send_template_page.dart';
-import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
-import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_page.dart';
+import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
+import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
-import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
-import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
+import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
+import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
+import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
+import 'package:cake_wallet/store/dashboard/trades_store.dart';
+import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:cake_wallet/store/secret_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/core/auth_service.dart';
-import 'package:cake_wallet/core/key_service.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
-import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
-import 'package:cake_wallet/src/screens/auth/auth_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
-import 'package:cake_wallet/src/screens/receive/receive_page.dart';
-import 'package:cake_wallet/src/screens/send/send_page.dart';
-import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
-import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
+import 'package:cake_wallet/store/templates/exchange_template_store.dart';
+import 'package:cake_wallet/store/templates/send_template_store.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
+import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
+import 'package:cake_wallet/view_model/auth_view_model.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_amount_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/edit_backup_password_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
+import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_custom_redeem_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_custom_tip_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_gift_card_details_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_payment_status_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
-import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
+import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
+import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
+import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
+import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
+import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
+import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:cake_wallet/view_model/order_details_view_model.dart';
 import 'package:cake_wallet/view_model/rescan_view_model.dart';
+import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/restore_from_backup_view_model.dart';
+import 'package:cake_wallet/view_model/seed_type_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
+import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.dart';
 import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
-import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
 import 'package:cake_wallet/view_model/trade_details_view_model.dart';
+import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_details_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
-import 'package:cake_wallet/view_model/auth_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
-import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
-import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
-import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_new_vm.dart';
+import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/nano_account.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/receive_page_option.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:cake_wallet/core/wallet_creation_service.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/view_model/wallet_new_vm.dart';
-import 'package:cake_wallet/store/authentication_store.dart';
-import 'package:cake_wallet/store/dashboard/trades_store.dart';
-import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
-import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
-import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
-import 'package:cake_wallet/store/templates/send_template_store.dart';
-import 'package:cake_wallet/store/templates/exchange_template_store.dart';
-import 'package:cake_wallet/entities/template.dart';
-import 'package:cake_wallet/exchange/exchange_template.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
-import 'package:cake_wallet/anypay/anypay_api.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_gift_card_details_view_model.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_payment_status_view_model.dart';
-import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
-import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
-import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
-import 'package:cake_wallet/core/wallet_loading_service.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cake_wallet/entities/qr_view_data.dart';
 
 import 'buy/dfx/dfx_buy_provider.dart';
 import 'core/totp_request_details.dart';
@@ -308,6 +311,7 @@ Future<void> setup({
   getIt.registerFactory<Box<Node>>(() => _powNodeSource, instanceName: Node.boxName + "pow");
 
   getIt.registerSingleton(AuthenticationStore());
+  getIt.registerSingleton(LedgerViewModel());
   getIt.registerSingleton<WalletListStore>(WalletListStore());
   getIt.registerSingleton(NodeListStoreBase.instance);
   getIt.registerSingleton<SettingsStore>(settingsStore);
@@ -366,6 +370,11 @@ Future<void> setup({
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
         getIt.get<WalletCreationService>(param1: type), _walletInfoSource, type);
   });
+
+  getIt.registerFactoryParam<WalletHardwareRestoreViewModel, WalletType, void>((type, _) =>
+      WalletHardwareRestoreViewModel(getIt.get<LedgerViewModel>(), getIt.get<AppStore>(),
+          getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
+          type: type));
 
   getIt.registerFactory<WalletAddressListViewModel>(() => WalletAddressListViewModel(
       appStore: getIt.get<AppStore>(),
@@ -490,12 +499,8 @@ Future<void> setup({
   getIt.registerLazySingleton<WalletConnectKeyService>(() => KeyServiceImpl());
 
   getIt.registerLazySingleton<Web3WalletService>(() {
-    final Web3WalletService web3WalletService = Web3WalletService(
-      getIt.get<BottomSheetService>(),
-      getIt.get<WalletConnectKeyService>(),
-      appStore,
-      getIt.get<SharedPreferences>()
-    );
+    final Web3WalletService web3WalletService = Web3WalletService(getIt.get<BottomSheetService>(),
+        getIt.get<WalletConnectKeyService>(), appStore, getIt.get<SharedPreferences>());
     web3WalletService.create();
     return web3WalletService;
   });
@@ -599,6 +604,7 @@ Future<void> setup({
       getIt.get<BalanceViewModel>(),
       getIt.get<ContactListViewModel>(),
       _transactionDescriptionBox,
+      getIt.get<LedgerViewModel>(),
     ),
   );
 
@@ -804,11 +810,11 @@ Future<void> setup({
           editingNode: editingNode,
           isSelected: isSelected));
 
-  getIt.registerFactory<RobinhoodBuyProvider>(
-      () => RobinhoodBuyProvider(wallet: getIt.get<AppStore>().wallet!));
+  getIt.registerFactory<RobinhoodBuyProvider>(() => RobinhoodBuyProvider(
+      wallet: getIt.get<AppStore>().wallet!, ledgerVM: getIt.get<LedgerViewModel>()));
 
-  getIt
-      .registerFactory<DFXBuyProvider>(() => DFXBuyProvider(wallet: getIt.get<AppStore>().wallet!));
+  getIt.registerFactory<DFXBuyProvider>(() => DFXBuyProvider(
+      wallet: getIt.get<AppStore>().wallet!, ledgerVM: getIt.get<LedgerViewModel>()));
 
   getIt.registerFactory<MoonPayProvider>(() => MoonPayProvider(
         settingsStore: getIt.get<AppStore>().settingsStore,
@@ -928,8 +934,17 @@ Future<void> setup({
           transactionDetailsViewModel:
               getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
 
-  getIt.registerFactoryParam<NewWalletTypePage, void Function(BuildContext, WalletType), bool?>(
-      (param1, isCreate) => NewWalletTypePage(onTypeSelected: param1, isCreate: isCreate ?? true));
+  getIt.registerFactoryParam<NewWalletTypePage, void Function(BuildContext, WalletType),
+      List<bool>?>((param1, additionalParams) {
+    final isCreate = additionalParams?[0] ?? true;
+    final isHardwareWallet = additionalParams?[1] ?? false;
+
+    return NewWalletTypePage(
+      onTypeSelected: param1,
+      isCreate: isCreate,
+      isHardwareWallet: isHardwareWallet,
+    );
+  });
 
   getIt.registerFactoryParam<PreSeedPage, int, void>(
       (seedPhraseLength, _) => PreSeedPage(seedPhraseLength));
@@ -1144,9 +1159,9 @@ Future<void> setup({
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
 
   getIt.registerFactoryParam<RBFDetailsPage, TransactionInfo, void>(
-          (TransactionInfo transactionInfo, _) => RBFDetailsPage(
+      (TransactionInfo transactionInfo, _) => RBFDetailsPage(
           transactionDetailsViewModel:
-          getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
+              getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
 
   getIt.registerFactory(() => AnonPayApi(
       useTorOnly: getIt.get<SettingsStore>().exchangeStatus == ExchangeApiMode.torOnly,

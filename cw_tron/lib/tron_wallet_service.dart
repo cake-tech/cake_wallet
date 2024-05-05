@@ -1,7 +1,10 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/balance.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -13,8 +16,11 @@ import 'package:cw_tron/tron_wallet_creation_credentials.dart';
 import 'package:hive/hive.dart';
 import 'package:collection/collection.dart';
 
-class TronWalletService extends WalletService<TronNewWalletCredentials,
-    TronRestoreWalletFromSeedCredentials, TronRestoreWalletFromPrivateKey> {
+class TronWalletService extends WalletService<
+    TronNewWalletCredentials,
+    TronRestoreWalletFromSeedCredentials,
+    TronRestoreWalletFromPrivateKey,
+    TronNewWalletCredentials> {
   TronWalletService(this.walletInfoSource, {required this.client});
 
   late TronClient client;
@@ -144,5 +150,11 @@ class TronWalletService extends WalletService<TronNewWalletCredentials,
     final walletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
+  }
+
+  @override
+  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> restoreFromHardwareWallet(TronNewWalletCredentials credentials) {
+    // TODO: implement restoreFromHardwareWallet
+    throw UnimplementedError();
   }
 }

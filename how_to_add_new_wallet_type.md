@@ -277,6 +277,7 @@ Now you can run the codebase and successfully create a wallet for type walletX s
 - Modify `getCredentialsFromRestoredWallet` method
 - Go to `lib/core/address_validator.dart`
 - Modify the `getAddressFromStringPattern` method to add a case for `WalletType.walletx`
+- and if it has tokens (ex. erc20, trc20, spl tokens) then add them to the switch case as well
 - Add the scheme for walletx for both Android in `AndroidManifestBase.xml` and iOS in `InfoBase.plist`
 
 **Transaction History**
@@ -291,10 +292,10 @@ Now you can run the codebase and successfully create a wallet for type walletX s
 # Points to note when adding the new wallet type
 
 1. if it has tokens (ex. ERC20, SPL, etc...) make sure to add that to this function `_checkIfCanSend` in `exchange_trade_view_model.dart`
+1. if it has tokens (ex. ERC20, SPL, etc...) make sure to add a check for the tags as well in the 
 2. Check On/Off ramp providers that support the new wallet currency and add them accordingly in `provider_types.dart`
 3. Add support for wallet uri scheme to restore from QR for both Android in `AndroidManifestBase.xml` and iOS in `InfoBase.plist`
 4. Make sure no imports are using the wallet internal package files directly, instead use the proxy layers that is created in the main lib `lib/cw_ethereum.dart` for example. (i.e try building Monero.com if you get compilation errors, then you probably missed something)
-5. 
 
 
 Copyright (C) 2018-2023 Cake Labs LLC

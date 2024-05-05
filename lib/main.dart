@@ -105,7 +105,11 @@ Future<void> initializeAppConfigs() async {
   if (!CakeHive.isAdapterRegistered(DERIVATION_INFO_TYPE_ID)) {
     CakeHive.registerAdapter(DerivationInfoAdapter());
   }
-  
+
+  if (!CakeHive.isAdapterRegistered(HARDWARE_WALLET_TYPE_TYPE_ID)) {
+    CakeHive.registerAdapter(HardwareWalletTypeAdapter());
+  }
+
   if (!CakeHive.isAdapterRegistered(WALLET_TYPE_TYPE_ID)) {
     CakeHive.registerAdapter(WalletTypeAdapter());
   }

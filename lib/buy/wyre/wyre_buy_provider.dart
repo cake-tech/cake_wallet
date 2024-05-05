@@ -14,7 +14,7 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 class WyreBuyProvider extends BuyProvider {
   WyreBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
       : baseApiUrl = isTestEnvironment ? _baseTestApiUrl : _baseProductApiUrl,
-        super(wallet: wallet, isTestEnvironment: isTestEnvironment);
+        super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: null);
 
   static const _baseTestApiUrl = 'https://api.testwyre.com';
   static const _baseProductApiUrl = 'https://api.sendwyre.com';
