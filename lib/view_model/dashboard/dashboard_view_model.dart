@@ -382,6 +382,7 @@ abstract class DashboardViewModelBase with Store {
         WalletType.solana,
         WalletType.nano,
         WalletType.banano,
+        WalletType.tron,
       ].contains(wallet.type);
 
   bool get showRepWarning {
