@@ -3,6 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/image_placeholder.dart';
+import 'package:cake_wallet/src/screens/cake_pay/widgets/link_extractor.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/number_text_fild_widget.dart';
@@ -19,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
+import 'package:uni_links/uni_links.dart';
 
 class CakePayBuyCardPage extends BasePage {
   CakePayBuyCardPage(
@@ -181,11 +183,17 @@ class CakePayBuyCardPage extends BasePage {
                             ),
                             Expanded(
                               child: SingleChildScrollView(
-                                child: Text(
-                                  card.description ?? '',
-                                  style: TextStyle(
+                                child: ClickableLinksText(
+                                  text: card.description ?? '',
+                                  textStyle: TextStyle(
                                     color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                                     fontSize: 18,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  linkStyle: TextStyle(
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                    fontSize: 18,
+                                    fontStyle: FontStyle.italic,
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),

@@ -5,6 +5,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/cake_pay_alert_modal.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/image_placeholder.dart';
+import 'package:cake_wallet/src/screens/cake_pay/widgets/link_extractor.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -232,10 +233,18 @@ class CakePayBuyCardDetailPage extends BasePage {
             title: S.of(context).settings_terms_and_conditions,
             content: Align(
               alignment: Alignment.bottomLeft,
-              child: Text(
-                termsAndConditions ?? '',
-                style: textMedium(
-                  color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
+              child: ClickableLinksText(
+                text: termsAndConditions ?? '',
+                textStyle: TextStyle(
+                  color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w400,
+                ),
+                linkStyle: TextStyle(
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  fontSize: 18,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
@@ -273,12 +282,20 @@ class CakePayBuyCardDetailPage extends BasePage {
                       color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
                     ),
                   )),
-              Text(
-                card.howToUse ?? '',
-                style: textMedium(
-                  color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
+              ClickableLinksText(
+                text: card.howToUse ?? '',
+                textStyle: TextStyle(
+                  color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w400,
                 ),
-              )
+                linkStyle: TextStyle(
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  fontSize: 18,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
             ]),
             actionTitle: S.current.got_it,
           );
