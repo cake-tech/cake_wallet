@@ -113,6 +113,7 @@ jobs:
           touch lib/.secrets.g.dart
           touch cw_evm/lib/.secrets.g.dart
           touch cw_solana/lib/.secrets.g.dart
+          touch cw_tron/lib/.secrets.g.dart
           echo "const salt = '${{ secrets.SALT }}';" > lib/.secrets.g.dart
           echo "const keychainSalt = '${{ secrets.KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
           echo "const key = '${{ secrets.KEY }}';" >> lib/.secrets.g.dart
@@ -154,6 +155,7 @@ jobs:
           echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const authorization = '${{ secrets.CAKE_PAY_AUTHORIZATION }}';" >> lib/.secrets.g.dart
           echo "const CSRFToken = '${{ secrets.CSRF_TOKEN }}';" >> lib/.secrets.g.dart
+          echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
 
       - name: Rename app
         run: |

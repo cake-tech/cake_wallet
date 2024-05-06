@@ -50,6 +50,10 @@ class SecretKey {
     SecretKey('ankrApiKey', () => ''),
   ];
 
+  static final tronSecrets = [
+    SecretKey('tronGridApiKey', () => ''),
+  ];
+
   final String name;
   final String Function() generate;
 }

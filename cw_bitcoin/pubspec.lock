@@ -217,10 +217,10 @@ packages:
     dependency: transitive
     description:
       name: collection
-      sha256: f092b211a4319e98e5ff58223576de6c2803db36221657b46c82574721240687
+      sha256: "4a07be6cb69c84d677a6c3096fcf960cc3285a8330b4603e0d463d15d9bd934c"
       url: "https://pub.dev"
     source: hosted
-    version: "1.17.2"
+    version: "1.17.1"
   convert:
     dependency: transitive
     description:
@@ -260,6 +260,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.4"
+  dart_varuint_bitcoin:
+    dependency: transitive
+    description:
+      name: dart_varuint_bitcoin
+      sha256: "4f0ccc9733fb54148b9d3688eea822b7aaabf5cc00025998f8c09a1d45b31b4b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
   encrypt:
     dependency: transitive
     description:
@@ -313,6 +321,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.1+1"
+  flutter_reactive_ble:
+    dependency: transitive
+    description:
+      name: flutter_reactive_ble
+      sha256: "247e2efa76de203d1ba11335c13754b5b9d0504b5423e5b0c93a600f016b24e0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -326,6 +342,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  functional_data:
+    dependency: transitive
+    description:
+      name: functional_data
+      sha256: aefdec4365452283b2a7cf420a3169654d51d3e9553069a22d76680d7a9d7c3d
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
   glob:
     dependency: transitive
     description:
@@ -422,6 +446,31 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.8.1"
+  ledger_bitcoin:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: b6ed573cbeb57d5f0d39dfe4254bf9d15b620ab6
+      url: "https://github.com/cake-tech/ledger-bitcoin.git"
+    source: git
+    version: "0.0.1"
+  ledger_flutter:
+    dependency: "direct main"
+    description:
+      name: ledger_flutter
+      sha256: f1680060ed6ff78f275837e0024ccaf667715a59ba7aa29fa7354bc7752e71c8
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
+  ledger_usb:
+    dependency: transitive
+    description:
+      name: ledger_usb
+      sha256: "52c92d03a4cffe06c82921c8e2f79f3cdad6e1cf78e1e9ca35444196ff8f14c2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   logging:
     dependency: transitive
     description:
@@ -434,18 +483,18 @@ packages:
     dependency: transitive
     description:
       name: matcher
-      sha256: "1803e76e6653768d64ed8ff2e1e67bea3ad4b923eb5c56a295c3e634bad5960e"
+      sha256: "6501fbd55da300384b768785b83e5ce66991266cec21af89ab9ae7f5ce1c4cbb"
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.16"
+    version: "0.12.15"
   material_color_utilities:
     dependency: transitive
     description:
       name: material_color_utilities
-      sha256: "9528f2f296073ff54cb9fee677df673ace1218163c3bc7628093e7eed5203d41"
+      sha256: d92141dc6fe1dad30722f9aa826c7fbc896d021d792f80678280601aff8cf724
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.0"
+    version: "0.2.0"
   meta:
     dependency: transitive
     description:
@@ -582,6 +631,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.1"
+  protobuf:
+    dependency: transitive
+    description:
+      name: protobuf
+      sha256: "01dd9bd0fa02548bf2ceee13545d4a0ec6046459d847b6b061d8a27237108a08"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   provider:
     dependency: transitive
     description:
@@ -606,6 +663,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.3"
+  reactive_ble_mobile:
+    dependency: transitive
+    description:
+      name: reactive_ble_mobile
+      sha256: "9ec2b4c9c725e439950838d551579750060258fbccd5536d0543b4d07d225798"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.1"
+  reactive_ble_platform_interface:
+    dependency: transitive
+    description:
+      name: reactive_ble_platform_interface
+      sha256: "632c92401a2d69c9b94bd48f8fd47488a7013f3d1f9b291884350291a4a81813"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.1"
   rxdart:
     dependency: "direct main"
     description:
@@ -663,10 +736,10 @@ packages:
     dependency: transitive
     description:
       name: source_span
-      sha256: "53e943d4206a5e30df338fd4c6e7a077e02254531b138a15aec3bd143c1a8b3c"
+      sha256: dd904f795d4b4f3b870833847c461801f6750a9fa8e61ea5ac53f9422b31f250
       url: "https://pub.dev"
     source: hosted
-    version: "1.10.0"
+    version: "1.9.1"
   stack_trace:
     dependency: transitive
     description:
@@ -711,10 +784,10 @@ packages:
     dependency: transitive
     description:
       name: test_api
-      sha256: "75760ffd7786fffdfb9597c35c5b27eaeec82be8edfb6d71d32651128ed7aab8"
+      sha256: eb6ac1540b26de412b3403a163d919ba86f6a973fe6cc50ae3541b80092fdcfb
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.0"
+    version: "0.5.1"
   timing:
     dependency: transitive
     description:
@@ -748,21 +821,13 @@ packages:
     source: hosted
     version: "2.1.4"
   watcher:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: watcher
       sha256: "3d2ad6751b3c16cf07c7fca317a1413b3f26530319181b37e3b9039b84fc01d8"
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
-  web:
-    dependency: transitive
-    description:
-      name: web
-      sha256: dc8ccd225a2005c1be616fe02951e2e342092edf968cf0844220383757ef8f10
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.4-beta"
   web_socket_channel:
     dependency: transitive
     description:
@@ -796,5 +861,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.1.0-185.0.dev <4.0.0"
+  dart: ">=3.0.6 <4.0.0"
   flutter: ">=3.10.0"
