@@ -228,35 +228,47 @@ class CWNanoUtil extends NanoUtil {
   }) async {
     NanoClient nanoClient = NanoClient();
     nanoClient.connect(node);
-    late String publicAddress;
+    String? publicAddress;
 
-    if (seedKey != null) {
-      if (seedKey.length == 64) {
-        try {
-          mnemonic = NanoDerivations.standardSeedToMnemonic(seedKey);
-        } catch (e) {
-          print("not a valid 'nano' seed key");
+    if (seedKey == null && mnemonic == null) {
+      throw Exception("One of seed key OR mnemonic must be provided!");
+    }
+
+    try {
+      if (seedKey != null) {
+        if (seedKey.length == 64) {
+          try {
+            mnemonic = NanoDerivations.standardSeedToMnemonic(seedKey);
+          } catch (e) {
+            print("not a valid 'nano' seed key");
+          }
+        }
+        if (derivationType == DerivationType.bip39) {
+          publicAddress = await NanoDerivations.hdSeedToAddress(seedKey, index: 0);
+        } else if (derivationType == DerivationType.nano) {
+          publicAddress = await NanoDerivations.standardSeedToAddress(seedKey, index: 0);
         }
       }
+
       if (derivationType == DerivationType.bip39) {
-        publicAddress = await NanoDerivations.hdSeedToAddress(seedKey, index: 0);
-      } else if (derivationType == DerivationType.nano) {
-        publicAddress = await NanoDerivations.standardSeedToAddress(seedKey, index: 0);
+        if (mnemonic != null) {
+          seedKey = await NanoDerivations.hdMnemonicListToSeed(mnemonic.split(' '));
+          publicAddress = await NanoDerivations.hdSeedToAddress(seedKey, index: 0);
+        }
       }
-    }
 
-    if (derivationType == DerivationType.bip39) {
-      if (mnemonic != null) {
-        seedKey = await NanoDerivations.hdMnemonicListToSeed(mnemonic.split(' '));
-        publicAddress = await NanoDerivations.hdSeedToAddress(seedKey, index: 0);
+      if (derivationType == DerivationType.nano) {
+        if (mnemonic != null) {
+          seedKey = await NanoDerivations.standardMnemonicToSeed(mnemonic);
+          publicAddress = await NanoDerivations.standardSeedToAddress(seedKey, index: 0);
+        }
       }
-    }
+    } catch (_) {}
 
-    if (derivationType == DerivationType.nano) {
-      if (mnemonic != null) {
-        seedKey = await NanoDerivations.standardMnemonicToSeed(mnemonic);
-        publicAddress = await NanoDerivations.standardSeedToAddress(seedKey, index: 0);
-      }
+    if (publicAddress == null) {
+      // we couldn't derive a public address for the derivation type provided
+      // i.e. a bip39 seed was provided and we were instructed to derive a "nano" type address
+      return null;
     }
 
     AccountInfoResponse? accountInfo = await nanoClient.getAccountInfo(publicAddress);
