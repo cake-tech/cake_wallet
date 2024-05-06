@@ -28,12 +28,14 @@ dependency_overrides:
     git:
       url: https://github.com/cake-tech/web3dart.git
       ref: cake
+  watcher: ^1.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
-  build_runner: ^2.1.11
+  build_runner: ^2.4.7
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
