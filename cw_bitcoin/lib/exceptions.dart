@@ -15,7 +15,9 @@ class BitcoinTransactionNoDustOnChangeException extends TransactionNoDustOnChang
   BitcoinTransactionNoDustOnChangeException(super.max, super.min);
 }
 
-class BitcoinTransactionCommitFailed extends TransactionCommitFailed {}
+class BitcoinTransactionCommitFailed extends TransactionCommitFailed {
+  BitcoinTransactionCommitFailed({super.errorMessage});
+}
 
 class BitcoinTransactionCommitFailedDustChange extends TransactionCommitFailedDustChange {}
 

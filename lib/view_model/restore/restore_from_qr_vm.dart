@@ -30,8 +30,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
         spendKey = '',
         wif = '',
         address = '',
-        super(appStore, walletInfoSource, walletCreationService,
-            type: type, isRecovery: true);
+        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
 
   @observable
   int height;
@@ -51,8 +50,16 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
   bool get hasRestorationHeight => type == WalletType.monero;
 
   @override
-  WalletCredentials getCredentialsFromRestoredWallet(dynamic options, RestoredWallet restoreWallet) {
+  WalletCredentials getCredentialsFromRestoredWallet(
+      dynamic options, RestoredWallet restoreWallet) {
     final password = generateWalletPassword();
+    String? passphrase;
+    DerivationInfo? derivationInfo;
+    if (options != null) {
+      derivationInfo = options["derivationInfo"] as DerivationInfo?;
+      passphrase = options["passphrase"] as String?;
+    }
+    derivationInfo ??= getDefaultDerivation();
 
     switch (restoreWallet.restoreMode) {
       case WalletRestoreMode.keys:
@@ -86,23 +93,37 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
         switch (restoreWallet.type) {
           case WalletType.monero:
             return monero!.createMoneroRestoreWalletFromSeedCredentials(
-                name: name,
-                height: restoreWallet.height ?? 0,
-                mnemonic: restoreWallet.mnemonicSeed ?? '',
-                password: password);
+              name: name,
+              height: restoreWallet.height ?? 0,
+              mnemonic: restoreWallet.mnemonicSeed ?? '',
+              password: password,
+            );
           case WalletType.bitcoin:
           case WalletType.litecoin:
             return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
-                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
+              name: name,
+              mnemonic: restoreWallet.mnemonicSeed ?? '',
+              password: password,
+              passphrase: passphrase,
+              derivationType: derivationInfo!.derivationType!,
+              derivationPath: derivationInfo.derivationPath!,
+            );
           case WalletType.bitcoinCash:
             return bitcoinCash!.createBitcoinCashRestoreWalletFromSeedCredentials(
-                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
+              name: name,
+              mnemonic: restoreWallet.mnemonicSeed ?? '',
+              password: password,
+            );
           case WalletType.ethereum:
             return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
           case WalletType.nano:
             return nano!.createNanoRestoreWalletFromSeedCredentials(
-                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
+              name: name,
+              mnemonic: restoreWallet.mnemonicSeed ?? '',
+              password: password,
+              derivationType: derivationInfo!.derivationType!,
+            );
           case WalletType.polygon:
             return polygon!.createPolygonRestoreWalletFromSeedCredentials(
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
@@ -118,7 +139,8 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
   }
 
   @override
-  Future<WalletBase> processFromRestoredWallet(WalletCredentials credentials, RestoredWallet restoreWallet) async {
+  Future<WalletBase> processFromRestoredWallet(
+      WalletCredentials credentials, RestoredWallet restoreWallet) async {
     try {
       switch (restoreWallet.restoreMode) {
         case WalletRestoreMode.keys:

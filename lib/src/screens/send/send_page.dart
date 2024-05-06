@@ -101,9 +101,9 @@ class SendPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   double _sendCardHeight(BuildContext context) {
-    double initialHeight = 450;
+    double initialHeight = 480;
     if (sendViewModel.hasCoinControl) {
-      initialHeight += 35;
+      initialHeight += 55;
     }
 
     if (!responsiveLayoutUtil.shouldRenderMobileUI) {

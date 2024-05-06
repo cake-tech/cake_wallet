@@ -61,6 +61,8 @@ Future<void> main(List<String> args) async {
 Future<void> generateBitcoin(bool hasImplementation) async {
   final outputFile = File(bitcoinOutputPath);
   const bitcoinCommonHeaders = """
+import 'dart:typed_data';
+import 'package:cw_core/node.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
@@ -74,8 +76,17 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:hive/hive.dart';
-import 'package:bitcoin_base/bitcoin_base.dart';""";
+import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as btc;
+import 'package:bip32/bip32.dart' as bip32;
+import 'package:bip39/bip39.dart' as bip39;
+import 'package:hive/hive.dart';
+""";
   const bitcoinCWHeaders = """
+import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_bitcoin/litecoin_network.dart';
+import 'package:cw_bitcoin/electrum_derivations.dart';
+import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
@@ -90,6 +101,8 @@ import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_bitcoin/script_hash.dart';
+import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:mobx/mobx.dart';
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
@@ -114,7 +127,14 @@ import 'package:mobx/mobx.dart';
 abstract class Bitcoin {
   TransactionPriority getMediumTransactionPriority();
 
-  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({
+    required String name,
+    required String mnemonic,
+    required String password,
+    required DerivationType derivationType,
+    required String derivationPath,
+    String? passphrase,
+  });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
   WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo});
   List<String> getWordList();
@@ -151,7 +171,10 @@ abstract class Bitcoin {
   TransactionPriority getLitecoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPrioritySlow();
   TransactionPriority getLitecoinTransactionPrioritySlow();
-
+  Future<List<DerivationType>> compareDerivationMethods(
+      {required String mnemonic, required Node node});
+  Future<List<DerivationInfo>> getDerivationsFromMnemonic(
+      {required String mnemonic, required Node node, String? passphrase});
   Future<void> setAddressType(Object wallet, dynamic option);
   BitcoinReceivePageOption getSelectedAddressType(Object wallet);
   List<BitcoinReceivePageOption> getBitcoinReceivePageOptions();
@@ -168,12 +191,14 @@ abstract class Bitcoin {
   Future<bool> canReplaceByFee(Object wallet, String transactionHash);
   Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee);
   int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});
-  int getFeeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
+  int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
+      {int? outputsCount, int? size});
   int getHeightByDate({required DateTime date});
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan});
   bool getNodeIsCakeElectrs(Object wallet);
   void deleteSilentPaymentAddress(Object wallet, String address);
   Future<void> updateFeeRates(Object wallet);
+  int getMaxCustomFeeRate(Object wallet);
 }
   """;
 
@@ -852,14 +877,14 @@ abstract class Nano {
     required String name,
     required String password,
     required String mnemonic,
-    DerivationType? derivationType,
+    required DerivationType derivationType,
   });
 
   WalletCredentials createNanoRestoreWalletFromKeysCredentials({
     required String name,
     required String password,
     required String seedKey,
-    DerivationType? derivationType,
+    required DerivationType derivationType,
   });
 
   List<String> getNanoWordList(String language);
@@ -904,6 +929,11 @@ abstract class NanoUtil {
   Future<List<DerivationType>> compareDerivationMethods({
     String? mnemonic,
     String? privateKey,
+    required Node node,
+  });
+  Future<List<DerivationInfo>> getDerivationsFromMnemonic({
+    String? mnemonic,
+    String? seedKey,
     required Node node,
   });
 }
