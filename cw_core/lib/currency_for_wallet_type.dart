@@ -26,6 +26,8 @@ CryptoCurrency currencyForWalletType(WalletType type, {bool? isTestnet}) {
       return CryptoCurrency.maticpoly;
     case WalletType.solana:
       return CryptoCurrency.sol;
+    case WalletType.tron:
+      return CryptoCurrency.trx;
     default:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');

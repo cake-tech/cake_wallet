@@ -56,6 +56,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   bool get isEnabledAutoGenerateSubaddress => false;
 
+  bool get isHardwareWallet => walletInfo.isHardwareWallet;
+
   Future<void> connectToNode({required Node node});
 
   // there is a default definition here because only coins with a pow node (nano based) need to override this
@@ -88,7 +90,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<void> renameWalletFiles(String newWalletName);
 
-  String signMessage(String message, {String? address = null}) => throw UnimplementedError();
+  Future<String> signMessage(String message, {String? address = null}) => throw UnimplementedError();
 
   bool? isTestnet;
 }

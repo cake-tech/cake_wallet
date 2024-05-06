@@ -38,6 +38,10 @@ dependencies:
     git:
       url: https://github.com/cake-tech/blockchain_utils
       ref: cake-update-v1
+  ledger_flutter: ^1.0.1
+  ledger_bitcoin:
+    git:
+      url: https://github.com/cake-tech/ledger-bitcoin.git
   sp_scanner:
     git:
       url: https://github.com/rafael-xmr/sp_scanner
