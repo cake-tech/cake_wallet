@@ -8,8 +8,22 @@ const coreConfigPath = 'tool/.core-secrets-config.json';
 const evmChainsConfigPath = 'tool/.evm-secrets-config.json';
 const solanaConfigPath = 'tool/.solana-secrets-config.json';
 const nanoConfigPath = 'tool/.nano-secrets-config.json';
+const tronConfigPath = 'tool/.tron-secrets-config.json';
 
 Future<void> main(List<String> args) async => generateSecretsConfig(args);
+
+Future<void> writeConfig(File configFile, List<SecretKey> newSecrets) async {
+  final secrets = <String, dynamic>{};
+  newSecrets.forEach((sec) {
+    if (secrets[sec.name] != null) {
+      return;
+    }
+    secrets[sec.name] = sec.generate();
+  });
+  String secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
+  await configFile.writeAsString(secretsJson);
+  secrets.clear();
+}
 
 Future<void> generateSecretsConfig(List<String> args) async {
   final extraInfo = args.fold(<String, dynamic>{}, (Map<String, dynamic> acc, String arg) {
@@ -24,6 +38,7 @@ Future<void> generateSecretsConfig(List<String> args) async {
   final evmChainsConfigFile = File(evmChainsConfigPath);
   final solanaConfigFile = File(solanaConfigPath);
   final nanoConfigFile = File(nanoConfigPath);
+  final tronConfigFile = File(tronConfigPath);
 
   final secrets = <String, dynamic>{};
 
@@ -44,60 +59,10 @@ Future<void> generateSecretsConfig(List<String> args) async {
     }
   }
 
-  late String secretsJson;
-
-  // base:
-  SecretKey.base.forEach((sec) {
-    if (secrets[sec.name] != null) {
-      return;
-    }
-    secrets[sec.name] = sec.generate();
-  });
-  secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
-  await baseConfigFile.writeAsString(secretsJson);
-  secrets.clear();
-
-  // core:
-  SecretKey.coreSecrets.forEach((sec) {
-    if (secrets[sec.name] != null) {
-      return;
-    }
-    secrets[sec.name] = sec.generate();
-  });
-  secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
-  await coreConfigFile.writeAsString(secretsJson);
-  secrets.clear();
-
-  // evm:
-  SecretKey.evmChainsSecrets.forEach((sec) {
-    if (secrets[sec.name] != null) {
-      return;
-    }
-    secrets[sec.name] = sec.generate();
-  });
-  secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
-  await evmChainsConfigFile.writeAsString(secretsJson);
-  secrets.clear();
-
-  // solana:
-  SecretKey.solanaSecrets.forEach((sec) {
-    if (secrets[sec.name] != null) {
-      return;
-    }
-    secrets[sec.name] = sec.generate();
-  });
-  secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
-  await solanaConfigFile.writeAsString(secretsJson);
-  secrets.clear();
-
-  // nano:
-  SecretKey.nanoSecrets.forEach((sec) {
-    if (secrets[sec.name] != null) {
-      return;
-    }
-    secrets[sec.name] = sec.generate();
-  });
-  secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
-  await nanoConfigFile.writeAsString(secretsJson);
-  secrets.clear();
+  await writeConfig(baseConfigFile, SecretKey.base);
+  await writeConfig(coreConfigFile, SecretKey.coreSecrets);
+  await writeConfig(evmChainsConfigFile, SecretKey.evmChainsSecrets);
+  await writeConfig(solanaConfigFile, SecretKey.solanaSecrets);
+  await writeConfig(nanoConfigFile, SecretKey.nanoSecrets);
+  await writeConfig(tronConfigFile, SecretKey.tronSecrets);
 }
