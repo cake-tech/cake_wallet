@@ -12,8 +12,12 @@ const tronConfigPath = 'tool/.tron-secrets-config.json';
 
 Future<void> main(List<String> args) async => generateSecretsConfig(args);
 
-Future<void> writeConfig(File configFile, List<SecretKey> newSecrets) async {
-  final secrets = <String, dynamic>{};
+Future<void> writeConfig(
+  File configFile,
+  List<SecretKey> newSecrets, {
+  Map<String, dynamic>? existingSecrets,
+}) async {
+  final secrets = existingSecrets ?? <String, dynamic>{};
   newSecrets.forEach((sec) {
     if (secrets[sec.name] != null) {
       return;
@@ -47,7 +51,6 @@ Future<void> generateSecretsConfig(List<String> args) async {
     if (key.contains('--')) {
       return true;
     }
-
     return false;
   });
 
@@ -58,8 +61,10 @@ Future<void> generateSecretsConfig(List<String> args) async {
       return;
     }
   }
+  
+  await writeConfig(baseConfigFile, SecretKey.base, existingSecrets: secrets);
 
-  await writeConfig(baseConfigFile, SecretKey.base);
+
   await writeConfig(coreConfigFile, SecretKey.coreSecrets);
   await writeConfig(evmChainsConfigFile, SecretKey.evmChainsSecrets);
   await writeConfig(solanaConfigFile, SecretKey.solanaSecrets);
