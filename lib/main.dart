@@ -41,6 +41,7 @@ import 'package:uni_links/uni_links.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/window_size.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -60,6 +61,8 @@ Future<void> main() async {
       return true;
     };
 
+    await setDefaultMinimumWindowSize();
+    
     await CakeHive.close();
 
     await initializeAppConfigs();

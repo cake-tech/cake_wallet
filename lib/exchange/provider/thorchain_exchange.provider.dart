@@ -34,11 +34,13 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
   static final isRefundAddressSupported = [CryptoCurrency.eth];
 
-  static const _baseURL = 'thornode.ninerealms.com';
+  static const _baseNodeURL = 'thornode.ninerealms.com';
+  static const _baseURL = 'midgard.ninerealms.com';
   static const _quotePath = '/thorchain/quote/swap';
   static const _txInfoPath = '/thorchain/tx/status/';
   static const _affiliateName = 'cakewallet';
   static const _affiliateBps = '175';
+  static const _nameLookUpPath= 'v2/thorname/lookup/';
 
   final Box<Trade> tradesStore;
 
@@ -154,7 +156,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({required String id}) async {
     if (id.isEmpty) throw Exception('Trade id is empty');
     final formattedId = id.startsWith('0x') ? id.substring(2) : id;
-    final uri = Uri.https(_baseURL, '$_txInfoPath$formattedId');
+    final uri = Uri.https(_baseNodeURL, '$_txInfoPath$formattedId');
     final response = await http.get(uri);
 
     if (response.statusCode == 404) {
@@ -206,8 +208,35 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     );
   }
 
+  static Future<Map<String, String>?>? lookupAddressByName(String name) async {
+    final uri = Uri.https(_baseURL, '$_nameLookUpPath$name');
+    final response = await http.get(uri);
+
+    if (response.statusCode != 200) {
+      return null;
+    }
+
+    final body = json.decode(response.body) as Map<String, dynamic>;
+    final entries = body['entries'] as List<dynamic>?;
+
+    if (entries == null || entries.isEmpty) {
+      return null;
+    }
+
+    Map<String, String> chainToAddressMap = {};
+
+    for (final entry in entries) {
+      final chain = entry['chain'] as String;
+      final address = entry['address'] as String;
+      chainToAddressMap[chain] = address;
+    }
+
+    return chainToAddressMap;
+  }
+
+
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
-    Uri uri = Uri.https(_baseURL, _quotePath, params);
+    Uri uri = Uri.https(_baseNodeURL, _quotePath, params);
 
     final response = await http.get(uri);
 

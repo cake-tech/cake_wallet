@@ -26,15 +26,17 @@ dependencies:
   path_provider: ^2.0.11
   mobx: ^2.1.4
   flutter_mobx: ^2.0.6+5
-  flutter_slidable: ^2.0.0
+  flutter_slidable: ^3.0.1
   share_plus: ^4.0.10
   # date_range_picker: ^1.0.6
   #https://api.flutter.dev/flutter/material/showDateRangePicker.html
   dio: ^4.0.6
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  local_auth: ^2.1.0
   local_auth_android: 1.0.21
+  flutter_local_authentication:
+    git:
+      url: https://github.com/cake-tech/flutter_local_authentication
   package_info: ^2.0.0
   #package_info_plus: ^1.4.2
   devicelocale:
