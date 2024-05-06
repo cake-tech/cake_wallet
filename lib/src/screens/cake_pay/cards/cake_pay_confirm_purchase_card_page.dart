@@ -159,6 +159,40 @@ class CakePayBuyCardDetailPage extends BasePage {
                 onTap: () => _showHowToUseCard(context, card),
               ),
             ),
+            SizedBox(height: 20),
+            if (card.expiryAndValidity != null && card.expiryAndValidity!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Expiry and Validity:',
+                      style: textMediumSemiBold(
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
+                  SizedBox(height: 10),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                          width: 1,
+                        ),
+                    ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Text(
+                        card.expiryAndValidity ?? '',
+                        style: textMedium(
+                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         );
       }),
@@ -178,12 +212,10 @@ class CakePayBuyCardDetailPage extends BasePage {
           ),
           SizedBox(height: 8),
           InkWell(
-            onTap: () => _showTermsAndCondition(context),
+            onTap: () => _showTermsAndCondition(context, card.termsAndConditions),
             child: Text(S.of(context).settings_terms_and_conditions,
                 style: textMediumSemiBold(
-                  color: Theme.of(context)
-                      .extension<ExchangePageTheme>()!
-                      .firstGradientBottomPanelColor,
+                  color: Theme.of(context).primaryColor,
                 ).copyWith(fontSize: 12)),
           ),
           SizedBox(height: 16)
@@ -192,7 +224,7 @@ class CakePayBuyCardDetailPage extends BasePage {
     );
   }
 
-  void _showTermsAndCondition(BuildContext context) {
+  void _showTermsAndCondition(BuildContext context, String? termsAndConditions) {
     showPopUp<void>(
         context: context,
         builder: (BuildContext context) {
@@ -201,9 +233,7 @@ class CakePayBuyCardDetailPage extends BasePage {
             content: Align(
               alignment: Alignment.bottomLeft,
               child: Text(
-                'ioniaPurchaseViewModel.vendor.termsAndConditions',
-
-                ///TODO: implement vendor.termsAndConditions
+                termsAndConditions ?? '',
                 style: textMedium(
                   color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
                 ),

@@ -52,6 +52,7 @@ class CakePayBuyCardPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final card = cakePayBuyCardViewModel.card;
+    final vendor = cakePayBuyCardViewModel.vendor;
 
     return KeyboardActions(
       disableScroll: true,
@@ -157,15 +158,40 @@ class CakePayBuyCardPage extends BasePage {
                             ),
                       Expanded(
                         flex: 5,
-                        child: SingleChildScrollView(
-                          child: Text(
-                            card.description ?? '',
-                            style: TextStyle(
-                              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w400,
+                        child: Column(
+                          children: [
+                            if (vendor.cakeWarnings != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).primaryColor,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: Colors.white.withOpacity(0.20)),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    vendor.cakeWarnings!,
+                                    textAlign: TextAlign.center,
+                                    style: textSmallSemiBold(color: Colors.white),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Text(
+                                  card.description ?? '',
+                                  style: TextStyle(
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
