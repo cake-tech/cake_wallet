@@ -28,7 +28,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required Uint8List seedBytes,
+    Uint8List? seedBytes,
     String? mnemonic,
     String? xpub,
     String? addressPageType,
@@ -68,10 +68,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       mainHd: hd,
       sideHd: accountHD.derive(1),
       network: networkParam ?? network,
-      masterHd: bitcoin.HDWallet.fromSeed(
-        seedBytes,
-        network: network == BitcoinNetwork.testnet ? bitcoin.testnet : bitcoin.bitcoin,
-      ),
+      masterHd: hd,
     );
 
     autorun((_) {

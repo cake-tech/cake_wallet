@@ -247,7 +247,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type != WalletType.banano &&
       wallet.type != WalletType.solana &&
       wallet.type != WalletType.tron;
-      
+
   @observable
   CryptoCurrency selectedCryptoCurrency;
 
@@ -363,7 +363,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     } catch (e) {
       if (e is LedgerException) {
         final errorCode = e.errorCode.toRadixString(16);
-        final fallbackMsg = e.message.isNotEmpty ? e.message : "Unexpected Ledger Error Code: $errorCode";
+        final fallbackMsg =
+            e.message.isNotEmpty ? e.message : "Unexpected Ledger Error Code: $errorCode";
         final errorMsg = ledgerViewModel.interpretErrorCode(errorCode) ?? fallbackMsg;
 
         state = FailureState(errorMsg);
@@ -444,7 +445,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Object _credentials() {
     final priority = _settingsStore.priority[wallet.type];
 
-    if (priority == null && wallet.type != WalletType.nano && wallet.type != WalletType.banano && wallet.type != WalletType.solana  &&
+    if (priority == null &&
+        wallet.type != WalletType.nano &&
+        wallet.type != WalletType.banano &&
+        wallet.type != WalletType.solana &&
         wallet.type != WalletType.tron) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }
@@ -568,6 +572,16 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       return errorMessage;
+    }
+
+    if (walletType == WalletType.tron) {
+      if (errorMessage.contains('balance is not sufficient')) {
+        return S.current.do_not_have_enough_gas_asset(currency.toString());
+      }
+
+      if (errorMessage.contains('Transaction expired')) {
+        return 'An error occurred while processing the transaction. Kindly retry the transaction';
+      }
     }
 
     if (walletType == WalletType.bitcoin ||
