@@ -1,3 +1,7 @@
+import 'package:cake_wallet/tron/tron.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -14,10 +18,7 @@ import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/src/intl/date_format.dart';
 import 'package:mobx/mobx.dart';
@@ -70,6 +71,9 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
       case WalletType.solana:
         _addSolanaListItems(tx, dateFormat);
+        break;
+      case WalletType.tron:
+        _addTronListItems(tx, dateFormat);
         break;
       default:
         break;
@@ -160,6 +164,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://polygonscan.com/tx/${txId}';
       case WalletType.solana:
         return 'https://solscan.io/tx/${txId}';
+      case WalletType.tron:
+        return 'https://tronscan.org/#/transaction/${txId}';
       default:
         return '';
     }
@@ -186,6 +192,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'polygonscan.com';
       case WalletType.solana:
         return S.current.view_transaction_on + 'solscan.io';
+      case WalletType.tron:
+        return S.current.view_transaction_on + 'tronscan.org';
       default:
         return '';
     }
@@ -339,20 +347,19 @@ abstract class TransactionDetailsViewModelBase with Store {
         transactionInfo.inputAddresses?.length ?? 1,
         transactionInfo.outputAddresses?.length ?? 1);
 
-    RBFListItems.add(StandartListItem(
-        title: S.current.old_fee,
-        value: tx.feeFormatted() ?? '0.0'));
+    RBFListItems.add(StandartListItem(title: S.current.old_fee, value: tx.feeFormatted() ?? '0.0'));
 
     final priorities = priorityForWalletType(wallet.type);
     final selectedItem = priorities.indexOf(sendViewModel.transactionPriority);
-    final customItem = priorities.firstWhereOrNull(
-        (element) => element == sendViewModel.bitcoinTransactionPriorityCustom);
+    final customItem = priorities
+        .firstWhereOrNull((element) => element == sendViewModel.bitcoinTransactionPriorityCustom);
     final customItemIndex = customItem != null ? priorities.indexOf(customItem) : null;
     final maxCustomFeeRate = sendViewModel.maxCustomFeeRate?.toDouble();
 
     RBFListItems.add(StandardPickerListItem(
         title: S.current.estimated_new_fee,
-        value: bitcoin!.formatterBitcoinAmountToString(amount: newFee) + ' ${walletTypeToCryptoCurrency(wallet.type)}',
+        value: bitcoin!.formatterBitcoinAmountToString(amount: newFee) +
+            ' ${walletTypeToCryptoCurrency(wallet.type)}',
         items: priorityForWalletType(wallet.type),
         customValue: settingsStore.customBitcoinFeeRate.toDouble(),
         maxValue: maxCustomFeeRate,
@@ -378,6 +385,27 @@ abstract class TransactionDetailsViewModelBase with Store {
     }
   }
 
+  void _addTronListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+      if (showRecipientAddress && tx.to != null)
+        StandartListItem(
+            title: S.current.transaction_details_recipient_address,
+            value: tron!.getTronBase58Address(tx.to!, wallet)),
+      if (tx.from != null)
+        StandartListItem(
+            title: S.current.transaction_details_source_address,
+            value: tron!.getTronBase58Address(tx.from!, wallet)),
+    ];
+
+    items.addAll(_items);
+  }
+
   @action
   Future<void> _checkForRBF() async {
     if (wallet.type == WalletType.bitcoin &&
@@ -392,10 +420,10 @@ abstract class TransactionDetailsViewModelBase with Store {
     newFee = priority == bitcoin!.getBitcoinTransactionPriorityCustom() && value != null
         ? bitcoin!.getEstimatedFeeWithFeeRate(wallet, value.round(), transactionInfo.amount)
         : bitcoin!.getFeeAmountForPriority(
-        wallet,
-        priority,
-        transactionInfo.inputAddresses?.length ?? 1,
-        transactionInfo.outputAddresses?.length ?? 1);
+            wallet,
+            priority,
+            transactionInfo.inputAddresses?.length ?? 1,
+            transactionInfo.outputAddresses?.length ?? 1);
 
     return bitcoin!.formatterBitcoinAmountToString(amount: newFee);
   }

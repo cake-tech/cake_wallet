@@ -31,13 +31,22 @@ class CWPolygon extends Polygon {
       EVMChainRestoreWalletFromPrivateKey(name: name, password: password, privateKey: privateKey);
 
   @override
+  WalletCredentials createPolygonHardwareWalletCredentials({
+    required String name,
+    required HardwareAccountData hwAccountData,
+    WalletInfo? walletInfo,
+  }) =>
+      EVMChainRestoreWalletFromHardware(
+          name: name, hwAccountData: hwAccountData, walletInfo: walletInfo);
+
+  @override
   String getAddress(WalletBase wallet) => (wallet as PolygonWallet).walletAddresses.address;
 
   @override
   String getPrivateKey(WalletBase wallet) {
     final privateKeyHolder = (wallet as PolygonWallet).evmChainPrivateKey;
-    String stringKey = bytesToHex(privateKeyHolder.privateKey);
-    return stringKey;
+    if (privateKeyHolder is EthPrivateKey) return bytesToHex(privateKeyHolder.privateKey);
+    return "";
   }
 
   @override
@@ -67,21 +76,21 @@ class CWPolygon extends Polygon {
     int? feeRate,
   }) =>
       EVMChainTransactionCredentials(
-        outputs
-            .map((out) => OutputInfo(
-                fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
-                address: out.address,
-                note: out.note,
-                sendAll: out.sendAll,
-                extractedAddress: out.extractedAddress,
-                isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount))
-            .toList(),
-        priority: priority as EVMChainTransactionPriority,
-        currency: currency,
-        feeRate: feeRate,
-      );
+          outputs
+              .map((out) => OutputInfo(
+                  fiatAmount: out.fiatAmount,
+                  cryptoAmount: out.cryptoAmount,
+                  address: out.address,
+                  note: out.note,
+                  sendAll: out.sendAll,
+                  extractedAddress: out.extractedAddress,
+                  isParsedAddress: out.isParsedAddress,
+                  formattedCryptoAmount: out.formattedCryptoAmount))
+              .toList(),
+          priority: priority as EVMChainTransactionPriority,
+          currency: currency,
+          feeRate: feeRate,
+          );
 
   Object createPolygonTransactionCredentialsRaw(
     List<OutputInfo> outputs, {
@@ -157,4 +166,23 @@ class CWPolygon extends Polygon {
   }
 
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
+
+  @override
+  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device) {
+    ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedger(
+        ledger,
+        device.connectionType == ConnectionType.usb ? device : null,
+        wallet.walletInfo.derivationInfo?.derivationPath);
+  }
+
+  @override
+  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
+      {int index = 0, int limit = 5}) async {
+    final hardwareWalletService = EVMChainHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
+    try {
+      return await hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
+    } on LedgerException catch (err) {
+      throw err;
+    }
+  }
 }
