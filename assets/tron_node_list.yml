@@ -1,0 +1,4 @@
+-
+  uri: api.trongrid.io
+  is_default: true
+  useSSL: true

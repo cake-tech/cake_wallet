@@ -56,6 +56,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   bool get isEnabledAutoGenerateSubaddress => false;
 
+  bool get isHardwareWallet => walletInfo.isHardwareWallet;
+
   Future<void> connectToNode({required Node node});
 
   // there is a default definition here because only coins with a pow node (nano based) need to override this

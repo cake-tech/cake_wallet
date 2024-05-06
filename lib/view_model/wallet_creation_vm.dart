@@ -72,6 +72,7 @@ abstract class WalletCreationVMBase with Store {
         address: '',
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationInfo: credentials.derivationInfo ?? getDefaultDerivation(),
+        hardwareWalletType: credentials.hardwareWalletType,
       );
 
       credentials.walletInfo = walletInfo;
@@ -99,7 +100,7 @@ abstract class WalletCreationVMBase with Store {
       case WalletType.litecoin:
         return DerivationInfo(
           derivationType: DerivationType.electrum,
-          derivationPath: "m/0'/0",
+          derivationPath: "m/0'",
         );
       default:
         return null;

@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -13,8 +15,8 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class DFXBuyProvider extends BuyProvider {
-  DFXBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
-      : super(wallet: wallet, isTestEnvironment: isTestEnvironment);
+  DFXBuyProvider({required WalletBase wallet, bool isTestEnvironment = false, LedgerViewModel? ledgerVM})
+      : super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: ledgerVM);
 
   static const _baseUrl = 'api.dfx.swiss';
   // static const _signMessagePath = '/v1/auth/signMessage';
@@ -135,6 +137,20 @@ class DFXBuyProvider extends BuyProvider {
 
   @override
   Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
+    if (wallet.isHardwareWallet) {
+      if (!ledgerVM!.isConnected) {
+        await Navigator.of(context).pushNamed(Routes.connectDevices,
+            arguments: ConnectDevicePageParams(
+                walletType: wallet.walletInfo.type,
+                onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) {
+                  ledgerVM.setLedger(wallet);
+                  Navigator.of(context).pop();
+                }));
+      } else {
+        ledgerVM!.setLedger(wallet);
+      }
+    }
+
     try {
       final assetOut = this.assetOut;
       final blockchain = this.blockchain;

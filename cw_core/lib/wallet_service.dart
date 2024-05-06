@@ -6,10 +6,12 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_type.dart';
 
 abstract class WalletService<N extends WalletCredentials, RFS extends WalletCredentials,
-    RFK extends WalletCredentials> {
+    RFK extends WalletCredentials, RFH extends WalletCredentials> {
   WalletType getType();
 
   Future<WalletBase> create(N credentials, {bool? isTestnet});
+
+  Future<WalletBase> restoreFromHardwareWallet(RFH credentials);
 
   Future<WalletBase> restoreFromSeed(RFS credentials, {bool? isTestnet});
 
