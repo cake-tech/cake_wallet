@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -147,8 +148,8 @@ Future<void> ios_migrate_pin() async {
 
   final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
   final encodedPassword = encodedPinCode(pin: pinPassword);
-  await flutterSecureStorage.delete(key: key);
-  await flutterSecureStorage.write(key: key, value: encodedPassword);
+  await writeSecureStorage(flutterSecureStorage, key: key, value: encodedPassword);
+
   await prefs.setBool('ios_migration_pin_completed', true);
 }
 

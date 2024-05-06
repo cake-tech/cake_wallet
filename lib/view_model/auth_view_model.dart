@@ -109,8 +109,9 @@ abstract class AuthViewModelBase with Store {
     final _flutterLocalAuthenticationPlugin = FlutterLocalAuthentication();
 
     try {
-      final authenticated = await _flutterLocalAuthenticationPlugin.authenticate();
-      if (!authenticated) {
+      if (await _biometricAuth.canCheckBiometrics() && await _biometricAuth.isAuthenticated()) {
+        state = ExecutedSuccessfullyState();
+      } else {
         throw Exception('Biometric authentication failed');
       }
       state = ExecutedSuccessfullyState();
