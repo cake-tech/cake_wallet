@@ -2,8 +2,9 @@
 
 IOS="ios"
 ANDROID="android"
+MACOS="macos"
 
-PLATFORMS=($IOS $ANDROID)
+PLATFORMS=($IOS $ANDROID $MACOS)
 PLATFORM=$1
 
 if ! [[ " ${PLATFORMS[*]} " =~ " ${PLATFORM} " ]]; then
@@ -14,6 +15,11 @@ fi
 if [ "$PLATFORM" == "$IOS" ]; then
     echo "Configuring for iOS"
     cd scripts/ios
+fi
+
+if [ "$PLATFORM" == "$MACOS" ]; then
+    echo "Configuring for macOS"
+    cd scripts/macos
 fi
 
 if [ "$PLATFORM" == "$ANDROID" ]; then

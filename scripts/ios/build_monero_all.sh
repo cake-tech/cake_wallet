@@ -12,7 +12,7 @@ set -x -e
 
 cd "$(dirname "$0")"
 
-NPROC="-j$(nproc)"
+NPROC="-j$(sysctl -n hw.logicalcpu)"
 
 ../prepare_moneroc.sh
 
