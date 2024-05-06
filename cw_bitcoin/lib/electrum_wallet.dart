@@ -4,8 +4,8 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitcoin_base/bitcoin_base.dart' as bitcoin_base;
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -37,9 +37,9 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
-import 'package:http/http.dart' as http;
 
 part 'electrum_wallet.g.dart';
 
@@ -53,17 +53,16 @@ abstract class ElectrumWalletBase
       required WalletInfo walletInfo,
       required Box<UnspentCoinsInfo> unspentCoinsInfo,
       required this.networkType,
-      required this.mnemonic,
-      required Uint8List seedBytes,
+      String? xpub,
+      String? mnemonic,
+      Uint8List? seedBytes,
       this.passphrase,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumClient? electrumClient,
       ElectrumBalance? initialBalance,
       CryptoCurrency? currency})
-      : hd = currency == CryptoCurrency.bch
-            ? bitcoinCashHDWallet(seedBytes)
-            : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-                .derivePath(walletInfo.derivationInfo?.derivationPath ?? "m/0'/0"),
+      : accountHD =
+            getAccountHDWallet(currency, networkType, seedBytes, xpub, walletInfo.derivationInfo),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
@@ -80,20 +79,44 @@ abstract class ElectrumWalletBase
         this.unspentCoinsInfo = unspentCoinsInfo,
         this.network = _getNetwork(networkType, currency),
         this.isTestnet = networkType == bitcoin.testnet,
+        this._mnemonic = mnemonic,
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
     transactionHistory = ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
   }
 
+  static bitcoin.HDWallet getAccountHDWallet(
+      CryptoCurrency? currency,
+      bitcoin.NetworkType networkType,
+      Uint8List? seedBytes,
+      String? xpub,
+      DerivationInfo? derivationInfo) {
+    if (seedBytes == null && xpub == null) {
+      throw Exception(
+          "To create a Wallet you need either a seed or an xpub. This should not happen");
+    }
+
+    if (seedBytes != null) {
+      return currency == CryptoCurrency.bch
+          ? bitcoinCashHDWallet(seedBytes)
+          : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
+              .derivePath(_hardenedDerivationPath(derivationInfo?.derivationPath ?? "m/0'"));
+    }
+
+    return bitcoin.HDWallet.fromBase58(xpub!);
+  }
+
   static bitcoin.HDWallet bitcoinCashHDWallet(Uint8List seedBytes) =>
-      bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'/0");
+      bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'");
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
 
-  final bitcoin.HDWallet hd;
-  final String mnemonic;
+  final bitcoin.HDWallet accountHD;
+  final String? _mnemonic;
+
+  bitcoin.HDWallet get hd => accountHD.derive(0);
   final String? passphrase;
 
   @override
@@ -123,10 +146,10 @@ abstract class ElectrumWalletBase
       .map((addr) => scriptHash(addr.address, network: network))
       .toList();
 
-  String get xpub => hd.base58!;
+  String get xpub => accountHD.base58!;
 
   @override
-  String get seed => mnemonic;
+  String? get seed => _mnemonic;
 
   bitcoin.NetworkType networkType;
   BasedUtxoNetwork network;
@@ -203,7 +226,9 @@ abstract class ElectrumWalletBase
     int credentialsAmount = 0,
   }) async {
     final utxos = <UtxoWithAddress>[];
-    List<ECPrivate> privateKeys = [];
+    final privateKeys = <ECPrivate>[];
+    final publicKeys = <String, PublicKeyWithDerivationPath>{};
+
     int allInputsAmount = 0;
 
     bool spendsUnconfirmedTX = false;
@@ -217,12 +242,22 @@ abstract class ElectrumWalletBase
         allInputsAmount += utx.value;
 
         final address = addressTypeFromStr(utx.address, network);
-        final privkey = generateECPrivate(
-            hd: utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
-            index: utx.bitcoinAddressRecord.index,
-            network: network);
+        final hd =
+            utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd;
+        final derivationPath =
+            "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? "m/0'")}"
+            "/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}"
+            "/${utx.bitcoinAddressRecord.index}";
+        final pubKeyHex = hd.derive(utx.bitcoinAddressRecord.index).pubKey!;
 
-        privateKeys.add(privkey);
+        publicKeys[address.pubKeyHash()] = PublicKeyWithDerivationPath(pubKeyHex, derivationPath);
+
+        if (!walletInfo.isHardwareWallet) {
+          final privkey =
+              generateECPrivate(hd: hd, index: utx.bitcoinAddressRecord.index, network: network);
+
+          privateKeys.add(privkey);
+        }
 
         utxos.add(
           UtxoWithAddress(
@@ -233,7 +268,7 @@ abstract class ElectrumWalletBase
               scriptType: _getScriptType(address),
             ),
             ownerDetails: UtxoAddressDetails(
-              publicKey: privkey.getPublic().toHex(),
+              publicKey: pubKeyHex,
               address: address,
             ),
           ),
@@ -294,6 +329,7 @@ abstract class ElectrumWalletBase
     return EstimatedTxResult(
       utxos: utxos,
       privateKeys: privateKeys,
+      publicKeys: publicKeys,
       fee: fee,
       amount: amount,
       isSendAll: true,
@@ -312,7 +348,9 @@ abstract class ElectrumWalletBase
     bool? useUnconfirmed,
   }) async {
     final utxos = <UtxoWithAddress>[];
-    List<ECPrivate> privateKeys = [];
+    final privateKeys = <ECPrivate>[];
+    final publicKeys = <String, PublicKeyWithDerivationPath>{};
+
     int allInputsAmount = 0;
     bool spendsUnconfirmedTX = false;
 
@@ -332,12 +370,23 @@ abstract class ElectrumWalletBase
       leftAmount = leftAmount - utx.value;
 
       final address = addressTypeFromStr(utx.address, network);
-      final privkey = generateECPrivate(
-          hd: utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
-          index: utx.bitcoinAddressRecord.index,
-          network: network);
 
-      privateKeys.add(privkey);
+      final hd =
+          utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd;
+      final derivationPath =
+          "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? "m/0'")}"
+          "/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}"
+          "/${utx.bitcoinAddressRecord.index}";
+      final pubKeyHex = hd.derive(utx.bitcoinAddressRecord.index).pubKey!;
+
+      publicKeys[address.pubKeyHash()] = PublicKeyWithDerivationPath(pubKeyHex, derivationPath);
+
+      if (!walletInfo.isHardwareWallet) {
+        final privkey =
+            generateECPrivate(hd: hd, index: utx.bitcoinAddressRecord.index, network: network);
+
+        privateKeys.add(privkey);
+      }
 
       utxos.add(
         UtxoWithAddress(
@@ -348,7 +397,7 @@ abstract class ElectrumWalletBase
             scriptType: _getScriptType(address),
           ),
           ownerDetails: UtxoAddressDetails(
-            publicKey: privkey.getPublic().toHex(),
+            publicKey: pubKeyHex,
             address: address,
           ),
         ),
@@ -490,6 +539,7 @@ abstract class ElectrumWalletBase
     return EstimatedTxResult(
       utxos: utxos,
       privateKeys: privateKeys,
+      publicKeys: publicKeys,
       fee: fee,
       amount: amount,
       hasChange: true,
@@ -557,6 +607,35 @@ abstract class ElectrumWalletBase
         );
       }
 
+      if (walletInfo.isHardwareWallet) {
+        final transaction = await buildHardwareWalletTransaction(
+          utxos: estimatedTx.utxos,
+          outputs: outputs,
+          publicKeys: estimatedTx.publicKeys,
+          fee: BigInt.from(estimatedTx.fee),
+          network: network,
+          memo: estimatedTx.memo,
+          outputOrdering: BitcoinOrdering.none,
+          enableRBF: true,
+        );
+
+        return PendingBitcoinTransaction(
+          transaction,
+          type,
+          electrumClient: electrumClient,
+          amount: estimatedTx.amount,
+          fee: estimatedTx.fee,
+          feeRate: feeRateInt.toString(),
+          network: network,
+          hasChange: estimatedTx.hasChange,
+          isSendAll: estimatedTx.isSendAll,
+          hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot
+        )..addListener((transaction) async {
+            transactionHistory.addOne(transaction);
+            await updateBalance();
+          });
+      }
+
       BasedBitcoinTransacationBuilder txb;
       if (network is BitcoinCashNetwork) {
         txb = ForkedTransactionBuilder(
@@ -618,8 +697,22 @@ abstract class ElectrumWalletBase
     }
   }
 
+  Future<BtcTransaction> buildHardwareWalletTransaction({
+    required List<BitcoinBaseOutput> outputs,
+    required BigInt fee,
+    required BasedUtxoNetwork network,
+    required List<UtxoWithAddress> utxos,
+    required Map<String, PublicKeyWithDerivationPath> publicKeys,
+    String? memo,
+    bool enableRBF = false,
+    BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
+    BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
+  }) async =>
+      throw UnimplementedError();
+
   String toJSON() => json.encode({
-        'mnemonic': mnemonic,
+        'mnemonic': _mnemonic,
+        'xpub': xpub,
         'passphrase': passphrase ?? '',
         'account_index': walletAddresses.currentReceiveAddressIndexByType,
         'change_address_index': walletAddresses.currentChangeAddressIndexByType,
@@ -1263,7 +1356,7 @@ abstract class ElectrumWalletBase
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => _onError = onError;
 
   @override
-  String signMessage(String message, {String? address = null}) {
+  Future<String> signMessage(String message, {String? address = null}) async {
     final index = address != null
         ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
         : null;
@@ -1286,6 +1379,9 @@ abstract class ElectrumWalletBase
 
     return BitcoinNetwork.mainnet;
   }
+
+  static String _hardenedDerivationPath(String derivationPath) =>
+      derivationPath.substring(0, derivationPath.lastIndexOf("'") + 1);
 }
 
 class EstimateTxParams {
@@ -1307,6 +1403,7 @@ class EstimatedTxResult {
   EstimatedTxResult({
     required this.utxos,
     required this.privateKeys,
+    required this.publicKeys,
     required this.fee,
     required this.amount,
     required this.hasChange,
@@ -1317,12 +1414,20 @@ class EstimatedTxResult {
 
   final List<UtxoWithAddress> utxos;
   final List<ECPrivate> privateKeys;
+  final Map<String, PublicKeyWithDerivationPath> publicKeys; // PubKey to derivationPath
   final int fee;
   final int amount;
   final bool hasChange;
   final bool isSendAll;
   final String? memo;
   final bool spendsUnconfirmedTX;
+}
+
+class PublicKeyWithDerivationPath {
+  const PublicKeyWithDerivationPath(this.publicKey, this.derivationPath);
+
+  final String derivationPath;
+  final String publicKey;
 }
 
 BitcoinBaseAddress addressTypeFromStr(String address, BasedUtxoNetwork network) {

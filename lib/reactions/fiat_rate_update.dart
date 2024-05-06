@@ -8,6 +8,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -67,6 +68,28 @@ Future<void> startFiatRateUpdate(
       // (btcln price is just the btc price divided by 100000000)
       fiatConversionStore.prices[CryptoCurrency.btcln] =
           (fiatConversionStore.prices[CryptoCurrency.btc] ?? 0) / 100000000;
+      
+      if (appStore.wallet!.type == WalletType.solana) {
+        currencies =
+            solana!.getSPLTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
+      }
+
+      if (appStore.wallet!.type == WalletType.tron) {
+        currencies =
+            tron!.getTronTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
+      }
+
+
+      if (currencies != null) {
+        for (final currency in currencies) {
+          () async {
+            fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
+                crypto: currency,
+                fiat: settingsStore.fiatCurrency,
+                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+          }.call();
+        }
+      }
     } catch (e) {
       print(e);
     }

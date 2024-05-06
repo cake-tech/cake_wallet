@@ -148,6 +148,17 @@ class CryptoBalanceWidget extends StatelessWidget {
                                       maxLines: 1,
                                       textAlign: TextAlign.center,
                                     ),
+                                    if (dashboardViewModel.wallet.isHardwareWallet)
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Image.asset(
+                                          'assets/images/ledger_nano.png',
+                                          width: 24,
+                                          color: Theme.of(context)
+                                              .extension<DashboardPageTheme>()!
+                                              .pageTitleTextColor,
+                                        ),
+                                      ),
                                     if (dashboardViewModel
                                         .balanceViewModel.isHomeScreenSettingsEnabled)
                                       InkWell(

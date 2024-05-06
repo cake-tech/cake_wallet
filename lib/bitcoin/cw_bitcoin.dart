@@ -33,6 +33,14 @@ class CWBitcoin extends Bitcoin {
       BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo);
 
   @override
+  WalletCredentials createBitcoinHardwareWalletCredentials(
+          {required String name,
+          required HardwareAccountData accountData,
+          WalletInfo? walletInfo}) =>
+      BitcoinRestoreWalletFromHardware(
+          name: name, hwAccountData: accountData, walletInfo: walletInfo);
+
+  @override
   TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;
 
   @override
@@ -292,7 +300,7 @@ class CWBitcoin extends Bitcoin {
       return [
         DerivationInfo(
           derivationType: DerivationType.electrum,
-          derivationPath: "m/0'/0",
+          derivationPath: "m/0'",
           description: "Electrum",
           scriptType: "p2wpkh",
         )
@@ -344,9 +352,6 @@ class CWBitcoin extends Bitcoin {
           if (derivationDepth == 3) {
             // we add "/0/0" so that we generate account 0, index 0 and correctly get balance
             derivationPath += "/0/0";
-            // we don't support sub-ACCOUNTS in bitcoin like we do monero, and so the path dInfoCopy
-            // expects should be ACCOUNT 0, index unspecified:
-            dInfoCopy.derivationPath = dInfoCopy.derivationPath! + "/0";
           }
 
           // var hd = bip32.BIP32.fromSeed(seedBytes).derivePath(derivationPath);
@@ -439,5 +444,22 @@ class CWBitcoin extends Bitcoin {
   int getMaxCustomFeeRate(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return (bitcoinWallet.feeRate(BitcoinTransactionPriority.fast) * 1.1).round();
+  }
+
+  @override
+  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device) {
+    (wallet as BitcoinWallet).setLedger(ledger, device);
+  }
+
+  @override
+  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
+      {int index = 0, int limit = 5}) async {
+    final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
+    try {
+      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
+    } on LedgerException catch (err) {
+      print(err.message);
+      throw err;
+    }
   }
 }

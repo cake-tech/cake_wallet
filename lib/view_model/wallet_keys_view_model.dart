@@ -120,7 +120,8 @@ abstract class WalletKeysViewModelBase with Store {
     }
 
     if (isEVMCompatibleChain(_appStore.wallet!.type) ||
-        _appStore.wallet!.type == WalletType.solana) {
+        _appStore.wallet!.type == WalletType.solana ||
+        _appStore.wallet!.type == WalletType.tron) {
       items.addAll([
         if (_appStore.wallet!.privateKey != null)
           StandartListItem(title: S.current.private_key, value: _appStore.wallet!.privateKey!),
@@ -179,6 +180,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'lightning-wallet';
       case WalletType.solana:
         return 'solana-wallet';
+      case WalletType.tron:
+        return 'tron-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
     }
