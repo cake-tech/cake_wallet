@@ -330,10 +330,12 @@ class ExchangePage extends BasePage {
 
   void applyTemplate(
       BuildContext context, ExchangeViewModel exchangeViewModel, ExchangeTemplate template) async {
-    exchangeViewModel.changeDepositCurrency(
-        currency: CryptoCurrency.fromString(template.depositCurrency));
-    exchangeViewModel.changeReceiveCurrency(
-        currency: CryptoCurrency.fromString(template.receiveCurrency));
+
+    final depositCryptoCurrency = CryptoCurrency.fromString(template.depositCurrency);
+    final receiveCryptoCurrency = CryptoCurrency.fromString(template.receiveCurrency);
+
+    exchangeViewModel.changeDepositCurrency(currency: depositCryptoCurrency);
+    exchangeViewModel.changeReceiveCurrency(currency: receiveCryptoCurrency);
 
     exchangeViewModel.changeDepositAmount(amount: template.amount);
     exchangeViewModel.depositAddress = template.depositAddress;
@@ -342,12 +344,10 @@ class ExchangePage extends BasePage {
     exchangeViewModel.isFixedRateMode = false;
 
     var domain = template.depositAddress;
-    var ticker = template.depositCurrency.toLowerCase();
-    exchangeViewModel.depositAddress = await fetchParsedAddress(context, domain, ticker);
+    exchangeViewModel.depositAddress = await fetchParsedAddress(context, domain, depositCryptoCurrency);
 
     domain = template.receiveAddress;
-    ticker = template.receiveCurrency.toLowerCase();
-    exchangeViewModel.receiveAddress = await fetchParsedAddress(context, domain, ticker);
+    exchangeViewModel.receiveAddress = await fetchParsedAddress(context, domain, receiveCryptoCurrency);
   }
 
   void _setReactions(BuildContext context, ExchangeViewModel exchangeViewModel) {
@@ -519,16 +519,14 @@ class ExchangePage extends BasePage {
     _depositAddressFocus.addListener(() async {
       if (!_depositAddressFocus.hasFocus && depositAddressController.text.isNotEmpty) {
         final domain = depositAddressController.text;
-        final ticker = exchangeViewModel.depositCurrency.title.toLowerCase();
-        exchangeViewModel.depositAddress = await fetchParsedAddress(context, domain, ticker);
+        exchangeViewModel.depositAddress = await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
       }
     });
 
     _receiveAddressFocus.addListener(() async {
       if (!_receiveAddressFocus.hasFocus && receiveAddressController.text.isNotEmpty) {
         final domain = receiveAddressController.text;
-        final ticker = exchangeViewModel.receiveCurrency.title.toLowerCase();
-        exchangeViewModel.receiveAddress = await fetchParsedAddress(context, domain, ticker);
+        exchangeViewModel.receiveAddress = await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
       }
     });
 
@@ -575,8 +573,8 @@ class ExchangePage extends BasePage {
     }
   }
 
-  Future<String> fetchParsedAddress(BuildContext context, String domain, String ticker) async {
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, ticker);
+  Future<String> fetchParsedAddress(BuildContext context, String domain, CryptoCurrency currency) async {
+    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
   }
@@ -663,15 +661,13 @@ class ExchangePage extends BasePage {
               addressTextFieldValidator: AddressValidator(type: exchangeViewModel.depositCurrency),
               onPushPasteButton: (context) async {
                 final domain = exchangeViewModel.depositAddress;
-                final ticker = exchangeViewModel.depositCurrency.title.toLowerCase();
                 exchangeViewModel.depositAddress =
-                    await fetchParsedAddress(context, domain, ticker);
+                    await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
               },
               onPushAddressBookButton: (context) async {
                 final domain = exchangeViewModel.depositAddress;
-                final ticker = exchangeViewModel.depositCurrency.title.toLowerCase();
                 exchangeViewModel.depositAddress =
-                    await fetchParsedAddress(context, domain, ticker);
+                    await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
               },
             ));
 
@@ -712,15 +708,13 @@ class ExchangePage extends BasePage {
               addressTextFieldValidator: AddressValidator(type: exchangeViewModel.receiveCurrency),
               onPushPasteButton: (context) async {
                 final domain = exchangeViewModel.receiveAddress;
-                final ticker = exchangeViewModel.receiveCurrency.title.toLowerCase();
                 exchangeViewModel.receiveAddress =
-                    await fetchParsedAddress(context, domain, ticker);
+                    await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
               },
               onPushAddressBookButton: (context) async {
                 final domain = exchangeViewModel.receiveAddress;
-                final ticker = exchangeViewModel.receiveCurrency.title.toLowerCase();
                 exchangeViewModel.receiveAddress =
-                    await fetchParsedAddress(context, domain, ticker);
+                    await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
               },
             ));
 
