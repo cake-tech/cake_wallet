@@ -318,7 +318,7 @@ class CakePayBuyCardDetailPage extends BasePage {
                 amount: S.of(context).send_amount,
                 amountValue: pendingTransaction.amountFormatted,
                 fiatAmountValue:
-                    cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                    cakePayPurchaseViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
                 fee: S.of(context).send_fee,
                 feeValue: pendingTransaction.feeFormatted,
                 feeFiatAmount:

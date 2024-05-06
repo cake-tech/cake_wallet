@@ -46,7 +46,17 @@ abstract class CakePayPurchaseViewModelBase with Store {
     }
 
     if (WalletType.bitcoin == walletType) {
-      return order!.paymentData.btc;
+      final paymentUrls = order!.paymentData.btc.paymentUrls!.bip21;
+
+      final uri = Uri.parse(paymentUrls!);
+
+      final address = uri.path;
+      final price = uri.queryParameters['amount'];
+
+      return CryptoPaymentData(
+        address: address,
+        price: price ?? '0',
+      );
     }
 
     return null;
@@ -69,6 +79,9 @@ abstract class CakePayPurchaseViewModelBase with Store {
 
   @action
   Future<void> createOrder() async {
+    if (walletType != WalletType.bitcoin && walletType != WalletType.monero) {
+      sendViewModel.state = FailureState('Unsupported wallet type, please use Bitcoin or Monero.');
+    }
     try {
       order = await cakePayService.createOrder(
           cardId: card.id, price: giftCardAmount.toString(), quantity: giftQuantity);
@@ -84,13 +97,14 @@ abstract class CakePayPurchaseViewModelBase with Store {
 
   @action
   Future<void> confirmSending() async {
+    final cryptoPaymentData = this.cryptoPaymentData;
     try {
       if (order == null || cryptoPaymentData == null) return;
 
       sendViewModel.clearOutputs();
       final output = sendViewModel.outputs.first;
-      output.address = cryptoPaymentData?.address ?? '';
-      output.setCryptoAmount(cryptoPaymentData?.price ?? '');
+      output.address = cryptoPaymentData.address;
+      output.setCryptoAmount(cryptoPaymentData.price);
 
       await sendViewModel.createTransaction();
     } catch (e) {
