@@ -476,8 +476,6 @@ abstract class ElectrumWalletBase
         }
       }
 
-      spendsUnconfirmedTX = (utx.confirmations ?? 0) <= 0;
-
       allInputsAmount += utx.value;
       leftAmount = leftAmount - utx.value;
 
