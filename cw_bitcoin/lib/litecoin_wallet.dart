@@ -50,7 +50,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       mainHd: hd,
-      sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
+      sideHd: accountHD.derive(1),
       network: network,
     );
     autorun((_) {
@@ -106,13 +106,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final snp =
         await ElectrumWalletSnapshot.load(name, walletInfo.type, password, LitecoinNetwork.mainnet);
     return LitecoinWallet(
-      mnemonic: snp.mnemonic,
+      mnemonic: snp.mnemonic!,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp.addresses,
       initialBalance: snp.balance,
-      seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
+      seedBytes: await mnemonicToSeedBytes(snp.mnemonic!),
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,

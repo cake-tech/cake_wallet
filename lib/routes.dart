@@ -6,9 +6,11 @@ class Routes {
   static const seed = '/seed';
   static const restoreOptions = '/restore_options';
   static const restoreWalletFromSeedKeys = '/restore_wallet_from_seeds_keys';
+  static const restoreWalletFromHardwareWallet = '/restore/hardware_wallet';
   static const restoreWalletTypeFromQR = '/restore_wallet_from_qr_code';
   static const restoreWalletChooseDerivation =
       '/restore_wallet_choose_derivation';
+  static const chooseHardwareWalletAccount = '/restore/hardware_wallet/accounts';
   static const dashboard = '/dashboard';
   static const send = '/send';
   static const transactionDetails = '/transaction_info';
@@ -107,4 +109,5 @@ class Routes {
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
   static const torPage = '/tor_page';
+  static const connectDevices = '/device/connect';
 }

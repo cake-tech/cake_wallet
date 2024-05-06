@@ -83,6 +83,10 @@ class TransactionsPage extends StatelessWidget {
                         }
 
                         if (item is TransactionListItem) {
+                          if (item.hasTokens && item.assetOfTransaction == null) {
+                            return Container();
+                          }
+
                           final transaction = item.transaction;
 
                           final historicalFiatValue = dashboardViewModel.getFormattedFiatAmount(transaction);
