@@ -1,5 +1,6 @@
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 
@@ -7,10 +8,12 @@ abstract class BuyProvider {
   BuyProvider({
     required this.wallet,
     required this.isTestEnvironment,
+    required this.ledgerVM,
   });
 
   final WalletBase wallet;
   final bool isTestEnvironment;
+  final LedgerViewModel? ledgerVM;
 
   String get title;
 

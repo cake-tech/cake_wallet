@@ -5,19 +5,19 @@ BigInt stringAmountToBigIntBanano(String amount) {
   return BigInt.parse(NanoAmounts.getAmountAsRaw(amount, NanoAmounts.rawPerBanano));
 }
 
-class NanoBalance extends Balance {
+class BananoBalance extends Balance {
   final BigInt currentBalance;
   final BigInt receivableBalance;
 
-  NanoBalance({required this.currentBalance, required this.receivableBalance}) : super(0, 0);
+  BananoBalance({required this.currentBalance, required this.receivableBalance}) : super(0, 0);
 
-  NanoBalance.fromFormattedString(
+  BananoBalance.fromFormattedString(
       {required String formattedCurrentBalance, required String formattedReceivableBalance})
       : currentBalance = stringAmountToBigIntBanano(formattedCurrentBalance),
         receivableBalance = stringAmountToBigIntBanano(formattedReceivableBalance),
         super(0, 0);
 
-  NanoBalance.fromRawString(
+  BananoBalance.fromRawString(
       {required String currentBalance, required String receivableBalance})
       : currentBalance = BigInt.parse(currentBalance),
         receivableBalance = BigInt.parse(receivableBalance),

@@ -178,6 +178,10 @@ abstract class ExchangeTradeViewModelBase with Store {
         wallet.currency == CryptoCurrency.maticpoly &&
         tradesStore.trade!.from.tag == CryptoCurrency.maticpoly.tag;
 
+    bool _isTronToken() =>
+        wallet.currency == CryptoCurrency.trx &&
+        tradesStore.trade!.from.tag == CryptoCurrency.trx.title;
+
     bool _isSplToken() =>
         wallet.currency == CryptoCurrency.sol &&
         tradesStore.trade!.from.tag == CryptoCurrency.sol.title;
@@ -186,6 +190,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
         _isEthToken() ||
         _isPolygonToken() ||
-        _isSplToken();
+        _isSplToken() ||
+        _isTronToken();
   }
 }

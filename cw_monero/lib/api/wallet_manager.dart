@@ -31,6 +31,11 @@ final restoreWalletFromSpendKeyNative = moneroApi
     'restore_wallet_from_spend_key')
     .asFunction<RestoreWalletFromSpendKey>();
 
+// final restoreWalletFromDeviceNative = moneroApi
+//     .lookup<NativeFunction<restore_wallet_from_device>>(
+//     'restore_wallet_from_device')
+//     .asFunction<RestoreWalletFromDevice>();
+
 final isWalletExistNative = moneroApi
     .lookup<NativeFunction<is_wallet_exist>>('is_wallet_exist')
     .asFunction<IsWalletExist>();
@@ -184,6 +189,38 @@ void restoreWalletFromSpendKeySync(
         message: convertUTF8ToString(pointer: errorMessagePointer));
   }
 }
+
+// void restoreMoneroWalletFromDevice(
+//     {required String path,
+//       required String password,
+//       required String deviceName,
+//       int nettype = 0,
+//       int restoreHeight = 0}) {
+//
+//   final pathPointer = path.toNativeUtf8();
+//   final passwordPointer = password.toNativeUtf8();
+//   final deviceNamePointer = deviceName.toNativeUtf8();
+//   final errorMessagePointer = ''.toNativeUtf8();
+//
+//   final isWalletRestored = restoreWalletFromDeviceNative(
+//       pathPointer,
+//       passwordPointer,
+//       deviceNamePointer,
+//       nettype,
+//       restoreHeight,
+//       errorMessagePointer) != 0;
+//
+//   calloc.free(pathPointer);
+//   calloc.free(passwordPointer);
+//
+//   storeSync();
+//
+//   if (!isWalletRestored) {
+//     throw WalletRestoreFromKeysException(
+//         message: convertUTF8ToString(pointer: errorMessagePointer));
+//   }
+// }
+
 
 void loadWallet({
   required String path,

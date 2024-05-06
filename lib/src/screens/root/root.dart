@@ -55,6 +55,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   StreamSubscription<Uri?>? stream;
   ReactionDisposer? _walletReactionDisposer;
+  ReactionDisposer? _deepLinksReactionDisposer;
+  Uri? launchUri;
 
   @override
   void initState() {
@@ -78,6 +80,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   void dispose() {
     stream?.cancel();
     _walletReactionDisposer?.call();
+    _deepLinksReactionDisposer?.call();
     super.dispose();
   }
 
@@ -95,9 +98,32 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     }
   }
 
-  void handleDeepLinking(Uri? uri) {
+  void handleDeepLinking(Uri? uri) async {
     if (uri == null || !mounted) return;
-    widget.linkViewModel.currentLink = uri;
+
+    launchUri = uri;
+
+    bool requireAuth = await widget.authService.requireAuth();
+
+    if (!requireAuth && widget.authenticationStore.state == AuthenticationState.allowed) {
+      _navigateToDeepLinkScreen();
+      return;
+    }
+
+    // _deepLinksReactionDisposer = reaction(
+    //   (_) => widget.authenticationStore.state,
+    //   (AuthenticationState state) {
+    //     if (state == AuthenticationState.allowed) {
+    //       if (widget.appStore.wallet == null) {
+    //         waitForWalletInstance(context, launchUri!);
+    //       } else {
+    //         _navigateToDeepLinkScreen();
+    //       }
+    //       _deepLinksReactionDisposer?.call();
+    //       _deepLinksReactionDisposer = null;
+    //     }
+    //   },
+    // );
   }
 
   @override
@@ -206,11 +232,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           (_) => widget.appStore.wallet,
           (WalletBase? wallet) {
             if (wallet != null) {
-              widget.navigatorKey.currentState?.pushNamed(
-                route,
-                arguments: args,
-              );
-              widget.linkViewModel.currentLink = null;
+              _navigateToDeepLinkScreen();
               _walletReactionDisposer?.call();
               _walletReactionDisposer = null;
             }
@@ -218,5 +240,17 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         );
       }
     });
+  }
+
+  void _navigateToDeepLinkScreen() {
+    // if (_getRouteToGo() != null) {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     widget.navigatorKey.currentState?.pushNamed(
+    //       _getRouteToGo()!,
+    //       arguments: isWalletConnectLink ? launchUri : PaymentRequest.fromUri(launchUri),
+    //     );
+    //     launchUri = null;
+    //   });
+    // }
   }
 }

@@ -1,2 +1,1 @@
-UI enhancements
-Bug fixes
+Generic bug fixes and enhancements

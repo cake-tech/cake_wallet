@@ -53,6 +53,10 @@ class SecretKey {
   static final nanoSecrets = [
     SecretKey('nano2ApiKey', () => ''),
   ];
+  
+  static final tronSecrets = [
+    SecretKey('tronGridApiKey', () => ''),
+  ];
 
   final String name;
   final String Function() generate;
