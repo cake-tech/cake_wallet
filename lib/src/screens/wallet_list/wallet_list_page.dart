@@ -171,7 +171,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                         maxLines: null,
                                         softWrap: true,
                                         style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: DeviceInfo.instance.isDesktop ? 18 : 20,
                                           fontWeight: FontWeight.w500,
                                           color: Theme.of(context)
                                               .extension<CakeTextTheme>()!

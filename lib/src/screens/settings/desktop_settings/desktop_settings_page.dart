@@ -38,7 +38,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 4),
               child: Text(
                 S.current.settings,
                 style: textXLarge(),
