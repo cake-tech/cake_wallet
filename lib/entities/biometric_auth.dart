@@ -18,6 +18,7 @@ class BiometricAuth {
     bool canAuthenticate;
     try {
       canAuthenticate = await _flutterLocalAuthenticationPlugin.canAuthenticate();
+      await _flutterLocalAuthenticationPlugin.setTouchIDAuthenticationAllowableReuseDuration(0);
     } catch (error) {
       print("Exception checking support. $error");
       canAuthenticate = false;
