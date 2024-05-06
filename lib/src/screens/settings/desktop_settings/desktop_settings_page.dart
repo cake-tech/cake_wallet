@@ -12,7 +12,6 @@ final _settingsNavigatorKey = GlobalKey<NavigatorState>();
 class DesktopSettingsPage extends StatefulWidget {
   const DesktopSettingsPage({super.key});
 
-
   @override
   State<DesktopSettingsPage> createState() => _DesktopSettingsPageState();
 }
@@ -33,22 +32,21 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
     return Scaffold(
       body: Container(
         height: MediaQuery.of(context).size.height,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 4),
-              child: Text(
-                S.current.settings,
-                style: textXLarge(),
-              ),
-            ),
             Expanded(
-              child: Row(
+              flex: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 4),
+                    child: Text(
+                      S.current.settings,
+                      style: textXLarge(),
+                    ),
+                  ),
                   Expanded(
-                    flex: 1,
                     child: ListView.separated(
                       padding: EdgeInsets.only(top: 0),
                       itemBuilder: (_, index) {
@@ -78,27 +76,27 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                       itemCount: itemCount,
                     ),
                   ),
-                  Flexible(
-                    flex: 2,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 500),
-                      child: Navigator(
-                        key: _settingsNavigatorKey,
-                        initialRoute: Routes.empty_no_route,
-                        onGenerateRoute: (settings) => Router.createRoute(settings),
-                        onGenerateInitialRoutes:
-                            (NavigatorState navigator, String initialRouteName) {
-                          return [
-                            navigator
-                                .widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
-                          ];
-                        },
-                      ),
-                    ),
-                  )
                 ],
               ),
             ),
+            Flexible(
+              flex: 2,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 500),
+                child: Navigator(
+                  key: _settingsNavigatorKey,
+                  initialRoute: Routes.empty_no_route,
+                  onGenerateRoute: (settings) => Router.createRoute(settings),
+                  onGenerateInitialRoutes:
+                      (NavigatorState navigator, String initialRouteName) {
+                    return [
+                      navigator
+                          .widget.onGenerateRoute!(RouteSettings(name: initialRouteName))!
+                    ];
+                  },
+                ),
+              ),
+            )
           ],
         ),
       ),
