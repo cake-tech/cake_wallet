@@ -56,7 +56,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   StreamSubscription<Uri?>? stream;
   ReactionDisposer? _walletReactionDisposer;
   ReactionDisposer? _deepLinksReactionDisposer;
-  Uri? launchUri;
 
   @override
   void initState() {
@@ -101,7 +100,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   void handleDeepLinking(Uri? uri) async {
     if (uri == null || !mounted) return;
 
-    launchUri = uri;
+    widget.linkViewModel.currentLink = uri;
 
     bool requireAuth = await widget.authService.requireAuth();
 
@@ -199,11 +198,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           },
         );
       });
-    }
-
-    // handle the link if the app is already started:
-    if (!_requestAuth) {
-      widget.linkViewModel.handleLink();
     }
 
     return WillPopScope(

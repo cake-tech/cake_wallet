@@ -24,7 +24,6 @@ abstract class LinkViewModelBase with Store {
     required this.navigatorKey,
   }) {}
 
-  bool torStarted = false;
   final SettingsStore settingsStore;
   final AppStore appStore;
   final AuthenticationStore authenticationStore;
@@ -36,6 +35,7 @@ abstract class LinkViewModelBase with Store {
   bool get isNanoGptLink => currentLink?.scheme == 'nano-gpt';
 
   String? getRouteToGo() {
+    print(currentLink);
     if (isWalletConnectLink) {
       if (!isEVMCompatibleChain(appStore.wallet!.type)) {
         _errorToast(S.current.switchToEVMCompatibleWallet);
@@ -100,9 +100,16 @@ abstract class LinkViewModelBase with Store {
   }
 
   Future<void> handleLink() async {
+    try {
+      throw Exception("test");
+    } catch (e, s) {
+      print(s);
+    }
     print("link view model handle link");
     String? route = getRouteToGo();
     dynamic args = getRouteArgs();
+    print(route);
+    print(args);
     if (route != null) {
       if (appStore.wallet == null) {
         return;
