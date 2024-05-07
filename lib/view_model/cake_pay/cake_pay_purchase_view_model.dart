@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
+import 'package:cake_wallet/cake_pay/cake_pay_payment_credantials.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -15,14 +16,14 @@ class CakePayPurchaseViewModel = CakePayPurchaseViewModelBase with _$CakePayPurc
 abstract class CakePayPurchaseViewModelBase with Store {
   CakePayPurchaseViewModelBase({
     required this.cakePayService,
-    required this.amount,
+    required this.paymentCredential,
     required this.card,
     required this.sendViewModel,
-  })  : walletType = sendViewModel.walletType;
+  }) : walletType = sendViewModel.walletType;
 
   final WalletType walletType;
 
-  final List<double> amount;
+  final PaymentCredential paymentCredential;
 
   final CakePayCard card;
 
@@ -37,6 +38,16 @@ abstract class CakePayPurchaseViewModelBase with Store {
   DateTime? expirationTime;
 
   Duration? remainingTime;
+
+  String? get userName => paymentCredential.userName;
+
+  double get amount => paymentCredential.amount;
+
+  int get quantity => paymentCredential.quantity;
+
+  double get totalAmount => paymentCredential.totalAmount;
+
+  String get fiatCurrency => paymentCredential.fiatCurrency;
 
   CryptoPaymentData? get cryptoPaymentData {
     if (order == null) return null;
@@ -68,15 +79,6 @@ abstract class CakePayPurchaseViewModelBase with Store {
   @observable
   String formattedRemainingTime = '';
 
-  @computed
-  double get giftCardAmount => amount[0];
-
-  @computed
-  int get giftQuantity => amount[1].round();
-
-  @computed
-  double get totalAmount => giftCardAmount * giftQuantity;
-
   @action
   Future<void> createOrder() async {
     if (walletType != WalletType.bitcoin && walletType != WalletType.monero) {
@@ -84,7 +86,9 @@ abstract class CakePayPurchaseViewModelBase with Store {
     }
     try {
       order = await cakePayService.createOrder(
-          cardId: card.id, price: giftCardAmount.toString(), quantity: giftQuantity);
+          cardId: card.id,
+          price: paymentCredential.amount.toString(),
+          quantity: paymentCredential.quantity);
       await confirmSending();
       expirationTime = order!.paymentData.expirationTime;
       updateRemainingTime();

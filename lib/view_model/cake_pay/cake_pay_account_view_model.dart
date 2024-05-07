@@ -8,7 +8,7 @@ class CakePayAccountViewModel = CakePayAccountViewModelBase with _$CakePayAccoun
 
 abstract class CakePayAccountViewModelBase with Store {
   CakePayAccountViewModelBase({required this.cakePayService}) : email = '' {
-    cakePayService.getUserEmail().then((email) => this.email = email);
+    cakePayService.getUserEmail().then((email) => this.email = email ?? '');
   }
 
   final CakePayService cakePayService;

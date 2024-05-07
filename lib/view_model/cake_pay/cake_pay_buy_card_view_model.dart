@@ -17,7 +17,6 @@ abstract class CakePayBuyCardViewModelBase with Store {
         card = vendor.card!;
 
   final CakePayVendor vendor;
-
   final CakePayCard card;
 
   final double min;

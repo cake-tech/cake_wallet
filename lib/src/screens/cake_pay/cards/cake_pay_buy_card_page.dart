@@ -1,4 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
+import 'package:cake_wallet/cake_pay/cake_pay_payment_credantials.dart';
+import 'package:cake_wallet/cake_pay/cake_pay_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -24,6 +27,7 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 class CakePayBuyCardPage extends BasePage {
   CakePayBuyCardPage(
     this.cakePayBuyCardViewModel,
+    this.cakePayService,
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController(),
         _quantityFieldFocus = FocusNode(),
@@ -35,6 +39,7 @@ class CakePayBuyCardPage extends BasePage {
   }
 
   final CakePayBuyCardViewModel cakePayBuyCardViewModel;
+  final CakePayService cakePayService;
 
   @override
   String get title => cakePayBuyCardViewModel.card.name;
@@ -162,30 +167,32 @@ class CakePayBuyCardPage extends BasePage {
                         child: Column(
                           children: [
                             if (vendor.cakeWarnings != null)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).primaryColor,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: Colors.white.withOpacity(0.20)),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    vendor.cakeWarnings!,
-                                    textAlign: TextAlign.center,
-                                    style: textSmallSemiBold(color: Colors.white),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).primaryColor,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: Colors.white.withOpacity(0.20)),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      vendor.cakeWarnings!,
+                                      textAlign: TextAlign.center,
+                                      style: textSmallSemiBold(color: Colors.white),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
                             Expanded(
                               child: SingleChildScrollView(
                                 child: ClickableLinksText(
                                   text: card.description ?? '',
                                   textStyle: TextStyle(
-                                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                                    color: Theme.of(context)
+                                        .extension<CakeTextTheme>()!
+                                        .secondaryTextColor,
                                     fontSize: 18,
                                     fontWeight: FontWeight.w400,
                                   ),
@@ -213,16 +220,7 @@ class CakePayBuyCardPage extends BasePage {
                 return Padding(
                   padding: EdgeInsets.only(bottom: 12),
                   child: PrimaryButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, Routes.cakePayBuyCardDetailPage, arguments: [
-                        [
-                          cakePayBuyCardViewModel.amount,
-                          cakePayBuyCardViewModel.quantity.toDouble(),
-                          cakePayBuyCardViewModel.totalAmount
-                        ],
-                        card,
-                      ]);
-                    },
+                    onPressed: () => navigateToCakePayBuyCardDetailPage(context, card),
                     text: S.of(context).buy_now,
                     isDisabled: !cakePayBuyCardViewModel.isEnablePurchase,
                     color: Theme.of(context).primaryColor,
@@ -234,6 +232,23 @@ class CakePayBuyCardPage extends BasePage {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> navigateToCakePayBuyCardDetailPage(BuildContext context, CakePayCard card) async {
+    final userName = await cakePayService.getUserEmail();
+    final paymentCredential = PaymentCredential(
+      amount: cakePayBuyCardViewModel.amount,
+      quantity: cakePayBuyCardViewModel.quantity,
+      totalAmount: cakePayBuyCardViewModel.totalAmount,
+      userName: userName,
+      fiatCurrency: card.fiatCurrency.title,
+    );
+
+    Navigator.pushNamed(
+      context,
+      Routes.cakePayBuyCardDetailPage,
+      arguments: [paymentCredential, card],
     );
   }
 }

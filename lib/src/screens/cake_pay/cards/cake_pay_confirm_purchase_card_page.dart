@@ -66,7 +66,6 @@ class CakePayBuyCardDetailPage extends BasePage {
                 child: Row(
                   children: [
                     Expanded(
-                      flex: 3,
                       child: Container(
                           child: ClipRRect(
                         borderRadius: BorderRadius.horizontal(
@@ -85,67 +84,63 @@ class CakePayBuyCardDetailPage extends BasePage {
                       )),
                     ),
                     Expanded(
-                      flex: 2,
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          child: Column(children: [
-                            Row(
-                              children: [
-                                Text(
-                                  'Value:',
-                                  style: textLarge(
-                                      color:
-                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-                                ),
-                                SizedBox(width: 6),
-                                Text(
-                                  '\$${cakePayPurchaseViewModel.giftCardAmount.toStringAsFixed(2)}',
-                                  style: textLarge(
-                                      color:
-                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Text(
-                                  'Quantity:',
-                                  style: textLarge(
-                                      color:
-                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  '${cakePayPurchaseViewModel.giftQuantity.toStringAsFixed(2)}',
-                                  style: textLarge(
-                                      color:
-                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Text(
-                                  'Total:',
-                                  style: textLarge(
-                                      color:
-                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  '\$${cakePayPurchaseViewModel.totalAmount.toStringAsFixed(2)}',
-                                  style: textLarge(
-                                      color:
-                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 4),
-                          ]),
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Column(children: [
+                          Row(
+                            children: [
+                              Text(
+                                'Value:',
+                                style: textLarge(
+                                    color:
+                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                '${cakePayPurchaseViewModel.amount.toStringAsFixed(2)} ${cakePayPurchaseViewModel.fiatCurrency}',
+                                style: textLarge(
+                                    color:
+                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Text(
+                                'Quantity:',
+                                style: textLarge(
+                                    color:
+                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                '${cakePayPurchaseViewModel.quantity}',
+                                style: textLarge(
+                                    color:
+                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Text(
+                                'Total:',
+                                style: textLarge(
+                                    color:
+                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                '${cakePayPurchaseViewModel.totalAmount.toStringAsFixed(2)} ${cakePayPurchaseViewModel.fiatCurrency}',
+                                style: textLarge(
+                                    color:
+                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                              ),
+                            ],
+                          ),
+                        ]),
                       ),
                     )
                   ],
@@ -162,38 +157,38 @@ class CakePayBuyCardDetailPage extends BasePage {
             ),
             SizedBox(height: 20),
             if (card.expiryAndValidity != null && card.expiryAndValidity!.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Expiry and Validity:',
-                      style: textMediumSemiBold(
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
-                  SizedBox(height: 10),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                          width: 1,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Expiry and Validity:',
+                        style: textMediumSemiBold(
+                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
+                    SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                            width: 1,
+                          ),
                         ),
-                    ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Text(
-                        card.expiryAndValidity ?? '',
-                        style: textMedium(
-                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text(
+                          card.expiryAndValidity ?? '',
+                          style: textMedium(
+                            color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
           ],
         );
       }),

@@ -163,7 +163,7 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
   double get backgroundHeight => MediaQuery.of(context).size.height * 0.75;
   double thumbHeight = 72;
 
-  bool get isAlwaysShowScrollThumb => merchantsList == null ? false : merchantsList.length > 3;
+  bool get isAlwaysShowScrollThumb => merchantsList.isEmpty ? false : merchantsList.length > 3;
 
   List<CakePayVendor> get merchantsList => widget.cardsListViewModel.cakePayVendors;
 

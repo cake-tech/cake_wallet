@@ -69,8 +69,8 @@ class CakePayService {
     await secureStorage.write(key: cakePayUsernameStorageKey, value: credentials.username);
   }
 
-  Future<String> getUserEmail() async {
-    return (await secureStorage.read(key: cakePayEmailStorageKey))!;
+  Future<String?> getUserEmail() async {
+    return (await secureStorage.read(key: cakePayEmailStorageKey));
   }
 
   /// Check is user logged

@@ -220,6 +220,7 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'buy/dfx/dfx_buy_provider.dart';
+import 'cake_pay/cake_pay_payment_credantials.dart';
 import 'core/totp_request_details.dart';
 import 'src/screens/settings/desktop_settings/desktop_settings_page.dart';
 
@@ -1044,11 +1045,11 @@ Future<void> setup({
 
   getIt.registerFactory(() => CakePayAuthViewModel(cakePayService: getIt.get<CakePayService>()));
 
-  getIt.registerFactoryParam<CakePayPurchaseViewModel, List<double>, CakePayCard>(
-      (List<double> amount, CakePayCard card) {
+  getIt.registerFactoryParam<CakePayPurchaseViewModel, PaymentCredential, CakePayCard>(
+      (PaymentCredential paymentCredential, CakePayCard card) {
     return CakePayPurchaseViewModel(
         cakePayService: getIt.get<CakePayService>(),
-        amount: amount,
+        paymentCredential: paymentCredential,
         card: card,
         sendViewModel: getIt.get<SendViewModel>());
   });
@@ -1072,15 +1073,16 @@ Future<void> setup({
   getIt.registerFactoryParam<CakePayBuyCardPage, List<dynamic>, void>((List<dynamic> args, _) {
     final vendor = args.first as CakePayVendor;
 
-    return CakePayBuyCardPage(getIt.get<CakePayBuyCardViewModel>(param1: vendor));
+    return CakePayBuyCardPage(getIt.get<CakePayBuyCardViewModel>(param1: vendor),
+        getIt.get<CakePayService>());
   });
 
   getIt.registerFactoryParam<CakePayBuyCardDetailPage, List<dynamic>, void>(
       (List<dynamic> args, _) {
-    final totalAmounts = args.first as List<double>;
+    final paymentCredential = args.first as PaymentCredential;
     final card = args[1] as CakePayCard;
     return CakePayBuyCardDetailPage(
-        getIt.get<CakePayPurchaseViewModel>(param1: totalAmounts, param2: card));
+        getIt.get<CakePayPurchaseViewModel>(param1: paymentCredential, param2: card));
   });
 
   getIt.registerFactory(() => CakePayCardsPage(getIt.get<CakePayCardsListViewModel>()));
