@@ -524,7 +524,7 @@ abstract class SolanaWalletBase
       _transactionsUpdateTimer!.cancel();
     }
 
-    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 20), (_) {
+    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       _updateBalance();
       _updateNativeSOLTransactions();
       _updateSPLTokenTransactions();
