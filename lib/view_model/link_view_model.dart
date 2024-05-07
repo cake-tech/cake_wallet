@@ -5,9 +5,6 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobx/mobx.dart';
@@ -35,7 +32,6 @@ abstract class LinkViewModelBase with Store {
   bool get isNanoGptLink => currentLink?.scheme == 'nano-gpt';
 
   String? getRouteToGo() {
-    print(currentLink);
     if (isWalletConnectLink) {
       if (!isEVMCompatibleChain(appStore.wallet!.type)) {
         _errorToast(S.current.switchToEVMCompatibleWallet);
@@ -112,12 +108,11 @@ abstract class LinkViewModelBase with Store {
           await _errorToast(S.current.nano_gpt_thanks_message, fontSize: 14);
         }
       }
-
+      currentLink = null;
       navigatorKey.currentState?.pushNamed(
         route,
         arguments: args,
       );
-      currentLink = null;
     }
   }
 }
