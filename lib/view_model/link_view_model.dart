@@ -100,16 +100,8 @@ abstract class LinkViewModelBase with Store {
   }
 
   Future<void> handleLink() async {
-    try {
-      throw Exception("test");
-    } catch (e, s) {
-      print(s);
-    }
-    print("link view model handle link");
     String? route = getRouteToGo();
     dynamic args = getRouteArgs();
-    print(route);
-    print(args);
     if (route != null) {
       if (appStore.wallet == null) {
         return;
