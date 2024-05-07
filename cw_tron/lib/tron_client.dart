@@ -367,7 +367,7 @@ class TronClient {
   ) async {
     // This is introduce to server as a limit in cases where feeLimit is 0
     // The transaction signing will fail if the feeLimit is explicitly 0.
-    int defaultFeeLimit = 100000;
+    int defaultFeeLimit = 269000;
 
     final block = await _provider!.request(TronRequestGetNowBlock());
     // Create the transfer contract
@@ -401,8 +401,9 @@ class TronClient {
     final tronBalanceInt = tronBalance.toInt();
 
     if (feeLimit > tronBalanceInt) {
+      final feeInTrx = TronHelper.fromSun(BigInt.parse(feeLimit.toString()));
       throw Exception(
-        'You don\'t have enough TRX to cover the transaction fee for this transaction. Kindly top up.',
+        'You don\'t have enough TRX to cover the transaction fee for this transaction. Kindly top up.\nTransaction fee: $feeInTrx TRX',
       );
     }
 
@@ -442,6 +443,9 @@ class TronClient {
 
     if (!request.isSuccess) {
       log("Tron TRC20 error: ${request.error} \n ${request.respose}");
+      throw Exception(
+        'An error occured while creating the transfer request. Please try again.',
+      );
     }
 
     final feeLimit = await getFeeLimit(
@@ -454,8 +458,9 @@ class TronClient {
     final tronBalanceInt = tronBalance.toInt();
 
     if (feeLimit > tronBalanceInt) {
+      final feeInTrx = TronHelper.fromSun(BigInt.parse(feeLimit.toString()));
       throw Exception(
-        'You don\'t have enough TRX to cover the transaction fee for this transaction. Kindly top up.',
+        'You don\'t have enough TRX to cover the transaction fee for this transaction. Kindly top up. Transaction fee: $feeInTrx TRX',
       );
     }
 
