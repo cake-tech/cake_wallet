@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
-import 'package:uni_links/uni_links.dart';
 
 class CakePayBuyCardPage extends BasePage {
   CakePayBuyCardPage(

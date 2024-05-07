@@ -26,7 +26,7 @@ class CakePayCardsPage extends BasePage {
     _searchController.addListener(() {
       if (_searchController.text != _cardsListViewModel.searchString) {
         _searchDebounce.run(() {
-          _cardsListViewModel.page = 1;
+          _cardsListViewModel.resetLoadingNextPageState();
           _cardsListViewModel.getVendors(text: _searchController.text);
         });
       }
@@ -84,9 +84,9 @@ class CakePayCardsPage extends BasePage {
       child: InkWell(
           onTap: () async {
             _cardsListViewModel.storeInitialFilterStates();
-            await showCategoryFilter(context);
+            await showFilterWidget(context);
             if (_cardsListViewModel.hasFiltersChanged) {
-              _cardsListViewModel.page = 1;
+              _cardsListViewModel.resetLoadingNextPageState();
               _cardsListViewModel.getVendors();
             }
           },
@@ -137,7 +137,7 @@ class CakePayCardsPage extends BasePage {
     );
   }
 
-  Future<void> showCategoryFilter(BuildContext context) async {
+  Future<void> showFilterWidget(BuildContext context) async {
     return showPopUp<void>(
       context: context,
       builder: (BuildContext context) {
@@ -192,8 +192,8 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
-      final merchantState = widget.cardsListViewModel.vendorsState;
-      if (merchantState is CakePayVendorLoadedState) {
+      final vendorsState = widget.cardsListViewModel.vendorsState;
+      if (vendorsState is CakePayVendorLoadedState) {
         bool isLoadingMore = widget.cardsListViewModel.isLoadingNextPage;
         final vendors = widget.cardsListViewModel.cakePayVendors;
 

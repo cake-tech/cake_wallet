@@ -184,6 +184,11 @@ abstract class CakePayCardsListViewModelBase with Store {
     return await cakePayService.isLogged();
   }
 
+  void resetLoadingNextPageState() {
+    hasMoreDataToFetch = true;
+    page = 1;
+  }
+
   void storeInitialFilterStates() {
     _initialSelectedCountry = selectedCountry;
     _initialDisplayPrepaidCards = displayPrepaidCards;
