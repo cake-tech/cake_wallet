@@ -110,20 +110,20 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       return;
     }
 
-    // _deepLinksReactionDisposer = reaction(
-    //   (_) => widget.authenticationStore.state,
-    //   (AuthenticationState state) {
-    //     if (state == AuthenticationState.allowed) {
-    //       if (widget.appStore.wallet == null) {
-    //         waitForWalletInstance(context, launchUri!);
-    //       } else {
-    //         _navigateToDeepLinkScreen();
-    //       }
-    //       _deepLinksReactionDisposer?.call();
-    //       _deepLinksReactionDisposer = null;
-    //     }
-    //   },
-    // );
+    _deepLinksReactionDisposer = reaction(
+      (_) => widget.authenticationStore.state,
+      (AuthenticationState state) {
+        if (state == AuthenticationState.allowed) {
+          if (widget.appStore.wallet == null) {
+            waitForWalletInstance(context);
+          } else {
+            _navigateToDeepLinkScreen();
+          }
+          _deepLinksReactionDisposer?.call();
+          _deepLinksReactionDisposer = null;
+        }
+      },
+    );
   }
 
   @override
@@ -201,7 +201,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       });
     }
 
-    
     // handle the link if the app is already started:
     if (!_requestAuth) {
       widget.linkViewModel.handleLink();
@@ -225,7 +224,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     _isInactiveController.add(value);
   }
 
-  void waitForWalletInstance(BuildContext context, String route, dynamic args) {
+  void waitForWalletInstance(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.mounted) {
         _walletReactionDisposer = reaction(
@@ -243,14 +242,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   }
 
   void _navigateToDeepLinkScreen() {
-    // if (_getRouteToGo() != null) {
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     widget.navigatorKey.currentState?.pushNamed(
-    //       _getRouteToGo()!,
-    //       arguments: isWalletConnectLink ? launchUri : PaymentRequest.fromUri(launchUri),
-    //     );
-    //     launchUri = null;
-    //   });
-    // }
+    widget.linkViewModel.handleLink();
   }
 }
