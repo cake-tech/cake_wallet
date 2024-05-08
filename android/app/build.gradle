@@ -78,6 +78,12 @@ android {
 
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
        }
+   }   
+   splits {
+       abi {
+          enable true
+          universalApk true
+       }
    }
 
     ndkVersion "25.1.8937393"
