@@ -19,15 +19,15 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     ...(CryptoCurrency.all
         .where((element) => ![
               CryptoCurrency.btc,
-              CryptoCurrency.eth,
+              // CryptoCurrency.eth,
               CryptoCurrency.ltc,
               CryptoCurrency.bch,
-              CryptoCurrency.aave,
-              CryptoCurrency.dai,
-              CryptoCurrency.gusd,
-              CryptoCurrency.usdc,
-              CryptoCurrency.usdterc20,
-              CryptoCurrency.wbtc,
+              // CryptoCurrency.aave,
+              // CryptoCurrency.dai,
+              // CryptoCurrency.gusd,
+              // CryptoCurrency.usdc,
+              // CryptoCurrency.usdterc20,
+              // CryptoCurrency.wbtc, // TODO: temporarily commented until https://github.com/cake-tech/cake_wallet/pull/1436 is merged
             ].contains(element))
         .toList())
   ];

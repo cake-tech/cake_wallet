@@ -543,7 +543,7 @@ abstract class TronWalletBase
       _transactionsUpdateTimer!.cancel();
     }
 
-    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 20), (_) async {
+    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
       _updateBalance();
       await fetchTransactions();
       fetchTrc20ExcludedTransactions();

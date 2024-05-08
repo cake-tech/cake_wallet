@@ -7,19 +7,14 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mobx/mobx.dart';
 
-part 'link_view_model.g.dart';
-
-class LinkViewModel = LinkViewModelBase with _$LinkViewModel;
-
-abstract class LinkViewModelBase with Store {
-  LinkViewModelBase({
+class LinkViewModel {
+  LinkViewModel({
     required this.settingsStore,
     required this.appStore,
     required this.authenticationStore,
     required this.navigatorKey,
-  }) {}
+  });
 
   final SettingsStore settingsStore;
   final AppStore appStore;
