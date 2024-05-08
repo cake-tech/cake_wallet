@@ -1,10 +1,10 @@
 import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,7 +42,7 @@ const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 Future<void> defaultSettingsMigration(
     {required int version,
     required SharedPreferences sharedPreferences,
-    required FlutterSecureStorage secureStorage,
+    required SecureStorage secureStorage,
     required Box<Node> nodes,
     required Box<Node> powNodes,
     required Box<WalletInfo> walletInfoSource,
@@ -485,7 +485,7 @@ Node? getTronDefaultNode({required Box<Node> nodes}) {
 
 Future<void> insecureStorageMigration({
   required SharedPreferences sharedPreferences,
-  required FlutterSecureStorage secureStorage,
+  required SecureStorage secureStorage,
 }) async {
   bool? allowBiometricalAuthentication =
       sharedPreferences.getBool(SecureKey.allowBiometricalAuthenticationKey);
@@ -559,7 +559,7 @@ Future<void> insecureStorageMigration({
   }
 }
 
-Future<void> rewriteSecureStoragePin({required FlutterSecureStorage secureStorage}) async {
+Future<void> rewriteSecureStoragePin({required SecureStorage secureStorage}) async {
   // the bug only affects ios/mac:
   if (!Platform.isIOS && !Platform.isMacOS) {
     return;
@@ -585,8 +585,9 @@ Future<void> rewriteSecureStoragePin({required FlutterSecureStorage secureStorag
   await secureStorage.write(
     key: keyForPinCode,
     value: encodedPin,
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
-    mOptions: MacOsOptions(accessibility: KeychainAccessibility.first_unlock),
+    // TODO: find a way to add those with the generated secure storage
+    // iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    // mOptions: MacOsOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 }
 
@@ -720,7 +721,7 @@ Future<void> updateDisplayModes(SharedPreferences sharedPreferences) async {
   await sharedPreferences.setInt(PreferencesKey.currentBalanceDisplayModeKey, balanceDisplayMode);
 }
 
-Future<void> generateBackupPassword(FlutterSecureStorage secureStorage) async {
+Future<void> generateBackupPassword(SecureStorage secureStorage) async {
   final key = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
 
   if ((await secureStorage.read(key: key))?.isNotEmpty ?? false) {
