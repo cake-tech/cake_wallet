@@ -26,6 +26,7 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cw_core/receive_page_option.dart';
@@ -235,6 +236,32 @@ import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/view_model/wallet_new_vm.dart';
+import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:cake_wallet/store/dashboard/trades_store.dart';
+import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
+import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/store/templates/send_template_store.dart';
+import 'package:cake_wallet/store/templates/exchange_template_store.dart';
+import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/exchange/exchange_template.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
+import 'package:cake_wallet/anypay/anypay_api.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_gift_card_details_view_model.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_payment_status_view_model.dart';
+import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
+import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
+import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
+import 'package:cake_wallet/core/wallet_loading_service.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/entities/qr_view_data.dart';
 
 import 'buy/dfx/dfx_buy_provider.dart';
 import 'core/totp_request_details.dart';
@@ -267,7 +294,8 @@ Future<void> setup({
   required Box<Order> ordersSource,
   required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
-  required FlutterSecureStorage secureStorage,
+  required SecureStorage secureStorage,
+  required GlobalKey<NavigatorState> navigatorKey,
 }) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
@@ -283,7 +311,7 @@ Future<void> setup({
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
-    getIt.registerSingleton<FlutterSecureStorage>(secureStorage);
+    getIt.registerSingleton<SecureStorage>(secureStorage);
   }
   if (!_isSetupFinished) {
     getIt.registerFactory(() => BackgroundTasks());
@@ -331,22 +359,22 @@ Future<void> setup({
   getIt.registerSingleton<ExchangeTemplateStore>(
       ExchangeTemplateStore(templateSource: _exchangeTemplates));
   getIt.registerSingleton<YatStore>(
-      YatStore(appStore: getIt.get<AppStore>(), secureStorage: getIt.get<FlutterSecureStorage>())
+      YatStore(appStore: getIt.get<AppStore>(), secureStorage: getIt.get<SecureStorage>())
         ..init());
   getIt.registerSingleton<AnonpayTransactionsStore>(
       AnonpayTransactionsStore(anonpayInvoiceInfoSource: _anonpayInvoiceInfoSource));
 
-  final secretStore = await SecretStoreBase.load(getIt.get<FlutterSecureStorage>());
+  final secretStore = await SecretStoreBase.load(getIt.get<SecureStorage>());
 
   getIt.registerSingleton<SecretStore>(secretStore);
 
-  getIt.registerFactory<KeyService>(() => KeyService(getIt.get<FlutterSecureStorage>()));
+  getIt.registerFactory<KeyService>(() => KeyService(getIt.get<SecureStorage>()));
 
   getIt.registerFactoryParam<WalletCreationService, WalletType, void>((type, _) =>
       WalletCreationService(
           initialType: type,
           keyService: getIt.get<KeyService>(),
-          secureStorage: getIt.get<FlutterSecureStorage>(),
+          secureStorage: getIt.get<SecureStorage>(),
           sharedPreferences: getIt.get<SharedPreferences>(),
           settingsStore: getIt.get<SettingsStore>(),
           walletInfoSource: _walletInfoSource));
@@ -401,7 +429,7 @@ Future<void> setup({
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
-      secureStorage: getIt.get<FlutterSecureStorage>(),
+      secureStorage: getIt.get<SecureStorage>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
       settingsStore: getIt.get<SettingsStore>(),
     ),
@@ -429,68 +457,89 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactory<AuthPage>(() {
-    return AuthPage(getIt.get<AuthViewModel>(),
+  getIt.registerLazySingleton<LinkViewModel>(() {
+    return LinkViewModel(
+      appStore: getIt.get<AppStore>(),
+      settingsStore: getIt.get<SettingsStore>(),
+      authenticationStore: getIt.get<AuthenticationStore>(),
+      navigatorKey: navigatorKey,
+    );
+  });
+
+  getIt.registerFactory<AuthPage>(instanceName: 'login', () {
+    return AuthPage(getIt.get<AuthViewModel>(), closable: false,
         onAuthenticationFinished: (isAuthenticated, AuthPageState authPageState) {
       if (!isAuthenticated) {
         return;
-      } else {
-        final authStore = getIt.get<AuthenticationStore>();
-        final appStore = getIt.get<AppStore>();
-        final useTotp = appStore.settingsStore.useTOTP2FA;
-        final shouldUseTotp2FAToAccessWallets =
-            appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
-        if (useTotp && shouldUseTotp2FAToAccessWallets) {
-          authPageState.close(
-            route: Routes.totpAuthCodePage,
-            arguments: TotpAuthArgumentsModel(
-              isForSetup: false,
-              isClosable: false,
-              onTotpAuthenticationFinished: (bool isAuthenticatedSuccessfully,
-                  TotpAuthCodePageState totpAuthPageState) async {
-                if (!isAuthenticatedSuccessfully) {
-                  return;
-                }
-                if (appStore.wallet != null) {
-                  authStore.allowed();
-                  return;
-                }
-
-                totpAuthPageState.changeProcessText('Loading the wallet');
-
-                if (loginError != null) {
-                  totpAuthPageState.changeProcessText('ERROR: ${loginError.toString()}');
-                }
-
-                ReactionDisposer? _reaction;
-                _reaction = reaction((_) => appStore.wallet, (Object? _) {
-                  _reaction?.reaction.dispose();
-                  authStore.allowed();
-                });
-              },
-            ),
-          );
-        } else {
-          if (appStore.wallet != null) {
-            authStore.allowed();
-            return;
-          }
-
-          authPageState.changeProcessText('Loading the wallet');
-
-          if (loginError != null) {
-            authPageState.changeProcessText('ERROR: ${loginError.toString()}');
-          }
-
-          ReactionDisposer? _reaction;
-          _reaction = reaction((_) => appStore.wallet, (Object? _) {
-            _reaction?.reaction.dispose();
-            authStore.allowed();
-          });
-        }
       }
-    }, closable: false);
-  }, instanceName: 'login');
+      final authStore = getIt.get<AuthenticationStore>();
+      final appStore = getIt.get<AppStore>();
+      final useTotp = appStore.settingsStore.useTOTP2FA;
+      final shouldUseTotp2FAToAccessWallets =
+          appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
+      if (useTotp && shouldUseTotp2FAToAccessWallets) {
+        authPageState.close(
+          route: Routes.totpAuthCodePage,
+          arguments: TotpAuthArgumentsModel(
+            isForSetup: false,
+            isClosable: false,
+            onTotpAuthenticationFinished:
+                (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuthPageState) async {
+              if (!isAuthenticatedSuccessfully) {
+                return;
+              }
+              if (appStore.wallet != null) {
+                authStore.allowed();
+                return;
+              }
+
+              totpAuthPageState.changeProcessText('Loading the wallet');
+
+              if (loginError != null) {
+                totpAuthPageState.changeProcessText('ERROR: ${loginError.toString()}');
+              }
+
+              ReactionDisposer? _reaction;
+              _reaction = reaction((_) => appStore.wallet, (Object? _) {
+                _reaction?.reaction.dispose();
+                authStore.allowed();
+              });
+            },
+          ),
+        );
+      } else {
+        // wallet is already loaded:
+        if (appStore.wallet != null) {
+          // goes to the dashboard:
+          authStore.allowed();
+          // trigger any deep links:
+          final linkViewModel = getIt.get<LinkViewModel>();
+          if (linkViewModel.currentLink != null) {
+            linkViewModel.handleLink();
+          }
+          return;
+        }
+
+        // load the wallet:
+
+        authPageState.changeProcessText('Loading the wallet');
+
+        if (loginError != null) {
+          authPageState.changeProcessText('ERROR: ${loginError.toString()}');
+        }
+
+        ReactionDisposer? _reaction;
+        _reaction = reaction((_) => appStore.wallet, (Object? _) {
+          _reaction?.reaction.dispose();
+          authStore.allowed();
+          final linkViewModel = getIt.get<LinkViewModel>();
+          if (linkViewModel.currentLink != null) {
+            linkViewModel.handleLink();
+          }
+        });
+      }
+    });
+  });
 
   getIt.registerSingleton<BottomSheetService>(BottomSheetServiceImpl());
 
@@ -849,8 +898,10 @@ Future<void> setup({
       tradesStore: getIt.get<TradesStore>(),
       sendViewModel: getIt.get<SendViewModel>()));
 
-  getIt.registerFactory(
-      () => ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>()));
+  getIt.registerFactoryParam<ExchangePage, PaymentRequest?, void>(
+      (PaymentRequest? paymentRequest, __) {
+    return ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>(), paymentRequest);
+  });
 
   getIt.registerFactory(() => ExchangeConfirmPage(tradesStore: getIt.get<TradesStore>()));
 
@@ -955,16 +1006,16 @@ Future<void> setup({
           trades: _tradesSource,
           settingsStore: getIt.get<SettingsStore>()));
 
-  getIt.registerFactory(() => BackupService(getIt.get<FlutterSecureStorage>(), _walletInfoSource,
+  getIt.registerFactory(() => BackupService(getIt.get<SecureStorage>(), _walletInfoSource,
       getIt.get<KeyService>(), getIt.get<SharedPreferences>()));
 
   getIt.registerFactory(() => BackupViewModel(
-      getIt.get<FlutterSecureStorage>(), getIt.get<SecretStore>(), getIt.get<BackupService>()));
+      getIt.get<SecureStorage>(), getIt.get<SecretStore>(), getIt.get<BackupService>()));
 
   getIt.registerFactory(() => BackupPage(getIt.get<BackupViewModel>()));
 
   getIt.registerFactory(() =>
-      EditBackupPasswordViewModel(getIt.get<FlutterSecureStorage>(), getIt.get<SecretStore>()));
+      EditBackupPasswordViewModel(getIt.get<SecureStorage>(), getIt.get<SecretStore>()));
 
   getIt.registerFactory(() => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
 
@@ -1013,7 +1064,7 @@ Future<void> setup({
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
 
   getIt.registerFactory(() => SupportChatPage(getIt.get<SupportViewModel>(),
-      secureStorage: getIt.get<FlutterSecureStorage>()));
+      secureStorage: getIt.get<SecureStorage>()));
 
   getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 
@@ -1055,7 +1106,7 @@ Future<void> setup({
   getIt.registerFactory(() => AnyPayApi());
 
   getIt.registerFactory<IoniaService>(
-      () => IoniaService(getIt.get<FlutterSecureStorage>(), getIt.get<IoniaApi>()));
+      () => IoniaService(getIt.get<SecureStorage>(), getIt.get<IoniaApi>()));
 
   getIt.registerFactory<IoniaAnyPay>(() => IoniaAnyPay(
       getIt.get<IoniaService>(), getIt.get<AnyPayApi>(), getIt.get<AppStore>().wallet!));

@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/locales/locale.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/hive_type_ids.dart';
@@ -17,7 +19,6 @@ import 'package:hive/hive.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/router.dart' as Router;
@@ -137,9 +138,8 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(AnonpayInvoiceInfoAdapter());
   }
 
-  final secureStorage = FlutterSecureStorage(
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
-  );
+  final secureStorage = secureStorageShared;
+
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
   final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
@@ -190,7 +190,7 @@ Future<void> initialSetup(
     required Box<Template> templates,
     required Box<ExchangeTemplate> exchangeTemplates,
     required Box<TransactionDescription> transactionDescriptions,
-    required FlutterSecureStorage secureStorage,
+    required SecureStorage secureStorage,
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
     int initialMigrationVersion = 15}) async {
@@ -205,18 +205,20 @@ Future<void> initialSetup(
       nodes: nodes,
       powNodes: powNodes);
   await setup(
-      walletInfoSource: walletInfoSource,
-      nodeSource: nodes,
-      powNodeSource: powNodes,
-      contactSource: contactSource,
-      tradesSource: tradesSource,
-      templates: templates,
-      exchangeTemplates: exchangeTemplates,
-      transactionDescriptionBox: transactionDescriptions,
-      ordersSource: ordersSource,
-      anonpayInvoiceInfoSource: anonpayInvoiceInfo,
-      unspentCoinsInfoSource: unspentCoinsInfoSource,
-      secureStorage: secureStorage);
+    walletInfoSource: walletInfoSource,
+    nodeSource: nodes,
+    powNodeSource: powNodes,
+    contactSource: contactSource,
+    tradesSource: tradesSource,
+    templates: templates,
+    exchangeTemplates: exchangeTemplates,
+    transactionDescriptionBox: transactionDescriptions,
+    ordersSource: ordersSource,
+    anonpayInvoiceInfoSource: anonpayInvoiceInfo,
+    unspentCoinsInfoSource: unspentCoinsInfoSource,
+    secureStorage: secureStorage,
+    navigatorKey: navigatorKey,
+  );
   await bootstrap(navigatorKey);
   monero?.onStartup();
 }
@@ -287,6 +289,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
     return Observer(builder: (BuildContext context) {
       final appStore = getIt.get<AppStore>();
       final authService = getIt.get<AuthService>();
+      final linkViewModel = getIt.get<LinkViewModel>();
       final settingsStore = appStore.settingsStore;
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
@@ -309,6 +312,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
           authService: authService,
+          linkViewModel: linkViewModel,
           child: MaterialApp(
             navigatorObservers: [routeObserver],
             navigatorKey: navigatorKey,
