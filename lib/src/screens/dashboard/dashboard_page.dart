@@ -53,7 +53,7 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: Observer(
+      body: Builder(
         builder: (_) {
           final dashboardPageView = RefreshIndicator(
             displacement: screenHeight * 0.1,
@@ -75,6 +75,7 @@ class DashboardPage extends StatelessWidget {
           if (DeviceInfo.instance.isDesktop) {
             if (responsiveLayoutUtil.screenWidth >
                 ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
+              print('Inside dashboard page');
               return getIt.get<DesktopSidebarWrapper>();
             } else {
               return dashboardPageView;
