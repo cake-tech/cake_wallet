@@ -50,6 +50,10 @@ class SecretKey {
     SecretKey('ankrApiKey', () => ''),
   ];
 
+  static final nanoSecrets = [
+    SecretKey('nano2ApiKey', () => ''),
+  ];
+  
   static final tronSecrets = [
     SecretKey('tronGridApiKey', () => ''),
   ];
