@@ -1351,6 +1351,7 @@ Future<void> generateWalletTypes(
 Future<void> injectSecureStorage(bool hasFlutterSecureStorage) async {
   const flutterSecureStorageHeader = """
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 """;
   const abstractSecureStorage = """
@@ -1377,8 +1378,14 @@ class DefaultSecureStorage extends SecureStorage {
   Future<String?> read({required String key}) async => await _readInternal(key, false);
 
   @override
-  Future<void> write({required String key, required String? value}) async =>
-    _secureStorage.write(key: key, value: value);
+  Future<void> write({required String key, required String? value}) async {
+    // delete the value before writing on macOS because of a weird bug
+    // https://github.com/mogol/flutter_secure_storage/issues/581
+    if (Platform.isMacOS) {
+      await secureStorage.delete(key: key);
+    }
+    await secureStorage.write(key: key, value: value);
+  }
 
   @override
   Future<void> delete({required String key}) async => _secureStorage.delete(key: key);
