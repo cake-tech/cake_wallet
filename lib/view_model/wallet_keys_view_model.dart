@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -103,13 +104,22 @@ abstract class WalletKeysViewModelBase with Store {
     if (_appStore.wallet!.type == WalletType.bitcoin ||
         _appStore.wallet!.type == WalletType.litecoin ||
         _appStore.wallet!.type == WalletType.bitcoinCash) {
+      // final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
+
       items.addAll([
+        // if (keys['wif'] != null)
+        //   StandartListItem(title: "WIF", value: keys['wif']!),
+        // if (keys['privateKey'] != null)
+        //   StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
+        // if (keys['publicKey'] != null)
+        //   StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
         StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
 
     if (isEVMCompatibleChain(_appStore.wallet!.type) ||
-        _appStore.wallet!.type == WalletType.solana) {
+        _appStore.wallet!.type == WalletType.solana ||
+        _appStore.wallet!.type == WalletType.tron) {
       items.addAll([
         if (_appStore.wallet!.privateKey != null)
           StandartListItem(title: S.current.private_key, value: _appStore.wallet!.privateKey!),
@@ -166,6 +176,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'polygon-wallet';
       case WalletType.solana:
         return 'solana-wallet';
+      case WalletType.tron:
+        return 'tron-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
     }

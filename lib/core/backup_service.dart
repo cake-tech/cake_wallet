@@ -275,7 +275,7 @@ class BackupService {
     if (currentTransactionPriorityKeyLegacy != null)
       await _sharedPreferences.setInt(
           PreferencesKey.currentTransactionPriorityKeyLegacy, currentTransactionPriorityKeyLegacy);
-    
+
     if (currentBitcoinElectrumSererId != null)
       await _sharedPreferences.setInt(
           PreferencesKey.currentBitcoinElectrumSererIdKey, currentBitcoinElectrumSererId);
@@ -373,16 +373,15 @@ class BackupService {
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
 
-    await _flutterSecureStorage.delete(key: backupPasswordKey);
-    await _flutterSecureStorage.write(key: backupPasswordKey, value: backupPassword);
+    await writeSecureStorage(_flutterSecureStorage, key: backupPasswordKey, value: backupPassword);
 
     keychainWalletsInfo.forEach((dynamic rawInfo) async {
       final info = rawInfo as Map<String, dynamic>;
       await importWalletKeychainInfo(info);
     });
 
-    await _flutterSecureStorage.delete(key: pinCodeKey);
-    await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
+    await writeSecureStorage(_flutterSecureStorage,
+        key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
 
     keychainDumpFile.deleteSync();
   }
@@ -401,16 +400,15 @@ class BackupService {
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
 
-    await _flutterSecureStorage.delete(key: backupPasswordKey);
-    await _flutterSecureStorage.write(key: backupPasswordKey, value: backupPassword);
+    await writeSecureStorage(_flutterSecureStorage, key: backupPasswordKey, value: backupPassword);
 
     keychainWalletsInfo.forEach((dynamic rawInfo) async {
       final info = rawInfo as Map<String, dynamic>;
       await importWalletKeychainInfo(info);
     });
 
-    await _flutterSecureStorage.delete(key: pinCodeKey);
-    await _flutterSecureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
+    await writeSecureStorage(_flutterSecureStorage,
+        key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
 
     keychainDumpFile.deleteSync();
   }

@@ -37,15 +37,25 @@ class SecretKey {
     SecretKey('exchangeHelperApiKey', () => ''),
     SecretKey('walletConnectProjectId', () => ''),
     SecretKey('moralisApiKey', () => ''),
+    SecretKey('ankrApiKey', () => ''),
   ];
 
   static final evmChainsSecrets = [
     SecretKey('etherScanApiKey', () => ''),
     SecretKey('polygonScanApiKey', () => ''),
+    SecretKey('moralisApiKey', () => ''),
   ];
 
   static final solanaSecrets = [
     SecretKey('ankrApiKey', () => ''),
+  ];
+
+  static final nanoSecrets = [
+    SecretKey('nano2ApiKey', () => ''),
+  ];
+  
+  static final tronSecrets = [
+    SecretKey('tronGridApiKey', () => ''),
   ];
 
   final String name;

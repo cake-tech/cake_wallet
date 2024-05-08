@@ -533,4 +533,21 @@ class SolanaWalletClient {
       throw Exception(e);
     }
   }
+
+  Future<String?> getIconImageFromTokenUri(String uri) async {
+    try {
+      final response = await httpClient.get(Uri.parse(uri));
+
+      final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return jsonResponse['image'];
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error occurred while fetching token image: \n${e.toString()}');
+      return null;
+    }
+  }
 }

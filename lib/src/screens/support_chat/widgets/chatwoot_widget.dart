@@ -58,7 +58,6 @@ class ChatwootWidgetState extends State<ChatwootWidget> {
   }
 
   Future<void> storeCookie(String value) async {
-    await widget.secureStorage.delete(key: COOKIE_KEY);
-    await widget.secureStorage.write(key: COOKIE_KEY, value: value);
+    await writeSecureStorage(widget.secureStorage, key: COOKIE_KEY, value: value);
   }
 }

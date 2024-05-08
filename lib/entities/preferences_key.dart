@@ -14,6 +14,7 @@ class PreferencesKey {
   static const currentFiatCurrencyKey = 'current_fiat_currency';
   static const currentBitcoinCashNodeIdKey = 'current_node_id_bch';
   static const currentSolanaNodeIdKey = 'current_node_id_sol';
+  static const currentTronNodeIdKey = 'current_node_id_trx';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
@@ -42,8 +43,10 @@ class PreferencesKey {
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
+  static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
+  static const shouldShowRepWarning = 'should_show_rep_warning';
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
   static const syncModeKey = 'sync_mode';
   static const syncAllKey = 'sync_all';
@@ -53,6 +56,7 @@ class PreferencesKey {
   static const pinNativeTokenAtTop = 'pin_native_token_at_top';
   static const useEtherscan = 'use_etherscan';
   static const usePolygonScan = 'use_polygonscan';
+  static const useTronGrid = 'use_trongrid';
   static const defaultNanoRep = 'default_nano_representative';
   static const defaultBananoRep = 'default_banano_representative';
   static const lookupsTwitter = 'looks_up_twitter';
@@ -74,4 +78,7 @@ class PreferencesKey {
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';
   static const serviceStatusShaKey = 'service_status_sha_key';
+  static const walletConnectPairingTopicsList = 'wallet_connect_pairing_topics_list';
+  static String walletConnectPairingTopicsListForWallet(String publicKey) =>
+      '${PreferencesKey.walletConnectPairingTopicsList}_${publicKey}';
 }

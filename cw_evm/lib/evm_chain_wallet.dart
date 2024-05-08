@@ -25,6 +25,7 @@ import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet_addresses.dart';
+import 'package:cw_evm/evm_ledger_credentials.dart';
 import 'package:cw_evm/file.dart';
 import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
@@ -83,9 +84,9 @@ abstract class EVMChainWalletBase
 
   late final Box<Erc20Token> evmChainErc20TokensBox;
 
-  late final EthPrivateKey _evmChainPrivateKey;
+  late final Credentials _evmChainPrivateKey;
 
-  EthPrivateKey get evmChainPrivateKey => _evmChainPrivateKey;
+  Credentials get evmChainPrivateKey => _evmChainPrivateKey;
 
   late EVMChainClient _client;
 
@@ -141,12 +142,18 @@ abstract class EVMChainWalletBase
 
     await walletAddresses.init();
     await transactionHistory.init();
-    _evmChainPrivateKey = await getPrivateKey(
-      mnemonic: _mnemonic,
-      privateKey: _hexPrivateKey,
-      password: _password,
-    );
-    walletAddresses.address = _evmChainPrivateKey.address.hexEip55;
+
+    if (walletInfo.isHardwareWallet) {
+      _evmChainPrivateKey = EvmLedgerCredentials(walletInfo.address);
+      walletAddresses.address = walletInfo.address;
+    } else {
+      _evmChainPrivateKey = await getPrivateKey(
+        mnemonic: _mnemonic,
+        privateKey: _hexPrivateKey,
+        password: _password,
+      );
+      walletAddresses.address = _evmChainPrivateKey.address.hexEip55;
+    }
     await save();
   }
 
@@ -283,6 +290,11 @@ abstract class EVMChainWalletBase
       }
     }
 
+    if (transactionCurrency is Erc20Token && isHardwareWallet) {
+      await (_evmChainPrivateKey as EvmLedgerCredentials)
+          .provideERC20Info(transactionCurrency.contractAddress, _client.chainId);
+    }
+
     final pendingEVMChainTransaction = await _client.signTransaction(
       privateKey: _evmChainPrivateKey,
       toAddress: _credentials.outputs.first.isParsedAddress
@@ -377,7 +389,9 @@ abstract class EVMChainWalletBase
   String? get seed => _mnemonic;
 
   @override
-  String get privateKey => HEX.encode(_evmChainPrivateKey.privateKey);
+  String? get privateKey => evmChainPrivateKey is EthPrivateKey
+      ? HEX.encode((evmChainPrivateKey as EthPrivateKey).privateKey)
+      : null;
 
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
@@ -439,11 +453,16 @@ abstract class EVMChainWalletBase
 
   Future<void> addErc20Token(Erc20Token token) async {
     String? iconPath;
-    try {
-      iconPath = CryptoCurrency.all
-          .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
-          .iconPath;
-    } catch (_) {}
+
+    if (token.iconPath == null || token.iconPath!.isEmpty) {
+      try {
+        iconPath = CryptoCurrency.all
+            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+            .iconPath;
+      } catch (_) {}
+    } else {
+      iconPath = token.iconPath;
+    }
 
     final newToken = createNewErc20TokenObject(token, iconPath);
 
@@ -463,11 +482,17 @@ abstract class EVMChainWalletBase
     await token.delete();
 
     balance.remove(token);
+    await _removeTokenTransactionsInHistory(token);
     _updateBalance();
   }
 
-  Future<Erc20Token?> getErc20Token(String contractAddress) async =>
-      await _client.getErc20Token(contractAddress);
+  Future<void> _removeTokenTransactionsInHistory(Erc20Token token) async {
+    transactionHistory.transactions.removeWhere((key, value) => value.tokenSymbol == token.title);
+    await transactionHistory.save();
+  }
+
+  Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async =>
+      await _client.getErc20Token(contractAddress, chainName);
 
   void _onNewTransaction() {
     _updateBalance();
@@ -524,8 +549,8 @@ abstract class EVMChainWalletBase
   }
 
   @override
-  String signMessage(String message, {String? address}) =>
-      bytesToHex(_evmChainPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
+  Future<String> signMessage(String message, {String? address}) async =>
+      bytesToHex(await _evmChainPrivateKey.signPersonalMessage(ascii.encode(message)));
 
   Web3Client? getWeb3Client() => _client.getWeb3Client();
 }

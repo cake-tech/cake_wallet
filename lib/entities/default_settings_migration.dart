@@ -36,6 +36,7 @@ const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'rpc.ankr.com';
+const tronDefaultNodeUri = 'tron-rpc.publicnode.com:443';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 
 Future<void> defaultSettingsMigration(
@@ -207,15 +208,22 @@ Future<void> defaultSettingsMigration(
         case 28:
           await _updateMoneroPriority(sharedPreferences);
           break;
-
         case 29:
           await changeDefaultBitcoinNode(nodes, sharedPreferences);
           break;
-
         case 30:
           await disableServiceStatusFiatDisabled(sharedPreferences);
           break;
-
+        case 31:
+          await updateNanoNodeList(nodes: nodes);
+          break;
+        case 32:
+          await updateBtcNanoWalletInfos(walletInfoSource);
+          break;
+        case 33:
+          await addTronNodeList(nodes: nodes);
+          await changeTronCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
+          break;
         default:
           break;
       }
@@ -230,14 +238,40 @@ Future<void> defaultSettingsMigration(
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
 }
 
+Future<void> updateNanoNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultNanoNodes();
+  var listOfNewEndpoints = <String>[
+    "app.natrium.io",
+    "rainstorm.city",
+    "node.somenano.com",
+    "nanoslo.0x.no",
+    "www.bitrequest.app",
+  ];
+  // add new nodes:
+  for (final node in nodeList) {
+    if (listOfNewEndpoints.contains(node.uriRaw)) {
+      await nodes.add(node);
+    }
+  }
+
+  // update the nautilus node:
+  final nautilusNode =
+      nodes.values.firstWhereOrNull((element) => element.uriRaw == "node.perish.co");
+  if (nautilusNode != null) {
+    nautilusNode.uriRaw = "node.nautilus.io";
+    nautilusNode.path = "/api";
+    nautilusNode.useSSL = true;
+    await nautilusNode.save();
+  }
+}
+
 Future<void> disableServiceStatusFiatDisabled(SharedPreferences sharedPreferences) async {
-  final currentFiat =
-      await sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ?? -1;
+  final currentFiat = await sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ?? -1;
   if (currentFiat == -1 || currentFiat == FiatApiMode.enabled.raw) {
     return;
   }
 
-  if (currentFiat == FiatApiMode.disabled.raw) {
+  if (currentFiat == FiatApiMode.disabled.raw || currentFiat == FiatApiMode.torOnly.raw) {
     await sharedPreferences.setBool(PreferencesKey.disableBulletinKey, true);
   }
 }
@@ -442,6 +476,11 @@ Node getMoneroDefaultNode({required Box<Node> nodes}) {
 Node? getSolanaDefaultNode({required Box<Node> nodes}) {
   return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == solanaDefaultNodeUri) ??
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.solana);
+}
+
+Node? getTronDefaultNode({required Box<Node> nodes}) {
+  return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == tronDefaultNodeUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.tron);
 }
 
 Future<void> insecureStorageMigration({
@@ -727,6 +766,20 @@ Future<void> changeDefaultMoneroNode(
   }
 }
 
+Future<void> updateBtcNanoWalletInfos(Box<WalletInfo> walletsInfoSource) async {
+  for (WalletInfo walletInfo in walletsInfoSource.values) {
+    if (walletInfo.type == WalletType.nano || walletInfo.type == WalletType.bitcoin) {
+      walletInfo.derivationInfo = DerivationInfo(
+        derivationPath: walletInfo.derivationPath,
+        derivationType: walletInfo.derivationType,
+        address: walletInfo.address,
+        transactionsCount: walletInfo.restoreHeight,
+      );
+      await walletInfo.save();
+    }
+  }
+}
+
 Future<void> changeDefaultBitcoinNode(
     Box<Node> nodeSource, SharedPreferences sharedPreferences) async {
   const cakeWalletBitcoinNodeUriPattern = '.cakewallet.com';
@@ -762,6 +815,7 @@ Future<void> checkCurrentNodes(
   final currentBitcoinCashNodeId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
   final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
+  final currentTronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
   final currentMoneroNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer =
@@ -782,6 +836,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinCashNodeId);
   final currentSolanaNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentSolanaNodeId);
+  final currentTronNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentTronNodeId);
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
     await nodeSource.add(newCakeWalletNode);
@@ -846,6 +902,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: solanaDefaultNodeUri, type: WalletType.solana);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);
+  }
+
+  if (currentTronNodeServer == null) {
+    final node = Node(uri: tronDefaultNodeUri, type: WalletType.tron);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentTronNodeIdKey, node.key as int);
   }
 }
 
@@ -974,4 +1036,21 @@ Future<void> changeSolanaCurrentNodeToDefault(
   final nodeId = node?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, nodeId);
+}
+
+Future<void> addTronNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultTronNodes();
+  for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
+}
+
+Future<void> changeTronCurrentNodeToDefault(
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+  final node = getTronDefaultNode(nodes: nodes);
+  final nodeId = node?.key as int? ?? 0;
+
+  await sharedPreferences.setInt(PreferencesKey.currentTronNodeIdKey, nodeId);
 }

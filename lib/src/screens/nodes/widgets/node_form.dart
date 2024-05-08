@@ -16,13 +16,15 @@ class NodeForm extends StatelessWidget {
     required this.formKey,
     this.editingNode,
   })  : _addressController = TextEditingController(text: editingNode?.uri.host.toString()),
+        _pathController = TextEditingController(text: editingNode?.path.toString()),
         _portController = TextEditingController(text: editingNode?.uri.port.toString()),
         _loginController = TextEditingController(text: editingNode?.login),
         _passwordController = TextEditingController(text: editingNode?.password),
-        _socksAddressController = TextEditingController(text: editingNode?.socksProxyAddress){
+        _socksAddressController = TextEditingController(text: editingNode?.socksProxyAddress) {
     if (editingNode != null) {
       nodeViewModel
         ..setAddress((editingNode!.uri.host.toString()))
+        ..setPath((editingNode!.path.toString()))
         ..setPort((editingNode!.uri.port.toString()))
         ..setPassword((editingNode!.password ?? ''))
         ..setLogin((editingNode!.login ?? ''))
@@ -57,10 +59,12 @@ class NodeForm extends StatelessWidget {
     });
 
     _addressController.addListener(() => nodeViewModel.address = _addressController.text);
+    _pathController.addListener(() => nodeViewModel.path = _pathController.text);
     _portController.addListener(() => nodeViewModel.port = _portController.text);
     _loginController.addListener(() => nodeViewModel.login = _loginController.text);
     _passwordController.addListener(() => nodeViewModel.password = _passwordController.text);
-    _socksAddressController.addListener(() => nodeViewModel.socksProxyAddress = _socksAddressController.text);
+    _socksAddressController
+        .addListener(() => nodeViewModel.socksProxyAddress = _socksAddressController.text);
   }
 
   final NodeCreateOrEditViewModel nodeViewModel;
@@ -68,6 +72,7 @@ class NodeForm extends StatelessWidget {
   final Node? editingNode;
 
   final TextEditingController _addressController;
+  final TextEditingController _pathController;
   final TextEditingController _portController;
   final TextEditingController _loginController;
   final TextEditingController _passwordController;
@@ -91,6 +96,20 @@ class NodeForm extends StatelessWidget {
             ],
           ),
           SizedBox(height: 10.0),
+          if (nodeViewModel.hasPathSupport) ...[
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: BaseTextFormField(
+                    controller: _pathController,
+                    hintText: "/path",
+                    validator: NodePathValidator(),
+                  ),
+                )
+              ],
+            ),
+            SizedBox(height: 10.0),
+          ],
           Row(
             children: <Widget>[
               Expanded(
@@ -101,6 +120,26 @@ class NodeForm extends StatelessWidget {
                 validator: NodePortValidator(),
               ))
             ],
+          ),
+          SizedBox(height: 10.0),
+          Padding(
+            padding: EdgeInsets.only(top: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Observer(
+                  builder: (_) => StandardCheckbox(
+                    value: nodeViewModel.useSSL,
+                    gradientBackground: true,
+                    borderColor: Theme.of(context).dividerColor,
+                    iconColor: Colors.white,
+                    onChanged: (value) => nodeViewModel.useSSL = value,
+                    caption: S.of(context).use_ssl,
+                  ),
+                )
+              ],
+            ),
           ),
           SizedBox(height: 10.0),
           if (nodeViewModel.hasAuthCredentials) ...[
@@ -131,25 +170,6 @@ class NodeForm extends StatelessWidget {
                 children: [
                   Observer(
                     builder: (_) => StandardCheckbox(
-                      value: nodeViewModel.useSSL,
-                      gradientBackground: true,
-                      borderColor: Theme.of(context).dividerColor,
-                      iconColor: Colors.white,
-                      onChanged: (value) => nodeViewModel.useSSL = value,
-                      caption: S.of(context).use_ssl,
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Observer(
-                    builder: (_) => StandardCheckbox(
                       value: nodeViewModel.trusted,
                       gradientBackground: true,
                       borderColor: Theme.of(context).dividerColor,
@@ -163,44 +183,44 @@ class NodeForm extends StatelessWidget {
             ),
             Observer(
                 builder: (_) => Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(top: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                         StandardCheckbox(
-                              value: nodeViewModel.useSocksProxy,
-                           gradientBackground: true,
-                           borderColor: Theme.of(context).dividerColor,
-                           iconColor: Colors.white,
-                              onChanged: (value) {
-                                if (!value) {
-                                  _socksAddressController.text = '';
-                                }
-                                nodeViewModel.useSocksProxy = value;
-                              },
-                              caption: 'SOCKS Proxy',
-                            ),
-                        ],
-                      ),
-                    ),
-                    if (nodeViewModel.useSocksProxy) ...[
-                      SizedBox(height: 10.0),
-                      Row(
-                        children: <Widget>[
-                          Expanded(
-                              child: BaseTextFormField(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(top: 20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              StandardCheckbox(
+                                value: nodeViewModel.useSocksProxy,
+                                gradientBackground: true,
+                                borderColor: Theme.of(context).dividerColor,
+                                iconColor: Colors.white,
+                                onChanged: (value) {
+                                  if (!value) {
+                                    _socksAddressController.text = '';
+                                  }
+                                  nodeViewModel.useSocksProxy = value;
+                                },
+                                caption: 'SOCKS Proxy',
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (nodeViewModel.useSocksProxy) ...[
+                          SizedBox(height: 10.0),
+                          Row(
+                            children: <Widget>[
+                              Expanded(
+                                  child: BaseTextFormField(
                                 controller: _socksAddressController,
                                 hintText: '[<ip>:]<port>',
                                 validator: SocksProxyNodeAddressValidator(),
                               ))
-                        ],
-                      ),
-                    ]
-                  ],
-                )),
+                            ],
+                          ),
+                        ]
+                      ],
+                    )),
           ]
         ],
       ),

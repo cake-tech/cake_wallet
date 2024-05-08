@@ -86,6 +86,7 @@ class CWSolana extends Solana {
       decimal: token.decimals,
       mint: token.name.toUpperCase(),
       enabled: token.enabled,
+      iconPath: token.iconPath,
     );
 
     await (wallet as SolanaWallet).addSPLToken(splToken);
@@ -109,8 +110,10 @@ class CWSolana extends Solana {
     }
 
     wallet as SolanaWallet;
-    return wallet.splTokenCurrencies
-        .firstWhere((element) => transaction.tokenSymbol == element.symbol);
+
+    return wallet.splTokenCurrencies.firstWhere(
+      (element) => transaction.tokenSymbol == element.symbol,
+    );
   }
 
   @override

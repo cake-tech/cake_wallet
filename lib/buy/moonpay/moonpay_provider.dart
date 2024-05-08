@@ -14,7 +14,6 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/device_info.dart';
-import 'package:crypto/crypto.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -30,7 +29,7 @@ class MoonPayProvider extends BuyProvider {
   })  : baseSellUrl = isTestEnvironment ? _baseSellTestUrl : _baseSellProductUrl,
         baseBuyUrl = isTestEnvironment ? _baseBuyTestUrl : _baseBuyProductUrl,
         this._settingsStore = settingsStore,
-        super(wallet: wallet, isTestEnvironment: isTestEnvironment);
+        super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: null);
 
   final SettingsStore _settingsStore;
 
@@ -155,7 +154,7 @@ class MoonPayProvider extends BuyProvider {
       'baseCurrencyAmount': amount ?? '0',
       'currencyCode': currencyCode,
       'walletAddress': walletAddress,
-      'lockAmount': 'true',
+      'lockAmount': 'false',
       'showAllCurrencies': 'false',
       'showWalletAddressForm': 'false',
       'enabledPaymentMethods':
@@ -256,44 +255,44 @@ class MoonPayProvider extends BuyProvider {
 
   @override
   Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
-    // try {
-    late final Uri uri;
-    if (isBuyAction ?? true) {
-      uri = await requestBuyMoonPayUrl(
-        currency: wallet.currency,
-        walletAddress: wallet.walletAddresses.address,
-        settingsStore: _settingsStore,
-      );
-    } else {
-      uri = await requestSellMoonPayUrl(
-        currency: wallet.currency,
-        refundWalletAddress: wallet.walletAddresses.address,
-        settingsStore: _settingsStore,
-      );
-    }
-
-    if (await canLaunchUrl(uri)) {
-      if (DeviceInfo.instance.isMobile) {
-        Navigator.of(context).pushNamed(Routes.webViewPage, arguments: ['MoonPay', uri]);
+    try {
+      late final Uri uri;
+      if (isBuyAction ?? true) {
+        uri = await requestBuyMoonPayUrl(
+          currency: wallet.currency,
+          walletAddress: wallet.walletAddresses.address,
+          settingsStore: _settingsStore,
+        );
       } else {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        uri = await requestSellMoonPayUrl(
+          currency: wallet.currency,
+          refundWalletAddress: wallet.walletAddresses.address,
+          settingsStore: _settingsStore,
+        );
       }
-    } else {
-      throw Exception('Could not launch URL');
+
+      if (await canLaunchUrl(uri)) {
+        if (DeviceInfo.instance.isMobile) {
+          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: ['MoonPay', uri]);
+        } else {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      } else {
+        throw Exception('Could not launch URL');
+      }
+    } catch (e) {
+      await showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithOneAction(
+            alertTitle: 'MoonPay',
+            alertContent: 'The MoonPay service is currently unavailable: $e',
+            buttonText: S.of(context).ok,
+            buttonAction: () => Navigator.of(context).pop(),
+          );
+        },
+      );
     }
-    // } catch (e) {
-    //   await showDialog<void>(
-    //     context: context,
-    //     builder: (BuildContext context) {
-    //       return AlertWithOneAction(
-    //         alertTitle: 'MoonPay',
-    //         alertContent: 'The MoonPay service is currently unavailable: $e',
-    //         buttonText: S.of(context).ok,
-    //         buttonAction: () => Navigator.of(context).pop(),
-    //       );
-    //     },
-    //   );
-    // }
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {
