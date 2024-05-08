@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
@@ -16,6 +18,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'fiat_historical_rate_update.dart';
 
 ReactionDisposer? _onWalletSyncStatusChangeReaction;
+Timer? _debounceTimer;
 
 void startWalletSyncStatusChangeReaction(
     WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
@@ -23,30 +26,29 @@ void startWalletSyncStatusChangeReaction(
     SettingsStore settingsStore,
     Box<TransactionDescription> transactionDescription) {
   _onWalletSyncStatusChangeReaction?.reaction.dispose();
+
   _onWalletSyncStatusChangeReaction = reaction((_) => wallet.syncStatus, (SyncStatus status) async {
-    try {
-      if (status is ConnectedSyncStatus) {
-        await wallet.startSync();
+    if (status is ConnectedSyncStatus) {
+      await wallet.startSync();
+      if (wallet.type == WalletType.haven) {
+        await updateHavenRate(fiatConversionStore);
+      }
+    }
+    if (status is SyncingSyncStatus) {
+      await WakelockPlus.enable();
+    }
+    if (status is SyncedSyncStatus || status is FailedSyncStatus) {
+      await WakelockPlus.disable();
 
-        if (wallet.type == WalletType.haven) {
-          await updateHavenRate(fiatConversionStore);
-        }
+      if (status is SyncedSyncStatus &&
+          (settingsStore.fiatApiMode != FiatApiMode.disabled ||
+              settingsStore.showHistoricalFiatAmount)) {
+        _debounceTimer?.cancel();
+        _debounceTimer = Timer(Duration(milliseconds: 200), () async {
+          await historicalRateUpdate(
+              wallet, settingsStore, fiatConversionStore, transactionDescription);
+        });
       }
-      if (status is SyncingSyncStatus) {
-        await WakelockPlus.enable();
-      }
-      if (status is SyncedSyncStatus || status is FailedSyncStatus) {
-        await WakelockPlus.disable();
-
-        if (settingsStore.fiatApiMode != FiatApiMode.disabled) {
-          if (settingsStore.showHistoricalFiatAmount) {
-            await historicalRateUpdate(
-                wallet, settingsStore, fiatConversionStore, transactionDescription);
-          }
-        }
-      }
-    } catch (e) {
-      print(e.toString());
     }
   });
 }

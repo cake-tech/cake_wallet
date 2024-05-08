@@ -38,7 +38,7 @@ void startHistoricalRateUpdateReaction(AppStore appStore, SettingsStore settings
   _onHistoricalRateUpdateDisposer?.reaction.dispose();
   _onHistoricalRateUpdateDisposer = reaction((_) => settingsStore.showHistoricalFiatAmount,
       (bool showHistoricalFiatAmount) async {
-    if (appStore.wallet == null || settingsStore.fiatApiMode == FiatApiMode.disabled) {
+    if (appStore.wallet == null || settingsStore.fiatApiMode == FiatApiMode.disabled || !showHistoricalFiatAmount) {
       return;
     }
 

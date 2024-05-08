@@ -112,11 +112,6 @@ void startCurrentWalletChangeReaction(
         return;
       }
 
-      if (settingsStore.showHistoricalFiatAmount) {
-        await historicalRateUpdate(
-            appStore.wallet!, settingsStore, fiatConversionStore, transactionDescription);
-      }
-
       fiatConversionStore.prices[wallet.currency] = 0;
       fiatConversionStore.prices[wallet.currency] = await FiatConversionService.fetchPrice(
           crypto: wallet.currency,
