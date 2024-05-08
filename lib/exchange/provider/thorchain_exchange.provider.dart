@@ -40,7 +40,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   static const _txInfoPath = '/thorchain/tx/status/';
   static const _affiliateName = 'cakewallet';
   static const _affiliateBps = '175';
-  static const _nameLookUpPath= 'v2/thorname/lookup/';
+  static const _nameLookUpPath = 'v2/thorname/lookup/';
 
   final Box<Trade> tradesStore;
 
@@ -137,19 +137,22 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
     final inputAddress = responseJSON['inbound_address'] as String?;
     final memo = responseJSON['memo'] as String?;
+    final router = responseJSON['router'] as String?;
 
     return Trade(
-        id: '',
-        from: request.fromCurrency,
-        to: request.toCurrency,
-        provider: description,
-        inputAddress: inputAddress,
-        createdAt: DateTime.now(),
-        amount: request.fromAmount,
-        state: TradeState.notFound,
-        payoutAddress: request.toAddress,
-        memo: memo,
-        isSendAll: isSendAll);
+      id: '',
+      from: request.fromCurrency,
+      to: request.toCurrency,
+      provider: description,
+      inputAddress: inputAddress,
+      createdAt: DateTime.now(),
+      amount: request.fromAmount,
+      state: TradeState.notFound,
+      payoutAddress: request.toAddress,
+      memo: memo,
+      isSendAll: isSendAll,
+      router: router,
+    );
   }
 
   @override
@@ -233,7 +236,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
     return chainToAddressMap;
   }
-
 
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
     Uri uri = Uri.https(_baseNodeURL, _quotePath, params);

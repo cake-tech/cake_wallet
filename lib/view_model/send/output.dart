@@ -70,6 +70,8 @@ abstract class OutputBase with Store {
 
   String? memo;
 
+  String? router;
+
   @computed
   bool get isParsedAddress =>
       parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;

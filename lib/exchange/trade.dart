@@ -32,6 +32,7 @@ class Trade extends HiveObject {
     this.txId,
     this.isRefund,
     this.isSendAll,
+    this.router,
   }) {
     if (provider != null) providerRaw = provider.raw;
 
@@ -121,21 +122,26 @@ class Trade extends HiveObject {
   @HiveField(21)
   bool? isSendAll;
 
+  @HiveField(22)
+  String? router;
+
   static Trade fromMap(Map<String, Object?> map) {
     return Trade(
-        id: map['id'] as String,
-        provider: ExchangeProviderDescription.deserialize(raw: map['provider'] as int),
-        from: CryptoCurrency.deserialize(raw: map['input'] as int),
-        to: CryptoCurrency.deserialize(raw: map['output'] as int),
-        createdAt:
-            map['date'] != null ? DateTime.fromMillisecondsSinceEpoch(map['date'] as int) : null,
-        amount: map['amount'] as String,
-        walletId: map['wallet_id'] as String,
-        fromWalletAddress: map['from_wallet_address'] as String?,
-        memo: map['memo'] as String?,
-        txId: map['tx_id'] as String?,
-        isRefund: map['isRefund'] as bool?,
-        isSendAll: map['isSendAll'] as bool?);
+      id: map['id'] as String,
+      provider: ExchangeProviderDescription.deserialize(raw: map['provider'] as int),
+      from: CryptoCurrency.deserialize(raw: map['input'] as int),
+      to: CryptoCurrency.deserialize(raw: map['output'] as int),
+      createdAt:
+          map['date'] != null ? DateTime.fromMillisecondsSinceEpoch(map['date'] as int) : null,
+      amount: map['amount'] as String,
+      walletId: map['wallet_id'] as String,
+      fromWalletAddress: map['from_wallet_address'] as String?,
+      memo: map['memo'] as String?,
+      txId: map['tx_id'] as String?,
+      isRefund: map['isRefund'] as bool?,
+      isSendAll: map['isSendAll'] as bool?,
+      router: map['router'] as String?,
+    );
   }
 
   Map<String, dynamic> toMap() {
@@ -152,6 +158,7 @@ class Trade extends HiveObject {
       'tx_id': txId,
       'isRefund': isRefund,
       'isSendAll': isSendAll,
+      'router': router,
     };
   }
 

@@ -89,7 +89,8 @@ abstract class EVMChainClient {
     required CryptoCurrency currency,
     required int exponent,
     String? contractAddress,
-    String? data,
+    String? memo,
+    String? router,
   }) async {
     assert(currency == CryptoCurrency.eth ||
         currency == CryptoCurrency.maticpoly ||
@@ -104,12 +105,11 @@ abstract class EVMChainClient {
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
       amount: isNativeToken ? EtherAmount.inWei(amount) : EtherAmount.zero(),
-      data: data != null ? hexToBytes(data) : null,
     );
 
     Uint8List signedTransaction;
 
-    final Function _sendTransaction;
+    final Function sendTransactionCallback;
 
     if (isNativeToken) {
       signedTransaction = await _client!.signTransaction(privateKey, transaction, chainId: chainId);
@@ -128,14 +128,32 @@ abstract class EVMChainClient {
       );
     }
 
-    _sendTransaction = () async => await sendTransaction(signedTransaction);
+    sendTransactionCallback = () async {
+      if (router != null && memo != null) {
+        final erc20 = ERC20(
+          client: _client!,
+          address: EthereumAddress.fromHex(contractAddress!),
+          chainId: chainId,
+        );
 
+        await erc20.approve(EthereumAddress.fromHex(router), amount, credentials: privateKey);
+
+        await _depositWithExpiry(
+          contractAddress: router,
+          inboundAddress: toAddress,
+          amount: amount,
+          memo: memo,
+        );
+      }
+
+      await sendTransaction(signedTransaction);
+    };
 
     return PendingEVMChainTransaction(
       signedTransaction: signedTransaction,
       amount: amount.toString(),
       fee: BigInt.from(gas) * (await price).getInWei,
-      sendTransaction: _sendTransaction,
+      sendTransaction: sendTransactionCallback,
       exponent: exponent,
     );
   }
@@ -145,14 +163,12 @@ abstract class EVMChainClient {
     required EthereumAddress to,
     required EtherAmount amount,
     EtherAmount? maxPriorityFeePerGas,
-    Uint8List? data,
   }) {
     return Transaction(
       from: from,
       to: to,
       maxPriorityFeePerGas: maxPriorityFeePerGas,
       value: amount,
-      data: data,
     );
   }
 
@@ -233,7 +249,6 @@ abstract class EVMChainClient {
 
       final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
 
-
       final symbol = (decodedResponse['symbol'] ?? '') as String;
       String filteredSymbol = symbol.replaceFirst(RegExp('^\\\$'), '');
 
@@ -280,22 +295,43 @@ abstract class EVMChainClient {
     return _client;
   }
 
-// Future<int> _getDecimalPlacesForContract(DeployedContract contract) async {
-//     final String abi = await rootBundle.loadString("assets/abi_json/erc20_abi.json");
-//     final contractAbi = ContractAbi.fromJson(abi, "ERC20");
-//
-//     final contract = DeployedContract(
-//       contractAbi,
-//       EthereumAddress.fromHex(_erc20Currencies[erc20Currency]!),
-//     );
-//     final decimalsFunction = contract.function('decimals');
-//     final decimals = await _client!.call(
-//       contract: contract,
-//       function: decimalsFunction,
-//       params: [],
-//     );
-//
-//     int exponent = int.parse(decimals.first.toString());
-//     return exponent;
-//   }
+  Future<void> _depositWithExpiry({
+    required String contractAddress,
+    required String inboundAddress,
+    String? assetContractAddress,
+    required BigInt amount,
+    required String memo,
+  }) async {
+    final contract = await _getContract(
+      contractAbiPath: "assets/smart_contracts/thorchain_erc20_contract.json",
+      contractName: "THORChain_Router",
+      contractAddress: contractAddress,
+    );
+    final depositWithExpiryFunction = contract.function('depositWithExpiry');
+    await _client!.call(
+      contract: contract,
+      function: depositWithExpiryFunction,
+      params: [
+        inboundAddress,
+        assetContractAddress,
+        amount,
+        memo,
+        DateTime.now().add(const Duration(hours: 2)).millisecondsSinceEpoch ~/ 1000,
+      ],
+    );
+  }
+
+  Future<DeployedContract> _getContract({
+    required String contractAbiPath,
+    required String contractName,
+    required String contractAddress,
+  }) async {
+    final String abi = await rootBundle.loadString(contractAbiPath);
+    final contractAbi = ContractAbi.fromJson(abi, contractName);
+
+    return DeployedContract(
+      contractAbi,
+      EthereumAddress.fromHex(contractAddress),
+    );
+  }
 }
