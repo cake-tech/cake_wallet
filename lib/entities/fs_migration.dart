@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
@@ -66,9 +65,7 @@ Future<void> ios_migrate_user_defaults() async {
   if (activeCurrency != null) {
     final convertedCurrency = convertFiatLegacy(activeCurrency);
 
-    if (convertedCurrency != null) {
-      await prefs.setString('current_fiat_currency', convertedCurrency.serialize());
-    }
+    await prefs.setString('current_fiat_currency', convertedCurrency.serialize());
   }
 
   //translate fee priority
@@ -142,7 +139,7 @@ Future<void> ios_migrate_pin() async {
 
   final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
   final encodedPassword = encodedPinCode(pin: pinPassword);
-  await writeSecureStorage(flutterSecureStorage, key: key, value: encodedPassword);
+  await flutterSecureStorage.write(key: key, value: encodedPassword);
 
   await prefs.setBool('ios_migration_pin_completed', true);
 }
@@ -304,7 +301,7 @@ Future<void> ios_migrate_wallet_info(Box<WalletInfo> walletsInfoSource) async {
               }
 
               final config = json.decode(configFile.readAsStringSync()) as Map<String, dynamic>;
-              final isRecovery = config['isRecovery'] as bool ?? false;
+              final isRecovery = config['isRecovery'] as bool? ?? false;
               final dateAsDouble = config['date'] as double;
               final timestamp = dateAsDouble.toInt() * 1000;
               final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
@@ -362,8 +359,7 @@ Future<void> ios_migrate_trades_list(Box<Trade> tradeSource) async {
 
     final content = file.readAsBytesSync();
     final flutterSecureStorage = secureStorageShared;
-    final masterPassword =
-        await flutterSecureStorage.readNoIOptions(key: 'master_password');
+    final masterPassword = await flutterSecureStorage.readNoIOptions(key: 'master_password');
     final key = masterPassword!.replaceAll('-', '');
     final decoded = await ios_legacy_helper.decrypt(content, key: key, salt: secrets.salt);
     final decodedJson = json.decode(decoded) as List<dynamic>;
