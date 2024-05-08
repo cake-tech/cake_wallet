@@ -1,6 +1,5 @@
-import 'package:cake_wallet/entities/secret_store_key.dart';
-import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:mobx/mobx.dart';
 
 part 'secret_store.g.dart';

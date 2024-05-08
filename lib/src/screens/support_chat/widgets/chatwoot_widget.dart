@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:cake_wallet/core/secure_storage.dart';
 
 const COOKIE_KEY = 'chatwootCookie';
 
@@ -59,6 +58,6 @@ class ChatwootWidgetState extends State<ChatwootWidget> {
   }
 
   Future<void> storeCookie(String value) async {
-    await writeSecureStorage(widget.secureStorage, key: COOKIE_KEY, value: value);
+    await widget.secureStorage.write(key: COOKIE_KEY, value: value);
   }
 }

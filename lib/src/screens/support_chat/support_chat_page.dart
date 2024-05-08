@@ -1,9 +1,9 @@
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/support_chat/widgets/chatwoot_widget.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/core/secure_storage.dart';
 
 
 class SupportChatPage extends BasePage {

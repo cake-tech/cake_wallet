@@ -1,6 +1,5 @@
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/store/secret_store.dart';
 
@@ -38,7 +37,7 @@ abstract class EditBackupPasswordViewModelBase with Store {
   @action
   Future<void> save() async {
     final key = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
-    await writeSecureStorage(secureStorage, key: key, value: backupPassword);
+    await secureStorage.write(key: key, value: backupPassword);
     secretStore.write(key: key, value: backupPassword);
   }
 }
