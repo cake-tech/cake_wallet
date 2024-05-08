@@ -28,7 +28,6 @@ Future<void> main(List<String> args) async {
   final hasTron = args.contains('${prefix}tron');
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
-  final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
   await generateHaven(hasHaven);
@@ -1094,7 +1093,7 @@ import 'package:cw_tron/tron_wallet_service.dart';
   const tronContent = """
 abstract class Tron {
   List<String> getTronWordList(String language);
-  WalletService createTronWalletService(Box<WalletInfo> walletInfoSource);
+  WalletService createTronWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
   WalletCredentials createTronNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password});
   WalletCredentials createTronRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createTronRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});

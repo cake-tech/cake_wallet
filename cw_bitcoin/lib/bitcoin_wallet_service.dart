@@ -121,6 +121,7 @@ class BitcoinWalletService extends WalletService<
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       networkParam: network,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
     await wallet.save();
     await wallet.init();
