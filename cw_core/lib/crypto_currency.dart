@@ -259,10 +259,16 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
               element.tag == walletCurrency?.tag));
     } catch (_) {}
 
+    // search by fullName if not found by title:
+    try {
+      return CryptoCurrency.all.firstWhere((element) => element.fullName?.toLowerCase() == name);
+    } catch (_) {}
+
     if (CryptoCurrency._nameCurrencyMap[name.toLowerCase()] == null) {
       final s = 'Unexpected token: $name for CryptoCurrency fromString';
       throw  ArgumentError.value(name, 'name', s);
     }
+
     return CryptoCurrency._nameCurrencyMap[name.toLowerCase()]!;
   }
 

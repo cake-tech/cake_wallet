@@ -226,7 +226,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
         return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
             param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
-                Navigator.of(context.context).pushNamed(Routes.restoreWalletFromHardwareWallet, arguments: false),
+                Navigator.of(context.context)
+                    .pushNamed(Routes.restoreWalletFromHardwareWallet, arguments: false),
           ),
           fullscreenDialog: true,
         );
@@ -236,9 +237,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
             builder: (_) => ConnectDevicePage(
                   ConnectDevicePageParams(
                     walletType: availableWalletTypes.first,
-                    onConnectDevice: (BuildContext context, _) =>
-                        Navigator.of(context).pushNamed(Routes.chooseHardwareWalletAccount,
-                            arguments: [availableWalletTypes.first]),
+                    onConnectDevice: (BuildContext context, _) => Navigator.of(context).pushNamed(
+                        Routes.chooseHardwareWalletAccount,
+                        arguments: [availableWalletTypes.first]),
                   ),
                   getIt.get<LedgerViewModel>(),
                 ));
@@ -248,9 +249,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 param1: (BuildContext context, WalletType type) {
                   final arguments = ConnectDevicePageParams(
                     walletType: type,
-                    onConnectDevice: (BuildContext context, _) =>
-                        Navigator.of(context).pushNamed(Routes.chooseHardwareWalletAccount,
-                            arguments: [type]),
+                    onConnectDevice: (BuildContext context, _) => Navigator.of(context)
+                        .pushNamed(Routes.chooseHardwareWalletAccount, arguments: [type]),
                   );
 
                   Navigator.of(context).pushNamed(Routes.connectDevices, arguments: arguments);
@@ -313,8 +313,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.bumpFeePage:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) =>
-              getIt.get<RBFDetailsPage>(param1: settings.arguments as TransactionInfo));
+          builder: (_) => getIt.get<RBFDetailsPage>(param1: settings.arguments as TransactionInfo));
 
     case Routes.newSubaddress:
       return CupertinoPageRoute<void>(
@@ -466,7 +465,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.exchange:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<ExchangePage>());
+        fullscreenDialog: true,
+        builder: (_) => getIt.get<ExchangePage>(param1: settings.arguments as PaymentRequest?),
+      );
 
     case Routes.exchangeTemplate:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<ExchangeTemplatePage>());
