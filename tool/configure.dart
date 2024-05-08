@@ -1382,9 +1382,9 @@ class DefaultSecureStorage extends SecureStorage {
     // delete the value before writing on macOS because of a weird bug
     // https://github.com/mogol/flutter_secure_storage/issues/581
     if (Platform.isMacOS) {
-      await secureStorage.delete(key: key);
+      await _secureStorage.delete(key: key);
     }
-    await secureStorage.write(key: key, value: value);
+    await _secureStorage.write(key: key, value: value);
   }
 
   @override
