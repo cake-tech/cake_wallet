@@ -44,7 +44,7 @@ void startWalletSyncStatusChangeReaction(
           (settingsStore.fiatApiMode != FiatApiMode.disabled ||
               settingsStore.showHistoricalFiatAmount)) {
         _debounceTimer?.cancel();
-        _debounceTimer = Timer(Duration(milliseconds: 200), () async {
+        _debounceTimer = Timer(Duration(milliseconds: 100), () async {
           await historicalRateUpdate(
               wallet, settingsStore, fiatConversionStore, transactionDescription);
         });
