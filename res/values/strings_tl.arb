@@ -366,6 +366,8 @@
   "moonpay_alert_text": "Ang halaga ng halaga ay dapat na higit pa o katumbas ng ${minAmount} ${fiatCurrency}",
   "more_options": "Higit pang mga pagpipilian",
   "name": "Pangalan",
+  "nano_gpt_thanks_message": "Salamat sa paggamit ng nanogpt! Tandaan na bumalik sa browser matapos makumpleto ang iyong transaksyon!",
+  "nanogpt_subtitle": "Ang lahat ng mga pinakabagong modelo (GPT-4, Claude). \\ Nno subscription, magbayad gamit ang crypto.",
   "nano_current_rep": "Kasalukuyang kinatawan",
   "nano_pick_new_rep": "Pumili ng isang bagong kinatawan",
   "narrow": "Makitid",

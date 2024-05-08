@@ -366,6 +366,8 @@
   "moonpay_alert_text": "Darajar adadin dole ne ya zama fiye ko daidai da ${minAmount} ${fiatCurrency}",
   "more_options": "Ƙarin Zaɓuɓɓuka",
   "name": "Suna",
+  "nano_gpt_thanks_message": "Na gode da amfani da Nanogpt! Ka tuna da komawa zuwa mai bincike bayan ma'amalar ka ta cika!",
+  "nanogpt_subtitle": "Duk sabbin samfuran (GPT-4, CLODE). \\ NNO biyan kuɗi, biya tare da crypto.",
   "nano_current_rep": "Wakilin Yanzu",
   "nano_pick_new_rep": "Dauki sabon wakili",
   "narrow": "kunkuntar",

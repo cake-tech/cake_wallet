@@ -367,6 +367,8 @@
   "moonpay_alert_text": "Iye owó kò gbọ́dọ̀ kéré ju ${minAmount} ${fiatCurrency}",
   "more_options": "Ìyàn àfikún",
   "name": "Oruko",
+  "nano_gpt_thanks_message": "O ṣeun fun lilo Nonnogt! Ranti lati tẹle pada si ẹrọ lilọ kiri ayelujara lẹhin iṣowo rẹ pari!",
+  "nanogpt_subtitle": "Gbogbo awọn awoṣe tuntun (GPT-4, Claude). \\ Nno alabapin kan, sanwo pẹlu Crypto.",
   "nano_current_rep": "Aṣoju lọwọlọwọ",
   "nano_pick_new_rep": "Mu aṣoju tuntun kan",
   "narrow": "Taara",
