@@ -151,12 +151,17 @@ abstract class SolanaWalletBase
   Future<Wallet> getWalletPair({String? mnemonic, String? privateKey}) async {
     assert(mnemonic != null || privateKey != null);
 
-    if (privateKey != null) {
-      final privateKeyBytes = base58decode(privateKey);
-      return await Wallet.fromPrivateKeyBytes(privateKey: privateKeyBytes.take(32).toList());
+    if (mnemonic != null) {
+      return Wallet.fromMnemonic(mnemonic, account: 0, change: 0);
     }
 
-    return Wallet.fromMnemonic(mnemonic!, account: 0, change: 0);
+    try {
+      final privateKeyBytes = base58decode(privateKey!);
+      return await Wallet.fromPrivateKeyBytes(privateKey: privateKeyBytes.take(32).toList());
+    } catch (_) {
+      final privateKeyBytes = HEX.decode(privateKey!);
+      return await Wallet.fromPrivateKeyBytes(privateKey: privateKeyBytes);
+    }
   }
 
   @override
@@ -366,7 +371,7 @@ abstract class SolanaWalletBase
 
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
-        'private_key': privateKey,
+        'private_key': _hexPrivateKey,
         'balance': balance[currency]!.toJSON(),
       });
 
@@ -527,7 +532,7 @@ abstract class SolanaWalletBase
       _transactionsUpdateTimer!.cancel();
     }
 
-    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 20), (_) {
+    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       _updateBalance();
       _updateNativeSOLTransactions();
       _updateSPLTokenTransactions();

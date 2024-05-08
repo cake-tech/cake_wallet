@@ -6,6 +6,7 @@ import 'package:cw_core/nano_account_info_response.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -34,7 +35,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             type == WalletType.polygon ||
             type == WalletType.nano ||
             type == WalletType.banano ||
-            type == WalletType.solana,
+            type == WalletType.solana ||
+            type == WalletType.tron,
         isButtonEnabled = false,
         mode = WalletRestoreMode.seed,
         super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true) {
@@ -48,6 +50,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.solana:
+      case WalletType.tron:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
       default:
@@ -127,6 +130,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
             password: password,
           );
+        case WalletType.tron:
+          return tron!.createTronRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+          );
         default:
           break;
       }
@@ -181,6 +190,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.solana:
           return solana!.createSolanaRestoreWalletFromPrivateKey(
+            name: name,
+            password: password,
+            privateKey: options['private_key'] as String,
+          );
+        case WalletType.tron:
+          return tron!.createTronRestoreWalletFromPrivateKey(
             name: name,
             password: password,
             privateKey: options['private_key'] as String,

@@ -54,7 +54,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       mainHd: hd,
-      sideHd: bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'/1"),
+      sideHd: accountHD.derive(1),
       network: network,
       initialAddressPageType: addressPageType,
     );
@@ -99,7 +99,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     final snp = await ElectrumWalletSnapshot.load(
         encryptionFileUtils, name, walletInfo.type, password, BitcoinCashNetwork.mainnet);
     return BitcoinCashWallet(
-      mnemonic: snp.mnemonic,
+      mnemonic: snp.mnemonic!,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
@@ -124,7 +124,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         }
       }).toList(),
       initialBalance: snp.balance,
-      seedBytes: await Mnemonic.toSeed(snp.mnemonic),
+      seedBytes: await Mnemonic.toSeed(snp.mnemonic!),
       encryptionFileUtils: encryptionFileUtils,
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
@@ -173,7 +173,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  String signMessage(String message, {String? address = null}) {
+  Future<String> signMessage(String message, {String? address = null}) async {
     final index = address != null
         ? walletAddresses.allAddresses
             .firstWhere((element) => element.address == AddressUtils.toLegacyAddress(address))

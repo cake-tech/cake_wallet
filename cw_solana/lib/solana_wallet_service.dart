@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:collection/collection.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/balance.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -14,7 +17,7 @@ import 'package:cw_solana/solana_wallet_creation_credentials.dart';
 import 'package:hive/hive.dart';
 
 class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
-    SolanaRestoreWalletFromSeedCredentials, SolanaRestoreWalletFromPrivateKey> {
+    SolanaRestoreWalletFromSeedCredentials, SolanaRestoreWalletFromPrivateKey, SolanaNewWalletCredentials> {
   SolanaWalletService(this.walletInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
@@ -144,5 +147,11 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
     newWalletInfo.name = newName;
 
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+  }
+
+  @override
+  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> restoreFromHardwareWallet(SolanaNewWalletCredentials credentials) {
+    // TODO: implement restoreFromHardwareWallet
+    throw UnimplementedError();
   }
 }

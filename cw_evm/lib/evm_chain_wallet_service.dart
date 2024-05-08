@@ -13,7 +13,8 @@ import 'package:hive/hive.dart';
 abstract class EVMChainWalletService<T extends EVMChainWallet> extends WalletService<
     EVMChainNewWalletCredentials,
     EVMChainRestoreWalletFromSeedCredentials,
-    EVMChainRestoreWalletFromPrivateKey> {
+    EVMChainRestoreWalletFromPrivateKey,
+    EVMChainRestoreWalletFromHardware> {
   EVMChainWalletService(this.walletInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
@@ -24,6 +25,9 @@ abstract class EVMChainWalletService<T extends EVMChainWallet> extends WalletSer
 
   @override
   Future<T> create(EVMChainNewWalletCredentials credentials, {bool? isTestnet});
+
+  @override
+  Future<T> restoreFromHardwareWallet(EVMChainRestoreWalletFromHardware credentials);
 
   @override
   Future<T> openWallet(String name, String password);

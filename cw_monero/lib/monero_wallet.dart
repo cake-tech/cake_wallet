@@ -697,7 +697,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   void setExceptionHandler(void Function(FlutterErrorDetails) e) => onError = e;
 
   @override
-  String signMessage(String message, {String? address}) {
+  Future<String> signMessage(String message, {String? address}) async {
     final useAddress = address ?? "";
     return monero_wallet.signMessage(message, address: useAddress);
   }

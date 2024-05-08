@@ -14,6 +14,7 @@ class ElectrumWalletSnapshot {
     required this.type,
     required this.password,
     required this.mnemonic,
+    required this.xpub,
     required this.addresses,
     required this.balance,
     required this.regularAddressIndex,
@@ -29,7 +30,8 @@ class ElectrumWalletSnapshot {
   final WalletType type;
   final String? addressPageType;
 
-  String mnemonic;
+  String? mnemonic;
+  String? xpub;
   List<BitcoinAddressRecord> addresses;
   ElectrumBalance balance;
   Map<String, int> regularAddressIndex;
@@ -44,7 +46,8 @@ class ElectrumWalletSnapshot {
     final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final addressesTmp = data['addresses'] as List? ?? <Object>[];
-    final mnemonic = data['mnemonic'] as String;
+    final mnemonic = data['mnemonic'] as String?;
+    final xpub = data['xpub'] as String?;
     final passphrase = data['passphrase'] as String? ?? '';
     final addresses = addressesTmp
         .whereType<String>()
@@ -80,6 +83,7 @@ class ElectrumWalletSnapshot {
       password: password,
       passphrase: passphrase,
       mnemonic: mnemonic,
+      xpub: xpub,
       addresses: addresses,
       balance: balance,
       regularAddressIndex: regularAddressIndexByType,

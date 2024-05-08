@@ -15,7 +15,7 @@ import 'package:nanodart/nanodart.dart';
 import 'package:nanoutil/nanoutil.dart';
 
 class NanoWalletService extends WalletService<NanoNewWalletCredentials,
-    NanoRestoreWalletFromSeedCredentials, NanoRestoreWalletFromKeysCredentials> {
+    NanoRestoreWalletFromSeedCredentials, NanoRestoreWalletFromKeysCredentials, NanoNewWalletCredentials> {
   NanoWalletService(this.walletInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
@@ -115,6 +115,11 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     await wallet.init();
     await wallet.save();
     return wallet;
+  }
+
+  @override
+  Future<NanoWallet> restoreFromHardwareWallet(NanoNewWalletCredentials credentials) {
+    throw UnimplementedError("Restoring a Nano wallet from a hardware wallet is not yet supported!");
   }
 
   @override

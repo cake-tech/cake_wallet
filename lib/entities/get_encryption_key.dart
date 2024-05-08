@@ -11,8 +11,7 @@ Future<List<int>> getEncryptionKey(
     key = CakeHive.generateSecureKey();
     final keyStringified = key.join(',');
     String storageKey = 'transactionDescriptionsBoxKey';
-    await secureStorage.delete(key: storageKey);
-    await secureStorage.write(key: storageKey, value: keyStringified);
+    await writeSecureStorage(secureStorage, key: storageKey, value: keyStringified);
   } else {
     key = stringifiedKey.split(',').map((i) => int.parse(i)).toList();
   }
