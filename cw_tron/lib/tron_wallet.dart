@@ -31,7 +31,6 @@ import 'package:cw_tron/tron_wallet_addresses.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:on_chain/on_chain.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'tron_wallet.g.dart';
 
@@ -61,8 +60,6 @@ abstract class TronWalletBase
     if (!CakeHive.isAdapterRegistered(TronToken.typeId)) {
       CakeHive.registerAdapter(TronTokenAdapter());
     }
-
-    sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
   final String? _mnemonic;
@@ -81,7 +78,7 @@ abstract class TronWalletBase
 
   late String _tronAddress;
 
-  late TronClient _client;
+  late final TronClient _client;
 
   Timer? _transactionsUpdateTimer;
 
@@ -101,8 +98,6 @@ abstract class TronWalletBase
   @override
   @observable
   late ObservableMap<CryptoCurrency, TronBalance> balance;
-
-  Completer<SharedPreferences> sharedPrefs = Completer();
 
   Future<void> init() async {
     await initTronTokensBox();
@@ -464,6 +459,7 @@ abstract class TronWalletBase
     }
   }
 
+  @override
   Future<void>? updateBalance() async => await _updateBalance();
 
   List<TronToken> get tronTokenCurrencies => tronTokensBox.values.toList();
@@ -543,7 +539,7 @@ abstract class TronWalletBase
       _transactionsUpdateTimer!.cancel();
     }
 
-    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 20), (_) async {
+    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
       _updateBalance();
       await fetchTransactions();
       fetchTrc20ExcludedTransactions();
@@ -556,5 +552,15 @@ abstract class TronWalletBase
 
   String getTronBase58AddressFromHex(String hexAddress) {
     return TronAddress(hexAddress).toAddress();
+  }
+
+  void updateScanProviderUsageState(bool isEnabled) {
+    if (isEnabled) {
+      fetchTransactions();
+      fetchTrc20ExcludedTransactions();
+      _setTransactionUpdateTimer();
+    } else {
+      _transactionsUpdateTimer?.cancel();
+    }
   }
 }

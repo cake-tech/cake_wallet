@@ -1112,6 +1112,8 @@ abstract class Tron {
 
   String? getTronNativeEstimatedFee(WalletBase wallet);
   String? getTronTRC20EstimatedFee(WalletBase wallet);
+  
+  void updateTronGridUsageState(WalletBase wallet, bool isEnabled);
 }
   """;
 

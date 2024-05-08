@@ -36,7 +36,7 @@ const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'rpc.ankr.com';
-const tronDefaultNodeUri = 'api.trongrid.io';
+const tronDefaultNodeUri = 'tron-rpc.publicnode.com:443';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 
 Future<void> defaultSettingsMigration(
