@@ -15,8 +15,8 @@ dependencies:
     git:
       url: https://github.com/cake-tech/flutter_secure_storage.git
       path: flutter_secure_storage
-      ref: cake-8.0.0
-      version: 8.0.0
+      ref: cake-9.0.0
+      version: 9.0.0
   # provider: ^6.0.3
   rxdart: ^0.27.4
   yaml: ^3.1.1
