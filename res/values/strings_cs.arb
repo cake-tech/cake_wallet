@@ -366,6 +366,8 @@
   "moonpay_alert_text": "Částka musí být větší nebo rovna ${minAmount} ${fiatCurrency}",
   "more_options": "Více možností",
   "name": "název",
+  "nano_gpt_thanks_message": "Děkujeme za používání Nanogpt! Nezapomeňte se po dokončení transakce vydat zpět do prohlížeče!",
+  "nanogpt_subtitle": "Všechny nejnovější modely (GPT-4, Claude). \\ Nno předplatné, plaťte krypto.",
   "nano_current_rep": "Současný zástupce",
   "nano_pick_new_rep": "Vyberte nového zástupce",
   "narrow": "Úzký",

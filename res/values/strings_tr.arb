@@ -366,6 +366,8 @@
   "moonpay_alert_text": "Tutar ${minAmount} ${fiatCurrency} miktarına eşit veya daha fazla olmalıdır",
   "more_options": "Daha Fazla Seçenek",
   "name": "İsim",
+  "nano_gpt_thanks_message": "Nanogpt kullandığınız için teşekkürler! İşleminiz tamamlandıktan sonra tarayıcıya geri dönmeyi unutmayın!",
+  "nanogpt_subtitle": "En yeni modeller (GPT-4, Claude). \\ Nno aboneliği, kripto ile ödeme yapın.",
   "nano_current_rep": "Mevcut temsilci",
   "nano_pick_new_rep": "Yeni bir temsilci seçin",
   "narrow": "Dar",

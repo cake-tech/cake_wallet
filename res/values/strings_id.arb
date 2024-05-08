@@ -366,6 +366,8 @@
   "moonpay_alert_text": "Nilai jumlah harus lebih atau sama dengan ${minAmount} ${fiatCurrency}",
   "more_options": "Opsi Lainnya",
   "name": "Nama",
+  "nano_gpt_thanks_message": "Terima kasih telah menggunakan Nanogpt! Ingatlah untuk kembali ke browser setelah transaksi Anda selesai!",
+  "nanogpt_subtitle": "Semua model terbaru (GPT-4, Claude). \\ Nno langganan, bayar dengan crypto.",
   "nano_current_rep": "Perwakilan saat ini",
   "nano_pick_new_rep": "Pilih perwakilan baru",
   "narrow": "Sempit",

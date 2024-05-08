@@ -366,6 +366,8 @@
   "moonpay_alert_text": "金额的价值必须大于或等于 ${minAmount} ${fiatCurrency}",
   "more_options": "更多选项",
   "name": "姓名",
+  "nano_gpt_thanks_message": "感谢您使用Nanogpt！事务完成后，请记住回到浏览器！",
+  "nanogpt_subtitle": "所有最新型号（GPT-4，Claude）。\\ nno订阅，用加密货币付款。",
   "nano_current_rep": "当前代表",
   "nano_pick_new_rep": "选择新代表",
   "narrow": "狭窄的",

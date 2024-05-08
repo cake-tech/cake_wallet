@@ -366,6 +366,8 @@
   "moonpay_alert_text": "Value of the amount must be more or equal to ${minAmount} ${fiatCurrency}",
   "more_options": "More Options",
   "name": "Name",
+  "nano_gpt_thanks_message": "Thanks for using NanoGPT! Remember to head back to the browser after your transaction completes!",
+  "nanogpt_subtitle": "All the newest models (GPT-4, Claude).\\nNo subscription, pay with crypto.",
   "nano_current_rep": "Current Representative",
   "nano_pick_new_rep": "Pick a new representative",
   "narrow": "Narrow",

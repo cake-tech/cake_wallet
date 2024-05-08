@@ -366,6 +366,8 @@
   "moonpay_alert_text": "Vrijednost iznosa mora biti veća ili jednaka ${minAmount} ${fiatCurrency}",
   "more_options": "Više opcija",
   "name": "Ime",
+  "nano_gpt_thanks_message": "Hvala što ste koristili nanogpt! Ne zaboravite da se vratite u preglednik nakon što vam se transakcija završi!",
+  "nanogpt_subtitle": "Svi najnoviji modeli (GPT-4, Claude). \\ NNO pretplata, plaćajte kripto.",
   "nano_current_rep": "Trenutni predstavnik",
   "nano_pick_new_rep": "Odaberite novog predstavnika",
   "narrow": "Usko",
