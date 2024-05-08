@@ -7,6 +7,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -43,6 +44,25 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/router.dart' as Router;
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/reactions/bootstrap.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/entities/get_encryption_key.dart';
+import 'package:cake_wallet/entities/contact.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cake_wallet/entities/default_settings_migration.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/exchange/exchange_template.dart';
+import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -144,9 +164,8 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(AnonpayInvoiceInfoAdapter());
   }
 
-  final secureStorage = FlutterSecureStorage(
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
-  );
+  final secureStorage = secureStorageShared;
+
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
   final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
@@ -197,7 +216,7 @@ Future<void> initialSetup(
     required Box<Template> templates,
     required Box<ExchangeTemplate> exchangeTemplates,
     required Box<TransactionDescription> transactionDescriptions,
-    required FlutterSecureStorage secureStorage,
+    required SecureStorage secureStorage,
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
     int initialMigrationVersion = 15}) async {

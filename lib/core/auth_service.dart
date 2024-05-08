@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
@@ -7,7 +6,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
@@ -35,14 +33,14 @@ class AuthService with Store {
     Routes.restoreOptions,
   ];
 
-  final FlutterSecureStorage secureStorage;
+  final SecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
   final SettingsStore settingsStore;
 
   Future<void> setPassword(String password) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final encodedPassword = encodedPinCode(pin: password);
-    await writeSecureStorage(secureStorage, key: key, value: encodedPassword);
+    await secureStorage.write(key: key, value: encodedPassword);
   }
 
   Future<bool> canAuthenticate() async {
@@ -61,7 +59,7 @@ class AuthService with Store {
 
   Future<bool> authenticate(String pin) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final encodedPin = await readSecureStorage(secureStorage, key);
+    final encodedPin = await secureStorage.read(key: key);
     final decodedPin = decodedPinCode(pin: encodedPin!);
 
     return decodedPin == pin;
@@ -69,11 +67,7 @@ class AuthService with Store {
 
   void saveLastAuthTime() {
     int timestamp = DateTime.now().millisecondsSinceEpoch;
-    writeSecureStorage(
-      secureStorage,
-      key: SecureKey.lastAuthTimeMilliseconds,
-      value: timestamp.toString(),
-    );
+    secureStorage.write(key: SecureKey.lastAuthTimeMilliseconds, value: timestamp.toString());
   }
 
   Future<bool> requireAuth() async {

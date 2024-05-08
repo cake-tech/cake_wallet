@@ -236,6 +236,32 @@ import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/view_model/wallet_new_vm.dart';
+import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:cake_wallet/store/dashboard/trades_store.dart';
+import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
+import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/store/templates/send_template_store.dart';
+import 'package:cake_wallet/store/templates/exchange_template_store.dart';
+import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/exchange/exchange_template.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
+import 'package:cake_wallet/anypay/anypay_api.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_gift_card_details_view_model.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_payment_status_view_model.dart';
+import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
+import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
+import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
+import 'package:cake_wallet/core/wallet_loading_service.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/entities/qr_view_data.dart';
 
 import 'buy/dfx/dfx_buy_provider.dart';
 import 'core/totp_request_details.dart';
@@ -268,7 +294,7 @@ Future<void> setup({
   required Box<Order> ordersSource,
   required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
-  required FlutterSecureStorage secureStorage,
+  required SecureStorage secureStorage,
   required GlobalKey<NavigatorState> navigatorKey,
 }) async {
   _walletInfoSource = walletInfoSource;
@@ -285,7 +311,7 @@ Future<void> setup({
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
-    getIt.registerSingleton<FlutterSecureStorage>(secureStorage);
+    getIt.registerSingleton<SecureStorage>(secureStorage);
   }
   if (!_isSetupFinished) {
     getIt.registerFactory(() => BackgroundTasks());
@@ -333,22 +359,22 @@ Future<void> setup({
   getIt.registerSingleton<ExchangeTemplateStore>(
       ExchangeTemplateStore(templateSource: _exchangeTemplates));
   getIt.registerSingleton<YatStore>(
-      YatStore(appStore: getIt.get<AppStore>(), secureStorage: getIt.get<FlutterSecureStorage>())
+      YatStore(appStore: getIt.get<AppStore>(), secureStorage: getIt.get<SecureStorage>())
         ..init());
   getIt.registerSingleton<AnonpayTransactionsStore>(
       AnonpayTransactionsStore(anonpayInvoiceInfoSource: _anonpayInvoiceInfoSource));
 
-  final secretStore = await SecretStoreBase.load(getIt.get<FlutterSecureStorage>());
+  final secretStore = await SecretStoreBase.load(getIt.get<SecureStorage>());
 
   getIt.registerSingleton<SecretStore>(secretStore);
 
-  getIt.registerFactory<KeyService>(() => KeyService(getIt.get<FlutterSecureStorage>()));
+  getIt.registerFactory<KeyService>(() => KeyService(getIt.get<SecureStorage>()));
 
   getIt.registerFactoryParam<WalletCreationService, WalletType, void>((type, _) =>
       WalletCreationService(
           initialType: type,
           keyService: getIt.get<KeyService>(),
-          secureStorage: getIt.get<FlutterSecureStorage>(),
+          secureStorage: getIt.get<SecureStorage>(),
           sharedPreferences: getIt.get<SharedPreferences>(),
           settingsStore: getIt.get<SettingsStore>(),
           walletInfoSource: _walletInfoSource));
@@ -403,7 +429,7 @@ Future<void> setup({
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
-      secureStorage: getIt.get<FlutterSecureStorage>(),
+      secureStorage: getIt.get<SecureStorage>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
       settingsStore: getIt.get<SettingsStore>(),
     ),
@@ -980,16 +1006,16 @@ Future<void> setup({
           trades: _tradesSource,
           settingsStore: getIt.get<SettingsStore>()));
 
-  getIt.registerFactory(() => BackupService(getIt.get<FlutterSecureStorage>(), _walletInfoSource,
+  getIt.registerFactory(() => BackupService(getIt.get<SecureStorage>(), _walletInfoSource,
       getIt.get<KeyService>(), getIt.get<SharedPreferences>()));
 
   getIt.registerFactory(() => BackupViewModel(
-      getIt.get<FlutterSecureStorage>(), getIt.get<SecretStore>(), getIt.get<BackupService>()));
+      getIt.get<SecureStorage>(), getIt.get<SecretStore>(), getIt.get<BackupService>()));
 
   getIt.registerFactory(() => BackupPage(getIt.get<BackupViewModel>()));
 
   getIt.registerFactory(() =>
-      EditBackupPasswordViewModel(getIt.get<FlutterSecureStorage>(), getIt.get<SecretStore>()));
+      EditBackupPasswordViewModel(getIt.get<SecureStorage>(), getIt.get<SecretStore>()));
 
   getIt.registerFactory(() => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
 
@@ -1038,7 +1064,7 @@ Future<void> setup({
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
 
   getIt.registerFactory(() => SupportChatPage(getIt.get<SupportViewModel>(),
-      secureStorage: getIt.get<FlutterSecureStorage>()));
+      secureStorage: getIt.get<SecureStorage>()));
 
   getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 
@@ -1080,7 +1106,7 @@ Future<void> setup({
   getIt.registerFactory(() => AnyPayApi());
 
   getIt.registerFactory<IoniaService>(
-      () => IoniaService(getIt.get<FlutterSecureStorage>(), getIt.get<IoniaApi>()));
+      () => IoniaService(getIt.get<SecureStorage>(), getIt.get<IoniaApi>()));
 
   getIt.registerFactory<IoniaAnyPay>(() => IoniaAnyPay(
       getIt.get<IoniaService>(), getIt.get<AnyPayApi>(), getIt.get<AppStore>().wallet!));

@@ -1,4 +1,4 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum SecretStoreKey { moneroWalletPassword, pinCodePassword, backupPassword }
@@ -66,7 +66,7 @@ class SecureKey {
   static const lastAuthTimeMilliseconds = 'last_auth_time_milliseconds';
 
   static Future<int?> getInt({
-    required FlutterSecureStorage secureStorage,
+    required SecureStorage secureStorage,
     required SharedPreferences sharedPreferences,
     required String key,
   }) async {
@@ -76,7 +76,7 @@ class SecureKey {
   }
 
   static Future<bool?> getBool({
-    required FlutterSecureStorage secureStorage,
+    required SecureStorage secureStorage,
     required SharedPreferences sharedPreferences,
     required String key,
   }) async {
@@ -91,7 +91,7 @@ class SecureKey {
   }
 
   static Future<String?> getString({
-    required FlutterSecureStorage secureStorage,
+    required SecureStorage secureStorage,
     required SharedPreferences sharedPreferences,
     required String key,
   }) async {
