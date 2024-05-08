@@ -89,22 +89,28 @@ class TransactionsPage extends StatelessWidget {
 
                           final transaction = item.transaction;
 
-                          final historicalFiatValue = dashboardViewModel.getFormattedFiatAmount(transaction);
-                          final formattedFiatValue = historicalFiatValue ??
-                              item.formattedFiatAmount;
-
-                          return Observer(
-                              builder: (_) => TransactionRow(
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.transactionDetails, arguments: transaction),
-                                  direction: transaction.direction,
-                                  formattedDate: DateFormat('HH:mm').format(transaction.date),
-                                  formattedAmount: item.formattedCryptoAmount,
-                                  formattedFiatAmount: dashboardViewModel.balanceViewModel.isFiatDisabled ? '' : formattedFiatValue,
-                                  isPending: transaction.isPending,
-                                  isHistoricalRate: dashboardViewModel.settingsStore.showHistoricalFiatAmount &&
-                                      historicalFiatValue !=null && historicalFiatValue.isNotEmpty,
-                                  title: item.formattedTitle + item.formattedStatus));
+                          return Observer(builder: (_) {
+                            final historicalFiatValue =
+                            dashboardViewModel.getFormattedFiatAmount(transaction);
+                            final formattedFiatValue =
+                                historicalFiatValue ?? item.formattedFiatAmount;
+                            return TransactionRow(
+                                onTap: () => Navigator.of(context)
+                                    .pushNamed(Routes.transactionDetails, arguments: transaction),
+                                direction: transaction.direction,
+                                formattedDate: DateFormat('HH:mm').format(transaction.date),
+                                formattedAmount: item.formattedCryptoAmount,
+                                formattedFiatAmount:
+                                dashboardViewModel.balanceViewModel.isFiatDisabled
+                                    ? ''
+                                    : formattedFiatValue,
+                                isPending: transaction.isPending,
+                                isHistoricalRate:
+                                dashboardViewModel.settingsStore.showHistoricalFiatAmount &&
+                                    historicalFiatValue != null &&
+                                    historicalFiatValue.isNotEmpty,
+                                title: item.formattedTitle + item.formattedStatus);
+                          });
                         }
 
                         if (item is AnonpayTransactionListItem) {
