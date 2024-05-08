@@ -23,7 +23,10 @@ CryptoCurrency currencyForWalletType(WalletType type) {
       return CryptoCurrency.maticpoly;
     case WalletType.solana:
       return CryptoCurrency.sol;
+    case WalletType.tron:
+      return CryptoCurrency.trx;
     default:
-      throw Exception('Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
+      throw Exception(
+          'Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
   }
 }

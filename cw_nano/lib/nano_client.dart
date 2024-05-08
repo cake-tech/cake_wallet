@@ -10,6 +10,7 @@ import 'package:nanodart/nanodart.dart';
 import 'package:cw_core/node.dart';
 import 'package:nanoutil/nanoutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cw_nano/.secrets.g.dart' as secrets;
 
 class NanoClient {
   static const Map<String, String> CAKE_HEADERS = {
@@ -52,10 +53,19 @@ class NanoClient {
     }
   }
 
+  Map<String, String> getHeaders() {
+    if (_node!.uri == "https://rpc.nano.to") {
+      return CAKE_HEADERS..addAll({
+        "key": secrets.nano2ApiKey,
+      });
+    }
+    return CAKE_HEADERS;
+  }
+
   Future<NanoBalance> getBalance(String address) async {
     final response = await http.post(
       _node!.uri,
-      headers: CAKE_HEADERS,
+      headers: getHeaders(),
       body: jsonEncode(
         {
           "action": "account_balance",
@@ -82,7 +92,7 @@ class NanoClient {
     try {
       final response = await http.post(
         _node!.uri,
-        headers: CAKE_HEADERS,
+        headers: getHeaders(),
         body: jsonEncode(
           {
             "action": "account_info",
@@ -94,7 +104,7 @@ class NanoClient {
       final data = await jsonDecode(response.body);
       return AccountInfoResponse.fromJson(data as Map<String, dynamic>);
     } catch (e) {
-      print("error while getting account info");
+      print("error while getting account info $e");
       return null;
     }
   }
@@ -149,7 +159,7 @@ class NanoClient {
   Future<String> requestWork(String hash) async {
     final response = await http.post(
       _powNode!.uri,
-      headers: CAKE_HEADERS,
+      headers: getHeaders(),
       body: json.encode(
         {
           "action": "work_generate",
@@ -192,7 +202,7 @@ class NanoClient {
 
     final processResponse = await http.post(
       _node!.uri,
-      headers: CAKE_HEADERS,
+      headers: getHeaders(),
       body: processBody,
     );
 
@@ -351,7 +361,7 @@ class NanoClient {
     });
     final processResponse = await http.post(
       _node!.uri,
-      headers: CAKE_HEADERS,
+      headers: getHeaders(),
       body: processBody,
     );
 
@@ -367,7 +377,7 @@ class NanoClient {
     required String privateKey,
   }) async {
     final receivableResponse = await http.post(_node!.uri,
-        headers: CAKE_HEADERS,
+        headers: getHeaders(),
         body: jsonEncode({
           "action": "receivable",
           "account": destinationAddress,
@@ -417,7 +427,7 @@ class NanoClient {
   Future<List<NanoTransactionModel>> fetchTransactions(String address) async {
     try {
       final response = await http.post(_node!.uri,
-          headers: CAKE_HEADERS,
+          headers: getHeaders(),
           body: jsonEncode({
             "action": "account_history",
             "account": address,

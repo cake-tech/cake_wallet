@@ -19,10 +19,18 @@ dependencies:
     path: ../cw_evm
   hive: ^2.2.3
 
+dependency_overrides:
+  web3dart:
+    git:
+      url: https://github.com/cake-tech/web3dart.git
+      ref: cake
+  watcher: ^1.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner: ^2.1.11
+  build_runner: ^2.4.7
+
 flutter:
   # assets:
   #   - images/a_dot_burr.jpeg

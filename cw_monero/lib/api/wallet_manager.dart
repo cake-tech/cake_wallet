@@ -58,7 +58,7 @@ void restoreWalletFromSeedSync(
     seedOffset: '',
     networkType: 0,
   );
-  
+
   final status = monero.Wallet_status(wptr!);
 
   if (status != 0) {
@@ -87,7 +87,7 @@ void restoreWalletFromKeysSync(
     spendKeyString: spendKey,
     nettype: 0,
   );
-  
+
   final status = monero.Wallet_status(wptr!);
   if (status != 0) {
     throw WalletRestoreFromKeysException(message: monero.Wallet_errorString(wptr!));
@@ -138,6 +138,38 @@ void restoreWalletFromSpendKeySync(
 }
 
 String _lastOpenedWallet = "";
+
+// void restoreMoneroWalletFromDevice(
+//     {required String path,
+//       required String password,
+//       required String deviceName,
+//       int nettype = 0,
+//       int restoreHeight = 0}) {
+//
+//   final pathPointer = path.toNativeUtf8();
+//   final passwordPointer = password.toNativeUtf8();
+//   final deviceNamePointer = deviceName.toNativeUtf8();
+//   final errorMessagePointer = ''.toNativeUtf8();
+//
+//   final isWalletRestored = restoreWalletFromDeviceNative(
+//       pathPointer,
+//       passwordPointer,
+//       deviceNamePointer,
+//       nettype,
+//       restoreHeight,
+//       errorMessagePointer) != 0;
+//
+//   calloc.free(pathPointer);
+//   calloc.free(passwordPointer);
+//
+//   storeSync();
+//
+//   if (!isWalletRestored) {
+//     throw WalletRestoreFromKeysException(
+//         message: convertUTF8ToString(pointer: errorMessagePointer));
+//   }
+// }
+
 
 void loadWallet({
   required String path,

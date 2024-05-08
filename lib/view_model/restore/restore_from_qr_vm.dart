@@ -4,13 +4,14 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_base.dart'; 
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -86,6 +87,9 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
           case WalletType.solana:
             return solana!.createSolanaRestoreWalletFromPrivateKey(
                 name: name, password: password, privateKey: restoreWallet.privateKey!);
+          case WalletType.tron:
+            return tron!.createTronRestoreWalletFromPrivateKey(
+                name: name, password: password, privateKey: restoreWallet.privateKey!);
           default:
             throw Exception('Unexpected type: ${restoreWallet.type.toString()}');
         }
@@ -129,6 +133,9 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
           case WalletType.solana:
             return solana!.createSolanaRestoreWalletFromSeedCredentials(
+                name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
+          case WalletType.tron:
+            return tron!.createTronRestoreWalletFromSeedCredentials(
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
           default:
             throw Exception('Unexpected type: ${type.toString()}');

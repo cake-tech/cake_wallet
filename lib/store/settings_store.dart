@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
@@ -98,6 +99,7 @@ abstract class SettingsStoreBase with Store {
       required this.pinNativeTokenAtTop,
       required this.useEtherscan,
       required this.usePolygonScan,
+      required this.useTronGrid,
       required this.defaultNanoRep,
       required this.defaultBananoRep,
       required this.lookupsTwitter,
@@ -396,6 +398,11 @@ abstract class SettingsStoreBase with Store {
         (bool usePolygonScan) =>
             _sharedPreferences.setBool(PreferencesKey.usePolygonScan, usePolygonScan));
 
+    reaction(
+        (_) => useTronGrid,
+        (bool useTronGrid) =>
+            _sharedPreferences.setBool(PreferencesKey.useTronGrid, useTronGrid));
+
     reaction((_) => defaultNanoRep,
         (String nanoRep) => _sharedPreferences.setString(PreferencesKey.defaultNanoRep, nanoRep));
 
@@ -434,79 +441,83 @@ abstract class SettingsStoreBase with Store {
     // secure storage keys:
     reaction(
         (_) => allowBiometricalAuthentication,
-        (bool biometricalAuthentication) => secureStorage.write(
+        (bool biometricalAuthentication) => writeSecureStorage(secureStorage,
             key: SecureKey.allowBiometricalAuthenticationKey,
             value: biometricalAuthentication.toString()));
 
     reaction(
         (_) => selectedCake2FAPreset,
-        (Cake2FAPresetsOptions selectedCake2FAPreset) => secureStorage.write(
+        (Cake2FAPresetsOptions selectedCake2FAPreset) => writeSecureStorage(secureStorage,
             key: SecureKey.selectedCake2FAPreset,
             value: selectedCake2FAPreset.serialize().toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForAccessingWallet,
-        (bool requireTOTP2FAForAccessingWallet) => secureStorage.write(
+        (bool requireTOTP2FAForAccessingWallet) => writeSecureStorage(secureStorage,
             key: SecureKey.shouldRequireTOTP2FAForAccessingWallet,
             value: requireTOTP2FAForAccessingWallet.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForSendsToContact,
-        (bool requireTOTP2FAForSendsToContact) => secureStorage.write(
+        (bool requireTOTP2FAForSendsToContact) => writeSecureStorage(secureStorage,
             key: SecureKey.shouldRequireTOTP2FAForSendsToContact,
             value: requireTOTP2FAForSendsToContact.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForSendsToNonContact,
-        (bool requireTOTP2FAForSendsToNonContact) => secureStorage.write(
+        (bool requireTOTP2FAForSendsToNonContact) => writeSecureStorage(secureStorage,
             key: SecureKey.shouldRequireTOTP2FAForSendsToNonContact,
             value: requireTOTP2FAForSendsToNonContact.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForSendsToInternalWallets,
-        (bool requireTOTP2FAForSendsToInternalWallets) => secureStorage.write(
+        (bool requireTOTP2FAForSendsToInternalWallets) => writeSecureStorage(secureStorage,
             key: SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets,
             value: requireTOTP2FAForSendsToInternalWallets.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForExchangesToInternalWallets,
-        (bool requireTOTP2FAForExchangesToInternalWallets) => secureStorage.write(
+        (bool requireTOTP2FAForExchangesToInternalWallets) => writeSecureStorage(secureStorage,
             key: SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets,
             value: requireTOTP2FAForExchangesToInternalWallets.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForExchangesToExternalWallets,
-        (bool requireTOTP2FAForExchangesToExternalWallets) => secureStorage.write(
+        (bool requireTOTP2FAForExchangesToExternalWallets) => writeSecureStorage(secureStorage,
             key: SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets,
             value: requireTOTP2FAForExchangesToExternalWallets.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForAddingContacts,
-        (bool requireTOTP2FAForAddingContacts) => secureStorage.write(
+        (bool requireTOTP2FAForAddingContacts) => writeSecureStorage(secureStorage,
             key: SecureKey.shouldRequireTOTP2FAForAddingContacts,
             value: requireTOTP2FAForAddingContacts.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForCreatingNewWallets,
-        (bool requireTOTP2FAForCreatingNewWallets) => secureStorage.write(
+        (bool requireTOTP2FAForCreatingNewWallets) => writeSecureStorage(secureStorage,
             key: SecureKey.shouldRequireTOTP2FAForCreatingNewWallets,
             value: requireTOTP2FAForCreatingNewWallets.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-        (bool requireTOTP2FAForAllSecurityAndBackupSettings) => secureStorage.write(
+        (bool requireTOTP2FAForAllSecurityAndBackupSettings) => writeSecureStorage(secureStorage,
             key: SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             value: requireTOTP2FAForAllSecurityAndBackupSettings.toString()));
 
-    reaction((_) => useTOTP2FA,
-        (bool use) => secureStorage.write(key: SecureKey.useTOTP2FA, value: use.toString()));
+    reaction(
+        (_) => useTOTP2FA,
+        (bool use) =>
+            writeSecureStorage(secureStorage, key: SecureKey.useTOTP2FA, value: use.toString()));
 
-    reaction((_) => totpSecretKey,
-        (String totpKey) => secureStorage.write(key: SecureKey.totpSecretKey, value: totpKey));
+    reaction(
+        (_) => totpSecretKey,
+        (String totpKey) =>
+            writeSecureStorage(secureStorage, key: SecureKey.totpSecretKey, value: totpKey));
 
     reaction(
         (_) => pinTimeOutDuration,
-        (PinCodeRequiredDuration pinCodeInterval) => secureStorage.write(
+        (PinCodeRequiredDuration pinCodeInterval) => writeSecureStorage(secureStorage,
             key: SecureKey.pinTimeOutDuration, value: pinCodeInterval.value.toString()));
 
     reaction(
@@ -668,6 +679,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool usePolygonScan;
+
+  @observable
+  bool useTronGrid;
 
   @observable
   String defaultNanoRep;
@@ -841,6 +855,7 @@ abstract class SettingsStoreBase with Store {
         : defaultSeedPhraseLength;
     final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
     final usePolygonScan = sharedPreferences.getBool(PreferencesKey.usePolygonScan) ?? true;
+    final useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     final defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     final lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -872,6 +887,7 @@ abstract class SettingsStoreBase with Store {
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
+    final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -882,6 +898,7 @@ abstract class SettingsStoreBase with Store {
     final nanoNode = nodeSource.get(nanoNodeId);
     final nanoPowNode = powNodeSource.get(nanoPowNodeId);
     final solanaNode = nodeSource.get(solanaNodeId);
+    final tronNode = nodeSource.get(tronNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
@@ -942,6 +959,10 @@ abstract class SettingsStoreBase with Store {
 
     if (solanaNode != null) {
       nodes[WalletType.solana] = solanaNode;
+    }
+
+    if (tronNode != null) {
+      nodes[WalletType.tron] = tronNode;
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
@@ -1079,6 +1100,7 @@ abstract class SettingsStoreBase with Store {
       pinNativeTokenAtTop: pinNativeTokenAtTop,
       useEtherscan: useEtherscan,
       usePolygonScan: usePolygonScan,
+      useTronGrid: useTronGrid,
       defaultNanoRep: defaultNanoRep,
       defaultBananoRep: defaultBananoRep,
       lookupsTwitter: lookupsTwitter,
@@ -1216,6 +1238,7 @@ abstract class SettingsStoreBase with Store {
     pinNativeTokenAtTop = sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
     useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
     usePolygonScan = sharedPreferences.getBool(PreferencesKey.usePolygonScan) ?? true;
+    useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -1238,6 +1261,7 @@ abstract class SettingsStoreBase with Store {
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
+    final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -1247,6 +1271,7 @@ abstract class SettingsStoreBase with Store {
     final bitcoinCashNode = nodeSource.get(bitcoinCashElectrumServerId);
     final nanoNode = nodeSource.get(nanoNodeId);
     final solanaNode = nodeSource.get(solanaNodeId);
+    final tronNode = nodeSource.get(tronNodeId);
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
     }
@@ -1281,6 +1306,10 @@ abstract class SettingsStoreBase with Store {
 
     if (solanaNode != null) {
       nodes[WalletType.solana] = solanaNode;
+    }
+
+    if (tronNode != null) {
+      nodes[WalletType.tron] = tronNode;
     }
 
     // MIGRATED:
@@ -1412,6 +1441,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.solana:
         await _sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);
+        break;
+      case WalletType.tron:
+        await _sharedPreferences.setInt(PreferencesKey.currentTronNodeIdKey, node.key as int);
         break;
       default:
         break;

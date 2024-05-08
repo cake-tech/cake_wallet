@@ -25,6 +25,7 @@ import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -43,6 +44,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uni_links/uni_links.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/window_size.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -61,6 +66,8 @@ Future<void> main() async {
 
       return true;
     };
+
+    await setDefaultMinimumWindowSize();
 
     await CakeHive.close();
 
@@ -108,7 +115,11 @@ Future<void> initializeAppConfigs() async {
   if (!CakeHive.isAdapterRegistered(DERIVATION_INFO_TYPE_ID)) {
     CakeHive.registerAdapter(DerivationInfoAdapter());
   }
-  
+
+  if (!CakeHive.isAdapterRegistered(HARDWARE_WALLET_TYPE_TYPE_ID)) {
+    CakeHive.registerAdapter(HardwareWalletTypeAdapter());
+  }
+
   if (!CakeHive.isAdapterRegistered(WALLET_TYPE_TYPE_ID)) {
     CakeHive.registerAdapter(WalletTypeAdapter());
   }
@@ -170,7 +181,7 @@ Future<void> initializeAppConfigs() async {
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
-    initialMigrationVersion: 32,
+    initialMigrationVersion: 33,
   );
 }
 
@@ -201,18 +212,20 @@ Future<void> initialSetup(
       nodes: nodes,
       powNodes: powNodes);
   await setup(
-      walletInfoSource: walletInfoSource,
-      nodeSource: nodes,
-      powNodeSource: powNodes,
-      contactSource: contactSource,
-      tradesSource: tradesSource,
-      templates: templates,
-      exchangeTemplates: exchangeTemplates,
-      transactionDescriptionBox: transactionDescriptions,
-      ordersSource: ordersSource,
-      anonpayInvoiceInfoSource: anonpayInvoiceInfo,
-      unspentCoinsInfoSource: unspentCoinsInfoSource,
-      secureStorage: secureStorage);
+    walletInfoSource: walletInfoSource,
+    nodeSource: nodes,
+    powNodeSource: powNodes,
+    contactSource: contactSource,
+    tradesSource: tradesSource,
+    templates: templates,
+    exchangeTemplates: exchangeTemplates,
+    transactionDescriptionBox: transactionDescriptions,
+    ordersSource: ordersSource,
+    anonpayInvoiceInfoSource: anonpayInvoiceInfo,
+    unspentCoinsInfoSource: unspentCoinsInfoSource,
+    secureStorage: secureStorage,
+    navigatorKey: navigatorKey,
+  );
   await bootstrap(navigatorKey);
   monero?.onStartup();
 }
@@ -283,6 +296,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
     return Observer(builder: (BuildContext context) {
       final appStore = getIt.get<AppStore>();
       final authService = getIt.get<AuthService>();
+      final linkViewModel = getIt.get<LinkViewModel>();
       final settingsStore = appStore.settingsStore;
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
@@ -305,6 +319,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
           authService: authService,
+          linkViewModel: linkViewModel,
           child: MaterialApp(
             navigatorObservers: [routeObserver],
             navigatorKey: navigatorKey,

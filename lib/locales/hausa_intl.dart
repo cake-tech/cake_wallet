@@ -753,25 +753,48 @@ class HaMaterialLocalizations extends GlobalMaterialLocalizations {
   String get scrimOnTapHintRaw => "Scrip on Tap";
 
   @override
-  String get collapsedHint => 'Expanded';
+  // TODO: implement collapsedHint
+  String get collapsedHint => "collapsedHint";
 
   @override
-  String get expandedHint => 'Collapsed';
+  // TODO: implement expandedHint
+  String get expandedHint => "expandedHint";
 
   @override
-  String get expansionTileCollapsedHint => 'double tap to expand';
+  // TODO: implement expansionTileCollapsedHint
+  String get expansionTileCollapsedHint => "expansionTileCollapsedHint";
 
   @override
-  String get expansionTileCollapsedTapHint => 'Expand for more details';
+  // TODO: implement expansionTileCollapsedTapHint
+  String get expansionTileCollapsedTapHint => "expansionTileCollapsedTapHint";
 
   @override
-  String get expansionTileExpandedHint => 'double tap to collapse';
+  // TODO: implement expansionTileExpandedHint
+  String get expansionTileExpandedHint => "expansionTileExpandedHint";
 
   @override
-  String get expansionTileExpandedTapHint => 'Collapse';
+  // TODO: implement expansionTileExpandedTapHint
+  String get expansionTileExpandedTapHint => "expansionTileExpandedTapHint";
 
   @override
-  String get scanTextButtonLabel => 'Scan';
+  // TODO: implement scanTextButtonLabel
+  String get scanTextButtonLabel => "scanTextButtonLabel";
+
+  @override
+  // TODO: implement lookUpButtonLabel
+  String get lookUpButtonLabel => "lookUpButtonLabel";
+
+  @override
+  // TODO: implement menuDismissLabel
+  String get menuDismissLabel => "menuDismissLabel";
+
+  @override
+  // TODO: implement searchWebButtonLabel
+  String get searchWebButtonLabel => "searchWebButtonLabel";
+
+  @override
+  // TODO: implement shareButtonLabel
+  String get shareButtonLabel => "shareButtonLabel";
 }
 
 /// Cupertino Support
@@ -976,4 +999,24 @@ class HaCupertinoLocalizations extends GlobalCupertinoLocalizations {
 
   @override
   String get noSpellCheckReplacementsLabel => "";
+
+  @override
+  // TODO: implement clearButtonLabel
+  String get clearButtonLabel => "clearButtonLabel";
+
+  @override
+  // TODO: implement lookUpButtonLabel
+  String get lookUpButtonLabel => "lookUpButtonLabel";
+
+  @override
+  // TODO: implement menuDismissLabel
+  String get menuDismissLabel => "menuDismissLabel";
+
+  @override
+  // TODO: implement searchWebButtonLabel
+  String get searchWebButtonLabel => "searchWebButtonLabel";
+
+  @override
+  // TODO: implement shareButtonLabel
+  String get shareButtonLabel => "shareButtonLabel";
 }
