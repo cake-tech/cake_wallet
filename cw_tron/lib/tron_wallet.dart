@@ -7,6 +7,7 @@ import 'package:bip39/bip39.dart' as bip39;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -44,6 +45,7 @@ abstract class TronWalletBase
     String? privateKey,
     required String password,
     TronBalance? initialBalance,
+    required this.encryptionFileUtils,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -55,7 +57,8 @@ abstract class TronWalletBase
         ),
         super(walletInfo) {
     this.walletInfo = walletInfo;
-    transactionHistory = TronTransactionHistory(walletInfo: walletInfo, password: password);
+    transactionHistory = TronTransactionHistory(
+        walletInfo: walletInfo, password: password, encryptionFileUtils: encryptionFileUtils);
 
     if (!CakeHive.isAdapterRegistered(TronToken.typeId)) {
       CakeHive.registerAdapter(TronTokenAdapter());
@@ -65,6 +68,7 @@ abstract class TronWalletBase
   final String? _mnemonic;
   final String? _hexPrivateKey;
   final String _password;
+  final EncryptionFileUtils encryptionFileUtils;
 
   late final Box<TronToken> tronTokensBox;
 
@@ -123,6 +127,7 @@ abstract class TronWalletBase
     required String name,
     required String password,
     required WalletInfo walletInfo,
+    required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final path = await pathForWallet(name: name, type: walletInfo.type);
     final jsonSource = await read(path: path, password: password);
@@ -137,6 +142,7 @@ abstract class TronWalletBase
       mnemonic: mnemonic,
       privateKey: privateKey,
       initialBalance: balance,
+      encryptionFileUtils: encryptionFileUtils,
     );
   }
 
@@ -563,4 +569,7 @@ abstract class TronWalletBase
       _transactionsUpdateTimer?.cancel();
     }
   }
+
+  @override
+  String get password => _password;
 }

@@ -105,6 +105,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
       walletInfo: credentials.walletInfo!,
       password: credentials.password!,
       client: client,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
