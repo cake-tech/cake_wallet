@@ -130,19 +130,22 @@ abstract class EVMChainClient {
 
     sendTransactionCallback = () async {
       if (router != null && memo != null) {
-        final erc20 = ERC20(
-          client: _client!,
-          address: EthereumAddress.fromHex(contractAddress!),
-          chainId: chainId,
-        );
+        if (!isNativeToken) {
+          final erc20 = ERC20(
+            client: _client!,
+            address: EthereumAddress.fromHex(contractAddress!),
+            chainId: chainId,
+          );
 
-        await erc20.approve(EthereumAddress.fromHex(router), amount, credentials: privateKey);
+          await erc20.approve(EthereumAddress.fromHex(router), amount, credentials: privateKey);
+        }
 
         await _depositWithExpiry(
           contractAddress: router,
           inboundAddress: toAddress,
           amount: amount,
           memo: memo,
+          assetContractAddress: contractAddress,
         );
       }
 
