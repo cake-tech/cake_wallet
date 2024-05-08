@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -71,6 +72,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get usePolygonScan => _settingsStore.usePolygonScan;
 
   @computed
+  bool get useTronGrid => _settingsStore.useTronGrid;
+
+  @computed
   bool get lookupTwitter => _settingsStore.lookupsTwitter;
 
   @computed
@@ -91,6 +95,8 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
 
   bool get canUsePolygonScan => _wallet.type == WalletType.polygon;
+
+  bool get canUseTronGrid => _wallet.type == WalletType.tron;
 
   @action
   void setShouldSaveRecipientAddress(bool value) =>
@@ -142,5 +148,11 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setUsePolygonScan(bool value) {
     _settingsStore.usePolygonScan = value;
     polygon!.updatePolygonScanUsageState(_wallet, value);
+  }
+
+  @action
+  void setUseTronGrid(bool value) {
+    _settingsStore.useTronGrid = value;
+    tron!.updateTronGridUsageState(_wallet, value);
   }
 }
