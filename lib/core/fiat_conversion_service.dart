@@ -50,19 +50,19 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   }
 }
 
-Future<double?> _fetchHistoricalPrice(Map<String, dynamic> args) async {
+Future<Map<String, dynamic>?> _fetchHistoricalPrice(Map<String, dynamic> args) async {
   final crypto = args['crypto'] as CryptoCurrency;
   final fiat = args['fiat'] as FiatCurrency;
   final torOnly = args['torOnly'] as bool;
-  final date = args['date'] as DateTime;
-  final intervalFromNow = DateTime.now().difference(date).inMinutes;
+  final intervalCount = args['intervalCount'] as int;
+  final intervalMinutes = args['intervalMinutes'] as int;
 
   final Map<String, String> queryParams = {
-    'interval_count': '2',
+    'interval_count': intervalCount.toString(),
     'base': crypto.toString(),
     'quote': fiat.toString(),
     'key': secrets.fiatApiKey,
-    'interval_minutes': intervalFromNow.toString()
+    'interval_minutes': intervalMinutes.toString()
   };
 
   try {
@@ -78,19 +78,12 @@ Future<double?> _fetchHistoricalPrice(Map<String, dynamic> args) async {
     if (response.statusCode != 200) return null;
 
     final data = json.decode(response.body) as Map<String, dynamic>;
-    final errors = data['errors'] as Map<String, dynamic>;
-
-    if (errors.isNotEmpty) return null;
 
     final results = data['results'] as Map<String, dynamic>;
 
-    if (results.isNotEmpty) {
-      return (results.values.first as double) / 100000000;
+    if (results.isNotEmpty) return results;
 
-    } else {
       return null;
-    }
-
   } catch (e) {
     print(e.toString());
     return null;
@@ -104,10 +97,15 @@ Future<double> _fetchPriceAsync(CryptoCurrency crypto, FiatCurrency fiat, bool t
       'torOnly': torOnly,
     });
 
-Future<double?> _fetchHistoricalAsync(
-        CryptoCurrency crypto, FiatCurrency fiat, bool torOnly, DateTime date) async =>
-    compute(
-        _fetchHistoricalPrice, {'fiat': fiat, 'crypto': crypto, 'torOnly': torOnly, 'date': date});
+Future<Map<String, dynamic>?> _fetchHistoricalAsync(CryptoCurrency crypto, FiatCurrency fiat, bool torOnly,
+        int intervalCount, int intervalMinutes) async =>
+    compute(_fetchHistoricalPrice, {
+      'fiat': fiat,
+      'crypto': crypto,
+      'torOnly': torOnly,
+      'intervalCount': intervalCount,
+      'intervalMinutes': intervalMinutes
+    });
 
 class FiatConversionService {
   static Future<double> fetchPrice({
@@ -117,11 +115,12 @@ class FiatConversionService {
   }) async =>
       await _fetchPriceAsync(crypto, fiat, torOnly);
 
-  static Future<double?> fetchHistoricalPrice({
+  static Future<Map<String, dynamic>?> fetchHistoricalPrice({
     required CryptoCurrency crypto,
     required FiatCurrency fiat,
     required bool torOnly,
-    required DateTime date,
+    required int intervalCount,
+    required int intervalMinutes,
   }) async =>
-      await _fetchHistoricalAsync(crypto, fiat, torOnly, date);
+      await _fetchHistoricalAsync(crypto, fiat, torOnly, intervalCount, intervalMinutes);
 }
