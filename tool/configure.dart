@@ -1175,8 +1175,8 @@ Future<void> generatePubspec(
     git:
       url: https://github.com/cake-tech/flutter_secure_storage.git
       path: flutter_secure_storage
-      ref: cake-8.0.0
-      version: 8.0.0
+      ref: cake-9.0.0
+      version: 9.0.0
   """;
   const cwEthereum = """
   cw_ethereum:
@@ -1367,7 +1367,9 @@ class DefaultSecureStorage extends SecureStorage {
 
   factory DefaultSecureStorage() => _instance;
 
-  static final _instance = DefaultSecureStorage._(FlutterSecureStorage());
+  static final _instance = DefaultSecureStorage._(FlutterSecureStorage(
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+  ));
    
   final FlutterSecureStorage _secureStorage;
 
