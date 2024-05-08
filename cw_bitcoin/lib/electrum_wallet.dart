@@ -376,19 +376,11 @@ abstract class ElectrumWalletBase
 
       await _subscribeForUpdates();
 
-      int finished = 0;
-      void checkFinishedAllUpdates(void _) {
-        finished++;
-        if (finished == 2) syncStatus = SyncedSyncStatus();
-      }
-
-      // Always await first as it discovers new addresses in the process
       await updateTransactions();
+      await updateAllUnspents();
+      await updateBalance();
 
-      updateAllUnspents().then(checkFinishedAllUpdates);
-      updateBalance().then(checkFinishedAllUpdates);
-
-      updateFeeRates();
+      await updateFeeRates();
     } catch (e, stacktrace) {
       print(stacktrace);
       print(e.toString());
@@ -631,8 +623,8 @@ abstract class ElectrumWalletBase
       isSendAll: true,
       hasChange: false,
       memo: memo,
-      spendsSilentPayment: utxoDetails.spendsSilentPayment,
       spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
+      spendsSilentPayment: utxoDetails.spendsSilentPayment,
     );
   }
 
@@ -790,8 +782,8 @@ abstract class ElectrumWalletBase
       hasChange: true,
       isSendAll: false,
       memo: memo,
-      spendsSilentPayment: utxoDetails.spendsSilentPayment,
       spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
+      spendsSilentPayment: utxoDetails.spendsSilentPayment,
     );
   }
 
@@ -986,6 +978,8 @@ abstract class ElectrumWalletBase
             ? SegwitAddresType.p2wpkh.toString()
             : walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON(),
+        'derivationTypeIndex': walletInfo.derivationInfo?.derivationType?.index,
+        'derivationPath': walletInfo.derivationInfo?.derivationPath,
         'silent_addresses': walletAddresses.silentAddresses.map((addr) => addr.toJSON()).toList(),
         'silent_address_index': walletAddresses.currentSilentAddressIndex.toString(),
       });

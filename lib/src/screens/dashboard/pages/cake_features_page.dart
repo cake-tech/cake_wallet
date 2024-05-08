@@ -78,7 +78,7 @@ class CakeFeaturesPage extends StatelessWidget {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 10),
                     DashBoardRoundedCardWidget(
                       title: "NanoGPT",
                       subTitle: S.of(context).nanogpt_subtitle,
@@ -87,68 +87,6 @@ class CakeFeaturesPage extends StatelessWidget {
                         mode: LaunchMode.externalApplication,
                       ),
                     ),
-                    if (dashboardViewModel.hasSilentPayments) ...[
-                      SizedBox(height: 10),
-                      DashBoardRoundedCardWidget(
-                        title: S.of(context).silent_payments,
-                        subTitle: S.of(context).enable_silent_payments_scanning,
-                        hint: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () => launchUrl(
-                                    // TODO: Update URL
-                                    Uri.https("guides.cakewallet.com"),
-                                    mode: LaunchMode.externalApplication,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        S.of(context).what_is_silent_payments,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontFamily: 'Lato',
-                                          fontWeight: FontWeight.w400,
-                                          color: Theme.of(context)
-                                              .extension<BalancePageTheme>()!
-                                              .labelTextColor,
-                                          height: 1,
-                                        ),
-                                        softWrap: true,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                                        child: Icon(Icons.help_outline,
-                                            size: 16,
-                                            color: Theme.of(context)
-                                                .extension<BalancePageTheme>()!
-                                                .labelTextColor),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                Observer(
-                                  builder: (_) => StandardSwitch(
-                                    value: dashboardViewModel.silentPaymentsScanningActive,
-                                    onTaped: () => _toggleSilentPaymentsScanning(context),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ],
-                        ),
-                        onTap: () => _toggleSilentPaymentsScanning(context),
-                        icon: Icon(
-                          Icons.lock,
-                          color:
-                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                          size: 50,
-                        ),
-                      ),
-                    ]
                   ],
                 ),
               ),
@@ -184,30 +122,5 @@ class CakeFeaturesPage extends StatelessWidget {
           Navigator.of(context).pushNamed(Routes.ioniaWelcomePage);
         });
     }
-  }
-
-  Future<void> _toggleSilentPaymentsScanning(BuildContext context) async {
-    final isSilentPaymentsScanningActive = dashboardViewModel.silentPaymentsScanningActive;
-    final newValue = !isSilentPaymentsScanningActive;
-
-    final needsToSwitch = bitcoin!.getNodeIsCakeElectrs(dashboardViewModel.wallet) == false;
-
-    if (needsToSwitch) {
-      return showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) => AlertWithTwoActions(
-                alertTitle: S.of(context).change_current_node_title,
-                alertContent: S.of(context).confirm_silent_payments_switch_node,
-                rightButtonText: S.of(context).ok,
-                leftButtonText: S.of(context).cancel,
-                actionRightButton: () {
-                  dashboardViewModel.setSilentPaymentsScanning(newValue);
-                  Navigator.of(context).pop();
-                },
-                actionLeftButton: () => Navigator.of(context).pop(),
-              ));
-    }
-
-    return dashboardViewModel.setSilentPaymentsScanning(newValue);
   }
 }

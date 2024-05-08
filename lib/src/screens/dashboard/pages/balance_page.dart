@@ -1,11 +1,13 @@
 import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
@@ -22,6 +24,7 @@ import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BalancePage extends StatelessWidget {
   BalancePage({
@@ -243,11 +246,100 @@ class CryptoBalanceWidget extends StatelessWidget {
                   },
                 );
               },
-            )
+            ),
+            if (dashboardViewModel.hasSilentPayments) ...[
+              SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: DashBoardRoundedCardWidget(
+                  title: S.of(context).silent_payments,
+                  subTitle: S.of(context).enable_silent_payments_scanning,
+                  hint: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => launchUrl(
+                              // TODO: Update URL
+                              Uri.https("guides.cakewallet.com"),
+                              mode: LaunchMode.externalApplication,
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  S.of(context).what_is_silent_payments,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.w400,
+                                    color: Theme.of(context)
+                                        .extension<BalancePageTheme>()!
+                                        .labelTextColor,
+                                    height: 1,
+                                  ),
+                                  softWrap: true,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  child: Icon(Icons.help_outline,
+                                      size: 16,
+                                      color: Theme.of(context)
+                                          .extension<BalancePageTheme>()!
+                                          .labelTextColor),
+                                )
+                              ],
+                            ),
+                          ),
+                          Observer(
+                            builder: (_) => StandardSwitch(
+                              value: dashboardViewModel.silentPaymentsScanningActive,
+                              onTaped: () => _toggleSilentPaymentsScanning(context),
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                  onTap: () => _toggleSilentPaymentsScanning(context),
+                  icon: Icon(
+                    Icons.lock,
+                    color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                    size: 50,
+                  ),
+                ),
+              ),
+            ]
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _toggleSilentPaymentsScanning(BuildContext context) async {
+    final isSilentPaymentsScanningActive = dashboardViewModel.silentPaymentsScanningActive;
+    final newValue = !isSilentPaymentsScanningActive;
+
+    final needsToSwitch = bitcoin!.getNodeIsCakeElectrs(dashboardViewModel.wallet) == false;
+
+    if (needsToSwitch) {
+      return showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) => AlertWithTwoActions(
+                alertTitle: S.of(context).change_current_node_title,
+                alertContent: S.of(context).confirm_silent_payments_switch_node,
+                rightButtonText: S.of(context).ok,
+                leftButtonText: S.of(context).cancel,
+                actionRightButton: () {
+                  dashboardViewModel.setSilentPaymentsScanning(newValue);
+                  Navigator.of(context).pop();
+                },
+                actionLeftButton: () => Navigator.of(context).pop(),
+              ));
+    }
+
+    return dashboardViewModel.setSilentPaymentsScanning(newValue);
   }
 }
 

@@ -9,6 +9,7 @@ class WalletAddressListItem extends ListItem {
     this.txCount,
     this.balance,
     this.isChange = false,
+    // Address that is only ever used once, shouldn't be used to receive funds, copy and paste, share etc
     this.isOneTimeReceiveAddress = false,
   }) : super();
 
@@ -24,4 +25,3 @@ class WalletAddressListItem extends ListItem {
   @override
   String toString() => name ?? address;
 }
-

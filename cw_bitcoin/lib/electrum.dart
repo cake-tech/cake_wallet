@@ -36,8 +36,8 @@ class ElectrumClient {
         _errors = {},
         unterminatedString = '';
 
-  static const connectionTimeout = Duration(seconds: 10);
-  static const aliveTimerDuration = Duration(seconds: 10);
+  static const connectionTimeout = Duration(seconds: 5);
+  static const aliveTimerDuration = Duration(seconds: 4);
 
   bool get isConnected => _isConnected;
   Socket? socket;
