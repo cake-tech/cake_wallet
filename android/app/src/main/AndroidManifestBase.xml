@@ -91,6 +91,13 @@
                 <data android:scheme="tron-wallet" />
                 <data android:scheme="tron_wallet" />
             </intent-filter>
+            <!-- nano-gpt link scheme -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="nano-gpt" />
+            </intent-filter>
         </activity>
         <meta-data
                 android:name="flutterEmbedding"
