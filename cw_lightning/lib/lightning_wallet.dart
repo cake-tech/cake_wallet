@@ -52,8 +52,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   })  : _isTransactionUpdating = false,
         syncStatus = NotConnectedSyncStatus(),
         _balance = ObservableMap<CryptoCurrency, LightningBalance>(),
+        mnemonic = mnemonic,
         super(
-          mnemonic: mnemonic,
           password: password,
           walletInfo: walletInfo,
           unspentCoinsInfo: unspentCoinsInfo,
@@ -65,7 +65,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         ) {
     _balance[CryptoCurrency.btcln] =
         initialBalance ?? LightningBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
-            String derivationPath = walletInfo.derivationInfo!.derivationPath!;
+    String derivationPath = walletInfo.derivationInfo!.derivationPath!;
     String sideDerivationPath = derivationPath.substring(0, derivationPath.length - 1) + "1";
     final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
     walletAddresses = BitcoinWalletAddresses(
@@ -130,7 +130,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     final snp =
         await ElectrumWalletSnapshot.load(name, walletInfo.type, password, BitcoinNetwork.mainnet);
     return LightningWallet(
-      mnemonic: snp.mnemonic,
+      mnemonic: snp.mnemonic!,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
@@ -140,7 +140,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         unconfirmed: snp.balance.unconfirmed,
         frozen: snp.balance.frozen,
       ),
-      seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
+      seedBytes: await mnemonicToSeedBytes(snp.mnemonic!),
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,
@@ -336,6 +336,9 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   Future<void> updateBalance() async {
     // balance is updated automatically
   }
+
+  @override
+  String mnemonic;
 
   @override
   String get seed => mnemonic;

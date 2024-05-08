@@ -13,8 +13,11 @@ import 'package:cw_lightning/lightning_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:collection/collection.dart';
 
-class LightningWalletService extends WalletService<BitcoinNewWalletCredentials,
-    BitcoinRestoreWalletFromSeedCredentials, BitcoinRestoreWalletFromWIFCredentials> {
+class LightningWalletService extends WalletService<
+    BitcoinNewWalletCredentials,
+    BitcoinRestoreWalletFromSeedCredentials,
+    BitcoinRestoreWalletFromWIFCredentials,
+    BitcoinRestoreWalletFromHardware> {
   LightningWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
@@ -65,6 +68,13 @@ class LightningWalletService extends WalletService<BitcoinNewWalletCredentials,
       await wallet.init();
       return wallet;
     }
+  }
+
+  @override
+  Future<LightningWallet> restoreFromHardwareWallet(BitcoinRestoreWalletFromHardware credentials,
+      {bool? isTestnet}) {
+    throw UnimplementedError(
+        "Restoring a Lightning wallet from a hardware wallet is not yet supported!");
   }
 
   @override
