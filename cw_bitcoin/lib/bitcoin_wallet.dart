@@ -41,23 +41,22 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     int initialSilentAddressIndex = 0,
   }) : super(
-          mnemonic: mnemonic,
-          passphrase: passphrase,
-          xpub: xpub,
-          password: password,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfo,
-          networkType: networkParam == null
-              ? bitcoin.bitcoin
-              : networkParam == BitcoinNetwork.mainnet
-                  ? bitcoin.bitcoin
-                  : bitcoin.testnet,
-          initialAddresses: initialAddresses,
-          initialBalance: initialBalance,
-          seedBytes: seedBytes,
-          currency:
-              networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
-        ) {
+            mnemonic: mnemonic,
+            passphrase: passphrase,
+            xpub: xpub,
+            password: password,
+            walletInfo: walletInfo,
+            unspentCoinsInfo: unspentCoinsInfo,
+            networkType: networkParam == null
+                ? bitcoin.bitcoin
+                : networkParam == BitcoinNetwork.mainnet
+                    ? bitcoin.bitcoin
+                    : bitcoin.testnet,
+            initialAddresses: initialAddresses,
+            initialBalance: initialBalance,
+            seedBytes: seedBytes,
+            currency:
+                networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
     // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
     // String derivationPath = walletInfo.derivationInfo!.derivationPath!;
