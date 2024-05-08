@@ -78,6 +78,15 @@ class CakeFeaturesPage extends StatelessWidget {
                         fit: BoxFit.cover,
                       ),
                     ),
+                    const SizedBox(height: 20),
+                    DashBoardRoundedCardWidget(
+                      title: "NanoGPT",
+                      subTitle: S.of(context).nanogpt_subtitle,
+                      onTap: () => launchUrl(
+                        Uri.https("cake.nano-gpt.com"),
+                        mode: LaunchMode.externalApplication,
+                      ),
+                    ),
                     if (dashboardViewModel.hasSilentPayments) ...[
                       SizedBox(height: 10),
                       DashBoardRoundedCardWidget(

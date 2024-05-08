@@ -36,6 +36,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SendPage extends BasePage {
   SendPage({
@@ -425,11 +427,9 @@ class SendPage extends BasePage {
     }
 
     reaction((_) => sendViewModel.state, (ExecutionState state) {
-
       if (dialogContext != null && dialogContext?.mounted == true) {
         Navigator.of(dialogContext!).pop();
       }
-
 
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -465,10 +465,10 @@ class SendPage extends BasePage {
                       outputs: sendViewModel.outputs,
                       rightButtonText: S.of(_dialogContext).send,
                       leftButtonText: S.of(_dialogContext).cancel,
-                      actionRightButton: () {
+                      actionRightButton: () async {
                         Navigator.of(_dialogContext).pop();
                         sendViewModel.commitTransaction();
-                        showPopUp<void>(
+                        await showPopUp<void>(
                             context: context,
                             builder: (BuildContext _dialogContext) {
                               return Observer(builder: (_) {
@@ -493,7 +493,7 @@ class SendPage extends BasePage {
                                       ? '\n${S.of(_dialogContext).add_contact_to_address_book}'
                                       : '';
 
-                                  final alertContent =
+                                  String alertContent =
                                       "$successMessage$waitMessage$newContactMessage";
 
                                   if (newContactAddress != null) {
@@ -516,6 +516,10 @@ class SendPage extends BasePage {
                                           newContactAddress = null;
                                         });
                                   } else {
+                                    if (initialPaymentRequest?.callbackMessage?.isNotEmpty ??
+                                        false) {
+                                      alertContent = initialPaymentRequest!.callbackMessage!;
+                                    }
                                     return AlertWithOneAction(
                                         alertTitle: '',
                                         alertContent: alertContent,
@@ -530,6 +534,20 @@ class SendPage extends BasePage {
                                 return Offstage();
                               });
                             });
+                        if (state is TransactionCommitted) {
+                          if (initialPaymentRequest?.callbackUrl?.isNotEmpty ?? false) {
+                            // wait a second so it's not as jarring:
+                            await Future.delayed(Duration(seconds: 1));
+                            try {
+                              launchUrl(
+                                Uri.parse(initialPaymentRequest!.callbackUrl!),
+                                mode: LaunchMode.externalApplication,
+                              );
+                            } catch (e) {
+                              print(e);
+                            }
+                          }
+                        }
                       },
                       actionLeftButton: () => Navigator.of(_dialogContext).pop());
                 });
