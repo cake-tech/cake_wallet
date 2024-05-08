@@ -84,6 +84,21 @@ install(FILES "${FLUTTER_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/x86_64-w64-mingw32_libwallet2_api_c.dll" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "monero_libwallet2_api_c.dll"
   COMPONENT Runtime)
 
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/x86_64-w64-mingw32_libgcc_s_seh-1.dll" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "libgcc_s_seh-1.dll"
+  COMPONENT Runtime)
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/x86_64-w64-mingw32_libpolyseed.dll" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "libpolyseed.dll"
+  COMPONENT Runtime)
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/x86_64-w64-mingw32_libssp-0.dll" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "libssp-0.dll"
+  COMPONENT Runtime)
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/x86_64-w64-mingw32_libstdc++-6.dll" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "libstdc++-6.dll"
+  COMPONENT Runtime)
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/x86_64-w64-mingw32_libwinpthread-1.dll" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "libwinpthread-1.dll"
+  COMPONENT Runtime)
+
 if(PLUGIN_BUNDLED_LIBRARIES)
   install(FILES "${PLUGIN_BUNDLED_LIBRARIES}"
     DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
