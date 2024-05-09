@@ -75,7 +75,6 @@ class DashboardPage extends StatelessWidget {
           if (DeviceInfo.instance.isDesktop) {
             if (responsiveLayoutUtil.screenWidth >
                 ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
-              print('Inside dashboard page');
               return getIt.get<DesktopSidebarWrapper>();
             } else {
               return dashboardPageView;
