@@ -67,7 +67,7 @@ class CardItem extends StatelessWidget {
                 ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -77,11 +77,10 @@ class CardItem extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: titleColor,
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      SizedBox(height: 5),
                       Text(
                         subTitle,
                         maxLines: 2,

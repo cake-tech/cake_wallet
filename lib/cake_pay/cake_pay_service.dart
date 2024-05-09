@@ -2,6 +2,7 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/cake_pay/cake_pay_api.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class CakePayService {
@@ -19,7 +20,7 @@ class CakePayService {
 
   static String get authorization => secrets.authorization;
 
-  final FlutterSecureStorage secureStorage;
+  final SecureStorage secureStorage;
   final CakePayApi cakePayApi;
 
   /// Get Available Countries

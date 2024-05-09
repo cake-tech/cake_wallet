@@ -66,6 +66,7 @@ class CakePayCardsPage extends BasePage {
   Widget trailing(BuildContext context) {
     return _TrailingIcon(
         asset: 'assets/images/profile.png',
+        iconColor: pageIconColor(context) ?? Colors.white,
         onPressed: () {
           _cardsListViewModel.isCakePayUserAuthenticated().then((value) {
             if (value) {
@@ -324,30 +325,25 @@ class _SearchWidget extends StatelessWidget {
 }
 
 class _TrailingIcon extends StatelessWidget {
-  const _TrailingIcon({required this.asset, this.onPressed});
+  const _TrailingIcon({required this.asset, this.onPressed, required this.iconColor});
 
   final String asset;
   final VoidCallback? onPressed;
+  final Color iconColor;
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: S.of(context).profile,
-      child: Material(
-        color: Colors.transparent,
-        child: IconButton(
-          padding: EdgeInsets.zero,
-          constraints: BoxConstraints(),
-          highlightColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          iconSize: 25,
-          onPressed: onPressed,
-          icon: Image.asset(
-            asset,
-            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+        label: S.of(context).profile,
+        child: Material(
+          color: Colors.transparent,
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            constraints: BoxConstraints(),
+            highlightColor: Colors.transparent,
+            onPressed: onPressed,
+            icon: ImageIcon(AssetImage(asset), size: 25, color: iconColor),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }

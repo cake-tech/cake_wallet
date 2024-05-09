@@ -1065,7 +1065,7 @@ Future<void> setup({
   getIt.registerFactory(() => AnyPayApi());
 
   getIt.registerFactory<CakePayService>(
-      () => CakePayService(getIt.get<FlutterSecureStorage>(), getIt.get<CakePayApi>()));
+      () => CakePayService(getIt.get<SecureStorage>(), getIt.get<CakePayApi>()));
 
   getIt.registerFactory(() => CakePayCardsListViewModel(cakePayService: getIt.get<CakePayService>()));
 
