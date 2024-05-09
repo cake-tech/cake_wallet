@@ -10,6 +10,7 @@ const polygonOutputPath = 'lib/polygon/polygon.dart';
 const solanaOutputPath = 'lib/solana/solana.dart';
 const tronOutputPath = 'lib/tron/tron.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
+const secureStoragePath = 'lib/core/secure_storage.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
 const pubspecOutputPath = 'pubspec.yaml';
 
@@ -25,6 +26,7 @@ Future<void> main(List<String> args) async {
   final hasPolygon = args.contains('${prefix}polygon');
   final hasSolana = args.contains('${prefix}solana');
   final hasTron = args.contains('${prefix}tron');
+  final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
@@ -45,6 +47,7 @@ Future<void> main(List<String> args) async {
     hasNano: hasNano,
     hasBanano: hasBanano,
     hasBitcoinCash: hasBitcoinCash,
+    hasFlutterSecureStorage: !excludeFlutterSecureStorage,
     hasPolygon: hasPolygon,
     hasSolana: hasSolana,
     hasTron: hasTron,
@@ -61,6 +64,7 @@ Future<void> main(List<String> args) async {
     hasSolana: hasSolana,
     hasTron: hasTron,
   );
+  await injectSecureStorage(!excludeFlutterSecureStorage);
 }
 
 Future<void> generateBitcoin(bool hasImplementation) async {
@@ -1142,6 +1146,7 @@ Future<void> generatePubspec(
     required bool hasNano,
     required bool hasBanano,
     required bool hasBitcoinCash,
+    required bool hasFlutterSecureStorage,
     required bool hasPolygon,
     required bool hasSolana,
     required bool hasTron}) async {
@@ -1164,6 +1169,14 @@ Future<void> generatePubspec(
   const cwSharedExternal = """
   cw_shared_external:
     path: ./cw_shared_external
+  """;
+  const flutterSecureStorage = """
+  flutter_secure_storage:
+    git:
+      url: https://github.com/cake-tech/flutter_secure_storage.git
+      path: flutter_secure_storage
+      ref: cake-9.0.0
+      version: 9.0.0
   """;
   const cwEthereum = """
   cw_ethereum:
@@ -1244,6 +1257,10 @@ Future<void> generatePubspec(
     output += '\n$cwSharedExternal\n$cwHaven';
   } else if (hasHaven) {
     output += '\n$cwHaven';
+  }
+
+  if (hasFlutterSecureStorage) {
+    output += '\n$flutterSecureStorage\n';
   }
 
   if (hasEthereum || hasPolygon) {
@@ -1329,4 +1346,104 @@ Future<void> generateWalletTypes(
 
   outputContent += '];\n';
   await walletTypesFile.writeAsString(outputContent);
+}
+
+Future<void> injectSecureStorage(bool hasFlutterSecureStorage) async {
+  const flutterSecureStorageHeader = """
+import 'dart:async';
+import 'dart:io';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+""";
+  const abstractSecureStorage = """
+abstract class SecureStorage {
+  Future<String?> read({required String key});
+  Future<void> write({required String key, required String? value});
+  Future<void> delete({required String key});
+  // Legacy
+  Future<String?> readNoIOptions({required String key});
+ }""";
+  const defaultSecureStorage = """
+class DefaultSecureStorage extends SecureStorage {
+  DefaultSecureStorage._(this._secureStorage);
+
+  factory DefaultSecureStorage() => _instance;
+
+  static final _instance = DefaultSecureStorage._(FlutterSecureStorage(
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+  ));
+   
+  final FlutterSecureStorage _secureStorage;
+
+  @override
+  Future<String?> read({required String key}) async => await _readInternal(key, false);
+
+  @override
+  Future<void> write({required String key, required String? value}) async {
+    // delete the value before writing on macOS because of a weird bug
+    // https://github.com/mogol/flutter_secure_storage/issues/581
+    if (Platform.isMacOS) {
+      await _secureStorage.delete(key: key);
+    }
+    await _secureStorage.write(key: key, value: value);
+  }
+
+  @override
+  Future<void> delete({required String key}) async => _secureStorage.delete(key: key);
+
+  @override
+  Future<String?> readNoIOptions({required String key}) async => await _readInternal(key, true);
+    
+  Future<String?> _readInternal(String key, bool useNoIOptions) async {
+    String? result;
+
+    const maxWait = Duration(seconds: 3);
+    const checkInterval = Duration(milliseconds: 200);
+
+    DateTime start = DateTime.now();
+
+    while (result == null && DateTime.now().difference(start) < maxWait) {
+      result = await _secureStorage.read(
+        key: key,
+        iOptions: useNoIOptions ? IOSOptions() : null,
+      );
+
+      if (result != null) {
+        break;
+      }
+
+      await Future.delayed(checkInterval);
+    }
+
+    return result;
+  }
+ }""";
+  const fakeSecureStorage = """
+class FakeSecureStorage extends SecureStorage {
+  @override
+  Future<String?> read({required String key}) async => null;
+  @override
+  Future<void> write({required String key, required String? value}) async {}
+  @override
+  Future<void> delete({required String key}) async {}
+  @override
+  Future<String?> readNoIOptions({required String key}) async => null;
+ }""";
+  final outputFile = File(secureStoragePath);
+  final header = hasFlutterSecureStorage
+      ? '${flutterSecureStorageHeader}\n\nfinal SecureStorage secureStorageShared = DefaultSecureStorage();\n'
+      : 'final SecureStorage secureStorageShared = FakeSecureStorage();\n';
+  var output = '';
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  output += '${header}\n${abstractSecureStorage}\n\n';
+
+  if (hasFlutterSecureStorage) {
+    output += '${defaultSecureStorage}\n';
+  } else {
+    output += '${fakeSecureStorage}\n';
+  }
+
+  await outputFile.writeAsString(output);
 }

@@ -26,7 +26,6 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
@@ -48,7 +47,7 @@ class SettingsStore = SettingsStoreBase with _$SettingsStore;
 
 abstract class SettingsStoreBase with Store {
   SettingsStoreBase(
-      {required FlutterSecureStorage secureStorage,
+      {required SecureStorage secureStorage,
       required BackgroundTasks backgroundTasks,
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
@@ -398,10 +397,8 @@ abstract class SettingsStoreBase with Store {
         (bool usePolygonScan) =>
             _sharedPreferences.setBool(PreferencesKey.usePolygonScan, usePolygonScan));
 
-    reaction(
-        (_) => useTronGrid,
-        (bool useTronGrid) =>
-            _sharedPreferences.setBool(PreferencesKey.useTronGrid, useTronGrid));
+    reaction((_) => useTronGrid,
+        (bool useTronGrid) => _sharedPreferences.setBool(PreferencesKey.useTronGrid, useTronGrid));
 
     reaction((_) => defaultNanoRep,
         (String nanoRep) => _sharedPreferences.setString(PreferencesKey.defaultNanoRep, nanoRep));
@@ -441,83 +438,79 @@ abstract class SettingsStoreBase with Store {
     // secure storage keys:
     reaction(
         (_) => allowBiometricalAuthentication,
-        (bool biometricalAuthentication) => writeSecureStorage(secureStorage,
+        (bool biometricalAuthentication) => secureStorage.write(
             key: SecureKey.allowBiometricalAuthenticationKey,
             value: biometricalAuthentication.toString()));
 
     reaction(
         (_) => selectedCake2FAPreset,
-        (Cake2FAPresetsOptions selectedCake2FAPreset) => writeSecureStorage(secureStorage,
+        (Cake2FAPresetsOptions selectedCake2FAPreset) => secureStorage.write(
             key: SecureKey.selectedCake2FAPreset,
             value: selectedCake2FAPreset.serialize().toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForAccessingWallet,
-        (bool requireTOTP2FAForAccessingWallet) => writeSecureStorage(secureStorage,
+        (bool requireTOTP2FAForAccessingWallet) => secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForAccessingWallet,
             value: requireTOTP2FAForAccessingWallet.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForSendsToContact,
-        (bool requireTOTP2FAForSendsToContact) => writeSecureStorage(secureStorage,
+        (bool requireTOTP2FAForSendsToContact) => secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForSendsToContact,
             value: requireTOTP2FAForSendsToContact.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForSendsToNonContact,
-        (bool requireTOTP2FAForSendsToNonContact) => writeSecureStorage(secureStorage,
+        (bool requireTOTP2FAForSendsToNonContact) => secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForSendsToNonContact,
             value: requireTOTP2FAForSendsToNonContact.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForSendsToInternalWallets,
-        (bool requireTOTP2FAForSendsToInternalWallets) => writeSecureStorage(secureStorage,
+        (bool requireTOTP2FAForSendsToInternalWallets) => secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets,
             value: requireTOTP2FAForSendsToInternalWallets.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForExchangesToInternalWallets,
-        (bool requireTOTP2FAForExchangesToInternalWallets) => writeSecureStorage(secureStorage,
+        (bool requireTOTP2FAForExchangesToInternalWallets) => secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets,
             value: requireTOTP2FAForExchangesToInternalWallets.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForExchangesToExternalWallets,
-        (bool requireTOTP2FAForExchangesToExternalWallets) => writeSecureStorage(secureStorage,
+        (bool requireTOTP2FAForExchangesToExternalWallets) => secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets,
             value: requireTOTP2FAForExchangesToExternalWallets.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForAddingContacts,
-        (bool requireTOTP2FAForAddingContacts) => writeSecureStorage(secureStorage,
+        (bool requireTOTP2FAForAddingContacts) => secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForAddingContacts,
             value: requireTOTP2FAForAddingContacts.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForCreatingNewWallets,
-        (bool requireTOTP2FAForCreatingNewWallets) => writeSecureStorage(secureStorage,
+        (bool requireTOTP2FAForCreatingNewWallets) => secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForCreatingNewWallets,
             value: requireTOTP2FAForCreatingNewWallets.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-        (bool requireTOTP2FAForAllSecurityAndBackupSettings) => writeSecureStorage(secureStorage,
+        (bool requireTOTP2FAForAllSecurityAndBackupSettings) => secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             value: requireTOTP2FAForAllSecurityAndBackupSettings.toString()));
 
-    reaction(
-        (_) => useTOTP2FA,
-        (bool use) =>
-            writeSecureStorage(secureStorage, key: SecureKey.useTOTP2FA, value: use.toString()));
+    reaction((_) => useTOTP2FA,
+        (bool use) => secureStorage.write(key: SecureKey.useTOTP2FA, value: use.toString()));
 
-    reaction(
-        (_) => totpSecretKey,
-        (String totpKey) =>
-            writeSecureStorage(secureStorage, key: SecureKey.totpSecretKey, value: totpKey));
+    reaction((_) => totpSecretKey,
+        (String totpKey) => secureStorage.write(key: SecureKey.totpSecretKey, value: totpKey));
 
     reaction(
         (_) => pinTimeOutDuration,
-        (PinCodeRequiredDuration pinCodeInterval) => writeSecureStorage(secureStorage,
+        (PinCodeRequiredDuration pinCodeInterval) => secureStorage.write(
             key: SecureKey.pinTimeOutDuration, value: pinCodeInterval.value.toString()));
 
     reaction(
@@ -720,7 +713,7 @@ abstract class SettingsStoreBase with Store {
   @observable
   int customBitcoinFeeRate;
 
-  final FlutterSecureStorage _secureStorage;
+  final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
   final BackgroundTasks _backgroundTasks;
 
@@ -763,7 +756,7 @@ abstract class SettingsStoreBase with Store {
       BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance,
       ThemeBase? initialTheme}) async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
-    final secureStorage = await getIt.get<FlutterSecureStorage>();
+    final secureStorage = await getIt.get<SecureStorage>();
     final backgroundTasks = getIt.get<BackgroundTasks>();
     final currentFiatCurrency = FiatCurrency.deserialize(
         raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
