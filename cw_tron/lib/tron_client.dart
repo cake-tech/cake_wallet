@@ -130,11 +130,6 @@ class TronClient {
       final energyInSun = chainParams.getEnergyFee!;
       log('Energy In Sun: $energyInSun');
 
-      log(
-        'Create Account Fee In System Contract for Chain: ${chainParams.getCreateNewAccountFeeInSystemContract!}',
-      );
-      log('Create Account Fee for Chain: ${chainParams.getCreateAccountFee}');
-
       final fakeTransaction = Transaction(
         rawData: rawTransaction,
         signature: [Uint8List(65)],
@@ -183,17 +178,6 @@ class TronClient {
       /// If there is a note (memo), calculate the memo fee.
       if (rawTransaction.data != null) {
         totalBurn += chainParams.getMemoFee!;
-      }
-
-      // Check if receiver's account is active
-      final receiverAccountInfo =
-          await _provider!.request(TronRequestGetAccount(address: receiverAddress));
-
-      /// Calculate the resources required to create a new account.
-      if (receiverAccountInfo == null) {
-        totalBurn += chainParams.getCreateNewAccountFeeInSystemContract!;
-
-        totalBurn += (chainParams.getCreateAccountFee! * bandWidthInSun);
       }
 
       log('Final total burn: $totalBurn');
