@@ -53,7 +53,7 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: Observer(
+      body: Builder(
         builder: (_) {
           final dashboardPageView = RefreshIndicator(
             displacement: screenHeight * 0.1,
