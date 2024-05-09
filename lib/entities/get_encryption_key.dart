@@ -1,9 +1,8 @@
 import 'package:cake_wallet/core/secure_storage.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cw_core/cake_hive.dart';
 
 Future<List<int>> getEncryptionKey(
-    {required String forKey, required FlutterSecureStorage secureStorage}) async {
+    {required String forKey, required SecureStorage secureStorage}) async {
   final stringifiedKey = await secureStorage.read(key: 'transactionDescriptionsBoxKey');
   List<int> key;
 
@@ -11,7 +10,7 @@ Future<List<int>> getEncryptionKey(
     key = CakeHive.generateSecureKey();
     final keyStringified = key.join(',');
     String storageKey = 'transactionDescriptionsBoxKey';
-    await writeSecureStorage(secureStorage, key: storageKey, value: keyStringified);
+    await secureStorage.write(key: storageKey, value: keyStringified);
   } else {
     key = stringifiedKey.split(',').map((i) => int.parse(i)).toList();
   }
