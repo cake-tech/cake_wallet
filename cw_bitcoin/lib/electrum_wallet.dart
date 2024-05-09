@@ -51,6 +51,7 @@ class ElectrumWallet = ElectrumWalletBase with _$ElectrumWallet;
 abstract class ElectrumWalletBase
     extends WalletBase<ElectrumBalance, ElectrumTransactionHistory, ElectrumTransactionInfo>
     with Store {
+  String ELECTRUM_DERIVATION = "m/0'";
   ElectrumWalletBase(
       {required String password,
       required WalletInfo walletInfo,
@@ -120,6 +121,7 @@ abstract class ElectrumWalletBase
   final String? _mnemonic;
 
   bitcoin.HDWallet get hd => accountHD.derive(0);
+  bitcoin.HDWallet get sideHd => accountHD.derive(1);
   final String? passphrase;
 
   @override
@@ -1376,7 +1378,7 @@ abstract class ElectrumWalletBase
     }
 
     List<int> sigDecodedBytes = [];
-    
+
     if (signature.endsWith('=')) {
       sigDecodedBytes = base64.decode(signature);
     } else {

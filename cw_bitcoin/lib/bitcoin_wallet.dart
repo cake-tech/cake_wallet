@@ -54,11 +54,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialBalance: initialBalance,
       seedBytes: seedBytes,
       currency: CryptoCurrency.btc) {
-    // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
-    // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
-    // String derivationPath = walletInfo.derivationInfo!.derivationPath!;
-    // String sideDerivationPath = derivationPath.substring(0, derivationPath.length - 1) + "1";
-    // final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
       electrumClient: electrumClient,
@@ -134,7 +129,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     );
 
     // set the default if not present:
-    walletInfo.derivationInfo!.derivationPath = snp.derivationPath ?? "m/0'/0";
+    walletInfo.derivationInfo!.derivationPath = snp.derivationPath ?? "m/0'";
     walletInfo.derivationInfo!.derivationType = snp.derivationType ?? DerivationType.electrum;
 
     Uint8List? seedBytes = null;
@@ -153,6 +148,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           break;
       }
     }
+
+    print(walletInfo.derivationInfo!.derivationType);
+    print(walletInfo.derivationInfo!.derivationPath);
+    print("@@@@@@@@@@@@@@@");
 
     return BitcoinWallet(
       mnemonic: snp.mnemonic,
