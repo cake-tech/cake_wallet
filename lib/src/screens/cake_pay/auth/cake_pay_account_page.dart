@@ -1,4 +1,3 @@
-import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -10,7 +9,6 @@ import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_account_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class CakePayAccountPage extends BasePage {
   CakePayAccountPage(this.cakePayAccountViewModel);
@@ -59,38 +57,6 @@ class CakePayAccountPage extends BasePage {
       contentPadding: EdgeInsets.all(24),
       content: Column(
         children: [
-          // _GradiantContainer(
-          //   content: Row(
-          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //     children: [
-          //       Observer(
-          //           builder: (_) => RichText(
-          //                 text: TextSpan(
-          //                   text: '${cakePayAccountViewModel.countOfMerch}',
-          //                   style: textLargeSemiBold(),
-          //                   children: [
-          //                     TextSpan(
-          //                         text: ' ${S.of(context).active_cards}',
-          //                         style: textSmall(color: Colors.white.withOpacity(0.7))),
-          //                   ],
-          //                 ),
-          //               )),
-          //       InkWell(
-          //         onTap: () {
-          //           Navigator.pushNamed(context, Routes.ioniaAccountCardsPage)
-          //           .then((_) => cakePayAccountViewModel.updateUserGiftCards());
-          //         },
-          //         child: Padding(
-          //           padding: const EdgeInsets.all(8.0),
-          //           child: Text(
-          //             S.of(context).view_all,
-          //             style: textSmallSemiBold(),
-          //           ),
-          //         ),
-          //       )
-          //     ],
-          //   ),
-          // ),
           SizedBox(height: 20),
           Observer(
             builder: (_) => Container(decoration: BoxDecoration(
@@ -118,34 +84,6 @@ class CakePayAccountPage extends BasePage {
             },
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _GradiantContainer extends StatelessWidget {
-  const _GradiantContainer({
-    Key? key,
-    required this.content,
-  }) : super(key: key);
-
-  final Widget content;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: content,
-      padding: EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
-            Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
-          ],
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-        ),
       ),
     );
   }

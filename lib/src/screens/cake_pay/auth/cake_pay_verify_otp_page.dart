@@ -98,7 +98,6 @@ class CakePayVerifyOtpPage extends BasePage {
                   SizedBox(width: 20),
                   InkWell(
                     onTap: () => _authViewModel.logIn(_email),
-                    //isSignIn ? _authViewModel.signIn(_email) : _authViewModel.logIn(_email),
                     child: Text(
                       S.of(context).resend_code,
                       style: textSmallSemiBold(color: Palette.blueCraiola),
