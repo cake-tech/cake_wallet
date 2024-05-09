@@ -17,6 +17,7 @@ import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -51,7 +52,6 @@ class ElectrumWallet = ElectrumWalletBase with _$ElectrumWallet;
 abstract class ElectrumWalletBase
     extends WalletBase<ElectrumBalance, ElectrumTransactionHistory, ElectrumTransactionInfo>
     with Store {
-  String ELECTRUM_DERIVATION = "m/0'";
   ElectrumWalletBase(
       {required String password,
       required WalletInfo walletInfo,
@@ -102,10 +102,11 @@ abstract class ElectrumWalletBase
     }
 
     if (seedBytes != null) {
+      final electrumPath = electrum_derivations[DerivationType.electrum]!.first.derivationPath!;
       return currency == CryptoCurrency.bch
           ? bitcoinCashHDWallet(seedBytes)
           : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-              .derivePath(_hardenedDerivationPath(derivationInfo?.derivationPath ?? "m/0'"));
+              .derivePath(_hardenedDerivationPath(derivationInfo?.derivationPath ?? electrumPath));
     }
 
     return bitcoin.HDWallet.fromBase58(xpub!);
@@ -249,8 +250,9 @@ abstract class ElectrumWalletBase
         final address = addressTypeFromStr(utx.address, network);
         final hd =
             utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd;
+        final electrumPath = electrum_derivations[DerivationType.electrum]!.first.derivationPath!;
         final derivationPath =
-            "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? "m/0'")}"
+            "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? electrumPath)}"
             "/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}"
             "/${utx.bitcoinAddressRecord.index}";
         final pubKeyHex = hd.derive(utx.bitcoinAddressRecord.index).pubKey!;
@@ -378,8 +380,9 @@ abstract class ElectrumWalletBase
 
       final hd =
           utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd;
+      final electrumPath = electrum_derivations[DerivationType.electrum]!.first.derivationPath!;
       final derivationPath =
-          "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? "m/0'")}"
+          "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? electrumPath)}"
           "/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}"
           "/${utx.bitcoinAddressRecord.index}";
       final pubKeyHex = hd.derive(utx.bitcoinAddressRecord.index).pubKey!;
