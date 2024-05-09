@@ -1175,8 +1175,8 @@ Future<void> generatePubspec(
     git:
       url: https://github.com/cake-tech/flutter_secure_storage.git
       path: flutter_secure_storage
-      ref: cake-9.0.0
-      version: 9.0.0
+      ref: cake-8.0.0
+      version: 8.0.0
   """;
   const cwEthereum = """
   cw_ethereum:
@@ -1392,29 +1392,12 @@ class DefaultSecureStorage extends SecureStorage {
 
   @override
   Future<String?> readNoIOptions({required String key}) async => await _readInternal(key, true);
-    
+
   Future<String?> _readInternal(String key, bool useNoIOptions) async {
-    String? result;
-
-    const maxWait = Duration(seconds: 3);
-    const checkInterval = Duration(milliseconds: 200);
-
-    DateTime start = DateTime.now();
-
-    while (result == null && DateTime.now().difference(start) < maxWait) {
-      result = await _secureStorage.read(
-        key: key,
-        iOptions: useNoIOptions ? IOSOptions() : null,
-      );
-
-      if (result != null) {
-        break;
-      }
-
-      await Future.delayed(checkInterval);
-    }
-
-    return result;
+    return await _secureStorage.read(
+      key: key,
+      iOptions: useNoIOptions ? IOSOptions() : null,
+    );
   }
  }""";
   const fakeSecureStorage = """
