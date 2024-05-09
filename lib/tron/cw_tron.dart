@@ -111,4 +111,9 @@ class CWTron extends Tron {
 
   @override
   String? getTronTRC20EstimatedFee(WalletBase wallet) => (wallet as TronWallet).trc20EstimatedFee;
+
+  @override
+  void updateTronGridUsageState(WalletBase wallet, bool isEnabled) {
+    (wallet as TronWallet).updateScanProviderUsageState(isEnabled);
+  }
 }

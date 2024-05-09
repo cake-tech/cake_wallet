@@ -130,11 +130,6 @@ class TronClient {
       final energyInSun = chainParams.getEnergyFee!;
       log('Energy In Sun: $energyInSun');
 
-      log(
-        'Create Account Fee In System Contract for Chain: ${chainParams.getCreateNewAccountFeeInSystemContract!}',
-      );
-      log('Create Account Fee for Chain: ${chainParams.getCreateAccountFee}');
-
       final fakeTransaction = Transaction(
         rawData: rawTransaction,
         signature: [Uint8List(65)],
@@ -183,17 +178,6 @@ class TronClient {
       /// If there is a note (memo), calculate the memo fee.
       if (rawTransaction.data != null) {
         totalBurn += chainParams.getMemoFee!;
-      }
-
-      // Check if receiver's account is active
-      final receiverAccountInfo =
-          await _provider!.request(TronRequestGetAccount(address: receiverAddress));
-
-      /// Calculate the resources required to create a new account.
-      if (receiverAccountInfo == null) {
-        totalBurn += chainParams.getCreateNewAccountFeeInSystemContract!;
-
-        totalBurn += (chainParams.getCreateAccountFee! * bandWidthInSun);
       }
 
       log('Final total burn: $totalBurn');
@@ -367,7 +351,7 @@ class TronClient {
   ) async {
     // This is introduce to server as a limit in cases where feeLimit is 0
     // The transaction signing will fail if the feeLimit is explicitly 0.
-    int defaultFeeLimit = 100000;
+    int defaultFeeLimit = 269000;
 
     final block = await _provider!.request(TronRequestGetNowBlock());
     // Create the transfer contract
@@ -401,8 +385,9 @@ class TronClient {
     final tronBalanceInt = tronBalance.toInt();
 
     if (feeLimit > tronBalanceInt) {
+      final feeInTrx = TronHelper.fromSun(BigInt.parse(feeLimit.toString()));
       throw Exception(
-        'You don\'t have enough TRX to cover the transaction fee for this transaction. Kindly top up.',
+        'You don\'t have enough TRX to cover the transaction fee for this transaction. Kindly top up.\nTransaction fee: $feeInTrx TRX',
       );
     }
 
@@ -442,6 +427,9 @@ class TronClient {
 
     if (!request.isSuccess) {
       log("Tron TRC20 error: ${request.error} \n ${request.respose}");
+      throw Exception(
+        'An error occured while creating the transfer request. Please try again.',
+      );
     }
 
     final feeLimit = await getFeeLimit(
@@ -454,8 +442,9 @@ class TronClient {
     final tronBalanceInt = tronBalance.toInt();
 
     if (feeLimit > tronBalanceInt) {
+      final feeInTrx = TronHelper.fromSun(BigInt.parse(feeLimit.toString()));
       throw Exception(
-        'You don\'t have enough TRX to cover the transaction fee for this transaction. Kindly top up.',
+        'You don\'t have enough TRX to cover the transaction fee for this transaction. Kindly top up. Transaction fee: $feeInTrx TRX',
       );
     }
 
