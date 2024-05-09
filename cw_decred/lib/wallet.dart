@@ -38,8 +38,10 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
       : _password = password,
         this.syncStatus = NotConnectedSyncStatus(),
         this.unspentCoinsInfo = unspentCoinsInfo,
-        this.watchingOnly =
-            walletInfo.derivationPath == DecredWalletService.pubkeyRestorePath,
+        this.watchingOnly = walletInfo.derivationPath ==
+                DecredWalletService.pubkeyRestorePath ||
+            walletInfo.derivationPath ==
+                DecredWalletService.pubkeyRestorePathTestnet,
         this.balance =
             ObservableMap.of({CryptoCurrency.dcr: DecredBalance.zero()}),
         super(walletInfo) {
@@ -209,9 +211,16 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
       }
       persistantPeer = addr;
       libdcrwallet.closeWallet(walletInfo.name);
+      final network = walletInfo.derivationPath ==
+                  DecredWalletService.seedRestorePathTestnet ||
+              walletInfo.derivationPath ==
+                  DecredWalletService.pubkeyRestorePathTestnet
+          ? "testnet"
+          : "mainnet";
       libdcrwallet.loadWalletSync({
         "name": walletInfo.name,
         "dataDir": walletInfo.dirPath,
+        "network": network,
       });
     }
     await this._startSync();

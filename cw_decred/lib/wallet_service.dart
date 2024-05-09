@@ -21,7 +21,11 @@ class DecredWalletService extends WalletService<
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final seedRestorePath = "m/44'/42'";
+  static final seedRestorePathTestnet = "m/44'/1'";
   static final pubkeyRestorePath = "m/44'/42'/0'";
+  static final pubkeyRestorePathTestnet = "m/44'/1'/0'";
+  final mainnet = "mainnet";
+  final testnet = "testnet";
 
   static void init() async {
     // Use the general path for all dcr wallets as the general log directory.
@@ -44,8 +48,10 @@ class DecredWalletService extends WalletService<
       name: credentials.walletInfo!.name,
       dataDir: credentials.walletInfo!.dirPath,
       password: credentials.password!,
+      network: isTestnet == true ? testnet : mainnet,
     );
-    credentials.walletInfo!.derivationPath = seedRestorePath;
+    credentials.walletInfo!.derivationPath =
+        isTestnet == true ? seedRestorePathTestnet : seedRestorePath;
     final wallet = DecredWallet(credentials.walletInfo!, credentials.password!,
         this.unspentCoinsInfoSource);
     await wallet.init();
@@ -56,9 +62,14 @@ class DecredWalletService extends WalletService<
   Future<DecredWallet> openWallet(String name, String password) async {
     final walletInfo = walletInfoSource.values.firstWhereOrNull(
         (info) => info.id == WalletBase.idFor(name, getType()))!;
+    final network = walletInfo.derivationPath == seedRestorePathTestnet ||
+            walletInfo.derivationPath == pubkeyRestorePathTestnet
+        ? testnet
+        : mainnet;
     await loadWalletAsync(
       name: walletInfo.name,
       dataDir: walletInfo.dirPath,
+      net: network,
     );
     final wallet =
         DecredWallet(walletInfo, password, this.unspentCoinsInfoSource);
@@ -80,6 +91,11 @@ class DecredWalletService extends WalletService<
       String currentName, String password, String newName) async {
     final currentWalletInfo = walletInfoSource.values.firstWhereOrNull(
         (info) => info.id == WalletBase.idFor(currentName, getType()))!;
+    final network =
+        currentWalletInfo.derivationPath == seedRestorePathTestnet ||
+                currentWalletInfo.derivationPath == pubkeyRestorePathTestnet
+            ? testnet
+            : mainnet;
     final currentWallet =
         DecredWallet(currentWalletInfo, password, this.unspentCoinsInfoSource);
 
@@ -99,12 +115,13 @@ class DecredWalletService extends WalletService<
       DecredRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
     await createWalletAsync(
-      name: credentials.walletInfo!.name,
-      dataDir: credentials.walletInfo!.dirPath,
-      password: credentials.password!,
-      mnemonic: credentials.mnemonic,
-    );
-    credentials.walletInfo!.derivationPath = seedRestorePath;
+        name: credentials.walletInfo!.name,
+        dataDir: credentials.walletInfo!.dirPath,
+        password: credentials.password!,
+        mnemonic: credentials.mnemonic,
+        network: isTestnet == true ? testnet : mainnet);
+    credentials.walletInfo!.derivationPath =
+        isTestnet == true ? seedRestorePathTestnet : seedRestorePath;
     final wallet = DecredWallet(credentials.walletInfo!, credentials.password!,
         this.unspentCoinsInfoSource);
     await wallet.init();
