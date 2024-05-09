@@ -1,0 +1,5 @@
+-
+  uri: kaliumapi.appditto.com
+  path: /api
+  useSSL: true
+  is_default: true

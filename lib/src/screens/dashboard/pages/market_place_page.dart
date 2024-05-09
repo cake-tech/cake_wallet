@@ -7,6 +7,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MarketPlacePage extends StatelessWidget {
   MarketPlacePage({
@@ -50,6 +51,12 @@ class MarketPlacePage extends StatelessWidget {
                       title: S.of(context).cake_pay_title,
                       subTitle: S.of(context).cake_pay_subtitle,
                     ),
+                    const SizedBox(height: 20),
+                    DashBoardRoundedCardWidget(
+                      title: "NanoGPT",
+                      subTitle: S.of(context).nanogpt_subtitle,
+                      onTap: () => _launchMarketPlaceUrl("cake.nano-gpt.com"),
+                    ),
                   ],
                 ),
               ),
@@ -58,6 +65,17 @@ class MarketPlacePage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _launchMarketPlaceUrl(String url) async {
+    try {
+      launchUrl(
+        Uri.https(url),
+        mode: LaunchMode.externalApplication,
+      );
+    } catch (e) {
+      print(e);
+    }
   }
 
   void _navigatorToGiftCardsPage(BuildContext context) {
