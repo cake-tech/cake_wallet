@@ -252,6 +252,7 @@ class CryptoBalanceWidget extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: DashBoardRoundedCardWidget(
+                  customBorder: 30,
                   title: S.of(context).silent_payments,
                   subTitle: S.of(context).enable_silent_payments_scanning,
                   hint: Column(

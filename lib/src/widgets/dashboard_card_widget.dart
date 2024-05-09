@@ -13,6 +13,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
     this.svgPicture,
     this.icon,
     this.onClose,
+    this.customBorder,
   });
 
   final VoidCallback onTap;
@@ -22,6 +23,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
   final Widget? hint;
   final SvgPicture? svgPicture;
   final Icon? icon;
+  final double? customBorder;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +39,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
             width: double.infinity,
             decoration: BoxDecoration(
               color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(customBorder ?? 20),
               border: Border.all(
                 color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
               ),

@@ -37,6 +37,7 @@ import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/get_height_by_date.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
@@ -359,7 +360,7 @@ abstract class ElectrumWalletBase
         }
 
         syncStatus = message.syncStatus;
-        walletInfo.restoreHeight = message.height;
+        await walletInfo.updateRestoreHeight(message.height);
       }
     }
   }
@@ -381,6 +382,8 @@ abstract class ElectrumWalletBase
       await updateBalance();
 
       await updateFeeRates();
+
+      syncStatus = SyncedSyncStatus();
     } catch (e, stacktrace) {
       print(stacktrace);
       print(e.toString());
@@ -1141,7 +1144,8 @@ abstract class ElectrumWalletBase
           coin.isFrozen = coinInfo.isFrozen;
           coin.isSending = coinInfo.isSending;
           coin.note = coinInfo.note;
-          coin.bitcoinAddressRecord.balance += coinInfo.value;
+          if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
+            coin.bitcoinAddressRecord.balance += coinInfo.value;
         } else {
           _addCoinInfo(coin);
         }
@@ -1172,7 +1176,8 @@ abstract class ElectrumWalletBase
           coin.isFrozen = coinInfo.isFrozen;
           coin.isSending = coinInfo.isSending;
           coin.note = coinInfo.note;
-          coin.bitcoinAddressRecord.balance += coinInfo.value;
+          if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
+            coin.bitcoinAddressRecord.balance += coinInfo.value;
         } else {
           _addCoinInfo(coin);
         }
@@ -1588,7 +1593,6 @@ abstract class ElectrumWalletBase
   Future<void> updateTransactions() async {
     try {
       if (_isTransactionUpdating) {
-        _isTransactionUpdating = false;
         return;
       }
 
@@ -1734,7 +1738,7 @@ abstract class ElectrumWalletBase
       _currentChainTip = height;
 
       if (_currentChainTip != null && _currentChainTip! > 0 && walletInfo.restoreHeight == 0) {
-        walletInfo.restoreHeight = _currentChainTip!;
+        await walletInfo.updateRestoreHeight(_currentChainTip!);
       }
     });
   }
@@ -1818,202 +1822,156 @@ class SyncResponse {
 }
 
 Future<void> startRefresh(ScanData scanData) async {
-  Future<ElectrumClient> getElectrumConnection() async {
-    final electrumClient = scanData.electrumClient;
-    if (!electrumClient.isConnected) {
-      final node = scanData.node;
-      await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
-    }
-    return electrumClient;
-  }
-
-  var lastKnownBlockHeight = 0;
-  var initialSyncHeight = 0;
-
-  var syncHeight = scanData.height;
-  var currentChainTip = scanData.chainTip;
-
-  if (syncHeight <= 0) {
-    syncHeight = currentChainTip;
-  }
-
-  if (initialSyncHeight <= 0) {
-    initialSyncHeight = syncHeight;
-  }
-
-  if (lastKnownBlockHeight == syncHeight) {
-    scanData.sendPort.send(SyncResponse(currentChainTip, SyncedSyncStatus()));
-    return;
-  }
+  int syncHeight = scanData.height;
+  int initialSyncHeight = syncHeight;
 
   BehaviorSubject<Object>? tweaksSubscription = null;
 
-  lastKnownBlockHeight = syncHeight;
+  final syncingStatus = scanData.isSingleScan
+      ? SyncingSyncStatus(1, 0)
+      : SyncingSyncStatus.fromHeightValues(scanData.chainTip, initialSyncHeight, syncHeight);
 
-  SyncingSyncStatus syncingStatus;
-  if (scanData.isSingleScan) {
-    syncingStatus = SyncingSyncStatus(1, 0);
-  } else {
-    syncingStatus =
-        SyncingSyncStatus.fromHeightValues(scanData.chainTip, initialSyncHeight, syncHeight);
-  }
-
+  // Initial status UI update, send how many blocks left to scan
   scanData.sendPort.send(SyncResponse(syncHeight, syncingStatus));
 
-  if (syncingStatus.blocksLeft <= 0 || (scanData.isSingleScan && scanData.height != syncHeight)) {
-    scanData.sendPort.send(SyncResponse(scanData.chainTip, SyncedSyncStatus()));
-    return;
-  }
+  final electrumClient = scanData.electrumClient;
+  await electrumClient.connectToUri(scanData.node.uri, useSSL: scanData.node.useSSL);
 
-  try {
-    final electrumClient = await getElectrumConnection();
+  if (tweaksSubscription == null) {
+    final count = scanData.isSingleScan ? 1 : TWEAKS_COUNT;
+    final receiver = Receiver(
+      scanData.silentAddress.b_scan.toHex(),
+      scanData.silentAddress.B_spend.toHex(),
+      scanData.network == BitcoinNetwork.testnet,
+      scanData.labelIndexes,
+      scanData.labelIndexes.length,
+    );
 
-    if (tweaksSubscription == null) {
-      final count = scanData.isSingleScan ? 1 : TWEAKS_COUNT;
+    tweaksSubscription = await electrumClient.tweaksSubscribe(height: syncHeight, count: count);
+    tweaksSubscription?.listen((t) async {
+      final tweaks = t as Map<String, dynamic>;
+
+      if (tweaks["message"] != null) {
+        // re-subscribe to continue receiving messages
+        electrumClient.tweaksSubscribe(height: syncHeight, count: count);
+        return;
+      }
+
+      final blockHeight = tweaks.keys.first;
+      final tweakHeight = int.parse(blockHeight);
 
       try {
-        tweaksSubscription = await electrumClient.tweaksSubscribe(height: syncHeight, count: count);
+        final blockTweaks = tweaks[blockHeight] as Map<String, dynamic>;
 
-        tweaksSubscription?.listen((t) async {
-          final tweaks = t as Map<String, dynamic>;
-
-          if (tweaks["message"] != null && !scanData.isSingleScan) {
-            // re-subscribe to continue receiving messages
-            electrumClient.tweaksSubscribe(height: syncHeight, count: count);
-            return;
-          }
-
-          final blockHeight = tweaks.keys.first;
-          final tweakHeight = int.parse(blockHeight);
+        for (var j = 0; j < blockTweaks.keys.length; j++) {
+          final txid = blockTweaks.keys.elementAt(j);
+          final details = blockTweaks[txid] as Map<String, dynamic>;
+          final outputPubkeys = (details["output_pubkeys"] as Map<dynamic, dynamic>);
+          final tweak = details["tweak"].toString();
 
           try {
-            final blockTweaks = tweaks[blockHeight] as Map<String, dynamic>;
+            // scanOutputs called from rust here
+            final addToWallet = scanOutputs(
+              outputPubkeys.values.toList(),
+              tweak,
+              receiver,
+            );
 
-            for (var j = 0; j < blockTweaks.keys.length; j++) {
-              final txid = blockTweaks.keys.elementAt(j);
-              final details = blockTweaks[txid] as Map<String, dynamic>;
-              final outputPubkeys = (details["output_pubkeys"] as Map<dynamic, dynamic>);
-              final tweak = details["tweak"].toString();
+            if (addToWallet.isEmpty) {
+              // no results tx, continue to next tx
+              continue;
+            }
 
-              try {
-                // scanOutputs called from rust here
-                final addToWallet = scanOutputs(
-                  outputPubkeys.values.map((o) => o[0].toString()).toList(),
-                  tweak,
-                  Receiver(
-                    scanData.silentAddress.b_scan.toHex(),
-                    scanData.silentAddress.B_spend.toHex(),
-                    scanData.network == BitcoinNetwork.testnet,
-                    scanData.labelIndexes,
-                    scanData.labelIndexes.length,
-                  ),
-                );
+            // placeholder ElectrumTransactionInfo object to update values based on new scanned unspent(s)
+            final txInfo = ElectrumTransactionInfo(
+              WalletType.bitcoin,
+              id: txid,
+              height: tweakHeight,
+              amount: 0,
+              fee: 0,
+              direction: TransactionDirection.incoming,
+              isPending: false,
+              date: scanData.network == BitcoinNetwork.mainnet
+                  ? getDateByBitcoinHeight(tweakHeight)
+                  : DateTime.now(),
+              confirmations: scanData.chainTip - tweakHeight + 1,
+              unspents: [],
+            );
 
-                if (addToWallet.isEmpty) {
-                  // no results tx, continue to next tx
-                  continue;
-                }
+            addToWallet.forEach((label, value) {
+              (value as Map<String, dynamic>).forEach((output, tweak) {
+                final t_k = tweak.toString();
 
-                // placeholder ElectrumTransactionInfo object to update values based on new scanned unspent(s)
-                final txInfo = ElectrumTransactionInfo(
-                  WalletType.bitcoin,
-                  id: txid,
-                  height: tweakHeight,
-                  amount: 0,
-                  fee: 0,
-                  direction: TransactionDirection.incoming,
-                  isPending: false,
-                  date: DateTime.now(),
-                  confirmations: scanData.chainTip - tweakHeight + 1,
-                  unspents: [],
-                );
+                final receivingOutputAddress = ECPublic.fromHex(output)
+                    .toTaprootAddress(tweak: false)
+                    .toAddress(scanData.network);
 
-                addToWallet.forEach((label, value) {
-                  (value as Map<String, dynamic>).forEach((output, tweak) {
-                    final t_k = tweak.toString();
-
-                    final receivingOutputAddress = ECPublic.fromHex(output)
-                        .toTaprootAddress(tweak: false)
-                        .toAddress(scanData.network);
-
-                    final receivedAddressRecord = BitcoinSilentPaymentAddressRecord(
-                      receivingOutputAddress,
-                      index: 0,
-                      isHidden: false,
-                      isUsed: true,
-                      network: scanData.network,
-                      silentPaymentTweak: t_k,
-                      type: SegwitAddresType.p2tr,
-                      txCount: 1,
-                    );
-
-                    int? amount;
-                    int? pos;
-                    outputPubkeys.entries.firstWhere((k) {
-                      final isMatchingOutput = k.value[0] == output;
-                      if (isMatchingOutput) {
-                        amount = int.parse(k.value[1].toString());
-                        pos = int.parse(k.key.toString());
-                        return true;
-                      }
-                      return false;
-                    });
-
-                    final unspent = BitcoinSilentPaymentsUnspent(
-                      receivedAddressRecord,
-                      txid,
-                      amount!,
-                      pos!,
-                      silentPaymentTweak: t_k,
-                      silentPaymentLabel: label == "None" ? null : label,
-                    );
-
-                    txInfo.unspents!.add(unspent);
-                    txInfo.amount += unspent.value;
-                  });
+                int? amount;
+                int? pos;
+                outputPubkeys.entries.firstWhere((k) {
+                  final isMatchingOutput = k.value[0] == output;
+                  if (isMatchingOutput) {
+                    amount = int.parse(k.value[1].toString());
+                    pos = int.parse(k.key.toString());
+                    return true;
+                  }
+                  return false;
                 });
 
-                scanData.sendPort.send({txInfo.id: txInfo});
-              } catch (_) {}
-            }
+                final receivedAddressRecord = BitcoinSilentPaymentAddressRecord(
+                  receivingOutputAddress,
+                  index: 0,
+                  isHidden: false,
+                  isUsed: true,
+                  network: scanData.network,
+                  silentPaymentTweak: t_k,
+                  type: SegwitAddresType.p2tr,
+                  txCount: 1,
+                  balance: amount!,
+                );
+
+                final unspent = BitcoinSilentPaymentsUnspent(
+                  receivedAddressRecord,
+                  txid,
+                  amount!,
+                  pos!,
+                  silentPaymentTweak: t_k,
+                  silentPaymentLabel: label == "None" ? null : label,
+                );
+
+                txInfo.unspents!.add(unspent);
+                txInfo.amount += unspent.value;
+              });
+            });
+
+            scanData.sendPort.send({txInfo.id: txInfo});
           } catch (_) {}
-
-          syncHeight = tweakHeight;
-          scanData.sendPort.send(
-            SyncResponse(
-              syncHeight,
-              SyncingSyncStatus.fromHeightValues(
-                currentChainTip,
-                initialSyncHeight,
-                syncHeight,
-              ),
-            ),
-          );
-
-          if (int.parse(blockHeight) >= scanData.chainTip || scanData.isSingleScan) {
-            scanData.sendPort.send(SyncResponse(syncHeight, SyncedSyncStatus()));
-            await tweaksSubscription!.close();
-          }
-        });
-      } catch (e) {
-        if (e is RequestFailedTimeoutException) {
-          return scanData.sendPort.send(
-            SyncResponse(syncHeight, TimedOutSyncStatus()),
-          );
         }
-      }
-    }
+      } catch (_) {}
 
-    if (tweaksSubscription == null) {
-      return scanData.sendPort.send(
-        SyncResponse(syncHeight, UnsupportedSyncStatus()),
+      syncHeight = tweakHeight;
+      scanData.sendPort.send(
+        SyncResponse(
+          syncHeight,
+          SyncingSyncStatus.fromHeightValues(
+            scanData.chainTip,
+            initialSyncHeight,
+            syncHeight,
+          ),
+        ),
       );
-    }
-  } catch (e, stacktrace) {
-    print(stacktrace);
-    print(e.toString());
 
-    scanData.sendPort.send(SyncResponse(syncHeight, NotConnectedSyncStatus()));
+      if (tweakHeight >= scanData.chainTip || scanData.isSingleScan) {
+        scanData.sendPort.send(SyncResponse(syncHeight, SyncedSyncStatus()));
+        await tweaksSubscription!.close();
+      }
+    });
+  }
+
+  if (tweaksSubscription == null) {
+    return scanData.sendPort.send(
+      SyncResponse(syncHeight, UnsupportedSyncStatus()),
+    );
   }
 }
 

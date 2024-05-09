@@ -794,7 +794,7 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: a6b14bcc37ec16f56931e48afa8a8f8e6939431d
+      resolved-ref: "4977a0d31fc8614d27193b07d92c5992d163131e"
       url: "https://github.com/rafael-xmr/sp_scanner"
     source: git
     version: "0.0.1"

@@ -245,6 +245,7 @@ Future<int> getHavenCurrentHeight() async {
 
 // Data taken from https://timechaincalendar.com/
 const bitcoinDates = {
+  "2024-05": 841590,
   "2024-04": 837182,
   "2024-03": 832623,
   "2024-02": 828319,
@@ -265,7 +266,9 @@ const bitcoinDates = {
 
 int getBitcoinHeightByDate({required DateTime date}) {
   String dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}';
-  int startBlock = bitcoinDates[dateKey] ?? bitcoinDates.values.last;
+  final closestKey = bitcoinDates.keys
+      .firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => bitcoinDates.keys.last);
+  int startBlock = bitcoinDates[dateKey] ?? bitcoinDates[closestKey]!;
 
   DateTime startOfMonth = DateTime(date.year, date.month);
   int daysDifference = date.difference(startOfMonth).inDays;
@@ -274,4 +277,10 @@ int getBitcoinHeightByDate({required DateTime date}) {
   int estimatedBlocksSinceStartOfMonth = (daysDifference * 24 * 6);
 
   return startBlock + estimatedBlocksSinceStartOfMonth;
+}
+
+DateTime getDateByBitcoinHeight(int height) {
+  final date = bitcoinDates.entries
+      .lastWhere((entry) => entry.value >= height, orElse: () => bitcoinDates.entries.last);
+  return formatMapKey(date.key);
 }
