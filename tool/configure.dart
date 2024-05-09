@@ -1223,7 +1223,7 @@ Future<void> generatePubspec(
   var output = cwCore;
 
   if (hasMonero) {
-    output += '\n$cwMonero\n$cwSharedExternal';
+    output += '\n$cwMonero';
   }
 
   if (hasBitcoin) {
@@ -1258,10 +1258,8 @@ Future<void> generatePubspec(
     output += '\n$cwTron';
   }
 
-  if (hasHaven && !hasMonero) {
+  if (hasHaven) {
     output += '\n$cwSharedExternal\n$cwHaven';
-  } else if (hasHaven) {
-    output += '\n$cwHaven';
   }
 
   if (hasFlutterSecureStorage) {
