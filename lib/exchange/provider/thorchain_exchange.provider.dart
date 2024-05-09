@@ -99,7 +99,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final params = {
       'from_asset': _normalizeCurrency(from),
       'to_asset': _normalizeCurrency(to),
-      'amount': _doubleToThorChainString(1),
+      'amount': _doubleToThorChainString(10),
       'affiliate': _affiliateName,
       'affiliate_bps': _affiliateBps
     };

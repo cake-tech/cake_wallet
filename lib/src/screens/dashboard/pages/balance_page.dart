@@ -69,14 +69,14 @@ class BalancePage extends StatelessWidget {
                       ),
                       labelColor:
                           Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                      dividerColor:
-                          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                      dividerColor: Colors.transparent,
                       indicatorColor:
                           Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                       unselectedLabelColor: Theme.of(context)
                           .extension<DashboardPageTheme>()!
                           .pageTitleTextColor
                           .withOpacity(0.5),
+                      tabAlignment: TabAlignment.center,
                       tabs: [
                         Tab(text: 'My Crypto'),
                         Tab(text: 'My NFTs'),

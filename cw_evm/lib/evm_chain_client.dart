@@ -147,6 +147,8 @@ abstract class EVMChainClient {
           memo: memo,
           assetContractAddress: contractAddress,
         );
+
+        return;
       }
 
       await sendTransaction(signedTransaction);
