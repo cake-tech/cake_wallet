@@ -19,7 +19,7 @@ class TronHTTPProvider implements TronServiceProvider {
   Future<Map<String, dynamic>> get(TronRequestDetails params, [Duration? timeout]) async {
     final response = await client.get(Uri.parse(params.url(url)), headers: {
       'Content-Type': 'application/json',
-      'TRON-PRO-API-KEY': secrets.tronGridApiKey,
+      if (url.contains("trongrid")) 'TRON-PRO-API-KEY': secrets.tronGridApiKey,
     }).timeout(timeout ?? defaultRequestTimeout);
     final data = json.decode(response.body) as Map<String, dynamic>;
     return data;
@@ -31,7 +31,7 @@ class TronHTTPProvider implements TronServiceProvider {
         .post(Uri.parse(params.url(url)),
             headers: {
               'Content-Type': 'application/json',
-              'TRON-PRO-API-KEY': secrets.tronGridApiKey,
+              if (url.contains("trongrid")) 'TRON-PRO-API-KEY': secrets.tronGridApiKey,
             },
             body: params.toRequestBody())
         .timeout(timeout ?? defaultRequestTimeout);

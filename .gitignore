@@ -156,6 +156,7 @@ assets/images/app_logo.png
 macos/Runner/Info.plist
 macos/Runner/DebugProfile.entitlements
 macos/Runner/Release.entitlements
+lib/core/secure_storage.dart
 
 macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_16.png
 macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_32.png

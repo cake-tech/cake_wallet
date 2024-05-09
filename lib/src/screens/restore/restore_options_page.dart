@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
 import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -56,17 +57,18 @@ class RestoreOptionsPage extends BasePage {
                       description: S.of(context).restore_description_from_backup,
                     ),
                   ),
-                Padding(
-                  padding: EdgeInsets.only(top: 24),
-                  child: OptionTile(
-                    onPressed: () => Navigator.pushNamed(
-                        context, Routes.restoreWalletFromHardwareWallet,
-                        arguments: isNewInstall),
-                    image: imageLedger,
-                    title: S.of(context).restore_title_from_hardware_wallet,
-                    description: S.of(context).restore_description_from_hardware_wallet,
+                if (DeviceInfo.instance.isMobile)
+                  Padding(
+                    padding: EdgeInsets.only(top: 24),
+                    child: OptionTile(
+                      onPressed: () => Navigator.pushNamed(
+                          context, Routes.restoreWalletFromHardwareWallet,
+                          arguments: isNewInstall),
+                      image: imageLedger,
+                      title: S.of(context).restore_title_from_hardware_wallet,
+                      description: S.of(context).restore_description_from_hardware_wallet,
+                    ),
                   ),
-                ),
                 Padding(
                   padding: EdgeInsets.only(top: 24),
                   child: OptionTile(
