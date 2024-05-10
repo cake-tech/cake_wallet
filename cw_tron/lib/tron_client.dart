@@ -208,7 +208,7 @@ class TronClient {
         TransactionContract(type: contract.contractType, parameter: parameter);
 
     // Set the transaction expiration time (maximum 24 hours)
-    final expireTime = DateTime.now().toUtc().add(const Duration(hours: 24));
+    final expireTime = DateTime.now().add(const Duration(hours: 24));
 
     // Create a raw transaction
     TransactionRaw rawTransaction = TransactionRaw(
@@ -369,7 +369,7 @@ class TronClient {
         TransactionContract(type: contract.contractType, parameter: parameter);
 
     // Set the transaction expiration time (maximum 24 hours)
-    final expireTime = DateTime.now().toUtc().add(const Duration(hours: 24));
+    final expireTime = DateTime.now().add(const Duration(hours: 24));
 
     // Create a raw transaction
     TransactionRaw rawTransaction = TransactionRaw(
