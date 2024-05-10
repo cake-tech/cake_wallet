@@ -208,6 +208,7 @@ abstract class OutputBase with Store {
     address = '';
     note = '';
     memo = null;
+    router = null;
     resetParsedAddress();
   }
 
