@@ -1,4 +1,3 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
@@ -99,7 +98,10 @@ abstract class WalletCreationVMBase with Store {
         );
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
+        return DerivationInfo(
+          derivationType: DerivationType.electrum,
+          derivationPath: "m/0'",
+        );
       default:
         return null;
     }
