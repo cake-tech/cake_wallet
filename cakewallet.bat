@@ -7,6 +7,10 @@ set secrets_file_path=lib\.secrets.g.dart
 set release_dir=build\windows\x64\runner\Release
 @REM Path could be different
 if [%~1]==[] (set tools_root=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Redist\MSVC\14.38.33135\x64\Microsoft.VC143.CRT) else (set tools_root=%1)
+@REM Generate android manifest file
+cd scripts
+bash.exe gen_android_manifest.sh
+cd /d %cw_root%
 echo === Generating pubspec.yaml ===
 copy /Y pubspec_description.yaml pubspec.yaml > nul
 call flutter pub get > nul

@@ -9,7 +9,9 @@ if [ -z "$APP_MACOS_TYPE" ]; then
         exit 1
 fi
 
-cd ../.. # go to root
+cd .. # go to scipts
+./gen_android_manifest.sh
+cd .. # go to root
 cp -rf ./macos/Runner/InfoBase.plist ./macos/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName ${APP_MACOS_NAME}" ./macos/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleName ${APP_MACOS_NAME}" ./macos/Runner/Info.plist

@@ -10,7 +10,9 @@ if [ -z "$APP_IOS_TYPE" ]; then
         exit 1
 fi
 
-cd ../.. # go to root
+cd .. # go to scipts
+./gen_android_manifest.sh
+cd .. # go to root
 cp -rf ./ios/Runner/InfoBase.plist ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName ${APP_IOS_NAME}" ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier ${APP_IOS_BUNDLE_ID}" ./ios/Runner/Info.plist
