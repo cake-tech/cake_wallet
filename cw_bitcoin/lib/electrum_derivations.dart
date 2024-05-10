@@ -4,7 +4,7 @@ Map<DerivationType, List<DerivationInfo>> electrum_derivations = {
   DerivationType.electrum: [
     DerivationInfo(
       derivationType: DerivationType.electrum,
-      derivationPath: "m/0'",
+      derivationPath: "m/0'/0",
       description: "Electrum",
       scriptType: "p2wpkh",
     ),
@@ -30,19 +30,19 @@ Map<DerivationType, List<DerivationInfo>> electrum_derivations = {
     ),
     DerivationInfo(
       derivationType: DerivationType.bip39,
-      derivationPath: "m/0'",
+      derivationPath: "m/0'/0",
       description: "Non-standard legacy",
       scriptType: "p2pkh",
     ),
     DerivationInfo(
       derivationType: DerivationType.bip39,
-      derivationPath: "m/0'",
+      derivationPath: "m/0'/0",
       description: "Non-standard compatibility segwit",
       scriptType: "p2wpkh-p2sh",
     ),
     DerivationInfo(
       derivationType: DerivationType.bip39,
-      derivationPath: "m/0'",
+      derivationPath: "m/0'/0",
       description: "Non-standard native segwit",
       scriptType: "p2wpkh",
     ),

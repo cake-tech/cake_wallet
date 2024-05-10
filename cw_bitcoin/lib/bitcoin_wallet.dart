@@ -151,10 +151,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    print(walletInfo.derivationInfo!.derivationType);
-    print(walletInfo.derivationInfo!.derivationPath);
-    print("@@@@@@@@@@@@@@@");
-
     return BitcoinWallet(
       mnemonic: snp.mnemonic,
       xpub: snp.xpub,

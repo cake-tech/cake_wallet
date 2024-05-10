@@ -766,6 +766,17 @@ Future<void> changeDefaultMoneroNode(
   }
 }
 
+Future<void> fixBtcDerivationPaths(Box<WalletInfo> walletsInfoSource) async {
+  for (WalletInfo walletInfo in walletsInfoSource.values) {
+    if (walletInfo.type == WalletType.bitcoin) {
+      if (walletInfo.derivationInfo?.derivationPath == "m/0'") {
+        walletInfo.derivationInfo!.derivationPath = "m/0'/0";
+      }
+    }
+    await walletInfo.save();
+  }
+}
+
 Future<void> updateBtcNanoWalletInfos(Box<WalletInfo> walletsInfoSource) async {
   for (WalletInfo walletInfo in walletsInfoSource.values) {
     if (walletInfo.type == WalletType.nano || walletInfo.type == WalletType.bitcoin) {

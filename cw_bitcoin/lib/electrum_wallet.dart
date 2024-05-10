@@ -1371,7 +1371,9 @@ abstract class ElectrumWalletBase
     final HD = index == null ? hd : hd.derive(index);
     final priv = ECPrivate.fromHex(HD.privKey!);
     String messagePrefix = '\x18Bitcoin Signed Message:\n';
-    return priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
+    final hexEncoded = priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
+    final decodedSig = hex.decode(hexEncoded);
+    return base64Encode(decodedSig);
   }
 
   @override
