@@ -387,7 +387,7 @@ class TronClient {
     if (feeLimit > tronBalanceInt) {
       final feeInTrx = TronHelper.fromSun(BigInt.parse(feeLimit.toString()));
       throw Exception(
-        'You don\'t have enough TRX to cover the transaction fee for this transaction. Kindly top up.\nTransaction fee: $feeInTrx TRX',
+        'You don\'t have enough TRX to cover the transaction fee for this transaction. Please top up.\nTransaction fee: $feeInTrx TRX',
       );
     }
 
@@ -444,7 +444,7 @@ class TronClient {
     if (feeLimit > tronBalanceInt) {
       final feeInTrx = TronHelper.fromSun(BigInt.parse(feeLimit.toString()));
       throw Exception(
-        'You don\'t have enough TRX to cover the transaction fee for this transaction. Kindly top up. Transaction fee: $feeInTrx TRX',
+        'You don\'t have enough TRX to cover the transaction fee for this transaction. Please top up. Transaction fee: $feeInTrx TRX',
       );
     }
 
