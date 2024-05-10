@@ -313,11 +313,15 @@ abstract class EVMChainClient {
       contractAddress: contractAddress,
     );
     final depositWithExpiryFunction = contract.function('depositWithExpiry');
+    final inboundEtHAddress = EthereumAddress.fromHex(inboundAddress);
+    final assetContractAddress = EthereumAddress.fromHex(contractAddress);
+
+
     await _client!.call(
       contract: contract,
       function: depositWithExpiryFunction,
       params: [
-        inboundAddress,
+        inboundEtHAddress,
         assetContractAddress,
         amount,
         memo,
