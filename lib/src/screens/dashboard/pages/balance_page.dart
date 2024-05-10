@@ -247,71 +247,78 @@ class CryptoBalanceWidget extends StatelessWidget {
                 );
               },
             ),
-            if (dashboardViewModel.hasSilentPayments) ...[
-              SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: DashBoardRoundedCardWidget(
-                  customBorder: 30,
-                  title: S.of(context).silent_payments,
-                  subTitle: S.of(context).enable_silent_payments_scanning,
-                  hint: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => launchUrl(
-                              // TODO: Update URL
-                              Uri.https("guides.cakewallet.com"),
-                              mode: LaunchMode.externalApplication,
-                            ),
-                            child: Row(
+            Observer(builder: (context) {
+              return Column(
+                children: [
+                  if (dashboardViewModel.showSilentPaymentsCard) ...[
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      child: DashBoardRoundedCardWidget(
+                        customBorder: 30,
+                        title: S.of(context).silent_payments,
+                        subTitle: S.of(context).enable_silent_payments_scanning,
+                        hint: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  S.of(context).what_is_silent_payments,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: 'Lato',
-                                    fontWeight: FontWeight.w400,
-                                    color: Theme.of(context)
-                                        .extension<BalancePageTheme>()!
-                                        .labelTextColor,
-                                    height: 1,
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () => launchUrl(
+                                    // TODO: Update URL
+                                    Uri.https("guides.cakewallet.com"),
+                                    mode: LaunchMode.externalApplication,
                                   ),
-                                  softWrap: true,
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        S.of(context).what_is_silent_payments,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontFamily: 'Lato',
+                                          fontWeight: FontWeight.w400,
+                                          color: Theme.of(context)
+                                              .extension<BalancePageTheme>()!
+                                              .labelTextColor,
+                                          height: 1,
+                                        ),
+                                        softWrap: true,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                                        child: Icon(Icons.help_outline,
+                                            size: 16,
+                                            color: Theme.of(context)
+                                                .extension<BalancePageTheme>()!
+                                                .labelTextColor),
+                                      )
+                                    ],
+                                  ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                                  child: Icon(Icons.help_outline,
-                                      size: 16,
-                                      color: Theme.of(context)
-                                          .extension<BalancePageTheme>()!
-                                          .labelTextColor),
+                                Observer(
+                                  builder: (_) => StandardSwitch(
+                                    value: dashboardViewModel.silentPaymentsScanningActive,
+                                    onTaped: () => _toggleSilentPaymentsScanning(context),
+                                  ),
                                 )
                               ],
                             ),
-                          ),
-                          Observer(
-                            builder: (_) => StandardSwitch(
-                              value: dashboardViewModel.silentPaymentsScanningActive,
-                              onTaped: () => _toggleSilentPaymentsScanning(context),
-                            ),
-                          )
-                        ],
+                          ],
+                        ),
+                        onTap: () => _toggleSilentPaymentsScanning(context),
+                        icon: Icon(
+                          Icons.lock,
+                          color:
+                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                          size: 50,
+                        ),
                       ),
-                    ],
-                  ),
-                  onTap: () => _toggleSilentPaymentsScanning(context),
-                  icon: Icon(
-                    Icons.lock,
-                    color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                    size: 50,
-                  ),
-                ),
-              ),
-            ]
+                    ),
+                  ]
+                ],
+              );
+            }),
           ],
         ),
       ),

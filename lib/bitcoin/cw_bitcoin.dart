@@ -211,8 +211,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   WalletService createBitcoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
-    return BitcoinWalletService(walletInfoSource, unspentCoinSource);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan) {
+    return BitcoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan);
   }
 
   WalletService createLitecoinWalletService(

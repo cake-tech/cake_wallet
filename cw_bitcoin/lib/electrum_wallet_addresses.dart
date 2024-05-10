@@ -375,7 +375,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
 
       silentAddresses.forEach((addressRecord) {
-        if (addressRecord.type != SilentPaymentsAddresType.p2sp) {
+        if (addressRecord.type != SilentPaymentsAddresType.p2sp || addressRecord.isHidden) {
           return;
         }
 

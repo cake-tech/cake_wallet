@@ -40,23 +40,26 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     String? passphrase,
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     int initialSilentAddressIndex = 0,
+    bool? alwaysScan,
   }) : super(
-            mnemonic: mnemonic,
-            passphrase: passphrase,
-            xpub: xpub,
-            password: password,
-            walletInfo: walletInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
-            networkType: networkParam == null
-                ? bitcoin.bitcoin
-                : networkParam == BitcoinNetwork.mainnet
-                    ? bitcoin.bitcoin
-                    : bitcoin.testnet,
-            initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            seedBytes: seedBytes,
-            currency:
-                networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc) {
+          mnemonic: mnemonic,
+          passphrase: passphrase,
+          xpub: xpub,
+          password: password,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfo,
+          networkType: networkParam == null
+              ? bitcoin.bitcoin
+              : networkParam == BitcoinNetwork.mainnet
+                  ? bitcoin.bitcoin
+                  : bitcoin.testnet,
+          initialAddresses: initialAddresses,
+          initialBalance: initialBalance,
+          seedBytes: seedBytes,
+          currency:
+              networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
+          alwaysScan: alwaysScan,
+        ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
     // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
     // String derivationPath = walletInfo.derivationInfo!.derivationPath!;
@@ -133,6 +136,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
+    required bool alwaysScan,
   }) async {
     final network = walletInfo.network != null
         ? BasedUtxoNetwork.fromName(walletInfo.network!)
@@ -181,6 +185,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,
       networkParam: network,
+      alwaysScan: alwaysScan,
     );
   }
 

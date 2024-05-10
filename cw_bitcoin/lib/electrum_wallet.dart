@@ -54,20 +54,21 @@ const int TWEAKS_COUNT = 25;
 abstract class ElectrumWalletBase
     extends WalletBase<ElectrumBalance, ElectrumTransactionHistory, ElectrumTransactionInfo>
     with Store {
-  ElectrumWalletBase(
-      {required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required this.networkType,
-      String? xpub,
-      String? mnemonic,
-      Uint8List? seedBytes,
-      this.passphrase,
-      List<BitcoinAddressRecord>? initialAddresses,
-      ElectrumClient? electrumClient,
-      ElectrumBalance? initialBalance,
-      CryptoCurrency? currency})
-      : accountHD =
+  ElectrumWalletBase({
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required this.networkType,
+    String? xpub,
+    String? mnemonic,
+    Uint8List? seedBytes,
+    this.passphrase,
+    List<BitcoinAddressRecord>? initialAddresses,
+    ElectrumClient? electrumClient,
+    ElectrumBalance? initialBalance,
+    CryptoCurrency? currency,
+    this.alwaysScan,
+  })  : accountHD =
             getAccountHDWallet(currency, networkType, seedBytes, xpub, walletInfo.derivationInfo),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
@@ -96,12 +97,19 @@ abstract class ElectrumWalletBase
     transactionHistory = ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
 
     reaction((_) => syncStatus, (SyncStatus syncStatus) {
-      if (syncStatus is! AttemptingSyncStatus)
+      if (syncStatus is! AttemptingSyncStatus && syncStatus is! SyncedTipSyncStatus)
         silentPaymentsScanningActive = syncStatus is SyncingSyncStatus;
 
       if (syncStatus is NotConnectedSyncStatus) {
         // Needs to re-subscribe to all scripthashes when reconnected
         _scripthashesUpdateSubject = {};
+      }
+
+      // Message is shown on the UI for 3 seconds, revert to synced
+      if (syncStatus is SyncedTipSyncStatus) {
+        Timer(Duration(seconds: 3), () {
+          if (this.syncStatus is SyncedTipSyncStatus) this.syncStatus = SyncedSyncStatus();
+        });
       }
     });
   }
@@ -132,6 +140,8 @@ abstract class ElectrumWalletBase
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
+
+  bool? alwaysScan;
 
   final bitcoin.HDWallet accountHD;
   final String? _mnemonic;
@@ -192,7 +202,13 @@ abstract class ElectrumWalletBase
     silentPaymentsScanningActive = active;
 
     if (active) {
-      if ((await getCurrentChainTip()) > walletInfo.restoreHeight) {
+      final tip = await getCurrentChainTip();
+
+      if (tip == walletInfo.restoreHeight) {
+        syncStatus = SyncedTipSyncStatus(tip);
+      }
+
+      if (tip > walletInfo.restoreHeight) {
         _setListeners(walletInfo.restoreHeight, chainTipParam: _currentChainTip);
       }
     } else {
@@ -245,6 +261,12 @@ abstract class ElectrumWalletBase
   @action
   Future<void> _setListeners(int height, {int? chainTipParam, bool? doSingleScan}) async {
     final chainTip = chainTipParam ?? await getCurrentChainTip();
+
+    if (chainTip == height) {
+      syncStatus = NotConnectedSyncStatus();
+      return;
+    }
+
     syncStatus = AttemptingSyncStatus();
 
     if (_isolate != null) {
@@ -416,10 +438,9 @@ abstract class ElectrumWalletBase
     try {
       syncStatus = ConnectingSyncStatus();
 
-      electrumClient.onConnectionStatusChange = null;
       await electrumClient.close();
 
-      await Timer(Duration(seconds: differentNode ? 0 : 10), () async {
+      await Timer(Duration(seconds: differentNode ? 0 : 15), () async {
         electrumClient.onConnectionStatusChange = (bool isConnected) async {
           if (syncStatus is SyncingSyncStatus) return;
 
@@ -716,7 +737,6 @@ abstract class ElectrumWalletBase
 
       // Still has inputs to spend before failing
       if (!spendingAllCoins) {
-        outputs.removeLast();
         return estimateTxForAmount(
           credentialsAmount,
           outputs,
@@ -760,10 +780,7 @@ abstract class ElectrumWalletBase
       if (spendingAllCoins) {
         throw BitcoinTransactionWrongBalanceException();
       } else {
-        if (amountLeftForChangeAndFee > fee) {
-          outputs.removeLast();
-        }
-
+        outputs.removeLast();
         return estimateTxForAmount(
           credentialsAmount,
           outputs,
@@ -1740,6 +1757,10 @@ abstract class ElectrumWalletBase
       if (_currentChainTip != null && _currentChainTip! > 0 && walletInfo.restoreHeight == 0) {
         await walletInfo.updateRestoreHeight(_currentChainTip!);
       }
+
+      if (alwaysScan == true) {
+        _setListeners(walletInfo.restoreHeight);
+      }
     });
   }
 
@@ -1962,7 +1983,10 @@ Future<void> startRefresh(ScanData scanData) async {
       );
 
       if (tweakHeight >= scanData.chainTip || scanData.isSingleScan) {
-        scanData.sendPort.send(SyncResponse(syncHeight, SyncedSyncStatus()));
+        scanData.sendPort.send(SyncResponse(
+          syncHeight,
+          SyncedTipSyncStatus(scanData.chainTip),
+        ));
         await tweaksSubscription!.close();
       }
     });

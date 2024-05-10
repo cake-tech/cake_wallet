@@ -308,6 +308,9 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get hasSilentPayments => hasRescan && wallet.type == WalletType.bitcoin;
 
+  @computed
+  bool get showSilentPaymentsCard => hasSilentPayments && settingsStore.silentPaymentsCardDisplay;
+
   final KeyService keyService;
   final SharedPreferences sharedPreferences;
 

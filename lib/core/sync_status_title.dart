@@ -8,6 +8,10 @@ String syncStatusTitle(SyncStatus syncStatus) {
         : S.current.Blocks_remaining('${syncStatus.blocksLeft}');
   }
 
+  if (syncStatus is SyncedTipSyncStatus) {
+    return S.current.silent_payments_scanned_tip(syncStatus.tip.toString());
+  }
+
   if (syncStatus is SyncedSyncStatus) {
     return S.current.sync_status_syncronized;
   }
