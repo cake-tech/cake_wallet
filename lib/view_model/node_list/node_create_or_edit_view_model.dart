@@ -62,7 +62,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   String socksProxyAddress;
 
   @computed
-  bool get isReady => address.isNotEmpty && port.isNotEmpty;
+  bool get isReady =>
+      (address.isNotEmpty && port.isNotEmpty) ||
+      _walletType == WalletType.decred; // Allow an empty address.
 
   bool get hasAuthCredentials =>
       _walletType == WalletType.monero || _walletType == WalletType.haven;
