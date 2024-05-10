@@ -298,12 +298,7 @@ class CWBitcoin extends Bitcoin {
     List<DerivationType> types = await compareDerivationMethods(mnemonic: mnemonic, node: node);
     if (types.length == 1 && types.first == DerivationType.electrum) {
       return [
-        DerivationInfo(
-          derivationType: DerivationType.electrum,
-          derivationPath: "m/0'",
-          description: "Electrum",
-          scriptType: "p2wpkh",
-        )
+        electrum_derivations[DerivationType.electrum]!.first
       ];
     }
 
@@ -393,6 +388,11 @@ class CWBitcoin extends Bitcoin {
     // sort the list such that derivations with the most transactions are first:
     list.sort((a, b) => b.transactionsCount.compareTo(a.transactionsCount));
     return list;
+  }
+
+  @override
+  Map<DerivationType, List<DerivationInfo>> getElectrumDerivations() {
+    return electrum_derivations;
   }
 
   @override
