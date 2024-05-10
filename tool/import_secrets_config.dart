@@ -13,6 +13,9 @@ const solanaOutputPath = 'cw_solana/lib/.secrets.g.dart';
 
 const tronConfigPath = 'tool/.tron-secrets-config.json';
 const tronOutputPath = 'cw_tron/lib/.secrets.g.dart';
+
+const nanoConfigPath = 'tool/.nano-secrets-config.json';
+const nanoOutputPath = 'cw_nano/lib/.secrets.g.dart';
 Future<void> main(List<String> args) async => importSecretsConfig();
 
 Future<void> importSecretsConfig() async {
@@ -37,6 +40,11 @@ Future<void> importSecretsConfig() async {
   final tronOutput =
       tronInput.keys.fold('', (String acc, String val) => acc + generateConst(val, tronInput));
 
+  final nanoOutputFile = File(nanoOutputPath);
+  final nanoInput = json.decode(File(nanoConfigPath).readAsStringSync()) as Map<String, dynamic>;
+  final nanoOutput =
+      nanoInput.keys.fold('', (String acc, String val) => acc + generateConst(val, nanoInput));
+
   if (outputFile.existsSync()) {
     await outputFile.delete();
   }
@@ -60,4 +68,10 @@ Future<void> importSecretsConfig() async {
   }
 
   await tronOutputFile.writeAsString(tronOutput);
+
+  if (nanoOutputFile.existsSync()) {
+    await nanoOutputFile.delete();
+  }
+
+  await nanoOutputFile.writeAsString(nanoOutput);
 }

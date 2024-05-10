@@ -1,4 +1,3 @@
 Hardware wallets support for Bitcoin, Ethereum and Polygon
-Add Tron wallet
 Security enhancements
 Bug fixes and generic enhancements
