@@ -212,6 +212,8 @@ abstract class ElectrumWalletBase
         _setListeners(walletInfo.restoreHeight, chainTipParam: _currentChainTip);
       }
     } else {
+      alwaysScan = false;
+
       _isolate?.then((runningIsolate) => runningIsolate.kill(priority: Isolate.immediate));
 
       if (electrumClient.isConnected) {
@@ -405,7 +407,11 @@ abstract class ElectrumWalletBase
 
       await updateFeeRates();
 
-      syncStatus = SyncedSyncStatus();
+      if (alwaysScan == true) {
+        _setListeners(walletInfo.restoreHeight);
+      } else {
+        syncStatus = SyncedSyncStatus();
+      }
     } catch (e, stacktrace) {
       print(stacktrace);
       print(e.toString());
@@ -426,13 +432,6 @@ abstract class ElectrumWalletBase
   @action
   @override
   Future<void> connectToNode({required Node node}) async {
-    final differentNode = this.node?.uri != node.uri || this.node?.useSSL != node.useSSL;
-
-    if (differentNode) {
-      _scripthashesUpdateSubject = {};
-      _chainTipUpdateSubject = null;
-    }
-
     this.node = node;
 
     try {
@@ -440,19 +439,17 @@ abstract class ElectrumWalletBase
 
       await electrumClient.close();
 
-      await Timer(Duration(seconds: differentNode ? 0 : 15), () async {
-        electrumClient.onConnectionStatusChange = (bool isConnected) async {
-          if (syncStatus is SyncingSyncStatus) return;
+      electrumClient.onConnectionStatusChange = (bool isConnected) async {
+        if (syncStatus is SyncingSyncStatus) return;
 
-          if (isConnected && syncStatus is! SyncedSyncStatus) {
-            syncStatus = ConnectedSyncStatus();
-          } else if (!isConnected) {
-            syncStatus = LostConnectionSyncStatus();
-          }
-        };
+        if (isConnected && syncStatus is! SyncedSyncStatus) {
+          syncStatus = ConnectedSyncStatus();
+        } else if (!isConnected) {
+          syncStatus = LostConnectionSyncStatus();
+        }
+      };
 
-        await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
-      });
+      await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
     } catch (e) {
       print(e.toString());
       syncStatus = FailedSyncStatus();
@@ -1747,7 +1744,7 @@ abstract class ElectrumWalletBase
   Future<void> _setInitialHeight() async {
     if (_chainTipUpdateSubject != null) return;
 
-    _chainTipUpdateSubject = await electrumClient.chainTipSubscribe();
+    _chainTipUpdateSubject = electrumClient.chainTipSubscribe();
     _chainTipUpdateSubject?.listen((e) async {
       final event = e as Map<String, dynamic>;
       final height = int.parse(event['height'].toString());
@@ -1758,7 +1755,7 @@ abstract class ElectrumWalletBase
         await walletInfo.updateRestoreHeight(_currentChainTip!);
       }
 
-      if (alwaysScan == true) {
+      if (alwaysScan == true && syncStatus is SyncedSyncStatus) {
         _setListeners(walletInfo.restoreHeight);
       }
     });
@@ -1988,6 +1985,7 @@ Future<void> startRefresh(ScanData scanData) async {
           SyncedTipSyncStatus(scanData.chainTip),
         ));
         await tweaksSubscription!.close();
+        await electrumClient.close();
       }
     });
   }
