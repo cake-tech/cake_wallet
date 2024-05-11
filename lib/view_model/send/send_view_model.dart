@@ -580,7 +580,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       if (errorMessage.contains('Transaction expired')) {
-        return 'An error occurred while processing the transaction. Kindly retry the transaction';
+        return 'An error occurred while processing the transaction. Please retry the transaction';
       }
     }
 
