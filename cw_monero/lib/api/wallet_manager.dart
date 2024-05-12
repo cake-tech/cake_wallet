@@ -16,7 +16,7 @@ final monero.WalletManager wmPtr = Pointer.fromAddress((() {
     // Problems with the wallet? Crashes? Lags? this will print all calls to xmr
     // codebase, so it will be easier to debug what happens. At least easier
     // than plugging gdb in. Especially on windows/android.
-    monero.printStarts = kDebugMode;
+    monero.printStarts = false;
     _wmPtr ??= monero.WalletManagerFactory_getWalletManager();
     print("ptr: $_wmPtr");
   } catch (e) {

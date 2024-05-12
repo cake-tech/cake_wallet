@@ -59,13 +59,13 @@ int getNodeHeightSync() => monero.Wallet_daemonBlockChainHeight(wptr!);
 
 bool isConnectedSync() => monero.Wallet_connected(wptr!) != 0;
 
-bool setupNodeSync(
+Future<bool> setupNodeSync(
     {required String address,
     String? login,
     String? password,
     bool useSSL = false,
     bool isLightWallet = false,
-    String? socksProxyAddress}) {
+    String? socksProxyAddress}) async {
   print('''
 {
   wptr!,
@@ -76,12 +76,15 @@ bool setupNodeSync(
   daemonPassword: $password ?? ''
 }
 ''');
-  monero.Wallet_init(wptr!,
-      daemonAddress: address,
-      useSsl: useSSL,
-      proxyAddress: socksProxyAddress ?? '',
-      daemonUsername: login ?? '',
-      daemonPassword: password ?? '');
+  final addr = wptr!.address;
+  await Isolate.run(() {
+    monero.Wallet_init(Pointer.fromAddress(addr),
+        daemonAddress: address,
+        useSsl: useSSL,
+        proxyAddress: socksProxyAddress ?? '',
+        daemonUsername: login ?? '',
+        daemonPassword: password ?? '');
+  });
   // monero.Wallet_init3(wptr!, argv0: '', defaultLogBaseName: 'moneroc', console: true);
 
   final status = monero.Wallet_status(wptr!);
@@ -219,7 +222,7 @@ void onStartup() {}
 
 void _storeSync(Object _) => storeSync();
 
-bool _setupNodeSync(Map<String, Object?> args) {
+Future<bool> _setupNodeSync(Map<String, Object?> args) async {
   final address = args['address'] as String;
   final login = (args['login'] ?? '') as String;
   final password = (args['password'] ?? '') as String;
