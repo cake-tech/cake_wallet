@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -13,6 +15,9 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/hardware/device_connection_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -23,6 +28,19 @@ class RestoreOptionsPage extends BasePage {
   String get title => S.current.restore_restore_wallet;
 
   final bool isNewInstall;
+
+  bool get _doesSupportHardwareWallets {
+    if (!DeviceInfo.instance.isMobile) {
+      return false;
+    }
+
+    if (isMoneroOnly) {
+      return DeviceConnectionType.supportedConnectionTypes(WalletType.monero, Platform.isIOS)
+          .isNotEmpty;
+    }
+
+    return true;
+  }
 
   @override
   Widget body(BuildContext context) {
@@ -57,7 +75,7 @@ class RestoreOptionsPage extends BasePage {
                       description: S.of(context).restore_description_from_backup,
                     ),
                   ),
-                if (DeviceInfo.instance.isMobile)
+                if (_doesSupportHardwareWallets)
                   Padding(
                     padding: EdgeInsets.only(top: 24),
                     child: OptionTile(
