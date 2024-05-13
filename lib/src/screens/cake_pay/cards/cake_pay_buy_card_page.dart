@@ -50,6 +50,20 @@ class CakePayBuyCardPage extends BasePage {
   @override
   AppBarStyle get appBarStyle => AppBarStyle.completelyTransparent;
 
+  @override
+  Widget? middle(BuildContext context) {
+    return  Text(
+      title,
+      textAlign: TextAlign.center,
+      maxLines: 2,
+      style: TextStyle(
+          fontSize: 18.0,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Lato',
+          color: titleColor(context)),
+    );
+  }
+
   final TextEditingController _amountController;
   final FocusNode _amountFieldFocus;
   final TextEditingController _quantityController;
@@ -92,7 +106,7 @@ class CakePayBuyCardPage extends BasePage {
                         end: Alignment.bottomRight,
                       ),
                     ),
-                    height: responsiveLayoutUtil.screenHeight * 0.3,
+                    height: responsiveLayoutUtil.screenHeight * 0.35,
                     width: double.infinity,
                     child: Column(
                       children: [

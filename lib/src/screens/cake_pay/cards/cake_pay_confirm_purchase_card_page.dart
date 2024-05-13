@@ -30,10 +30,19 @@ class CakePayBuyCardDetailPage extends BasePage {
   final CakePayPurchaseViewModel cakePayPurchaseViewModel;
 
   @override
-  Widget middle(BuildContext context) {
-    return Text(
-      cakePayPurchaseViewModel.card.name,
-      style: textMediumSemiBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+  String get title => cakePayPurchaseViewModel.card.name;
+
+  @override
+  Widget? middle(BuildContext context) {
+    return  Text(
+      title,
+      textAlign: TextAlign.center,
+      maxLines: 2,
+      style: TextStyle(
+          fontSize: 18.0,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Lato',
+          color: titleColor(context)),
     );
   }
 
