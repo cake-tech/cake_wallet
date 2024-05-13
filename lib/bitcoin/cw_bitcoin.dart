@@ -339,14 +339,10 @@ class CWBitcoin extends Bitcoin {
           String derivationPath = dInfoCopy.derivationPath!;
           int derivationDepth = _countOccurrences(derivationPath, "/");
 
-          // the correct derivation depth is dependant on the derivation type:
-          // the derivation paths defined in electrum_derivations are at the ROOT level, i.e.:
-          // electrum's format doesn't specify subaddresses, just subaccounts:
-
           // for BIP44
-          if (derivationDepth == 3) {
-            // we add "/0/0" so that we generate account 0, index 0 and correctly get balance
-            derivationPath += "/0/0";
+          if (derivationDepth == 4) {
+            // we add "/0" so that we generate account 0, index 0 and correctly get balance
+            derivationPath += "/0";
           }
 
           // var hd = bip32.BIP32.fromSeed(seedBytes).derivePath(derivationPath);
