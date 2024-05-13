@@ -38,7 +38,10 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: "11.x"
-
+      - name: Configure placeholder git details
+        run: |
+          git config --global user.email "CI@cakewallet.com"
+          git config --global user.name "Cake Github Actions"
       - name: Flutter action
         uses: subosito/flutter-action@v1
         with:
@@ -73,7 +76,7 @@ jobs:
             /opt/android/cake_wallet/cw_monero/ios/External
             /opt/android/cake_wallet/cw_shared_external/ios/External
             /opt/android/cake_wallet/scripts/monero_c/release
-          key: ${{ hashFiles('**/build_monero_all.sh', '**/build_haven.sh', '**/monero_api.cpp') }}
+          key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh', '**/build_haven.sh', '**/monero_api.cpp') }}
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         name: Generate Externals

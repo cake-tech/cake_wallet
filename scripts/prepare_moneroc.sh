@@ -5,7 +5,6 @@ set -x -e
 cd "$(dirname "$0")"
 
 
-
 if [[ ! -d "monero_c" ]];
 then
     git clone https://github.com/mrcyjanek/monero_c --branch rewrite-wip
