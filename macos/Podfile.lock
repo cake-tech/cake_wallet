@@ -24,7 +24,7 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - ReachabilitySwift (5.0.0)
+  - ReachabilitySwift (5.2.2)
   - share_plus_macos (0.0.1):
     - FlutterMacOS
   - shared_preferences_foundation (0.0.1):
@@ -102,10 +102,10 @@ SPEC CHECKSUMS:
   package_info: 6eba2fd8d3371dda2d85c8db6fe97488f24b74b2
   package_info_plus: 02d7a575e80f194102bef286361c6c326e4c29ce
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
-  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
+  ReachabilitySwift: 2128f3a8c9107e1ad33574c6e58e8285d460b149
   share_plus_macos: 853ee48e7dce06b633998ca0735d482dd671ade4
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  url_launcher_macos: d2691c7dd33ed713bf3544850a623080ec693d95
+  url_launcher_macos: 5f437abeda8c85500ceb03f5c1938a8c5a705399
   wakelock_plus: 4783562c9a43d209c458cb9b30692134af456269
 
 PODFILE CHECKSUM: 65ec1541137fb5b35d00490dec1bb48d4d9586bb
