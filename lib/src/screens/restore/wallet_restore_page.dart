@@ -370,14 +370,14 @@ class WalletRestorePage extends BasePage {
       }
     }
 
-    // if (derivationsWithHistory > 1) {
+    if (derivationsWithHistory > 1) {
       dInfo = await Navigator.of(context).pushNamed(
         Routes.restoreWalletChooseDerivation,
         arguments: derivations,
       ) as DerivationInfo?;
-    // } else if (derivationsWithHistory == 1) {
-    //   dInfo = derivations[derivationWithHistoryIndex];
-    // }
+    } else if (derivationsWithHistory == 1) {
+      dInfo = derivations[derivationWithHistoryIndex];
+    }
 
     // get the default derivation for this wallet type:
     if (dInfo == null) {
@@ -394,7 +394,7 @@ class WalletRestorePage extends BasePage {
     if (dInfo == null) {
       dInfo = walletRestoreViewModel.getDefaultDerivation();
     }
-
+    
     this.derivationInfo = dInfo;
 
     walletRestoreViewModel.create(options: _credentials());
