@@ -5,7 +5,6 @@ import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/locales/locale.dart';
-import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
@@ -38,7 +37,6 @@ import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
-import 'package:uni_links/uni_links.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -46,7 +44,7 @@ import 'package:cw_core/window_size.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
-final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
 
 Future<void> main() async {
   await runZonedGuarded(() async {
@@ -63,13 +61,38 @@ Future<void> main() async {
     };
 
     await setDefaultMinimumWindowSize();
-    
+
     await CakeHive.close();
 
     await initializeAppConfigs();
 
     runApp(App());
   }, (error, stackTrace) async {
+    runApp(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: Container(
+              margin: EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
+              child: Column(
+                children: [
+                  Text(
+                    'Error:\n${error.toString()}',
+                    style: TextStyle(fontSize: 22),
+                  ),
+                  Text(
+                    'Stack trace:\n${stackTrace.toString()}',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
     ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }
@@ -229,61 +252,6 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> with SingleTickerProviderStateMixin {
-  AppState() : yatStore = getIt.get<YatStore>();
-
-  YatStore yatStore;
-  StreamSubscription? stream;
-
-  @override
-  void initState() {
-    super.initState();
-    //_handleIncomingLinks();
-    //_handleInitialUri();
-  }
-
-  Future<void> _handleInitialUri() async {
-    try {
-      final uri = await getInitialUri();
-      print('uri: $uri');
-      if (uri == null) {
-        return;
-      }
-      if (!mounted) return;
-      //_fetchEmojiFromUri(uri);
-    } catch (e) {
-      if (!mounted) return;
-      print(e.toString());
-    }
-  }
-
-  void _handleIncomingLinks() {
-    if (!kIsWeb) {
-      stream = getUriLinksStream().listen((Uri? uri) {
-        print('uri: $uri');
-        if (!mounted) return;
-        //_fetchEmojiFromUri(uri);
-      }, onError: (Object error) {
-        if (!mounted) return;
-        print('Error: $error');
-      });
-    }
-  }
-
-  void _fetchEmojiFromUri(Uri uri) {
-    //final queryParameters = uri.queryParameters;
-    //if (queryParameters?.isEmpty ?? true) {
-    //  return;
-    //}
-    //final emoji = queryParameters['eid'];
-    //final refreshToken = queryParameters['refresh_token'];
-    //if ((emoji?.isEmpty ?? true)||(refreshToken?.isEmpty ?? true)) {
-    //  return;
-    //}
-    //yatStore.emoji = emoji;
-    //yatStore.refreshToken = refreshToken;
-    //yatStore.emojiIncommingSC.add(emoji);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (BuildContext context) {
