@@ -61,13 +61,38 @@ Future<void> main() async {
     };
 
     await setDefaultMinimumWindowSize();
-    
+
     await CakeHive.close();
 
     await initializeAppConfigs();
 
     runApp(App());
   }, (error, stackTrace) async {
+    runApp(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: Container(
+              margin: EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
+              child: Column(
+                children: [
+                  Text(
+                    'Error:\n${error.toString()}',
+                    style: TextStyle(fontSize: 22),
+                  ),
+                  Text(
+                    'Stack trace:\n${stackTrace.toString()}',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
     ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }

@@ -1,1 +1,1 @@
-Generic bug fixes and enhancements
+Bug fixes and generic enhancements
