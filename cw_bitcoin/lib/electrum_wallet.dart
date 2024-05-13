@@ -16,6 +16,7 @@ import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -101,7 +102,7 @@ abstract class ElectrumWalletBase
       return currency == CryptoCurrency.bch
           ? bitcoinCashHDWallet(seedBytes)
           : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-              .derivePath(_hardenedDerivationPath(derivationInfo?.derivationPath ?? "m/0'"));
+              .derivePath(_hardenedDerivationPath(derivationInfo?.derivationPath ?? electrum_path));
     }
 
     return bitcoin.HDWallet.fromBase58(xpub!);
@@ -245,7 +246,7 @@ abstract class ElectrumWalletBase
         final hd =
             utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd;
         final derivationPath =
-            "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? "m/0'")}"
+            "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? electrum_path)}"
             "/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}"
             "/${utx.bitcoinAddressRecord.index}";
         final pubKeyHex = hd.derive(utx.bitcoinAddressRecord.index).pubKey!;
@@ -374,7 +375,7 @@ abstract class ElectrumWalletBase
       final hd =
           utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd;
       final derivationPath =
-          "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? "m/0'")}"
+          "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? electrum_path)}"
           "/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}"
           "/${utx.bitcoinAddressRecord.index}";
       final pubKeyHex = hd.derive(utx.bitcoinAddressRecord.index).pubKey!;

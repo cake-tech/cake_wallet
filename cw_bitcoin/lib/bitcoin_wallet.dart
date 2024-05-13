@@ -2,6 +2,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:convert/convert.dart';
 
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/psbt_transaction_builder.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -134,7 +135,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     );
 
     // set the default if not present:
-    walletInfo.derivationInfo!.derivationPath = snp.derivationPath ?? "m/0'/0";
+    walletInfo.derivationInfo!.derivationPath = snp.derivationPath ?? electrum_path;
     walletInfo.derivationInfo!.derivationType = snp.derivationType ?? DerivationType.electrum;
 
     Uint8List? seedBytes = null;
