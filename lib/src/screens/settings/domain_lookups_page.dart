@@ -38,7 +38,7 @@ class DomainLookupsPage extends BasePage {
                   value: _privacySettingsViewModel.looksUpUnstoppableDomains,
                   onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsUnstoppableDomains(value)),
               SettingsSwitcherCell(
-                  title: 'OpenAlias,',
+                  title: 'OpenAlias',
                   value: _privacySettingsViewModel.looksUpOpenAlias,
                   onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsOpenAlias(value)),
               SettingsSwitcherCell(

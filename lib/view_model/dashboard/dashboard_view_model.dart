@@ -509,7 +509,9 @@ abstract class DashboardViewModelBase with Store {
         final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
         final jsonSource = await read(path: path, password: password);
         final data = json.decode(jsonSource) as Map;
-        final mnemonic = data['mnemonic'] as String;
+        final mnemonic = data['mnemonic'] as String?;
+
+        if (mnemonic == null) continue;
 
         final hash = await Cryptography.instance.sha256().hash(utf8.encode(mnemonic));
         final seedSha = bytesToHex(hash.bytes);

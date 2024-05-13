@@ -14,6 +14,7 @@ class PreferencesKey {
   static const currentFiatCurrencyKey = 'current_fiat_currency';
   static const currentBitcoinCashNodeIdKey = 'current_node_id_bch';
   static const currentSolanaNodeIdKey = 'current_node_id_sol';
+  static const currentTronNodeIdKey = 'current_node_id_trx';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
@@ -55,13 +56,14 @@ class PreferencesKey {
   static const pinNativeTokenAtTop = 'pin_native_token_at_top';
   static const useEtherscan = 'use_etherscan';
   static const usePolygonScan = 'use_polygonscan';
+  static const useTronGrid = 'use_trongrid';
   static const defaultNanoRep = 'default_nano_representative';
   static const defaultBananoRep = 'default_banano_representative';
   static const lookupsTwitter = 'looks_up_twitter';
   static const lookupsMastodon = 'looks_up_mastodon';
-  static const lookupsYatService = 'looks_up_mastodon';
-  static const lookupsUnstoppableDomains = 'looks_up_mastodon';
-  static const lookupsOpenAlias = 'looks_up_mastodon';
+  static const lookupsYatService = 'looks_up_yat';
+  static const lookupsUnstoppableDomains = 'looks_up_unstoppable_domain';
+  static const lookupsOpenAlias = 'looks_up_open_alias';
   static const lookupsENS = 'looks_up_ens';
   static const autoBackupMode = 'automatic_backup_mode';
   static const autoBackupDir = 'automatic_backups_directory';

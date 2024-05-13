@@ -56,8 +56,9 @@ abstract class OtherSettingsViewModelBase with Store {
       _wallet.type == WalletType.nano || _wallet.type == WalletType.banano;
 
   @computed
-  bool get displayTransactionPriority =>
-      !(changeRepresentativeEnabled || _wallet.type == WalletType.solana);
+  bool get displayTransactionPriority => !(changeRepresentativeEnabled ||
+      _wallet.type == WalletType.solana ||
+      _wallet.type == WalletType.tron);
 
   @computed
   bool get isEnabledBuyAction => !_settingsStore.disableBuy && _wallet.type != WalletType.haven;

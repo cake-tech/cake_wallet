@@ -59,23 +59,6 @@ class SecurityBackupPage extends BasePage {
                   _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
-          Observer(
-            builder: (context) {
-              return SettingsCellWithArrow(
-                title: _securitySettingsViewModel.useTotp2FA
-                    ? S.current.modify_2fa
-                    : S.current.setup_2fa,
-                handler: (_) => _authService.authenticateAction(
-                  context,
-                  route: _securitySettingsViewModel.useTotp2FA
-                      ? Routes.modify2FAPage
-                      : Routes.setup2faInfoPage,
-                  conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                      .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-                ),
-              );
-            },
-          ),
           if (DeviceInfo.instance.isMobile || Platform.isMacOS || Platform.isLinux)
             Observer(builder: (_) {
               return SettingsSwitcherCell(

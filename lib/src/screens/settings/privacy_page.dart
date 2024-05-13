@@ -103,6 +103,14 @@ class PrivacyPage extends BasePage {
                     _privacySettingsViewModel.setUsePolygonScan(value);
                   },
                 ),
+              if (_privacySettingsViewModel.canUseTronGrid)
+                SettingsSwitcherCell(
+                  title: S.current.trongrid_history,
+                  value: _privacySettingsViewModel.useTronGrid,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUseTronGrid(value);
+                  },
+                ),
               SettingsCellWithArrow(
                 title: S.current.domain_looks_up,
                 handler: (context) => Navigator.of(context).pushNamed(Routes.domainLookupsPage),

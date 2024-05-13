@@ -7,7 +7,6 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -75,7 +74,7 @@ Future<Uint8List> _computableEncryptV2(Map<String, dynamic> args) async {
 
 class BackupService {
   BackupService(
-      this._flutterSecureStorage, this._walletInfoSource, this._keyService, this._sharedPreferences)
+      this._secureStorage, this._walletInfoSource, this._keyService, this._sharedPreferences)
       : _cipher = Cryptography.instance.chacha20Poly1305Aead(),
         _correctWallets = <WalletInfo>[];
 
@@ -85,7 +84,7 @@ class BackupService {
   static const _v2 = 2;
 
   final Cipher _cipher;
-  final FlutterSecureStorage _flutterSecureStorage;
+  final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
   final Box<WalletInfo> _walletInfoSource;
   final KeyService _keyService;
@@ -451,15 +450,14 @@ class BackupService {
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
 
-    await writeSecureStorage(_flutterSecureStorage, key: backupPasswordKey, value: backupPassword);
+    await _secureStorage.write(key: backupPasswordKey, value: backupPassword);
 
     keychainWalletsInfo.forEach((dynamic rawInfo) async {
       final info = rawInfo as Map<String, dynamic>;
       await importWalletKeychainInfo(info);
     });
 
-    await writeSecureStorage(_flutterSecureStorage,
-        key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
+    await _secureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
 
     keychainDumpFile.deleteSync();
   }
@@ -478,15 +476,14 @@ class BackupService {
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
 
-    await writeSecureStorage(_flutterSecureStorage, key: backupPasswordKey, value: backupPassword);
+    await _secureStorage.write(key: backupPasswordKey, value: backupPassword);
 
     keychainWalletsInfo.forEach((dynamic rawInfo) async {
       final info = rawInfo as Map<String, dynamic>;
       await importWalletKeychainInfo(info);
     });
 
-    await writeSecureStorage(_flutterSecureStorage,
-        key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
+    await _secureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
 
     keychainDumpFile.deleteSync();
   }
@@ -506,7 +503,7 @@ class BackupService {
   Future<Uint8List> _exportKeychainDumpV2(String password,
       {String keychainSalt = secrets.backupKeychainSalt}) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final encodedPin = await _flutterSecureStorage.read(key: key);
+    final encodedPin = await _secureStorage.read(key: key);
     final decodedPin = decodedPinCode(pin: encodedPin!);
     final wallets = await Future.wait(_walletInfoSource.values.map((walletInfo) async {
       return {
@@ -516,7 +513,7 @@ class BackupService {
       };
     }));
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
-    final backupPassword = await _flutterSecureStorage.read(key: backupPasswordKey);
+    final backupPassword = await _secureStorage.read(key: backupPasswordKey);
     final data = utf8.encode(
         json.encode({'pin': decodedPin, 'wallets': wallets, backupPasswordKey: backupPassword}));
     final encrypted = await _encryptV2(Uint8List.fromList(data), '$keychainSalt$password');
