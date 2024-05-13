@@ -336,20 +336,19 @@ class CWBitcoin extends Bitcoin {
             scriptType: dInfo.scriptType,
           );
 
-          String derivationPath = dInfoCopy.derivationPath!;
-          int derivationDepth = _countOccurrences(derivationPath, "/");
+          String balancePath = dInfoCopy.derivationPath!;
+          int derivationDepth = _countOccurrences(balancePath, "/");
 
           // for BIP44
-          if (derivationDepth == 4) {
-            // we add "/0" so that we generate account 0, index 0 and correctly get balance
-            derivationPath += "/0";
+          if (derivationDepth == 3) {
+            // we add "/0/0" so that we generate account 0, index 0 and correctly get balance
+            balancePath += "/0/0";
           }
 
-          // var hd = bip32.BIP32.fromSeed(seedBytes).derivePath(derivationPath);
           final hd = btc.HDWallet.fromSeed(
             seedBytes,
             network: networkType,
-          ).derivePath(derivationPath);
+          ).derivePath(balancePath);
 
           String? address;
           switch (dInfoCopy.scriptType) {
