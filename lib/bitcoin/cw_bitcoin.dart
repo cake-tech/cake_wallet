@@ -33,6 +33,14 @@ class CWBitcoin extends Bitcoin {
       BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo);
 
   @override
+  WalletCredentials createBitcoinHardwareWalletCredentials(
+          {required String name,
+          required HardwareAccountData accountData,
+          WalletInfo? walletInfo}) =>
+      BitcoinRestoreWalletFromHardware(
+          name: name, hwAccountData: accountData, walletInfo: walletInfo);
+
+  @override
   TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;
 
   @override
@@ -431,5 +439,22 @@ class CWBitcoin extends Bitcoin {
   int getMaxCustomFeeRate(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return (bitcoinWallet.feeRate(BitcoinTransactionPriority.fast) * 1.1).round();
+  }
+
+  @override
+  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device) {
+    (wallet as BitcoinWallet).setLedger(ledger, device);
+  }
+
+  @override
+  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
+      {int index = 0, int limit = 5}) async {
+    final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
+    try {
+      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
+    } on LedgerException catch (err) {
+      print(err.message);
+      throw err;
+    }
   }
 }

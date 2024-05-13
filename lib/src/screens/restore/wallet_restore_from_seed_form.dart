@@ -170,15 +170,15 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             ),
           if (widget.displayLanguageSelector)
             GestureDetector(
-                onTap: () async {
-                  await showPopUp<void>(
-                      context: context,
-                      builder: (_) => SeedLanguagePicker(
-                            selected: language,
-                            onItemSelected: _changeLanguage,
-                            seedType: isPolyseed ? SeedType.polyseed : SeedType.legacy,
-                          ));
-                },
+              onTap: () async {
+                await showPopUp<void>(
+                    context: context,
+                    builder: (_) => SeedLanguagePicker(
+                          selected: language,
+                          onItemSelected: _changeLanguage,
+                          seedType: isPolyseed ? SeedType.polyseed : SeedType.legacy,
+                        ));
+              },
               child: Container(
                 color: Colors.transparent,
                 padding: EdgeInsets.only(top: 20.0),
@@ -203,6 +203,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             BaseTextFormField(
               hintText: S.current.passphrase,
               controller: passphraseController,
+              obscureText: true,
             ),
           ]
         ]));

@@ -1,8 +1,8 @@
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/core/key_service.dart';
@@ -25,7 +25,7 @@ class WalletCreationService {
   }
 
   WalletType type;
-  final FlutterSecureStorage secureStorage;
+  final SecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
   final SettingsStore settingsStore;
   final KeyService keyService;
@@ -93,6 +93,21 @@ class WalletCreationService {
     credentials.password = password;
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);
     final wallet = await _service!.restoreFromSeed(credentials, isTestnet: isTestnet);
+
+    if (wallet.type == WalletType.monero) {
+      await sharedPreferences.setBool(
+          PreferencesKey.moneroWalletUpdateV1Key(wallet.name), _isNewMoneroWalletPasswordUpdated);
+    }
+
+    return wallet;
+  }
+
+  Future<WalletBase> restoreFromHardwareWallet(WalletCredentials credentials) async {
+    checkIfExists(credentials.name);
+    final password = generateWalletPassword();
+    credentials.password = password;
+    await keyService.saveWalletPassword(password: password, walletName: credentials.name);
+    final wallet = await _service!.restoreFromHardwareWallet(credentials);
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
