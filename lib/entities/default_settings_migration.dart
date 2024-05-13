@@ -768,7 +768,9 @@ Future<void> changeDefaultMoneroNode(
 
 Future<void> fixBtcDerivationPaths(Box<WalletInfo> walletsInfoSource) async {
   for (WalletInfo walletInfo in walletsInfoSource.values) {
-    if (walletInfo.type == WalletType.bitcoin) {
+    if (walletInfo.type == WalletType.bitcoin ||
+        walletInfo.type == WalletType.bitcoinCash ||
+        walletInfo.type == WalletType.litecoin) {
       if (walletInfo.derivationInfo?.derivationPath == "m/0'") {
         walletInfo.derivationInfo!.derivationPath = "m/0'/0";
       }
