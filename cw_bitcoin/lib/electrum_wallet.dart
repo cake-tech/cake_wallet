@@ -102,11 +102,10 @@ abstract class ElectrumWalletBase
     }
 
     if (seedBytes != null) {
-      final electrumPath = electrum_derivations[DerivationType.electrum]!.first.derivationPath!;
       return currency == CryptoCurrency.bch
           ? bitcoinCashHDWallet(seedBytes)
           : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-              .derivePath(_hardenedDerivationPath(derivationInfo?.derivationPath ?? electrumPath));
+              .derivePath(_hardenedDerivationPath(derivationInfo?.derivationPath ?? electrum_path));
     }
 
     return bitcoin.HDWallet.fromBase58(xpub!);
@@ -250,9 +249,8 @@ abstract class ElectrumWalletBase
         final address = addressTypeFromStr(utx.address, network);
         final hd =
             utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd;
-        final electrumPath = electrum_derivations[DerivationType.electrum]!.first.derivationPath!;
         final derivationPath =
-            "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? electrumPath)}"
+            "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? electrum_path)}"
             "/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}"
             "/${utx.bitcoinAddressRecord.index}";
         final pubKeyHex = hd.derive(utx.bitcoinAddressRecord.index).pubKey!;
@@ -380,9 +378,8 @@ abstract class ElectrumWalletBase
 
       final hd =
           utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd;
-      final electrumPath = electrum_derivations[DerivationType.electrum]!.first.derivationPath!;
       final derivationPath =
-          "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? electrumPath)}"
+          "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? electrum_path)}"
           "/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}"
           "/${utx.bitcoinAddressRecord.index}";
       final pubKeyHex = hd.derive(utx.bitcoinAddressRecord.index).pubKey!;

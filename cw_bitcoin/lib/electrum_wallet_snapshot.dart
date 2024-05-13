@@ -3,7 +3,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/utils/file.dart';
@@ -59,10 +58,9 @@ class ElectrumWalletSnapshot {
     var regularAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
     var changeAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
 
-    final electrumPath = electrum_derivations[DerivationType.electrum]!.first.derivationPath!;
     final derivationType = DerivationType
         .values[(data['derivationTypeIndex'] as int?) ?? DerivationType.electrum.index];
-    final derivationPath = data['derivationPath'] as String? ?? electrumPath;
+    final derivationPath = data['derivationPath'] as String? ?? electrum_path;
 
     try {
       regularAddressIndexByType = {

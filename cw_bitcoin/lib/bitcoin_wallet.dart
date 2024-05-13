@@ -130,8 +130,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     );
 
     // set the default if not present:
-    final electrumPath = electrum_derivations[DerivationType.electrum]!.first.derivationPath!;
-    walletInfo.derivationInfo!.derivationPath = snp.derivationPath ?? electrumPath;
+    walletInfo.derivationInfo!.derivationPath = snp.derivationPath ?? electrum_path;
     walletInfo.derivationInfo!.derivationType = snp.derivationType ?? DerivationType.electrum;
 
     Uint8List? seedBytes = null;

@@ -224,6 +224,9 @@ Future<void> defaultSettingsMigration(
           await addTronNodeList(nodes: nodes);
           await changeTronCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
+        case 34:
+          await fixBtcDerivationPaths(walletInfoSource);
+          break;
         default:
           break;
       }
