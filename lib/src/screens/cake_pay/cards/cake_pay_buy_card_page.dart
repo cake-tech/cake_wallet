@@ -52,7 +52,7 @@ class CakePayBuyCardPage extends BasePage {
 
   @override
   Widget? middle(BuildContext context) {
-    return  Text(
+    return Text(
       title,
       textAlign: TextAlign.center,
       maxLines: 2,
@@ -208,12 +208,6 @@ class CakePayBuyCardPage extends BasePage {
                                     fontSize: 18,
                                     fontWeight: FontWeight.w400,
                                   ),
-                                  linkStyle: TextStyle(
-                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                                    fontSize: 18,
-                                    fontStyle: FontStyle.italic,
-                                    fontWeight: FontWeight.w400,
-                                  ),
                                 ),
                               ),
                             ),
@@ -322,8 +316,8 @@ class _DenominationsAmountWidget extends StatelessWidget {
                           color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
                     ),
                   ),
-                  child: Text('Choose a card value:', //TODO: S.of(context).choose_card_value,
-                      maxLines: 1,
+                  child: Text(S.of(context).choose_card_value + ':',
+                      maxLines: 2,
                       style: textSmall(
                           color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
                 ),
@@ -356,7 +350,7 @@ class _DenominationsAmountWidget extends StatelessWidget {
                           color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
                     ),
                   ),
-                  child: Text('Quantity:', //TODO: S.of(context).quantity,
+                  child: Text(S.of(context).quantity + ':',
                       maxLines: 1,
                       style: textSmall(
                           color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
@@ -393,7 +387,7 @@ class _DenominationsAmountWidget extends StatelessWidget {
                                 Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
                       ),
                     ),
-                    child: Text('Total:', //TODO: S.of(context).total,
+                    child: Text(S.of(context).total + ':',
                         maxLines: 1,
                         style: textSmall(
                             color:

@@ -99,7 +99,7 @@ class CakePayBuyCardDetailPage extends BasePage {
                           Row(
                             children: [
                               Text(
-                                'Value:',
+                                S.of(context).value + ':',
                                 style: textLarge(
                                     color:
                                         Theme.of(context).extension<CakeTextTheme>()!.titleColor),
@@ -117,7 +117,7 @@ class CakePayBuyCardDetailPage extends BasePage {
                           Row(
                             children: [
                               Text(
-                                'Quantity:',
+                                S.of(context).quantity + ':',
                                 style: textLarge(
                                     color:
                                         Theme.of(context).extension<CakeTextTheme>()!.titleColor),
@@ -135,7 +135,7 @@ class CakePayBuyCardDetailPage extends BasePage {
                           Row(
                             children: [
                               Text(
-                                'Total:',
+                                S.of(context).total + ':',
                                 style: textLarge(
                                     color:
                                         Theme.of(context).extension<CakeTextTheme>()!.titleColor),
@@ -171,7 +171,7 @@ class CakePayBuyCardDetailPage extends BasePage {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Expiry and Validity:',
+                    Text(S.of(context).expiry_and_validity + ':',
                         style: textMediumSemiBold(
                             color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
                     SizedBox(height: 10),
@@ -242,12 +242,6 @@ class CakePayBuyCardDetailPage extends BasePage {
                 textStyle: TextStyle(
                   color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                   fontSize: 18,
-                  fontWeight: FontWeight.w400,
-                ),
-                linkStyle: TextStyle(
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                  fontSize: 18,
-                  fontStyle: FontStyle.italic,
                   fontWeight: FontWeight.w400,
                 ),
               ),

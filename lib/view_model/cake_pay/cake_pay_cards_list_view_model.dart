@@ -1,6 +1,7 @@
 import 'package:cake_wallet/cake_pay/cake_pay_service.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_states.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/dashboard/dropdown_filter_item.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:mobx/mobx.dart';
@@ -40,25 +41,27 @@ abstract class CakePayCardsListViewModelBase with Store {
   List<CakePayVendor> CakePayVendorList;
 
   Map<String, List<FilterItem>> get createFilterItems => {
-        'Filter Option': [
+        S.current.filter_by: [
           FilterItem(
               value: () => displayPrepaidCards,
-              caption: 'Prepaid Cards',
+              caption: S.current.prepaid_cards,
               onChanged: togglePrepaidCards),
           FilterItem(
-              value: () => displayGiftCards, caption: 'Gift Cards', onChanged: toggleGiftCards),
+              value: () => displayGiftCards,
+              caption: S.current.gift_cards,
+              onChanged: toggleGiftCards),
         ],
-        'Value Type': [
+        S.current.value_type: [
           FilterItem(
               value: () => displayDenominationsCards,
-              caption: 'Denominations',
+              caption: S.current.denominations,
               onChanged: toggleDenominationsCards),
           FilterItem(
               value: () => displayCustomValueCards,
-              caption: 'Custom Value',
+              caption: S.current.custom_value,
               onChanged: toggleCustomValueCards),
         ],
-        'Countries': [
+        S.current.countries: [
           DropdownFilterItem(
             items: availableCountries,
             caption: '',
@@ -123,10 +126,10 @@ abstract class CakePayCardsListViewModelBase with Store {
 
   bool get hasFiltersChanged =>
       selectedCountry != _initialSelectedCountry ||
-          displayPrepaidCards != _initialDisplayPrepaidCards ||
-          displayGiftCards != _initialDisplayGiftCards ||
-          displayDenominationsCards != _initialDisplayDenominationsCards ||
-          displayCustomValueCards != _initialDisplayCustomValueCards;
+      displayPrepaidCards != _initialDisplayPrepaidCards ||
+      displayGiftCards != _initialDisplayGiftCards ||
+      displayDenominationsCards != _initialDisplayDenominationsCards ||
+      displayCustomValueCards != _initialDisplayCustomValueCards;
 
   Future<void> getCountries() async {
     availableCountries = await cakePayService.getCountries();
