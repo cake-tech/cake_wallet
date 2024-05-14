@@ -4,6 +4,7 @@ import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/quantex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
@@ -56,6 +57,9 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.thorChain:
         _provider = ThorChainExchangeProvider(tradesStore: trades);
         break;
+      case ExchangeProviderDescription.quantex:
+        _provider = QuantexExchangeProvider();
+        break;
     }
 
     _updateItems();
@@ -80,6 +84,8 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://exolix.com/transaction/${trade.id}';
       case ExchangeProviderDescription.thorChain:
         return 'https://track.ninerealms.com/${trade.id}';
+      case ExchangeProviderDescription.quantex:
+        return 'https://myquantex.com/send/${trade.id}';
     }
     return null;
   }
