@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -92,6 +93,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   }
 
   late final ObservableMap<CryptoCurrency, LightningBalance> _balance;
+  StreamSubscription<List<Payment>>? _paymentsSub;
+  StreamSubscription<NodeState?>? _nodeStateSub;
 
   @override
   @computed
@@ -177,14 +180,16 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     );
 
     String workingDir = (await getApplicationDocumentsDirectory()).path;
-    workingDir = "$workingDir/wallets/lightning/${walletInfo.name}/breez/";
+    workingDir = "$workingDir/wallets/lightning/${walletInfo.address}/breez/";
     new Directory(workingDir).createSync(recursive: true);
     breezConfig = breezConfig.copyWith(workingDir: workingDir);
 
     // disconnect if already connected
     try {
       await sdk.disconnect();
-    } catch (_) {}
+    } catch (e, s) {
+      print("ERROR disconnecting from Breez: $e\n$s");
+    }
 
     try {
       await sdk.connect(
@@ -197,7 +202,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       print("Error connecting to Breez: $e");
     }
 
-    sdk.nodeStateStream.listen((event) {
+    _nodeStateSub = sdk.nodeStateStream.listen((event) {
       if (event == null) return;
       _balance[CryptoCurrency.btcln] = LightningBalance(
         confirmed: event.maxPayableMsat ~/ 1000,
@@ -206,7 +211,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       );
     });
 
-    sdk.paymentsStream.listen((payments) {
+    _paymentsSub = sdk.paymentsStream.listen((payments) {
       _isTransactionUpdating = true;
       final txs = convertToTxInfo(payments);
       transactionHistory.addMany(txs);
@@ -223,6 +228,13 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     // }
 
     print("initialized breez: ${(await sdk.isInitialized())}");
+  }
+
+  Future<void> stopBreez() async {
+    final sdk = await BreezSDK();
+    await sdk.disconnect();
+    await _nodeStateSub?.cancel();
+    await _paymentsSub?.cancel();
   }
 
   @action
@@ -344,4 +356,18 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   String get seed => mnemonic;
 
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
+
+  @override
+  Future<void> close() async {
+    try {
+      await electrumClient.close();
+    } catch (_) {}
+    try {
+      print("stopping breez");
+      await stopBreez();
+      print("stopped breez @@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+    } catch (e, s) {
+      print("Error stopping breez: $e\n$s");
+    }
+  }
 }
