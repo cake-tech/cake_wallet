@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
@@ -11,8 +15,21 @@ import 'package:permission_handler/permission_handler.dart';
 class LedgerViewModel {
   late final Ledger ledger;
 
+  bool get _doesSupportHardwareWallets {
+    if (!DeviceInfo.instance.isMobile) {
+      return false;
+    }
+
+    if (isMoneroOnly) {
+      return DeviceConnectionType.supportedConnectionTypes(WalletType.monero, Platform.isIOS)
+          .isNotEmpty;
+    }
+
+    return true;
+  }
+
   LedgerViewModel() {
-    if (DeviceInfo.instance.isMobile) {
+    if (_doesSupportHardwareWallets) {
       ledger = Ledger(
         options: LedgerOptions(
           scanMode: ScanMode.balanced,
