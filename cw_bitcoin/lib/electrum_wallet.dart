@@ -234,6 +234,11 @@ abstract class ElectrumWalletBase
     return _currentChainTip ?? await electrumClient.getCurrentBlockChainTip() ?? 0;
   }
 
+  Future<int> getUpdatedChainTip() async {
+    _currentChainTip = await electrumClient.getCurrentBlockChainTip();
+    return _currentChainTip ?? 0;
+  }
+
   @override
   BitcoinWalletKeys get keys =>
       BitcoinWalletKeys(wif: hd.wif!, privateKey: hd.privKey!, publicKey: hd.pubKey!);
@@ -262,10 +267,10 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> _setListeners(int height, {int? chainTipParam, bool? doSingleScan}) async {
-    final chainTip = chainTipParam ?? await getCurrentChainTip();
+    final chainTip = chainTipParam ?? await getUpdatedChainTip();
 
     if (chainTip == height) {
-      syncStatus = NotConnectedSyncStatus();
+      syncStatus = SyncedSyncStatus();
       return;
     }
 
@@ -1744,16 +1749,17 @@ abstract class ElectrumWalletBase
   Future<void> _setInitialHeight() async {
     if (_chainTipUpdateSubject != null) return;
 
+    if ((_currentChainTip == null || _currentChainTip! == 0) && walletInfo.restoreHeight == 0) {
+      await getUpdatedChainTip();
+      await walletInfo.updateRestoreHeight(_currentChainTip!);
+    }
+
     _chainTipUpdateSubject = electrumClient.chainTipSubscribe();
     _chainTipUpdateSubject?.listen((e) async {
       final event = e as Map<String, dynamic>;
       final height = int.parse(event['height'].toString());
 
       _currentChainTip = height;
-
-      if (_currentChainTip != null && _currentChainTip! > 0 && walletInfo.restoreHeight == 0) {
-        await walletInfo.updateRestoreHeight(_currentChainTip!);
-      }
 
       if (alwaysScan == true && syncStatus is SyncedSyncStatus) {
         _setListeners(walletInfo.restoreHeight);
@@ -1980,10 +1986,16 @@ Future<void> startRefresh(ScanData scanData) async {
       );
 
       if (tweakHeight >= scanData.chainTip || scanData.isSingleScan) {
-        scanData.sendPort.send(SyncResponse(
-          syncHeight,
-          SyncedTipSyncStatus(scanData.chainTip),
-        ));
+        if (tweakHeight >= scanData.chainTip)
+          scanData.sendPort.send(SyncResponse(
+            syncHeight,
+            SyncedTipSyncStatus(scanData.chainTip),
+          ));
+
+        if (scanData.isSingleScan) {
+          scanData.sendPort.send(SyncResponse(syncHeight, SyncedSyncStatus()));
+        }
+
         await tweaksSubscription!.close();
         await electrumClient.close();
       }

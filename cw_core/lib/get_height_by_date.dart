@@ -268,19 +268,31 @@ int getBitcoinHeightByDate({required DateTime date}) {
   String dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}';
   final closestKey = bitcoinDates.keys
       .firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => bitcoinDates.keys.last);
-  int startBlock = bitcoinDates[dateKey] ?? bitcoinDates[closestKey]!;
+  final beginningBlock = bitcoinDates[dateKey] ?? bitcoinDates[closestKey]!;
 
-  DateTime startOfMonth = DateTime(date.year, date.month);
-  int daysDifference = date.difference(startOfMonth).inDays;
+  final startOfMonth = DateTime(date.year, date.month);
+  final daysDifference = date.difference(startOfMonth).inDays;
 
   // approximately 6 blocks per hour, 24 hours per day
   int estimatedBlocksSinceStartOfMonth = (daysDifference * 24 * 6);
 
-  return startBlock + estimatedBlocksSinceStartOfMonth;
+  return beginningBlock + estimatedBlocksSinceStartOfMonth;
 }
 
 DateTime getDateByBitcoinHeight(int height) {
-  final date = bitcoinDates.entries
-      .lastWhere((entry) => entry.value >= height, orElse: () => bitcoinDates.entries.last);
-  return formatMapKey(date.key);
+  final closestEntry = bitcoinDates.entries
+      .lastWhere((entry) => entry.value >= height, orElse: () => bitcoinDates.entries.first);
+  final beginningBlock = closestEntry.value;
+
+  final startOfMonth = formatMapKey(closestEntry.key);
+  final blocksDifference = height - beginningBlock;
+  final hoursDifference = blocksDifference / 5.5;
+
+  final estimatedDate = startOfMonth.add(Duration(hours: hoursDifference.ceil()));
+
+  if (estimatedDate.isAfter(DateTime.now())) {
+    return DateTime.now();
+  }
+
+  return estimatedDate;
 }

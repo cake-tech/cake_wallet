@@ -14,10 +14,10 @@ class SettingActions {
   });
 
   static List<SettingActions> all = [
-    silentPaymentsSettingAction,
     connectionSettingAction,
     walletSettingAction,
     addressBookSettingAction,
+    silentPaymentsSettingAction,
     securityBackupSettingAction,
     privacySettingAction,
     displaySettingAction,
