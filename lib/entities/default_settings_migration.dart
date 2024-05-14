@@ -23,7 +23,8 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:collection/collection.dart';
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
-const cakeWalletBitcoinElectrumUri = '198.58.111.154:50001';
+const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
+const cakeWalletSilentPaymentsElectrsUri = '198.58.111.154:50001';
 const publicBitcoinTestnetElectrumAddress = '198.58.111.154';
 const publicBitcoinTestnetElectrumPort = '50002';
 const publicBitcoinTestnetElectrumUri =
@@ -37,7 +38,7 @@ const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'rpc.ankr.com';
 const tronDefaultNodeUri = 'tron-rpc.publicnode.com:443';
-const newCakeWalletBitcoinUri = '198.58.111.154:50001';
+const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -845,15 +846,23 @@ Future<void> checkCurrentNodes(
     await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, newCakeWalletNode.key as int);
   }
 
-  if (currentBitcoinElectrumServer == null) {
-    final cakeWalletElectrum =
-        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false);
-    await nodeSource.add(cakeWalletElectrum);
-    final cakeWalletElectrumTestnet =
-        Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
-    await nodeSource.add(cakeWalletElectrumTestnet);
+  final hasElectrs = nodeSource.values
+          .firstWhereOrNull((element) => element.uri == cakeWalletSilentPaymentsElectrsUri) ==
+      null;
+  final isUsingCakeWalletElectrum = currentBitcoinElectrumServer != null
+      ? (currentBitcoinElectrumServer.uri.toString().endsWith(cakeWalletBitcoinElectrumUri) ||
+          currentBitcoinElectrumServer.uri.toString().endsWith(newCakeWalletBitcoinUri))
+      : false;
+
+  if (currentBitcoinElectrumServer == null || (hasElectrs && isUsingCakeWalletElectrum)) {
+    final cakeWalletElectrs =
+        Node(uri: cakeWalletSilentPaymentsElectrsUri, type: WalletType.bitcoin, useSSL: false);
+    await nodeSource.add(cakeWalletElectrs);
+    // final cakeWalletElectrumTestnet =
+    //     Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
+    // await nodeSource.add(cakeWalletElectrumTestnet);
     await sharedPreferences.setInt(
-        PreferencesKey.currentBitcoinElectrumSererIdKey, cakeWalletElectrum.key as int);
+        PreferencesKey.currentBitcoinElectrumSererIdKey, cakeWalletElectrs.key as int);
   }
 
   if (currentLitecoinElectrumServer == null) {
@@ -930,9 +939,9 @@ Future<void> resetBitcoinElectrumServer(
   if (cakeWalletNode == null) {
     cakeWalletNode =
         Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false);
-    final cakeWalletElectrumTestnet =
-        Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
-    await nodeSource.add(cakeWalletElectrumTestnet);
+    // final cakeWalletElectrumTestnet =
+    //     Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
+    // await nodeSource.add(cakeWalletElectrumTestnet);
     await nodeSource.add(cakeWalletNode);
   }
 
