@@ -283,7 +283,7 @@ class ElectrumClient {
     return subscribe<Object>(
       id: 'blockchain.tweaks.subscribe:${height + count}',
       method: 'blockchain.tweaks.subscribe',
-      params: [height, count],
+      params: [height, count, false],
     );
   }
 
