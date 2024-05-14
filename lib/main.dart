@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'dart:io' show Platform;
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
@@ -66,12 +66,17 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:cw_core/window_size.dart';
+import 'package:monero/monero.dart' as monero_dart;
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
 
 Future<void> main() async {
+  if (Platform.isIOS) {
+    monero_dart.libPath = "MoneroWallet.framework/MoneroWallet";
+  }
+
   bool isAppRunning = false;
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();

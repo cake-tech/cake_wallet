@@ -9,7 +9,7 @@ if [ -z "$APP_IOS_TYPE" ]; then
         echo "Please set APP_IOS_TYPE"
         exit 1
 fi
-
+./gen_framework.sh
 cd .. # go to scipts
 ./gen_android_manifest.sh
 cd .. # go to root

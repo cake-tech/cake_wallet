@@ -169,3 +169,5 @@ macos/Runner/Configs/AppInfo.xcconfig
 
 # Monero.dart (Monero_C)
 scripts/monero_c
+# iOS generated framework bin
+ios/MoneroWallet.framework/MoneroWallet
