@@ -1,8 +1,5 @@
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
@@ -13,15 +10,14 @@ class WalletRestoreChooseDerivationPage extends BasePage {
   WalletRestoreChooseDerivationPage(this.walletRestoreChooseDerivationViewModel) {}
 
   @override
-  Widget middle(BuildContext context) => Observer(
-      builder: (_) => Text(
-            S.current.choose_derivation,
-            style: TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Lato',
-                color: titleColor(context)),
-          ));
+  Widget middle(BuildContext context) => Text(
+        S.current.choose_derivation,
+        style: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Lato',
+            color: titleColor(context)),
+      );
 
   final WalletRestoreChooseDerivationViewModel walletRestoreChooseDerivationViewModel;
   DerivationType derivationType = DerivationType.unknown;
@@ -105,7 +101,7 @@ class WalletRestoreChooseDerivationPage extends BasePage {
                                 ),
                           ),
                           Text(
-                            "${S.current.transactions}: ${derivation.height}",
+                            "${S.current.transactions}: ${derivation.transactionsCount}",
                             style: Theme.of(context).primaryTextTheme.labelMedium!.copyWith(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,

@@ -59,12 +59,15 @@ class MarketPlacePage extends StatelessWidget {
                     // ),
                     SizedBox(height: 20),
                     DashBoardRoundedCardWidget(
-                      onTap: () => launchUrl(
-                        Uri.https("buy.cakepay.com"),
-                        mode: LaunchMode.externalApplication,
-                      ),
                       title: S.of(context).cake_pay_web_cards_title,
                       subTitle: S.of(context).cake_pay_web_cards_subtitle,
+                      onTap: () => _launchMarketPlaceUrl("buy.cakepay.com"),
+                    ),
+                    const SizedBox(height: 20),
+                    DashBoardRoundedCardWidget(
+                      title: "NanoGPT",
+                      subTitle: S.of(context).nanogpt_subtitle,
+                      onTap: () => _launchMarketPlaceUrl("cake.nano-gpt.com"),
                     ),
                   ],
                 ),
@@ -74,6 +77,17 @@ class MarketPlacePage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _launchMarketPlaceUrl(String url) async {
+    try {
+      launchUrl(
+        Uri.https(url),
+        mode: LaunchMode.externalApplication,
+      );
+    } catch (e) {
+      print(e);
+    }
   }
 
   // TODO: Remove ionia flow/files if we will discard it

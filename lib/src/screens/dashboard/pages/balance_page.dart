@@ -69,14 +69,14 @@ class BalancePage extends StatelessWidget {
                       ),
                       labelColor:
                           Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                      dividerColor:
-                          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                      dividerColor: Colors.transparent,
                       indicatorColor:
                           Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                       unselectedLabelColor: Theme.of(context)
                           .extension<DashboardPageTheme>()!
                           .pageTitleTextColor
                           .withOpacity(0.5),
+                      tabAlignment: TabAlignment.start,
                       tabs: [
                         Tab(text: 'My Crypto'),
                         Tab(text: 'My NFTs'),
@@ -148,6 +148,17 @@ class CryptoBalanceWidget extends StatelessWidget {
                                       maxLines: 1,
                                       textAlign: TextAlign.center,
                                     ),
+                                    if (dashboardViewModel.wallet.isHardwareWallet)
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Image.asset(
+                                          'assets/images/ledger_nano.png',
+                                          width: 24,
+                                          color: Theme.of(context)
+                                              .extension<DashboardPageTheme>()!
+                                              .pageTitleTextColor,
+                                        ),
+                                      ),
                                     if (dashboardViewModel
                                         .balanceViewModel.isHomeScreenSettingsEnabled)
                                       InkWell(
@@ -340,7 +351,7 @@ class BalanceRowWidget extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 16,
                               fontFamily: 'Lato',
-                             fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w500,
                               color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                               height: 1)),
                     ],

@@ -4,6 +4,7 @@ import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/quantex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
@@ -47,6 +48,9 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
       case ExchangeProviderDescription.exolix:
         _provider = ExolixExchangeProvider();
+        break;
+      case ExchangeProviderDescription.quantex:
+        _provider = QuantexExchangeProvider();
         break;
       case ExchangeProviderDescription.thorChain:
         _provider = ThorChainExchangeProvider(tradesStore: trades);
@@ -178,6 +182,10 @@ abstract class ExchangeTradeViewModelBase with Store {
         wallet.currency == CryptoCurrency.maticpoly &&
         tradesStore.trade!.from.tag == CryptoCurrency.maticpoly.tag;
 
+    bool _isTronToken() =>
+        wallet.currency == CryptoCurrency.trx &&
+        tradesStore.trade!.from.tag == CryptoCurrency.trx.title;
+
     bool _isSplToken() =>
         wallet.currency == CryptoCurrency.sol &&
         tradesStore.trade!.from.tag == CryptoCurrency.sol.title;
@@ -186,6 +194,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
         _isEthToken() ||
         _isPolygonToken() ||
-        _isSplToken();
+        _isSplToken() ||
+        _isTronToken();
   }
 }

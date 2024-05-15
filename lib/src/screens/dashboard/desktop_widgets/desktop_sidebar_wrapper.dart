@@ -82,7 +82,8 @@ class DesktopSidebarWrapper extends BasePage {
               width: sideMenuWidth,
               topItems: [
                 SideMenuItem(
-                  imagePath: 'assets/images/wallet_outline.png',
+                  // imagePath: 'assets/images/wallet_outline.png',
+                  icon: Icons.home,
                   isSelected: desktopSidebarViewModel.currentPage == SidebarItem.dashboard,
                   onTap: () {
                     desktopSidebarViewModel.onPageChange(SidebarItem.dashboard);
