@@ -74,6 +74,15 @@ Build the Monero libraries and their dependencies:
 
 `$ ./build_monero_all.sh`
 
+If you be needed to build universal monero lib, then it will require additional steps. Steps for build universal monero lib on mac with Apple Silicon (arm64):
+
+- Need to install Rosetta: `$ softwareupdate --install-rosetta`
+- Need to install [Brew](https://brew.sh/) with rosetta: `$ arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"` (or take another way to install brew, but be use that you have installed it into /usr/local as it's using for x86_64 macs)
+- Install dependencies for build monero wallet lib for x86_64 with brew: `$ arch -x86_64 /usr/local/bin/brew install unbound boost@1.76 zmq` and link installed boost@1.76 for x86_64 `$ arch -x86_64 /usr/local/bin/brew link boost@1.76`
+- Run building script with additional argument: `$ ./build_monero_all.sh universal`
+
+If you will be needed to build monero wallet lib only for x86_64 on arm64 mac, then you need use steps above, but run build script with rosetta without arguments: `$ arch -x86_64 ./build_monero_all.sh`.
+
 It is now time to change back to the base directory of the CakeWallet source code:
 
 `$ cd ../../`
