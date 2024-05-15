@@ -57,6 +57,7 @@ class SecretKey {
   
   static final tronSecrets = [
     SecretKey('tronGridApiKey', () => ''),
+    SecretKey('nowNodesApiKey', () => ''),
   ];
 
   final String name;
