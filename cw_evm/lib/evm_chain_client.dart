@@ -315,6 +315,7 @@ abstract class EVMChainClient {
     final depositWithExpiryFunction = contract.function('depositWithExpiry');
     final inboundEtHAddress = EthereumAddress.fromHex(inboundAddress);
     final assetContractAddress = EthereumAddress.fromHex(contractAddress);
+    final formattedDate = BigInt.from(DateTime.now().add(const Duration(hours: 2)).millisecondsSinceEpoch ~/ 1000);
 
 
     await _client!.call(
@@ -325,7 +326,7 @@ abstract class EVMChainClient {
         assetContractAddress,
         amount,
         memo,
-        DateTime.now().add(const Duration(hours: 2)).millisecondsSinceEpoch ~/ 1000,
+        formattedDate,
       ],
     );
   }
