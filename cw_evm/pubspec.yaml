@@ -46,9 +46,6 @@ dev_dependencies:
   hive_generator: ^1.1.3
   flutter_lints: ^2.0.0
 
-dependency_overrides:
-  watcher: ^1.1.0
-
 flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
