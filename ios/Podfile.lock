@@ -307,7 +307,7 @@ SPEC CHECKSUMS:
   sensitive_clipboard: d4866e5d176581536c27bb1618642ee83adca986
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  sp_scanner: 76e1515c7e8208e1a389eba7e5196381374c2f96
+  sp_scanner: eaa617fa827396b967116b7f1f43549ca62e9a12
   SwiftProtobuf: 407a385e97fd206c4fbe880cc84123989167e0d1
   SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
   Toast: ec33c32b8688982cecc6348adeae667c1b9938da
