@@ -64,11 +64,11 @@ class ElectrumClient {
       await socket?.close();
     } catch (_) {}
 
-    if (useSSL == true) {
+    if (useSSL == false) {
+      socket = await Socket.connect(host, port, timeout: connectionTimeout);
+    } else {
       socket = await SecureSocket.connect(host, port,
           timeout: connectionTimeout, onBadCertificate: (_) => true);
-    } else {
-      socket = await Socket.connect(host, port, timeout: connectionTimeout);
     }
     _setIsConnected(true);
 
