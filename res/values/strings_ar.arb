@@ -530,6 +530,7 @@
   "save_backup_password": "يرجى التأكد من حفظ كلمة المرور الاحتياطية. لن تتمكن من استيراد ملفات النسخ الاحتياطي بدونها.",
   "save_backup_password_alert": "حفظ كلمة المرور الاحتياطية",
   "save_to_downloads": "ﺕﻼ﻿ﻳﺰﻨﺘﻟﺍ ﻲﻓ ﻆﻔﺣ",
+  "save_to_pm": "حفظ إلى مدير كلمة المرور",
   "saved_the_trade_id": "لقد تم حفظ معرف العملية",
   "scan_qr_code": "امسح رمز QR ضوئيًا",
   "scan_qr_code_to_get_address": "امسح ال QR للحصول على العنوان",

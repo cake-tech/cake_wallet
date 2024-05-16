@@ -530,6 +530,7 @@
   "save_backup_password": "Molimo pobrinite se da spremite svoju lozinku za sigurnosnu kopiju. Bez nje nećete moći uvesti datoteke sigurnosne kopije.",
   "save_backup_password_alert": "Spremi lozinku za sigurnosnu kopiju",
   "save_to_downloads": "Spremi u Preuzimanja",
+  "save_to_pm": "Spremi u upravitelja lozinke",
   "saved_the_trade_id": "Spremio/la sam transakcijski ID",
   "scan_qr_code": "Skenirajte QR kod",
   "scan_qr_code_to_get_address": "Skeniraj QR kod za dobivanje adrese",

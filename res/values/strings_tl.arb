@@ -530,6 +530,7 @@
   "save_backup_password": "Mangyaring tiyaking nai -save mo ang iyong backup password. Hindi mo mai -import ang iyong mga backup na file nang wala ito.",
   "save_backup_password_alert": "I -save ang backup password",
   "save_to_downloads": "I -save sa mga pag -download",
+  "save_to_pm": "I -save sa manager ng password",
   "saved_the_trade_id": "Nai -save ko ang trade ID",
   "scan_qr_code": "I -scan ang QR Code",
   "scan_qr_code_to_get_address": "I -scan ang QR code upang makuha ang address",

@@ -532,6 +532,7 @@
   "save_backup_password": "Certifique-se de que salvou sua senha de backup. Você não poderá importar seus arquivos de backup sem ele.",
   "save_backup_password_alert": "Salvar senha de backup",
   "save_to_downloads": "Salvar em Downloads",
+  "save_to_pm": "Salvar no gerenciador de senhas",
   "saved_the_trade_id": "ID da troca salvo",
   "scan_qr_code": "Escanear código QR",
   "scan_qr_code_to_get_address": "Digitalize o código QR para obter o endereço",

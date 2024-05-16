@@ -530,6 +530,7 @@
   "save_backup_password": "请确保您已保存备份密码。 沒有它，您将无法导入备份文件。",
   "save_backup_password_alert": "保存备份密码",
   "save_to_downloads": "保存到下载",
+  "save_to_pm": "保存到密码管理器",
   "saved_the_trade_id": "我已经保存了交易编号",
   "scan_qr_code": "扫描二维码",
   "scan_qr_code_to_get_address": "扫描二维码获取地址",

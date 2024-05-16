@@ -533,6 +533,7 @@
   "save_backup_password": "Pastikan Anda telah menyimpan kata sandi cadangan Anda. Anda tidak akan dapat mengimpor file cadangan Anda tanpa itu.",
   "save_backup_password_alert": "Simpan kata sandi cadangan",
   "save_to_downloads": "Simpan ke Unduhan",
+  "save_to_pm": "Simpan ke Manajer Kata Sandi",
   "saved_the_trade_id": "Saya telah menyimpan ID perdagangan",
   "scan_qr_code": "Scan kode QR untuk mendapatkan alamat",
   "scan_qr_code_to_get_address": "Pindai kode QR untuk mendapatkan alamat",

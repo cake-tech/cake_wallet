@@ -531,6 +531,7 @@
   "save_backup_password": "Asegúrese de haber guardado su contraseña de respaldo. No podrá importar sus archivos de respaldo sin él.",
   "save_backup_password_alert": "Guardar contraseña de respaldo",
   "save_to_downloads": "Guardar en Descargas",
+  "save_to_pm": "Guardar al administrador de contraseñas",
   "saved_the_trade_id": "He salvado comercial ID",
   "scan_qr_code": "Escanear código QR",
   "scan_qr_code_to_get_address": "Escanee el código QR para obtener la dirección",

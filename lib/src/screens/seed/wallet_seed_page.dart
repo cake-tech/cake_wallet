@@ -120,17 +120,22 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
   void initState() {
     super.initState();
 
+    // required to setup autofill context:
     _nameFieldController.text = widget.walletSeedViewModel.name;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _seedNode.requestFocus();
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   setupPasswordManager();
+    // });
+  }
 
-      await Future.delayed(Duration(milliseconds: 200));
-      _seedFieldController.text = widget.walletSeedViewModel.seed;
+  Future<void> setupPasswordManager() async {
+    _seedNode.requestFocus();
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        FocusScope.of(context).unfocus();
-      });
+    await Future.delayed(Duration(milliseconds: 200));
+    _seedFieldController.text = widget.walletSeedViewModel.seed;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).unfocus();
     });
   }
 
@@ -225,7 +230,7 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
                       children: <Widget>[
                         Flexible(
                           child: Container(
-                            padding: EdgeInsets.only(right: 8.0),
+                            padding: EdgeInsets.only(right: 4),
                             child: PrimaryButton(
                               onPressed: () {
                                 ShareUtil.share(
@@ -241,7 +246,7 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
                         ),
                         Flexible(
                           child: Container(
-                            padding: EdgeInsets.only(left: 8.0),
+                            padding: EdgeInsets.only(left: 4),
                             child: Builder(
                               builder: (context) => PrimaryButton(
                                 onPressed: () {
@@ -256,18 +261,33 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
                             ),
                           ),
                         ),
-                        Flexible(
-                          child: Container(
-                            padding: EdgeInsets.only(right: 8.0),
-                            child: PrimaryButton(
-                              onPressed: () => TextInput.finishAutofillContext(),
-                              text: "save 2",
-                              color: Colors.green,
-                              textColor: Colors.white,
-                            ),
-                          ),
-                        )
                       ],
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(top: 10),
+                      child: PrimaryButton(
+                        onPressed: () async {
+                          showPopUp<void>(
+                            context: context,
+                            builder: (dialogContext) {
+                              return AlertWithTwoActions(
+                                alertTitle: S.of(context).save_to_pm,
+                                alertContent: S.of(context).save_backup_password,
+                                rightButtonText: S.of(context).ok,
+                                leftButtonText: S.of(context).cancel,
+                                actionRightButton: () async {},
+                                actionLeftButton: () => Navigator.of(dialogContext).pop(),
+                              );
+                            },
+                          );
+
+                          await setupPasswordManager();
+                          TextInput.finishAutofillContext();
+                        },
+                        text: S.current.save_to_pm,
+                        color: Colors.blue,
+                        textColor: Colors.white,
+                      ),
                     ),
                   ],
                 ),
