@@ -531,6 +531,7 @@
   "save": "Salvar",
   "save_backup_password": "Certifique-se de que salvou sua senha de backup. Você não poderá importar seus arquivos de backup sem ele.",
   "save_backup_password_alert": "Salvar senha de backup",
+  "save_pm_content": "Geralmente, essa é uma maneira segura de salvar sua semente, mas nem todos os gerentes de senha são criados iguais! Confira nossa lista de aplicativos bem conhecidos no guia da carteira de bolo, se não tiver certeza.",
   "save_to_downloads": "Salvar em Downloads",
   "save_to_pm": "Salvar no gerenciador de senhas",
   "saved_the_trade_id": "ID da troca salvo",

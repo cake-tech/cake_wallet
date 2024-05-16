@@ -529,6 +529,7 @@
   "save": "Save",
   "save_backup_password": "Please make sure that you have saved your backup password.  You will not be able to import your backup files without it.",
   "save_backup_password_alert": "Save backup password",
+  "save_pm_content": "This is usually a safe way to save your seed, but not all password managers are created equal! Check out our list of known-good apps in the cake wallet guide if you are unsure.",
   "save_to_downloads": "Save to Downloads",
   "save_to_pm": "Save to Password Manager",
   "saved_the_trade_id": "I've saved the trade ID",

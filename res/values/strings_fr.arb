@@ -529,6 +529,7 @@
   "save": "Sauvegarder",
   "save_backup_password": "Merci de vous assurer d'avoir bien sauvegardé votre mot de passe de sauvegarde.  Vous ne pourrez pas restaurer vos fichiers de sauvegarde sans ce dernier.",
   "save_backup_password_alert": "Enregistrer le mot de passe de sauvegarde",
+  "save_pm_content": "C'est généralement un moyen sûr de sauver vos semences, mais tous les gestionnaires de mots de passe ne sont pas créés égaux! Consultez notre liste d'applications connues dans le Guide du portefeuille de gâteaux si vous n'êtes pas sûr.",
   "save_to_downloads": "Enregistrer dans les téléchargements",
   "save_to_pm": "Enregistrer sur Motword Manager",
   "saved_the_trade_id": "J'ai sauvegardé l'ID d'échange",

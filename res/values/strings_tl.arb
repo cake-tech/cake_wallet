@@ -529,6 +529,7 @@
   "save": "I -save",
   "save_backup_password": "Mangyaring tiyaking nai -save mo ang iyong backup password. Hindi mo mai -import ang iyong mga backup na file nang wala ito.",
   "save_backup_password_alert": "I -save ang backup password",
+  "save_pm_content": "Ito ay karaniwang isang ligtas na paraan upang mai -save ang iyong binhi, ngunit hindi lahat ng mga tagapamahala ng password ay nilikha pantay! Suriin ang aming listahan ng mga kilalang-mahusay na apps sa gabay ng cake wallet kung hindi ka sigurado.",
   "save_to_downloads": "I -save sa mga pag -download",
   "save_to_pm": "I -save sa manager ng password",
   "saved_the_trade_id": "Nai -save ko ang trade ID",

@@ -529,6 +529,7 @@
   "save": "Kaydet",
   "save_backup_password": "Lütfen yedekleme parolanı kaydettiğinden emin ol.  Bu parola olmadan yedekleme dosyasını içe aktaramazsın.",
   "save_backup_password_alert": "Yedek parolasını kaydet",
+  "save_pm_content": "Bu genellikle tohumunuzu kaydetmek için güvenli bir yoldur, ancak tüm şifre yöneticileri eşit yaratılmaz! Emin değilseniz, Cake Cüzdan Kılavuzu'ndaki bilinen iyi uygulamalar listemize göz atın.",
   "save_to_downloads": "İndirilenlere Kaydet",
   "save_to_pm": "Şifre Yöneticisine Kaydet",
   "saved_the_trade_id": "Takas ID'imi kaydettim",

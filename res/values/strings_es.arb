@@ -530,6 +530,7 @@
   "save": "Salvar",
   "save_backup_password": "Asegúrese de haber guardado su contraseña de respaldo. No podrá importar sus archivos de respaldo sin él.",
   "save_backup_password_alert": "Guardar contraseña de respaldo",
+  "save_pm_content": "Esta suele ser una forma segura de guardar su semilla, ¡pero no todos los administradores de contraseñas son iguales! Echa un vistazo a nuestra lista de aplicaciones bien conocidas en la guía de billetera de pastel si no estás seguro.",
   "save_to_downloads": "Guardar en Descargas",
   "save_to_pm": "Guardar al administrador de contraseñas",
   "saved_the_trade_id": "He salvado comercial ID",

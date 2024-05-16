@@ -530,6 +530,7 @@
   "save": "Speichern",
   "save_backup_password": "Bitte stellen Sie sicher, dass Sie Ihr Sicherungskennwort gespeichert haben. Ohne dieses können Sie Ihre Sicherungsdateien nicht importieren.",
   "save_backup_password_alert": "Sicherungskennwort speichern",
+  "save_pm_content": "Dies ist normalerweise ein sicherer Weg, um Ihren Saatgut zu speichern, aber nicht alle Passwort -Manager werden gleich erstellt! Schauen Sie sich unsere Liste der bekannten guten Apps im Cake Wallet Guide an, wenn Sie sich nicht sicher sind.",
   "save_to_downloads": "Unter „Downloads“ speichern",
   "save_to_pm": "Speichern Sie den Passwort Manager",
   "saved_the_trade_id": "Ich habe die Handels-ID gespeichert",

@@ -529,6 +529,7 @@
   "save": "Spremi",
   "save_backup_password": "Molimo pobrinite se da spremite svoju lozinku za sigurnosnu kopiju. Bez nje nećete moći uvesti datoteke sigurnosne kopije.",
   "save_backup_password_alert": "Spremi lozinku za sigurnosnu kopiju",
+  "save_pm_content": "To je obično siguran način da spremite svoje sjeme, ali nisu svi upravitelji lozinki stvoreni jednakim! Ako niste sigurni, pogledajte naš popis aplikacija poznatih dobrih aplikacija u Vodiču za torte.",
   "save_to_downloads": "Spremi u Preuzimanja",
   "save_to_pm": "Spremi u upravitelja lozinke",
   "saved_the_trade_id": "Spremio/la sam transakcijski ID",

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -259,38 +261,40 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
                         ),
                       ],
                     ),
-                    Container(
-                      padding: EdgeInsets.only(top: 10),
-                      child: PrimaryButton(
-                        onPressed: () async {
-                          bool open = await showPopUp<bool>(
-                                context: context,
-                                builder: (dialogContext) {
-                                  return AlertWithTwoActions(
-                                    alertTitle: S.current.save_to_pm,
-                                    alertContent: S.current.save_backup_password,
-                                    rightButtonText: S.current.save,
-                                    leftButtonText: S.current.cancel,
-                                    actionRightButton: () async {
-                                      Navigator.of(dialogContext).pop(true);
-                                    },
-                                    actionLeftButton: () => Navigator.of(dialogContext).pop(false),
-                                  );
-                                },
-                              ) ??
-                              false;
+                    if (Platform.isIOS || Platform.isAndroid)
+                      Container(
+                        padding: EdgeInsets.only(top: 10),
+                        child: PrimaryButton(
+                          onPressed: () async {
+                            bool open = await showPopUp<bool>(
+                                  context: context,
+                                  builder: (dialogContext) {
+                                    return AlertWithTwoActions(
+                                      alertTitle: S.current.save_to_pm,
+                                      alertContent: S.current.save_pm_content,
+                                      rightButtonText: S.current.save,
+                                      leftButtonText: S.current.cancel,
+                                      actionRightButton: () async {
+                                        Navigator.of(dialogContext).pop(true);
+                                      },
+                                      actionLeftButton: () =>
+                                          Navigator.of(dialogContext).pop(false),
+                                    );
+                                  },
+                                ) ??
+                                false;
 
-                          if (open) {
-                            await setupPasswordManager();
-                            await Future.delayed(Duration(milliseconds: 300));
-                            TextInput.finishAutofillContext();
-                          }
-                        },
-                        text: S.current.save_to_pm,
-                        color: Colors.blue,
-                        textColor: Colors.white,
+                            if (open) {
+                              await setupPasswordManager();
+                              await Future.delayed(Duration(milliseconds: 300));
+                              TextInput.finishAutofillContext();
+                            }
+                          },
+                          text: S.current.save_to_pm,
+                          color: Colors.blue,
+                          textColor: Colors.white,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ],

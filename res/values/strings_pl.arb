@@ -529,6 +529,7 @@
   "save": "Zapisz",
   "save_backup_password": "Upewnij się, że zapisałeś swoje hasło kopii zapasowej. Bez tego nie będziesz mógł zaimportować pliku kopii zapasowej.",
   "save_backup_password_alert": "Zapisz hasło kopii zapasowej",
+  "save_pm_content": "Jest to zwykle bezpieczny sposób na zapisanie nasion, ale nie wszyscy menedżerowie haseł są równi! Jeśli nie masz pewności, sprawdź naszą listę znanych aplikacji w przewodniku portfela ciasta.",
   "save_to_downloads": "Zapisz w Pobranych",
   "save_to_pm": "Zapisz w menedżerze haseł",
   "saved_the_trade_id": "Zapisałem ID",

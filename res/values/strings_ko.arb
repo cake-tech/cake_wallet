@@ -530,6 +530,7 @@
   "save": "구하다",
   "save_backup_password": "백업 암호를 저장했는지 확인하십시오. 그것 없이는 백업 파일을 가져올 수 없습니다.",
   "save_backup_password_alert": "백업 비밀번호 저장",
+  "save_pm_content": "이것은 일반적으로 씨앗을 구하는 안전한 방법이지만 모든 암호 관리자가 동일하게 생성되는 것은 아닙니다! 확실하지 않은 경우 Cake 지갑 가이드에서 알려진 좋은 앱 목록을 확인하십시오.",
   "save_to_downloads": "다운로드에 저장",
   "save_to_pm": "비밀번호 관리자에게 저장하십시오",
   "saved_the_trade_id": "거래 ID를 저장했습니다",

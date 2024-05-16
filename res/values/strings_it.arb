@@ -531,6 +531,7 @@
   "save": "Salva",
   "save_backup_password": "Gentilmente assicurati di aver salvato la password del tuo backup.  Senza questa non sarai in grado di importare i tuoi file di backup.",
   "save_backup_password_alert": "Salva password Backup",
+  "save_pm_content": "Questo di solito è un modo sicuro per salvare il tuo seme, ma non tutti i gestori di password sono creati uguali! Dai un'occhiata al nostro elenco di app conosciute nella Guida al portafoglio della torta se non sei sicuro.",
   "save_to_downloads": "Salva in Download",
   "save_to_pm": "Salva su Password Manager",
   "saved_the_trade_id": "Ho salvato l'ID dello scambio",

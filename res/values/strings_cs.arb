@@ -529,6 +529,7 @@
   "save": "Uložit",
   "save_backup_password": "Prosím ujistěte se, že máte uschováno heslo pro zálohy. Bez něj nebudete moci naimportovat soubory se zálohami.",
   "save_backup_password_alert": "Uložit heslo pro zálohy",
+  "save_pm_content": "To je obvykle bezpečný způsob, jak uložit semeno, ale ne všichni správci hesel jsou vytvořeni stejně! Podívejte se na náš seznam známých dobrých aplikací v průvodci peněžence Cake, pokud si nejste jisti.",
   "save_to_downloads": "Uložit do Stažených souborů",
   "save_to_pm": "Uložit správce hesel",
   "saved_the_trade_id": "Uložil jsem si ID transakce (trade ID)",

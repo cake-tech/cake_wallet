@@ -529,6 +529,7 @@
   "save": "保存",
   "save_backup_password": "请确保您已保存备份密码。 沒有它，您将无法导入备份文件。",
   "save_backup_password_alert": "保存备份密码",
+  "save_pm_content": "这通常是保存种子的安全方法，但并非所有密码管理器都是平等的！如果您不确定，请在蛋糕钱包指南中查看我们已知的应用程序列表。",
   "save_to_downloads": "保存到下载",
   "save_to_pm": "保存到密码管理器",
   "saved_the_trade_id": "我已经保存了交易编号",
