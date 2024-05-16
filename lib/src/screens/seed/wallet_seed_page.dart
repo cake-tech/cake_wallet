@@ -282,7 +282,7 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
 
                           if (open) {
                             await setupPasswordManager();
-                            await Future.delayed(Duration(milliseconds: 400));
+                            await Future.delayed(Duration(milliseconds: 300));
                             TextInput.finishAutofillContext();
                           }
                         },
