@@ -122,10 +122,6 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
 
     // required to setup autofill context:
     _nameFieldController.text = widget.walletSeedViewModel.name;
-
-    // WidgetsBinding.instance.addPostFrameCallback((_) async {
-    //   setupPasswordManager();
-    // });
   }
 
   Future<void> setupPasswordManager() async {
@@ -134,7 +130,7 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
     await Future.delayed(Duration(milliseconds: 200));
     _seedFieldController.text = widget.walletSeedViewModel.seed;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       FocusScope.of(context).unfocus();
     });
   }
@@ -267,22 +263,27 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
                       padding: EdgeInsets.only(top: 10),
                       child: PrimaryButton(
                         onPressed: () async {
-                          showPopUp<void>(
-                            context: context,
-                            builder: (dialogContext) {
-                              return AlertWithTwoActions(
-                                alertTitle: S.of(context).save_to_pm,
-                                alertContent: S.of(context).save_backup_password,
-                                rightButtonText: S.of(context).ok,
-                                leftButtonText: S.of(context).cancel,
-                                actionRightButton: () async {},
-                                actionLeftButton: () => Navigator.of(dialogContext).pop(),
-                              );
-                            },
-                          );
+                          bool open = await showPopUp<bool>(
+                                context: context,
+                                builder: (dialogContext) {
+                                  return AlertWithTwoActions(
+                                    alertTitle: S.of(context).save_to_pm,
+                                    alertContent: S.of(context).save_backup_password,
+                                    rightButtonText: S.of(context).ok,
+                                    leftButtonText: S.of(context).cancel,
+                                    actionRightButton: () async {
+                                      Navigator.of(dialogContext).pop(true);
+                                    },
+                                    actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+                                  );
+                                },
+                              ) ??
+                              false;
 
-                          await setupPasswordManager();
-                          TextInput.finishAutofillContext();
+                          if (open) {
+                            await setupPasswordManager();
+                            TextInput.finishAutofillContext();
+                          }
                         },
                         text: S.current.save_to_pm,
                         color: Colors.blue,
