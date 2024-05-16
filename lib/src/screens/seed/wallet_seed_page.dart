@@ -267,10 +267,10 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
                                 context: context,
                                 builder: (dialogContext) {
                                   return AlertWithTwoActions(
-                                    alertTitle: S.of(context).save_to_pm,
-                                    alertContent: S.of(context).save_backup_password,
-                                    rightButtonText: S.of(context).ok,
-                                    leftButtonText: S.of(context).cancel,
+                                    alertTitle: S.current.save_to_pm,
+                                    alertContent: S.current.save_backup_password,
+                                    rightButtonText: S.current.save,
+                                    leftButtonText: S.current.cancel,
                                     actionRightButton: () async {
                                       Navigator.of(dialogContext).pop(true);
                                     },
