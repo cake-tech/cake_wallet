@@ -186,7 +186,9 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
 
     // disconnect if already connected
     try {
-      await sdk.disconnect();
+      if (await sdk.isInitialized()) {
+        await sdk.disconnect();
+      }
     } catch (e, s) {
       print("ERROR disconnecting from Breez: $e\n$s");
     }
@@ -232,7 +234,9 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
 
   Future<void> stopBreez() async {
     final sdk = await BreezSDK();
-    await sdk.disconnect();
+    if (await sdk.isInitialized()) {
+      await sdk.disconnect();
+    }
     await _nodeStateSub?.cancel();
     await _paymentsSub?.cancel();
   }
