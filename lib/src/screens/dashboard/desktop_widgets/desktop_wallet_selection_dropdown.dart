@@ -117,22 +117,25 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
     if (selectedWallet.isCurrent || !selectedWallet.isEnabled) {
       return;
     }
-    final confirmed = await showPopUp<bool>(
-            context: context,
-            builder: (dialogContext) {
-              return AlertWithTwoActions(
-                  alertTitle: S.of(context).change_wallet_alert_title,
-                  alertContent: S.of(context).change_wallet_alert_content(selectedWallet.name),
-                  leftButtonText: S.of(context).cancel,
-                  rightButtonText: S.of(context).change,
-                  actionLeftButton: () => Navigator.of(dialogContext).pop(false),
-                  actionRightButton: () => Navigator.of(dialogContext).pop(true));
-            }) ??
-        false;
 
-    if (confirmed) {
-      await _loadWallet(selectedWallet);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final confirmed = await showPopUp<bool>(
+          context: context,
+          builder: (dialogContext) {
+            return AlertWithTwoActions(
+                alertTitle: S.of(context).change_wallet_alert_title,
+                alertContent: S.of(context).change_wallet_alert_content(selectedWallet.name),
+                leftButtonText: S.of(context).cancel,
+                rightButtonText: S.of(context).change,
+                actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+                actionRightButton: () => Navigator.of(dialogContext).pop(true));
+          }) ??
+          false;
+
+      if (confirmed) {
+        await _loadWallet(selectedWallet);
+      }
+    });
   }
 
   Image _imageFor({required WalletType type}) {
