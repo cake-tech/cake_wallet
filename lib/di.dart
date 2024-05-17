@@ -311,7 +311,6 @@ Future<void> setup({
   getIt.registerFactory<Box<Node>>(() => _powNodeSource, instanceName: Node.boxName + "pow");
 
   getIt.registerSingleton(AuthenticationStore());
-  getIt.registerSingleton(LedgerViewModel());
   getIt.registerSingleton<WalletListStore>(WalletListStore());
   getIt.registerSingleton(NodeListStoreBase.instance);
   getIt.registerSingleton<SettingsStore>(settingsStore);
@@ -335,6 +334,8 @@ Future<void> setup({
         ..init());
   getIt.registerSingleton<AnonpayTransactionsStore>(
       AnonpayTransactionsStore(anonpayInvoiceInfoSource: _anonpayInvoiceInfoSource));
+
+  getIt.registerLazySingleton(() => LedgerViewModel());
 
   final secretStore = await SecretStoreBase.load(getIt.get<SecureStorage>());
 
