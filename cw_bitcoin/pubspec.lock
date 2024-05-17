@@ -86,9 +86,11 @@ packages:
   bitcoin_base:
     dependency: "direct main"
     description:
-      path: "../../bitcoin_base"
-      relative: true
-    source: path
+      path: "."
+      ref: cake-mweb
+      resolved-ref: "9389210f4c0376ac6f5dfe5aeabc042adc76449c"
+      url: "https://github.com/cake-tech/bitcoin_base.git"
+    source: git
     version: "4.2.0"
   bitcoin_flutter:
     dependency: "direct main"
@@ -696,10 +698,10 @@ packages:
     dependency: transitive
     description:
       name: protobuf
-      sha256: "68645b24e0716782e58948f8467fd42a880f255096a821f9e7d0ec625b00c84d"
+      sha256: "01dd9bd0fa02548bf2ceee13545d4a0ec6046459d847b6b061d8a27237108a08"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.0"
+    version: "2.1.0"
   provider:
     dependency: transitive
     description:
