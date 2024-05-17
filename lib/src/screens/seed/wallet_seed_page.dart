@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -17,6 +18,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WalletSeedPage extends BasePage {
   WalletSeedPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
@@ -114,6 +116,7 @@ class WalletSeedPageBody extends StatefulWidget {
 
 class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
   final FocusNode _seedNode = FocusNode();
+  final FocusNode _disabledNode = FocusNode();
 
   final TextEditingController _nameFieldController = TextEditingController();
   final TextEditingController _seedFieldController = TextEditingController();
@@ -124,6 +127,10 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
 
     // required to setup autofill context:
     _nameFieldController.text = widget.walletSeedViewModel.name;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await setupPasswordManager();
+    });
   }
 
   Future<void> setupPasswordManager() async {
@@ -134,13 +141,16 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       FocusScope.of(context).unfocus();
+      // if we don't focus something else then dismissing the alert window will bring
+      // the keyboard back up:
+      _disabledNode.requestFocus();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: WillPopScope(
+    return ScrollableWithBottomSection(
+      content: WillPopScope(
         onWillPop: () async => false,
         child: Container(
           padding: EdgeInsets.all(24),
@@ -170,6 +180,10 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
                           autofillHints: const [AutofillHints.password],
                           controller: _seedFieldController,
                           focusNode: _seedNode,
+                        ),
+                        TextFormField(
+                          focusNode: _disabledNode,
+                          keyboardType: TextInputType.none,
                         ),
                       ],
                     ),
@@ -223,84 +237,112 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
                             ),
                           )
                         : Offstage(),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[
-                        Flexible(
-                          child: Container(
-                            padding: EdgeInsets.only(right: 4),
-                            child: PrimaryButton(
-                              onPressed: () {
-                                ShareUtil.share(
-                                  text: widget.walletSeedViewModel.seed,
-                                  context: context,
-                                );
-                              },
-                              text: S.of(context).save,
-                              color: Colors.green,
-                              textColor: Colors.white,
-                            ),
-                          ),
-                        ),
-                        Flexible(
-                          child: Container(
-                            padding: EdgeInsets.only(left: 4),
-                            child: Builder(
-                              builder: (context) => PrimaryButton(
-                                onPressed: () {
-                                  ClipboardUtil.setSensitiveDataToClipboard(
-                                      ClipboardData(text: widget.walletSeedViewModel.seed));
-                                  showBar<void>(context, S.of(context).copied_to_clipboard);
-                                },
-                                text: S.of(context).copy,
-                                color: Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
-                                textColor: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (Platform.isIOS || Platform.isAndroid)
-                      Container(
-                        padding: EdgeInsets.only(top: 10),
-                        child: PrimaryButton(
-                          onPressed: () async {
-                            bool open = await showPopUp<bool>(
-                                  context: context,
-                                  builder: (dialogContext) {
-                                    return AlertWithTwoActions(
-                                      alertTitle: S.current.save_to_pm,
-                                      alertContent: S.current.save_pm_content,
-                                      rightButtonText: S.current.save,
-                                      leftButtonText: S.current.cancel,
-                                      actionRightButton: () async {
-                                        Navigator.of(dialogContext).pop(true);
-                                      },
-                                      actionLeftButton: () =>
-                                          Navigator.of(dialogContext).pop(false),
-                                    );
-                                  },
-                                ) ??
-                                false;
-
-                            if (open) {
-                              await setupPasswordManager();
-                              await Future.delayed(Duration(milliseconds: 300));
-                              TextInput.finishAutofillContext();
-                            }
-                          },
-                          text: S.current.save_to_pm,
-                          color: Colors.blue,
-                          textColor: Colors.white,
-                        ),
-                      ),
                   ],
                 ),
               ],
             ),
           ),
         ),
+      ),
+      bottomSection: Column(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.only(right: 4),
+                  child: PrimaryButton(
+                    onPressed: () {
+                      ShareUtil.share(
+                        text: widget.walletSeedViewModel.seed,
+                        context: context,
+                      );
+                    },
+                    text: S.of(context).save,
+                    color: Colors.green,
+                    textColor: Colors.white,
+                  ),
+                ),
+              ),
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.only(left: 4),
+                  child: Builder(
+                    builder: (context) => PrimaryButton(
+                      onPressed: () {
+                        ClipboardUtil.setSensitiveDataToClipboard(
+                            ClipboardData(text: widget.walletSeedViewModel.seed));
+                        showBar<void>(context, S.of(context).copied_to_clipboard);
+                      },
+                      text: S.of(context).copy,
+                      color: Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
+                      textColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (Platform.isIOS || Platform.isAndroid)
+            Container(
+              padding: EdgeInsets.only(top: 10),
+              child: PrimaryButton(
+                onPressed: () async {
+                  bool open = await showPopUp<bool>(
+                        context: context,
+                        builder: (dialogContext) {
+                          return AlertWithTwoActions(
+                            alertTitle: S.current.save_to_pm,
+                            alertContent: S.current.save_pm_content,
+                            rightButtonText: S.current.save,
+                            leftButtonText: S.current.cancel,
+                            actionRightButton: () => Navigator.of(dialogContext).pop(true),
+                            actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+                            contentWidget: Column(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.only(bottom: 20),
+                                  child: Text(
+                                    S.current.save_pm_content,
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.normal,
+                                        color: Theme.of(context)
+                                            .extension<TransactionTradeTheme>()!
+                                            .detailsTitlesColor),
+                                  ),
+                                ),
+                                PrimaryButton(
+                                  onPressed: () async {
+                                    await launchUrl(
+                                      Uri.https(
+                                        "guides.cakewallet.com",
+                                        "/docs/basic-features/create-first-wallet/#saving-seed-with-password-manager",
+                                      ),
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  },
+                                  text: S.current.open_docs,
+                                  color: Colors.blue,
+                                  textColor: Colors.white,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ) ??
+                      false;
+                  if (open) {
+                    TextInput.finishAutofillContext();
+                  }
+                },
+                text: S.current.save_to_pm,
+                color: Colors.blue,
+                textColor: Colors.white,
+              ),
+            ),
+        ],
       ),
     );
   }
