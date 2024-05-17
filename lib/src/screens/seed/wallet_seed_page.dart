@@ -127,10 +127,6 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
 
     // required to setup autofill context:
     _nameFieldController.text = widget.walletSeedViewModel.name;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await setupPasswordManager();
-    });
   }
 
   Future<void> setupPasswordManager() async {
@@ -316,9 +312,8 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
                                 PrimaryButton(
                                   onPressed: () async {
                                     await launchUrl(
-                                      Uri.https(
-                                        "guides.cakewallet.com",
-                                        "/docs/basic-features/create-first-wallet/#saving-seed-with-password-manager",
+                                      Uri.parse(
+                                        "https://guides.cakewallet.com/docs/basic-features/create-first-wallet/#saving-seed-with-password-manager",
                                       ),
                                       mode: LaunchMode.externalApplication,
                                     );
@@ -334,6 +329,8 @@ class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
                       ) ??
                       false;
                   if (open) {
+                    await setupPasswordManager();
+                    await Future.delayed(Duration(milliseconds: 300));
                     TextInput.finishAutofillContext();
                   }
                 },
