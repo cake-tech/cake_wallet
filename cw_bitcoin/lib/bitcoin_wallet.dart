@@ -1,23 +1,24 @@
-import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:convert/convert.dart';
+import 'dart:convert';
 
+import 'package:bip39/bip39.dart' as bip39;
+import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
+import 'package:convert/convert.dart';
+import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
+import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/psbt_transaction_builder.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_bitcoin/ledger_bitcoin.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:mobx/mobx.dart';
-import 'package:flutter/foundation.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/electrum_balance.dart';
-import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
-import 'package:bip39/bip39.dart' as bip39;
 
 part 'bitcoin_wallet.g.dart';
 
@@ -214,5 +215,24 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     final rawHex = await _bitcoinLedgerApp!.signPsbt(_ledgerDevice!, psbt: psbt.psbt);
     return BtcTransaction.fromRaw(hex.encode(rawHex));
+  }
+
+  @override
+  Future<String> signMessage(String message, {String? address = null}) async {
+    if (walletInfo.isHardwareWallet) {
+      final addressEntry = address != null
+          ? walletAddresses.allAddresses.firstWhere((element) => element.address == address)
+          : null;
+      final index = addressEntry?.index ?? 0;
+      final isChange = addressEntry?.isHidden == true ? 1 : 0;
+      final accountPath = walletInfo.derivationInfo?.derivationPath;
+      final derivationPath = accountPath != null ? "$accountPath/$isChange/$index" : null;
+
+      final signature = await _bitcoinLedgerApp!
+          .signMessage(_ledgerDevice!, message: ascii.encode(message), signDerivationPath: derivationPath);
+      return base64Encode(signature);
+    }
+
+    return super.signMessage(message, address: address);
   }
 }
