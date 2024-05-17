@@ -7,6 +7,7 @@ class BitcoinReceivePageOption implements ReceivePageOption {
   static const p2tr = BitcoinReceivePageOption._('Taproot (P2TR)');
   static const p2wsh = BitcoinReceivePageOption._('Segwit (P2WSH)');
   static const p2pkh = BitcoinReceivePageOption._('Legacy (P2PKH)');
+  static const mweb = BitcoinReceivePageOption._('MWEB');
 
   const BitcoinReceivePageOption._(this.value);
 
@@ -24,12 +25,19 @@ class BitcoinReceivePageOption implements ReceivePageOption {
     BitcoinReceivePageOption.p2pkh
   ];
 
+  static const allLitecoin = [
+    BitcoinReceivePageOption.p2wpkh,
+    BitcoinReceivePageOption.mweb
+  ];
+
   factory BitcoinReceivePageOption.fromType(BitcoinAddressType type) {
     switch (type) {
       case SegwitAddresType.p2tr:
         return BitcoinReceivePageOption.p2tr;
       case SegwitAddresType.p2wsh:
         return BitcoinReceivePageOption.p2wsh;
+      case SegwitAddresType.mweb:
+        return BitcoinReceivePageOption.mweb;
       case P2pkhAddressType.p2pkh:
         return BitcoinReceivePageOption.p2pkh;
       case P2shAddressType.p2wpkhInP2sh:

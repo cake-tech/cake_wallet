@@ -248,7 +248,6 @@ Future<void> initialSetup(
     navigatorKey: navigatorKey,
   );
   await bootstrap(navigatorKey);
-  monero?.onStartup();
 }
 
 class App extends StatefulWidget {

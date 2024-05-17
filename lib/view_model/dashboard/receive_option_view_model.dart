@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -11,19 +12,30 @@ class ReceiveOptionViewModel = ReceiveOptionViewModelBase with _$ReceiveOptionVi
 abstract class ReceiveOptionViewModelBase with Store {
   ReceiveOptionViewModelBase(this._wallet, this.initialPageOption)
       : selectedReceiveOption = initialPageOption ??
-            (_wallet.type == WalletType.bitcoin
+            (_wallet.type == WalletType.bitcoin ||
+             _wallet.type == WalletType.litecoin
                 ? bitcoin!.getSelectedAddressType(_wallet)
                 : ReceivePageOption.mainnet),
         _options = [] {
-    final walletType = _wallet.type;
-    _options = walletType == WalletType.haven
-        ? [ReceivePageOption.mainnet]
-        : walletType == WalletType.bitcoin
-            ? [
-                ...bitcoin!.getBitcoinReceivePageOptions(),
-                ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
-              ]
-            : ReceivePageOptions;
+    switch (_wallet.type) {
+      case WalletType.bitcoin:
+        _options = [
+          ...bitcoin!.getBitcoinReceivePageOptions(),
+          ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+        ];
+        break;
+      case WalletType.litecoin:
+        _options = [
+          ...BitcoinReceivePageOption.allLitecoin,
+          ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+        ];
+        break;
+      case WalletType.haven:
+        _options = [ReceivePageOption.mainnet];
+        break;
+      default:
+        _options = ReceivePageOptions;
+    }
   }
 
   final WalletBase _wallet;

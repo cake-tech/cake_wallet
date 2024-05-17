@@ -1,11 +1,15 @@
+import 'package:grpc/grpc.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_mweb/cw_mweb.dart';
+import 'package:cw_mweb/mwebd.pb.dart';
 
 class PendingBitcoinTransaction with PendingTransaction {
   PendingBitcoinTransaction(
@@ -31,12 +35,15 @@ class PendingBitcoinTransaction with PendingTransaction {
   final bool hasChange;
   final bool isSendAll;
   final bool hasTaprootInputs;
+  String? idOverride;
+  String? hexOverride;
+  List<String>? outputs;
 
   @override
-  String get id => _tx.txId();
+  String get id => idOverride ?? _tx.txId();
 
   @override
-  String get hex => _tx.serialize();
+  String get hex => hexOverride ?? _tx.serialize();
 
   @override
   String get amountFormatted => bitcoinAmountToString(amount: amount);
@@ -49,8 +56,7 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   final List<void Function(ElectrumTransactionInfo transaction)> _listeners;
 
-  @override
-  Future<void> commit() async {
+  Future<void> _commit() async {
     int? callId;
 
     final result = await electrumClient.broadcastTransaction(
@@ -78,6 +84,19 @@ class PendingBitcoinTransaction with PendingTransaction {
 
       throw BitcoinTransactionCommitFailed();
     }
+  }
+
+  @override
+  Future<void> commit() async {
+    if (network is LitecoinNetwork) try {
+      final stub = await CwMweb.stub();
+      final resp = await stub.broadcast(BroadcastRequest(rawTx: BytesUtils.fromHexString(hex)));
+      idOverride = resp.txid;
+    } on GrpcError catch (e) {
+      throw BitcoinTransactionCommitFailed(errorMessage: e.message);
+    } else {
+      await _commit();
+    }
 
     _listeners.forEach((listener) => listener(transactionInfo()));
   }
@@ -93,5 +112,7 @@ class PendingBitcoinTransaction with PendingTransaction {
       date: DateTime.now(),
       isPending: true,
       confirmations: 0,
+      inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
+      outputAddresses: outputs,
       fee: fee);
 }

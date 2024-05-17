@@ -31,14 +31,15 @@ dependencies:
   unorm_dart: ^0.2.0
   cryptography: ^2.0.5
   bitcoin_base:
-    git:
-      url: https://github.com/cake-tech/bitcoin_base.git
-      ref: cake-update-v2
+    path: ../../bitcoin_base
   blockchain_utils: ^2.1.1
   ledger_flutter: ^1.0.1
   ledger_bitcoin:
     git:
       url: https://github.com/cake-tech/ledger-bitcoin.git
+  cw_mweb:
+    path: ../cw_mweb
+  grpc: ^3.2.4
 
 dev_dependencies:
   flutter_test:
