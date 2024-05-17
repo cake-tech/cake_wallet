@@ -475,10 +475,10 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: b6ed573cbeb57d5f0d39dfe4254bf9d15b620ab6
-      url: "https://github.com/cake-tech/ledger-bitcoin.git"
+      resolved-ref: f819d37e235e239c315e93856abbf5e5d3b71dab
+      url: "https://github.com/cake-tech/ledger-bitcoin"
     source: git
-    version: "0.0.1"
+    version: "0.0.2"
   ledger_flutter:
     dependency: "direct main"
     description:
