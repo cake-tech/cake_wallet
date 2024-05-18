@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+// import 'package:cake_wallet/src/screens/connect_device/debug_device_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -78,15 +79,13 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(
-      Duration(seconds: 1),
-      () => _bleRefresh = ledger.scan().listen((device) => setState(() => bleDevices.add(device))),
-    );
-    // _bleRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshBleDevices());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _bleRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshBleDevices());
 
-    if (Platform.isAndroid) {
-      _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
-    }
+      if (Platform.isAndroid) {
+        _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
+      }
+    });
   }
 
   @override
@@ -103,14 +102,16 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   }
 
   Future<void> _refreshBleDevices() async {
-    final isBleEnabled = await Permission.bluetooth.serviceStatus.isEnabled;
-
-    setState(() => bleIsEnabled = isBleEnabled);
-
-    if (isBleEnabled) {
-      _bleRefresh = ledger.scan().listen((device) => setState(() => bleDevices.add(device)));
+    try {
+      _bleRefresh = ledger.scan().listen((device) => setState(() => bleDevices.add(device)))
+        ..onError((e) {
+          throw e as Exception;
+        });
+      setState(() => bleIsEnabled = true);
       _bleRefreshTimer?.cancel();
       _bleRefreshTimer = null;
+    } catch (e) {
+      setState(() => bleIsEnabled = false);
     }
   }
 
@@ -142,6 +143,15 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   textAlign: TextAlign.center,
                 ),
               ),
+              // DeviceTile(
+              //   onPressed: () => Navigator.of(context).push(
+              //     MaterialPageRoute<void>(
+              //       builder: (BuildContext context) => DebugDevicePage(),
+              //     ),
+              //   ),
+              //   title: "Debug Ledger",
+              //   leading: imageLedger,
+              // ),
               if (!bleIsEnabled)
                 Padding(
                   padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
