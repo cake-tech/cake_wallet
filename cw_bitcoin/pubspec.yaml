@@ -41,11 +41,12 @@ dependencies:
   ledger_flutter: ^1.0.1
   ledger_bitcoin:
     git:
-      url: https://github.com/cake-tech/ledger-bitcoin.git
+      url: https://github.com/cake-tech/ledger-bitcoin
   sp_scanner:
     git:
       url: https://github.com/cake-tech/sp_scanner
       ref: sp_v1.0.0
+
 
 dev_dependencies:
   flutter_test:
