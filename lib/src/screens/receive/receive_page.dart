@@ -226,9 +226,9 @@ class ReceivePage extends BasePage {
               Padding(
                 padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
                 child: Text(
-                    !addressListViewModel.isSilentPayments
-                        ? S.of(context).electrum_address_disclaimer
-                        : S.of(context).silent_payments_disclaimer,
+                    addressListViewModel.isSilentPayments
+                        ? S.of(context).silent_payments_disclaimer
+                        : S.of(context).electrum_address_disclaimer,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 15,
