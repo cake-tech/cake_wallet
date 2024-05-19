@@ -5,8 +5,8 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -290,7 +290,7 @@ Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
 
 Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async {
   try {
-    final root = await getApplicationDocumentsDirectory();
+    final root = await getAppDir();
 
     for (var type in WalletType.values) {
       if (type == WalletType.none) {
