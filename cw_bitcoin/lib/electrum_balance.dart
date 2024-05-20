@@ -25,9 +25,6 @@ class ElectrumBalance extends Balance {
 
   @override
   String get formattedAvailableBalance {
-    print('Confirmed: ${bitcoinAmountToString(amount: confirmed)}');
-    print('Unconfirmed: ${bitcoinAmountToString(amount: unconfirmed)}');
-    print('Frozen: ${bitcoinAmountToString(amount: frozen)}');
     bool isOutgoingTx = unconfirmed.isNegative;
     final availableBalance = isOutgoingTx ? (confirmed + unconfirmed) : (confirmed);
     return bitcoinAmountToString(amount: availableBalance);
@@ -49,8 +46,6 @@ class ElectrumBalance extends Balance {
         ? (confirmed  + frozen)
         : (confirmed + (unconfirmed.abs()) + frozen);
     final result = bitcoinAmountToString(amount: fullBalance);
-
-    print('Full Balance: $result');
 
     return result;
   }
