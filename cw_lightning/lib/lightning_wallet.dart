@@ -158,6 +158,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       }
     } catch (e) {
       print("Error initializing Breez: $e");
+      return;
     }
 
     Uint8List deviceKey = base64.decode(secrets.greenlightKey);
@@ -200,8 +201,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
           seed: seedBytes,
         ),
       );
-    } catch (e) {
-      print("Error connecting to Breez: $e");
+    } catch (e, s) {
+      print("Error connecting to Breez: $e\n$s");
     }
 
     _nodeStateSub = sdk.nodeStateStream.listen((event) {
@@ -367,9 +368,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       await electrumClient.close();
     } catch (_) {}
     try {
-      print("stopping breez");
       await stopBreez();
-      print("stopped breez @@@@@@@@@@@@@@@@@@@@@@@@@@@@");
     } catch (e, s) {
       print("Error stopping breez: $e\n$s");
     }
