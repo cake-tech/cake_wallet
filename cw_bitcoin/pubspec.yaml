@@ -38,10 +38,11 @@ dependencies:
   ledger_flutter: ^1.0.1
   ledger_bitcoin:
     git:
-      url: https://github.com/cake-tech/ledger-bitcoin.git
+      url: https://github.com/cake-tech/ledger-bitcoin
   cw_mweb:
     path: ../cw_mweb
   grpc: ^3.2.4
+
 
 dev_dependencies:
   flutter_test:
