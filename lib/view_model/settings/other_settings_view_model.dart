@@ -56,8 +56,9 @@ abstract class OtherSettingsViewModelBase with Store {
       _wallet.type == WalletType.nano || _wallet.type == WalletType.banano;
 
   @computed
-  bool get displayTransactionPriority =>
-      !(changeRepresentativeEnabled || _wallet.type == WalletType.solana);
+  bool get displayTransactionPriority => !(changeRepresentativeEnabled ||
+      _wallet.type == WalletType.solana ||
+      _wallet.type == WalletType.tron);
 
   @computed
   bool get isEnabledBuyAction => !_settingsStore.disableBuy && _wallet.type != WalletType.haven;
@@ -138,6 +139,13 @@ abstract class OtherSettingsViewModelBase with Store {
     final customItem = priorities
         .firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
     return customItem != null ? priorities.indexOf(customItem) : null;
+  }
+
+  int? get maxCustomFeeRate {
+    if (_wallet.type == WalletType.bitcoin) {
+      return bitcoin!.getMaxCustomFeeRate(_wallet);
+    }
+    return null;
   }
 
   @action

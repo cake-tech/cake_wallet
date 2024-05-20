@@ -7,15 +7,21 @@ abstract class WalletCredentials {
     this.seedPhraseLength,
     this.walletInfo,
     this.password,
-    this.derivationType,
-    this.derivationPath,
-  });
+    this.passphrase,
+    this.derivationInfo,
+    this.hardwareWalletType,
+  }) {
+    if (this.walletInfo != null && derivationInfo != null) {
+      this.walletInfo!.derivationInfo = derivationInfo;
+    }
+  }
 
   final String name;
   final int? height;
   int? seedPhraseLength;
   String? password;
-  DerivationType? derivationType;
-  String? derivationPath;
+  String? passphrase;
   WalletInfo? walletInfo;
+  DerivationInfo? derivationInfo;
+  HardwareWalletType? hardwareWalletType;
 }

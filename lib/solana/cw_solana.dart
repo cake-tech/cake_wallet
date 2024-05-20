@@ -110,8 +110,10 @@ class CWSolana extends Solana {
     }
 
     wallet as SolanaWallet;
-    return wallet.splTokenCurrencies
-        .firstWhere((element) => transaction.tokenSymbol == element.symbol);
+
+    return wallet.splTokenCurrencies.firstWhere(
+      (element) => transaction.tokenSymbol == element.symbol,
+    );
   }
 
   @override

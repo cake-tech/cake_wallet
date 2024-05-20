@@ -1,7 +1,1 @@
-Add Replace-By-Fee to boost pending Bitcoin transactions
-Enable WalletConnect for Solana
-WalletConnect Enhancements
-Enhancements for ERC-20 tokens and Solana tokens
-Enhancements for Nano wallet
-UI enhancements
-Bug fixes
+Bug fixes and generic enhancements

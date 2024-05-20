@@ -85,7 +85,9 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   bool get isHomeScreenSettingsEnabled =>
-      isEVMCompatibleChain(wallet.type) || wallet.type == WalletType.solana;
+      isEVMCompatibleChain(wallet.type) ||
+      wallet.type == WalletType.solana ||
+      wallet.type == WalletType.tron;
 
   @computed
   bool get hasAccounts => wallet.type == WalletType.monero;
@@ -134,6 +136,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.tron:
         return S.current.xmr_available_balance;
       default:
         return S.current.confirmed;
@@ -148,6 +151,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.solana:
+      case WalletType.tron:
         return S.current.xmr_full_balance;
       case WalletType.nano:
       case WalletType.banano:
@@ -327,6 +331,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.solana:
+      case WalletType.tron:
         return false;
       default:
         return true;

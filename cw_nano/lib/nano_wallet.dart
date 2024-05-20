@@ -43,7 +43,7 @@ abstract class NanoWalletBase
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
-        _derivationType = walletInfo.derivationType!,
+        _derivationType = walletInfo.derivationInfo!.derivationType!,
         _isTransactionUpdating = false,
         _client = NanoClient(),
         walletAddresses = NanoWalletAddresses(walletInfo),
@@ -389,7 +389,10 @@ abstract class NanoWalletBase
       derivationType = DerivationType.bip39;
     }
 
-    walletInfo.derivationType = derivationType;
+    walletInfo.derivationInfo ??= DerivationInfo(derivationType: derivationType);
+    if (walletInfo.derivationInfo!.derivationType == null) {
+      walletInfo.derivationInfo!.derivationType = derivationType;
+    }
 
     return NanoWallet(
       walletInfo: walletInfo,
