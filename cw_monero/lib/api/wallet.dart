@@ -128,7 +128,7 @@ void setPasswordSync(String password) {
   monero.Wallet_setPassword(wptr!, password: password);
 
   final status = monero.Wallet_status(wptr!);
-  if (status == 0) {
+  if (status != 0) {
     throw Exception(monero.Wallet_errorString(wptr!));
   }
 }
