@@ -67,8 +67,7 @@ class AuthService with Store {
 
   void saveLastAuthTime() {
     int timestamp = DateTime.now().millisecondsSinceEpoch;
-    writeSecureStorage(
-      secureStorage,
+    secureStorage.write(
       key: SecureKey.lastAuthTimeMilliseconds,
       value: timestamp.toString(),
     );
