@@ -1449,8 +1449,30 @@ abstract class ElectrumWalletBase
     return BitcoinNetwork.mainnet;
   }
 
+
+  static int countCharOccurrences(String str, String charToCount) {
+    int count = 0;
+    for (int i = 0; i < str.length; i++) {
+      if (str[i] == charToCount) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   static String _hardenedDerivationPath(String derivationPath) =>
       derivationPath.substring(0, derivationPath.lastIndexOf("'") + 1);
+
+  static String balanceDerivationPath(String derivationPath) {
+    String hardenedPath = _hardenedDerivationPath(derivationPath);
+    int derivationDepth = countCharOccurrences(hardenedPath, '/');
+    if (derivationDepth == 3) {
+      return hardenedPath + "/0/0";
+    } else if (derivationDepth == 1) {
+      return hardenedPath + "/0";
+    }
+    return hardenedPath;
+  }
 }
 
 class EstimateTxParams {
