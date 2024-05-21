@@ -26,7 +26,8 @@ class ElectrumBalance extends Balance {
   @override
   String get formattedAvailableBalance {
     bool isOutgoingTx = unconfirmed.isNegative;
-    final availableBalance = isOutgoingTx ? (confirmed + unconfirmed) : (confirmed);
+    final availableBalance =
+        isOutgoingTx ? ((confirmed + unconfirmed) - frozen) : (confirmed - frozen);
     return bitcoinAmountToString(amount: availableBalance);
   }
 
@@ -42,9 +43,8 @@ class ElectrumBalance extends Balance {
   @override
   String get formattedFullBalance {
     bool isOutgoingTx = unconfirmed.isNegative;
-    final fullBalance = isOutgoingTx
-        ? (confirmed  + frozen)
-        : (confirmed + (unconfirmed.abs()) + frozen);
+    final fullBalance =
+        isOutgoingTx ? (confirmed + frozen) : (confirmed + (unconfirmed.abs()) + frozen);
     final result = bitcoinAmountToString(amount: fullBalance);
 
     return result;

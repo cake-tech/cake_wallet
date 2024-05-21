@@ -326,6 +326,10 @@ abstract class BalanceViewModelBase with Store {
   @computed
   bool get hasAdditionalBalance => _hasAdditionBalanceForWalletType(wallet.type);
 
+  @computed
+  bool get hasFullBalance =>
+      wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin;
+
   bool _hasAdditionBalanceForWalletType(WalletType type) {
     switch (type) {
       case WalletType.ethereum:
