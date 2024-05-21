@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:cw_core/account.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -22,6 +24,7 @@ import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:cw_monero/api/transaction_history.dart' as transaction_history;
 import 'package:cw_monero/api/wallet.dart' as monero_wallet;
+import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
 import 'package:cw_monero/exceptions/monero_transaction_no_inputs_exception.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
@@ -332,7 +335,21 @@ abstract class MoneroWalletBase
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
     final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
-
+    if (openedWalletsByPath[currentWalletDirPath] != null) {
+      // NOTE: this is realistically only required on windows.
+      print("closing wallet");
+      final wmaddr = wmPtr!.address;
+      final waddr = openedWalletsByPath[currentWalletDirPath]!.address;
+      await Isolate.run(() {
+        monero.WalletManager_closeWallet(
+          Pointer.fromAddress(wmaddr),
+          Pointer.fromAddress(waddr),
+          true
+        );
+      });
+      openedWalletsByPath.remove(currentWalletDirPath);
+      print("wallet closed");
+    }
     try {
       // -- rename the waller folder --
       final currentWalletDir = Directory(await pathForWalletDir(name: name, type: type));

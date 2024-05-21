@@ -1,4 +1,6 @@
+import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -14,6 +16,8 @@ import 'package:cw_monero/monero_wallet.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:polyseed/polyseed.dart';
+import 'package:cw_monero/api/wallet_manager.dart';
+import 'package:monero/monero.dart' as monero;
 
 class MoneroNewWalletCredentials extends WalletCredentials {
   MoneroNewWalletCredentials(
@@ -174,6 +178,21 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
   @override
   Future<void> remove(String wallet) async {
     final path = await pathForWalletDir(name: wallet, type: getType());
+    if (openedWalletsByPath[path] != null) {
+      // NOTE: this is realistically only required on windows.
+      print("closing wallet");
+      final wmaddr = wmPtr!.address;
+      final waddr = openedWalletsByPath[path]!.address;
+      await Isolate.run(() {
+        monero.WalletManager_closeWallet(
+            Pointer.fromAddress(wmaddr),
+            Pointer.fromAddress(waddr),
+            false
+        );
+      });
+      openedWalletsByPath.remove(path);
+      print("wallet closed");
+    }
     final file = Directory(path);
     final isExist = file.existsSync();
 
