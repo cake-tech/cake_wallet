@@ -147,10 +147,27 @@ abstract class MoneroWalletBase
   Future<void>? updateBalance() => null;
 
   @override
-  void close() {
+  void close() async {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
+
+    final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
+    if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
+      // NOTE: this is realistically only required on windows.
+      print("closing wallet");
+      final wmaddr = wmPtr.address;
+      final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.address;
+      await Isolate.run(() {
+        monero.WalletManager_closeWallet(
+            Pointer.fromAddress(wmaddr),
+            Pointer.fromAddress(waddr),
+            true
+        );
+      });
+      openedWalletsByPath.remove("$currentWalletDirPath/$name");
+      print("wallet closed");
+    }
   }
 
   @override
@@ -328,28 +345,18 @@ abstract class MoneroWalletBase
     }
 
     await walletAddresses.updateAddressesInBox();
-    await backupWalletFiles(name);
     await monero_wallet.store();
+    try {
+      await backupWalletFiles(name);
+    } catch (e) {
+      print("¯\\_(ツ)_/¯");
+      print(e);
+    }
   }
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
     final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
-    if (openedWalletsByPath[currentWalletDirPath] != null) {
-      // NOTE: this is realistically only required on windows.
-      print("closing wallet");
-      final wmaddr = wmPtr!.address;
-      final waddr = openedWalletsByPath[currentWalletDirPath]!.address;
-      await Isolate.run(() {
-        monero.WalletManager_closeWallet(
-          Pointer.fromAddress(wmaddr),
-          Pointer.fromAddress(waddr),
-          true
-        );
-      });
-      openedWalletsByPath.remove(currentWalletDirPath);
-      print("wallet closed");
-    }
     try {
       // -- rename the waller folder --
       final currentWalletDir = Directory(await pathForWalletDir(name: name, type: type));
