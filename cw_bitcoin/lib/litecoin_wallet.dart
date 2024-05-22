@@ -214,10 +214,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     List<int> sBytes = correctSignature.sublist(32);
     final sig = ECDSASignature(BigintUtils.fromBytes(rBytes), BigintUtils.fromBytes(sBytes));
 
-    List<int> possibleRecoverIds = [0, 1, 2, 3];
-    if (sigDecodedBytes.length == 65) {
-      possibleRecoverIds = [sigDecodedBytes[0]];
-    }
+    List<int> possibleRecoverIds = [0, 1];
 
     final baseAddress = addressTypeFromStr(address, network);
 
