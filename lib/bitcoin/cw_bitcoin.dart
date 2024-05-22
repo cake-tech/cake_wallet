@@ -371,6 +371,9 @@ class CWBitcoin extends Bitcoin {
             case "p2wpkh-p2sh":
               address = generateP2SHAddress(hd: hd, network: network);
               break;
+            case "p2tr":
+              address = generateP2TRAddress(hd: hd, network: network);
+              break;
             default:
               continue;
           }
