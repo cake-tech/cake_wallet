@@ -510,7 +510,7 @@ class CWBitcoin extends Bitcoin {
     if (!getNodeIsCakeElectrs(wallet)) {
       final node = Node(
         useSSL: false,
-        uri: '198.58.111.154:${(wallet.network == BitcoinNetwork.testnet ? 50002 : 50001)}',
+        uri: 'electrs.cakewallet.com:${(wallet.network == BitcoinNetwork.testnet ? 50002 : 50001)}',
       );
       node.type = WalletType.bitcoin;
 
@@ -536,7 +536,7 @@ class CWBitcoin extends Bitcoin {
     if (!getNodeIsCakeElectrs(wallet)) {
       final node = Node(
         useSSL: false,
-        uri: '198.58.111.154:${(wallet.network == BitcoinNetwork.testnet ? 50002 : 50001)}',
+        uri: 'electrs.cakewallet.com:${(wallet.network == BitcoinNetwork.testnet ? 50002 : 50001)}',
       );
       node.type = WalletType.bitcoin;
       await bitcoinWallet.connectToNode(node: node);
@@ -549,7 +549,7 @@ class CWBitcoin extends Bitcoin {
     final bitcoinWallet = wallet as ElectrumWallet;
     final node = bitcoinWallet.node;
 
-    return node?.uri.host == '198.58.111.154' &&
+    return node?.uri.host == 'electrs.cakewallet.com' &&
         node?.uri.port == (wallet.network == BitcoinNetwork.testnet ? 50002 : 50001);
   }
 

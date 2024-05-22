@@ -266,8 +266,8 @@ class CryptoBalanceWidget extends StatelessWidget {
                                 GestureDetector(
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () => launchUrl(
-                                    // TODO: Update URL
-                                    Uri.https("guides.cakewallet.com"),
+                                    Uri.parse(
+                                        "https://guides.cakewallet.com/docs/cryptos/bitcoin/#silent-payments"),
                                     mode: LaunchMode.externalApplication,
                                   ),
                                   child: Row(
