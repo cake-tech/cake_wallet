@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -72,10 +73,8 @@ class WebViewPageBodyState extends State<WebViewPageBody> {
           sharedPrefs.setBool(PreferencesKey.showCameraConsent, false);
         }
 
-        bool permissionGranted = await Permission.camera.status == PermissionStatus.granted;
-        if (!permissionGranted) {
-          permissionGranted = await Permission.camera.request().isGranted;
-        }
+        bool permissionGranted =
+            await PermissionHandler.checkPermission(Permission.camera, context);
 
         return PermissionResponse(
           resources: request.resources,
