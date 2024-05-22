@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-// import 'package:cake_wallet/src/screens/connect_device/debug_device_page.dart';
+import 'package:cake_wallet/src/screens/connect_device/debug_device_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -105,7 +105,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     try {
       _bleRefresh = ledger.scan().listen((device) => setState(() => bleDevices.add(device)))
         ..onError((e) {
-          throw e as Exception;
+          throw e.toString();
         });
       setState(() => bleIsEnabled = true);
       _bleRefreshTimer?.cancel();

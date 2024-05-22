@@ -70,9 +70,7 @@ class PreferencesKey {
   static const showAutomaticBackupWarning = 'show_automatic_backups_warning';
   static const showAutomaticBackupWarningAccessTime = 'show_automatic_backups_warning_access_time';
   static const lastTimeAutoBackedUp = 'last_time_auto_backed_up';
-
-
-
+  static const showCameraConsent = 'show_camera_consent';
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
