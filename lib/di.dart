@@ -313,7 +313,6 @@ Future<void> setup({
   getIt.registerFactory<Box<Node>>(() => _powNodeSource, instanceName: Node.boxName + "pow");
 
   getIt.registerSingleton(AuthenticationStore());
-  getIt.registerSingleton(LedgerViewModel());
   getIt.registerSingleton<WalletListStore>(WalletListStore());
   getIt.registerSingleton(NodeListStoreBase.instance);
   getIt.registerSingleton<SettingsStore>(settingsStore);
@@ -336,6 +335,8 @@ Future<void> setup({
       YatStore(appStore: getIt.get<AppStore>(), secureStorage: getIt.get<SecureStorage>())..init());
   getIt.registerSingleton<AnonpayTransactionsStore>(
       AnonpayTransactionsStore(anonpayInvoiceInfoSource: _anonpayInvoiceInfoSource));
+
+  getIt.registerLazySingleton(() => LedgerViewModel());
 
   final secretStore = await SecretStoreBase.load(getIt.get<SecureStorage>());
 
@@ -626,7 +627,7 @@ Future<void> setup({
       getIt.get<BalanceViewModel>(),
       getIt.get<ContactListViewModel>(),
       _transactionDescriptionBox,
-      getIt.get<LedgerViewModel>(),
+      getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null,
     ),
   );
 
@@ -839,10 +840,14 @@ Future<void> setup({
           isSelected: isSelected));
 
   getIt.registerFactory<RobinhoodBuyProvider>(() => RobinhoodBuyProvider(
-      wallet: getIt.get<AppStore>().wallet!, ledgerVM: getIt.get<LedgerViewModel>()));
+      wallet: getIt.get<AppStore>().wallet!,
+      ledgerVM:
+          getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null));
 
   getIt.registerFactory<DFXBuyProvider>(() => DFXBuyProvider(
-      wallet: getIt.get<AppStore>().wallet!, ledgerVM: getIt.get<LedgerViewModel>()));
+      wallet: getIt.get<AppStore>().wallet!,
+      ledgerVM:
+          getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null));
 
   getIt.registerFactory<MoonPayProvider>(() => MoonPayProvider(
         settingsStore: getIt.get<AppStore>().settingsStore,
@@ -948,9 +953,9 @@ Future<void> setup({
       (derivations, _) => WalletRestoreChooseDerivationViewModel(derivationInfos: derivations));
 
   getIt.registerFactoryParam<WalletRestoreChooseDerivationPage, List<DerivationInfo>, void>(
-      (credentials, _) =>
+      (derivations, _) =>
           WalletRestoreChooseDerivationPage(getIt.get<WalletRestoreChooseDerivationViewModel>(
-            param1: credentials,
+            param1: derivations,
           )));
 
   getIt.registerFactoryParam<TransactionDetailsViewModel, TransactionInfo, void>(

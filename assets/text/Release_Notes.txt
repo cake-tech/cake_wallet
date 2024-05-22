@@ -1,2 +1,4 @@
 Bitcoin Silent Payments
 Add Tron wallet
+Hardware wallets enhancements
+Bug fixes
