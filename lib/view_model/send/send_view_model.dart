@@ -269,7 +269,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   final SendTemplateViewModel sendTemplateViewModel;
   final BalanceViewModel balanceViewModel;
   final ContactListViewModel contactListViewModel;
-  final LedgerViewModel ledgerViewModel;
+  final LedgerViewModel? ledgerViewModel;
   final FiatConversionStore _fiatConversationStore;
   final Box<TransactionDescription> transactionDescriptionBox;
 
@@ -365,7 +365,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final errorCode = e.errorCode.toRadixString(16);
         final fallbackMsg =
             e.message.isNotEmpty ? e.message : "Unexpected Ledger Error Code: $errorCode";
-        final errorMsg = ledgerViewModel.interpretErrorCode(errorCode) ?? fallbackMsg;
+        final errorMsg = ledgerViewModel!.interpretErrorCode(errorCode) ?? fallbackMsg;
 
         state = FailureState(errorMsg);
       } else {
