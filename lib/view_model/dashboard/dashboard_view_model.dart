@@ -329,6 +329,8 @@ abstract class DashboardViewModelBase with Store {
         .toList();
   }
 
+  bool get hasBuyProviders => ProvidersHelper.getAvailableBuyProviderTypes(wallet.type).isNotEmpty;
+
   List<BuyProvider> get availableSellProviders {
     final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(wallet.type);
     return providerTypes
@@ -337,6 +339,8 @@ abstract class DashboardViewModelBase with Store {
         .cast<BuyProvider>()
         .toList();
   }
+
+  bool get hasSellProviders => ProvidersHelper.getAvailableSellProviderTypes(wallet.type).isNotEmpty;
 
   bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
 
@@ -350,13 +354,13 @@ abstract class DashboardViewModelBase with Store {
   bool hasExchangeAction;
 
   @computed
-  bool get isEnabledBuyAction => !settingsStore.disableBuy && availableBuyProviders.isNotEmpty;
+  bool get isEnabledBuyAction => !settingsStore.disableBuy && hasBuyProviders;
 
   @observable
   bool hasBuyAction;
 
   @computed
-  bool get isEnabledSellAction => !settingsStore.disableSell && availableSellProviders.isNotEmpty;
+  bool get isEnabledSellAction => !settingsStore.disableSell && hasSellProviders;
 
   @observable
   bool hasSellAction;
