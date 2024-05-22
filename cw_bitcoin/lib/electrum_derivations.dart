@@ -30,7 +30,13 @@ Map<DerivationType, List<DerivationInfo>> electrum_derivations = {
     ),
     DerivationInfo(
       derivationType: DerivationType.bip39,
-      derivationPath: "m/0'/0",
+      derivationPath: "m/86'/0'/0'",
+      description: "Standard BIP86 Taproot",
+      scriptType: "p2tr",
+    ),
+    DerivationInfo(
+      derivationType: DerivationType.bip39,
+      derivationPath: "m/0'",
       description: "Non-standard legacy",
       scriptType: "p2pkh",
     ),
