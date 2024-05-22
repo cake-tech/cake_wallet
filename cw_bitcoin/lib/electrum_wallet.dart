@@ -1645,9 +1645,7 @@ abstract class ElectrumWalletBase
         try {
           await updateUnspents(address);
 
-          final newBalance = await _fetchBalance(sh);
-          balance[currency]?.confirmed += newBalance.confirmed;
-          balance[currency]?.unconfirmed += newBalance.unconfirmed;
+          await updateBalance();
 
           await _fetchAddressHistory(address, await getCurrentChainTip());
         } catch (e, s) {
