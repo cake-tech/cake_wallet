@@ -1401,15 +1401,13 @@ abstract class ElectrumWalletBase
     List<int> sBytes = correctSignature.sublist(32);
     final sig = ECDSASignature(BigintUtils.fromBytes(rBytes), BigintUtils.fromBytes(sBytes));
 
-    List<int> possibleRecoverIds = [0, 1, 2, 3];
-    if (sigDecodedBytes.length == 65) {
-      possibleRecoverIds = [sigDecodedBytes[0]];
-    }
+    List<int> possibleRecoverIds = [0, 1];
 
     final baseAddress = addressTypeFromStr(address, network);
 
     for (int recoveryId in possibleRecoverIds) {
       final pubKey = sig.recoverPublicKey(messageHash, Curves.generatorSecp256k1, recoveryId);
+      
       final recoveredPub = ECPublic.fromBytes(pubKey!.toBytes());
 
       String? recoveredAddress;
@@ -1448,30 +1446,8 @@ abstract class ElectrumWalletBase
     return BitcoinNetwork.mainnet;
   }
 
-
-  static int countCharOccurrences(String str, String charToCount) {
-    int count = 0;
-    for (int i = 0; i < str.length; i++) {
-      if (str[i] == charToCount) {
-        count++;
-      }
-    }
-    return count;
-  }
-
   static String _hardenedDerivationPath(String derivationPath) =>
       derivationPath.substring(0, derivationPath.lastIndexOf("'") + 1);
-
-  static String balanceDerivationPath(String derivationPath) {
-    String hardenedPath = _hardenedDerivationPath(derivationPath);
-    int derivationDepth = countCharOccurrences(hardenedPath, '/');
-    if (derivationDepth == 3) {
-      return hardenedPath + "/0/0";
-    } else if (derivationDepth == 1) {
-      return hardenedPath + "/0";
-    }
-    return hardenedPath;
-  }
 }
 
 class EstimateTxParams {
