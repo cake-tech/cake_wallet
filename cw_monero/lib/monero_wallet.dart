@@ -142,7 +142,7 @@ abstract class MoneroWalletBase
   Future<void>? updateBalance() => null;
 
   @override
-  void close() {
+  void close({bool? switchingToSameWalletType}) {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();

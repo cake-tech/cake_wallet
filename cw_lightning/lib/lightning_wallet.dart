@@ -233,10 +233,12 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     print("initialized breez: ${(await sdk.isInitialized())}");
   }
 
-  Future<void> stopBreez() async {
-    final sdk = await BreezSDK();
-    if (await sdk.isInitialized()) {
-      await sdk.disconnect();
+  Future<void> stopBreez(bool disconnect) async {
+    if (disconnect) {
+      final sdk = await BreezSDK();
+      if (await sdk.isInitialized()) {
+        await sdk.disconnect();
+      }
     }
     await _nodeStateSub?.cancel();
     await _paymentsSub?.cancel();
@@ -363,12 +365,13 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
   @override
-  Future<void> close() async {
+  Future<void> close({bool? switchingToSameWalletType}) async {
     try {
       await electrumClient.close();
     } catch (_) {}
     try {
-      await stopBreez();
+      bool shouldDisconnect = switchingToSameWalletType == null || !switchingToSameWalletType;
+      await stopBreez(shouldDisconnect);
     } catch (e, s) {
       print("Error stopping breez: $e\n$s");
     }

@@ -831,7 +831,7 @@ abstract class ElectrumWalletBase
   Future<void> rescan({required int height}) async => throw UnimplementedError();
 
   @override
-  Future<void> close() async {
+  Future<void> close({bool? switchingToSameWalletType}) async {
     try {
       await electrumClient.close();
     } catch (_) {}

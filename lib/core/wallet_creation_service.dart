@@ -80,6 +80,7 @@ class WalletCreationService {
       case WalletType.solana:
       case WalletType.tron:
         return true;
+      case WalletType.lightning:
       case WalletType.monero:
       case WalletType.none:
       case WalletType.bitcoin:
