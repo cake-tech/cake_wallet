@@ -102,7 +102,7 @@ class ExchangeConfirmPage extends BasePage {
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Text(
-                       'selected Trocador provider: ${trade.providerName}',
+                       S.of(context).selected_trocador_provider +':${trade.providerName}',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 12.0,

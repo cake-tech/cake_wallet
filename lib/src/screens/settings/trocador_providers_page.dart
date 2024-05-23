@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.dart';
@@ -23,7 +24,7 @@ class TrocadorProvidersPage extends BasePage {
           }
           var providerStates = trocadorProvidersViewModel.providerStates;
           if (providerStates.isEmpty) {
-            return Center(child: Text('No providers available'));
+            return Center(child: Text(S.of(context).no_providers_available));
           }
           return ListView.builder(
             itemCount: providerStates.length,
