@@ -54,10 +54,13 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  bool isMobileLayout = true;
-
   @override
   void initState() {
+    super.initState();
+
+    bool isMobileLayout =
+        responsiveLayoutUtil.screenWidth < ResponsiveLayoutUtilBase.kMobileThreshold;
+
     reaction((_) => responsiveLayoutUtil.screenWidth, (screenWidth) {
       // Check if it was previously in mobile layout, and now changing to desktop
       if (isMobileLayout &&
@@ -75,7 +78,6 @@ class _DashboardPageState extends State<DashboardPage> {
         });
       }
     });
-    super.initState();
   }
 
   @override
