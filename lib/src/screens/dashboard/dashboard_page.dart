@@ -54,22 +54,24 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  double previousScreenWidth = 0.0;
+  bool isMobileLayout = true;
 
   @override
   void initState() {
     reaction((_) => responsiveLayoutUtil.screenWidth, (screenWidth) {
       // Check if it was previously in mobile layout, and now changing to desktop
-      if (previousScreenWidth <= 900 && screenWidth > 900) {
+      if (isMobileLayout &&
+          screenWidth > ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
         setState(() {
-          previousScreenWidth = screenWidth;
+          isMobileLayout = false;
         });
       }
 
       // Check if it was previously in desktop layout, and now changing to mobile
-      if (previousScreenWidth >= 900 && screenWidth <= 900) {
+      if (!isMobileLayout &&
+          screenWidth <= ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
         setState(() {
-          previousScreenWidth = screenWidth;
+          isMobileLayout = true;
         });
       }
     });
