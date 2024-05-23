@@ -160,7 +160,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     );
     final signature =
         signLitecoinMessage(utf8.encode(message), messagePrefix, privateKey: privateKey);
-    return BytesUtils.toHexString(signature);
+    return base64Encode(signature);
   }
 
   List<int> _magicPrefix(List<int> message, List<int> messagePrefix) {
@@ -198,7 +198,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return false;
     }
 
-    final sigDecodedBytes = hex.decode(signature);
+    List<int> sigDecodedBytes = [];
+
+    if (signature.endsWith('=')) {
+      sigDecodedBytes = base64.decode(signature);
+    } else {
+      sigDecodedBytes = hex.decode(signature);
+    }
 
     if (sigDecodedBytes.length != 64 && sigDecodedBytes.length != 65) {
       throw ArgumentException(
