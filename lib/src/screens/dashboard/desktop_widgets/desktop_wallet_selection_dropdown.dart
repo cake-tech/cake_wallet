@@ -38,6 +38,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final nanoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
   final bananoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
   final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
+  final tronIcon = Image.asset('assets/images/trx_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
@@ -116,22 +117,25 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
     if (selectedWallet.isCurrent || !selectedWallet.isEnabled) {
       return;
     }
-    final confirmed = await showPopUp<bool>(
-            context: context,
-            builder: (dialogContext) {
-              return AlertWithTwoActions(
-                  alertTitle: S.of(context).change_wallet_alert_title,
-                  alertContent: S.of(context).change_wallet_alert_content(selectedWallet.name),
-                  leftButtonText: S.of(context).cancel,
-                  rightButtonText: S.of(context).change,
-                  actionLeftButton: () => Navigator.of(dialogContext).pop(false),
-                  actionRightButton: () => Navigator.of(dialogContext).pop(true));
-            }) ??
-        false;
 
-    if (confirmed) {
-      await _loadWallet(selectedWallet);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final confirmed = await showPopUp<bool>(
+          context: context,
+          builder: (dialogContext) {
+            return AlertWithTwoActions(
+                alertTitle: S.of(context).change_wallet_alert_title,
+                alertContent: S.of(context).change_wallet_alert_content(selectedWallet.name),
+                leftButtonText: S.of(context).cancel,
+                rightButtonText: S.of(context).change,
+                actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+                actionRightButton: () => Navigator.of(dialogContext).pop(true));
+          }) ??
+          false;
+
+      if (confirmed) {
+        await _loadWallet(selectedWallet);
+      }
+    });
   }
 
   Image _imageFor({required WalletType type}) {
@@ -156,6 +160,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return polygonIcon;
       case WalletType.solana:
         return solanaIcon;
+        case WalletType.tron:
+        return tronIcon;
       default:
         return nonWalletTypeIcon;
     }

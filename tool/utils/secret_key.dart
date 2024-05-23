@@ -38,6 +38,7 @@ class SecretKey {
     SecretKey('walletConnectProjectId', () => ''),
     SecretKey('moralisApiKey', () => ''),
     SecretKey('ankrApiKey', () => ''),
+    SecretKey('quantexExchangeMarkup', () => ''),
   ];
 
   static final evmChainsSecrets = [
@@ -48,6 +49,14 @@ class SecretKey {
 
   static final solanaSecrets = [
     SecretKey('ankrApiKey', () => ''),
+  ];
+
+  static final nanoSecrets = [
+    SecretKey('nano2ApiKey', () => ''),
+  ];
+  
+  static final tronSecrets = [
+    SecretKey('tronGridApiKey', () => ''),
   ];
 
   final String name;
