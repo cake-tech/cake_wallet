@@ -182,7 +182,7 @@ class MenuWidgetState extends State<MenuWidget> {
                   final item = SettingActions.all[index];
 
                   if (!widget.dashboardViewModel.hasSilentPayments &&
-                      item.name == S.of(context).silent_payments_settings) {
+                      item.name(context) == S.of(context).silent_payments_settings) {
                     return Container();
                   }
 
