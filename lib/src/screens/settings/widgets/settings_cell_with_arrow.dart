@@ -3,8 +3,11 @@ import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class SettingsCellWithArrow extends StandardListRow {
-  SettingsCellWithArrow({required String title, required Function(BuildContext context)? handler})
-      : super(title: title, isSelected: false, onTap: handler);
+  SettingsCellWithArrow(
+      {required String title,
+      required Function(BuildContext context)? handler,
+      Decoration? decoration})
+      : super(title: title, isSelected: false, onTap: handler, decoration: decoration);
 
   @override
   Widget buildTrailing(BuildContext context) => Image.asset('assets/images/select_arrow.png',

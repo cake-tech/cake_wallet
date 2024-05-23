@@ -4,6 +4,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
+import 'package:cake_wallet/entities/automatic_backup_mode.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
@@ -107,6 +108,8 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsUnstoppableDomains,
       required this.lookupsOpenAlias,
       required this.lookupsENS,
+      required this.autoBackupMode,
+      required this.autoBackupDir,
       required this.customBitcoinFeeRate,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
@@ -435,82 +438,90 @@ abstract class SettingsStoreBase with Store {
     reaction((_) => lookupsENS,
         (bool looksUpENS) => _sharedPreferences.setBool(PreferencesKey.lookupsENS, looksUpENS));
 
+    reaction(
+        (_) => autoBackupMode,
+        (AutomaticBackupMode mode) =>
+            sharedPreferences.setInt(PreferencesKey.autoBackupMode, mode.serialize()));
+
+    reaction((_) => autoBackupDir,
+        (String value) => sharedPreferences.setString(PreferencesKey.autoBackupDir, value));
+
     // secure storage keys:
     reaction(
         (_) => allowBiometricalAuthentication,
-        (bool biometricalAuthentication) => secureStorage.write(
+        (bool biometricalAuthentication) => _secureStorage.write(
             key: SecureKey.allowBiometricalAuthenticationKey,
             value: biometricalAuthentication.toString()));
 
     reaction(
         (_) => selectedCake2FAPreset,
-        (Cake2FAPresetsOptions selectedCake2FAPreset) => secureStorage.write(
+        (Cake2FAPresetsOptions selectedCake2FAPreset) => _secureStorage.write(
             key: SecureKey.selectedCake2FAPreset,
             value: selectedCake2FAPreset.serialize().toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForAccessingWallet,
-        (bool requireTOTP2FAForAccessingWallet) => secureStorage.write(
+        (bool requireTOTP2FAForAccessingWallet) => _secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForAccessingWallet,
             value: requireTOTP2FAForAccessingWallet.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForSendsToContact,
-        (bool requireTOTP2FAForSendsToContact) => secureStorage.write(
+        (bool requireTOTP2FAForSendsToContact) => _secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForSendsToContact,
             value: requireTOTP2FAForSendsToContact.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForSendsToNonContact,
-        (bool requireTOTP2FAForSendsToNonContact) => secureStorage.write(
+        (bool requireTOTP2FAForSendsToNonContact) => _secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForSendsToNonContact,
             value: requireTOTP2FAForSendsToNonContact.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForSendsToInternalWallets,
-        (bool requireTOTP2FAForSendsToInternalWallets) => secureStorage.write(
+        (bool requireTOTP2FAForSendsToInternalWallets) => _secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets,
             value: requireTOTP2FAForSendsToInternalWallets.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForExchangesToInternalWallets,
-        (bool requireTOTP2FAForExchangesToInternalWallets) => secureStorage.write(
+        (bool requireTOTP2FAForExchangesToInternalWallets) => _secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets,
             value: requireTOTP2FAForExchangesToInternalWallets.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForExchangesToExternalWallets,
-        (bool requireTOTP2FAForExchangesToExternalWallets) => secureStorage.write(
+        (bool requireTOTP2FAForExchangesToExternalWallets) => _secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets,
             value: requireTOTP2FAForExchangesToExternalWallets.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForAddingContacts,
-        (bool requireTOTP2FAForAddingContacts) => secureStorage.write(
+        (bool requireTOTP2FAForAddingContacts) => _secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForAddingContacts,
             value: requireTOTP2FAForAddingContacts.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForCreatingNewWallets,
-        (bool requireTOTP2FAForCreatingNewWallets) => secureStorage.write(
+        (bool requireTOTP2FAForCreatingNewWallets) => _secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForCreatingNewWallets,
             value: requireTOTP2FAForCreatingNewWallets.toString()));
 
     reaction(
         (_) => shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-        (bool requireTOTP2FAForAllSecurityAndBackupSettings) => secureStorage.write(
+        (bool requireTOTP2FAForAllSecurityAndBackupSettings) => _secureStorage.write(
             key: SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             value: requireTOTP2FAForAllSecurityAndBackupSettings.toString()));
 
     reaction((_) => useTOTP2FA,
-        (bool use) => secureStorage.write(key: SecureKey.useTOTP2FA, value: use.toString()));
+        (bool use) => _secureStorage.write(key: SecureKey.useTOTP2FA, value: use.toString()));
 
     reaction((_) => totpSecretKey,
-        (String totpKey) => secureStorage.write(key: SecureKey.totpSecretKey, value: totpKey));
+        (String totpKey) => _secureStorage.write(key: SecureKey.totpSecretKey, value: totpKey));
 
     reaction(
         (_) => pinTimeOutDuration,
-        (PinCodeRequiredDuration pinCodeInterval) => secureStorage.write(
+        (PinCodeRequiredDuration pinCodeInterval) => _secureStorage.write(
             key: SecureKey.pinTimeOutDuration, value: pinCodeInterval.value.toString()));
 
     reaction(
@@ -701,6 +712,12 @@ abstract class SettingsStoreBase with Store {
   bool lookupsENS;
 
   @observable
+  AutomaticBackupMode autoBackupMode;
+
+  @observable
+  String autoBackupDir;
+
+  @observable
   SyncMode currentSyncMode;
 
   @observable
@@ -858,6 +875,10 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
     final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
+    final autoBackupMode = AutomaticBackupMode.deserialize(
+        raw: sharedPreferences.getInt(PreferencesKey.autoBackupMode) ??
+            AutomaticBackupMode.disabled.raw);
+    final autoBackupDir = sharedPreferences.getString(PreferencesKey.autoBackupDir) ?? "";
     final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
 
     // If no value
@@ -1102,6 +1123,8 @@ abstract class SettingsStoreBase with Store {
       lookupsUnstoppableDomains: lookupsUnstoppableDomains,
       lookupsOpenAlias: lookupsOpenAlias,
       lookupsENS: lookupsENS,
+      autoBackupMode: autoBackupMode,
+      autoBackupDir: autoBackupDir,
       customBitcoinFeeRate: customBitcoinFeeRate,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialBitcoinTransactionPriority: bitcoinTransactionPriority,
@@ -1241,6 +1264,10 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
     lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
+    autoBackupMode = AutomaticBackupMode.deserialize(
+        raw: sharedPreferences.getInt(PreferencesKey.autoBackupMode) ??
+            AutomaticBackupMode.disabled.raw);
+    autoBackupDir = sharedPreferences.getString(PreferencesKey.autoBackupDir) ?? "";
     customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =
