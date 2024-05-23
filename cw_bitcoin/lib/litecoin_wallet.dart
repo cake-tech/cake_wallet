@@ -26,6 +26,9 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/litecoin_network.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:bitcoin_base/src/crypto/keypair/sign_utils.dart';
+import 'package:pointycastle/ecc/api.dart';
+import 'package:pointycastle/ecc/curves/secp256k1.dart';
 
 part 'litecoin_wallet.g.dart';
 
@@ -152,14 +155,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         : null;
     final HD = index == null ? hd : hd.derive(index);
     final priv = ECPrivate.fromHex(HD.privKey!);
-    String messagePrefix = '\x19Litecoin Signed Message:\n';
 
     final privateKey = ECDSAPrivateKey.fromBytes(
       priv.toBytes(),
       Curves.generatorSecp256k1,
     );
-    final signature =
-        signLitecoinMessage(utf8.encode(message), messagePrefix, privateKey: privateKey);
+
+    final signature = signLitecoinMessage(utf8.encode(message), privateKey: privateKey, bipPrive: priv.prive);
+
     return base64Encode(signature);
   }
 
@@ -169,12 +172,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     return [...messagePrefix, ...encodeLength, ...message];
   }
 
-  List<int> signLitecoinMessage(List<int> message, String messagePrefix,
-      {required ECDSAPrivateKey privateKey}) {
-    final messgaeHash = QuickCrypto.sha256Hash(magicMessage(message, messagePrefix));
+  List<int> signLitecoinMessage(List<int> message, {required ECDSAPrivateKey privateKey, required Bip32PrivateKey bipPrive}) {
+    String messagePrefix = '\x19Litecoin Signed Message:\n';
+    final messageHash = QuickCrypto.sha256Hash(magicMessage(message, messagePrefix));
     final signingKey = EcdsaSigningKey(privateKey);
     ECDSASignature ecdsaSign =
-        signingKey.signDigestDeterminstic(digest: messgaeHash, hashFunc: () => SHA256());
+        signingKey.signDigestDeterminstic(digest: messageHash, hashFunc: () => SHA256());
     final n = Curves.generatorSecp256k1.order! >> 1;
     BigInt newS;
     if (ecdsaSign.s.compareTo(n) > 0) {
@@ -182,8 +185,26 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     } else {
       newS = ecdsaSign.s;
     }
-    final newSignature = ECDSASignature(ecdsaSign.r, newS);
-    return newSignature.toBytes(BitcoinSignerUtils.baselen);
+    final rawSig = ECDSASignature(ecdsaSign.r, newS);
+    final rawSigBytes = rawSig.toBytes(BitcoinSignerUtils.baselen);
+
+    final pub = bipPrive.publicKey;
+    final ECDomainParameters curve = ECCurve_secp256k1();
+    final point = curve.curve.decodePoint(pub.point.toBytes());
+
+    final rawSigEc = ECSignature(rawSig.r, rawSig.s);
+
+    final recId = SignUtils.findRecoveryId(
+      SignUtils.getHexString(messageHash, offset: 0, length: messageHash.length),
+      rawSigEc,
+      Uint8List.fromList(pub.uncompressed),
+    );
+
+    final v = recId + 27 + (point!.isCompressed ? 4 : 0);
+
+    final combined = Uint8List.fromList([v, ...rawSigBytes]);
+
+    return combined;
   }
 
   List<int> magicMessage(List<int> message, String messagePrefix) {
