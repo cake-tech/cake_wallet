@@ -36,7 +36,7 @@ import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart'
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   DashboardPage({
     required this.bottomSheetService,
     required this.balancePage,
@@ -50,43 +50,67 @@ class DashboardPage extends StatelessWidget {
   final WalletAddressListViewModel addressListViewModel;
 
   @override
-  Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    return Scaffold(
-      body: Builder(
-        builder: (_) {
-          final dashboardPageView = RefreshIndicator(
-            displacement: screenHeight * 0.1,
-            onRefresh: () async => await dashboardViewModel.refreshDashboard(),
-            child: SingleChildScrollView(
-              physics: AlwaysScrollableScrollPhysics(),
-              child: Container(
-                height: screenHeight,
-                child: _DashboardPageView(
-                  balancePage: balancePage,
-                  bottomSheetService: bottomSheetService,
-                  dashboardViewModel: dashboardViewModel,
-                  addressListViewModel: addressListViewModel,
-                ),
-              ),
-            ),
-          );
+  State<DashboardPage> createState() => _DashboardPageState();
+}
 
-          if (DeviceInfo.instance.isDesktop) {
-            if (responsiveLayoutUtil.screenWidth >
-                ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
-              return getIt.get<DesktopSidebarWrapper>();
-            } else {
-              return dashboardPageView;
-            }
-          } else if (responsiveLayoutUtil.shouldRenderMobileUI) {
-            return dashboardPageView;
-          } else {
-            return getIt.get<DesktopSidebarWrapper>();
-          }
-        },
+class _DashboardPageState extends State<DashboardPage> {
+  double previousScreenWidth = 0.0;
+
+  @override
+  void initState() {
+    reaction((_) => responsiveLayoutUtil.screenWidth, (screenWidth) {
+      // Check if it was previously in mobile layout, and now changing to desktop
+      if (previousScreenWidth <= 900 && screenWidth > 900) {
+        setState(() {
+          previousScreenWidth = screenWidth;
+        });
+      }
+
+      // Check if it was previously in desktop layout, and now changing to mobile
+      if (previousScreenWidth >= 900 && screenWidth <= 900) {
+        setState(() {
+          previousScreenWidth = screenWidth;
+        });
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget dashboardChild;
+
+    final dashboardPageView = RefreshIndicator(
+      displacement: responsiveLayoutUtil.screenHeight * 0.1,
+      onRefresh: () async => await widget.dashboardViewModel.refreshDashboard(),
+      child: SingleChildScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
+        child: Container(
+          height: responsiveLayoutUtil.screenHeight,
+          child: _DashboardPageView(
+            balancePage: widget.balancePage,
+            bottomSheetService: widget.bottomSheetService,
+            dashboardViewModel: widget.dashboardViewModel,
+            addressListViewModel: widget.addressListViewModel,
+          ),
+        ),
       ),
     );
+
+    if (DeviceInfo.instance.isDesktop) {
+      if (responsiveLayoutUtil.screenWidth >
+          ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
+        dashboardChild = getIt.get<DesktopSidebarWrapper>();
+      } else {
+        dashboardChild = dashboardPageView;
+      }
+    } else if (responsiveLayoutUtil.shouldRenderMobileUI) {
+      dashboardChild = dashboardPageView;
+    } else {
+      dashboardChild = getIt.get<DesktopSidebarWrapper>();
+    }
+
+    return Scaffold(body: dashboardChild);
   }
 }
 
