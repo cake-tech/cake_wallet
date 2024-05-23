@@ -341,6 +341,8 @@ class CWBitcoin extends Bitcoin {
           if (derivationDepth == 3) {
             // we add "/0/0" so that we generate account 0, index 0 and correctly get balance
             balancePath += "/0/0";
+          } else if (derivationDepth == 1) {
+            balancePath += "/0";
           }
 
           final hd = btc.HDWallet.fromSeed(
