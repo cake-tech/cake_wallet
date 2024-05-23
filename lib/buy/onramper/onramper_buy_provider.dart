@@ -1,10 +1,8 @@
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
@@ -94,11 +92,6 @@ class OnRamperBuyProvider extends BuyProvider {
 
   Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
     final uri = requestOnramperUrl(context, isBuyAction);
-    if (DeviceInfo.instance.isMobile) {
-      Navigator.of(context)
-          .pushNamed(Routes.webViewPage, arguments: [title, uri]);
-    } else {
-      await launchUrl(uri);
-    }
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 }

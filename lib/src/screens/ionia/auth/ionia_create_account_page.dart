@@ -107,7 +107,9 @@ class IoniaCreateAccountPage extends BasePage {
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
-                          if (await canLaunch(termsAndConditionsUrl)) await launch(termsAndConditionsUrl);
+                          final uri = Uri.parse(termsAndConditionsUrl);
+                          if (await canLaunchUrl(uri))
+                            await launchUrl(uri, mode: LaunchMode.externalApplication);
                         },
                     ),
                     TextSpan(text: ' ${S.of(context).and} '),
@@ -119,7 +121,9 @@ class IoniaCreateAccountPage extends BasePage {
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () async {
-                            if (await canLaunch(privacyPolicyUrl)) await launch(privacyPolicyUrl);
+                            final uri = Uri.parse(privacyPolicyUrl);
+                            if (await canLaunchUrl(uri))
+                              await launchUrl(uri, mode: LaunchMode.externalApplication);
                           }),
                     TextSpan(text: ' ${S.of(context).by_cake_pay}'),
                   ],

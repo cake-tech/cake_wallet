@@ -9,11 +9,9 @@ import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -272,11 +270,7 @@ class MoonPayProvider extends BuyProvider {
       }
 
       if (await canLaunchUrl(uri)) {
-        if (DeviceInfo.instance.isMobile) {
-          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: ['MoonPay', uri]);
-        } else {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         throw Exception('Could not launch URL');
       }
