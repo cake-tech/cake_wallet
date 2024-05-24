@@ -6,7 +6,7 @@ part 'responsive_layout_util.g.dart';
 class _ResponsiveLayoutUtil = ResponsiveLayoutUtilBase with _$_ResponsiveLayoutUtil;
 
 abstract class ResponsiveLayoutUtilBase with Store, WidgetsBindingObserver {
-  static const double _kMobileThreshold = 550;
+  static const double kMobileThreshold = 550;
   static const double kDesktopMaxWidthConstraint = 400;
   static const double kDesktopMaxDashBoardWidthConstraint = 900;
   static const double kPopupWidth = 400;
@@ -42,13 +42,13 @@ abstract class ResponsiveLayoutUtilBase with Store, WidgetsBindingObserver {
 
   @computed
   bool get shouldRenderMobileUI {
-    return (screenWidth <= _kMobileThreshold) ||
+    return (screenWidth <= kMobileThreshold) ||
         (orientation == Orientation.portrait && screenWidth < screenHeight) ||
         (orientation == Orientation.landscape && screenWidth < screenHeight);
   }
 
   bool get shouldRenderTabletUI {
-    return screenWidth > _kMobileThreshold && screenWidth < kDesktopMaxDashBoardWidthConstraint;
+    return screenWidth > kMobileThreshold && screenWidth < kDesktopMaxDashBoardWidthConstraint;
   }
 }
 

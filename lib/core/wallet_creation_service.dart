@@ -58,7 +58,7 @@ class WalletCreationService {
     checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
-    if (type == WalletType.bitcoinCash || type == WalletType.ethereum) {
+    if (_hasSeedPhraseLengthOption) {
       credentials.seedPhraseLength = settingsStore.seedPhraseLength.value;
     }
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);
@@ -70,6 +70,25 @@ class WalletCreationService {
     }
 
     return wallet;
+  }
+
+  bool get _hasSeedPhraseLengthOption {
+    switch (type) {
+      case WalletType.ethereum:
+      case WalletType.bitcoinCash:
+      case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.tron:
+        return true;
+      case WalletType.monero:
+      case WalletType.none:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.haven:
+      case WalletType.nano:
+      case WalletType.banano:
+        return false;
+    }
   }
 
   Future<WalletBase> restoreFromKeys(WalletCredentials credentials, {bool? isTestnet}) async {
