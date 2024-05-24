@@ -202,7 +202,7 @@ abstract class ElectrumWalletBase
     silentPaymentsScanningActive = active;
 
     if (active) {
-      final tip = await getCurrentChainTip();
+      final tip = await getUpdatedChainTip();
 
       if (tip == walletInfo.restoreHeight) {
         syncStatus = SyncedTipSyncStatus(tip);
