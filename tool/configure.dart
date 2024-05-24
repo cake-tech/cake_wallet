@@ -213,7 +213,7 @@ abstract class Bitcoin {
       {int? outputsCount, int? size});
   int getHeightByDate({required DateTime date});
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan});
-  bool getNodeIsCakeElectrs(Object wallet);
+  bool getNodeIsElectrsSPEnabled(Object wallet);
   void deleteSilentPaymentAddress(Object wallet, String address);
   Future<void> updateFeeRates(Object wallet);
   int getMaxCustomFeeRate(Object wallet);

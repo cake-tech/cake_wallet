@@ -150,7 +150,8 @@ class ElectrumClient {
     }
   }
 
-  Future<List<String>> version() => call(method: 'server.version').then((dynamic result) {
+  Future<List<String>> version() =>
+      call(method: 'server.version', params: ["", "1.4"]).then((dynamic result) {
         if (result is List) {
           return result.map((dynamic val) => val.toString()).toList();
         }
@@ -287,9 +288,8 @@ class ElectrumClient {
     );
   }
 
-  Future<Map<String, dynamic>> getTweaks({required int height}) async =>
-      await callWithTimeout(method: 'blockchain.tweaks.get', params: [height], timeout: 10000)
-          as Map<String, dynamic>;
+  Future<dynamic> getTweaks({required int height}) async =>
+      await callWithTimeout(method: 'blockchain.tweaks.subscribe', params: [height, 1, false]);
 
   Future<double> estimatefee({required int p}) =>
       call(method: 'blockchain.estimatefee', params: [p]).then((dynamic result) {
