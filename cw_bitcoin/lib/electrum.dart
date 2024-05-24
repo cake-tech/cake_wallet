@@ -41,7 +41,7 @@ class ElectrumClient {
 
   bool get isConnected => _isConnected;
   Socket? socket;
-  void Function(bool)? onConnectionStatusChange;
+  void Function(bool?)? onConnectionStatusChange;
   int _id;
   final Map<String, SocketTask> _tasks;
   Map<String, SocketTask> get tasks => _tasks;
@@ -91,7 +91,7 @@ class ElectrumClient {
       _setIsConnected(false);
     }, onDone: () {
       unterminatedString = '';
-      _setIsConnected(false);
+      _setIsConnected(null);
     });
     keepAlive();
   }
@@ -146,7 +146,7 @@ class ElectrumClient {
       await callWithTimeout(method: 'server.ping');
       _setIsConnected(true);
     } on RequestFailedTimeoutException catch (_) {
-      _setIsConnected(false);
+      _setIsConnected(null);
     }
   }
 
@@ -480,12 +480,12 @@ class ElectrumClient {
     }
   }
 
-  void _setIsConnected(bool isConnected) {
+  void _setIsConnected(bool? isConnected) {
     if (_isConnected != isConnected) {
       onConnectionStatusChange?.call(isConnected);
     }
 
-    _isConnected = isConnected;
+    _isConnected = isConnected ?? false;
   }
 
   void _handleResponse(Map<String, dynamic> response) {

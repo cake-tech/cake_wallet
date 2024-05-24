@@ -235,7 +235,10 @@ abstract class ElectrumWalletBase
   }
 
   Future<int> getUpdatedChainTip() async {
-    _currentChainTip = await electrumClient.getCurrentBlockChainTip();
+    final newTip = await electrumClient.getCurrentBlockChainTip();
+    if (newTip != null && newTip > (_currentChainTip ?? 0)) {
+      _currentChainTip = newTip;
+    }
     return _currentChainTip ?? 0;
   }
 
@@ -444,13 +447,15 @@ abstract class ElectrumWalletBase
 
       await electrumClient.close();
 
-      electrumClient.onConnectionStatusChange = (bool isConnected) async {
+      electrumClient.onConnectionStatusChange = (bool? isConnected) async {
         if (syncStatus is SyncingSyncStatus) return;
 
-        if (isConnected && syncStatus is! SyncedSyncStatus) {
+        if (isConnected == true && syncStatus is! SyncedSyncStatus) {
           syncStatus = ConnectedSyncStatus();
-        } else if (!isConnected) {
+        } else if (isConnected == false) {
           syncStatus = LostConnectionSyncStatus();
+        } else if (!(isConnected ?? false) && syncStatus is! ConnectingSyncStatus) {
+          syncStatus = NotConnectedSyncStatus();
         }
       };
 
