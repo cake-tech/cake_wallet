@@ -227,7 +227,6 @@ abstract class ElectrumWalletBase
     }
   }
 
-  @observable
   int? _currentChainTip;
 
   Future<int> getCurrentChainTip() async {
@@ -1760,12 +1759,14 @@ abstract class ElectrumWalletBase
     _chainTipUpdateSubject = electrumClient.chainTipSubscribe();
     _chainTipUpdateSubject?.listen((e) async {
       final event = e as Map<String, dynamic>;
-      final height = int.parse(event['height'].toString());
+      final height = int.tryParse(event['height'].toString());
 
-      _currentChainTip = height;
+      if (height != null) {
+        _currentChainTip = height;
 
-      if (alwaysScan == true && syncStatus is SyncedSyncStatus) {
-        _setListeners(walletInfo.restoreHeight);
+        if (alwaysScan == true && syncStatus is SyncedSyncStatus) {
+          _setListeners(walletInfo.restoreHeight);
+        }
       }
     });
   }

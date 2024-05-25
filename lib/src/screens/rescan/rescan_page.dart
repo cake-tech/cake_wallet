@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -42,8 +43,9 @@ class RescanPage extends BasePage {
                       return _toggleSilentPaymentsScanning(context);
                     }
 
-                    await _rescanViewModel.rescanCurrentWallet(
+                    _rescanViewModel.rescanCurrentWallet(
                         restoreHeight: _blockchainHeightWidgetKey.currentState!.height);
+
                     Navigator.of(context).pop();
                   },
                   color: Theme.of(context).primaryColor,
@@ -55,28 +57,30 @@ class RescanPage extends BasePage {
   }
 
   Future<void> _toggleSilentPaymentsScanning(BuildContext context) async {
+    final height = _blockchainHeightWidgetKey.currentState!.height;
+
+    Navigator.of(context).pop();
+
     final needsToSwitch =
         await bitcoin!.getNodeIsElectrsSPEnabled(_rescanViewModel.wallet) == false;
 
     if (needsToSwitch) {
       return showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) => AlertWithTwoActions(
-                alertTitle: S.of(context).change_current_node_title,
-                alertContent: S.of(context).confirm_silent_payments_switch_node,
-                rightButtonText: S.of(context).ok,
-                leftButtonText: S.of(context).cancel,
+          context: navigatorKey.currentState!.context,
+          builder: (BuildContext _dialogContext) => AlertWithTwoActions(
+                alertTitle: S.of(_dialogContext).change_current_node_title,
+                alertContent: S.of(_dialogContext).confirm_silent_payments_switch_node,
+                rightButtonText: S.of(_dialogContext).ok,
+                leftButtonText: S.of(_dialogContext).cancel,
                 actionRightButton: () async {
-                  _rescanViewModel.rescanCurrentWallet(
-                      restoreHeight: _blockchainHeightWidgetKey.currentState!.height);
-                  Navigator.of(context).pop();
+                  Navigator.of(_dialogContext).pop();
+
+                  _rescanViewModel.rescanCurrentWallet(restoreHeight: height);
                 },
-                actionLeftButton: () => Navigator.of(context).pop(),
+                actionLeftButton: () => Navigator.of(_dialogContext).pop(),
               ));
     }
 
-    await _rescanViewModel.rescanCurrentWallet(
-        restoreHeight: _blockchainHeightWidgetKey.currentState!.height);
-    Navigator.of(context).pop();
+    _rescanViewModel.rescanCurrentWallet(restoreHeight: height);
   }
 }
