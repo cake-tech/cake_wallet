@@ -41,7 +41,7 @@ class ElectrumClient {
 
   bool get isConnected => _isConnected;
   Socket? socket;
-  void Function(bool)? onConnectionStatusChange;
+  void Function(bool?)? onConnectionStatusChange;
   int _id;
   final Map<String, SocketTask> _tasks;
   Map<String, SocketTask> get tasks => _tasks;
@@ -91,7 +91,7 @@ class ElectrumClient {
       _setIsConnected(false);
     }, onDone: () {
       unterminatedString = '';
-      _setIsConnected(false);
+      _setIsConnected(null);
     });
     keepAlive();
   }
@@ -146,11 +146,12 @@ class ElectrumClient {
       await callWithTimeout(method: 'server.ping');
       _setIsConnected(true);
     } on RequestFailedTimeoutException catch (_) {
-      _setIsConnected(false);
+      _setIsConnected(null);
     }
   }
 
-  Future<List<String>> version() => call(method: 'server.version').then((dynamic result) {
+  Future<List<String>> version() =>
+      call(method: 'server.version', params: ["", "1.4"]).then((dynamic result) {
         if (result is List) {
           return result.map((dynamic val) => val.toString()).toList();
         }
@@ -287,9 +288,8 @@ class ElectrumClient {
     );
   }
 
-  Future<Map<String, dynamic>> getTweaks({required int height}) async =>
-      await callWithTimeout(method: 'blockchain.tweaks.get', params: [height], timeout: 10000)
-          as Map<String, dynamic>;
+  Future<dynamic> getTweaks({required int height}) async =>
+      await callWithTimeout(method: 'blockchain.tweaks.subscribe', params: [height, 1, false]);
 
   Future<double> estimatefee({required int p}) =>
       call(method: 'blockchain.estimatefee', params: [p]).then((dynamic result) {
@@ -480,12 +480,12 @@ class ElectrumClient {
     }
   }
 
-  void _setIsConnected(bool isConnected) {
+  void _setIsConnected(bool? isConnected) {
     if (_isConnected != isConnected) {
       onConnectionStatusChange?.call(isConnected);
     }
 
-    _isConnected = isConnected;
+    _isConnected = isConnected ?? false;
   }
 
   void _handleResponse(Map<String, dynamic> response) {

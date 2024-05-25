@@ -55,7 +55,8 @@ class RescanPage extends BasePage {
   }
 
   Future<void> _toggleSilentPaymentsScanning(BuildContext context) async {
-    final needsToSwitch = bitcoin!.getNodeIsCakeElectrs(_rescanViewModel.wallet) == false;
+    final needsToSwitch =
+        await bitcoin!.getNodeIsElectrsSPEnabled(_rescanViewModel.wallet) == false;
 
     if (needsToSwitch) {
       return showPopUp<void>(

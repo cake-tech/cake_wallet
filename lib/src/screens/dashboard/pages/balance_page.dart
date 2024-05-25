@@ -329,7 +329,8 @@ class CryptoBalanceWidget extends StatelessWidget {
     final isSilentPaymentsScanningActive = dashboardViewModel.silentPaymentsScanningActive;
     final newValue = !isSilentPaymentsScanningActive;
 
-    final needsToSwitch = bitcoin!.getNodeIsCakeElectrs(dashboardViewModel.wallet) == false;
+    final needsToSwitch = !isSilentPaymentsScanningActive &&
+        await bitcoin!.getNodeIsElectrsSPEnabled(dashboardViewModel.wallet) == false;
 
     if (needsToSwitch) {
       return showPopUp<void>(

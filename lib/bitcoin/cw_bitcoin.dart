@@ -509,8 +509,7 @@ class CWBitcoin extends Bitcoin {
   Future<void> setScanningActive(Object wallet, bool active) async {
     final bitcoinWallet = wallet as ElectrumWallet;
 
-    // TODO: always when setting to scanning active, will force switch nodes. Remove when not needed anymore
-    if (!getNodeIsCakeElectrs(wallet)) {
+    if (!(await getNodeIsElectrsSPEnabled(wallet))) {
       final node = Node(
         useSSL: false,
         uri: 'electrs.cakewallet.com:${(wallet.network == BitcoinNetwork.testnet ? 50002 : 50001)}',
@@ -535,8 +534,7 @@ class CWBitcoin extends Bitcoin {
   @override
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan}) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    // TODO: always when setting to scanning active, will force switch nodes. Remove when not needed anymore
-    if (!getNodeIsCakeElectrs(wallet)) {
+    if (!(await getNodeIsElectrsSPEnabled(wallet))) {
       final node = Node(
         useSSL: false,
         uri: 'electrs.cakewallet.com:${(wallet.network == BitcoinNetwork.testnet ? 50002 : 50001)}',
@@ -547,13 +545,40 @@ class CWBitcoin extends Bitcoin {
     bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
   }
 
-  @override
-  bool getNodeIsCakeElectrs(Object wallet) {
+  Future<bool> getNodeIsElectrs(Object wallet) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    final node = bitcoinWallet.node;
 
-    return node?.uri.host == 'electrs.cakewallet.com' &&
-        node?.uri.port == (wallet.network == BitcoinNetwork.testnet ? 50002 : 50001);
+    final version = await bitcoinWallet.electrumClient.version();
+
+    if (version.isEmpty) {
+      return false;
+    }
+
+    final server = version[0];
+
+    if (server.toLowerCase().contains('electrs')) {
+      return true;
+    }
+
+    return false;
+  }
+
+  @override
+  Future<bool> getNodeIsElectrsSPEnabled(Object wallet) async {
+    if (!(await getNodeIsElectrs(wallet))) {
+      return false;
+    }
+
+    final bitcoinWallet = wallet as ElectrumWallet;
+    final tweaksResponse = await bitcoinWallet.electrumClient.getTweaks(height: 0);
+
+    print('tweaksResponse: $tweaksResponse');
+
+    if (tweaksResponse != null) {
+      return true;
+    }
+
+    return false;
   }
 
   @override
