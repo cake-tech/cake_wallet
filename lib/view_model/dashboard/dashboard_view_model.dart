@@ -556,11 +556,7 @@ abstract class DashboardViewModelBase with Store {
           );
       }
       else {
-          return ServicesResponse.fromJson(
-            "" as Map<String, dynamic>,
-            false,
-            "",
-          );
+          return ServicesResponse([], false, '');
         }
     } catch (_) {
       return ServicesResponse([], false, '');
