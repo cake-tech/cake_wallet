@@ -882,7 +882,7 @@ Future<void> checkCurrentNodes(
 
   if (currentLitecoinElectrumServer == null) {
     final cakeWalletElectrum =
-        Node(uri: cakeWalletLitecoinElectrumUri, type: WalletType.litecoin, useSSL: true);
+        Node(uri: cakeWalletLitecoinElectrumUri, type: WalletType.litecoin, useSSL: false);
     await nodeSource.add(cakeWalletElectrum);
     await sharedPreferences.setInt(
         PreferencesKey.currentLitecoinElectrumSererIdKey, cakeWalletElectrum.key as int);
@@ -918,7 +918,7 @@ Future<void> checkCurrentNodes(
 
   if (currentBitcoinCashNodeServer == null) {
     final node =
-        Node(uri: cakeWalletBitcoinCashDefaultNodeUri, type: WalletType.bitcoinCash, useSSL: true);
+        Node(uri: cakeWalletBitcoinCashDefaultNodeUri, type: WalletType.bitcoinCash, useSSL: false);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, node.key as int);
   }

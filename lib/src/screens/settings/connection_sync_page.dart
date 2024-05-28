@@ -39,7 +39,7 @@ class ConnectionSyncPage extends BasePage {
           ),
           if (dashboardViewModel.hasRescan) ...[
             SettingsCellWithArrow(
-              title: dashboardViewModel.hasRescan
+              title: dashboardViewModel.hasSilentPayments
                   ? S.current.silent_payments_scanning
                   : S.current.rescan,
               handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),

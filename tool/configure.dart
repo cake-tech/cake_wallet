@@ -166,7 +166,6 @@ abstract class Bitcoin {
   Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate});
   Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs, {TransactionPriority? priority, required int feeRate});
 
-  List<String> getAddresses(Object wallet);
   String getAddress(Object wallet);
   List<BitcoinSilentPaymentAddressRecord> getSilentPaymentAddresses(Object wallet);
   List<BitcoinSilentPaymentAddressRecord> getSilentPaymentReceivedAddresses(Object wallet);

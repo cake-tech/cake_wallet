@@ -1,15 +1,6 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
-import 'package:cake_wallet/src/widgets/standard_switch.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -65,10 +56,7 @@ class CakeFeaturesPage extends StatelessWidget {
                     // ),
                     SizedBox(height: 20),
                     DashBoardRoundedCardWidget(
-                      onTap: () => launchUrl(
-                        Uri.https("buy.cakepay.com"),
-                        mode: LaunchMode.externalApplication,
-                      ),
+                      onTap: () => _launchUrl("buy.cakepay.com"),
                       title: S.of(context).cake_pay_web_cards_title,
                       subTitle: S.of(context).cake_pay_web_cards_subtitle,
                       svgPicture: SvgPicture.asset(
@@ -82,10 +70,7 @@ class CakeFeaturesPage extends StatelessWidget {
                     DashBoardRoundedCardWidget(
                       title: "NanoGPT",
                       subTitle: S.of(context).nanogpt_subtitle,
-                      onTap: () => launchUrl(
-                        Uri.https("cake.nano-gpt.com"),
-                        mode: LaunchMode.externalApplication,
-                      ),
+                      onTap: () => _launchUrl("cake.nano-gpt.com"),
                     ),
                   ],
                 ),
@@ -97,30 +82,12 @@ class CakeFeaturesPage extends StatelessWidget {
     );
   }
 
-  // TODO: Remove ionia flow/files if we will discard it
-  void _navigatorToGiftCardsPage(BuildContext context) {
-    final walletType = dashboardViewModel.type;
-
-    switch (walletType) {
-      case WalletType.haven:
-        showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithOneAction(
-                  alertTitle: S.of(context).error,
-                  alertContent: S.of(context).gift_cards_unavailable,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
-            });
-        break;
-      default:
-        cakeFeaturesViewModel.isIoniaUserAuthenticated().then((value) {
-          if (value) {
-            Navigator.pushNamed(context, Routes.ioniaManageCardsPage);
-            return;
-          }
-          Navigator.of(context).pushNamed(Routes.ioniaWelcomePage);
-        });
-    }
+  void _launchUrl(String url) {
+    try {
+      launchUrl(
+        Uri.https(url),
+        mode: LaunchMode.externalApplication,
+      );
+    } catch (_) {}
   }
 }

@@ -1,10 +1,12 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
@@ -109,6 +111,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
       } catch (e, s) {
         print(s);
         print(e.toString());
+        ExceptionHandler.onError(FlutterErrorDetails(exception: e, stack: s));
       }
     });
 

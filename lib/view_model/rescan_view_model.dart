@@ -1,5 +1,4 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -11,14 +10,12 @@ class RescanViewModel = RescanViewModelBase with _$RescanViewModel;
 enum RescanWalletState { rescaning, none }
 
 abstract class RescanViewModelBase with Store {
-  RescanViewModelBase(this.wallet, this.settingsStore)
+  RescanViewModelBase(this.wallet)
       : state = RescanWalletState.none,
         isButtonEnabled = false,
         doSingleScan = false;
 
   final WalletBase wallet;
-
-  final SettingsStore settingsStore;
 
   @observable
   RescanWalletState state;

@@ -29,7 +29,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
-    int initialSilentAddressIndex = 1,
+    int initialSilentAddressIndex = 0,
     bitcoin.HDWallet? masterHd,
     BitcoinAddressType? initialAddressPageType,
   })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),

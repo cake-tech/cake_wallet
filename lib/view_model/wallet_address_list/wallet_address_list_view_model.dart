@@ -456,9 +456,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet);
 
   @computed
-  bool get isAutoGenerateSubaddressEnabled => wallet.type == WalletType.bitcoin
-      ? !isSilentPayments
-      : _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
+  bool get isAutoGenerateSubaddressEnabled =>
+      _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled &&
+      !isSilentPayments;
 
   List<ListItem> _baseItems;
 

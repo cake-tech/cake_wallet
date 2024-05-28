@@ -1,4 +1,3 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';

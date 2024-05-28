@@ -230,7 +230,12 @@ abstract class ElectrumWalletBase
   int? _currentChainTip;
 
   Future<int> getCurrentChainTip() async {
-    return _currentChainTip ?? await electrumClient.getCurrentBlockChainTip() ?? 0;
+    if (_currentChainTip != null) {
+      return _currentChainTip!;
+    }
+    _currentChainTip = await electrumClient.getCurrentBlockChainTip() ?? 0;
+
+    return _currentChainTip!;
   }
 
   Future<int> getUpdatedChainTip() async {
@@ -248,8 +253,10 @@ abstract class ElectrumWalletBase
   String _password;
   List<BitcoinUnspent> unspentCoins;
   List<int> _feeRates;
+
   // ignore: prefer_final_fields
   Map<String, BehaviorSubject<Object>?> _scripthashesUpdateSubject;
+
   // ignore: prefer_final_fields
   BehaviorSubject<Object>? _chainTipUpdateSubject;
   bool _isTransactionUpdating;
@@ -262,6 +269,7 @@ abstract class ElectrumWalletBase
   Future<void> init() async {
     await walletAddresses.init();
     await transactionHistory.init();
+    await save();
 
     _autoSaveTimer =
         Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
@@ -313,30 +321,6 @@ abstract class ElectrumWalletBase
             final existingTxInfo = transactionHistory.transactions[txid];
             final txAlreadyExisted = existingTxInfo != null;
 
-            void updateSilentAddressRecord(BitcoinSilentPaymentsUnspent unspent) {
-              final silentAddress = walletAddresses.silentAddress!;
-              final silentPaymentAddress = SilentPaymentAddress(
-                version: silentAddress.version,
-                B_scan: silentAddress.B_scan,
-                B_spend: unspent.silentPaymentLabel != null
-                    ? silentAddress.B_spend.tweakAdd(
-                        BigintUtils.fromBytes(
-                            BytesUtils.fromHexString(unspent.silentPaymentLabel!)),
-                      )
-                    : silentAddress.B_spend,
-                hrp: silentAddress.hrp,
-              );
-
-              final addressRecord = walletAddresses.silentAddresses.firstWhereOrNull(
-                  (address) => address.address == silentPaymentAddress.toString());
-              addressRecord?.txCount += 1;
-              addressRecord?.balance += unspent.value;
-
-              walletAddresses.addSilentAddresses(
-                [unspent.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord],
-              );
-            }
-
             // Updating tx after re-scanned
             if (txAlreadyExisted) {
               existingTxInfo.amount = tx.amount;
@@ -352,7 +336,7 @@ abstract class ElectrumWalletBase
                   .toList();
 
               if (newUnspents.isNotEmpty) {
-                newUnspents.forEach(updateSilentAddressRecord);
+                newUnspents.forEach(_updateSilentAddressRecord);
 
                 existingTxInfo.unspents ??= [];
                 existingTxInfo.unspents!.addAll(newUnspents);
@@ -372,7 +356,7 @@ abstract class ElectrumWalletBase
               }
             } else {
               // else: First time seeing this TX after scanning
-              tx.unspents!.forEach(updateSilentAddressRecord);
+              tx.unspents!.forEach(_updateSilentAddressRecord);
 
               // Add new TX record
               transactionHistory.addMany(message);
@@ -396,6 +380,30 @@ abstract class ElectrumWalletBase
     }
   }
 
+  void _updateSilentAddressRecord(BitcoinSilentPaymentsUnspent unspent) {
+    final silentAddress = walletAddresses.silentAddress!;
+    final silentPaymentAddress = SilentPaymentAddress(
+      version: silentAddress.version,
+      B_scan: silentAddress.B_scan,
+      B_spend: unspent.silentPaymentLabel != null
+          ? silentAddress.B_spend.tweakAdd(
+        BigintUtils.fromBytes(
+            BytesUtils.fromHexString(unspent.silentPaymentLabel!)),
+      )
+          : silentAddress.B_spend,
+      hrp: silentAddress.hrp,
+    );
+
+    final addressRecord = walletAddresses.silentAddresses.firstWhereOrNull(
+            (address) => address.address == silentPaymentAddress.toString());
+    addressRecord?.txCount += 1;
+    addressRecord?.balance += unspent.value;
+
+    walletAddresses.addSilentAddresses(
+      [unspent.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord],
+    );
+  }
+
   @action
   @override
   Future<void> startSync() async {
@@ -412,7 +420,7 @@ abstract class ElectrumWalletBase
       await updateAllUnspents();
       await updateBalance();
 
-      await updateFeeRates();
+      Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
 
       if (alwaysScan == true) {
         _setListeners(walletInfo.restoreHeight);
@@ -1710,13 +1718,6 @@ abstract class ElectrumWalletBase
 
     return ElectrumBalance(
         confirmed: totalConfirmed, unconfirmed: totalUnconfirmed, frozen: totalFrozen);
-  }
-
-  Future<ElectrumBalance> _fetchBalance(String sh) async {
-    final balance = await electrumClient.getBalance(sh);
-    final confirmed = balance['confirmed'] as int? ?? 0;
-    final unconfirmed = balance['unconfirmed'] as int? ?? 0;
-    return ElectrumBalance(confirmed: confirmed, unconfirmed: unconfirmed, frozen: 0);
   }
 
   Future<void> updateBalance() async {

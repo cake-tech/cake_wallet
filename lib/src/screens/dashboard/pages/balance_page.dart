@@ -329,6 +329,8 @@ class CryptoBalanceWidget extends StatelessWidget {
     final isSilentPaymentsScanningActive = dashboardViewModel.silentPaymentsScanningActive;
     final newValue = !isSilentPaymentsScanningActive;
 
+    dashboardViewModel.silentPaymentsScanningActive = newValue;
+
     final needsToSwitch = !isSilentPaymentsScanningActive &&
         await bitcoin!.getNodeIsElectrsSPEnabled(dashboardViewModel.wallet) == false;
 
@@ -344,7 +346,10 @@ class CryptoBalanceWidget extends StatelessWidget {
                   dashboardViewModel.setSilentPaymentsScanning(newValue);
                   Navigator.of(context).pop();
                 },
-                actionLeftButton: () => Navigator.of(context).pop(),
+                actionLeftButton: () {
+                  dashboardViewModel.silentPaymentsScanningActive = isSilentPaymentsScanningActive;
+                  Navigator.of(context).pop();
+                },
               ));
     }
 

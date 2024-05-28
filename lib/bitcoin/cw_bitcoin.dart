@@ -122,14 +122,6 @@ class CWBitcoin extends Bitcoin {
           feeRate: feeRate);
 
   @override
-  List<String> getAddresses(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.walletAddresses.addressesByReceiveType
-        .map((BaseBitcoinAddressRecord addr) => addr.address)
-        .toList();
-  }
-
-  @override
   @computed
   List<ElectrumSubAddress> getSubAddresses(Object wallet) {
     final electrumWallet = wallet as ElectrumWallet;

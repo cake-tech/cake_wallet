@@ -934,8 +934,7 @@ Future<void> setup({
       (onSuccessfulPinSetup, _) => SetupPinCodePage(getIt.get<SetupPinCodeViewModel>(),
           onSuccessfulPinSetup: onSuccessfulPinSetup));
 
-  getIt.registerFactory(
-      () => RescanViewModel(getIt.get<AppStore>().wallet!, getIt.get<SettingsStore>()));
+  getIt.registerFactory(() => RescanViewModel(getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory(() => RescanPage(getIt.get<RescanViewModel>()));
 

@@ -53,7 +53,7 @@ abstract class ContactListViewModelBase with Store {
                     info.network == null ? false : info.network!.toLowerCase().contains("testnet")),
           ));
         });
-      } else if (info.address != null) {
+      } else {
         walletContacts.add(WalletContact(
           info.address,
           info.name,
