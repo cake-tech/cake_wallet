@@ -253,7 +253,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static CryptoCurrency fromString(String name, {CryptoCurrency? walletCurrency}) {
     try {
       return CryptoCurrency.all.firstWhere((element) =>
-          element.title.toLowerCase() == name &&
+          element.title.toLowerCase() == name.toLowerCase() &&
           (element.tag == null ||
               element.tag == walletCurrency?.title ||
               element.tag == walletCurrency?.tag));
@@ -269,19 +269,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       throw  ArgumentError.value(name, 'name', s);
     }
 
-    return CryptoCurrency._nameCurrencyMap.values.firstWhere(
-      (element) {
-        final elementTitle = element.title.toLowerCase();
-        final walletTitle = walletCurrency?.title.toLowerCase();
-        final nameLower = name.toLowerCase();
-
-        if (walletCurrency != null) {
-          return elementTitle == nameLower && (element.tag != null ? element.tag?.toLowerCase() == walletTitle : elementTitle == walletTitle);
-        } else {
-          return elementTitle == nameLower;
-        }
-      },
-    );
+    return CryptoCurrency._nameCurrencyMap[name.toLowerCase()]!;
   }
 
   static CryptoCurrency fromFullName(String name) {

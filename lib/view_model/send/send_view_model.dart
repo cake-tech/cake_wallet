@@ -153,11 +153,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   CryptoCurrency pendingTransactionFeeCurrency(WalletType type) {
-    if (isEVMCompatibleChain(type) || type == WalletType.tron) {
-      return wallet.currency;
+    switch (type) {
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.tron:
+      case WalletType.solana:
+        return wallet.currency;
+      default:
+        return selectedCryptoCurrency;
     }
-
-    return selectedCryptoCurrency;
   }
 
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
