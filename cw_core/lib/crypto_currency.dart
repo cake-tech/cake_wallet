@@ -269,7 +269,11 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       throw  ArgumentError.value(name, 'name', s);
     }
 
-    return CryptoCurrency._nameCurrencyMap[name.toLowerCase()]!;
+    return CryptoCurrency._nameCurrencyMap.values.firstWhere(
+      (element) => walletCurrency != null
+          ? element.title.toLowerCase() == name.toLowerCase() && element.tag == walletCurrency.title
+          : element.title.toLowerCase() == name.toLowerCase(),
+    );
   }
 
   static CryptoCurrency fromFullName(String name) {
