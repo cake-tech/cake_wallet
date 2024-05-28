@@ -15,8 +15,8 @@ class SolanaBalance extends Balance {
 
   String _balanceFormatted() {
     String stringBalance = balance.toString();
-    if (stringBalance.toString().length >= 6) {
-      stringBalance = stringBalance.substring(0, 6);
+    if (stringBalance.toString().length >= 12) {
+      stringBalance = stringBalance.substring(0, 12);
     }
     return stringBalance;
   }
