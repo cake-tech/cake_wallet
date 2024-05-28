@@ -501,7 +501,7 @@ class CWBitcoin extends Bitcoin {
   Future<void> setScanningActive(Object wallet, bool active) async {
     final bitcoinWallet = wallet as ElectrumWallet;
 
-    if (!(await getNodeIsElectrsSPEnabled(wallet))) {
+    if (active && !(await getNodeIsElectrsSPEnabled(wallet))) {
       final node = Node(
         useSSL: false,
         uri: 'electrs.cakewallet.com:${(wallet.network == BitcoinNetwork.testnet ? 50002 : 50001)}',
@@ -563,8 +563,6 @@ class CWBitcoin extends Bitcoin {
 
     final bitcoinWallet = wallet as ElectrumWallet;
     final tweaksResponse = await bitcoinWallet.electrumClient.getTweaks(height: 0);
-
-    print('tweaksResponse: $tweaksResponse');
 
     if (tweaksResponse != null) {
       return true;

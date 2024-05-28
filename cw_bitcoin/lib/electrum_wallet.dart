@@ -198,10 +198,11 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> setSilentPaymentsScanning(bool active) async {
-    syncStatus = AttemptingSyncStatus();
     silentPaymentsScanningActive = active;
 
     if (active) {
+      syncStatus = AttemptingSyncStatus();
+
       final tip = await getUpdatedChainTip();
 
       if (tip == walletInfo.restoreHeight) {
@@ -214,7 +215,7 @@ abstract class ElectrumWalletBase
     } else {
       alwaysScan = false;
 
-      _isolate?.then((runningIsolate) => runningIsolate.kill(priority: Isolate.immediate));
+      (await _isolate)?.kill(priority: Isolate.immediate);
 
       if (electrumClient.isConnected) {
         syncStatus = SyncedSyncStatus();
@@ -387,15 +388,14 @@ abstract class ElectrumWalletBase
       B_scan: silentAddress.B_scan,
       B_spend: unspent.silentPaymentLabel != null
           ? silentAddress.B_spend.tweakAdd(
-        BigintUtils.fromBytes(
-            BytesUtils.fromHexString(unspent.silentPaymentLabel!)),
-      )
+              BigintUtils.fromBytes(BytesUtils.fromHexString(unspent.silentPaymentLabel!)),
+            )
           : silentAddress.B_spend,
       hrp: silentAddress.hrp,
     );
 
-    final addressRecord = walletAddresses.silentAddresses.firstWhereOrNull(
-            (address) => address.address == silentPaymentAddress.toString());
+    final addressRecord = walletAddresses.silentAddresses
+        .firstWhereOrNull((address) => address.address == silentPaymentAddress.toString());
     addressRecord?.txCount += 1;
     addressRecord?.balance += unspent.value;
 
