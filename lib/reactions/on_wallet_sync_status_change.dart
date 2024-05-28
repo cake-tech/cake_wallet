@@ -16,23 +16,22 @@ void startWalletSyncStatusChangeReaction(
     FiatConversionStore fiatConversionStore) {
   _onWalletSyncStatusChangeReaction?.reaction.dispose();
   _onWalletSyncStatusChangeReaction = reaction((_) => wallet.syncStatus, (SyncStatus status) async {
-    if (!(status is SyncingSyncStatus) || wallet.type != WalletType.bitcoin)
-      try {
-        if (status is ConnectedSyncStatus) {
-          await wallet.startSync();
+    try {
+      if (status is ConnectedSyncStatus) {
+        await wallet.startSync();
 
-          if (wallet.type == WalletType.haven) {
-            await updateHavenRate(fiatConversionStore);
-          }
+        if (wallet.type == WalletType.haven) {
+          await updateHavenRate(fiatConversionStore);
         }
-        if (status is SyncingSyncStatus) {
-          await WakelockPlus.enable();
-        }
-        if (status is SyncedSyncStatus || status is FailedSyncStatus) {
-          await WakelockPlus.disable();
-        }
-      } catch (e) {
-        print(e.toString());
       }
+      if (status is SyncingSyncStatus) {
+        await WakelockPlus.enable();
+      }
+      if (status is SyncedSyncStatus || status is FailedSyncStatus) {
+        await WakelockPlus.disable();
+      }
+    } catch (e) {
+      print(e.toString());
+    }
   });
 }
