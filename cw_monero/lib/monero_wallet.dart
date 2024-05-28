@@ -151,23 +151,6 @@ abstract class MoneroWalletBase
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
-
-    final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
-    if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
-      // NOTE: this is realistically only required on windows.
-      print("closing wallet");
-      final wmaddr = wmPtr.address;
-      final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.address;
-      await Isolate.run(() {
-        monero.WalletManager_closeWallet(
-            Pointer.fromAddress(wmaddr),
-            Pointer.fromAddress(waddr),
-            true
-        );
-      });
-      openedWalletsByPath.remove("$currentWalletDirPath/$name");
-      print("wallet closed");
-    }
   }
 
   @override
@@ -357,6 +340,21 @@ abstract class MoneroWalletBase
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
     final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
+    if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
+      // NOTE: this is realistically only required on windows.
+      print("closing wallet");
+      final wmaddr = wmPtr.address;
+      final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.address;
+      await Isolate.run(() {
+        monero.WalletManager_closeWallet(
+            Pointer.fromAddress(wmaddr),
+            Pointer.fromAddress(waddr),
+            true
+        );
+      });
+      openedWalletsByPath.remove("$currentWalletDirPath/$name");
+      print("wallet closed");
+    }
     try {
       // -- rename the waller folder --
       final currentWalletDir = Directory(await pathForWalletDir(name: name, type: type));
