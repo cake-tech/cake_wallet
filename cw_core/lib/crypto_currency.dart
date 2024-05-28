@@ -253,7 +253,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static CryptoCurrency fromString(String name, {CryptoCurrency? walletCurrency}) {
     try {
       return CryptoCurrency.all.firstWhere((element) =>
-          element.title.toLowerCase() == name &&
+          element.title.toLowerCase() == name.toLowerCase() &&
           (element.tag == null ||
               element.tag == walletCurrency?.title ||
               element.tag == walletCurrency?.tag));
