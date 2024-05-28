@@ -270,9 +270,17 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     }
 
     return CryptoCurrency._nameCurrencyMap.values.firstWhere(
-      (element) => walletCurrency != null
-          ? element.title.toLowerCase() == name.toLowerCase() && element.tag == walletCurrency.title
-          : element.title.toLowerCase() == name.toLowerCase(),
+      (element) {
+        final elementTitle = element.title.toLowerCase();
+        final walletTitle = walletCurrency?.title.toLowerCase();
+        final nameLower = name.toLowerCase();
+
+        if (walletCurrency != null) {
+          return elementTitle == nameLower && (element.tag != null ? element.tag?.toLowerCase() == walletTitle : elementTitle == walletTitle);
+        } else {
+          return elementTitle == nameLower;
+        }
+      },
     );
   }
 
