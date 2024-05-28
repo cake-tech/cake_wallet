@@ -535,24 +535,29 @@ abstract class DashboardViewModelBase with Store {
 
   Future<ServicesResponse> getServicesStatus() async {
     try {
-      final res = await http.get(Uri.parse("https://service-api.cakewallet.com/v1/active-notices"));
+      if (isEnabledBulletinAction) {
+          final res = await http.get(Uri.parse("https://service-api.cakewallet.com/v1/active-notices"));
 
-      if (res.statusCode < 200 || res.statusCode >= 300) {
-        throw res.body;
+          if (res.statusCode < 200 || res.statusCode >= 300) {
+            throw res.body;
+          }
+
+          final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
+
+          final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
+          final currentSha = bytesToHex(hash.bytes);
+
+          final hasUpdates = oldSha != currentSha;
+
+          return ServicesResponse.fromJson(
+            json.decode(res.body) as Map<String, dynamic>,
+            hasUpdates,
+            currentSha,
+          );
       }
-
-      final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
-
-      final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
-      final currentSha = bytesToHex(hash.bytes);
-
-      final hasUpdates = oldSha != currentSha;
-
-      return ServicesResponse.fromJson(
-        json.decode(res.body) as Map<String, dynamic>,
-        hasUpdates,
-        currentSha,
-      );
+      else {
+          return ServicesResponse([], false, '');
+        }
     } catch (_) {
       return ServicesResponse([], false, '');
     }
