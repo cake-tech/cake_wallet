@@ -399,6 +399,7 @@ extern "C"
             return false;
         }
 
+        wallet->store(std::string(path));
         change_current_wallet(wallet);
         return true;
     }
@@ -464,6 +465,16 @@ extern "C"
         return strdup(get_current_wallet()->address(account_index, address_index).c_str());
     }
 
+    char *get_cache_attribute(char *name)
+    {
+        return strdup(get_current_wallet()->getCacheAttribute(std::string(name)).c_str());
+    }
+
+    bool set_cache_attribute(char *name, char *value)
+    {
+        get_current_wallet()->setCacheAttribute(std::string(name), std::string(value));
+        return true;
+    }
 
     const char *seed()
     {
