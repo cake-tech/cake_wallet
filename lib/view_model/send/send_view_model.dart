@@ -139,8 +139,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   String get pendingTransactionFeeFiatAmount {
     try {
       if (pendingTransaction != null) {
-        final currency =
-            isEVMCompatibleChain(walletType) ? wallet.currency : selectedCryptoCurrency;
+        final currency = pendingTransactionFeeCurrency(walletType);
         final fiat = calculateFiatAmount(
             price: _fiatConversationStore.prices[currency]!,
             cryptoAmount: pendingTransaction!.feeFormatted);
@@ -150,6 +149,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
     } catch (_) {
       return '0.00';
+    }
+  }
+
+  CryptoCurrency pendingTransactionFeeCurrency(WalletType type) {
+    switch (type) {
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.tron:
+      case WalletType.solana:
+        return wallet.currency;
+      default:
+        return selectedCryptoCurrency;
     }
   }
 
