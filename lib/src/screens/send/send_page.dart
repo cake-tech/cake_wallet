@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/core/execution_state.dart';
@@ -418,6 +419,10 @@ class SendPage extends BasePage {
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
       return;
+    }
+
+    if (sendViewModel.isElectrumWallet) {
+      bitcoin!.updateFeeRates(sendViewModel.wallet);
     }
 
     reaction((_) => sendViewModel.state, (ExecutionState state) {

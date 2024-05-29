@@ -76,6 +76,7 @@ import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
+import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
 import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
@@ -365,6 +366,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
               child: getIt.get<AuthPage>(
                   param1: settings.arguments as OnAuthenticationFinished, param2: false),
               onWillPop: () async => false));
+
+    case Routes.silentPaymentsSettings:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<SilentPaymentsSettingsPage>());
 
     case Routes.connectionSync:
       return CupertinoPageRoute<void>(

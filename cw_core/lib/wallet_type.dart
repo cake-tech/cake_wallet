@@ -173,11 +173,14 @@ String walletTypeToDisplayName(WalletType type) {
   }
 }
 
-CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
+CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = false}) {
   switch (type) {
     case WalletType.monero:
       return CryptoCurrency.xmr;
     case WalletType.bitcoin:
+      if (isTestnet) {
+        return CryptoCurrency.tbtc;
+      }
       return CryptoCurrency.btc;
     case WalletType.litecoin:
       return CryptoCurrency.ltc;

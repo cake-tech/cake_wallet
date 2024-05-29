@@ -229,7 +229,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       isFiatDisabled ? '' : pendingTransactionFeeFiatAmount + ' ' + fiat.title;
 
   @computed
-  bool get isReadyForSend => wallet.syncStatus is SyncedSyncStatus;
+  bool get isReadyForSend =>
+      wallet.syncStatus is SyncedSyncStatus ||
+      // If silent payments scanning, can still send payments
+      (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus);
 
   @computed
   List<Template> get templates => sendTemplateViewModel.templates
@@ -599,6 +602,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         walletType == WalletType.litecoin ||
         walletType == WalletType.bitcoinCash) {
       if (error is TransactionWrongBalanceException) {
+        if (error.amount != null)
+          return S.current
+              .tx_wrong_balance_with_amount_exception(currency.toString(), error.amount.toString());
+
         return S.current.tx_wrong_balance_exception(currency.toString());
       }
       if (error is TransactionNoInputsException) {
@@ -625,8 +632,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (error is TransactionCommitFailedVoutNegative) {
         return S.current.tx_rejected_vout_negative;
       }
+      if (error is TransactionCommitFailedBIP68Final) {
+        return S.current.tx_rejected_bip68_final;
+      }
       if (error is TransactionNoDustOnChangeException) {
         return S.current.tx_commit_exception_no_dust_on_change(error.min, error.max);
+      }
+      if (error is TransactionInputNotSupported) {
+        return S.current.tx_invalid_input;
       }
     }
 
