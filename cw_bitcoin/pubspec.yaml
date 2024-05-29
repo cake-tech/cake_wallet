@@ -32,13 +32,21 @@ dependencies:
   cryptography: ^2.0.5
   bitcoin_base:
     git:
-      url: https://github.com/cake-tech/bitcoin_base.git
-      ref: cake-update-v2
-  blockchain_utils: ^2.1.1
+      url: https://github.com/cake-tech/bitcoin_base
+      ref: cake-update-v3
+  blockchain_utils:
+    git:
+      url: https://github.com/cake-tech/blockchain_utils
+      ref: cake-update-v1
   ledger_flutter: ^1.0.1
   ledger_bitcoin:
     git:
       url: https://github.com/cake-tech/ledger-bitcoin
+  sp_scanner:
+    git:
+      url: https://github.com/cake-tech/sp_scanner
+      ref: sp_v2.0.0
+
 
 dev_dependencies:
   flutter_test:

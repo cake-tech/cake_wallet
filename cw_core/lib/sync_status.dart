@@ -14,11 +14,32 @@ class SyncingSyncStatus extends SyncStatus {
 
   @override
   String toString() => '$blocksLeft';
+
+  factory SyncingSyncStatus.fromHeightValues(int chainTip, int initialSyncHeight, int syncHeight) {
+    final track = chainTip - initialSyncHeight;
+    final diff = track - (chainTip - syncHeight);
+    final ptc = diff <= 0 ? 0.0 : diff / track;
+    final left = chainTip - syncHeight;
+
+    // sum 1 because if at the chain tip, will say "0 blocks left"
+    return SyncingSyncStatus(left + 1, ptc);
+  }
 }
 
 class SyncedSyncStatus extends SyncStatus {
   @override
   double progress() => 1.0;
+}
+
+class SyncedTipSyncStatus extends SyncedSyncStatus {
+  SyncedTipSyncStatus(this.tip);
+
+  final int tip;
+}
+
+class SyncronizingSyncStatus extends SyncStatus {
+  @override
+  double progress() => 0.0;
 }
 
 class NotConnectedSyncStatus extends SyncStatus {
@@ -33,10 +54,7 @@ class AttemptingSyncStatus extends SyncStatus {
   double progress() => 0.0;
 }
 
-class FailedSyncStatus extends SyncStatus {
-  @override
-  double progress() => 1.0;
-}
+class FailedSyncStatus extends NotConnectedSyncStatus {}
 
 class ConnectingSyncStatus extends SyncStatus {
   @override
@@ -48,7 +66,14 @@ class ConnectedSyncStatus extends SyncStatus {
   double progress() => 0.0;
 }
 
-class LostConnectionSyncStatus extends SyncStatus {
+class UnsupportedSyncStatus extends NotConnectedSyncStatus {}
+
+class TimedOutSyncStatus extends NotConnectedSyncStatus {
   @override
-  double progress() => 1.0;
+  String toString() => 'Timed out';
+}
+
+class LostConnectionSyncStatus extends NotConnectedSyncStatus {
+  @override
+  String toString() => 'Reconnecting';
 }

@@ -42,7 +42,7 @@ jobs:
       - name: Flutter action
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: "3.19.5"
+          flutter-version: "3.19.6"
           channel: stable
 
       - name: Install package dependencies
