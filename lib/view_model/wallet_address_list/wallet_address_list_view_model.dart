@@ -336,17 +336,17 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (isElectrumWallet) {
       if (bitcoin!.hasSelectedSilentPayments(wallet)) {
         final addressItems = bitcoin!.getSilentPaymentAddresses(wallet).map((address) {
-          final isPrimary = address.index == 0;
+          final isPrimary = address.id == 0;
 
           return WalletAddressListItem(
-            id: address.index,
+            id: address.id,
             isPrimary: isPrimary,
             name: address.name,
             address: address.address,
             txCount: address.txCount,
             balance: AmountConverter.amountIntToString(
                 walletTypeToCryptoCurrency(type), address.balance),
-            isChange: address.isHidden,
+            isChange: address.isChange,
           );
         });
         addressList.addAll(addressItems);
@@ -355,14 +355,14 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         final receivedAddressItems =
             bitcoin!.getSilentPaymentReceivedAddresses(wallet).map((address) {
           return WalletAddressListItem(
-            id: address.index,
+            id: address.id,
             isPrimary: false,
             name: address.name,
             address: address.address,
             txCount: address.txCount,
             balance: AmountConverter.amountIntToString(
                 walletTypeToCryptoCurrency(type), address.balance),
-            isChange: address.isHidden,
+            isChange: address.isChange,
             isOneTimeReceiveAddress: true,
           );
         });

@@ -234,7 +234,7 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  BitcoinReceivePageOption getSelectedAddressType(Object wallet) {
+  ReceivePageOption getSelectedAddressType(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return BitcoinReceivePageOption.fromType(bitcoinWallet.walletAddresses.addressPageType);
   }
@@ -246,7 +246,7 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  List<BitcoinReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
+  List<ReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
 
   @override
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
@@ -465,18 +465,32 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  List<BitcoinSilentPaymentAddressRecord> getSilentPaymentAddresses(Object wallet) {
+  List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.walletAddresses.silentAddresses
         .where((addr) => addr.type != SegwitAddresType.p2tr)
+        .map((addr) => ElectrumSubAddress(
+            id: addr.index,
+            name: addr.name,
+            address: addr.address,
+            txCount: addr.txCount,
+            balance: addr.balance,
+            isChange: addr.isHidden))
         .toList();
   }
 
   @override
-  List<BitcoinSilentPaymentAddressRecord> getSilentPaymentReceivedAddresses(Object wallet) {
+  List<ElectrumSubAddress> getSilentPaymentReceivedAddresses(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.walletAddresses.silentAddresses
         .where((addr) => addr.type == SegwitAddresType.p2tr)
+        .map((addr) => ElectrumSubAddress(
+            id: addr.index,
+            name: addr.name,
+            address: addr.address,
+            txCount: addr.txCount,
+            balance: addr.balance,
+            isChange: addr.isHidden))
         .toList();
   }
 
