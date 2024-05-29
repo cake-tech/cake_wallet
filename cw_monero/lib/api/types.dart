@@ -154,3 +154,7 @@ typedef FreezeCoin = void Function(int);
 typedef ThawCoin = void Function(int);
 
 typedef SignMessage = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>);
+
+typedef GetCacheAttribute = Pointer<Utf8> Function(Pointer<Utf8>);
+
+typedef SetCacheAttribute = int Function(Pointer<Utf8>, Pointer<Utf8>);
