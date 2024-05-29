@@ -835,7 +835,7 @@ abstract class ElectrumWalletBase
       required int feeRate,
       List<ECPrivateInfo>? inputPrivKeyInfos,
       List<Outpoint>? vinOutpoints,
-      }) async {
+    }) async {
 
     int estimatedSize;
     if (network is BitcoinCashNetwork) {

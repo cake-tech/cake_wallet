@@ -370,18 +370,28 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<int> calcFee(
-      {required List<UtxoWithAddress> utxos,
-      required List<BitcoinBaseOutput> outputs,
-      required BasedUtxoNetwork network,
-      String? memo,
-      required int feeRate}) async {
+  Future<int> calcFee({
+    required List<UtxoWithAddress> utxos,
+    required List<BitcoinBaseOutput> outputs,
+    required BasedUtxoNetwork network,
+    String? memo,
+    required int feeRate,
+    List<ECPrivateInfo>? inputPrivKeyInfos,
+    List<Outpoint>? vinOutpoints,
+  }) async {
     final spendsMweb = utxos.any((utxo) => utxo.utxo.scriptType == SegwitAddresType.mweb);
     final paysToMweb = outputs
         .any((output) => output.toOutput.scriptPubKey.getAddressType() == SegwitAddresType.mweb);
     if (!spendsMweb && !paysToMweb) {
-      return await super
-          .calcFee(utxos: utxos, outputs: outputs, network: network, memo: memo, feeRate: feeRate);
+      return await super.calcFee(
+        utxos: utxos,
+        outputs: outputs,
+        network: network,
+        memo: memo,
+        feeRate: feeRate,
+        inputPrivKeyInfos: inputPrivKeyInfos,
+        vinOutpoints: vinOutpoints,
+      );
     }
     if (outputs.length == 1 && outputs[0].toOutput.amount == BigInt.zero) {
       outputs = [
