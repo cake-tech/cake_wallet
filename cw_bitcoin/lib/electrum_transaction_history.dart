@@ -14,8 +14,7 @@ part 'electrum_transaction_history.g.dart';
 
 const transactionsHistoryFileName = 'transactions.json';
 
-class ElectrumTransactionHistory = ElectrumTransactionHistoryBase
-    with _$ElectrumTransactionHistory;
+class ElectrumTransactionHistory = ElectrumTransactionHistoryBase with _$ElectrumTransactionHistory;
 
 abstract class ElectrumTransactionHistoryBase
     extends TransactionHistoryBase<ElectrumTransactionInfo> with Store {
@@ -34,8 +33,7 @@ abstract class ElectrumTransactionHistoryBase
   Future<void> init() async => await _load();
 
   @override
-  void addOne(ElectrumTransactionInfo transaction) =>
-      transactions[transaction.id] = transaction;
+  void addOne(ElectrumTransactionInfo transaction) => transactions[transaction.id] = transaction;
 
   @override
   void addMany(Map<String, ElectrumTransactionInfo> transactions) =>
@@ -44,11 +42,13 @@ abstract class ElectrumTransactionHistoryBase
   @override
   Future<void> save() async {
     try {
-      final dirPath =
-          await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
+      final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
       final path = '$dirPath/$transactionsHistoryFileName';
-      final data =
-          json.encode({'height': _height, 'transactions': transactions});
+      final txjson = {};
+      for (final tx in transactions.entries) {
+        txjson[tx.key] = tx.value.toJson();
+      }
+      final data = json.encode({'height': _height, 'transactions': txjson});
       await encryptionFileUtils.write(path: path, password: _password, data: data);
     } catch (e) {
       print('Error while save bitcoin transaction history: ${e.toString()}');
@@ -61,8 +61,7 @@ abstract class ElectrumTransactionHistoryBase
   }
 
   Future<Map<String, dynamic>> _read() async {
-    final dirPath =
-        await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
+    final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
     final path = '$dirPath/$transactionsHistoryFileName';
     final content = await encryptionFileUtils.read(path: path, password: _password);
     return json.decode(content) as Map<String, dynamic>;
@@ -88,7 +87,5 @@ abstract class ElectrumTransactionHistoryBase
     }
   }
 
-  void _update(ElectrumTransactionInfo transaction) =>
-      transactions[transaction.id] = transaction;
-
+  void _update(ElectrumTransactionInfo transaction) => transactions[transaction.id] = transaction;
 }

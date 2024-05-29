@@ -45,6 +45,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -201,6 +202,14 @@ abstract class DashboardViewModelBase with Store {
 
       return true;
     });
+
+    if (hasSilentPayments) {
+      silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
+
+      reaction((_) => wallet.syncStatus, (SyncStatus syncStatus) {
+        silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
+      });
+    }
   }
 
   @observable
@@ -287,10 +296,35 @@ abstract class DashboardViewModelBase with Store {
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
-  bool get hasRescan => wallet.type == WalletType.monero || wallet.type == WalletType.haven;
+  @computed
+  bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
+
+  @computed
+  bool get hasRescan =>
+      wallet.type == WalletType.bitcoin ||
+      wallet.type == WalletType.monero ||
+      wallet.type == WalletType.haven;
+
+  @computed
+  bool get hasSilentPayments => wallet.type == WalletType.bitcoin;
+
+  @computed
+  bool get showSilentPaymentsCard => hasSilentPayments && settingsStore.silentPaymentsCardDisplay;
 
   final KeyService keyService;
   final SharedPreferences sharedPreferences;
+
+  @observable
+  bool silentPaymentsScanningActive = false;
+
+  @action
+  void setSilentPaymentsScanning(bool active) {
+    silentPaymentsScanningActive = active;
+
+    if (hasSilentPayments) {
+      bitcoin!.setScanningActive(wallet, active);
+    }
+  }
 
   BalanceViewModel balanceViewModel;
 
@@ -535,24 +569,29 @@ abstract class DashboardViewModelBase with Store {
 
   Future<ServicesResponse> getServicesStatus() async {
     try {
-      final res = await http.get(Uri.parse("https://service-api.cakewallet.com/v1/active-notices"));
+      if (isEnabledBulletinAction) {
+          final res = await http.get(Uri.parse("https://service-api.cakewallet.com/v1/active-notices"));
 
-      if (res.statusCode < 200 || res.statusCode >= 300) {
-        throw res.body;
+          if (res.statusCode < 200 || res.statusCode >= 300) {
+            throw res.body;
+          }
+
+          final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
+
+          final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
+          final currentSha = bytesToHex(hash.bytes);
+
+          final hasUpdates = oldSha != currentSha;
+
+          return ServicesResponse.fromJson(
+            json.decode(res.body) as Map<String, dynamic>,
+            hasUpdates,
+            currentSha,
+          );
       }
-
-      final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
-
-      final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
-      final currentSha = bytesToHex(hash.bytes);
-
-      final hasUpdates = oldSha != currentSha;
-
-      return ServicesResponse.fromJson(
-        json.decode(res.body) as Map<String, dynamic>,
-        hasUpdates,
-        currentSha,
-      );
+      else {
+          return ServicesResponse([], false, '');
+        }
     } catch (_) {
       return ServicesResponse([], false, '');
     }

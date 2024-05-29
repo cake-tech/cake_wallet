@@ -20,10 +20,11 @@ class BitcoinWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials,
     BitcoinRestoreWalletFromHardware> {
-  BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.isDirect);
+  BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.alwaysScan, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+  final bool alwaysScan;
   final bool isDirect;
 
   @override
@@ -58,22 +59,26 @@ class BitcoinWalletService extends WalletService<
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
     try {
       final wallet = await BitcoinWalletBase.open(
-          password: password,
-          name: name,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource,
-          encryptionFileUtils: encryptionFileUtilsFor(isDirect));
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        alwaysScan: alwaysScan,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      );
       await wallet.init();
       saveBackup(name);
       return wallet;
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
       final wallet = await BitcoinWalletBase.open(
-          password: password,
-          name: name,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource,
-          encryptionFileUtils: encryptionFileUtilsFor(isDirect));
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        alwaysScan: alwaysScan,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      );
       await wallet.init();
       return wallet;
     }
@@ -92,11 +97,13 @@ class BitcoinWalletService extends WalletService<
     final currentWalletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
     final currentWallet = await BitcoinWalletBase.open(
-        password: password,
-        name: currentName,
-        walletInfo: currentWalletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource,
-        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
+      password: password,
+      name: currentName,
+      walletInfo: currentWalletInfo,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      alwaysScan: alwaysScan,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
 
     await currentWallet.renameWalletFiles(newName);
     await saveBackup(newName);
@@ -111,12 +118,13 @@ class BitcoinWalletService extends WalletService<
   @override
   Future<BitcoinWallet> restoreFromHardwareWallet(BitcoinRestoreWalletFromHardware credentials,
       {bool? isTestnet}) async {
-
     final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
     credentials.walletInfo?.network = network.value;
-    credentials.walletInfo?.derivationInfo?.derivationPath = credentials.hwAccountData.derivationPath;
+    credentials.walletInfo?.derivationInfo?.derivationPath =
+        credentials.hwAccountData.derivationPath;
 
-    final wallet = await BitcoinWallet(password: credentials.password!,
+    final wallet = await BitcoinWallet(
+      password: credentials.password!,
       xpub: credentials.hwAccountData.xpub,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
@@ -130,7 +138,7 @@ class BitcoinWalletService extends WalletService<
 
   @override
   Future<BitcoinWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials,
-      {bool? isTestnet}) async =>
+          {bool? isTestnet}) async =>
       throw UnimplementedError();
 
   @override
