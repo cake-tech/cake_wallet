@@ -22,7 +22,7 @@ For installing dependency tools you can use brew [Install brew](https://brew.sh)
 
 You may easily install them on your build system with the following command:
 
-`$ brew install cmake xz unbound boost@1.76 zmq cocoapods`
+`$ brew install cmake xz automake autoconf libtool boost@1.76 zmq cocoapods`
 
 `$ brew link boost@1.76`
 
