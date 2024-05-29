@@ -4,7 +4,7 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_core/balance.dart';
 
 class LightningBalance extends ElectrumBalance {
-  const LightningBalance({required this.confirmed, required this.unconfirmed, required this.frozen})
+  LightningBalance({required this.confirmed, required this.unconfirmed, required this.frozen})
       : super(
           confirmed: confirmed,
           unconfirmed: unconfirmed,

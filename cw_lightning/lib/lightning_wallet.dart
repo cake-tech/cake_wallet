@@ -71,7 +71,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
-      electrumClient: electrumClient,
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
@@ -330,7 +329,12 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<void> rescan({required int height}) async {
+  Future<void> rescan({
+    required int height,
+    int? chainTip,
+    ScanData? scanData,
+    bool? doSingleScan,
+  }) async {
     updateTransactions();
   }
 
