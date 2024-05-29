@@ -3,7 +3,7 @@ gcc10Stdenv.mkDerivation {
   name="gcc10-stdenv";
   buildInputs = [
     pkgs.cmake
-    pkgs.pkgconfig
+    pkgs.pkg-config
     pkgs.autoconf
     pkgs.libtool
     pkgs.expat

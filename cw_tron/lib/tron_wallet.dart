@@ -130,7 +130,7 @@ abstract class TronWalletBase
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final path = await pathForWallet(name: name, type: walletInfo.type);
-    final jsonSource = await read(path: path, password: password);
+    final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String?;
     final privateKey = data['private_key'] as String?;
@@ -420,7 +420,7 @@ abstract class TronWalletBase
   Future<void> save() async {
     await walletAddresses.updateAddressesInBox();
     final path = await makePath();
-    await write(path: path, password: _password, data: toJSON());
+    await encryptionFileUtils.write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
   }
 
