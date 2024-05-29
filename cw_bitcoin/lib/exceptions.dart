@@ -2,7 +2,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/exceptions.dart';
 
 class BitcoinTransactionWrongBalanceException extends TransactionWrongBalanceException {
-  BitcoinTransactionWrongBalanceException() : super(CryptoCurrency.btc);
+  BitcoinTransactionWrongBalanceException({super.amount}) : super(CryptoCurrency.btc);
 }
 
 class BitcoinTransactionNoInputsException extends TransactionNoInputsException {}
@@ -27,3 +27,7 @@ class BitcoinTransactionCommitFailedDustOutputSendAll
     extends TransactionCommitFailedDustOutputSendAll {}
 
 class BitcoinTransactionCommitFailedVoutNegative extends TransactionCommitFailedVoutNegative {}
+
+class BitcoinTransactionCommitFailedBIP68Final extends TransactionCommitFailedBIP68Final {}
+
+class BitcoinTransactionSilentPaymentsNotSupported extends TransactionInputNotSupported {}

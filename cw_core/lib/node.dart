@@ -244,8 +244,12 @@ class Node extends HiveObject with Keyable {
 
   Future<bool> requestElectrumServer() async {
     try {
-      await SecureSocket.connect(uri.host, uri.port,
-          timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
+      if (useSSL == true) {
+        await SecureSocket.connect(uri.host, uri.port,
+            timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
+      } else {
+        await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
+      }
       return true;
     } catch (_) {
       return false;

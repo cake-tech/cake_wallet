@@ -58,7 +58,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             currency: CryptoCurrency.ltc) {
     walletAddresses = LitecoinWalletAddresses(
       walletInfo,
-      electrumClient: electrumClient,
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
