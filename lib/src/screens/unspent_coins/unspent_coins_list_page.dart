@@ -57,6 +57,7 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                             isSending: item.isSending,
                             isFrozen: item.isFrozen,
                             isChange: item.isChange,
+                            isSilentPayment: item.isSilentPayment,
                             onCheckBoxTap: item.isFrozen
                                 ? null
                                 : () async {
