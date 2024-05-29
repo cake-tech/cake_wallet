@@ -71,30 +71,26 @@ Future<void> generateBitcoin(bool hasImplementation) async {
   final outputFile = File(bitcoinOutputPath);
   const bitcoinCommonHeaders = """
 import 'dart:typed_data';
-import 'package:cw_core/node.dart';
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/receive_page_option.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/output_info.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
-import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as btc;
-import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:hive/hive.dart';
 """;
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/utils.dart';
@@ -115,9 +111,7 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:cw_core/get_height_by_date.dart';
-import 'package:cw_core/node.dart';
 import 'package:cw_bitcoin/script_hash.dart';
-import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/bitcoin_hardware_wallet_service.dart';
 import 'package:mobx/mobx.dart';
 """;
@@ -167,8 +161,8 @@ abstract class Bitcoin {
   Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs, {TransactionPriority? priority, required int feeRate});
 
   String getAddress(Object wallet);
-  List<BitcoinSilentPaymentAddressRecord> getSilentPaymentAddresses(Object wallet);
-  List<BitcoinSilentPaymentAddressRecord> getSilentPaymentReceivedAddresses(Object wallet);
+  List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet);
+  List<ElectrumSubAddress> getSilentPaymentReceivedAddresses(Object wallet);
 
   Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority);
   List<ElectrumSubAddress> getSubAddresses(Object wallet);
@@ -193,8 +187,8 @@ abstract class Bitcoin {
   Future<List<DerivationInfo>> getDerivationsFromMnemonic(
       {required String mnemonic, required Node node, String? passphrase});
   Future<void> setAddressType(Object wallet, dynamic option);
-  BitcoinReceivePageOption getSelectedAddressType(Object wallet);
-  List<BitcoinReceivePageOption> getBitcoinReceivePageOptions();
+  ReceivePageOption getSelectedAddressType(Object wallet);
+  List<ReceivePageOption> getBitcoinReceivePageOptions();
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
   bool hasSelectedSilentPayments(Object wallet);
   bool isBitcoinReceivePageOption(ReceivePageOption option);
