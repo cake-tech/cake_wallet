@@ -149,6 +149,22 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     );
   }
 
+  Future<void> _handleNodeState(NodeState? nodeState) async {
+    if (nodeState == null) return;
+    _balance[CryptoCurrency.btcln] = LightningBalance(
+      confirmed: nodeState.maxPayableMsat ~/ 1000,
+      unconfirmed: nodeState.maxReceivableMsat ~/ 1000,
+      frozen: 0,
+    );
+  }
+
+  Future<void> _handlePayments(List<Payment> payments) async {
+    _isTransactionUpdating = true;
+    final txs = convertToTxInfo(payments);
+    transactionHistory.addMany(txs);
+    _isTransactionUpdating = false;
+  }
+
   Future<void> setupBreez(Uint8List seedBytes) async {
     final sdk = await BreezSDK();
     try {
@@ -179,8 +195,9 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       nodeConfig: breezNodeConfig,
     );
 
-    String workingDir = (await getApplicationDocumentsDirectory()).path;
-    workingDir = "$workingDir/wallets/lightning/${walletInfo.address}/breez/";
+    String workingDir = await pathForWalletDir(name: walletInfo.name, type: type);
+    workingDir = "$workingDir/breez";
+
     new Directory(workingDir).createSync(recursive: true);
     breezConfig = breezConfig.copyWith(workingDir: workingDir);
 
@@ -204,21 +221,17 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       print("Error connecting to Breez: $e\n$s");
     }
 
+    _nodeStateSub?.cancel();
     _nodeStateSub = sdk.nodeStateStream.listen((event) {
-      if (event == null) return;
-      _balance[CryptoCurrency.btcln] = LightningBalance(
-        confirmed: event.maxPayableMsat ~/ 1000,
-        unconfirmed: event.maxReceivableMsat ~/ 1000,
-        frozen: 0,
-      );
+      _handleNodeState(event);
     });
+    await _handleNodeState(await sdk.nodeInfo());
 
-    _paymentsSub = sdk.paymentsStream.listen((payments) {
-      _isTransactionUpdating = true;
-      final txs = convertToTxInfo(payments);
-      transactionHistory.addMany(txs);
-      _isTransactionUpdating = false;
+    _paymentsSub?.cancel();
+    _paymentsSub = sdk.paymentsStream.listen((List<Payment> payments) {
+      _handlePayments(payments);
     });
+    await _handlePayments(await sdk.listPayments(req: ListPaymentsRequest()));
 
     // TODO: get actual nds service url:
     // if (Platform.isAndroid || Platform.isIOS) {
