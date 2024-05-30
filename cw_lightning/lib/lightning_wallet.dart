@@ -228,13 +228,13 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       print("Error connecting to Breez: $e\n$s");
     }
 
-    _nodeStateSub?.cancel();
+    await _nodeStateSub?.cancel();
     _nodeStateSub = sdk.nodeStateStream.listen((event) {
       _handleNodeState(event);
     });
     await _handleNodeState(await sdk.nodeInfo());
 
-    _paymentsSub?.cancel();
+    await _paymentsSub?.cancel();
     _paymentsSub = sdk.paymentsStream.listen((List<Payment> payments) {
       _handlePayments(payments);
     });
