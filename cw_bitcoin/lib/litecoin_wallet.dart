@@ -325,8 +325,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<void> updateUnspentCoins() async {
-    await super.updateUnspentCoins();
+  Future<void> updateUnspent() async {
+    await super.updateUnspent();
     await checkMwebUtxosSpent();
     final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
     mwebUtxos.forEach((outputId, utxo) {

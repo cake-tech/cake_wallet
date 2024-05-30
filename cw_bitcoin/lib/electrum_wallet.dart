@@ -582,14 +582,6 @@ abstract class ElectrumWalletBase
       throw BitcoinTransactionNoInputsException();
     }
 
-    int fee = await calcFee(
-      utxos: utxos,
-      outputs: outputs,
-      network: network,
-      memo: memo,
-      feeRate: feeRate,
-    );
-
     return UtxoDetails(
       availableInputs: availableInputs,
       unconfirmedCoins: unconfirmedCoins,

@@ -355,19 +355,13 @@ class ElectrumClient {
   // }
   BehaviorSubject<Map<String, dynamic>>? tipListener;
   int? currentTip;
-  Future<int?> getCurrentBlockChainTip() =>
-      callWithTimeout(method: 'blockchain.headers.subscribe').then((result) {
-        if (result is Map<String, dynamic>) {
-          return result["height"] as int;
-        }
-
   Future<int?> getCurrentBlockChainTip() async {
     final method = 'blockchain.headers.subscribe';
     final cb = (result) => currentTip = result['height'] as int;
     if (tipListener == null) {
       tipListener = subscribe(id: method, method: method);
       tipListener?.listen(cb);
-      cb(await call(method: method));
+      callWithTimeout(method: method).then(cb);
     }
     return currentTip;
   }
