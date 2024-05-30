@@ -1,3 +1,4 @@
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
