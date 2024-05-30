@@ -165,6 +165,13 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     _isTransactionUpdating = false;
   }
 
+  @override
+  Future<void> renameWalletFiles(String newWalletName) async {
+    await stopBreez(true);
+    await super.renameWalletFiles(newWalletName);
+    await setupBreez(await mnemonicToSeedBytes(mnemonic));
+  }
+
   Future<void> setupBreez(Uint8List seedBytes) async {
     final sdk = await BreezSDK();
     try {
