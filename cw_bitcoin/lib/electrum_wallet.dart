@@ -1465,7 +1465,7 @@ abstract class ElectrumWalletBase
 
       time = status["block_time"] as int?;
       final height = status["block_height"] as int? ?? 0;
-      final tip = await getCurrentChainTip();
+      final tip = await getUpdatedChainTip();
       if (tip > 0) confirmations = height > 0 ? tip - height + 1 : 0;
     } else {
       final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
@@ -1518,6 +1518,23 @@ abstract class ElectrumWalletBase
       } else if (type == WalletType.litecoin) {
         await fetchTransactionsForAddressType(historiesWithDetails, SegwitAddresType.p2wpkh);
       }
+
+      transactionHistory.transactions.values.forEach((tx) async {
+        final isPendingSilentPaymentUtxo =
+            (tx.isPending || tx.confirmations == 0) && historiesWithDetails[tx.id] == null;
+
+        if (isPendingSilentPaymentUtxo) {
+          final info =
+              await fetchTransactionInfo(hash: tx.id, height: tx.height, retryOnFailure: true);
+
+          if (info != null) {
+            tx.confirmations = info.confirmations;
+            tx.isPending = tx.confirmations == 0;
+            transactionHistory.addOne(tx);
+            await transactionHistory.save();
+          }
+        }
+      });
 
       return historiesWithDetails;
     } catch (e) {
