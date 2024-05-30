@@ -116,7 +116,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
-      seedBytes: await Mnemonic.toSeed(mnemonic),
+      seedBytes: await mnemonicToSeedBytes(mnemonic),
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
