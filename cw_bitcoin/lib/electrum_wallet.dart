@@ -420,15 +420,13 @@ abstract class ElectrumWalletBase
       await _subscribeForUpdates();
 
       await updateTransactions();
-      _subscribeForUpdates();
 
       if (this is! LitecoinWallet) {
         await updateAllUnspents();
         await updateBalance();
       }
 
-      _feeRates = await electrumClient.feeRates(network: network);
-
+      await updateFeeRates();
       Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
 
       if (alwaysScan == true) {
@@ -820,15 +818,14 @@ abstract class ElectrumWalletBase
   }
 
   Future<int> calcFee({
-      required List<UtxoWithAddress> utxos,
-      required List<BitcoinBaseOutput> outputs,
-      required BasedUtxoNetwork network,
-      String? memo,
-      required int feeRate,
-      List<ECPrivateInfo>? inputPrivKeyInfos,
-      List<Outpoint>? vinOutpoints,
-    }) async {
-
+    required List<UtxoWithAddress> utxos,
+    required List<BitcoinBaseOutput> outputs,
+    required BasedUtxoNetwork network,
+    String? memo,
+    required int feeRate,
+    List<ECPrivateInfo>? inputPrivKeyInfos,
+    List<Outpoint>? vinOutpoints,
+  }) async {
     int estimatedSize;
     if (network is BitcoinCashNetwork) {
       estimatedSize = ForkedTransactionBuilder.estimateTransactionSize(
@@ -1707,8 +1704,9 @@ abstract class ElectrumWalletBase
   }
 
   Future<ElectrumBalance> fetchBalances() async {
-    final addresses = walletAddresses.allAddresses.where((address) =>
-        addressTypeFromStr(address.address, network) is! MwebAddress).toList();
+    final addresses = walletAddresses.allAddresses
+        .where((address) => addressTypeFromStr(address.address, network) is! MwebAddress)
+        .toList();
     final balanceFutures = <Future<Map<String, dynamic>>>[];
     for (var i = 0; i < addresses.length; i++) {
       final addressRecord = addresses[i];

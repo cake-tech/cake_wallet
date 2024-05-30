@@ -149,10 +149,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final stub = await CwMweb.stub();
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
-      print(syncStatus);
       if (syncStatus is FailedSyncStatus) return;
       final height = await electrumClient.getCurrentBlockChainTip() ?? 0;
       final resp = await stub.status(StatusRequest());
+      print("stats:");
+      print(resp.mwebHeaderHeight);
+      print(resp.mwebUtxosHeight);
+      print(height);
       if (resp.blockHeaderHeight < height) {
         int h = resp.blockHeaderHeight;
         syncStatus = SyncingSyncStatus(height - h, h / height);
