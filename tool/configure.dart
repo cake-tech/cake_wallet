@@ -151,7 +151,7 @@ abstract class Bitcoin {
   WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo});
   WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();
-  Map<String, String> getWalletKeys(Object wallet);
+  Map<String, String?> getWalletKeys(Object wallet);
   List<TransactionPriority> getTransactionPriorities();
   List<TransactionPriority> getLitecoinTransactionPriorities();
   TransactionPriority deserializeBitcoinTransactionPriority(int raw);
