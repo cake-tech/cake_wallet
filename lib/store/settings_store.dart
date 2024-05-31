@@ -61,7 +61,6 @@ abstract class SettingsStoreBase with Store {
       required FilterListOrderType initialWalletListOrder,
       required FilterListOrderType initialContactListOrder,
       required bool initialDisableBulletin,
-      required WalletListOrderType initialWalletListOrder,
       required bool initialWalletListAscending,
       required bool initialContactListAscending,
       required FiatApiMode initialFiatMode,
@@ -610,7 +609,7 @@ abstract class SettingsStoreBase with Store {
   bool disableBulletin;
 
   @observable
-  WalletListOrderType walletListOrder;
+  FilterListOrderType walletListOrder;
 
   @observable
   bool walletListAscending;
