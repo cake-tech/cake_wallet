@@ -116,7 +116,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
-      seedBytes: await mnemonicToSeedBytes(mnemonic),
+      seedBytes: await Mnemonic.toSeed(mnemonic),
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
@@ -142,7 +142,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         unconfirmed: snp.balance.unconfirmed,
         frozen: snp.balance.frozen,
       ),
-      seedBytes: await mnemonicToSeedBytes(snp.mnemonic!),
+      seedBytes: await Mnemonic.toSeed(snp.mnemonic!),
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,
@@ -169,7 +169,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   Future<void> renameWalletFiles(String newWalletName) async {
     await stopBreez(true);
     await super.renameWalletFiles(newWalletName);
-    await setupBreez(await mnemonicToSeedBytes(mnemonic));
+    await setupBreez(await Mnemonic.toSeed(mnemonic));
   }
 
   Future<void> setupBreez(Uint8List seedBytes) async {
@@ -182,6 +182,10 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       print("Error initializing Breez: $e");
       return;
     }
+
+    // sdk.logStream.listen((LogEntry event) {
+    //   print("Breez log: ${event.line}");
+    // });
 
     Uint8List deviceKey = base64.decode(secrets.greenlightKey);
     Uint8List deviceCert = base64.decode(secrets.greenlightCert);
@@ -203,7 +207,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     );
 
     String workingDir = await pathForWalletDir(name: walletInfo.name, type: type);
-    workingDir = "$workingDir/breez";
+    workingDir = "$workingDir/breez/";
 
     new Directory(workingDir).createSync(recursive: true);
     breezConfig = breezConfig.copyWith(workingDir: workingDir);

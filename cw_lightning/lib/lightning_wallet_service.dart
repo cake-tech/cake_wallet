@@ -12,6 +12,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_lightning/lightning_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:collection/collection.dart';
+import 'package:bip39/bip39.dart' as bip39;
 
 class LightningWalletService extends WalletService<
     BitcoinNewWalletCredentials,
@@ -29,7 +30,7 @@ class LightningWalletService extends WalletService<
   @override
   Future<LightningWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
     final wallet = await LightningWalletBase.create(
-      mnemonic: await generateElectrumMnemonic(),
+      mnemonic: bip39.generateMnemonic(),
       password: credentials.password!,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
