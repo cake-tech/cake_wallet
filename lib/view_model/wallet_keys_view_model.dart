@@ -111,8 +111,12 @@ abstract class WalletKeysViewModelBase with Store {
           StandartListItem(title: "WIF", value: keys['wif']!),
         if (keys['privateKey'] != null)
           StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
+        if (keys['p2wpkhMainnetPrivKey'] != null)
+          StandartListItem(title: S.current.private_key + ' (mainnet P2WPKH)', value: keys['p2wpkhMainnetPrivKey']!),
         if (keys['publicKey'] != null)
           StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
+        if (keys['p2wpkhMainnetPubKey'] != null)
+          StandartListItem(title: S.current.public_key + ' (mainnet P2WPKH)', value: keys['p2wpkhMainnetPubKey']!),
         StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
