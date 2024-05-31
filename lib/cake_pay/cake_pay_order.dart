@@ -36,7 +36,7 @@ class OrderCard {
   final int cardId;
   final int? externalId;
   final String price;
-  final String quantity;
+  final int quantity;
   final String currencyCode;
 
   OrderCard({
@@ -48,14 +48,11 @@ class OrderCard {
   });
 
   factory OrderCard.fromMap(Map<String, dynamic> map) {
-    final quantity = map['quantity'].runtimeType == int ///TODO: Depends on card type (int or String)
-        ? (map['quantity'] as int).toString()
-        : map['quantity'] as String;
     return OrderCard(
       cardId: map['card_id'] as int,
       externalId: map['external_id'] as int?,
       price: map['price'] as String,
-      quantity: quantity,
+      quantity: map['quantity'] as int,
       currencyCode: map['currency_code'] as String,
     );
   }
