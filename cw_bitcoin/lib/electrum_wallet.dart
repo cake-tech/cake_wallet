@@ -159,7 +159,7 @@ abstract class ElectrumWalletBase
 
   @override
   BitcoinWalletKeys get keys =>
-      BitcoinWalletKeys(wif: hd.wif!, privateKey: hd.privKey!, publicKey: hd.pubKey!);
+      BitcoinWalletKeys(wif: accountHD.wif!, privateKey: accountHD.base58Priv!, publicKey: accountHD.base58!);
 
   String _password;
   List<BitcoinUnspent> unspentCoins;
