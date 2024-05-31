@@ -6,12 +6,15 @@ class Routes {
   static const seed = '/seed';
   static const restoreOptions = '/restore_options';
   static const restoreWalletFromSeedKeys = '/restore_wallet_from_seeds_keys';
+  static const restoreWalletFromHardwareWallet = '/restore/hardware_wallet';
   static const restoreWalletTypeFromQR = '/restore_wallet_from_qr_code';
   static const restoreWalletChooseDerivation =
       '/restore_wallet_choose_derivation';
+  static const chooseHardwareWalletAccount = '/restore/hardware_wallet/accounts';
   static const dashboard = '/dashboard';
   static const send = '/send';
   static const transactionDetails = '/transaction_info';
+  static const bumpFeePage = '/bump_fee_page';
   static const receive = '/receive';
   static const newSubaddress = '/new_subaddress';
   static const walletEdit = '/walletEdit';
@@ -78,6 +81,7 @@ class Routes {
   static const ioniaMoreOptionsPage = '/ionia_more_options_page';
   static const ioniaCustomRedeemPage = '/ionia_custom_redeem_page';
   static const webViewPage = '/web_view_page';
+  static const silentPaymentsSettings = '/silent_payments_settings';
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
   static const privacyPage = '/privacy_page';
@@ -106,4 +110,5 @@ class Routes {
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
   static const torPage = '/tor_page';
+  static const connectDevices = '/device/connect';
 }

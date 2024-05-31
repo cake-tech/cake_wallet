@@ -6,6 +6,7 @@ import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
 import 'package:collection/collection.dart';
@@ -42,14 +43,19 @@ abstract class ContactListViewModelBase with Store {
         });
       } else if (info.addresses?.isNotEmpty == true) {
         info.addresses!.forEach((address, label) {
+          if (label.isEmpty) {
+            return;
+          }
           final name = _createName(info.name, label);
           walletContacts.add(WalletContact(
             address,
             name,
-            walletTypeToCryptoCurrency(info.type),
+            walletTypeToCryptoCurrency(info.type,
+                isTestnet:
+                    info.network == null ? false : info.network!.toLowerCase().contains("testnet")),
           ));
         });
-      } else if (info.address != null) {
+      } else {
         walletContacts.add(WalletContact(
           info.address,
           info.name,
@@ -66,7 +72,9 @@ abstract class ContactListViewModelBase with Store {
   }
 
   String _createName(String walletName, String label) {
-    return label.isNotEmpty ? '$walletName ($label)' : walletName;
+    return label.isNotEmpty
+        ? '$walletName (${label.replaceAll(RegExp(r'active', caseSensitive: false), S.current.active).replaceAll(RegExp(r'silent payments', caseSensitive: false), S.current.silent_payments)})'
+        : walletName;
   }
 
   final bool isAutoGenerateEnabled;

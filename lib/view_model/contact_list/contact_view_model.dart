@@ -62,7 +62,7 @@ abstract class ContactViewModelBase with Store {
         return;
       }
 
-      if (_contact != null) {
+      if (_contact != null && _contact!.original.isInBox) {
         _contact?.name = name;
         _contact?.address = address;
         _contact?.type = currency!;

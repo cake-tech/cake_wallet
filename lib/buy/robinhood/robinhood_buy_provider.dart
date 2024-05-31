@@ -3,8 +3,11 @@ import 'dart:convert';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +15,8 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class RobinhoodBuyProvider extends BuyProvider {
-  RobinhoodBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
-      : super(wallet: wallet, isTestEnvironment: isTestEnvironment);
+  RobinhoodBuyProvider({required WalletBase wallet, bool isTestEnvironment = false, LedgerViewModel? ledgerVM})
+      : super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: ledgerVM);
 
   static const _baseUrl = 'applink.robinhood.com';
   static const _cIdBaseUrl = 'exchange-helper.cakewallet.com';
@@ -32,11 +35,12 @@ class RobinhoodBuyProvider extends BuyProvider {
 
   String get _applicationId => secrets.robinhoodApplicationId;
 
-  String get _apiSecret => secrets.robinhoodCIdApiSecret;
+  String get _apiSecret => secrets.exchangeHelperApiKey;
 
-  String getSignature(String message) {
+  Future<String> getSignature(String message) {
     switch (wallet.type) {
       case WalletType.ethereum:
+      case WalletType.polygon:
         return wallet.signMessage(message);
       case WalletType.litecoin:
       case WalletType.bitcoin:
@@ -52,7 +56,7 @@ class RobinhoodBuyProvider extends BuyProvider {
     final valid_until = (DateTime.now().millisecondsSinceEpoch / 1000).round() + 10;
     final message = "$_apiSecret:${valid_until}";
 
-    final signature = getSignature(message);
+    final signature = await getSignature(message);
 
     final uri = Uri.https(_cIdBaseUrl, "/api/robinhood");
 
@@ -83,6 +87,20 @@ class RobinhoodBuyProvider extends BuyProvider {
   }
 
   Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
+    if (wallet.isHardwareWallet) {
+      if (!ledgerVM!.isConnected) {
+        await Navigator.of(context).pushNamed(Routes.connectDevices,
+            arguments: ConnectDevicePageParams(
+                walletType: wallet.walletInfo.type,
+                onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) {
+                  ledgerVM.setLedger(wallet);
+                  Navigator.of(context).pop();
+                }));
+      } else {
+        ledgerVM!.setLedger(wallet);
+      }
+    }
+
     try {
       final uri = await requestProviderUrl();
       await launchUrl(uri, mode: LaunchMode.externalApplication);

@@ -96,6 +96,7 @@ class WalletListBody extends StatefulWidget {
 class WalletListBodyState extends State<WalletListBody> {
   final moneroIcon = Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
   final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
+  final tBitcoinIcon = Image.asset('assets/images/tbtc.png', height: 24, width: 24);
   final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
@@ -104,6 +105,7 @@ class WalletListBodyState extends State<WalletListBody> {
   final nanoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
   final polygonIcon = Image.asset('assets/images/matic_icon.png', height: 24, width: 24);
   final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
+  final tronIcon = Image.asset('assets/images/trx_icon.png', height: 24, width: 24);
   final scrollController = ScrollController();
   final double tileHeight = 60;
   Flushbar<void>? _progressBar;
@@ -161,7 +163,10 @@ class WalletListBodyState extends State<WalletListBody> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
                                     wallet.isEnabled
-                                        ? _imageFor(type: wallet.type)
+                                        ? _imageFor(
+                                            type: wallet.type,
+                                            isTestnet: wallet.isTestnet,
+                                          )
                                         : nonWalletTypeIcon,
                                     SizedBox(width: 10),
                                     Flexible(
@@ -170,7 +175,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                         maxLines: null,
                                         softWrap: true,
                                         style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: DeviceInfo.instance.isDesktop ? 18 : 20,
                                           fontWeight: FontWeight.w500,
                                           color: Theme.of(context)
                                               .extension<CakeTextTheme>()!
@@ -296,9 +301,12 @@ class WalletListBodyState extends State<WalletListBody> {
     );
   }
 
-  Image _imageFor({required WalletType type}) {
+  Image _imageFor({required WalletType type, bool? isTestnet}) {
     switch (type) {
       case WalletType.bitcoin:
+        if (isTestnet == true) {
+          return tBitcoinIcon;
+        }
         return bitcoinIcon;
       case WalletType.monero:
         return moneroIcon;
@@ -316,6 +324,8 @@ class WalletListBodyState extends State<WalletListBody> {
         return polygonIcon;
       case WalletType.solana:
         return solanaIcon;
+      case WalletType.tron:
+        return tronIcon;
       default:
         return nonWalletTypeIcon;
     }
@@ -343,7 +353,9 @@ class WalletListBodyState extends State<WalletListBody> {
             });
           }
         } catch (e) {
-          changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+          if (this.mounted) {
+            changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+          }
         }
       },
       conditionToDetermineIfToUse2FA:

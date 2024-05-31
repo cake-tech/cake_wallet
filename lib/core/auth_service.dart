@@ -1,11 +1,11 @@
-import 'dart:io';
+import 'dart:async';
 
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
@@ -33,18 +33,13 @@ class AuthService with Store {
     Routes.restoreOptions,
   ];
 
-  final FlutterSecureStorage secureStorage;
+  final SecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
   final SettingsStore settingsStore;
 
   Future<void> setPassword(String password) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final encodedPassword = encodedPinCode(pin: password);
-    // secure storage has a weird bug on macOS, where overwriting a key doesn't work, unless
-    // we delete what's there first:
-    if (Platform.isMacOS) {
-      await secureStorage.delete(key: key);
-    }
     await secureStorage.write(key: key, value: encodedPassword);
   }
 
@@ -76,7 +71,8 @@ class AuthService with Store {
   }
 
   Future<bool> requireAuth() async {
-    final timestamp = int.tryParse(await secureStorage.read(key: SecureKey.lastAuthTimeMilliseconds) ?? '0');
+    final timestamp =
+        int.tryParse(await secureStorage.read(key: SecureKey.lastAuthTimeMilliseconds) ?? '0');
     final duration = _durationToRequireAuth(timestamp ?? 0);
     final requiredPinInterval = settingsStore.pinTimeOutDuration;
 

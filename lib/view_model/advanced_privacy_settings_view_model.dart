@@ -20,6 +20,9 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   @computed
   FiatApiMode get fiatApiMode => _settingsStore.fiatApiMode;
 
+  @computed
+  bool get disableBulletin => _settingsStore.disableBulletin;
+
   @observable
   bool _addCustomNode = false;
 
@@ -35,6 +38,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.bitcoinCash:
       case WalletType.polygon:
       case WalletType.solana:
+      case WalletType.tron:
         return true;
       case WalletType.monero:
       case WalletType.none:
@@ -63,6 +67,9 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   @action
   void setExchangeApiMode(ExchangeApiMode value) => _settingsStore.exchangeStatus = value;
+
+  @action
+  void setDisableBulletin(bool value) => _settingsStore.disableBulletin = value;
 
   @action
   void toggleAddCustomNode() => _addCustomNode = !_addCustomNode;

@@ -25,6 +25,7 @@ import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet_addresses.dart';
+import 'package:cw_evm/evm_ledger_credentials.dart';
 import 'package:cw_evm/file.dart';
 import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
@@ -83,9 +84,9 @@ abstract class EVMChainWalletBase
 
   late final Box<Erc20Token> evmChainErc20TokensBox;
 
-  late final EthPrivateKey _evmChainPrivateKey;
+  late final Credentials _evmChainPrivateKey;
 
-  EthPrivateKey get evmChainPrivateKey => _evmChainPrivateKey;
+  Credentials get evmChainPrivateKey => _evmChainPrivateKey;
 
   late EVMChainClient _client;
 
@@ -141,12 +142,18 @@ abstract class EVMChainWalletBase
 
     await walletAddresses.init();
     await transactionHistory.init();
-    _evmChainPrivateKey = await getPrivateKey(
-      mnemonic: _mnemonic,
-      privateKey: _hexPrivateKey,
-      password: _password,
-    );
-    walletAddresses.address = _evmChainPrivateKey.address.hexEip55;
+
+    if (walletInfo.isHardwareWallet) {
+      _evmChainPrivateKey = EvmLedgerCredentials(walletInfo.address);
+      walletAddresses.address = walletInfo.address;
+    } else {
+      _evmChainPrivateKey = await getPrivateKey(
+        mnemonic: _mnemonic,
+        privateKey: _hexPrivateKey,
+        password: _password,
+      );
+      walletAddresses.address = _evmChainPrivateKey.address.hexEip55;
+    }
     await save();
   }
 
@@ -224,10 +231,17 @@ abstract class EVMChainWalletBase
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
 
+    final String? opReturnMemo = outputs.first.memo;
+
+    String? hexOpReturnMemo;
+    if (opReturnMemo != null) {
+      hexOpReturnMemo = '0x${opReturnMemo.codeUnits.map((char) => char.toRadixString(16).padLeft(2, '0')).join()}';
+    }
+
     final CryptoCurrency transactionCurrency =
         balance.keys.firstWhere((element) => element.title == _credentials.currency.title);
 
-    final _erc20Balance = balance[transactionCurrency]!;
+    final erc20Balance = balance[transactionCurrency]!;
     BigInt totalAmount = BigInt.zero;
     int exponent = transactionCurrency is Erc20Token ? transactionCurrency.decimal : 18;
     num amountToEVMChainMultiplier = pow(10, exponent);
@@ -242,7 +256,7 @@ abstract class EVMChainWalletBase
           outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
       totalAmount = BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
 
-      if (_erc20Balance.balance < totalAmount) {
+      if (erc20Balance.balance < totalAmount) {
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
     } else {
@@ -251,20 +265,34 @@ abstract class EVMChainWalletBase
       // then no need to subtract the fees from the amount if send all
       final BigInt allAmount;
       if (transactionCurrency is Erc20Token) {
-        allAmount = _erc20Balance.balance;
+        allAmount = erc20Balance.balance;
       } else {
-        allAmount = _erc20Balance.balance -
-            BigInt.from(calculateEstimatedFee(_credentials.priority!, null));
-      }
-      final totalOriginalAmount =
-          EVMChainFormatter.parseEVMChainAmountToDouble(output.formattedCryptoAmount ?? 0);
-      totalAmount = output.sendAll
-          ? allAmount
-          : BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
+        final estimatedFee = BigInt.from(calculateEstimatedFee(_credentials.priority!, null));
 
-      if (_erc20Balance.balance < totalAmount) {
+        if (estimatedFee > erc20Balance.balance) {
+          throw EVMChainTransactionFeesException();
+        }
+
+        allAmount = erc20Balance.balance - estimatedFee;
+      }
+
+      if (output.sendAll) {
+        totalAmount = allAmount;
+      } else {
+        final totalOriginalAmount =
+            EVMChainFormatter.parseEVMChainAmountToDouble(output.formattedCryptoAmount ?? 0);
+
+        totalAmount = BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
+      }
+
+      if (erc20Balance.balance < totalAmount) {
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
+    }
+
+    if (transactionCurrency is Erc20Token && isHardwareWallet) {
+      await (_evmChainPrivateKey as EvmLedgerCredentials)
+          .provideERC20Info(transactionCurrency.contractAddress, _client.chainId);
     }
 
     final pendingEVMChainTransaction = await _client.signTransaction(
@@ -272,13 +300,14 @@ abstract class EVMChainWalletBase
       toAddress: _credentials.outputs.first.isParsedAddress
           ? _credentials.outputs.first.extractedAddress!
           : _credentials.outputs.first.address,
-      amount: totalAmount.toString(),
+      amount: totalAmount,
       gas: _estimatedGas!,
       priority: _credentials.priority!,
       currency: transactionCurrency,
       exponent: exponent,
       contractAddress:
           transactionCurrency is Erc20Token ? transactionCurrency.contractAddress : null,
+      data: hexOpReturnMemo,
     );
 
     return pendingEVMChainTransaction;
@@ -310,6 +339,7 @@ abstract class EVMChainWalletBase
   Future<Map<String, EVMChainTransactionInfo>> fetchTransactions() async {
     final address = _evmChainPrivateKey.address.hex;
     final transactions = await _client.fetchTransactions(address);
+    final internalTransactions = await _client.fetchInternalTransactions(address);
 
     final List<Future<List<EVMChainTransactionModel>>> erc20TokensTransactions = [];
 
@@ -324,6 +354,7 @@ abstract class EVMChainWalletBase
 
     final tokensTransaction = await Future.wait(erc20TokensTransactions);
     transactions.addAll(tokensTransaction.expand((element) => element));
+    transactions.addAll(internalTransactions);
 
     final Map<String, EVMChainTransactionInfo> result = {};
 
@@ -358,7 +389,9 @@ abstract class EVMChainWalletBase
   String? get seed => _mnemonic;
 
   @override
-  String get privateKey => HEX.encode(_evmChainPrivateKey.privateKey);
+  String? get privateKey => evmChainPrivateKey is EthPrivateKey
+      ? HEX.encode((evmChainPrivateKey as EthPrivateKey).privateKey)
+      : null;
 
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
@@ -420,11 +453,16 @@ abstract class EVMChainWalletBase
 
   Future<void> addErc20Token(Erc20Token token) async {
     String? iconPath;
-    try {
-      iconPath = CryptoCurrency.all
-          .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
-          .iconPath;
-    } catch (_) {}
+
+    if (token.iconPath == null || token.iconPath!.isEmpty) {
+      try {
+        iconPath = CryptoCurrency.all
+            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+            .iconPath;
+      } catch (_) {}
+    } else {
+      iconPath = token.iconPath;
+    }
 
     final newToken = createNewErc20TokenObject(token, iconPath);
 
@@ -444,11 +482,17 @@ abstract class EVMChainWalletBase
     await token.delete();
 
     balance.remove(token);
+    await _removeTokenTransactionsInHistory(token);
     _updateBalance();
   }
 
-  Future<Erc20Token?> getErc20Token(String contractAddress) async =>
-      await _client.getErc20Token(contractAddress);
+  Future<void> _removeTokenTransactionsInHistory(Erc20Token token) async {
+    transactionHistory.transactions.removeWhere((key, value) => value.tokenSymbol == token.title);
+    await transactionHistory.save();
+  }
+
+  Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async =>
+      await _client.getErc20Token(contractAddress, chainName);
 
   void _onNewTransaction() {
     _updateBalance();
@@ -484,7 +528,7 @@ abstract class EVMChainWalletBase
       _transactionsUpdateTimer!.cancel();
     }
 
-    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 15), (_) {
       _updateTransactions();
       _updateBalance();
     });
@@ -505,8 +549,8 @@ abstract class EVMChainWalletBase
   }
 
   @override
-  String signMessage(String message, {String? address}) =>
-      bytesToHex(_evmChainPrivateKey.signPersonalMessageToUint8List(ascii.encode(message)));
+  Future<String> signMessage(String message, {String? address}) async =>
+      bytesToHex(await _evmChainPrivateKey.signPersonalMessage(ascii.encode(message)));
 
   Web3Client? getWeb3Client() => _client.getWeb3Client();
 }

@@ -74,8 +74,23 @@ class CWSolana extends Solana {
   }
 
   @override
-  Future<void> addSPLToken(WalletBase wallet, CryptoCurrency token) async =>
-      await (wallet as SolanaWallet).addSPLToken(token as SPLToken);
+  Future<void> addSPLToken(
+    WalletBase wallet,
+    CryptoCurrency token,
+    String contractAddress,
+  ) async {
+    final splToken = SPLToken(
+      name: token.name,
+      symbol: token.title,
+      mintAddress: contractAddress,
+      decimal: token.decimals,
+      mint: token.name.toUpperCase(),
+      enabled: token.enabled,
+      iconPath: token.iconPath,
+    );
+
+    await (wallet as SolanaWallet).addSPLToken(splToken);
+  }
 
   @override
   Future<void> deleteSPLToken(WalletBase wallet, CryptoCurrency token) async =>
@@ -95,8 +110,10 @@ class CWSolana extends Solana {
     }
 
     wallet as SolanaWallet;
-    return wallet.splTokenCurrencies
-        .firstWhere((element) => transaction.tokenSymbol == element.symbol);
+
+    return wallet.splTokenCurrencies.firstWhere(
+      (element) => transaction.tokenSymbol == element.symbol,
+    );
   }
 
   @override
@@ -114,5 +131,10 @@ class CWSolana extends Solana {
     }
 
     return null;
+  }
+
+  @override
+  double? getEstimateFees(WalletBase wallet) {
+    return (wallet as SolanaWallet).estimatedFee;
   }
 }

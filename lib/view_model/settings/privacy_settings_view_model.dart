@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -44,6 +45,8 @@ abstract class PrivacySettingsViewModelBase with Store {
       _wallet.type == WalletType.litecoin ||
       _wallet.type == WalletType.bitcoinCash;
 
+  bool get isMoneroWallet => _wallet.type == WalletType.monero;
+
   @computed
   bool get shouldSaveRecipientAddress => _settingsStore.shouldSaveRecipientAddress;
 
@@ -60,10 +63,16 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get disableSell => _settingsStore.disableSell;
 
   @computed
+  bool get disableBulletin => _settingsStore.disableBulletin;
+
+  @computed
   bool get useEtherscan => _settingsStore.useEtherscan;
 
   @computed
   bool get usePolygonScan => _settingsStore.usePolygonScan;
+
+  @computed
+  bool get useTronGrid => _settingsStore.useTronGrid;
 
   @computed
   bool get lookupTwitter => _settingsStore.lookupsTwitter;
@@ -87,6 +96,8 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   bool get canUsePolygonScan => _wallet.type == WalletType.polygon;
 
+  bool get canUseTronGrid => _wallet.type == WalletType.tron;
+
   @action
   void setShouldSaveRecipientAddress(bool value) =>
       _settingsStore.shouldSaveRecipientAddress = value;
@@ -105,6 +116,9 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setDisableSell(bool value) => _settingsStore.disableSell = value;
+
+  @action
+  void setDisableBulletin(bool value) => _settingsStore.disableBulletin = value;
 
   @action
   void setLookupsTwitter(bool value) => _settingsStore.lookupsTwitter = value;
@@ -134,5 +148,11 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setUsePolygonScan(bool value) {
     _settingsStore.usePolygonScan = value;
     polygon!.updatePolygonScanUsageState(_wallet, value);
+  }
+
+  @action
+  void setUseTronGrid(bool value) {
+    _settingsStore.useTronGrid = value;
+    tron!.updateTronGridUsageState(_wallet, value);
   }
 }

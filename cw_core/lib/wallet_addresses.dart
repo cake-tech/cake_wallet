@@ -3,8 +3,9 @@ import 'package:cw_core/wallet_info.dart';
 
 abstract class WalletAddresses {
   WalletAddresses(this.walletInfo)
-    : addressesMap = {},
-      addressInfos = {};
+      : addressesMap = {},
+        allAddressesMap = {},
+        addressInfos = {};
 
   final WalletInfo walletInfo;
 
@@ -15,6 +16,7 @@ abstract class WalletAddresses {
   set address(String address);
 
   Map<String, String> addressesMap;
+  Map<String, String> allAddressesMap;
 
   Map<int, List<AddressInfo>> addressInfos;
 
@@ -39,5 +41,6 @@ abstract class WalletAddresses {
     }
   }
 
-  bool containsAddress(String address) => addressesMap.containsKey(address);
+  bool containsAddress(String address) =>
+      addressesMap.containsKey(address) || allAddressesMap.containsKey(address);
 }

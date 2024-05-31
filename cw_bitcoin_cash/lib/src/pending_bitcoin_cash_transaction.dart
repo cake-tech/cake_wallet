@@ -1,4 +1,4 @@
-import 'package:cw_bitcoin/bitcoin_commit_transaction_exception.dart';
+import 'package:cw_bitcoin/exceptions.dart';
 import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_bitcoin/electrum.dart';
@@ -11,7 +11,9 @@ class PendingBitcoinCashTransaction with PendingTransaction {
   PendingBitcoinCashTransaction(this._tx, this.type,
       {required this.electrumClient,
       required this.amount,
-      required this.fee})
+      required this.fee,
+      required this.hasChange,
+      required this.isSendAll})
       : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
   final WalletType type;
@@ -19,6 +21,8 @@ class PendingBitcoinCashTransaction with PendingTransaction {
   final ElectrumClient electrumClient;
   final int amount;
   final int fee;
+  final bool hasChange;
+  final bool isSendAll;
 
   @override
   String get id => _tx.getId();
@@ -36,18 +40,38 @@ class PendingBitcoinCashTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    final result =
-      await electrumClient.broadcastTransaction(transactionRaw: _tx.toHex());
+    int? callId;
+
+    final result = await electrumClient.broadcastTransaction(
+        transactionRaw: hex, idCallback: (id) => callId = id);
 
     if (result.isEmpty) {
-      throw BitcoinCommitTransactionException();
+      if (callId != null) {
+        final error = electrumClient.getErrorMessage(callId!);
+
+        if (error.contains("dust")) {
+          if (hasChange) {
+            throw BitcoinTransactionCommitFailedDustChange();
+          } else if (!isSendAll) {
+            throw BitcoinTransactionCommitFailedDustOutput();
+          } else {
+            throw BitcoinTransactionCommitFailedDustOutputSendAll();
+          }
+        }
+
+        if (error.contains("bad-txns-vout-negative")) {
+          throw BitcoinTransactionCommitFailedVoutNegative();
+        }
+        throw BitcoinTransactionCommitFailed(errorMessage: error);
+      }
+
+      throw BitcoinTransactionCommitFailed();
     }
 
-    _listeners?.forEach((listener) => listener(transactionInfo()));
+    _listeners.forEach((listener) => listener(transactionInfo()));
   }
 
-  void addListener(
-          void Function(ElectrumTransactionInfo transaction) listener) =>
+  void addListener(void Function(ElectrumTransactionInfo transaction) listener) =>
       _listeners.add(listener);
 
   ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(type,

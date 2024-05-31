@@ -1,4 +1,4 @@
-import 'package:cw_bitcoin/bitcoin_commit_transaction_exception.dart';
+import 'package:cw_bitcoin/exceptions.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_bitcoin/electrum.dart';
@@ -8,16 +8,29 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class PendingBitcoinTransaction with PendingTransaction {
-  PendingBitcoinTransaction(this._tx, this.type,
-      {required this.electrumClient, required this.amount, required this.fee, this.network})
-      : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
+  PendingBitcoinTransaction(
+    this._tx,
+    this.type, {
+    required this.electrumClient,
+    required this.amount,
+    required this.fee,
+    required this.feeRate,
+    this.network,
+    required this.hasChange,
+    this.isSendAll = false,
+    this.hasTaprootInputs = false,
+  }) : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
   final WalletType type;
   final BtcTransaction _tx;
   final ElectrumClient electrumClient;
   final int amount;
   final int fee;
+  final String feeRate;
   final BasedUtxoNetwork? network;
+  final bool hasChange;
+  final bool isSendAll;
+  final bool hasTaprootInputs;
 
   @override
   String get id => _tx.txId();
@@ -31,14 +44,44 @@ class PendingBitcoinTransaction with PendingTransaction {
   @override
   String get feeFormatted => bitcoinAmountToString(amount: fee);
 
+  @override
+  int? get outputCount => _tx.outputs.length;
+
   final List<void Function(ElectrumTransactionInfo transaction)> _listeners;
 
   @override
   Future<void> commit() async {
-    final result = await electrumClient.broadcastTransaction(transactionRaw: hex, network: network);
+    int? callId;
+
+    final result = await electrumClient.broadcastTransaction(
+        transactionRaw: hex, network: network, idCallback: (id) => callId = id);
 
     if (result.isEmpty) {
-      throw BitcoinCommitTransactionException();
+      if (callId != null) {
+        final error = electrumClient.getErrorMessage(callId!);
+
+        if (error.contains("dust")) {
+          if (hasChange) {
+            throw BitcoinTransactionCommitFailedDustChange();
+          } else if (!isSendAll) {
+            throw BitcoinTransactionCommitFailedDustOutput();
+          } else {
+            throw BitcoinTransactionCommitFailedDustOutputSendAll();
+          }
+        }
+
+        if (error.contains("bad-txns-vout-negative")) {
+          throw BitcoinTransactionCommitFailedVoutNegative();
+        }
+
+        if (error.contains("non-BIP68-final")) {
+          throw BitcoinTransactionCommitFailedBIP68Final();
+        }
+
+        throw BitcoinTransactionCommitFailed(errorMessage: error);
+      }
+
+      throw BitcoinTransactionCommitFailed();
     }
 
     _listeners.forEach((listener) => listener(transactionInfo()));
