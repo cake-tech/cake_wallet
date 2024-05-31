@@ -6,12 +6,9 @@ import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CakeFeaturesPage extends StatelessWidget {
@@ -52,7 +49,7 @@ class CakeFeaturesPage extends StatelessWidget {
                     SizedBox(height: 20),
                     DashBoardRoundedCardWidget(
                       onTap: () => _navigatorToGiftCardsPage(context),
-                      title: S.of(context).cake_pay_title,
+                      title: 'Cake Pay',
                       subTitle: S.of(context).cake_pay_subtitle,
                       svgPicture: SvgPicture.asset(
                         'assets/images/cards.svg',

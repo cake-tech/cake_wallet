@@ -3,7 +3,6 @@ import 'package:cake_wallet/cake_pay/cake_pay_api.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class CakePayService {
   CakePayService(this.secureStorage, this.cakePayApi);

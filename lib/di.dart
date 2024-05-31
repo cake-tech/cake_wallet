@@ -148,7 +148,6 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_i
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
-import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -175,14 +174,7 @@ import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/store/templates/send_template_store.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/tron/tron.dart';
-import 'package:cake_wallet/utils/device_info.dart';
-import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
-import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
-import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_amount_view_model.dart';
@@ -192,10 +184,6 @@ import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/edit_backup_password_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
@@ -211,13 +199,7 @@ import 'package:cake_wallet/view_model/rescan_view_model.dart';
 import 'package:cake_wallet/view_model/restore_from_backup_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
-import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
-import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
-import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
-import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
-import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/silent_payments_settings_view_model.dart';
-import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.dart';
 import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:cake_wallet/view_model/trade_details_view_model.dart';
@@ -234,11 +216,7 @@ import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/nano_account.dart';
-import 'package:cw_core/node.dart';
 import 'package:cw_core/receive_page_option.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -247,11 +225,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cake_wallet/core/secure_storage.dart';
-import 'buy/dfx/dfx_buy_provider.dart';
 import 'cake_pay/cake_pay_payment_credantials.dart';
-import 'core/totp_request_details.dart';
-import 'src/screens/settings/desktop_settings/desktop_settings_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -1005,6 +979,8 @@ Future<void> setup({
           tradeForDetails: trade,
           trades: _tradesSource,
           settingsStore: getIt.get<SettingsStore>()));
+
+  getIt.registerFactory(() => CakeFeaturesViewModel(getIt.get<CakePayService>()));
 
   getIt.registerFactory(() => BackupService(getIt.get<SecureStorage>(), _walletInfoSource,
       getIt.get<KeyService>(), getIt.get<SharedPreferences>()));
