@@ -242,3 +242,57 @@ Future<int> getHavenCurrentHeight() async {
     throw Exception('Failed to load current blockchain height');
   }
 }
+
+// Data taken from https://timechaincalendar.com/
+const bitcoinDates = {
+  "2024-05": 841590,
+  "2024-04": 837182,
+  "2024-03": 832623,
+  "2024-02": 828319,
+  "2024-01": 823807,
+  "2023-12": 819206,
+  "2023-11": 814765,
+  "2023-10": 810098,
+  "2023-09": 805675,
+  "2023-08": 801140,
+  "2023-07": 796640,
+  "2023-06": 792330,
+  "2023-05": 787733,
+  "2023-04": 783403,
+  "2023-03": 778740,
+  "2023-02": 774525,
+  "2023-01": 769810,
+};
+
+int getBitcoinHeightByDate({required DateTime date}) {
+  String dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}';
+  final closestKey = bitcoinDates.keys
+      .firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => bitcoinDates.keys.last);
+  final beginningBlock = bitcoinDates[dateKey] ?? bitcoinDates[closestKey]!;
+
+  final startOfMonth = DateTime(date.year, date.month);
+  final daysDifference = date.difference(startOfMonth).inDays;
+
+  // approximately 6 blocks per hour, 24 hours per day
+  int estimatedBlocksSinceStartOfMonth = (daysDifference * 24 * 6);
+
+  return beginningBlock + estimatedBlocksSinceStartOfMonth;
+}
+
+DateTime getDateByBitcoinHeight(int height) {
+  final closestEntry = bitcoinDates.entries
+      .lastWhere((entry) => entry.value >= height, orElse: () => bitcoinDates.entries.first);
+  final beginningBlock = closestEntry.value;
+
+  final startOfMonth = formatMapKey(closestEntry.key);
+  final blocksDifference = height - beginningBlock;
+  final hoursDifference = blocksDifference / 5.5;
+
+  final estimatedDate = startOfMonth.add(Duration(hours: hoursDifference.ceil()));
+
+  if (estimatedDate.isAfter(DateTime.now())) {
+    return DateTime.now();
+  }
+
+  return estimatedDate;
+}

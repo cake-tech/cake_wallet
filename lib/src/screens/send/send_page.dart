@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/core/execution_state.dart';
@@ -35,7 +36,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SendPage extends BasePage {
@@ -373,17 +373,17 @@ class SendPage extends BasePage {
                         }
 
                         if (sendViewModel.wallet.isHardwareWallet) {
-                          if (!sendViewModel.ledgerViewModel.isConnected) {
+                          if (!sendViewModel.ledgerViewModel!.isConnected) {
                             await Navigator.of(context).pushNamed(Routes.connectDevices,
                                 arguments: ConnectDevicePageParams(
                                   walletType: sendViewModel.walletType,
                                   onConnectDevice: (BuildContext context, _) {
-                                    sendViewModel.ledgerViewModel.setLedger(sendViewModel.wallet);
+                                    sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
                                     Navigator.of(context).pop();
                                   },
                                 ));
                           } else {
-                            sendViewModel.ledgerViewModel.setLedger(sendViewModel.wallet);
+                            sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
                           }
                         }
 
@@ -419,6 +419,10 @@ class SendPage extends BasePage {
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
       return;
+    }
+
+    if (sendViewModel.isElectrumWallet) {
+      bitcoin!.updateFeeRates(sendViewModel.wallet);
     }
 
     reaction((_) => sendViewModel.state, (ExecutionState state) {

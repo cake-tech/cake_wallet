@@ -6,15 +6,19 @@ import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-class MarketPlacePage extends StatelessWidget {
-  MarketPlacePage({
-    required this.dashboardViewModel,
-  });
+class CakeFeaturesPage extends StatelessWidget {
+  CakeFeaturesPage({required this.dashboardViewModel, required this.cakeFeaturesViewModel});
 
   final DashboardViewModel dashboardViewModel;
+  final CakeFeaturesViewModel cakeFeaturesViewModel;
   final _scrollController = ScrollController();
 
   @override
@@ -34,7 +38,7 @@ class MarketPlacePage extends StatelessWidget {
             children: [
               SizedBox(height: 50),
               Text(
-                S.of(context).market_place,
+                'Cake ${S.of(context).features}',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,
@@ -50,12 +54,18 @@ class MarketPlacePage extends StatelessWidget {
                       onTap: () => _navigatorToGiftCardsPage(context),
                       title: S.of(context).cake_pay_title,
                       subTitle: S.of(context).cake_pay_subtitle,
+                      svgPicture: SvgPicture.asset(
+                        'assets/images/cards.svg',
+                        height: 125,
+                        width: 125,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 10),
                     DashBoardRoundedCardWidget(
                       title: "NanoGPT",
                       subTitle: S.of(context).nanogpt_subtitle,
-                      onTap: () => _launchMarketPlaceUrl("cake.nano-gpt.com"),
+                      onTap: () => _launchUrl("cake.nano-gpt.com"),
                     ),
                   ],
                 ),
@@ -67,7 +77,7 @@ class MarketPlacePage extends StatelessWidget {
     );
   }
 
-  void _launchMarketPlaceUrl(String url) async {
+  void _launchUrl(String url) {
     try {
       launchUrl(
         Uri.https(url),

@@ -66,21 +66,21 @@ class DerivationInfo extends HiveObject {
 @HiveType(typeId: WalletInfo.typeId)
 class WalletInfo extends HiveObject {
   WalletInfo(
-      this.id,
-      this.name,
-      this.type,
-      this.isRecovery,
-      this.restoreHeight,
-      this.timestamp,
-      this.dirPath,
-      this.path,
-      this.address,
-      this.yatEid,
-      this.yatLastUsedAddressRaw,
-      this.showIntroCakePayCard,
-      this.derivationInfo,
-      this.hardwareWalletType,
-    ): _yatLastUsedAddressController = StreamController<String>.broadcast();
+    this.id,
+    this.name,
+    this.type,
+    this.isRecovery,
+    this.restoreHeight,
+    this.timestamp,
+    this.dirPath,
+    this.path,
+    this.address,
+    this.yatEid,
+    this.yatLastUsedAddressRaw,
+    this.showIntroCakePayCard,
+    this.derivationInfo,
+    this.hardwareWalletType,
+  ) : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
     required String id,
@@ -207,4 +207,9 @@ class WalletInfo extends HiveObject {
   Stream<String> get yatLastUsedAddressStream => _yatLastUsedAddressController.stream;
 
   StreamController<String> _yatLastUsedAddressController;
+
+  Future<void> updateRestoreHeight(int height) async {
+    restoreHeight = height;
+    await save();
+  }
 }
