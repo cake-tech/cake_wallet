@@ -4,7 +4,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
-import 'package:cake_wallet/src/screens/dashboard/pages/market_place_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/services_updates_widget.dart';
@@ -12,7 +12,7 @@ import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
-import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
@@ -330,10 +330,10 @@ class _DashboardPageView extends BasePage {
     if (dashboardViewModel.shouldShowMarketPlaceInDashboard) {
       pages.add(
         Semantics(
-          label: S.of(context).market_place,
-          child: MarketPlacePage(
+          label: 'Cake ${S.of(context).features}',
+          child: CakeFeaturesPage(
             dashboardViewModel: dashboardViewModel,
-            marketPlaceViewModel: getIt.get<MarketPlaceViewModel>(),
+            cakeFeaturesViewModel: getIt.get<CakeFeaturesViewModel>(),
           ),
         ),
       );
