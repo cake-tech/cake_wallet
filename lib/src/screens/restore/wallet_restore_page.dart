@@ -102,6 +102,14 @@ class WalletRestorePage extends BasePage {
   DerivationInfo? derivationInfo;
 
   @override
+  Function(BuildContext)? get pushToNextWidget => (context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.focusedChild?.unfocus();
+    }
+  };
+
+  @override
   Widget body(BuildContext context) {
     reaction((_) => walletRestoreViewModel.state, (ExecutionState state) {
       if (state is FailureState) {

@@ -1,2 +1,1 @@
-Bitcoin Silent Payments
 Bug fixes and generic enhancements
