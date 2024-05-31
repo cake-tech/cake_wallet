@@ -238,7 +238,6 @@ Future<void> generateMonero(bool hasImplementation) async {
   const moneroCommonHeaders = """
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_monero/monero_unspent.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -255,6 +254,7 @@ import 'package:polyseed/polyseed.dart';""";
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
+import 'package:cw_monero/monero_unspent.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
@@ -350,6 +350,8 @@ abstract class Monero {
   
   List<Unspent> getUnspents(Object wallet);
   Future<void> updateUnspents(Object wallet);
+
+  Future<int> getCurrentHeight();
 
   WalletCredentials createMoneroRestoreWalletFromKeysCredentials({
     required String name,
@@ -1187,8 +1189,8 @@ Future<void> generatePubspec(
     git:
       url: https://github.com/cake-tech/flutter_secure_storage.git
       path: flutter_secure_storage
-      ref: cake-8.0.0
-      version: 8.0.0
+      ref: cake-8.0.1
+      version: 8.0.1
   """;
   const cwEthereum = """
   cw_ethereum:
@@ -1225,12 +1227,15 @@ Future<void> generatePubspec(
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
-  final dependenciesIndex =
-      inputLines.indexWhere((line) => line.toLowerCase().contains('dependencies:'));
+  final dependenciesIndex = inputLines.indexWhere((line) => Platform.isWindows
+      // On Windows it could contains `\r` (Carriage Return). It could be fixed in newer dart versions.
+      ? line.toLowerCase() == 'dependencies:\r' ||
+          line.toLowerCase() == 'dependencies:'
+      : line.toLowerCase() == 'dependencies:');
   var output = cwCore;
 
   if (hasMonero) {
-    output += '\n$cwMonero\n$cwSharedExternal';
+    output += '\n$cwMonero';
   }
 
   if (hasBitcoin) {
@@ -1265,10 +1270,8 @@ Future<void> generatePubspec(
     output += '\n$cwTron';
   }
 
-  if (hasHaven && !hasMonero) {
+  if (hasHaven) {
     output += '\n$cwSharedExternal\n$cwHaven';
-  } else if (hasHaven) {
-    output += '\n$cwHaven';
   }
 
   if (hasFlutterSecureStorage) {

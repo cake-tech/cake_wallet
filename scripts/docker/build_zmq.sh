@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x -e
 
 . ./config.sh
 ZMQ_SRC_DIR=$WORKDIR/libzmq

@@ -229,10 +229,10 @@ packages:
     dependency: "direct main"
     description:
       name: ffi
-      sha256: a38574032c5f1dd06c4aee541789906c12ccaab8ba01446e800d9c5b79c4a978
+      sha256: "7bf0adc28a23d395f19f3f1eb21dd7cfd1dd9f8e1c50051c069122e6853bc878"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "2.1.0"
   file:
     dependency: transitive
     description:
@@ -459,6 +459,23 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  monero:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "6a17a405a1a260fa228b2f4fc94044088a4335ac"
+      resolved-ref: "6a17a405a1a260fa228b2f4fc94044088a4335ac"
+      url: "https://git.mrcyjanek.net/mrcyjanek/monero.dart"
+    source: git
+    version: "0.0.0"
+  mutex:
+    dependency: "direct main"
+    description:
+      name: mutex
+      sha256: "8827da25de792088eb33e572115a5eb0d61d61a3c01acbc8bcbe76ed78f1a1f2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   package_config:
     dependency: transitive
     description:

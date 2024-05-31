@@ -12,7 +12,9 @@ Future<Directory> getAppDir({String appName = 'cake_wallet'}) async {
     dir = Directory.fromUri(Uri.file(_rootDirPath!));
     dir.create(recursive: true);
   } else {
-    if (Platform.isLinux) {
+    if (Platform.isWindows) {
+      dir = await getApplicationSupportDirectory();
+    } else if (Platform.isLinux) {
       String appDirPath;
 
       try {

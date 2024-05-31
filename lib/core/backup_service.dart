@@ -5,6 +5,7 @@ import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -115,8 +116,7 @@ class BackupService {
     return await _encryptV2(content, password);
   }
 
-  Future<void> _importBackupV1(Uint8List data, String password,
-      {required String nonce}) async {
+  Future<void> _importBackupV1(Uint8List data, String password, {required String nonce}) async {
     final appDir = await getAppDir();
     final decryptedData = await _decryptV1(data, password, nonce);
     final zip = ZipDecoder().decodeBytes(decryptedData);
@@ -361,8 +361,7 @@ class BackupService {
   }
 
   Future<void> _importKeychainDumpV1(String password,
-      {required String nonce,
-      String keychainSalt = secrets.backupKeychainSalt}) async {
+      {required String nonce, String keychainSalt = secrets.backupKeychainSalt}) async {
     final appDir = await getAppDir();
     final keychainDumpFile = File('${appDir.path}/~_keychain_dump');
     final decryptedKeychainDumpFileData =

@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -14,6 +16,7 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -23,6 +26,7 @@ import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:cw_monero/api/transaction_history.dart' as transaction_history;
 import 'package:cw_monero/api/wallet.dart' as monero_wallet;
+import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
 import 'package:cw_monero/exceptions/monero_transaction_no_inputs_exception.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
@@ -34,6 +38,7 @@ import 'package:cw_monero/pending_monero_transaction.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
+import 'package:monero/monero.dart' as monero;
 
 part 'monero_wallet.g.dart';
 
@@ -150,7 +155,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   Future<void>? updateBalance() => null;
 
   @override
-  void close() {
+  void close() async {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
@@ -331,14 +336,33 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
 
     await walletAddresses.updateAddressesInBox();
-    await backupWalletFiles(name);
     await monero_wallet.store();
+    try {
+      await backupWalletFiles(name);
+    } catch (e) {
+      print("¯\\_(ツ)_/¯");
+      print(e);
+    }
   }
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
     final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
-
+    if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
+      // NOTE: this is realistically only required on windows.
+      print("closing wallet");
+      final wmaddr = wmPtr.address;
+      final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.address;
+      await Isolate.run(() {
+        monero.WalletManager_closeWallet(
+            Pointer.fromAddress(wmaddr),
+            Pointer.fromAddress(waddr),
+            true
+        );
+      });
+      openedWalletsByPath.remove("$currentWalletDirPath/$name");
+      print("wallet closed");
+    }
     try {
       // -- rename the waller folder --
       final currentWalletDir = Directory(await pathForWalletDir(name: name, type: type));
@@ -428,10 +452,18 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       final coinCount = countOfCoins();
       for (var i = 0; i < coinCount; i++) {
         final coin = getCoin(i);
-        if (coin.spent == 0) {
-          final unspent = MoneroUnspent.fromCoinsInfoRow(coin);
+        final coinSpent = monero.CoinsInfo_spent(coin);
+        if (coinSpent == 0) {
+          final unspent = MoneroUnspent(
+            monero.CoinsInfo_address(coin),
+            monero.CoinsInfo_hash(coin),
+            monero.CoinsInfo_keyImage(coin),
+            monero.CoinsInfo_amount(coin),
+            monero.CoinsInfo_frozen(coin),
+            monero.CoinsInfo_unlocked(coin),
+          );
           if (unspent.hash.isNotEmpty) {
-            unspent.isChange = transaction_history.getTransaction(unspent.hash).direction == 1;
+            unspent.isChange = transaction_history.getTransaction(unspent.hash) == 1;
           }
           unspentCoins.add(unspent);
         }
@@ -552,7 +584,24 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   List<MoneroTransactionInfo> _getAllTransactionsOfAccount(int? accountIndex) => transaction_history
       .getAllTransactions()
-      .map((row) => MoneroTransactionInfo.fromRow(row))
+      .map((row) => MoneroTransactionInfo(
+          row.hash,
+          row.blockheight,
+          row.isSpend ? TransactionDirection.outgoing : TransactionDirection.incoming,
+          row.timeStamp,
+          row.isPending,
+          row.amount, 
+          row.accountIndex, 
+          0,
+          row.fee, 
+          row.confirmations,
+          
+        )..additionalInfo = <String, dynamic>{
+            'key': row.key,
+            'accountIndex': row.accountIndex,
+            'addressIndex': row.addressIndex
+          },
+      )
       .where((element) => element.accountIndex == (accountIndex ?? 0))
       .toList();
 

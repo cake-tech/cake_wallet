@@ -38,7 +38,8 @@
         android:fullBackupContent="false"
         android:versionCode="__versionCode__"
         android:versionName="__versionName__"
-        android:requestLegacyExternalStorage="true">
+        android:requestLegacyExternalStorage="true"
+        android:extractNativeLibs="true">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleInstance"
