@@ -571,7 +571,7 @@ Future<void> setup({
   getIt.registerFactory<Modify2FAPage>(
       () => Modify2FAPage(setup2FAViewModel: getIt.get<Setup2FAViewModel>()));
 
-  getIt.registerFactory<DesktopSettingsPage>(() => DesktopSettingsPage());
+  getIt.registerFactory<DesktopSettingsPage>(() => DesktopSettingsPage(getIt.get<DashboardViewModel>()));
 
   getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>(
       (pageOption, _) => ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, pageOption));
