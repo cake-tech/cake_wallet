@@ -122,19 +122,11 @@ class CWBitcoin extends Bitcoin {
           feeRate: feeRate);
 
   @override
-  List<String> getAddresses(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.walletAddresses.addressesByReceiveType
-        .map((BitcoinAddressRecord addr) => addr.address)
-        .toList();
-  }
-
-  @override
   @computed
   List<ElectrumSubAddress> getSubAddresses(Object wallet) {
     final electrumWallet = wallet as ElectrumWallet;
     return electrumWallet.walletAddresses.addressesByReceiveType
-        .map((BitcoinAddressRecord addr) => ElectrumSubAddress(
+        .map((BaseBitcoinAddressRecord addr) => ElectrumSubAddress(
             id: addr.index,
             name: addr.name,
             address: addr.address,
@@ -207,12 +199,12 @@ class CWBitcoin extends Bitcoin {
 
   Future<void> updateUnspents(Object wallet) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    await bitcoinWallet.updateUnspent();
+    await bitcoinWallet.updateAllUnspents();
   }
 
   WalletService createBitcoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
-    return BitcoinWalletService(walletInfoSource, unspentCoinSource);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan) {
+    return BitcoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan);
   }
 
   WalletService createLitecoinWalletService(
@@ -245,6 +237,12 @@ class CWBitcoin extends Bitcoin {
   ReceivePageOption getSelectedAddressType(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return BitcoinReceivePageOption.fromType(bitcoinWallet.walletAddresses.addressPageType);
+  }
+
+  @override
+  bool hasSelectedSilentPayments(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.walletAddresses.addressPageType == SilentPaymentsAddresType.p2sp;
   }
 
   @override
@@ -464,5 +462,138 @@ class CWBitcoin extends Bitcoin {
       print(err.message);
       throw err;
     }
+  }
+
+  @override
+  List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.walletAddresses.silentAddresses
+        .where((addr) => addr.type != SegwitAddresType.p2tr)
+        .map((addr) => ElectrumSubAddress(
+            id: addr.index,
+            name: addr.name,
+            address: addr.address,
+            txCount: addr.txCount,
+            balance: addr.balance,
+            isChange: addr.isHidden))
+        .toList();
+  }
+
+  @override
+  List<ElectrumSubAddress> getSilentPaymentReceivedAddresses(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.walletAddresses.silentAddresses
+        .where((addr) => addr.type == SegwitAddresType.p2tr)
+        .map((addr) => ElectrumSubAddress(
+            id: addr.index,
+            name: addr.name,
+            address: addr.address,
+            txCount: addr.txCount,
+            balance: addr.balance,
+            isChange: addr.isHidden))
+        .toList();
+  }
+
+  @override
+  bool isBitcoinReceivePageOption(ReceivePageOption option) {
+    return option is BitcoinReceivePageOption;
+  }
+
+  @override
+  BitcoinAddressType getOptionToType(ReceivePageOption option) {
+    return (option as BitcoinReceivePageOption).toType();
+  }
+
+  @override
+  @computed
+  bool getScanningActive(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.silentPaymentsScanningActive;
+  }
+
+  @override
+  Future<void> setScanningActive(Object wallet, bool active) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+
+    if (active && !(await getNodeIsElectrsSPEnabled(wallet))) {
+      final node = Node(
+        useSSL: false,
+        uri: 'electrs.cakewallet.com:${(wallet.network == BitcoinNetwork.testnet ? 50002 : 50001)}',
+      );
+      node.type = WalletType.bitcoin;
+
+      await bitcoinWallet.connectToNode(node: node);
+    }
+
+    bitcoinWallet.setSilentPaymentsScanning(active);
+  }
+
+  @override
+  bool isTestnet(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.isTestnet ?? false;
+  }
+
+  @override
+  int getHeightByDate({required DateTime date}) => getBitcoinHeightByDate(date: date);
+
+  @override
+  Future<void> rescan(Object wallet, {required int height, bool? doSingleScan}) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    if (!(await getNodeIsElectrsSPEnabled(wallet))) {
+      final node = Node(
+        useSSL: false,
+        uri: 'electrs.cakewallet.com:${(wallet.network == BitcoinNetwork.testnet ? 50002 : 50001)}',
+      );
+      node.type = WalletType.bitcoin;
+      await bitcoinWallet.connectToNode(node: node);
+    }
+    bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
+  }
+
+  Future<bool> getNodeIsElectrs(Object wallet) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+
+    final version = await bitcoinWallet.electrumClient.version();
+
+    if (version.isEmpty) {
+      return false;
+    }
+
+    final server = version[0];
+
+    if (server.toLowerCase().contains('electrs')) {
+      return true;
+    }
+
+    return false;
+  }
+
+  @override
+  Future<bool> getNodeIsElectrsSPEnabled(Object wallet) async {
+    if (!(await getNodeIsElectrs(wallet))) {
+      return false;
+    }
+
+    final bitcoinWallet = wallet as ElectrumWallet;
+    final tweaksResponse = await bitcoinWallet.electrumClient.getTweaks(height: 0);
+
+    if (tweaksResponse != null) {
+      return true;
+    }
+
+    return false;
+  }
+
+  @override
+  void deleteSilentPaymentAddress(Object wallet, String address) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    bitcoinWallet.walletAddresses.deleteSilentPaymentAddress(address);
+  }
+
+  @override
+  Future<void> updateFeeRates(Object wallet) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    await bitcoinWallet.updateFeeRates();
   }
 }

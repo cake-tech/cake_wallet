@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
@@ -179,6 +180,11 @@ class MenuWidgetState extends State<MenuWidget> {
                   index--;
 
                   final item = SettingActions.all[index];
+
+                  if (!widget.dashboardViewModel.hasSilentPayments &&
+                      item.name(context) == S.of(context).silent_payments_settings) {
+                    return Container();
+                  }
 
                   final isLastTile = index == itemCount - 1;
 

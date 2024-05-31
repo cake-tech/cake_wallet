@@ -1,3 +1,2 @@
-Add Tron wallet
-Hardware wallets enhancements
-Bug fixes
+Bitcoin Silent Payments
+Bug fixes and generic enhancements

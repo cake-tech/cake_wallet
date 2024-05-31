@@ -3,7 +3,13 @@ import 'package:cw_core/sync_status.dart';
 
 String syncStatusTitle(SyncStatus syncStatus) {
   if (syncStatus is SyncingSyncStatus) {
-    return S.current.Blocks_remaining('${syncStatus.blocksLeft}');
+    return syncStatus.blocksLeft == 1
+        ? S.current.block_remaining
+        : S.current.Blocks_remaining('${syncStatus.blocksLeft}');
+  }
+
+  if (syncStatus is SyncedTipSyncStatus) {
+    return S.current.silent_payments_scanned_tip(syncStatus.tip.toString());
   }
 
   if (syncStatus is SyncedSyncStatus) {
@@ -32,6 +38,18 @@ String syncStatusTitle(SyncStatus syncStatus) {
 
   if (syncStatus is LostConnectionSyncStatus) {
     return S.current.sync_status_failed_connect;
+  }
+
+  if (syncStatus is UnsupportedSyncStatus) {
+    return S.current.sync_status_unsupported;
+  }
+
+  if (syncStatus is TimedOutSyncStatus) {
+    return S.current.sync_status_timed_out;
+  }
+
+  if (syncStatus is SyncronizingSyncStatus) {
+    return S.current.sync_status_syncronizing;
   }
 
   return '';

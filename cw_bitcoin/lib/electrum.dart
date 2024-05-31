@@ -41,23 +41,35 @@ class ElectrumClient {
 
   bool get isConnected => _isConnected;
   Socket? socket;
-  void Function(bool)? onConnectionStatusChange;
+  void Function(bool?)? onConnectionStatusChange;
   int _id;
   final Map<String, SocketTask> _tasks;
+  Map<String, SocketTask> get tasks => _tasks;
   final Map<String, String> _errors;
   bool _isConnected;
   Timer? _aliveTimer;
   String unterminatedString;
 
-  Future<void> connectToUri(Uri uri) async => await connect(host: uri.host, port: uri.port);
+  Uri? uri;
+  bool? useSSL;
 
-  Future<void> connect({required String host, required int port}) async {
+  Future<void> connectToUri(Uri uri, {bool? useSSL}) async {
+    this.uri = uri;
+    this.useSSL = useSSL;
+    await connect(host: uri.host, port: uri.port, useSSL: useSSL);
+  }
+
+  Future<void> connect({required String host, required int port, bool? useSSL}) async {
     try {
       await socket?.close();
     } catch (_) {}
 
-    socket = await SecureSocket.connect(host, port,
-        timeout: connectionTimeout, onBadCertificate: (_) => true);
+    if (useSSL == false) {
+      socket = await Socket.connect(host, port, timeout: connectionTimeout);
+    } else {
+      socket = await SecureSocket.connect(host, port,
+          timeout: connectionTimeout, onBadCertificate: (_) => true);
+    }
     _setIsConnected(true);
 
     socket!.listen((Uint8List event) {
@@ -79,7 +91,7 @@ class ElectrumClient {
       _setIsConnected(false);
     }, onDone: () {
       unterminatedString = '';
-      _setIsConnected(false);
+      _setIsConnected(null);
     });
     keepAlive();
   }
@@ -134,11 +146,12 @@ class ElectrumClient {
       await callWithTimeout(method: 'server.ping');
       _setIsConnected(true);
     } on RequestFailedTimeoutException catch (_) {
-      _setIsConnected(false);
+      _setIsConnected(null);
     }
   }
 
-  Future<List<String>> version() => call(method: 'server.version').then((dynamic result) {
+  Future<List<String>> version() =>
+      call(method: 'server.version', params: ["", "1.4"]).then((dynamic result) {
         if (result is List) {
           return result.map((dynamic val) => val.toString()).toList();
         }
@@ -266,6 +279,18 @@ class ElectrumClient {
   Future<Map<String, dynamic>> getHeader({required int height}) async =>
       await call(method: 'blockchain.block.get_header', params: [height]) as Map<String, dynamic>;
 
+  BehaviorSubject<Object>? tweaksSubscribe({required int height, required int count}) {
+    _id += 1;
+    return subscribe<Object>(
+      id: 'blockchain.tweaks.subscribe:${height + count}',
+      method: 'blockchain.tweaks.subscribe',
+      params: [height, count, false],
+    );
+  }
+
+  Future<dynamic> getTweaks({required int height}) async =>
+      await callWithTimeout(method: 'blockchain.tweaks.subscribe', params: [height, 1, false]);
+
   Future<double> estimatefee({required int p}) =>
       call(method: 'blockchain.estimatefee', params: [p]).then((dynamic result) {
         if (result is double) {
@@ -308,9 +333,6 @@ class ElectrumClient {
       });
 
   Future<List<int>> feeRates({BasedUtxoNetwork? network}) async {
-    if (network == BitcoinNetwork.testnet) {
-      return [1, 1, 1];
-    }
     try {
       final topDoubleString = await estimatefee(p: 1);
       final middleDoubleString = await estimatefee(p: 5);
@@ -332,13 +354,19 @@ class ElectrumClient {
   //   "hex": "00000020890208a0ae3a3892aa047c5468725846577cfcd9b512b50000000000000000005dc2b02f2d297a9064ee103036c14d678f9afc7e3d9409cf53fd58b82e938e8ecbeca05a2d2103188ce804c4"
   // }
   Future<int?> getCurrentBlockChainTip() =>
-      call(method: 'blockchain.headers.subscribe').then((result) {
+      callWithTimeout(method: 'blockchain.headers.subscribe').then((result) {
         if (result is Map<String, dynamic>) {
           return result["height"] as int;
         }
 
         return null;
       });
+
+  BehaviorSubject<Object>? chainTipSubscribe() {
+    _id += 1;
+    return subscribe<Object>(
+        id: 'blockchain.headers.subscribe', method: 'blockchain.headers.subscribe');
+  }
 
   BehaviorSubject<Object>? scripthashUpdate(String scripthash) {
     _id += 1;
@@ -396,7 +424,9 @@ class ElectrumClient {
 
   Future<void> close() async {
     _aliveTimer?.cancel();
-    await socket?.close();
+    try {
+      await socket?.close();
+    } catch (_) {}
     onConnectionStatusChange = null;
   }
 
@@ -431,17 +461,25 @@ class ElectrumClient {
 
         _tasks[id]?.subject?.add(params.last);
         break;
+      case 'blockchain.headers.subscribe':
+        final params = request['params'] as List<dynamic>;
+        _tasks[method]?.subject?.add(params.last);
+        break;
+      case 'blockchain.tweaks.subscribe':
+        final params = request['params'] as List<dynamic>;
+        _tasks[_tasks.keys.first]?.subject?.add(params.last);
+        break;
       default:
         break;
     }
   }
 
-  void _setIsConnected(bool isConnected) {
+  void _setIsConnected(bool? isConnected) {
     if (_isConnected != isConnected) {
       onConnectionStatusChange?.call(isConnected);
     }
 
-    _isConnected = isConnected;
+    _isConnected = isConnected ?? false;
   }
 
   void _handleResponse(Map<String, dynamic> response) {
