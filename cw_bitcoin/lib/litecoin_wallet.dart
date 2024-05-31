@@ -152,10 +152,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (syncStatus is FailedSyncStatus) return;
       final height = await electrumClient.getCurrentBlockChainTip() ?? 0;
       final resp = await stub.status(StatusRequest());
-      print("stats:");
-      print(resp.mwebHeaderHeight);
-      print(resp.mwebUtxosHeight);
-      print(height);
+      // print("stats:");
+      // print(resp.mwebHeaderHeight);
+      // print(resp.mwebUtxosHeight);
+      // print(height);
       if (resp.blockHeaderHeight < height) {
         int h = resp.blockHeaderHeight;
         syncStatus = SyncingSyncStatus(height - h, h / height);

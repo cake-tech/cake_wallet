@@ -45,6 +45,8 @@ class BitcoinReceivePageOption implements ReceivePageOption {
         return P2shAddressType.p2wpkhInP2sh;
       case BitcoinReceivePageOption.silent_payments:
         return SilentPaymentsAddresType.p2sp;
+      case BitcoinReceivePageOption.mweb:
+        return SegwitAddresType.mweb;
       case BitcoinReceivePageOption.p2wpkh:
       default:
         return SegwitAddresType.p2wpkh;
