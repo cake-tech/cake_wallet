@@ -22,7 +22,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
-import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
@@ -42,31 +41,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/router.dart' as Router;
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/reactions/bootstrap.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/store/authentication_store.dart';
-import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cake_wallet/entities/get_encryption_key.dart';
-import 'package:cake_wallet/entities/contact.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cake_wallet/entities/default_settings_migration.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/entities/template.dart';
-import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/exchange/exchange_template.dart';
-import 'package:cake_wallet/src/screens/root/root.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cw_core/cake_hive.dart';
-import 'package:uni_links/uni_links.dart';
 import 'package:cw_core/window_size.dart';
-import 'package:monero/monero.dart' as monero_dart;
+// import 'package:monero/monero.dart' as monero_dart;
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -74,7 +50,7 @@ final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<
 
 Future<void> main() async {
   if (Platform.isIOS) {
-    monero_dart.libPath = "MoneroWallet.framework/MoneroWallet";
+    // monero_dart.libPath = "MoneroWallet.framework/MoneroWallet";
   }
 
   bool isAppRunning = false;

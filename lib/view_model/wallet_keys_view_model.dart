@@ -1,4 +1,3 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -10,7 +9,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
-import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 import 'package:polyseed/polyseed.dart';
 
 part 'wallet_keys_view_model.g.dart';
