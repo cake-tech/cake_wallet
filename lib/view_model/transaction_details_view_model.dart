@@ -99,9 +99,10 @@ abstract class TransactionDetailsViewModelBase with Store {
     items.add(BlockExplorerListItem(
         title: S.current.view_in_block_explorer,
         value: _explorerDescription(type),
-        onTap: () {
+        onTap: () async {
           try {
-            launch(_explorerUrl(type, tx.id));
+            final uri = Uri.parse(_explorerUrl(type, tx.id));
+            if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
           } catch (e) {}
         }));
 

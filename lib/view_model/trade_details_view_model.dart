@@ -179,7 +179,7 @@ abstract class TradeDetailsViewModelBase with Store {
   void _launchUrl(String url) {
     final uri = Uri.parse(url);
     try {
-      launchUrl(uri);
+      launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {}
   }
 }
