@@ -860,5 +860,6 @@
   "you_pay": "Şu kadar ödeyeceksin: ",
   "you_will_get": "Biçimine dönüştür:",
   "you_will_send": "Biçiminden dönüştür:",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "Bu isimde bir kişi zaten mevcut. Lütfen farklı bir ad seçin."
 }
