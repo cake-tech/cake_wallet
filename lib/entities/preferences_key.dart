@@ -44,6 +44,8 @@ class PreferencesKey {
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
+  static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
+  static const silentPaymentsAlwaysScan = 'silentPaymentsAlwaysScan';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const shouldShowRepWarning = 'should_show_rep_warning';
@@ -65,6 +67,7 @@ class PreferencesKey {
   static const lookupsUnstoppableDomains = 'looks_up_unstoppable_domain';
   static const lookupsOpenAlias = 'looks_up_open_alias';
   static const lookupsENS = 'looks_up_ens';
+  static const showCameraConsent = 'show_camera_consent';
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';

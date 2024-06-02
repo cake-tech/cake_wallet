@@ -26,29 +26,32 @@ void startWalletSyncStatusChangeReaction(
     SettingsStore settingsStore,
     Box<TransactionDescription> transactionDescription) {
   _onWalletSyncStatusChangeReaction?.reaction.dispose();
-
   _onWalletSyncStatusChangeReaction = reaction((_) => wallet.syncStatus, (SyncStatus status) async {
-    if (status is ConnectedSyncStatus) {
-      await wallet.startSync();
-      if (wallet.type == WalletType.haven) {
-        await updateHavenRate(fiatConversionStore);
+    try {
+      if (status is ConnectedSyncStatus) {
+        await wallet.startSync();
+        if (wallet.type == WalletType.haven) {
+          await updateHavenRate(fiatConversionStore);
+        }
       }
-    }
-    if (status is SyncingSyncStatus) {
-      await WakelockPlus.enable();
-    }
-    if (status is SyncedSyncStatus || status is FailedSyncStatus) {
-      await WakelockPlus.disable();
+      if (status is SyncingSyncStatus) {
+        await WakelockPlus.enable();
+      }
+      if (status is SyncedSyncStatus || status is FailedSyncStatus) {
+        await WakelockPlus.disable();
 
-      if (status is SyncedSyncStatus &&
-          (settingsStore.fiatApiMode != FiatApiMode.disabled ||
-              settingsStore.showHistoricalFiatAmount)) {
-        _debounceTimer?.cancel();
-        _debounceTimer = Timer(Duration(milliseconds: 100), () async {
-          await historicalRateUpdate(
-              wallet, settingsStore, fiatConversionStore, transactionDescription);
-        });
+        if (status is SyncedSyncStatus &&
+            (settingsStore.fiatApiMode != FiatApiMode.disabled ||
+                settingsStore.showHistoricalFiatAmount)) {
+          _debounceTimer?.cancel();
+          _debounceTimer = Timer(Duration(milliseconds: 100), () async {
+            await historicalRateUpdate(
+                wallet, settingsStore, fiatConversionStore, transactionDescription);
+          });
+        }
       }
+    } catch (e) {
+      print(e.toString());
     }
   });
 }

@@ -61,6 +61,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -222,6 +223,14 @@ abstract class DashboardViewModelBase with Store {
 
       return true;
     });
+
+    if (hasSilentPayments) {
+      silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
+
+      reaction((_) => wallet.syncStatus, (SyncStatus syncStatus) {
+        silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
+      });
+    }
   }
 
   @observable
@@ -308,10 +317,35 @@ abstract class DashboardViewModelBase with Store {
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
-  bool get hasRescan => wallet.type == WalletType.monero || wallet.type == WalletType.haven;
+  @computed
+  bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
+
+  @computed
+  bool get hasRescan =>
+      wallet.type == WalletType.bitcoin ||
+      wallet.type == WalletType.monero ||
+      wallet.type == WalletType.haven;
+
+  @computed
+  bool get hasSilentPayments => wallet.type == WalletType.bitcoin;
+
+  @computed
+  bool get showSilentPaymentsCard => hasSilentPayments && settingsStore.silentPaymentsCardDisplay;
 
   final KeyService keyService;
   final SharedPreferences sharedPreferences;
+
+  @observable
+  bool silentPaymentsScanningActive = false;
+
+  @action
+  void setSilentPaymentsScanning(bool active) {
+    silentPaymentsScanningActive = active;
+
+    if (hasSilentPayments) {
+      bitcoin!.setScanningActive(wallet, active);
+    }
+  }
 
   BalanceViewModel balanceViewModel;
 
@@ -352,6 +386,8 @@ abstract class DashboardViewModelBase with Store {
         .toList();
   }
 
+  bool get hasBuyProviders => ProvidersHelper.getAvailableBuyProviderTypes(wallet.type).isNotEmpty;
+
   List<BuyProvider> get availableSellProviders {
     final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(wallet.type);
     return providerTypes
@@ -360,6 +396,8 @@ abstract class DashboardViewModelBase with Store {
         .cast<BuyProvider>()
         .toList();
   }
+
+  bool get hasSellProviders => ProvidersHelper.getAvailableSellProviderTypes(wallet.type).isNotEmpty;
 
   bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
 
@@ -373,13 +411,13 @@ abstract class DashboardViewModelBase with Store {
   bool hasExchangeAction;
 
   @computed
-  bool get isEnabledBuyAction => !settingsStore.disableBuy && availableBuyProviders.isNotEmpty;
+  bool get isEnabledBuyAction => !settingsStore.disableBuy && hasBuyProviders;
 
   @observable
   bool hasBuyAction;
 
   @computed
-  bool get isEnabledSellAction => !settingsStore.disableSell && availableSellProviders.isNotEmpty;
+  bool get isEnabledSellAction => !settingsStore.disableSell && hasSellProviders;
 
   @observable
   bool hasSellAction;
@@ -522,34 +560,38 @@ abstract class DashboardViewModelBase with Store {
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 
   Future<List<String>> checkAffectedWallets() async {
-    // await load file
-    final vulnerableSeedsString = await rootBundle
-        .loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
-    final vulnerableSeeds = vulnerableSeedsString.split("\n");
+    try {
+      // await load file
+      final vulnerableSeedsString = await rootBundle
+          .loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
+      final vulnerableSeeds = vulnerableSeedsString.split("\n");
 
-    final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+      final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
 
-    List<String> affectedWallets = [];
-    for (var walletInfo in walletInfoSource.values) {
-      if (walletInfo.type == WalletType.bitcoin) {
-        final password = await keyService.getWalletPassword(walletName: walletInfo.name);
-        final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
-        final jsonSource = await read(path: path, password: password);
-        final data = json.decode(jsonSource) as Map;
-        final mnemonic = data['mnemonic'] as String?;
+      List<String> affectedWallets = [];
+      for (var walletInfo in walletInfoSource.values) {
+        if (walletInfo.type == WalletType.bitcoin) {
+          final password = await keyService.getWalletPassword(walletName: walletInfo.name);
+          final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
+          final jsonSource = await read(path: path, password: password);
+          final data = json.decode(jsonSource) as Map;
+          final mnemonic = data['mnemonic'] as String?;
 
-        if (mnemonic == null) continue;
+          if (mnemonic == null) continue;
 
-        final hash = await Cryptography.instance.sha256().hash(utf8.encode(mnemonic));
-        final seedSha = bytesToHex(hash.bytes);
+          final hash = await Cryptography.instance.sha256().hash(utf8.encode(mnemonic));
+          final seedSha = bytesToHex(hash.bytes);
 
-        if (vulnerableSeeds.contains(seedSha)) {
-          affectedWallets.add(walletInfo.name);
+          if (vulnerableSeeds.contains(seedSha)) {
+            affectedWallets.add(walletInfo.name);
+          }
         }
       }
-    }
 
-    return affectedWallets;
+      return affectedWallets;
+    } catch (_) {
+      return [];
+    }
   }
 
   String? getFormattedFiatAmount(TransactionInfo transaction) {
@@ -572,24 +614,29 @@ abstract class DashboardViewModelBase with Store {
 
   Future<ServicesResponse> getServicesStatus() async {
     try {
-      final res = await http.get(Uri.parse("https://service-api.cakewallet.com/v1/active-notices"));
+      if (isEnabledBulletinAction) {
+          final res = await http.get(Uri.parse("https://service-api.cakewallet.com/v1/active-notices"));
 
-      if (res.statusCode < 200 || res.statusCode >= 300) {
-        throw res.body;
+          if (res.statusCode < 200 || res.statusCode >= 300) {
+            throw res.body;
+          }
+
+          final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
+
+          final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
+          final currentSha = bytesToHex(hash.bytes);
+
+          final hasUpdates = oldSha != currentSha;
+
+          return ServicesResponse.fromJson(
+            json.decode(res.body) as Map<String, dynamic>,
+            hasUpdates,
+            currentSha,
+          );
       }
-
-      final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
-
-      final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
-      final currentSha = bytesToHex(hash.bytes);
-
-      final hasUpdates = oldSha != currentSha;
-
-      return ServicesResponse.fromJson(
-        json.decode(res.body) as Map<String, dynamic>,
-        hasUpdates,
-        currentSha,
-      );
+      else {
+          return ServicesResponse([], false, '');
+        }
     } catch (_) {
       return ServicesResponse([], false, '');
     }

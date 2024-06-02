@@ -84,12 +84,7 @@ class IoniaGiftCardDetailPage extends BasePage {
       }
     });
 
-    return RouteAwareWidget(
-        pushToWidget: ()=> viewModel.increaseBrightness(),
-        pushToNextWidget: ()=> DeviceDisplayBrightness.setBrightness(viewModel.brightness),
-        popNextWidget: ()=> viewModel.increaseBrightness(),
-        popWidget: ()=> DeviceDisplayBrightness.setBrightness(viewModel.brightness),
-      child: ScrollableWithBottomSection(
+    return ScrollableWithBottomSection(
       contentPadding: EdgeInsets.all(24),
       content: Column(
         children: [
@@ -168,7 +163,7 @@ class IoniaGiftCardDetailPage extends BasePage {
           },
         ),
       ),
-    ));
+    );
   }
 
   Widget buildIoniaTile(BuildContext context, {required String title, required String subTitle}) {
