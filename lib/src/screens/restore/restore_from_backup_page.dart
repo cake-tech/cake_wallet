@@ -22,6 +22,14 @@ class RestoreFromBackupPage extends BasePage {
   String get title => S.current.restore_title_from_backup;
 
   @override
+  Function(BuildContext)? get pushToNextWidget => (context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.focusedChild?.unfocus();
+    }
+  };
+
+  @override
   Widget body(BuildContext context) {
     reaction((_) => restoreFromBackupViewModel.state, (ExecutionState state) {
       if (state is FailureState) {

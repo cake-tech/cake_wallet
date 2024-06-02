@@ -105,8 +105,8 @@ dependencies:
   solana: ^0.30.1
   bitcoin_base:
     git:
-      url: https://github.com/cake-tech/bitcoin_base.git
-      ref: cake-update-v2
+      url: https://github.com/cake-tech/bitcoin_base
+      ref: cake-update-v3
   ledger_flutter: ^1.0.1
 
 dev_dependencies:
@@ -117,7 +117,7 @@ dev_dependencies:
   mobx_codegen: ^2.1.1
   build_resolvers: ^2.0.9
   hive_generator: ^1.1.3
-  flutter_launcher_icons: ^0.11.0
+  # flutter_launcher_icons: ^0.11.0
   # check flutter_launcher_icons for usage
   pedantic: ^1.8.0
   # replace https://github.com/dart-lang/lints#migrating-from-packagepedantic

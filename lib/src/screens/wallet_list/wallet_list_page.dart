@@ -96,6 +96,7 @@ class WalletListBody extends StatefulWidget {
 class WalletListBodyState extends State<WalletListBody> {
   final moneroIcon = Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
   final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
+  final tBitcoinIcon = Image.asset('assets/images/tbtc.png', height: 24, width: 24);
   final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
@@ -162,7 +163,10 @@ class WalletListBodyState extends State<WalletListBody> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
                                     wallet.isEnabled
-                                        ? _imageFor(type: wallet.type)
+                                        ? _imageFor(
+                                            type: wallet.type,
+                                            isTestnet: wallet.isTestnet,
+                                          )
                                         : nonWalletTypeIcon,
                                     SizedBox(width: 10),
                                     Flexible(
@@ -297,9 +301,12 @@ class WalletListBodyState extends State<WalletListBody> {
     );
   }
 
-  Image _imageFor({required WalletType type}) {
+  Image _imageFor({required WalletType type, bool? isTestnet}) {
     switch (type) {
       case WalletType.bitcoin:
+        if (isTestnet == true) {
+          return tBitcoinIcon;
+        }
         return bitcoinIcon;
       case WalletType.monero:
         return moneroIcon;

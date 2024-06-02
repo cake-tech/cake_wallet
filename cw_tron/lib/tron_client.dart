@@ -208,7 +208,7 @@ class TronClient {
         TransactionContract(type: contract.contractType, parameter: parameter);
 
     // Set the transaction expiration time (maximum 24 hours)
-    final expireTime = DateTime.now().toUtc().add(const Duration(hours: 24));
+    final expireTime = DateTime.now().add(const Duration(minutes: 30));
 
     // Create a raw transaction
     TransactionRaw rawTransaction = TransactionRaw(
@@ -369,7 +369,7 @@ class TronClient {
         TransactionContract(type: contract.contractType, parameter: parameter);
 
     // Set the transaction expiration time (maximum 24 hours)
-    final expireTime = DateTime.now().toUtc().add(const Duration(hours: 24));
+    final expireTime = DateTime.now().add(const Duration(minutes: 30));
 
     // Create a raw transaction
     TransactionRaw rawTransaction = TransactionRaw(
@@ -387,7 +387,7 @@ class TronClient {
     if (feeLimit > tronBalanceInt) {
       final feeInTrx = TronHelper.fromSun(BigInt.parse(feeLimit.toString()));
       throw Exception(
-        'You don\'t have enough TRX to cover the transaction fee for this transaction. Kindly top up.\nTransaction fee: $feeInTrx TRX',
+        'You don\'t have enough TRX to cover the transaction fee for this transaction. Please top up.\nTransaction fee: $feeInTrx TRX',
       );
     }
 
@@ -444,7 +444,7 @@ class TronClient {
     if (feeLimit > tronBalanceInt) {
       final feeInTrx = TronHelper.fromSun(BigInt.parse(feeLimit.toString()));
       throw Exception(
-        'You don\'t have enough TRX to cover the transaction fee for this transaction. Kindly top up. Transaction fee: $feeInTrx TRX',
+        'You don\'t have enough TRX to cover the transaction fee for this transaction. Please top up. Transaction fee: $feeInTrx TRX',
       );
     }
 

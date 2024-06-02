@@ -1,9 +1,10 @@
 import 'package:cw_core/crypto_currency.dart';
 
 class TransactionWrongBalanceException implements Exception {
-  TransactionWrongBalanceException(this.currency);
+  TransactionWrongBalanceException(this.currency, {this.amount});
 
   final CryptoCurrency currency;
+  final int? amount;
 }
 
 class TransactionNoInputsException implements Exception {}
@@ -32,3 +33,7 @@ class TransactionCommitFailedDustOutput implements Exception {}
 class TransactionCommitFailedDustOutputSendAll implements Exception {}
 
 class TransactionCommitFailedVoutNegative implements Exception {}
+
+class TransactionCommitFailedBIP68Final implements Exception {}
+
+class TransactionInputNotSupported implements Exception {}
