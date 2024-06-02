@@ -98,7 +98,7 @@ abstract class EVMChainClient {
 
     bool isNativeToken = currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
 
-    final price = _client!.getGasPrice();
+    final price = await _client!.getGasPrice();
 
     final Transaction transaction = createTransaction(
       from: privateKey.address,
@@ -137,10 +137,14 @@ abstract class EVMChainClient {
             chainId: chainId,
           );
 
-          await erc20.approve(EthereumAddress.fromHex(router), amount, credentials: privateKey);
+          final currentAllowance = await erc20.allowance(privateKey.address, EthereumAddress.fromHex(router));
+          if (currentAllowance < amount) {
+            await erc20.approve(EthereumAddress.fromHex(router), amount, credentials: privateKey);
+          }
         }
 
         await _depositWithExpiry(
+          privateKey: privateKey,
           contractAddress: router,
           inboundAddress: toAddress,
           amount: amount,
@@ -301,6 +305,7 @@ abstract class EVMChainClient {
   }
 
   Future<void> _depositWithExpiry({
+    required Credentials privateKey,
     required String contractAddress,
     required String inboundAddress,
     String? assetContractAddress,
@@ -313,22 +318,58 @@ abstract class EVMChainClient {
       contractAddress: contractAddress,
     );
     final depositWithExpiryFunction = contract.function('depositWithExpiry');
-    final inboundEtHAddress = EthereumAddress.fromHex(inboundAddress);
-    final assetContractAddress = EthereumAddress.fromHex(contractAddress);
+    final inboundEthAddress = EthereumAddress.fromHex(inboundAddress);
+    final assetEthAddress = EthereumAddress.fromHex(assetContractAddress!);
+    final contractEthAddress = EthereumAddress.fromHex(contractAddress);
     final formattedDate = BigInt.from(DateTime.now().add(const Duration(hours: 2)).millisecondsSinceEpoch ~/ 1000);
 
+    try {
+      final gasPrice = await _client!.getGasPrice();
+      final feeHistory = await _client!.getFeeHistory(
+        1,
+        rewardPercentiles: [],
+      );
 
-    await _client!.call(
-      contract: contract,
-      function: depositWithExpiryFunction,
-      params: [
-        inboundEtHAddress,
-        assetContractAddress,
-        amount,
-        memo,
-        formattedDate,
-      ],
-    );
+      final baseFeePerGas = feeHistory['baseFeePerGas'].first as BigInt;
+
+      final effectiveGasPrice = gasPrice.getInWei > baseFeePerGas
+          ? gasPrice
+          : EtherAmount.inWei(baseFeePerGas * BigInt.from(2));
+
+      final gasLimit = await _client!.estimateGas(
+        sender: privateKey.address,
+        to: contractEthAddress,
+        value: EtherAmount.zero(),
+        data: depositWithExpiryFunction.encodeCall([
+          inboundEthAddress,
+          assetEthAddress,
+          amount,
+          memo,
+          formattedDate,
+        ]),
+      );
+
+      await _client!.sendTransaction(
+        privateKey,
+        Transaction.callContract(
+          contract: contract,
+          function: depositWithExpiryFunction,
+          parameters: [
+            inboundEthAddress,
+            assetEthAddress,
+            amount,
+            memo,
+            formattedDate,
+          ],
+          gasPrice: effectiveGasPrice,
+          maxGas: gasLimit.toInt(),
+        ),
+        chainId: chainId,
+      );
+
+    } catch (e) {
+      log("Error during depositWithExpiry: $e");
+  }
   }
 
   Future<DeployedContract> _getContract({
