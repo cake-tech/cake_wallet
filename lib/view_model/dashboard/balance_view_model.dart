@@ -61,6 +61,9 @@ abstract class BalanceViewModelBase with Store {
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
   @computed
+  bool get hasSilentPayments => wallet.type == WalletType.bitcoin;
+
+  @computed
   double get price {
     final price = fiatConvertationStore.prices[appStore.wallet!.currency];
 

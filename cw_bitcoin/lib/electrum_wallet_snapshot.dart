@@ -19,6 +19,8 @@ class ElectrumWalletSnapshot {
     required this.regularAddressIndex,
     required this.changeAddressIndex,
     required this.addressPageType,
+    required this.silentAddresses,
+    required this.silentAddressIndex,
     this.passphrase,
     this.derivationType,
     this.derivationPath,
@@ -32,9 +34,11 @@ class ElectrumWalletSnapshot {
   String? mnemonic;
   String? xpub;
   List<BitcoinAddressRecord> addresses;
+  List<BitcoinSilentPaymentAddressRecord> silentAddresses;
   ElectrumBalance balance;
   Map<String, int> regularAddressIndex;
   Map<String, int> changeAddressIndex;
+  int silentAddressIndex;
   String? passphrase;
   DerivationType? derivationType;
   String? derivationPath;
@@ -50,15 +54,23 @@ class ElectrumWalletSnapshot {
     final passphrase = data['passphrase'] as String? ?? '';
     final addresses = addressesTmp
         .whereType<String>()
-        .map((addr) => BitcoinAddressRecord.fromJSON(addr, network))
+        .map((addr) => BitcoinAddressRecord.fromJSON(addr, network: network))
         .toList();
-    final balance = ElectrumBalance.fromJSON(data['balance'] as String) ??
+
+    final silentAddressesTmp = data['silent_addresses'] as List? ?? <Object>[];
+    final silentAddresses = silentAddressesTmp
+        .whereType<String>()
+        .map((addr) => BitcoinSilentPaymentAddressRecord.fromJSON(addr, network: network))
+        .toList();
+
+    final balance = ElectrumBalance.fromJSON(data['balance'] as String?) ??
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
     var regularAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
     var changeAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
+    var silentAddressIndex = 0;
 
-    final derivationType =
-        DerivationType.values[(data['derivationTypeIndex'] as int?) ?? DerivationType.electrum.index];
+    final derivationType = DerivationType
+        .values[(data['derivationTypeIndex'] as int?) ?? DerivationType.electrum.index];
     final derivationPath = data['derivationPath'] as String? ?? "m/0'/0";
 
     try {
@@ -69,6 +81,7 @@ class ElectrumWalletSnapshot {
         SegwitAddresType.p2wpkh.toString():
             int.parse(data['change_address_index'] as String? ?? '0')
       };
+      silentAddressIndex = int.parse(data['silent_address_index'] as String? ?? '0');
     } catch (_) {
       try {
         regularAddressIndexByType = data["account_index"] as Map<String, int>? ?? {};
@@ -90,6 +103,8 @@ class ElectrumWalletSnapshot {
       addressPageType: data['address_page_type'] as String?,
       derivationType: derivationType,
       derivationPath: derivationPath,
+      silentAddresses: silentAddresses,
+      silentAddressIndex: silentAddressIndex,
     );
   }
 }

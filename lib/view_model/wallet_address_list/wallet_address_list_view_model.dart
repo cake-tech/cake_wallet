@@ -334,20 +334,55 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (isElectrumWallet) {
-      final addressItems = bitcoin!.getSubAddresses(wallet).map((subaddress) {
-        final isPrimary = subaddress.id == 0;
+      if (bitcoin!.hasSelectedSilentPayments(wallet)) {
+        final addressItems = bitcoin!.getSilentPaymentAddresses(wallet).map((address) {
+          final isPrimary = address.id == 0;
 
-        return WalletAddressListItem(
-            id: subaddress.id,
+          return WalletAddressListItem(
+            id: address.id,
             isPrimary: isPrimary,
-            name: subaddress.name,
-            address: subaddress.address,
-            txCount: subaddress.txCount,
+            name: address.name,
+            address: address.address,
+            txCount: address.txCount,
             balance: AmountConverter.amountIntToString(
-                walletTypeToCryptoCurrency(type), subaddress.balance),
-            isChange: subaddress.isChange);
-      });
-      addressList.addAll(addressItems);
+                walletTypeToCryptoCurrency(type), address.balance),
+            isChange: address.isChange,
+          );
+        });
+        addressList.addAll(addressItems);
+        addressList.add(WalletAddressListHeader(title: S.current.received));
+
+        final receivedAddressItems =
+            bitcoin!.getSilentPaymentReceivedAddresses(wallet).map((address) {
+          return WalletAddressListItem(
+            id: address.id,
+            isPrimary: false,
+            name: address.name,
+            address: address.address,
+            txCount: address.txCount,
+            balance: AmountConverter.amountIntToString(
+                walletTypeToCryptoCurrency(type), address.balance),
+            isChange: address.isChange,
+            isOneTimeReceiveAddress: true,
+          );
+        });
+        addressList.addAll(receivedAddressItems);
+      } else {
+        final addressItems = bitcoin!.getSubAddresses(wallet).map((subaddress) {
+          final isPrimary = subaddress.id == 0;
+
+          return WalletAddressListItem(
+              id: subaddress.id,
+              isPrimary: isPrimary,
+              name: subaddress.name,
+              address: subaddress.address,
+              txCount: subaddress.txCount,
+              balance: AmountConverter.amountIntToString(
+                  walletTypeToCryptoCurrency(type), subaddress.balance),
+              isChange: subaddress.isChange);
+        });
+        addressList.addAll(addressItems);
+      }
     }
 
     if (wallet.type == WalletType.ethereum) {
@@ -417,8 +452,13 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.type == WalletType.bitcoinCash;
 
   @computed
+  bool get isSilentPayments =>
+      wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet);
+
+  @computed
   bool get isAutoGenerateSubaddressEnabled =>
-      _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
+      _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled &&
+      !isSilentPayments;
 
   List<ListItem> _baseItems;
 
@@ -476,6 +516,13 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       }
     } catch (e) {
       amount = '';
+    }
+  }
+
+  @action
+  void deleteAddress(ListItem item) {
+    if (wallet.type == WalletType.bitcoin && item is WalletAddressListItem) {
+      bitcoin!.deleteSilentPaymentAddress(wallet, item.address);
     }
   }
 }

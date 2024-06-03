@@ -17,6 +17,7 @@ class SettingActions {
     connectionSettingAction,
     walletSettingAction,
     addressBookSettingAction,
+    silentPaymentsSettingAction,
     securityBackupSettingAction,
     privacySettingAction,
     displaySettingAction,
@@ -28,12 +29,22 @@ class SettingActions {
     connectionSettingAction,
     walletSettingAction,
     addressBookSettingAction,
+    silentPaymentsSettingAction,
     securityBackupSettingAction,
     privacySettingAction,
     displaySettingAction,
     otherSettingAction,
     supportSettingAction,
   ];
+
+  static SettingActions silentPaymentsSettingAction = SettingActions._(
+    name: (context) => S.of(context).silent_payments_settings,
+    image: 'assets/images/bitcoin_menu.png',
+    onTap: (BuildContext context) {
+      Navigator.pop(context);
+      Navigator.of(context).pushNamed(Routes.silentPaymentsSettings);
+    },
+  );
 
   static SettingActions connectionSettingAction = SettingActions._(
     name: (context) => S.of(context).connection_sync,

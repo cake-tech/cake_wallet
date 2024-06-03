@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
@@ -108,6 +107,8 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsOpenAlias,
       required this.lookupsENS,
       required this.customBitcoinFeeRate,
+      required this.silentPaymentsCardDisplay,
+      required this.silentPaymentsAlwaysScan,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialHavenTransactionPriority,
@@ -518,6 +519,16 @@ abstract class SettingsStoreBase with Store {
         (int customBitcoinFeeRate) =>
             _sharedPreferences.setInt(PreferencesKey.customBitcoinFeeRate, customBitcoinFeeRate));
 
+    reaction((_) => silentPaymentsCardDisplay, (bool silentPaymentsCardDisplay) {
+      _sharedPreferences.setBool(
+          PreferencesKey.silentPaymentsCardDisplay, silentPaymentsCardDisplay);
+    });
+
+    reaction(
+        (_) => silentPaymentsAlwaysScan,
+        (bool silentPaymentsAlwaysScan) => _sharedPreferences.setBool(
+            PreferencesKey.silentPaymentsAlwaysScan, silentPaymentsAlwaysScan));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -713,6 +724,12 @@ abstract class SettingsStoreBase with Store {
   @observable
   int customBitcoinFeeRate;
 
+  @observable
+  bool silentPaymentsCardDisplay;
+
+  @observable
+  bool silentPaymentsAlwaysScan;
+
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
   final BackgroundTasks _backgroundTasks;
@@ -859,6 +876,10 @@ abstract class SettingsStoreBase with Store {
     final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
     final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
+    final silentPaymentsCardDisplay =
+        sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
+    final silentPaymentsAlwaysScan =
+        sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -1103,6 +1124,8 @@ abstract class SettingsStoreBase with Store {
       lookupsOpenAlias: lookupsOpenAlias,
       lookupsENS: lookupsENS,
       customBitcoinFeeRate: customBitcoinFeeRate,
+      silentPaymentsCardDisplay: silentPaymentsCardDisplay,
+      silentPaymentsAlwaysScan: silentPaymentsAlwaysScan,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialBitcoinTransactionPriority: bitcoinTransactionPriority,
       initialHavenTransactionPriority: havenTransactionPriority,
@@ -1242,6 +1265,10 @@ abstract class SettingsStoreBase with Store {
     lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
     customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
+    silentPaymentsCardDisplay =
+        sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
+    silentPaymentsAlwaysScan =
+        sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =
         sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
