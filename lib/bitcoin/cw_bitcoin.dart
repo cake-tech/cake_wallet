@@ -576,10 +576,16 @@ class CWBitcoin extends Bitcoin {
     }
 
     final bitcoinWallet = wallet as ElectrumWallet;
-    final tweaksResponse = await bitcoinWallet.electrumClient.getTweaks(height: 0);
+    try {
+      final tweaksResponse = await bitcoinWallet.electrumClient.getTweaks(height: 0);
 
-    if (tweaksResponse != null) {
-      return true;
+      if (tweaksResponse != null) {
+        return true;
+      }
+    } on RequestFailedTimeoutException {
+      return false;
+    } catch (_) {
+      rethrow;
     }
 
     return false;
