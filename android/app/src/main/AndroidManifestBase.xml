@@ -3,10 +3,32 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+    <!--bibo01 : hardware option-->
+    <uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
+
+    <!-- required for API 18 - 30 -->
+    <uses-permission
+            android:name="android.permission.BLUETOOTH"
+            android:maxSdkVersion="30" />
+    <uses-permission
+            android:name="android.permission.BLUETOOTH_ADMIN"
+            android:maxSdkVersion="30" />
+
+    <!-- API 31+ -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission
+            android:name="android.permission.BLUETOOTH_SCAN"
+            android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
 
     <application
         android:name=".Application"
@@ -52,14 +74,37 @@
                 <data android:scheme="litecoin" />
                 <data android:scheme="litecoin-wallet" />
                 <data android:scheme="litecoin_wallet" />
+                <data android:scheme="ethereum" />
+                <data android:scheme="ethereum-wallet" />
+                <data android:scheme="ethereum_wallet" />
+                <data android:scheme="nano" />
+                <data android:scheme="nano-wallet" />
+                <data android:scheme="nano_wallet" />
+                <data android:scheme="bitcoincash" />
+                <data android:scheme="bitcoincash-wallet" />
+                <data android:scheme="bitcoincash_wallet" />
+                <data android:scheme="polygon" />
+                <data android:scheme="polygon-wallet" />
+                <data android:scheme="polygon_wallet" />
+                <data android:scheme="solana-wallet" />
+                <data android:scheme="tron" />
+                <data android:scheme="tron-wallet" />
+                <data android:scheme="tron_wallet" />
+            </intent-filter>
+            <!-- nano-gpt link scheme -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="nano-gpt" />
             </intent-filter>
         </activity>
         <meta-data
                 android:name="flutterEmbedding"
                 android:value="2" />
         <provider
-            android:name="com.pichillilorenzo.flutter_inappwebview.InAppWebViewFileProvider"
-            android:authorities="${applicationId}.flutter_inappwebview.fileprovider"
+            android:name="com.pichillilorenzo.flutter_inappwebview_android.InAppWebViewFileProvider"
+            android:authorities="${applicationId}.flutter_inappwebview_android.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

@@ -1,15 +1,15 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 const COOKIE_KEY = 'chatwootCookie';
 
 class ChatwootWidget extends StatefulWidget {
   ChatwootWidget(this.secureStorage, {required this.supportUrl});
 
-  final FlutterSecureStorage secureStorage;
+  final SecureStorage secureStorage;
   final String supportUrl;
 
   @override
@@ -22,17 +22,17 @@ class ChatwootWidgetState extends State<ChatwootWidget> {
   @override
   Widget build(BuildContext context) => InAppWebView(
         key: _webViewkey,
-        initialOptions: InAppWebViewGroupOptions(
-          crossPlatform: InAppWebViewOptions(transparentBackground: true),
-        ),
-        initialUrlRequest: URLRequest(url: Uri.tryParse(widget.supportUrl)),
+    initialSettings: InAppWebViewSettings(
+      transparentBackground: true,
+    ),
+        initialUrlRequest: URLRequest(url: WebUri(widget.supportUrl)),
         onWebViewCreated: (InAppWebViewController controller) {
           controller.addWebMessageListener(
             WebMessageListener(
               jsObjectName: 'ReactNativeWebView',
-              onPostMessage: (String? message, Uri? sourceOrigin, bool isMainFrame,
-                  JavaScriptReplyProxy replyProxy) {
-                final shortenedMessage = message?.substring(16);
+              onPostMessage: (WebMessage? message, WebUri? sourceOrigin, bool isMainFrame,
+                  PlatformJavaScriptReplyProxy replyProxy) {
+                final shortenedMessage = message?.data.toString().substring(16);
                 if (shortenedMessage != null && isJsonString(shortenedMessage)) {
                   final parsedMessage = jsonDecode(shortenedMessage);
                   final eventType = parsedMessage["event"];
@@ -57,6 +57,7 @@ class ChatwootWidgetState extends State<ChatwootWidget> {
     return true;
   }
 
-  Future<void> storeCookie(String value) async =>
-      await widget.secureStorage.write(key: COOKIE_KEY, value: value);
+  Future<void> storeCookie(String value) async {
+    await widget.secureStorage.write(key: COOKIE_KEY, value: value);
+  }
 }

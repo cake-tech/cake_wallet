@@ -1,22 +1,21 @@
 import 'dart:convert';
+
+import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_bitcoin/file.dart';
-import 'package:cw_bitcoin/electrum_transaction_info.dart';
 
 part 'electrum_transaction_history.g.dart';
 
 const transactionsHistoryFileName = 'transactions.json';
 
-class ElectrumTransactionHistory = ElectrumTransactionHistoryBase
-    with _$ElectrumTransactionHistory;
+class ElectrumTransactionHistory = ElectrumTransactionHistoryBase with _$ElectrumTransactionHistory;
 
 abstract class ElectrumTransactionHistoryBase
     extends TransactionHistoryBase<ElectrumTransactionInfo> with Store {
-  ElectrumTransactionHistoryBase(
-      {required this.walletInfo, required String password})
+  ElectrumTransactionHistoryBase({required this.walletInfo, required String password})
       : _password = password,
         _height = 0 {
     transactions = ObservableMap<String, ElectrumTransactionInfo>();
@@ -29,8 +28,7 @@ abstract class ElectrumTransactionHistoryBase
   Future<void> init() async => await _load();
 
   @override
-  void addOne(ElectrumTransactionInfo transaction) =>
-      transactions[transaction.id] = transaction;
+  void addOne(ElectrumTransactionInfo transaction) => transactions[transaction.id] = transaction;
 
   @override
   void addMany(Map<String, ElectrumTransactionInfo> transactions) =>
@@ -39,11 +37,13 @@ abstract class ElectrumTransactionHistoryBase
   @override
   Future<void> save() async {
     try {
-      final dirPath =
-          await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
+      final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
       final path = '$dirPath/$transactionsHistoryFileName';
-      final data =
-          json.encode({'height': _height, 'transactions': transactions});
+      final txjson = {};
+      for (final tx in transactions.entries) {
+        txjson[tx.key] = tx.value.toJson();
+      }
+      final data = json.encode({'height': _height, 'transactions': txjson});
       await writeData(path: path, password: _password, data: data);
     } catch (e) {
       print('Error while save bitcoin transaction history: ${e.toString()}');
@@ -56,8 +56,7 @@ abstract class ElectrumTransactionHistoryBase
   }
 
   Future<Map<String, dynamic>> _read() async {
-    final dirPath =
-        await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
+    final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
     final path = '$dirPath/$transactionsHistoryFileName';
     final content = await read(path: path, password: _password);
     return json.decode(content) as Map<String, dynamic>;
@@ -83,7 +82,5 @@ abstract class ElectrumTransactionHistoryBase
     }
   }
 
-  void _update(ElectrumTransactionInfo transaction) =>
-      transactions[transaction.id] = transaction;
-
+  void _update(ElectrumTransactionInfo transaction) => transactions[transaction.id] = transaction;
 }

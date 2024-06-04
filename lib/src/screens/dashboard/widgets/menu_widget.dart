@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
@@ -18,21 +19,24 @@ class MenuWidget extends StatefulWidget {
 
 class MenuWidgetState extends State<MenuWidget> {
   MenuWidgetState()
-    : this.menuWidth = 0,
-      this.screenWidth = 0,
-      this.screenHeight = 0,
-      this.headerHeight = 120,
-      this.tileHeight = 60,
-      this.fromTopEdge = 50,
-      this.fromBottomEdge = 25,
-      this.moneroIcon = Image.asset('assets/images/monero_menu.png'),
-      this.bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png'),
-      this.litecoinIcon = Image.asset('assets/images/litecoin_menu.png'),
-      this.havenIcon = Image.asset('assets/images/haven_menu.png'),
-      this.ethereumIcon = Image.asset('assets/images/eth_icon.png'),
-      this.nanoIcon = Image.asset('assets/images/nano_icon.png'),
-      this.bananoIcon = Image.asset('assets/images/nano_icon.png');
-
+      : this.menuWidth = 0,
+        this.screenWidth = 0,
+        this.screenHeight = 0,
+        this.headerHeight = 120,
+        this.tileHeight = 60,
+        this.fromTopEdge = 50,
+        this.fromBottomEdge = 25,
+        this.moneroIcon = Image.asset('assets/images/monero_menu.png'),
+        this.bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png'),
+        this.litecoinIcon = Image.asset('assets/images/litecoin_menu.png'),
+        this.havenIcon = Image.asset('assets/images/haven_menu.png'),
+        this.ethereumIcon = Image.asset('assets/images/eth_icon.png'),
+        this.nanoIcon = Image.asset('assets/images/nano_icon.png'),
+        this.bananoIcon = Image.asset('assets/images/nano_icon.png'),
+        this.bitcoinCashIcon = Image.asset('assets/images/bch_icon.png'),
+        this.polygonIcon = Image.asset('assets/images/matic_icon.png'),
+        this.solanaIcon = Image.asset('assets/images/sol_icon.png'),
+        this.tronIcon = Image.asset('assets/images/trx_icon.png');
 
   final largeScreen = 731;
 
@@ -50,9 +54,12 @@ class MenuWidgetState extends State<MenuWidget> {
   Image litecoinIcon;
   Image havenIcon;
   Image ethereumIcon;
+  Image bitcoinCashIcon;
   Image nanoIcon;
   Image bananoIcon;
-
+  Image polygonIcon;
+  Image solanaIcon;
+  Image tronIcon;
 
   @override
   void initState() {
@@ -174,6 +181,11 @@ class MenuWidgetState extends State<MenuWidget> {
 
                   final item = SettingActions.all[index];
 
+                  if (!widget.dashboardViewModel.hasSilentPayments &&
+                      item.name(context) == S.of(context).silent_payments_settings) {
+                    return Container();
+                  }
+
                   final isLastTile = index == itemCount - 1;
 
                   return SettingActionButton(
@@ -212,10 +224,18 @@ class MenuWidgetState extends State<MenuWidget> {
         return havenIcon;
       case WalletType.ethereum:
         return ethereumIcon;
+      case WalletType.bitcoinCash:
+        return bitcoinCashIcon;
       case WalletType.nano:
         return nanoIcon;
       case WalletType.banano:
         return bananoIcon;
+      case WalletType.polygon:
+        return polygonIcon;
+      case WalletType.solana:
+        return solanaIcon;
+      case WalletType.tron:
+        return tronIcon;
       default:
         throw Exception('No icon for ${type.toString()}');
     }

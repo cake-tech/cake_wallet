@@ -15,7 +15,7 @@ class MoneroAccountListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double itemHeight = 80;
+    double itemHeight = 65;
     double buttonHeight = 62;
 
     return Observer(builder: (_) {
@@ -31,7 +31,7 @@ class MoneroAccountListPage extends StatelessWidget {
             child: ListView.separated(
               padding: EdgeInsets.zero,
               controller: controller,
-              separatorBuilder: (context, index) => const VerticalSectionDivider(),
+              separatorBuilder: (context, index) => const HorizontalSectionDivider(),
               itemCount: accounts.length,
               itemBuilder: (context, index) {
                 final account = accounts[index];

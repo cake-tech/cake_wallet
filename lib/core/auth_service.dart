@@ -1,9 +1,11 @@
+import 'dart:async';
+
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
@@ -31,7 +33,7 @@ class AuthService with Store {
     Routes.restoreOptions,
   ];
 
-  final FlutterSecureStorage secureStorage;
+  final SecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
   final SettingsStore settingsStore;
 
@@ -65,11 +67,12 @@ class AuthService with Store {
 
   void saveLastAuthTime() {
     int timestamp = DateTime.now().millisecondsSinceEpoch;
-    sharedPreferences.setInt(PreferencesKey.lastAuthTimeMilliseconds, timestamp);
+    secureStorage.write(key: SecureKey.lastAuthTimeMilliseconds, value: timestamp.toString());
   }
 
-  bool requireAuth() {
-    final timestamp = sharedPreferences.getInt(PreferencesKey.lastAuthTimeMilliseconds);
+  Future<bool> requireAuth() async {
+    final timestamp =
+        int.tryParse(await secureStorage.read(key: SecureKey.lastAuthTimeMilliseconds) ?? '0');
     final duration = _durationToRequireAuth(timestamp ?? 0);
     final requiredPinInterval = settingsStore.pinTimeOutDuration;
 
@@ -93,7 +96,7 @@ class AuthService with Store {
         'Either route or onAuthSuccess param must be passed.');
 
     if (!conditionToDetermineIfToUse2FA) {
-      if (!requireAuth() && !_alwaysAuthenticateRoutes.contains(route)) {
+      if (!(await requireAuth()) && !_alwaysAuthenticateRoutes.contains(route)) {
         if (onAuthSuccess != null) {
           onAuthSuccess(true);
         } else {
@@ -104,9 +107,8 @@ class AuthService with Store {
         }
         return;
       }
-}
+    }
 
-    
     Navigator.of(context).pushNamed(Routes.auth,
         arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
       if (!isAuthenticatedSuccessfully) {
@@ -140,8 +142,6 @@ class AuthService with Store {
           }
         }
       }
-      
-      });
-  
+    });
   }
 }

@@ -1,11 +1,11 @@
+import 'package:cw_core/account.dart';
 import 'package:cw_core/address_info.dart';
+import 'package:cw_core/subaddress.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/account.dart';
 import 'package:cw_monero/api/wallet.dart';
 import 'package:cw_monero/monero_account_list.dart';
 import 'package:cw_monero/monero_subaddress_list.dart';
-import 'package:cw_core/subaddress.dart';
 import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:mobx/mobx.dart';
 
@@ -112,4 +112,8 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
     subaddress = subaddressList.subaddresses.last;
     address = subaddress!.address;
   }
+
+  @override
+  bool containsAddress(String address) =>
+      addressInfos[account?.id ?? 0]?.any((it) => it.address == address) ?? false;
 }

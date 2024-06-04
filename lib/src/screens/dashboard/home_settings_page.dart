@@ -5,9 +5,11 @@ import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
@@ -91,7 +93,7 @@ class HomeSettingsPage extends BasePage {
                 fillColor: Theme.of(context).cardColor,
                 child: Icon(
                   Icons.add,
-                  color: Theme.of(context).dialogTheme.backgroundColor,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   size: 22.0,
                 ),
                 padding: EdgeInsets.all(12),
@@ -116,7 +118,7 @@ class HomeSettingsPage extends BasePage {
 
                         return SettingsSwitcherCell(
                           title: "${token.name} "
-                              "(${token.symbol})",
+                              "(${token.title})",
                           value: token.enabled,
                           onValueChange: (_, bool value) {
                             _homeSettingsViewModel.changeTokenAvailability(token, value);
@@ -127,28 +129,29 @@ class HomeSettingsPage extends BasePage {
                               'token': token,
                             });
                           },
-                          leading: token.iconPath != null
-                              ? Container(
-                                  child: Image.asset(
-                                    token.iconPath!,
-                                    height: 30.0,
-                                    width: 30.0,
-                                  ),
-                                )
-                              : Container(
-                                  height: 30.0,
-                                  width: 30.0,
-                                  child: Center(
-                                    child: Text(
-                                      token.symbol.substring(0, min(token.symbol.length, 2)),
-                                      style: TextStyle(fontSize: 11),
-                                    ),
-                                  ),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.grey.shade400,
+                          leading: Container(
+                            clipBehavior: Clip.hardEdge,
+                            decoration: BoxDecoration(shape: BoxShape.circle),
+                            child: CakeImageWidget(
+                              imageUrl: token.iconPath,
+                              height: 40,
+                              width: 40,
+                              displayOnError: Container(
+                                height: 30.0,
+                                width: 30.0,
+                                child: Center(
+                                  child: Text(
+                                    token.title.substring(0, min(token.title.length, 2)),
+                                    style: TextStyle(fontSize: 11),
                                   ),
                                 ),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey.shade400,
+                                ),
+                              ),
+                            ),
+                          ),
                           decoration: BoxDecoration(
                             color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(30),

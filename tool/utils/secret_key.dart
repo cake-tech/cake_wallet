@@ -34,12 +34,29 @@ class SecretKey {
     SecretKey('chatwootWebsiteToken', () => ''),
     SecretKey('exolixApiKey', () => ''),
     SecretKey('robinhoodApplicationId', () => ''),
-    SecretKey('robinhoodCIdApiSecret', () => ''),
+    SecretKey('exchangeHelperApiKey', () => ''),
     SecretKey('walletConnectProjectId', () => ''),
+    SecretKey('moralisApiKey', () => ''),
+    SecretKey('ankrApiKey', () => ''),
+    SecretKey('quantexExchangeMarkup', () => ''),
   ];
 
-  static final ethereumSecrets = [
+  static final evmChainsSecrets = [
     SecretKey('etherScanApiKey', () => ''),
+    SecretKey('polygonScanApiKey', () => ''),
+    SecretKey('moralisApiKey', () => ''),
+  ];
+
+  static final solanaSecrets = [
+    SecretKey('ankrApiKey', () => ''),
+  ];
+
+  static final nanoSecrets = [
+    SecretKey('nano2ApiKey', () => ''),
+  ];
+  
+  static final tronSecrets = [
+    SecretKey('tronGridApiKey', () => ''),
   ];
 
   final String name;

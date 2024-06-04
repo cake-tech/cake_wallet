@@ -6,10 +6,11 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/io_client.dart' as ioc;
+// import 'package:tor/tor.dart';
 
 part 'node.g.dart';
 
-Uri createUriFromElectrumAddress(String address) => Uri.tryParse('tcp://$address')!;
+Uri createUriFromElectrumAddress(String address, String path) => Uri.tryParse('tcp://$address$path')!;
 
 @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
@@ -20,6 +21,7 @@ class Node extends HiveObject with Keyable {
     this.trusted = false,
     this.socksProxyAddress,
     String? uri,
+    String? path,
     WalletType? type,
   }) {
     if (uri != null) {
@@ -28,10 +30,14 @@ class Node extends HiveObject with Keyable {
     if (type != null) {
       this.type = type;
     }
+    if (path != null) {
+      this.path = path;
+    }
   }
 
   Node.fromMap(Map<String, Object?> map)
       : uriRaw = map['uri'] as String? ?? '',
+        path = map['path'] as String? ?? '',
         login = map['login'] as String?,
         password = map['password'] as String?,
         useSSL = map['useSSL'] as bool?,
@@ -62,6 +68,9 @@ class Node extends HiveObject with Keyable {
   @HiveField(6)
   String? socksProxyAddress;
 
+  @HiveField(7, defaultValue: '')
+  String? path;
+
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
@@ -69,26 +78,30 @@ class Node extends HiveObject with Keyable {
   Uri get uri {
     switch (type) {
       case WalletType.monero:
-        return Uri.http(uriRaw, '');
-      case WalletType.bitcoin:
-        return createUriFromElectrumAddress(uriRaw);
-      case WalletType.litecoin:
-        return createUriFromElectrumAddress(uriRaw);
       case WalletType.haven:
         return Uri.http(uriRaw, '');
-      case WalletType.ethereum:
-        return Uri.https(uriRaw, '');
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+        return createUriFromElectrumAddress(uriRaw, path ?? '');
       case WalletType.nano:
       case WalletType.banano:
         if (isSSL) {
-          return Uri.https(uriRaw, '');
+          return Uri.https(uriRaw, path ?? '');
         } else {
-          return Uri.http(uriRaw, '');
+          return Uri.http(uriRaw, path ?? '');
         }
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.tron:
+        return Uri.https(uriRaw, path ?? '');
       default:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
   }
+
+  bool get isValidProxyAddress => socksProxyAddress?.contains(':') ?? false;
 
   @override
   bool operator ==(other) =>
@@ -99,7 +112,8 @@ class Node extends HiveObject with Keyable {
           other.typeRaw == typeRaw &&
           other.useSSL == useSSL &&
           other.trusted == trusted &&
-          other.socksProxyAddress == socksProxyAddress);
+          other.socksProxyAddress == socksProxyAddress &&
+          other.path == path);
 
   @override
   int get hashCode =>
@@ -109,7 +123,8 @@ class Node extends HiveObject with Keyable {
       typeRaw.hashCode ^
       useSSL.hashCode ^
       trusted.hashCode ^
-      socksProxyAddress.hashCode;
+      socksProxyAddress.hashCode ^
+      path.hashCode;
 
   @override
   dynamic get keyIndex {
@@ -127,20 +142,19 @@ class Node extends HiveObject with Keyable {
     try {
       switch (type) {
         case WalletType.monero:
-          return useSocksProxy
-              ? requestNodeWithProxy(socksProxyAddress ?? '')
-              : requestMoneroNode();
-        case WalletType.bitcoin:
-          return requestElectrumServer();
-        case WalletType.litecoin:
-          return requestElectrumServer();
         case WalletType.haven:
           return requestMoneroNode();
-        case WalletType.ethereum:
-          return requestElectrumServer();
         case WalletType.nano:
         case WalletType.banano:
           return requestNanoNode();
+        case WalletType.bitcoin:
+        case WalletType.litecoin:
+        case WalletType.bitcoinCash:
+        case WalletType.ethereum:
+        case WalletType.polygon:
+        case WalletType.solana:
+        case WalletType.tron:
+          return requestElectrumServer();
         default:
           return false;
       }
@@ -150,6 +164,9 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestMoneroNode() async {
+    if (uri.toString().contains(".onion") || useSocksProxy) {
+      return await requestNodeWithProxy();
+    }
     final path = '/json_rpc';
     final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
     final realm = 'monero-rpc';
@@ -157,6 +174,9 @@ class Node extends HiveObject with Keyable {
 
     try {
       final authenticatingClient = HttpClient();
+
+      authenticatingClient.badCertificateCallback =
+          ((X509Certificate cert, String host, int port) => true);
 
       authenticatingClient.addCredentials(
         rpcUri,
@@ -198,11 +218,20 @@ class Node extends HiveObject with Keyable {
     }
   }
 
-  Future<bool> requestNodeWithProxy(String proxy) async {
-    if (proxy.isEmpty || !proxy.contains(':')) {
+  Future<bool> requestNodeWithProxy() async {
+    if (!isValidProxyAddress /* && !Tor.instance.enabled*/) {
       return false;
     }
-    final proxyAddress = proxy.split(':')[0];
+
+    String? proxy = socksProxyAddress;
+
+    // if ((proxy?.isEmpty ?? true) && Tor.instance.enabled) {
+    //   proxy = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
+    // }
+    if (proxy == null) {
+      return false;
+    }
+    final proxyAddress = proxy!.split(':')[0];
     final proxyPort = int.parse(proxy.split(':')[1]);
     try {
       final socket = await Socket.connect(proxyAddress, proxyPort, timeout: Duration(seconds: 5));
@@ -215,8 +244,12 @@ class Node extends HiveObject with Keyable {
 
   Future<bool> requestElectrumServer() async {
     try {
-      await SecureSocket.connect(uri.host, uri.port,
-          timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
+      if (useSSL == true) {
+        await SecureSocket.connect(uri.host, uri.port,
+            timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
+      } else {
+        await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
+      }
       return true;
     } catch (_) {
       return false;

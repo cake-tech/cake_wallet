@@ -1,21 +1,21 @@
 import 'dart:async';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
-import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
+import 'package:cake_wallet/src/widgets/services_updates_widget.dart';
+import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
-import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +23,8 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/balance_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -36,7 +36,7 @@ import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart'
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   DashboardPage({
     required this.bottomSheetService,
     required this.balancePage,
@@ -50,34 +50,71 @@ class DashboardPage extends StatelessWidget {
   final WalletAddressListViewModel addressListViewModel;
 
   @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  @override
+  void initState() {
+    super.initState();
+
+    bool isMobileLayout =
+        responsiveLayoutUtil.screenWidth < ResponsiveLayoutUtilBase.kMobileThreshold;
+
+    reaction((_) => responsiveLayoutUtil.screenWidth, (screenWidth) {
+      // Check if it was previously in mobile layout, and now changing to desktop
+      if (isMobileLayout &&
+          screenWidth > ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
+        setState(() {
+          isMobileLayout = false;
+        });
+      }
+
+      // Check if it was previously in desktop layout, and now changing to mobile
+      if (!isMobileLayout &&
+          screenWidth <= ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
+        setState(() {
+          isMobileLayout = true;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          if (DeviceInfo.instance.isDesktop) {
-            if (constraints.maxWidth > ResponsiveLayoutUtil.kDesktopMaxDashBoardWidthConstraint) {
-              return getIt.get<DesktopSidebarWrapper>();
-            } else {
-              return _DashboardPageView(
-                balancePage: balancePage,
-                bottomSheetService: bottomSheetService,
-                dashboardViewModel: dashboardViewModel,
-                addressListViewModel: addressListViewModel,
-              );
-            }
-          } else if (ResponsiveLayoutUtil.instance.shouldRenderMobileUI()) {
-            return _DashboardPageView(
-              bottomSheetService: bottomSheetService,
-              balancePage: balancePage,
-              dashboardViewModel: dashboardViewModel,
-              addressListViewModel: addressListViewModel,
-            );
-          } else {
-            return getIt.get<DesktopSidebarWrapper>();
-          }
-        },
+    Widget dashboardChild;
+
+    final dashboardPageView = RefreshIndicator(
+      displacement: responsiveLayoutUtil.screenHeight * 0.1,
+      onRefresh: () async => await widget.dashboardViewModel.refreshDashboard(),
+      child: SingleChildScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
+        child: Container(
+          height: responsiveLayoutUtil.screenHeight,
+          child: _DashboardPageView(
+            balancePage: widget.balancePage,
+            bottomSheetService: widget.bottomSheetService,
+            dashboardViewModel: widget.dashboardViewModel,
+            addressListViewModel: widget.addressListViewModel,
+          ),
+        ),
       ),
     );
+
+    if (DeviceInfo.instance.isDesktop) {
+      if (responsiveLayoutUtil.screenWidth >
+          ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
+        dashboardChild = getIt.get<DesktopSidebarWrapper>();
+      } else {
+        dashboardChild = dashboardPageView;
+      }
+    } else if (responsiveLayoutUtil.shouldRenderMobileUI) {
+      dashboardChild = dashboardPageView;
+    } else {
+      dashboardChild = getIt.get<DesktopSidebarWrapper>();
+    }
+
+    return Scaffold(body: dashboardChild);
   }
 }
 
@@ -103,6 +140,18 @@ class _DashboardPageView extends BasePage {
 
   @override
   Widget get endDrawer => MenuWidget(dashboardViewModel);
+
+  @override
+  Widget leading(BuildContext context) {
+    return Observer(
+      builder: (context) {
+        return ServicesUpdatesWidget(
+          dashboardViewModel.getServicesStatus(),
+          enabled: dashboardViewModel.isEnabledBulletinAction,
+        );
+      },
+    );
+  }
 
   @override
   Widget middle(BuildContext context) {
@@ -196,7 +245,10 @@ class _DashboardPageView extends BasePage {
                         radius: 6.0,
                         dotWidth: 6.0,
                         dotHeight: 6.0,
-                        dotColor: Theme.of(context).indicatorColor,
+                        dotColor: Theme.of(context)
+                            .extension<DashboardPageTheme>()!
+                            .indicatorDotTheme
+                            .indicatorColor,
                         activeDotColor: Theme.of(context)
                             .extension<DashboardPageTheme>()!
                             .indicatorDotTheme
@@ -224,7 +276,7 @@ class _DashboardPageView extends BasePage {
                             .syncedBackgroundColor,
                       ),
                       child: Container(
-                        padding: EdgeInsets.only(left: 32, right: 32),
+                        padding: EdgeInsets.only(left: 24, right: 32),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: MainActions.all
@@ -278,10 +330,10 @@ class _DashboardPageView extends BasePage {
     if (dashboardViewModel.shouldShowMarketPlaceInDashboard) {
       pages.add(
         Semantics(
-          label: S.of(context).market_place,
-          child: MarketPlacePage(
+          label: 'Cake ${S.of(context).features}',
+          child: CakeFeaturesPage(
             dashboardViewModel: dashboardViewModel,
-            marketPlaceViewModel: getIt.get<MarketPlaceViewModel>(),
+            cakeFeaturesViewModel: getIt.get<CakeFeaturesViewModel>(),
           ),
         ),
       );
@@ -296,6 +348,8 @@ class _DashboardPageView extends BasePage {
     _isEffectsInstalled = true;
 
     _showReleaseNotesPopup(context);
+
+    _showVulnerableSeedsPopup(context);
 
     var needToPresentYat = false;
     var isInactive = false;
@@ -354,6 +408,24 @@ class _DashboardPageView extends BasePage {
       sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
     } else if (isNewInstall!) {
       sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
+    }
+  }
+
+  void _showVulnerableSeedsPopup(BuildContext context) async {
+    final List<String> affectedWalletNames = await dashboardViewModel.checkAffectedWallets();
+
+    if (affectedWalletNames.isNotEmpty) {
+      Future<void>.delayed(
+        Duration(seconds: 1),
+        () {
+          showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return VulnerableSeedsPopup(affectedWalletNames);
+            },
+          );
+        },
+      );
     }
   }
 }

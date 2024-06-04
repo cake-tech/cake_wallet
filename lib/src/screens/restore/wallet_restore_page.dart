@@ -1,32 +1,30 @@
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/restore/wallet_restore_from_keys_form.dart';
+import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_form.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
+import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cw_core/nano_account_info_response.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/restore/restore_mode.dart';
+import 'package:cake_wallet/view_model/seed_type_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polyseed/polyseed.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
-import 'package:cake_wallet/src/screens/restore/wallet_restore_from_keys_form.dart';
-import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_form.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/restore/restore_mode.dart';
-import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 
 class WalletRestorePage extends BasePage {
-  WalletRestorePage(this.walletRestoreViewModel)
+  WalletRestorePage(this.walletRestoreViewModel, this.seedTypeViewModel)
       : walletRestoreFromSeedFormKey = GlobalKey<WalletRestoreFromSeedFormState>(),
         walletRestoreFromKeysFormKey = GlobalKey<WalletRestoreFromKeysFromState>(),
         _pages = [],
@@ -36,9 +34,11 @@ class WalletRestorePage extends BasePage {
       switch (mode) {
         case WalletRestoreMode.seed:
           _pages.add(WalletRestoreFromSeedForm(
+              seedTypeViewModel: seedTypeViewModel,
               displayBlockHeightSelector:
                   walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
               displayLanguageSelector: walletRestoreViewModel.hasSeedLanguageSelector,
+              displayPassphrase: walletRestoreViewModel.hasPassphrase,
               type: walletRestoreViewModel.type,
               key: walletRestoreFromSeedFormKey,
               blockHeightFocusNode: _blockHeightFocusNode,
@@ -48,27 +48,13 @@ class WalletRestorePage extends BasePage {
                 }
               },
               onSeedChange: (String seed) {
-                if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
-                  final hasHeight = walletRestoreFromSeedFormKey.currentState!.blockchainHeightKey
-                      .currentState!.restoreHeightController.text.isNotEmpty;
-                  if (hasHeight) {
-                    walletRestoreViewModel.isButtonEnabled = _isValidSeed();
-                  }
-                } else {
-                  walletRestoreViewModel.isButtonEnabled = _isValidSeed();
-                }
+                final isPolyseed =
+                    walletRestoreViewModel.type == WalletType.monero && Polyseed.isValidSeed(seed);
+                _validateOnChange(isPolyseed: isPolyseed);
               },
-              onLanguageChange: (_) {
-                if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
-                  final hasHeight = walletRestoreFromSeedFormKey.currentState!.blockchainHeightKey
-                      .currentState!.restoreHeightController.text.isNotEmpty;
-
-                  if (hasHeight) {
-                    walletRestoreViewModel.isButtonEnabled = _isValidSeed();
-                  }
-                } else {
-                  walletRestoreViewModel.isButtonEnabled = _isValidSeed();
-                }
+              onLanguageChange: (String language) {
+                final isPolyseed = language.startsWith("POLYSEED_");
+                _validateOnChange(isPolyseed: isPolyseed);
               }));
           break;
         case WalletRestoreMode.keys:
@@ -104,13 +90,24 @@ class WalletRestorePage extends BasePage {
           ));
 
   final WalletRestoreViewModel walletRestoreViewModel;
+  final SeedTypeViewModel seedTypeViewModel;
   final PageController _controller;
   final List<Widget> _pages;
   final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
   final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
   final FocusNode _blockHeightFocusNode;
-  DerivationType derivationType = DerivationType.unknown;
-  String? derivationPath = null;
+
+  // DerivationType derivationType = DerivationType.unknown;
+  // String? derivationPath = null;
+  DerivationInfo? derivationInfo;
+
+  @override
+  Function(BuildContext)? get pushToNextWidget => (context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.focusedChild?.unfocus();
+    }
+  };
 
   @override
   Widget body(BuildContext context) {
@@ -163,7 +160,8 @@ class WalletRestorePage extends BasePage {
         color: Theme.of(context).colorScheme.background,
         child: Center(
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtil.kDesktopMaxWidthConstraint),
+            constraints:
+                BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -196,23 +194,39 @@ class WalletRestorePage extends BasePage {
                   ),
                 Padding(
                   padding: EdgeInsets.only(top: 20, bottom: 24, left: 24, right: 24),
-                  child: Observer(
-                    builder: (context) {
-                      return LoadingPrimaryButton(
-                        onPressed: () async {
-                          await _confirmForm(context);
+                  child: Column(
+                    children: [
+                      Observer(
+                        builder: (context) {
+                          return LoadingPrimaryButton(
+                            onPressed: () async {
+                              await _confirmForm(context);
+                            },
+                            text: S.of(context).restore_recover,
+                            color: Theme.of(context)
+                                .extension<WalletListTheme>()!
+                                .createNewWalletButtonBackgroundColor,
+                            textColor: Theme.of(context)
+                                .extension<WalletListTheme>()!
+                                .restoreWalletButtonTextColor,
+                            isLoading: walletRestoreViewModel.state is IsExecutingState,
+                            isDisabled: !walletRestoreViewModel.isButtonEnabled,
+                          );
                         },
-                        text: S.of(context).restore_recover,
-                        color: Theme.of(context)
-                            .extension<WalletListTheme>()!
-                            .createNewWalletButtonBackgroundColor,
-                        textColor: Theme.of(context)
-                            .extension<WalletListTheme>()!
-                            .restoreWalletButtonTextColor,
-                        isLoading: walletRestoreViewModel.state is IsExecutingState,
-                        isDisabled: !walletRestoreViewModel.isButtonEnabled,
-                      );
-                    },
+                      ),
+                      const SizedBox(height: 25),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context)
+                              .pushNamed(Routes.advancedPrivacySettings, arguments: {
+                            'type': walletRestoreViewModel.type,
+                            'useTestnet': walletRestoreViewModel.useTestnet,
+                            'toggleTestnet': walletRestoreViewModel.toggleUseTestnet
+                          });
+                        },
+                        child: Text(S.of(context).advanced_settings),
+                      ),
+                    ],
                   ),
                 )
               ],
@@ -223,9 +237,26 @@ class WalletRestorePage extends BasePage {
     );
   }
 
+  void _validateOnChange({bool isPolyseed = false}) {
+    if (!isPolyseed && walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
+      final hasHeight = walletRestoreFromSeedFormKey
+          .currentState?.blockchainHeightKey.currentState?.restoreHeightController.text.isNotEmpty;
+
+      if (hasHeight == true) {
+        walletRestoreViewModel.isButtonEnabled = _isValidSeed();
+      }
+    } else {
+      walletRestoreViewModel.isButtonEnabled = _isValidSeed();
+    }
+  }
+
   bool _isValidSeed() {
-    final seedWords =
-        walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.text.split(' ');
+    final seedPhrase =
+        walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.text;
+    if (walletRestoreViewModel.type == WalletType.monero && Polyseed.isValidSeed(seedPhrase))
+      return true;
+
+    final seedWords = seedPhrase.split(' ');
 
     if ((walletRestoreViewModel.type == WalletType.monero ||
             walletRestoreViewModel.type == WalletType.haven) &&
@@ -270,7 +301,13 @@ class WalletRestorePage extends BasePage {
 
       if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
         credentials['height'] =
-            walletRestoreFromSeedFormKey.currentState!.blockchainHeightKey.currentState!.height;
+            walletRestoreFromSeedFormKey.currentState!.blockchainHeightKey.currentState?.height ??
+                -1;
+      }
+
+      if (walletRestoreViewModel.hasPassphrase) {
+        credentials['passphrase'] =
+            walletRestoreFromSeedFormKey.currentState!.passphraseController.text;
       }
 
       credentials['name'] =
@@ -293,56 +330,9 @@ class WalletRestorePage extends BasePage {
       }
     }
 
-    credentials['derivationType'] = this.derivationType;
-    credentials['derivationPath'] = this.derivationPath;
+    credentials['derivationInfo'] = this.derivationInfo;
     credentials['walletType'] = walletRestoreViewModel.type;
     return credentials;
-  }
-
-  Future<List<DerivationInfo>> getDerivationInfo(dynamic credentials) async {
-    var list = <DerivationInfo>[];
-    var walletType = credentials["walletType"] as WalletType;
-    var appStore = getIt.get<AppStore>();
-    var node = appStore.settingsStore.getCurrentNode(walletType);
-
-    switch (walletType) {
-      case WalletType.nano:
-        String? mnemonic = credentials['seed'] as String?;
-        String? seedKey = credentials['private_key'] as String?;
-        AccountInfoResponse? bip39Info = await nanoUtil!.getInfoFromSeedOrMnemonic(
-            DerivationType.bip39,
-            mnemonic: mnemonic,
-            seedKey: seedKey,
-            node: node);
-        AccountInfoResponse? standardInfo = await nanoUtil!.getInfoFromSeedOrMnemonic(
-          DerivationType.nano,
-          mnemonic: mnemonic,
-          seedKey: seedKey,
-          node: node,
-        );
-
-        if (standardInfo?.balance != null) {
-          list.add(DerivationInfo(
-            derivationType: DerivationType.nano,
-            balance: nanoUtil!.getRawAsUsableString(standardInfo!.balance, nanoUtil!.rawPerNano),
-            address: standardInfo.address!,
-            height: standardInfo.confirmationHeight,
-          ));
-        }
-
-        if (bip39Info?.balance != null) {
-          list.add(DerivationInfo(
-            derivationType: DerivationType.bip39,
-            balance: nanoUtil!.getRawAsUsableString(bip39Info!.balance, nanoUtil!.rawPerNano),
-            address: bip39Info.address!,
-            height: bip39Info.confirmationHeight,
-          ));
-        }
-        break;
-      default:
-        break;
-    }
-    return list;
   }
 
   Future<void> _confirmForm(BuildContext context) async {
@@ -373,51 +363,46 @@ class WalletRestorePage extends BasePage {
 
     walletRestoreViewModel.state = IsExecutingState();
 
-    List<DerivationType> derivationTypes =
-        await walletRestoreViewModel.getDerivationTypes(_credentials());
+    DerivationInfo? dInfo;
 
-    if (derivationTypes[0] == DerivationType.unknown || derivationTypes.length > 1) {
-      // push screen to choose the derivation type:
-      List<DerivationInfo> derivations = await getDerivationInfo(_credentials());
+    // get info about the different derivations:
+    List<DerivationInfo> derivations =
+        await walletRestoreViewModel.getDerivationInfo(_credentials());
 
-      int derivationsWithHistory = 0;
-      int derivationWithHistoryIndex = 0;
-      for (int i = 0; i < derivations.length; i++) {
-        if (derivations[i].height > 0) {
-          derivationsWithHistory++;
-          derivationWithHistoryIndex = i;
-        }
+    int derivationsWithHistory = 0;
+    int derivationWithHistoryIndex = 0;
+    for (int i = 0; i < derivations.length; i++) {
+      if (derivations[i].transactionsCount > 0) {
+        derivationsWithHistory++;
+        derivationWithHistoryIndex = i;
       }
-
-      DerivationInfo? derivationInfo;
-
-      if (derivationsWithHistory > 1) {
-        derivationInfo = await Navigator.of(context).pushNamed(Routes.restoreWalletChooseDerivation,
-            arguments: derivations) as DerivationInfo?;
-      } else if (derivationsWithHistory == 1) {
-        derivationInfo = derivations[derivationWithHistoryIndex];
-      } else if (derivationsWithHistory == 0) {
-        // default derivation:
-        derivationInfo = DerivationInfo(
-          derivationType: derivationTypes[0],
-          derivationPath: "m/0'/1",
-          height: 0,
-        );
-      }
-
-      if (derivationInfo == null) {
-        walletRestoreViewModel.state = InitialExecutionState();
-        return;
-      }
-      this.derivationType = derivationInfo.derivationType;
-      this.derivationPath = derivationInfo.derivationPath;
-    } else {
-      // electrum derivation:
-      this.derivationType = derivationTypes[0];
-      this.derivationPath = "m/0'/1";
     }
 
-    walletRestoreViewModel.state = InitialExecutionState();
+    if (derivationsWithHistory > 1) {
+      dInfo = await Navigator.of(context).pushNamed(
+        Routes.restoreWalletChooseDerivation,
+        arguments: derivations,
+      ) as DerivationInfo?;
+    } else if (derivationsWithHistory == 1) {
+      dInfo = derivations[derivationWithHistoryIndex];
+    }
+
+    // get the default derivation for this wallet type:
+    if (dInfo == null) {
+      // we only return 1 derivation if we're pretty sure we know which one to use:
+      if (derivations.length == 1) {
+        dInfo = derivations.first;
+      } else {
+        // if we have multiple possible derivations, and none have histories
+        // we just default to the most common one:
+        dInfo = walletRestoreViewModel.getCommonRestoreDerivation();
+      }
+    }
+
+    this.derivationInfo = dInfo;
+    if (this.derivationInfo == null) {
+      this.derivationInfo = walletRestoreViewModel.getDefaultDerivation();
+    }
 
     walletRestoreViewModel.create(options: _credentials());
   }

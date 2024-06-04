@@ -1,4 +1,1 @@
-Ethereum enhancements and bug fixes
-Fix 2FA code issue
-Bug fixes
-Minor enhancements
+Bug fixes and generic enhancements

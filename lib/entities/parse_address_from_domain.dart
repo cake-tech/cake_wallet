@@ -5,19 +5,25 @@ import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
+import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/mastodon/mastodon_api.dart';
+import 'package:cake_wallet/nostr/nostr_api.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
+import 'package:flutter/cupertino.dart';
 
 class AddressResolver {
-  AddressResolver({required this.yatService, required this.wallet}) : walletType = wallet.type;
+  AddressResolver({required this.yatService, required this.wallet, required this.settingsStore})
+      : walletType = wallet.type;
 
   final YatService yatService;
   final WalletType walletType;
   final WalletBase wallet;
+  final SettingsStore settingsStore;
 
   static const unstoppableDomains = [
     'crypto',
@@ -46,62 +52,95 @@ class AddressResolver {
     }
 
     final match = RegExp(addressPattern).firstMatch(raw);
-    return match?.group(0)?.replaceAll(RegExp('[^0-9a-zA-Z]'), '');
+    return match?.group(0)?.replaceAllMapped(RegExp('[^0-9a-zA-Z]|bitcoincash:|nano_|ban_'),
+        (Match match) {
+      String group = match.group(0)!;
+      if (group.startsWith('bitcoincash:') ||
+          group.startsWith('nano_') ||
+          group.startsWith('ban_')) {
+        return group;
+      }
+      return '';
+    });
   }
 
-  Future<ParsedAddress> resolve(String text, String ticker) async {
+  bool isEmailFormat(String address) {
+    final RegExp emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+      caseSensitive: false,
+    );
+    return emailRegex.hasMatch(address);
+  }
+
+  Future<ParsedAddress> resolve(BuildContext context, String text, CryptoCurrency currency) async {
+    final ticker = currency.title;
     try {
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
-        final formattedName = text.substring(1);
-        final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
-        final addressFromBio = extractAddressByType(
-            raw: twitterUser.description, type: CryptoCurrency.fromString(ticker));
-        if (addressFromBio != null) {
-          return ParsedAddress.fetchTwitterAddress(address: addressFromBio, name: text);
-        }
-        final tweets = twitterUser.tweets;
-        if (tweets != null) {
-          var subString = StringBuffer();
-          tweets.forEach((item) {
-            subString.writeln(item.text);
-          });
-          final userTweetsText = subString.toString();
-          final addressFromPinnedTweet =
-              extractAddressByType(raw: userTweetsText, type: CryptoCurrency.fromString(ticker));
+        if (settingsStore.lookupsTwitter) {
+          final formattedName = text.substring(1);
+          final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
+          final addressFromBio = extractAddressByType(
+              raw: twitterUser.description,
+              type: CryptoCurrency.fromString(ticker, walletCurrency: wallet.currency));
+          if (addressFromBio != null) {
+            return ParsedAddress.fetchTwitterAddress(
+                address: addressFromBio,
+                name: text,
+                profileImageUrl: twitterUser.profileImageUrl,
+                profileName: twitterUser.name);
+          }
 
-          if (addressFromPinnedTweet != null) {
-            return ParsedAddress.fetchTwitterAddress(address: addressFromPinnedTweet, name: text);
+          final pinnedTweet = twitterUser.pinnedTweet?.text;
+          if (pinnedTweet != null) {
+            final addressFromPinnedTweet = extractAddressByType(
+                raw: pinnedTweet,
+                type: CryptoCurrency.fromString(ticker, walletCurrency: wallet.currency));
+            if (addressFromPinnedTweet != null) {
+              return ParsedAddress.fetchTwitterAddress(
+                  address: addressFromPinnedTweet,
+                  name: text,
+                  profileImageUrl: twitterUser.profileImageUrl,
+                  profileName: twitterUser.name);
+            }
           }
         }
       }
 
       if (text.startsWith('@') && text.contains('@', 1) && text.contains('.', 1)) {
-        final subText = text.substring(1);
-        final hostNameIndex = subText.indexOf('@');
-        final hostName = subText.substring(hostNameIndex + 1);
-        final userName = subText.substring(0, hostNameIndex);
+        if (settingsStore.lookupsMastodon) {
+          final subText = text.substring(1);
+          final hostNameIndex = subText.indexOf('@');
+          final hostName = subText.substring(hostNameIndex + 1);
+          final userName = subText.substring(0, hostNameIndex);
 
-        final mastodonUser =
-        await MastodonAPI.lookupUserByUserName(userName: userName, apiHost: hostName);
+          final mastodonUser =
+              await MastodonAPI.lookupUserByUserName(userName: userName, apiHost: hostName);
 
-        if (mastodonUser != null) {
-          String? addressFromBio =
-          extractAddressByType(raw: mastodonUser.note, type: CryptoCurrency.fromString(ticker));
+          if (mastodonUser != null) {
+            String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency);
 
-          if (addressFromBio != null) {
-            return ParsedAddress.fetchMastodonAddress(address: addressFromBio, name: text);
-          } else {
-            final pinnedPosts =
-            await MastodonAPI.getPinnedPosts(userId: mastodonUser.id, apiHost: hostName);
+            if (addressFromBio != null) {
+              return ParsedAddress.fetchMastodonAddress(
+                  address: addressFromBio,
+                  name: text,
+                  profileImageUrl: mastodonUser.profileImageUrl,
+                  profileName: mastodonUser.username);
+            } else {
+              final pinnedPosts =
+                  await MastodonAPI.getPinnedPosts(userId: mastodonUser.id, apiHost: hostName);
 
-            if (pinnedPosts.isNotEmpty) {
-              final userPinnedPostsText = pinnedPosts.map((item) => item.content).join('\n');
-              String? addressFromPinnedPost = extractAddressByType(
-                  raw: userPinnedPostsText, type: CryptoCurrency.fromString(ticker));
+              if (pinnedPosts.isNotEmpty) {
+                final userPinnedPostsText = pinnedPosts.map((item) => item.content).join('\n');
+                String? addressFromPinnedPost =
+                    extractAddressByType(raw: userPinnedPostsText, type: currency);
 
-              if (addressFromPinnedPost != null) {
-                return ParsedAddress.fetchMastodonAddress(
-                    address: addressFromPinnedPost, name: text);
+                if (addressFromPinnedPost != null) {
+                  return ParsedAddress.fetchMastodonAddress(
+                      address: addressFromPinnedPost,
+                      name: text,
+                      profileImageUrl: mastodonUser.profileImageUrl,
+                      profileName: mastodonUser.username);
+                }
               }
             }
           }
@@ -116,11 +155,23 @@ class AddressResolver {
         }
       }
       if (text.hasOnlyEmojis) {
-        if (walletType != WalletType.haven) {
-          final addresses = await yatService.fetchYatAddress(text, ticker);
-          return ParsedAddress.fetchEmojiAddress(addresses: addresses, name: text);
+        if (settingsStore.lookupsYatService) {
+          if (walletType != WalletType.haven) {
+            final addresses = await yatService.fetchYatAddress(text, ticker);
+            return ParsedAddress.fetchEmojiAddress(addresses: addresses, name: text);
+          }
         }
       }
+
+      final thorChainAddress = await ThorChainExchangeProvider.lookupAddressByName(text);
+      if (thorChainAddress != null) {
+        String? address =
+            thorChainAddress[ticker] ?? (ticker == 'RUNE' ? thorChainAddress['THOR'] : null);
+        if (address != null) {
+          return ParsedAddress.thorChainAddress(address: address, name: text);
+        }
+      }
+
       final formattedName = OpenaliasRecord.formatDomainName(text);
       final domainParts = formattedName.split('.');
       final name = domainParts.last;
@@ -130,23 +181,48 @@ class AddressResolver {
       }
 
       if (unstoppableDomains.any((domain) => name.trim() == domain)) {
-        final address = await fetchUnstoppableDomainAddress(text, ticker);
-        return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
+        if (settingsStore.lookupsUnstoppableDomains) {
+          final address = await fetchUnstoppableDomainAddress(text, ticker);
+          return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
+        }
       }
 
       if (text.endsWith(".eth")) {
-        final address = await EnsRecord.fetchEnsAddress(text, wallet: wallet);
-        if (address.isNotEmpty && address != "0x0000000000000000000000000000000000000000") {
-          return ParsedAddress.fetchEnsAddress(name: text, address: address);
+        if (settingsStore.lookupsENS) {
+          final address = await EnsRecord.fetchEnsAddress(text, wallet: wallet);
+          if (address.isNotEmpty && address != "0x0000000000000000000000000000000000000000") {
+            return ParsedAddress.fetchEnsAddress(name: text, address: address);
+          }
         }
       }
 
       if (formattedName.contains(".")) {
-        final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
-        if (txtRecord != null) {
-          final record = await OpenaliasRecord.fetchAddressAndName(
-              formattedName: formattedName, ticker: ticker, txtRecord: txtRecord);
-          return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
+        if (settingsStore.lookupsOpenAlias) {
+          final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
+          if (txtRecord != null) {
+            final record = await OpenaliasRecord.fetchAddressAndName(
+                formattedName: formattedName, ticker: ticker, txtRecord: txtRecord);
+            return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
+          }
+        }
+      }
+      if (isEmailFormat(text)) {
+        final nostrProfile = await NostrProfileHandler.queryProfile(context, text);
+        if (nostrProfile?.relays != null) {
+          final nostrUserData =
+              await NostrProfileHandler.processRelays(context, nostrProfile!, text);
+
+          if (nostrUserData != null) {
+            String? addressFromBio = extractAddressByType(
+                raw: nostrUserData.about, type: currency);
+            if (addressFromBio != null) {
+              return ParsedAddress.nostrAddress(
+                  address: addressFromBio,
+                  name: text,
+                  profileImageUrl: nostrUserData.picture,
+                  profileName: nostrUserData.name);
+            }
+          }
         }
       }
     } catch (e) {

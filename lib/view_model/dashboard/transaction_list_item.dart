@@ -3,6 +3,11 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/tron/tron.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -31,6 +36,11 @@ class TransactionListItem extends ActionListItem with Keyable {
 
   @override
   dynamic get keyIndex => transaction.id;
+
+  bool get hasTokens =>
+      isEVMCompatibleChain(balanceViewModel.wallet.type) ||
+      balanceViewModel.wallet.type == WalletType.solana ||
+      balanceViewModel.wallet.type == WalletType.tron;
 
   String get formattedCryptoAmount {
     return displayMode == BalanceDisplayMode.hiddenBalance ? '---' : transaction.amountFormatted();
@@ -61,6 +71,34 @@ class TransactionListItem extends ActionListItem with Keyable {
     return transaction.isPending ? S.current.pending : '';
   }
 
+  CryptoCurrency? get assetOfTransaction {
+    try {
+      if (balanceViewModel.wallet.type == WalletType.ethereum) {
+        final asset = ethereum!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        return asset;
+      }
+
+      if (balanceViewModel.wallet.type == WalletType.polygon) {
+        final asset = polygon!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        return asset;
+      }
+
+      if (balanceViewModel.wallet.type == WalletType.solana) {
+        final asset = solana!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        return asset;
+      }
+
+      if (balanceViewModel.wallet.type == WalletType.tron) {
+        final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        return asset;
+      }
+    } catch (e) {
+      return null;
+    }
+    
+    return null;
+  }
+
   String get formattedFiatAmount {
     var amount = '';
 
@@ -72,6 +110,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         break;
       case WalletType.bitcoin:
       case WalletType.litecoin:
+      case WalletType.bitcoinCash:
         amount = calculateFiatAmountRaw(
             cryptoAmount: bitcoin!.formatterBitcoinAmountToDouble(amount: transaction.amount),
             price: price);
@@ -90,19 +129,36 @@ class TransactionListItem extends ActionListItem with Keyable {
             cryptoAmount: ethereum!.formatterEthereumAmountToDouble(transaction: transaction),
             price: price);
         break;
-      case WalletType.nano:
-        amount = calculateFiatAmountRaw(
-            cryptoAmount: nanoUtil!
-                .getRawAsDecimal(nano!.getTransactionAmountRaw(transaction).toString(), nanoUtil!.rawPerNano)
-                .toDouble(),
-            price: price);
-        break;
-      case WalletType.ethereum:
-        final asset = ethereum!.assetOfTransaction(balanceViewModel.wallet, transaction);
+      case WalletType.polygon:
+        final asset = polygon!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
-            cryptoAmount: ethereum!.formatterEthereumAmountToDouble(transaction: transaction),
+            cryptoAmount: polygon!.formatterPolygonAmountToDouble(transaction: transaction),
             price: price);
+        break;
+      case WalletType.nano:
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: double.parse(nanoUtil!.getRawAsUsableString(
+                nano!.getTransactionAmountRaw(transaction).toString(), nanoUtil!.rawPerNano)),
+            price: price);
+        break;
+      case WalletType.solana:
+        final asset = solana!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        amount = calculateFiatAmountRaw(
+          cryptoAmount: solana!.getTransactionAmountRaw(transaction),
+          price: price,
+        );
+        break;
+
+      case WalletType.tron:
+        final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        final cryptoAmount = tron!.getTransactionAmountRaw(transaction);
+        amount = calculateFiatAmountRaw(
+          cryptoAmount: cryptoAmount,
+          price: price,
+        );
         break;
       default:
         break;

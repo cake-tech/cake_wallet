@@ -1,7 +1,5 @@
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
-import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/view_model/send/template_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -11,7 +9,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/src/screens/send/widgets/prefix_currency_icon_widget.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_template_card.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -34,6 +31,14 @@ class SendTemplatePage extends BasePage {
 
   @override
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
+
+  @override
+  Function(BuildContext)? get pushToNextWidget => (context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.focusedChild?.unfocus();
+    }
+  };
 
   @override
   Widget trailing(context) => Observer(builder: (_) {
@@ -97,8 +102,13 @@ class SendTemplatePage extends BasePage {
                                       radius: 6.0,
                                       dotWidth: 6.0,
                                       dotHeight: 6.0,
-                                      dotColor: Theme.of(context).extension<SendPageTheme>()!.indicatorDotColor,
-                                      activeDotColor: Theme.of(context).extension<DashboardPageTheme>()!.indicatorDotTheme.activeIndicatorColor))
+                                      dotColor: Theme.of(context)
+                                          .extension<SendPageTheme>()!
+                                          .indicatorDotColor,
+                                      activeDotColor: Theme.of(context)
+                                          .extension<DashboardPageTheme>()!
+                                          .indicatorDotTheme
+                                          .activeIndicatorColor))
                               : Offstage();
                         },
                       ),

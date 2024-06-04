@@ -4,25 +4,26 @@ class TwitterUser {
       required this.username,
       required this.name,
       required this.description,
-      this.tweets});
+      required this.profileImageUrl,
+      this.pinnedTweet});
 
   final String id;
   final String username;
   final String name;
   final String description;
-  final List<Tweet>? tweets;
+  final String profileImageUrl;
+  final Tweet? pinnedTweet;
 
-  factory TwitterUser.fromJson(Map<String, dynamic> json) {
+  factory TwitterUser.fromJson(Map<String, dynamic> json, [Tweet? pinnedTweet]) {
+    final profileImageUrl = json['data']['profile_image_url'] as String? ?? '';
+    final scaledProfileImageUrl = profileImageUrl.replaceFirst('normal', '200x200');
     return TwitterUser(
       id: json['data']['id'] as String,
-      username: json['data']['username'] as String,
+      username: json['data']['username'] as String? ?? '',
       name: json['data']['name'] as String,
       description: json['data']['description'] as String? ?? '',
-      tweets: json['includes'] != null
-          ? List.from(json['includes']['tweets'] as List)
-              .map((e) => Tweet.fromJson(e as Map<String, dynamic>))
-              .toList()
-          : null,
+      profileImageUrl: scaledProfileImageUrl,
+      pinnedTweet: pinnedTweet,
     );
   }
 }

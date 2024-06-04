@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonic_is_incorrect_exception.dart';
+import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -11,11 +11,12 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:collection/collection.dart';
+import 'package:bip39/bip39.dart' as bip39;
 
 class LitecoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
-    BitcoinRestoreWalletFromWIFCredentials> {
+    BitcoinRestoreWalletFromWIFCredentials,BitcoinNewWalletCredentials> {
   LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
@@ -25,10 +26,11 @@ class LitecoinWalletService extends WalletService<
   WalletType getType() => WalletType.litecoin;
 
   @override
-  Future<LitecoinWallet> create(BitcoinNewWalletCredentials credentials) async {
+  Future<LitecoinWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
     final wallet = await LitecoinWalletBase.create(
-        mnemonic: await generateMnemonic(),
+        mnemonic: await generateElectrumMnemonic(),
         password: credentials.password!,
+        passphrase: credentials.passphrase,
         walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.save();
@@ -45,11 +47,22 @@ class LitecoinWalletService extends WalletService<
   Future<LitecoinWallet> openWallet(String name, String password) async {
     final walletInfo = walletInfoSource.values.firstWhereOrNull(
         (info) => info.id == WalletBase.idFor(name, getType()))!;
-    final wallet = await LitecoinWalletBase.open(
-        password: password, name: name, walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource);
-    await wallet.init();
-    return wallet;
+
+    try {
+      final wallet = await LitecoinWalletBase.open(
+          password: password, name: name, walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfoSource);
+      await wallet.init();
+      saveBackup(name);
+      return wallet;
+    } catch (_) {
+      await restoreWalletFilesFromBackup(name);
+      final wallet = await LitecoinWalletBase.open(
+          password: password, name: name, walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfoSource);
+      await wallet.init();
+      return wallet;
+    }
   }
 
   @override
@@ -72,6 +85,7 @@ class LitecoinWalletService extends WalletService<
         unspentCoinsInfo: unspentCoinsInfoSource);
 
     await currentWallet.renameWalletFiles(newName);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
@@ -81,19 +95,25 @@ class LitecoinWalletService extends WalletService<
   }
 
   @override
+  Future<LitecoinWallet> restoreFromHardwareWallet(BitcoinNewWalletCredentials credentials) {
+    throw UnimplementedError("Restoring a Litecoin wallet from a hardware wallet is not yet supported!");
+  }
+
+  @override
   Future<LitecoinWallet> restoreFromKeys(
-          BitcoinRestoreWalletFromWIFCredentials credentials) async =>
+          BitcoinRestoreWalletFromWIFCredentials credentials, {bool? isTestnet}) async =>
       throw UnimplementedError();
 
   @override
   Future<LitecoinWallet> restoreFromSeed(
-      BitcoinRestoreWalletFromSeedCredentials credentials) async {
-    if (!validateMnemonic(credentials.mnemonic)) {
-      throw BitcoinMnemonicIsIncorrectException();
+      BitcoinRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
+    if (!validateMnemonic(credentials.mnemonic) && !bip39.validateMnemonic(credentials.mnemonic)) {
+      throw LitecoinMnemonicIsIncorrectException();
     }
 
     final wallet = await LitecoinWalletBase.create(
         password: credentials.password!,
+        passphrase: credentials.passphrase,
         mnemonic: credentials.mnemonic,
         walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource);

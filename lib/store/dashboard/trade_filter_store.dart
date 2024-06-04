@@ -1,20 +1,22 @@
-import 'package:cw_core/wallet_base.dart';
-import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:mobx/mobx.dart';
 
-part'trade_filter_store.g.dart';
+part 'trade_filter_store.g.dart';
 
 class TradeFilterStore = TradeFilterStoreBase with _$TradeFilterStore;
 
 abstract class TradeFilterStoreBase with Store {
-  TradeFilterStoreBase() : displayXMRTO = true,
+  TradeFilterStoreBase()
+      : displayXMRTO = true,
         displayChangeNow = true,
         displaySideShift = true,
         displayMorphToken = true,
         displaySimpleSwap = true,
         displayTrocador = true,
-        displayExolix = true;
+        displayExolix = true,
+        displayThorChain = true;
 
   @observable
   bool displayXMRTO;
@@ -37,8 +39,17 @@ abstract class TradeFilterStoreBase with Store {
   @observable
   bool displayExolix;
 
+  @observable
+  bool displayThorChain;
+
   @computed
-  bool get displayAllTrades => displayChangeNow && displaySideShift && displaySimpleSwap && displayTrocador && displayExolix;
+  bool get displayAllTrades =>
+      displayChangeNow &&
+      displaySideShift &&
+      displaySimpleSwap &&
+      displayTrocador &&
+      displayExolix &&
+      displayThorChain;
 
   @action
   void toggleDisplayExchange(ExchangeProviderDescription provider) {
@@ -64,6 +75,9 @@ abstract class TradeFilterStoreBase with Store {
       case ExchangeProviderDescription.exolix:
         displayExolix = !displayExolix;
         break;
+      case ExchangeProviderDescription.thorChain:
+        displayThorChain = !displayThorChain;
+        break;
       case ExchangeProviderDescription.all:
         if (displayAllTrades) {
           displayChangeNow = false;
@@ -73,6 +87,7 @@ abstract class TradeFilterStoreBase with Store {
           displaySimpleSwap = false;
           displayTrocador = false;
           displayExolix = false;
+          displayThorChain = false;
         } else {
           displayChangeNow = true;
           displaySideShift = true;
@@ -81,35 +96,35 @@ abstract class TradeFilterStoreBase with Store {
           displaySimpleSwap = true;
           displayTrocador = true;
           displayExolix = true;
+          displayThorChain = true;
         }
         break;
     }
   }
 
   List<TradeListItem> filtered({required List<TradeListItem> trades, required WalletBase wallet}) {
-    final _trades =
-    trades.where((item) => item.trade.walletId == wallet.id).toList();
+    final _trades = trades
+        .where((item) => item.trade.walletId == wallet.id && isTradeInAccount(item, wallet))
+        .toList();
     final needToFilter = !displayAllTrades;
 
     return needToFilter
         ? _trades
-        .where((item) =>
-    (displayXMRTO &&
-        item.trade.provider == ExchangeProviderDescription.xmrto) ||
-        (displaySideShift &&
-            item.trade.provider == ExchangeProviderDescription.sideShift) ||
-        (displayChangeNow &&
-            item.trade.provider ==
-                ExchangeProviderDescription.changeNow) ||
-        (displayMorphToken &&
-            item.trade.provider ==
-                ExchangeProviderDescription.morphToken)
-        ||(displaySimpleSwap &&
-            item.trade.provider ==
-                ExchangeProviderDescription.simpleSwap)
-        ||(displayTrocador && item.trade.provider == ExchangeProviderDescription.trocador)
-        ||(displayExolix && item.trade.provider == ExchangeProviderDescription.exolix))
-        .toList()
+            .where((item) =>
+                (displayXMRTO && item.trade.provider == ExchangeProviderDescription.xmrto) ||
+                (displaySideShift && item.trade.provider == ExchangeProviderDescription.sideShift) ||
+                (displayChangeNow && item.trade.provider == ExchangeProviderDescription.changeNow) ||
+                (displayMorphToken && item.trade.provider == ExchangeProviderDescription.morphToken) ||
+                (displaySimpleSwap && item.trade.provider == ExchangeProviderDescription.simpleSwap) ||
+                (displayTrocador && item.trade.provider == ExchangeProviderDescription.trocador) ||
+                (displayExolix && item.trade.provider == ExchangeProviderDescription.exolix) ||
+                (displayThorChain && item.trade.provider == ExchangeProviderDescription.thorChain))
+            .toList()
         : _trades;
   }
+
+  bool isTradeInAccount(TradeListItem item, WalletBase wallet) =>
+      item.trade.fromWalletAddress == null
+          ? true
+          : wallet.walletAddresses.containsAddress(item.trade.fromWalletAddress!);
 }

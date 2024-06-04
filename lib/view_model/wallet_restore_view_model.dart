@@ -2,6 +2,11 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cw_core/nano_account_info_response.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -26,8 +31,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       {required WalletType type})
       : hasSeedLanguageSelector = type == WalletType.monero || type == WalletType.haven,
         hasBlockchainHeightLanguageSelector = type == WalletType.monero || type == WalletType.haven,
-        hasRestoreFromPrivateKey =
-            type == WalletType.ethereum || type == WalletType.nano || type == WalletType.banano,
+        hasRestoreFromPrivateKey = type == WalletType.ethereum ||
+            type == WalletType.polygon ||
+            type == WalletType.nano ||
+            type == WalletType.banano ||
+            type == WalletType.solana ||
+            type == WalletType.tron,
         isButtonEnabled = false,
         mode = WalletRestoreMode.seed,
         super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true) {
@@ -35,10 +44,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.monero:
       case WalletType.haven:
       case WalletType.ethereum:
+      case WalletType.polygon:
         availableModes = WalletRestoreMode.values;
         break;
       case WalletType.nano:
       case WalletType.banano:
+      case WalletType.solana:
+      case WalletType.tron:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
       default:
@@ -58,6 +70,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   final bool hasBlockchainHeightLanguageSelector;
   final bool hasRestoreFromPrivateKey;
 
+  bool get hasPassphrase => [WalletType.bitcoin, WalletType.litecoin].contains(type);
+
   @observable
   WalletRestoreMode mode;
 
@@ -67,10 +81,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   @override
   WalletCredentials getCredentials(dynamic options) {
     final password = generateWalletPassword();
+    String? passphrase = options['passphrase'] as String?;
     final height = options['height'] as int? ?? 0;
     name = options['name'] as String;
-    DerivationType? derivationType = options["derivationType"] as DerivationType?;
-    String? derivationPath = options["derivationPath"] as String?;
+    DerivationInfo? derivationInfo = options["derivationInfo"] as DerivationInfo?;
 
     if (mode == WalletRestoreMode.seed) {
       final seed = options['seed'] as String;
@@ -79,26 +93,48 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           return monero!.createMoneroRestoreWalletFromSeedCredentials(
               name: name, height: height, mnemonic: seed, password: password);
         case WalletType.bitcoin:
+        case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
             password: password,
+            passphrase: passphrase,
+            derivationType: derivationInfo!.derivationType!,
+            derivationPath: derivationInfo.derivationPath!,
           );
-        case WalletType.litecoin:
-          return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
-              name: name, mnemonic: seed, password: password);
         case WalletType.haven:
           return haven!.createHavenRestoreWalletFromSeedCredentials(
               name: name, height: height, mnemonic: seed, password: password);
         case WalletType.ethereum:
           return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
               name: name, mnemonic: seed, password: password);
+        case WalletType.bitcoinCash:
+          return bitcoinCash!.createBitcoinCashRestoreWalletFromSeedCredentials(
+              name: name, mnemonic: seed, password: password);
         case WalletType.nano:
           return nano!.createNanoRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
             password: password,
-            derivationType: derivationType,
+            derivationType: derivationInfo!.derivationType!,
+          );
+        case WalletType.polygon:
+          return polygon!.createPolygonRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+          );
+        case WalletType.solana:
+          return solana!.createSolanaRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+          );
+        case WalletType.tron:
+          return tron!.createTronRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
           );
         default:
           break;
@@ -142,10 +178,27 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
         case WalletType.nano:
           return nano!.createNanoRestoreWalletFromKeysCredentials(
+              name: name,
+              password: password,
+              seedKey: options['private_key'] as String,
+              derivationType: options["derivationType"] as DerivationType);
+        case WalletType.polygon:
+          return polygon!.createPolygonRestoreWalletFromPrivateKey(
             name: name,
             password: password,
-            seedKey: options['private_key'] as String,
-            derivationType: options["derivationType"] as DerivationType,
+            privateKey: options['private_key'] as String,
+          );
+        case WalletType.solana:
+          return solana!.createSolanaRestoreWalletFromPrivateKey(
+            name: name,
+            password: password,
+            privateKey: options['private_key'] as String,
+          );
+        case WalletType.tron:
+          return tron!.createTronRestoreWalletFromPrivateKey(
+            name: name,
+            password: password,
+            privateKey: options['private_key'] as String,
           );
         default:
           break;
@@ -155,34 +208,41 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     throw Exception('Unexpected type: ${type.toString()}');
   }
 
-  Future<List<DerivationType>> getDerivationTypes(dynamic options) async {
-    final seedKey = options['private_key'] as String?;
-    final mnemonic = options['seed'] as String?;
-    WalletType walletType = options['walletType'] as WalletType;
+  Future<List<DerivationInfo>> getDerivationInfo(dynamic credentials) async {
+    var list = <DerivationInfo>[];
+    var walletType = credentials["walletType"] as WalletType;
     var appStore = getIt.get<AppStore>();
     var node = appStore.settingsStore.getCurrentNode(walletType);
 
-    switch (type) {
+    switch (walletType) {
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        String? mnemonic = credentials['seed'] as String?;
+        String? passphrase = credentials['passphrase'] as String?;
+        return bitcoin!.getDerivationsFromMnemonic(
+          mnemonic: mnemonic!,
+          node: node,
+          passphrase: passphrase,
+        );
       case WalletType.nano:
-        return nanoUtil!.compareDerivationMethods(
+        String? mnemonic = credentials['seed'] as String?;
+        String? seedKey = credentials['private_key'] as String?;
+        return nanoUtil!.getDerivationsFromMnemonic(
           mnemonic: mnemonic,
-          privateKey: seedKey,
+          seedKey: seedKey,
           node: node,
         );
       default:
         break;
     }
-
-    // throw Exception('Unexpected type: ${type.toString()}');
-    return [DerivationType.def];
+    return list;
   }
 
   @override
   Future<WalletBase> process(WalletCredentials credentials) async {
     if (mode == WalletRestoreMode.keys) {
-      return walletCreationService.restoreFromKeys(credentials);
+      return walletCreationService.restoreFromKeys(credentials, isTestnet: useTestnet);
     }
-
-    return walletCreationService.restoreFromSeed(credentials);
+    return walletCreationService.restoreFromSeed(credentials, isTestnet: useTestnet);
   }
 }

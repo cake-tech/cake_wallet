@@ -1,3 +1,5 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/date_picker.dart';
 import 'package:flutter/material.dart';
@@ -12,13 +14,19 @@ class BlockchainHeightWidget extends StatefulWidget {
     this.onHeightChange,
     this.focusNode,
     this.onHeightOrDateEntered,
-    this.hasDatePicker = true})
-      : super(key: key);
+    this.hasDatePicker = true,
+    this.isSilentPaymentsScan = false,
+    this.toggleSingleScan,
+    this.doSingleScan = false,
+  }) : super(key: key);
 
   final Function(int)? onHeightChange;
   final Function(bool)? onHeightOrDateEntered;
   final FocusNode? focusNode;
   final bool hasDatePicker;
+  final bool isSilentPaymentsScan;
+  final bool doSingleScan;
+  final Function()? toggleSingleScan;
 
   @override
   State<StatefulWidget> createState() => BlockchainHeightState();
@@ -36,16 +44,13 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
     restoreHeightController.addListener(() {
       if (restoreHeightController.text.isNotEmpty) {
         widget.onHeightOrDateEntered?.call(true);
-      }
-      else {
+      } else {
         widget.onHeightOrDateEntered?.call(false);
         dateController.text = '';
       }
       try {
-        _changeHeight(restoreHeightController.text != null &&
-                restoreHeightController.text.isNotEmpty
-            ? int.parse(restoreHeightController.text)
-            : 0);
+        _changeHeight(
+            restoreHeightController.text.isNotEmpty ? int.parse(restoreHeightController.text) : 0);
       } catch (_) {
         _changeHeight(0);
       }
@@ -67,9 +72,10 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                     child: BaseTextFormField(
                       focusNode: widget.focusNode,
                       controller: restoreHeightController,
-                      keyboardType: TextInputType.numberWithOptions(
-                          signed: false, decimal: false),
-                      hintText: S.of(context).widgets_restore_from_blockheight,
+                      keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
+                      hintText: widget.isSilentPaymentsScan
+                          ? S.of(context).silent_payments_scan_from_height
+                          : S.of(context).widgets_restore_from_blockheight,
                     )))
           ],
         ),
@@ -81,8 +87,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
               style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.w500,
-                  color:
-                      Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
             ),
           ),
           Row(
@@ -94,22 +99,47 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                   child: IgnorePointer(
                       child: BaseTextFormField(
                     controller: dateController,
-                    hintText: S.of(context).widgets_restore_from_date,
+                    hintText: widget.isSilentPaymentsScan
+                        ? S.of(context).silent_payments_scan_from_date
+                        : S.of(context).widgets_restore_from_date,
                   )),
                 ),
               ))
             ],
           ),
+          if (widget.isSilentPaymentsScan)
+            Padding(
+              padding: EdgeInsets.only(top: 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    S.of(context).scan_one_block,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: StandardSwitch(
+                      value: widget.doSingleScan,
+                      onTaped: () => widget.toggleSingleScan?.call(),
+                    ),
+                  )
+                ],
+              ),
+            ),
           Padding(
             padding: EdgeInsets.only(left: 40, right: 40, top: 24),
             child: Text(
-              S.of(context).restore_from_date_or_blockheight,
+              widget.isSilentPaymentsScan
+                  ? S.of(context).silent_payments_scan_from_date_or_blockheight
+                  : S.of(context).restore_from_date_or_blockheight,
               textAlign: TextAlign.center,
               style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).hintColor
-              ),
+                  fontSize: 12, fontWeight: FontWeight.normal, color: Theme.of(context).hintColor),
             ),
           )
         ]
@@ -117,7 +147,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
     );
   }
 
-  Future _selectDate(BuildContext context) async {
+  Future<void> _selectDate(BuildContext context) async {
     final now = DateTime.now();
     final date = await getDate(
         context: context,
@@ -126,7 +156,12 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
         lastDate: now);
 
     if (date != null) {
-      final height = monero!.getHeigthByDate(date: date);
+      int height;
+      if (widget.isSilentPaymentsScan) {
+        height = bitcoin!.getHeightByDate(date: date);
+      } else {
+        height = monero!.getHeightByDate(date: date);
+      }
       setState(() {
         dateController.text = DateFormat('yyyy-MM-dd').format(date);
         restoreHeightController.text = '$height';

@@ -12,9 +12,11 @@ abstract class UnspentCoinsItemBase with Store {
     required this.isFrozen,
     required this.note,
     required this.isSending,
+    required this.isChange,
     required this.amountRaw,
     required this.vout,
-    required this.keyImage
+    required this.keyImage,
+    required this.isSilentPayment,
   });
 
   @observable
@@ -36,6 +38,9 @@ abstract class UnspentCoinsItemBase with Store {
   bool isSending;
 
   @observable
+  bool isChange;
+
+  @observable
   int amountRaw;
 
   @observable
@@ -43,4 +48,7 @@ abstract class UnspentCoinsItemBase with Store {
 
   @observable
   String? keyImage;
+
+  @observable
+  bool isSilentPayment;
 }

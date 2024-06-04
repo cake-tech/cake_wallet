@@ -18,6 +18,7 @@ class NodeCreateOrEditPage extends BasePage {
   NodeCreateOrEditPage({required this.nodeCreateOrEditViewModel,this.editingNode, this.isSelected})
       : _formKey = GlobalKey<FormState>(),
         _addressController = TextEditingController(),
+        _pathController = TextEditingController(),
         _portController = TextEditingController(),
         _loginController = TextEditingController(),
         _passwordController = TextEditingController() {
@@ -49,6 +50,8 @@ class NodeCreateOrEditPage extends BasePage {
 
     _addressController.addListener(
         () => nodeCreateOrEditViewModel.address = _addressController.text);
+    _pathController.addListener(
+        () => nodeCreateOrEditViewModel.path = _pathController.text);
     _portController.addListener(
         () => nodeCreateOrEditViewModel.port = _portController.text);
     _loginController.addListener(
@@ -59,6 +62,7 @@ class NodeCreateOrEditPage extends BasePage {
 
   final GlobalKey<FormState> _formKey;
   final TextEditingController _addressController;
+  final TextEditingController _pathController;
   final TextEditingController _portController;
   final TextEditingController _loginController;
   final TextEditingController _passwordController;
@@ -78,7 +82,7 @@ class NodeCreateOrEditPage extends BasePage {
           'assets/images/qr_code_icon.png',
         ),
       );
-      
+
   final NodeCreateOrEditViewModel nodeCreateOrEditViewModel;
   final Node? editingNode;
   final bool? isSelected;
@@ -133,27 +137,20 @@ class NodeCreateOrEditPage extends BasePage {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Flexible(
-                          child: Container(
-                        padding: EdgeInsets.only(right: 8.0),
-                        child: LoadingPrimaryButton(
+                        child: Container(
+                          padding: EdgeInsets.only(right: 8.0),
+                          child: LoadingPrimaryButton(
                             onPressed: () async {
                               final confirmed = await showPopUp<bool>(
                                       context: context,
                                       builder: (BuildContext context) {
                                         return AlertWithTwoActions(
-                                            alertTitle:
-                                                S.of(context).remove_node,
-                                            alertContent: S
-                                                .of(context)
-                                                .remove_node_message,
-                                            rightButtonText:
-                                                S.of(context).remove,
-                                            leftButtonText:
-                                                S.of(context).cancel,
-                                            actionRightButton: () =>
-                                                Navigator.pop(context, true),
-                                            actionLeftButton: () =>
-                                                Navigator.pop(context, false));
+                                            alertTitle: S.of(context).remove_node,
+                                            alertContent: S.of(context).remove_node_message,
+                                            rightButtonText: S.of(context).remove,
+                                            leftButtonText: S.of(context).cancel,
+                                            actionRightButton: () => Navigator.pop(context, true),
+                                            actionLeftButton: () => Navigator.pop(context, false));
                                       }) ??
                                   false;
 
@@ -163,11 +160,14 @@ class NodeCreateOrEditPage extends BasePage {
                               }
                             },
                             text: S.of(context).delete,
-                            isDisabled: !nodeCreateOrEditViewModel.isReady ||
+                            isDisabled: editingNode == null ||
+                                !nodeCreateOrEditViewModel.isReady ||
                                 (isSelected ?? false),
                             color: Palette.red,
-                            textColor: Colors.white),
-                      )),
+                            textColor: Colors.white,
+                          ),
+                        ),
+                      ),
                       Flexible(
                           child: Container(
                         padding: EdgeInsets.only(left: 8.0),

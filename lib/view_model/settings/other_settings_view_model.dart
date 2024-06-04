@@ -1,6 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/entities/buy_provider_types.dart';
+import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -10,6 +11,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
+import 'package:collection/collection.dart';
 
 part 'other_settings_view_model.g.dart';
 
@@ -50,20 +52,41 @@ abstract class OtherSettingsViewModelBase with Store {
   }
 
   @computed
-  bool get changeRepresentativeEnabled {
-    if (_wallet.type == WalletType.nano || _wallet.type == WalletType.banano) {
-      return true;
-    }
+  bool get changeRepresentativeEnabled =>
+      _wallet.type == WalletType.nano || _wallet.type == WalletType.banano;
 
-    return false;
+  @computed
+  bool get displayTransactionPriority => !(changeRepresentativeEnabled ||
+      _wallet.type == WalletType.solana ||
+      _wallet.type == WalletType.tron);
+
+  @computed
+  bool get isEnabledBuyAction => !_settingsStore.disableBuy && _wallet.type != WalletType.haven;
+
+  @computed
+  bool get isEnabledSellAction => !_settingsStore.disableSell && _wallet.type != WalletType.haven;
+
+  List<ProviderType> get availableBuyProvidersTypes {
+    return ProvidersHelper.getAvailableBuyProviderTypes(walletType);
   }
-  
-  BuyProviderType get buyProviderType { return _settingsStore.defaultBuyProvider; }
+
+  List<ProviderType> get availableSellProvidersTypes =>
+      ProvidersHelper.getAvailableSellProviderTypes(walletType);
+
+  ProviderType get buyProviderType =>
+      _settingsStore.defaultBuyProviders[walletType] ?? ProviderType.askEachTime;
+
+  ProviderType get sellProviderType =>
+      _settingsStore.defaultSellProviders[walletType] ?? ProviderType.askEachTime;
+
+
 
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
 
-    if (_wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin) {
+    if (_wallet.type == WalletType.bitcoin ||
+        _wallet.type == WalletType.litecoin ||
+        _wallet.type == WalletType.bitcoinCash) {
       final rate = bitcoin!.getFeeRate(_wallet, _priority);
       return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
     }
@@ -71,16 +94,65 @@ abstract class OtherSettingsViewModelBase with Store {
     return priority.toString();
   }
 
-  String getBuyProviderType (dynamic buyProviderType) {
-    final _buyProviderType = buyProviderType as BuyProviderType;
+  String getDisplayBitcoinPriority(dynamic priority, int customValue) {
+    final _priority = priority as TransactionPriority;
 
-    return _buyProviderType.toString();
+    if (_wallet.type == WalletType.bitcoin ||
+        _wallet.type == WalletType.litecoin ||
+        _wallet.type == WalletType.bitcoinCash) {
+      final rate = bitcoin!.getFeeRate(_wallet, _priority);
+      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
+    }
+
+    return priority.toString();
+  }
+
+  String getBuyProviderType(dynamic buyProviderType) {
+    final _buyProviderType = buyProviderType as ProviderType;
+    return _buyProviderType == ProviderType.askEachTime
+        ? S.current.ask_each_time
+        : _buyProviderType.title;
+  }
+
+  String getSellProviderType(dynamic sellProviderType) {
+    final _sellProviderType = sellProviderType as ProviderType;
+    return _sellProviderType == ProviderType.askEachTime
+        ? S.current.ask_each_time
+        : _sellProviderType.title;
   }
 
   void onDisplayPrioritySelected(TransactionPriority priority) =>
-      _settingsStore.priority[_wallet.type] = priority;
+      _settingsStore.priority[walletType] = priority;
 
-  void onBuyProviderTypeSelected(BuyProviderType buyProviderType) =>
-      _settingsStore.defaultBuyProvider = buyProviderType;
+  void onDisplayBitcoinPrioritySelected(TransactionPriority priority, double customValue) {
+    if (_wallet.type == WalletType.bitcoin) {
+      _settingsStore.customBitcoinFeeRate = customValue.round();
+    }
+    _settingsStore.priority[_wallet.type] = priority;
+  }
 
+  @computed
+  double get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate.toDouble();
+
+  int? get customPriorityItemIndex {
+    final priorities = priorityForWalletType(walletType);
+    final customItem = priorities
+        .firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
+    return customItem != null ? priorities.indexOf(customItem) : null;
+  }
+
+  int? get maxCustomFeeRate {
+    if (_wallet.type == WalletType.bitcoin) {
+      return bitcoin!.getMaxCustomFeeRate(_wallet);
+    }
+    return null;
+  }
+
+  @action
+  ProviderType onBuyProviderTypeSelected(ProviderType buyProviderType) =>
+      _settingsStore.defaultBuyProviders[walletType] = buyProviderType;
+
+  @action
+  ProviderType onSellProviderTypeSelected(ProviderType sellProviderType) =>
+      _settingsStore.defaultSellProviders[walletType] = sellProviderType;
 }
