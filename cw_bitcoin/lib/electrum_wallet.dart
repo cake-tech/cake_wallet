@@ -1803,7 +1803,7 @@ abstract class ElectrumWalletBase
       derivationPath.substring(0, derivationPath.lastIndexOf("'") + 1);
 
   @action
-  void _onConnectionStatusChange(bool? isConnected) async {
+  void _onConnectionStatusChange(bool? isConnected) {
     if (syncStatus is SyncingSyncStatus) return;
 
     if (isConnected == true && syncStatus is! SyncedSyncStatus) {
