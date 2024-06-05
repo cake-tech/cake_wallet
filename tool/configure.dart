@@ -1189,8 +1189,8 @@ Future<void> generatePubspec(
     git:
       url: https://github.com/cake-tech/flutter_secure_storage.git
       path: flutter_secure_storage
-      ref: cake-8.0.1
-      version: 8.0.1
+      ref: cake-8.0.2
+      version: 8.0.2
   """;
   const cwEthereum = """
   cw_ethereum:
