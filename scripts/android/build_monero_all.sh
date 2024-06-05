@@ -50,6 +50,9 @@ else
     done
 fi
 
+[[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf monero/contrib/depends/built
+[[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf monero/contrib/depends/sources
+
 unxz -f ../monero_c/release/monero/x86_64-linux-android_libwallet2_api_c.so.xz
 unxz -f ../monero_c/release/monero/x86_64-linux-android_libc++_shared.so.xz
 
