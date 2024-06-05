@@ -16,6 +16,11 @@ fi
 
 ../prepare_moneroc.sh
 
+if [[ ! "x$RUNNER_OS" == "x" ]];
+then
+    REMOVE_CACHES=ON
+fi
+
 # NOTE: -j1 is intentional. Otherwise you will run into weird behaviour on macos
 if [[ ! "x$USE_DOCKER" == "x" ]];
 then
@@ -33,9 +38,14 @@ else
     do
         pushd ../monero_c
             ./build_single.sh ${COIN} x86_64-linux-android $NPROC
+            [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf monero/contrib/depends/x86_64-linux-android
             # ./build_single.sh ${COIN} i686-linux-android $NPROC
+            # [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf monero/contrib/depends/i686-linux-android
             ./build_single.sh ${COIN} arm-linux-androideabi $NPROC
+            [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf monero/contrib/depends/arm-linux-androideabi
             ./build_single.sh ${COIN} aarch64-linux-android $NPROC
+            [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf monero/contrib/depends/aarch64-linux-android
+
         popd
     done
 fi
