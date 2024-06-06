@@ -37,7 +37,6 @@ jobs:
           large-packages: true
           swap-storage: true
           docker-images: true
-          tools-cache: true
 
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
