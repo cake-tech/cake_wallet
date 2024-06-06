@@ -7,7 +7,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/src/widgets/nav_bar.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
-enum AppBarStyle { regular, withShadow, transparent }
+enum AppBarStyle { regular, withShadow, transparent, completelyTransparent }
 
 abstract class BasePage extends StatelessWidget {
   BasePage() : _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -125,7 +125,7 @@ abstract class BasePage extends StatelessWidget {
 
   Widget? floatingActionButton(BuildContext context) => null;
 
-  ObstructingPreferredSizeWidget appBar(BuildContext context) {
+  PreferredSizeWidget appBar(BuildContext context) {
     final appBarColor = pageBackgroundColor(context);
 
     switch (appBarStyle) {
@@ -154,6 +154,16 @@ abstract class BasePage extends StatelessWidget {
           trailing: trailing(context),
           backgroundColor: Colors.transparent,
           border: null,
+        );
+
+      case AppBarStyle.completelyTransparent:
+        return AppBar(
+          leading: leading(context),
+          title: middle(context),
+          actions: <Widget>[if (trailing(context) != null) trailing(context)!],
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
         );
 
       default:
