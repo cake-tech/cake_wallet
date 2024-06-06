@@ -136,6 +136,7 @@ lib/nano/nano.dart
 lib/polygon/polygon.dart
 lib/solana/solana.dart
 lib/tron/tron.dart
+lib/wownero/wownero.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_180.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_120.png
