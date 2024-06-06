@@ -138,9 +138,33 @@ abstract class EVMChainClient {
           );
 
           final currentAllowance = await erc20.allowance(privateKey.address, EthereumAddress.fromHex(router));
+          log('Current Allowance: $currentAllowance');
+
           if (currentAllowance < amount) {
-            await erc20.approve(EthereumAddress.fromHex(router), amount, credentials: privateKey);
+            log('Approving more tokens...');
+
+            final approvalTransaction = await erc20.approve(
+              EthereumAddress.fromHex(router),
+              amount,
+              credentials: privateKey,
+            );
+
+            final txHash = await _client!.sendRawTransaction(approvalTransaction);
+
+            TransactionReceipt? receipt;
+            while (receipt == null) {
+              receipt = await _client!.getTransactionReceipt(txHash);
+              await Future.delayed(const Duration(seconds: 1));
+            }
+
+            if (receipt.status == false) {
+              log('Approval transaction failed');
+              return;
+            }
           }
+
+          final currentAllowanceNew = await erc20.allowance(privateKey.address, EthereumAddress.fromHex(router));
+          log('New Allowance: $currentAllowanceNew');
         }
 
         await _depositWithExpiry(
