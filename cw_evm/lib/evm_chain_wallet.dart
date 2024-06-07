@@ -233,6 +233,11 @@ abstract class EVMChainWalletBase
 
     final String? memo = outputs.first.memo;
 
+    String? hexOpReturnMemo;
+    if (memo != null) {
+      hexOpReturnMemo = '0x${memo.codeUnits.map((char) => char.toRadixString(16).padLeft(2, '0')).join()}';
+    }
+
     final CryptoCurrency transactionCurrency =
         balance.keys.firstWhere((element) => element.title == _credentials.currency.title);
 
@@ -302,6 +307,7 @@ abstract class EVMChainWalletBase
       exponent: exponent,
       contractAddress:
           transactionCurrency is Erc20Token ? transactionCurrency.contractAddress : null,
+      data: hexOpReturnMemo,
       memo: memo,
       router: _credentials.outputs.first.router,
     );

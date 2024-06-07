@@ -91,6 +91,7 @@ abstract class EVMChainClient {
     String? contractAddress,
     String? memo,
     String? router,
+    String? data,
   }) async {
     assert(currency == CryptoCurrency.eth ||
         currency == CryptoCurrency.maticpoly ||
@@ -105,11 +106,10 @@ abstract class EVMChainClient {
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
       amount: isNativeToken ? EtherAmount.inWei(amount) : EtherAmount.zero(),
+      data: data != null ? hexToBytes(data) : null,
     );
 
     Uint8List signedTransaction;
-
-    final Function sendTransactionCallback;
 
     if (isNativeToken) {
       signedTransaction = await _client!.signTransaction(privateKey, transaction, chainId: chainId);
@@ -128,59 +128,24 @@ abstract class EVMChainClient {
       );
     }
 
-    sendTransactionCallback = () async {
-      if (router != null && memo != null) {
-        if (!isNativeToken) {
-          final erc20 = ERC20(
-            client: _client!,
-            address: EthereumAddress.fromHex(contractAddress!),
-            chainId: chainId,
-          );
+    final Function sendTransactionCallback;
 
-          final currentAllowance = await erc20.allowance(privateKey.address, EthereumAddress.fromHex(router));
-          log('Current Allowance: $currentAllowance');
-
-          if (currentAllowance < amount) {
-            log('Approving more tokens...');
-
-            final approvalTransaction = await erc20.approve(
-              EthereumAddress.fromHex(router),
-              amount,
-              credentials: privateKey,
-            );
-
-            final txHash = await _client!.sendRawTransaction(approvalTransaction);
-
-            TransactionReceipt? receipt;
-            while (receipt == null) {
-              receipt = await _client!.getTransactionReceipt(txHash);
-              await Future.delayed(const Duration(seconds: 1));
-            }
-
-            if (receipt.status == false) {
-              log('Approval transaction failed');
-              return;
-            }
-          }
-
-          final currentAllowanceNew = await erc20.allowance(privateKey.address, EthereumAddress.fromHex(router));
-          log('New Allowance: $currentAllowanceNew');
-        }
-
-        await _depositWithExpiry(
+    if (router != null && memo != null && !isNativeToken) {
+      sendTransactionCallback = () async {
+        await sendThorChainERC20TransactionCallback(
           privateKey: privateKey,
-          contractAddress: router,
-          inboundAddress: toAddress,
+          contractAddress: contractAddress!,
+          toAddress: toAddress,
           amount: amount,
+          router: router,
           memo: memo,
-          assetContractAddress: contractAddress,
         );
-
-        return;
-      }
-
-      await sendTransaction(signedTransaction);
-    };
+      };
+    } else {
+      sendTransactionCallback = () async {
+        await sendTransaction(signedTransaction);
+      };
+    }
 
     return PendingEVMChainTransaction(
       signedTransaction: signedTransaction,
@@ -196,12 +161,14 @@ abstract class EVMChainClient {
     required EthereumAddress to,
     required EtherAmount amount,
     EtherAmount? maxPriorityFeePerGas,
+    Uint8List? data,
   }) {
     return Transaction(
       from: from,
       to: to,
       maxPriorityFeePerGas: maxPriorityFeePerGas,
       value: amount,
+      data: data,
     );
   }
 
@@ -326,6 +293,59 @@ abstract class EVMChainClient {
 
   Web3Client? getWeb3Client() {
     return _client;
+  }
+
+  Future<void> sendThorChainERC20TransactionCallback({
+    required Credentials privateKey,
+    required String contractAddress,
+    required String toAddress,
+    required BigInt amount,
+    required String router,
+    required String memo,
+  }) async {
+    final erc20 = ERC20(
+      client: _client!,
+      address: EthereumAddress.fromHex(contractAddress),
+      chainId: chainId,
+    );
+
+    final currentAllowance = await erc20.allowance(privateKey.address, EthereumAddress.fromHex(router));
+    log('Current Allowance: $currentAllowance');
+
+    if (currentAllowance < amount) {
+      log('Approving more tokens...');
+
+      final approvalTransaction = await erc20.approve(
+        EthereumAddress.fromHex(router),
+        amount,
+        credentials: privateKey,
+      );
+
+      final txHash = await _client!.sendRawTransaction(approvalTransaction);
+
+      TransactionReceipt? receipt;
+      while (receipt == null) {
+        receipt = await _client!.getTransactionReceipt(txHash);
+        await Future.delayed(const Duration(seconds: 1));
+      }
+
+      if (receipt.status == false) {
+        log('Approval transaction failed');
+        throw Exception('Approval transaction failed');
+      }
+    }
+
+    final currentAllowanceNew = await erc20.allowance(privateKey.address, EthereumAddress.fromHex(router));
+    log('New Allowance: $currentAllowanceNew');
+
+    await _depositWithExpiry(
+      privateKey: privateKey,
+      contractAddress: router,
+      inboundAddress: toAddress,
+      amount: amount,
+      memo: memo,
+      assetContractAddress: contractAddress,
+    );
   }
 
   Future<void> _depositWithExpiry({
