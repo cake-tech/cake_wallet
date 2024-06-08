@@ -40,5 +40,6 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
     channel.setMethodCallHandler(null)
     server?.stop()
+    server = null
   }
 }

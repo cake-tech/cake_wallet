@@ -49,4 +49,10 @@ public class CwMwebPlugin: NSObject, FlutterPlugin {
       result(FlutterMethodNotImplemented)
     }
   }
+
+    deinit {
+        // Perform cleanup tasks
+        CwMwebPlugin.server?.stop()
+        CwMwebPlugin.server = nil
+    }
 }

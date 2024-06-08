@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
+import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/mweb_utxo.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
@@ -77,6 +79,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   final bitcoin.HDWallet mwebHd;
+  late final Box<MwebUtxo> mwebUtxosBox;
   Timer? _syncTimer;
 
   static Future<LitecoinWallet> create(
@@ -140,7 +143,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     );
   }
 
+  final Map<String, Utxo> mwebUtxos = {};
   int mwebUtxosHeight = 0;
+  int lastMwebUtxosHeight = 2699272;
 
   @action
   @override
@@ -187,8 +192,18 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     processMwebUtxos();
   }
 
-  final Map<String, Utxo> mwebUtxos = {};
-  int lastMwebUtxosHeight = 0;
+  Future<void> initMwebUtxosBox() async {
+    final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+
+    mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(boxName);
+  }
+
+  // final Map<String, MwebUtxo> mwebUtxo = MwebUtxo();
+
+  @override
+  Future<void> init() async {
+    await initMwebUtxosBox();
+  }
 
   Future<void> processMwebUtxos() async {
     final stub = await CwMweb.stub();
@@ -486,5 +501,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         await updateUnspent();
         await updateBalance();
       });
+  }
+
+  @override
+  Future<void> save() async {
+    await super.save();
   }
 }
