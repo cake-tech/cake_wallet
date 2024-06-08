@@ -101,12 +101,29 @@ abstract class EVMChainClient {
 
     final price = await _client!.getGasPrice();
 
-    final Transaction transaction = createTransaction(
+    if (!isNativeToken && router != null && memo != null) {
+      await _approveTokensIfNeeded(
+        privateKey: privateKey,
+        contractAddress: contractAddress!,
+        amount: amount,
+        router: router,
+      );
+    }
+
+    final estimatedGas = await _client!.estimateGas(
+      sender: privateKey.address,
+      to: EthereumAddress.fromHex(toAddress),
+      value: isNativeToken ? EtherAmount.inWei(amount) : EtherAmount.zero(),
+      data: data != null ? hexToBytes(data) : null,
+    );
+
+    final Transaction transaction = Transaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
-      amount: isNativeToken ? EtherAmount.inWei(amount) : EtherAmount.zero(),
+      value: isNativeToken ? EtherAmount.inWei(amount) : EtherAmount.zero(),
       data: data != null ? hexToBytes(data) : null,
+      maxGas: router != null && memo != null ? (estimatedGas.toInt() * 1.3).toInt() : null,
     );
 
     Uint8List signedTransaction;
@@ -142,9 +159,7 @@ abstract class EVMChainClient {
         );
       };
     } else {
-      sendTransactionCallback = () async {
-        await sendTransaction(signedTransaction);
-      };
+      sendTransactionCallback = () async => await sendTransaction(signedTransaction);
     }
 
     return PendingEVMChainTransaction(
@@ -162,6 +177,7 @@ abstract class EVMChainClient {
     required EtherAmount amount,
     EtherAmount? maxPriorityFeePerGas,
     Uint8List? data,
+    int? maxGas,
   }) {
     return Transaction(
       from: from,
@@ -169,6 +185,7 @@ abstract class EVMChainClient {
       maxPriorityFeePerGas: maxPriorityFeePerGas,
       value: amount,
       data: data,
+      maxGas: maxGas,
     );
   }
 
@@ -295,13 +312,11 @@ abstract class EVMChainClient {
     return _client;
   }
 
-  Future<void> sendThorChainERC20TransactionCallback({
+  Future<void> _approveTokensIfNeeded({
     required Credentials privateKey,
     required String contractAddress,
-    required String toAddress,
     required BigInt amount,
     required String router,
-    required String memo,
   }) async {
     final erc20 = ERC20(
       client: _client!,
@@ -309,7 +324,8 @@ abstract class EVMChainClient {
       chainId: chainId,
     );
 
-    final currentAllowance = await erc20.allowance(privateKey.address, EthereumAddress.fromHex(router));
+    final currentAllowance =
+        await erc20.allowance(privateKey.address, EthereumAddress.fromHex(router));
     log('Current Allowance: $currentAllowance');
 
     if (currentAllowance < amount) {
@@ -335,10 +351,20 @@ abstract class EVMChainClient {
       }
     }
 
-    final currentAllowanceNew = await erc20.allowance(privateKey.address, EthereumAddress.fromHex(router));
+    final currentAllowanceNew =
+        await erc20.allowance(privateKey.address, EthereumAddress.fromHex(router));
     log('New Allowance: $currentAllowanceNew');
+  }
 
-    await _depositWithExpiry(
+  Future<void> sendThorChainERC20TransactionCallback({
+    required Credentials privateKey,
+    required String contractAddress,
+    required String toAddress,
+    required BigInt amount,
+    required String router,
+    required String memo,
+  }) async {
+    return await _depositWithExpiry(
       privateKey: privateKey,
       contractAddress: router,
       inboundAddress: toAddress,
@@ -365,7 +391,8 @@ abstract class EVMChainClient {
     final inboundEthAddress = EthereumAddress.fromHex(inboundAddress);
     final assetEthAddress = EthereumAddress.fromHex(assetContractAddress!);
     final contractEthAddress = EthereumAddress.fromHex(contractAddress);
-    final formattedDate = BigInt.from(DateTime.now().add(const Duration(hours: 2)).millisecondsSinceEpoch ~/ 1000);
+    final formattedDate =
+        BigInt.from(DateTime.now().add(const Duration(hours: 2)).millisecondsSinceEpoch ~/ 1000);
 
     try {
       final gasPrice = await _client!.getGasPrice();
@@ -410,10 +437,9 @@ abstract class EVMChainClient {
         ),
         chainId: chainId,
       );
-
     } catch (e) {
       log("Error during depositWithExpiry: $e");
-  }
+    }
   }
 
   Future<DeployedContract> _getContract({
