@@ -99,7 +99,8 @@ abstract class EVMChainClient {
 
     bool isNativeToken = currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
 
-    final price = await _client!.getGasPrice();
+    final gasPrice = await _client!.getGasPrice();
+    final adjustedGasPrice = gasPrice.getInWei * BigInt.from(15) ~/ BigInt.from(10);
 
     if (!isNativeToken && router != null && memo != null) {
       await _approveTokensIfNeeded(
@@ -110,20 +111,23 @@ abstract class EVMChainClient {
       );
     }
 
-    final estimatedGas = await _client!.estimateGas(
+    final estimatedGasLimit = await _client!.estimateGas(
       sender: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
       value: isNativeToken ? EtherAmount.inWei(amount) : EtherAmount.zero(),
       data: data != null ? hexToBytes(data) : null,
     );
 
-    final Transaction transaction = Transaction(
+    final int gasLimit = estimatedGasLimit.toInt() < 80000 ? 80000 : estimatedGasLimit.toInt();
+
+    final Transaction transaction = createTransaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
-      value: isNativeToken ? EtherAmount.inWei(amount) : EtherAmount.zero(),
+      amount: isNativeToken ? EtherAmount.inWei(amount) : EtherAmount.zero(),
       data: data != null ? hexToBytes(data) : null,
-      maxGas: router != null && memo != null ? (estimatedGas.toInt() * 1.3).toInt() : null,
+      maxGas: router != null && memo != null && isNativeToken ? gasLimit : null,
+      gasPrice: router != null && memo != null && isNativeToken ? EtherAmount.inWei(adjustedGasPrice) : null,
     );
 
     Uint8List signedTransaction;
@@ -165,7 +169,7 @@ abstract class EVMChainClient {
     return PendingEVMChainTransaction(
       signedTransaction: signedTransaction,
       amount: amount.toString(),
-      fee: BigInt.from(gas) * (await price).getInWei,
+      fee: BigInt.from(gas) * (await gasPrice).getInWei,
       sendTransaction: sendTransactionCallback,
       exponent: exponent,
     );
@@ -178,6 +182,7 @@ abstract class EVMChainClient {
     EtherAmount? maxPriorityFeePerGas,
     Uint8List? data,
     int? maxGas,
+    EtherAmount? gasPrice,
   }) {
     return Transaction(
       from: from,
@@ -186,6 +191,7 @@ abstract class EVMChainClient {
       value: amount,
       data: data,
       maxGas: maxGas,
+      gasPrice: gasPrice,
     );
   }
 
