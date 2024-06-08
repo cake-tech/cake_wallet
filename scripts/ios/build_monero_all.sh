@@ -19,7 +19,7 @@ NPROC="-j$(sysctl -n hw.logicalcpu)"
 # NOTE: -j1 is intentional. Otherwise you will run into weird behaviour on macos
 if [[ ! "x$USE_DOCKER" == "x" ]];
 then
-    for COIN in monero;
+    for COIN in monero wownero;
     do
         pushd ../monero_c
             echo "unsupported!"

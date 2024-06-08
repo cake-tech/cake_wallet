@@ -28,6 +28,7 @@
 		33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC11122044BFA00003C045 /* MainFlutterWindow.swift */; };
 		4171CB1F5A4EA2E4DC33F52F /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B38D1DBC56DBD386923BC063 /* Pods_Runner.framework */; };
 		9F565D5929954F53009A75FB /* secRandom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F565D5729954F53009A75FB /* secRandom.swift */; };
+		CE75FC4A2C147EBA00CCC46E /* wownero_libwallet2_api_c.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = CE75FC492C147EBA00CCC46E /* wownero_libwallet2_api_c.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		CED5DBE42BE59BBF0065028F /* monero_libwallet2_api_c.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = CED5DBE32BE59BBF0065028F /* monero_libwallet2_api_c.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -58,6 +59,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				CE75FC4A2C147EBA00CCC46E /* wownero_libwallet2_api_c.dylib in CopyFiles */,
 				CED5DBE42BE59BBF0065028F /* monero_libwallet2_api_c.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -88,6 +90,7 @@
 		9F1E7BFB2BF2D27500C28C9A /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		9F565D5729954F53009A75FB /* secRandom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = secRandom.swift; path = CakeWallet/secRandom.swift; sourceTree = "<group>"; };
 		B38D1DBC56DBD386923BC063 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE75FC492C147EBA00CCC46E /* wownero_libwallet2_api_c.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = wownero_libwallet2_api_c.dylib; sourceTree = "<group>"; };
 		CED5DBE32BE59BBF0065028F /* monero_libwallet2_api_c.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = monero_libwallet2_api_c.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -117,6 +120,7 @@
 		33CC10E42044A3C60003C045 = {
 			isa = PBXGroup;
 			children = (
+				CE75FC492C147EBA00CCC46E /* wownero_libwallet2_api_c.dylib */,
 				CED5DBE32BE59BBF0065028F /* monero_libwallet2_api_c.dylib */,
 				9F565D5729954F53009A75FB /* secRandom.swift */,
 				33FAB671232836740065AC1E /* Runner */,
