@@ -39,6 +39,7 @@ const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'rpc.ankr.com';
 const tronDefaultNodeUri = 'tron-rpc.publicnode.com:443';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
+const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -487,6 +488,11 @@ Node? getTronDefaultNode({required Box<Node> nodes}) {
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.tron);
 }
 
+Node? getWowneroDefaultNode({required Box<Node> nodes}) {
+  return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == wowneroDefaultNodeUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.wownero);
+}
+
 Future<void> insecureStorageMigration({
   required SharedPreferences sharedPreferences,
   required SecureStorage secureStorage,
@@ -841,6 +847,7 @@ Future<void> checkCurrentNodes(
       sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
   final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
   final currentTronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
+  final currentWowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
   final currentMoneroNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer =
@@ -863,6 +870,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentSolanaNodeId);
   final currentTronNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentTronNodeId);
+  final currentWowneroNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentWowneroNodeId);
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
     await nodeSource.add(newCakeWalletNode);
@@ -939,6 +948,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: tronDefaultNodeUri, type: WalletType.tron);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentTronNodeIdKey, node.key as int);
+  }
+
+  if (currentWowneroNodeServer == null) {
+    final node = Node(uri: wowneroDefaultNodeUri, type: WalletType.wownero);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, node.key as int);
   }
 }
 

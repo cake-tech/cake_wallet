@@ -249,6 +249,7 @@ abstract class SettingsStoreBase with Store {
       final String? key;
       switch (change.key) {
         case WalletType.monero:
+        case WalletType.wownero:
           key = PreferencesKey.moneroTransactionPriority;
           break;
         case WalletType.bitcoin:
@@ -902,6 +903,7 @@ abstract class SettingsStoreBase with Store {
     final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
+    final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -913,6 +915,7 @@ abstract class SettingsStoreBase with Store {
     final nanoPowNode = powNodeSource.get(nanoPowNodeId);
     final solanaNode = nodeSource.get(solanaNodeId);
     final tronNode = nodeSource.get(tronNodeId);
+    final wowneroNode = nodeSource.get(wowneroNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
@@ -977,6 +980,10 @@ abstract class SettingsStoreBase with Store {
 
     if (tronNode != null) {
       nodes[WalletType.tron] = tronNode;
+    }
+
+    if (wowneroNode != null) {
+      nodes[WalletType.wownero] = wowneroNode;
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
@@ -1282,6 +1289,7 @@ abstract class SettingsStoreBase with Store {
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
+    final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -1292,6 +1300,7 @@ abstract class SettingsStoreBase with Store {
     final nanoNode = nodeSource.get(nanoNodeId);
     final solanaNode = nodeSource.get(solanaNodeId);
     final tronNode = nodeSource.get(tronNodeId);
+    final wowneroNode = nodeSource.get(wowneroNodeId);
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
     }
@@ -1330,6 +1339,10 @@ abstract class SettingsStoreBase with Store {
 
     if (tronNode != null) {
       nodes[WalletType.tron] = tronNode;
+    }
+
+    if (wowneroNode != null) {
+      nodes[WalletType.wownero] = wowneroNode;
     }
 
     // MIGRATED:
@@ -1464,6 +1477,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.tron:
         await _sharedPreferences.setInt(PreferencesKey.currentTronNodeIdKey, node.key as int);
+        break;
+      case WalletType.wownero:
+        await _sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, node.key as int);
         break;
       default:
         break;

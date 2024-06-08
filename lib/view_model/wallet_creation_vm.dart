@@ -85,7 +85,9 @@ abstract class WalletCreationVMBase with Store {
       getIt.get<BackgroundTasks>().registerSyncTask();
       _appStore.authenticationStore.allowed();
       state = ExecutedSuccessfullyState();
-    } catch (e) {
+    } catch (e, s) {
+      print("@@@@@@@@");
+      print(s);
       state = FailureState(e.toString());
     }
   }

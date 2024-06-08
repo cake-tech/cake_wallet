@@ -7,6 +7,7 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -106,6 +107,11 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.monero:
         amount = calculateFiatAmountRaw(
             cryptoAmount: monero!.formatterMoneroAmountToDouble(amount: transaction.amount),
+            price: price);
+        break;
+      case WalletType.wownero:
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: wownero!.formatterWowneroAmountToDouble(amount: transaction.amount),
             price: price);
         break;
       case WalletType.bitcoin:

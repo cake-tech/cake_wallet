@@ -75,6 +75,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.tron:
         _addTronListItems(tx, dateFormat);
         break;
+      case WalletType.wownero:
+        // _addWowneroListItems(tx, dateFormat);
+        break;
       default:
         break;
     }

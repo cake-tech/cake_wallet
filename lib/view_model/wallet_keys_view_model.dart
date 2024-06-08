@@ -1,6 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -33,7 +34,9 @@ abstract class WalletKeysViewModelBase with Store {
       _populateItems();
     });
 
-    if (_appStore.wallet!.type == WalletType.monero || _appStore.wallet!.type == WalletType.haven) {
+    if (_appStore.wallet!.type == WalletType.monero ||
+        _appStore.wallet!.type == WalletType.haven ||
+        _appStore.wallet!.type == WalletType.wownero) {
       final accountTransactions = _getWalletTransactions(_appStore.wallet!);
       if (accountTransactions.isNotEmpty) {
         final incomingAccountTransactions =
@@ -87,6 +90,22 @@ abstract class WalletKeysViewModelBase with Store {
 
     if (_appStore.wallet!.type == WalletType.haven) {
       final keys = haven!.getKeys(_appStore.wallet!);
+
+      items.addAll([
+        if (keys['publicSpendKey'] != null)
+          StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']!),
+        if (keys['privateSpendKey'] != null)
+          StandartListItem(title: S.current.spend_key_private, value: keys['privateSpendKey']!),
+        if (keys['publicViewKey'] != null)
+          StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']!),
+        if (keys['privateViewKey'] != null)
+          StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']!),
+        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+      ]);
+    }
+
+    if (_appStore.wallet!.type == WalletType.wownero) {
+      final keys = wownero!.getKeys(_appStore.wallet!);
 
       items.addAll([
         if (keys['publicSpendKey'] != null)
