@@ -1,6 +1,5 @@
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
-import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
@@ -10,7 +9,6 @@ import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/wallet_nft_response.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -36,14 +34,6 @@ import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.dart';
-import 'package:cake_wallet/src/screens/ionia/ionia.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
@@ -76,9 +66,11 @@ import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
+import 'package:cake_wallet/src/screens/cake_pay/auth/cake_pay_account_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
 import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
+import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
@@ -120,7 +112,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 
 late RouteSettings currentRouteSettings;
@@ -518,73 +510,30 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 param1: settings.arguments as QrViewData,
               ));
 
-    case Routes.ioniaWelcomePage:
+    case Routes.cakePayCardsPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayCardsPage>());
+
+    case Routes.cakePayBuyCardPage:
+      final args = settings.arguments as List;
       return CupertinoPageRoute<void>(
-        fullscreenDialog: true,
-        builder: (_) => getIt.get<IoniaWelcomePage>(),
+          builder: (_) => getIt.get<CakePayBuyCardPage>(param1: args));
+
+    case Routes.cakePayBuyCardDetailPage:
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<CakePayBuyCardDetailPage>(param1: args));
+
+    case Routes.cakePayWelcomePage:
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<CakePayWelcomePage>(),
       );
 
-    case Routes.ioniaLoginPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaLoginPage>());
-
-    case Routes.ioniaCreateAccountPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaCreateAccountPage>());
-
-    case Routes.ioniaManageCardsPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaManageCardsPage>());
-
-    case Routes.ioniaBuyGiftCardPage:
+    case Routes.cakePayVerifyOtpPage:
       final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<IoniaBuyGiftCardPage>(param1: args));
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayVerifyOtpPage>(param1: args));
 
-    case Routes.ioniaBuyGiftCardDetailPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<IoniaBuyGiftCardDetailPage>(param1: args));
-
-    case Routes.ioniaVerifyIoniaOtpPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaVerifyIoniaOtp>(param1: args));
-
-    case Routes.ioniaDebitCardPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaDebitCardPage>());
-
-    case Routes.ioniaActivateDebitCardPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaActivateDebitCardPage>());
-
-    case Routes.ioniaAccountPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaAccountPage>());
-
-    case Routes.ioniaAccountCardsPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaAccountCardsPage>());
-
-    case Routes.ioniaCustomTipPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaCustomTipPage>(param1: args));
-
-    case Routes.ioniaGiftCardDetailPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<IoniaGiftCardDetailPage>(param1: args.first));
-
-    case Routes.ioniaCustomRedeemPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<IoniaCustomRedeemPage>(param1: args));
-
-    case Routes.ioniaMoreOptionsPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<IoniaMoreOptionsPage>(param1: args));
-
-    case Routes.ioniaPaymentStatusPage:
-      final args = settings.arguments as List;
-      final paymentInfo = args.first as IoniaAnyPayPaymentInfo;
-      final commitedInfo = args[1] as AnyPayPaymentCommittedInfo;
-      return CupertinoPageRoute<void>(
-          builder: (_) =>
-              getIt.get<IoniaPaymentStatusPage>(param1: paymentInfo, param2: commitedInfo));
+    case Routes.cakePayAccountPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayAccountPage>());
 
     case Routes.webViewPage:
       final args = settings.arguments as List;
