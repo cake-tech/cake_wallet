@@ -172,3 +172,4 @@ macos/Runner/Configs/AppInfo.xcconfig
 scripts/monero_c
 # iOS generated framework bin
 ios/MoneroWallet.framework/MoneroWallet
+ios/WowneroWallet.framework/WowneroWallet
