@@ -49,10 +49,6 @@ final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
 
 Future<void> main() async {
-  if (Platform.isIOS) {
-    monero_dart.libPath = "MoneroWallet.framework/MoneroWallet";
-  }
-
   bool isAppRunning = false;
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
