@@ -29,8 +29,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
       Box<WalletInfo> walletInfoSource,
       {required WalletType type})
-      : hasSeedLanguageSelector = type == WalletType.monero || type == WalletType.haven,
-        hasBlockchainHeightLanguageSelector = type == WalletType.monero || type == WalletType.haven,
+      : hasSeedLanguageSelector =
+            type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero,
+        hasBlockchainHeightLanguageSelector =
+            type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero,
         hasRestoreFromPrivateKey = type == WalletType.ethereum ||
             type == WalletType.polygon ||
             type == WalletType.nano ||
@@ -112,6 +114,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           return bitcoinCash!.createBitcoinCashRestoreWalletFromSeedCredentials(
               name: name, mnemonic: seed, password: password);
         case WalletType.nano:
+        case WalletType.banano:
           return nano!.createNanoRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
@@ -143,7 +146,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             password: password,
             height: height,
           );
-        default:
+        case WalletType.none:
           break;
       }
     }

@@ -229,6 +229,10 @@ Future<void> defaultSettingsMigration(
         case 34:
           await _addElectRsNode(nodes, sharedPreferences);
           break;
+        case 36:
+          await addWowneroNodeList(nodes: nodes);
+          await changeWowneroCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
+          break;
         default:
           break;
       }
@@ -488,9 +492,23 @@ Node? getTronDefaultNode({required Box<Node> nodes}) {
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.tron);
 }
 
-Node? getWowneroDefaultNode({required Box<Node> nodes}) {
-  return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == wowneroDefaultNodeUri) ??
-      nodes.values.firstWhereOrNull((node) => node.type == WalletType.wownero);
+Node getWowneroDefaultNode({required Box<Node> nodes}) {
+  final timeZone = DateTime.now().timeZoneOffset.inHours;
+  var nodeUri = '';
+
+  if (timeZone >= 1) {
+    // Eurasia
+    nodeUri = 'node2.monerodevs.org.lol:34568';
+  } else if (timeZone <= -4) {
+    // America
+    nodeUri = 'node3.monerodevs.org:34568';
+  }
+
+  try {
+    return nodes.values.firstWhere((Node node) => node.uriRaw == nodeUri);
+  } catch (_) {
+    return nodes.values.first;
+  }
 }
 
 Future<void> insecureStorageMigration({
@@ -1019,6 +1037,23 @@ Future<void> changeEthereumCurrentNodeToDefault(
   final nodeId = node?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, nodeId);
+}
+
+Future<void> addWowneroNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultWowneroNodes();
+  for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
+}
+
+Future<void> changeWowneroCurrentNodeToDefault(
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+  final node = getWowneroDefaultNode(nodes: nodes);
+  final nodeId = node?.key as int? ?? 0;
+
+  await sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, nodeId);
 }
 
 Future<void> addNanoNodeList({required Box<Node> nodes}) async {

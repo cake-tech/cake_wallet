@@ -214,7 +214,7 @@ Now you can run the codebase and successfully create a wallet for type walletX s
 **Restore Wallet**
 - Go to `lib/core/seed_validator.dart`
 - In the `getWordList` method, add a case to handle `WalletType.walletx` which would return the word list to be used to validate the passed in seeds.
-- Next, go to `lib/restore_view_model.dart`
+- Next, go to `lib/wallet_restore_view_model.dart`
 - Modify the `hasRestoreFromPrivateKey` to reflect if walletx supports restore from Key
 - Add a switch case to handle the various restore modes that walletX supports 
 - Modify the `getCredential` method to handle the restore flows for `WalletType.walletx`

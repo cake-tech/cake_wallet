@@ -75,6 +75,15 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
                 viewKey: restoreWallet.viewKey ?? '',
                 spendKey: restoreWallet.spendKey ?? '',
                 height: restoreWallet.height ?? 0);
+          case WalletType.wownero:
+            return wownero!.createWowneroRestoreWalletFromKeysCredentials(
+                name: name,
+                password: password,
+                language: 'English',
+                address: restoreWallet.address ?? '',
+                viewKey: restoreWallet.viewKey ?? '',
+                spendKey: restoreWallet.spendKey ?? '',
+                height: restoreWallet.height ?? 0);
           case WalletType.bitcoin:
           case WalletType.litecoin:
             return bitcoin!.createBitcoinRestoreWalletFromWIFCredentials(

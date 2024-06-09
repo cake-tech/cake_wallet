@@ -139,6 +139,7 @@ class AddressValidator extends TextValidator {
 
     switch (type) {
       case CryptoCurrency.xmr:
+      case CryptoCurrency.wow:
         return null;
       case CryptoCurrency.ada:
         return null;
@@ -266,6 +267,7 @@ class AddressValidator extends TextValidator {
   static String? getAddressFromStringPattern(CryptoCurrency type) {
     switch (type) {
       case CryptoCurrency.xmr:
+      case CryptoCurrency.wow:
         return '([^0-9a-zA-Z]|^)4[0-9a-zA-Z]{94}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)8[0-9a-zA-Z]{94}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)[0-9a-zA-Z]{106}([^0-9a-zA-Z]|\$)';
