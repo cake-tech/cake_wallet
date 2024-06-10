@@ -11,13 +11,13 @@ class CakePayService {
   static const cakePayUsernameStorageKey = 'cake_pay_username';
   static const cakePayUserTokenKey = 'cake_pay_user_token';
 
-  static String get testCakePayApiKey => "secrets.testCakePayApiKey;";
+  static String get testCakePayApiKey => secrets.testCakePayApiKey;
 
-  static String get cakePayApiKey => "secrets.cakePayApiKey;";
+  static String get cakePayApiKey => secrets.cakePayApiKey;
 
-  static String get CSRFToken => "secrets.CSRFToken;";
+  static String get CSRFToken => secrets.CSRFToken;
 
-  static String get authorization => "secrets.authorization;";
+  static String get authorization => secrets.authorization;
 
   final SecureStorage secureStorage;
   final CakePayApi cakePayApi;
