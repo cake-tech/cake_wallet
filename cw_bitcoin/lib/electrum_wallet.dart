@@ -105,7 +105,8 @@ abstract class ElectrumWalletBase
         // Needs to re-subscribe to all scripthashes when reconnected
         _scripthashesUpdateSubject = {};
 
-        await this.electrumClient.connectToUri(node!.uri, useSSL: node!.useSSL);
+        // TODO: double check this and make sure it doesn't cause any un-necessary calls
+        // await this.electrumClient.connectToUri(node!.uri, useSSL: node!.useSSL);
       }
 
       // Message is shown on the UI for 3 seconds, revert to synced
