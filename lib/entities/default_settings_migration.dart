@@ -227,6 +227,8 @@ Future<void> defaultSettingsMigration(
           break;
         case 34:
           await _addElectRsNode(nodes, sharedPreferences);
+        case 35:
+          await _switchElectRsNode(nodes, sharedPreferences);
           break;
         default:
           break;
@@ -822,6 +824,39 @@ Future<void> _addElectRsNode(Box<Node> nodeSource, SharedPreferences sharedPrefe
   if (needToReplaceCurrentBitcoinNode) {
     await sharedPreferences.setInt(
         PreferencesKey.currentBitcoinElectrumSererIdKey, newElectRsBitcoinNode.key as int);
+  }
+}
+
+Future<void> _switchElectRsNode(Box<Node> nodeSource, SharedPreferences sharedPreferences) async {
+  final currentBitcoinNodeId =
+      sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
+  final currentBitcoinNode =
+      nodeSource.values.firstWhere((node) => node.key == currentBitcoinNodeId);
+  final needToReplaceCurrentBitcoinNode =
+      currentBitcoinNode.uri.toString().contains('electrs.cakewallet.com');
+
+  if (!needToReplaceCurrentBitcoinNode) return;
+
+  final btcElectrumNode = nodeSource.values.firstWhereOrNull(
+    (node) => node.uri.toString().contains('btc-electrum.cakewallet.com'),
+  );
+
+  if (btcElectrumNode == null) {
+    final newBtcElectrumBitcoinNode = Node(
+      uri: newCakeWalletBitcoinUri,
+      type: WalletType.bitcoin,
+      useSSL: false,
+    );
+    await nodeSource.add(newBtcElectrumBitcoinNode);
+    await sharedPreferences.setInt(
+      PreferencesKey.currentBitcoinElectrumSererIdKey,
+      newBtcElectrumBitcoinNode.key as int,
+    );
+  } else {
+    await sharedPreferences.setInt(
+      PreferencesKey.currentBitcoinElectrumSererIdKey,
+      btcElectrumNode.key as int,
+    );
   }
 }
 
