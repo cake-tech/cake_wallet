@@ -4,15 +4,17 @@ class CWTron extends Tron {
   @override
   List<String> getTronWordList(String language) => EVMChainMnemonics.englishWordlist;
 
-  WalletService createTronWalletService(Box<WalletInfo> walletInfoSource) =>
-      TronWalletService(walletInfoSource, client: TronClient());
+  @override
+  WalletService createTronWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
+      TronWalletService(walletInfoSource, client: TronClient(), isDirect: isDirect);
 
   @override
   WalletCredentials createTronNewWalletCredentials({
     required String name,
     WalletInfo? walletInfo,
+    String? password,
   }) =>
-      TronNewWalletCredentials(name: name, walletInfo: walletInfo);
+      TronNewWalletCredentials(name: name, walletInfo: walletInfo, password: password);
 
   @override
   WalletCredentials createTronRestoreWalletFromSeedCredentials({

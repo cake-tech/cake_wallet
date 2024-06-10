@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Cake Wallet
+Comment=A noncustodial multi-currency wallet
+Categories=Office;Finance;
+Terminal=false
+Icon=com.cakewallet.CakeWallet
+Exec=cake_wallet

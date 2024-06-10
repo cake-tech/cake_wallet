@@ -10,13 +10,13 @@ import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -103,7 +103,9 @@ Future<void> main() async {
 }
 
 Future<void> initializeAppConfigs() async {
-  final appDir = await getApplicationDocumentsDirectory();
+  setRootDirFromEnv();
+  final appDir = await getAppDir();
+  await CakeHive.close();
   CakeHive.init(appDir.path);
 
   if (!CakeHive.isAdapterRegistered(Contact.typeId)) {
@@ -167,7 +169,6 @@ Future<void> initializeAppConfigs() async {
   }
 
   final secureStorage = secureStorageShared;
-
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
   final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
@@ -244,8 +245,8 @@ Future<void> initialSetup(
     ordersSource: ordersSource,
     anonpayInvoiceInfoSource: anonpayInvoiceInfo,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
-    secureStorage: secureStorage,
     navigatorKey: navigatorKey,
+    secureStorage: secureStorage,
   );
   await bootstrap(navigatorKey);
   monero?.onStartup();

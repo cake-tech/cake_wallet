@@ -2,8 +2,8 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 
 class BitcoinCashNewWalletCredentials extends WalletCredentials {
-  BitcoinCashNewWalletCredentials({required String name, WalletInfo? walletInfo})
-      : super(name: name, walletInfo: walletInfo);
+  BitcoinCashNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password})
+      : super(name: name, walletInfo: walletInfo, password: password);
 }
 
 class BitcoinCashRestoreWalletFromSeedCredentials extends WalletCredentials {

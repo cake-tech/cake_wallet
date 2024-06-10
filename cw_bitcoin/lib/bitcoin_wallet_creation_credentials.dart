@@ -6,11 +6,13 @@ class BitcoinNewWalletCredentials extends WalletCredentials {
   BitcoinNewWalletCredentials(
       {required String name,
       WalletInfo? walletInfo,
+      String? password,
       DerivationType? derivationType,
       String? derivationPath})
       : super(
           name: name,
           walletInfo: walletInfo,
+          password: password,
         );
 }
 

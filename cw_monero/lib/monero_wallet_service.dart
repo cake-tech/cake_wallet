@@ -87,7 +87,9 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
       await monero_wallet_manager.createWallet(
           path: path, password: credentials.password!, language: credentials.language);
       final wallet = MoneroWallet(
-          walletInfo: credentials.walletInfo!, unspentCoinsInfo: unspentCoinsInfoSource);
+        walletInfo: credentials.walletInfo!,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: credentials.password!);
       await wallet.init();
 
       return wallet;
@@ -120,10 +122,14 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
         await repairOldAndroidWallet(name);
       }
 
-      await monero_wallet_manager.openWalletAsync({'path': path, 'password': password});
-      final walletInfo = walletInfoSource.values
-          .firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-      wallet = MoneroWallet(walletInfo: walletInfo, unspentCoinsInfo: unspentCoinsInfoSource);
+      await monero_wallet_manager
+          .openWalletAsync({'path': path, 'password': password});
+      final walletInfo = walletInfoSource.values.firstWhere(
+          (info) => info.id == WalletBase.idFor(name, getType()));
+      final wallet = MoneroWallet(
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: password);
       final isValid = wallet.walletAddresses.validate();
 
       if (!isValid) {
@@ -187,11 +193,15 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
   }
 
   @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values
-        .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
-    final currentWallet =
-        MoneroWallet(walletInfo: currentWalletInfo, unspentCoinsInfo: unspentCoinsInfoSource);
+  Future<void> rename(
+      String currentName, String password, String newName) async {
+    final currentWalletInfo = walletInfoSource.values.firstWhere(
+        (info) => info.id == WalletBase.idFor(currentName, getType()));
+    final currentWallet = MoneroWallet(
+      walletInfo: currentWalletInfo,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      password: password,
+    );
 
     await currentWallet.renameWalletFiles(newName);
 
@@ -216,7 +226,9 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
           viewKey: credentials.viewKey,
           spendKey: credentials.spendKey);
       final wallet = MoneroWallet(
-          walletInfo: credentials.walletInfo!, unspentCoinsInfo: unspentCoinsInfoSource);
+        walletInfo: credentials.walletInfo!,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: credentials.password!);
       await wallet.init();
 
       return wallet;
@@ -248,7 +260,9 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
           seed: credentials.mnemonic,
           restoreHeight: credentials.height!);
       final wallet = MoneroWallet(
-          walletInfo: credentials.walletInfo!, unspentCoinsInfo: unspentCoinsInfoSource);
+        walletInfo: credentials.walletInfo!,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: credentials.password!);
       await wallet.init();
 
       return wallet;
@@ -295,7 +309,11 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
         restoreHeight: height,
         spendKey: spendKey);
 
-    final wallet = MoneroWallet(walletInfo: walletInfo, unspentCoinsInfo: unspentCoinsInfoSource);
+    final wallet = MoneroWallet(
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      password: password,
+    );
     await wallet.init();
 
     return wallet;

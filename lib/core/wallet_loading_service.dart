@@ -17,17 +17,18 @@ class WalletLoadingService {
   final KeyService keyService;
   final WalletService Function(WalletType type) walletServiceFactory;
 
-  Future<void> renameWallet(WalletType type, String name, String newName) async {
+  Future<void> renameWallet(WalletType type, String name, String newName,
+      {String? password}) async {
     final walletService = walletServiceFactory.call(type);
-    final password = await keyService.getWalletPassword(walletName: name);
+    final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
 
     // Save the current wallet's password to the new wallet name's key
-    await keyService.saveWalletPassword(walletName: newName, password: password);
+    await keyService.saveWalletPassword(walletName: newName, password: walletPassword);
     // Delete previous wallet name from keyService to keep only new wallet's name
     // otherwise keeps duplicate (old and new names)
     await keyService.deleteWalletPassword(walletName: name);
 
-    await walletService.rename(name, password, newName);
+    await walletService.rename(name, walletPassword, newName);
 
     // set shared preferences flag based on previous wallet name
     if (type == WalletType.monero) {
@@ -38,11 +39,11 @@ class WalletLoadingService {
     }
   }
 
-  Future<WalletBase> load(WalletType type, String name) async {
+  Future<WalletBase> load(WalletType type, String name, {String? password}) async {
     try {
       final walletService = walletServiceFactory.call(type);
-      final password = await keyService.getWalletPassword(walletName: name);
-      final wallet = await walletService.openWallet(name, password);
+      final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+      final wallet = await walletService.openWallet(name, walletPassword);
 
       if (type == WalletType.monero) {
         await updateMoneroWalletPassword(wallet);
@@ -58,8 +59,8 @@ class WalletLoadingService {
       for (var walletInfo in walletInfoSource.values) {
         try {
           final walletService = walletServiceFactory.call(walletInfo.type);
-          final password = await keyService.getWalletPassword(walletName: walletInfo.name);
-          final wallet = await walletService.openWallet(walletInfo.name, password);
+          final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+          final wallet = await walletService.openWallet(walletInfo.name, walletPassword);
 
           if (walletInfo.type == WalletType.monero) {
             await updateMoneroWalletPassword(wallet);

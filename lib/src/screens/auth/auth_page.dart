@@ -12,6 +12,12 @@ import 'package:cake_wallet/core/execution_state.dart';
 
 typedef OnAuthenticationFinished = void Function(bool, AuthPageState);
 
+abstract class AuthPageState<T extends StatefulWidget> extends State<T> {
+  void changeProcessText(String text);
+  void hideProgressText();
+  Future<void> close({String? route, dynamic arguments});
+}
+
 class AuthPage extends StatefulWidget {
   AuthPage(this.authViewModel,
       {required this.onAuthenticationFinished,
@@ -22,10 +28,10 @@ class AuthPage extends StatefulWidget {
   final bool closable;
 
   @override
-  AuthPageState createState() => AuthPageState();
+  AuthPageState createState() => AuthPagePinCodeStateImpl();
 }
 
-class AuthPageState extends State<AuthPage> {
+class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
   final _key = GlobalKey<ScaffoldState>();
   final _pinCodeKey = GlobalKey<PinCodeState>();
   final _backArrowImageDarkTheme =
@@ -55,8 +61,6 @@ class AuthPageState extends State<AuthPage> {
       }
 
       if (state is FailureState) {
-        print('X');
-        print(state.error);
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           _pinCodeKey.currentState?.clear();
           dismissFlushBar(_authBar);
@@ -95,17 +99,20 @@ class AuthPageState extends State<AuthPage> {
     super.dispose();
   }
 
+  @override
   void changeProcessText(String text) {
     dismissFlushBar(_authBar);
     _progressBar = createBar<void>(text, duration: null)
       ..show(_key.currentContext!);
   }
 
+  @override
   void hideProgressText() {
     dismissFlushBar(_progressBar);
     _progressBar = null;
   }
 
+  @override
   Future<void> close({String? route, dynamic arguments}) async {
     if (_key.currentContext == null) {
       throw Exception('Key context is null. Should be not happened');
