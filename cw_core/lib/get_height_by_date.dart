@@ -245,6 +245,7 @@ Future<int> getHavenCurrentHeight() async {
 
 // Data taken from https://timechaincalendar.com/
 const bitcoinDates = {
+  "2024-06": 846005,
   "2024-05": 841590,
   "2024-04": 837182,
   "2024-03": 832623,
