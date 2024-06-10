@@ -44,18 +44,22 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true) {
     switch (type) {
       case WalletType.monero:
-      case WalletType.haven:
-      case WalletType.ethereum:
-      case WalletType.polygon:
         availableModes = WalletRestoreMode.values;
         break;
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.wownero:
+      case WalletType.haven:
+      case WalletType.ethereum:
+      case WalletType.polygon:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
-      default:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+      case WalletType.none:
         availableModes = [WalletRestoreMode.seed];
         break;
     }

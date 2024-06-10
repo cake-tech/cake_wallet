@@ -20,6 +20,7 @@ import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
@@ -111,6 +112,7 @@ abstract class SettingsStoreBase with Store {
       required this.silentPaymentsAlwaysScan,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
+      TransactionPriority? initialWowneroTransactionPriority,
       TransactionPriority? initialHavenTransactionPriority,
       TransactionPriority? initialLitecoinTransactionPriority,
       TransactionPriority? initialEthereumTransactionPriority,
@@ -166,6 +168,10 @@ abstract class SettingsStoreBase with Store {
 
     if (initialMoneroTransactionPriority != null) {
       priority[WalletType.monero] = initialMoneroTransactionPriority;
+    }
+
+    if (initialWowneroTransactionPriority != null) {
+      priority[WalletType.wownero] = initialWowneroTransactionPriority;
     }
 
     if (initialBitcoinTransactionPriority != null) {
@@ -790,6 +796,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? ethereumTransactionPriority;
     TransactionPriority? polygonTransactionPriority;
     TransactionPriority? bitcoinCashTransactionPriority;
+    TransactionPriority? wowneroTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -811,6 +818,10 @@ abstract class SettingsStoreBase with Store {
       bitcoinCashTransactionPriority = bitcoinCash?.deserializeBitcoinCashTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority) != null) {
+      wowneroTransactionPriority = wownero?.deserializeWowneroTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
@@ -818,6 +829,7 @@ abstract class SettingsStoreBase with Store {
     litecoinTransactionPriority ??= bitcoin?.getLitecoinTransactionPriorityMedium();
     ethereumTransactionPriority ??= ethereum?.getDefaultTransactionPriority();
     bitcoinCashTransactionPriority ??= bitcoinCash?.getDefaultTransactionPriority();
+    wowneroTransactionPriority ??= wownero?.getDefaultTransactionPriority();
     polygonTransactionPriority ??= polygon?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
@@ -1134,6 +1146,7 @@ abstract class SettingsStoreBase with Store {
       silentPaymentsCardDisplay: silentPaymentsCardDisplay,
       silentPaymentsAlwaysScan: silentPaymentsAlwaysScan,
       initialMoneroTransactionPriority: moneroTransactionPriority,
+      initialWowneroTransactionPriority: wowneroTransactionPriority,
       initialBitcoinTransactionPriority: bitcoinTransactionPriority,
       initialHavenTransactionPriority: havenTransactionPriority,
       initialLitecoinTransactionPriority: litecoinTransactionPriority,

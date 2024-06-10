@@ -65,6 +65,7 @@ class TransactionListItem extends ActionListItem with Keyable {
   String get formattedStatus {
     if (transaction.direction == TransactionDirection.incoming) {
       if (balanceViewModel.wallet.type == WalletType.monero ||
+          balanceViewModel.wallet.type == WalletType.wownero ||
           balanceViewModel.wallet.type == WalletType.haven) {
         return formattedPendingStatus;
       }
@@ -96,7 +97,7 @@ class TransactionListItem extends ActionListItem with Keyable {
     } catch (e) {
       return null;
     }
-    
+
     return null;
   }
 

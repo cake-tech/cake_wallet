@@ -303,6 +303,7 @@ abstract class DashboardViewModelBase with Store {
   bool get hasRescan =>
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.monero ||
+      wallet.type == WalletType.wownero ||
       wallet.type == WalletType.haven;
 
   @computed
