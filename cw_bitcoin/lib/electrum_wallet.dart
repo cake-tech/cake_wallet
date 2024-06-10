@@ -1132,7 +1132,7 @@ abstract class ElectrumWalletBase
     bool? usingElectrs,
   }) async {
     silentPaymentsScanningActive = true;
-    _setListeners(height, doSingleScan: doSingleScan, useElectrs);
+    _setListeners(height, doSingleScan: doSingleScan, usingElectrs: usingElectrs);
   }
 
   @override
