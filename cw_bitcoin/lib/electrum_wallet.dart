@@ -96,13 +96,17 @@ abstract class ElectrumWalletBase
     this.walletInfo = walletInfo;
     transactionHistory = ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
 
-    reaction((_) => syncStatus, (SyncStatus syncStatus) {
-      if (syncStatus is! AttemptingSyncStatus && syncStatus is! SyncedTipSyncStatus)
+    reaction((_) => syncStatus, (SyncStatus syncStatus) async {
+      if (syncStatus is! AttemptingSyncStatus && syncStatus is! SyncedTipSyncStatus) {
         silentPaymentsScanningActive = syncStatus is SyncingSyncStatus;
+      }
 
       if (syncStatus is NotConnectedSyncStatus) {
         // Needs to re-subscribe to all scripthashes when reconnected
         _scripthashesUpdateSubject = {};
+
+        // TODO: double check this and make sure it doesn't cause any un-necessary calls
+        // await this.electrumClient.connectToUri(node!.uri, useSSL: node!.useSSL);
       }
 
       // Message is shown on the UI for 3 seconds, revert to synced
@@ -219,13 +223,13 @@ abstract class ElectrumWalletBase
     } else {
       alwaysScan = false;
 
-      (await _isolate)?.kill(priority: Isolate.immediate);
+      _isolate?.then((value) => value.kill(priority: Isolate.immediate));
 
       if (electrumClient.isConnected) {
         syncStatus = SyncedSyncStatus();
       } else {
         if (electrumClient.uri != null) {
-          await electrumClient.connectToUri(electrumClient.uri!);
+          await electrumClient.connectToUri(electrumClient.uri!, useSSL: electrumClient.useSSL);
           startSync();
         }
       }
@@ -463,17 +467,7 @@ abstract class ElectrumWalletBase
 
       await electrumClient.close();
 
-      electrumClient.onConnectionStatusChange = (bool? isConnected) async {
-        if (syncStatus is SyncingSyncStatus) return;
-
-        if (isConnected == true && syncStatus is! SyncedSyncStatus) {
-          syncStatus = ConnectedSyncStatus();
-        } else if (isConnected == false) {
-          syncStatus = LostConnectionSyncStatus();
-        } else if (!(isConnected ?? false) && syncStatus is! ConnectingSyncStatus) {
-          syncStatus = NotConnectedSyncStatus();
-        }
-      };
+      electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
 
       await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
     } catch (e) {
@@ -1139,7 +1133,7 @@ abstract class ElectrumWalletBase
     bool? usingElectrs,
   }) async {
     silentPaymentsScanningActive = true;
-    _setListeners(height, doSingleScan: doSingleScan);
+    _setListeners(height, doSingleScan: doSingleScan, usingElectrs: usingElectrs);
   }
 
   @override
@@ -1657,6 +1651,7 @@ abstract class ElectrumWalletBase
       if (_isTransactionUpdating) {
         return;
       }
+      await getCurrentChainTip();
 
       transactionHistory.transactions.values.forEach((tx) async {
         if (tx.unspents != null && tx.unspents!.isNotEmpty && tx.height > 0) {
@@ -1821,6 +1816,19 @@ abstract class ElectrumWalletBase
 
   static String _hardenedDerivationPath(String derivationPath) =>
       derivationPath.substring(0, derivationPath.lastIndexOf("'") + 1);
+
+  @action
+  void _onConnectionStatusChange(bool? isConnected) {
+    if (syncStatus is SyncingSyncStatus) return;
+
+    if (isConnected == true && syncStatus is! SyncedSyncStatus) {
+      syncStatus = ConnectedSyncStatus();
+    } else if (isConnected == false) {
+      syncStatus = LostConnectionSyncStatus();
+    } else if (isConnected != true && syncStatus is! ConnectingSyncStatus) {
+      syncStatus = NotConnectedSyncStatus();
+    }
+  }
 }
 
 class ScanNode {

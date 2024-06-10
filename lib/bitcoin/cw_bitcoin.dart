@@ -306,7 +306,7 @@ class CWBitcoin extends Bitcoin {
     }
 
     final electrumClient = ElectrumClient();
-    await electrumClient.connectToUri(node.uri);
+    await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
 
     late BasedUtxoNetwork network;
     btc.NetworkType networkType;
@@ -560,10 +560,16 @@ class CWBitcoin extends Bitcoin {
     }
 
     final bitcoinWallet = wallet as ElectrumWallet;
-    final tweaksResponse = await bitcoinWallet.electrumClient.getTweaks(height: 0);
+    try {
+      final tweaksResponse = await bitcoinWallet.electrumClient.getTweaks(height: 0);
 
-    if (tweaksResponse != null) {
-      return true;
+      if (tweaksResponse != null) {
+        return true;
+      }
+    } on RequestFailedTimeoutException {
+      return false;
+    } catch (_) {
+      rethrow;
     }
 
     return false;
