@@ -306,7 +306,7 @@ class CWBitcoin extends Bitcoin {
     }
 
     final electrumClient = ElectrumClient();
-    await electrumClient.connectToUri(node.uri);
+    await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
 
     late BasedUtxoNetwork network;
     btc.NetworkType networkType;
@@ -514,18 +514,10 @@ class CWBitcoin extends Bitcoin {
   @override
   Future<void> setScanningActive(Object wallet, bool active) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-
-    if (active && !(await getNodeIsElectrsSPEnabled(wallet))) {
-      final node = Node(
-        useSSL: false,
-        uri: 'electrs.cakewallet.com:${(wallet.network == BitcoinNetwork.testnet ? 50002 : 50001)}',
-      );
-      node.type = WalletType.bitcoin;
-
-      await bitcoinWallet.connectToNode(node: node);
-    }
-
-    bitcoinWallet.setSilentPaymentsScanning(active);
+    bitcoinWallet.setSilentPaymentsScanning(
+      active,
+      active && (await getNodeIsElectrsSPEnabled(wallet)),
+    );
   }
 
   @override
@@ -540,14 +532,6 @@ class CWBitcoin extends Bitcoin {
   @override
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan}) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    if (!(await getNodeIsElectrsSPEnabled(wallet))) {
-      final node = Node(
-        useSSL: false,
-        uri: 'electrs.cakewallet.com:${(wallet.network == BitcoinNetwork.testnet ? 50002 : 50001)}',
-      );
-      node.type = WalletType.bitcoin;
-      await bitcoinWallet.connectToNode(node: node);
-    }
     bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
   }
 
@@ -576,10 +560,16 @@ class CWBitcoin extends Bitcoin {
     }
 
     final bitcoinWallet = wallet as ElectrumWallet;
-    final tweaksResponse = await bitcoinWallet.electrumClient.getTweaks(height: 0);
+    try {
+      final tweaksResponse = await bitcoinWallet.electrumClient.getTweaks(height: 0);
 
-    if (tweaksResponse != null) {
-      return true;
+      if (tweaksResponse != null) {
+        return true;
+      }
+    } on RequestFailedTimeoutException {
+      return false;
+    } catch (_) {
+      rethrow;
     }
 
     return false;

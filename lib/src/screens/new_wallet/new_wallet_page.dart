@@ -39,6 +39,14 @@ class NewWalletPage extends BasePage {
   String get title => S.current.new_wallet;
 
   @override
+  Function(BuildContext)? get pushToNextWidget => (context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.focusedChild?.unfocus();
+    }
+  };
+
+  @override
   Widget body(BuildContext context) => WalletNameForm(
       _walletNewVM,
       currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage,

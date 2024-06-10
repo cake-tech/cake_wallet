@@ -410,7 +410,6 @@ extern "C"
             return false;
         }
 
-        wallet->store(std::string(path));
         change_current_wallet(wallet);
         return true;
     }
