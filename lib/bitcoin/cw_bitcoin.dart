@@ -306,7 +306,7 @@ class CWBitcoin extends Bitcoin {
     }
 
     final electrumClient = ElectrumClient();
-    await electrumClient.connectToUri(node.uri);
+    await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
 
     late BasedUtxoNetwork network;
     btc.NetworkType networkType;

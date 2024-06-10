@@ -224,7 +224,7 @@ abstract class ElectrumWalletBase
         syncStatus = SyncedSyncStatus();
       } else {
         if (electrumClient.uri != null) {
-          await electrumClient.connectToUri(electrumClient.uri!);
+          await electrumClient.connectToUri(electrumClient.uri!, useSSL: electrumClient.useSSL);
           startSync();
         }
       }
@@ -1118,7 +1118,7 @@ abstract class ElectrumWalletBase
   Future<void> rescan(
       {required int height, int? chainTip, ScanData? scanData, bool? doSingleScan}) async {
     silentPaymentsScanningActive = true;
-    _setListeners(height, doSingleScan: doSingleScan);
+    _setListeners(height, doSingleScan: doSingleScan, useElectrs);
   }
 
   @override
