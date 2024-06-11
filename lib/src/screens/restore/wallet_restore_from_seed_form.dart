@@ -194,10 +194,11 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             ),
           if (!isPolyseed && widget.displayBlockHeightSelector)
             BlockchainHeightWidget(
-                focusNode: widget.blockHeightFocusNode,
-                key: blockchainHeightKey,
-                onHeightOrDateEntered: widget.onHeightOrDateEntered,
-                hasDatePicker: widget.type == WalletType.monero),
+              focusNode: widget.blockHeightFocusNode,
+              key: blockchainHeightKey,
+              onHeightOrDateEntered: widget.onHeightOrDateEntered,
+              hasDatePicker: widget.type == WalletType.monero || widget.type == WalletType.wownero,
+            ),
           if (widget.displayPassphrase) ...[
             const SizedBox(height: 10),
             BaseTextFormField(
@@ -209,7 +210,9 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
         ]));
   }
 
-  bool get isPolyseed => widget.seedTypeViewModel.moneroSeedType == SeedType.polyseed;
+  bool get isPolyseed =>
+      widget.seedTypeViewModel.moneroSeedType == SeedType.polyseed &&
+      widget.type == WalletType.monero;
 
   Widget get expandIcon => Container(
         padding: EdgeInsets.all(18),
