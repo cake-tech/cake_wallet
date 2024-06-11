@@ -1,1 +1,3 @@
+In-app Cake Pay is Back
+Bitcoin nodes stability enhancements
 Bug fixes and generic enhancements
