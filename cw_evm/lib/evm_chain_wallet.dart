@@ -342,7 +342,9 @@ abstract class EVMChainWalletBase
     final address = _evmChainPrivateKey.address.hex;
     final transactions = await _client.fetchTransactions(address);
     final internalTransactions = await _client.fetchInternalTransactions(address);
-
+    for (var transaction in transactions) {
+      transaction.evmTransactionType = analyzeTransaction(transaction.input);
+    }
     final List<Future<List<EVMChainTransactionModel>>> erc20TokensTransactions = [];
 
     for (var token in balance.keys) {
@@ -369,6 +371,17 @@ abstract class EVMChainWalletBase
     }
 
     return result;
+  }
+
+  String? analyzeTransaction(String? transactionInput) {
+    final methodSignature = transactionInput != null && transactionInput.length >= 10
+        ? transactionInput.substring(0, 10)
+        : null;
+
+    if (methodSignature == '0x095ea7b3') {
+      return 'approval';
+    }
+    return null;
   }
 
   @override
