@@ -338,9 +338,6 @@ abstract class EVMChainWalletBase
   @override
   Future<Map<String, EVMChainTransactionInfo>> fetchTransactions() async {
     final address = _evmChainPrivateKey.address.hex;
-    final transactions = await _client.fetchTransactions(address);
-    final internalTransactions = await _client.fetchInternalTransactions(address);
-
     final List<Future<List<EVMChainTransactionModel>>> erc20TokensTransactions = [];
 
     for (var token in balance.keys) {
@@ -352,18 +349,38 @@ abstract class EVMChainWalletBase
       }
     }
 
-    final tokensTransaction = await Future.wait(erc20TokensTransactions);
-    transactions.addAll(tokensTransaction.expand((element) => element));
-    transactions.addAll(internalTransactions);
+    final tokensTransaction = await Future.wait(erc20TokensTransactions)
+        .then((value) => value.expand((element) => element).toList());
 
     final Map<String, EVMChainTransactionInfo> result = {};
+    List<EVMChainTransactionModel> transactionsList = [];
+    Set<String> transactionHashes = {};
 
-    for (var transactionModel in transactions) {
-      if (transactionModel.isError) {
-        continue;
+    for (var transaction in tokensTransaction) {
+      transactionsList.add(transaction);
+      transactionHashes.add(transaction.hash);
+    }
+
+    final internalTransactions = await _client.fetchInternalTransactions(address);
+    for (var transaction in internalTransactions) {
+      if (!transactionHashes.contains(transaction.hash)) {
+        transactionsList.add(transaction);
+        transactionHashes.add(transaction.hash);
       }
+    }
 
-      result[transactionModel.hash] = getTransactionInfo(transactionModel, address);
+    final transactions = await _client.fetchTransactions(address);
+    for (var transaction in transactions) {
+      if (!transactionHashes.contains(transaction.hash)) {
+        transactionsList.add(transaction);
+        transactionHashes.add(transaction.hash);
+      }
+    }
+
+    for (var transactionModel in transactionsList) {
+      if (!transactionModel.isError) {
+        result[transactionModel.hash] = getTransactionInfo(transactionModel, address);
+      }
     }
 
     return result;
