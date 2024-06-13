@@ -784,9 +784,9 @@ Future<void> fixBtcDerivationPaths(Box<WalletInfo> walletsInfoSource) async {
         walletInfo.type == WalletType.litecoin) {
       if (walletInfo.derivationInfo?.derivationPath == "m/0'/0") {
         walletInfo.derivationInfo!.derivationPath = "m/0'";
+        await walletInfo.save();
       }
     }
-    await walletInfo.save();
   }
 }
 
