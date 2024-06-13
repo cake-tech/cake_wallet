@@ -37,13 +37,13 @@ else
     for COIN in monero wownero;
     do
         pushd ../monero_c
-            ./build_single.sh ${COIN} x86_64-linux-android $NPROC
+            env -i ./build_single.sh ${COIN} x86_64-linux-android $NPROC
             [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/x86_64-linux-android
             # ./build_single.sh ${COIN} i686-linux-android $NPROC
             # [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/i686-linux-android
-            ./build_single.sh ${COIN} armv7a-linux-androideabi $NPROC
+            env -i ./build_single.sh ${COIN} armv7a-linux-androideabi $NPROC
             [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/armv7a-linux-androideabi
-            ./build_single.sh ${COIN} aarch64-linux-android $NPROC
+            env -i ./build_single.sh ${COIN} aarch64-linux-android $NPROC
             [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/aarch64-linux-android
 
         popd
