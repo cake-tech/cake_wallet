@@ -338,10 +338,8 @@ class CWBitcoin extends Bitcoin {
           int derivationDepth = _countOccurrences(balancePath, "/");
 
           // for BIP44
-          if (derivationDepth == 3) {
-            // we add "/0/0" so that we generate account 0, index 0 and correctly get balance
-            balancePath += "/0/0";
-          } else if (derivationDepth == 1) {
+          if (derivationDepth == 3 || derivationDepth == 1) {
+            // we add "/0" so that we generate account 0
             balancePath += "/0";
           }
 
@@ -350,19 +348,20 @@ class CWBitcoin extends Bitcoin {
             network: networkType,
           ).derivePath(balancePath);
 
+          // derive address at index 0:
           String? address;
           switch (dInfoCopy.scriptType) {
             case "p2wpkh":
-              address = generateP2WPKHAddress(hd: hd, network: network);
+              address = generateP2WPKHAddress(hd: hd, network: network, index: 0);
               break;
             case "p2pkh":
-              address = generateP2PKHAddress(hd: hd, network: network);
+              address = generateP2PKHAddress(hd: hd, network: network, index: 0);
               break;
             case "p2wpkh-p2sh":
-              address = generateP2SHAddress(hd: hd, network: network);
+              address = generateP2SHAddress(hd: hd, network: network, index: 0);
               break;
             case "p2tr":
-              address = generateP2TRAddress(hd: hd, network: network);
+              address = generateP2TRAddress(hd: hd, network: network, index: 0);
               break;
             default:
               continue;
