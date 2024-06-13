@@ -29,7 +29,7 @@ then
         pushd ../monero_c
             docker run --platform linux/amd64 -v$HOME/.cache/ccache:/root/.ccache -v$PWD:$PWD -w $PWD --rm -it git.mrcyjanek.net/mrcyjanek/debian:buster bash -c "git config --global --add safe.directory '*'; apt update; apt install -y ccache gcc g++ libtinfo5 gperf; ./build_single.sh ${COIN} x86_64-linux-android $NPROC"
             # docker run --platform linux/amd64 -v$PWD:$PWD -w $PWD --rm -it git.mrcyjanek.net/mrcyjanek/debian:buster bash -c "git config --global --add safe.directory '*'; apt update; apt install -y ccache gcc g++ libtinfo5 gperf; ./build_single.sh ${COIN} i686-linux-android $NPROC"
-            docker run --platform linux/amd64 -v$HOME/.cache/ccache:/root/.ccache -v$PWD:$PWD -w $PWD --rm -it git.mrcyjanek.net/mrcyjanek/debian:buster bash -c "git config --global --add safe.directory '*'; apt update; apt install -y ccache gcc g++ libtinfo5 gperf; ./build_single.sh ${COIN} arm-linux-androideabi $NPROC"
+            docker run --platform linux/amd64 -v$HOME/.cache/ccache:/root/.ccache -v$PWD:$PWD -w $PWD --rm -it git.mrcyjanek.net/mrcyjanek/debian:buster bash -c "git config --global --add safe.directory '*'; apt update; apt install -y ccache gcc g++ libtinfo5 gperf; ./build_single.sh ${COIN} armv7a-linux-androideabi $NPROC"
             docker run --platform linux/amd64 -v$HOME/.cache/ccache:/root/.ccache -v$PWD:$PWD -w $PWD --rm -it git.mrcyjanek.net/mrcyjanek/debian:buster bash -c "git config --global --add safe.directory '*'; apt update; apt install -y ccache gcc g++ libtinfo5 gperf; ./build_single.sh ${COIN} aarch64-linux-android $NPROC"
         popd
     done
@@ -41,8 +41,8 @@ else
             [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/x86_64-linux-android
             # ./build_single.sh ${COIN} i686-linux-android $NPROC
             # [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/i686-linux-android
-            ./build_single.sh ${COIN} arm-linux-androideabi $NPROC
-            [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/arm-linux-androideabi
+            ./build_single.sh ${COIN} armv7a-linux-androideabi $NPROC
+            [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/armv7a-linux-androideabi
             ./build_single.sh ${COIN} aarch64-linux-android $NPROC
             [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/aarch64-linux-android
 
@@ -50,8 +50,8 @@ else
         unxz -f ../monero_c/release/${COIN}/x86_64-linux-android_libwallet2_api_c.so.xz
         unxz -f ../monero_c/release/${COIN}/x86_64-linux-android_libc++_shared.so.xz
 
-        unxz -f ../monero_c/release/${COIN}/arm-linux-androideabi_libwallet2_api_c.so.xz
-        unxz -f ../monero_c/release/${COIN}/arm-linux-androideabi_libc++_shared.so.xz
+        unxz -f ../monero_c/release/${COIN}/armv7a-linux-androideabi_libwallet2_api_c.so.xz
+        unxz -f ../monero_c/release/${COIN}/armv7a-linux-androideabi_libc++_shared.so.xz
 
         unxz -f ../monero_c/release/${COIN}/aarch64-linux-android_libwallet2_api_c.so.xz
         unxz -f ../monero_c/release/${COIN}/aarch64-linux-android_libc++_shared.so.xz
