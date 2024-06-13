@@ -118,25 +118,27 @@ class ExceptionHandler {
 
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) async {
-        await showPopUp<void>(
-          context: navigatorKey.currentContext!,
-          builder: (context) {
-            return AlertWithTwoActions(
-              isDividerExist: true,
-              alertTitle: S.of(context).error,
-              alertContent: S.of(context).error_dialog_content,
-              rightButtonText: S.of(context).send,
-              leftButtonText: S.of(context).do_not_send,
-              actionRightButton: () {
-                Navigator.of(context).pop();
-                _sendExceptionFile();
-              },
-              actionLeftButton: () {
-                Navigator.of(context).pop();
-              },
-            );
-          },
-        );
+        if (navigatorKey.currentContext != null) {
+          await showPopUp<void>(
+            context: navigatorKey.currentContext!,
+            builder: (context) {
+              return AlertWithTwoActions(
+                isDividerExist: true,
+                alertTitle: S.of(context).error,
+                alertContent: S.of(context).error_dialog_content,
+                rightButtonText: S.of(context).send,
+                leftButtonText: S.of(context).do_not_send,
+                actionRightButton: () {
+                  Navigator.of(context).pop();
+                  _sendExceptionFile();
+                },
+                actionLeftButton: () {
+                  Navigator.of(context).pop();
+                },
+              );
+            },
+          );
+        }
 
         _hasError = false;
       },
