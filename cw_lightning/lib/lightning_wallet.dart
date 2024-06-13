@@ -358,6 +358,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     int? chainTip,
     ScanData? scanData,
     bool? doSingleScan,
+    bool? usingElectrs,
   }) async {
     updateTransactions();
   }
