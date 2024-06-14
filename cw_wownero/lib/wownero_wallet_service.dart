@@ -78,17 +78,17 @@ class WowneroWalletService extends WalletService<
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
 
-      // if (credentials.isPolyseed) {
-      //   final polyseed = Polyseed.create();
-      //   final lang = PolyseedLang.getByEnglishName(credentials.language);
-      //
-      //   final heightOverride =
-      //       getWowneroHeightByDate(date: DateTime.now().subtract(Duration(days: 2)));
-      //
-      //   return _restoreFromPolyseed(
-      //       path, credentials.password!, polyseed, credentials.walletInfo!, lang,
-      //       overrideHeight: heightOverride);
-      // }
+      if (credentials.isPolyseed) {
+        final polyseed = Polyseed.create();
+        final lang = PolyseedLang.getByEnglishName(credentials.language);
+
+        final heightOverride =
+            getWowneroHeightByDate(date: DateTime.now().subtract(Duration(days: 2)));
+
+        return _restoreFromPolyseed(
+            path, credentials.password!, polyseed, credentials.walletInfo!, lang,
+            overrideHeight: heightOverride);
+      }
 
       await wownero_wallet_manager.createWallet(
           path: path, password: credentials.password!, language: credentials.language);
@@ -256,9 +256,9 @@ class WowneroWalletService extends WalletService<
   Future<WowneroWallet> restoreFromSeed(WowneroRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
     // Restore from Polyseed
-    // if (Polyseed.isValidSeed(credentials.mnemonic)) {
-    //   return restoreFromPolyseed(credentials);
-    // }
+    if (Polyseed.isValidSeed(credentials.mnemonic)) {
+      return restoreFromPolyseed(credentials);
+    }
 
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
@@ -279,48 +279,47 @@ class WowneroWalletService extends WalletService<
     }
   }
 
-  // TODO: enable when polyseed package supports wownero
-  // Future<WowneroWallet> restoreFromPolyseed(
-  //     WowneroRestoreWalletFromSeedCredentials credentials) async {
-  //   try {
-  //     final path = await pathForWallet(name: credentials.name, type: getType());
-  //     final polyseedCoin = PolyseedCoin.POLYSEED_WOWNERO;
-  //     final lang = PolyseedLang.getByPhrase(credentials.mnemonic);
-  //     final polyseed = Polyseed.decode(credentials.mnemonic, lang, polyseedCoin);
-  //
-  //     return _restoreFromPolyseed(
-  //         path, credentials.password!, polyseed, credentials.walletInfo!, lang);
-  //   } catch (e) {
-  //     // TODO: Implement Exception for wallet list service.
-  //     print('WowneroWalletsManager Error: $e');
-  //     rethrow;
-  //   }
-  // }
-  //
-  // Future<WowneroWallet> _restoreFromPolyseed(
-  //     String path, String password, Polyseed polyseed, WalletInfo walletInfo, PolyseedLang lang,
-  //     {PolyseedCoin coin = PolyseedCoin.POLYSEED_WOWNERO, int? overrideHeight}) async {
-  //   final height = overrideHeight ??
-  //       getWowneroHeightByDate(date: DateTime.fromMillisecondsSinceEpoch(polyseed.birthday * 1000));
-  //   final spendKey = polyseed.generateKey(coin, 32).toHexString();
-  //   final seed = polyseed.encode(lang, coin);
-  //
-  //   walletInfo.isRecovery = true;
-  //   walletInfo.restoreHeight = height;
-  //
-  //   await wownero_wallet_manager.restoreFromSpendKey(
-  //       path: path,
-  //       password: password,
-  //       seed: seed,
-  //       language: lang.nameEnglish,
-  //       restoreHeight: height,
-  //       spendKey: spendKey);
-  //
-  //   final wallet = WowneroWallet(walletInfo: walletInfo, unspentCoinsInfo: unspentCoinsInfoSource);
-  //   await wallet.init();
-  //
-  //   return wallet;
-  // }
+  Future<WowneroWallet> restoreFromPolyseed(
+      WowneroRestoreWalletFromSeedCredentials credentials) async {
+    try {
+      final path = await pathForWallet(name: credentials.name, type: getType());
+      final polyseedCoin = PolyseedCoin.POLYSEED_WOWNERO;
+      final lang = PolyseedLang.getByPhrase(credentials.mnemonic);
+      final polyseed = Polyseed.decode(credentials.mnemonic, lang, polyseedCoin);
+
+      return _restoreFromPolyseed(
+          path, credentials.password!, polyseed, credentials.walletInfo!, lang);
+    } catch (e) {
+      // TODO: Implement Exception for wallet list service.
+      print('WowneroWalletsManager Error: $e');
+      rethrow;
+    }
+  }
+
+  Future<WowneroWallet> _restoreFromPolyseed(
+      String path, String password, Polyseed polyseed, WalletInfo walletInfo, PolyseedLang lang,
+      {PolyseedCoin coin = PolyseedCoin.POLYSEED_WOWNERO, int? overrideHeight}) async {
+    final height = overrideHeight ??
+        getWowneroHeightByDate(date: DateTime.fromMillisecondsSinceEpoch(polyseed.birthday * 1000));
+    final spendKey = polyseed.generateKey(coin, 32).toHexString();
+    final seed = polyseed.encode(lang, coin);
+
+    walletInfo.isRecovery = true;
+    walletInfo.restoreHeight = height;
+
+    await wownero_wallet_manager.restoreFromSpendKey(
+        path: path,
+        password: password,
+        seed: seed,
+        language: lang.nameEnglish,
+        restoreHeight: height,
+        spendKey: spendKey);
+
+    final wallet = WowneroWallet(walletInfo: walletInfo, unspentCoinsInfo: unspentCoinsInfoSource);
+    await wallet.init();
+
+    return wallet;
+  }
 
   Future<void> repairOldAndroidWallet(String name) async {
     try {

@@ -83,7 +83,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   }
 
   void onSeedChange(String seed) {
-    if (widget.type == WalletType.monero && Polyseed.isValidSeed(seed)) {
+    if ((widget.type == WalletType.monero || widget.type == WalletType.wownero) &&
+        Polyseed.isValidSeed(seed)) {
       final lang = PolyseedLang.getByPhrase(seed);
 
       _changeSeedType(SeedType.polyseed);
@@ -142,7 +143,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
               language: language,
               type: widget.type,
               onSeedChange: onSeedChange),
-          if (widget.type == WalletType.monero)
+          if (widget.type == WalletType.monero || widget.type == WalletType.wownero)
             GestureDetector(
               onTap: () async {
                 await showPopUp<void>(
@@ -212,7 +213,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
 
   bool get isPolyseed =>
       widget.seedTypeViewModel.moneroSeedType == SeedType.polyseed &&
-      widget.type == WalletType.monero;
+          (widget.type == WalletType.monero || widget.type == WalletType.wownero);
 
   Widget get expandIcon => Container(
         padding: EdgeInsets.all(18),

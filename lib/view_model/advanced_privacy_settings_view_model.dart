@@ -52,7 +52,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
     }
   }
 
-  bool get hasSeedTypeOption => type == WalletType.monero;
+  bool get hasSeedTypeOption => type == WalletType.monero || type == WalletType.wownero;
 
   @computed
   bool get addCustomNode => _addCustomNode;

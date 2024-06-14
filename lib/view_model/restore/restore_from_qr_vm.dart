@@ -49,7 +49,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
   @observable
   String address;
 
-  bool get hasRestorationHeight => type == WalletType.monero;
+  bool get hasRestorationHeight => type == WalletType.monero || type == WalletType.wownero;
 
   @override
   WalletCredentials getCredentialsFromRestoredWallet(

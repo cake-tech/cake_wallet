@@ -158,6 +158,10 @@ abstract class OutputBase with Store {
         return monero!.formatterMoneroAmountToDouble(amount: fee);
       }
 
+      if (_wallet.type == WalletType.wownero) {
+        return wownero!.formatterWowneroAmountToDouble(amount: fee);
+      }
+
       if (_wallet.type == WalletType.haven) {
         return haven!.formatterMoneroAmountToDouble(amount: fee);
       }
