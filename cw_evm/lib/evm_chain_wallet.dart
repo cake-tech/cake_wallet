@@ -352,13 +352,21 @@ abstract class EVMChainWalletBase
 
   @override
   Future<Map<String, EVMChainTransactionInfo>> fetchTransactions() async {
-    final address = _evmChainPrivateKey.address.hex;
-    final transactions = await _client.fetchTransactions(address);
-    final internalTransactions = await _client.fetchInternalTransactions(address);
-    for (var transaction in transactions) {
-      transaction.evmSignatureName = analyzeTransaction(transaction.input);
-    }
+    final List<EVMChainTransactionModel> transactions = [];
     final List<Future<List<EVMChainTransactionModel>>> erc20TokensTransactions = [];
+
+    final address = _evmChainPrivateKey.address.hex;
+    final externalTransactions = await _client.fetchTransactions(address);
+    final internalTransactions = await _client.fetchInternalTransactions(address);
+
+    for (var transaction in externalTransactions) {
+      final evmSignatureName = analyzeTransaction(transaction.input);
+
+      if (evmSignatureName != 'depositWithExpiry' && evmSignatureName != 'transfer') {
+        transaction.evmSignatureName = evmSignatureName;
+        transactions.add(transaction);
+      }
+    }
 
     for (var token in balance.keys) {
       if (token is Erc20Token) {

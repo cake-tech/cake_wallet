@@ -89,7 +89,7 @@ class TransactionsPage extends StatelessWidget {
 
                           final transaction = item.transaction;
                           final transactionType = dashboardViewModel.type == WalletType.ethereum &&
-                              transaction.evmSignatureName != null
+                              transaction.evmSignatureName == 'approval'
                               ? ' (${transaction.evmSignatureName})'
                               : '';
 
