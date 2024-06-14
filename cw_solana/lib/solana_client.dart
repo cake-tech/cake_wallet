@@ -29,6 +29,12 @@ class SolanaWalletClient {
 
         rpcUri = Uri.https(node.uriRaw, '/solana/$ankrApiKey');
         webSocketUrl = 'wss://${node.uriRaw}/solana/ws/$ankrApiKey';
+      } else if (node.uriRaw == 'sol.nownodes.io') {
+        isModifiedNodeUri = true;
+        String nowNodesApiKey = secrets.nowNodesApiKey;
+
+        rpcUri = Uri.https(node.uriRaw, '/$nowNodesApiKey');
+        webSocketUrl = 'wss://${node.uriRaw}/wss/$nowNodesApiKey';
       } else {
         webSocketUrl = 'wss://${node.uriRaw}';
       }
