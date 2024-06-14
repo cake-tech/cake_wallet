@@ -1,4 +1,3 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
@@ -11,7 +10,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
-import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 import 'package:polyseed/polyseed.dart';
 
 part 'wallet_keys_view_model.g.dart';
@@ -118,6 +116,16 @@ abstract class WalletKeysViewModelBase with Store {
           StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']!),
         StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
+
+      if (_appStore.wallet?.seed != null &&
+          Polyseed.isValidSeed(_appStore.wallet!.seed!, coin: PolyseedCoin.POLYSEED_WOWNERO)) {
+        final lang = PolyseedLang.getByPhrase(_appStore.wallet!.seed!);
+        final legacyLang = _getLegacySeedLang(lang);
+        final legacySeed =
+            Polyseed.decode(_appStore.wallet!.seed!, lang, PolyseedCoin.POLYSEED_WOWNERO)
+                .toLegacySeed(legacyLang);
+        items.add(StandartListItem(title: S.current.wallet_seed_legacy, value: legacySeed));
+      }
     }
 
     if (_appStore.wallet!.type == WalletType.bitcoin ||

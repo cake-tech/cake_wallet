@@ -137,7 +137,10 @@ class WalletRestoreFromQRCode {
       final seedValue = credentials['seed'] as String;
       final words = SeedValidator.getWordList(type: type, language: 'english');
 
-      if (type == WalletType.monero && Polyseed.isValidSeed(seedValue)) {
+      if ((type == WalletType.monero || type == WalletType.wownero) &&
+          Polyseed.isValidSeed(seedValue, coin: type == WalletType.monero
+              ? PolyseedCoin.POLYSEED_MONERO
+              : PolyseedCoin.POLYSEED_WOWNERO)) {
         return WalletRestoreMode.seed;
       }
 

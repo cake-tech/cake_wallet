@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
-import 'package:polyseed/polyseed.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class WalletRestorePage extends BasePage {
@@ -48,8 +47,7 @@ class WalletRestorePage extends BasePage {
                 }
               },
               onSeedChange: (String seed) {
-                final isPolyseed =
-                    walletRestoreViewModel.type == WalletType.monero && Polyseed.isValidSeed(seed);
+                final isPolyseed = walletRestoreViewModel.isPolyseed(seed);
                 _validateOnChange(isPolyseed: isPolyseed);
               },
               onLanguageChange: (String language) {
@@ -253,7 +251,7 @@ class WalletRestorePage extends BasePage {
   bool _isValidSeed() {
     final seedPhrase =
         walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.text;
-    if (walletRestoreViewModel.type == WalletType.monero && Polyseed.isValidSeed(seedPhrase))
+    if (walletRestoreViewModel.isPolyseed(seedPhrase))
       return true;
 
     final seedWords = seedPhrase.split(' ');

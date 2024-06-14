@@ -46,6 +46,11 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           return 16;
         }
         return 25;
+      case WalletType.wownero:
+        if (advancedPrivacySettingsViewModel.isPolySeed) {
+          return 14;
+        }
+        return 25;
       case WalletType.tron:
       case WalletType.solana:
       case WalletType.polygon:
@@ -57,7 +62,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
     }
   }
 
-  bool get hasSeedType => type == WalletType.monero;
+  bool get hasSeedType => type == WalletType.monero || type == WalletType.wownero;
 
   @override
   WalletCredentials getCredentials(dynamic _options) {

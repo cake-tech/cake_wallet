@@ -12,6 +12,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:polyseed/polyseed.dart';
 
 part 'wallet_creation_vm.g.dart';
 
@@ -40,6 +41,14 @@ abstract class WalletCreationVMBase with Store {
   final WalletCreationService walletCreationService;
   final Box<WalletInfo> _walletInfoSource;
   final AppStore _appStore;
+
+  PolyseedCoin get _polyseedCoin => type == WalletType.monero
+      ? PolyseedCoin.POLYSEED_MONERO
+      : PolyseedCoin.POLYSEED_WOWNERO;
+
+  bool isPolyseed(String seed) =>
+      (type == WalletType.monero || type == WalletType.wownero) &&
+      Polyseed.isValidSeed(seed, coin: _polyseedCoin);
 
   bool nameExists(String name) => walletCreationService.exists(name);
 

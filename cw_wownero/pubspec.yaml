@@ -19,7 +19,11 @@ dependencies:
   flutter_mobx: ^2.0.6+1
   intl: ^0.18.0
   encrypt: ^5.0.1
-  polyseed: ^0.0.2
+  #  polyseed: ^0.0.4
+  polyseed:
+    git:
+      url: https://github.com/cake-tech/polyseed_dart
+      ref: support_wownero_14_seeds
   cw_core:
     path: ../cw_core
   monero:
