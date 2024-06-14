@@ -1233,7 +1233,6 @@ Future<void> setup({
   getIt.registerFactoryParam<LightningInvoicePage, void, void>((_, __) {
     return LightningInvoicePage(
       lightningInvoicePageViewModel: getIt.get<LightningInvoicePageViewModel>(),
-      lightningViewModel: getIt.get<LightningViewModel>(),
       receiveOptionViewModel:
           getIt.get<ReceiveOptionViewModel>(param1: lightning!.getOptionInvoice()),
     );

@@ -279,7 +279,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         providerId: providerId,
         providerName: providerName,
         createdAt: DateTime.tryParse(date)?.toLocal(),
-        amount: responseJSON['amount_from']?.toString() ?? request.fromAmount,
+        amount: responseAmount,
         payoutAddress: payoutAddress,
         isSendAll: isSendAll);
   }

@@ -31,7 +31,6 @@ import 'package:qr_flutter/qr_flutter.dart' as qr;
 
 class LightningInvoicePage extends BasePage {
   LightningInvoicePage({
-    required this.lightningViewModel,
     required this.lightningInvoicePageViewModel,
     required this.receiveOptionViewModel,
   }) : _amountFocusNode = FocusNode() {}
@@ -40,7 +39,6 @@ class LightningInvoicePage extends BasePage {
   final _amountController = TextEditingController();
   final FocusNode _amountFocusNode;
 
-  final LightningViewModel lightningViewModel;
   final LightningInvoicePageViewModel lightningInvoicePageViewModel;
   final ReceiveOptionViewModel receiveOptionViewModel;
   final _formKey = GlobalKey<FormState>();

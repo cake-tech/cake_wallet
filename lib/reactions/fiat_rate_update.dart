@@ -47,6 +47,10 @@ Future<void> startFiatRateUpdate(
           currencies =
               solana!.getSPLTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
           break;
+        case WalletType.tron:
+          currencies =
+              tron!.getTronTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
+          break;
         case WalletType.lightning:
           currencies = [CryptoCurrency.btc];
           break;
@@ -58,9 +62,10 @@ Future<void> startFiatRateUpdate(
       for (final currency in currencies) {
         () async {
           fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
-              crypto: currency,
-              fiat: settingsStore.fiatCurrency,
-              torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+            crypto: currency,
+            fiat: settingsStore.fiatCurrency,
+            torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+          );
         }.call();
       }
 
@@ -68,28 +73,6 @@ Future<void> startFiatRateUpdate(
       // (btcln price is just the btc price divided by 100000000)
       fiatConversionStore.prices[CryptoCurrency.btcln] =
           (fiatConversionStore.prices[CryptoCurrency.btc] ?? 0) / 100000000;
-      
-      if (appStore.wallet!.type == WalletType.solana) {
-        currencies =
-            solana!.getSPLTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
-      }
-
-      if (appStore.wallet!.type == WalletType.tron) {
-        currencies =
-            tron!.getTronTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
-      }
-
-
-      if (currencies != null) {
-        for (final currency in currencies) {
-          () async {
-            fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
-                crypto: currency,
-                fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
-          }.call();
-        }
-      }
     } catch (e) {
       print(e);
     }
