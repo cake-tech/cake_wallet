@@ -23,6 +23,10 @@ import 'package:hive/hive.dart';
 import 'package:intl/src/intl/date_format.dart';
 import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
+
+import 'dashboard/dashboard_view_model.dart';
 
 part 'transaction_details_view_model.g.dart';
 
@@ -33,6 +37,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   TransactionDetailsViewModelBase(
       {required this.transactionInfo,
       required this.transactionDescriptionBox,
+      required this.dashboardViewModel,
       required this.wallet,
       required this.settingsStore,
       required this.sendViewModel})
@@ -94,6 +99,16 @@ abstract class TransactionDetailsViewModelBase with Store {
       }
     }
 
+    final description = dashboardViewModel.getTransactionDescription(transactionInfo);
+
+
+      final fiatHistoricalRate = dashboardViewModel.getFormattedFiatAmount(transactionInfo);
+      if (fiatHistoricalRate != null && fiatHistoricalRate.isNotEmpty) {
+        final formattedFiatValue = fiatHistoricalRate.split(' ').reversed.join(' ');
+      items.add(StandartListItem(
+          title: S.current.historical_fiat_amount, value: formattedFiatValue));
+    }
+
     final type = wallet.type;
 
     items.add(BlockExplorerListItem(
@@ -104,10 +119,6 @@ abstract class TransactionDetailsViewModelBase with Store {
             launch(_explorerUrl(type, tx.id));
           } catch (e) {}
         }));
-
-    final description = transactionDescriptionBox.values.firstWhere(
-        (val) => val.id == transactionInfo.id,
-        orElse: () => TransactionDescription(id: transactionInfo.id));
 
     items.add(TextFieldListItem(
         title: S.current.note_tap_to_change,
@@ -121,10 +132,12 @@ abstract class TransactionDetailsViewModelBase with Store {
             transactionDescriptionBox.add(description);
           }
         }));
+
   }
 
   final TransactionInfo transactionInfo;
   final Box<TransactionDescription> transactionDescriptionBox;
+  final DashboardViewModel dashboardViewModel;
   final SettingsStore settingsStore;
   final WalletBase wallet;
   final SendViewModel sendViewModel;

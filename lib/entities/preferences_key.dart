@@ -80,6 +80,7 @@ class PreferencesKey {
   static const lastSeenAppVersion = 'last_seen_app_version';
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';
+  static const showHistoricalFiatAmountKey = 'show_historical_fiat_amount';
   static const serviceStatusShaKey = 'service_status_sha_key';
   static const walletConnectPairingTopicsList = 'wallet_connect_pairing_topics_list';
   static String walletConnectPairingTopicsListForWallet(String publicKey) =>

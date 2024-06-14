@@ -63,6 +63,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialWalletListAscending,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
+      required bool initialShowHistoricalFiatAmount,
       required String initialTotpSecretKey,
       required bool initialUseTOTP2FA,
       required int initialFailedTokenTrial,
@@ -133,6 +134,7 @@ abstract class SettingsStoreBase with Store {
         useTOTP2FA = initialUseTOTP2FA,
         numberOfFailedTokenTrials = initialFailedTokenTrial,
         isAppSecure = initialAppSecure,
+        showHistoricalFiatAmount = initialShowHistoricalFiatAmount,
         disableBuy = initialDisableBuy,
         disableSell = initialDisableSell,
         disableBulletin = initialDisableBulletin,
@@ -337,6 +339,12 @@ abstract class SettingsStoreBase with Store {
         (_) => numberOfFailedTokenTrials,
         (int failedTokenTrail) =>
             sharedPreferences.setInt(PreferencesKey.failedTotpTokenTrials, failedTokenTrail));
+
+    reaction(
+            (_) => showHistoricalFiatAmount,
+            (bool historicalFiatRate) => sharedPreferences.setBool(
+            PreferencesKey.showHistoricalFiatAmountKey,
+                historicalFiatRate));
 
     reaction(
         (_) => shouldShowMarketPlaceInDashboard,
@@ -604,6 +612,9 @@ abstract class SettingsStoreBase with Store {
   bool shouldRequireTOTP2FAForAccessingWallet;
 
   @observable
+  bool showHistoricalFiatAmount;
+
+  @observable
   bool shouldRequireTOTP2FAForSendsToContact;
 
   @observable
@@ -828,6 +839,9 @@ abstract class SettingsStoreBase with Store {
     final disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? false;
     final disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? false;
     final disableBulletin = sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? false;
+    final showHistoricalFiatAmount = sharedPreferences
+        .getBool(PreferencesKey.showHistoricalFiatAmountKey) ??
+    false;
     final walletListOrder =
         WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     final walletListAscending =
@@ -1094,6 +1108,7 @@ abstract class SettingsStoreBase with Store {
       initialAppSecure: isAppSecure,
       initialDisableBuy: disableBuy,
       initialDisableSell: disableSell,
+      initialShowHistoricalFiatAmount: showHistoricalFiatAmount,
       initialDisableBulletin: disableBulletin,
       initialWalletListOrder: walletListOrder,
       initialWalletListAscending: walletListAscending,
@@ -1216,6 +1231,9 @@ abstract class SettingsStoreBase with Store {
             shouldSaveRecipientAddress;
     numberOfFailedTokenTrials =
         sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? numberOfFailedTokenTrials;
+    showHistoricalFiatAmount = sharedPreferences
+        .getBool(PreferencesKey.showHistoricalFiatAmountKey) ??
+        showHistoricalFiatAmount;
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? disableBuy;
     disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? disableSell;

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
@@ -9,6 +10,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/di.dart';
@@ -22,12 +24,15 @@ import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
+import 'fiat_historical_rate_update.dart';
+
 ReactionDisposer? _onCurrentWalletChangeReaction;
 ReactionDisposer? _onCurrentWalletChangeFiatRateUpdateReaction;
 //ReactionDisposer _onCurrentWalletAddressChangeReaction;
 
 void startCurrentWalletChangeReaction(
-    AppStore appStore, SettingsStore settingsStore, FiatConversionStore fiatConversionStore) {
+    AppStore appStore, SettingsStore settingsStore, FiatConversionStore fiatConversionStore,
+    Box<TransactionDescription> transactionDescription) {
   _onCurrentWalletChangeReaction?.reaction.dispose();
   _onCurrentWalletChangeFiatRateUpdateReaction?.reaction.dispose();
   //_onCurrentWalletAddressChangeReaction?.reaction?dispose();
@@ -63,7 +68,7 @@ void startCurrentWalletChangeReaction(
 
       final node = settingsStore.getCurrentNode(wallet.type);
 
-      startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
+      startWalletSyncStatusChangeReaction(wallet, fiatConversionStore, settingsStore, transactionDescription);
       startCheckConnectionReaction(wallet, settingsStore);
       await getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
       await getIt
@@ -139,7 +144,9 @@ void startCurrentWalletChangeReaction(
                 fiat: settingsStore.fiatCurrency,
                 torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
           }.call();
+
         }
+
       }
     } catch (e) {
       print(e.toString());

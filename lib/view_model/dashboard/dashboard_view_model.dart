@@ -1,3 +1,15 @@
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
+import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_core/monero_amount_format.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/balance.dart';
 import 'dart:convert';
 
 import 'package:cake_wallet/buy/buy_provider.dart';
@@ -29,6 +41,10 @@ import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
+import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cryptography/cryptography.dart';
@@ -63,6 +79,7 @@ abstract class DashboardViewModelBase with Store {
       required this.settingsStore,
       required this.yatStore,
       required this.ordersStore,
+      required this.transactionDescriptionBox,
       required this.anonpayTransactionsStore,
       required this.sharedPreferences,
       required this.keyService})
@@ -162,18 +179,22 @@ abstract class DashboardViewModelBase with Store {
       final sortedTransactions = [..._accountTransactions];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
 
-      transactions = ObservableList.of(sortedTransactions.map((transaction) => TransactionListItem(
-          transaction: transaction,
-          balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore)));
+      transactions = ObservableList.of(sortedTransactions.map((transaction) {
+        return TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore);
+      }));
     } else {
       final sortedTransactions = [...wallet.transactionHistory.transactions.values];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
 
-      transactions = ObservableList.of(sortedTransactions.map((transaction) => TransactionListItem(
-          transaction: transaction,
-          balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore)));
+      transactions = ObservableList.of(sortedTransactions.map((transaction) {
+        return TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore);
+      }));
     }
 
     // TODO: nano sub-account generation is disabled:
@@ -345,6 +366,8 @@ abstract class DashboardViewModelBase with Store {
   TransactionFilterStore transactionFilterStore;
 
   Map<String, List<FilterItem>> filterItems;
+
+  final Box<TransactionDescription> transactionDescriptionBox;
 
   BuyProvider? get defaultBuyProvider => ProvidersHelper.getProviderByType(
       settingsStore.defaultBuyProviders[wallet.type] ?? ProviderType.askEachTime);
@@ -520,6 +543,10 @@ abstract class DashboardViewModelBase with Store {
     hasSellAction = !isHaven;
   }
 
+  TransactionDescription getTransactionDescription(TransactionInfo transactionInfo) =>
+      transactionDescriptionBox.values.firstWhere((val) => val.id == transactionInfo.id,
+          orElse: () => TransactionDescription(id: transactionInfo.id));
+
   @computed
   SyncMode get syncMode => settingsStore.currentSyncMode;
 
@@ -565,6 +592,24 @@ abstract class DashboardViewModelBase with Store {
     } catch (_) {
       return [];
     }
+  }
+
+  String? getFormattedFiatAmount(TransactionInfo transaction) {
+    final description = getTransactionDescription(transaction);
+    if (settingsStore.showHistoricalFiatAmount) {
+      if (settingsStore.fiatApiMode == FiatApiMode.disabled) return '';
+      final fiatName = settingsStore.fiatCurrency.toString();
+      final fiatRate = double.tryParse(description.historicalRates[fiatName] ?? '');
+      final formattedHistoricalRate = (fiatRate != null && fiatRate < 0.01)
+          ? '$fiatName < 0.01'
+          : fiatRate != null
+              ? '$fiatName ${fiatRate.toStringAsFixed(2)}'
+              : '';
+
+      return formattedHistoricalRate;
+    }
+
+    return null;
   }
 
   Future<ServicesResponse> getServicesStatus() async {

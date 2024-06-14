@@ -40,6 +40,14 @@ class DisplaySettingsPage extends BasePage {
                   _displaySettingsViewModel.setShouldShowMarketPlaceInDashbaord(value);
                 },
               ),
+              if (!_displaySettingsViewModel.disabledFiatApiMode)
+          SettingsSwitcherCell(
+            title: S.current.historical_fiat_rate,
+            value: _displaySettingsViewModel.showHistoricalFiatAmount,
+            onValueChange: (_, bool value) {
+              _displaySettingsViewModel.setShowHistoricalFiatAmount(value);
+            },
+                ),
               //if (!isHaven) it does not work correctly
               if (!_displaySettingsViewModel.disabledFiatApiMode)
                 SettingsPickerCell<FiatCurrency>(

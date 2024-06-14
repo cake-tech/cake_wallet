@@ -384,8 +384,10 @@ Future<void> setup({
       yatStore: getIt.get<YatStore>(),
       ordersStore: getIt.get<OrdersStore>(),
       anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
+      transactionDescriptionBox: _transactionDescriptionBox,
       sharedPreferences: getIt.get<SharedPreferences>(),
       keyService: getIt.get<KeyService>()));
+
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
@@ -949,6 +951,7 @@ Future<void> setup({
     return TransactionDetailsViewModel(
         transactionInfo: transactionInfo,
         transactionDescriptionBox: _transactionDescriptionBox,
+        dashboardViewModel: getIt.get<DashboardViewModel>(),
         wallet: wallet,
         settingsStore: getIt.get<SettingsStore>(),
         sendViewModel: getIt.get<SendViewModel>());
@@ -1174,6 +1177,8 @@ Future<void> setup({
       initialContractAddress: arguments['contractAddress'] as String?,
     ),
   );
+
+  getIt.registerSingleton<Box<TransactionDescription>>(transactionDescriptionBox);
 
   getIt.registerFactoryParam<ManageNodesPage, bool, void>((bool isPow, _) {
     if (isPow) {
