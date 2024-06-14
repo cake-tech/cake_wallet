@@ -53,12 +53,13 @@ class SecretKey {
 
   static final solanaSecrets = [
     SecretKey('ankrApiKey', () => ''),
+    SecretKey('nowNodesApiKey', () => ''),
   ];
 
   static final nanoSecrets = [
     SecretKey('nano2ApiKey', () => ''),
   ];
-  
+
   static final tronSecrets = [
     SecretKey('tronGridApiKey', () => ''),
     SecretKey('nowNodesApiKey', () => ''),
