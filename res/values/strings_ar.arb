@@ -834,6 +834,7 @@
   "wallet_menu": "قائمة",
   "wallet_name": "اسم المحفظة",
   "wallet_name_exists": "توجد بالفعل محفظة بهذا الاسم. الرجاء اختيار اسم مختلف أو إعادة تسمية المحفظة الأخرى أولاً.",
+  "wallet_recovery_height": "ارتفاع الاسترداد",
   "wallet_restoration_store_incorrect_seed_length": "طول السييد غير صحيح",
   "wallet_seed": "سييد المحفظة",
   "wallet_seed_legacy": "بذرة محفظة قديمة",

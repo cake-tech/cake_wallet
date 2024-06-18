@@ -835,6 +835,7 @@
   "wallet_menu": "ウォレットメニュー",
   "wallet_name": "ウォレット名",
   "wallet_name_exists": "その名前のウォレットはすでに存在しています",
+  "wallet_recovery_height": "回復の高さ",
   "wallet_restoration_store_incorrect_seed_length": "誤ったシード長s",
   "wallet_seed": "ウォレットシード",
   "wallet_seed_legacy": "レガシーウォレットシード",

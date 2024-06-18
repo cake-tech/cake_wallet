@@ -835,6 +835,7 @@
   "wallet_menu": "월렛 메뉴",
   "wallet_name": "지갑 이름",
   "wallet_name_exists": "해당 이름의 지갑이 이미 존재합니다.",
+  "wallet_recovery_height": "복구 높이",
   "wallet_restoration_store_incorrect_seed_length": "시드 길이가 잘못되었습니다",
   "wallet_seed": "지갑 시드",
   "wallet_seed_legacy": "레거시 지갑 시드",
