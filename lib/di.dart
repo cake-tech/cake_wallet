@@ -116,6 +116,7 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
@@ -225,6 +226,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'buy/buy_sell_page.dart';
 import 'cake_pay/cake_pay_payment_credantials.dart';
 
 final getIt = GetIt.instance;
@@ -1007,8 +1009,19 @@ Future<void> setup({
 
   getIt.registerFactory(() => BuyAmountViewModel());
 
-  getIt.registerFactoryParam<BuySellOptionsPage, bool, void>(
-      (isBuyOption, _) => BuySellOptionsPage(getIt.get<DashboardViewModel>(), isBuyOption));
+  // getIt.registerFactoryParam<BuySellOptionsPage, bool, void>(
+  //     (isBuyOption, _) => BuySellOptionsPage(getIt.get<DashboardViewModel>(), isBuyOption));
+
+  getIt.registerFactory(() => BuySellViewModel(
+      getIt.get<AppStore>(),
+      _tradesSource,
+      getIt.get<ExchangeTemplateStore>(),
+      getIt.get<TradesStore>(),
+      getIt.get<AppStore>().settingsStore,
+      getIt.get<SharedPreferences>(),
+      getIt.get<ContactListViewModel>()));
+
+  getIt.registerFactory(() => BuySellPage(getIt.get<BuySellViewModel>()));
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;

@@ -1,14 +1,18 @@
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:flutter/material.dart';
 
 class MobileExchangeCardsSection extends StatelessWidget {
   final Widget firstExchangeCard;
   final Widget secondExchangeCard;
+  final bool isBuySellOption;
 
   const MobileExchangeCardsSection({
     Key? key,
     required this.firstExchangeCard,
     required this.secondExchangeCard,
+    this.isBuySellOption = false,
   }) : super(key: key);
 
   @override
@@ -46,12 +50,56 @@ class MobileExchangeCardsSection extends StatelessWidget {
               ),
             ),
             padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
-            child: firstExchangeCard,
+            child: Column(
+              children: [
+                if (isBuySellOption)
+                BuySellOptionButtons(),
+                firstExchangeCard,
+              ],
+            ),
           ),
           Padding(
             padding: EdgeInsets.only(top: 29, left: 24, right: 24),
             child: secondExchangeCard,
           )
+        ],
+      ),
+    );
+  }
+}
+
+class BuySellOptionButtons extends StatelessWidget {
+  const BuySellOptionButtons();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 48),
+      child: Row(
+        children: [
+          Expanded(flex: 2, child: SizedBox()),
+          Expanded(
+            flex: 5,
+            child: SelectButton(
+              height: 44,
+              text: S.of(context).buy,
+              isSelected: true,
+              showTrailingIcon: false,
+              onTap: () {},
+            ),
+          ),
+          Expanded(child: const SizedBox()),
+          Expanded(
+            flex: 5,
+            child: SelectButton(
+              height: 44,
+              text: S.of(context).sell,
+              isSelected: false,
+              showTrailingIcon: false,
+              onTap: () {},
+            ),
+          ),
+          Expanded(flex: 2, child: SizedBox()),
         ],
       ),
     );

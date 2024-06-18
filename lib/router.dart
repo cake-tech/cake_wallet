@@ -113,6 +113,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
+import 'buy/buy_sell_page.dart';
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 
 late RouteSettings currentRouteSettings;
@@ -445,9 +446,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
 
+    // case Routes.buySellPage:
+    //   final args = settings.arguments as bool;
+    //   return MaterialPageRoute<void>(builder: (_) => getIt.get<BuySellOptionsPage>(param1: args));
+
     case Routes.buySellPage:
       final args = settings.arguments as bool;
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuySellOptionsPage>(param1: args));
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuySellPage>(param1: args));
 
     case Routes.buyWebView:
       final args = settings.arguments as List;

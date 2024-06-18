@@ -17,7 +17,7 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
-class ExchangeCard extends StatefulWidget {
+class ExchangeCard<T extends Currency> extends StatefulWidget {
   ExchangeCard(
       {Key? key,
       required this.initialCurrency,
@@ -47,10 +47,10 @@ class ExchangeCard extends StatefulWidget {
       this.onDispose})
       : super(key: key);
 
-  final List<CryptoCurrency> currencies;
-  final Function(CryptoCurrency) onCurrencySelected;
+  final List<T> currencies;
+  final Function(T) onCurrencySelected;
   final String title;
-  final CryptoCurrency initialCurrency;
+  final T initialCurrency;
   final String initialWalletName;
   final String initialAddress;
   final bool initialIsAmountEditable;
@@ -75,10 +75,10 @@ class ExchangeCard extends StatefulWidget {
   final Function()? onDispose;
 
   @override
-  ExchangeCardState createState() => ExchangeCardState();
+  ExchangeCardState<T> createState() => ExchangeCardState<T>();
 }
 
-class ExchangeCardState extends State<ExchangeCard> {
+class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
   ExchangeCardState()
       : _title = '',
         _min = '',
@@ -86,7 +86,6 @@ class ExchangeCardState extends State<ExchangeCard> {
         _isAmountEditable = false,
         _isAddressEditable = false,
         _walletName = '',
-        _selectedCurrency = CryptoCurrency.btc,
         _isAmountEstimated = false,
         _isMoneroWallet = false;
 
@@ -96,7 +95,7 @@ class ExchangeCardState extends State<ExchangeCard> {
   String _title;
   String? _min;
   String? _max;
-  CryptoCurrency _selectedCurrency;
+  late T _selectedCurrency;
   String _walletName;
   bool _isAmountEditable;
   bool _isAddressEditable;
@@ -130,7 +129,7 @@ class ExchangeCardState extends State<ExchangeCard> {
     });
   }
 
-  void changeSelectedCurrency(CryptoCurrency currency) {
+  void changeSelectedCurrency(T currency) {
     setState(() => _selectedCurrency = currency);
   }
 
@@ -475,7 +474,7 @@ class ExchangeCardState extends State<ExchangeCard> {
         hintText: S.of(context).search_currency,
         isMoneroWallet: _isMoneroWallet,
         isConvertFrom: widget.hasRefundAddress,
-        onItemSelected: (Currency item) => widget.onCurrencySelected(item as CryptoCurrency),
+        onItemSelected: (Currency item) => widget.onCurrencySelected(item as T),
       ),
     );
   }
