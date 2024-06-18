@@ -233,6 +233,8 @@ Future<void> defaultSettingsMigration(
         case 36:
           await changeTronCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
+        case 37:
+          await fixBtcDerivationPaths(walletInfoSource);
         default:
           break;
       }
@@ -772,6 +774,19 @@ Future<void> changeDefaultMoneroNode(
 
   if (needToReplaceCurrentMoneroNode) {
     await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, newCakeWalletNode.key as int);
+  }
+}
+
+Future<void> fixBtcDerivationPaths(Box<WalletInfo> walletsInfoSource) async {
+  for (WalletInfo walletInfo in walletsInfoSource.values) {
+    if (walletInfo.type == WalletType.bitcoin ||
+        walletInfo.type == WalletType.bitcoinCash ||
+        walletInfo.type == WalletType.litecoin) {
+      if (walletInfo.derivationInfo?.derivationPath == "m/0'/0") {
+        walletInfo.derivationInfo!.derivationPath = "m/0'";
+        await walletInfo.save();
+      }
+    }
   }
 }
 
