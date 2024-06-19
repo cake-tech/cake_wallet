@@ -143,7 +143,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     );
   }
 
-  final Map<String, Utxo> mwebUtxos = {};
+  // final Map<String, Utxo> mwebUtxos = {};
   int mwebUtxosHeight = 0;
   int lastMwebUtxosHeight = 2699272;
 
@@ -198,8 +198,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(boxName);
   }
 
-  // final Map<String, MwebUtxo> mwebUtxo = MwebUtxo();
-
   @override
   Future<void> init() async {
     await initMwebUtxosBox();
@@ -210,15 +208,22 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final scanSecret = mwebHd.derive(0x80000000).privKey!;
     final req = UtxosRequest(scanSecret: hex.decode(scanSecret), fromHeight: lastMwebUtxosHeight);
     var initDone = false;
-    await for (var utxo in stub.utxos(req)) {
-      if (utxo.address.isEmpty) {
+    await for (Utxo sUtxo in stub.utxos(req)) {
+      if (sUtxo.address.isEmpty) {
         await updateUnspent();
         await updateBalance();
         initDone = true;
       }
       final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
-      if (!mwebAddrs.contains(utxo.address)) continue;
-      mwebUtxos[utxo.outputId] = utxo;
+      if (!mwebAddrs.contains(sUtxo.address)) continue;
+      final utxo = MwebUtxo(
+        address: sUtxo.address,
+        blockTime: sUtxo.blockTime,
+        height: sUtxo.height,
+        outputId: sUtxo.outputId,
+        value: sUtxo.value.toInt(),
+      );
+      mwebUtxosBox.put(utxo.outputId, utxo);
 
       final status = await stub.status(StatusRequest());
       var date = DateTime.now();
@@ -272,7 +277,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             .map(checkPendingTransaction)))
         .any((x) => x));
     final outputIds =
-        mwebUtxos.values.where((utxo) => utxo.height > 0).map((utxo) => utxo.outputId).toList();
+        mwebUtxosBox.values.where((utxo) => utxo.height > 0).map((utxo) => utxo.outputId);
+
     final stub = await CwMweb.stub();
     final resp = await stub.spent(SpentRequest(outputId: outputIds));
     final spent = resp.outputId;
@@ -286,7 +292,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     var output = AccumulatorSink<Digest>();
     var input = sha256.startChunkedConversion(output);
     for (final outputId in spent) {
-      final utxo = mwebUtxos[outputId];
+      final utxo = mwebUtxosBox.get(outputId);
       if (utxo == null) continue;
       final addressRecord = walletAddresses.allAddresses
           .firstWhere((addressRecord) => addressRecord.address == utxo.address);
@@ -294,7 +300,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       addressRecord.balance -= utxo.value.toInt();
       amount += utxo.value.toInt();
       inputAddresses.add(utxo.address);
-      mwebUtxos.remove(outputId);
+      mwebUtxosBox.delete(outputId);
       input.add(hex.decode(outputId));
     }
     if (inputAddresses.isEmpty) return;
@@ -347,7 +353,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     await super.updateUnspent();
     await checkMwebUtxosSpent();
     final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
-    mwebUtxos.forEach((outputId, utxo) {
+    mwebUtxosBox.keys.forEach((dynamic oId) {
+      final String outputId = oId as String;
+      final utxo = mwebUtxosBox.get(outputId);
+      if (utxo == null) return;
       final addressRecord = walletAddresses.allAddresses
           .firstWhere((addressRecord) => addressRecord.address == utxo.address);
       final unspent = BitcoinUnspent(
@@ -362,11 +371,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final balance = await super.fetchBalances();
     var confirmed = balance.confirmed;
     var unconfirmed = balance.unconfirmed;
-    mwebUtxos.values.forEach((utxo) {
-      if (utxo.height > 0)
+    mwebUtxosBox.values.forEach((utxo) {
+      if (utxo.height > 0) {
         confirmed += utxo.value.toInt();
-      else
+      } else {
         unconfirmed += utxo.value.toInt();
+      }
     });
     return ElectrumBalance(confirmed: confirmed, unconfirmed: unconfirmed, frozen: balance.frozen);
   }
@@ -486,7 +496,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       ..addListener((transaction) async {
         final addresses = <String>{};
         transaction.inputAddresses?.forEach((id) {
-          final utxo = mwebUtxos.remove(id);
+          final utxo = mwebUtxosBox.get(id);
           if (utxo == null) return;
           final addressRecord = walletAddresses.allAddresses
               .firstWhere((addressRecord) => addressRecord.address == utxo.address);
@@ -495,6 +505,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             addresses.add(utxo.address);
           }
           addressRecord.balance -= utxo.value.toInt();
+          mwebUtxosBox.delete(id);
         });
         transaction.inputAddresses?.addAll(addresses);
         transactionHistory.addOne(transaction);
