@@ -248,6 +248,7 @@ import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/output_info.dart';
+import 'package:cw_core/utils/text_normalizer.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
