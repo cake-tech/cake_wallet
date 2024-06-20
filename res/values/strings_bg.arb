@@ -834,6 +834,7 @@
   "wallet_menu": "Меню",
   "wallet_name": "Име на портфейл",
   "wallet_name_exists": "Вече има портфейл с това име. Моля, изберете друго име или преименувайте другия портфейл.",
+  "wallet_recovery_height": "Височина на възстановяване",
   "wallet_restoration_store_incorrect_seed_length": "Грешна дължина на seed-а",
   "wallet_seed": "Seed на портфейла",
   "wallet_seed_legacy": "Наследено портфейл семе",

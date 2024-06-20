@@ -837,6 +837,7 @@
   "wallet_menu": "Menù",
   "wallet_name": "Nome del Portafoglio",
   "wallet_name_exists": "Il portafoglio con quel nome è già esistito",
+  "wallet_recovery_height": "Altezza di recupero",
   "wallet_restoration_store_incorrect_seed_length": "Lunghezza seme non corretta",
   "wallet_seed": "Seme Portafoglio",
   "wallet_seed_legacy": "Seme di portafoglio legacy",
