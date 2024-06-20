@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cw_core/utils/text_normalizer.dart';
 
 
 extension Compare<T> on Comparable<T> {
@@ -137,7 +138,7 @@ class ValidatableAnnotatedEditableTextState extends EditableTextState {
     return result;
   }
 
-  bool validate(String source) => widget.words.indexOf(source) >= 0;
+  bool validate(String source) => widget.words.indexOf(normalizeText(source)) >= 0;
 
   List<TextRange> range(String pattern, String source) {
     final result = <TextRange>[];
