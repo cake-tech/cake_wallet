@@ -404,7 +404,7 @@
   "node_test": "Tester",
   "nodes": "Nœuds",
   "nodes_list_reset_to_default_message": "Êtes vous certain de vouloir revenir aux réglages par défaut ?",
-  "none_of_selected_providers_can_exchange": "Aucun des prestataires sélectionnés ne peut effectuer cet échange",
+  "none_of_selected_providers_can_exchange": "Aucun des fournisseurs sélectionnés ne peut effectuer cet échange",
   "noNFTYet": "Pas encore de NFT",
   "normal": "Normal",
   "note_optional": "Note (optionnelle)",
