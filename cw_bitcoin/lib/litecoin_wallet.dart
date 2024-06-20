@@ -14,7 +14,6 @@ import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/litecoin_network.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bip39/bip39.dart' as bip39;
 
 part 'litecoin_wallet.g.dart';
@@ -45,7 +44,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             currency: CryptoCurrency.ltc) {
     walletAddresses = LitecoinWalletAddresses(
       walletInfo,
-      electrumClient: electrumClient,
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
