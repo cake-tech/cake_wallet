@@ -302,3 +302,12 @@ String addresses(String walletName) {
   );
   return res.payload;
 }
+
+String birthState(String walletName) {
+  final cName = walletName.toCString();
+  final res = executePayloadFn(
+    fn: () => dcrwalletApi.birthState(cName),
+    ptrsToFree: [cName],
+  );
+  return res.payload;
+}
