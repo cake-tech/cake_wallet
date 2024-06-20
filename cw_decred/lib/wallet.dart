@@ -428,10 +428,19 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
 
   @override
   Future<void> rescan({required int height}) async {
-    if (height > this.bestHeight) {
-      return;
+    // The required height is not used. A birthday time is recorded in the
+    // mnemonic. As long as not private data is imported into the wallet, we
+    // can always rescan from there.
+    var rescanHeight = 0;
+    if (!watchingOnly) {
+      final res = libdcrwallet.birthState(walletInfo.name);
+      final decoded = json.decode(res);
+      if (decoded["setfromheight"] == true || decoded["setfromtime"] == true) {
+        throw "cannot rescan before the birthday block has been set";
+      }
+      rescanHeight = decoded["height"] ?? 0;
     }
-    libdcrwallet.rescanFromHeight(walletInfo.name, height.toString());
+    libdcrwallet.rescanFromHeight(walletInfo.name, rescanHeight.toString());
   }
 
   @override

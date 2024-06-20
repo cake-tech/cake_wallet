@@ -4,7 +4,7 @@
 
 LIBWALLET_PATH="${EXTERNAL_MACOS_SOURCE_DIR}/libwallet"
 LIBWALLET_URL="https://github.com/itswisdomagain/libwallet.git"
-LIBWALLET_COMMIT_HASH=e1b9f6043359d191cfd2fbfaa345396a009d0946
+LIBWALLET_VERSION="v1.0.4"
 
 echo "======================= DECRED LIBWALLET ========================="
 
@@ -15,7 +15,7 @@ fi
 mkdir -p $LIBWALLET_PATH
 git clone $LIBWALLET_URL $LIBWALLET_PATH --branch cgo
 cd $LIBWALLET_PATH
-git checkout ${LIBWALLET_COMMIT_HASH}
+git checkout $LIBWALLET_VERSION
 
 if [ -e ./build ]; then
        rm -fr ./build

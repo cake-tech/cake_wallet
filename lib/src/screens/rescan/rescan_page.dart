@@ -24,6 +24,29 @@ class RescanPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    if (type == WalletType.decred) {
+      return Padding(
+        padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Spacer(),
+              Observer(
+                  builder: (_) => LoadingPrimaryButton(
+                        isLoading: _rescanViewModel.state ==
+                            RescanWalletState.rescaning,
+                        text: S.of(context).rescan,
+                        onPressed: () async {
+                          await _rescanViewModel.rescanCurrentWallet(
+                              restoreHeight: 0);
+                          Navigator.of(context).pop();
+                        },
+                        color: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                      ))
+            ]),
+      );
+    }
     return Padding(
       padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
       child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
