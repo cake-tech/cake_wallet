@@ -221,7 +221,7 @@ class CWMonero extends Monero {
           required int height,
           required String mnemonic}) =>
       MoneroRestoreWalletFromSeedCredentials(
-          name: name, password: password, height: height, mnemonic: normalizeText(mnemonic));
+          name: name, password: password, height: height, mnemonic: mnemonic);
 
   @override
   WalletCredentials createMoneroNewWalletCredentials({

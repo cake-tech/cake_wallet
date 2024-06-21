@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:cw_core/utils/text_normalizer.dart';
-
+import 'package:flutter/material.dart';
 
 extension Compare<T> on Comparable<T> {
   bool operator <=(T other) => compareTo(other) <= 0;
@@ -40,6 +39,7 @@ class ValidatableAnnotatedEditableText extends EditableText {
     required this.validStyle,
     required this.invalidStyle,
     required this.words,
+    this.normalizeSeed = false,
     TextStyle textStyle = const TextStyle(
         color: Colors.black,
         backgroundColor: Colors.transparent,
@@ -75,6 +75,7 @@ class ValidatableAnnotatedEditableText extends EditableText {
             showSelectionHandles: true,
             showCursor: true);
 
+  final bool normalizeSeed;
   final List<String> words;
   final TextStyle validStyle;
   final TextStyle invalidStyle;
@@ -138,7 +139,8 @@ class ValidatableAnnotatedEditableTextState extends EditableTextState {
     return result;
   }
 
-  bool validate(String source) => widget.words.indexOf(normalizeText(source)) >= 0;
+  bool validate(String source) =>
+      widget.words.indexOf(widget.normalizeSeed ? normalizeText(source) : source) >= 0;
 
   List<TextRange> range(String pattern, String source) {
     final result = <TextRange>[];

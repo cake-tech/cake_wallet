@@ -100,7 +100,10 @@ dependencies:
 #      ref: main
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
-  polyseed: ^0.0.4
+  polyseed:
+    git:
+      url: https://github.com/cake-tech/polyseed_dart
+      ref: normalize-french-and-spanish
   nostr_tools: ^1.0.9
   solana: ^0.30.1
   bitcoin_base:
