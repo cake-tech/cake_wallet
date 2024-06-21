@@ -39,6 +39,20 @@ import 'evm_erc20_balance.dart';
 
 part 'evm_chain_wallet.g.dart';
 
+const Map<String, String> methodSignatureToType = {
+  '0x095ea7b3': 'approval',
+  '0xa9059cbb': 'transfer',
+  '0x23b872dd': 'transferFrom',
+  '0x574da717': 'transferOut',
+  '0x2e1a7d4d': 'withdraw',
+  '0x7ff36ab5': 'swapExactETHForTokens',
+  '0x40c10f19': 'mint',
+  '0x44bc937b': 'depositWithExpiry',
+  '0xd0e30db0': 'deposit',
+  '0xe8e33700': 'addLiquidity',
+  '0xd505accf': 'permit',
+};
+
 abstract class EVMChainWallet = EVMChainWalletBase with _$EVMChainWallet;
 
 abstract class EVMChainWalletBase
@@ -339,13 +353,21 @@ abstract class EVMChainWalletBase
 
   @override
   Future<Map<String, EVMChainTransactionInfo>> fetchTransactions() async {
-    final address = _evmChainPrivateKey.address.hex;
-    final transactions = await _client.fetchTransactions(address);
-    final internalTransactions = await _client.fetchInternalTransactions(address);
-    for (var transaction in transactions) {
-      transaction.evmTransactionType = analyzeTransaction(transaction.input);
-    }
+    final List<EVMChainTransactionModel> transactions = [];
     final List<Future<List<EVMChainTransactionModel>>> erc20TokensTransactions = [];
+
+    final address = _evmChainPrivateKey.address.hex;
+    final externalTransactions = await _client.fetchTransactions(address);
+    final internalTransactions = await _client.fetchInternalTransactions(address);
+
+    for (var transaction in externalTransactions) {
+      final evmSignatureName = analyzeTransaction(transaction.input);
+
+      if (evmSignatureName != 'depositWithExpiry' && evmSignatureName != 'transfer') {
+        transaction.evmSignatureName = evmSignatureName;
+        transactions.add(transaction);
+      }
+    }
 
     for (var token in balance.keys) {
       if (token is Erc20Token) {
@@ -374,14 +396,14 @@ abstract class EVMChainWalletBase
   }
 
   String? analyzeTransaction(String? transactionInput) {
-    final methodSignature = transactionInput != null && transactionInput.length >= 10
-        ? transactionInput.substring(0, 10)
-        : null;
-
-    if (methodSignature == '0x095ea7b3') {
-      return 'approval';
+    if (transactionInput == '0x' || transactionInput == null || transactionInput.isEmpty) {
+      return 'simpleTransfer';
     }
-    return null;
+
+    final methodSignature =
+    transactionInput.length >= 10 ? transactionInput.substring(0, 10) : null;
+
+    return methodSignatureToType[methodSignature];
   }
 
   @override
@@ -497,11 +519,11 @@ abstract class EVMChainWalletBase
     await token.delete();
 
     balance.remove(token);
-    await _removeTokenTransactionsInHistory(token);
+    await removeTokenTransactionsInHistory(token);
     _updateBalance();
   }
 
-  Future<void> _removeTokenTransactionsInHistory(Erc20Token token) async {
+  Future<void> removeTokenTransactionsInHistory(Erc20Token token) async {
     transactionHistory.transactions.removeWhere((key, value) => value.tokenSymbol == token.title);
     await transactionHistory.save();
   }

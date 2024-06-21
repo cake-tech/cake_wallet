@@ -14,7 +14,7 @@ class EthereumTransactionInfo extends EVMChainTransactionInfo {
     required super.confirmations,
     required super.to,
     required super.from,
-    super.evmTransactionType,
+    super.evmSignatureName,
     super.exponent,
   });
 
@@ -32,7 +32,7 @@ class EthereumTransactionInfo extends EVMChainTransactionInfo {
       tokenSymbol: data['tokenSymbol'] as String,
       to: data['to'],
       from: data['from'],
-      evmTransactionType: data['evmTransactionType'],
+      evmSignatureName: data['evmSignatureName'],
     );
   }
 

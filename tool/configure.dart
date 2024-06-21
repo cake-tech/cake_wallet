@@ -186,6 +186,7 @@ abstract class Bitcoin {
       {required String mnemonic, required Node node});
   Future<List<DerivationInfo>> getDerivationsFromMnemonic(
       {required String mnemonic, required Node node, String? passphrase});
+  Map<DerivationType, List<DerivationInfo>> getElectrumDerivations();
   Future<void> setAddressType(Object wallet, dynamic option);
   ReceivePageOption getSelectedAddressType(Object wallet);
   List<ReceivePageOption> getBitcoinReceivePageOptions();
@@ -362,6 +363,7 @@ abstract class Monero {
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
   WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required bool isPolyseed, String password});
   Map<String, String> getKeys(Object wallet);
+  int? getRestoreHeight(Object wallet);
   Object createMoneroTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority});
   Object createMoneroTransactionCreationCredentialsRaw({required List<OutputInfo> outputs, required TransactionPriority priority});
   String formatterMoneroAmountToString({required int amount});
@@ -665,6 +667,7 @@ abstract class Ethereum {
   List<Erc20Token> getERC20Currencies(WalletBase wallet);
   Future<void> addErc20Token(WalletBase wallet, CryptoCurrency token);
   Future<void> deleteErc20Token(WalletBase wallet, CryptoCurrency token);
+  Future<void> removeTokenTransactionsInHistory(WalletBase wallet, CryptoCurrency token);
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
   
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
@@ -768,6 +771,7 @@ abstract class Polygon {
   List<Erc20Token> getERC20Currencies(WalletBase wallet);
   Future<void> addErc20Token(WalletBase wallet, CryptoCurrency token);
   Future<void> deleteErc20Token(WalletBase wallet, CryptoCurrency token);
+  Future<void> removeTokenTransactionsInHistory(WalletBase wallet, CryptoCurrency token);
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
   
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);

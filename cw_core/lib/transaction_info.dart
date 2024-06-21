@@ -16,7 +16,7 @@ abstract class TransactionInfo extends Object with Keyable {
   void changeFiatAmount(String amount);
   String? to;
   String? from;
-  String? evmTransactionType;
+  String? evmSignatureName;
   List<String>? inputAddresses;
   List<String>? outputAddresses;
 

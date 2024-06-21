@@ -20,7 +20,7 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
     required this.confirmations,
     required this.to,
     required this.from,
-    this.evmTransactionType,
+    this.evmSignatureName,
   })  : amount = ethAmount.toInt(),
         fee = ethFee.toInt();
 
@@ -39,7 +39,7 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
   String? _fiatAmount;
   final String? to;
   final String? from;
-  final String? evmTransactionType;
+  final String? evmSignatureName;
 
   //! Getter to be overridden in child classes
   String get feeCurrency;
@@ -75,6 +75,6 @@ abstract class EVMChainTransactionInfo extends TransactionInfo {
         'tokenSymbol': tokenSymbol,
         'to': to,
         'from': from,
-        'evmTransactionType': evmTransactionType,
+        'evmSignatureName': evmSignatureName,
       };
 }

@@ -13,7 +13,7 @@ class EVMChainTransactionModel {
   final int? tokenDecimal;
   final bool isError;
   final String input;
-  String? evmTransactionType;
+  String? evmSignatureName;
 
   EVMChainTransactionModel({
     required this.date,
@@ -30,7 +30,7 @@ class EVMChainTransactionModel {
     required this.tokenDecimal,
     required this.isError,
     required this.input,
-    this.evmTransactionType,
+    this.evmSignatureName,
   });
 
   factory EVMChainTransactionModel.fromJson(Map<String, dynamic> json, String defaultSymbol) =>
@@ -49,6 +49,6 @@ class EVMChainTransactionModel {
         tokenDecimal: int.tryParse(json["tokenDecimal"] ?? ""),
         isError: json["isError"] == "1",
         input: json["input"] ?? "",
-        evmTransactionType: json["evmTransactionType"],
+        evmSignatureName: json["evmSignatureName"],
       );
 }
