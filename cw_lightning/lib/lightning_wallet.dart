@@ -244,15 +244,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     });
     await _handlePayments(await sdk.listPayments(req: ListPaymentsRequest()));
 
-    // TODO: get actual nds service url:
-    // if (Platform.isAndroid || Platform.isIOS) {
-    //   String platform = Platform.isAndroid ? "android" : "ios";
-    //   String token = "TODO";
-    //   await sdk.registerWebhook(
-    //     webhookUrl: "https://your-nds-service.com/notify?platform=$platform&token=$token",
-    //   );
-    // }
-
     print("initialized breez: ${(await sdk.isInitialized())}");
   }
 
