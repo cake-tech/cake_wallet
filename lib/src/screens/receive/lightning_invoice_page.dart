@@ -117,88 +117,84 @@ class LightningInvoicePage extends BasePage {
                       ),
                     )
                   : null,
-              child: Observer(builder: (_) {
-                return Padding(
-                  padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
-                  child: LightningInvoiceForm(
-                    descriptionController: _descriptionController,
-                    amountController: _amountController,
-                    depositAmountFocus: _amountFocusNode,
-                    formKey: _formKey,
-                    lightningInvoicePageViewModel: lightningInvoicePageViewModel,
-                  ),
-                );
-              }),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
+                child: LightningInvoiceForm(
+                  descriptionController: _descriptionController,
+                  amountController: _amountController,
+                  depositAmountFocus: _amountFocusNode,
+                  formKey: _formKey,
+                  lightningInvoicePageViewModel: lightningInvoicePageViewModel,
+                ),
+              ),
             ),
             bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-            bottomSection: Observer(builder: (_) {
-              return Column(
-                children: <Widget>[
-                  Container(
-                    padding: const EdgeInsets.only(top: 12, bottom: 12, right: 6),
-                    margin: const EdgeInsets.only(left: 24, right: 24, bottom: 48),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                      color: Color.fromARGB(255, 170, 147, 30),
-                      border: Border.all(
-                        color: Color.fromARGB(178, 223, 214, 0),
-                        width: 2,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          margin: EdgeInsets.only(left: 12, bottom: 48, right: 20),
-                          child: Image.asset(
-                            "assets/images/warning.png",
-                            color: Color.fromARGB(128, 255, 255, 255),
-                          ),
-                        ),
-                        FutureBuilder(
-                          future: lightningInvoicePageViewModel.lightningViewModel
-                              .invoiceSoftLimitsSats(),
-                          builder: (context, snapshot) {
-                            if (snapshot.data == null) {
-                              return Expanded(
-                                  child:
-                                      Container(child: Center(child: CircularProgressIndicator())));
-                            }
-                            late String finalText;
-                            InvoiceSoftLimitsResult limits =
-                                snapshot.data as InvoiceSoftLimitsResult;
-                            if (limits.inboundLiquidity == 0) {
-                              finalText = S.of(context).lightning_invoice_min(
-                                  limits.feePercent.toString(),
-                                  lightning!.satsToLightningString(limits.minFee));
-                            } else {
-                              finalText = S.of(context).lightning_invoice_min_max(
-                                    limits.feePercent.toString(),
-                                    lightning!.satsToLightningString(limits.minFee),
-                                    lightning!.satsToLightningString(limits.inboundLiquidity),
-                                  );
-                            }
-
-                            return Expanded(
-                              child: Text(
-                                finalText,
-                                maxLines: 5,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color:
-                                      Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+            bottomSection: Column(
+              children: <Widget>[
+                Container(
+                  padding: const EdgeInsets.only(top: 12, bottom: 12, right: 6),
+                  margin: const EdgeInsets.only(left: 24, right: 24, bottom: 48),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    color: Color.fromARGB(255, 170, 147, 30),
+                    border: Border.all(
+                      color: Color.fromARGB(178, 223, 214, 0),
+                      width: 2,
                     ),
                   ),
-                  LoadingPrimaryButton(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        margin: EdgeInsets.only(left: 12, bottom: 48, right: 20),
+                        child: Image.asset(
+                          "assets/images/warning.png",
+                          color: Color.fromARGB(128, 255, 255, 255),
+                        ),
+                      ),
+                      FutureBuilder(
+                        future: lightningInvoicePageViewModel.lightningViewModel
+                            .invoiceSoftLimitsSats(),
+                        builder: (context, snapshot) {
+                          if (snapshot.data == null) {
+                            return Expanded(
+                                child:
+                                    Container(child: Center(child: CircularProgressIndicator())));
+                          }
+                          late String finalText;
+                          InvoiceSoftLimitsResult limits = snapshot.data as InvoiceSoftLimitsResult;
+                          if (limits.inboundLiquidity == 0) {
+                            finalText = S.of(context).lightning_invoice_min(
+                                limits.feePercent.toString(),
+                                lightning!.satsToLightningString(limits.minFee));
+                          } else {
+                            finalText = S.of(context).lightning_invoice_min_max(
+                                  limits.feePercent.toString(),
+                                  lightning!.satsToLightningString(limits.minFee),
+                                  lightning!.satsToLightningString(limits.inboundLiquidity),
+                                );
+                          }
+
+                          return Expanded(
+                            child: Text(
+                              finalText,
+                              maxLines: 5,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                Observer(builder: (_) {
+                  return LoadingPrimaryButton(
                     text: S.of(context).create_invoice,
                     onPressed: () {
                       FocusScope.of(context).unfocus();
@@ -211,10 +207,10 @@ class LightningInvoicePage extends BasePage {
                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                     isLoading: lightningInvoicePageViewModel.state is IsExecutingState,
-                  ),
-                ],
-              );
-            }),
+                  );
+                }),
+              ],
+            ),
           ),
         ),
       ),
