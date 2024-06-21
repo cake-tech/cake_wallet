@@ -158,10 +158,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                           color: Theme.of(context)
                                               .extension<ExchangePageTheme>()!
                                               .qrCodeColor)),
-                                  child: QrImage(
-                                    data: trade.inputAddress ?? fetchingLabel,
-                                    version: 14,
-                                  ),
+                                  child: QrImage(data: trade.inputAddress ?? fetchingLabel),
                                 )))),
                     Spacer(flex: 3)
                   ]),
@@ -254,9 +251,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     amountValue: widget
                         .exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted,
                     fee: S.of(popupContext).send_fee,
-                    feeValue: widget.exchangeTradeViewModel.sendViewModel
-                        .pendingTransaction!.feeFormatted,
-                    feeRate: widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.feeRate,
+                    feeValue: widget
+                        .exchangeTradeViewModel.sendViewModel.pendingTransaction!.feeFormatted,
+                    feeRate:
+                        widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.feeRate,
                     rightButtonText: S.of(popupContext).send,
                     leftButtonText: S.of(popupContext).cancel,
                     actionRightButton: () async {

@@ -72,7 +72,7 @@ abstract class ElectrumWalletBase
             getAccountHDWallet(currency, networkType, seedBytes, xpub, walletInfo.derivationInfo),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
-        mnemonic = mnemonic,
+        _mnemonic = mnemonic,
         _feeRates = <int>[],
         _isTransactionUpdating = false,
         isEnabledAutoGenerateSubaddress = true,
@@ -148,7 +148,7 @@ abstract class ElectrumWalletBase
   bool? alwaysScan;
 
   final bitcoin.HDWallet accountHD;
-  final String? mnemonic;
+  final String? _mnemonic;
 
   bitcoin.HDWallet get hd => accountHD.derive(0);
   final String? passphrase;
@@ -185,7 +185,7 @@ abstract class ElectrumWalletBase
   String get xpub => accountHD.base58!;
 
   @override
-  String? get seed => mnemonic;
+  String? get seed => _mnemonic;
 
   bitcoin.NetworkType networkType;
   BasedUtxoNetwork network;
@@ -1005,7 +1005,7 @@ abstract class ElectrumWalletBase
       throw UnimplementedError();
 
   String toJSON() => json.encode({
-        'mnemonic': mnemonic,
+        'mnemonic': _mnemonic,
         'xpub': xpub,
         'passphrase': passphrase ?? '',
         'account_index': walletAddresses.currentReceiveAddressIndexByType,
