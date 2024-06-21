@@ -13,7 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.1.0
-  file: ^6.1.4
+  file: ^7.0.0
   path_provider: ^2.0.11
   mobx: ^2.0.7+4
   flutter_mobx: ^2.0.6+1

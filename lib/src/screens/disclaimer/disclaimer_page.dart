@@ -23,12 +23,10 @@ class DisclaimerPage extends BasePage {
   String get title => 'Terms of Use';
 
   @override
-  Widget? leading(BuildContext context) =>
-      isReadOnly ? super.leading(context) : null;
+  Widget? leading(BuildContext context) => isReadOnly ? super.leading(context) : null;
 
   @override
-  Widget body(BuildContext context) =>
-      DisclaimerPageBody(isReadOnly: isReadOnly);
+  Widget body(BuildContext context) => DisclaimerPageBody(isReadOnly: isReadOnly);
 }
 
 class DisclaimerPageBody extends StatefulWidget {
@@ -52,9 +50,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
 
   Future getFileLines() async {
     _fileText = await rootBundle.loadString(
-      isMoneroOnly
-      ? 'assets/text/Monerocom_Terms_of_Use.txt'
-      : 'assets/text/Terms_of_Use.txt' );
+        isMoneroOnly ? 'assets/text/Monerocom_Terms_of_Use.txt' : 'assets/text/Terms_of_Use.txt');
     setState(() {});
   }
 
@@ -89,7 +85,8 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                 style: TextStyle(
                                     fontSize: 20.0,
                                     fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                    color:
+                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                               ),
                             )
                           ],
@@ -106,7 +103,8 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                 style: TextStyle(
                                     fontSize: 12.0,
                                     fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                    color:
+                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                               ),
                             )
                           ],
@@ -139,7 +137,8 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                 style: TextStyle(
                                     fontSize: 14.0,
                                     fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                    color:
+                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                               ),
                             )
                           ],
@@ -182,10 +181,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  Theme.of(context)
-                                      .colorScheme
-                                      .background
-                                      .withOpacity(0.0),
+                                  Theme.of(context).colorScheme.background.withOpacity(0.0),
                                   Theme.of(context).colorScheme.background,
                                 ],
                                 begin: FractionalOffset.topCenter,
@@ -204,9 +200,10 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                   children: <Widget>[
                     Expanded(
                       child: Container(
-                          padding: EdgeInsets.only(
-                              left: 24.0, top: 10.0, right: 24.0, bottom: 10.0),
+                          padding:
+                              EdgeInsets.only(left: 24.0, top: 10.0, right: 24.0, bottom: 10.0),
                           child: InkWell(
+                            key: ValueKey('disclaimer_check_key'),
                             onTap: () {
                               setState(() {
                                 _checked = !_checked;
@@ -223,13 +220,15 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                   ),
                                   decoration: BoxDecoration(
                                       border: Border.all(
-                                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                                          color: Theme.of(context)
+                                              .extension<CakeTextTheme>()!
+                                              .secondaryTextColor,
                                           width: 1.0),
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(8.0)),
+                                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
                                       color: Theme.of(context).colorScheme.background),
                                   child: _checked
                                       ? Icon(
+                                          key: ValueKey('disclaimer_check_icon_key'),
                                           Icons.check,
                                           color: Colors.blue,
                                           size: 20.0,
@@ -241,7 +240,8 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14.0,
-                                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                      color:
+                                          Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                                 )
                               ],
                             ),
@@ -250,16 +250,19 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                   ],
                 ),
                 Container(
-                  padding:
-                      EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
+                  padding: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
                   child: PrimaryButton(
+                      key: ValueKey('disclaimer_accept_button_key'),
                       onPressed: _checked
-                          ? () => Navigator.of(context)
-                              .popAndPushNamed(Routes.welcome)
+                          ? () => Navigator.of(context).popAndPushNamed(Routes.welcome)
                           : null,
                       text: 'Accept',
-                      color: Theme.of(context).extension<WalletListTheme>()!.createNewWalletButtonBackgroundColor,
-                      textColor: Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor),
+                      color: Theme.of(context)
+                          .extension<WalletListTheme>()!
+                          .createNewWalletButtonBackgroundColor,
+                      textColor: Theme.of(context)
+                          .extension<WalletListTheme>()!
+                          .restoreWalletButtonTextColor),
                 ),
               ],
             ],

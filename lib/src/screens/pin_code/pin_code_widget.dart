@@ -144,8 +144,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
-                    color:
-                        Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
             Spacer(flex: 3),
             Container(
               width: 180,
@@ -162,7 +161,9 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                         shape: BoxShape.circle,
                         color: isFilled
                             ? Theme.of(context).extension<CakeTextTheme>()!.titleColor
-                            : Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor
+                            : Theme.of(context)
+                                .extension<PinCodeTheme>()!
+                                .indicatorsColor
                                 .withOpacity(0.25),
                       ));
                 }),
@@ -203,56 +204,67 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                               crossAxisCount: 3,
                               childAspectRatio: _aspectRatio,
                               physics: const NeverScrollableScrollPhysics(),
-                              children: List.generate(12, (index) {
-                                const double marginRight = 15;
-                                const double marginLeft = 15;
+                              children: List.generate(
+                                12,
+                                (index) {
+                                  const double marginRight = 15;
+                                  const double marginLeft = 15;
 
-                                if (index == 9) {
-                                  // Empty container
+                                  if (index == 9) {
+                                    // Empty container
+                                    return Container(
+                                      margin: EdgeInsets.only(left: marginLeft, right: marginRight),
+                                    );
+                                  } else if (index == 10) {
+                                    index = 0;
+                                  } else if (index == 11) {
+                                    return MergeSemantics(
+                                      child: Container(
+                                        margin:
+                                            EdgeInsets.only(left: marginLeft, right: marginRight),
+                                        child: Semantics(
+                                          label: S.of(context).delete,
+                                          button: true,
+                                          onTap: () => _pop(),
+                                          child: TextButton(
+                                            onPressed: () => _pop(),
+                                            style: TextButton.styleFrom(
+                                              backgroundColor:
+                                                  Theme.of(context).colorScheme.background,
+                                              shape: CircleBorder(),
+                                            ),
+                                            child: deleteIconImage,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    index++;
+                                  }
+
                                   return Container(
                                     margin: EdgeInsets.only(left: marginLeft, right: marginRight),
-                                  );
-                                } else if (index == 10) {
-                                  index = 0;
-                                } else if (index == 11) {
-                                  return MergeSemantics(
-                                    child: Container(
-                                      margin: EdgeInsets.only(left: marginLeft, right: marginRight),
-                                      child: Semantics(
-                                        label: S.of(context).delete,
-                                        button: true,
-                                        onTap: () => _pop(),
-                                        child: TextButton(
-                                          onPressed: () => _pop(),
-                                          style: TextButton.styleFrom(
-                                            backgroundColor: Theme.of(context).colorScheme.background,
-                                            shape: CircleBorder(),
-                                          ),
-                                          child: deleteIconImage,
+                                    child: TextButton(
+                                      key: ValueKey('pin_code_button_${index}_key'),
+                                      onPressed: () => _push(index),
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: Theme.of(context).colorScheme.background,
+                                        shape: CircleBorder(),
+                                      ),
+                                      child: Text(
+                                        '$index',
+                                        style: TextStyle(
+                                          fontSize: 30.0,
+                                          fontWeight: FontWeight.w600,
+                                          color: Theme.of(context)
+                                              .extension<CakeTextTheme>()!
+                                              .titleColor,
                                         ),
                                       ),
                                     ),
                                   );
-                                } else {
-                                  index++;
-                                }
-
-                                return Container(
-                                  margin: EdgeInsets.only(left: marginLeft, right: marginRight),
-                                  child: TextButton(
-                                    onPressed: () => _push(index),
-                                    style: TextButton.styleFrom(
-                                      backgroundColor: Theme.of(context).colorScheme.background,
-                                      shape: CircleBorder(),
-                                    ),
-                                    child: Text('$index',
-                                        style: TextStyle(
-                                            fontSize: 30.0,
-                                            fontWeight: FontWeight.w600,
-                                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
-                                  ),
-                                );
-                              }),
+                                },
+                              ),
                             ),
                           )
                         : null,

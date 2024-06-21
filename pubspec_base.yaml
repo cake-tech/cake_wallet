@@ -21,7 +21,7 @@ dependencies:
   mobx: ^2.1.4
   flutter_mobx: ^2.0.6+5
   flutter_slidable: ^3.0.1
-  share_plus: ^4.0.10
+  share_plus: ^7.2.2
   # date_range_picker: ^1.0.6
   #https://api.flutter.dev/flutter/material/showDateRangePicker.html
   dio: ^4.0.6
@@ -112,11 +112,14 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
+  mocktail: ^1.0.4
   build_runner: ^2.3.3
   logging: ^1.2.0
   mobx_codegen: ^2.1.1
   build_resolvers: ^2.0.9
-  hive_generator: ^1.1.3
+  hive_generator: ^2.0.1
   # flutter_launcher_icons: ^0.11.0
   # check flutter_launcher_icons for usage
   pedantic: ^1.8.0
