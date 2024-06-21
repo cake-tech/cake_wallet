@@ -834,6 +834,7 @@
   "wallet_menu": "Menü",
   "wallet_name": "Cüzdan ismi",
   "wallet_name_exists": "Bu isimde bir cüzdan zaten mevcut. Lütfen farklı bir isim seç veya önce diğer cüzdanı yeniden adlandır.",
+  "wallet_recovery_height": "Kurtarma Yüksekliği",
   "wallet_restoration_store_incorrect_seed_length": "Yanlış tohum uzunluğu",
   "wallet_seed": "Cüzdan tohumu",
   "wallet_seed_legacy": "Eski cüzdan tohumu",

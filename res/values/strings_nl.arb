@@ -835,6 +835,7 @@
   "wallet_menu": "Portemonnee-menu",
   "wallet_name": "Portemonnee naam",
   "wallet_name_exists": "Portemonnee met die naam bestaat al",
+  "wallet_recovery_height": "Herstelhoogte",
   "wallet_restoration_store_incorrect_seed_length": "Onjuiste zaadlengte",
   "wallet_seed": "Portemonnee zaad",
   "wallet_seed_legacy": "Legacy portemonnee zaad",

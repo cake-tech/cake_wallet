@@ -138,6 +138,10 @@ class CWEthereum extends Ethereum {
       await (wallet as EthereumWallet).deleteErc20Token(token as Erc20Token);
 
   @override
+  Future<void> removeTokenTransactionsInHistory(WalletBase wallet, CryptoCurrency token) async =>
+      await (wallet as EthereumWallet).removeTokenTransactionsInHistory(token as Erc20Token);
+
+  @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {
     final ethereumWallet = wallet as EthereumWallet;
     return await ethereumWallet.getErc20Token(contractAddress, 'eth');

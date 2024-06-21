@@ -17,6 +17,7 @@ import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -133,7 +134,7 @@ abstract class ElectrumWalletBase
       return currency == CryptoCurrency.bch
           ? bitcoinCashHDWallet(seedBytes)
           : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-              .derivePath(_hardenedDerivationPath(derivationInfo?.derivationPath ?? "m/0'"));
+              .derivePath(_hardenedDerivationPath(derivationInfo?.derivationPath ?? electrum_path));
     }
 
     return bitcoin.HDWallet.fromBase58(xpub!);

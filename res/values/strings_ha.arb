@@ -836,6 +836,7 @@
   "wallet_menu": "Menu",
   "wallet_name": "Sunan walat",
   "wallet_name_exists": "Wallet mai wannan sunan ya riga ya wanzu. Da fatan za a zaɓi wani suna daban ko sake suna ɗayan walat tukuna.",
+  "wallet_recovery_height": "Mai Tsaro",
   "wallet_restoration_store_incorrect_seed_length": "kalmar sirrin iri ba daidai ba",
   "wallet_seed": "kalmar sirri na walat",
   "wallet_seed_legacy": "Tallarin walat walat",
