@@ -77,6 +77,7 @@ class PreferencesKey {
   static const moneroSeedType = 'monero_seed_type';
   static const clearnetDonationLink = 'clearnet_donation_link';
   static const onionDonationLink = 'onion_donation_link';
+  static const donationLinkWalletName = 'donation_link_wallet_name';
   static const lastSeenAppVersion = 'last_seen_app_version';
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';
