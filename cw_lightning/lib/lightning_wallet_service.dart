@@ -114,7 +114,7 @@ class LightningWalletService extends WalletService<
   @override
   Future<LightningWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    if (!bip39.validateMnemonic(credentials.mnemonic)) {
+    if (!bip39.validateMnemonic(credentials.mnemonic) && !validateMnemonic(credentials.mnemonic)) {
       throw BitcoinMnemonicIsIncorrectException();
     }
 
