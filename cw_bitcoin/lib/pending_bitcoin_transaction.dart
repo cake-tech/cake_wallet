@@ -103,6 +103,7 @@ class PendingBitcoinTransaction with PendingTransaction {
       await _commit();
     }
 
+
     _listeners.forEach((listener) => listener(transactionInfo()));
   }
 

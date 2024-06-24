@@ -22,7 +22,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     super.initialAddresses,
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,
-  }) : super(walletInfo);
+  }) : super(walletInfo) {
+    topUpMweb(0);
+  }
 
   final HDWallet mwebHd;
   List<String> mwebAddrs = [];
@@ -49,13 +51,14 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   String getAddress({required int index, required HDWallet hd, BitcoinAddressType? addressType}) {
     if (addressType == SegwitAddresType.mweb) {
       topUpMweb(index);
-      return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index+1];
+      return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }
 
   @override
-  Future<String> getAddressAsync({required int index, required HDWallet hd, BitcoinAddressType? addressType}) async {
+  Future<String> getAddressAsync(
+      {required int index, required HDWallet hd, BitcoinAddressType? addressType}) async {
     if (addressType == SegwitAddresType.mweb) {
       await topUpMweb(index);
     }
@@ -65,6 +68,8 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   @action
   @override
   Future<String> getChangeAddress() async {
+    updateChangeAddresses();
+    // this means all change addresses used will be mweb addresses!:
     await topUpMweb(0);
     return mwebAddrs[0];
   }
