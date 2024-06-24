@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/buy/buy_quote.dart';
+import 'package:cake_wallet/buy/payment_method.dart';
+import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -9,13 +14,24 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
 class OnRamperBuyProvider extends BuyProvider {
   OnRamperBuyProvider(this._settingsStore,
       {required WalletBase wallet, bool isTestEnvironment = false})
       : super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: null);
 
-  static const _baseUrl = 'buy.onramper.com';
+  //static const _baseUrl = 'buy.onramper.com';
+
+  static const _baseUrl = 'api.onramper.com';
+
+  static const authorization = 'pk_prod_01HETEQF46GSK6BS5JWKDF31BT';
+
+  static const quotes = '/quotes';
+
+  static const paymentTypes = '/payment-types';
+
+  static const supported = '/supported';
 
   final SettingsStore _settingsStore;
 
@@ -62,10 +78,9 @@ class OnRamperBuyProvider extends BuyProvider {
 
     primaryColor = getColorStr(Theme.of(context).primaryColor);
     secondaryColor = getColorStr(Theme.of(context).colorScheme.background);
-    primaryTextColor =
-        getColorStr(Theme.of(context).extension<CakeTextTheme>()!.titleColor);
-    secondaryTextColor = getColorStr(
-        Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor);
+    primaryTextColor = getColorStr(Theme.of(context).extension<CakeTextTheme>()!.titleColor);
+    secondaryTextColor =
+        getColorStr(Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor);
     containerColor = getColorStr(Theme.of(context).colorScheme.background);
     cardColor = getColorStr(Theme.of(context).cardColor);
 
@@ -73,8 +88,7 @@ class OnRamperBuyProvider extends BuyProvider {
       cardColor = getColorStr(Colors.white);
     }
 
-    final networkName =
-        wallet.currency.fullName?.toUpperCase().replaceAll(" ", "");
+    final networkName = wallet.currency.fullName?.toUpperCase().replaceAll(" ", "");
 
     return Uri.https(_baseUrl, '', <String, dynamic>{
       'apiKey': _apiKey,
@@ -95,10 +109,135 @@ class OnRamperBuyProvider extends BuyProvider {
   Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
     final uri = requestOnramperUrl(context, isBuyAction);
     if (DeviceInfo.instance.isMobile) {
-      Navigator.of(context)
-          .pushNamed(Routes.webViewPage, arguments: [title, uri]);
+      Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
     } else {
       await launchUrl(uri);
+    }
+  }
+
+  Future<List<PaymentMethod>> getAvailablePaymentTypes({
+    required String fiatCurrency,
+    required String type,
+    bool isRecurringPayment = false,
+  }) async {
+    final params = {
+      'fiatCurrency': fiatCurrency,
+      'type': type,
+      'isRecurringPayment': isRecurringPayment.toString(),
+    };
+
+    final path = '$supported$paymentTypes/$fiatCurrency';
+
+    final url = Uri.https(_baseUrl, path, params);
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': authorization,
+          'accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
+        final List<dynamic> message = data['message'] as List<dynamic>;
+
+        return message.map((item) => PaymentMethod.fromJson(item as Map<String, dynamic>)).toList();
+      } else {
+        print('Failed to fetch available payment types');
+        return [];
+      }
+    } catch (e) {
+      print('Failed to fetch available payment types: $e');
+      return [];
+    }
+  }
+
+  Future<Quote?> fetchRate({
+    required String sourceCurrency,
+    required String destinationCurrency,
+    required int amount,
+    required PaymentMethodType paymentMethod,
+    required String uuid,
+    required String clientName,
+    required String type,
+    required String walletAddress,
+    bool isRecurringPayment = false,
+    String input = 'source',
+  }) async {
+
+
+    final params = {
+      'amount': amount.toString(),
+      'paymentMethod': normalizePaymentMethod(paymentMethod),
+      'uuid': uuid,
+      'clientName': clientName,
+      'type': type,
+      'walletAddress': walletAddress,
+      'isRecurringPayment': isRecurringPayment.toString(),
+      'input': input,
+    };
+
+    final path = '$quotes/$sourceCurrency/$destinationCurrency';
+    final url = Uri.https(_baseUrl, path, params);
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': authorization,
+          'accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body) as List<dynamic>;
+        if (data.isEmpty) {
+          return null;
+        }
+
+        List<Quote> validQuotes = [];
+
+        for (var item in data) {
+          final quote = Quote.fromJson(item as Map<String, dynamic>, ProviderType.onramper);
+          if (quote.errors.isEmpty) {
+            validQuotes.add(quote);
+          }
+        }
+
+        if (validQuotes.isEmpty) return null;
+
+
+        validQuotes.sort((a, b) => b.rate.compareTo(a.rate));
+        final bestQuote = validQuotes.first;
+
+        return bestQuote;
+      } else {
+        print('Failed to fetch rate');
+        return null;
+      }
+    } catch (e) {
+      print('Failed to fetch rate: $e');
+      return null;
+    }
+  }
+
+
+  String normalizePaymentMethod(PaymentMethodType paymentMethod) {
+    switch (paymentMethod) {
+      case PaymentMethodType.creditCard:
+        return 'creditcard';
+      case PaymentMethodType.debitCard:
+        return 'debitcard';
+      case PaymentMethodType.applePay:
+        return 'applepay';
+      case PaymentMethodType.googlePay:
+        return 'googlepay';
+      case PaymentMethodType.revolutPay:
+        return 'revolutpay';
+      default:
+        throw Exception('Unknown payment type');
     }
   }
 }

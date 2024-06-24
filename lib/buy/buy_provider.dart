@@ -1,5 +1,7 @@
 import 'package:cake_wallet/buy/buy_amount.dart';
+import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
@@ -32,5 +34,27 @@ abstract class BuyProvider {
 
   Future<Order> findOrderById(String id) => throw UnimplementedError();
 
-  Future<BuyAmount> calculateAmount(String amount, String sourceCurrency) => throw UnimplementedError();
+  Future<BuyAmount> calculateAmount(String amount, String sourceCurrency) =>
+      throw UnimplementedError();
+
+  Future<List<PaymentMethod>> getAvailablePaymentTypes({
+    required String fiatCurrency,
+    required String type,
+    bool isRecurringPayment = false,
+  }) async =>
+      List<PaymentMethod>.empty();
+
+  Future<Quote?> fetchRate({
+    required PaymentMethodType paymentMethod,
+    required String sourceCurrency,
+    required String destinationCurrency,
+    required int amount,
+    required String uuid,
+    required String clientName,
+    required String type,
+    required String walletAddress,
+    required bool isRecurringPayment,
+    required String input,
+  }) async =>
+      null;
 }

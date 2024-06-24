@@ -11,7 +11,6 @@ import 'package:cw_core/currency.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
@@ -42,6 +41,8 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
       this.amountFocusNode,
       this.addressFocusNode,
       this.allAmount,
+      this.currencyRowPadding,
+      this.addressRowPadding,
       this.onPushPasteButton,
       this.onPushAddressBookButton,
       this.onDispose})
@@ -70,6 +71,8 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
   final bool hasAllAmount;
   final bool isAllAmountEnabled;
   final VoidCallback? allAmount;
+  final EdgeInsets? currencyRowPadding;
+  final EdgeInsets? addressRowPadding;
   final void Function(BuildContext context)? onPushPasteButton;
   final void Function(BuildContext context)? onPushAddressBookButton;
   final Function()? onDispose;
@@ -191,7 +194,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
           ],
         ),
         Padding(
-            padding: EdgeInsets.only(top: 20),
+            padding: widget.currencyRowPadding ?? EdgeInsets.only(top: 20),
             child: Row(
               children: [
                 Container(
@@ -344,7 +347,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
             ? FocusTraversalOrder(
                 order: NumericFocusOrder(2),
                 child: Padding(
-                  padding: EdgeInsets.only(top: 20),
+                  padding: widget.addressRowPadding ?? EdgeInsets.only(top: 20),
                   child: AddressTextField(
                       focusNode: widget.addressFocusNode,
                       controller: addressController,

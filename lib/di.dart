@@ -15,6 +15,7 @@ import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
@@ -48,6 +49,7 @@ import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
+import 'package:cake_wallet/src/screens/buy/select_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
@@ -226,7 +228,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'buy/buy_sell_page.dart';
+import 'src/screens/buy/buy_sell_page.dart';
 import 'cake_pay/cake_pay_payment_credantials.dart';
 
 final getIt = GetIt.instance;
@@ -1022,6 +1024,19 @@ Future<void> setup({
       getIt.get<ContactListViewModel>()));
 
   getIt.registerFactory(() => BuySellPage(getIt.get<BuySellViewModel>()));
+
+  getIt.registerFactoryParam<SelectOptionsPage<SelectableOption>, List<dynamic>, void>(
+        (List<dynamic> args, _) {
+      final title = args[0] as String;
+      final options = args[1] as List<SelectableOption>;
+      final onOptionTap = args[2] as Function(SelectableOption)?;
+      return SelectOptionsPage<SelectableOption>(
+        title: title,
+        options: options,
+        onOptionTap: onOptionTap,
+      );
+    },
+  );
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;

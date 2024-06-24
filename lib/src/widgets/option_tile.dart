@@ -6,12 +6,20 @@ class OptionTile extends StatelessWidget {
       {required this.onPressed,
       required this.image,
       required this.title,
-      required this.description});
+      required this.description,
+      this.borderRadius,
+      this.padding,
+      this.titleTextStyle,
+      this.leadingIcon});
 
   final VoidCallback onPressed;
   final Image image;
   final String title;
   final String description;
+  final double? borderRadius;
+  final EdgeInsets? padding;
+  final TextStyle? titleTextStyle;
+  final IconData? leadingIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +27,10 @@ class OptionTile extends StatelessWidget {
       onTap: onPressed,
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(24),
+        padding: padding ?? EdgeInsets.all(24),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
+          borderRadius: BorderRadius.all(Radius.circular(borderRadius ?? 12)),
           color: Theme.of(context).cardColor,
         ),
         child: Row(
@@ -30,7 +38,6 @@ class OptionTile extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            image,
             Expanded(
               child: Padding(
                 padding: EdgeInsets.only(left: 16),
@@ -39,13 +46,31 @@ class OptionTile extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<OptionTileTheme>()!.titleColor,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            image,
+                            SizedBox(width: 8),
+                            Text(
+                              title,
+                              style: titleTextStyle ??
+                                  TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w500,
+                                    color:
+                                        Theme.of(context).extension<OptionTileTheme>()!.titleColor,
+                                  ),
+                            )
+                          ],
+                        ),
+                        leadingIcon != null
+                            ? Icon(Icons.arrow_forward_ios,
+                                size: 16,
+                                color: Theme.of(context).extension<OptionTileTheme>()!.titleColor)
+                            : Container(),
+                      ],
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 5),
@@ -54,14 +79,14 @@ class OptionTile extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.normal,
-                          color: Theme.of(context).extension<OptionTileTheme>()!.descriptionColor,
+                          color: Theme.of(context).extension<OptionTileTheme>()!.titleColor,
                         ),
                       ),
                     )
                   ],
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

@@ -18,7 +18,7 @@ class MobileExchangeCardsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(bottom: 32),
+      padding: EdgeInsets.only(bottom: isBuySellOption ? 8 : 32),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(24),
@@ -49,7 +49,7 @@ class MobileExchangeCardsSection extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
             ),
-            padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
+            padding: EdgeInsets.fromLTRB(24, 90, 24, isBuySellOption ? 8 : 32),
             child: Column(
               children: [
                 if (isBuySellOption)
@@ -74,7 +74,7 @@ class BuySellOptionButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 48),
+      padding: const EdgeInsets.only(bottom: 24),
       child: Row(
         children: [
           Expanded(flex: 2, child: SizedBox()),

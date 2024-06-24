@@ -22,6 +22,8 @@ TextStyle textMediumSemiBold({Color? color}) => _cakeSemiBold(22, color);
 
 TextStyle textLarge({Color? color}) => _cakeRegular(18, color);
 
+TextStyle textLargeBold({Color? color}) => _cakeBold(18, color);
+
 TextStyle textLargeSemiBold({Color? color}) => _cakeSemiBold(24, color);
 
 TextStyle textXLarge({Color? color}) => _cakeRegular(32, color);
