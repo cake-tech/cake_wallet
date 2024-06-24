@@ -59,8 +59,12 @@ class RestoreOptionsPage extends BasePage {
             child: Column(
               children: <Widget>[
                 OptionTile(
-                  onPressed: () => Navigator.pushNamed(context, Routes.restoreWalletFromSeedKeys,
-                      arguments: isNewInstall),
+                  key: ValueKey('restore_options_from_seeds_button_key'),
+                  onPressed: () => Navigator.pushNamed(
+                    context,
+                    Routes.restoreWalletFromSeedKeys,
+                    arguments: isNewInstall,
+                  ),
                   image: imageSeedKeys,
                   title: S.of(context).restore_title_from_seed_keys,
                   description: S.of(context).restore_description_from_seed_keys,
@@ -69,6 +73,7 @@ class RestoreOptionsPage extends BasePage {
                   Padding(
                     padding: EdgeInsets.only(top: 24),
                     child: OptionTile(
+                      key: ValueKey('restore_options_from_backup_button_key'),
                       onPressed: () => Navigator.pushNamed(context, Routes.restoreFromBackup),
                       image: imageBackup,
                       title: S.of(context).restore_title_from_backup,
@@ -79,6 +84,7 @@ class RestoreOptionsPage extends BasePage {
                   Padding(
                     padding: EdgeInsets.only(top: 24),
                     child: OptionTile(
+                      key: ValueKey('restore_options_from_hardware_wallet_button_key'),
                       onPressed: () => Navigator.pushNamed(
                           context, Routes.restoreWalletFromHardwareWallet,
                           arguments: isNewInstall),
@@ -90,10 +96,12 @@ class RestoreOptionsPage extends BasePage {
                 Padding(
                   padding: EdgeInsets.only(top: 24),
                   child: OptionTile(
-                      onPressed: () => _onScanQRCode(context),
-                      image: qrCode,
-                      title: S.of(context).scan_qr_code,
-                      description: S.of(context).cold_or_recover_wallet),
+                    key: ValueKey('restore_options_from_qr_button_key'),
+                    onPressed: () => _onScanQRCode(context),
+                    image: qrCode,
+                    title: S.of(context).scan_qr_code,
+                    description: S.of(context).cold_or_recover_wallet,
+                  ),
                 )
               ],
             ),

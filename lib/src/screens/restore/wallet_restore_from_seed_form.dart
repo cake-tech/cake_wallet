@@ -103,9 +103,11 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 alignment: Alignment.centerRight,
                 children: [
                   BaseTextFormField(
+                    key: ValueKey('wallet_restore_from_seed_wallet_name_textfield_key'),
                     controller: nameTextEditingController,
                     hintText: S.of(context).wallet_name,
                     suffixIcon: IconButton(
+                    key: ValueKey('wallet_restore_from_seed_wallet_name_refresh_button_key'),
                       onPressed: () async {
                         final rName = await generateName();
                         FocusManager.instance.primaryFocus?.unfocus();

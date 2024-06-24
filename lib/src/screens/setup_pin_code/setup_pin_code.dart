@@ -52,6 +52,7 @@ class SetupPinCodePage extends BasePage {
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
+                  buttonKey: ValueKey('setup_pin_code_success_button_key'),
                   alertTitle: S.current.setup_pin,
                   alertContent: S.of(context).setup_successful,
                   buttonText: S.of(context).ok,

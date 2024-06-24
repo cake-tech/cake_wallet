@@ -30,7 +30,8 @@ class BaseTextFormField extends StatelessWidget {
       this.focusNode,
       this.initialValue,
       this.onSubmit,
-      this.borderWidth = 1.0});
+      this.borderWidth = 1.0,
+      super.key});
 
   final TextEditingController? controller;
   final TextInputType? keyboardType;

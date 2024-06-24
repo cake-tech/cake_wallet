@@ -4,7 +4,7 @@ import 'package:cake_wallet/src/screens/welcome/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../helpers/components/common_checks.dart';
+import '../components/common_checks.dart';
 
 class WelcomePageRobot {
   WelcomePageRobot(this.tester) : commonTestCases = CommonTestCases(tester);

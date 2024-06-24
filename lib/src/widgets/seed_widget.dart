@@ -9,10 +9,11 @@ import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class SeedWidget extends StatefulWidget {
   SeedWidget({
-    Key? key,
     required this.language,
     required this.type,
-    this.onSeedChange}) : super(key: key);
+    this.onSeedChange,
+    super.key,
+  });
 
   final String language;
   final WalletType type;
@@ -82,6 +83,7 @@ class SeedWidgetState extends State<SeedWidget> {
             Padding(
                 padding: EdgeInsets.only(right: 40, top: 10),
                 child: ValidatableAnnotatedEditableText(
+                  key: ValueKey('wallet_restore_from_seed_wallet_seeds_textfield_key'),
                   cursorColor: Colors.blue,
                   backgroundCursorColor: Colors.blue,
                   validStyle: TextStyle(
@@ -110,6 +112,7 @@ class SeedWidgetState extends State<SeedWidget> {
                     width: 32,
                     height: 32,
                     child: InkWell(
+                      key: ValueKey('wallet_restore_from_seed_wallet_seeds_paste_button_key'),
                       onTap: () async => _pasteText(),
                       child: Container(
                           padding: EdgeInsets.all(8),

@@ -18,6 +18,7 @@ class SelectButton extends StatelessWidget {
     this.arrowColor,
     this.borderColor,
     this.deviceConnectionTypes,
+    super.key,
   });
 
   final Image? image;

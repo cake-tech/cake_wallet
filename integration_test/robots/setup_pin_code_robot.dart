@@ -4,7 +4,7 @@ import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../helpers/components/common_checks.dart';
+import '../components/common_checks.dart';
 
 class SetupPinCodeRobot {
   SetupPinCodeRobot(this.tester) : commonTestCases = CommonTestCases(tester);
@@ -39,18 +39,34 @@ class SetupPinCodeRobot {
     final button = find.byKey(ValueKey('pin_code_button_${index}_key'));
     await tester.tap(button);
     await tester.pumpAndSettle();
+  }
+
+  Future<void> enterPinCode(bool isFirstEntry) async {
+    final PinCodeState pinCodeState = tester.state(find.byType(PinCodeWidget));
+    tester.printToConsole(pinCodeState.pin);
+
+    await pushPinButton(0);
+    expect(pinCodeState.pin, '0');
+    tester.printToConsole(pinCodeState.pin);
+
+    await pushPinButton(8);
+    expect(pinCodeState.pin, '08');
+    tester.printToConsole(pinCodeState.pin);
+
+    await pushPinButton(0);
+    expect(pinCodeState.pin, '080');
+    tester.printToConsole(pinCodeState.pin);
+
+    await pushPinButton(1);
+    // the state is cleared once it get's to the last entry
+    expect(pinCodeState.pin, isFirstEntry ? '' : '0801');
+    tester.printToConsole(pinCodeState.pin);
+
     commonTestCases.defaultSleepTime();
   }
 
-  Future<void> enterPinCode() async {
-    final PinCodeState pinCodeState = tester.state(find.byType(PinCodeWidget));
-    print(pinCodeState.pin);
-    final codeToUse = [0, 8, 0, 1];
-    await codeToUse.map((code) async {
-      await pushPinButton(code);
-    });
-
+  Future<void> tapSuccessButton() async {
+    await commonTestCases.tapItemByKey('setup_pin_code_success_button_key');
     commonTestCases.defaultSleepTime();
-    expect(pinCodeState.pin, '0801');
   }
 }

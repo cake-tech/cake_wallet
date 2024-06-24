@@ -19,9 +19,9 @@ class CommonTestCases {
     await tester.pumpAndSettle();
   }
 
-  void hasText(String text) {
+  void hasText(String text, {bool hasWidget = true}) {
     final textWidget = find.text(text);
-    expect(textWidget, findsOneWidget);
+    expect(textWidget, hasWidget ? findsOneWidget : findsNothing);
   }
 
   void hasType<T>() {

@@ -124,6 +124,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
             Expanded(
               child: ScrollableWithBottomSection(
                 contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+                scrollableKey: ValueKey('new_wallet_type_scrollable_key'),
                 content: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
@@ -131,6 +132,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                       (type) => Padding(
                         padding: EdgeInsets.only(top: 12),
                         child: SelectButton(
+                          key: ValueKey('new_wallet_type_${type.name}_button_key'),
                           image: Image.asset(
                             walletTypeToCryptoCurrency(type).iconPath ?? '',
                             height: 24,
@@ -151,6 +153,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                 ),
                 bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
                 bottomSection: PrimaryButton(
+                  key: ValueKey('new_wallet_type_next_button_key'),
                   onPressed: () => onTypeSelected(),
                   text: S.of(context).seed_language_next,
                   color: Theme.of(context).primaryColor,

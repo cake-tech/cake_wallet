@@ -2,7 +2,7 @@ import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../helpers/components/common_checks.dart';
+import '../components/common_checks.dart';
 
 class DisclaimerPageRobot {
   DisclaimerPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
