@@ -44,17 +44,13 @@ abstract class BuyProvider {
   }) async =>
       List<PaymentMethod>.empty();
 
-  Future<Quote?> fetchRate({
-    required PaymentMethodType paymentMethod,
+  Future<Quote?> fetchQuote({
     required String sourceCurrency,
     required String destinationCurrency,
     required int amount,
-    required String uuid,
-    required String clientName,
+    required PaymentMethodType paymentMethod,
     required String type,
     required String walletAddress,
-    required bool isRecurringPayment,
-    required String input,
   }) async =>
       null;
 }

@@ -236,21 +236,18 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   Future<void> _calculateBestRate({required PaymentMethod selectedPaymentMethod}) async {
     final amount = double.tryParse(isBuyAction ? fiatAmount : cryptoAmount) ?? 100;
-    final result = await Future.wait<Quote?>(providerList.map((element) => element.fetchRate(
+    final result = await Future.wait<Quote?>(providerList.map((element) => element.fetchQuote(
           sourceCurrency: isBuyAction ? fiatCurrency.title : cryptoCurrency.title,
           destinationCurrency: isBuyAction ? cryptoCurrency.title : fiatCurrency.title,
           amount: amount.toInt(),
           paymentMethod: selectedPaymentMethod.paymentMethodType!,
-          uuid: 'acad3928-556f-48a1-a478-4e2ec76700cd',
-          clientName: 'CakeWallet',
           type: isBuyAction ? 'buy' : 'sell',
           walletAddress: wallet.walletAddresses.address,
-          isRecurringPayment: false,
-          input: 'source',
         )));
 
+
     final validQuotes = result.where((quote) => quote != null).cast<Quote>().toList();
-    validQuotes.sort((a, b) => b.rate.compareTo(a.rate));
+    validQuotes.sort((a, b) => a.rate.compareTo(b.rate));
     sortedAvailableQuotes
       ..clear()
       ..addAll(validQuotes);

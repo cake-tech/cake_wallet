@@ -5,7 +5,10 @@ import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_exception.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
+import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/buy/payment_method.dart';
+import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
@@ -39,6 +42,9 @@ class MoonPayProvider extends BuyProvider {
   static const _baseBuyProductUrl = 'buy.moonpay.com';
   static const _cIdBaseUrl = 'exchange-helper.cakewallet.com';
   static const _apiUrl = 'https://api.moonpay.com';
+  static const _baseUrl = 'api.moonpay.com';
+  static const _buyPath = '/v3/currencies';
+  static const _buyQuote = '/buy_quote';
 
   @override
   String get providerDescription =>
@@ -303,5 +309,42 @@ class MoonPayProvider extends BuyProvider {
     }
 
     return currency.toString().toLowerCase();
+  }
+
+
+  Future<Quote?> fetchQuote({
+    required String sourceCurrency,
+    required String destinationCurrency,
+    required int amount,
+    required PaymentMethodType paymentMethod,
+    required String type,
+    required String walletAddress,
+  }) async {
+    if (paymentMethod != PaymentMethodType.creditCard) return null;
+
+    final params = {
+      'baseCurrencyCode': sourceCurrency.toLowerCase(),
+      'baseCurrencyAmount': amount.toString(),
+      'amount': amount.toString(),
+      'areFeesIncluded': 'false',
+      'apiKey': _apiKey,
+    };
+
+    final path = '$_buyPath/${destinationCurrency.toLowerCase()}$_buyQuote';
+    final url = Uri.https(_baseUrl, path, params);
+
+    try {
+      final response = await get(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        return Quote.fromMoonPayJson(data, ProviderType.moonpay);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching buy quote: $e');
+      return null;
+    }
   }
 }

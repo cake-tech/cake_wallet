@@ -39,25 +39,37 @@ class Quote implements SelectableOption {
   @override
   String get badgeTitle => '';
 
-  factory Quote.fromJson(Map<String, dynamic> json, ProviderType providerType) {
+  factory Quote.fromOnramperJson(Map<String, dynamic> json, ProviderType providerType) {
     return Quote(
-      rate: (json['rate'] as num?)?.toDouble() ?? 0.0,
-      networkFee: (json['networkFee'] as num?)?.toDouble() ?? 0.0,
-      transactionFee: (json['transactionFee'] as num?)?.toDouble() ?? 0.0,
-      payout: (json['payout'] as num?)?.toDouble() ?? 0.0,
+      rate: json['rate'] as double? ?? 0.0,
+      networkFee: json['networkFee'] as double? ?? 0.0,
+      transactionFee: (json['transactionFee'] as int?)?.toDouble() ?? 0.0,
+      payout: json['payout'] as double? ?? 0.0,
       ramp: json['ramp'] as String? ?? '',
       paymentMethod: json['paymentMethod'] as String? ?? '',
       quoteId: json['quoteId'] as String? ?? '',
-      recommendations: (json['recommendations'] as List<dynamic>?)
-          ?.map((item) => item as String)
-          .toList() ??
-          [],
+      recommendations:
+          (json['recommendations'] as List<dynamic>?)?.map((item) => item as String).toList() ?? [],
       errors: (json['errors'] as List<dynamic>?)
-          ?.map((item) => item as Map<String, dynamic>)
-          .toList() ??
+              ?.map((item) => item as Map<String, dynamic>)
+              .toList() ??
           [],
       provider: ProvidersHelper.getProviderByType(providerType),
     );
   }
-  
+
+  factory Quote.fromMoonPayJson(Map<String, dynamic> json, ProviderType providerType) {
+    return Quote(
+      rate: json['quoteCurrencyPrice'] as double? ?? 0.0,
+      networkFee: json['networkFeeAmount'] as double? ?? 0.0,
+      transactionFee: json['feeAmount'] as double? ?? 0.0,
+      payout: json['quoteCurrencyAmount'] as double? ?? 0.0,
+      ramp: json['accountId'] as String? ?? '',
+      paymentMethod: json['paymentMethod'] as String? ?? '',
+      quoteId: json['signature'] as String? ?? '',
+      recommendations: [],
+      errors: [],
+      provider: ProvidersHelper.getProviderByType(providerType),
+    );
+  }
 }

@@ -154,29 +154,25 @@ class OnRamperBuyProvider extends BuyProvider {
     }
   }
 
-  Future<Quote?> fetchRate({
+  Future<Quote?> fetchQuote({
     required String sourceCurrency,
     required String destinationCurrency,
     required int amount,
     required PaymentMethodType paymentMethod,
-    required String uuid,
-    required String clientName,
     required String type,
     required String walletAddress,
-    bool isRecurringPayment = false,
-    String input = 'source',
   }) async {
 
 
     final params = {
       'amount': amount.toString(),
       'paymentMethod': normalizePaymentMethod(paymentMethod),
-      'uuid': uuid,
-      'clientName': clientName,
+      'uuid': 'acad3928-556f-48a1-a478-4e2ec76700cd',
+      'clientName': 'CakeWallet',
       'type': type,
       'walletAddress': walletAddress,
-      'isRecurringPayment': isRecurringPayment.toString(),
-      'input': input,
+      'isRecurringPayment': 'false',
+      'input': 'source',
     };
 
     final path = '$quotes/$sourceCurrency/$destinationCurrency';
@@ -191,8 +187,10 @@ class OnRamperBuyProvider extends BuyProvider {
         },
       );
 
+      print(response.body);
+
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body) as List<dynamic>;
+        final data = jsonDecode(response.body) as List<dynamic>;
         if (data.isEmpty) {
           return null;
         }
@@ -200,7 +198,7 @@ class OnRamperBuyProvider extends BuyProvider {
         List<Quote> validQuotes = [];
 
         for (var item in data) {
-          final quote = Quote.fromJson(item as Map<String, dynamic>, ProviderType.onramper);
+          final quote = Quote.fromOnramperJson(item as Map<String, dynamic>, ProviderType.onramper);
           if (quote.errors.isEmpty) {
             validQuotes.add(quote);
           }
