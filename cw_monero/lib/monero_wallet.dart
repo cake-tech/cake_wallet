@@ -19,6 +19,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/coins_info.dart';
 import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
@@ -105,6 +106,9 @@ abstract class MoneroWalletBase
 
   @override
   String get seed => monero_wallet.getSeed();
+  String  seedLegacy(String? language) {
+    return monero_wallet.getSeedLegacy(language);
+  }
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(

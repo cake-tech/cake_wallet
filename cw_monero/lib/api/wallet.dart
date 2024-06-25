@@ -43,6 +43,15 @@ String getSeed() {
   return legacy;
 }
 
+String getSeedLegacy(String? language) {
+  var legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+  if (monero.Wallet_status(wptr!) != 0) {
+    monero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
+    legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+  }
+  return legacy;
+}
+
 String getAddress({int accountIndex = 0, int addressIndex = 1}) =>
     monero.Wallet_address(wptr!,
         accountIndex: accountIndex, addressIndex: addressIndex);

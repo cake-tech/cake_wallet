@@ -15,15 +15,17 @@ int getSyncingHeight() {
 }
 
 bool isNeededToRefresh() {
-  final ret = wownero.WOWNERO_cw_WalletListener_isNeedToRefresh(getWlptr());
-  wownero.WOWNERO_cw_WalletListener_resetNeedToRefresh(getWlptr());
-  return ret;
+  // final ret = wownero.WOWNERO_cw_WalletListener_isNeedToRefresh(getWlptr());
+  // wownero.WOWNERO_cw_WalletListener_resetNeedToRefresh(getWlptr());
+  return true;
 }
 
 bool isNewTransactionExist() {
-  final ret = wownero.WOWNERO_cw_WalletListener_isNewTransactionExist(getWlptr());
-  wownero.WOWNERO_cw_WalletListener_resetIsNewTransactionExist(getWlptr());
-  return ret;
+  // final ret =
+  //     wownero.WOWNERO_cw_WalletListener_isNewTransactionExist(getWlptr());
+  // wownero.WOWNERO_cw_WalletListener_resetIsNewTransactionExist(getWlptr());
+  // NOTE: I don't know why wownero is being funky, but
+  return true;
 }
 
 String getFilename() => wownero.Wallet_filename(wptr!);
@@ -40,6 +42,15 @@ String getSeed() {
     return polyseed;
   }
   final legacy = wownero.Wallet_seed(wptr!, seedOffset: '');
+  return legacy;
+}
+
+String getSeedLegacy(String? language) {
+  var legacy = wownero.Wallet_seed(wptr!, seedOffset: '');
+  if (wownero.Wallet_status(wptr!) != 0) {
+    wownero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
+    legacy = wownero.Wallet_seed(wptr!, seedOffset: '');
+  }
   return legacy;
 }
 

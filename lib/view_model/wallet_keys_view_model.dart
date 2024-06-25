@@ -9,6 +9,8 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_monero/monero_wallet.dart';
+import 'package:cw_wownero/wownero_wallet.dart';
 import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
 
@@ -76,13 +78,13 @@ abstract class WalletKeysViewModelBase with Store {
         StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
 
-      if (_appStore.wallet?.seed != null && Polyseed.isValidSeed(_appStore.wallet!.seed!)) {
+      if (_appStore.wallet?.seed != null &&
+          Polyseed.isValidSeed(_appStore.wallet!.seed!)) {
         final lang = PolyseedLang.getByPhrase(_appStore.wallet!.seed!);
-        final legacyLang = _getLegacySeedLang(lang);
-        final legacySeed =
-            Polyseed.decode(_appStore.wallet!.seed!, lang, PolyseedCoin.POLYSEED_MONERO)
-                .toLegacySeed(legacyLang);
-        items.add(StandartListItem(title: S.current.wallet_seed_legacy, value: legacySeed));
+        items.add(StandartListItem(
+            title: S.current.wallet_seed_legacy,
+            value: (_appStore.wallet as MoneroWalletBase)
+                .seedLegacy(lang.nameEnglish)));
       }
 
       final restoreHeight = monero!.getRestoreHeight(_appStore.wallet!);
@@ -123,13 +125,13 @@ abstract class WalletKeysViewModelBase with Store {
         StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
 
-      if (_appStore.wallet?.seed != null && Polyseed.isValidSeed(_appStore.wallet!.seed!)) {
+      if (_appStore.wallet?.seed != null &&
+          Polyseed.isValidSeed(_appStore.wallet!.seed!)) {
         final lang = PolyseedLang.getByPhrase(_appStore.wallet!.seed!);
-        final legacyLang = _getLegacySeedLang(lang);
-        final legacySeed =
-            Polyseed.decode(_appStore.wallet!.seed!, lang, PolyseedCoin.POLYSEED_WOWNERO)
-                .toLegacySeed(legacyLang);
-        items.add(StandartListItem(title: S.current.wallet_seed_legacy, value: legacySeed));
+        items.add(StandartListItem(
+            title: S.current.wallet_seed_legacy,
+            value: (_appStore.wallet as WowneroWalletBase)
+                .seedLegacy(lang.nameEnglish)));
       }
     }
 
