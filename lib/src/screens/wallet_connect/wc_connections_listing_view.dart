@@ -65,7 +65,7 @@ class WCPairingsWidget extends BasePage {
       bool isCameraPermissionGranted =
       await PermissionHandler.checkPermission(Permission.camera, context);
       if (!isCameraPermissionGranted) return;
-      uri = await presentQRScanner();
+      uri = await presentQRScanner(context);
     } else {
       uri = await _showEnterWalletConnectURIPopUp(context);
     }

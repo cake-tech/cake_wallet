@@ -25,6 +25,20 @@ import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
+import 'package:cake_wallet/src/screens/qr/scan_screen.dart';
+import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
+import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
+import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
+import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
+import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
+import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
+import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
+import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
+import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
+import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
@@ -35,42 +49,28 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dar
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
-import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
-import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/advanced_privacy_settings_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
-import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
-import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
-import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
-import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
-import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
-import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
-import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
-import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
-import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
-import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
-import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/cake_pay_account_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
 import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
-import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
@@ -625,6 +625,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.managePowNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: true));
+    
+    case Routes.scanQr:
+        return MaterialPageRoute<void>(builder: (_) => getIt.get<ScanScreen>());
 
     case Routes.walletConnectConnectionsListing:
       return MaterialPageRoute<void>(
