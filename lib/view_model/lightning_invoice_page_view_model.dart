@@ -91,10 +91,10 @@ abstract class LightningInvoicePageViewModelBase with Store {
     }
 
     try {
-      print("CREATING INVOICE");
-      String bolt11 =
-          await lightningViewModel.createInvoice(amountSats: amount, description: description);
-          print("CREATED INVOICE");
+      String bolt11 = await lightningViewModel.createInvoice(
+        amountSats: amount,
+        description: description,
+      );
       state = ExecutedSuccessfullyState(payload: bolt11);
     } catch (e) {
       state = FailureState(e.toString());
