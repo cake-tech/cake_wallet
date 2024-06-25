@@ -43,8 +43,12 @@ String getSeed() {
   return legacy;
 }
 
-String getSeedLegacy() {
-  final legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+String getSeedLegacy(String? language) {
+  var legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+  if (monero.Wallet_status(wptr!) != 0) {
+    monero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
+    legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+  }
   return legacy;
 }
 

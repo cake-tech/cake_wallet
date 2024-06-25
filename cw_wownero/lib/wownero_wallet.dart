@@ -19,6 +19,8 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wownero_amount_format.dart';
 import 'package:cw_core/wownero_balance.dart';
+import 'package:cw_core/wownero_amount_format.dart';
+import 'package:cw_core/wownero_balance.dart';
 import 'package:cw_wownero/api/account_list.dart';
 import 'package:cw_wownero/api/coins_info.dart';
 import 'package:cw_wownero/api/structs/pending_transaction.dart';
@@ -112,9 +114,8 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
   @override
   String get seed => wownero_wallet.getSeed();
 
-  String get seedLegacy {
-    wownero.Wallet_setSeedLanguage(wptr!, language: "English");
-    return wownero_wallet.getSeedLegacy();
+  String seedLegacy(String? language) {
+    return wownero_wallet.getSeedLegacy(language);
   }
 
   @override

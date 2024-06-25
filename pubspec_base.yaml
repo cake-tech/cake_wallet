@@ -60,8 +60,6 @@ dependencies:
     git:
       url: https://github.com/cake-tech/flutter_file_picker.git
       ref: master
-  unorm_dart: ^0.2.0
-  # check unorm_dart for usage and for replace
   permission_handler: ^10.0.0
   device_display_brightness:
     git:
@@ -100,7 +98,7 @@ dependencies:
 #      ref: main
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
-  polyseed: ^0.0.4
+  polyseed: ^0.0.5
   nostr_tools: ^1.0.9
   solana: ^0.30.1
   bitcoin_base:

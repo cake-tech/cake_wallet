@@ -45,12 +45,11 @@ String getSeed() {
   return legacy;
 }
 
-String getSeedLegacy() {
-  final legacy = wownero.Wallet_seed(wptr!, seedOffset: '');
-  print("seed: $legacy");
+String getSeedLegacy(String? language) {
+  var legacy = wownero.Wallet_seed(wptr!, seedOffset: '');
   if (wownero.Wallet_status(wptr!) != 0) {
-    print("error");
-    return wownero.Wallet_errorString(wptr!);
+    wownero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
+    legacy = wownero.Wallet_seed(wptr!, seedOffset: '');
   }
   return legacy;
 }

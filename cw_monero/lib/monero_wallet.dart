@@ -110,9 +110,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   String get seed => monero_wallet.getSeed();
-  String get seedLegacy {
-    monero.Wallet_setSeedLanguage(wptr!, language: "English");
-    return monero_wallet.getSeedLegacy();
+  String  seedLegacy(String? language) {
+    return monero_wallet.getSeedLegacy(language);
   }
 
   @override

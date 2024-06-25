@@ -90,9 +90,11 @@ abstract class WalletKeysViewModelBase with Store {
 
       if (_appStore.wallet?.seed != null &&
           Polyseed.isValidSeed(_appStore.wallet!.seed!)) {
+        final lang = PolyseedLang.getByPhrase(_appStore.wallet!.seed!);
         items.add(StandartListItem(
             title: S.current.wallet_seed_legacy,
-            value: (_appStore.wallet as MoneroWalletBase).seedLegacy));
+            value: (_appStore.wallet as MoneroWalletBase)
+                .seedLegacy(lang.nameEnglish)));
       }
 
       final restoreHeight = monero!.getRestoreHeight(_appStore.wallet!);
@@ -152,9 +154,11 @@ abstract class WalletKeysViewModelBase with Store {
 
       if (_appStore.wallet?.seed != null &&
           Polyseed.isValidSeed(_appStore.wallet!.seed!)) {
+        final lang = PolyseedLang.getByPhrase(_appStore.wallet!.seed!);
         items.add(StandartListItem(
             title: S.current.wallet_seed_legacy,
-            value: (_appStore.wallet as WowneroWalletBase).seedLegacy));
+            value: (_appStore.wallet as WowneroWalletBase)
+                .seedLegacy(lang.nameEnglish)));
       }
     }
 
