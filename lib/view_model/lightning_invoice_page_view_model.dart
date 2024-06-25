@@ -91,8 +91,10 @@ abstract class LightningInvoicePageViewModelBase with Store {
     }
 
     try {
+      print("CREATING INVOICE");
       String bolt11 =
           await lightningViewModel.createInvoice(amountSats: amount, description: description);
+          print("CREATED INVOICE");
       state = ExecutedSuccessfullyState(payload: bolt11);
     } catch (e) {
       state = FailureState(e.toString());
@@ -108,6 +110,7 @@ abstract class LightningInvoicePageViewModelBase with Store {
     amount = inputAmount;
   }
 
+  @action
   Future<void> _fetchLimits() async {
     final limits = await lightningViewModel.invoiceSoftLimitsSats();
     minimum = limits.minFee.toDouble();
