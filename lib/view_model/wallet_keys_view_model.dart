@@ -254,8 +254,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.wownero:
         return 'wownero-wallet';
       default:
-        throw Exception(
-            'Unexpected wallet type: ${_appStore.wallet!.toString()}');
+        throw Exception('Unexpected wallet type: ${_appStore.wallet!.type.toString()}');
     }
   }
 

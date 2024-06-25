@@ -19,9 +19,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wownero_amount_format.dart';
 import 'package:cw_core/wownero_balance.dart';
-import 'package:cw_core/wownero_amount_format.dart';
-import 'package:cw_core/wownero_balance.dart';
-import 'package:cw_wownero/api/account_list.dart';
 import 'package:cw_wownero/api/coins_info.dart';
 import 'package:cw_wownero/api/structs/pending_transaction.dart';
 import 'package:cw_wownero/api/transaction_history.dart' as transaction_history;
@@ -49,11 +46,11 @@ const MIN_RESTORE_HEIGHT = 1000;
 
 class WowneroWallet = WowneroWalletBase with _$WowneroWallet;
 
-abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
-    WowneroTransactionHistory, WowneroTransactionInfo> with Store {
+abstract class WowneroWalletBase
+    extends WalletBase<WowneroBalance, WowneroTransactionHistory, WowneroTransactionInfo>
+    with Store {
   WowneroWalletBase(
-      {required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo})
+      {required WalletInfo walletInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo})
       : balance = ObservableMap<CryptoCurrency, WowneroBalance>.of({
           CryptoCurrency.xmr: WowneroBalance(
               fullBalance: wownero_wallet.getFullBalance(accountIndex: 0),
@@ -69,17 +66,13 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
     transactionHistory = WowneroTransactionHistory();
     walletAddresses = WowneroWalletAddresses(walletInfo, transactionHistory);
 
-    _onAccountChangeReaction =
-        reaction((_) => walletAddresses.account, (Account? account) {
+    _onAccountChangeReaction = reaction((_) => walletAddresses.account, (Account? account) {
       if (account == null) return;
 
-      balance = ObservableMap<CryptoCurrency,
-          WowneroBalance>.of(<CryptoCurrency, WowneroBalance>{
+      balance = ObservableMap<CryptoCurrency, WowneroBalance>.of(<CryptoCurrency, WowneroBalance>{
         currency: WowneroBalance(
-            fullBalance:
-                wownero_wallet.getFullBalance(accountIndex: account.id),
-            unlockedBalance:
-                wownero_wallet.getUnlockedBalance(accountIndex: account.id))
+            fullBalance: wownero_wallet.getFullBalance(accountIndex: account.id),
+            unlockedBalance: wownero_wallet.getUnlockedBalance(accountIndex: account.id))
       });
       _updateSubAddress(isEnabledAutoGenerateSubaddress, account: account);
       _askForUpdateTransactionHistory();
@@ -134,13 +127,11 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
 
   Future<void> init() async {
     await walletAddresses.init();
-    balance = ObservableMap<CryptoCurrency, WowneroBalance>.of(<CryptoCurrency,
-        WowneroBalance>{
+    balance = ObservableMap<CryptoCurrency, WowneroBalance>.of(<CryptoCurrency, WowneroBalance>{
       currency: WowneroBalance(
-          fullBalance: wownero_wallet.getFullBalance(
-              accountIndex: walletAddresses.account!.id),
-          unlockedBalance: wownero_wallet.getUnlockedBalance(
-              accountIndex: walletAddresses.account!.id))
+          fullBalance: wownero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id),
+          unlockedBalance:
+              wownero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id))
     });
     _setListeners();
     await updateTransactions();
@@ -149,13 +140,12 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
       wownero_wallet.setRecoveringFromSeed(isRecovery: walletInfo.isRecovery);
 
       if (wownero_wallet.getCurrentHeight() <= 1) {
-        wownero_wallet.setRefreshFromBlockHeight(
-            height: walletInfo.restoreHeight);
+        wownero_wallet.setRefreshFromBlockHeight(height: walletInfo.restoreHeight);
       }
     }
 
-    _autoSaveTimer = Timer.periodic(
-        Duration(seconds: _autoSaveInterval), (_) async => await save());
+    _autoSaveTimer =
+        Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
   }
 
   @override
@@ -227,8 +217,8 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
     final inputs = <String>[];
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
-    final unlockedBalance = wownero_wallet.getUnlockedBalance(
-        accountIndex: walletAddresses.account!.id);
+    final unlockedBalance =
+        wownero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
     var allInputsAmount = 0;
 
     PendingTransactionDescription pendingTransactionDescription;
@@ -250,17 +240,15 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
     final spendAllCoins = inputs.length == unspentCoins.length;
 
     if (hasMultiDestination) {
-      if (outputs.any(
-          (item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
+      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
         throw WowneroTransactionCreationException(
             'You do not have enough XMR to send this amount.');
       }
 
-      final int totalAmount = outputs.fold(
-          0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
+      final int totalAmount =
+          outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
 
-      final estimatedFee =
-          calculateEstimatedFee(_credentials.priority, totalAmount);
+      final estimatedFee = calculateEstimatedFee(_credentials.priority, totalAmount);
       if (unlockedBalance < totalAmount) {
         throw WowneroTransactionCreationException(
             'You do not have enough XMR to send this amount.');
@@ -271,28 +259,22 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
       }
 
       final wowneroOutputs = outputs.map((output) {
-        final outputAddress =
-            output.isParsedAddress ? output.extractedAddress : output.address;
+        final outputAddress = output.isParsedAddress ? output.extractedAddress : output.address;
 
         return WowneroOutput(
-            address: outputAddress!,
-            amount: output.cryptoAmount!.replaceAll(',', '.'));
+            address: outputAddress!, amount: output.cryptoAmount!.replaceAll(',', '.'));
       }).toList();
 
-      pendingTransactionDescription =
-          await transaction_history.createTransactionMultDest(
-              outputs: wowneroOutputs,
-              priorityRaw: _credentials.priority.serialize(),
-              accountIndex: walletAddresses.account!.id,
-              preferredInputs: inputs);
+      pendingTransactionDescription = await transaction_history.createTransactionMultDest(
+          outputs: wowneroOutputs,
+          priorityRaw: _credentials.priority.serialize(),
+          accountIndex: walletAddresses.account!.id,
+          preferredInputs: inputs);
     } else {
       final output = outputs.first;
-      final address =
-          output.isParsedAddress ? output.extractedAddress : output.address;
-      final amount =
-          output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
-      final formattedAmount =
-          output.sendAll ? null : output.formattedCryptoAmount;
+      final address = output.isParsedAddress ? output.extractedAddress : output.address;
+      final amount = output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
+      final formattedAmount = output.sendAll ? null : output.formattedCryptoAmount;
 
       if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
           (formattedAmount == null && unlockedBalance <= 0)) {
@@ -302,22 +284,19 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
             'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       }
 
-      final estimatedFee =
-          calculateEstimatedFee(_credentials.priority, formattedAmount);
+      final estimatedFee = calculateEstimatedFee(_credentials.priority, formattedAmount);
       if (!spendAllCoins &&
-          ((formattedAmount != null &&
-                  allInputsAmount < (formattedAmount + estimatedFee)) ||
+          ((formattedAmount != null && allInputsAmount < (formattedAmount + estimatedFee)) ||
               formattedAmount == null)) {
         throw WowneroTransactionNoInputsException(inputs.length);
       }
 
-      pendingTransactionDescription =
-          await transaction_history.createTransaction(
-              address: address!,
-              amount: amount,
-              priorityRaw: _credentials.priority.serialize(),
-              accountIndex: walletAddresses.account!.id,
-              preferredInputs: inputs);
+      pendingTransactionDescription = await transaction_history.createTransaction(
+          address: address!,
+          amount: amount,
+          priorityRaw: _credentials.priority.serialize(),
+          accountIndex: walletAddresses.account!.id,
+          preferredInputs: inputs);
     }
 
     return PendingWowneroTransaction(pendingTransactionDescription);
@@ -382,10 +361,8 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
     }
     try {
       // -- rename the waller folder --
-      final currentWalletDir =
-          Directory(await pathForWalletDir(name: name, type: type));
-      final newWalletDirPath =
-          await pathForWalletDir(name: newWalletName, type: type);
+      final currentWalletDir = Directory(await pathForWalletDir(name: name, type: type));
+      final newWalletDirPath = await pathForWalletDir(name: newWalletName, type: type);
       await currentWalletDir.rename(newWalletDirPath);
 
       // -- use new waller folder to rename files with old names still --
@@ -395,8 +372,7 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
       final currentKeysFile = File('$renamedWalletPath.keys');
       final currentAddressListFile = File('$renamedWalletPath.address.txt');
 
-      final newWalletPath =
-          await pathForWallet(name: newWalletName, type: type);
+      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
 
       if (currentCacheFile.existsSync()) {
         await currentCacheFile.rename(newWalletPath);
@@ -416,8 +392,7 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
       final currentKeysFile = File('$currentWalletPath.keys');
       final currentAddressListFile = File('$currentWalletPath.address.txt');
 
-      final newWalletPath =
-          await pathForWallet(name: newWalletName, type: type);
+      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
 
       // Copies current wallet files into new wallet name's dir and files
       if (currentCacheFile.existsSync()) {
@@ -436,8 +411,7 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
   }
 
   @override
-  Future<void> changePassword(String password) async =>
-      wownero_wallet.setPasswordSync(password);
+  Future<void> changePassword(String password) async => wownero_wallet.setPasswordSync(password);
 
   Future<int> getNodeHeight() async => wownero_wallet.getNodeHeight();
 
@@ -482,8 +456,7 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
             wownero.CoinsInfo_unlocked(coin),
           );
           if (unspent.hash.isNotEmpty) {
-            unspent.isChange =
-                transaction_history.getTransaction(unspent.hash) == 1;
+            unspent.isChange = transaction_history.getTransaction(unspent.hash) == 1;
           }
           unspentCoins.add(unspent);
         }
@@ -545,15 +518,13 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
   Future<void> _refreshUnspentCoinsInfo() async {
     try {
       final List<dynamic> keys = <dynamic>[];
-      final currentWalletUnspentCoins = unspentCoinsInfo.values.where(
-          (element) =>
-              element.walletId.contains(id) &&
-              element.accountIndex == walletAddresses.account!.id);
+      final currentWalletUnspentCoins = unspentCoinsInfo.values.where((element) =>
+          element.walletId.contains(id) && element.accountIndex == walletAddresses.account!.id);
 
       if (currentWalletUnspentCoins.isNotEmpty) {
         currentWalletUnspentCoins.forEach((element) {
-          final existUnspentCoins = unspentCoins
-              .where((coin) => element.keyImage!.contains(coin.keyImage!));
+          final existUnspentCoins =
+              unspentCoins.where((coin) => element.keyImage!.contains(coin.keyImage!));
 
           if (existUnspentCoins.isEmpty) {
             keys.add(element.key);
@@ -570,17 +541,14 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
   }
 
   String getTransactionAddress(int accountIndex, int addressIndex) =>
-      wownero_wallet.getAddress(
-          accountIndex: accountIndex, addressIndex: addressIndex);
+      wownero_wallet.getAddress(accountIndex: accountIndex, addressIndex: addressIndex);
 
   @override
   Future<Map<String, WowneroTransactionInfo>> fetchTransactions() async {
     transaction_history.refreshTransactions();
     return _getAllTransactionsOfAccount(walletAddresses.account?.id)
-        .fold<Map<String, WowneroTransactionInfo>>(
-            <String, WowneroTransactionInfo>{},
-            (Map<String, WowneroTransactionInfo> acc,
-                WowneroTransactionInfo tx) {
+        .fold<Map<String, WowneroTransactionInfo>>(<String, WowneroTransactionInfo>{},
+            (Map<String, WowneroTransactionInfo> acc, WowneroTransactionInfo tx) {
       acc[tx.id] = tx;
       return acc;
     });
@@ -607,17 +575,14 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
   String getSubaddressLabel(int accountIndex, int addressIndex) =>
       wownero_wallet.getSubaddressLabel(accountIndex, addressIndex);
 
-  List<WowneroTransactionInfo> _getAllTransactionsOfAccount(
-          int? accountIndex) =>
+  List<WowneroTransactionInfo> _getAllTransactionsOfAccount(int? accountIndex) =>
       transaction_history
           .getAllTransactions()
           .map(
             (row) => WowneroTransactionInfo(
               row.hash,
               row.blockheight,
-              row.isSpend
-                  ? TransactionDirection.outgoing
-                  : TransactionDirection.incoming,
+              row.isSpend ? TransactionDirection.outgoing : TransactionDirection.incoming,
               row.timeStamp,
               row.isPending,
               row.amount,
@@ -670,8 +635,7 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
   }
 
   int _getHeightDistance(DateTime date) {
-    final distance =
-        DateTime.now().millisecondsSinceEpoch - date.millisecondsSinceEpoch;
+    final distance = DateTime.now().millisecondsSinceEpoch - date.millisecondsSinceEpoch;
     final daysTmp = (distance / 86400).round();
     final days = daysTmp < 1 ? 1 : daysTmp;
 
@@ -699,27 +663,22 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance,
         balance[currency]!.unlockedBalance != unlockedBalance ||
         balance[currency]!.frozenBalance != frozenBalance) {
       balance[currency] = WowneroBalance(
-          fullBalance: fullBalance,
-          unlockedBalance: unlockedBalance,
-          frozenBalance: frozenBalance);
+          fullBalance: fullBalance, unlockedBalance: unlockedBalance, frozenBalance: frozenBalance);
     }
   }
 
-  Future<void> _askForUpdateTransactionHistory() async =>
-      await updateTransactions();
+  Future<void> _askForUpdateTransactionHistory() async => await updateTransactions();
 
-  int _getFullBalance() =>
-      wownero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id);
+  int _getFullBalance() => wownero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id);
 
-  int _getUnlockedBalance() => wownero_wallet.getUnlockedBalance(
-      accountIndex: walletAddresses.account!.id);
+  int _getUnlockedBalance() =>
+      wownero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
 
   int _getFrozenBalance() {
     var frozenBalance = 0;
 
     for (var coin in unspentCoinsInfo.values.where((element) =>
-        element.walletId == id &&
-        element.accountIndex == walletAddresses.account!.id)) {
+        element.walletId == id && element.accountIndex == walletAddresses.account!.id)) {
       if (coin.isFrozen) frozenBalance += coin.value;
     }
 
