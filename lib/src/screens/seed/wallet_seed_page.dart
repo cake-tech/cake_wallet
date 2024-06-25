@@ -1,4 +1,6 @@
-import 'package:cake_wallet/palette.dart';
+import 'dart:io';
+
+import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -16,6 +18,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WalletSeedPage extends BasePage {
   WalletSeedPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
@@ -74,9 +77,9 @@ class WalletSeedPage extends BasePage {
               child: Text(
                 S.of(context).seed_language_next,
                 style: TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context)
-                        .extension<CakeTextTheme>()!
-                        .buttonTextColor),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor),
               ),
             ),
           )
@@ -87,26 +90,111 @@ class WalletSeedPage extends BasePage {
   Widget body(BuildContext context) {
     final image = currentTheme.type == ThemeType.dark ? imageDark : imageLight;
 
-    return WillPopScope(
+    return WalletSeedPageBody(
+      walletSeedViewModel: walletSeedViewModel,
+      image: image,
+      isNewWalletCreated: isNewWalletCreated,
+    );
+  }
+}
+
+class WalletSeedPageBody extends StatefulWidget {
+  const WalletSeedPageBody(
+      {Key? key,
+      required this.walletSeedViewModel,
+      required this.image,
+      required this.isNewWalletCreated})
+      : super(key: key);
+
+  final WalletSeedViewModel walletSeedViewModel;
+  final Image image;
+  final bool isNewWalletCreated;
+
+  @override
+  State<WalletSeedPageBody> createState() => _WalletSeedPageBodyState();
+}
+
+class _WalletSeedPageBodyState extends State<WalletSeedPageBody> {
+  final FocusNode _seedNode = FocusNode();
+  final FocusNode _disabledNode = FocusNode();
+
+  final TextEditingController _nameFieldController = TextEditingController();
+  final TextEditingController _seedFieldController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // required to setup autofill context:
+    _nameFieldController.text = widget.walletSeedViewModel.name;
+  }
+
+  Future<void> setupPasswordManager() async {
+    _seedNode.requestFocus();
+
+    await Future.delayed(Duration(milliseconds: 200));
+    _seedFieldController.text = widget.walletSeedViewModel.seed;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      FocusScope.of(context).unfocus();
+      // if we don't focus something else then dismissing the alert window will bring
+      // the keyboard back up:
+      _disabledNode.requestFocus();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScrollableWithBottomSection(
+      content: WillPopScope(
         onWillPop: () async => false,
         child: Container(
           padding: EdgeInsets.all(24),
           alignment: Alignment.center,
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+            constraints:
+                BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
+                /// triggering credential managers API, requires the text to be in Text Fields
+                /// and since the Seeds and Name at this stage are already given
+                /// then we add them into hidden text fields so that it triggers the API
+                AutofillGroup(
+                  child: Visibility(
+                    visible: false,
+                    maintainState: true,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: _nameFieldController,
+                          autofillHints: const [AutofillHints.username],
+                          keyboardType: TextInputType.none,
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          autofillHints: const [AutofillHints.password],
+                          controller: _seedFieldController,
+                          focusNode: _seedNode,
+                        ),
+                        TextFormField(
+                          focusNode: _disabledNode,
+                          keyboardType: TextInputType.none,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 ConstrainedBox(
                   constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
-                  child: AspectRatio(aspectRatio: 1, child: image),
+                  child: AspectRatio(aspectRatio: 1, child: widget.image),
                 ),
                 Observer(builder: (_) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        walletSeedViewModel.name,
+                        widget.walletSeedViewModel.name,
                         style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -115,12 +203,13 @@ class WalletSeedPage extends BasePage {
                       Padding(
                         padding: EdgeInsets.only(top: 20, left: 16, right: 16),
                         child: Text(
-                          walletSeedViewModel.seed,
+                          widget.walletSeedViewModel.seed,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.normal,
-                              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+                              color:
+                                  Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
                         ),
                       )
                     ],
@@ -128,57 +217,130 @@ class WalletSeedPage extends BasePage {
                 }),
                 Column(
                   children: <Widget>[
-                    isNewWalletCreated
+                    widget.isNewWalletCreated
                         ? Padding(
                             padding: EdgeInsets.only(bottom: 43, left: 43, right: 43),
                             child: Text(
                               S.of(context).seed_reminder,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.normal,
-                                  color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
+                                fontSize: 12,
+                                fontWeight: FontWeight.normal,
+                                color: Theme.of(context)
+                                    .extension<TransactionTradeTheme>()!
+                                    .detailsTitlesColor,
+                              ),
                             ),
                           )
                         : Offstage(),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[
-                        Flexible(
-                            child: Container(
-                          padding: EdgeInsets.only(right: 8.0),
-                          child: PrimaryButton(
-                              onPressed: () {
-                                ShareUtil.share(
-                                  text: walletSeedViewModel.seed,
-                                  context: context,
-                                );
-                              },
-                              text: S.of(context).save,
-                              color: Colors.green,
-                              textColor: Colors.white),
-                        )),
-                        Flexible(
-                            child: Container(
-                          padding: EdgeInsets.only(left: 8.0),
-                          child: Builder(
-                              builder: (context) => PrimaryButton(
-                                  onPressed: () {
-                                    ClipboardUtil.setSensitiveDataToClipboard(
-                                        ClipboardData(text: walletSeedViewModel.seed));
-                                    showBar<void>(context, S.of(context).copied_to_clipboard);
-                                  },
-                                  text: S.of(context).copy,
-                                  color: Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
-                                  textColor: Colors.white)),
-                        ))
-                      ],
-                    )
                   ],
-                )
+                ),
               ],
             ),
           ),
-        ));
+        ),
+      ),
+      bottomSection: Column(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.only(right: 4),
+                  child: PrimaryButton(
+                    onPressed: () {
+                      ShareUtil.share(
+                        text: widget.walletSeedViewModel.seed,
+                        context: context,
+                      );
+                    },
+                    text: S.of(context).save,
+                    color: Colors.green,
+                    textColor: Colors.white,
+                  ),
+                ),
+              ),
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.only(left: 4),
+                  child: Builder(
+                    builder: (context) => PrimaryButton(
+                      onPressed: () {
+                        ClipboardUtil.setSensitiveDataToClipboard(
+                            ClipboardData(text: widget.walletSeedViewModel.seed));
+                        showBar<void>(context, S.of(context).copied_to_clipboard);
+                      },
+                      text: S.of(context).copy,
+                      color: Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
+                      textColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (Platform.isIOS || Platform.isAndroid)
+            Container(
+              padding: EdgeInsets.only(top: 10),
+              child: PrimaryButton(
+                onPressed: () async {
+                  bool open = await showPopUp<bool>(
+                        context: context,
+                        builder: (dialogContext) {
+                          return AlertWithTwoActions(
+                            alertTitle: S.current.save_to_pm,
+                            alertContent: S.current.save_pm_content,
+                            rightButtonText: S.current.save,
+                            leftButtonText: S.current.cancel,
+                            actionRightButton: () => Navigator.of(dialogContext).pop(true),
+                            actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+                            contentWidget: Column(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.only(bottom: 20),
+                                  child: Text(
+                                    S.current.save_pm_content,
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.normal,
+                                        color: Theme.of(context)
+                                            .extension<TransactionTradeTheme>()!
+                                            .detailsTitlesColor),
+                                  ),
+                                ),
+                                PrimaryButton(
+                                  onPressed: () async {
+                                    await launchUrl(
+                                      Uri.parse(
+                                        "https://guides.cakewallet.com/docs/basic-features/create-first-wallet/#saving-seed-with-password-manager",
+                                      ),
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  },
+                                  text: S.current.open_docs,
+                                  color: Colors.blue,
+                                  textColor: Colors.white,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ) ??
+                      false;
+                  if (open) {
+                    await setupPasswordManager();
+                    await Future.delayed(Duration(milliseconds: 500));
+                    TextInput.finishAutofillContext();
+                  }
+                },
+                text: S.current.save_to_pm,
+                color: Colors.blue,
+                textColor: Colors.white,
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
