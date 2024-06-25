@@ -186,12 +186,10 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     // sdk.logStream.listen((LogEntry event) {
     //   print("Breez log: ${event.line}");
     // });
-
-    Uint8List deviceKey = base64.decode(secrets.greenlightKey);
-    Uint8List deviceCert = base64.decode(secrets.greenlightCert);
+    
     GreenlightCredentials greenlightCredentials = GreenlightCredentials(
-      deviceKey: deviceKey,
-      deviceCert: deviceCert,
+      developerKey: base64.decode(secrets.greenlightKey),
+      developerCert: base64.decode(secrets.greenlightCert),
     );
 
     NodeConfig breezNodeConfig = NodeConfig.greenlight(
