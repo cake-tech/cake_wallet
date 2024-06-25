@@ -27,7 +27,7 @@ dependencies:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git
       ref: Add-Support-For-OP-Return-data
-  rxdart: ^0.27.5
+  rxdart: ^0.28.0
   cryptography: ^2.0.5
   bitcoin_base:
     git:
