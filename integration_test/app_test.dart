@@ -1,12 +1,11 @@
-import 'dart:io';
 
 import 'package:cake_wallet/main.dart' as app;
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import 'robots/dashboard_page_robot.dart';
 import 'robots/disclaimer_page_robot.dart';
 import 'robots/new_wallet_type_page_robot.dart';
 import 'robots/restore_from_seed_or_key_robot.dart';
@@ -32,6 +31,7 @@ void main() {
   RestoreOptionsPageRobot restoreOptionsPageRobot;
   NewWalletTypePageRobot newWalletTypePageRobot;
   RestoreFromSeedOrKeysPageRobot restoreFromSeedOrKeysPageRobot;
+  DashboardPageRobot dashboardPageRobot;
 
   group('Startup Test', () {
     testWidgets('Test for Exchange flow using Restore Wallet - Exchanging USDT(Sol) to SOL',
@@ -42,6 +42,7 @@ void main() {
       restoreOptionsPageRobot = RestoreOptionsPageRobot(tester);
       newWalletTypePageRobot = NewWalletTypePageRobot(tester);
       restoreFromSeedOrKeysPageRobot = RestoreFromSeedOrKeysPageRobot(tester);
+      dashboardPageRobot = DashboardPageRobot(tester);
 
       await app.main();
       await tester.pumpAndSettle();
@@ -136,6 +137,16 @@ void main() {
         'noble define inflict tackle sweet essence mention bicycle word hard patient ketchup',
       );
       await restoreFromSeedOrKeysPageRobot.onRestoreWalletButtonTapped();
+
+      // ----------- RestoreFromSeedOrKeys Page -------------
+      await dashboardPageRobot.isDashboardPage();
+      dashboardPageRobot.confirmServiceUpdateButtonDisplays();
+      dashboardPageRobot.confirmMenuButtonDisplays();
+      dashboardPageRobot.confirmSyncIndicatorButtonDisplays();
+      await dashboardPageRobot.confirmRightCryptoAssetTitleDisplaysPerPageView(WalletType.solana);
+
+      await dashboardPageRobot.navigateToExchangePage();
+      await Future.delayed(Duration(seconds: 5));
     });
   });
 }

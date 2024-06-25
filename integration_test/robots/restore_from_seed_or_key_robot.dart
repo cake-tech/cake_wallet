@@ -1,5 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_form.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/widgets/validable_annotated_editable_text.dart';
 import 'package:flutter/material.dart';
@@ -30,9 +29,8 @@ class RestoreFromSeedOrKeysPageRobot {
     commonTestCases.hasText(S.current.private_key, hasWidget: false);
     commonTestCases.hasText(S.current.restore_title_from_keys, hasWidget: false);
 
-    await tester.drag(find.byType(PageView), Offset(-300, 0));
-    await tester.pumpAndSettle();
-    commonTestCases.defaultSleepTime();
+    await commonTestCases.swipePage();
+    await commonTestCases.defaultSleepTime();
 
     commonTestCases.hasText(S.current.wallet_name);
     commonTestCases.hasText(S.current.private_key);
@@ -41,8 +39,7 @@ class RestoreFromSeedOrKeysPageRobot {
     commonTestCases.hasText(S.current.enter_seed_phrase, hasWidget: false);
     commonTestCases.hasText(S.current.restore_title_from_seed, hasWidget: false);
 
-    await tester.drag(find.byType(PageView), Offset(300, 0));
-    await tester.pumpAndSettle();
+    await commonTestCases.swipePage(swipeRight: false);
   }
 
   void confirmRestoreButtonDisplays() {
@@ -70,6 +67,7 @@ class RestoreFromSeedOrKeysPageRobot {
 
     seedTextState.widget.controller.text = text;
     await tester.pumpAndSettle();
+    await Future.delayed(Duration(seconds: 3));
   }
 
   Future<void> onPasteSeedPhraseButtonTapped() async {
@@ -78,5 +76,6 @@ class RestoreFromSeedOrKeysPageRobot {
 
   Future<void> onRestoreWalletButtonTapped() async {
     await commonTestCases.tapItemByKey('wallet_restore_seed_or_key_restore_button_key');
+    await commonTestCases.defaultSleepTime(seconds: 15);
   }
 }

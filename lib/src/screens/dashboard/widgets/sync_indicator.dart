@@ -7,7 +7,11 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 
 class SyncIndicator extends StatelessWidget {
-  SyncIndicator({required this.dashboardViewModel, required this.onTap});
+  SyncIndicator({
+    required this.dashboardViewModel,
+    required this.onTap,
+    super.key,
+  });
 
   final DashboardViewModel dashboardViewModel;
   final Function() onTap;

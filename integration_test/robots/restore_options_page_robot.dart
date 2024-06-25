@@ -23,19 +23,19 @@ class RestoreOptionsPageRobot {
   Future<void> navigateToRestoreFromSeedsPage() async {
     tester.printToConsole('Routing to restore from seeds page');
     await commonTestCases.tapItemByKey('restore_options_from_seeds_button_key');
-    commonTestCases.defaultSleepTime();
+    await commonTestCases.defaultSleepTime();
   }
 
   Future<void> navigateToRestoreFromBackupPage() async {
     tester.printToConsole('Routing to restore from backup page');
     await commonTestCases.tapItemByKey('restore_options_from_backup_button_key');
-    commonTestCases.defaultSleepTime();
+    await commonTestCases.defaultSleepTime();
   }
 
   Future<void> navigateToRestoreFromHardwareWalletPage() async {
     tester.printToConsole('Routing to restore from hardware wallet page');
     await commonTestCases.tapItemByKey('restore_options_from_hardware_wallet_button_key');
-    commonTestCases.defaultSleepTime();
+    await commonTestCases.defaultSleepTime();
   }
 
   Future<void> backAndVerify() async {

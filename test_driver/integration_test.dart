@@ -17,15 +17,13 @@ Future<void> main() async {
         ),
       );
 
-      if (data != null) {
-        final resultString = _encodeJson(data);
-        await file.writeAsString(resultString);
-      }
+      final resultString = _encodeJson(data);
+      await file.writeAsString(resultString);
     },
   );
 }
 
-String _encodeJson(Map<String, dynamic> jsonObject) {
+String _encodeJson(Map<String, dynamic>? jsonObject) {
   return _prettyEncoder.convert(jsonObject);
 }
 

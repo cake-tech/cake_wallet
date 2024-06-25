@@ -28,13 +28,13 @@ class WelcomePageRobot {
   Future<void> navigateToCreateNewWalletPage() async {
     tester.printToConsole('Routing to create new wallet page');
     await commonTestCases.tapItemByKey('welcome_page_create_new_wallet_button_key');
-    commonTestCases.defaultSleepTime();
+    await commonTestCases.defaultSleepTime();
   }
 
   Future<void> navigateToRestoreWalletPage() async {
     tester.printToConsole('Routing to restore wallet page');
     await commonTestCases.tapItemByKey('welcome_page_restore_wallet_button_key');
-    commonTestCases.defaultSleepTime();
+    await commonTestCases.defaultSleepTime();
   }
 
   Future<void> backAndVerify() async {

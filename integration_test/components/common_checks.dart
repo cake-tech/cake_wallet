@@ -34,6 +34,16 @@ class CommonTestCases {
     expect(typeWidget, findsOneWidget);
   }
 
+  Future<void> swipePage({bool swipeRight = true}) async {
+    await tester.drag(find.byType(PageView), Offset(swipeRight ? -300 : 300, 0));
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> swipeByPageKey({required String key, bool swipeRight = true}) async {
+    await tester.drag(find.byKey(ValueKey(key)), Offset(swipeRight ? -300 : 300, 0));
+    await tester.pumpAndSettle();
+  }
+
   Future<void> goBack() async {
     tester.printToConsole('Routing back to previous screen');
     final NavigatorState navigator = tester.state(find.byType(Navigator));
@@ -41,5 +51,5 @@ class CommonTestCases {
     await tester.pumpAndSettle();
   }
 
-  void defaultSleepTime() => sleep(Duration(seconds: 2));
+  Future<void> defaultSleepTime({int seconds = 2})async => await Future.delayed(Duration(seconds: seconds));
 }

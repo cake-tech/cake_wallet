@@ -146,6 +146,7 @@ class _DashboardPageView extends BasePage {
     return Observer(
       builder: (context) {
         return ServicesUpdatesWidget(
+          key: ValueKey('dashboard_page_services_update_button_key'),
           dashboardViewModel.getServicesStatus(),
           enabled: dashboardViewModel.isEnabledBulletinAction,
         );
@@ -156,6 +157,7 @@ class _DashboardPageView extends BasePage {
   @override
   Widget middle(BuildContext context) {
     return SyncIndicator(
+      key: ValueKey('dashboard_page_sync_indicator_button_key'),
       dashboardViewModel: dashboardViewModel,
       onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(Routes.connectionSync),
     );
@@ -172,6 +174,7 @@ class _DashboardPageView extends BasePage {
       alignment: Alignment.centerRight,
       width: 40,
       child: TextButton(
+        key: ValueKey('dashboard_page_wallet_menu_button_key'),
         // FIX-ME: Style
         //highlightColor: Colors.transparent,
         //splashColor: Colors.transparent,
@@ -225,6 +228,7 @@ class _DashboardPageView extends BasePage {
               child: Observer(
                 builder: (context) {
                   return PageView.builder(
+                    key: ValueKey('dashboard_page_view_key'),
                     controller: controller,
                     itemCount: pages.length,
                     itemBuilder: (context, index) => pages[index],
@@ -286,6 +290,8 @@ class _DashboardPageView extends BasePage {
                                   button: true,
                                   enabled: (action.isEnabled?.call(dashboardViewModel) ?? true),
                                   child: ActionButton(
+                                    key: ValueKey(
+                                        'dashboard_page_${action.name(context)}_action_button_key'),
                                     image: Image.asset(
                                       action.image,
                                       height: 24,

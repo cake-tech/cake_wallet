@@ -29,7 +29,7 @@ class DisclaimerPageRobot {
     final checkBox = find.byKey(ValueKey('disclaimer_check_key'));
     await tester.tap(checkBox);
     await tester.pumpAndSettle();
-    commonTestCases.defaultSleepTime();
+    await commonTestCases.defaultSleepTime();
   }
 
   Future<void> tapAcceptButton() async {

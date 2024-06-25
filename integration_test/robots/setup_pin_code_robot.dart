@@ -47,26 +47,22 @@ class SetupPinCodeRobot {
 
     await pushPinButton(0);
     expect(pinCodeState.pin, '0');
-    tester.printToConsole(pinCodeState.pin);
 
     await pushPinButton(8);
     expect(pinCodeState.pin, '08');
-    tester.printToConsole(pinCodeState.pin);
 
     await pushPinButton(0);
     expect(pinCodeState.pin, '080');
-    tester.printToConsole(pinCodeState.pin);
 
     await pushPinButton(1);
     // the state is cleared once it get's to the last entry
     expect(pinCodeState.pin, isFirstEntry ? '' : '0801');
-    tester.printToConsole(pinCodeState.pin);
 
-    commonTestCases.defaultSleepTime();
+    await commonTestCases.defaultSleepTime();
   }
 
   Future<void> tapSuccessButton() async {
     await commonTestCases.tapItemByKey('setup_pin_code_success_button_key');
-    commonTestCases.defaultSleepTime();
+    await commonTestCases.defaultSleepTime();
   }
 }
