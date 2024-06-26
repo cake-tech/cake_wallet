@@ -27,6 +27,7 @@ import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cw_lightning/.secrets.g.dart' as secrets;
 import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:bip39/bip39.dart' as bip39;
 
 part 'lightning_wallet.g.dart';
 
@@ -109,6 +110,16 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       LightningBalance? initialBalance,
       Map<String, int>? initialRegularAddressIndex,
       Map<String, int>? initialChangeAddressIndex}) async {
+    late final Uint8List seedBytes;
+    // electrum:
+    if (validateMnemonic(mnemonic)) {
+      seedBytes = await bip39.mnemonicToSeed(mnemonic);
+      // bip39:
+    } else if (bip39.validateMnemonic(mnemonic)) {
+      seedBytes = await mnemonicToSeedBytes(mnemonic);
+    } else {
+      throw Exception("Invalid mnemonic!");
+    }
     return LightningWallet(
       mnemonic: mnemonic,
       password: password,
@@ -116,7 +127,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
-      seedBytes: await Mnemonic.toSeed(mnemonic),
+      seedBytes: seedBytes,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
@@ -186,7 +197,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     // sdk.logStream.listen((LogEntry event) {
     //   print("Breez log: ${event.line}");
     // });
-    
+
     GreenlightCredentials greenlightCredentials = GreenlightCredentials(
       developerKey: base64.decode(secrets.greenlightKey),
       developerCert: base64.decode(secrets.greenlightCert),
