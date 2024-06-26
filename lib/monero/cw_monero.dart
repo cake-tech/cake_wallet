@@ -245,6 +245,12 @@ class CWMonero extends Monero {
   }
 
   @override
+  int? getRestoreHeight(Object wallet) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.restoreHeight;
+  }
+
+  @override
   Object createMoneroTransactionCreationCredentials(
           {required List<Output> outputs, required TransactionPriority priority}) =>
       MoneroTransactionCreationCredentials(

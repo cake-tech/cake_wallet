@@ -108,6 +108,8 @@ abstract class MoneroWalletBase
       publicSpendKey: monero_wallet.getPublicSpendKey(),
       publicViewKey: monero_wallet.getPublicViewKey());
 
+  int? get restoreHeight => transactionHistory.transactions.values.firstOrNull?.height;
+
   monero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
   bool _isTransactionUpdating;
