@@ -29,6 +29,11 @@ class EthereumClient extends EVMChainClient {
 
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
+      if (jsonResponse['result'] is String) {
+        log(jsonResponse['result']);
+        return [];
+      }
+
       if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
         return (jsonResponse['result'] as List)
             .map((e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'ETH'))
