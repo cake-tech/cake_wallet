@@ -14,10 +14,10 @@ class RestoreOptionsPageRobot {
   }
 
   void hasRestoreOptionsButton() {
-    commonTestCases.hasKey('restore_options_from_seeds_button_key');
-    commonTestCases.hasKey('restore_options_from_backup_button_key');
-    commonTestCases.hasKey('restore_options_from_hardware_wallet_button_key');
-    commonTestCases.hasKey('restore_options_from_qr_button_key');
+    commonTestCases.hasValueKey('restore_options_from_seeds_button_key');
+    commonTestCases.hasValueKey('restore_options_from_backup_button_key');
+    commonTestCases.hasValueKey('restore_options_from_hardware_wallet_button_key');
+    commonTestCases.hasValueKey('restore_options_from_qr_button_key');
   }
 
   Future<void> navigateToRestoreFromSeedsPage() async {

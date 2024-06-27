@@ -7,6 +7,7 @@ class SearchBarWidget extends StatelessWidget {
     required this.searchController,
     this.hintText,
     this.borderRadius = 14,
+    super.key,
   });
 
   final TextEditingController searchController;

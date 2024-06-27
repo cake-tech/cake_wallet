@@ -29,7 +29,7 @@ class CommonTestCases {
     expect(typeWidget, findsOneWidget);
   }
 
-  void hasKey(String key) {
+  void hasValueKey(String key) {
     final typeWidget = find.byKey(ValueKey(key));
     expect(typeWidget, findsOneWidget);
   }
@@ -51,5 +51,19 @@ class CommonTestCases {
     await tester.pumpAndSettle();
   }
 
-  Future<void> defaultSleepTime({int seconds = 2})async => await Future.delayed(Duration(seconds: seconds));
+  Future<void> scrollUntilVisible(String childKey, String parentScrollableKey, {double delta = 300}) async {
+    final scrollableWidget = find.descendant(
+      of: find.byKey(Key(parentScrollableKey)),
+      matching: find.byType(Scrollable),
+    );
+
+    await tester.scrollUntilVisible(
+      find.byKey(ValueKey(childKey)),
+      delta,
+      scrollable: scrollableWidget,
+    );
+  }
+
+  Future<void> defaultSleepTime({int seconds = 2}) async =>
+      await Future.delayed(Duration(seconds: seconds));
 }

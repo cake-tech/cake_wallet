@@ -44,8 +44,9 @@ class ExchangeCard extends StatefulWidget {
       this.allAmount,
       this.onPushPasteButton,
       this.onPushAddressBookButton,
-      this.onDispose})
-      : super(key: key);
+      this.onDispose,
+    required this.cardInstanceName,
+  }) : super(key: key);
 
   final List<CryptoCurrency> currencies;
   final Function(CryptoCurrency) onCurrencySelected;
@@ -73,6 +74,7 @@ class ExchangeCard extends StatefulWidget {
   final void Function(BuildContext context)? onPushPasteButton;
   final void Function(BuildContext context)? onPushAddressBookButton;
   final Function()? onDispose;
+  final String cardInstanceName;
 
   @override
   ExchangeCardState createState() => ExchangeCardState();
@@ -88,11 +90,13 @@ class ExchangeCardState extends State<ExchangeCard> {
         _walletName = '',
         _selectedCurrency = CryptoCurrency.btc,
         _isAmountEstimated = false,
-        _isMoneroWallet = false;
+        _isMoneroWallet = false,
+        _cardInstanceName = '';
 
   final addressController = TextEditingController();
   final amountController = TextEditingController();
 
+  String _cardInstanceName;
   String _title;
   String? _min;
   String? _max;
@@ -105,6 +109,7 @@ class ExchangeCardState extends State<ExchangeCard> {
 
   @override
   void initState() {
+    _cardInstanceName = widget.cardInstanceName;
     _title = widget.title;
     _isAmountEditable = widget.initialIsAmountEditable;
     _isAddressEditable = widget.initialIsAddressEditable;
@@ -183,6 +188,7 @@ class ExchangeCardState extends State<ExchangeCard> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Text(
+              key: ValueKey('${_cardInstanceName}_title_key'),
               _title,
               style: TextStyle(
                   fontSize: 18,
@@ -200,6 +206,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                   height: 32,
                   color: widget.currencyButtonColor,
                   child: InkWell(
+                    key: ValueKey('${_cardInstanceName}_currency_picker_button_key'),
                     onTap: () => _presentPicker(context),
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -209,9 +216,12 @@ class ExchangeCardState extends State<ExchangeCard> {
                             padding: EdgeInsets.only(right: 5),
                             child: widget.imageArrow,
                           ),
-                          Text(_selectedCurrency.toString(),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white))
+                          Text(
+                            key: ValueKey('${_cardInstanceName}_selected_currency_text_key'),
+                            _selectedCurrency.toString(),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white),
+                          )
                         ]),
                   ),
                 ),
@@ -227,13 +237,16 @@ class ExchangeCardState extends State<ExchangeCard> {
                       child: Center(
                         child: Padding(
                           padding: const EdgeInsets.all(6.0),
-                          child: Text(_selectedCurrency.tag!,
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context)
-                                      .extension<SendPageTheme>()!
-                                      .textFieldButtonIconColor)),
+                          child: Text(
+                            key: ValueKey('${_cardInstanceName}_selected_currency_tag_text_key'),
+                            _selectedCurrency.tag!,
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context)
+                                    .extension<SendPageTheme>()!
+                                    .textFieldButtonIconColor),
+                          ),
                         ),
                       ),
                     ),
@@ -252,6 +265,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                         child: FocusTraversalOrder(
                           order: NumericFocusOrder(1),
                           child: BaseTextFormField(
+                              key: ValueKey('${_cardInstanceName}_amount_textfield_key'),
                               focusNode: widget.amountFocusNode,
                               controller: amountController,
                               enabled: _isAmountEditable,
@@ -272,9 +286,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                                   color: Theme.of(context)
                                       .extension<ExchangePageTheme>()!
                                       .hintTextColor),
-                              validator: _isAmountEditable
-                                      ? widget.currencyValueValidator
-                                      : null),
+                              validator: _isAmountEditable ? widget.currencyValueValidator : null),
                         ),
                       ),
                       if (widget.hasAllAmount)
@@ -287,6 +299,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                                   .textFieldButtonColor,
                               borderRadius: BorderRadius.all(Radius.circular(6))),
                           child: InkWell(
+                            key: ValueKey('${_cardInstanceName}_send_all_button_key'),
                             onTap: () => widget.allAmount?.call(),
                             child: Center(
                               child: Text(S.of(context).all,
@@ -313,6 +326,7 @@ class ExchangeCardState extends State<ExchangeCard> {
               child: Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
                 _min != null
                     ? Text(
+                        key: ValueKey('${_cardInstanceName}_min_limit_text_key'),
                         S.of(context).min_value(_min ?? '', _selectedCurrency.toString()),
                         style: TextStyle(
                             fontSize: 10,
@@ -322,11 +336,15 @@ class ExchangeCardState extends State<ExchangeCard> {
                     : Offstage(),
                 _min != null ? SizedBox(width: 10) : Offstage(),
                 _max != null
-                    ? Text(S.of(context).max_value(_max ?? '', _selectedCurrency.toString()),
+                    ? Text(
+                        key: ValueKey('${_cardInstanceName}_max_limit_text_key'),
+                        S.of(context).max_value(_max ?? '', _selectedCurrency.toString()),
                         style: TextStyle(
-                            fontSize: 10,
-                            height: 1.2,
-                            color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor))
+                          fontSize: 10,
+                          height: 1.2,
+                          color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor,
+                        ),
+                      )
                     : Offstage(),
               ])),
         ),
@@ -347,6 +365,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                 child: Padding(
                   padding: EdgeInsets.only(top: 20),
                   child: AddressTextField(
+                      key: ValueKey('${_cardInstanceName}_editable_address_textfield_key'),
                       focusNode: widget.addressFocusNode,
                       controller: addressController,
                       onURIScanned: (uri) {
@@ -387,6 +406,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                           FocusTraversalOrder(
                             order: NumericFocusOrder(3),
                             child: BaseTextFormField(
+                                key: ValueKey(
+                                    '${_cardInstanceName}_non_editable_address_textfield_key'),
                                 controller: addressController,
                                 borderColor: Colors.transparent,
                                 suffixIcon: SizedBox(width: _isMoneroWallet ? 80 : 36),
@@ -410,6 +431,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                                             child: Semantics(
                                               label: S.of(context).address_book,
                                               child: InkWell(
+                                                key: ValueKey(
+                                                    '${_cardInstanceName}_address_book_button_key'),
                                                 onTap: () async {
                                                   final contact =
                                                       await Navigator.of(context).pushNamed(
@@ -447,6 +470,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                                             child: Semantics(
                                               label: S.of(context).copy_address,
                                               child: InkWell(
+                                                key: ValueKey('${_cardInstanceName}_copy_refund_address_button_key'),
                                                 onTap: () {
                                                   Clipboard.setData(
                                                       ClipboardData(text: addressController.text));
@@ -470,6 +494,7 @@ class ExchangeCardState extends State<ExchangeCard> {
     showPopUp<void>(
       context: context,
       builder: (_) => CurrencyPicker(
+        key: ValueKey('${_cardInstanceName}_currency_picker_dialog_button_key'),
         selectedAtIndex: widget.currencies.indexOf(_selectedCurrency),
         items: widget.currencies,
         hintText: S.of(context).search_currency,

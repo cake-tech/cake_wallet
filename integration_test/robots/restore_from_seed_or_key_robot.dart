@@ -21,10 +21,10 @@ class RestoreFromSeedOrKeysPageRobot {
     commonTestCases.hasText(S.current.enter_seed_phrase);
     commonTestCases.hasText(S.current.restore_title_from_seed);
 
-    commonTestCases.hasKey('wallet_restore_from_seed_wallet_name_textfield_key');
-    commonTestCases.hasKey('wallet_restore_from_seed_wallet_name_refresh_button_key');
-    commonTestCases.hasKey('wallet_restore_from_seed_wallet_seeds_paste_button_key');
-    commonTestCases.hasKey('wallet_restore_from_seed_wallet_seeds_textfield_key');
+    commonTestCases.hasValueKey('wallet_restore_from_seed_wallet_name_textfield_key');
+    commonTestCases.hasValueKey('wallet_restore_from_seed_wallet_name_refresh_button_key');
+    commonTestCases.hasValueKey('wallet_restore_from_seed_wallet_seeds_paste_button_key');
+    commonTestCases.hasValueKey('wallet_restore_from_seed_wallet_seeds_textfield_key');
 
     commonTestCases.hasText(S.current.private_key, hasWidget: false);
     commonTestCases.hasText(S.current.restore_title_from_keys, hasWidget: false);
@@ -43,11 +43,11 @@ class RestoreFromSeedOrKeysPageRobot {
   }
 
   void confirmRestoreButtonDisplays() {
-    commonTestCases.hasKey('wallet_restore_seed_or_key_restore_button_key');
+    commonTestCases.hasValueKey('wallet_restore_seed_or_key_restore_button_key');
   }
 
   void confirmAdvancedSettingButtonDisplays() {
-    commonTestCases.hasKey('wallet_restore_advanced_settings_button_key');
+    commonTestCases.hasValueKey('wallet_restore_advanced_settings_button_key');
   }
 
   Future<void> enterWalletNameText(String walletName) async {
@@ -76,6 +76,6 @@ class RestoreFromSeedOrKeysPageRobot {
 
   Future<void> onRestoreWalletButtonTapped() async {
     await commonTestCases.tapItemByKey('wallet_restore_seed_or_key_restore_button_key');
-    await commonTestCases.defaultSleepTime(seconds: 15);
+    // await commonTestCases.defaultSleepTime(seconds: 15);
   }
 }

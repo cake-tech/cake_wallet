@@ -28,11 +28,11 @@ class SetupPinCodeRobot {
   void hasNumberButtonsVisible() {
     // Confirmation for buttons 1-9
     for (var i = 1; i < 10; i++) {
-      commonTestCases.hasKey('pin_code_button_${i}_key');
+      commonTestCases.hasValueKey('pin_code_button_${i}_key');
     }
 
     // Confirmation for 0 button
-    commonTestCases.hasKey('pin_code_button_0_key');
+    commonTestCases.hasValueKey('pin_code_button_0_key');
   }
 
   Future<void> pushPinButton(int index) async {

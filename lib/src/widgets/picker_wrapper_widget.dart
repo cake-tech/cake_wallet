@@ -4,7 +4,12 @@ import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 
 class PickerWrapperWidget extends StatelessWidget {
-  PickerWrapperWidget({required this.children, this.hasTitle = false, this.onClose});
+  PickerWrapperWidget({
+    required this.children,
+    this.hasTitle = false,
+    this.onClose,
+    super.key,
+  });
 
   final List<Widget> children;
   final bool hasTitle;
@@ -29,8 +34,8 @@ class PickerWrapperWidget extends StatelessWidget {
       final containerBottom = screenCenter - containerCenter;
 
       // position the close button right below the search container
-      closeButtonBottom = closeButtonBottom -
-          containerBottom + (!hasTitle ? padding : padding / 1.5);
+      closeButtonBottom =
+          closeButtonBottom - containerBottom + (!hasTitle ? padding : padding / 1.5);
     }
 
     return AlertBackground(
@@ -46,7 +51,11 @@ class PickerWrapperWidget extends StatelessWidget {
                   children: children,
                 ),
                 SizedBox(height: ResponsiveLayoutUtilBase.kPopupSpaceHeight),
-                AlertCloseButton(bottom: closeButtonBottom, onTap: onClose),
+                AlertCloseButton(
+                  key: ValueKey('picker_wrapper_close_button_key'),
+                  bottom: closeButtonBottom,
+                  onTap: onClose,
+                ),
               ],
             ),
           ),

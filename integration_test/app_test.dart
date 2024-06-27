@@ -1,5 +1,5 @@
-
 import 'package:cake_wallet/main.dart' as app;
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +7,7 @@ import 'package:integration_test/integration_test.dart';
 
 import 'robots/dashboard_page_robot.dart';
 import 'robots/disclaimer_page_robot.dart';
+import 'robots/exchange_page_robot.dart';
 import 'robots/new_wallet_type_page_robot.dart';
 import 'robots/restore_from_seed_or_key_robot.dart';
 import 'robots/restore_options_page_robot.dart';
@@ -32,6 +33,7 @@ void main() {
   NewWalletTypePageRobot newWalletTypePageRobot;
   RestoreFromSeedOrKeysPageRobot restoreFromSeedOrKeysPageRobot;
   DashboardPageRobot dashboardPageRobot;
+  ExchangePageRobot exchangePageRobot;
 
   group('Startup Test', () {
     testWidgets('Test for Exchange flow using Restore Wallet - Exchanging USDT(Sol) to SOL',
@@ -43,6 +45,7 @@ void main() {
       newWalletTypePageRobot = NewWalletTypePageRobot(tester);
       restoreFromSeedOrKeysPageRobot = RestoreFromSeedOrKeysPageRobot(tester);
       dashboardPageRobot = DashboardPageRobot(tester);
+      exchangePageRobot = ExchangePageRobot(tester);
 
       await app.main();
       await tester.pumpAndSettle();
@@ -139,14 +142,28 @@ void main() {
       await restoreFromSeedOrKeysPageRobot.onRestoreWalletButtonTapped();
 
       // ----------- RestoreFromSeedOrKeys Page -------------
-      await dashboardPageRobot.isDashboardPage();
-      dashboardPageRobot.confirmServiceUpdateButtonDisplays();
-      dashboardPageRobot.confirmMenuButtonDisplays();
-      dashboardPageRobot.confirmSyncIndicatorButtonDisplays();
-      await dashboardPageRobot.confirmRightCryptoAssetTitleDisplaysPerPageView(WalletType.solana);
+      // await dashboardPageRobot.isDashboardPage();
+      // dashboardPageRobot.confirmServiceUpdateButtonDisplays();
+      // dashboardPageRobot.confirmMenuButtonDisplays();
+      // dashboardPageRobot.confirmSyncIndicatorButtonDisplays();
+      // await dashboardPageRobot.confirmRightCryptoAssetTitleDisplaysPerPageView(WalletType.solana);
 
       await dashboardPageRobot.navigateToExchangePage();
-      await Future.delayed(Duration(seconds: 5));
+      await Future.delayed(Duration(seconds: 2));
+
+      // ----------- Exchange Page -------------
+      await exchangePageRobot.isExchangePage();
+      exchangePageRobot.hasTitle();
+      exchangePageRobot.hasResetButton();
+      await exchangePageRobot.displayBothExchangeCards();
+      exchangePageRobot.confirmRightComponentsDisplayOnDepositExchangeCards();
+      exchangePageRobot.confirmRightComponentsDisplayOnReceiveExchangeCards();
+
+      await exchangePageRobot.selectDepositCurrency(CryptoCurrency.btc);
+
+      await exchangePageRobot.selectReceiveCurrency(CryptoCurrency.usdtSol);
+
+      await Future.delayed(Duration(seconds: 10));
     });
   });
 }

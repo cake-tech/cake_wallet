@@ -101,11 +101,11 @@ class ExchangePage extends BasePage {
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
-    FocusScopeNode currentFocus = FocusScope.of(context);
-    if (!currentFocus.hasPrimaryFocus) {
-      currentFocus.focusedChild?.unfocus();
-    }
-  };
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.focusedChild?.unfocus();
+        }
+      };
 
   @override
   Widget middle(BuildContext context) => Row(
@@ -239,6 +239,7 @@ class ExchangePage extends BasePage {
                   ),
                   Observer(
                       builder: (_) => LoadingPrimaryButton(
+                          key: ValueKey('exchange_page_exchange_button_key'),
                           text: S.of(context).exchange,
                           onPressed: () {
                             if (_formKey.currentState != null &&
@@ -340,7 +341,6 @@ class ExchangePage extends BasePage {
 
   void applyTemplate(
       BuildContext context, ExchangeViewModel exchangeViewModel, ExchangeTemplate template) async {
-
     final depositCryptoCurrency = CryptoCurrency.fromString(template.depositCurrency);
     final receiveCryptoCurrency = CryptoCurrency.fromString(template.receiveCurrency);
 
@@ -354,10 +354,12 @@ class ExchangePage extends BasePage {
     exchangeViewModel.isFixedRateMode = false;
 
     var domain = template.depositAddress;
-    exchangeViewModel.depositAddress = await fetchParsedAddress(context, domain, depositCryptoCurrency);
+    exchangeViewModel.depositAddress =
+        await fetchParsedAddress(context, domain, depositCryptoCurrency);
 
     domain = template.receiveAddress;
-    exchangeViewModel.receiveAddress = await fetchParsedAddress(context, domain, receiveCryptoCurrency);
+    exchangeViewModel.receiveAddress =
+        await fetchParsedAddress(context, domain, receiveCryptoCurrency);
   }
 
   void _setReactions(BuildContext context, ExchangeViewModel exchangeViewModel) {
@@ -529,14 +531,16 @@ class ExchangePage extends BasePage {
     _depositAddressFocus.addListener(() async {
       if (!_depositAddressFocus.hasFocus && depositAddressController.text.isNotEmpty) {
         final domain = depositAddressController.text;
-        exchangeViewModel.depositAddress = await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
+        exchangeViewModel.depositAddress =
+            await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
       }
     });
 
     _receiveAddressFocus.addListener(() async {
       if (!_receiveAddressFocus.hasFocus && receiveAddressController.text.isNotEmpty) {
         final domain = receiveAddressController.text;
-        exchangeViewModel.receiveAddress = await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
+        exchangeViewModel.receiveAddress =
+            await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
       }
     });
 
@@ -589,7 +593,8 @@ class ExchangePage extends BasePage {
     }
   }
 
-  Future<String> fetchParsedAddress(BuildContext context, String domain, CryptoCurrency currency) async {
+  Future<String> fetchParsedAddress(
+      BuildContext context, String domain, CryptoCurrency currency) async {
     final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
@@ -619,6 +624,7 @@ class ExchangePage extends BasePage {
   Widget _exchangeCardsSection(BuildContext context) {
     final firstExchangeCard = Observer(
         builder: (_) => ExchangeCard(
+              cardInstanceName: 'deposit_exchange_card',
               onDispose: disposeBestRateSync,
               hasAllAmount: exchangeViewModel.hasAllAmount,
               allAmount: exchangeViewModel.hasAllAmount
@@ -689,6 +695,7 @@ class ExchangePage extends BasePage {
 
     final secondExchangeCard = Observer(
         builder: (_) => ExchangeCard(
+              cardInstanceName: 'receive_exchange_card',
               onDispose: disposeBestRateSync,
               amountFocusNode: _receiveAmountFocus,
               addressFocusNode: _receiveAddressFocus,

@@ -32,7 +32,7 @@ class AddressTextField extends StatelessWidget {
       this.onPushPasteButton,
       this.onPushAddressBookButton,
       this.onSelectedContact,
-      this.selectedCurrency});
+      this.selectedCurrency, super.key});
 
   static const prefixIconWidth = 34.0;
   static const prefixIconHeight = 34.0;

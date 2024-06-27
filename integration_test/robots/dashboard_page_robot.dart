@@ -16,15 +16,15 @@ class DashboardPageRobot {
   }
 
   void confirmServiceUpdateButtonDisplays() {
-    commonTestCases.hasKey('dashboard_page_services_update_button_key');
+    commonTestCases.hasValueKey('dashboard_page_services_update_button_key');
   }
 
   void confirmSyncIndicatorButtonDisplays() {
-    commonTestCases.hasKey('dashboard_page_sync_indicator_button_key');
+    commonTestCases.hasValueKey('dashboard_page_sync_indicator_button_key');
   }
 
   void confirmMenuButtonDisplays() {
-    commonTestCases.hasKey('dashboard_page_wallet_menu_button_key');
+    commonTestCases.hasValueKey('dashboard_page_wallet_menu_button_key');
   }
 
   Future<void> confirmRightCryptoAssetTitleDisplaysPerPageView(WalletType type,
