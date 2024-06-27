@@ -35,7 +35,7 @@ class SupportPage extends BasePage {
                 child: OptionTile(
                   image: imageLiveSupport,
                   title: S.of(context).support_title_live_chat,
-                  description: S.of(context).support_description_live_chat,
+                  subTitle: S.of(context).support_description_live_chat,
                   onPressed: () {
                     if (DeviceInfo.instance.isDesktop) {
                       _launchUrl(supportViewModel.fetchUrl());
@@ -50,7 +50,7 @@ class SupportPage extends BasePage {
                 child: OptionTile(
                   image: imageWalletGuides,
                   title: S.of(context).support_title_guides,
-                  description: S.of(context).support_description_guides,
+                  subTitle: S.of(context).support_description_guides,
                   onPressed: () => _launchUrl(supportViewModel.guidesUrl),
                 ),
               ),
@@ -59,7 +59,7 @@ class SupportPage extends BasePage {
                 child: OptionTile(
                   image: imageMoreLinks,
                   title: S.of(context).support_title_other_links,
-                  description: S.of(context).support_description_other_links,
+                  subTitle: S.of(context).support_description_other_links,
                   onPressed: () => Navigator.pushNamed(context, Routes.supportOtherLinks),
                 ),
               ),

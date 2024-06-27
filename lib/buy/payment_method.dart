@@ -1,12 +1,22 @@
 import 'package:cake_wallet/core/selectable_option.dart';
 
-enum PaymentMethodType { creditCard, debitCard, applePay, googlePay, revolutPay }
+enum PaymentMethodType {
+  creditCard,
+  debitCard,
+  applePay,
+  googlePay,
+  revolutPay,
+  neteller,
+  skrill,
+  sepa
+}
 
-class PaymentMethod implements SelectableOption {
+class PaymentMethod extends SelectableOption {
   final PaymentMethodType? paymentMethodType;
   final String title;
   final String icon;
   final Map<String, dynamic> details;
+  bool isSelected = false;
 
   PaymentMethod({
     this.paymentMethodType,
@@ -14,6 +24,9 @@ class PaymentMethod implements SelectableOption {
     required this.icon,
     required this.details,
   });
+
+  @override
+  bool get isOptionSelected => isSelected;
 
   factory PaymentMethod.fromJson(Map<String, dynamic> json) {
     final type = PaymentMethod.getPaymentTypeId(json['paymentTypeId'] as String?);
@@ -39,6 +52,10 @@ class PaymentMethod implements SelectableOption {
         return PaymentMethodType.googlePay;
       case 'revolutpay':
         return PaymentMethodType.revolutPay;
+      case 'neteller':
+        return PaymentMethodType.neteller;
+      case 'skrill':
+        return PaymentMethodType.skrill;
       default:
         throw Exception('Unknown payment type');
     }
@@ -60,9 +77,6 @@ class PaymentMethod implements SelectableOption {
         return 'assets/images/card.png';
     }
   }
-
-  @override
-  String get badgeTitle => '';
 
   @override
   String get description => '';

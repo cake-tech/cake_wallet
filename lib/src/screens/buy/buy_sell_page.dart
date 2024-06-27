@@ -162,15 +162,12 @@ class BuySellPage extends BasePage {
                                 image: Image.asset(buySellViewModel.selectedPaymentMethod!.icon,
                                     height: 35, width: 35),
                                 title: buySellViewModel.selectedPaymentMethod!.title,
-                                description: '',
+                                subTitle: '',
                                 onPressed: () {
                                   Navigator.of(context).pushNamed(Routes.selectOptions, arguments: [
                                     'S.of(context).payment_methods',
                                     buySellViewModel.paymentMethods,
-                                    (SelectableOption option) {
-                                      buySellViewModel.changePaymentMethod(option as PaymentMethod);
-                                      Navigator.of(context).pop();
-                                    },
+                                    buySellViewModel.changeOption
                                   ]);
                                 },
                                 leadingIcon: Icons.arrow_forward_ios,
@@ -181,29 +178,27 @@ class BuySellPage extends BasePage {
                                         Theme.of(context).extension<CakeTextTheme>()!.titleColor),
                               ));
                         }),
-                      if (buySellViewModel.bestRate != null &&
-                          buySellViewModel.bestRate!.provider != null)
+                      if (buySellViewModel.selectedQuote != null)
                         Observer(builder: (_) {
-                          final provider = buySellViewModel.bestRate!.provider;
+                          final selectedQuote = buySellViewModel.selectedQuote!;
                           return Padding(
                               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
                               child: OptionTile(
                                 image: Image.asset(
-                                  provider!.lightIcon,
+                                  selectedQuote.provider!.lightIcon,
                                   height: 35,
                                   width: 35,
                                 ),
-                                title: provider.title,
-                                description:
-                                    '1 ${buySellViewModel.cryptoCurrency} = ${buySellViewModel.bestRate?.rate.toStringAsFixed(2)} ${buySellViewModel.fiatCurrency}',
+                                title: selectedQuote.provider!.title,
+                                firstBadgeName: selectedQuote.firstBadgeName,
+                                secondBadgeName: selectedQuote.secondBadgeName,
+                                subTitle: selectedQuote.subTitle,
                                 onPressed: () {
+
                                   Navigator.of(context).pushNamed(Routes.selectOptions, arguments: [
                                     'S.of(context).payment_methods',
                                     buySellViewModel.sortedAvailableQuotes,
-                                    (SelectableOption option) {
-                                      buySellViewModel.changeQuote(option as Quote);
-                                      Navigator.of(context).pop();
-                                    },
+                                    buySellViewModel.changeOption
                                   ]);
                                 },
                                 leadingIcon: Icons.arrow_forward_ios,

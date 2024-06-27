@@ -59,6 +59,9 @@ class MoonPayProvider extends BuyProvider {
   @override
   String get darkIcon => 'assets/images/moonpay_dark.png';
 
+  @override
+  bool get isAggregator => false;
+
   static String themeToMoonPayTheme(ThemeBase theme) {
     switch (theme.type) {
       case ThemeType.bright:

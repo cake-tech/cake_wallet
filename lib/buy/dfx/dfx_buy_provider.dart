@@ -1,6 +1,10 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/buy/buy_quote.dart';
+import 'package:cake_wallet/buy/fiat_currency_buy_credentials.dart';
+import 'package:cake_wallet/buy/payment_method.dart';
+import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
@@ -15,10 +19,12 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class DFXBuyProvider extends BuyProvider {
-  DFXBuyProvider({required WalletBase wallet, bool isTestEnvironment = false, LedgerViewModel? ledgerVM})
+  DFXBuyProvider(
+      {required WalletBase wallet, bool isTestEnvironment = false, LedgerViewModel? ledgerVM})
       : super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: ledgerVM);
 
   static const _baseUrl = 'api.dfx.swiss';
+
   // static const _signMessagePath = '/v1/auth/signMessage';
   static const _authPath = '/v1/auth';
   static const walletName = 'CakeWallet';
@@ -34,6 +40,9 @@ class DFXBuyProvider extends BuyProvider {
 
   @override
   String get darkIcon => 'assets/images/dfx_dark.png';
+
+  @override
+  bool get isAggregator => false;
 
   String get assetOut {
     switch (wallet.type) {
@@ -185,6 +194,90 @@ class DFXBuyProvider extends BuyProvider {
                 buttonText: S.of(context).ok,
                 buttonAction: () => Navigator.of(context).pop());
           });
+    }
+  }
+
+  Future<List<FiatCurrencyBuyCredentials>> fetchFiatCurrencies() async {
+    final url = Uri.parse('https://api.dfx.swiss/v1/fiat');
+    final headers = {
+      'accept': 'application/json',
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body) as List<dynamic>;
+        return data
+            .map((item) => FiatCurrencyBuyCredentials.fromJson(item as Map<String, dynamic>))
+            .toList();
+      } else {
+        print('Failed to fetch fiat currencies: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching fiat currencies: $e');
+      return [];
+    }
+  }
+
+  Future<Quote?> fetchQuote({
+    required String sourceCurrency,
+    required String destinationCurrency,
+    required int amount,
+    required PaymentMethodType paymentMethod,
+    required String type,
+    required String walletAddress,
+  }) async {
+    final url = Uri.parse('https://api.dfx.swiss/v1/buy/quote');
+    final headers = {
+      'accept': 'application/json',
+      'Content-Type': 'application/json',
+    };
+    final body = jsonEncode({
+      'currency': {
+        'id': 3,
+      },
+      'asset': {
+        'id': 113,
+      },
+      'amount': amount,
+      'targetAmount': 0,
+      'paymentMethod': normalizePaymentMethod(paymentMethod),
+      'discountCode': '',
+    });
+
+    try {
+      final response = await http.put(url, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is Map<String, dynamic>) {
+          return Quote.fromDFXJson(data, ProviderType.dfx);
+        } else {
+          print('DFX Unexpected data type: ${data.runtimeType}');
+          return null;
+        }
+      } else {
+        print('DFX Failed to fetch buy quote: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching buy quote: $e');
+      return null;
+    }
+  }
+
+  String normalizePaymentMethod(PaymentMethodType paymentMethod) {
+    switch (paymentMethod) {
+      case PaymentMethodType.creditCard:
+        return 'Card';
+      case PaymentMethodType.debitCard:
+        return 'Bank';
+      case PaymentMethodType.sepa:
+        return 'Instant';
+      default:
+        throw Exception('Unknown payment type');
     }
   }
 }

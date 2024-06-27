@@ -42,6 +42,9 @@ class WyreBuyProvider extends BuyProvider {
   @override
   String get darkIcon => 'assets/images/robinhood_dark.png';
 
+  @override
+  bool get isAggregator => false;
+
   String get trackUrl => isTestEnvironment ? _trackTestUrl : _trackProductUrl;
 
   String baseApiUrl;

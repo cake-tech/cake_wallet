@@ -1029,7 +1029,7 @@ Future<void> setup({
         (List<dynamic> args, _) {
       final title = args[0] as String;
       final options = args[1] as List<SelectableOption>;
-      final onOptionTap = args[2] as Function(SelectableOption)?;
+      final onOptionTap = args[2] as void Function(SelectableOption);
       return SelectOptionsPage<SelectableOption>(
         title: title,
         options: options,

@@ -45,7 +45,7 @@ class BuySellOptionsPage extends BasePage {
                     child: OptionTile(
                       image: icon,
                       title: provider.toString(),
-                      description: provider.providerDescription,
+                      subTitle: provider.providerDescription,
                       onPressed: () => provider.launchProvider(context, isBuyAction),
                     ),
                   );

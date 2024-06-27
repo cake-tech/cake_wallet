@@ -1,8 +1,8 @@
 import 'dart:async';
-
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
+import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -29,20 +29,15 @@ part 'buy_sell_view_model.g.dart';
 class BuySellViewModel = BuySellViewModelBase with _$BuySellViewModel;
 
 abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with Store {
-  @override
-  void onWalletChange(wallet) {
-    cryptoCurrency = wallet.currency;
-  }
-
   BuySellViewModelBase(
-    AppStore appStore,
-    this.trades,
-    this._exchangeTemplateStore,
-    this.tradesStore,
-    this._settingsStore,
-    this.sharedPreferences,
-    this.contactListViewModel,
-  )   : _cryptoNumberFormat = NumberFormat(),
+      AppStore appStore,
+      this.trades,
+      this._exchangeTemplateStore,
+      this.tradesStore,
+      this._settingsStore,
+      this.sharedPreferences,
+      this.contactListViewModel,
+      )   : _cryptoNumberFormat = NumberFormat(),
         isSendAllEnabled = false,
         isReceiveAmountEntered = false,
         cryptoAmount = '',
@@ -75,25 +70,20 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       CryptoCurrency.btt
     ];
 
-    fiatCurrencies =
-        FiatCurrency.all.where((currency) => !excludeFiatCurrencies.contains(currency)).toList();
-    cryptoCurrencies = CryptoCurrency.all
-        .where((currency) => !excludeCryptoCurrencies.contains(currency))
-        .toList();
+    fiatCurrencies = FiatCurrency.all.where((currency) => !excludeFiatCurrencies.contains(currency)).toList();
+    cryptoCurrencies = CryptoCurrency.all.where((currency) => !excludeCryptoCurrencies.contains(currency)).toList();
   }
 
+  @observable
   List<CryptoCurrency> cryptoCurrencies;
 
+  @observable
   List<FiatCurrency> fiatCurrencies;
 
   final NumberFormat _cryptoNumberFormat;
-
   final SettingsStore _settingsStore;
-
   final ContactListViewModel contactListViewModel;
-
   late Timer bestRateSync;
-
   bool _useTorOnly;
   final Box<Trade> trades;
   final ExchangeTemplateStore _exchangeTemplateStore;
@@ -102,20 +92,12 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   List<BuyProvider> get availableBuyProviders {
     final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes(wallet.type);
-    return providerTypes
-        .map((type) => ProvidersHelper.getProviderByType(type))
-        .where((provider) => provider != null)
-        .cast<BuyProvider>()
-        .toList();
+    return providerTypes.map((type) => ProvidersHelper.getProviderByType(type)).where((provider) => provider != null).cast<BuyProvider>().toList();
   }
 
   List<BuyProvider> get availableSellProviders {
     final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(wallet.type);
-    return providerTypes
-        .map((type) => ProvidersHelper.getProviderByType(type))
-        .where((provider) => provider != null)
-        .cast<BuyProvider>()
-        .toList();
+    return providerTypes.map((type) => ProvidersHelper.getProviderByType(type)).where((provider) => provider != null).cast<BuyProvider>().toList();
   }
 
   @observable
@@ -169,18 +151,19 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   @observable
   Limits limits;
 
-  @computed
-  SyncStatus get status => wallet.syncStatus;
+  @observable
+  Quote? bestRateQuote;
 
-  @computed
-  ObservableList<ExchangeTemplate> get templates => _exchangeTemplateStore.templates;
+  @observable
+  Quote? selectedQuote;
 
-  @computed
-  Quote? get bestRate => sortedAvailableQuotes.isNotEmpty ? sortedAvailableQuotes.first : null;
+  @observable
+  PaymentMethod? selectedPaymentMethod;
 
-  @computed
-  PaymentMethod? get selectedPaymentMethod =>
-      paymentMethods.isNotEmpty ? paymentMethods.first : null;
+  @override
+  void onWalletChange(wallet) {
+    cryptoCurrency = wallet.currency;
+  }
 
   @action
   void changeCryptoCurrency({required CryptoCurrency currency}) {
@@ -195,16 +178,19 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   @action
-  void changePaymentMethod(PaymentMethod paymentMethod) {
-    paymentMethods.remove(paymentMethod);
-    paymentMethods.insert(0, paymentMethod);
-    _calculateBestRate(selectedPaymentMethod: paymentMethod);
-  }
-
-  @action
-  void changeQuote(Quote Quote) {
-    sortedAvailableQuotes.remove(Quote);
-    sortedAvailableQuotes.insert(0, Quote);
+  void changeOption(SelectableOption option) {
+    if (option is Quote) {
+      sortedAvailableQuotes.forEach((element) => element.isSelected = false);
+      option.isSelected = true;
+      selectedQuote = option;
+    } else if (option is PaymentMethod) {
+      paymentMethods.forEach((element) => element.isSelected = false);
+      option.isSelected = true;
+      selectedPaymentMethod = option;
+      _calculateBestRate(selectedPaymentMethod: option);
+    } else {
+      throw ArgumentError('Unknown option type');
+    }
   }
 
   void _onPairChange() {
@@ -226,30 +212,40 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   Future<void> _getAvailablePaymentTypes() async {
     final result = await Future.wait(providerList.map((element) => element.getAvailablePaymentTypes(
-          fiatCurrency: fiatCurrency.title,
-          type: isBuyAction ? 'buy' : 'sell',
-        )));
+      fiatCurrency: fiatCurrency.title,
+      type: isBuyAction ? 'buy' : 'sell',
+    )));
 
-    paymentMethods = ObservableList<PaymentMethod>.of(
-        result.where((element) => element.isNotEmpty).expand((element) => element));
+    paymentMethods = ObservableList<PaymentMethod>.of(result.where((element) => element.isNotEmpty).expand((element) => element));
+    if (paymentMethods.isNotEmpty) {
+      selectedPaymentMethod = paymentMethods.first;
+      selectedPaymentMethod!.isSelected = true;
+      _calculateBestRate(selectedPaymentMethod: selectedPaymentMethod!);
+    }
   }
 
+  @action
   Future<void> _calculateBestRate({required PaymentMethod selectedPaymentMethod}) async {
     final amount = double.tryParse(isBuyAction ? fiatAmount : cryptoAmount) ?? 100;
     final result = await Future.wait<Quote?>(providerList.map((element) => element.fetchQuote(
-          sourceCurrency: isBuyAction ? fiatCurrency.title : cryptoCurrency.title,
-          destinationCurrency: isBuyAction ? cryptoCurrency.title : fiatCurrency.title,
-          amount: amount.toInt(),
-          paymentMethod: selectedPaymentMethod.paymentMethodType!,
-          type: isBuyAction ? 'buy' : 'sell',
-          walletAddress: wallet.walletAddresses.address,
-        )));
-
+      sourceCurrency: isBuyAction ? fiatCurrency.title : cryptoCurrency.title,
+      destinationCurrency: isBuyAction ? cryptoCurrency.title : fiatCurrency.title,
+      amount: amount.toInt(),
+      paymentMethod: selectedPaymentMethod.paymentMethodType!,
+      type: isBuyAction ? 'buy' : 'sell',
+      walletAddress: wallet.walletAddresses.address,
+    )));
 
     final validQuotes = result.where((quote) => quote != null).cast<Quote>().toList();
+    if (validQuotes.isEmpty) return;
     validQuotes.sort((a, b) => a.rate.compareTo(b.rate));
+    validQuotes.first
+      ..isBestRate = true
+      ..isSelected = true;
     sortedAvailableQuotes
       ..clear()
       ..addAll(validQuotes);
+    bestRateQuote = validQuotes.first;
+    selectedQuote = validQuotes.first;
   }
 }

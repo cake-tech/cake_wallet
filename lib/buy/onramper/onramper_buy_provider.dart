@@ -47,6 +47,9 @@ class OnRamperBuyProvider extends BuyProvider {
   @override
   String get darkIcon => 'assets/images/onramper_dark.png';
 
+  @override
+  bool get isAggregator => true;
+
   String get _apiKey => secrets.onramperApiKey;
 
   String get _normalizeCryptoCurrency {
@@ -162,8 +165,6 @@ class OnRamperBuyProvider extends BuyProvider {
     required String type,
     required String walletAddress,
   }) async {
-
-
     final params = {
       'amount': amount.toString(),
       'paymentMethod': normalizePaymentMethod(paymentMethod),
@@ -187,36 +188,28 @@ class OnRamperBuyProvider extends BuyProvider {
         },
       );
 
-      print(response.body);
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as List<dynamic>;
-        if (data.isEmpty) {
-          return null;
-        }
+        if (data.isEmpty) return null;
 
         List<Quote> validQuotes = [];
 
         for (var item in data) {
+          if (item['errors'] != null) break;
           final quote = Quote.fromOnramperJson(item as Map<String, dynamic>, ProviderType.onramper);
-          if (quote.errors.isEmpty) {
-            validQuotes.add(quote);
-          }
+          validQuotes.add(quote);
         }
 
         if (validQuotes.isEmpty) return null;
 
+        validQuotes.sort((a, b) => a.rate.compareTo(b.rate));
 
-        validQuotes.sort((a, b) => b.rate.compareTo(a.rate));
-        final bestQuote = validQuotes.first;
-
-        return bestQuote;
+        return validQuotes.first;;
       } else {
-        print('Failed to fetch rate');
-        return null;
+        throw Exception('buy quote is not found');
       }
     } catch (e) {
-      print('Failed to fetch rate: $e');
+      print('Failed to fetch Onramper rate: $e');
       return null;
     }
   }

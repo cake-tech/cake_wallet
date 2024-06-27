@@ -25,6 +25,8 @@ abstract class BuyProvider {
 
   String get darkIcon;
 
+  bool get isAggregator;
+
   @override
   String toString() => title;
 

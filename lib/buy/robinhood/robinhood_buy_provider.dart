@@ -33,6 +33,9 @@ class RobinhoodBuyProvider extends BuyProvider {
   @override
   String get darkIcon => 'assets/images/robinhood_dark.png';
 
+  @override
+  bool get isAggregator => false;
+
   String get _applicationId => secrets.robinhoodApplicationId;
 
   String get _apiSecret => secrets.exchangeHelperApiKey;

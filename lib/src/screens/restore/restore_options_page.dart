@@ -63,7 +63,7 @@ class RestoreOptionsPage extends BasePage {
                       arguments: isNewInstall),
                   image: imageSeedKeys,
                   title: S.of(context).restore_title_from_seed_keys,
-                  description: S.of(context).restore_description_from_seed_keys,
+                  subTitle: S.of(context).restore_description_from_seed_keys,
                 ),
                 if (isNewInstall)
                   Padding(
@@ -72,7 +72,7 @@ class RestoreOptionsPage extends BasePage {
                       onPressed: () => Navigator.pushNamed(context, Routes.restoreFromBackup),
                       image: imageBackup,
                       title: S.of(context).restore_title_from_backup,
-                      description: S.of(context).restore_description_from_backup,
+                      subTitle: S.of(context).restore_description_from_backup,
                     ),
                   ),
                 if (_doesSupportHardwareWallets)
@@ -84,7 +84,7 @@ class RestoreOptionsPage extends BasePage {
                           arguments: isNewInstall),
                       image: imageLedger,
                       title: S.of(context).restore_title_from_hardware_wallet,
-                      description: S.of(context).restore_description_from_hardware_wallet,
+                      subTitle: S.of(context).restore_description_from_hardware_wallet,
                     ),
                   ),
                 Padding(
@@ -93,7 +93,7 @@ class RestoreOptionsPage extends BasePage {
                       onPressed: () => _onScanQRCode(context),
                       image: qrCode,
                       title: S.of(context).scan_qr_code,
-                      description: S.of(context).cold_or_recover_wallet),
+                      subTitle: S.of(context).cold_or_recover_wallet),
                 )
               ],
             ),

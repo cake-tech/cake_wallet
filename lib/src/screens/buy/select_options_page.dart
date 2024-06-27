@@ -7,7 +7,11 @@ import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:flutter/material.dart';
 
 class SelectOptionsPage<T extends SelectableOption> extends BasePage {
-  SelectOptionsPage({required this.title, required this.options, required this.onOptionTap});
+  SelectOptionsPage({
+    required this.title,
+    required this.options,
+    required this.onOptionTap,
+  });
 
   final String title;
   final List<T> options;
@@ -18,36 +22,10 @@ class SelectOptionsPage<T extends SelectableOption> extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final isLightMode = Theme.of(context).extension<OptionTileTheme>()?.useDarkImage ?? false;
-
     return ScrollableWithBottomSection(
-      content: Container(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 330),
-            child: Column(
-              children: [
-                ...options.map((option) {
-                  final icon = Image.asset(
-                    option.iconPath,
-                    height: 40,
-                    width: 40,
-                  );
-
-                  return Padding(
-                    padding: EdgeInsets.only(top: 24),
-                    child: OptionTile(
-                      image: icon,
-                      title: option.title.toString(),
-                      description: option.description ?? '',
-                      onPressed: () => onOptionTap?.call(option),
-                    ),
-                  );
-                }).toList(),
-              ],
-            ),
-          ),
-        ),
+      content: BodySelectOptionsPage<T>(
+        options: options,
+        onOptionTap: onOptionTap,
       ),
       bottomSection: Padding(
         padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
@@ -59,6 +37,79 @@ class SelectOptionsPage<T extends SelectableOption> extends BasePage {
             fontWeight: FontWeight.normal,
             color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class BodySelectOptionsPage<T extends SelectableOption> extends StatefulWidget {
+  const BodySelectOptionsPage({
+    required this.options,
+    required this.onOptionTap,
+  });
+
+  final List<T> options;
+  final void Function(T option)? onOptionTap;
+
+  @override
+  _BodySelectOptionsPageState<T> createState() => _BodySelectOptionsPageState<T>();
+}
+
+class _BodySelectOptionsPageState<T extends SelectableOption>
+    extends State<BodySelectOptionsPage<T>> {
+  late List<T> _options;
+
+  @override
+  void initState() {
+    super.initState();
+    _options = widget.options;
+  }
+
+  void _handleOptionTap(T option) {
+    setState(() {
+      for (var opt in _options) {
+        opt.isOptionSelected = false;
+      }
+      option.isOptionSelected = true;
+    });
+    widget.onOptionTap?.call(option);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isLightMode = Theme
+        .of(context)
+        .extension<OptionTileTheme>()
+        ?.useDarkImage ?? false;
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 330),
+        child: Column(
+          children: [
+            ..._options.map((option) {
+              final icon = Image.asset(
+                option.iconPath,
+                height: 40,
+                width: 40,
+              );
+
+              return Padding(
+                padding: EdgeInsets.only(top: 24),
+                child: OptionTile(
+                  image: icon,
+                  title: option.title.toString(),
+                  subTitle: option.subTitle,
+                  description: option.description ?? '',
+                  firstBadgeName: option.firstBadgeName,
+                  secondBadgeName: option.secondBadgeName,
+                  isSelected: option.isOptionSelected,
+                  onPressed: () => _handleOptionTap(option),
+                ),
+              );
+            }).toList(),
+          ],
         ),
       ),
     );
