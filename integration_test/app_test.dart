@@ -109,9 +109,9 @@ void main() {
       // setupPinCodeRobot.hasPinCodeWidget();
       // setupPinCodeRobot.hasTitle();
       // setupPinCodeRobot.hasNumberButtonsVisible();
-
-      await setupPinCodeRobot.enterPinCode(true);
-      await setupPinCodeRobot.enterPinCode(false);
+      final pin = [0, 8, 0, 1];
+      await setupPinCodeRobot.enterPinCode(pin, true);
+      await setupPinCodeRobot.enterPinCode(pin, false);
       await setupPinCodeRobot.tapSuccessButton();
 
       // ----------- NewWalletType Page -------------
@@ -126,7 +126,7 @@ void main() {
 
       // Select a wallet and route to next page
       await newWalletTypePageRobot.selectWalletType(WalletType.solana);
-      await newWalletTypePageRobot.onNextButtonTapped();
+      await newWalletTypePageRobot.onNextButtonPressed();
 
       // ----------- RestoreFromSeedOrKeys Page -------------
       // Confirm initial defaults - Widgets to be displayed etc
@@ -139,7 +139,7 @@ void main() {
       await restoreFromSeedOrKeysPageRobot.enterSeedPhraseForWalletRestore(
         'noble define inflict tackle sweet essence mention bicycle word hard patient ketchup',
       );
-      await restoreFromSeedOrKeysPageRobot.onRestoreWalletButtonTapped();
+      await restoreFromSeedOrKeysPageRobot.onRestoreWalletButtonPressed();
 
       // ----------- RestoreFromSeedOrKeys Page -------------
       // await dashboardPageRobot.isDashboardPage();
@@ -160,10 +160,14 @@ void main() {
       exchangePageRobot.confirmRightComponentsDisplayOnReceiveExchangeCards();
 
       await exchangePageRobot.selectDepositCurrency(CryptoCurrency.btc);
+      await exchangePageRobot.enterDepositAmount('0.045');
+      await exchangePageRobot.enterDepositRefundAddress();
 
       await exchangePageRobot.selectReceiveCurrency(CryptoCurrency.usdtSol);
+      await exchangePageRobot.enterReceiveAddress('5v9gTW1yWPffhnbNKuvtL2frevAf4HpBMw8oYnfqUjhm');
 
-      await Future.delayed(Duration(seconds: 10));
+      await exchangePageRobot.onExchangeButtonPressed();
+      await Future.delayed(Duration(seconds: 15));
     });
   });
 }

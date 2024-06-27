@@ -1,7 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../components/common_checks.dart';
@@ -36,25 +35,16 @@ class SetupPinCodeRobot {
   }
 
   Future<void> pushPinButton(int index) async {
-    final button = find.byKey(ValueKey('pin_code_button_${index}_key'));
-    await tester.tap(button);
-    await tester.pumpAndSettle();
+    await commonTestCases.tapItemByKey('pin_code_button_${index}_key');
   }
 
-  Future<void> enterPinCode(bool isFirstEntry) async {
+  Future<void> enterPinCode(List<int> pinCode, bool isFirstEntry) async {
     final PinCodeState pinCodeState = tester.state(find.byType(PinCodeWidget));
-    tester.printToConsole(pinCodeState.pin);
 
-    await pushPinButton(0);
-    expect(pinCodeState.pin, '0');
+    for (int pin in pinCode) {
+      await pushPinButton(pin);
+    }
 
-    await pushPinButton(8);
-    expect(pinCodeState.pin, '08');
-
-    await pushPinButton(0);
-    expect(pinCodeState.pin, '080');
-
-    await pushPinButton(1);
     // the state is cleared once it get's to the last entry
     expect(pinCodeState.pin, isFirstEntry ? '' : '0801');
 

@@ -144,9 +144,26 @@ class ExchangePageRobot {
     await commonTestCases.defaultSleepTime();
   }
 
-  Future<void> enterDepositAddress(String depositAddress) async {
-    final amountTextField = find.byKey(ValueKey('deposit_exchange_card_amount_textfield_key'));
+  Future<void> enterDepositAmount(String amount) async {
+    await commonTestCases.enterText(amount, 'deposit_exchange_card_amount_textfield_key');
   }
 
-  Future<void> enterReceiveAddress(String receiveAddress) async {}
+  Future<void> enterDepositRefundAddress({String? depositAddress}) async {
+    ExchangePage exchangePage = tester.widget(find.byType(ExchangePage));
+    final exchangeViewModel = exchangePage.exchangeViewModel;
+
+    if (exchangeViewModel.isDepositAddressEnabled && depositAddress != null) {
+      await commonTestCases.enterText(
+          depositAddress, 'deposit_exchange_card_editable_address_textfield_key');
+    }
+  }
+
+  Future<void> enterReceiveAddress(String receiveAddress) async {
+    await commonTestCases.enterText(
+        receiveAddress, 'receive_exchange_card_editable_address_textfield_key');
+  }
+
+  Future<void> onExchangeButtonPressed() async {
+    await commonTestCases.tapItemByKey('exchange_page_exchange_button_key');
+  }
 }

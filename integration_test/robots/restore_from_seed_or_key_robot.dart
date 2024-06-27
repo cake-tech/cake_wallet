@@ -51,10 +51,8 @@ class RestoreFromSeedOrKeysPageRobot {
   }
 
   Future<void> enterWalletNameText(String walletName) async {
-    final walletNameTextField =
-        find.byKey(ValueKey(('wallet_restore_from_seed_wallet_name_textfield_key')));
-    await tester.enterText(walletNameTextField, walletName);
-    await tester.pumpAndSettle();
+    await commonTestCases.enterText(
+        walletName, 'wallet_restore_from_seed_wallet_name_textfield_key');
   }
 
   Future<void> selectWalletNameFromAvailableOptions() async {
@@ -70,11 +68,11 @@ class RestoreFromSeedOrKeysPageRobot {
     await Future.delayed(Duration(seconds: 3));
   }
 
-  Future<void> onPasteSeedPhraseButtonTapped() async {
+  Future<void> onPasteSeedPhraseButtonPressed() async {
     await commonTestCases.tapItemByKey('wallet_restore_from_seed_wallet_seeds_paste_button_key');
   }
 
-  Future<void> onRestoreWalletButtonTapped() async {
+  Future<void> onRestoreWalletButtonPressed() async {
     await commonTestCases.tapItemByKey('wallet_restore_seed_or_key_restore_button_key');
     // await commonTestCases.defaultSleepTime(seconds: 15);
   }

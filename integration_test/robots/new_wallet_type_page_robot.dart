@@ -53,7 +53,7 @@ class NewWalletTypePageRobot {
     await commonTestCases.tapItemByKey('new_wallet_type_${type.name}_button_key');
   }
 
-  Future<void> onNextButtonTapped() async {
+  Future<void> onNextButtonPressed() async {
     await commonTestCases.tapItemByKey('new_wallet_type_next_button_key');
   }
 }

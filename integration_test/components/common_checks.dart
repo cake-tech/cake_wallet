@@ -1,6 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -51,7 +48,8 @@ class CommonTestCases {
     await tester.pumpAndSettle();
   }
 
-  Future<void> scrollUntilVisible(String childKey, String parentScrollableKey, {double delta = 300}) async {
+  Future<void> scrollUntilVisible(String childKey, String parentScrollableKey,
+      {double delta = 300}) async {
     final scrollableWidget = find.descendant(
       of: find.byKey(Key(parentScrollableKey)),
       matching: find.byType(Scrollable),
@@ -62,6 +60,14 @@ class CommonTestCases {
       delta,
       scrollable: scrollableWidget,
     );
+  }
+
+  Future<void> enterText(String text, String editableTextKey) async {
+    final editableTextWidget = find.byKey(ValueKey((editableTextKey)));
+
+    await tester.enterText(editableTextWidget, text);
+
+    await tester.pumpAndSettle();
   }
 
   Future<void> defaultSleepTime({int seconds = 2}) async =>
