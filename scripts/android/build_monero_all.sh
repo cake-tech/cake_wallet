@@ -48,13 +48,10 @@ else
 
         popd
         unxz -f ../monero_c/release/${COIN}/x86_64-linux-android_libwallet2_api_c.so.xz
-        unxz -f ../monero_c/release/${COIN}/x86_64-linux-android_libc++_shared.so.xz
 
         unxz -f ../monero_c/release/${COIN}/armv7a-linux-androideabi_libwallet2_api_c.so.xz
-        unxz -f ../monero_c/release/${COIN}/armv7a-linux-androideabi_libc++_shared.so.xz
 
         unxz -f ../monero_c/release/${COIN}/aarch64-linux-android_libwallet2_api_c.so.xz
-        unxz -f ../monero_c/release/${COIN}/aarch64-linux-android_libc++_shared.so.xz
         [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/{built,sources}
     done
 fi
