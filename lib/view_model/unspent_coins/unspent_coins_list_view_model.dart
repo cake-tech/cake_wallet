@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
@@ -62,6 +63,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
       return monero!.formatterMoneroAmountToString(amount: fullBalance);
     if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type))
       return bitcoin!.formatterBitcoinAmountToString(amount: fullBalance);
+    if (wallet.type == WalletType.decred)
+      return decred!.formatterDecredAmountToString(amount: fullBalance);
     return '';
   }
 
@@ -72,7 +75,9 @@ abstract class UnspentCoinsListViewModelBase with Store {
     if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type)) {
       await bitcoin!.updateUnspents(wallet);
     }
-
+    if (wallet.type == WalletType.decred) {
+      decred!.updateUnspents(wallet);
+    }
     _updateUnspentCoinsInfo();
   }
 
@@ -80,6 +85,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
     if (wallet.type == WalletType.monero) return monero!.getUnspents(wallet);
     if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type))
       return bitcoin!.getUnspents(wallet);
+    if (wallet.type == WalletType.decred) return decred!.getUnspents(wallet);
     return List.empty();
   }
 

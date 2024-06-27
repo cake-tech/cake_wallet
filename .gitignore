@@ -132,6 +132,7 @@ lib/bitcoin_cash/bitcoin_cash.dart
 lib/nano/nano.dart
 lib/polygon/polygon.dart
 lib/solana/solana.dart
+lib/decred/decred.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_180.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_120.png

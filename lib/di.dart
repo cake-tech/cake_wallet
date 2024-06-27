@@ -81,6 +81,7 @@ import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
@@ -793,7 +794,8 @@ Future<void> setup({
       (Node? editingNode, bool? isSelected) => NodeCreateOrEditPage(
           nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(param2: false),
           editingNode: editingNode,
-          isSelected: isSelected));
+          isSelected: isSelected,
+          type: getIt.get<AppStore>().wallet!.type));
 
   getIt.registerFactoryParam<PowNodeCreateOrEditPage, Node?, bool?>(
       (Node? editingNode, bool? isSelected) => PowNodeCreateOrEditPage(
@@ -871,6 +873,8 @@ Future<void> setup({
         return polygon!.createPolygonWalletService(_walletInfoSource);
       case WalletType.solana:
         return solana!.createSolanaWalletService(_walletInfoSource);
+      case WalletType.decred:
+        return decred!.createDecredWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       default:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }
@@ -886,7 +890,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => RescanViewModel(getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory(() => RescanPage(getIt.get<RescanViewModel>()));
+  getIt.registerFactory(() => RescanPage(getIt.get<RescanViewModel>(), getIt.get<AppStore>().wallet!.type));
 
   getIt.registerFactory(() => FaqPage(getIt.get<SettingsStore>()));
 

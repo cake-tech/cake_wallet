@@ -14,6 +14,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'advanced_privacy_settings_view_model.dart';
 
 import '../polygon/polygon.dart';
@@ -79,6 +80,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return polygon!.createPolygonNewWalletCredentials(name: name);
       case WalletType.solana:
         return solana!.createSolanaNewWalletCredentials(name: name);
+      case WalletType.decred:
+        return decred!.createDecredNewWalletCredentials(name: name);
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }

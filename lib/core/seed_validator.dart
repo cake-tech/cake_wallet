@@ -8,6 +8,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/utils/language_list.dart';
 
 class SeedValidator extends Validator<MnemonicItem> {
@@ -40,6 +41,8 @@ class SeedValidator extends Validator<MnemonicItem> {
         return polygon!.getPolygonWordList(language);
       case WalletType.solana:
         return solana!.getSolanaWordList(language);
+      case WalletType.decred:
+        return decred!.getDecredWordList();
       default:
         return [];
     }

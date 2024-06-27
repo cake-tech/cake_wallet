@@ -5,16 +5,21 @@ import 'package:intl/intl.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/decred/decred.dart';
+import 'package:cw_core/wallet_type.dart';
+
 
 class BlockchainHeightWidget extends StatefulWidget {
   BlockchainHeightWidget({
     GlobalKey? key,
+    this.type,
     this.onHeightChange,
     this.focusNode,
     this.onHeightOrDateEntered,
     this.hasDatePicker = true})
       : super(key: key);
 
+  final WalletType? type;
   final Function(int)? onHeightChange;
   final Function(bool)? onHeightOrDateEntered;
   final FocusNode? focusNode;
@@ -123,7 +128,12 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
         lastDate: now);
 
     if (date != null) {
-      final height = monero!.getHeightByDate(date: date);
+      var height = 0;
+      if (widget.type == WalletType.decred) {
+        height = decred!.heightByDate(date);
+      } else {
+        height = monero!.getHeightByDate(date: date);
+      }
       setState(() {
         dateController.text = DateFormat('yyyy-MM-dd').format(date);
         restoreHeightController.text = '$height';

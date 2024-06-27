@@ -82,6 +82,9 @@ abstract class NodeListViewModelBase with Store {
       case WalletType.solana:
         node = getSolanaDefaultNode(nodes: _nodeSource)!;
         break;
+      case WalletType.decred:
+        node = getDecredDefaultNode(nodes: _nodeSource)!;
+        break;
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.type}');
     }

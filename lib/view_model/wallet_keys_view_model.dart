@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.d
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cw_monero/api/wallet.dart' as monero_wallet;
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:polyseed/polyseed.dart';
 
 part 'wallet_keys_view_model.g.dart';
@@ -20,7 +21,8 @@ abstract class WalletKeysViewModelBase with Store {
   WalletKeysViewModelBase(this._appStore)
       : title = _appStore.wallet!.type == WalletType.bitcoin ||
                 _appStore.wallet!.type == WalletType.litecoin ||
-                _appStore.wallet!.type == WalletType.bitcoinCash
+                _appStore.wallet!.type == WalletType.bitcoinCash ||
+                _appStore.wallet!.type == WalletType.decred
             ? S.current.wallet_seed
             : S.current.wallet_keys,
         _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
@@ -82,6 +84,16 @@ abstract class WalletKeysViewModelBase with Store {
                 .toLegacySeed(legacyLang);
         items.add(StandartListItem(title: S.current.wallet_seed_legacy, value: legacySeed));
       }
+    }
+
+    if (_appStore.wallet!.type == WalletType.decred) {
+      final seed = _appStore.wallet!.seed;
+      final pubkey = decred!.pubkey(_appStore.wallet!);
+      items.addAll([
+        if (seed != null)
+          StandartListItem(title: S.current.wallet_seed, value: seed),
+        StandartListItem(title: S.current.view_key_public, value: pubkey),
+      ]);
     }
 
     if (_appStore.wallet!.type == WalletType.haven) {
@@ -166,6 +178,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'polygon-wallet';
       case WalletType.solana:
         return 'solana-wallet';
+      case WalletType.decred:
+        return 'decred-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
     }
