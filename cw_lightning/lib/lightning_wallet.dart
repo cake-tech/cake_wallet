@@ -95,6 +95,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   late final ObservableMap<CryptoCurrency, LightningBalance> _balance;
   StreamSubscription<List<Payment>>? _paymentsSub;
   StreamSubscription<NodeState?>? _nodeStateSub;
+  StreamSubscription<LogEntry>? _logStream;
 
   @override
   @computed
@@ -183,8 +184,23 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     await setupBreez(await Mnemonic.toSeed(mnemonic));
   }
 
+  void _logSdkEntries(LogEntry entry) {
+    switch (entry.level) {
+      case "ERROR":
+      case "WARN":
+      case "INFO":
+      // case "DEBUG":
+      // case "TRACE":
+        print("BREEZ:${entry.level}: ${entry.line}");
+        break;
+    }
+  }
+
   Future<void> setupBreez(Uint8List seedBytes) async {
     final sdk = await BreezSDK();
+    _logStream?.cancel();
+    _logStream = sdk.logStream.listen(_logSdkEntries);
+
     try {
       if (!(await sdk.isInitialized())) {
         sdk.initialize();
@@ -193,10 +209,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       print("Error initializing Breez: $e");
       return;
     }
-
-    // sdk.logStream.listen((LogEntry event) {
-    //   print("Breez log: ${event.line}");
-    // });
 
     GreenlightCredentials greenlightCredentials = GreenlightCredentials(
       developerKey: base64.decode(secrets.greenlightKey),
