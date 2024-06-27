@@ -67,8 +67,7 @@ class WowneroTransactionInfo extends TransactionInfo {
   String? _fiatAmount;
 
   @override
-  String amountFormatted() =>
-      '${formatAmount(wowneroAmountToString(amount: amount))} XMR';
+  String amountFormatted() => '${formatAmount(wowneroAmountToString(amount: amount))} WOW';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -77,6 +76,5 @@ class WowneroTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
-  String feeFormatted() =>
-      '${formatAmount(wowneroAmountToString(amount: fee))} XMR';
+  String feeFormatted() => '${formatAmount(wowneroAmountToString(amount: fee))} WOW';
 }
