@@ -11,7 +11,7 @@ class DoubleSpendException implements Exception {
 
   @override
   String toString() =>
-      'This transaction cannot be committed. This can be due to many reasons including the wallet not being synced, there is not enough XMR in your available balance, or previous transactions are not yet fully processed.';
+      'This transaction cannot be committed. This can be due to many reasons including the wallet not being synced, there is not enough WOW in your available balance, or previous transactions are not yet fully processed.';
 }
 
 class PendingWowneroTransaction with PendingTransaction {
@@ -28,12 +28,12 @@ class PendingWowneroTransaction with PendingTransaction {
   String get txKey => pendingTransactionDescription.txKey;
 
   @override
-  String get amountFormatted => AmountConverter.amountIntToString(
-      CryptoCurrency.xmr, pendingTransactionDescription.amount);
+  String get amountFormatted =>
+      AmountConverter.amountIntToString(CryptoCurrency.wow, pendingTransactionDescription.amount);
 
   @override
-  String get feeFormatted => AmountConverter.amountIntToString(
-      CryptoCurrency.xmr, pendingTransactionDescription.fee);
+  String get feeFormatted =>
+      AmountConverter.amountIntToString(CryptoCurrency.wow, pendingTransactionDescription.fee);
 
   @override
   Future<void> commit() async {
