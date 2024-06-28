@@ -87,6 +87,17 @@ jobs:
           cd /opt/android/cake_wallet
           flutter pub get
 
+      - name: build mweb
+        run: |
+          sudo apt-get install -y golang-go
+          cd /opt/android/cake_wallet
+          git clone https://github.com/ltcmweb/mwebd
+          cd /opt/android/cake_wallet/mwebd
+          go install github.com/ltcmweb/mwebd/cmd/mwebd@latest
+          gomobile bind -target=android -androidapi 21 github.com/ltcmweb/mwebd
+          mkdir -p /opt/android/cake_wallet/cw_mweb/android/libs/
+          mv ./mwebd.aar $_
+
       - name: Generate KeyStore
         run: |
           cd /opt/android/cake_wallet/android/app
@@ -162,17 +173,6 @@ jobs:
       - name: Rename app
         run: |
           echo -e "id=com.cakewallet.test_${{ env.PR_NUMBER }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
-
-      - name: build mweb
-        run: |
-          sudo apt-get install -y golang-go
-          cd /opt/android/cake_wallet
-          git clone https://github.com/ltcmweb/mwebd
-          cd /opt/android/cake_wallet/mwebd
-          go install github.com/ltcmweb/mwebd/cmd/mwebd@latest
-          gomobile bind -target=android -androidapi 21 github.com/ltcmweb/mwebd
-          mkdir -p /opt/android/cake_wallet/cw_mweb/android/libs/
-          mv ./mwebd.aar $_
 
       - name: Build
         run: |
