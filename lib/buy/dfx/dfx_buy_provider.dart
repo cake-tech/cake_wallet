@@ -124,12 +124,12 @@ class DFXBuyProvider extends BuyProvider {
     switch (wallet.type) {
       case WalletType.ethereum:
       case WalletType.polygon:
-        return wallet.signMessage(message);
+        return await wallet.signMessage(message);
       case WalletType.monero:
       case WalletType.litecoin:
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
-        return wallet.signMessage(message, address: walletAddress);
+        return await wallet.signMessage(message, address: walletAddress);
       default:
         throw Exception("WalletType is not available for DFX ${wallet.type}");
     }

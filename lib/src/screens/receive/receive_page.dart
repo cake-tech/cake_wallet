@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/address_list.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
@@ -121,6 +122,9 @@ class ReceivePage extends BasePage {
                     amountTextFieldFocusNode: _cryptoAmountFocus,
                     amountController: _amountController,
                     isLight: currentTheme.type == ThemeType.light),
+              ),
+              AddressList(
+                addressListViewModel: addressListViewModel,
               ),
               Observer(
                   builder: (_) => ListView.separated(

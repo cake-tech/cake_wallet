@@ -399,10 +399,11 @@ class WalletRestorePage extends BasePage {
       }
     }
 
-    this.derivationInfo = dInfo;
-    if (this.derivationInfo == null) {
-      this.derivationInfo = walletRestoreViewModel.getDefaultDerivation();
+    if (dInfo == null) {
+      dInfo = walletRestoreViewModel.getDefaultDerivation();
     }
+    
+    this.derivationInfo = dInfo;
 
     walletRestoreViewModel.create(options: _credentials());
   }

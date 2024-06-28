@@ -409,6 +409,20 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
 
+  @computed
+  bool get hasSignMessages => [
+        WalletType.monero,
+        WalletType.litecoin,
+        WalletType.bitcoin,
+        WalletType.bitcoinCash,
+        WalletType.ethereum,
+        WalletType.polygon,
+        WalletType.solana,
+        WalletType.nano,
+        WalletType.banano,
+        WalletType.tron,
+      ].contains(wallet.type);
+
   bool get showRepWarning {
     if (wallet.type != WalletType.nano) {
       return false;

@@ -44,6 +44,7 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:http/http.dart' as http;
 import 'package:sp_scanner/sp_scanner.dart';
 
 part 'electrum_wallet.g.dart';
@@ -152,6 +153,7 @@ abstract class ElectrumWalletBase
   final String? _mnemonic;
 
   bitcoin.HDWallet get hd => accountHD.derive(0);
+  bitcoin.HDWallet get sideHd => accountHD.derive(1);
   final String? passphrase;
 
   @override
@@ -520,7 +522,7 @@ abstract class ElectrumWalletBase
       final hd =
           utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd;
       final derivationPath =
-          "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? "m/0'")}"
+          "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? electrum_path)}"
           "/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}"
           "/${utx.bitcoinAddressRecord.index}";
       final pubKeyHex = hd.derive(utx.bitcoinAddressRecord.index).pubKey!;
@@ -1773,7 +1775,69 @@ abstract class ElectrumWalletBase
         ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
         : null;
     final HD = index == null ? hd : hd.derive(index);
-    return base64Encode(HD.signMessage(message));
+    final priv = ECPrivate.fromHex(HD.privKey!);
+    String messagePrefix = '\x18Bitcoin Signed Message:\n';
+    final hexEncoded = priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
+    final decodedSig = hex.decode(hexEncoded);
+    return base64Encode(decodedSig);
+  }
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {
+    if (address == null) {
+      return false;
+    }
+
+    List<int> sigDecodedBytes = [];
+
+    if (signature.endsWith('=')) {
+      sigDecodedBytes = base64.decode(signature);
+    } else {
+      sigDecodedBytes = hex.decode(signature);
+    }
+
+    if (sigDecodedBytes.length != 64 && sigDecodedBytes.length != 65) {
+      throw ArgumentException(
+          "signature must be 64 bytes without recover-id or 65 bytes with recover-id");
+    }
+
+    String messagePrefix = '\x18Bitcoin Signed Message:\n';
+    final messageHash = QuickCrypto.sha256Hash(
+        BitcoinSignerUtils.magicMessage(utf8.encode(message), messagePrefix));
+
+    List<int> correctSignature =
+        sigDecodedBytes.length == 65 ? sigDecodedBytes.sublist(1) : List.from(sigDecodedBytes);
+    List<int> rBytes = correctSignature.sublist(0, 32);
+    List<int> sBytes = correctSignature.sublist(32);
+    final sig = ECDSASignature(BigintUtils.fromBytes(rBytes), BigintUtils.fromBytes(sBytes));
+
+    List<int> possibleRecoverIds = [0, 1];
+
+    final baseAddress = addressTypeFromStr(address, network);
+
+    for (int recoveryId in possibleRecoverIds) {
+      final pubKey = sig.recoverPublicKey(messageHash, Curves.generatorSecp256k1, recoveryId);
+      
+      final recoveredPub = ECPublic.fromBytes(pubKey!.toBytes());
+
+      String? recoveredAddress;
+
+      if (baseAddress is P2pkAddress) {
+        recoveredAddress = recoveredPub.toP2pkAddress().toAddress(network);
+      } else if (baseAddress is P2pkhAddress) {
+        recoveredAddress = recoveredPub.toP2pkhAddress().toAddress(network);
+      } else if (baseAddress is P2wshAddress) {
+        recoveredAddress = recoveredPub.toP2wshAddress().toAddress(network);
+      } else if (baseAddress is P2wpkhAddress) {
+        recoveredAddress = recoveredPub.toP2wpkhAddress().toAddress(network);
+      }
+
+      if (recoveredAddress == address) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   Future<void> _setInitialHeight() async {

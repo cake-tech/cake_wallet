@@ -33,6 +33,7 @@ import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:eth_sig_util/eth_sig_util.dart';
 
 import 'evm_chain_transaction_info.dart';
 import 'evm_erc20_balance.dart';
@@ -585,8 +586,29 @@ abstract class EVMChainWalletBase
   }
 
   @override
-  Future<String> signMessage(String message, {String? address}) async =>
-      bytesToHex(await _evmChainPrivateKey.signPersonalMessage(ascii.encode(message)));
+  Future<String> signMessage(String message, {String? address}) async {
+    final pk = await getPrivateKey(
+      mnemonic: _mnemonic,
+      privateKey: _hexPrivateKey,
+      password: _password,
+    );
+    return EthSigUtil.signPersonalMessage(
+      privateKey: bytesToHex(pk.privateKey),
+      message: ascii.encode(message),
+    );
+  }
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address}) async {
+    if (address == null) {
+      return false;
+    }
+    final recoveredAddress = EthSigUtil.recoverPersonalSignature(
+      message: ascii.encode(message),
+      signature: signature,
+    );
+    return recoveredAddress.toUpperCase() == address.toUpperCase();
+  }
 
   Web3Client? getWeb3Client() => _client.getWeb3Client();
 }
