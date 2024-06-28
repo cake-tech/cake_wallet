@@ -27,29 +27,6 @@ jobs:
         if: github.event_name != 'pull_request'
         run: echo "BRANCH_NAME=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
 
-      - name: build mweb
-        run: |
-          mkdir -p /opt/android/cake_wallet
-          # install latest go:
-          wget https://go.dev/dl/go1.22.4.linux-amd64.tar.gz
-          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.22.4.linux-amd64.tar.gz
-          export PATH=$PATH:/usr/local/go/bin
-          export PATH=$PATH:~/go/bin
-          go install golang.org/x/mobile/cmd/gomobile@latest
-          gomobile init
-
-          # install mwebd:
-          cd /opt/android/cake_wallet
-          git clone https://github.com/ltcmweb/mwebd
-          cd /opt/android/cake_wallet/mwebd
-          go get github.com/ltcmweb/mwebd/cmd/mwebd
-          go install github.com/ltcmweb/mwebd/cmd/mwebd
-          # go get golang.org/x/mobile/cmd/gobind
-          # go get golang.org/x/mobile/cmd/gomobile
-          gomobile bind -target=android -androidapi 21 github.com/ltcmweb/mwebd
-          mkdir -p /opt/android/cake_wallet/cw_mweb/android/libs/
-          mv ./mwebd.aar $_
-
       - name: Free Up GitHub Actions Ubuntu Runner Disk Space
         run: |
           sudo rm -rf /usr/share/dotnet
@@ -110,16 +87,27 @@ jobs:
           cd /opt/android/cake_wallet
           flutter pub get
 
-      # - name: Install Gomobile
-      #   run: |
-      #       go install golang.org/x/mobile/cmd/gomobile@latest
-      #       go install golang.org/x/mobile/cmd/gobind@latest
-      #       go get golang.org/x/mobile/cmd/gobind
-      #       go get golang.org/x/mobile/cmd/gomobile
-      #       gomobile init
-      #   env:
-      #       GOPROXY: https://proxy.golang.org,direct
-      #       GO111MODULE: "on"
+
+      - name: Install go and gomobile
+        run: |
+          # install go > 1.21:
+          wget https://go.dev/dl/go1.22.4.linux-amd64.tar.gz
+          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.22.4.linux-amd64.tar.gz
+          export PATH=$PATH:/usr/local/go/bin
+          export PATH=$PATH:~/go/bin
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          gomobile init
+
+      - name: Build mwebd
+        run: |
+          cd /opt/android/cake_wallet
+          git clone https://github.com/ltcmweb/mwebd
+          cd /opt/android/cake_wallet/mwebd
+          go get github.com/ltcmweb/mwebd/cmd/mwebd
+          go install github.com/ltcmweb/mwebd/cmd/mwebd
+          gomobile bind -target=android -androidapi 21 github.com/ltcmweb/mwebd
+          mkdir -p /opt/android/cake_wallet/cw_mweb/android/libs/
+          mv ./mwebd.aar $_
 
 
 
