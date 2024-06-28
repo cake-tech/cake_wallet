@@ -114,10 +114,10 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     late final Uint8List seedBytes;
     // electrum:
     if (validateMnemonic(mnemonic)) {
-      seedBytes = await bip39.mnemonicToSeed(mnemonic);
+      seedBytes = await mnemonicToSeedBytes(mnemonic);
       // bip39:
     } else if (bip39.validateMnemonic(mnemonic)) {
-      seedBytes = await mnemonicToSeedBytes(mnemonic);
+      seedBytes = await bip39.mnemonicToSeed(mnemonic);
     } else {
       throw Exception("Invalid mnemonic!");
     }
@@ -143,6 +143,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   }) async {
     final snp =
         await ElectrumWalletSnapshot.load(name, walletInfo.type, password, BitcoinNetwork.mainnet);
+
+    print("OPENING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     return LightningWallet(
       mnemonic: snp.mnemonic!,
       password: password,
@@ -189,8 +191,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       case "ERROR":
       case "WARN":
       case "INFO":
-      // case "DEBUG":
-      // case "TRACE":
+        // case "DEBUG":
+        // case "TRACE":
         print("BREEZ:${entry.level}: ${entry.line}");
         break;
     }
