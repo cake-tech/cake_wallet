@@ -184,7 +184,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             final confirmations = mwebUtxosHeight - transaction.height + 1;
             if (transaction.confirmations == confirmations) continue;
             transaction.confirmations = confirmations;
-            print("BEING ADDED HERE@@@@@@@@@@@@@@@@@@@@@@@4");
             transactionHistory.addOne(transaction);
           }
           await transactionHistory.save();
@@ -200,6 +199,22 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(boxName);
   }
 
+  @action
+  @override
+  Future<void> rescan({
+    required int height,
+    int? chainTip,
+    ScanData? scanData,
+    bool? doSingleScan,
+    bool? usingElectrs,
+  }) async {
+    await mwebUtxosBox.clear();
+    mwebUtxosHeight = height;
+    walletInfo.restoreHeight = height;
+    await walletInfo.save();
+    processMwebUtxos();
+  }
+
   @override
   Future<void> init() async {
     await initMwebUtxosBox();
@@ -208,9 +223,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   Future<void> processMwebUtxos() async {
     final stub = await CwMweb.stub();
     final scanSecret = mwebHd.derive(0x80000000).privKey!;
-    print("SCANNING FROM HEIGHT: ${walletInfo.restoreHeight}");
-    final req =
-        UtxosRequest(scanSecret: hex.decode(scanSecret), fromHeight: walletInfo.restoreHeight);
+    int restoreHeight = walletInfo.restoreHeight;
+    print("SCANNING FROM HEIGHT: $restoreHeight");
+    final req = UtxosRequest(scanSecret: hex.decode(scanSecret), fromHeight: restoreHeight);
     bool initDone = false;
 
     for (final utxo in mwebUtxosBox.values) {
@@ -257,7 +272,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       if (isNew) {
         final addressRecord = walletAddresses.allAddresses
-            .firstWhere((addressRecord) => addressRecord.address == utxo.address);
+            .firstWhereOrNull((addressRecord) => addressRecord.address == utxo.address);
+        if (addressRecord == null) {
+          print("addressRecord is null! TODO: handle this case 1");
+          continue;
+        }
         if (!(tx.inputAddresses?.contains(utxo.address) ?? false)) addressRecord.txCount++;
         addressRecord.balance += utxo.value.toInt();
         addressRecord.setAsUsed();
@@ -401,7 +420,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       //   print(a.address);
       // }
       if (addressRecord == null) {
-        print("addressRecord is null! TODO: handle this case");
+        print("addressRecord is null! TODO: handle this case2");
         return;
       }
       final unspent = BitcoinUnspent(
@@ -423,7 +442,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         unconfirmed += utxo.value.toInt();
       }
     });
-    print("confirmed: $confirmed, unconfirmed: $unconfirmed");
+    // print("confirmed: $confirmed, unconfirmed: $unconfirmed");
     return ElectrumBalance(confirmed: confirmed, unconfirmed: unconfirmed, frozen: balance.frozen);
   }
 
@@ -513,6 +532,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
       final tx = await super.createTransaction(credentials) as PendingBitcoinTransaction;
+
       final stub = await CwMweb.stub();
       final resp = await stub.create(CreateRequest(
         rawTx: hex.decode(tx.hex),

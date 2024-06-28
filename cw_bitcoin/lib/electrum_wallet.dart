@@ -712,26 +712,13 @@ abstract class ElectrumWalletBase
       value: BigInt.from(amountLeftForChangeAndFee),
     ));
 
-    int estimatedSize;
-    if (network is BitcoinCashNetwork) {
-      estimatedSize = ForkedTransactionBuilder.estimateTransactionSize(
-        utxos: utxoDetails.utxos,
-        outputs: outputs,
-        network: network as BitcoinCashNetwork,
-        memo: memo,
-      );
-    } else {
-      estimatedSize = BitcoinTransactionBuilder.estimateTransactionSize(
-        utxos: utxoDetails.utxos,
-        outputs: outputs,
-        network: network,
-        memo: memo,
-        inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
-        vinOutpoints: utxoDetails.vinOutpoints,
-      );
-    }
-
-    int fee = feeAmountWithFeeRate(feeRate, 0, 0, size: estimatedSize);
+    int fee = await calcFee(
+      utxos: utxoDetails.utxos,
+      outputs: outputs,
+      network: network,
+      memo: memo,
+      feeRate: feeRate,
+    );
 
     if (fee == 0) {
       throw BitcoinTransactionNoFeeException();
@@ -740,6 +727,8 @@ abstract class ElectrumWalletBase
     int amount = credentialsAmount;
     final lastOutput = outputs.last;
     final amountLeftForChange = amountLeftForChangeAndFee - fee;
+
+    print(amountLeftForChangeAndFee);
 
     if (!_isBelowDust(amountLeftForChange)) {
       // Here, lastOutput already is change, return the amount left without the fee to the user's address.
@@ -1784,18 +1773,6 @@ abstract class ElectrumWalletBase
   Future<void> updateBalance() async {
     balance[currency] = await fetchBalances();
     await save();
-  }
-
-  String getChangeAddress() {
-    const minCountOfHiddenAddresses = 5;
-    final random = Random();
-    var addresses = walletAddresses.allAddresses.where((addr) => addr.isHidden).toList();
-
-    if (addresses.length < minCountOfHiddenAddresses) {
-      addresses = walletAddresses.allAddresses.toList();
-    }
-
-    return addresses[random.nextInt(addresses.length)].address;
   }
 
   @override

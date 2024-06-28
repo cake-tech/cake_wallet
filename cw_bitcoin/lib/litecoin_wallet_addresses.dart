@@ -68,6 +68,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   @action
   @override
   Future<String> getChangeAddress() async {
+    // super.getChangeAddress();
     updateChangeAddresses();
     // this means all change addresses used will be mweb addresses!:
     await topUpMweb(0);

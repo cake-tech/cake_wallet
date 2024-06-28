@@ -32,8 +32,8 @@ class PendingBitcoinTransaction with PendingTransaction {
   final int fee;
   final String feeRate;
   final BasedUtxoNetwork? network;
-  final bool hasChange;
   final bool isSendAll;
+  final bool hasChange;
   final bool hasTaprootInputs;
   String? idOverride;
   String? hexOverride;
@@ -91,18 +91,23 @@ class PendingBitcoinTransaction with PendingTransaction {
     }
   }
 
-  @override
-  Future<void> commit() async {
-    if (network is LitecoinNetwork) try {
+  Future<void> _ltcCommit() async {
+    try {
       final stub = await CwMweb.stub();
       final resp = await stub.broadcast(BroadcastRequest(rawTx: BytesUtils.fromHexString(hex)));
       idOverride = resp.txid;
     } on GrpcError catch (e) {
       throw BitcoinTransactionCommitFailed(errorMessage: e.message);
+    }
+  }
+
+  @override
+  Future<void> commit() async {
+    if (network is LitecoinNetwork) {
+      await _ltcCommit();
     } else {
       await _commit();
     }
-
 
     _listeners.forEach((listener) => listener(transactionInfo()));
   }

@@ -16,6 +16,7 @@ class BlockchainHeightWidget extends StatefulWidget {
     this.onHeightOrDateEntered,
     this.hasDatePicker = true,
     this.isSilentPaymentsScan = false,
+    this.isMwebScan = false,
     this.toggleSingleScan,
     this.doSingleScan = false,
   }) : super(key: key);
@@ -25,6 +26,7 @@ class BlockchainHeightWidget extends StatefulWidget {
   final FocusNode? focusNode;
   final bool hasDatePicker;
   final bool isSilentPaymentsScan;
+  final bool isMwebScan;
   final bool doSingleScan;
   final Function()? toggleSingleScan;
 
@@ -157,7 +159,10 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
 
     if (date != null) {
       int height;
-      if (widget.isSilentPaymentsScan) {
+      if (widget.isMwebScan) {
+        throw UnimplementedError();
+        // height = bitcoin!.getMwebHeightByDate(date: date);
+      } else if (widget.isSilentPaymentsScan) {
         height = bitcoin!.getHeightByDate(date: date);
       } else {
         height = monero!.getHeightByDate(date: date);
