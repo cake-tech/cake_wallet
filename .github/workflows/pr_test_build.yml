@@ -88,6 +88,7 @@ jobs:
           flutter pub get
 
       - name: Install Gomobile
+        uses: actions/setup-go@v3
         run: |
             go install golang.org/x/mobile/cmd/gomobile@latest
             go install golang.org/x/mobile/cmd/gobind@latest
