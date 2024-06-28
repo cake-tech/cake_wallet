@@ -52,7 +52,7 @@ String getSeedLegacy(String? language) {
   return legacy;
 }
 
-String getAddress({int accountIndex = 0, int addressIndex = 1}) =>
+String getAddress({int accountIndex = 0, int addressIndex = 0}) =>
     monero.Wallet_address(wptr!,
         accountIndex: accountIndex, addressIndex: addressIndex);
 
@@ -112,9 +112,6 @@ void startRefreshSync() {
   monero.Wallet_startRefresh(wptr!);
 }
 
-Future<bool> connectToNode() async {
-  return true;
-}
 
 void setRefreshFromBlockHeight({required int height}) =>
     monero.Wallet_setRefreshFromBlockHeight(wptr!,
@@ -127,7 +124,7 @@ final storeMutex = Mutex();
 void storeSync() async {
   await storeMutex.acquire();
   final addr = wptr!.address;
-  Isolate.run(() {
+  await Isolate.run(() {
     monero.Wallet_store(Pointer.fromAddress(addr));
   });
   storeMutex.release();

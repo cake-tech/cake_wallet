@@ -30,7 +30,6 @@ List<Transaction> getAllTransactions() {
   return List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)));
 }
 
-// TODO(mrcyjanek): ...
 Transaction getTransaction(String txId) {
   return Transaction(txInfo: monero.TransactionHistory_transactionById(txhistory!, txid: txId));
 }
