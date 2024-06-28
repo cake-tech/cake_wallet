@@ -55,11 +55,27 @@ class CommonTestCases {
       matching: find.byType(Scrollable),
     );
 
+    final isAlreadyVisibile = isWidgetVisible(find.byKey(ValueKey(childKey)));
+
+    if (isAlreadyVisibile) return;
+
     await tester.scrollUntilVisible(
       find.byKey(ValueKey(childKey)),
       delta,
       scrollable: scrollableWidget,
     );
+  }
+
+  bool isWidgetVisible(Finder finder) {
+    try {
+      final Element element = finder.evaluate().single;
+      final RenderBox renderBox = element.renderObject as RenderBox;
+      return renderBox.paintBounds
+          .shift(renderBox.localToGlobal(Offset.zero))
+          .overlaps(tester.binding.renderViews.first.paintBounds);
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<void> enterText(String text, String editableTextKey) async {

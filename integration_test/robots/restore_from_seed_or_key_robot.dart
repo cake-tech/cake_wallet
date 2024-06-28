@@ -1,7 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/widgets/validable_annotated_editable_text.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../components/common_checks.dart';
@@ -65,7 +64,6 @@ class RestoreFromSeedOrKeysPageRobot {
 
     seedTextState.widget.controller.text = text;
     await tester.pumpAndSettle();
-    await Future.delayed(Duration(seconds: 3));
   }
 
   Future<void> onPasteSeedPhraseButtonPressed() async {
@@ -74,6 +72,6 @@ class RestoreFromSeedOrKeysPageRobot {
 
   Future<void> onRestoreWalletButtonPressed() async {
     await commonTestCases.tapItemByKey('wallet_restore_seed_or_key_restore_button_key');
-    // await commonTestCases.defaultSleepTime(seconds: 15);
+    await commonTestCases.defaultSleepTime();
   }
 }

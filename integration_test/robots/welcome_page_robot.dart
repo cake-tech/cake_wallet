@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cake_wallet/src/screens/welcome/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

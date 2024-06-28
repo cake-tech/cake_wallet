@@ -33,6 +33,10 @@ class BaseAlertDialog extends StatelessWidget {
 
   String? get headerImageUrl => null;
 
+  Key? leftActionButtonKey;
+
+  Key? rightActionButtonKey;
+
   Widget title(BuildContext context) {
     return Text(
       titleText,
@@ -87,6 +91,7 @@ class BaseAlertDialog extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: TextButton(
+                  key: leftActionButtonKey,
                   onPressed: actionLeft,
                   style: TextButton.styleFrom(
                       backgroundColor:
@@ -109,6 +114,7 @@ class BaseAlertDialog extends StatelessWidget {
             const VerticalSectionDivider(),
             Expanded(
               child: TextButton(
+                  key: rightActionButtonKey,
                   onPressed: actionRight,
                   style: TextButton.styleFrom(
                       backgroundColor:
