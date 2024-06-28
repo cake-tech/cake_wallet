@@ -165,6 +165,7 @@ jobs:
 
       - name: build mweb
         run: |
+          apt-get install -y go
           cd /opt/android/cake_wallet
           git clone https://github.com/ltcmweb/mwebd
           cd /opt/android/cake_wallet/mwebd
