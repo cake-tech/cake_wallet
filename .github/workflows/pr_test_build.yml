@@ -165,7 +165,7 @@ jobs:
 
       - name: build mweb
         run: |
-          sudo apt-get install -y go
+          sudo apt-get install -y golang-go
           cd /opt/android/cake_wallet
           git clone https://github.com/ltcmweb/mwebd
           cd /opt/android/cake_wallet/mwebd
