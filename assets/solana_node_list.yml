@@ -2,7 +2,3 @@
   uri: rpc.ankr.com
   is_default: false
   useSSL: true
--
-  uri: sol.nownodes.io
-  is_default: true
-  useSSL: true

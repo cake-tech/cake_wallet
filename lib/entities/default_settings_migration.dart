@@ -36,7 +36,7 @@ const polygonDefaultNodeUri = 'polygon-bor.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
-const solanaDefaultNodeUri = 'sol.nownodes.io';
+const solanaDefaultNodeUri = 'rpc.ankr.com';
 const tronDefaultNodeUri = 'trx.nownodes.io';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 
@@ -235,7 +235,6 @@ Future<void> defaultSettingsMigration(
           break;
         case 37:
           await replaceTronDefaultNode(sharedPreferences: sharedPreferences, nodes: nodes);
-          await replaceSolanaDefaultNode(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         case 38:
           await fixBtcDerivationPaths(walletInfoSource);
@@ -1172,27 +1171,4 @@ Future<void> replaceTronDefaultNode({
 
   // If it's not, we switch user to the new default node: NowNodes
   await changeTronCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
-}
-
-Future<void> replaceSolanaDefaultNode({
-  required SharedPreferences sharedPreferences,
-  required Box<Node> nodes,
-}) async {
-  // Get the currently active node
-  final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
-  final currentSolanaNode =
-      nodes.values.firstWhereOrNull((Node node) => node.key == currentSolanaNodeId);
-
-  //Confirm if this node is part of the default nodes from CakeWallet
-  final solanaDefaultNodeList = ['rpc.ankr.com'];
-  bool needsToBeReplaced =
-      currentSolanaNode == null ? true : solanaDefaultNodeList.contains(currentSolanaNode.uriRaw);
-
-  // If it's a custom node, return. We don't want to switch users from their custom nodes
-  if (!needsToBeReplaced) {
-    return;
-  }
-
-  // If it's not, we switch user to the new default node: NowNodes
-  await changeSolanaCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
 }

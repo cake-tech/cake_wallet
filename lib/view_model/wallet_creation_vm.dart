@@ -99,7 +99,7 @@ abstract class WalletCreationVMBase with Store {
         );
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
+        // return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
       default:
         return null;
     }

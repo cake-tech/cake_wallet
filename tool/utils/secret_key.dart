@@ -53,7 +53,6 @@ class SecretKey {
 
   static final solanaSecrets = [
     SecretKey('ankrApiKey', () => ''),
-    SecretKey('solanaNowNodesApiKey', () => ''),
   ];
 
   static final nanoSecrets = [
