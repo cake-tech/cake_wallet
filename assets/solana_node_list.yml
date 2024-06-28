@@ -1,4 +1,4 @@
 -
   uri: rpc.ankr.com
-  is_default: false
+  is_default: true
   useSSL: true
