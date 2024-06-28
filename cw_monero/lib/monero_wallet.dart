@@ -452,7 +452,7 @@ abstract class MoneroWalletBase
             monero.CoinsInfo_unlocked(coin),
           );
           if (unspent.hash.isNotEmpty) {
-            unspent.isChange = transaction_history.getTransaction(unspent.hash) == 1;
+            unspent.isChange = transaction_history.getTransaction(unspent.hash).isSpend == true;
           }
           unspentCoins.add(unspent);
         }
