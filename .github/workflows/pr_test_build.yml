@@ -96,9 +96,12 @@ jobs:
           export PATH=$PATH:/usr/local/go/bin
           export PATH=$PATH:~/go/bin
           go install golang.org/x/mobile/cmd/gomobile@latest
-          gomobile init          
-          # - name: Build mwebd
-          #   run: |
+          gomobile init
+
+      - name: Build mwebd
+        run: |
+          export PATH=$PATH:/usr/local/go/bin
+          export PATH=$PATH:~/go/bin
           cd /opt/android/cake_wallet
           git clone https://github.com/ltcmweb/mwebd
           cd /opt/android/cake_wallet/mwebd
