@@ -19,6 +19,9 @@ jobs:
       PR_NUMBER: ${{ github.event.number }}
 
     steps:
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        
       - name: is pr
         if: github.event_name == 'pull_request'
         run: echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> $GITHUB_ENV
