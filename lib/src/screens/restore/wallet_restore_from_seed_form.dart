@@ -199,6 +199,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
               key: blockchainHeightKey,
               onHeightOrDateEntered: widget.onHeightOrDateEntered,
               hasDatePicker: widget.type == WalletType.monero || widget.type == WalletType.wownero,
+              walletType: widget.type,
             ),
           if (widget.displayPassphrase) ...[
             const SizedBox(height: 10),
@@ -213,7 +214,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
 
   bool get isPolyseed =>
       widget.seedTypeViewModel.moneroSeedType == SeedType.polyseed &&
-          (widget.type == WalletType.monero || widget.type == WalletType.wownero);
+      (widget.type == WalletType.monero || widget.type == WalletType.wownero);
 
   Widget get expandIcon => Container(
         padding: EdgeInsets.all(18),

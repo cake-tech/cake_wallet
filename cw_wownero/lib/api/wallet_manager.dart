@@ -12,7 +12,7 @@ import 'package:monero/wownero.dart' as wownero;
 wownero.WalletManager? _wmPtr;
 final wownero.WalletManager wmPtr = Pointer.fromAddress((() {
   try {
-    // Problems with the wallet? Crashes? Lags? this will print all calls to xmr
+    // Problems with the wallet? Crashes? Lags? this will print all calls to wow
     // codebase, so it will be easier to debug what happens. At least easier
     // than plugging gdb in. Especially on windows/android.
     wownero.printStarts = false;

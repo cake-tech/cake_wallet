@@ -52,7 +52,7 @@ abstract class WowneroWalletBase
   WowneroWalletBase(
       {required WalletInfo walletInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo})
       : balance = ObservableMap<CryptoCurrency, WowneroBalance>.of({
-          CryptoCurrency.xmr: WowneroBalance(
+          CryptoCurrency.wow: WowneroBalance(
               fullBalance: wownero_wallet.getFullBalance(accountIndex: 0),
               unlockedBalance: wownero_wallet.getFullBalance(accountIndex: 0))
         }),
@@ -242,7 +242,7 @@ abstract class WowneroWalletBase
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
         throw WowneroTransactionCreationException(
-            'You do not have enough XMR to send this amount.');
+            'You do not have enough WOW to send this amount.');
       }
 
       final int totalAmount =
@@ -251,7 +251,7 @@ abstract class WowneroWalletBase
       final estimatedFee = calculateEstimatedFee(_credentials.priority, totalAmount);
       if (unlockedBalance < totalAmount) {
         throw WowneroTransactionCreationException(
-            'You do not have enough XMR to send this amount.');
+            'You do not have enough WOW to send this amount.');
       }
 
       if (!spendAllCoins && (allInputsAmount < totalAmount + estimatedFee)) {
