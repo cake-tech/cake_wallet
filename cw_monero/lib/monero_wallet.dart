@@ -480,6 +480,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
             monero.CoinsInfo_frozen(coin),
             monero.CoinsInfo_unlocked(coin),
           );
+          // TODO: double-check the logic here
           if (unspent.hash.isNotEmpty) {
             unspent.isChange = transaction_history.getTransaction(unspent.hash).isSpend == true;
           }
