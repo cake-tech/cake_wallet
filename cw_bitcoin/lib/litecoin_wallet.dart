@@ -217,6 +217,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<void> init() async {
+    await transactionHistory.init();
     await initMwebUtxosBox();
   }
 
