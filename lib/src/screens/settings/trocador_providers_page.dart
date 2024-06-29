@@ -1,4 +1,4 @@
-import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.dart';
@@ -15,21 +15,30 @@ class TrocadorProvidersPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final availableProviders = TrocadorExchangeProvider.availableProviders;
-    final providerStates = trocadorProvidersViewModel.providerStates;
     return Container(
       padding: EdgeInsets.only(top: 10),
-      child: ListView.builder(
-        itemCount: availableProviders.length,
-        itemBuilder: (_, index) {
-          String provider = availableProviders[index];
-          return Observer(
-              builder: (_) => SettingsSwitcherCell(
-                  title: provider,
-                  value: providerStates[provider] ?? false,
-                  onValueChange: (BuildContext _, bool value) {
-                    trocadorProvidersViewModel.toggleProviderState(provider);
-                  }));
+      child: Observer(
+        builder: (_) {
+          if (trocadorProvidersViewModel.isLoading) {
+            return Center(child: CircularProgressIndicator());
+          }
+          var providerStates = trocadorProvidersViewModel.providerStates;
+          if (providerStates.isEmpty) {
+            return Center(child: Text(S.of(context).no_providers_available));
+          }
+          return ListView.builder(
+            itemCount: providerStates.length,
+            itemBuilder: (_, index) {
+              final providerName = providerStates.keys.elementAt(index);
+              final providerEnabled = providerStates[providerName] ?? true;
+              return SettingsSwitcherCell(
+                title: providerName,
+                value: providerEnabled,
+                onValueChange: (BuildContext _, value) =>
+                    trocadorProvidersViewModel.toggleProviderState(providerName),
+              );
+            },
+          );
         },
       ),
     );
