@@ -73,7 +73,8 @@ void startCurrentWalletChangeReaction(
       if (wallet.type == WalletType.monero ||
           wallet.type == WalletType.bitcoin ||
           wallet.type == WalletType.litecoin ||
-          wallet.type == WalletType.bitcoinCash) {
+          wallet.type == WalletType.bitcoinCash ||
+          wallet.type == WalletType.lightning) {
         _setAutoGenerateSubaddressStatus(wallet, settingsStore);
       }
 

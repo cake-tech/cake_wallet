@@ -278,11 +278,15 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   bool get hasAllAmount =>
       (wallet.type == WalletType.bitcoin ||
+          wallet.type == WalletType.lightning ||
           wallet.type == WalletType.litecoin ||
           wallet.type == WalletType.bitcoinCash) &&
       depositCurrency == wallet.currency;
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
+
+  // lightning doesn't have the same concept of "addresses" (since it uses invoices)
+  bool get hasAddress => wallet.type != WalletType.lightning;
 
   bool get isLowFee {
     switch (wallet.type) {
@@ -539,6 +543,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               /// return after the first successful trade
               return;
             } catch (e) {
+              print(e);
               continue;
             }
           }
@@ -649,6 +654,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.bitcoin:
         depositCurrency = CryptoCurrency.btc;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.lightning:
+        depositCurrency = CryptoCurrency.btcln;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.litecoin:

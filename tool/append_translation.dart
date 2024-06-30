@@ -3,13 +3,14 @@ import 'utils/translation/translation_constants.dart';
 import 'utils/translation/translation_utils.dart';
 
 void main(List<String> args) async {
-  if (args.length != 2) {
+  if (args.length < 2 || args.length > 3) {
     throw Exception(
-        'Insufficient arguments!\n\nTry to run `./append_translation.dart greetings "Hello World!"`');
+        'Insufficient arguments!\n\nTry to run `./append_translation.dart greetings "Hello World!" [--force]`');
   }
 
-  final name = args.first;
-  final text = args.last;
+  final name = args[0];
+  final text = args[1];
+  final force = args.length == 3 && args[2] == '--force';
 
   print('Appending "$name": "$text"');
 
@@ -18,7 +19,7 @@ void main(List<String> args) async {
     final fileName = getArbFileName(lang);
     final translation = await getTranslation(text, lang);
 
-    appendStringToArbFile(fileName, name, translation);
+    appendStringToArbFile(fileName, name, translation, force: force);
   }
 
   print('Alphabetizing all files...');

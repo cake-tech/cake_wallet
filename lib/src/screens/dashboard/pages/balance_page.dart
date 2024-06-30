@@ -186,6 +186,20 @@ class CryptoBalanceWidget extends StatelessWidget {
                           ),
                         ],
                       )),
+            Observer(builder: (_) {
+              final serviceMessage = dashboardViewModel.serviceMessage;
+              if (serviceMessage.isEmpty) {
+                return const SizedBox();
+              }
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: DashBoardRoundedCardWidget(
+                  onTap: () => null,
+                  title: S.of(context).warning,
+                  subTitle: serviceMessage,
+                ),
+              );
+            }),
             Observer(
               builder: (_) {
                 if (dashboardViewModel.balanceViewModel.isShowCard &&

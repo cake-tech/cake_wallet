@@ -5,6 +5,7 @@ import 'utils/utils.dart';
 
 const configPath = 'tool/.secrets-config.json';
 const evmChainsConfigPath = 'tool/.evm-secrets-config.json';
+const bitcoinConfigPath = 'tool/.bitcoin-secrets-config.json';
 const solanaConfigPath = 'tool/.solana-secrets-config.json';
 const nanoConfigPath = 'tool/.nano-secrets-config.json';
 const tronConfigPath = 'tool/.tron-secrets-config.json';
@@ -21,6 +22,7 @@ Future<void> generateSecretsConfig(List<String> args) async {
 
   final configFile = File(configPath);
   final evmChainsConfigFile = File(evmChainsConfigPath);
+  final bitcoinConfigFile = File(bitcoinConfigPath);
   final solanaConfigFile = File(solanaConfigPath);
   final nanoConfigFile = File(nanoConfigPath);
   final tronConfigFile = File(tronConfigPath);
@@ -64,6 +66,17 @@ Future<void> generateSecretsConfig(List<String> args) async {
   });
   secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
   await evmChainsConfigFile.writeAsString(secretsJson);
+  secrets.clear();
+
+  // btc / lightning:
+  SecretKey.bitcoinSecrets.forEach((sec) {
+    if (secrets[sec.name] != null) {
+      return;
+    }
+    secrets[sec.name] = sec.generate();
+  });
+  secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
+  await bitcoinConfigFile.writeAsString(secretsJson);
   secrets.clear();
 
   // solana:

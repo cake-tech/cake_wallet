@@ -90,14 +90,22 @@ class ConnectionSyncPage extends BasePage {
               }),
             ],
           ],
-          SettingsCellWithArrow(
-            title: S.current.manage_nodes,
-            handler: (context) => Navigator.of(context).pushNamed(Routes.manageNodes),
+          Observer(
+            builder: (context) {
+              if (!dashboardViewModel.hasNodes) return const SizedBox();
+              return Column(
+                children: [
+                  SettingsCellWithArrow(
+                    title: S.current.manage_nodes,
+                    handler: (context) => Navigator.of(context).pushNamed(Routes.manageNodes),
+                  ),
+                ],
+              );
+            },
           ),
           Observer(
             builder: (context) {
               if (!dashboardViewModel.hasPowNodes) return const SizedBox();
-
               return Column(
                 children: [
                   SettingsCellWithArrow(

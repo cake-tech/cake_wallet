@@ -32,4 +32,3 @@ source ./app_env.sh cakewallet
 cd ../.. && flutter pub get
 #flutter packages pub run tool/generate_localization.dart
 ./model_generator.sh
-#cd macos && pod install
