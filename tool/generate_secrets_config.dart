@@ -63,8 +63,7 @@ Future<void> generateSecretsConfig(List<String> args) async {
   }
   
   await writeConfig(baseConfigFile, SecretKey.base, existingSecrets: secrets);
-
-
+  
   await writeConfig(coreConfigFile, SecretKey.coreSecrets);
   await writeConfig(evmChainsConfigFile, SecretKey.evmChainsSecrets);
   await writeConfig(solanaConfigFile, SecretKey.solanaSecrets);

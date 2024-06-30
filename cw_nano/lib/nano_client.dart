@@ -11,7 +11,6 @@ import 'package:cw_core/node.dart';
 import 'package:nanoutil/nanoutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_nano/.secrets.g.dart' as nano_secrets;
-import 'package:cw_core/.secrets.g.dart' as secrets;
 
 class NanoClient {
   static const Map<String, String> CAKE_HEADERS = {
@@ -60,7 +59,7 @@ class NanoClient {
       headers["key"] = nano_secrets.nano2ApiKey;
     }
     if (_node!.uri.host == "nano.nownodes.io") {
-      headers["api-key"] = secrets.nowNodesApiKey;
+      headers["api-key"] = nano_secrets.nanoNowNodesApiKey;
     }
     return headers;
   }

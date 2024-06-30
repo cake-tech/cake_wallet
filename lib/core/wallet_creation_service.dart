@@ -1,8 +1,8 @@
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/core/key_service.dart';
@@ -25,7 +25,7 @@ class WalletCreationService {
   }
 
   WalletType type;
-  final FlutterSecureStorage secureStorage;
+  final SecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
   final SettingsStore settingsStore;
   final KeyService keyService;
@@ -58,7 +58,7 @@ class WalletCreationService {
     checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
-    if (type == WalletType.bitcoinCash || type == WalletType.ethereum) {
+    if (_hasSeedPhraseLengthOption) {
       credentials.seedPhraseLength = settingsStore.seedPhraseLength.value;
     }
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);
@@ -70,6 +70,25 @@ class WalletCreationService {
     }
 
     return wallet;
+  }
+
+  bool get _hasSeedPhraseLengthOption {
+    switch (type) {
+      case WalletType.ethereum:
+      case WalletType.bitcoinCash:
+      case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.tron:
+        return true;
+      case WalletType.monero:
+      case WalletType.none:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.haven:
+      case WalletType.nano:
+      case WalletType.banano:
+        return false;
+    }
   }
 
   Future<WalletBase> restoreFromKeys(WalletCredentials credentials, {bool? isTestnet}) async {

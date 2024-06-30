@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/routes.dart';
@@ -7,14 +9,13 @@ import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
-import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class SecurityBackupPage extends BasePage {
-  SecurityBackupPage(this._securitySettingsViewModel, this._authService);
+  SecurityBackupPage(this._securitySettingsViewModel, this._authService, [this._isHardwareWallet = false]);
 
   final AuthService _authService;
 
@@ -23,20 +24,23 @@ class SecurityBackupPage extends BasePage {
 
   final SecuritySettingsViewModel _securitySettingsViewModel;
 
+  final bool _isHardwareWallet;
+
   @override
   Widget body(BuildContext context) {
     return Container(
         padding: EdgeInsets.only(top: 10),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          SettingsCellWithArrow(
-            title: S.current.show_keys,
-            handler: (_) => _authService.authenticateAction(
-              context,
-              route: Routes.showKeys,
-              conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                  .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+          if (!_isHardwareWallet)
+            SettingsCellWithArrow(
+              title: S.current.show_keys,
+              handler: (_) => _authService.authenticateAction(
+                context,
+                route: Routes.showKeys,
+                conditionToDetermineIfToUse2FA:
+                    _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+              ),
             ),
-          ),
           SettingsCellWithArrow(
             title: S.current.create_backup,
             handler: (_) => _authService.authenticateAction(
@@ -58,7 +62,7 @@ class SecurityBackupPage extends BasePage {
                   .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
             ),
           ),
-          if (DeviceInfo.instance.isMobile)
+          if (DeviceInfo.instance.isMobile || Platform.isMacOS || Platform.isLinux)
             Observer(builder: (_) {
               return SettingsSwitcherCell(
                   title: S.current.settings_allow_biometrical_authentication,

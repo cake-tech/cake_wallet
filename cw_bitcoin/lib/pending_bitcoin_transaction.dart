@@ -73,6 +73,11 @@ class PendingBitcoinTransaction with PendingTransaction {
         if (error.contains("bad-txns-vout-negative")) {
           throw BitcoinTransactionCommitFailedVoutNegative();
         }
+
+        if (error.contains("non-BIP68-final")) {
+          throw BitcoinTransactionCommitFailedBIP68Final();
+        }
+
         throw BitcoinTransactionCommitFailed(errorMessage: error);
       }
 
