@@ -4,15 +4,17 @@ set -x -e
 cd "$(dirname "$0")"
 
 NPROC="-j$(sysctl -n hw.logicalcpu)"
-LIBS=""
+MONERO_LIBS=""
+WOWNERO_LIBS=""
 MONEROC_RELEASE_DIR="../monero_c/release/monero"
+WOWNEROC_RELEASE_DIR="../monero_c/release/wownero"
 
 ../prepare_moneroc.sh
 
 # NOTE: -j1 is intentional. Otherwise you will run into weird behaviour on macos
 if [[ ! "x$USE_DOCKER" == "x" ]];
 then
-    for COIN in monero;
+    for COIN in monero wownero;
     do
         pushd ../monero_c
             echo "unsupported!"
@@ -25,7 +27,7 @@ else
     else
 	ARCHS=$(uname -m)
     fi
-    for COIN in monero;
+    for COIN in monero wownero;
     do
 	for ARCH in "${ARCHS[@]}";
 	do
@@ -37,7 +39,8 @@ else
 		HOST="${ARCH}-host-apple-darwin"
 	    fi
 
-	    LIBS="${LIBS} -arch ${ARCH} ${MONEROC_RELEASE_DIR}/${HOST}_libwallet2_api_c.dylib"
+	    MONERO_LIBS=" -arch ${ARCH} ${MONEROC_RELEASE_DIR}/${HOST}_libwallet2_api_c.dylib"
+	    WOWNERO_LIBS=" -arch ${ARCH} ${WOWNEROC_RELEASE_DIR}/${HOST}_libwallet2_api_c.dylib"
 
 	    if [[ ! $(uname -m) == $ARCH ]]; then
 		PRC="arch -${ARCH}"
@@ -45,11 +48,12 @@ else
 
             pushd ../monero_c
             $PRC ./build_single.sh ${COIN} ${HOST} $NPROC
-	    unxz -f ./release/monero/${HOST}_libwallet2_api_c.dylib.xz
+	    unxz -f ./release/${COIN}/${HOST}_libwallet2_api_c.dylib.xz
 
             popd
 	 done
     done
 fi
 
-lipo -create ${LIBS} -output "${MONEROC_RELEASE_DIR}/host-apple-darwin_libwallet2_api_c.dylib"
+lipo -create ${MONERO_LIBS} -output "${MONEROC_RELEASE_DIR}/host-apple-darwin_libwallet2_api_c.dylib"
+lipo -create ${WOWNERO_LIBS} -output "${WOWNEROC_RELEASE_DIR}/host-apple-darwin_libwallet2_api_c.dylib"
