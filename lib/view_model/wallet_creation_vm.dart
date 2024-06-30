@@ -44,7 +44,8 @@ abstract class WalletCreationVMBase with Store {
   final AppStore _appStore;
 
   bool isPolyseed(String seed) =>
-      (type == WalletType.monero || type == WalletType.wownero) && Polyseed.isValidSeed(seed);
+      (type == WalletType.monero || type == WalletType.wownero) &&
+      (Polyseed.isValidSeed(seed) || (seed.split(" ").length == 14));
 
   bool nameExists(String name) => walletCreationService.exists(name);
 

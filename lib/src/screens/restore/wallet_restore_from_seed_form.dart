@@ -90,6 +90,10 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
       _changeSeedType(SeedType.polyseed);
       _changeLanguage(lang.nameEnglish);
     }
+    if (widget.type == WalletType.wownero && seed.split(" ").length == 14) {
+      _changeSeedType(SeedType.wowneroSeed);
+      _changeLanguage("English");
+    }
     widget.onSeedChange?.call(seed);
   }
 
@@ -149,8 +153,20 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 await showPopUp<void>(
                     context: context,
                     builder: (_) => Picker(
-                          items: SeedType.all,
-                          selectedAtIndex: isPolyseed ? 1 : 0,
+                          items: switch (widget.type) {
+                            WalletType.monero => [SeedType.legacy, SeedType.polyseed],
+                            WalletType.wownero => [
+                                SeedType.legacy,
+                                SeedType.polyseed,
+                                SeedType.wowneroSeed
+                              ],
+                            _ => [SeedType.legacy]
+                          },
+                          selectedAtIndex: isPolyseed
+                              ? 1
+                              : seedTypeController.value.text.contains("14")
+                                  ? 2
+                                  : 0,
                           mainAxisAlignment: MainAxisAlignment.start,
                           onItemSelected: _changeSeedType,
                           isSeparated: false,
@@ -193,7 +209,9 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 ),
               ),
             ),
-          if (!isPolyseed && widget.displayBlockHeightSelector)
+          if ((!isPolyseed) &&
+              widget.displayBlockHeightSelector &&
+              (widget.type == WalletType.wownero && !seedTypeController.value.text.contains("14")))
             BlockchainHeightWidget(
               focusNode: widget.blockHeightFocusNode,
               key: blockchainHeightKey,

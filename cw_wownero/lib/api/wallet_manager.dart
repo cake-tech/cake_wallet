@@ -53,15 +53,28 @@ void restoreWalletFromSeedSync(
     required String seed,
     int nettype = 0,
     int restoreHeight = 0}) {
-  wptr = wownero.WalletManager_recoveryWallet(
-    wmPtr,
-    path: path,
-    password: password,
-    mnemonic: seed,
-    restoreHeight: restoreHeight,
-    seedOffset: '',
-    networkType: 0,
-  );
+  if (seed.split(" ").length == 14) {
+    wptr = wownero.WOWNERO_deprecated_restore14WordSeed(
+      path: path,
+      password: password,
+      language: seed, // I KNOW - this is supposed to be called seed
+      networkType: 0,
+    );
+
+    setRefreshFromBlockHeight(
+      height: wownero.WOWNERO_deprecated_14WordSeedHeight(seed: seed),
+    );
+  } else {
+    wptr = wownero.WalletManager_recoveryWallet(
+      wmPtr,
+      path: path,
+      password: password,
+      mnemonic: seed,
+      restoreHeight: restoreHeight,
+      seedOffset: '',
+      networkType: 0,
+    );
+  }
 
   final status = wownero.Wallet_status(wptr!);
 
