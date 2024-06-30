@@ -170,6 +170,10 @@ class CWWownero extends Wownero {
       final lang = language.replaceAll("POLYSEED_", "");
       return PolyseedLang.getByEnglishName(lang).words;
     }
+    if (language.startsWith("WOWSEED_")) {
+      final lang = language.replaceAll("WOWSEED_", "");
+      return PolyseedLang.getByEnglishName(lang).words;
+    }
     switch (language.toLowerCase()) {
       case 'english':
         return EnglishMnemonics.words;
@@ -224,13 +228,13 @@ class CWWownero extends Wownero {
           name: name, password: password, height: height, mnemonic: mnemonic);
 
   @override
-  WalletCredentials createWowneroNewWalletCredentials({
-    required String name,
-    required String language,
-    required bool isPolyseed,
-    String? password}) =>
+  WalletCredentials createWowneroNewWalletCredentials(
+          {required String name,
+          required String language,
+          required bool isPolyseed,
+          String? password}) =>
       WowneroNewWalletCredentials(
-        name: name, password: password, language: language, isPolyseed: isPolyseed);
+          name: name, password: password, language: language, isPolyseed: isPolyseed);
 
   @override
   Map<String, String> getKeys(Object wallet) {

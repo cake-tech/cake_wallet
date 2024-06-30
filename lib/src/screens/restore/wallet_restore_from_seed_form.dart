@@ -185,7 +185,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 ),
               ),
             ),
-          if (widget.displayLanguageSelector)
+          if (!seedTypeController.value.text.contains("14") && widget.displayLanguageSelector)
             GestureDetector(
               onTap: () async {
                 await showPopUp<void>(
@@ -246,7 +246,11 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
       );
 
   void _changeLanguage(String language) {
-    final setLang = isPolyseed ? "POLYSEED_$language" : language;
+    final setLang = isPolyseed
+        ? "POLYSEED_$language"
+        : seedTypeController.value.text.contains("14")
+            ? "WOWSEED_" + language
+            : language;
     setState(() {
       this.language = setLang;
       seedWidgetStateKey.currentState!.changeSeedLanguage(setLang);
