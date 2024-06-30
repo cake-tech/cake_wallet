@@ -209,9 +209,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 ),
               ),
             ),
-          if ((!isPolyseed) &&
-              widget.displayBlockHeightSelector &&
-              (widget.type == WalletType.wownero && !seedTypeController.value.text.contains("14")))
+          if ((!isPolyseed) && widget.displayBlockHeightSelector)
             BlockchainHeightWidget(
               focusNode: widget.blockHeightFocusNode,
               key: blockchainHeightKey,

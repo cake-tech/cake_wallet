@@ -10,7 +10,7 @@ class SeedType extends EnumerableItem<int> with Serializable<int> {
 
   static const legacy = SeedType(raw: 0, title: 'Legacy (25 words)');
   static const polyseed = SeedType(raw: 1, title: 'Polyseed (16 words)');
-  static const wowneroSeed = SeedType(raw: 1, title: 'Wownero (14 words)');
+  static const wowneroSeed = SeedType(raw: 2, title: 'Wownero (14 words)');
 
   static SeedType deserialize({required int raw}) {
     switch (raw) {
