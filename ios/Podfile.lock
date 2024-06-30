@@ -4,6 +4,8 @@ PODS:
     - MTBBarcodeScanner
     - SwiftProtobuf
   - BigInt (5.2.0)
+  - breez_sdk (0.4.3-rc1):
+    - Flutter
   - connectivity_plus (0.0.1):
     - Flutter
     - ReachabilitySwift
@@ -113,6 +115,7 @@ PODS:
 
 DEPENDENCIES:
   - barcode_scan2 (from `.symlinks/plugins/barcode_scan2/ios`)
+  - breez_sdk (from `.symlinks/plugins/breez_sdk/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - CryptoSwift
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
@@ -160,6 +163,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   barcode_scan2:
     :path: ".symlinks/plugins/barcode_scan2/ios"
+  breez_sdk:
+    :path: ".symlinks/plugins/breez_sdk/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
   device_display_brightness:
@@ -214,6 +219,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   barcode_scan2: 0af2bb63c81b4565aab6cd78278e4c0fa136dbb0
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
+  breez_sdk: b5ce273108c74cd3067e5bfe9b998068174064e4
   connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
   CryptoSwift: b9c701d6f5011df23794dbf7f2e480a77835d83d
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7

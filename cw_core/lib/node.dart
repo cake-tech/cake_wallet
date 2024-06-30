@@ -98,6 +98,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.tron:
         return Uri.https(uriRaw, path ?? '');
       case WalletType.none:
+      case WalletType.lightning:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
   }
@@ -158,6 +159,7 @@ class Node extends HiveObject with Keyable {
         case WalletType.tron:
           return requestElectrumServer();
         case WalletType.none:
+        case WalletType.lightning:
           return false;
       }
     } catch (_) {
@@ -233,7 +235,7 @@ class Node extends HiveObject with Keyable {
     if (proxy == null) {
       return false;
     }
-    final proxyAddress = proxy!.split(':')[0];
+    final proxyAddress = proxy.split(':')[0];
     final proxyPort = int.parse(proxy.split(':')[1]);
     try {
       final socket = await Socket.connect(proxyAddress, proxyPort, timeout: Duration(seconds: 5));

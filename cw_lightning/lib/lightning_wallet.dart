@@ -24,7 +24,6 @@ import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:cw_lightning/.secrets.g.dart' as secrets;
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -399,7 +398,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     // balance is updated automatically
   }
 
-  @override
   String mnemonic;
 
   @override

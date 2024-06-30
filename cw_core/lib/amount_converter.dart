@@ -6,7 +6,6 @@ class AmountConverter {
   static const _moneroAmountDivider = 1000000000000;
   static const _wowneroAmountLength = 11;
   static const _wowneroAmountDivider = 100000000000;
-  static const _ethereumAmountDivider = 1000000000000000000;
   static const _bitcoinAmountDivider = 100000000;
   static const _bitcoinAmountLength = 8;
   static final _bitcoinAmountFormat = NumberFormat()
@@ -91,4 +90,7 @@ class AmountConverter {
 
   static String _wowneroAmountToString(int amount) => _wowneroAmountFormat
       .format(cryptoAmountToDouble(amount: amount, divider: _wowneroAmountDivider));
+
+  static int _moneroParseAmount(String amount) =>
+      _moneroAmountFormat.parse(amount).toInt();
 }

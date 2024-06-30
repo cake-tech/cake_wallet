@@ -1,2 +1,3 @@
-Monero enhancements
-Bug fixes
+Bitcoin Lightning with Breez
+Add Wownero wallet
+Monero fixes and enhancements

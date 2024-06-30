@@ -178,6 +178,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.wownero:
         return 'https://explore.wownero.com/tx/${txId}';
       case WalletType.none:
+      case WalletType.lightning:
         return '';
     }
   }
@@ -208,6 +209,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.wownero:
         return S.current.view_transaction_on + 'Wownero.com';
       case WalletType.none:
+      case WalletType.lightning:
         return '';
     }
   }
