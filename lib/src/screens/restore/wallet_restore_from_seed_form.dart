@@ -153,15 +153,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 await showPopUp<void>(
                     context: context,
                     builder: (_) => Picker(
-                          items: switch (widget.type) {
-                            WalletType.monero => [SeedType.legacy, SeedType.polyseed],
-                            WalletType.wownero => [
-                                SeedType.legacy,
-                                SeedType.polyseed,
-                                SeedType.wowneroSeed
-                              ],
-                            _ => [SeedType.legacy]
-                          },
+                          items: _getItems(),
                           selectedAtIndex: isPolyseed
                               ? 1
                               : seedTypeController.value.text.contains("14")
@@ -268,5 +260,16 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
 
   void _setSeedType(SeedType item) {
     seedTypeController.text = item.toString();
+  }
+
+  List<SeedType> _getItems() {
+    switch (widget.type) {
+      case WalletType.monero:
+        return [SeedType.legacy, SeedType.polyseed];
+      case WalletType.wownero:
+        return [SeedType.legacy, SeedType.polyseed, SeedType.wowneroSeed];
+      default:
+        return [SeedType.legacy];
+    }
   }
 }
