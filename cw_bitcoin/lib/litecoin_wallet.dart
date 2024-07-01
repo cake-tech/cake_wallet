@@ -209,10 +209,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     bool? usingElectrs,
   }) async {
     await mwebUtxosBox.clear();
+    transactionHistory.clear();
     mwebUtxosHeight = height;
     walletInfo.restoreHeight = height;
     await walletInfo.save();
-    processMwebUtxos();
+    // processMwebUtxos();
+    await startSync();
   }
 
   @override
